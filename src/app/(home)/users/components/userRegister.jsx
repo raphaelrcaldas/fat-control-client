@@ -7,6 +7,7 @@ import { useState } from "react";
 import { HiMail } from "react-icons/hi";
 import { addUserAPI } from "../../../../../services/api/users";
 import pgs from "../../../../../public/infoFAB/infoPGs";
+import { validateNoNumber, validateOnlyNumber, cleanText } from "../../../../../utils/textFormat";
 
 
 export default function UserRegister({ action }) {
@@ -59,11 +60,11 @@ export default function UserRegister({ action }) {
       nome_guerra: cleanText(nomeGuerra), // obrigatório
       nome_completo: cleanText(nomeCompleto),
       esp: esp,
-      id_fab: idfab != '' ? idfab : null, // API só aceita INT ou None
+      id_fab: idfab ? idfab : null, // API só aceita INT ou None
       saram: parseInt(saram), // obrigatório - API só aceita INT
       cpf: cpf,
-      ult_promo: promo,
-      nasc: nasc,
+      ult_promo: promo ? promo : null,
+      nasc: nasc ? nasc : null,
       email_pess: emailPes.trim(),
       email_fab: emailFAB.trim(),
       unidade: unidade // obrigatório
@@ -84,27 +85,6 @@ export default function UserRegister({ action }) {
 
     // encerrar spinner
     setMessageModal(true);
-  }
-
-  function ValidateOnlyNumber(event) {
-    if (!/[0-9]/.test(event.key)) {
-      event.preventDefault();
-    }
-  }
-
-  function ValidateNoNumber(event) {
-    if (/[0-9]/.test(event.key)) {
-      event.preventDefault();
-    }
-  }
-
-  function cleanText(text) {
-    let value = text.trim();
-    value = value.toLowerCase();
-    value = value.replace("   ", " ");
-    value = value.replace("  ", " ");
-
-    return value;
   }
 
 
@@ -158,7 +138,7 @@ export default function UserRegister({ action }) {
                     onChange={(event) => setNomeGuerra(event.target.value)}
                     value={nomeGuerra}
                     required
-                    onKeyPress={(event) => ValidateNoNumber(event)}
+                    onKeyPress={(event) => validateNoNumber(event)}
                   />
                 </div>
 
@@ -174,7 +154,7 @@ export default function UserRegister({ action }) {
                     value={nomeCompleto}
                     onChange={(event) => setNomeCompleto(event.target.value)}
                     autoComplete="off"
-                    onKeyPress={(event) => ValidateNoNumber(event)}
+                    onKeyPress={(event) => validateNoNumber(event)}
                   />
                 </div>
 
@@ -212,7 +192,7 @@ export default function UserRegister({ action }) {
                     minLength="7"
                     value={saram}
                     onChange={(event) => setSaram(event.target.value)}
-                    onKeyPress={(event) => ValidateOnlyNumber(event)}
+                    onKeyPress={(event) => validateOnlyNumber(event)}
                   />
                 </div>
 
@@ -226,7 +206,7 @@ export default function UserRegister({ action }) {
                     minLength="6"
                     value={idfab}
                     onChange={(event) => setIdfab(event.target.value)}
-                    onKeyPress={(event) => { ValidateOnlyNumber(event) }}
+                    onKeyPress={(event) => { validateOnlyNumber(event) }}
                   />
                 </div>
 
@@ -240,7 +220,7 @@ export default function UserRegister({ action }) {
                     minLength="11"
                     value={cpf}
                     onChange={(event) => setCPF(event.target.value)}
-                    onKeyPress={(event) => { ValidateOnlyNumber(event) }}
+                    onKeyPress={(event) => { validateOnlyNumber(event) }}
                   />
                 </div>
 

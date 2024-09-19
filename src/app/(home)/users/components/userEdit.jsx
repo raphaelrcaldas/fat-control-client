@@ -26,7 +26,6 @@ export default function UserEdit({ user_id }) {
   const [promo, setPromo] = useState('');
 
   function onOpenDetail() {
-
     getUserById(user).then(res => res.json())
       .then(data => {
         console.log(data)
@@ -39,14 +38,13 @@ export default function UserEdit({ user_id }) {
         setIdFAB(data.id_fab)
         setCPF(data.cpf)
         setZimbra(data.email_fab)
-        setEmail(data.email)
+        setEmail(data.email_pess)
         setNasc(data.nasc)
         setPromo(data.ult_promo)
 
         setShowModal(true)
       }
       );
-
   }
 
 

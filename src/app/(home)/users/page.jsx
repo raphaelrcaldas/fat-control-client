@@ -5,45 +5,22 @@ import { useState, useEffect } from "react";
 import BadgeUAE from "../components/badgeUae";
 import pgs from "../../../../public/infoFAB/infoPGs";
 import { getUsersAPI } from "../../../../services/api/users";
-import UserTableRow from "./components/userTableRow";
-import { Skeleton } from "@mui/material";
+import { SkeletonRow, UserRow } from "./components/tableRow";
 import UserRegister from "./components/userRegister";
 import UserEdit from "./components/userEdit";
 
-const initUsers = []
-for (let i = 0; i < 9; i++) {
-    initUsers.push(
-        <UserTableRow
-            key={i}
-            pg={<Skeleton />}
-            esp={<Skeleton />}
-            guerra={<Skeleton width={100} />}
-            completo={<Skeleton width={410} />}
-            unidade={<Skeleton width={50} />}
-            detalhes={<Skeleton width={50} />}
-        />
-    )
-}
+
+const listUsers = Array(10).fill(0).map((_, i) => <SkeletonRow key={i} />)
 
 function UsersPage() {
-    const [usuarios, setUsuarios] = useState(initUsers);
+    const [usuarios, setUsuarios] = useState(listUsers);
 
     useEffect(() => {
         getUsersAPI()
             .then(res => res.json())
             .then(users => {
                 const fetchUsers = users.data.map((user) => {
-                    return (
-                        <UserTableRow
-                            key={user.id}
-                            pg={pgs[user.p_g].pg.mid}
-                            esp={user.esp.toUpperCase()}
-                            guerra={user.nome_guerra.toUpperCase()}
-                            completo={user.nome_completo.toLocaleUpperCase()}
-                            unidade={<BadgeUAE>{user.unidade}</BadgeUAE>}
-                            detalhes={<UserEdit user_id={user.id}/>}
-                        />
-                    )
+                    return <UserRow key={user.id} user={user} />
                 })
 
                 setUsuarios(fetchUsers);
@@ -52,16 +29,7 @@ function UsersPage() {
 
 
     function addUserToTable(user) {
-        user = <UserTableRow
-            key={user.id}
-            pg={pgs[user.p_g].pg.mid}
-            esp={user.esp.toUpperCase()}
-            guerra={user.nome_guerra.toUpperCase()}
-            completo={user.nome_completo.toLocaleUpperCase()}
-            unidade={<BadgeUAE>{user.unidade}</BadgeUAE>}
-            detalhes={"Detalhes"}
-            user_id={user.id}
-        />
+        user = <UserRow user={user} />
 
         setUsuarios([...usuarios, user])
     }
