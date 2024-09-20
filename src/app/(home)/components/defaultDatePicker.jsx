@@ -2,27 +2,29 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers'
 import { ptBR } from '@mui/x-date-pickers/locales';
 import 'dayjs/locale/pt-br';
+import dayjs from 'dayjs';
 
 const brazilLocal = ptBR.components.MuiLocalizationProvider.defaultProps.localeText;
-const format = "YYYY-MM-DD";
 
-
-export default function DefaultDatePicker({ setParent }) {
-    function setDate(dateObject){
-        if (dateObject && dateObject.isValid()){
-            const value = dateObject.format(format);
-            setParent(value);
+export default function DefaultDatePicker({ callFunc, value }) {
+    function setDate(dateObject) {
+        if (dateObject && dateObject.isValid()) {
+            const value = dateObject.format("YYYY-MM-DD");
+            callFunc(value);
         }
-        else{
-            setParent(null);
+        else {
+            callFunc(null);
         }
     }
-    
-    
+
     return (
         <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="pt-br" localeText={brazilLocal}>
 
-            <DatePicker format="DD/MM/YYYY" onChange={(object) => setDate(object)}/>
+            <DatePicker
+                format="DD/MM/YYYY"
+                defaultValue={value ? dayjs(value) : null}
+                onChange={(object) => setDate(object)}
+            />
 
         </LocalizationProvider>
     )

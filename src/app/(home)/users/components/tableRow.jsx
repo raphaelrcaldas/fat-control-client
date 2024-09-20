@@ -2,8 +2,7 @@ import { Table } from "flowbite-react"
 import { Skeleton } from "@mui/material"
 import pgs from "../../../../../public/infoFAB/infoPGs"
 import BadgeUAE from "../../components/badgeUae"
-import UserEdit from "./userEdit"
-import { UserDetailForm } from "./userForm"
+import { UserDetail } from "./userForm"
 
 function TableRow({ pg, esp, guerra, completo, unidade, detalhes }) {
 
@@ -41,7 +40,7 @@ export function UserRow({ user }) {
             guerra={user.nome_guerra.toUpperCase()}
             completo={user.nome_completo.toUpperCase()}
             unidade={<BadgeUAE>{user.unidade}</BadgeUAE>}
-            detalhes={<UserDetailForm user_id={user.id} />}
+            detalhes={<UserDetail user_id={user.id} />}
         />
     )
 }

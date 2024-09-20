@@ -6,16 +6,17 @@ import BadgeUAE from "../components/badgeUae";
 import pgs from "../../../../public/infoFAB/infoPGs";
 import { getUsersAPI } from "../../../../services/api/users";
 import { SkeletonRow, UserRow } from "./components/tableRow";
-import UserRegister from "./components/userRegister";
-import UserEdit from "./components/userEdit";
-
+import { UserRegister } from "./components/userForm";
 
 const listUsers = Array(10).fill(0).map((_, i) => <SkeletonRow key={i} />)
+
+
+
 
 function UsersPage() {
     const [usuarios, setUsuarios] = useState(listUsers);
 
-    useEffect(() => {
+    function updateListUsers() {
         getUsersAPI()
             .then(res => res.json())
             .then(users => {
@@ -25,20 +26,16 @@ function UsersPage() {
 
                 setUsuarios(fetchUsers);
             })
-    }, [])
-
-
-    function addUserToTable(user) {
-        user = <UserRow user={user} />
-
-        setUsuarios([...usuarios, user])
     }
+
+
+    useEffect(() => { updateListUsers() }, [])
 
 
     return (
         <>
             <div className="mb-4">
-                <UserRegister action={{ addUserToTable }} />
+                <UserRegister afterAdd={updateListUsers} />
             </div>
 
             <div className="overflow-x-auto relative shadow-md sm:rounded-lg">
