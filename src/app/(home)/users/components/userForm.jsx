@@ -9,6 +9,7 @@ import unidades_bagl from "../../../../../public/infoFAB/infoOMs";
 import { SelectPostoGrad, SelectOMs, InputEsp, InputNome, InputNumeric, InputEmail } from "../../components/inputForm";
 import { cleanText } from "../../../../../utils/textFormat";
 import DefaultDatePicker from "../../components/defaultDatePicker";
+import dayjs from "dayjs";
 
 function UserForm({
     title,
@@ -46,13 +47,13 @@ function UserForm({
                     </div>
                 </div>
 
-                <div className="flex justify-start">
+                <div className="flex justify-between">
                     <div className="w-72">
                         <Label className="mb-2 block" value="Nome completo" />
                         {nomeCompleto}
                     </div>
 
-                    <div className="mx-4">
+                    <div className="mx-8">
                         <Label className="mb-2 block" value="Unidade" />
                         {unidade}
                     </div>
@@ -76,15 +77,14 @@ function UserForm({
 
                 </div>
 
-                <div className="flex justify-between">
-                    <div className="w-52">
-                        <Label className="mb-2 block" value="Zimbra" />
-                        {zimbra}
-                    </div>
-                    <div className="w-52">
-                        <Label className="mb-2 block" value="Email particular" />
-                        {email_pess}
-                    </div>
+                <div>
+                    <Label className="mb-2 block" value="Zimbra" />
+                    {zimbra}
+                </div>
+
+                <div>
+                    <Label className="mb-2 block" value="Email particular" />
+                    {email_pess}
                 </div>
 
                 <div className="flex justify-between">
@@ -108,6 +108,9 @@ function UserForm({
 export function UserDetail({ user_id }) {
     const [show, setShow] = useState(false);
     const [editMode, setEditMode] = useState(false);
+    const [msgToModal, setMsgToModal] = useState('');
+    const [typeMsgModal, setTypeMsgModal] = useState('success');
+    const [messageModal, setMessageModal] = useState(false);
 
     const [userId, setUser] = useState(user_id);
 
@@ -157,18 +160,28 @@ export function UserDetail({ user_id }) {
             id_fab: idFAB,
             saram: saram,
             cpf: cpf,
-            ult_promo: promo ? promo : null,
-            nasc: nasc ? nasc : null,
-            email_pess: cleanText(emailPes),
-            email_fab: cleanText(emailFAB),
+            ult_promo: promo,
+            nasc: nasc,
+            email_pess: cleanText(email),
+            email_fab: cleanText(zimbra),
         };
 
         const response = await updateUser(userId, user);
         const dataRes = await response.json();
-        // chamar API
 
+        console.log(dataRes);
 
-        setEditMode(false);
+        if (response.ok) {
+            setTypeMsgModal('success');
+            setMsgToModal("Atualizado com sucesso");
+            setEditMode(false);
+
+        } else {
+            setMsgToModal(dataRes.detail);
+            setTypeMsgModal('failure')
+        }
+
+        setMessageModal(true);
     }
 
     function filterTxt(string) {
@@ -180,11 +193,11 @@ export function UserDetail({ user_id }) {
     }
 
 
-    function dateForm(dateStr) {
-        // 2018-05-25
-        if (dateStr) {
-            const [a, m, d] = dateStr.split("-");
-            return `${d}/${m}/${a}`
+    function dateForm(dateObj) {
+        if (dateObj) {
+            return dayjs(dateObj).format('DD/MM/YYYY');
+        } else {
+            return 'NIL'
         }
     }
 
@@ -238,10 +251,10 @@ export function UserDetail({ user_id }) {
                                     editMode ? <InputEmail callFunc={setEmail} value={email} /> : filterTxt(email)
                                 }
                                 nasc={
-                                    editMode ? <DefaultDatePicker callFunc={setNasc} value={nasc} /> : filterTxt(dateForm(nasc))
+                                    editMode ? <DefaultDatePicker callFunc={setNasc} defaultValue={nasc} /> : dateForm(nasc)
                                 }
                                 promo={
-                                    editMode ? <DefaultDatePicker callFunc={setPromo} value={promo} /> : filterTxt(dateForm(promo))
+                                    editMode ? <DefaultDatePicker callFunc={setPromo} defaultValue={promo} /> : dateForm(promo)
                                 }
                             />
 
@@ -254,6 +267,7 @@ export function UserDetail({ user_id }) {
                     <Modal.Footer className={(editMode ? "hidden " : "") + "justify-center"}>
                         <Button className="w-40" onClick={() => setEditMode(true)}>Editar</Button>
                     </Modal.Footer>
+                    <MessageModal active={messageModal} callFunc={setMessageModal} msg={msgToModal} typeMsg={typeMsgModal} />
                 </Modal>
             }
 
@@ -294,10 +308,8 @@ export function UserRegister({ afterAdd }) {
         setCPF('');
         setEmailFAB('');
         setEmailPes('');
-        setNasc('');
-        setPromo('');
-
-
+        setNasc(null);
+        setPromo(null);
     }
 
     function onCloseModal() {
@@ -318,8 +330,8 @@ export function UserRegister({ afterAdd }) {
             id_fab: idfab, // API só aceita INT ou None
             saram: saram, // obrigatório - API só aceita INT
             cpf: cpf,
-            ult_promo: promo ? promo : null,
-            nasc: nasc ? nasc : null,
+            ult_promo: promo,
+            nasc: nasc,
             email_pess: cleanText(emailPes),
             email_fab: cleanText(emailFAB),
         }
@@ -384,10 +396,10 @@ export function UserRegister({ afterAdd }) {
                                     <InputEmail callFunc={setEmailPes} value={emailPes} placeholder={"fulano@exemplo.com"} />
                                 }
                                 nasc={
-                                    <DefaultDatePicker callFunc={setNasc} value={nasc} />
+                                    <DefaultDatePicker callFunc={setNasc} defaultValue={nasc} />
                                 }
                                 promo={
-                                    <DefaultDatePicker callFunc={setPromo} value={promo} />
+                                    <DefaultDatePicker callFunc={setPromo} defaultValue={promo} />
                                 }
                             />
 

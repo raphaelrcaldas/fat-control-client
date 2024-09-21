@@ -6,7 +6,7 @@ import dayjs from 'dayjs';
 
 const brazilLocal = ptBR.components.MuiLocalizationProvider.defaultProps.localeText;
 
-export default function DefaultDatePicker({ callFunc, value }) {
+export default function DefaultDatePicker({ callFunc, value, defaultValue}) {
     function setDate(dateObject) {
         if (dateObject && dateObject.isValid()) {
             const value = dateObject.format("YYYY-MM-DD");
@@ -22,7 +22,7 @@ export default function DefaultDatePicker({ callFunc, value }) {
 
             <DatePicker
                 format="DD/MM/YYYY"
-                defaultValue={value ? dayjs(value) : null}
+                defaultValue={defaultValue ? dayjs(defaultValue) : null}
                 onChange={(object) => setDate(object)}
             />
 
