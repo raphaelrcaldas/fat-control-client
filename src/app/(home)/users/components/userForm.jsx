@@ -159,14 +159,14 @@ export function UserDetail({ user_id }) {
             cpf: cpf,
             ult_promo: promo ? promo : null,
             nasc: nasc ? nasc : null,
-            email_pess: cleanText(emailPes),
-            email_fab: cleanText(emailFAB),
+            email_pess: cleanText(email),
+            email_fab: cleanText(zimbra),
         };
 
         const response = await updateUser(userId, user);
         const dataRes = await response.json();
-        // chamar API
 
+        console.log(dataRes);
 
         setEditMode(false);
     }
