@@ -169,8 +169,6 @@ export function UserDetail({ user_id }) {
         const response = await updateUser(userId, user);
         const dataRes = await response.json();
 
-        console.log(dataRes);
-
         if (response.ok) {
             setTypeMsgModal('success');
             setMsgToModal("Atualizado com sucesso");
