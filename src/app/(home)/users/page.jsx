@@ -21,7 +21,7 @@ function UsersPage() {
             .then(res => res.json())
             .then(users => {
                 const fetchUsers = users.data.map((user) => {
-                    return <UserRow key={user.id} user={user} />
+                    return <UserRow key={user.id} user={user} callFunc={updateListUsers} />
                 })
 
                 setUsuarios(fetchUsers);
@@ -34,8 +34,12 @@ function UsersPage() {
 
     return (
         <>
-            <div className="mb-4">
-                <UserRegister afterAdd={updateListUsers} />
+            <div className="flex mb-4 gap-16">
+                <h2>Usuários</h2>
+
+                <div className="flex flex-row gap-8">
+                    <UserRegister afterAdd={updateListUsers} />
+                </div>
             </div>
 
             <div className="overflow-x-auto relative shadow-md sm:rounded-lg">

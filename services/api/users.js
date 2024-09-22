@@ -1,5 +1,5 @@
-// const URL = "http://127.0.0.1:8000/"
-const URL = "http://192.168.0.214:8000/"
+const URL = "http://127.0.0.1:8000/"
+// const URL = "http://192.168.0.214:8000/"
 
 
 const headers = { "Content-Type": "application/json", }
@@ -45,6 +45,17 @@ export async function updateUser(id, user) {
         method: "PUT",
         headers: headers,
         body: JSON.stringify(user),
+    };
+    const response = await fetch(URL + route + id, requestOptions);
+
+    return response;
+}
+
+
+export async function deleteUser(id) {
+    const requestOptions = {
+        method: "DELETE",
+        headers: headers,
     };
     const response = await fetch(URL + route + id, requestOptions);
 

@@ -3,6 +3,8 @@ import { Skeleton } from "@mui/material"
 import pgs from "../../../../../public/infoFAB/infoPGs"
 import BadgeUAE from "../../components/badgeUae"
 import { UserDetail } from "./userForm"
+import { QuestionExclude } from "../../components/messageModal"
+import { deleteUser } from "../../../../../services/api/users"
 
 function TableRow({ pg, esp, guerra, completo, unidade, detalhes }) {
 
@@ -31,7 +33,17 @@ function TableRow({ pg, esp, guerra, completo, unidade, detalhes }) {
 }
 
 
-export function UserRow({ user }) {
+export function UserRow({ user, callFunc }) {
+
+    async function onDeleteUser() {
+        deleteUser(user.id).then(res => res.json())
+            .then(data => {
+                alert(data.detail);
+                callFunc();
+            })
+    }
+
+
     return (
         <TableRow
             key={user.id}
@@ -40,7 +52,14 @@ export function UserRow({ user }) {
             guerra={user.nome_guerra.toUpperCase()}
             completo={user.nome_completo.toUpperCase()}
             unidade={<BadgeUAE>{user.unidade}</BadgeUAE>}
-            detalhes={<UserDetail user_id={user.id} />}
+            detalhes={
+                <>
+                    <div className="flex gap-2">
+                        <UserDetail user_id={user.id} />
+                        <QuestionExclude callFunc={onDeleteUser} />
+                    </div>
+                </>
+            }
         />
     )
 }

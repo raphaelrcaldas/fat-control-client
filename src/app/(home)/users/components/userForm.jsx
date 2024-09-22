@@ -1,6 +1,6 @@
 "use client";
 
-import MessageModal from "../../components/messageModal";
+import { MessageModal } from "../../components/messageModal";
 import { Button, Label, Modal } from "flowbite-react";
 import { useState } from "react";
 import { addUserAPI, getUserById, updateUser } from "../../../../../services/api/users";
@@ -10,92 +10,78 @@ import { SelectPostoGrad, SelectOMs, InputEsp, InputNome, InputNumeric, InputEma
 import { cleanText } from "../../../../../utils/textFormat";
 import DefaultDatePicker from "../../components/defaultDatePicker";
 import dayjs from "dayjs";
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 
-function UserForm({
-    title,
-    postoGrad,
-    esp,
-    nomeGuerra,
-    nomeCompleto,
-    unidade,
-    saram,
-    id_fab,
-    cpf,
-    zimbra,
-    email_pess,
-    nasc,
-    promo,
-}) {
-
+function UserContent(props) {
 
     return (
         <>
-            <h3 className="mb-7 text-xl text-center font-semibold">{title}</h3>
+            <h3 className="mb-7 text-xl text-center font-semibold">{props.title}</h3>
             <div className="space-y-6 text-center text-base">
                 <div className="flex justify-around">
                     <div className="mx-2.5">
                         <Label className="mb-2 block" value="P/G" />
-                        {postoGrad}
+                        {props.postoGrad}
                     </div>
                     <div className="w-24">
                         <Label className="mb-2 block" value="Especialidade" />
-                        {esp}
+                        {props.esp}
                     </div>
                     <div className="mx-2.5">
                         <Label className="mb-2 block" value="Nome de Guerra" />
-                        {nomeGuerra}
+                        {props.nomeGuerra}
                     </div>
                 </div>
 
                 <div className="flex justify-between">
                     <div className="w-72">
                         <Label className="mb-2 block" value="Nome completo" />
-                        {nomeCompleto}
+                        {props.nomeCompleto}
                     </div>
 
                     <div className="mx-8">
                         <Label className="mb-2 block" value="Unidade" />
-                        {unidade}
+                        {props.unidade}
                     </div>
                 </div>
 
                 <div className="flex justify-around">
                     <div className="mx-2.5">
                         <Label className="mb-2 block">SARAM</Label>
-                        {saram}
+                        {props.saram}
                     </div>
 
                     <div className="mx-2.5">
                         <Label className="mb-2 block">ID FAB</Label>
-                        {id_fab}
+                        {props.id_fab}
                     </div>
 
                     <div className="mx-2.5">
                         <Label className="mb-2 block w-40">CPF</Label>
-                        {cpf}
+                        {props.cpf}
                     </div>
 
                 </div>
 
                 <div>
                     <Label className="mb-2 block" value="Zimbra" />
-                    {zimbra}
+                    {props.zimbra}
                 </div>
 
                 <div>
                     <Label className="mb-2 block" value="Email particular" />
-                    {email_pess}
+                    {props.email_pess}
                 </div>
 
                 <div className="flex justify-between">
                     <div className="w-52">
                         <Label className="mb-2 block" value="Data de Nascimento" />
-                        {nasc}
+                        {props.nasc}
                     </div>
 
                     <div className="w-52">
                         <Label className="mb-2 block" value="Última Promoção" />
-                        {promo}
+                        {props.promo}
                     </div>
                 </div>
 
@@ -207,14 +193,14 @@ export function UserDetail({ user_id }) {
 
     return (
         <>
-            <Button variant="text" color={"gray"} onClick={onOpenDetail}>Detalhes</Button>
+            <Button variant="text" color={"gray"} onClick={onOpenDetail}><InfoOutlinedIcon /></Button>
 
             {show &&
                 <Modal show={show} size="lg" onClose={onCloseModal} popup>
                     <Modal.Header />
                     <Modal.Body>
                         <form onSubmit={(e) => onUpdateUser(e)}>
-                            <UserForm
+                            <UserContent
                                 title={
                                     (editMode ? "Editar " : "") + "Informações do Usuário"
                                 }
@@ -361,7 +347,7 @@ export function UserRegister({ afterAdd }) {
                     <Modal.Header />
                     <Modal.Body>
                         <form onSubmit={(e) => onAddUser(e)}>
-                            <UserForm
+                            <UserContent
                                 title={"Adicionar Usuário"}
                                 postoGrad={
                                     <SelectPostoGrad callFunc={setPostoGrad} value={postoGrad} />

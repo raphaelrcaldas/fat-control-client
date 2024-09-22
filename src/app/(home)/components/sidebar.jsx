@@ -5,7 +5,8 @@ import {
     AirplaneTicketSharp,
     CloseSharp,
     PeopleOutlineSharp,
-    SortSharp
+    SortSharp,
+    HailSharp
 } from '@mui/icons-material';
 import Link from 'next/link';
 import Image from 'next/image'
@@ -29,6 +30,11 @@ const linksSide = [
         title: 'Pau de Sebo',
         link: '/sebo',
         icon: SortSharp,
+    },
+    {
+        title: 'Tripulantes',
+        link: '/trip',
+        icon: HailSharp,
     },
     {
         title: 'Usuários',
