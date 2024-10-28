@@ -39,7 +39,7 @@ function UserContent(props) {
                         {props.nomeCompleto}
                     </div>
 
-                    <div className="mx-8">
+                    <div>
                         <Label className="mb-2 block" value="Unidade" />
                         {props.unidade}
                     </div>
@@ -265,7 +265,7 @@ export function UserRegister({ afterAdd }) {
 
     const [messageModal, setMessageModal] = useState(false);
     const [msgToModal, setMsgToModal] = useState('');
-    const [typeMsgModal, setTypeMsgModal] = useState('success');
+    const [typeMsgModal, setTypeMsgModal] = useState(true);
 
     const [postoGrad, setPostoGrad] = useState('');
     const [esp, setEsp] = useState('');
@@ -323,16 +323,15 @@ export function UserRegister({ afterAdd }) {
         const response = await addUserAPI(user);
         const dataRes = await response.json();
 
+        setTypeMsgModal(response.ok);
+
         if (response.ok) {
-            setTypeMsgModal('success');
             setMsgToModal("Adicionado com sucesso");
             afterAdd();
             cleanModal();
         } else {
             setMsgToModal(dataRes.detail);
-            setTypeMsgModal('failure')
         }
-
         setMessageModal(true);
     }
 
@@ -394,7 +393,13 @@ export function UserRegister({ afterAdd }) {
                         </form>
 
                     </Modal.Body>
-                    <MessageModal active={messageModal} callFunc={setMessageModal} msg={msgToModal} typeMsg={typeMsgModal} />
+                    
+                    <MessageModal
+                        active={messageModal}
+                        callFunc={setMessageModal}
+                        msg={msgToModal}
+                        typeMsg={typeMsgModal} //typeMsgModal
+                    />
                 </Modal>
             }
         </>

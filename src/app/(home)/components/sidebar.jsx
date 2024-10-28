@@ -26,11 +26,11 @@ const linksSide = [
         link: '/indisp',
         icon: AirplanemodeInactiveSharp,
     },
-    {
-        title: 'Pau de Sebo',
-        link: '/sebo',
-        icon: SortSharp,
-    },
+    // {
+    //     title: 'Pau de Sebo',
+    //     link: '/sebo',
+    //     icon: SortSharp,
+    // },
     {
         title: 'Tripulantes',
         link: '/trip',
@@ -59,10 +59,10 @@ function AppSideBar() {
     }
 
     return (
-        <aside>
+        <aside className='shadow-md'>
             <div className='top'>
                 <div className='logo'>
-                    <Image src={profilePic} width={50} height={80}  alt="bolacha OM"/>
+                    <Image src={profilePic} width={50} height={80} alt="bolacha OM" />
                     <h2>
                         FAT<span className='text-red-500'>CONTROL</span>
                     </h2>
@@ -72,9 +72,17 @@ function AppSideBar() {
                 </div>
             </div>
             <div className='sidebar' id='sidebar' data-index={0} >
-                {linksSide.map((link, index) =>
-                    <ItemSideBar Icon={link.icon} title={link.title} index={index} key={index} linkTo={link.link} />
-                )}
+                {
+                    linksSide.map((link, index) =>
+                        <ItemSideBar
+                            Icon={link.icon}
+                            title={link.title}
+                            index={index}
+                            key={index}
+                            linkTo={link.link}
+                        />
+                    )
+                }
             </div>
         </aside>
     )

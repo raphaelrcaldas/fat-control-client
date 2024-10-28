@@ -11,14 +11,14 @@ import DeleteOutlineSharpIcon from '@mui/icons-material/DeleteOutlineSharp';
 
 export function MessageModal({ msg, active, callFunc, typeMsg }) {
   let Icon;
-  if (typeMsg == "success") {
+  let color;
+  if (typeMsg) {
     Icon = CheckCircleSharpIcon;
-  }
-
-  if (typeMsg == "failure") {
+    color = 'success';
+  } else {
     Icon = ErrorSharpIcon;
+    color = 'failure';
   }
-
 
   return (
     <>
@@ -31,7 +31,7 @@ export function MessageModal({ msg, active, callFunc, typeMsg }) {
               {msg}
             </h3>
             <div className="flex justify-center gap-4">
-              <Button color={typeMsg} onClick={() => callFunc(false)}>
+              <Button color={color} onClick={() => callFunc(false)}>
                 OK
               </Button>
             </div>
@@ -49,7 +49,7 @@ export function QuestionExclude({ callFunc }) {
   return (
     <>
       <Button color={'red'} onClick={() => setOpenModal(true)}><DeleteOutlineSharpIcon /></Button>
-      
+
       <Modal show={openModal} size="md" onClose={() => setOpenModal(false)} popup>
         <Modal.Header />
         <Modal.Body>
