@@ -4,4 +4,4 @@ const URL = "http://127.0.0.1:8000/"
 
 const headers = { "Content-Type": "application/json", }
 
-export { URL, headers};
+export { URL, headers };

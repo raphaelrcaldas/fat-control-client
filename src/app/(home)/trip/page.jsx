@@ -19,7 +19,6 @@ export default function TripPage() {
     const [filterOp, setFilterOp] = useState('');
     const [filterName, setFilterName] = useState('');
 
-
     function getListTrips() {
         getTripsAPI('11gt', true)
             .then(res => res.json())
