@@ -1,6 +1,6 @@
-import { URL, headers } from "./config";
+import { url, headers } from "./config";
 
-const route = "quads/"
+const route = new URL(`${url}quads/`)
 
 export async function addQuadAPI(quad) {
     const requestOptions = {
@@ -8,23 +8,20 @@ export async function addQuadAPI(quad) {
         headers: headers,
         body: JSON.stringify(quad),
     };
-    const response = await fetch(URL + route, requestOptions);
-
-    return response;
+    return await fetch(route, requestOptions);;
 }
 
 
-export async function getQuadsAPI(funcao, uae, proj, tipo_quad) {
+export async function getQuadsAPI(params) {
     const requestOptions = {
         method: "GET",
         headers: headers,
     };
 
-    const queryParams = `?funcao=${funcao}&uae=${uae}&proj=${proj}&tipo_quad=${tipo_quad}`;
-
-    const response = await fetch(URL + route + queryParams, requestOptions);
-
-    return response;
+    Object.keys(params).forEach(
+        key => route.searchParams.append(key, params[key])
+    );
+    return await fetch(route, requestOptions);
 }
 
 
@@ -33,9 +30,7 @@ export async function getQuadById(id) {
         method: "GET",
         headers: headers,
     };
-    const response = await fetch(URL + route + id, requestOptions);
-
-    return response;
+    return await fetch(route + id, requestOptions);
 }
 
 export async function updateQuad(quad) {
@@ -44,9 +39,7 @@ export async function updateQuad(quad) {
         headers: headers,
         body: JSON.stringify(quad),
     };
-    const response = await fetch(URL + route + quad.id, requestOptions);
-
-    return response;
+    return await fetch(route + quad.id, requestOptions);
 }
 
 
@@ -55,7 +48,5 @@ export async function deleteQuad(id) {
         method: "DELETE",
         headers: headers,
     };
-    const response = await fetch(URL + route + id, requestOptions);
-
-    return response;
+    return await fetch(route + id, requestOptions);
 }

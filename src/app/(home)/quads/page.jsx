@@ -10,13 +10,25 @@ import AddQuadModal from "./components/addQuad";
 function QuadPage() {
     const [filterFunc, setFilterFunc] = useState('mc');
     const [filterQuad, setFilterQuad] = useState('s_pto');
-
     const [quads, setQuads] = useState([])
+    const [lenMin, setMin] = useState(undefined)
 
-    async function getQuads() {
-        getQuadsAPI(filterFunc, '11gt', 'kc-390', filterQuad)
+    function getQuads() {
+        const params = {
+            funcao: filterFunc,
+            tipo_quad: filterQuad,
+            uae: '11gt',
+            proj: 'kc-390',
+        }
+
+        getQuadsAPI(params)
             .then(res => res.json())
-            .then(data => setQuads(data));
+            .then(data => {
+                setMin(
+                    Math.min(...data.map(f => f.quads.length)) - 1
+                );
+                setQuads(data);
+            });
     }
 
     useEffect(() => { getQuads() }, [filterQuad, filterFunc]);
@@ -44,16 +56,18 @@ function QuadPage() {
                     <Table.Body>
                         {
                             quads.map((func) => {
-                                
                                 return (
                                     <Table.Row key={func.id} className="border-b">
                                         <Table.Cell className="grid justify-center px-3 py-2">
-                                            <Button color={'light'} className="w-14 uppercase" size={'sm'}>
+
+                                            <Button color={'light'} onClick={() => console.log(func)} className="w-14 uppercase" size={'sm'}>
                                                 {func.trip.trig}
                                             </Button>
+
                                         </Table.Cell>
                                         {
-                                            func.quads.map(quad => {
+                                            func.quads.slice(lenMin).map(quad => {
+
                                                 return (
                                                     <Table.Cell key={quad.id} className="py-2 px-0 pr-2">
                                                         <QuadPopover
@@ -65,7 +79,7 @@ function QuadPage() {
                                             })
                                         }
                                         <Table.Cell className="py-2 pl-2 pr-3">
-                                            <AddQuadModal func={func} callFunc={getQuads} type={filterQuad}/>
+                                            <AddQuadModal func={func} callFunc={getQuads} type={filterQuad} />
                                         </Table.Cell>
                                     </Table.Row>
                                 )
@@ -78,5 +92,6 @@ function QuadPage() {
         </>
     )
 }
+
 
 export default QuadPage;

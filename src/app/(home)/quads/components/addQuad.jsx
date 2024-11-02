@@ -8,7 +8,7 @@ import { IoMdClose } from "react-icons/io";
 
 function AddQuadModal({ func, type, callFunc }) {
     const [openModal, setOpenModal] = useState(false);
-    const [date, setDate] = useState(null);
+    const [date, setDate] = useState('');
     const [obs, setObs] = useState('');
     const [lastro, setLastro] = useState(0);
 

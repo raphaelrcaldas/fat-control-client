@@ -1,6 +1,6 @@
-import { URL, headers } from "./config";
+import { url, headers } from "./config";
 
-const route = "users/"
+const route = new URL(`${url}users/`)
 
 export async function addUserAPI(user) {
     const requestOptions = {
@@ -8,7 +8,7 @@ export async function addUserAPI(user) {
         headers: headers,
         body: JSON.stringify(user),
     };
-    const response = await fetch(URL + route, requestOptions);
+    const response = await fetch(route, requestOptions);
 
     return response;
 }
@@ -19,7 +19,7 @@ export async function getUsersAPI() {
         method: "GET",
         headers: headers,
     };
-    const response = await fetch(URL + route, requestOptions);
+    const response = await fetch(route, requestOptions);
 
     return response;
 }
@@ -30,7 +30,7 @@ export async function getUserById(id) {
         method: "GET",
         headers: headers,
     };
-    const response = await fetch(URL + route + id, requestOptions);
+    const response = await fetch(`${route}${id}`, requestOptions);
 
     return response;
 }
@@ -41,7 +41,7 @@ export async function updateUser(id, user) {
         headers: headers,
         body: JSON.stringify(user),
     };
-    const response = await fetch(URL + route + id, requestOptions);
+    const response = await fetch(`${route}${id}`, requestOptions);
 
     return response;
 }
@@ -52,7 +52,7 @@ export async function deleteUser(id) {
         method: "DELETE",
         headers: headers,
     };
-    const response = await fetch(URL + route + id, requestOptions);
+    const response = await fetch(`${route}${id}`, requestOptions);
 
     return response;
 }

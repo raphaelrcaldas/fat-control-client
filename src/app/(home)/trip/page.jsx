@@ -20,7 +20,12 @@ export default function TripPage() {
     const [filterName, setFilterName] = useState('');
 
     function getListTrips() {
-        getTripsAPI('11gt', true)
+        const params = {
+            uae: '11gt',
+            active: true
+        }
+        
+        getTripsAPI(params)
             .then(res => res.json())
             .then(data => {
                 setTrips(data.data);
@@ -122,7 +127,7 @@ export default function TripPage() {
                                             }
                                         </Table.Cell>
                                         <Table.Cell className="py-1">
-                                            EDIT {/* {detalhes} */}
+                                            
                                         </Table.Cell>
                                     </Table.Row>
                                 )

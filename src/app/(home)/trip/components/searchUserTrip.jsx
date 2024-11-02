@@ -1,5 +1,5 @@
 import { GoPlus } from "react-icons/go";
-import { Modal, Button, Table, TextInput, Label} from "flowbite-react";
+import { Modal, Button, Table, TextInput, Label } from "flowbite-react";
 import { useState } from "react";
 import { IoSearchSharp } from "react-icons/io5";
 import AddBoxSharpIcon from '@mui/icons-material/AddBoxSharp';
@@ -66,26 +66,29 @@ function AddTripModal({ user, update }) {
     }
 
     async function addTrip() {
-        const newTrip = {
-            user_id: user.id,
-            trig: trig.toLowerCase(),
-            uae: '11gt',
-            funcs: funcoes
-        }
+        if (trig && funcoes) {
+            const newTrip = {
+                user_id: user.id,
+                trig: trig.toLowerCase(),
+                uae: '11gt',
+                funcs: funcoes
+            }
 
-        const response = await addTripAPI(newTrip);
-        const dataRes = await response.json();
+            const response = await addTripAPI(newTrip);
+            const dataRes = await response.json();
 
-        if (response.ok) {
-            setTypeMsg('success');
-            setMsgToModal("Adicionado com sucesso");
-            cleanModal();
-            update();
-        } else {
-            setTypeMsg('failure')
-            setMsgToModal(dataRes.detail);
+            if (response.ok) {
+                setTypeMsg('success');
+                setMsgToModal("Adicionado com sucesso");
+                cleanModal();
+                update();
+            } else {
+                setTypeMsg('failure')
+                setMsgToModal(dataRes.detail);
+            }
+            setMessageModal(true);
         }
-        setMessageModal(true);
+        alert("Necessário inserir Trigrama e Funções")
     }
 
     return (

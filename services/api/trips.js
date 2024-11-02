@@ -1,16 +1,18 @@
-import { URL, headers } from "./config";
+import { url, headers } from "./config";
 
-const route = "trips/"
+const route = new URL(`${url}trips/`)
 
-
-export async function getTripsAPI(uae, active) {
+export async function getTripsAPI(params) {
     const requestOptions = {
         method: "GET",
         headers: headers,
     };
-    const response = await fetch(`${URL}${route}?uae=${uae}&active=${active}`, requestOptions);
 
-    return response;
+    Object.keys(params).forEach(
+        key => route.searchParams.append(key, params[key])
+    );
+
+    return await fetch(route, requestOptions);
 }
 
 export async function addTripAPI(trip) {
@@ -19,7 +21,6 @@ export async function addTripAPI(trip) {
         headers: headers,
         body: JSON.stringify(trip),
     };
-    const response = await fetch(URL + route, requestOptions);
 
-    return response;
+    return await fetch(route, requestOptions);
 }
