@@ -66,9 +66,10 @@ export default function QuadPage() {
                                                 size={'sm'}>
                                                 {func.trip.trig}
                                             </Button>
+
                                         </Table.Cell>
                                         {
-                                            func.quads.slice(lenMin).map(quad => {
+                                            func.quads.map(quad => {
                                                 return (
                                                     <Table.Cell key={quad.id} className="py-2 px-0 pr-2">
                                                         <QuadPopover

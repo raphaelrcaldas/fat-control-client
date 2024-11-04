@@ -10,14 +10,12 @@ export default function RootLayout({ children }) {
       </head>
       <body>
         {
-          // isAuthenticated ? (
             <div className='container'>
               <AppSideBar />
               <main>
                 {children}
               </main>
             </div>
-          // ) : useRouter().push('/login')
         }
       </body>
     </html>
