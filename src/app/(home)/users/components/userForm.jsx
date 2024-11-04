@@ -234,12 +234,12 @@ export function UserDetail({ user_id }) {
                                 email_pess={
                                     editMode ? <InputEmail callFunc={setEmail} value={email} /> : filterTxt(email)
                                 }
-                                nasc={
-                                    editMode ? <DefaultDatePicker callFunc={setNasc} defaultValue={nasc} /> : dateForm(nasc)
-                                }
-                                promo={
-                                    editMode ? <DefaultDatePicker callFunc={setPromo} defaultValue={promo} /> : dateForm(promo)
-                                }
+                                // nasc={
+                                //     editMode ? <DefaultDatePicker callFunc={setNasc} defaultValue={nasc} /> : dateForm(nasc)
+                                // }
+                                // promo={
+                                //     editMode ? <DefaultDatePicker callFunc={setPromo} defaultValue={promo} /> : dateForm(promo)
+                                // }
                             />
 
                             <div className={(editMode ? "" : "hidden ") + "grid justify-center mt-8"}>
@@ -378,12 +378,13 @@ export function UserRegister({ afterAdd }) {
                                 email_pess={
                                     <InputEmail callFunc={setEmailPes} value={emailPes} placeholder={"fulano@exemplo.com"} />
                                 }
-                                nasc={
-                                    <DefaultDatePicker callFunc={setNasc} defaultValue={nasc} />
-                                }
-                                promo={
-                                    <DefaultDatePicker callFunc={setPromo} defaultValue={promo} />
-                                }
+                                // nasc={
+                                //     // <DefaultDatePicker callFunc={setNasc} defaultValue={nasc} />
+                                    
+                                // }
+                                // promo={
+                                //     <DefaultDatePicker callFunc={setPromo} defaultValue={promo} />
+                                // }
                             />
 
                             <div className="grid justify-center mt-10">

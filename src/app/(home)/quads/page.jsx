@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 import { getQuadsAPI } from "../../../../services/api/quads";
 import AddQuadModal from "./components/addQuad";
 
-function QuadPage() {
+export default function QuadPage() {
     const [filterFunc, setFilterFunc] = useState('mc');
     const [filterQuad, setFilterQuad] = useState('s_pto');
     const [quads, setQuads] = useState([])
@@ -59,15 +59,16 @@ function QuadPage() {
                                 return (
                                     <Table.Row key={func.id} className="border-b">
                                         <Table.Cell className="grid justify-center px-3 py-2">
-
-                                            <Button color={'light'} onClick={() => console.log(func)} className="w-14 uppercase" size={'sm'}>
+                                            <Button
+                                                color={'light'}
+                                                onClick={() => console.log(func)}
+                                                className="w-14 uppercase"
+                                                size={'sm'}>
                                                 {func.trip.trig}
                                             </Button>
-
                                         </Table.Cell>
                                         {
                                             func.quads.slice(lenMin).map(quad => {
-
                                                 return (
                                                     <Table.Cell key={quad.id} className="py-2 px-0 pr-2">
                                                         <QuadPopover
@@ -88,10 +89,6 @@ function QuadPage() {
                     </Table.Body>
                 </Table>
             </div>
-
         </>
     )
 }
-
-
-export default QuadPage;

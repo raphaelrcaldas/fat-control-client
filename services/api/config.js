@@ -2,6 +2,8 @@
 const url = "http://192.168.0.214:8000/"
 
 
-const headers = { "Content-Type": "application/json" }
+const headers = { 
+    "Content-Type": "application/json"
+}
 
 export { url, headers };

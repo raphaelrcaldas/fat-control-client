@@ -9,14 +9,16 @@ export default function RootLayout({ children }) {
         <title>1º/1º GT - FAT Control</title>
       </head>
       <body>
-        
-          <div className='container'>
-            <AppSideBar />
-            <main>
-              {children}
-            </main>
-          </div>
-        
+        {
+          // isAuthenticated ? (
+            <div className='container'>
+              <AppSideBar />
+              <main>
+                {children}
+              </main>
+            </div>
+          // ) : useRouter().push('/login')
+        }
       </body>
     </html>
   )

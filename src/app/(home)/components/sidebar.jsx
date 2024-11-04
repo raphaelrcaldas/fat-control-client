@@ -44,19 +44,8 @@ const linksSide = [
 ]
 
 
-function AppSideBar() {
+export default function AppSideBar() {
     const [activeIndex, setActiveIndex] = useState(0);
-
-    function ItemSideBar({ Icon, title, index, linkTo }) {
-        const [show, setShow] = useState(activeIndex === index);
-
-        return (
-            <Link href={linkTo} className={(show ? "active" : "")} onClick={() => setActiveIndex(index)}>
-                <Icon />
-                <h3>{title}</h3>
-            </Link>
-        )
-    }
 
     return (
         <aside className='shadow-md'>
@@ -71,22 +60,23 @@ function AppSideBar() {
                     <CloseSharp className='close' />
                 </div>
             </div>
-            <div className='sidebar' id='sidebar' data-index={0} >
+            <div className='sidebar'>
                 {
-                    linksSide.map((link, index) =>
-                        <ItemSideBar
-                            Icon={link.icon}
-                            title={link.title}
-                            index={index}
-                            key={index}
-                            linkTo={link.link}
-                        />
-                    )
+                    linksSide.map((item, index) => {
+                        return (
+                            <Link
+                                key={index}
+                                href={item.link}
+                                className={index === activeIndex ? "active" : ""}
+                                onClick={() => setActiveIndex(index)}
+                            >
+                                <item.icon />
+                                <h3>{item.title}</h3>
+                            </Link>
+                        )
+                    })
                 }
             </div>
         </aside>
     )
 }
-
-
-export default AppSideBar;
