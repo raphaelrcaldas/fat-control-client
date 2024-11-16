@@ -3,17 +3,28 @@
 import { Table } from "flowbite-react";
 import { useState, useEffect } from "react";
 import { getUsersAPI } from "../../../../services/api/users";
-import { UserRegister, UserDetail } from "./components/userForm";
+import { UserRegister } from "./components/userForm";
 import { BadgeUAE } from "../components/badges";
 
-
-function UsersPage() {
+export default function UsersPage() {
     const [usuarios, setUsuarios] = useState([]);
 
     function updateListUsers() {
         getUsersAPI()
             .then(res => res.json())
-            .then(users => { setUsuarios(users.data) })
+            .then(users => {
+                users.sort(function (a, b) {
+                    if (a.nome_guerra > b.nome_guerra) {
+                        return 1;
+                    }
+                    if (a.nome_guerra < b.nome_guerra) {
+                        return -1;
+                    }
+                    return 0;
+                });
+
+                setUsuarios(users)
+            })
     }
 
     useEffect(() => { updateListUsers() }, [])
@@ -23,7 +34,10 @@ function UsersPage() {
             <div className="flex mb-4 gap-16">
                 <h2>Usuários</h2>
                 <div className="flex flex-row gap-8">
-                    <UserRegister afterAdd={updateListUsers} />
+                    <UserRegister
+                        user_id={null}
+                        updateUsers={updateListUsers}
+                    />
                 </div>
             </div>
 
@@ -44,7 +58,7 @@ function UsersPage() {
                             usuarios.map((user) => {
                                 return (
                                     <Table.Row key={user.id} className="bg-white uppercase text-base">
-                                        <Table.Cell className="text-center font-medium text-gray-900 dark:text-white">
+                                        <Table.Cell className="text-center font-medium text-gray-900">
                                             {user.p_g}
                                         </Table.Cell>
                                         <Table.Cell className="text-center">
@@ -56,11 +70,15 @@ function UsersPage() {
                                         <Table.Cell>
                                             {user.nome_completo}
                                         </Table.Cell>
-                                        <Table.Cell className="grid justify-center">
+                                        <Table.Cell className="justify-items-center">
                                             <BadgeUAE>{user.unidade}</BadgeUAE>
                                         </Table.Cell>
-                                        <Table.Cell className="py-2">
-                                            <UserDetail user_id={user.id} />
+                                        <Table.Cell className="justify-items-center">
+                                            <UserRegister
+                                                readOnly={false}
+                                                user_id={user.id}
+                                                updateUsers={updateListUsers}
+                                            />
                                         </Table.Cell>
                                     </Table.Row>
                                 )
@@ -72,5 +90,3 @@ function UsersPage() {
         </>
     )
 }
-
-export default UsersPage;

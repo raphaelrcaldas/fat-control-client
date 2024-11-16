@@ -12,7 +12,7 @@ export function validateNoNumber(event) {
     }
 }
 
-export function cleanText(text) {
+export function sanitizeText(text) {
     let value = text.trim();
     value = value.toLowerCase();
     value = value.replace("   ", " ");

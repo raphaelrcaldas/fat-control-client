@@ -44,7 +44,7 @@ export function FuncBadge({ funcao, oper }) {
 
     return (
         <>
-            <Badge color={color} className="m-1 justify-center">
+            <Badge color={color} className="m-1 text-nowrap justify-center">
                 {`${funcao}: ${oper}`}
             </Badge>
         </>
@@ -57,7 +57,7 @@ export function BadgeUAE({ children }) {
     const color = unidades_bagl[children].color
 
     return (
-        <Badge className="w-fit" color={color} size="sm">
+        <Badge className="w-fit text-nowrap" color={color} size="sm">
             {unidades_bagl[children].value}
         </Badge>
     )

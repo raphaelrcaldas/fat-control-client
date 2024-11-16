@@ -24,7 +24,7 @@ export default function TripPage() {
             uae: '11gt',
             active: true
         }
-        
+
         getTripsAPI(params)
             .then(res => res.json())
             .then(data => {
@@ -55,7 +55,11 @@ export default function TripPage() {
 
         // FILTRO NOME
         filter = filter.filter(trip => {
-            return trip.user.nome_guerra.includes(filterName);
+            const inputFilter = filterName.toLowerCase()
+            const checkTrig = trip.trig.includes(inputFilter);
+            const checkGuerra = trip.user.nome_guerra.includes(inputFilter);
+
+            return checkTrig || checkGuerra;
         })
 
         setFilterTrips(filter);
@@ -127,7 +131,7 @@ export default function TripPage() {
                                             }
                                         </Table.Cell>
                                         <Table.Cell className="py-1">
-                                            
+
                                         </Table.Cell>
                                     </Table.Row>
                                 )
