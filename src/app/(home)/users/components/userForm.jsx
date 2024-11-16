@@ -5,7 +5,7 @@ import { useState } from "react";
 import { addUserAPI, getUserById, updateUser } from "../../../../../services/api/users";
 import { sanitizeText, validateOnlyNumber } from "../../../../../utils/textFormat";
 import { useForm } from "react-hook-form"
-import { validateNoNumber } from "../../../../../utils/textFormat";
+import { validateNoNumber, onlyText } from "../../../../../utils/textFormat";
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import { HiMail } from "react-icons/hi";
 
@@ -77,7 +77,7 @@ export function UserRegister({ user_id, updateUsers, readOnly }) {
     return (
         <>
             <Button color={user_id ? "gray" : "blue"} onClick={() => setShow(true)}>
-                {user_id ? <InfoOutlinedIcon /> : "Adicionar"}
+                {user_id ? <InfoOutlinedIcon /> : "Adicionar Usuário"}
             </Button>
 
             {show &&
@@ -103,9 +103,11 @@ export function UserRegister({ user_id, updateUsers, readOnly }) {
                                     <div className="px-2 w-28">
                                         <Label className="mb-2 block" value="Especialidade" />
                                         <TextInput
-                                            {...register('esp',)}
+                                            {...register('esp', { setValueAs: t => sanitizeText(t), })}
                                             // className="grid text-center"
                                             autoComplete="off"
+                                            maxLength={6}
+                                            onKeyPress={(event) => onlyText(event)}
                                             disabled={readOnly ? true : false}
                                         />
                                     </div>
@@ -136,7 +138,6 @@ export function UserRegister({ user_id, updateUsers, readOnly }) {
                                                 })
                                             }
                                             disabled={readOnly ? true : false}
-                                            className="uppercase"
                                             autoComplete="off"
                                             onKeyPress={(event) => validateNoNumber(event)}
                                         />

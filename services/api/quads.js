@@ -19,7 +19,7 @@ export async function getQuadsAPI(params) {
     };
 
     Object.keys(params).forEach(
-        key => route.searchParams.append(key, params[key])
+        key => route.searchParams.set(key, params[key])
     );
     return await fetch(route, requestOptions);
 }

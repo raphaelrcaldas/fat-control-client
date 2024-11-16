@@ -2,6 +2,7 @@ import { url, headers } from "./config";
 
 const route = new URL(`${url}trips/`)
 
+
 export async function getTripsAPI(params) {
     const requestOptions = {
         method: "GET",
@@ -9,11 +10,12 @@ export async function getTripsAPI(params) {
     };
 
     Object.keys(params).forEach(
-        key => route.searchParams.append(key, params[key])
+        key => route.searchParams.set(key, params[key])
     );
 
     return await fetch(route, requestOptions);
 }
+
 
 export async function addTripAPI(trip) {
     const requestOptions = {
@@ -23,4 +25,15 @@ export async function addTripAPI(trip) {
     };
 
     return await fetch(route, requestOptions);
+}
+
+
+export async function updateTripAPI(id, trip) {
+    const requestOptions = {
+        method: "PUT",
+        headers: headers,
+        body: JSON.stringify(trip),
+    };
+
+    return await fetch(`${url}trips/` + id, requestOptions);
 }

@@ -7,7 +7,13 @@ export function validateOnlyNumber(event) {
 }
 
 export function validateNoNumber(event) {
-    if (/[0-9]/.test(event.key)) {
+    if (!/^[a-zA-Z\s]*$/.test(event.key)) {
+        event.preventDefault();
+    }
+}
+
+export function onlyText(event) {
+    if (!/[a-zA-Z]/.test(event.key)) {
         event.preventDefault();
     }
 }
