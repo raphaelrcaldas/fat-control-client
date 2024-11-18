@@ -1,21 +1,21 @@
-import { useState, useEffect } from "react";
-
-import { addTripAPI, updateTripAPI } from "../../../../../services/api/trips";
-import { MessageModal } from "../../components/messageModal";
-import { onlyText } from "../../../../../utils/textFormat";
+import { useState } from "react";
+import { Modal, Button, TextInput, Label } from "flowbite-react";
+import { useForm } from "react-hook-form"
 import AddBoxSharpIcon from '@mui/icons-material/AddBoxSharp';
-import SettingsApplicationsSharpIcon from '@mui/icons-material/SettingsApplicationsSharp';
-import { Modal, Button, TextInput, Label, Checkbox } from "flowbite-react";
 
-export function TripRegister({ uae, user, update, trip }) {
+import { addTripAPI } from "../../../../../services/api/trips";
+import { onlyText } from "../../../../../utils/textFormat";
+
+
+export function TripRegister({ uae, user, update }) {
     const [show, setShow] = useState(false);
-
-    const [trig, setTrig] = useState("");
-    const [tripActive, setTripActive] = useState(true);
-
-    const [messageModal, setMessageModal] = useState(false);
-    const [msgToModal, setMsgToModal] = useState('');
-    const [typeMsg, setTypeMsg] = useState('success');
+    const { register, handleSubmit, reset, } = useForm({
+        defaultValues: {
+            user_id: user.id,
+            active: true,
+            uae: uae,
+        },
+    });
 
     function addFuncToList() {
         if (funcao && oper) {
@@ -49,59 +49,26 @@ export function TripRegister({ uae, user, update, trip }) {
     }
 
     function closeModal() {
-        setTrig('');
+        reset();
         setShow(false);
     }
 
-    async function addTrip() {
-        if (trig.length === 3) {
-            const data = {
-                user_id: user.id,
-                trig: trig.toLowerCase(),
-                active: tripActive,
-                uae: uae,
-            }
+    async function registerTrip(data) {
+        const response = await addTripAPI(data);
+        const dataRes = await response.json();
 
-            let response;
-            if (trip.trig) {
-                response = await updateTripAPI(trip.id, data);
-            } else {
-                response = await addTripAPI(data);
-            }
-
-            const dataRes = await response.json();
-
-            if (response.ok) {
-                setTrig('');
-                setTypeMsg('success');
-                update();
-                closeModal();
-            } else {
-                setTypeMsg('failure')
-            }
-
-            setMsgToModal(dataRes.detail);
-            setMessageModal(true);
-
-        } else {
-            setTypeMsg('failure')
-            setMsgToModal("Insira um Trigrama Válido");
-            setMessageModal(true)
+        if (response.ok) {
+            update();
+            closeModal();
         }
+        
+        alert(dataRes.detail);
     }
 
-    useEffect(() => {
-        if (show && trip.trig) {
-            setTrig(trip.trig.toUpperCase());
-            setTripActive(trip.active)
-        }
-    }, [show]);
-
-    const Icon = trip.trig ? SettingsApplicationsSharpIcon : AddBoxSharpIcon;
 
     return (
         <>
-            <Icon
+            <AddBoxSharpIcon
                 className="cursor-pointer"
                 fontSize="large"
                 color="info"
@@ -111,45 +78,33 @@ export function TripRegister({ uae, user, update, trip }) {
             <Modal show={show} size='sm' onClose={closeModal} popup>
                 <Modal.Header>Cadastro Tripulante</Modal.Header>
                 <Modal.Body>
-                    <div className="m-4 text-base uppercase text-center">
-                        <div className="font-semibold">
-                            {`${user.p_g} ${user.esp} ${user.nome_guerra} - ${user.unidade}`}
+                    <form onSubmit={handleSubmit(registerTrip)}>
+                        <div className="m-4 text-base uppercase text-center">
+                            <div className="font-semibold">
+                                {`${user.p_g} ${user.esp} ${user.nome_guerra} - ${user.unidade}`}
+                            </div>
+                            <div className="mt-1">
+                                {user.nome_completo}
+                            </div>
                         </div>
-                        <div className="mt-1">
-                            {user.nome_completo}
+                        <div className="flex py-2 gap-4 justify-center shadow-md bg-gray-100 rounded-lg">
+                            <Label className="content-center">Trigrama</Label>
+                            <TextInput
+                                {...register
+                                    ('trig', {
+                                        required: true,
+                                        setValueAs: t => t.toLowerCase(),
+                                    })
+                                }
+                                autoComplete="off"
+                                className="w-16"
+                                maxLength={3}
+                                minLength={3}
+                                onKeyPress={(event) => onlyText(event)}
+                            />
                         </div>
-                    </div>
-                    <div className="flex py-2 gap-4 justify-center shadow-md bg-gray-100 rounded-lg">
-                        <Label
-                            children={'Trigrama'}
-                            className="content-center"
-                        />
-                        <TextInput
-                            className="w-16"
-                            value={trig}
-                            maxLength={3}
-                            minLength={3}
-                            onChange={
-                                e => setTrig(e.target.value.toUpperCase())
-                            }
-                            onKeyPress={(event) => onlyText(event)}
-                        />
-                    </div>
 
-                    <div className="flex mt-4 py-2 gap-4 justify-center shadow-md bg-gray-100 rounded-lg">
-                        <Label
-                            children={'Ativo'}
-                            className="content-center"
-                        />
-                        <Checkbox
-                            className="h-6 w-6"
-                            disabled={trip.trig ? false : true}
-                            defaultChecked={tripActive}
-                            onChange={(e) => setTripActive(e.target.checked)}
-                        />
-                    </div>
-
-                    {/* <div className="mt-4 p-3 text-center bg-gray-100 rounded-lg shadow-md">
+                        {/* <div className="mt-4 p-3 text-center bg-gray-100 rounded-lg shadow-md">
                         <h3>Adicionar Função</h3>
                         <div className="flex mt-2 gap-2">
                             <div className="flex justify-around w-52">
@@ -196,17 +151,12 @@ export function TripRegister({ uae, user, update, trip }) {
                         </Table>
                     </div> */}
 
-                    <div className="grid mt-9 justify-center">
-                        <Button onClick={addTrip}>Salvar</Button>
-                    </div>
+                        <div className="grid mt-9 justify-center">
+                            <Button type="submit">Salvar</Button>
+                        </div>
+                    </form>
                 </Modal.Body>
-            </Modal>
-            <MessageModal
-                active={messageModal}
-                callFunc={setMessageModal}
-                msg={msgToModal}
-                typeMsg={typeMsg}
-            />
+            </Modal >
         </>
     )
 }

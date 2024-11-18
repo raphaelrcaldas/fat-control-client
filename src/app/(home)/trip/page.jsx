@@ -154,15 +154,7 @@ export default function TripPage() {
                                             }
                                         </Table.Cell>
                                         <Table.Cell className="py-2">
-                                            <TripRegister
-                                                user={trip.user}
-                                                trip={trip}
-                                                update={getListTrips}
-                                            />
-
-                                            <FuncRegister
-                                                user={trip.user}
-                                            />
+                                            <FuncRegister trip={trip} />
                                         </Table.Cell>
                                     </Table.Row>
                                 )

@@ -1,7 +1,6 @@
 "use client";
-import { useEffect } from "react";
-import { Button, ButtonGroup, Label, Modal, Select, TextInput } from "flowbite-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { Button, Label, Modal, Select, TextInput } from "flowbite-react";
 import { addUserAPI, getUserById, updateUser } from "../../../../../services/api/users";
 import { sanitizeText, validateOnlyNumber } from "../../../../../utils/textFormat";
 import { useForm } from "react-hook-form"
@@ -104,7 +103,6 @@ export function UserRegister({ user_id, updateUsers, readOnly }) {
                                         <Label className="mb-2 block" value="Especialidade" />
                                         <TextInput
                                             {...register('esp', { setValueAs: t => sanitizeText(t), })}
-                                            // className="grid text-center"
                                             autoComplete="off"
                                             maxLength={6}
                                             onKeyPress={(event) => onlyText(event)}

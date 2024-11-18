@@ -89,7 +89,6 @@ export function SearchUser({ uae, trips, updateTrips }) {
                                                 </Table.Cell>
                                                 <Table.Cell className="w-10">
                                                     <TripRegister
-                                                        trip={{}}
                                                         user={user}
                                                         uae={uae}
                                                         update={updateTrips}
