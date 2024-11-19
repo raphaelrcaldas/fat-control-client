@@ -9,14 +9,12 @@ export default function RootLayout({ children }) {
         <title>1º/1º GT - FAT Control</title>
       </head>
       <body>
-        {
-            <div className='container'>
-              <AppSideBar />
-              <main>
-                {children}
-              </main>
-            </div>
-        }
+        <div className='flex h-screen'>
+          <AppSideBar />
+          <main className='ml-4'>
+            {children}
+          </main>
+        </div>
       </body>
     </html>
   )
