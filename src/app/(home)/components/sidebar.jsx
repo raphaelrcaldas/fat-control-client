@@ -95,7 +95,7 @@ export default function AppSideBar() {
             }
         },
         item: {
-            base: "flex items-center justify-center rounded-lg p-2 text-base font-normal text-gray-900 hover:bg-gray-200 dark:text-white dark:hover:bg-gray-700",
+            base: "flex items-center justify-center rounded-lg cursor-pointer p-2 text-base font-normal text-gray-900 hover:bg-gray-200 dark:text-white dark:hover:bg-gray-700",
             active: "bg-gray-300 dark:bg-gray-700",
             collapsed: {
                 insideCollapse: "group w-full pl-8 transition duration-75",
@@ -140,7 +140,6 @@ export default function AppSideBar() {
                                 <Sidebar.Item
                                     key={index}
                                     active={path === item.link}
-                                    href="#"
                                     icon={item.icon}
                                     onClick={() => router.push(item.link)}
                                 >

@@ -9,9 +9,9 @@ export default function RootLayout({ children }) {
         <title>1º/1º GT - FAT Control</title>
       </head>
       <body>
-        <div className='flex h-screen'>
+        <div className='flex h-screen bg-gray-50'>
           <AppSideBar />
-          <main className='ml-4'>
+          <main className='px-4 w-full'>
             {children}
           </main>
         </div>

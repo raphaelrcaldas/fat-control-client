@@ -54,7 +54,7 @@ export function SearchUser({ uae, trips, updateTrips }) {
 
     return (
         <>
-            <Button onClick={() => setAddTrip(true)}>
+            <Button color="blue" onClick={() => setAddTrip(true)}>
                 <GoPlus className="mr-2 h-5 w-5" /> Adicionar
             </Button>
 

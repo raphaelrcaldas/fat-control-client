@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form"
 
 import { Modal, Button, TextInput, Label, Checkbox, Table } from "flowbite-react";
-import { CiCircleInfo } from "react-icons/ci";
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import { onlyText } from "../../../../../utils/textFormat";
 
 
@@ -66,7 +66,7 @@ export function FuncRegister({ trip, update }) {
     return (
         <>
             <Button className="p-0" color='light' onClick={() => setShow(true)}>
-                <CiCircleInfo className="w-5 h-5" />
+                <InfoOutlinedIcon />
             </Button>
 
             {show &&

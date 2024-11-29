@@ -1,17 +1,43 @@
 'use client'
-
-import { SelectFuncao } from "../components/inputForm";
-import { Button, Table, Select } from "flowbite-react";
-import { QuadPopover } from "./components/quadPopover";
 import { useEffect, useState } from "react";
+
+import { Table, Select } from "flowbite-react";
+import { QuadPopover } from "./components/quadPopover";
+import { QuadsTrip } from "./components/quadsTrip";
 import { getQuadsAPI } from "../../../../services/api/quads";
 import AddQuadModal from "./components/addQuad";
+import { SelectQuad } from "./components/infoQuads"
 
 export default function QuadPage() {
     const [filterFunc, setFilterFunc] = useState('mc');
-    const [filterQuad, setFilterQuad] = useState('s_pto');
-    const [quads, setQuads] = useState([])
-    const [lenMin, setMin] = useState(undefined)
+    const [filterQuad, setFilterQuad] = useState('sobr-preto');
+    const [quads, setQuads] = useState([]);
+
+    const themeTable = {
+        root: {
+            base: "w-full text-base text-gray-500 dark:text-gray-400 uppercase text-center",
+            shadow: "absolute left-0 top-0 -z-10 h-full w-full rounded-lg bg-white drop-shadow-md dark:bg-black",
+            wrapper: "relative"
+        },
+        body: {
+            base: "group/body",
+            cell: {
+                base: "px-0.5 py-1 group-first/body:group-first/row:first:rounded-tl-lg group-first/body:group-first/row:last:rounded-tr-lg group-last/body:group-last/row:first:rounded-bl-lg group-last/body:group-last/row:last:rounded-br-lg"
+            }
+        },
+        head: {
+            base: "group/head text-xs text-gray-700 dark:text-gray-400",
+            cell: {
+                base: "bg-gray-200 px-6 py-3 group-first/head:first:rounded-tl-lg group-first/head:last:rounded-tr-lg dark:bg-gray-700"
+            }
+        },
+        row: {
+            base: "group/row bg-white hover:font-semibold bg-white",
+            hovered: "hover:bg-gray-50 dark:hover:bg-gray-600",
+            striped: "odd:bg-white even:bg-gray-50 odd:dark:bg-gray-800 even:dark:bg-gray-700"
+        }
+    }
+
 
     function getQuads() {
         const params = {
@@ -24,9 +50,6 @@ export default function QuadPage() {
         getQuadsAPI(params)
             .then(res => res.json())
             .then(data => {
-                setMin(
-                    Math.min(...data.map(f => f.quads.length)) - 1
-                );
                 setQuads(data);
             });
     }
@@ -39,39 +62,38 @@ export default function QuadPage() {
 
             <div className="my-5 w-5/12 flex justify-between">
                 <div className="flex gap-2">
-                    <SelectFuncao value={filterFunc} callFunc={setFilterFunc} />
-
-                    <Select value={filterQuad} onChange={(e) => setFilterQuad(e.target.value)}>
-                        <optgroup label="Sobreaviso">
-                            <option value={'s_pto'}>S. Preto</option>
-                            <option value={'s_vmo'}>S. Vermelho</option>
-                            <option value={'s_rxo'}>S. Roxo</option>
-                        </optgroup>
+                    <Select value={filterFunc} onChange={(e) => setFilterFunc(e.target.value)}>
+                        <option value="mc">Mecânico</option>
+                        <option value="lm">LoadMaster</option>
+                        <option value="tf">Taifeiro</option>
+                        <option value="os">Observador-SAR</option>
+                        <option value="oe">OE</option>
                     </Select>
+
+                    <SelectQuad
+                        value={filterQuad}
+                        funcTrip={filterFunc}
+                        onChange={setFilterQuad}
+                    />
                 </div>
             </div>
 
             <div className="flex">
-                <Table hoverable className="text-base shadow-md">
+                <Table theme={themeTable}>
                     <Table.Body>
                         {
                             quads.map((func) => {
+                                func.quads.sort((a, b) => a.value - b.value);
+
                                 return (
                                     <Table.Row key={func.id} className="border-b">
-                                        <Table.Cell className="grid justify-center px-3 py-2">
-                                            <Button
-                                                color={'light'}
-                                                onClick={() => console.log(func)}
-                                                className="w-14 uppercase"
-                                                size={'sm'}>
-                                                {func.trip.trig}
-                                            </Button>
-
+                                        <Table.Cell className="justify-items-center px-3 py-2">
+                                            <QuadsTrip func={func} />
                                         </Table.Cell>
                                         {
                                             func.quads.map(quad => {
                                                 return (
-                                                    <Table.Cell key={quad.id} className="py-2 px-0 pr-2">
+                                                    <Table.Cell key={quad.id}>
                                                         <QuadPopover
                                                             value={quad.value}
                                                             info={quad.description}
@@ -80,7 +102,7 @@ export default function QuadPage() {
                                                 )
                                             })
                                         }
-                                        <Table.Cell className="py-2 pl-2 pr-3">
+                                        <Table.Cell className="w-20 justify-items-center">
                                             <AddQuadModal func={func} callFunc={getQuads} type={filterQuad} />
                                         </Table.Cell>
                                     </Table.Row>
@@ -93,3 +115,4 @@ export default function QuadPage() {
         </>
     )
 }
+

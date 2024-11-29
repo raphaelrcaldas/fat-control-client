@@ -1,12 +1,13 @@
 import { VscAdd } from "react-icons/vsc";
 import { useState, useEffect } from "react";
-import { Button, Datepicker, Label, Modal, Textarea } from "flowbite-react";
+import { Button, Label, Datepicker, Modal, Textarea } from "flowbite-react";
 import { NumberInput } from "../../components/numberInput";
 import { addQuadAPI } from "../../../../../services/api/quads";
 import { MessageModal } from "../../components/messageModal";
 import { IoMdClose } from "react-icons/io";
 
-function AddQuadModal({ func, type, callFunc }) {
+
+export default function AddQuadModal({ func, type, callFunc }) {
     const [openModal, setOpenModal] = useState(false);
     const [date, setDate] = useState('');
     const [obs, setObs] = useState('');
@@ -53,15 +54,12 @@ function AddQuadModal({ func, type, callFunc }) {
             const dataRes = await response.json();
 
             if (response.ok) {
-                setTypeMsg(true);
-                setMsgToModal("Adicionado com sucesso");
+                alert("Adicionado com sucesso");
                 cleanModal();
                 callFunc();
             } else {
-                setTypeMsg(false)
-                setMsgToModal(dataRes.detail);
+                alert(dataRes.detail);
             }
-            setMessageModal(true);
         } else {
             alert("Insira lastros ou uma data")
         }
@@ -99,6 +97,7 @@ function AddQuadModal({ func, type, callFunc }) {
                                     autoHide={true}
                                     onSelectedDateChanged={(e) => onSelectDate(e)}
                                 />
+
                                 {/* < IoMdClose
                                     className="text-xl cursor-pointer"
                                     onClick={() => setDate(null)}
@@ -143,5 +142,3 @@ function AddQuadModal({ func, type, callFunc }) {
         </>
     );
 }
-
-export default AddQuadModal;

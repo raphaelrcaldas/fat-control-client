@@ -24,6 +24,31 @@ export default function TripPage() {
     const [filterFunc, setFilterFunc] = useState('');
     const [filterOp, setFilterOp] = useState('');
 
+    const themeTable = {
+        root: {
+            base: "w-full text-base text-gray-500 dark:text-gray-400 uppercase text-center",
+            shadow: "absolute left-0 top-0 -z-10 h-full w-full rounded-lg bg-white drop-shadow-md dark:bg-black",
+            wrapper: "relative"
+        },
+        body: {
+            base: "group/body",
+            cell: {
+                base: "px-6 py-1 group-first/body:group-first/row:first:rounded-tl-lg group-first/body:group-first/row:last:rounded-tr-lg group-last/body:group-last/row:first:rounded-bl-lg group-last/body:group-last/row:last:rounded-br-lg"
+            }
+        },
+        head: {
+            base: "group/head text-xs text-gray-700 dark:text-gray-400",
+            cell: {
+                base: "bg-gray-200 px-6 py-3 group-first/head:first:rounded-tl-lg group-first/head:last:rounded-tr-lg dark:bg-gray-700"
+            }
+        },
+        row: {
+            base: "group/row bg-white hover:font-semibold",
+            hovered: "hover:bg-gray-50 dark:hover:bg-gray-600",
+            striped: "odd:bg-white even:bg-gray-50 odd:dark:bg-gray-800 even:dark:bg-gray-700"
+        }
+    }
+
     function getListTrips() {
         getTripsAPI({ uae: uae, active: active })
             .then(res => res.json())
@@ -81,7 +106,7 @@ export default function TripPage() {
     return (
         <>
             <h2>Tripulantes</h2>
-            <div className="max-w-4xl">
+            <div className="w-[60rem]">
                 <div className="mt-4 flex gap-2">
                     <Select
                         onChange={(e) => setUae(e.target.value)}
@@ -106,7 +131,7 @@ export default function TripPage() {
                         />
                         <SelectFuncao value={filterFunc} callFunc={setFilterFunc} />
                         <SelectOper value={filterOp} callFunc={setFilterOp} />
-                        <Button onClick={filters}>
+                        <Button color="blue" onClick={filters}>
                             <FilterAltSharpIcon className="h-5 w-5" />
                         </Button>
                     </div>
@@ -114,8 +139,8 @@ export default function TripPage() {
                         <SearchUser uae={uae} trips={trips} updateTrips={getListTrips} />
                     </div>
                 </div>
-                <div className="mt-8 overflow-x-auto shadow-md">
-                    <Table hoverable>
+                <div className="mt-4 overflow-x-auto shadow-md">
+                    <Table hoverable theme={themeTable}>
                         <Table.Head className="text-center">
                             <Table.HeadCell>P/G</Table.HeadCell>
                             <Table.HeadCell>Especialidade</Table.HeadCell>
@@ -129,23 +154,20 @@ export default function TripPage() {
                         <Table.Body>
                             {
                                 filterTrips.map(trip =>
-                                    <Table.Row
-                                        key={trip.id}
-                                        className="bg-white text-center hover:font-semibold uppercase text-base"
-                                    >
-                                        <Table.Cell className="py-2 font-medium">
+                                    <Table.Row key={trip.id} >
+                                        <Table.Cell className="font-medium">
                                             {trip.user.p_g}
                                         </Table.Cell>
-                                        <Table.Cell className="py-2">
+                                        <Table.Cell>
                                             {trip.user.esp}
                                         </Table.Cell>
-                                        <Table.Cell className="py-2 text-left">
+                                        <Table.Cell className="text-left">
                                             {trip.user.nome_guerra}
                                         </Table.Cell>
-                                        <Table.Cell className="py-2">
+                                        <Table.Cell className="">
                                             {trip.trig}
                                         </Table.Cell>
-                                        <Table.Cell className="py-2 justify-items-center">
+                                        <Table.Cell className="justify-items-center">
                                             {trip.funcs.length < 1 ?
                                                 <span className="text-red-600 text-xs">Sem Função</span> :
                                                 trip.funcs.map(
@@ -153,7 +175,7 @@ export default function TripPage() {
                                                 )
                                             }
                                         </Table.Cell>
-                                        <Table.Cell className="py-2">
+                                        <Table.Cell className="justify-items-center">
                                             <FuncRegister trip={trip} />
                                         </Table.Cell>
                                     </Table.Row>
