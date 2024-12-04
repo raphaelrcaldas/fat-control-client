@@ -9,8 +9,7 @@ import { SearchUser } from "./components/searchUserTrip";
 import { getTripsAPI } from "../../../../services/api/trips";
 import { SelectFuncao, SelectOper } from "../components/inputForm";
 import { FuncBadge } from "../components/badges";
-import { TripRegister } from "./components/tripRegister";
-import { FuncRegister } from "./components/funcRegister";
+import { TripDetail } from "./components/tripDetail";
 
 
 export default function TripPage() {
@@ -107,7 +106,7 @@ export default function TripPage() {
         <>
             <h2>Tripulantes</h2>
             <div className="w-[60rem]">
-                <div className="mt-4 flex gap-2">
+                <div className="mt-4 flex gap-2 hidden">
                     <Select
                         onChange={(e) => setUae(e.target.value)}
                         defaultValue={uae}
@@ -176,7 +175,7 @@ export default function TripPage() {
                                             }
                                         </Table.Cell>
                                         <Table.Cell className="justify-items-center">
-                                            <FuncRegister trip={trip} />
+                                            <TripDetail trip={trip} update={getListTrips} />
                                         </Table.Cell>
                                     </Table.Row>
                                 )
