@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Modal, Button, TextInput, Label } from "flowbite-react";
 import { useForm } from "react-hook-form"
-import AddBoxSharpIcon from '@mui/icons-material/AddBoxSharp';
+import { IoMdAdd } from "react-icons/io";
 
 import { addTripAPI } from "../../../../../services/api/trips";
 import { onlyText } from "../../../../../utils/textFormat";
@@ -68,10 +68,8 @@ export function TripRegister({ uae, user, update }) {
 
     return (
         <>
-            <AddBoxSharpIcon
-                className="cursor-pointer"
-                fontSize="large"
-                color="info"
+            <IoMdAdd
+                className="cursor-pointer text-white bg-blue-700 h-6 w-6"
                 onClick={() => setShow(true)}
             />
 

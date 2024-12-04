@@ -1,12 +1,9 @@
 'use client'
 
 import { Button, Modal } from 'flowbite-react';
-import CheckCircleSharpIcon from '@mui/icons-material/CheckCircleSharp';
-import ErrorSharpIcon from '@mui/icons-material/ErrorSharp';
+import { MdCheckCircle,MdError,MdOutlineDelete } from "react-icons/md";
 import { HiOutlineExclamationCircle } from "react-icons/hi";
 import { useState } from 'react';
-import DeleteOutlineSharpIcon from '@mui/icons-material/DeleteOutlineSharp';
-
 
 
 export function MessageModal({ msg, active, callFunc, typeMsg }) {
@@ -14,9 +11,9 @@ export function MessageModal({ msg, active, callFunc, typeMsg }) {
 
   switch (typeMsg) {
     case 'success':
-      Icon = CheckCircleSharpIcon;
+      Icon = MdCheckCircle;
     case 'failure':
-      Icon = ErrorSharpIcon;
+      Icon = MdError;
   }
 
   return (
@@ -47,7 +44,7 @@ export function QuestionExclude({ callFunc }) {
 
   return (
     <>
-      <Button color={'red'} onClick={() => setOpenModal(true)}><DeleteOutlineSharpIcon /></Button>
+      <Button color={'red'} onClick={() => setOpenModal(true)}><MdOutlineDelete /></Button>
 
       <Modal show={openModal} size="md" onClose={() => setOpenModal(false)} popup>
         <Modal.Header />

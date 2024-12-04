@@ -5,7 +5,7 @@ import { addUserAPI, getUserById, updateUser } from "../../../../../services/api
 import { sanitizeText, validateOnlyNumber } from "../../../../../utils/textFormat";
 import { useForm } from "react-hook-form"
 import { validateNoNumber, onlyText } from "../../../../../utils/textFormat";
-import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import { IoMdInformationCircleOutline } from "react-icons/io";
 import { HiMail } from "react-icons/hi";
 
 
@@ -76,7 +76,10 @@ export function UserRegister({ user_id, updateUsers, readOnly }) {
     return (
         <>
             <Button color={user_id ? "gray" : "blue"} onClick={() => setShow(true)}>
-                {user_id ? <InfoOutlinedIcon /> : "Adicionar Usuário"}
+                {
+                    user_id ? <IoMdInformationCircleOutline className="h-6 w-6" />
+                        : "Adicionar Usuário"
+                }
             </Button>
 
             {show &&

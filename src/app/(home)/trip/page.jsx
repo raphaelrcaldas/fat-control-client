@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { Table, TextInput, Button, Select } from "flowbite-react";
 import { IoSearchSharp } from "react-icons/io5";
-import FilterAltSharpIcon from '@mui/icons-material/FilterAltSharp';
+import { FaFilter } from "react-icons/fa";
 
 import { SearchUser } from "./components/searchUserTrip";
 import { getTripsAPI } from "../../../../services/api/trips";
@@ -132,7 +132,7 @@ export default function TripPage() {
                         <SelectFuncao value={filterFunc} callFunc={setFilterFunc} />
                         <SelectOper value={filterOp} callFunc={setFilterOp} />
                         <Button color="blue" onClick={filters}>
-                            <FilterAltSharpIcon className="h-5 w-5" />
+                            <FaFilter className="h-4 w-4" />
                         </Button>
                     </div>
                     <div>

@@ -1,13 +1,12 @@
 'use client';
 
-import {
-    AirplanemodeInactiveSharp,
-    AirplaneTicketSharp,
-    CloseSharp,
-    PeopleOutlineSharp,
-    SortSharp,
-    HailSharp
-} from '@mui/icons-material';
+import { 
+    MdSort,
+    MdAirplaneTicket, 
+    MdAirplanemodeInactive ,
+    MdHail,
+    MdOutlinePeopleAlt
+} from "react-icons/md";
 import { useRouter, usePathname } from 'next/navigation'
 
 import profilePic from '../../../../public/assets/1_1_gt.jpg'
@@ -19,27 +18,27 @@ const linksSide = [
     {
         title: 'Quadrinhos',
         link: '/quads',
-        icon: AirplaneTicketSharp,
+        icon: MdAirplaneTicket,
     },
     {
         title: 'Indisp',
         link: '/indisp',
-        icon: AirplanemodeInactiveSharp,
+        icon: MdAirplanemodeInactive,
     },
     // {
     //     title: 'Pau de Sebo',
     //     link: '/sebo',
-    //     icon: SortSharp,
+    //     icon: MdSort,
     // },
     {
         title: 'Tripulantes',
         link: '/trip',
-        icon: HailSharp,
+        icon: MdHail,
     },
     {
         title: 'Usuários',
         link: '/users',
-        icon: PeopleOutlineSharp,
+        icon: MdOutlinePeopleAlt,
     },
 ]
 
