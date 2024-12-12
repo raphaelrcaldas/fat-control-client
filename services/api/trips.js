@@ -1,6 +1,6 @@
 import { url, headers } from "./config";
 
-const route = new URL(`${url}trips/`)
+const route = new URL(`${url}ops/trips/`)
 
 
 export async function getTripsAPI(params) {

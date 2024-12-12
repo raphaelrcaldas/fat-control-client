@@ -170,8 +170,6 @@ export function TripDetail({ trip, update }) {
                                 </div>
                             </div>
 
-
-
                             <div className="grid mt-9 justify-center">
                                 <Button color="blue" type="submit" >OK</Button>
                             </div>

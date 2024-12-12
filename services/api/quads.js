@@ -1,6 +1,6 @@
 import { url, headers } from "./config";
 
-const route = new URL(`${url}quads/`)
+const route = new URL(`${url}ops/quads/`)
 
 export async function addQuadAPI(quad) {
     const requestOptions = {
