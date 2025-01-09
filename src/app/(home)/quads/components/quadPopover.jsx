@@ -4,7 +4,7 @@ import { Button, Popover } from "flowbite-react";
 export function QuadPopover({ value, info }) {
   let dateStr;
   let color;
-  if (value == 0) {
+  if (value == null) {
     dateStr = 'LASTRO'
     color = 'bg-gray-500 enabled:hover:bg-gray-600'
   } else {

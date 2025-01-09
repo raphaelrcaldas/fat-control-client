@@ -3,7 +3,7 @@
 import { Button, Modal, Table } from "flowbite-react";
 import { useState } from "react";
 
-export function QuadsTrip({ func }) {
+export function QuadsTrip({ trip }) {
     const [openModal, setOpenModal] = useState(false);
 
     const themeTable = {
@@ -31,7 +31,7 @@ export function QuadsTrip({ func }) {
         }
     }
 
-    const sortedQuads = func.quads.sort((a, b) => b.value - a.value)
+    // const sortedQuads = func.quads.sort((a, b) => b.value - a.value)
 
     return (
         <>
@@ -40,16 +40,16 @@ export function QuadsTrip({ func }) {
                 onClick={() => setOpenModal(true)}
                 className="w-14 uppercase"
                 size={'sm'}>
-                {func.trip.trig}
+                {trip.trig}
             </Button>
 
             <Modal show={openModal} size="md" onClose={() => setOpenModal(false)} popup>
                 <Modal.Header>Quadrinhos</Modal.Header>
                 <Modal.Body>
                     <div className="m-4 text-base uppercase text-center">
-                        <h2>{func.trip.trig}</h2>
+                        <h2>{trip.trig}</h2>
                         <h3 className="font-semibold">
-                            {`${func.trip.user.p_g} ${func.trip.user.esp} ${func.trip.user.nome_guerra}`}
+                            {`${trip.user.p_g} ${trip.user.esp} ${trip.user.nome_guerra}`}
                         </h3>
                     </div>
                     <div className="overflow-x-auto">
@@ -62,7 +62,7 @@ export function QuadsTrip({ func }) {
                                 </Table.HeadCell>
                             </Table.Head>
                             <Table.Body>
-                                {
+                                {/* {
                                     sortedQuads.map(quad => {
                                         const dateStr = quad.value > 0 ? new Date(quad.value).toLocaleDateString('pt-br') : "LASTRO";
 
@@ -80,16 +80,11 @@ export function QuadsTrip({ func }) {
                                             </Table.Row>
                                         )
                                     })
-                                }
-
+                                } */}
                             </Table.Body>
                         </Table>
                     </div>
-
                 </Modal.Body>
-                <Modal.Footer>
-
-                </Modal.Footer>
             </Modal>
         </>
     );

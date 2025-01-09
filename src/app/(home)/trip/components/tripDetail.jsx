@@ -125,7 +125,7 @@ export function TripDetail({ trip, update }) {
                                 </div>
                             </div>
 
-                            <div className="mt-4 min-h-24 bg-gray-100 overflow-auto shadow-md">
+                            {/* <div className="mt-4 min-h-24 bg-gray-100 overflow-auto shadow-md">
                                 <Table className="text-center uppercase" hoverable>
                                     <Table.Head className="sticky top-0">
                                         <Table.HeadCell>Função</Table.HeadCell>
@@ -168,7 +168,7 @@ export function TripDetail({ trip, update }) {
                                         <GoPlus className="mr-1 h-5 w-5" /> Função
                                     </Button>
                                 </div>
-                            </div>
+                            </div> */}
 
                             <div className="grid mt-9 justify-center">
                                 <Button color="blue" type="submit" >OK</Button>

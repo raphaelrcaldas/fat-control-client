@@ -122,7 +122,7 @@ export default function UsersPage() {
                                             <Table.Cell>
                                                 {user.nome_guerra}
                                             </Table.Cell>
-                                            <Table.Cell>
+                                            <Table.Cell className="text-left">
                                                 {user.nome_completo}
                                             </Table.Cell>
                                             <Table.Cell className="justify-items-center">

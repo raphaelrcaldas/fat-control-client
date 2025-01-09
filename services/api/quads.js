@@ -1,6 +1,6 @@
 import { url, headers } from "./config";
 
-const route = new URL(`${url}ops/quads/`)
+const route = `${url}ops/quads/`
 
 export async function addQuadAPI(quad) {
     const requestOptions = {
@@ -8,7 +8,8 @@ export async function addQuadAPI(quad) {
         headers: headers,
         body: JSON.stringify(quad),
     };
-    return await fetch(route, requestOptions);;
+    const quadRoute = new URL(route)
+    return await fetch(quadRoute, requestOptions);;
 }
 
 
@@ -18,10 +19,11 @@ export async function getQuadsAPI(params) {
         headers: headers,
     };
 
+    const quadRoute = new URL(route)
     Object.keys(params).forEach(
-        key => route.searchParams.set(key, params[key])
+        key => quadRoute.searchParams.set(key, params[key])
     );
-    return await fetch(route, requestOptions);
+    return await fetch(quadRoute, requestOptions);
 }
 
 
@@ -30,7 +32,8 @@ export async function getQuadById(id) {
         method: "GET",
         headers: headers,
     };
-    return await fetch(route + id, requestOptions);
+    const quadRoute = new URL(`${route}/${id}`)
+    return await fetch(quadRoute, requestOptions);
 }
 
 export async function updateQuad(quad) {
@@ -39,7 +42,8 @@ export async function updateQuad(quad) {
         headers: headers,
         body: JSON.stringify(quad),
     };
-    return await fetch(route + quad.id, requestOptions);
+    const quadRoute = new URL(`${route}/${quad.id}`)
+    return await fetch(quadRoute, requestOptions);
 }
 
 
@@ -48,5 +52,6 @@ export async function deleteQuad(id) {
         method: "DELETE",
         headers: headers,
     };
-    return await fetch(route + id, requestOptions);
+    const quadRoute = new URL(`${route}/${id}`)
+    return await fetch(quadRoute + id, requestOptions);
 }

@@ -1,6 +1,6 @@
 import { url, headers } from "./config";
 
-const route = new URL(`${url}ops/trips/`)
+const route = `${url}ops/trips/`
 
 
 export async function getTripsAPI(params) {
@@ -9,11 +9,13 @@ export async function getTripsAPI(params) {
         headers: headers,
     };
 
+    const tripRoute = new URL(route);
+
     Object.keys(params).forEach(
-        key => route.searchParams.set(key, params[key])
+        key => tripRoute.searchParams.set(key, params[key])
     );
 
-    return await fetch(route, requestOptions);
+    return await fetch(tripRoute, requestOptions);
 }
 
 
@@ -24,7 +26,9 @@ export async function addTripAPI(trip) {
         body: JSON.stringify(trip),
     };
 
-    return await fetch(route, requestOptions);
+    const tripRoute = new URL(route);
+
+    return await fetch(tripRoute, requestOptions);
 }
 
 
@@ -35,5 +39,7 @@ export async function updateTripAPI(id, trip) {
         body: JSON.stringify(trip),
     };
 
-    return await fetch(`${url}trips/` + id, requestOptions);
+    const tripRoute = new URL(route);
+
+    return await fetch(`${tripRoute}` + id, requestOptions);
 }

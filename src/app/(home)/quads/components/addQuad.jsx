@@ -7,7 +7,7 @@ import { MessageModal } from "../../components/messageModal";
 import { IoMdClose } from "react-icons/io";
 
 
-export default function AddQuadModal({ func, type, callFunc }) {
+export default function AddQuadModal({ trip, type, callFunc }) {
     const [openModal, setOpenModal] = useState(false);
     const [date, setDate] = useState('');
     const [obs, setObs] = useState('');
@@ -42,7 +42,7 @@ export default function AddQuadModal({ func, type, callFunc }) {
         if (lastro > 0 || date) {
 
             const quad = {
-                trip_id: func.trip.id,
+                trip_id: trip.id,
                 value: (lastro > 0) ? 0 : dateStrToVal(date),
                 description: obs,
                 type: type
@@ -77,10 +77,10 @@ export default function AddQuadModal({ func, type, callFunc }) {
                 <Modal.Body>
                     <div className="text-center uppercase font-semibold">
                         <h3>
-                            {`${func.trip.user.p_g} ${func.trip.user.nome_guerra} `}
+                            {`${trip.user.p_g} ${trip.user.nome_guerra} `}
                         </h3>
-                        <h3>{`${func.func} ${func.oper}`}</h3>
-                        <h3>{`${func.proj}`}</h3>
+                        <h3>{`${trip.func.func} ${trip.func.oper}`}</h3>
+                        <h3>{`${trip.func.proj}`}</h3>
                     </div>
 
                     <div className="grid justify-center mt-6 h-96 text-center">

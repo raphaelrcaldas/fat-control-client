@@ -82,16 +82,16 @@ export default function QuadPage() {
                 <Table theme={themeTable}>
                     <Table.Body>
                         {
-                            quads.map((func) => {
-                                func.quads.sort((a, b) => a.value - b.value);
+                            quads.map((item) => {
+                                // func.quads.sort((a, b) => a.value - b.value);
 
                                 return (
-                                    <Table.Row key={func.id} className="border-b">
+                                    <Table.Row key={item.trip.id} className="border-b">
                                         <Table.Cell className="justify-items-center px-3 py-2">
-                                            <QuadsTrip func={func} />
+                                            <QuadsTrip trip={item.trip} />
                                         </Table.Cell>
                                         {
-                                            func.quads.map(quad => {
+                                            item.quads.map(quad => {
                                                 return (
                                                     <Table.Cell key={quad.id}>
                                                         <QuadPopover
@@ -103,7 +103,7 @@ export default function QuadPage() {
                                             })
                                         }
                                         <Table.Cell className="w-20 justify-items-center">
-                                            <AddQuadModal func={func} callFunc={getQuads} type={filterQuad} />
+                                            <AddQuadModal trip={item.trip} callFunc={getQuads} type={filterQuad} />
                                         </Table.Cell>
                                     </Table.Row>
                                 )
