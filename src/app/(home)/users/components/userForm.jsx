@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { Button, Label, Modal, Select, TextInput } from "flowbite-react";
-import { Users } from "../../../../../services/Api";
+import { addUser, updateUser, getUserById } from "../../../../../services/routes/users";
 import { sanitizeText, validateOnlyNumber } from "../../../../../utils/textFormat";
 import { useForm } from "react-hook-form"
 import { validateNoNumber, onlyText } from "../../../../../utils/textFormat";
@@ -36,7 +36,7 @@ export function UserRegister({ user_id, updateUsers, readOnly }) {
     // FAZER A REQ SOMENTE QUANDO ABRIR USER MODAL
     useEffect(() => {
         if (show && user_id) {
-            Users("GET", user_id)
+            getUserById(user_id)
                 .then(res => res.json())
                 .then(data => {
                     reset(data);
@@ -51,9 +51,9 @@ export function UserRegister({ user_id, updateUsers, readOnly }) {
 
         let response;
         if (user_id) {
-            response = await Users("PUT", user_id, data);
+            response = await updateUser(user_id, data);
         } else {
-            response = await Users("POST", data);
+            response = await addUser(data);
         }
 
         const dataRes = await response.json();

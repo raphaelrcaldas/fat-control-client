@@ -1,16 +1,16 @@
 const baseUrl = "http://127.0.0.1:8000/"
 // const url = "http://192.168.0.139:8000/"
 
-const request = async (method, endpoint, body, params, token = null) => {
+export async function request(method, endpoint, body = null, params = null, token = null) {
     let fullUrl = `${baseUrl}${endpoint}`;
     let headers = { 'Content-Type': 'application/json' };
     let options = { method: method, headers: headers };
 
     if (params) {
-        let entries = Object.entries(params).map((e) => (e.join("=")));
-        entries = entries.join("&");
+        let searchParams = Object.entries(params).map((e) => (e.join("=")));
+        searchParams = entries.join("&");
 
-        fullUrl += `?${entries}`
+        fullUrl += `?${searchParams}`
     }
 
     if (body) { options.body = JSON.stringify(body) };
@@ -19,14 +19,5 @@ const request = async (method, endpoint, body, params, token = null) => {
         headers.Authorization = `Bearer ${token}`;
     };
 
-    let req = await fetch(fullUrl, options);
-
-    return await req.json();
-};
-
-export async function Users(method, user_id, body) {
-
-    const response = await request(method, `users/${user_id}`, body);
-
-    return response;
+    return await fetch(fullUrl, options);
 };

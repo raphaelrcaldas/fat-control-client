@@ -2,8 +2,7 @@
 
 import { Button, Table, TextInput } from "flowbite-react";
 import { useState, useEffect } from "react";
-// import { Users } from "../../../../services/api/users";
-import { Users } from "../../../../services/Api"
+import { getUsers } from "../../../../services/routes/users";
 import { UserRegister } from "./components/userForm";
 import { BadgeUAE } from "../components/badges";
 import { IoSearchSharp } from "react-icons/io5";
@@ -39,7 +38,7 @@ export default function UsersPage() {
     }
 
     function updateListUsers() {
-        Users("get")
+        getUsers()
             .then(res => res.json())
             .then(users => {
                 users.sort(function (a, b) {
