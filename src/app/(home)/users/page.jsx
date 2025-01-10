@@ -1,8 +1,9 @@
 "use client";
 
 import { Button, Table, TextInput } from "flowbite-react";
-import { memo, useState, useEffect } from "react";
-import { getUsersAPI } from "../../../../services/api/users";
+import { useState, useEffect } from "react";
+// import { Users } from "../../../../services/api/users";
+import { Users } from "../../../../services/Api"
 import { UserRegister } from "./components/userForm";
 import { BadgeUAE } from "../components/badges";
 import { IoSearchSharp } from "react-icons/io5";
@@ -38,7 +39,7 @@ export default function UsersPage() {
     }
 
     function updateListUsers() {
-        getUsersAPI()
+        Users("get")
             .then(res => res.json())
             .then(users => {
                 users.sort(function (a, b) {

@@ -54,7 +54,7 @@ body {
     color: var(--color-dark);
 }
 
-.container {
+/* .container {
     display: grid;
     width: 98%;
     margin: 0;
@@ -213,4 +213,4 @@ aside .sidebar a:hover svg {
 
 main {
     margin-top: 1.4rem;
-  }
+  } */
