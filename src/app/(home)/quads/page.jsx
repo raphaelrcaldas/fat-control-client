@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { Table, Select } from "flowbite-react";
 import { QuadPopover } from "./components/quadPopover";
 import { QuadsTrip } from "./components/quadsTrip";
-import { getQuadsAPI } from "../../../../services/api/quads";
+import { getQuads } from "../../../../services/routes/quads";
 import AddQuadModal from "./components/addQuad";
 import { SelectQuad } from "./components/infoQuads"
 
@@ -39,7 +39,7 @@ export default function QuadPage() {
     }
 
 
-    function getQuads() {
+    function getQuadsParams() {
         const params = {
             funcao: filterFunc,
             tipo_quad: filterQuad,
@@ -47,14 +47,14 @@ export default function QuadPage() {
             proj: 'kc-390',
         }
 
-        getQuadsAPI(params)
+        getQuads(params)
             .then(res => res.json())
             .then(data => {
                 setQuads(data);
             });
     }
 
-    useEffect(() => { getQuads() }, [filterQuad, filterFunc]);
+    useEffect(() => { getQuadsParams() }, [filterQuad, filterFunc]);
 
     return (
         <>

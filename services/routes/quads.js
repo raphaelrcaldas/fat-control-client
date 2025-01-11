@@ -10,7 +10,7 @@ export async function addQuad(quad) {
 
 export async function getQuads(params) {
 
-    return await request("GET", quadsRoute, params = params)
+    return await request("GET", quadsRoute, null, params)
 }
 
 

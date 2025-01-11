@@ -4,17 +4,17 @@ const tripRoute = "ops/trips/";
 
 export async function getTrips(params) {
 
-    return await request("GET", tripRoute, params = params);
+    return await request("GET", tripRoute, null, params);
 }
 
 
-export async function addTripAPI(trip) {
+export async function addTrip(trip) {
 
     return await request("POST", tripRoute, trip);
 }
 
 
-export async function updateTripAPI(tripId, trip) {
+export async function updateTrip(tripId, trip) {
 
     return await request("PUT", tripRoute + tripId, trip);
 }

@@ -6,7 +6,7 @@ import { IoMdInformationCircleOutline } from "react-icons/io";
 import { GoPlus } from "react-icons/go";
 import { FaEdit } from "react-icons/fa";
 import { onlyText } from "../../../../../utils/textFormat";
-import { updateTripAPI } from "../../../../../services/api/trips";
+import { updateTrip } from "../../../../../services/routes/trips";
 
 
 export function TripDetail({ trip, update }) {

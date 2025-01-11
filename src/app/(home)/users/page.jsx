@@ -7,70 +7,68 @@ import { UserRegister } from "./components/userForm";
 import { BadgeUAE } from "../components/badges";
 import { IoSearchSharp } from "react-icons/io5";
 
-export default function UsersPage() {
-    const [usuarios, setUsuarios] = useState([]);
-    const [filterUsers, setFilterUsers] = useState([]);
-    const [filterName, setFilterName] = useState("");
-
-    const themeTable = {
-        root: {
-            base: "w-full text-base text-gray-500 uppercase text-center",
-            shadow: "absolute left-0 top-0 -z-10 h-full w-full rounded-lg bg-white drop-shadow-md",
-            wrapper: "relative"
-        },
-        body: {
-            base: "group/body",
-            cell: {
-                base: "px-6 py-1 group-first/body:group-first/row:first:rounded-tl-lg group-first/body:group-first/row:last:rounded-tr-lg group-last/body:group-last/row:first:rounded-bl-lg group-last/body:group-last/row:last:rounded-br-lg"
-            }
-        },
-        head: {
-            base: "group/head text-xs text-gray-700 dark:text-gray-400",
-            cell: {
-                base: "bg-gray-100 px-6 py-3 group-first/head:first:rounded-tl-lg group-first/head:last:rounded-tr-lg dark:bg-gray-700"
-            }
-        },
-        row: {
-            base: "group/row bg-white hover:font-semibold",
-            hovered: "hover:bg-gray-50",
-            striped: "odd:bg-white even:bg-gray-50"
+const themeTable = {
+    root: {
+        base: "w-full text-base text-gray-500 uppercase text-center",
+        shadow: "absolute left-0 top-0 -z-10 h-full w-full rounded-lg bg-white drop-shadow-md",
+        wrapper: "relative"
+    },
+    body: {
+        base: "group/body",
+        cell: {
+            base: "px-6 py-1 group-first/body:group-first/row:first:rounded-tl-lg group-first/body:group-first/row:last:rounded-tr-lg group-last/body:group-last/row:first:rounded-bl-lg group-last/body:group-last/row:last:rounded-br-lg"
         }
+    },
+    head: {
+        base: "group/head text-xs text-gray-700 dark:text-gray-400",
+        cell: {
+            base: "bg-gray-100 px-6 py-3 group-first/head:first:rounded-tl-lg group-first/head:last:rounded-tr-lg dark:bg-gray-700"
+        }
+    },
+    row: {
+        base: "group/row bg-white hover:font-semibold",
+        hovered: "hover:bg-gray-50",
+        striped: "odd:bg-white even:bg-gray-50"
     }
+}
 
-    function updateListUsers() {
-        getUsers()
-            .then(res => res.json())
+
+function useUsers() {
+    const [usuarios, setUsuarios] = useState([]);
+
+    const updateListUsers = () => {
+        getUsers().then(res => res.json())
             .then(users => {
-                users.sort(function (a, b) {
-                    if (a.nome_guerra > b.nome_guerra) {
-                        return 1;
-                    }
-                    if (a.nome_guerra < b.nome_guerra) {
-                        return -1;
-                    }
-                    return 0;
-                });
+                const sortedUsers = users.sort((a, b) => a.nome_guerra.localeCompare(b.nome_guerra));
+                setUsuarios(sortedUsers);
+            });
+    };
 
-                setUsuarios(users);
-                setFilterUsers(users);
-            })
-    }
+    return { usuarios, updateListUsers };
+}
 
+function useFilterUsers(usuarios, filterName) {
+    const [filterUsers, setFilterUsers] = useState([]);
 
-    function filters() {
-        // FILTRO NOME
-        const filter = usuarios.filter(user => {
-            const inputFilter = filterName.toLowerCase()
-            const checkCompleto = user.nome_completo.includes(inputFilter);
-            const checkGuerra = user.nome_guerra.includes(inputFilter);
+    useEffect(() => {
+        const filtered = usuarios.filter(user => {
+            const inputFilter = filterName.toLowerCase();
+            const nomeCompletoCheck = user.nome_completo.toLowerCase().includes(inputFilter);
+            const nomeGuerraCheck = user.nome_guerra.toLowerCase().includes(inputFilter);
 
-            return checkCompleto || checkGuerra;
-        })
+            return nomeCompletoCheck || nomeGuerraCheck;
+        });
+        setFilterUsers(filtered);
+    }, [filterName, usuarios]);
+    return { filterUsers, setFilterUsers };
+}
 
-        setFilterUsers(filter);
-    }
+export default function UsersPage() {
+    const { usuarios, updateListUsers } = useUsers();
+    const [filterName, setFilterName] = useState("");
+    const { filterUsers } = useFilterUsers(usuarios, filterName);
 
-    useEffect(() => { updateListUsers() }, [])
+    useEffect(() => { updateListUsers() }, []);
 
     return (
         <>
@@ -84,18 +82,11 @@ export default function UsersPage() {
                             value={filterName}
                             onChange={(e) => setFilterName(e.target.value)}
                         />
-                        <Button color="blue" className="w-12" onClick={filters}>
-                            <IoSearchSharp className="h-5 w-5" />
-                        </Button>
                     </div>
                     <div>
-                        <UserRegister
-                            user_id={null}
-                            updateUsers={updateListUsers}
-                        />
+                        <UserRegister user_id={null} updateUsers={updateListUsers} />
                     </div>
                 </div>
-
                 <div className="overflow-x-auto relative shadow-md sm:rounded-lg max-w-6xl">
                     <Table hoverable theme={themeTable}>
                         <Table.Head className="text-sm">
@@ -104,45 +95,23 @@ export default function UsersPage() {
                             <Table.HeadCell>Nome de Guerra</Table.HeadCell>
                             <Table.HeadCell>Nome Completo</Table.HeadCell>
                             <Table.HeadCell className="text-center">Unidade</Table.HeadCell>
-                            <Table.HeadCell>
-                                <span className="sr-only">Detalhes</span>
-                            </Table.HeadCell>
+                            <Table.HeadCell><span className="sr-only">Detalhes</span></Table.HeadCell>
                         </Table.Head>
                         <Table.Body>
-                            {
-                                filterUsers.map((user) => {
-                                    return (
-                                        <Table.Row key={user.id}>
-                                            <Table.Cell className="font-medium text-gray-900">
-                                                {user.p_g}
-                                            </Table.Cell>
-                                            <Table.Cell>
-                                                {user.esp}
-                                            </Table.Cell>
-                                            <Table.Cell>
-                                                {user.nome_guerra}
-                                            </Table.Cell>
-                                            <Table.Cell className="text-left">
-                                                {user.nome_completo}
-                                            </Table.Cell>
-                                            <Table.Cell className="justify-items-center">
-                                                <BadgeUAE>{user.unidade}</BadgeUAE>
-                                            </Table.Cell>
-                                            <Table.Cell className="justify-items-center">
-                                                <UserRegister
-                                                    readOnly={false}
-                                                    user_id={user.id}
-                                                    updateUsers={updateListUsers}
-                                                />
-                                            </Table.Cell>
-                                        </Table.Row>
-                                    )
-                                })
-                            }
+                            {filterUsers.map(user => (
+                                <Table.Row key={user.id}>
+                                    <Table.Cell className="font-medium text-gray-900">{user.p_g}</Table.Cell>
+                                    <Table.Cell>{user.esp}</Table.Cell>
+                                    <Table.Cell>{user.nome_guerra}</Table.Cell>
+                                    <Table.Cell className="text-left">{user.nome_completo}</Table.Cell>
+                                    <Table.Cell className="justify-items-center"><BadgeUAE>{user.unidade}</BadgeUAE></Table.Cell>
+                                    <Table.Cell className="justify-items-center"><UserRegister readOnly={false} user_id={user.id} updateUsers={updateListUsers} /></Table.Cell>
+                                </Table.Row>
+                            ))}
                         </Table.Body>
                     </Table>
                 </div>
             </div>
         </>
-    )
+    );
 }

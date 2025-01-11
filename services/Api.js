@@ -8,7 +8,7 @@ export async function request(method, endpoint, body = null, params = null, toke
 
     if (params) {
         let searchParams = Object.entries(params).map((e) => (e.join("=")));
-        searchParams = entries.join("&");
+        searchParams = searchParams.join("&");
 
         fullUrl += `?${searchParams}`
     }

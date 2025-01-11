@@ -6,7 +6,7 @@ import { IoSearchSharp } from "react-icons/io5";
 import { FaFilter } from "react-icons/fa";
 
 import { SearchUser } from "./components/searchUserTrip";
-import { getTripsAPI } from "../../../../services/api/trips";
+import { getTrips } from "../../../../services/routes/trips";
 import { SelectFuncao, SelectOper } from "../components/inputForm";
 import { FuncBadge } from "../components/badges";
 import { TripDetail } from "./components/tripDetail";
@@ -49,7 +49,7 @@ export default function TripPage() {
     }
 
     function getListTrips() {
-        getTripsAPI({ uae: uae, active: active })
+        getTrips({ uae: uae, active: active })
             .then(res => res.json())
             .then(data => {
                 data.sort((a, b) => {

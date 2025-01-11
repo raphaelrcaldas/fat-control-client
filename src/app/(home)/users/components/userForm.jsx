@@ -19,15 +19,7 @@ export function UserRegister({ user_id, updateUsers, readOnly }) {
     } = useForm({
         defaultValues: {
             p_g: "",
-            // esp: "",
-            // nome_guerra: "",
-            // nome_completo: "",
             unidade: "",
-            // saram: null,
-            // id_fab: null,
-            // cpf: "",
-            // email_fab: "",
-            // email_pess: "",
             ult_promo: null,
             nasc: null,
         },

@@ -1,8 +1,7 @@
 import { VscAdd } from "react-icons/vsc";
 import { useState, useEffect } from "react";
 import { Button, Label, Datepicker, Modal, Textarea } from "flowbite-react";
-import { NumberInput } from "../../components/numberInput";
-import { addQuadAPI } from "../../../../../services/api/quads";
+import { addQuad } from "../../../../../services/routes/quads";
 import { MessageModal } from "../../components/messageModal";
 import { IoMdClose } from "react-icons/io";
 
@@ -107,11 +106,11 @@ export default function AddQuadModal({ trip, type, callFunc }) {
                         </div>
                         <div className="mt-6 flex items-center w-60 bg-gray-100 rounded-lg shadow-md justify-evenly py-2">
                             <Label className="text-base">Lastro</Label>
-                            <NumberInput
+                            {/* <NumberInput
                                 disabled={date ? true : false}
                                 value={lastro}
                                 onChange={(e, val) => setLastro(val)}
-                            />
+                            /> */}
 
                         </div>
                         <div className="mt-6 w-60 rounded-lg shadow-md">

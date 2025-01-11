@@ -70,7 +70,7 @@ a {
 img {
     display: block;
     width: 100%;
-}
+} */
 
 h1 {
     font-weight: 800;
@@ -94,6 +94,7 @@ h5 {
     font-size: 0.77rem;
 }
 
+/*
 small {
     font-size: 0.75rem;
 }
@@ -209,8 +210,8 @@ aside .sidebar a:hover {
 
 aside .sidebar a:hover svg {
     margin-left: 1rem;
-}
+}*/
 
 main {
     margin-top: 1.4rem;
-  } */
+}

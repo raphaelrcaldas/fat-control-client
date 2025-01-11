@@ -3,7 +3,7 @@ import { Modal, Button, TextInput, Label } from "flowbite-react";
 import { useForm } from "react-hook-form"
 import { IoMdAdd } from "react-icons/io";
 
-import { addTripAPI } from "../../../../../services/api/trips";
+import { addTrip } from "../../../../../services/routes/trips";
 import { onlyText } from "../../../../../utils/textFormat";
 
 

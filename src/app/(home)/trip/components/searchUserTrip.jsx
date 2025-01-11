@@ -2,7 +2,7 @@ import { GoPlus } from "react-icons/go";
 import { Modal, Button, Table, TextInput } from "flowbite-react";
 import { useState } from "react";
 import { IoSearchSharp } from "react-icons/io5";
-import { getUsersAPI } from "../../../../../services/api/users";
+import { getUsers} from "../../../../../services/routes/users";
 import { TripRegister } from "./tripRegister";
 
 
