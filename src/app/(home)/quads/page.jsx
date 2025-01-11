@@ -1,5 +1,5 @@
 'use client'
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 
 import { Table, Select } from "flowbite-react";
 import { QuadPopover } from "./components/quadPopover";
@@ -13,7 +13,7 @@ export default function QuadPage() {
     const [filterQuad, setFilterQuad] = useState('sobr-preto');
     const [quads, setQuads] = useState([]);
 
-    const themeTable = {
+    const themeTable = useMemo(() => ({
         root: {
             base: "w-full text-base text-gray-500 dark:text-gray-400 uppercase text-center",
             shadow: "absolute left-0 top-0 -z-10 h-full w-full rounded-lg bg-white drop-shadow-md dark:bg-black",
@@ -36,7 +36,7 @@ export default function QuadPage() {
             hovered: "hover:bg-gray-50 dark:hover:bg-gray-600",
             striped: "odd:bg-white even:bg-gray-50 odd:dark:bg-gray-800 even:dark:bg-gray-700"
         }
-    }
+    }), []);
 
 
     function getQuadsParams() {
@@ -83,12 +83,10 @@ export default function QuadPage() {
                     <Table.Body>
                         {
                             quads.map((item) => {
-                                // func.quads.sort((a, b) => a.value - b.value);
-
                                 return (
                                     <Table.Row key={item.trip.id} className="border-b">
                                         <Table.Cell className="justify-items-center px-3 py-2">
-                                            <QuadsTrip trip={item.trip} />
+                                            <QuadsTrip trip={item.trip} typeQuad={filterQuad} />
                                         </Table.Cell>
                                         {
                                             item.quads.map(quad => {
@@ -103,7 +101,7 @@ export default function QuadPage() {
                                             })
                                         }
                                         <Table.Cell className="w-20 justify-items-center">
-                                            <AddQuadModal trip={item.trip} callFunc={getQuads} type={filterQuad} />
+                                            <AddQuadModal trip={item.trip} callFunc={getQuadsParams} type={filterQuad} />
                                         </Table.Cell>
                                     </Table.Row>
                                 )

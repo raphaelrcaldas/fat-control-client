@@ -17,7 +17,7 @@ export function SearchUser({ uae, trips, updateTrips }) {
         }
 
         if (userSearchInput.length > 0) {
-            let users = await getUsersAPI()
+            let users = await getUsers()
                 .then(res => res.json())
 
             // FILTRAR USUARIOS QUE NÃO SÃO TRIPULANTES

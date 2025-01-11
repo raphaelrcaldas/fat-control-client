@@ -10,7 +10,9 @@ export default function RootLayout({ children }) {
       </head>
       <body>
         <div className='flex h-screen bg-gray-50'>
-          <AppSideBar />
+          <div>
+            <AppSideBar />
+          </div>
           <main className='px-4 w-full'>
             {children}
           </main>

@@ -54,7 +54,7 @@ export function TripRegister({ uae, user, update }) {
     }
 
     async function registerTrip(data) {
-        const response = await addTripAPI(data);
+        const response = await addTrip(data);
         const dataRes = await response.json();
 
         if (response.ok) {

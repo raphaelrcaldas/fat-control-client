@@ -1,8 +1,7 @@
 import { VscAdd } from "react-icons/vsc";
-import { useState, useEffect } from "react";
-import { Button, Label, Datepicker, Modal, Textarea } from "flowbite-react";
+import { useState, useCallback, useEffect } from "react";
+import { Button, Label, Modal, Textarea, TextInput, Select } from "flowbite-react";
 import { addQuad } from "../../../../../services/routes/quads";
-import { MessageModal } from "../../components/messageModal";
 import { IoMdClose } from "react-icons/io";
 
 
@@ -12,44 +11,33 @@ export default function AddQuadModal({ trip, type, callFunc }) {
     const [obs, setObs] = useState('');
     const [lastro, setLastro] = useState(0);
 
-    const [messageModal, setMessageModal] = useState(false);
-    const [msgToModal, setMsgToModal] = useState('');
-    const [typeMsg, setTypeMsg] = useState('success');
+    const [inputType, setInputType] = useState('data');
 
-    function onSelectDate(dateObject) {
-        setDate(dateObject.toLocaleDateString('pt-br'))
-    }
-
-    function dateStrToVal(dateStr) {
-        const [d, m, y] = dateStr.split('/');
-
-        return new Date(y, m - 1, d).valueOf()
-    }
-
-    function cleanModal() {
+    const cleanModal = useCallback(() => {
         setDate('');
         setObs('');
         setLastro(0);
-    }
+    }, []);
 
-    function onClose() {
+    const onClose = useCallback(() => {
         cleanModal();
         setOpenModal(false);
-    }
+    }, [cleanModal]);
 
-    async function addQuad() {
-        if (lastro > 0 || date) {
+    async function handleAddQuad() {
+        const quad = {
+            trip_id: trip.id,
+            value: (inputType === "data") ? date : null,
+            description: obs,
+            type: type
+        };
 
-            const quad = {
-                trip_id: trip.id,
-                value: (lastro > 0) ? 0 : dateStrToVal(date),
-                description: obs,
-                type: type
-            };
-
+        if (lastro > 0 || date != '') {
+            
             const quads = lastro > 0 ? Array(lastro).fill(quad) : [quad]
-
-            const response = await addQuadAPI(quads);
+            
+            console.log(quads)
+            const response = await addQuad(quads);
             const dataRes = await response.json();
 
             if (response.ok) {
@@ -64,6 +52,11 @@ export default function AddQuadModal({ trip, type, callFunc }) {
         }
     }
 
+    const handleLastroChange = (e) => {
+        const value = parseInt(e.target.value, 10);
+        setLastro(value < 0 ? 0 : value);
+    };
+
     return (
         <>
             <VscAdd
@@ -71,7 +64,7 @@ export default function AddQuadModal({ trip, type, callFunc }) {
                 onClick={() => setOpenModal(true)}
             />
 
-            <Modal className="h-46" show={openModal} size="lg" onClose={() => onClose()} popup>
+            <Modal className="" show={openModal} size="sm" onClose={() => onClose()} popup>
                 <Modal.Header children={'Adicionar Quadrinho'} />
                 <Modal.Body>
                     <div className="text-center uppercase font-semibold">
@@ -82,62 +75,74 @@ export default function AddQuadModal({ trip, type, callFunc }) {
                         <h3>{`${trip.func.proj}`}</h3>
                     </div>
 
-                    <div className="grid justify-center mt-6 h-96 text-center">
-                        <div className="w-60 grid justify-center bg-gray-100 py-4 rounded-lg shadow-md">
-                            <Label className="text-base">Data</Label>
+
+
+                    <div className="grid justify-center mt-6 text-center gap-4">
+                        <div className="w-60 grid justify-center bg-gray-50 py-4 rounded-lg shadow-md">
                             <div className="flex gap-4 items-center">
-                                <Datepicker
-                                    className="w-36"
-                                    language="pt-BR"
-                                    showClearButton={false}
-                                    showTodayButton={false}
-                                    value={date}
-                                    maxDate={new Date()}
-                                    autoHide={true}
-                                    onSelectedDateChanged={(e) => onSelectDate(e)}
-                                />
-
-                                {/* < IoMdClose
-                                    className="text-xl cursor-pointer"
-                                    onClick={() => setDate(null)}
-                                /> */}
+                                <div>
+                                    <Label className="mb-2 block" value="Tipo de Entrada" />
+                                    <Select value={inputType} onChange={(e) => setInputType(e.target.value)}>
+                                        <option value="data">Data</option>
+                                        <option value="lastro">Lastro</option>
+                                    </Select>
+                                </div>
                             </div>
-
                         </div>
-                        <div className="mt-6 flex items-center w-60 bg-gray-100 rounded-lg shadow-md justify-evenly py-2">
+
+                        {inputType === 'data' && (
+                            <div className="w-60 grid justify-center bg-gray-50 py-4 rounded-lg shadow-md">
+                                <div className="flex gap-4 items-center">
+                                    <div>
+                                        <TextInput
+                                            value={date}
+                                            onChange={(e) => setDate(e.target.value)}
+                                            className="text-sm text-gray-900"
+                                            type="date"
+                                            autoComplete="off"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {inputType === 'lastro' && (
+                            <div className="w-60 grid justify-center bg-gray-50 py-4 rounded-lg shadow-md">
+                                <div className="flex gap-4 items-center">
+                                    <div>
+                                        <TextInput
+                                            value={lastro}
+                                            onChange={handleLastroChange}
+                                            className="text-sm text-gray-900 w-20"
+                                            type="number"
+                                            autoComplete="off"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+
+                        {/* <div className="mt-6 flex items-center w-60 bg-gray-50 rounded-lg shadow-md justify-evenly py-2">
                             <Label className="text-base">Lastro</Label>
-                            {/* <NumberInput
-                                disabled={date ? true : false}
-                                value={lastro}
-                                onChange={(e, val) => setLastro(val)}
-                            /> */}
-
-                        </div>
+                        </div> */}
                         <div className="mt-6 w-60 rounded-lg shadow-md">
                             <Textarea
                                 // value={obs}
-                                className="text-base h-full"
+                                className="text-base"
                                 onChange={(e) => setObs(e.target.value)}
                                 placeholder="Observações"
                             />
                         </div>
                     </div>
 
-
                     <div className="mt-6 grid justify-center">
-                        <Button onClick={addQuad}>
+                        <Button onClick={handleAddQuad}>
                             Adicionar
                         </Button>
                     </div>
-
                 </Modal.Body>
             </Modal>
-            <MessageModal
-                active={messageModal}
-                callFunc={setMessageModal}
-                msg={msgToModal}
-                typeMsg={typeMsg}
-            />
         </>
     );
 }

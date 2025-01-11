@@ -1,12 +1,16 @@
 "use client";
 
 import { Button, Modal, Table } from "flowbite-react";
-import { useState } from "react";
+import { useState, useMemo, useCallback } from "react";
 
-export function QuadsTrip({ trip }) {
+const useQuads = (tripId, typeQuad) => {
+
+}
+
+export function QuadsTrip({ trip, typeQuad }) {
     const [openModal, setOpenModal] = useState(false);
 
-    const themeTable = {
+    const themeTable = useMemo(() => ({
         root: {
             base: "w-full text-base text-gray-500 uppercase text-center",
             shadow: "absolute left-0 top-0 -z-10 h-full w-full rounded-lg bg-white shadow-md",
@@ -29,7 +33,10 @@ export function QuadsTrip({ trip }) {
             hovered: "hover:bg-gray-50",
             striped: "odd:bg-white even:bg-gray-50"
         }
-    }
+    }), []);
+
+    const handleOpenModal = useCallback(() => setOpenModal(true), []);
+    const handleCloseModal = useCallback(() => setOpenModal(false), []);
 
     // const sortedQuads = func.quads.sort((a, b) => b.value - a.value)
 
@@ -37,16 +44,18 @@ export function QuadsTrip({ trip }) {
         <>
             <Button
                 color={'light'}
-                onClick={() => setOpenModal(true)}
+                onClick={handleOpenModal}
                 className="w-14 uppercase"
                 size={'sm'}>
                 {trip.trig}
             </Button>
 
-            <Modal show={openModal} size="md" onClose={() => setOpenModal(false)} popup>
+            <Modal show={openModal} size="md" onClose={handleCloseModal} popup>
                 <Modal.Header>Quadrinhos</Modal.Header>
                 <Modal.Body>
                     <div className="m-4 text-base uppercase text-center">
+                        <h3 className="m-4">{typeQuad}</h3>
+                        
                         <h2>{trip.trig}</h2>
                         <h3 className="font-semibold">
                             {`${trip.user.p_g} ${trip.user.esp} ${trip.user.nome_guerra}`}
