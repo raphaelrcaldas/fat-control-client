@@ -14,9 +14,9 @@ export async function getQuads(params) {
 }
 
 
-export async function getQuadById(quadId) {
+export async function getQuadById(quadId, params) {
 
-    return await request("GET", quadsRoute + quadId)
+    return await request("GET", `${quadsRoute}trip/${quadId}`, null, params)
 }
 
 export async function updateQuad(quad) {

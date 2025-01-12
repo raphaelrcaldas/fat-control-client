@@ -1,8 +1,7 @@
 import { VscAdd } from "react-icons/vsc";
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback } from "react";
 import { Button, Label, Modal, Textarea, TextInput, Select } from "flowbite-react";
 import { addQuad } from "../../../../../services/routes/quads";
-import { IoMdClose } from "react-icons/io";
 
 
 export default function AddQuadModal({ trip, type, callFunc }) {
@@ -33,10 +32,9 @@ export default function AddQuadModal({ trip, type, callFunc }) {
         };
 
         if (lastro > 0 || date != '') {
-            
+
             const quads = lastro > 0 ? Array(lastro).fill(quad) : [quad]
-            
-            console.log(quads)
+
             const response = await addQuad(quads);
             const dataRes = await response.json();
 
@@ -122,10 +120,6 @@ export default function AddQuadModal({ trip, type, callFunc }) {
                             </div>
                         )}
 
-
-                        {/* <div className="mt-6 flex items-center w-60 bg-gray-50 rounded-lg shadow-md justify-evenly py-2">
-                            <Label className="text-base">Lastro</Label>
-                        </div> */}
                         <div className="mt-6 w-60 rounded-lg shadow-md">
                             <Textarea
                                 // value={obs}
