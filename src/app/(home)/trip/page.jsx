@@ -166,7 +166,7 @@ export default function TripPage() {
                                         <Table.Cell className="">
                                             {trip.trig}
                                         </Table.Cell>
-                                        <Table.Cell className="justify-items-center">
+                                        <Table.Cell className="grid justify-items-center py-2">
                                             {trip.funcs.length < 1 ?
                                                 <span className="text-red-600 text-xs">Sem Função</span> :
                                                 trip.funcs.map(

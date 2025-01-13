@@ -38,7 +38,7 @@ export function TripDetail({ trip, update }) {
     return (
         <div>
             <Button onClick={handleShow}>
-                <FaEdit />
+                <FaEdit className="h-5 w-5" />
             </Button>
             <Modal show={show} onClose={handleClose} size="sm" popup>
                 <Modal.Header>
@@ -46,9 +46,9 @@ export function TripDetail({ trip, update }) {
                 </Modal.Header >
                 <Modal.Body>
                     <form onSubmit={handleSubmit(onSubmit)}>
-                        <div className="mb-4 justify-items-center">
+                        <div className="grid mb-4 justify-items-center">
                             <Label htmlFor="trig">Trigrama</Label>
-                            <TextInput className="w-16" id="trig" {...register("trig")} />
+                            <TextInput className="w-16 mt-2" id="trig" {...register("trig")} />
                         </div>
                         <div className="mb-4 gap-2 flex items-center justify-center">
                             <Label htmlFor="active">Ativo</Label>

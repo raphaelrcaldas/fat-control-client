@@ -94,7 +94,7 @@ export function UserRegister({ user_id, updateUsers, readOnly }) {
                                             <option value="3s">3S</option>
                                         </Select>
                                     </div>
-                                    <div className="px-2 w-28">
+                                    <div className="px-2 w-24">
                                         <Label className="mb-2 block" value="Especialidade" />
                                         <TextInput
                                             {...register('esp', { setValueAs: t => sanitizeText(t), })}
@@ -104,7 +104,7 @@ export function UserRegister({ user_id, updateUsers, readOnly }) {
                                             disabled={readOnly ? true : false}
                                         />
                                     </div>
-                                    <div className="px-2">
+                                    <div className="px-2 w-52">
                                         <Label className="mb-2 block" value="Nome de Guerra" />
                                         <TextInput
                                             {...register

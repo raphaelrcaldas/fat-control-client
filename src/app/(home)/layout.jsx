@@ -13,7 +13,7 @@ export default function RootLayout({ children }) {
           <div>
             <AppSideBar />
           </div>
-          <main className='px-4 w-full'>
+          <main className='px-4 w-full mt-6'>
             {children}
           </main>
         </div>

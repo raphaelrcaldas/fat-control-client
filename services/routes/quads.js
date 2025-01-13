@@ -21,11 +21,11 @@ export async function getQuadById(quadId, params) {
 
 export async function updateQuad(quad) {
 
-    return await request("PUT", quadsRoute + quad.id, quad)
+    return await request("PUT", `${quadsRoute}${ quad.id}`, quad)
 }
 
 
 export async function deleteQuad(quadId) {
 
-    return await request("DELETE", quadsRoute + quad.id)
+    return await request("DELETE", quadsRoute + quadId)
 }

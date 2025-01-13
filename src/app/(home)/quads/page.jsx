@@ -1,12 +1,12 @@
 'use client'
-import { useEffect, useState} from "react";
+import { useEffect, useState } from "react";
 
 import { Table, Select } from "flowbite-react";
 import { QuadPopover } from "./components/quadPopover";
 import { QuadsTrip } from "./components/quadsTrip";
 import { getQuads } from "../../../../services/routes/quads";
 import AddQuadModal from "./components/addQuad";
-import { SelectQuad } from "./components/infoQuads"
+import { SelectQuad } from "./components/infoQuads";
 
 const themeTable = {
     root: {
@@ -87,7 +87,12 @@ export default function QuadPage() {
                                 return (
                                     <Table.Row key={item.trip.id} className="border-b">
                                         <Table.Cell className="justify-items-center px-3 py-2">
-                                            <QuadsTrip trip={item.trip} lenTotalQuads={item.quads_len} typeQuad={filterQuad} />
+                                            <QuadsTrip
+                                                trip={item.trip}
+                                                lenTotalQuads={item.quads_len}
+                                                typeQuad={filterQuad}
+                                                quadsAllUpdate={getQuadsParams}
+                                            />
                                         </Table.Cell>
                                         {
                                             item.quads.map(quad => {

@@ -1,5 +1,6 @@
 
 import { Button, Popover } from "flowbite-react";
+import { isoDateToString } from "../../../../../utils/dateToStr";
 
 export function QuadPopover({ value, info }) {
   let dateStr;
@@ -8,13 +9,7 @@ export function QuadPopover({ value, info }) {
     dateStr = 'LASTRO'
     color = 'bg-gray-500 enabled:hover:bg-gray-600'
   } else {
-    const options = {
-      year: '2-digit',
-      month: '2-digit',
-      day: '2-digit'
-    }
-
-    dateStr = new Date(value).toLocaleDateString('pt-br', options);
+    dateStr = isoDateToString(value)
     color = 'bg-blue-700 enabled:hover:bg-blue-800'
   }
 

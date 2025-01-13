@@ -3,8 +3,8 @@ import { Spinner } from "flowbite-react"
 export default function Loading() {
 
     return (
-        <div className="h-full justify-items-center content-center">
-            <div className="relative justify-items-center max-w-sm p-6 bg-white border border-gray-100 rounded-lg shadow-md">
+        <div className="h-full grid justify-items-center content-center">
+            <div className="relative grid justify-items-center max-w-sm p-6 bg-white border border-gray-100 rounded-lg shadow-md">
                 <h3 className="mb-2 text-2xl font-bold tracking-tight text-gray-900 opacity-20">
                     1º/1º Grupo de Transporte
                 </h3>

@@ -104,8 +104,8 @@ export default function UsersPage() {
                                     <Table.Cell>{user.esp}</Table.Cell>
                                     <Table.Cell>{user.nome_guerra}</Table.Cell>
                                     <Table.Cell className="text-left">{user.nome_completo}</Table.Cell>
-                                    <Table.Cell className="justify-items-center"><BadgeUAE>{user.unidade}</BadgeUAE></Table.Cell>
-                                    <Table.Cell className="justify-items-center"><UserRegister readOnly={false} user_id={user.id} updateUsers={updateListUsers} /></Table.Cell>
+                                    <Table.Cell className="py-4 grid justify-items-center"><BadgeUAE>{user.unidade}</BadgeUAE></Table.Cell>
+                                    <Table.Cell><UserRegister readOnly={false} user_id={user.id} updateUsers={updateListUsers} /></Table.Cell>
                                 </Table.Row>
                             ))}
                         </Table.Body>

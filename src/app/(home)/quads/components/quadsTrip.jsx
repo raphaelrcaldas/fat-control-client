@@ -2,7 +2,9 @@
 
 import { Button, Modal, Table } from "flowbite-react";
 import { useState, useCallback, useEffect } from "react";
+import { QuadUpdateModal } from "./quadUpdate";
 import { getQuadById } from "../../../../../services/routes/quads";
+import { isoDateToString } from "../../../../../utils/dateToStr";
 
 const themeTable = {
     root: {
@@ -44,7 +46,7 @@ const useQuads = (tripId, typeQuad) => {
     return [quads, getQuads];
 }
 
-export function QuadsTrip({ trip, typeQuad, lenTotalQuads }) {
+export function QuadsTrip({ trip, typeQuad, lenTotalQuads, quadsAllUpdate }) {
     const [openModal, setOpenModal] = useState(false);
     const [quads, getQuads] = useQuads(trip.id, typeQuad);
 
@@ -82,7 +84,7 @@ export function QuadsTrip({ trip, typeQuad, lenTotalQuads }) {
                                 {`${trip.user.p_g} ${trip.user.esp} ${trip.user.nome_guerra}`}
                             </h3>
                         </div>
-                        <div className="overflow-x-auto">
+                        <div className="">
                             <Table theme={themeTable} hoverable>
                                 <Table.Head>
                                     <Table.HeadCell>ID</Table.HeadCell>
@@ -96,18 +98,21 @@ export function QuadsTrip({ trip, typeQuad, lenTotalQuads }) {
                                         quads.map(quad => {
                                             return (
                                                 <Table.Row key={quad.id}>
-                                                    <Table.Cell>
-                                                        {quad.id}
-                                                    </Table.Cell>
+                                                    <Table.Cell>{quad.id}</Table.Cell>
                                                     <Table.Cell>
                                                         {
                                                             quad.value ?
-                                                                new Date(quad.value).toLocaleDateString('pt-br') :
+                                                                isoDateToString(quad.value) :
                                                                 "LASTRO"
                                                         }
                                                     </Table.Cell>
-                                                    <Table.Cell>
-                                                        Edit
+                                                    <Table.Cell className="grid justify-items-center">
+                                                        <QuadUpdateModal
+                                                            quad={quad}
+                                                            tridId={trip.id}
+                                                            updateQuadsTrip={getQuads}
+                                                            quadsAllUpdate={quadsAllUpdate}
+                                                        />
                                                     </Table.Cell>
                                                 </Table.Row>
                                             )
