@@ -98,10 +98,7 @@ export default function QuadPage() {
                                             item.quads.map(quad => {
                                                 return (
                                                     <Table.Cell key={quad.id}>
-                                                        <QuadPopover
-                                                            value={quad.value}
-                                                            info={quad.description}
-                                                        />
+                                                        <QuadPopover quad={quad} />
                                                     </Table.Cell>
                                                 )
                                             })
