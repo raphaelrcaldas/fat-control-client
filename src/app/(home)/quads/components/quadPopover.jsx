@@ -1,6 +1,6 @@
 
 import { Button, Popover } from "flowbite-react";
-import { isoDateToString } from "../../../../../utils/dateToStr";
+import { isoDateToString } from "../../../../../utils/dateHandler";
 
 export function QuadPopover({ quad }) {
   let dateStr;

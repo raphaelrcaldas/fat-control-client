@@ -28,14 +28,6 @@ function colorBtn(dataIndisp, cemal, dasadaptado) {
     return 'success';
 }
 
-function MtvDIV({ Children }) {
-    return (
-        <div className="bg-gray-100 m-2 px-3 py-2 rounded-lg">
-            {Children}
-        </div>
-    )
-}
-
 
 export function IndispBtn({ dateRef, trip }) {
     // FILTRA INDISP QUE ESTEJA DENTRO DA DATA REFERENTE
@@ -71,29 +63,30 @@ export function IndispBtn({ dateRef, trip }) {
             <h3 className="m-2 font-semibold text-center">{isoDateToString(dateRef)}</h3>
             {
                 filterIndisp.map((indisp, index) => {
-                    const content = (
-                        <>
+              
+                    return (
+                        <div key={index} className="bg-gray-100 m-2 px-3 py-2 rounded-lg">
                             <p className="uppercase font-semibold">{indisp.mtv}</p>
                             <p>{indisp.obs}</p>
                             <p>Criado em: {indisp.created_at}</p>
-                        </>
-                    )
-
-                    return (
-                        <MtvDIV key={index} Children={content} />
+                        </div>
                     )
                 })
             }
 
             {
                 !isValidCEMAL && (
-                    <MtvDIV Children={<p className="uppercase text-red-600 font-semibold">CEMAL INVÁLIDO</p>} />
+                    <div className="bg-gray-100 m-2 px-3 py-2 rounded-lg">
+                        <p className="uppercase text-red-600 font-semibold">CEMAL INVÁLIDO</p>
+                    </div>
                 )
             }
 
             {
                 isDesadaptado && (
-                    <MtvDIV Children={<p className="uppercase text-orange-500 font-semibold">DESADAPTADO</p>} />
+                    <div className="bg-gray-100 m-2 px-3 py-2 rounded-lg">
+                        <p className="uppercase text-orange-500 font-semibold">DESADAPTADO</p>
+                    </div>
                 )
             }
         </div>

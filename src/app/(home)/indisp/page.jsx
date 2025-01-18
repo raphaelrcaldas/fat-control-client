@@ -44,7 +44,7 @@ const indispsFake = [
 ]
 
 function genDates(dateRefer) {
-    const offset = -2;
+    const offset = -3;
     const days = Array(31).fill().map((_, i) => {
         const yearUTC = dateRefer.getUTCFullYear();
         const mounthUTC = dateRefer.getUTCMonth();
@@ -58,14 +58,14 @@ function genDates(dateRefer) {
 
 export default function IndispPage() {
     const dateNow = new Date();
-    
+
     const [filterFunc, setFilterFunc] = useState('');
     const [dateRef, setDateRef] = useState(dateNow);
     const [datesArray, setDatesArray] = useState(genDates(dateRef));
 
     const changeDateRef = (day, month) => {
         const dateCopy = new Date(dateRef.getTime())
-        
+
         if (day) {
             const prevDay = dateCopy.getDate();
             dateCopy.setDate(prevDay + day);
@@ -78,8 +78,8 @@ export default function IndispPage() {
 
         setDateRef(dateCopy);
     }
-    
-    useEffect(() => { 
+
+    useEffect(() => {
         const newDates = genDates(dateRef);
         setDatesArray(newDates);
     }, [dateRef]);
@@ -119,7 +119,7 @@ export default function IndispPage() {
                 </div>
             </div>
             <div className="grid justify-center">
-                <Button color="light" size="sm" onClick={()=> setDateRef(new Date())}>
+                <Button color="light" size="sm" onClick={() => setDateRef(new Date())}>
                     Hoje
                 </Button>
             </div>
@@ -163,7 +163,7 @@ export default function IndispPage() {
                                     color = 'bg-gray-400';
                                 }
 
-                                if (dayR.getDate() == dateNow.getDate()) {
+                                if (dayR.getDate() == dateNow.getDate() && dayR.getMonth() == dateNow.getMonth()) {
                                     color = 'bg-yellow-200';
                                 }
 
