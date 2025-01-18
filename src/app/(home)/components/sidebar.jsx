@@ -21,7 +21,7 @@ const linksSide = [
         icon: MdAirplaneTicket,
     },
     {
-        title: 'Indisp',
+        title: 'Indisponibilidades',
         link: '/indisp',
         icon: MdAirplanemodeInactive,
     },

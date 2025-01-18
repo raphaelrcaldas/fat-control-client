@@ -1,6 +1,9 @@
 import { Button, Popover } from "flowbite-react"
+import { dateIsIn, isoDateToString, isoStrToDate } from "../../../../../utils/dateHandler"
 
-function colorIndisp(dataIndisp) {
+function colorBtn(dataIndisp, cemal, dasadaptado) {
+
+    // INDISPNIBILIDADES
     const filterSVC = dataIndisp.filter(indisp => indisp.mtv == 'svc');
     if (filterSVC.length > 0) {
         return 'warning';
@@ -10,54 +13,95 @@ function colorIndisp(dataIndisp) {
     if (filterPES.length > 0) {
         return 'blue';
     }
+
+    // INFORMAÇÕES
+
+    if (!cemal) {
+        return 'purple';
+    }
+
+    if (dasadaptado) {
+        return 'dark';
+    }
+
+
+    return 'success';
+}
+
+function MtvDIV({ Children }) {
+    return (
+        <div className="bg-gray-100 m-2 px-3 py-2 rounded-lg">
+            {Children}
+        </div>
+    )
 }
 
 
-export function IndispBtn({ dataIndisp, dateRef, user }) {
-    const filterIndisp = dataIndisp.filter(indisp => {
-        const [startYear, startMonth, startDay] = indisp.dateStart.split('-');
-        const dateStart = new Date(startYear, startMonth - 1, startDay);
+export function IndispBtn({ dateRef, trip }) {
+    // FILTRA INDISP QUE ESTEJA DENTRO DA DATA REFERENTE
+    const filterIndisp = trip.indisps.filter(
+        indisp => dateIsIn(dateRef, indisp.dateStart, indisp.dateEnd)
+    );
 
-        const [endYear, endMonth, endDay] = indisp.dateEnd.split('-');
-        const dateEnd = new Date(endYear, endMonth - 1, endDay);
+    const isDisp = filterIndisp.length == 0;
+    const isValidCEMAL = isoStrToDate(trip.info.cemal).valueOf() >= dateRef.valueOf();
+    const isDesadaptado = (dateRef.valueOf() - isoStrToDate(trip.info.ult_voo).valueOf()) >= 3888000000;
+    // 3888000000 = 45 dias
 
-        return dateRef.valueOf() >= dateStart.valueOf() && dateRef.valueOf() <= dateEnd.valueOf();
-    }); // filterIndisp
+    const btnIndisp = (
+        <Button
+            fullSized
+            color={colorBtn(filterIndisp, isValidCEMAL, isDesadaptado)}
+            className="h-10">
+            {""}
+        </Button>
+    )
 
-    if (filterIndisp.length == 0) {
-        return (
-            <Button className="h-10 bg-green-600 w-full">
-                {" "}
-            </Button>
-        )
-    } else {
-        const popoverContent = (
-            <div className="w-64 text-sm text-gray-500">
-                <div className="border-b border-gray-200 bg-gray-100 px-3 py-2">
-                    <h3 className="text-center font-semibold uppercase text-gray-900">
-                        {`${user.p_g} ${user.nome_guerra}`}
-                    </h3>
-                </div>
-                {
-                    filterIndisp.map((indisp, index) => {
-                        return (
-                            <div key={index} className="px-3 py-2">
-                                <p className="uppercase font-semibold">{indisp.mtv}</p>
-                                <p>{indisp.obs}</p>
-                                <p>{indisp.created_at}</p>
-                            </div>
-                        )
-                    })
-                }
+    if (isDisp && isValidCEMAL && !isDesadaptado) {
+        return btnIndisp;
+    };
+
+    const popoverContent = (
+        <div className="w-64 text-sm text-gray-500">
+            <div className="border-b border-gray-200 bg-gray-100 px-3 py-2">
+                <h3 className="text-center font-semibold uppercase text-gray-900">
+                    {`${trip.user.p_g} ${trip.user.nome_guerra}`}
+                </h3>
             </div>
-        );
+            <h3 className="m-2 font-semibold text-center">{isoDateToString(dateRef)}</h3>
+            {
+                filterIndisp.map((indisp, index) => {
+                    const content = (
+                        <>
+                            <p className="uppercase font-semibold">{indisp.mtv}</p>
+                            <p>{indisp.obs}</p>
+                            <p>Criado em: {indisp.created_at}</p>
+                        </>
+                    )
 
-        return (
-            <Popover content={popoverContent} trigger="hover" placement="right">
-                <Button color={colorIndisp(filterIndisp)} className="h-10 w-full">
-                    {" "}
-                </Button>
-            </Popover>
-        )
-    }
+                    return (
+                        <MtvDIV key={index} Children={content} />
+                    )
+                })
+            }
+
+            {
+                !isValidCEMAL && (
+                    <MtvDIV Children={<p className="uppercase text-red-600 font-semibold">CEMAL INVÁLIDO</p>} />
+                )
+            }
+
+            {
+                isDesadaptado && (
+                    <MtvDIV Children={<p className="uppercase text-orange-500 font-semibold">DESADAPTADO</p>} />
+                )
+            }
+        </div>
+    );
+
+    return (
+        <Popover content={popoverContent} placement="right">
+            {btnIndisp}
+        </Popover>
+    )
 }
