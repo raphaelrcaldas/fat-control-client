@@ -1,9 +1,9 @@
 'use client';
 
-import { 
+import {
     MdSort,
-    MdAirplaneTicket, 
-    MdAirplanemodeInactive ,
+    MdAirplaneTicket,
+    MdAirplanemodeInactive,
     MdHail,
     MdOutlinePeopleAlt
 } from "react-icons/md";
@@ -131,7 +131,10 @@ export default function AppSideBar() {
             <Sidebar.Logo img={profilePic.src} imgAlt="Gordo logo"            >
                 FAT<span className='text-red-600'>CONTROL</span>
             </Sidebar.Logo>
-            <Sidebar.Items>
+            <Sidebar.Items
+                className="flex flex-col justify-start"
+                style={{height: '90%'}}
+            >
                 <Sidebar.ItemGroup>
                     {
                         linksSide.map((item, index) => {
@@ -148,6 +151,9 @@ export default function AppSideBar() {
                         })
                     }
                 </Sidebar.ItemGroup>
+                <Sidebar.CTA className="mt-auto" color="red">
+                    2S Fulano
+                </Sidebar.CTA>
             </Sidebar.Items>
         </Sidebar>
     )
