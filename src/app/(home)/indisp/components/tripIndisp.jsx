@@ -19,7 +19,7 @@ export const TripIndisp = ({ trip, indisps, update }) => {
          >
             {trip.trig}
             {trip.func.oper == "in" && (
-               <div className='absolute size-4 bg-red-400 rounded-full -top-1 -end-1'></div>
+               <div className='absolute size-4 border-2 bg-red-400 rounded-full -top-1 -end-1'></div>
             )}
          </Button>
 

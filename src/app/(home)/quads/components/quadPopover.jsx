@@ -4,12 +4,12 @@ import { isoDateToString } from "@/utils/dateHandler";
 export function QuadPopover({ quad }) {
    let dateStr;
    let color;
-   if (quad.value == null) {
-      dateStr = "LASTRO";
-      color = "bg-gray-500 enabled:hover:bg-gray-600";
-   } else {
+   if (quad.value) {
       dateStr = isoDateToString(quad.value);
-      color = "bg-blue-700 enabled:hover:bg-blue-800";
+      color = "blue";
+   } else {
+      dateStr = "LASTRO";
+      color = "info";
    }
 
    return (
@@ -31,7 +31,7 @@ export function QuadPopover({ quad }) {
             </div>
          }
       >
-         <Button pill className={`w-20 p-0 ${color}`}>
+         <Button pill color={color} className='w-20 p-0'>
             {dateStr}
          </Button>
       </Popover>

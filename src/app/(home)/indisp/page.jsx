@@ -68,12 +68,12 @@ export default function IndispPage() {
    return (
       <>
          <h2>Indisponibilidades</h2>
-         {/* <div className="w-28 mt-6">
+         <div className="mt-6">
                 <SelectFuncao
                     value={filterFunc}
                     callFunc={setFilterFunc}
                 />
-            </div> */}
+            </div>
          <div className='grid justify-center'>
             <div className='gap-3 flex m-1 text-center font-semibold'>
                <Button
@@ -209,7 +209,7 @@ export default function IndispPage() {
                         </TableRow>
                      );
                   })}
-                  {indispsAl && (
+                  {indispsAl.length > 0 && (
                      <>
                         <Table.Row className='mt-4'>
                            <Table.Cell className='grid justify-center p-1 pt-8'>

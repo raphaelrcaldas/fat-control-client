@@ -1,22 +1,22 @@
 import { Select } from "flowbite-react"
 
-const typeQuads = [
+export const typeQuads = [
     {
         groupName: "SOBREAVISO",
         value: "sobr",
         types: [
             {
-                name: { short: "S. PRETO", long: "SOBREVISO PRETO" },
+                name: { short: "S. PRETO", long: "PRETO" },
                 value: "preto",
                 exclude: ['oe'],
             },
             {
-                name: { short: "S. VERMELHO", long: "SOBREVISO VERMELHO" },
+                name: { short: "S. VERMELHO", long: "VERMELHO" },
                 value: "verm",
                 exclude: ['oe'],
             },
             {
-                name: { short: "S. ROXO", long: "SOBREVISO ROXO" },
+                name: { short: "S. ROXO", long: "ROXO" },
                 value: "roxo",
                 exclude: ['oe'],
             },
