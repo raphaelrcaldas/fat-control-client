@@ -1,7 +1,7 @@
 import { VscAdd } from "react-icons/vsc";
 import { useState, useCallback } from "react";
 import { Button, Label, Modal, Textarea, TextInput, Select } from "flowbite-react";
-import { addQuad } from "../../../../../services/routes/quads";
+import { addQuad } from "@/services/routes/quads";
 
 
 export default function AddQuadModal({ trip, type, callFunc }) {

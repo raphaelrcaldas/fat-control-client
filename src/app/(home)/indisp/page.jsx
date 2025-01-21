@@ -5,7 +5,7 @@ import { Table, Button, TableRow } from "flowbite-react";
 import { SelectFuncao } from "../components/inputForm";
 import { IndispCell } from "./components/indispCell";
 import { TripIndisp } from "./components/tripIndisp";
-import { getCrewIndisps } from "../../../../services/routes/indisps";
+import { getCrewIndisps } from "@/services/routes/indisps";
 
 function genDates(dateRefer) {
    const offset = -3;

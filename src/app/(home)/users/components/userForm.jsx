@@ -1,11 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { Button, Label, Modal, Select, TextInput } from "flowbite-react";
-import {
-   addUser,
-   updateUser,
-   getUserById,
-} from "../../../../../services/routes/users";
+import { addUser, updateUser, getUserById } from "@/services/routes/users";
 import { useForm } from "react-hook-form";
 import {
    validateNoNumber,

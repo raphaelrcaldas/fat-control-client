@@ -5,7 +5,7 @@ import {
    addIndisp,
    updateIndisp,
    deleteIndisp,
-} from "../../../../../services/routes/indisps";
+} from "@/services/routes/indisps";
 
 function IndispForm({ open, setOpen, trip, update, indisp }) {
    const [mtv, setMtv] = useState(indisp ? indisp.mtv : "");

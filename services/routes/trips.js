@@ -1,4 +1,4 @@
-import { request } from "../Api";
+import request from "../Api";
 
 const tripRoute = "ops/trips/";
 

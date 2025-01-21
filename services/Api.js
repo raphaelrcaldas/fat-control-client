@@ -1,7 +1,7 @@
 const baseUrl = "http://127.0.0.1:8000/"
 // const url = "http://192.168.0.139:8000/"
 
-export async function request(method, endpoint, body = null, params = null, token = null) {
+export default async function request(method, endpoint, body = null, params = null, token = null) {
     let fullUrl = `${baseUrl}${endpoint}`;
     let headers = { 'Content-Type': 'application/json' };
     let options = { method: method, headers: headers };
