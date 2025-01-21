@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Modal, Button, Label, TextInput, Textarea } from "flowbite-react";
-import { indispsOptions } from "./infoIndisps";
+import { indispsOptions } from "./options";
 import {
    addIndisp,
    updateIndisp,

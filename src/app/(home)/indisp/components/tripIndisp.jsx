@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { Modal, Button, Table } from "flowbite-react";
 import { EditIndisp, NewIndisp } from "./indispForm";
-import { isoDateToString } from "../../../../../utils/dateHandler";
-import { getIndisp } from "./infoIndisps";
+import { isoDateToString } from "@/utils/dateHandler";
+import { getIndisp } from "./options";
 
 export const TripIndisp = ({ trip, indisps, update }) => {
    const [isOpen, setIsOpen] = useState(false);
@@ -19,7 +19,7 @@ export const TripIndisp = ({ trip, indisps, update }) => {
          >
             {trip.trig}
             {trip.func.oper == "in" && (
-               <div className='absolute inline-flex items-center justify-center size-4 bg-red-400 border-2 border-white rounded-full -top-1 -end-1'></div>
+               <div className='absolute size-4 bg-red-400 rounded-full -top-1 -end-1'></div>
             )}
          </Button>
 

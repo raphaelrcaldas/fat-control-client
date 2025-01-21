@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form"
 import { IoMdAdd } from "react-icons/io";
 
 import { addTrip } from "../../../../../services/routes/trips";
-import { onlyText } from "../../../../../utils/textFormat";
+import { onlyText } from "@/utils/textFormat";
 
 
 export function TripRegister({ uae, user, update }) {
