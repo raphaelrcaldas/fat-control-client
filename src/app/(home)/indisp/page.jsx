@@ -4,44 +4,9 @@ import { useEffect, useState } from "react";
 import { Table, Button, TableRow } from "flowbite-react";
 import { SelectFuncao } from "../components/inputForm";
 import { IndispBtn } from "./components/indispComp";
+import { getCrewIndisps } from "../../../../services/routes/indisps";
+import { TripIndisp } from "./components/tripIndisp"
 
-const indispsFake = [
-    {
-        id: 1,
-        trigrama: 'hug',
-        user: {
-            p_g: '1S',
-            nome_guerra: 'Hugo'
-        },
-        info: {
-            ult_voo: '2024-12-11',
-            cemal: '2025-01-25'
-        },
-        indisps: [
-            {
-                mtv: "svc",
-                obs: "svc SOA",
-                dateStart: '2025-01-16',
-                dateEnd: '2025-01-17',
-                created_at: '2025-01-15'
-            },
-            {
-                mtv: "pes",
-                obs: "consulta",
-                dateStart: '2025-01-19',
-                dateEnd: '2025-01-21',
-                created_at: '2025-01-15'
-            },
-            {
-                mtv: "pes",
-                obs: "consulta2",
-                dateStart: '2025-01-19',
-                dateEnd: '2025-01-21',
-                created_at: '2025-01-15'
-            },
-        ]
-    },
-]
 
 function genDates(dateRefer) {
     const offset = -3;
@@ -57,11 +22,12 @@ function genDates(dateRefer) {
 }
 
 export default function IndispPage() {
-    const dateNow = new Date();
-
-    const [filterFunc, setFilterFunc] = useState('');
-    const [dateRef, setDateRef] = useState(dateNow);
+    const [dateRef, setDateRef] = useState(new Date());
     const [datesArray, setDatesArray] = useState(genDates(dateRef));
+
+    const [filterFunc, setFilterFunc] = useState('mc');
+    const [indisps, setIndisps] = useState([]);
+    const [indispsAl, setIndispsAl] = useState([]);
 
     const changeDateRef = (day, month) => {
         const dateCopy = new Date(dateRef.getTime())
@@ -78,6 +44,20 @@ export default function IndispPage() {
 
         setDateRef(dateCopy);
     }
+
+    const updateCrewIndisps = () => {
+        getCrewIndisps(filterFunc)
+            .then(res => res.json())
+            .then(data => {
+                const filterOp = data.filter(item => item.trip.func.oper != "al");
+                const filterAl = data.filter(item => item.trip.func.oper == "al");
+
+                setIndispsAl(filterAl);
+                setIndisps(filterOp);
+            });
+    };
+
+    useEffect(updateCrewIndisps, [filterFunc]);
 
     useEffect(() => {
         const newDates = genDates(dateRef);
@@ -146,7 +126,6 @@ export default function IndispPage() {
                         <Table.HeadCell />
                         {
                             datesArray.map((dayR, index) => {
-                                // const dateStr = day.toISOString().split('T')[0];
                                 const options = {
                                     month: '2-digit',
                                     day: '2-digit',
@@ -159,11 +138,11 @@ export default function IndispPage() {
                                     color = 'bg-red-400';
                                 }
 
-                                if (dayR.valueOf() < dateNow.valueOf()) {
+                                if (dayR.valueOf() < new Date().valueOf()) {
                                     color = 'bg-gray-400';
                                 }
 
-                                if (dayR.getDate() == dateNow.getDate() && dayR.getMonth() == dateNow.getMonth()) {
+                                if (dayR.getDate() == new Date().getDate() && dayR.getMonth() == new Date().getMonth()) {
                                     color = 'bg-yellow-200';
                                 }
 
@@ -177,18 +156,15 @@ export default function IndispPage() {
                     </Table.Head>
                     <Table.Body className="divide-y">
                         {
-                            indispsFake.map((crew, index) => {
+                            indisps.map((item, index) => {
                                 return (
                                     <TableRow key={index}>
                                         <Table.Cell className="grid p-px justify-center">
-                                            <Button
-                                                color={'light'}
-                                                // onClick={handleOpenModal}
-                                                className="uppercase h-10 text-sm font-medium"
-                                            // size={'sm'}
-                                            >
-                                                {crew.trigrama}
-                                            </Button>
+                                            < TripIndisp
+                                                trip={item.trip}
+                                                indisps={item.indisps}
+                                                update={updateCrewIndisps}
+                                            />
                                         </Table.Cell>
                                         {
                                             datesArray.map((dayR, index) => {
@@ -196,7 +172,8 @@ export default function IndispPage() {
                                                     <Table.Cell key={index} className="p-px">
                                                         <IndispBtn
                                                             dateRef={dayR}
-                                                            trip={crew}
+                                                            trip={item.trip}
+                                                            indisps={item.indisps}
                                                         />
                                                     </Table.Cell>
                                                 )
@@ -205,6 +182,45 @@ export default function IndispPage() {
                                     </TableRow>
                                 )
                             })
+                        }
+                        {
+                            indispsAl && (
+                                <>
+                                    <Table.Row className="mt-4">
+                                        <Table.Cell className="grid justify-center p-1 pt-8">
+                                            <span className="text-base font-semibold text-center">Alunos</span>
+                                        </Table.Cell>
+                                    </Table.Row>
+                                    {
+                                        indispsAl.map((item, index) => {
+                                            return (
+                                                <TableRow key={index}>
+                                                    <Table.Cell className="grid p-px justify-center">
+                                                        < TripIndisp
+                                                            trip={item.trip}
+                                                            indisps={item.indisps}
+                                                            update={updateCrewIndisps}
+                                                        />
+                                                    </Table.Cell>
+                                                    {
+                                                        datesArray.map((dayR, index) => {
+                                                            return (
+                                                                <Table.Cell key={index} className="p-px">
+                                                                    <IndispBtn
+                                                                        dateRef={dayR}
+                                                                        trip={item.trip}
+                                                                        indisps={item.indisps}
+                                                                    />
+                                                                </Table.Cell>
+                                                            )
+                                                        })
+                                                    }
+                                                </TableRow>
+                                            )
+                                        })
+                                    }
+                                </>
+                            )
                         }
                     </Table.Body>
                 </Table>
