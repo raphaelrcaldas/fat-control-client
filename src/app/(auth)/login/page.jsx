@@ -23,7 +23,6 @@ const LoginPage = () => {
       formData.append("password", data.password);
 
       const response = await getToken(formData);
-
       const dataR = await response.json();
 
       if (response.ok) {
@@ -62,7 +61,6 @@ const LoginPage = () => {
                      <input
                         {...register("username", {
                            required: true,
-                           // setValueAs: (t) => parseInt(t),
                         })}
                         className='bg-gray-50 border border-gray-300 text-gray-900 text-base rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5'
                         autoComplete='off'

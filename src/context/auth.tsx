@@ -1,7 +1,6 @@
 "use client";
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { getCookie } from "cookies-next";
-import { decodeJWS } from "@/utils/jwtDecoder";
 
 const AuthContext = createContext({});
 
@@ -10,11 +9,18 @@ export const AuthProvider = ({ children }) => {
    const [userId, setUserId] = useState("");
 
    useEffect(() => {
-      const token = getCookie("token");
-      decodeJWS(token).then((data) => {
-         setUser(data.sub);
-         setUserId(data.user_id);
-      });
+      const fetchToken = async () => {
+         const token = await getCookie("token");
+         if (typeof token === "string") {
+            const [header, payload, assign] = token.split(".");
+            const data = JSON.parse(atob(payload));
+
+            setUser(data.sub);
+            setUserId(data.user_id);
+         }
+      };
+
+      fetchToken();
    }, []);
 
    return (
@@ -25,7 +31,5 @@ export const AuthProvider = ({ children }) => {
 };
 
 export function useAuth() {
-   const context = useContext(AuthContext);
-
-   return context;
+   return useContext(AuthContext);
 }
