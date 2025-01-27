@@ -1,9 +1,18 @@
+"use client"
+import {
+   getCookies,
+   setCookie,
+   useGetCookies,
+   deleteCookie,
+   hasCookie,
+} from "cookies-next/client";
 
 export default function HomeApp() {
-
-    return (
-        <>
-            <h3>Home</h3>
-        </>
-    )
+   // const cookies = getCookies();
+   // console.log(cookies);
+   return (
+      <>
+         <h3>Home</h3>
+      </>
+   );
 }

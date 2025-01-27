@@ -73,7 +73,7 @@ export function TripRegister({ uae, user, update }) {
                <form onSubmit={handleSubmit(registerTrip)}>
                   <div className='m-4 text-base uppercase text-center'>
                      <div className='font-semibold'>
-                        {`${user.p_g} ${user.esp} ${user.nome_guerra} - ${user.unidade}`}
+                        {`${user.posto.short} ${user.esp} ${user.nome_guerra} - ${user.unidade}`}
                      </div>
                      <div className='mt-1'>{user.nome_completo}</div>
                   </div>

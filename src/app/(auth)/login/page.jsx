@@ -1,8 +1,112 @@
+"use client";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { setCookie } from "cookies-next";
+import { getToken } from "@/services/routes/auth";
+import { useForm } from "react-hook-form";
+import { Button, Spinner } from "flowbite-react";
+import { validateOnlyNumber } from "@/utils/textFormat";
 
-export default function LoginPage() {
-    return (
-        <>
-            Login
-        </>
-    )
-}
+const LoginPage = () => {
+   const router = useRouter();
+   const [isLoading, setIsLoading] = useState(false);
+   const { register, handleSubmit, reset } = useForm({
+      defaultValues: {
+         password: "",
+      },
+   });
+
+   const handleLogin = async (data) => {
+      setIsLoading(true);
+      const formData = new FormData();
+      formData.append("username", data.username);
+      formData.append("password", data.password);
+
+      const response = await getToken(formData);
+
+      const dataR = await response.json();
+
+      if (response.ok) {
+         setCookie("token", dataR.access_token);
+         router.push("/");
+      } else {
+         reset({ password: "" });
+         alert(dataR.detail);
+      }
+      setIsLoading(false);
+   };
+
+   return (
+      <div className='flex flex-row h-screen bg-gray-200'>
+         <div className='grid w-1/2 justify-center text-center items-center'>
+            <div className='flex flex-col bg-white gap-12 p-6 rounded-lg shadow-md'>
+               <span className='font-bold text-4xl'>
+                  FAT
+                  <span className='text-red-500'>CONTROL</span>
+               </span>
+               <div className='grid text-gray-400'>
+                  <span className='font-bold text-xl'>
+                     1º/1º Grupo de Transporte
+                  </span>
+                  <span className='font-bold text-base'>
+                     Uma Equipe, um coração.
+                  </span>
+               </div>
+            </div>
+         </div>
+         <div className='w-1/2 grid justify-center items-center'>
+            <div className='w-96 bg-red-400 rounded-lg shadow-lg p-8'>
+               <h2 className='text-center text-white uppercase'>Login</h2>
+               <form onSubmit={handleSubmit(handleLogin)}>
+                  <div className='mt-6 px-4'>
+                     <input
+                        {...register("username", {
+                           required: true,
+                           // setValueAs: (t) => parseInt(t),
+                        })}
+                        className='bg-gray-50 border border-gray-300 text-gray-900 text-base rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5'
+                        autoComplete='off'
+                        onKeyPress={(event) => validateOnlyNumber(event)}
+                        maxLength={7}
+                        minLength={7}
+                        placeholder='SARAM'
+                     />
+                  </div>
+                  <div className='px-4 mt-5'>
+                     <input
+                        {...register("password", {
+                           required: true,
+                        })}
+                        className='bg-gray-50 border border-gray-300 text-gray-900 text-base rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5'
+                        autoComplete='off'
+                        placeholder='SENHA'
+                        type='password'
+                     />
+                  </div>
+                  <div className='grid justify-items-center mt-5'>
+                     <Button
+                        color='blue'
+                        disabled={isLoading}
+                        className='w-1/2'
+                        type='submit'
+                     >
+                        {isLoading ? (
+                           <>
+                              <Spinner
+                                 color='failure'
+                                 aria-label='Failure spinner example'
+                              />
+                           </>
+                        ) : (
+                           <span className='text-lg'>Entrar</span>
+                        )}
+                     </Button>
+                  </div>
+               </form>
+            </div>
+         </div>
+      </div>
+   );
+};
+
+export default LoginPage;

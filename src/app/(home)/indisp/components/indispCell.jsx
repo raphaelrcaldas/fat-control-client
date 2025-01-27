@@ -58,7 +58,7 @@ export function IndispCell({ dateRef, trip, indisps }) {
       <div className='w-64 text-sm text-gray-500'>
          <div className='border-b border-gray-200 bg-gray-100 px-3 py-2'>
             <h3 className='text-center font-semibold uppercase text-gray-900'>
-               {`${trip.user.p_g} ${trip.user.nome_guerra}`}
+               {`${trip.user.posto.short} ${trip.user.nome_guerra}`}
             </h3>
          </div>
          <h3 className='m-2 font-semibold text-center'>

@@ -12,7 +12,7 @@ import {
 import { IoMdInformationCircleOutline } from "react-icons/io";
 import { HiMail } from "react-icons/hi";
 
-export function UserRegister({ user_id, updateUsers, readOnly }) {
+export function UserRegister({ user_id, updateUsers, readOnly , postos}) {
    const [show, setShow] = useState(false);
    const { register, handleSubmit, reset, setValue } = useForm({
       defaultValues: {
@@ -23,7 +23,6 @@ export function UserRegister({ user_id, updateUsers, readOnly }) {
       },
    });
 
-   // FAZER A REQ SOMENTE QUANDO ABRIR USER MODAL
    useEffect(() => {
       if (show && user_id) {
          getUserById(user_id)
@@ -91,10 +90,11 @@ export function UserRegister({ user_id, updateUsers, readOnly }) {
                                  disabled={readOnly ? true : false}
                               >
                                  <option value='' disabled></option>
-                                 <option value='so'>SO</option>
-                                 <option value='1s'>1S</option>
-                                 <option value='2s'>2S</option>
-                                 <option value='3s'>3S</option>
+                                 {postos.map((posto) => (
+                                    <option key={posto.id} value={posto.id}>
+                                       {posto.short.toUpperCase()}
+                                    </option>
+                                 ))}
                               </Select>
                            </div>
                            <div className='px-2 w-24'>

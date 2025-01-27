@@ -28,7 +28,7 @@ export const TripIndisp = ({ trip, indisps, update }) => {
                <Modal.Header>Indisponibilidades</Modal.Header>
                <Modal.Body>
                   <h3 className='uppercase text-center font-semibold'>
-                     {trip.user.p_g} {trip.user.nome_guerra}
+                     {trip.user.posto.short} {trip.user.nome_guerra}
                   </h3>
 
                   {indisps.length > 0 ? (

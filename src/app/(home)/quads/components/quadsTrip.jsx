@@ -82,7 +82,7 @@ export function QuadsTrip({ trip, typeQuad, lenTotalQuads, quadsAllUpdate }) {
 
                      <h2>{trip.trig}</h2>
                      <h3 className='font-semibold'>
-                        {`${trip.user.p_g} ${trip.user.esp} ${trip.user.nome_guerra}`}
+                        {`${trip.user.posto.short} ${trip.user.esp} ${trip.user.nome_guerra}`}
                      </h3>
                   </div>
                   <div className=''>

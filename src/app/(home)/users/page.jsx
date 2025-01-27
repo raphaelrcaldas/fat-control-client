@@ -3,6 +3,7 @@
 import { Table, TextInput } from "flowbite-react";
 import { useState, useEffect } from "react";
 import { getUsers } from "@/services/routes/users";
+import { getPostos } from "@/services/routes/postos";
 import { UserRegister } from "./components/userForm";
 import { BadgeUAE } from "../components/badges";
 
@@ -73,8 +74,17 @@ export default function UsersPage() {
    const { usuarios, updateListUsers } = useUsers();
    const [filterName, setFilterName] = useState("");
    const { filterUsers } = useFilterUsers(usuarios, filterName);
+   const [postos, setPostos] = useState([]);
 
    useEffect(() => {
+      if (postos.length == 0) {
+         getPostos()
+            .then((res) => res.json())
+            .then((data) => {
+               setPostos(data);
+               console.log("chamei api");
+            });
+      }
       updateListUsers();
    }, []);
 
@@ -92,7 +102,11 @@ export default function UsersPage() {
                   />
                </div>
                <div>
-                  <UserRegister user_id={null} updateUsers={updateListUsers} />
+                  <UserRegister
+                     user_id={null}
+                     updateUsers={updateListUsers}
+                     postos={postos}
+                  />
                </div>
             </div>
             <div className='overflow-x-auto relative shadow-md sm:rounded-lg max-w-6xl'>
@@ -117,7 +131,7 @@ export default function UsersPage() {
                      {filterUsers.map((user) => (
                         <Table.Row key={user.id}>
                            <Table.Cell className='font-medium text-gray-900'>
-                              {user.p_g}
+                              {user.posto.short}
                            </Table.Cell>
                            <Table.Cell>{user.esp}</Table.Cell>
                            <Table.Cell>{user.nome_guerra}</Table.Cell>
@@ -132,6 +146,7 @@ export default function UsersPage() {
                                  readOnly={false}
                                  user_id={user.id}
                                  updateUsers={updateListUsers}
+                                 postos={postos}
                               />
                            </Table.Cell>
                         </Table.Row>

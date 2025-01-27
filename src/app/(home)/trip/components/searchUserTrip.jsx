@@ -76,7 +76,7 @@ export function SearchUser({ uae, trips, updateTrips }) {
                   <Table hoverable>
                      <Table.Body>
                         {usersTrip.map((user) => {
-                           const pg = user.p_g;
+                           const pg = user.posto.short;
                            const esp = user.esp;
                            const guerra = user.nome_guerra;
 

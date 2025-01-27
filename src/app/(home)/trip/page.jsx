@@ -170,7 +170,7 @@ export default function TripPage() {
                      {filterTrips.map((trip) => (
                         <Table.Row key={trip.id}>
                            <Table.Cell className='font-medium'>
-                              {trip.user.p_g}
+                              {trip.user.posto.short}
                            </Table.Cell>
                            <Table.Cell>{trip.user.esp}</Table.Cell>
                            <Table.Cell className='text-left'>
