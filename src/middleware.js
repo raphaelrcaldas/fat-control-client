@@ -1,21 +1,5 @@
 import { NextResponse } from "next/server";
-import { decodeJWS } from "../utils/jwtDecoder";
-
-async function checkToken(token) {
-   if(!token){
-      return false;
-   }
-
-   try {
-      const decoded = await decodeJWS(token.value);
-      const sub = decoded.sub;
-      return sub !== undefined;
-   
-   } catch (error) {
-      return false;
-   }
-
-}
+import { checkToken } from "../utils/jwtDecoder";
 
 export async function middleware(request) {
    const cookies = request.cookies;
