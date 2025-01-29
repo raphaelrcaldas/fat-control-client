@@ -26,7 +26,7 @@ const LoginPage = () => {
       const dataR = await response.json();
 
       if (response.ok) {
-         setCookie("token", dataR.access_token);
+         await setCookie("token", dataR.access_token);
          router.push("/");
       } else {
          reset({ password: "" });

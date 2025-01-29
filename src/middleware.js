@@ -1,26 +1,53 @@
 import { NextResponse } from "next/server";
 import { checkToken } from "../utils/jwtDecoder";
+import { refreshToken } from "@/services/routes/auth";
 
 export async function middleware(request) {
    const cookies = request.cookies;
    const token = cookies.get("token");
 
-   const url = request.nextUrl.origin;
+   const currentPath = request.nextUrl.pathname;
+   const isLoginPage = currentPath === "/login";
 
    const checked = await checkToken(token);
 
-   if (request.nextUrl.pathname == "/login") {
-      if (checked) {
-         const resp = NextResponse.redirect(url);
-         resp.cookies.set("token", token.value);
+   if (!checked && !isLoginPage) {
+      return NextResponse.redirect(request.nextUrl.origin + "/login");
+   }
 
-         return resp;
+   if (checked && isLoginPage) {
+      return NextResponse.redirect(request.nextUrl.origin);
+   }
+
+   const response = NextResponse.next();
+
+   if (checked) {
+      let tokenValue = token.value;
+
+      const [header, payload, assign] = tokenValue.split(".");
+      let expiration = JSON.parse(atob(payload)).exp;
+
+      expiration = new Date(expiration * 1000);
+      const timeRemain = (expiration - new Date()) / 1000 / 60;
+
+      if (timeRemain < 15) {
+         try {
+            const res = await refreshToken(tokenValue);
+            if (!res.ok) {
+               throw new Error("Failed to refresh token");
+            }
+            const data = await res.json();
+            tokenValue = data.access_token;
+         } catch (error) {
+            console.error("Erro ao renovar o token:", error);
+            return NextResponse.redirect(request.nextUrl.origin + "/login");
+         }
       }
+
+      response.cookies.set("token", tokenValue);
    }
 
-   if (!checked && request.nextUrl.pathname != "/login") {
-      return NextResponse.redirect(url + "/login");
-   }
+   return response;
 }
 
 export const config = {
