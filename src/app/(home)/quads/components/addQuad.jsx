@@ -67,7 +67,7 @@ export default function AddQuadModal({ trip, type, callFunc }) {
                 <Modal.Body>
                     <div className="text-center uppercase font-semibold">
                         <h3>
-                            {`${trip.user.p_g} ${trip.user.nome_guerra} `}
+                            {`${trip.user.posto.short} ${trip.user.nome_guerra} `}
                         </h3>
                         <h3>{`${trip.func.func} ${trip.func.oper}`}</h3>
                         <h3>{`${trip.func.proj}`}</h3>

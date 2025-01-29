@@ -1,31 +1,33 @@
 "use client";
 import { useEffect, useState } from "react";
 
-import { Select } from "flowbite-react";
+import { Button, Select } from "flowbite-react";
 import { QuadPopover } from "./components/quadPopover";
 import { QuadsTrip } from "./components/quadsTrip";
-import { getQuads } from "@/services/routes/quads";
+import { getQuads, getQuadsType } from "@/services/routes/quads";
 import AddQuadModal from "./components/addQuad";
-import { SelectQuad, typeQuads } from "./components/infoQuads";
-
-function getLongName(value) {
-   const [group, quad] = value.split("-");
-
-   const groupQuad = typeQuads.filter((g) => g.value == group)[0];
-   const type = groupQuad.types.filter((t) => t.value == quad)[0];
-
-   const res = {
-      group: groupQuad.groupName,
-      type: type.name.long,
-   };
-
-   return res;
-}
+import { FaSearch } from "react-icons/fa";
 
 export default function QuadPage() {
    const [filterFunc, setFilterFunc] = useState("mc");
-   const [filterQuad, setFilterQuad] = useState("sobr-preto");
+   const [filterQuad, setFilterQuad] = useState(1);
+   const [quadsType, setQuadsType] = useState([]);
    const [quads, setQuads] = useState([]);
+
+   const [groupName, setGroupName] = useState("");
+   const [typeName, setTypeName] = useState("");
+
+   function getQuadsName() {
+      for (const group of quadsType) {
+         for (const type of group.types) {
+            if (type.id === filterQuad) {
+               setGroupName(group.long);
+               setTypeName(type.long);
+               break;
+            }
+         }
+      }
+   }
 
    function getQuadsParams() {
       const params = {
@@ -39,12 +41,18 @@ export default function QuadPage() {
          .then((res) => res.json())
          .then((data) => {
             setQuads(data);
+            getQuadsName();
          });
    }
 
    useEffect(() => {
+      if (quadsType.length == 0) {
+         getQuadsType()
+            .then((res) => res.json())
+            .then((data) => setQuadsType(data));
+      }
       getQuadsParams();
-   }, [filterQuad, filterFunc]);
+   }, [quadsType]);
 
    return (
       <>
@@ -63,17 +71,40 @@ export default function QuadPage() {
                   <option value='oe'>OE</option>
                </Select>
 
-               <SelectQuad
+               <Select
                   value={filterQuad}
-                  funcTrip={filterFunc}
-                  onChange={setFilterQuad}
-               />
+                  onChange={(e) => setFilterQuad(parseInt(e.target.value))}
+               >
+                  {quadsType.map((group, index) => {
+                     const nameGroup = group.long.toUpperCase();
+                     return (
+                        <optgroup key={index} label={nameGroup}>
+                           {group.types.map((type) => {
+                              if (!type.exclude.includes(filterFunc)) {
+                                 return (
+                                    <option key={type.id} value={type.id}>
+                                       {type.long.toUpperCase()}
+                                    </option>
+                                 );
+                              }
+                           })}
+                        </optgroup>
+                     );
+                  })}
+               </Select>
+
+               <Button
+                  className='grid p-0 items-center'
+                  onClick={getQuadsParams}
+               >
+                  <FaSearch />
+               </Button>
             </div>
          </div>
 
-         <div className='m-4'>
-            <p className="font-bold text-lg">{`${getLongName(filterQuad).group}`}</p>
-            <p className="font-semibold text-base">{`${getLongName(filterQuad).type}`}</p>
+         <div className='m-4 uppercase'>
+            <p className='font-bold text-2xl'>{groupName}</p>
+            <p className='font-semibold text-base'>{typeName}</p>
          </div>
 
          <div className='flex flex-col px-2 py-3 gap-1 w-fit bg-white rounded-lg shadow-md'>
