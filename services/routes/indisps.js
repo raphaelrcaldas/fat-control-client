@@ -2,8 +2,8 @@ import request from "../Api";
 
 const indispRoute = "indisp/";
 
-export async function getCrewIndisps(func) {
-   return await request("GET", indispRoute, null, { funcao: func });
+export async function getCrewIndisps(func, uae) {
+   return await request("GET", indispRoute, null, { funcao: func, uae: uae });
 }
 
 export async function addIndisp(indisp) {

@@ -22,6 +22,6 @@ export async function deleteQuad(quadId) {
    return await request("DELETE", quadsRoute + quadId);
 }
 
-export async function getQuadsType() {
-   return await request("GET", quadsRoute + "types");
+export async function getQuadsType(uae) {
+   return await request("GET", quadsRoute + "types", null, { uae: uae });
 }

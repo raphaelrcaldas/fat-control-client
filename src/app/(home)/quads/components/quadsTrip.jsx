@@ -36,7 +36,7 @@ const useQuads = (tripId, typeQuad) => {
    const [quads, setQuads] = useState([]);
 
    const getQuads = () => {
-      getQuadById(tripId, { type: typeQuad })
+      getQuadById(tripId, { type_id: typeQuad })
          .then((res) => res.json())
          .then((data) => {
             setQuads(data);
@@ -64,7 +64,7 @@ export function QuadsTrip({ trip, typeQuad, lenTotalQuads, quadsAllUpdate }) {
          <Button
             color={"light"}
             onClick={handleOpenModal}
-            className='uppercase relative inline-flex items-center p-1 text-sm font-medium'
+            className='relative inline-flex items-center p-1 text-sm font-medium uppercase'
             size={"sm"}
          >
             {trip.trig}
@@ -77,9 +77,8 @@ export function QuadsTrip({ trip, typeQuad, lenTotalQuads, quadsAllUpdate }) {
             <Modal show={openModal} size='md' onClose={handleCloseModal} popup>
                <Modal.Header>Quadrinhos</Modal.Header>
                <Modal.Body>
-                  <div className='m-4 text-base uppercase text-center'>
-                     <h3 className='m-4'>{typeQuad}</h3>
-
+                  <div className='m-4 text-base text-center uppercase'>
+                     {/* <h3 className='m-4'>{typeQuad}</h3> */}
                      <h2>{trip.trig}</h2>
                      <h3 className='font-semibold'>
                         {`${trip.user.posto.short} ${trip.user.esp} ${trip.user.nome_guerra}`}

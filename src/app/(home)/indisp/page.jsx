@@ -47,7 +47,7 @@ export default function IndispPage() {
    };
 
    const updateCrewIndisps = () => {
-      getCrewIndisps(filterFunc)
+      getCrewIndisps(filterFunc, "11gt")
          .then((res) => res.json())
          .then((data) => {
             const filterOp = data.filter((item) => item.trip.func.oper != "al");
@@ -68,14 +68,11 @@ export default function IndispPage() {
    return (
       <>
          <h2>Indisponibilidades</h2>
-         <div className="mt-6">
-                <SelectFuncao
-                    value={filterFunc}
-                    callFunc={setFilterFunc}
-                />
-            </div>
+         <div className='mt-6'>
+            <SelectFuncao value={filterFunc} callFunc={setFilterFunc} />
+         </div>
          <div className='grid justify-center'>
-            <div className='gap-3 flex m-1 text-center font-semibold'>
+            <div className='flex gap-3 m-1 font-semibold text-center'>
                <Button
                   className='p-0'
                   color='light'
@@ -92,7 +89,7 @@ export default function IndispPage() {
                >
                   <span className='text-lg'>{"<"}</span>
                </Button>
-               <span className='text-lg content-center'>
+               <span className='content-center text-lg'>
                   {dateRef.toLocaleDateString("pt-BR", {
                      day: "2-digit",
                      month: "long",
@@ -126,7 +123,7 @@ export default function IndispPage() {
                Hoje
             </Button>
          </div>
-         <div className='overflow-auto h-full'>
+         <div className='h-full overflow-auto'>
             <Table>
                <Table.Head>
                   <Table.HeadCell />
@@ -188,7 +185,7 @@ export default function IndispPage() {
                   {indisps.map((item, index) => {
                      return (
                         <TableRow key={index}>
-                           <Table.Cell className='grid p-px justify-center'>
+                           <Table.Cell className='grid justify-center p-px'>
                               <TripIndisp
                                  trip={item.trip}
                                  indisps={item.indisps}
@@ -221,7 +218,7 @@ export default function IndispPage() {
                         {indispsAl.map((item, index) => {
                            return (
                               <TableRow key={index}>
-                                 <Table.Cell className='grid p-px justify-center'>
+                                 <Table.Cell className='grid justify-center p-px'>
                                     <TripIndisp
                                        trip={item.trip}
                                        indisps={item.indisps}

@@ -47,7 +47,7 @@ export default function QuadPage() {
 
    useEffect(() => {
       if (quadsType.length == 0) {
-         getQuadsType()
+         getQuadsType("11gt")
             .then((res) => res.json())
             .then((data) => setQuadsType(data));
       }
@@ -58,7 +58,7 @@ export default function QuadPage() {
       <>
          <h2>Quadrinhos</h2>
 
-         <div className='my-5 w-5/12 flex justify-between'>
+         <div className='flex justify-between w-5/12 my-5'>
             <div className='flex gap-2'>
                <Select
                   value={filterFunc}
@@ -94,7 +94,7 @@ export default function QuadPage() {
                </Select>
 
                <Button
-                  className='grid p-0 items-center'
+                  className='grid items-center p-0'
                   onClick={getQuadsParams}
                >
                   <FaSearch />
@@ -103,11 +103,11 @@ export default function QuadPage() {
          </div>
 
          <div className='m-4 uppercase'>
-            <p className='font-bold text-2xl'>{groupName}</p>
-            <p className='font-semibold text-base'>{typeName}</p>
+            <p className='text-2xl font-bold'>{groupName}</p>
+            <p className='text-base font-semibold'>{typeName}</p>
          </div>
 
-         <div className='flex flex-col px-2 py-3 gap-1 w-fit bg-white rounded-lg shadow-md'>
+         <div className='flex flex-col gap-1 px-2 py-3 bg-white rounded-lg shadow-md w-fit'>
             {quads.map((item) => {
                return (
                   <div
