@@ -27,7 +27,7 @@ const LoginPage = () => {
 
       if (response.ok) {
          await setCookie("token", dataR.access_token);
-         router.push("/");
+         router.push("/dashboard");
       } else {
          reset({ password: "" });
          alert(dataR.detail);
@@ -37,27 +37,27 @@ const LoginPage = () => {
 
    return (
       <div className='flex flex-row h-screen bg-gray-200'>
-         <div className='grid w-1/2 justify-center text-center items-center'>
-            <div className='flex flex-col bg-white gap-12 p-6 rounded-lg shadow-md'>
-               <span className='font-bold text-4xl'>
+         <div className='grid items-center justify-center w-1/2 text-center'>
+            <div className='flex flex-col gap-12 p-6 bg-white rounded-lg shadow-md'>
+               <span className='text-4xl font-bold'>
                   FAT
                   <span className='text-red-500'>CONTROL</span>
                </span>
                <div className='grid text-gray-400'>
-                  <span className='font-bold text-xl'>
+                  <span className='text-xl font-bold'>
                      1º/1º Grupo de Transporte
                   </span>
-                  <span className='font-bold text-base'>
+                  <span className='text-base font-bold'>
                      Uma Equipe, um coração.
                   </span>
                </div>
             </div>
          </div>
-         <div className='w-1/2 grid justify-center items-center'>
-            <div className='w-96 bg-red-400 rounded-lg shadow-lg p-8'>
+         <div className='grid items-center justify-center w-1/2'>
+            <div className='p-8 bg-red-400 rounded-lg shadow-lg w-96'>
                <h2 className='text-center text-white uppercase'>Login</h2>
                <form onSubmit={handleSubmit(handleLogin)}>
-                  <div className='mt-6 px-4'>
+                  <div className='px-4 mt-6'>
                      <input
                         {...register("username", {
                            required: true,
@@ -81,7 +81,7 @@ const LoginPage = () => {
                         type='password'
                      />
                   </div>
-                  <div className='grid justify-items-center mt-5'>
+                  <div className='grid mt-5 justify-items-center'>
                      <Button
                         color='blue'
                         disabled={isLoading}

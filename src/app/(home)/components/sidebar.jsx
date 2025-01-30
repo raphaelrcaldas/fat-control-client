@@ -5,46 +5,20 @@ import {
    MdAirplanemodeInactive,
    MdHail,
    MdOutlinePeopleAlt,
+   MdDashboard,
 } from "react-icons/md";
+import { FaPaperPlane } from "react-icons/fa";
 import { useRouter, usePathname } from "next/navigation";
 import profilePic from "@/public/assets/1_1_gt.jpg";
 import { Button, Sidebar, Spinner } from "flowbite-react";
 import { useAuth } from "src/context/auth";
 import { deleteCookie } from "cookies-next";
 
-const linksSide = [
-   {
-      title: "Quadrinhos",
-      link: "/quads",
-      icon: MdAirplaneTicket,
-   },
-   {
-      title: "Indisponibilidades",
-      link: "/indisp",
-      icon: MdAirplanemodeInactive,
-   },
-   // {
-   //     title: 'Pau de Sebo',
-   //     link: '/sebo',
-   //     icon: MdSort,
-   // },
-   {
-      title: "Tripulantes",
-      link: "/trip",
-      icon: MdHail,
-   },
-   {
-      title: "Usuários",
-      link: "/users",
-      icon: MdOutlinePeopleAlt,
-   },
-];
-
 export default function AppSideBar() {
    const path = usePathname();
    const router = useRouter();
 
-   const { user } = useAuth();
+   const { user, scopes } = useAuth();
 
    const themeSideBar = {
       root: {
@@ -131,6 +105,10 @@ export default function AppSideBar() {
       router.push("/login");
    };
 
+   function checkScope(scope) {
+      return scopes.includes(scope);
+   }
+
    return (
       <Sidebar theme={themeSideBar}>
          <Sidebar.Logo img={profilePic.src} imgAlt='Gordo logo'>
@@ -141,23 +119,58 @@ export default function AppSideBar() {
             style={{ height: "90%" }}
          >
             <Sidebar.ItemGroup>
-               {linksSide.map((item, index) => {
-                  return (
-                     <Sidebar.Item
-                        key={index}
-                        active={path === item.link}
-                        icon={item.icon}
-                        onClick={() => router.push(item.link)}
-                     >
-                        {item.title}
-                     </Sidebar.Item>
-                  );
-               })}
+               <Sidebar.Item
+                  active={path === "/dashboard"}
+                  icon={MdDashboard}
+                  onClick={() => router.push("/dashboard")}
+               >
+                  Dashboard
+               </Sidebar.Item>
+               <Sidebar.Collapse open icon={FaPaperPlane} label='Operações'>
+                  <Sidebar.Item
+                     active={path === "/sebo"}
+                     icon={MdSort}
+                     onClick={() => router.push("/sebo")}
+                  >
+                     Pau de Sebo
+                  </Sidebar.Item>
+                  <Sidebar.Item
+                     active={path === "/quads"}
+                     icon={MdAirplaneTicket}
+                     onClick={() => router.push("/quads")}
+                  >
+                     Quadrinhos
+                  </Sidebar.Item>
+                  <Sidebar.Item
+                     active={path === "/indisp"}
+                     icon={MdAirplanemodeInactive}
+                     onClick={() => router.push("/indisp")}
+                  >
+                     Indisp
+                  </Sidebar.Item>
+                  <Sidebar.Item
+                     active={path === "/trip"}
+                     icon={MdHail}
+                     onClick={() => router.push("/trip")}
+                  >
+                     Tripulantes
+                  </Sidebar.Item>
+               </Sidebar.Collapse>
             </Sidebar.ItemGroup>
-            <Sidebar.CTA className='mt-auto shadow-md bg-red-200'>
-               <div className='flex justify-evenly items-center'>
+            <Sidebar.ItemGroup>
+               <Sidebar.Item
+                  className={!checkScope("adm") && "hidden"}
+                  active={path === "/users"}
+                  icon={MdOutlinePeopleAlt}
+                  onClick={() => router.push("/users")}
+               >
+                  Usuários
+               </Sidebar.Item>
+            </Sidebar.ItemGroup>
+            <Sidebar.CTA className='mt-auto bg-red-200 shadow-md'>
+               <div className='flex items-center justify-evenly'>
                   {user ? (
-                     <span className='uppercase font-semibold text-center'>
+                     <span className='font-semibold text-center uppercase'>
                         {user}
                      </span>
                   ) : (

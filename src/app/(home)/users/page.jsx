@@ -82,7 +82,6 @@ export default function UsersPage() {
             .then((res) => res.json())
             .then((data) => {
                setPostos(data);
-               console.log("chamei api");
             });
       }
       updateListUsers();
@@ -92,7 +91,7 @@ export default function UsersPage() {
       <>
          <h2>Usuários</h2>
          <div className='max-w-6xl'>
-            <div className='my-4 flex justify-between'>
+            <div className='flex justify-between my-4'>
                <div className='flex gap-2'>
                   <TextInput
                      className='w-80'
@@ -109,7 +108,7 @@ export default function UsersPage() {
                   />
                </div>
             </div>
-            <div className='overflow-x-auto relative shadow-md sm:rounded-lg max-w-6xl'>
+            <div className='relative max-w-6xl overflow-x-auto shadow-md sm:rounded-lg'>
                <Table hoverable theme={themeTable}>
                   <Table.Head className='text-sm'>
                      <Table.HeadCell className='text-center'>
@@ -138,7 +137,7 @@ export default function UsersPage() {
                            <Table.Cell className='text-left'>
                               {user.nome_completo}
                            </Table.Cell>
-                           <Table.Cell className='py-4 grid justify-items-center'>
+                           <Table.Cell className='grid py-4 justify-items-center'>
                               <BadgeUAE>{user.unidade}</BadgeUAE>
                            </Table.Cell>
                            <Table.Cell>

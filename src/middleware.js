@@ -3,8 +3,8 @@ import { checkToken } from "../utils/jwtDecoder";
 import { refreshToken } from "@/services/routes/auth";
 
 export async function middleware(request) {
-   const cookies = request.cookies;
-   const token = cookies.get("token");
+   const cookiesR = request.cookies;
+   const token = cookiesR.get("token");
 
    const currentPath = request.nextUrl.pathname;
    const isLoginPage = currentPath === "/login";
@@ -44,7 +44,9 @@ export async function middleware(request) {
          }
       }
 
-      response.cookies.set("token", tokenValue);
+      response.cookies.set("token", tokenValue, {
+         maxAge: 6 * 60 * 60,
+      });
    }
 
    return response;

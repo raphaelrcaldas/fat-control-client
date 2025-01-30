@@ -7,16 +7,18 @@ const AuthContext = createContext({});
 export const AuthProvider = ({ children }) => {
    const [user, setUser] = useState("");
    const [userId, setUserId] = useState("");
+   const [scopes, setScopes] = useState([]);
 
    useEffect(() => {
       const fetchToken = async () => {
          const token = await getCookie("token");
          if (typeof token === "string") {
             const [header, payload, assign] = token.split(".");
-            const data = JSON.parse(atob(payload));
+            const data = await JSON.parse(atob(payload));
 
             setUser(data.sub);
             setUserId(data.user_id);
+            setScopes(data.scopes);
          }
       };
 
@@ -24,7 +26,9 @@ export const AuthProvider = ({ children }) => {
    }, []);
 
    return (
-      <AuthContext.Provider value={{ user: user, userId: userId }}>
+      <AuthContext.Provider
+         value={{ user: user, userId: userId, scopes: scopes }}
+      >
          {children}
       </AuthContext.Provider>
    );
