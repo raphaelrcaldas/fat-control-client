@@ -54,7 +54,7 @@ const getColorForDate = (dateString) => {
    }
 };
 
-const TripTable = ({ trips }) => {
+const TripTable = ({ trips, setRow, activeRow }) => {
    return (
       <div className='my-4 overflow-y-auto shadow-lg max-h-[44rem] w-fit'>
          <Table theme={tableTheme} hoverable>
@@ -69,17 +69,25 @@ const TripTable = ({ trips }) => {
                <TableHeadCell>H ANO</TableHeadCell>
             </Table.Head>
             <Table.Body>
-               {trips.map((trip) => (
-                  <TableRow key={trip.trig}>
+               {trips.map((trip, index) => (
+                  <TableRow
+                     key={trip.trig}
+                     onClick={() => setRow(index)}
+                     className={index === activeRow && "bg-gray-300"}
+                  >
                      <TableCell>{trip.pg}</TableCell>
                      <TableCell>{trip.nomeGuerra}</TableCell>
-                     <TableCell className='font-semibold'>{trip.trig}</TableCell>
+                     <TableCell className='font-semibold'>
+                        {trip.trig}
+                     </TableCell>
                      <TableCell>{trip.oper}</TableCell>
                      <TableCell>
                         <span className={getColor(trip.dsv)}>{trip.dsv}</span>
                      </TableCell>
                      <TableCell>
-                        <span className={getColorForDate(trip.cemal)}>{trip.cemal}</span>
+                        <span className={getColorForDate(trip.cemal)}>
+                           {trip.cemal}
+                        </span>
                      </TableCell>
                      <TableCell>{trip.hTotal}</TableCell>
                      <TableCell>{trip.hAno}</TableCell>

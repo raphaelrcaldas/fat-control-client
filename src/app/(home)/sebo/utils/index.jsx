@@ -13,3 +13,15 @@ export const converterMinutosParaHoras = (minutos) => {
 
    return `${horas.padStart(2, "0")}:${minutosRestantes.padStart(2, "0")}`;
 };
+
+export const sortTripsByDuration = (trips) => {
+   return trips.sort((a, b) => {
+      const [hoursA, minutesA] = a.hAno.split(":").map(Number);
+      const [hoursB, minutesB] = b.hAno.split(":").map(Number);
+
+      const totalMinutesA = hoursA * 60 + minutesA;
+      const totalMinutesB = hoursB * 60 + minutesB;
+
+      return totalMinutesB - totalMinutesA;
+   });
+};
