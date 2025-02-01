@@ -9,9 +9,9 @@ export default function HomeApp() {
    useEffect(() => {
       if (token) {
          const [header, payload, assign] = token.split(".");
-         let expiration = JSON.parse(atob(payload)).exp
+         let expiration = JSON.parse(atob(payload)).exp;
 
-         expiration = new Date(expiration*1000).toLocaleString()
+         expiration = new Date(expiration * 1000).toLocaleString();
 
          setExp(expiration);
       }
@@ -20,7 +20,7 @@ export default function HomeApp() {
    return (
       <>
          <h3>Home</h3>
-         <p className="mt-6">Token Expiration: {exp}</p>
+         <p className='mt-6'>Token Expiration: {exp}</p>
       </>
    );
 }

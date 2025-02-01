@@ -7,6 +7,7 @@ import {
    MdOutlinePeopleAlt,
    MdDashboard,
 } from "react-icons/md";
+import { FaUsers } from "react-icons/fa6";
 import { FaPaperPlane } from "react-icons/fa";
 import { useRouter, usePathname } from "next/navigation";
 import profilePic from "@/public/assets/1_1_gt.jpg";
@@ -156,6 +157,9 @@ export default function AppSideBar() {
                      Tripulantes
                   </Sidebar.Item>
                </Sidebar.Collapse>
+               {/* <Sidebar.Collapse icon={FaUsers} label='Pessoal'>
+                  
+               </Sidebar.Collapse> */}
             </Sidebar.ItemGroup>
             <Sidebar.ItemGroup>
                <Sidebar.Item
