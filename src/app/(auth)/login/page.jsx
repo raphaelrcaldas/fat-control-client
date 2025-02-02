@@ -27,7 +27,7 @@ const LoginPage = () => {
 
       if (response.ok) {
          await setCookie("token", dataR.access_token);
-         router.push("/dashboard");
+         router.push("/");
       } else {
          reset({ password: "" });
          alert(dataR.detail);

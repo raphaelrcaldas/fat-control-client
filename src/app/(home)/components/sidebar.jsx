@@ -120,13 +120,13 @@ export default function AppSideBar() {
             style={{ height: "90%" }}
          >
             <Sidebar.ItemGroup>
-               <Sidebar.Item
+               {/* <Sidebar.Item
                   active={path === "/dashboard"}
                   icon={MdDashboard}
                   onClick={() => router.push("/dashboard")}
                >
                   Dashboard
-               </Sidebar.Item>
+               </Sidebar.Item> */}
                <Sidebar.Collapse open icon={FaPaperPlane} label='Operações'>
                   <Sidebar.Item
                      active={path === "/sebo"}
