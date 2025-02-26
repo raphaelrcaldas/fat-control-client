@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Modal, Button, Label, TextInput, Textarea } from "flowbite-react";
 import { indispsOptions } from "./options";
+import { useAuth } from "src/context/auth";
 import {
    addIndisp,
    updateIndisp,
@@ -12,6 +13,8 @@ function IndispForm({ open, setOpen, trip, update, indisp }) {
    const [dateStart, setDateStart] = useState(indisp ? indisp.date_start : "");
    const [dateEnd, setDateEnd] = useState(indisp ? indisp.date_end : "");
    const [obs, setObs] = useState(indisp ? indisp.obs : "");
+
+   const { token } = useAuth();
 
    const closeModal = () => setOpen(false);
 
@@ -28,7 +31,6 @@ function IndispForm({ open, setOpen, trip, update, indisp }) {
       );
 
       if (checkExclude) {
-         console.log(checkExclude);
          const response = await deleteIndisp(indisp.id);
          const rData = await response.json();
 
@@ -81,7 +83,7 @@ function IndispForm({ open, setOpen, trip, update, indisp }) {
             response = await updateIndisp(data);
          } else {
             data.user_id = trip.user.id;
-            response = await addIndisp(data);
+            response = await addIndisp(data, token);
          }
 
          const rdata = await response.json();

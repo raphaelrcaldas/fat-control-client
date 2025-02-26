@@ -70,6 +70,7 @@ export function IndispCell({ dateRef, trip, indisps }) {
             const dateEnd = isoDateToString(indisp.date_end);
             const createdAt = new Date(indisp.created_at).toLocaleString();
             const bgColor = indispProps.color.bg;
+            const resp = indisp.user_created;
 
             return (
                <div
@@ -83,6 +84,7 @@ export function IndispCell({ dateRef, trip, indisps }) {
                   <div>
                      <p>Criado em:</p>
                      <p>{createdAt}</p>
+                     <p className="uppercase">{`${resp.posto.short} ${resp.nome_guerra}`}</p>
                   </div>
                </div>
             );

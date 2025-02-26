@@ -4,12 +4,85 @@ import { useRouter } from "next/navigation";
 import { setCookie } from "cookies-next";
 import { getToken } from "@/services/routes/auth";
 import { useForm } from "react-hook-form";
-import { Button, Spinner } from "flowbite-react";
+import { Modal, Button, Spinner } from "flowbite-react";
 import { validateOnlyNumber } from "@/utils/textFormat";
+import { changePassword } from "@/services/routes/users";
+
+const handlePasswordChange = async (data, token) => {
+   if (data.newPassword === data.confirmPassword) {
+      const pwdBody = {
+         prev_pwd: "12345678",
+         new_pwd: data.newPassword,
+      };
+
+      changePassword(pwdBody, token)
+         .then((res) => res.json())
+         .then((data) => {
+            alert(data.detail);
+         });
+   } else {
+      alert("Senhas não conferem");
+   }
+};
+
+const ChangePasswordModal = ({ show, onClose, onSubmit, token }) => {
+   const { register, handleSubmit, reset } = useForm();
+   const [isLoading, setIsLoading] = useState(false);
+
+   const handlePasswordChange = async (data) => {
+      setIsLoading(true);
+      await onSubmit(data, token);
+      setIsLoading(false);
+      reset();
+      onClose();
+   };
+
+   return (
+      <Modal show={show} onClose={onClose} size='md'>
+         <Modal.Header>Alterar Senha</Modal.Header>
+         <Modal.Body>
+            <form onSubmit={handleSubmit(handlePasswordChange)}>
+               <div className='mb-4'>
+                  <label className='block text-sm font-medium text-gray-700'>
+                     Nova Senha
+                  </label>
+                  <input
+                     {...register("newPassword", { required: true })}
+                     type='password'
+                     className='mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm'
+                  />
+               </div>
+               <div className='mb-4'>
+                  <label className='block text-sm font-medium text-gray-700'>
+                     Confirmar Nova Senha
+                  </label>
+                  <input
+                     {...register("confirmPassword", { required: true })}
+                     type='password'
+                     className='mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm'
+                  />
+               </div>
+               <div className='flex justify-center'>
+                  <Button type='submit' disabled={isLoading}>
+                     {isLoading ? (
+                        <Spinner color='failure' aria-label='Loading spinner' />
+                     ) : (
+                        "Alterar Senha"
+                     )}
+                  </Button>
+               </div>
+            </form>
+         </Modal.Body>
+      </Modal>
+   );
+};
 
 const LoginPage = () => {
    const router = useRouter();
    const [isLoading, setIsLoading] = useState(false);
+   const [tokenValue, setTokenValue] = useState("");
+   const [showChangePasswordModal, setShowChangePasswordModal] =
+      useState(false);
    const { register, handleSubmit, reset } = useForm({
       defaultValues: {
          password: "",
@@ -26,11 +99,21 @@ const LoginPage = () => {
       const dataR = await response.json();
 
       if (response.ok) {
-         await setCookie("token", dataR.access_token);
-         router.push("/");
+         const token = dataR.access_token;
+         const [header, payload, sign] = token.split(".");
+         const data = await JSON.parse(atob(payload));
+
+         setTokenValue(token);
+
+         if (data.first_login) {
+            setShowChangePasswordModal(true);
+         } else {
+            await setCookie("token", token);
+            router.push("/");
+         }
       } else {
-         reset({ password: "" });
          alert(dataR.detail);
+         reset({ password: "" });
       }
       setIsLoading(false);
    };
@@ -103,6 +186,12 @@ const LoginPage = () => {
                </form>
             </div>
          </div>
+         <ChangePasswordModal
+            show={showChangePasswordModal}
+            onClose={() => setShowChangePasswordModal(false)}
+            onSubmit={handlePasswordChange}
+            token={tokenValue}
+         />
       </div>
    );
 };

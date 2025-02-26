@@ -6,8 +6,8 @@ export async function getCrewIndisps(func, uae) {
    return await request("GET", indispRoute, null, { funcao: func, uae: uae });
 }
 
-export async function addIndisp(indisp) {
-   return await request("POST", indispRoute, indisp);
+export async function addIndisp(indisp, token) {
+   return await request("POST", indispRoute, indisp, null, token);
 }
 
 export async function updateIndisp(indisp) {

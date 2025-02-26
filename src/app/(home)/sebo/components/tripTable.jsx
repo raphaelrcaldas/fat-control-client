@@ -90,7 +90,9 @@ const TripTable = ({ trips, setRow, activeRow }) => {
                         </span>
                      </TableCell>
                      <TableCell>{trip.hTotal}</TableCell>
-                     <TableCell>{trip.hAno}</TableCell>
+                     <TableCell className='font-semibold'>
+                        {trip.hAno}
+                     </TableCell>
                   </TableRow>
                ))}
             </Table.Body>

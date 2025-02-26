@@ -54,7 +54,7 @@ export function QuadUpdateModal({
 
    return (
       <>
-         <Button onClick={() => setIsOpen(true)}>Editar</Button>
+         <Button pill color="light" onClick={() => setIsOpen(true)}>Editar</Button>
 
          {isOpen && (
             <Modal show={isOpen} onClose={() => setIsOpen(false)} size='sm'>

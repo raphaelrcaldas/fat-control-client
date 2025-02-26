@@ -1,6 +1,7 @@
 "use client";
 
 import { AuthProvider } from "../../context/auth";
+import { MsgProvider } from "../../context/infoMsg";
 import AppSideBar from "./components/sidebar";
 import "./global.css";
 
@@ -12,12 +13,14 @@ export default function RootLayout({ children }) {
          </head>
          <body>
             <AuthProvider>
-               <div className='flex h-screen bg-gray-50'>
-                  <div className='max-lg:hidden'>
-                     <AppSideBar />
+               <MsgProvider>
+                  <div className='flex h-screen bg-gray-50'>
+                     <div className='max-lg:hidden'>
+                        <AppSideBar />
+                     </div>
+                     <main className='px-4 w-full mt-6'>{children}</main>
                   </div>
-                  <main className='px-4 w-full mt-6'>{children}</main>
-               </div>
+               </MsgProvider>
             </AuthProvider>
          </body>
       </html>
