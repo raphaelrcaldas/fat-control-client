@@ -79,14 +79,13 @@ export default function QuadPage() {
                      const nameGroup = group.long.toUpperCase();
                      return (
                         <optgroup key={index} label={nameGroup}>
-                           {group.types.map((type) => {
-                              if (!type.exclude.includes(filterFunc)) {
-                                 return (
-                                    <option key={type.id} value={type.id}>
-                                       {type.long.toUpperCase()}
-                                    </option>
-                                 );
-                              }
+                           {group.types.map((type, index) => {
+                              const typeLabel = type.long.toUpperCase();
+                              return (
+                                 <option key={index} value={type.id}>
+                                    {typeLabel}
+                                 </option>
+                              );
                            })}
                         </optgroup>
                      );

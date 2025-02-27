@@ -58,7 +58,7 @@ export async function getTripData() {
          duv: row[13],
          dsv: row[14],
          hTotal: row[15],
-         hAno: row[17],
+         hAno: row[16],
       };
    });
 
