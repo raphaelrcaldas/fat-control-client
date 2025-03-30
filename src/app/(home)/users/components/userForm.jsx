@@ -91,7 +91,7 @@ export function UserRegister({ user_id, updateUsers, readOnly , postos}) {
                               >
                                  <option value='' disabled></option>
                                  {postos.map((posto) => (
-                                    <option key={posto.id} value={posto.id}>
+                                    <option key={posto.short} value={posto.short}>
                                        {posto.short.toUpperCase()}
                                     </option>
                                  ))}
