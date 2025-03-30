@@ -61,7 +61,9 @@ export const TripIndisp = ({ trip, indisps, update }) => {
                                           {indisp.id}
                                        </Table.Cell>
                                        <Table.Cell className='p-2 font-semibold'>
-                                          {indispProps.label}
+                                          <span className={'rounded-md p-2 ' + indispProps.color.bg}>
+                                             {indispProps.label}
+                                          </span>
                                        </Table.Cell>
                                        <Table.Cell className='p-2'>
                                           {dateStart}

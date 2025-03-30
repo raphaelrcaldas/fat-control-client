@@ -1,9 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Table, Button, TableRow } from "flowbite-react";
-import { SelectFuncao } from "../components/inputForm";
-import { IndispCell } from "./components/indispCell";
+import { Table, Button, TableRow, Select } from "flowbite-react";
+import IndispCell from "./components/indispCell";
 import { TripIndisp } from "./components/tripIndisp";
 import { getCrewIndisps } from "@/services/routes/indisps";
 
@@ -69,7 +68,17 @@ export default function IndispPage() {
       <>
          <h2>Indisponibilidades</h2>
          <div className='mt-6'>
-            <SelectFuncao value={filterFunc} callFunc={setFilterFunc} />
+            <Select
+            className="w-36"
+               value={filterFunc}
+               onChange={(e) => setFilterFunc(e.target.value)}
+            >
+               <option value='mc'>Mecânico</option>
+               <option value='lm'>LoadMaster</option>
+               <option value='tf'>Taifeiro</option>
+               <option value='os'>Observador-SAR</option>
+               <option value='oe'>OE</option>
+            </Select>
          </div>
          <div className='grid justify-center'>
             <div className='flex gap-3 m-1 font-semibold text-center'>

@@ -3,15 +3,15 @@ export const indispsOptions = [
       value: "svc",
       label: "Serviço",
       color: {
-         button: "yellow",
-         bg: "bg-orange-100",
+         button: "bg-amber-400 enabled:hover:bg-amber-700",
+         bg: "bg-amber-200",
       },
    },
    {
       value: "sde",
       label: "Saúde",
       color: {
-         button: "red",
+         button: "bg-red-600 enabled:hover:bg-red-800",
          bg: "bg-red-100",
       },
    },
@@ -19,7 +19,7 @@ export const indispsOptions = [
       value: "rep",
       label: "Representação",
       color: {
-         button: "red",
+         button: "bg-red-600 enabled:hover:bg-red-800",
          bg: "bg-red-100",
       },
    },
@@ -27,7 +27,7 @@ export const indispsOptions = [
       value: "fer",
       label: "Férias",
       color: {
-         button: "red",
+         button: "bg-red-600 enabled:hover:bg-red-800",
          bg: "bg-red-100",
       },
    },
@@ -35,7 +35,7 @@ export const indispsOptions = [
       value: "lic",
       label: "Licença",
       color: {
-         button: "red",
+         button: "bg-red-600 enabled:hover:bg-red-800",
          bg: "bg-red-100",
       },
    },
@@ -43,16 +43,16 @@ export const indispsOptions = [
       value: "mis",
       label: "Missão",
       color: {
-         button: "",
-         bg: "bg-cyan-100",
+         button: "bg-orange-500 enabled:hover:bg-orange-800",
+         bg: "bg-orange-100",
       },
    },
    {
       value: "pes",
       label: "Particular",
       color: {
-         button: "blue",
-         bg: "bg-blue-100",
+         button: "bg-blue-700 enabled:hover:bg-blue-800",
+         bg: "bg-blue-200",
       },
    },
 ];
