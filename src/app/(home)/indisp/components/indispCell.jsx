@@ -84,7 +84,7 @@ export function IndispCell({ dateRef, trip, indisps }) {
                   <div>
                      <p>Criado em:</p>
                      <p>{createdAt}</p>
-                     <p className="uppercase">{`${resp.posto.short} ${resp.nome_guerra}`}</p>
+                     <p className='uppercase'>{`${resp.posto.short} ${resp.nome_guerra}`}</p>
                   </div>
                </div>
             );

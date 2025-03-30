@@ -3,8 +3,48 @@ export const indispsOptions = [
       value: "svc",
       label: "Serviço",
       color: {
-         button: "warning",
+         button: "yellow",
          bg: "bg-orange-100",
+      },
+   },
+   {
+      value: "sde",
+      label: "Saúde",
+      color: {
+         button: "red",
+         bg: "bg-red-100",
+      },
+   },
+   {
+      value: "rep",
+      label: "Representação",
+      color: {
+         button: "red",
+         bg: "bg-red-100",
+      },
+   },
+   {
+      value: "fer",
+      label: "Férias",
+      color: {
+         button: "red",
+         bg: "bg-red-100",
+      },
+   },
+   {
+      value: "lic",
+      label: "Licença",
+      color: {
+         button: "red",
+         bg: "bg-red-100",
+      },
+   },
+   {
+      value: "mis",
+      label: "Missão",
+      color: {
+         button: "",
+         bg: "bg-cyan-100",
       },
    },
    {
