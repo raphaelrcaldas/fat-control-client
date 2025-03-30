@@ -1,4 +1,4 @@
-export const baseUrl = process.env.API_URL
+export const baseUrl = process.env.NEXT_PUBLIC_API_URL;
 
 export default async function request(method, endpoint, body = null, params = null, token = null) {
     let fullUrl = `${baseUrl}${endpoint}`;

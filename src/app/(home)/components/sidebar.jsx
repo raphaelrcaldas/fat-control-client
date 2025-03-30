@@ -106,9 +106,9 @@ export default function AppSideBar() {
       router.push("/login");
    };
 
-   function checkScope(scope) {
-      return scopes.includes(scope);
-   }
+   // function checkScope(scope) {
+   //    return scopes.includes(scope);
+   // }
 
    return (
       <Sidebar theme={themeSideBar}>
@@ -163,7 +163,7 @@ export default function AppSideBar() {
             </Sidebar.ItemGroup>
             <Sidebar.ItemGroup>
                <Sidebar.Item
-                  className={!checkScope("adm") && "hidden"}
+                  // className={!checkScope("adm") && "hidden"}
                   active={path === "/users"}
                   icon={MdOutlinePeopleAlt}
                   onClick={() => router.push("/users")}
