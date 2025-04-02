@@ -64,11 +64,11 @@ export function QuadsTrip({ trip, typeQuad, lenTotalQuads, quadsAllUpdate }) {
          <Button
             color={"light"}
             onClick={handleOpenModal}
-            className='relative inline-flex items-center p-1 text-sm font-medium uppercase'
+            className='inline-flex items-center p-1 text-sm font-medium uppercase overflow-visible flex-shrink-0 sticky left-0 bg-white z-10'
             size={"sm"}
          >
             {trip.trig}
-            <div className='absolute inline-flex items-center justify-center w-6 h-6 text-xs font-bold text-white bg-blue-500 border-2 rounded-full -top-2 -end-2'>
+            <div className='absolute inline-flex items-center justify-center w-6 h-6 text-xs font-bold text-white bg-blue-500 border-2 rounded-full -top-2 -right-2 '>
                {lenTotalQuads}
             </div>
          </Button>

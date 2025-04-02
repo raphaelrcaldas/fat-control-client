@@ -106,7 +106,7 @@ export default function TripPage() {
    return (
       <>
          <h2>Tripulantes</h2>
-         <div className='w-[60rem]'>
+         <div>
             <div className='mt-4 flex gap-2 hidden'>
                <Select
                   onChange={(e) => setUae(e.target.value)}

@@ -65,7 +65,7 @@ export default function AddQuadModal({ trip, type, callFunc }) {
    return (
       <>
          <VscAdd
-            className='w-5 h-5 p-0 cursor-pointer'
+            className='w-5 h-5 p-0 cursor-pointer flex-shrink-0'
             onClick={() => setOpenModal(true)}
          />
 

@@ -35,8 +35,10 @@
     appearance: none;
     /* border: 0; */
     text-decoration: none;
+    max-width: 100%;
     list-style: none;
     box-sizing: border-box;
+    overflow: hidden;
 }
 
 html {

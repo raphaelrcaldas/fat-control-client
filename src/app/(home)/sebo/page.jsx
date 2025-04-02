@@ -50,7 +50,7 @@ function SeboPage() {
                   activeRow={activeRow}
                   setRow={setActiveRow}
                />
-               <div className='p-4'>
+               <div className='p-4 hidden md:inline'>
                   <div className='p-4 bg-white rounded-lg shadow-xl'>
                      <ChartSebo
                         data={arrayFunc.map((trip) =>

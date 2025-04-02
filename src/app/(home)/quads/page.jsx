@@ -58,7 +58,7 @@ export default function QuadPage() {
       <>
          <h2>Quadrinhos</h2>
 
-         <div className='flex justify-between w-5/12 my-5'>
+         <div className='flex my-5'>
             <div className='flex gap-2'>
                <Select
                   value={filterFunc}
@@ -106,12 +106,15 @@ export default function QuadPage() {
             <p className='text-base font-semibold'>{typeName}</p>
          </div>
 
-         <div className='flex flex-col gap-1 px-2 py-3 bg-white rounded-lg shadow-md w-fit'>
+         <div
+            id='quad_table'
+            className='flex flex-col gap-1 px-2 py-3 bg-white rounded-lg shadow-md w-fit max-h-[620px] md:max-h-[480px] overflow-y-auto overflow-x-auto'
+         >
             {quads.map((item) => {
                return (
                   <div
                      key={item.trip.id}
-                     className='flex justify-start items-center gap-1.5 '
+                     className='flex justify-start items-center gap-1 overflow-visible'
                   >
                      <QuadsTrip
                         trip={item.trip}

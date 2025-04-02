@@ -10,12 +10,11 @@ import {
 import { FaUsers } from "react-icons/fa6";
 import { FaPaperPlane } from "react-icons/fa";
 import { useRouter, usePathname } from "next/navigation";
-import profilePic from "@/public/assets/1_1_gt.jpg";
 import { Button, Sidebar, Spinner } from "flowbite-react";
 import { useAuth } from "src/context/auth";
 import { deleteCookie } from "cookies-next";
 
-export default function AppSideBar() {
+export default function AppSideBar({ openBar, setOpenBar }) {
    const path = usePathname();
    const router = useRouter();
 
@@ -23,10 +22,10 @@ export default function AppSideBar() {
 
    const themeSideBar = {
       root: {
-         base: "h-full bg-white shadow-md",
+         base: "h-full bg-white shadow-md transition-all duration-300 ease-in-out",
          collapsed: {
             on: "w-16",
-            off: "w-60",
+            off: "w-60 w-full",
          },
          inner: "h-full overflow-y-auto overflow-x-hidden rounded bg-white px-3 py-4 dark:bg-gray-800",
       },
@@ -106,18 +105,17 @@ export default function AppSideBar() {
       router.push("/login");
    };
 
+   const handlePush = () => {};
+
    // function checkScope(scope) {
    //    return scopes.includes(scope);
    // }
 
    return (
-      <Sidebar theme={themeSideBar}>
-         <Sidebar.Logo img={profilePic.src} imgAlt='Gordo logo'>
-            FAT<span className='text-red-600'>CONTROL</span>
-         </Sidebar.Logo>
+      <Sidebar collapsed={openBar} theme={themeSideBar} collapseBehavior='hide'>
          <Sidebar.Items
             className='flex flex-col justify-start'
-            style={{ height: "90%" }}
+            style={{ height: "93%" }}
          >
             <Sidebar.ItemGroup>
                {/* <Sidebar.Item
@@ -184,7 +182,7 @@ export default function AppSideBar() {
                      />
                   )}
 
-                  <Button color='light' pill onClick={logout}>
+                  <Button className="flex-shrink-0" color='light' pill onClick={logout}>
                      Sair
                   </Button>
                </div>

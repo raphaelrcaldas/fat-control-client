@@ -56,16 +56,19 @@ const getColorForDate = (dateString) => {
 
 const TripTable = ({ trips, setRow, activeRow }) => {
    return (
-      <div className='my-4 overflow-y-auto shadow-lg max-h-[44rem] w-fit'>
+      <div className="my-4 overflow-y-auto shadow-lg max-h-[46rem] md:w-3/6 w-full">
          <Table theme={tableTheme} hoverable>
-            <Table.Head className='sticky top-0 z-10'>
-               <TableHeadCell>PG</TableHeadCell>
-               <TableHeadCell>NOME DE GUERRA</TableHeadCell>
+            {/* Cabeçalho fixo */}
+            <Table.Head className="sticky top-0 z-10 bg-gray-100">
+               <TableHeadCell className="hidden md:table-cell">PG</TableHeadCell>
+               <TableHeadCell className="hidden md:table-cell">
+                  NOME DE GUERRA
+               </TableHeadCell>
                <TableHeadCell>TRIG</TableHeadCell>
                <TableHeadCell>OP</TableHeadCell>
                <TableHeadCell>DSV</TableHeadCell>
-               <TableHeadCell>CEMAL</TableHeadCell>
-               <TableHeadCell>H TOTAL</TableHeadCell>
+               <TableHeadCell className="hidden md:table-cell">CEMAL</TableHeadCell>
+               <TableHeadCell>TOTAL</TableHeadCell>
                <TableHeadCell>H ANO</TableHeadCell>
             </Table.Head>
             <Table.Body>
@@ -75,24 +78,22 @@ const TripTable = ({ trips, setRow, activeRow }) => {
                      onClick={() => setRow(index)}
                      className={index === activeRow && "bg-gray-300"}
                   >
-                     <TableCell>{trip.pg}</TableCell>
-                     <TableCell>{trip.nomeGuerra}</TableCell>
-                     <TableCell className='font-semibold'>
-                        {trip.trig}
+                     <TableCell className="hidden md:table-cell">{trip.pg}</TableCell>
+                     <TableCell className="hidden md:table-cell">
+                        {trip.nomeGuerra}
                      </TableCell>
+                     <TableCell className="font-semibold">{trip.trig}</TableCell>
                      <TableCell>{trip.oper}</TableCell>
                      <TableCell>
                         <span className={getColor(trip.dsv)}>{trip.dsv}</span>
                      </TableCell>
-                     <TableCell>
+                     <TableCell className="hidden md:table-cell">
                         <span className={getColorForDate(trip.cemal)}>
                            {trip.cemal}
                         </span>
                      </TableCell>
                      <TableCell>{trip.hTotal}</TableCell>
-                     <TableCell className='font-semibold'>
-                        {trip.hAno}
-                     </TableCell>
+                     <TableCell className="font-semibold">{trip.hAno}</TableCell>
                   </TableRow>
                ))}
             </Table.Body>
