@@ -6,16 +6,16 @@ import IndispCell from "./components/indispCell";
 import { TripIndisp } from "./components/tripIndisp";
 import { getCrewIndisps } from "@/services/routes/indisps";
 
-function genDates(dateRefer) {
-   const offset = -3;
-   const days = Array(31)
+function genDates(dateRefer, daysToGenerate) {
+   const offset = -1;
+   const days = Array(daysToGenerate)
       .fill()
       .map((_, i) => {
          const yearUTC = dateRefer.getUTCFullYear();
-         const mounthUTC = dateRefer.getUTCMonth();
+         const monthUTC = dateRefer.getUTCMonth();
          const dayUTC = dateRefer.getUTCDate();
 
-         return new Date(yearUTC, mounthUTC, dayUTC + i + offset);
+         return new Date(yearUTC, monthUTC, dayUTC + i + offset);
       });
 
    return days;
@@ -23,6 +23,9 @@ function genDates(dateRefer) {
 
 export default function IndispPage() {
    const [dateRef, setDateRef] = useState(new Date());
+   const [daysToGenerate, setDaysToGenerate] = useState(
+      typeof window !== "undefined" && window.innerWidth >= 1024 ? 8 : 4
+   );
    const [datesArray, setDatesArray] = useState(genDates(dateRef));
 
    const [filterFunc, setFilterFunc] = useState("mc");
@@ -60,16 +63,24 @@ export default function IndispPage() {
    useEffect(updateCrewIndisps, [filterFunc]);
 
    useEffect(() => {
-      const newDates = genDates(dateRef);
-      setDatesArray(newDates);
-   }, [dateRef]);
+      const handleResize = () => {
+         setDaysToGenerate(window.innerWidth >= 1024 ? 30 : 8);
+      };
+
+      window.addEventListener("resize", handleResize);
+      return () => window.removeEventListener("resize", handleResize);
+   }, []);
+
+   useEffect(() => {
+      setDatesArray(genDates(dateRef, daysToGenerate));
+   }, [dateRef, daysToGenerate]);
 
    return (
       <>
          <h2>Indisponibilidades</h2>
          <div className='mt-6'>
             <Select
-            className="w-36"
+               className='w-36'
                value={filterFunc}
                onChange={(e) => setFilterFunc(e.target.value)}
             >

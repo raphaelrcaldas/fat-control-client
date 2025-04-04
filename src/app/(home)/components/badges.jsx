@@ -44,7 +44,7 @@ export function FuncBadge({ funcao, oper }) {
 
     return (
         <>
-            <Badge color={color} className="m-1 text-nowrap justify-center w-14">
+            <Badge color={color} className="m-1 text-nowrap justify-center p-1 w-14">
                 {`${funcao}: ${oper}`}
             </Badge>
         </>

@@ -38,7 +38,7 @@ export default function TripPage() {
       head: {
          base: "group/head text-xs text-gray-700 dark:text-gray-400",
          cell: {
-            base: "bg-gray-200 px-6 py-3 group-first/head:first:rounded-tl-lg group-first/head:last:rounded-tr-lg dark:bg-gray-700",
+            base: "bg-gray-200 px-3 py-3 group-first/head:first:rounded-tl-lg group-first/head:last:rounded-tr-lg dark:bg-gray-700",
          },
       },
       row: {
@@ -107,7 +107,7 @@ export default function TripPage() {
       <>
          <h2>Tripulantes</h2>
          <div>
-            <div className='mt-4 flex gap-2 hidden'>
+            <div className='mt-4 gap-2 hidden'>
                <Select
                   onChange={(e) => setUae(e.target.value)}
                   defaultValue={uae}
@@ -129,8 +129,8 @@ export default function TripPage() {
                   </option>
                </Select>
             </div>
-            <div className='mt-4 flex justify-between'>
-               <div className='flex gap-2'>
+            <div className='mt-4 flex flex-col gap-12 md:flex-row'>
+               <div className='flex flex-wrap gap-2'>
                   <TextInput
                      className='w-80'
                      icon={IoSearchSharp}
@@ -144,7 +144,7 @@ export default function TripPage() {
                      <FaFilter className='h-4 w-4' />
                   </Button>
                </div>
-               <div>
+               <div className="hidden lg:flex">
                   <SearchUser
                      uae={uae}
                      trips={trips}
@@ -155,9 +155,9 @@ export default function TripPage() {
             <div className='mt-4 overflow-x-auto shadow-md'>
                <Table hoverable theme={themeTable}>
                   <Table.Head className='text-center'>
-                     <Table.HeadCell>P/G</Table.HeadCell>
-                     <Table.HeadCell>Especialidade</Table.HeadCell>
-                     <Table.HeadCell className='text-left'>
+                     <Table.HeadCell className="">P/G</Table.HeadCell>
+                     <Table.HeadCell className="hidden md:table-cell">Especialidade</Table.HeadCell>
+                     <Table.HeadCell className='hidden md:table-cell text-left'>
                         Nome de Guerra
                      </Table.HeadCell>
                      <Table.HeadCell>Trigrama</Table.HeadCell>
@@ -172,11 +172,11 @@ export default function TripPage() {
                            <Table.Cell className='font-medium'>
                               {trip.user.posto.short}
                            </Table.Cell>
-                           <Table.Cell>{trip.user.esp}</Table.Cell>
-                           <Table.Cell className='text-left'>
+                           <Table.Cell className="hidden md:table-cell">{trip.user.esp}</Table.Cell>
+                           <Table.Cell className='hidden md:table-cell text-left'>
                               {trip.user.nome_guerra}
                            </Table.Cell>
-                           <Table.Cell className=''>{trip.trig}</Table.Cell>
+                           <Table.Cell className='font-semibold'>{trip.trig}</Table.Cell>
                            <Table.Cell className='grid justify-items-center py-2'>
                               {trip.funcs.length < 1 ? (
                                  <span className='text-red-600 text-xs'>

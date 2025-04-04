@@ -17,13 +17,13 @@ const themeTable = {
    body: {
       base: "group/body",
       cell: {
-         base: "px-6 py-1 group-first/body:group-first/row:first:rounded-tl-lg group-first/body:group-first/row:last:rounded-tr-lg group-last/body:group-last/row:first:rounded-bl-lg group-last/body:group-last/row:last:rounded-br-lg",
+         base: "px-3 py-1 group-first/body:group-first/row:first:rounded-tl-lg group-first/body:group-first/row:last:rounded-tr-lg group-last/body:group-last/row:first:rounded-bl-lg group-last/body:group-last/row:last:rounded-br-lg",
       },
    },
    head: {
       base: "group/head text-xs text-gray-700 dark:text-gray-400",
       cell: {
-         base: "bg-gray-100 px-6 py-3 group-first/head:first:rounded-tl-lg group-first/head:last:rounded-tr-lg dark:bg-gray-700",
+         base: "bg-gray-100 px-1 py-3 group-first/head:first:rounded-tl-lg group-first/head:last:rounded-tr-lg dark:bg-gray-700",
       },
    },
    row: {
@@ -89,18 +89,16 @@ export default function UsersPage() {
 
    return (
       <>
-         <h2>Usuários</h2>
+         <h2 className='mb-4'>Usuários</h2>
          <div className='max-w-6xl'>
-            <div className='flex justify-between my-4'>
-               <div className='flex gap-2'>
-                  <TextInput
-                     className='w-80'
-                     placeholder='Search for User'
-                     value={filterName}
-                     onChange={(e) => setFilterName(e.target.value)}
-                  />
-               </div>
-               <div>
+            <div className='flex flex-col md:flex-row justify-between gap-2 my-4'>
+               <TextInput
+                  className='w-full md:w-1/2'
+                  placeholder='Search for User'
+                  value={filterName}
+                  onChange={(e) => setFilterName(e.target.value)}
+               />
+               <div className="flex justify-center">
                   <UserRegister
                      user_id={null}
                      updateUsers={updateListUsers}
@@ -114,11 +112,13 @@ export default function UsersPage() {
                      <Table.HeadCell className='text-center'>
                         P/G
                      </Table.HeadCell>
-                     <Table.HeadCell className='text-center'>
+                     <Table.HeadCell className='text-center hidden md:table-cell'>
                         Especialidade
                      </Table.HeadCell>
                      <Table.HeadCell>Nome de Guerra</Table.HeadCell>
-                     <Table.HeadCell>Nome Completo</Table.HeadCell>
+                     <Table.HeadCell className='hidden md:table-cell'>
+                        Nome Completo
+                     </Table.HeadCell>
                      <Table.HeadCell className='text-center'>
                         Unidade
                      </Table.HeadCell>
@@ -132,9 +132,11 @@ export default function UsersPage() {
                            <Table.Cell className='font-medium text-gray-900'>
                               {user.posto.short}
                            </Table.Cell>
-                           <Table.Cell>{user.esp}</Table.Cell>
+                           <Table.Cell className='hidden md:table-cell'>
+                              {user.esp}
+                           </Table.Cell>
                            <Table.Cell>{user.nome_guerra}</Table.Cell>
-                           <Table.Cell className='text-left'>
+                           <Table.Cell className='text-left hidden md:table-cell'>
                               {user.nome_completo}
                            </Table.Cell>
                            <Table.Cell className='grid py-4 justify-items-center'>

@@ -47,8 +47,8 @@ export function TripDetail({ trip, update }) {
 
    return (
       <div>
-         <Button onClick={handleShow}>
-            <FaEdit className='h-5 w-5' />
+         <Button className="p-0" onClick={handleShow}>
+            <FaEdit className='h-6 w-6' />
          </Button>
          <Modal show={show} onClose={handleClose} size='sm' popup>
             <Modal.Header>Editar Tripulante</Modal.Header>

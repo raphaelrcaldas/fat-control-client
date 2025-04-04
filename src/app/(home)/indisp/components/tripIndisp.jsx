@@ -14,7 +14,7 @@ export const TripIndisp = ({ trip, indisps, update }) => {
       <>
          <Button
             color='light'
-            className='uppercase h-10 text-sm font-medium'
+            className='uppercase w-full p-0 h-10 text-sm font-medium overflow-visible'
             onClick={openModal}
          >
             {trip.trig}
@@ -57,21 +57,21 @@ export const TripIndisp = ({ trip, indisps, update }) => {
 
                                  return (
                                     <Table.Row key={indisp.id}>
-                                       <Table.Cell className='p-2'>
+                                       <Table.Cell className='p-1'>
                                           {indisp.id}
                                        </Table.Cell>
-                                       <Table.Cell className='p-2 font-semibold'>
+                                       <Table.Cell className='p-1 font-semibold'>
                                           <span className={'rounded-md p-2 ' + indispProps.color.bg}>
                                              {indispProps.label}
                                           </span>
                                        </Table.Cell>
-                                       <Table.Cell className='p-2'>
+                                       <Table.Cell className='p-1'>
                                           {dateStart}
                                        </Table.Cell>
-                                       <Table.Cell className='p-2'>
+                                       <Table.Cell className='p-1'>
                                           {dateEnd}
                                        </Table.Cell>
-                                       <Table.Cell>
+                                       <Table.Cell className="p-1">
                                           <EditIndisp
                                              trip={trip}
                                              update={update}
