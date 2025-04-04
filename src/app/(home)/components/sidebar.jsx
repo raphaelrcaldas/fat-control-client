@@ -105,14 +105,17 @@ export default function AppSideBar({ openBar, setOpenBar }) {
       router.push("/login");
    };
 
-   const handlePush = () => {};
+   // const handlePush = (route) => {
+   //    router.push(route);
+   //    setOpenBar(false);
+   // };
 
    // function checkScope(scope) {
    //    return scopes.includes(scope);
    // }
 
    return (
-      <Sidebar collapsed={openBar} theme={themeSideBar} collapseBehavior='hide'>
+      <Sidebar collapsed={!openBar} theme={themeSideBar} collapseBehavior='hide'>
          <Sidebar.Items
             className='flex flex-col justify-start'
             style={{ height: "93%" }}

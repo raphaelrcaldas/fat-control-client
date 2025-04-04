@@ -10,7 +10,9 @@ import { HiMenuAlt1 } from "react-icons/hi";
 import profilePic from "@/public/assets/1_1_gt.jpg";
 
 export default function RootLayout({ children }) {
-   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+   const [isSidebarOpen, setIsSidebarOpen] = useState(
+      typeof window !== "undefined" && window.innerWidth >= 1024 ? true : false
+   );
 
    const toggleSidebar = () => {
       setIsSidebarOpen(!isSidebarOpen);
