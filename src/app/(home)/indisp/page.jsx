@@ -24,7 +24,7 @@ function genDates(dateRefer, daysToGenerate) {
 export default function IndispPage() {
    const [dateRef, setDateRef] = useState(new Date());
    const [daysToGenerate, setDaysToGenerate] = useState(
-      typeof window !== "undefined" && window.innerWidth >= 1024 ? 8 : 4
+      typeof window !== "undefined" && window.innerWidth >= 1024 ? 30 : 8
    );
    const [datesArray, setDatesArray] = useState(genDates(dateRef));
 

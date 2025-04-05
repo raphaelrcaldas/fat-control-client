@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { AuthProvider } from "../../context/auth";
 import { MsgProvider } from "../../context/infoMsg";
 import AppSideBar from "./components/sidebar";
@@ -10,13 +10,25 @@ import { HiMenuAlt1 } from "react-icons/hi";
 import profilePic from "@/public/assets/1_1_gt.jpg";
 
 export default function RootLayout({ children }) {
-   const [isSidebarOpen, setIsSidebarOpen] = useState(
+   const [IsCollapsed, setIsCollapsed] = useState(
+      typeof window !== "undefined" && window.innerWidth >= 1024 ? false : true
+   );
+   const [alwaysOpen, setAlwaysOpen] = useState(
       typeof window !== "undefined" && window.innerWidth >= 1024 ? true : false
    );
 
-   const toggleSidebar = () => {
-      setIsSidebarOpen(!isSidebarOpen);
-   };
+   function handleClose() {
+      setIsCollapsed(!IsCollapsed);
+   }
+
+   useEffect(() => {
+      const handleResize = () => {
+         setAlwaysOpen(window.innerWidth >= 1024 ? true : false);
+      };
+
+      window.addEventListener("resize", handleResize);
+      return () => window.removeEventListener("resize", handleResize);
+   }, []);
 
    return (
       <html lang='pt-br'>
@@ -35,8 +47,8 @@ export default function RootLayout({ children }) {
                      <div className='flex items-center justify-between w-full'>
                         <div className='flex items-center'>
                            <HiMenuAlt1
-                              className='size-8 mr-4 cursor-pointer text-red-600'
-                              onClick={toggleSidebar}
+                              className='size-8 mr-4 cursor-pointer text-red-600 md:hidden'
+                              onClick={handleClose}
                            />
                            <NavbarBrand>
                               <img
@@ -52,19 +64,23 @@ export default function RootLayout({ children }) {
                         </div>
                      </div>
                   </Navbar>
+                  
+                  {/*Overlay */}
+                  {!IsCollapsed && !alwaysOpen && (
+                     <div className='fixed inset-0 bg-black bg-opacity-50 z-40' />
+                  )}
 
                   {/* Layout principal */}
-                  <div className='flex h-screen pt-16 bg-gray-50'>
+                  <div className='flex h-screen pt-12 bg-gray-50'>
                      {/* Sidebar Responsiva */}
                      <div className='fixed md:relative h-full z-40'>
                         <AppSideBar
-                           openBar={isSidebarOpen}
-                           setOpenBar={setIsSidebarOpen}
+                           isCollapsed={IsCollapsed}
+                           setIsCollapsed={setIsCollapsed}
+                           alwaysOpen={alwaysOpen}
                         />
                      </div>
-                     <main className='px-4 mt-6 ml-0 w-full'>
-                        {children}
-                     </main>
+                     <main className='px-4 mt-6 ml-0 w-full'>{children}</main>
                   </div>
                </MsgProvider>
             </AuthProvider>

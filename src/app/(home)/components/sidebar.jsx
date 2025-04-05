@@ -14,7 +14,11 @@ import { Button, Sidebar, Spinner } from "flowbite-react";
 import { useAuth } from "src/context/auth";
 import { deleteCookie } from "cookies-next";
 
-export default function AppSideBar({ openBar, setOpenBar }) {
+export default function AppSideBar({
+   isCollapsed,
+   setIsCollapsed,
+   alwaysOpen,
+}) {
    const path = usePathname();
    const router = useRouter();
 
@@ -25,7 +29,7 @@ export default function AppSideBar({ openBar, setOpenBar }) {
          base: "h-full bg-white shadow-md transition-all duration-300 ease-in-out",
          collapsed: {
             on: "w-16",
-            off: "w-60 w-full",
+            off: "w-64",
          },
          inner: "h-full overflow-y-auto overflow-x-hidden rounded bg-white px-3 py-4 dark:bg-gray-800",
       },
@@ -115,82 +119,93 @@ export default function AppSideBar({ openBar, setOpenBar }) {
    // }
 
    return (
-      <Sidebar collapsed={!openBar} theme={themeSideBar} collapseBehavior='hide'>
-         <Sidebar.Items
-            className='flex flex-col justify-start'
-            style={{ height: "93%" }}
+      <>
+         <Sidebar
+            collapsed={alwaysOpen ? false : isCollapsed}
+            theme={themeSideBar}
+            collapseBehavior='hide'
          >
-            <Sidebar.ItemGroup>
-               {/* <Sidebar.Item
+            <Sidebar.Items
+               className='flex flex-col justify-start'
+               style={{ height: "93%" }}
+            >
+               <Sidebar.ItemGroup>
+                  {/* <Sidebar.Item
                   active={path === "/dashboard"}
                   icon={MdDashboard}
                   onClick={() => router.push("/dashboard")}
                >
                   Dashboard
                </Sidebar.Item> */}
-               <Sidebar.Collapse open icon={FaPaperPlane} label='Operações'>
-                  <Sidebar.Item
-                     active={path === "/sebo"}
-                     icon={MdSort}
-                     onClick={() => router.push("/sebo")}
-                  >
-                     Pau de Sebo
-                  </Sidebar.Item>
-                  <Sidebar.Item
-                     active={path === "/quads"}
-                     icon={MdAirplaneTicket}
-                     onClick={() => router.push("/quads")}
-                  >
-                     Quadrinhos
-                  </Sidebar.Item>
-                  <Sidebar.Item
-                     active={path === "/indisp"}
-                     icon={MdAirplanemodeInactive}
-                     onClick={() => router.push("/indisp")}
-                  >
-                     Indisp
-                  </Sidebar.Item>
-                  <Sidebar.Item
-                     active={path === "/trip"}
-                     icon={MdHail}
-                     onClick={() => router.push("/trip")}
-                  >
-                     Tripulantes
-                  </Sidebar.Item>
-               </Sidebar.Collapse>
-               {/* <Sidebar.Collapse icon={FaUsers} label='Pessoal'>
+                  <Sidebar.Collapse open icon={FaPaperPlane} label='Operações'>
+                     <Sidebar.Item
+                        active={path === "/sebo"}
+                        icon={MdSort}
+                        onClick={() => router.push("/sebo")}
+                     >
+                        Pau de Sebo
+                     </Sidebar.Item>
+                     <Sidebar.Item
+                        active={path === "/quads"}
+                        icon={MdAirplaneTicket}
+                        onClick={() => router.push("/quads")}
+                     >
+                        Quadrinhos
+                     </Sidebar.Item>
+                     <Sidebar.Item
+                        active={path === "/indisp"}
+                        icon={MdAirplanemodeInactive}
+                        onClick={() => router.push("/indisp")}
+                     >
+                        Indisp
+                     </Sidebar.Item>
+                     <Sidebar.Item
+                        active={path === "/trip"}
+                        icon={MdHail}
+                        onClick={() => router.push("/trip")}
+                     >
+                        Tripulantes
+                     </Sidebar.Item>
+                  </Sidebar.Collapse>
+                  {/* <Sidebar.Collapse icon={FaUsers} label='Pessoal'>
                   
                </Sidebar.Collapse> */}
-            </Sidebar.ItemGroup>
-            <Sidebar.ItemGroup>
-               <Sidebar.Item
-                  // className={!checkScope("adm") && "hidden"}
-                  active={path === "/users"}
-                  icon={MdOutlinePeopleAlt}
-                  onClick={() => router.push("/users")}
-               >
-                  Usuários
-               </Sidebar.Item>
-            </Sidebar.ItemGroup>
-            <Sidebar.CTA className='mt-auto bg-red-200 shadow-md'>
-               <div className='flex items-center justify-evenly'>
-                  {user ? (
-                     <span className='font-semibold text-center uppercase'>
-                        {user}
-                     </span>
-                  ) : (
-                     <Spinner
-                        color='failure'
-                        aria-label='Failure spinner example'
-                     />
-                  )}
+               </Sidebar.ItemGroup>
+               <Sidebar.ItemGroup>
+                  <Sidebar.Item
+                     // className={!checkScope("adm") && "hidden"}
+                     active={path === "/users"}
+                     icon={MdOutlinePeopleAlt}
+                     onClick={() => router.push("/users")}
+                  >
+                     Usuários
+                  </Sidebar.Item>
+               </Sidebar.ItemGroup>
+               <Sidebar.CTA className='mt-auto bg-red-200 shadow-md'>
+                  <div className='flex items-center justify-evenly'>
+                     {user ? (
+                        <span className='font-semibold text-center uppercase'>
+                           {user}
+                        </span>
+                     ) : (
+                        <Spinner
+                           color='failure'
+                           aria-label='Failure spinner example'
+                        />
+                     )}
 
-                  <Button className="flex-shrink-0" color='light' pill onClick={logout}>
-                     Sair
-                  </Button>
-               </div>
-            </Sidebar.CTA>
-         </Sidebar.Items>
-      </Sidebar>
+                     <Button
+                        className='flex-shrink-0'
+                        color='light'
+                        pill
+                        onClick={logout}
+                     >
+                        Sair
+                     </Button>
+                  </div>
+               </Sidebar.CTA>
+            </Sidebar.Items>
+         </Sidebar>
+      </>
    );
 }
