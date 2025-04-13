@@ -98,7 +98,7 @@ export default function UsersPage() {
                   value={filterName}
                   onChange={(e) => setFilterName(e.target.value)}
                />
-               <div className="flex justify-center">
+               <div className='flex justify-center'>
                   <UserRegister
                      user_id={null}
                      updateUsers={updateListUsers}
@@ -106,6 +106,7 @@ export default function UsersPage() {
                   />
                </div>
             </div>
+
             <div className='relative max-w-6xl overflow-x-auto shadow-md sm:rounded-lg'>
                <Table hoverable theme={themeTable}>
                   <Table.Head className='text-sm'>

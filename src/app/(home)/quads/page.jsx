@@ -7,6 +7,7 @@ import { QuadsTrip } from "./components/quadsTrip";
 import { getQuads, getQuadsType } from "@/services/routes/quads";
 import AddQuadModal from "./components/addQuad";
 import { FaSearch } from "react-icons/fa";
+import { PermBased } from "../hooks/usePermBased";
 
 export default function QuadPage() {
    const [filterFunc, setFilterFunc] = useState("mc");
@@ -125,11 +126,13 @@ export default function QuadPage() {
                      {item.quads.map((quad) => {
                         return <QuadPopover key={quad.id} quad={quad} />;
                      })}
-                     <AddQuadModal
-                        trip={item.trip}
-                        callFunc={getQuadsParams}
-                        type={filterQuad}
-                     />
+                     <PermBased resource={"quad_ops"} requiredPerm={"create"}>
+                        <AddQuadModal
+                           trip={item.trip}
+                           callFunc={getQuadsParams}
+                           type={filterQuad}
+                        />
+                     </PermBased>
                   </div>
                );
             })}

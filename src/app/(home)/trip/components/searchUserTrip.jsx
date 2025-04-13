@@ -55,54 +55,62 @@ export function SearchUser({ uae, trips, updateTrips }) {
             <GoPlus className='mr-2 h-5 w-5' /> Adicionar
          </Button>
 
-         <Modal show={openAddTrip} size='md' onClose={closeTripRegister} popup>
-            <Modal.Header />
-            <Modal.Body>
-               <h3 className='mb-7 text-xl text-center font-semibold'>
-                  Adicionar Tripulante
-               </h3>
-               <div className='flex gap-2 justify-between'>
-                  <TextInput
-                     className='w-full'
-                     placeholder='Search for User'
-                     value={userSearchInput}
-                     onChange={(event) => setSearchInput(event.target.value)}
-                  />
-                  <Button onClick={searchUserForTrip}>
-                     <IoSearchSharp className='h-5 w-5' />
-                  </Button>
-               </div>
-               <div className='mt-8 overflow shadow-lg h-72 bg-gray-100 rounded-lg'>
-                  <Table hoverable>
-                     <Table.Body>
-                        {usersTrip.map((user) => {
-                           const pg = user.posto.short;
-                           const esp = user.esp;
-                           const guerra = user.nome_guerra;
+         {openAddTrip && (
+            <Modal
+               show={openAddTrip}
+               size='md'
+               onClose={closeTripRegister}
+               popup
+            >
+               <Modal.Header />
+               <Modal.Body>
+                  <h3 className='mb-7 text-xl text-center font-semibold'>
+                     Adicionar Tripulante
+                  </h3>
+                  <div className='flex gap-2 justify-between'>
+                     <TextInput
+                        className='w-full'
+                        placeholder='Search for User'
+                        value={userSearchInput}
+                        onChange={(event) => setSearchInput(event.target.value)}
+                     />
+                     <Button onClick={searchUserForTrip}>
+                        <IoSearchSharp className='h-5 w-5' />
+                     </Button>
+                  </div>
+                  <div className='mt-8 overflow shadow-lg h-72 bg-gray-100 rounded-lg'>
+                     <Table hoverable>
+                        <Table.Body>
+                           {usersTrip.map((user) => {
+                              const pg = user.posto.short;
+                              const esp = user.esp;
+                              const guerra = user.nome_guerra;
 
-                           return (
-                              <Table.Row
-                                 className='hover:font-semibold'
-                                 key={user.id}
-                              >
-                                 <Table.Cell className='text-center uppercase'>
-                                    {`${pg} ${esp} ${guerra}`}
-                                 </Table.Cell>
-                                 <Table.Cell className='w-10'>
-                                    <TripRegister
-                                       user={user}
-                                       uae={uae}
-                                       update={updateTrips}
-                                    />
-                                 </Table.Cell>
-                              </Table.Row>
-                           );
-                        })}
-                     </Table.Body>
-                  </Table>
-               </div>
-            </Modal.Body>
-         </Modal>
+                              return (
+                                 <Table.Row
+                                    className='hover:font-semibold'
+                                    key={user.id}
+                                 >
+                                    <Table.Cell className='text-center uppercase'>
+                                       {`${pg} ${esp} ${guerra}`}
+                                    </Table.Cell>
+                                    <Table.Cell className='w-20'>
+                                       <TripRegister
+                                          user={user}
+                                          uae={uae}
+                                          update={updateTrips}
+                                       />
+                                       
+                                    </Table.Cell>
+                                 </Table.Row>
+                              );
+                           })}
+                        </Table.Body>
+                     </Table>
+                  </div>
+               </Modal.Body>
+            </Modal>
+         )}
       </>
    );
 }

@@ -13,6 +13,8 @@ import { useRouter, usePathname } from "next/navigation";
 import { Button, Sidebar, Spinner } from "flowbite-react";
 import { useAuth } from "src/context/auth";
 import { deleteCookie } from "cookies-next";
+import { RoleBasedRoute } from "../hooks/useRoleBased";
+import { PermBased } from "../hooks/usePermBased";
 
 export default function AppSideBar({
    isCollapsed,
@@ -22,7 +24,7 @@ export default function AppSideBar({
    const path = usePathname();
    const router = useRouter();
 
-   const { user, scopes } = useAuth();
+   const { user, role } = useAuth();
 
    const themeSideBar = {
       root: {
@@ -130,56 +132,74 @@ export default function AppSideBar({
                style={{ height: "93%" }}
             >
                <Sidebar.ItemGroup>
-                  {/* <Sidebar.Item
-                  active={path === "/dashboard"}
-                  icon={MdDashboard}
-                  onClick={() => router.push("/dashboard")}
-               >
-                  Dashboard
-               </Sidebar.Item> */}
-                  <Sidebar.Collapse open icon={FaPaperPlane} label='Operações'>
-                     <Sidebar.Item
-                        active={path === "/sebo"}
-                        icon={MdSort}
-                        onClick={() => router.push("/sebo")}
+                  <RoleBasedRoute
+                     requiredRoles={[
+                        "admin",
+                        "ops_avancado",
+                        "ops_basico",
+                        "trip",
+                     ]}
+                  >
+                     <Sidebar.Collapse
+                        open
+                        icon={FaPaperPlane}
+                        label='Operações'
                      >
-                        Pau de Sebo
-                     </Sidebar.Item>
-                     <Sidebar.Item
-                        active={path === "/quads"}
-                        icon={MdAirplaneTicket}
-                        onClick={() => router.push("/quads")}
-                     >
-                        Quadrinhos
-                     </Sidebar.Item>
-                     <Sidebar.Item
-                        active={path === "/indisp"}
-                        icon={MdAirplanemodeInactive}
-                        onClick={() => router.push("/indisp")}
-                     >
-                        Indisp
-                     </Sidebar.Item>
-                     <Sidebar.Item
-                        active={path === "/trip"}
-                        icon={MdHail}
-                        onClick={() => router.push("/trip")}
-                     >
-                        Tripulantes
-                     </Sidebar.Item>
-                  </Sidebar.Collapse>
+                        <PermBased resource={"sebo"} requiredPerm={"view"}>
+                           <Sidebar.Item
+                              active={path === "/sebo"}
+                              icon={MdSort}
+                              onClick={() => router.push("/sebo")}
+                           >
+                              Pau de Sebo
+                           </Sidebar.Item>
+                        </PermBased>
+                        <PermBased resource={"quad_ops"} requiredPerm={"view"}>
+                           <Sidebar.Item
+                              active={path === "/quads"}
+                              icon={MdAirplaneTicket}
+                              onClick={() => router.push("/quads")}
+                           >
+                              Quadrinhos
+                           </Sidebar.Item>
+                        </PermBased>
+                        <PermBased
+                           resource={"indisp_trips"}
+                           requiredPerm={"view"}
+                        >
+                           <Sidebar.Item
+                              active={path === "/indisp"}
+                              icon={MdAirplanemodeInactive}
+                              onClick={() => router.push("/indisp")}
+                           >
+                              Indisp
+                           </Sidebar.Item>
+                        </PermBased>
+                        <PermBased resource={"trips"} requiredPerm={"view"}>
+                           <Sidebar.Item
+                              active={path === "/trip"}
+                              icon={MdHail}
+                              onClick={() => router.push("/trip")}
+                           >
+                              Tripulantes
+                           </Sidebar.Item>
+                        </PermBased>
+                     </Sidebar.Collapse>
+                  </RoleBasedRoute>
                   {/* <Sidebar.Collapse icon={FaUsers} label='Pessoal'>
                   
                </Sidebar.Collapse> */}
                </Sidebar.ItemGroup>
                <Sidebar.ItemGroup>
-                  <Sidebar.Item
-                     // className={!checkScope("adm") && "hidden"}
-                     active={path === "/users"}
-                     icon={MdOutlinePeopleAlt}
-                     onClick={() => router.push("/users")}
-                  >
-                     Usuários
-                  </Sidebar.Item>
+                  <RoleBasedRoute requiredRoles={["admin"]}>
+                     <Sidebar.Item
+                        active={path === "/users"}
+                        icon={MdOutlinePeopleAlt}
+                        onClick={() => router.push("/users")}
+                     >
+                        Usuários
+                     </Sidebar.Item>
+                  </RoleBasedRoute>
                </Sidebar.ItemGroup>
                <Sidebar.CTA className='mt-auto bg-red-200 shadow-md'>
                   <div className='flex items-center justify-evenly'>

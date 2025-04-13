@@ -9,7 +9,7 @@ export const AuthProvider = ({ children }) => {
 
    const [user, setUser] = useState("");
    const [userId, setUserId] = useState("");
-   const [scopes, setScopes] = useState([]);
+   const [role, setRole] = useState({});
 
    useEffect(() => {
       const fetchToken = async () => {
@@ -22,16 +22,18 @@ export const AuthProvider = ({ children }) => {
 
             setUser(data.sub);
             setUserId(data.user_id);
-            setScopes(data.scopes);
+            setRole(data.role);
          }
       };
 
-      fetchToken();
+      if (token == "") {
+         fetchToken();
+      }
    }, []);
 
    return (
       <AuthContext.Provider
-         value={{ user: user, userId: userId, scopes: scopes, token: token }}
+         value={{ user: user, userId: userId, role: role, token: token }}
       >
          {children}
       </AuthContext.Provider>

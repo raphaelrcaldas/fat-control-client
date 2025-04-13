@@ -3,6 +3,7 @@ import { Modal, Button, Table } from "flowbite-react";
 import { EditIndisp, NewIndisp } from "./indispForm";
 import { isoDateToString } from "@/utils/dateHandler";
 import { getIndisp } from "./options";
+import { PermBased } from "../../hooks/usePermBased";
 
 export const TripIndisp = ({ trip, indisps, update }) => {
    const [isOpen, setIsOpen] = useState(false);
@@ -61,7 +62,12 @@ export const TripIndisp = ({ trip, indisps, update }) => {
                                           {indisp.id}
                                        </Table.Cell>
                                        <Table.Cell className='p-1 font-semibold'>
-                                          <span className={'rounded-md p-2 ' + indispProps.color.bg}>
+                                          <span
+                                             className={
+                                                "rounded-md p-2 " +
+                                                indispProps.color.bg
+                                             }
+                                          >
                                              {indispProps.label}
                                           </span>
                                        </Table.Cell>
@@ -71,12 +77,17 @@ export const TripIndisp = ({ trip, indisps, update }) => {
                                        <Table.Cell className='p-1'>
                                           {dateEnd}
                                        </Table.Cell>
-                                       <Table.Cell className="p-1">
-                                          <EditIndisp
-                                             trip={trip}
-                                             update={update}
-                                             indisp={indisp}
-                                          />
+                                       <Table.Cell className='p-1'>
+                                          <PermBased
+                                             requiredPerm={"create"}
+                                             resource={"indisp_trips"}
+                                          >
+                                             <EditIndisp
+                                                trip={trip}
+                                                update={update}
+                                                indisp={indisp}
+                                             />
+                                          </PermBased>
                                        </Table.Cell>
                                     </Table.Row>
                                  );

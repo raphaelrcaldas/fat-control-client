@@ -32,7 +32,7 @@ export function QuadPopover({ quad }) {
          }
       >
          <Button pill color={color} className='text-center p-0 flex-shrink-0'>
-            <span>{dateStr.slice(0,5)}</span>
+            <span>{ dateStr.slice(0,5)}</span>
          </Button>
       </Popover>
    );

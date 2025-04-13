@@ -37,8 +37,6 @@ export default function AddQuadModal({ trip, type, callFunc }) {
          type_id: type,
       };
 
-      console.log(quad);
-
       if (lastro > 0 || date != "") {
          const quads = lastro > 0 ? Array(lastro).fill(quad) : [quad];
 

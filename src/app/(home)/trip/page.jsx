@@ -10,6 +10,7 @@ import { getTrips } from "@/services/routes/trips";
 import { SelectFuncao, SelectOper } from "../components/inputForm";
 import { FuncBadge } from "../components/badges";
 import { TripDetail } from "./components/tripDetail";
+import { PermBased } from "../hooks/usePermBased";
 
 export default function TripPage() {
    const [trips, setTrips] = useState([]);
@@ -144,19 +145,23 @@ export default function TripPage() {
                      <FaFilter className='h-4 w-4' />
                   </Button>
                </div>
-               <div className="hidden lg:flex">
-                  <SearchUser
-                     uae={uae}
-                     trips={trips}
-                     updateTrips={getListTrips}
-                  />
+               <div className='hidden lg:flex'>
+                  <PermBased resource={"trips"} requiredPerm={"create"}>
+                     <SearchUser
+                        uae={uae}
+                        trips={trips}
+                        updateTrips={getListTrips}
+                     />
+                  </PermBased>
                </div>
             </div>
             <div className='mt-4 overflow-x-auto shadow-md'>
                <Table hoverable theme={themeTable}>
                   <Table.Head className='text-center'>
-                     <Table.HeadCell className="">P/G</Table.HeadCell>
-                     <Table.HeadCell className="hidden md:table-cell">Especialidade</Table.HeadCell>
+                     <Table.HeadCell className=''>P/G</Table.HeadCell>
+                     <Table.HeadCell className='hidden md:table-cell'>
+                        Especialidade
+                     </Table.HeadCell>
                      <Table.HeadCell className='hidden md:table-cell text-left'>
                         Nome de Guerra
                      </Table.HeadCell>
@@ -172,11 +177,15 @@ export default function TripPage() {
                            <Table.Cell className='font-medium'>
                               {trip.user.posto.short}
                            </Table.Cell>
-                           <Table.Cell className="hidden md:table-cell">{trip.user.esp}</Table.Cell>
+                           <Table.Cell className='hidden md:table-cell'>
+                              {trip.user.esp}
+                           </Table.Cell>
                            <Table.Cell className='hidden md:table-cell text-left'>
                               {trip.user.nome_guerra}
                            </Table.Cell>
-                           <Table.Cell className='font-semibold'>{trip.trig}</Table.Cell>
+                           <Table.Cell className='font-semibold'>
+                              {trip.trig}
+                           </Table.Cell>
                            <Table.Cell className='grid justify-items-center py-2'>
                               {trip.funcs.length < 1 ? (
                                  <span className='text-red-600 text-xs'>
@@ -193,7 +202,15 @@ export default function TripPage() {
                               )}
                            </Table.Cell>
                            <Table.Cell className='justify-items-center'>
-                              <TripDetail trip={trip} update={getListTrips} />
+                              <PermBased
+                                 resource={"trips"}
+                                 requiredPerm={"create"}
+                              >
+                                 <TripDetail
+                                    trip={trip}
+                                    update={getListTrips}
+                                 />
+                              </PermBased>
                            </Table.Cell>
                         </Table.Row>
                      ))}

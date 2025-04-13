@@ -5,6 +5,7 @@ import { useState, useCallback, useEffect } from "react";
 import { QuadUpdateModal } from "./quadUpdate";
 import { getQuadById } from "@/services/routes/quads";
 import { isoDateToString } from "@/utils/dateHandler";
+import { PermBased } from "../../hooks/usePermBased";
 
 const themeTable = {
    root: {
@@ -104,12 +105,14 @@ export function QuadsTrip({ trip, typeQuad, lenTotalQuads, quadsAllUpdate }) {
                                           : "LASTRO"}
                                     </Table.Cell>
                                     <Table.Cell className='grid justify-items-center'>
-                                       <QuadUpdateModal
-                                          quad={quad}
-                                          tridId={trip.id}
-                                          updateQuadsTrip={getQuads}
-                                          quadsAllUpdate={quadsAllUpdate}
-                                       />
+                                       <PermBased resource={"quad_ops"} requiredPerm={"create"}>
+                                          <QuadUpdateModal
+                                             quad={quad}
+                                             tridId={trip.id}
+                                             updateQuadsTrip={getQuads}
+                                             quadsAllUpdate={quadsAllUpdate}
+                                          />
+                                       </PermBased>
                                     </Table.Cell>
                                  </Table.Row>
                               );
