@@ -2,7 +2,7 @@
 
 import { GoPlus } from "react-icons/go";
 import { Modal, Button, Table, TextInput } from "flowbite-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { IoSearchSharp } from "react-icons/io5";
 import { getUsers } from "@/services/routes/users";
 import { TripRegister } from "./tripRegister";
@@ -12,9 +12,10 @@ export function SearchUser({ uae, trips, updateTrips }) {
    const [openAddTrip, setAddTrip] = useState(false);
    const [usersTrip, setUsersTrip] = useState([]);
    const [userSearchInput, setSearchInput] = useState("");
+   const [disabledBtn, setDisabled] = useState(true);
 
-   function checkPerm() {
-      const token = getCookie("token");
+   async function checkPerm() {
+      const token = await getCookie("token");
       const [header, payload, assign] = token.split(".");
 
       const { role } = JSON.parse(atob(payload));
@@ -65,11 +66,15 @@ export function SearchUser({ uae, trips, updateTrips }) {
       setAddTrip(false);
    }
 
+   useEffect(() => {
+      checkPerm().then((perm) => setDisabled(perm));
+   }, []);
+
    return (
       <>
          <Button
             color='blue'
-            disabled={checkPerm()}
+            disabled={disabledBtn}
             onClick={() => setAddTrip(true)}
          >
             <GoPlus className='mr-2 h-5 w-5' /> Adicionar
