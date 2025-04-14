@@ -40,10 +40,13 @@ function useUsers() {
       getUsers()
          .then((res) => res.json())
          .then((users) => {
-            const sortedUsers = users.sort((a, b) =>
-               a.nome_guerra.localeCompare(b.nome_guerra)
+            const sortedUltPromo = users.sort(
+               (a, b) => new Date(a.ult_promo) - new Date(b.ult_promo)
             );
-            setUsuarios(sortedUsers);
+            const sortedAnt = sortedUltPromo.sort(
+               (a, b) => a.posto.ant - b.posto.ant
+            );
+            setUsuarios(sortedAnt);
          });
    };
 
@@ -107,7 +110,7 @@ export default function UsersPage() {
                </div>
             </div>
 
-            <div className='relative max-w-6xl overflow-x-auto shadow-md sm:rounded-lg'>
+            <div className='relative max-w-6xl overflow-x-auto overflow-y-auto shadow-md rounded-lg max-h-[550px]'>
                <Table hoverable theme={themeTable}>
                   <Table.Head className='text-sm'>
                      <Table.HeadCell className='text-center'>
@@ -131,7 +134,7 @@ export default function UsersPage() {
                      {filterUsers.map((user) => (
                         <Table.Row key={user.id}>
                            <Table.Cell className='font-medium text-gray-900'>
-                              {user.posto.short}
+                              {user.posto.mid}
                            </Table.Cell>
                            <Table.Cell className='hidden md:table-cell'>
                               {user.esp}
