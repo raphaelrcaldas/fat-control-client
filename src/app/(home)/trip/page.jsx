@@ -146,13 +146,11 @@ export default function TripPage() {
                   </Button>
                </div>
                <div className='hidden lg:flex'>
-                  <PermBased resource={"trips"} requiredPerm={"create"}>
                      <SearchUser
                         uae={uae}
                         trips={trips}
                         updateTrips={getListTrips}
                      />
-                  </PermBased>
                </div>
             </div>
             <div className='mt-4 overflow-x-auto shadow-md'>
