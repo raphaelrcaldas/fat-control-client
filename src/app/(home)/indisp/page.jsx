@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Table, Button, TableRow, Select } from "flowbite-react";
+import { Button, Select } from "flowbite-react";
 import IndispCell from "./components/indispCell";
 import { TripIndisp } from "./components/tripIndisp";
 import { getCrewIndisps } from "@/services/routes/indisps";
@@ -143,126 +143,134 @@ export default function IndispPage() {
                Hoje
             </Button>
          </div>
-         <div className='h-full overflow-auto'>
-            <Table>
-               <Table.Head>
-                  <Table.HeadCell />
-                  {datesArray.map((dayR, index) => {
-                     let bold;
-                     if (dayR.getDay() != 0 && dayR.getDay() != 6) {
-                        bold = "font-normal";
-                     }
+         <div className='overflow-y-auto max-h-[450px] bg-white shadow-lg mt-4 pb-3 rounded-lg'>
+            <table className='w-full'>
+               <thead className='sticky bg-white top-0 z-10'>
+                  <tr>
+                     <th scope='col' />
+                     {datesArray.map((dayR, index) => {
+                        let bold;
+                        if (dayR.getDay() != 0 && dayR.getDay() != 6) {
+                           bold = "font-normal";
+                        }
 
-                     return (
-                        <Table.HeadCell
-                           key={index}
-                           className={"px-0 text-center " + bold}
-                        >
-                           {dayR.toLocaleDateString("pt-BR", {
-                              weekday: "short",
-                           })}
-                        </Table.HeadCell>
-                     );
-                  })}
-               </Table.Head>
-               <Table.Head>
-                  <Table.HeadCell />
-                  {datesArray.map((dayR, index) => {
-                     const options = {
-                        month: "2-digit",
-                        day: "2-digit",
-                     };
-                     const dateStr = dayR.toLocaleDateString("pt-BR", options);
+                        return (
+                           <th
+                              key={index}
+                              scope='col'
+                              className={"px-0 text-center " + bold}
+                           >
+                              {dayR.toLocaleDateString("pt-BR", {
+                                 weekday: "short",
+                              })}
+                           </th>
+                        );
+                     })}
+                  </tr>
+                  <tr>
+                     <th scope='col' />
+                     {datesArray.map((dayR, index) => {
+                        const options = {
+                           month: "2-digit",
+                           day: "2-digit",
+                        };
+                        const dateStr = dayR.toLocaleDateString(
+                           "pt-BR",
+                           options
+                        );
 
-                     let color;
+                        let color;
 
-                     if (dayR.getDay() == 0 || dayR.getDay() == 6) {
-                        color = "bg-red-400";
-                     }
+                        if (dayR.getDay() == 0 || dayR.getDay() == 6) {
+                           color = "bg-red-400";
+                        }
 
-                     if (dayR.valueOf() < new Date().valueOf()) {
-                        color = "bg-gray-400";
-                     }
+                        if (dayR.valueOf() < new Date().valueOf()) {
+                           color = "bg-gray-400";
+                        }
 
-                     if (
-                        dayR.getDate() == new Date().getDate() &&
-                        dayR.getMonth() == new Date().getMonth()
-                     ) {
-                        color = "bg-yellow-200";
-                     }
+                        if (
+                           dayR.getDate() == new Date().getDate() &&
+                           dayR.getMonth() == new Date().getMonth()
+                        ) {
+                           color = "bg-yellow-200";
+                        }
 
-                     return (
-                        <Table.HeadCell
-                           key={index}
-                           className={"px-0 text-center " + color}
-                        >
-                           {dateStr}
-                        </Table.HeadCell>
-                     );
-                  })}
-               </Table.Head>
-               <Table.Body className='divide-y'>
+                        return (
+                           <th
+                              key={index}
+                              className={"px-0 text-center " + color}
+                              scope='col'
+                           >
+                              {dateStr}
+                           </th>
+                        );
+                     })}
+                  </tr>
+               </thead>
+
+               <tbody className='divide-y'>
                   {indisps.map((item, index) => {
                      return (
-                        <TableRow key={index}>
-                           <Table.Cell className='grid justify-center p-px'>
+                        <tr key={index}>
+                           <th scope='row' className='grid justify-center p-px'>
                               <TripIndisp
                                  trip={item.trip}
                                  indisps={item.indisps}
                                  update={updateCrewIndisps}
                               />
-                           </Table.Cell>
+                           </th>
                            {datesArray.map((dayR, index) => {
                               return (
-                                 <Table.Cell key={index} className='p-px'>
+                                 <td key={index} className='p-px'>
                                     <IndispCell
                                        dateRef={dayR}
                                        trip={item.trip}
                                        indisps={item.indisps}
                                     />
-                                 </Table.Cell>
+                                 </td>
                               );
                            })}
-                        </TableRow>
+                        </tr>
                      );
                   })}
                   {indispsAl.length > 0 && (
                      <>
-                        <Table.Row className='mt-4'>
-                           <Table.Cell className='grid justify-center p-1 pt-8'>
+                        <tr>
+                           <td className='grid justify-center p-1 pt-4'>
                               <span className='text-base font-semibold text-center'>
                                  Alunos
                               </span>
-                           </Table.Cell>
-                        </Table.Row>
+                           </td>
+                        </tr>
                         {indispsAl.map((item, index) => {
                            return (
-                              <TableRow key={index}>
-                                 <Table.Cell className='grid justify-center p-px'>
+                              <tr key={index}>
+                                 <td className='grid justify-center p-px'>
                                     <TripIndisp
                                        trip={item.trip}
                                        indisps={item.indisps}
                                        update={updateCrewIndisps}
                                     />
-                                 </Table.Cell>
+                                 </td>
                                  {datesArray.map((dayR, index) => {
                                     return (
-                                       <Table.Cell key={index} className='p-px'>
+                                       <td key={index} className='p-px'>
                                           <IndispCell
                                              dateRef={dayR}
                                              trip={item.trip}
                                              indisps={item.indisps}
                                           />
-                                       </Table.Cell>
+                                       </td>
                                     );
                                  })}
-                              </TableRow>
+                              </tr>
                            );
                         })}
                      </>
                   )}
-               </Table.Body>
-            </Table>
+               </tbody>
+            </table>
          </div>
       </>
    );

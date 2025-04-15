@@ -15,7 +15,7 @@ export const TripIndisp = ({ trip, indisps, update }) => {
       <>
          <Button
             color='light'
-            className='uppercase w-full p-0 h-10 text-sm font-medium overflow-visible'
+            className='uppercase w-[55px] p-0 h-10 text-sm font-medium overflow-visible'
             onClick={openModal}
          >
             {trip.trig}
