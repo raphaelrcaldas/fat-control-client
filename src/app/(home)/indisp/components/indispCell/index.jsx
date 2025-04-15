@@ -13,6 +13,12 @@ export default function IndispCell({ dateRef, trip, indisps }) {
    // const isDesadaptado = (dateRef.valueOf() - isoStrToDate(trip.info.ult_voo).valueOf()) >= 3888000000;
    // 3888000000 = 45 dias
 
+   const btn = (
+      <Button className={"h-10 w-10 " + colorBtn(filterIndisp)}>{""}</Button>
+   );
+
+   if (filterIndisp.length < 1) return btn;
+
    return (
       <Popover
          content={
@@ -24,7 +30,7 @@ export default function IndispCell({ dateRef, trip, indisps }) {
          }
          placement='right'
       >
-         <Button className={"h-10 w-10 " + colorBtn(filterIndisp)}>{""}</Button>
+         {btn}
       </Popover>
    );
 }

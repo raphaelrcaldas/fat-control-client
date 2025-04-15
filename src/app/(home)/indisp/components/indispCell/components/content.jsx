@@ -12,13 +12,9 @@ export default function IndispContent({ dateRef, trip, filterIndisp }) {
          <h3 className='m-2 font-semibold text-center'>
             {isoDateToString(dateRef)}
          </h3>
-         {filterIndisp.length > 0 ? (
-            filterIndisp.map((indisp, index) => (
-               <IndispBody key={index} indisp={indisp} />
-            ))
-         ) : (
-            <p className='text-lg font-semibold text-center text-green-600'>Disponivel</p>
-         )}
+         {filterIndisp.map((indisp, index) => (
+            <IndispBody key={index} indisp={indisp} />
+         ))}
 
          {/* {
                   !isValidCEMAL && (
