@@ -26,6 +26,7 @@ export default function IndispPage() {
    const [daysToGenerate, setDaysToGenerate] = useState(
       typeof window !== "undefined" && window.innerWidth >= 1024 ? 30 : 8
    );
+   const [activeDate, setActiveDate] = useState(new Date());
    const [datesArray, setDatesArray] = useState(genDates(dateRef));
 
    const [filterFunc, setFilterFunc] = useState("mc");
@@ -158,7 +159,8 @@ export default function IndispPage() {
                            <th
                               key={index}
                               scope='col'
-                              className={"px-0 text-center " + bold}
+                              className={"px-0 text-center cursor-pointer " + bold}
+                              onClick={() => setActiveDate(dayR)}
                            >
                               {dayR.toLocaleDateString("pt-BR", {
                                  weekday: "short",
@@ -179,27 +181,13 @@ export default function IndispPage() {
                            options
                         );
 
-                        let color;
-
-                        if (dayR.getDay() == 0 || dayR.getDay() == 6) {
-                           color = "bg-red-400";
-                        }
-
-                        if (dayR.valueOf() < new Date().valueOf()) {
-                           color = "bg-gray-400";
-                        }
-
-                        if (
-                           dayR.getDate() == new Date().getDate() &&
-                           dayR.getMonth() == new Date().getMonth()
-                        ) {
-                           color = "bg-yellow-200";
-                        }
-
                         return (
                            <th
                               key={index}
-                              className={"px-0 text-center " + color}
+                              className={
+                                 "px-0 text-center font-semibold cursor-pointer " + getDayColor(dayR)
+                              }
+                              onClick={() => setActiveDate(dayR)}
                               scope='col'
                            >
                               {dateStr}
@@ -213,7 +201,7 @@ export default function IndispPage() {
                   {indisps.map((item, index) => {
                      return (
                         <tr key={index}>
-                           <th scope='row' className='grid justify-center p-px'>
+                           <th scope='row' className='p-px'>
                               <TripIndisp
                                  trip={item.trip}
                                  indisps={item.indisps}
@@ -222,13 +210,17 @@ export default function IndispPage() {
                            </th>
                            {datesArray.map((dayR, index) => {
                               return (
-                                 <td key={index} className='p-px'>
+                                 <TdCell
+                                    key={index}
+                                    dref={dayR}
+                                    activeD={activeDate}
+                                 >
                                     <IndispCell
                                        dateRef={dayR}
                                        trip={item.trip}
                                        indisps={item.indisps}
                                     />
-                                 </td>
+                                 </TdCell>
                               );
                            })}
                         </tr>
@@ -246,7 +238,7 @@ export default function IndispPage() {
                         {indispsAl.map((item, index) => {
                            return (
                               <tr key={index}>
-                                 <td className='grid justify-center p-px'>
+                                 <td className='p-px'>
                                     <TripIndisp
                                        trip={item.trip}
                                        indisps={item.indisps}
@@ -255,13 +247,17 @@ export default function IndispPage() {
                                  </td>
                                  {datesArray.map((dayR, index) => {
                                     return (
-                                       <td key={index} className='p-px'>
+                                       <TdCell
+                                          key={index}
+                                          dref={dayR}
+                                          activeD={activeDate}
+                                       >
                                           <IndispCell
                                              dateRef={dayR}
                                              trip={item.trip}
                                              indisps={item.indisps}
                                           />
-                                       </td>
+                                       </TdCell>
                                     );
                                  })}
                               </tr>
@@ -273,5 +269,48 @@ export default function IndispPage() {
             </table>
          </div>
       </>
+   );
+}
+
+function getDayColor(dayR) {
+   let color;
+
+   if (dayR.getDay() == 0 || dayR.getDay() == 6) {
+      color = "bg-red-400";
+   }
+
+   if (dayR.valueOf() < new Date().valueOf()) {
+      color = "bg-gray-400";
+   }
+
+   if (
+      dayR.getDate() == new Date().getDate() &&
+      dayR.getMonth() == new Date().getMonth()
+   ) {
+      color = "bg-yellow-200";
+   }
+
+   return color;
+}
+
+function datasIguais(data1, data2) {
+   return (
+      data1.getDate() === data2.getDate() &&
+      data1.getMonth() === data2.getMonth() &&
+      data1.getFullYear() === data2.getFullYear()
+   );
+}
+
+function TdCell({ children, dref, activeD }) {
+   const checkRef = datasIguais(dref, activeD);
+
+   return (
+      <td
+         className={
+            "px-1 " + (checkRef ? "bg-blue-300 border-x-2 border-blue-500" : "")
+         }
+      >
+         {children}
+      </td>
    );
 }
