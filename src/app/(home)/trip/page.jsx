@@ -153,14 +153,14 @@ export default function TripPage() {
                   />
                </div>
             </div>
-            <div className='mt-4 overflow-auto shadow-md max-h-[550px]'>
+            <div className='mt-4 w-[700px] overflow-auto shadow-md max-h-[550px]'>
                <Table hoverable theme={themeTable}>
                   <Table.Head className='text-center'>
                      <Table.HeadCell className=''>P/G</Table.HeadCell>
                      <Table.HeadCell className='hidden md:table-cell'>
                         Especialidade
                      </Table.HeadCell>
-                     <Table.HeadCell className='hidden md:table-cell text-left'>
+                     <Table.HeadCell className='hidden md:table-cell'>
                         Nome de Guerra
                      </Table.HeadCell>
                      <Table.HeadCell>Trigrama</Table.HeadCell>
@@ -179,7 +179,7 @@ export default function TripPage() {
                            <Table.Cell className='hidden md:table-cell'>
                               {trip.user.esp}
                            </Table.Cell>
-                           <Table.Cell className='hidden md:table-cell text-left'>
+                           <Table.Cell className='hidden md:table-cell'>
                               {trip.user.nome_guerra}
                            </Table.Cell>
                            <Table.Cell className='font-semibold'>
