@@ -146,14 +146,14 @@ export default function TripPage() {
                   </Button>
                </div>
                <div className='hidden lg:flex'>
-                     <SearchUser
-                        uae={uae}
-                        trips={trips}
-                        updateTrips={getListTrips}
-                     />
+                  <SearchUser
+                     uae={uae}
+                     trips={trips}
+                     updateTrips={getListTrips}
+                  />
                </div>
             </div>
-            <div className='mt-4 overflow-x-auto shadow-md'>
+            <div className='mt-4 overflow-auto shadow-md max-h-[550px]'>
                <Table hoverable theme={themeTable}>
                   <Table.Head className='text-center'>
                      <Table.HeadCell className=''>P/G</Table.HeadCell>
@@ -165,6 +165,7 @@ export default function TripPage() {
                      </Table.HeadCell>
                      <Table.HeadCell>Trigrama</Table.HeadCell>
                      <Table.HeadCell>Função</Table.HeadCell>
+                     <Table.HeadCell>Oper</Table.HeadCell>
                      <Table.HeadCell>
                         <span className='sr-only'>Detalhes</span>
                      </Table.HeadCell>
@@ -184,19 +185,22 @@ export default function TripPage() {
                            <Table.Cell className='font-semibold'>
                               {trip.trig}
                            </Table.Cell>
-                           <Table.Cell className='grid justify-items-center py-2'>
+                           <Table.Cell className=''>
                               {trip.funcs.length < 1 ? (
                                  <span className='text-red-600 text-xs'>
                                     Sem Função
                                  </span>
                               ) : (
-                                 trip.funcs.map((f) => (
-                                    <FuncBadge
-                                       key={f.id}
-                                       funcao={f.func}
-                                       oper={f.oper}
-                                    />
-                                 ))
+                                 trip.funcs[0]["func"]
+                              )}
+                           </Table.Cell>
+                           <Table.Cell className=''>
+                              {trip.funcs.length < 1 ? (
+                                 <span className='text-red-600 text-xs'>
+                                    Sem Função
+                                 </span>
+                              ) : (
+                                 trip.funcs[0]["oper"]
                               )}
                            </Table.Cell>
                            <Table.Cell className='justify-items-center'>
