@@ -77,7 +77,7 @@ export default function IndispPage() {
    }, [dateRef, daysToGenerate]);
 
    return (
-      <>
+      <div className="h-full">
          <h2>Indisponibilidades</h2>
          <div className='mt-6'>
             <Select
@@ -144,7 +144,7 @@ export default function IndispPage() {
                Hoje
             </Button>
          </div>
-         <div className='overflow-y-auto max-h-[450px] bg-white shadow-lg mt-4 pb-3 px-3 w-fit rounded-lg'>
+         <div className='overflow-y-auto max-h-[72%] bg-white shadow-lg mt-4 pb-3 px-3 w-fit rounded-lg'>
             <table className='w-full'>
                <thead className='sticky bg-white top-0 z-10'>
                   <tr>
@@ -268,7 +268,7 @@ export default function IndispPage() {
                </tbody>
             </table>
          </div>
-      </>
+      </div>
    );
 }
 

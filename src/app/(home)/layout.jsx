@@ -82,7 +82,7 @@ export default function RootLayout({ children }) {
                            alwaysOpen={alwaysOpen}
                         />
                      </div>
-                     <main className='px-4 mt-6 ml-0 w-full'>{children}</main>
+                     <main className='px-4 mt-6 ml-0 w-full h-full'>{children}</main>
                   </div>
                </MsgProvider>
             </AuthProvider>

@@ -56,47 +56,96 @@ const getColorForDate = (dateString) => {
 
 const TripTable = ({ trips, setRow, activeRow }) => {
    return (
-      <div className="my-4 overflow-y-auto shadow-lg max-h-[36rem] md:w-3/6 w-full">
-         <Table theme={tableTheme} hoverable>
+      <div className='my-4 overflow-y-auto shadow-lg max-h-[80%] md:w-3/6 w-full'>
+         <Table theme={tableTheme}>
             {/* Cabeçalho fixo */}
-            <Table.Head className="sticky top-0 z-10 bg-gray-100">
-               <TableHeadCell className="hidden md:table-cell">PG</TableHeadCell>
-               <TableHeadCell className="hidden md:table-cell">
+            <Table.Head className='sticky top-0 z-10 bg-gray-100'>
+               <TableHeadCell className='hidden md:table-cell'>
+                  PG
+               </TableHeadCell>
+               <TableHeadCell className='hidden md:table-cell'>
                   NOME DE GUERRA
                </TableHeadCell>
                <TableHeadCell>TRIG</TableHeadCell>
                <TableHeadCell>OP</TableHeadCell>
                <TableHeadCell>DSV</TableHeadCell>
-               <TableHeadCell className="hidden md:table-cell">CEMAL</TableHeadCell>
+               <TableHeadCell className='hidden md:table-cell'>
+                  CEMAL
+               </TableHeadCell>
                <TableHeadCell>TOTAL</TableHeadCell>
                <TableHeadCell>H ANO</TableHeadCell>
             </Table.Head>
-            <Table.Body>
-               {trips.map((trip, index) => (
-                  <TableRow
-                     key={trip.trig}
-                     onClick={() => setRow(index)}
-                     className={index === activeRow && "bg-gray-300"}
-                  >
-                     <TableCell className="hidden md:table-cell">{trip.pg}</TableCell>
-                     <TableCell className="hidden md:table-cell">
-                        {trip.nomeGuerra}
-                     </TableCell>
-                     <TableCell className="font-semibold">{trip.trig}</TableCell>
-                     <TableCell>{trip.oper}</TableCell>
-                     <TableCell>
-                        <span className={getColor(trip.dsv)}>{trip.dsv}</span>
-                     </TableCell>
-                     <TableCell className="hidden md:table-cell">
-                        <span className={getColorForDate(trip.cemal)}>
-                           {trip.cemal}
-                        </span>
-                     </TableCell>
-                     <TableCell>{trip.hTotal}</TableCell>
-                     <TableCell className="font-semibold">{trip.hAno}</TableCell>
-                  </TableRow>
-               ))}
-            </Table.Body>
+            {trips.length > 0 ? (
+               <Table.Body>
+                  {trips.map((trip, index) => (
+                     <TableRow
+                        key={trip.trig}
+                        onClick={() => setRow(index)}
+                        className={index === activeRow && "bg-gray-300"}
+                     >
+                        <TableCell className='hidden md:table-cell'>
+                           {trip.pg}
+                        </TableCell>
+                        <TableCell className='hidden md:table-cell'>
+                           {trip.nomeGuerra}
+                        </TableCell>
+                        <TableCell className='font-semibold'>
+                           {trip.trig}
+                        </TableCell>
+                        <TableCell>{trip.oper}</TableCell>
+                        <TableCell>
+                           <span className={getColor(trip.dsv)}>
+                              {trip.dsv}
+                           </span>
+                        </TableCell>
+                        <TableCell className='hidden md:table-cell'>
+                           <span className={getColorForDate(trip.cemal)}>
+                              {trip.cemal}
+                           </span>
+                        </TableCell>
+                        <TableCell>{trip.hTotal}</TableCell>
+                        <TableCell className='font-semibold'>
+                           {trip.hAno}
+                        </TableCell>
+                     </TableRow>
+                  ))}
+               </Table.Body>
+            ) : (
+               <Table.Body>
+                  {Array(15)
+                     .fill()
+                     .map((_, i) => {
+                        return (
+                           <TableRow key={i}>
+                              <TableCell>
+                                 <div className='h-6 bg-gray-200 rounded-full animate-pulse max-w-[360px]'></div>
+                              </TableCell>
+                              <TableCell>
+                                 <div className='h-6 bg-gray-200 rounded-full animate-pulse max-w-[360px]'></div>
+                              </TableCell>
+                              <TableCell>
+                                 <div className='h-6 bg-gray-200 rounded-full animate-pulse max-w-[360px]'></div>
+                              </TableCell>
+                              <TableCell>
+                                 <div className='h-6 bg-gray-200 rounded-full animate-pulse max-w-[360px]'></div>
+                              </TableCell>
+                              <TableCell>
+                                 <div className='h-6 bg-gray-200 rounded-full animate-pulse max-w-[360px]'></div>
+                              </TableCell> 
+                              <TableCell>
+                                 <div className='h-6 bg-gray-200 rounded-full animate-pulse max-w-[360px]'></div>
+                              </TableCell>
+                              <TableCell>
+                                 <div className='h-6 bg-gray-200 rounded-full animate-pulse max-w-[360px]'></div>
+                              </TableCell>
+                              <TableCell>
+                                 <div className='h-6 bg-gray-200 rounded-full animate-pulse max-w-[360px]'></div>
+                              </TableCell>
+                           </TableRow>
+                        );
+                     })}
+               </Table.Body>
+            )}
          </Table>
       </div>
    );
