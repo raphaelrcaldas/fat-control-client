@@ -111,14 +111,10 @@ export default function AppSideBar({
       router.push("/login");
    };
 
-   // const handlePush = (route) => {
-   //    router.push(route);
-   //    setOpenBar(false);
-   // };
-
-   // function checkScope(scope) {
-   //    return scopes.includes(scope);
-   // }
+   const handlePush = (route) => {
+      router.push(route);
+      setIsCollapsed(true);
+   };
 
    return (
       <>
@@ -149,7 +145,7 @@ export default function AppSideBar({
                            <Sidebar.Item
                               active={path === "/sebo"}
                               icon={MdSort}
-                              onClick={() => router.push("/sebo")}
+                              onClick={() => handlePush("/sebo")}
                            >
                               Pau de Sebo
                            </Sidebar.Item>
@@ -158,7 +154,7 @@ export default function AppSideBar({
                            <Sidebar.Item
                               active={path === "/quads"}
                               icon={MdAirplaneTicket}
-                              onClick={() => router.push("/quads")}
+                              onClick={() => handlePush("/quads")}
                            >
                               Quadrinhos
                            </Sidebar.Item>
@@ -170,7 +166,7 @@ export default function AppSideBar({
                            <Sidebar.Item
                               active={path === "/indisp"}
                               icon={MdAirplanemodeInactive}
-                              onClick={() => router.push("/indisp")}
+                              onClick={() => handlePush("/indisp")}
                            >
                               Indisp
                            </Sidebar.Item>
@@ -179,7 +175,7 @@ export default function AppSideBar({
                            <Sidebar.Item
                               active={path === "/trip"}
                               icon={MdHail}
-                              onClick={() => router.push("/trip")}
+                              onClick={() => handlePush("/trip")}
                            >
                               Tripulantes
                            </Sidebar.Item>
@@ -195,7 +191,7 @@ export default function AppSideBar({
                      <Sidebar.Item
                         active={path === "/users"}
                         icon={MdOutlinePeopleAlt}
-                        onClick={() => router.push("/users")}
+                        onClick={() => handlePush("/users")}
                      >
                         Usuários
                      </Sidebar.Item>

@@ -10,18 +10,22 @@ import { HiMenuAlt1 } from "react-icons/hi";
 import profilePic from "@/public/assets/1_1_gt.jpg";
 
 export default function RootLayout({ children }) {
-   const [IsCollapsed, setIsCollapsed] = useState(
-      typeof window !== "undefined" && window.innerWidth >= 1024 ? false : true
-   );
-   const [alwaysOpen, setAlwaysOpen] = useState(
-      typeof window !== "undefined" && window.innerWidth >= 1024 ? true : false
-   );
+   const [IsCollapsed, setIsCollapsed] = useState(false);
+   const [alwaysOpen, setAlwaysOpen] = useState(false);
 
    function handleClose() {
       setIsCollapsed(!IsCollapsed);
    }
 
    useEffect(() => {
+      typeof window !== "undefined" && window.innerWidth >= 1024
+         ? setIsCollapsed(false)
+         : setIsCollapsed(true);
+
+      typeof window !== "undefined" && window.innerWidth >= 1024
+         ? setAlwaysOpen(true)
+         : setAlwaysOpen(false);
+         
       const handleResize = () => {
          setAlwaysOpen(window.innerWidth >= 1024 ? true : false);
       };
@@ -33,7 +37,7 @@ export default function RootLayout({ children }) {
    return (
       <html lang='pt-br'>
          <head>
-            <title>1º/1º GT - FAT Control</title>
+            <title>1º/1º GT - FATCONTROL</title>
          </head>
          <body>
             <AuthProvider>
@@ -64,7 +68,7 @@ export default function RootLayout({ children }) {
                         </div>
                      </div>
                   </Navbar>
-                  
+
                   {/*Overlay */}
                   {!IsCollapsed && !alwaysOpen && (
                      <div className='fixed inset-0 bg-black bg-opacity-50 z-40' />
@@ -80,7 +84,9 @@ export default function RootLayout({ children }) {
                            alwaysOpen={alwaysOpen}
                         />
                      </div>
-                     <main className='px-4 mt-6 ml-0 w-full h-full'>{children}</main>
+                     <main className='px-4 mt-6 ml-0 w-full h-full'>
+                        {children}
+                     </main>
                   </div>
                </MsgProvider>
             </AuthProvider>

@@ -37,6 +37,7 @@ function SeboPage() {
                   value={selectFunc}
                   onChange={(e) => setSelectFunc(e.target.value)}
                >
+                  <option value='pil'>Piloto</option>
                   <option value='mc'>Mecânico</option>
                   <option value='lm'>LoadMaster</option>
                   <option value='tf'>Taifeiro</option>
