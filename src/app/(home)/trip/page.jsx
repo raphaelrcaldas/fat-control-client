@@ -107,7 +107,7 @@ export default function TripPage() {
    return (
       <>
          <h2>Tripulantes</h2>
-         <div>
+         <div className="h-full">
             <div className='mt-4 gap-2 hidden'>
                <Select
                   onChange={(e) => setUae(e.target.value)}
@@ -153,7 +153,7 @@ export default function TripPage() {
                   />
                </div>
             </div>
-            <div className='mt-4 w-[700px] overflow-auto shadow-md max-h-[550px]'>
+            <div className='mt-4 w-fit overflow-auto shadow-md max-h-[80%]'>
                <Table hoverable theme={themeTable}>
                   <Table.Head className='text-center'>
                      <Table.HeadCell className=''>P/G</Table.HeadCell>

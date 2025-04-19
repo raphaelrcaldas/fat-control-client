@@ -93,7 +93,7 @@ export default function UsersPage() {
    return (
       <>
          <h2 className='mb-4'>Usuários</h2>
-         <div className='max-w-6xl'>
+         <div className='w-fit h-full'>
             <div className='flex flex-col md:flex-row justify-between gap-2 my-4'>
                <TextInput
                   className='w-full md:w-1/2'
@@ -110,7 +110,7 @@ export default function UsersPage() {
                </div>
             </div>
 
-            <div className='relative max-w-6xl overflow-x-auto overflow-y-auto shadow-md rounded-lg max-h-[550px]'>
+            <div className='relative w-fit overflow-x-auto overflow-y-auto shadow-md rounded-lg max-h-[75%]'>
                <Table hoverable theme={themeTable}>
                   <Table.Head className='text-sm'>
                      <Table.HeadCell className='text-center'>
