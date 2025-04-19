@@ -13,27 +13,27 @@ export function QuadPopover({ quad }) {
    }
 
    return (
-      <Popover
-         aria-labelledby='default-popover'
-         content={
-            <div className='text-sm text-gray-500'>
-               <div className='border-b border-gray-200 bg-gray-100 px-3 py-2'>
-                  <h3
-                     id='default-popover'
-                     className='font-semibold text-gray-900 text-center'
-                  >
-                     {dateStr}
-                  </h3>
-               </div>
-               <div className='px-3 py-2'>
-                  <p>{quad.description}</p>
-               </div>
-            </div>
-         }
-      >
-         <Button pill color={color} className='text-center p-0 flex-shrink-0'>
+      // <Popover
+      //    aria-labelledby='default-popover'
+      //    content={
+      //       <div className='text-sm text-gray-500'>
+      //          <div className='border-b border-gray-200 bg-gray-100 px-3 py-2'>
+      //             <h3
+      //                id='default-popover'
+      //                className='font-semibold text-gray-900 text-center'
+      //             >
+      //                {dateStr}
+      //             </h3>
+      //          </div>
+      //          <div className='px-3 py-2'>
+      //             <p>{quad.description}</p>
+      //          </div>
+      //       </div>
+      //    }
+      // {/* </Popover> */}
+      // >
+         <Button pill color={color} className='text-center flex-shrink-0 w-[5rem] p-0'>
             <span>{ dateStr.slice(0,5)}</span>
          </Button>
-      </Popover>
    );
 }

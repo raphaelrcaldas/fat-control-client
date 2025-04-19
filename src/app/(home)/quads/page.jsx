@@ -109,7 +109,7 @@ export default function QuadPage() {
 
          <div
             id='quad_table'
-            className='flex flex-col gap-1 px-2 py-3 bg-white rounded-lg shadow-md w-fit max-h-[620px] md:max-h-[480px] overflow-y-auto overflow-x-auto'
+            className='flex flex-col gap-1 px-2 py-3 relative bg-white rounded-lg whitespace-nowrap shadow-md max-h-[80%] md:max-h-[80%] overflow-x-auto overflow-y-auto'
          >
             {quads.map((item) => {
                return (
@@ -117,12 +117,14 @@ export default function QuadPage() {
                      key={item.trip.id}
                      className='flex justify-start items-center gap-1 overflow-visible'
                   >
-                     <QuadsTrip
-                        trip={item.trip}
-                        lenTotalQuads={item.quads_len}
-                        typeQuad={filterQuad}
-                        quadsAllUpdate={getQuadsParams}
-                     />
+                     <div className='flex-shrink-0 sticky left-0 z-10 bg-white overflow-visible'>
+                        <QuadsTrip
+                           trip={item.trip}
+                           lenTotalQuads={item.quads_len}
+                           typeQuad={filterQuad}
+                           quadsAllUpdate={getQuadsParams}
+                        />
+                     </div>
                      {item.quads.map((quad) => {
                         return <QuadPopover key={quad.id} quad={quad} />;
                      })}
