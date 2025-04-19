@@ -11,12 +11,10 @@ import profilePic from "@/public/assets/1_1_gt.jpg";
 
 export default function RootLayout({ children }) {
    const [IsCollapsed, setIsCollapsed] = useState(
-      // typeof window !== "undefined" && window.innerWidth >= 1024 ? false : true
-      false
+      typeof window !== "undefined" && window.innerWidth >= 1024 ? false : true
    );
    const [alwaysOpen, setAlwaysOpen] = useState(
-      // typeof window !== "undefined" && window.innerWidth >= 1024 ? true : false
-      true
+      typeof window !== "undefined" && window.innerWidth >= 1024 ? true : false
    );
 
    function handleClose() {

@@ -11,9 +11,9 @@ function genDates(dateRefer, daysToGenerate) {
    const days = Array(daysToGenerate)
       .fill()
       .map((_, i) => {
-         const yearUTC = dateRefer.getUTCFullYear();
-         const monthUTC = dateRefer.getUTCMonth();
-         const dayUTC = dateRefer.getUTCDate();
+         const yearUTC = dateRefer.getFullYear();
+         const monthUTC = dateRefer.getMonth();
+         const dayUTC = dateRefer.getDate();
 
          return new Date(yearUTC, monthUTC, dayUTC + i + offset);
       });
@@ -24,7 +24,7 @@ function genDates(dateRefer, daysToGenerate) {
 export default function IndispPage() {
    const [dateRef, setDateRef] = useState(new Date());
    const [daysToGenerate, setDaysToGenerate] = useState(
-      typeof window !== "undefined" && window.innerWidth >= 1024 ? 25 : 8
+      typeof window !== "undefined" && window.innerWidth >= 1024 ? 25 : 6
    );
    const [activeDate, setActiveDate] = useState(new Date());
    const [datesArray, setDatesArray] = useState(genDates(dateRef));
@@ -61,6 +61,11 @@ export default function IndispPage() {
          });
    };
 
+   const handleTodayDate = () => {
+      setDateRef(new Date());
+      setActiveDate(new Date());
+   };
+
    useEffect(updateCrewIndisps, [filterFunc]);
 
    useEffect(() => {
@@ -77,7 +82,7 @@ export default function IndispPage() {
    }, [dateRef, daysToGenerate]);
 
    return (
-      <div className="h-full">
+      <div className='h-full'>
          <h2>Indisponibilidades</h2>
          <div className='mt-6'>
             <Select
@@ -136,11 +141,7 @@ export default function IndispPage() {
             </div>
          </div>
          <div className='grid justify-center'>
-            <Button
-               color='light'
-               size='sm'
-               onClick={() => setDateRef(new Date())}
-            >
+            <Button color='light' size='sm' onClick={handleTodayDate}>
                Hoje
             </Button>
          </div>
@@ -159,7 +160,9 @@ export default function IndispPage() {
                            <th
                               key={index}
                               scope='col'
-                              className={"px-0 text-center cursor-pointer " + bold}
+                              className={
+                                 "px-0 text-center cursor-pointer " + bold
+                              }
                               onClick={() => setActiveDate(dayR)}
                            >
                               {dayR.toLocaleDateString("pt-BR", {
@@ -185,7 +188,8 @@ export default function IndispPage() {
                            <th
                               key={index}
                               className={
-                                 "px-0 text-center font-semibold cursor-pointer " + getDayColor(dayR)
+                                 "px-0 text-center font-semibold cursor-pointer " +
+                                 getDayColor(dayR)
                               }
                               onClick={() => setActiveDate(dayR)}
                               scope='col'
