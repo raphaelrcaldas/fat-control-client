@@ -82,7 +82,7 @@ export function UserRegister({ user_id, updateUsers, readOnly , postos}) {
                      </h3>
                      <div className='space-y-2 text-center text-base'>
                         <div className='flex justify-between'>
-                           <div className='px-2'>
+                           <div className='px-2 w-24'>
                               <Label className='mb-2 block' value='P/G' />
                               <Select
                                  defaultValue=''
@@ -97,7 +97,7 @@ export function UserRegister({ user_id, updateUsers, readOnly , postos}) {
                                  ))}
                               </Select>
                            </div>
-                           <div className='px-2 w-24'>
+                           <div className='px-2 w-32'>
                               <Label
                                  className='mb-2 block'
                                  value='Especialidade'
@@ -161,6 +161,8 @@ export function UserRegister({ user_id, updateUsers, readOnly , postos}) {
                                  <option value='glog'>GLOG</option>
                                  <option value='gsd_gl'>GSD-GL</option>
                                  <option value='pama_gl'>PAMA-GL</option>
+                                 <option value='ctla'>CTLA</option>
+                                 <option value='gapgl'>GAP-GL</option>
                               </Select>
                            </div>
                         </div>

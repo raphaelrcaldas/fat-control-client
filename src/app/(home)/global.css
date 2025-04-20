@@ -54,6 +54,7 @@ body {
     user-select: none;
     overflow: hidden;
     color: var(--color-dark);
+    user-select: text;
 }
 
 h1 {

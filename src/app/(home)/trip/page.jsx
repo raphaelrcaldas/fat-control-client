@@ -107,7 +107,7 @@ export default function TripPage() {
    return (
       <>
          <h2>Tripulantes</h2>
-         <div className="h-full">
+         <div className='h-full'>
             <div className='mt-4 gap-2 hidden'>
                <Select
                   onChange={(e) => setUae(e.target.value)}
@@ -156,6 +156,9 @@ export default function TripPage() {
             <div className='mt-4 w-fit overflow-auto shadow-md max-h-[80%]'>
                <Table hoverable theme={themeTable}>
                   <Table.Head className='text-center'>
+                     <Table.HeadCell className='hidden md:table-cell'>
+                        #
+                     </Table.HeadCell>
                      <Table.HeadCell className=''>P/G</Table.HeadCell>
                      <Table.HeadCell className='hidden md:table-cell'>
                         Especialidade
@@ -173,6 +176,9 @@ export default function TripPage() {
                   <Table.Body>
                      {filterTrips.map((trip) => (
                         <Table.Row key={trip.id}>
+                           <Table.Cell className='hidden md:table-cell'>
+                              {trip.id}
+                           </Table.Cell>
                            <Table.Cell className='font-medium'>
                               {trip.user.posto.short}
                            </Table.Cell>

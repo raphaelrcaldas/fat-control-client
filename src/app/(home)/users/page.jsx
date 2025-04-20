@@ -113,6 +113,9 @@ export default function UsersPage() {
             <div className='relative w-fit overflow-x-auto overflow-y-auto shadow-md rounded-lg max-h-[75%]'>
                <Table hoverable theme={themeTable}>
                   <Table.Head className='text-sm'>
+                     <Table.HeadCell className='text-center hidden md:table-cell'>
+                        #
+                     </Table.HeadCell>
                      <Table.HeadCell className='text-center'>
                         P/G
                      </Table.HeadCell>
@@ -131,8 +134,11 @@ export default function UsersPage() {
                      </Table.HeadCell>
                   </Table.Head>
                   <Table.Body>
-                     {filterUsers.map((user) => (
+                     {filterUsers.map((user, index) => (
                         <Table.Row key={user.id}>
+                           <Table.Cell className='hidden md:table-cell'>
+                              {user.id}
+                           </Table.Cell>
                            <Table.Cell className='font-medium text-gray-900'>
                               {user.posto.mid}
                            </Table.Cell>
