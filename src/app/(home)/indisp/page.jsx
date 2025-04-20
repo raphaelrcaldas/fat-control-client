@@ -23,10 +23,8 @@ function genDates(dateRefer, daysToGenerate) {
 
 export default function IndispPage() {
    const [dateRef, setDateRef] = useState(new Date());
-   const [daysToGenerate, setDaysToGenerate] = useState(
-      typeof window !== "undefined" && window.innerWidth >= 1024 ? 25 : 7
-   );
-   const [activeDate, setActiveDate] = useState(new Date());
+   const [daysToGenerate, setDaysToGenerate] = useState(7);
+   const [activeDate, setActiveDate] = useState(dateRef);
    const [datesArray, setDatesArray] = useState(genDates(dateRef));
 
    const [filterFunc, setFilterFunc] = useState("mc");
@@ -63,12 +61,16 @@ export default function IndispPage() {
 
    const handleTodayDate = () => {
       setDateRef(new Date());
-      setActiveDate(new Date());
+      setActiveDate(dateRef);
    };
 
    useEffect(updateCrewIndisps, [filterFunc]);
 
    useEffect(() => {
+      typeof window !== "undefined" && window.innerWidth >= 1024
+         ? setDaysToGenerate(25)
+         : setDaysToGenerate(7);
+
       const handleResize = () => {
          setDaysToGenerate(window.innerWidth >= 1024 ? 30 : 8);
       };

@@ -32,8 +32,8 @@ export function QuadPopover({ quad }) {
       //    }
       // {/* </Popover> */}
       // >
-         <Button pill color={color} className='text-center flex-shrink-0 w-[5rem] p-0'>
-            <span>{ dateStr.slice(0,5)}</span>
+         <Button color={color} className='text-center flex-shrink-0 size-8 md:w-[5rem] md:h-9 p-0'>
+            <span className="hidden md:flex">{ dateStr.slice(0,5)}</span>
          </Button>
    );
 }
