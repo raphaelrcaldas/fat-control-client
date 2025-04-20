@@ -93,7 +93,7 @@ export default function UsersPage() {
    return (
       <>
          <h2 className='mb-4'>Usuários</h2>
-         <div className='w-fit h-full'>
+         <div className='w-full h-full'>
             <div className='flex flex-col md:flex-row justify-between gap-2 my-4'>
                <TextInput
                   className='w-full md:w-1/2'
@@ -110,7 +110,7 @@ export default function UsersPage() {
                </div>
             </div>
 
-            <div className='relative w-fit overflow-x-auto overflow-y-auto shadow-md rounded-lg max-h-[75%]'>
+            <div className='relative w-full overflow-x-auto overflow-y-auto shadow-md rounded-lg max-h-[75%]'>
                <Table hoverable theme={themeTable}>
                   <Table.Head className='text-sm'>
                      <Table.HeadCell className='text-center hidden md:table-cell'>
@@ -146,7 +146,7 @@ export default function UsersPage() {
                               {user.esp}
                            </Table.Cell>
                            <Table.Cell>{user.nome_guerra}</Table.Cell>
-                           <Table.Cell className='text-left hidden md:table-cell'>
+                           <Table.Cell className='text-center hidden md:table-cell'>
                               {user.nome_completo}
                            </Table.Cell>
                            <Table.Cell className='grid py-4 justify-items-center'>

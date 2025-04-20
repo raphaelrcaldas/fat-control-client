@@ -12,7 +12,7 @@ import {
 import { IoMdInformationCircleOutline } from "react-icons/io";
 import { HiMail } from "react-icons/hi";
 
-export function UserRegister({ user_id, updateUsers, readOnly , postos}) {
+export function UserRegister({ user_id, updateUsers, readOnly, postos }) {
    const [show, setShow] = useState(false);
    const { register, handleSubmit, reset, setValue } = useForm({
       defaultValues: {
@@ -37,6 +37,7 @@ export function UserRegister({ user_id, updateUsers, readOnly , postos}) {
    }, [show]);
 
    async function onAddUser(data) {
+      console.log(data);
       let response;
       if (user_id) {
          response = await updateUser(user_id, data);
@@ -91,7 +92,10 @@ export function UserRegister({ user_id, updateUsers, readOnly , postos}) {
                               >
                                  <option value='' disabled></option>
                                  {postos.map((posto) => (
-                                    <option key={posto.short} value={posto.short}>
+                                    <option
+                                       key={posto.short}
+                                       value={posto.short}
+                                    >
                                        {posto.short.toUpperCase()}
                                     </option>
                                  ))}

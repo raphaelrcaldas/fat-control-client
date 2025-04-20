@@ -133,13 +133,13 @@ const TripTable = ({ trips, setRow, activeRow }) => {
                                  <div className='h-6 bg-gray-200 rounded-full animate-pulse max-w-[360px]'></div>
                               </TableCell> 
                               <TableCell>
-                                 <div className='h-6 bg-gray-200 rounded-full hidden md:table-cell animate-pulse max-w-[360px]'></div>
+                                 <div className='h-6 bg-gray-200 rounded-full hidden md:flex animate-pulse max-w-[360px]'></div>
                               </TableCell>
                               <TableCell>
-                                 <div className='h-6 bg-gray-200 rounded-full hidden md:table-cell animate-pulse max-w-[360px]'></div>
+                                 <div className='h-6 bg-gray-200 rounded-full hidden md:flex animate-pulse max-w-[360px]'></div>
                               </TableCell>
                               <TableCell>
-                                 <div className='h-6 bg-gray-200 rounded-full hidden md:table-cell animate-pulse max-w-[360px]'></div>
+                                 <div className='h-6 bg-gray-200 rounded-full hidden md:flex animate-pulse max-w-[360px]'></div>
                               </TableCell>
                            </TableRow>
                         );

@@ -51,7 +51,7 @@ export default function RootLayout({ children }) {
                      <div className='flex items-center justify-between w-full'>
                         <div className='flex items-center'>
                            <HiMenuAlt1
-                              className='size-8 mr-4 cursor-pointer text-red-600 md:hidden'
+                              className='size-8 mr-4 cursor-pointer text-red-600 lg:hidden'
                               onClick={handleClose}
                            />
                            <NavbarBrand>
@@ -77,14 +77,14 @@ export default function RootLayout({ children }) {
                   {/* Layout principal */}
                   <div className='flex h-screen pt-12 bg-gray-50'>
                      {/* Sidebar Responsiva */}
-                     <div className='fixed md:relative h-full z-40'>
+                     <div className='fixed lg:relative h-full z-40'>
                         <AppSideBar
                            isCollapsed={IsCollapsed}
                            setIsCollapsed={setIsCollapsed}
                            alwaysOpen={alwaysOpen}
                         />
                      </div>
-                     <main className='px-4 mt-6 ml-0 w-full h-full'>
+                     <main className='px-4 mt-6 ml-0 w-full h-full overflow-auto'>
                         {children}
                      </main>
                   </div>
