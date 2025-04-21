@@ -6,10 +6,10 @@ export function QuadPopover({ quad }) {
    let color;
    if (quad.value) {
       dateStr = isoDateToString(quad.value);
-      color = "blue";
+      color = "bg-blue-600 hover:bg-blue-800";
    } else {
       dateStr = "LASTRO";
-      color = "info";
+      color = "bg-slate-500 hover:bg-slate-700";
    }
 
    return (
@@ -32,8 +32,15 @@ export function QuadPopover({ quad }) {
       //    }
       // {/* </Popover> */}
       // >
-         <Button color={color} className='text-center flex-shrink-0 size-8 md:w-[5rem] md:h-9 p-0'>
-            <span className="hidden md:flex">{ dateStr.slice(0,5)}</span>
-         </Button>
+      <button
+         type='button'
+         className= {`text-white font-medium text-center flex-shrink-0 rounded-lg size-8 md:w-[65px] md:h-9 ${color}`}
+      >
+         <span className='hidden md:grid'>{dateStr}</span>
+      </button>
+
+      // <Button color={color} className='text-center flex-shrink-0 size-8 md:w-[90px] md:h-9 p-0'>
+      //    <span className="hidden md:flex">{ dateStr}</span>
+      // </Button>
    );
 }

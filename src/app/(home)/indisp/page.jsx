@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Button, Select } from "flowbite-react";
+import { Button, Select, Spinner } from "flowbite-react";
 import IndispCell from "./components/indispCell";
 import { TripIndisp } from "./components/tripIndisp";
 import { getCrewIndisps } from "@/services/routes/indisps";
+import { getTripData } from "@/services/google-sheets/sheets";
 
 function genDates(dateRefer, daysToGenerate) {
    const offset = -1;
@@ -25,7 +26,8 @@ export default function IndispPage() {
    const [dateRef, setDateRef] = useState(new Date());
    const [daysToGenerate, setDaysToGenerate] = useState(7);
    const [activeDate, setActiveDate] = useState(dateRef);
-   const [datesArray, setDatesArray] = useState(genDates(dateRef));
+   const [datesArray, setDatesArray] = useState([]);
+   const [dataTrip, setDataTrip] = useState([]);
 
    const [filterFunc, setFilterFunc] = useState("mc");
    const [indisps, setIndisps] = useState([]);
@@ -61,12 +63,16 @@ export default function IndispPage() {
 
    const handleTodayDate = () => {
       setDateRef(new Date());
-      setActiveDate(dateRef);
+      setActiveDate(new Date());
    };
 
    useEffect(updateCrewIndisps, [filterFunc]);
 
    useEffect(() => {
+      getTripData().then((data) => {
+         setDataTrip(data);
+      });
+
       typeof window !== "undefined" && window.innerWidth >= 1024
          ? setDaysToGenerate(25)
          : setDaysToGenerate(7);
@@ -84,173 +90,143 @@ export default function IndispPage() {
    }, [dateRef, daysToGenerate]);
 
    return (
-      <div className='h-full'>
-         <h2>Indisponibilidades</h2>
-         <div className='mt-6'>
-            <Select
-               className='w-36'
-               value={filterFunc}
-               onChange={(e) => setFilterFunc(e.target.value)}
-            >
-               <option value='mc'>Mecânico</option>
-               <option value='lm'>LoadMaster</option>
-               <option value='tf'>Taifeiro</option>
-               <option value='os'>Observador-SAR</option>
-               <option value='oe'>OE</option>
-            </Select>
-         </div>
-         <div className='grid justify-center'>
-            <div className='flex gap-3 m-1 font-semibold text-center'>
-               <Button
-                  className='p-0'
-                  color='light'
-                  size='sm'
-                  onClick={() => changeDateRef(null, -1)}
+      // indisps.length > 0 &&
+      indisps.length > 0 && dataTrip.length > 0 ? (
+         <div className='h-full'>
+            <h2>Indisponibilidades</h2>
+            <div className='mt-6'>
+               <Select
+                  className='w-36'
+                  value={filterFunc}
+                  onChange={(e) => setFilterFunc(e.target.value)}
                >
-                  <span className='text-lg'>{"<<"}</span>
-               </Button>
-               <Button
-                  className='p-0'
-                  color='light'
-                  size='sm'
-                  onClick={() => changeDateRef(-1)}
-               >
-                  <span className='text-lg'>{"<"}</span>
-               </Button>
-               <span className='content-center text-lg'>
-                  {dateRef.toLocaleDateString("pt-BR", {
-                     day: "2-digit",
-                     month: "long",
-                     year: "numeric",
-                  })}
-               </span>
-               <Button
-                  className='p-0'
-                  color='light'
-                  size='sm'
-                  onClick={() => changeDateRef(1)}
-               >
-                  <span className='text-lg'>{">"}</span>
-               </Button>
-               <Button
-                  className='p-0'
-                  color='light'
-                  size='sm'
-                  onClick={() => changeDateRef(null, 1)}
-               >
-                  <span className='text-lg'>{">>"}</span>
-               </Button>
+                  <option value='mc'>Mecânico</option>
+                  <option value='lm'>LoadMaster</option>
+                  <option value='tf'>Taifeiro</option>
+                  <option value='os'>Observador-SAR</option>
+                  <option value='oe'>OE</option>
+               </Select>
             </div>
-         </div>
-         <div className='grid justify-center'>
-            <Button color='light' size='sm' onClick={handleTodayDate}>
-               Hoje
-            </Button>
-         </div>
-         <div className='overflow-y-auto max-h-[72%] bg-white shadow-lg mt-4 pb-3 px-3 w-fit rounded-lg'>
-            <table className='w-full'>
-               <thead className='sticky bg-white top-0 z-10'>
-                  <tr>
-                     <th scope='col' />
-                     {datesArray.map((dayR, index) => {
-                        let bold;
-                        if (dayR.getDay() != 0 && dayR.getDay() != 6) {
-                           bold = "font-normal";
-                        }
-
-                        return (
-                           <th
-                              key={index}
-                              scope='col'
-                              className={
-                                 "px-0 text-center cursor-pointer " + bold
-                              }
-                              onClick={() => setActiveDate(dayR)}
-                           >
-                              {dayR.toLocaleDateString("pt-BR", {
-                                 weekday: "short",
-                              })}
-                           </th>
-                        );
-                     })}
-                  </tr>
-                  <tr>
-                     <th scope='col' />
-                     {datesArray.map((dayR, index) => {
-                        const options = {
-                           month: "2-digit",
+            <div className='w-fit h-full'>
+               <div className='grid justify-center'>
+                  <div className='flex gap-3 m-1 font-semibold text-center'>
+                     <Button
+                        className='p-0'
+                        color='light'
+                        size='sm'
+                        onClick={() => changeDateRef(null, -1)}
+                     >
+                        <span className='text-lg'>{"<<"}</span>
+                     </Button>
+                     <Button
+                        className='p-0'
+                        color='light'
+                        size='sm'
+                        onClick={() => changeDateRef(-1)}
+                     >
+                        <span className='text-lg'>{"<"}</span>
+                     </Button>
+                     <span className='content-center text-lg'>
+                        {dateRef.toLocaleDateString("pt-BR", {
                            day: "2-digit",
-                        };
-                        const dateStr = dayR.toLocaleDateString(
-                           "pt-BR",
-                           options
-                        );
-
-                        return (
-                           <th
-                              key={index}
-                              className={
-                                 "px-0 text-center font-semibold cursor-pointer " +
-                                 getDayColor(dayR)
-                              }
-                              onClick={() => setActiveDate(dayR)}
-                              scope='col'
-                           >
-                              {dateStr}
-                           </th>
-                        );
-                     })}
-                  </tr>
-               </thead>
-
-               <tbody className='divide-y'>
-                  {indisps.map((item, index) => {
-                     return (
-                        <tr key={index}>
-                           <th scope='row' className='p-px'>
-                              <TripIndisp
-                                 trip={item.trip}
-                                 indisps={item.indisps}
-                                 update={updateCrewIndisps}
-                              />
-                           </th>
+                           month: "long",
+                           year: "numeric",
+                        })}
+                     </span>
+                     <Button
+                        className='p-0'
+                        color='light'
+                        size='sm'
+                        onClick={() => changeDateRef(1)}
+                     >
+                        <span className='text-lg'>{">"}</span>
+                     </Button>
+                     <Button
+                        className='p-0'
+                        color='light'
+                        size='sm'
+                        onClick={() => changeDateRef(null, 1)}
+                     >
+                        <span className='text-lg'>{">>"}</span>
+                     </Button>
+                  </div>
+               </div>
+               <div className='grid justify-center'>
+                  <Button color='light' size='sm' onClick={handleTodayDate}>
+                     Hoje
+                  </Button>
+               </div>
+               <div className='overflow-y-scroll max-h-[72%] bg-white shadow-lg mt-4 pb-2 px-3 rounded-lg'>
+                  <table className='relative overflow-visible h-full w-full'>
+                     <thead className='bg-white sticky top-0 z-10'>
+                        <tr>
+                           <th scope='col' />
                            {datesArray.map((dayR, index) => {
+                              let bold;
+                              if (dayR.getDay() != 0 && dayR.getDay() != 6) {
+                                 bold = "font-normal";
+                              }
+
                               return (
-                                 <TdCell
+                                 <th
                                     key={index}
-                                    dref={dayR}
-                                    activeD={activeDate}
+                                    scope='col'
+                                    className={
+                                       "px-0 text-center cursor-pointer " + bold
+                                    }
+                                    onClick={() => setActiveDate(dayR)}
                                  >
-                                    <IndispCell
-                                       dateRef={dayR}
-                                       trip={item.trip}
-                                       indisps={item.indisps}
-                                    />
-                                 </TdCell>
+                                    {dayR.toLocaleDateString("pt-BR", {
+                                       weekday: "short",
+                                    })}
+                                 </th>
                               );
                            })}
                         </tr>
-                     );
-                  })}
-                  {indispsAl.length > 0 && (
-                     <>
                         <tr>
-                           <td className='grid justify-center p-1 pt-4'>
-                              <span className='text-base font-semibold text-center'>
-                                 Alunos
-                              </span>
-                           </td>
+                           <th scope='col' />
+                           {datesArray.map((dayR, index) => {
+                              const dateStr = dayR.toLocaleDateString("pt-BR", {
+                                 month: "2-digit",
+                                 day: "2-digit",
+                              });
+
+                              return (
+                                 <th
+                                    key={index}
+                                    className={
+                                       "px-0 text-center font-semibold cursor-pointer " +
+                                       getDayColor(dayR)
+                                    }
+                                    onClick={() => setActiveDate(dayR)}
+                                    scope='col'
+                                 >
+                                    {dateStr}
+                                 </th>
+                              );
+                           })}
                         </tr>
-                        {indispsAl.map((item, index) => {
+                     </thead>
+                     <tbody className='divide-y'>
+                        {indisps.map((item, index) => {
+                           const tripSheet = dataTrip.find(
+                              (trips) =>
+                                 trips.trig.toLowerCase() ==
+                                 item.trip.trig.toLowerCase()
+                           );
+                           // if (item.trip.trig == "mes") {
+                           //    console.log('r');
+                           // }
+
                            return (
                               <tr key={index}>
-                                 <td className='p-px'>
+                                 <th scope='row' className='p-px'>
                                     <TripIndisp
                                        trip={item.trip}
                                        indisps={item.indisps}
                                        update={updateCrewIndisps}
                                     />
-                                 </td>
+                                 </th>
                                  {datesArray.map((dayR, index) => {
                                     return (
                                        <TdCell
@@ -262,6 +238,8 @@ export default function IndispPage() {
                                              dateRef={dayR}
                                              trip={item.trip}
                                              indisps={item.indisps}
+                                             cemal={tripSheet.cemal}
+                                             ultVoo={tripSheet.duv}
                                           />
                                        </TdCell>
                                     );
@@ -269,12 +247,55 @@ export default function IndispPage() {
                               </tr>
                            );
                         })}
-                     </>
-                  )}
-               </tbody>
-            </table>
+                        {indispsAl.length > 0 && (
+                           <>
+                              <tr>
+                                 <td className='grid justify-center p-1 pt-4'>
+                                    <span className='text-base font-semibold text-center'>
+                                       Alunos
+                                    </span>
+                                 </td>
+                              </tr>
+                              {indispsAl.map((item, index) => {
+                                 return (
+                                    <tr key={index}>
+                                       <td className='p-px'>
+                                          <TripIndisp
+                                             trip={item.trip}
+                                             indisps={item.indisps}
+                                             update={updateCrewIndisps}
+                                          />
+                                       </td>
+                                       {datesArray.map((dayR, index) => {
+                                          return (
+                                             <TdCell
+                                                key={index}
+                                                dref={dayR}
+                                                activeD={activeDate}
+                                             >
+                                                <IndispCell
+                                                   dateRef={dayR}
+                                                   trip={item.trip}
+                                                   indisps={item.indisps}
+                                                />
+                                             </TdCell>
+                                          );
+                                       })}
+                                    </tr>
+                                 );
+                              })}
+                           </>
+                        )}
+                     </tbody>
+                  </table>
+               </div>
+            </div>
          </div>
-      </div>
+      ) : (
+         <div className=' grid justify-items-center align-middle h-full '>
+            <Spinner color='failure' size='xl' />
+         </div>
+      )
    );
 }
 

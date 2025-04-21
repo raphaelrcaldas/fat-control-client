@@ -1,7 +1,9 @@
 import { isoDateToString } from "@/utils/dateHandler";
 import { getIndisp } from "../../options";
 
-export default function IndispContent({ dateRef, trip, filterIndisp }) {
+export default function IndispContent({ dateRef, trip, filterIndisp, isDesadaptado, isValidCEMAL }) {
+   const diaSemana = dateRef.toLocaleDateString("pt-BR", { weekday: "long" });
+
    return (
       <div className='w-64 text-sm text-gray-500'>
          <div className='border-b border-gray-200 bg-gray-100 px-3 py-2'>
@@ -9,6 +11,7 @@ export default function IndispContent({ dateRef, trip, filterIndisp }) {
                {`${trip.user.posto.short} ${trip.user.nome_guerra}`}
             </h3>
          </div>
+         <h3 className='m-2 text-center'>{diaSemana}</h3>
          <h3 className='m-2 font-semibold text-center'>
             {isoDateToString(dateRef)}
          </h3>
@@ -16,21 +19,21 @@ export default function IndispContent({ dateRef, trip, filterIndisp }) {
             <IndispBody key={index} indisp={indisp} />
          ))}
 
-         {/* {
-                  !isValidCEMAL && (
-                      <div className="bg-gray-100 m-2 px-3 py-2 rounded-lg">
-                          <p className="uppercase text-red-600 font-semibold">CEMAL INVÁLIDO</p>
-                      </div>
-                  )
-              }
-  
-              {
-                  isDesadaptado && (
-                      <div className="bg-gray-100 m-2 px-3 py-2 rounded-lg">
-                          <p className="uppercase text-orange-500 font-semibold">DESADAPTADO</p>
-                      </div>
-                  )
-              } */}
+         {!isValidCEMAL && (
+            <div className='bg-gray-100 m-2 px-3 py-2 rounded-lg'>
+               <p className='uppercase text-red-600 font-semibold text-center'>
+                  CEMAL INVÁLIDO
+               </p>
+            </div>
+         )}
+
+         {isDesadaptado && (
+            <div className='bg-gray-100 m-2 px-3 py-2 rounded-lg text-center'>
+               <p className='uppercase text-red-600 font-semibold'>
+                  DESADAPTADO
+               </p>
+            </div>
+         )}
       </div>
    );
 }
@@ -48,9 +51,11 @@ function IndispBody({ indisp }) {
          className={`flex flex-col gap-2 m-2 px-3 py-2 rounded-lg ${bgColor}`}
       >
          <p>ID: {indisp.id}</p>
-         <p className='uppercase font-semibold'>{indispProps.label}</p>
-         <p>{`${dateStart} a ${dateEnd}`}</p>
-         <p>{indisp.obs}</p>
+         <p className='uppercase text-base font-semibold'>
+            {indispProps.label}
+         </p>
+         <p className='text-base font-semibold'>{`${dateStart} a ${dateEnd}`}</p>
+         <p className='text-base font-semibold'>{indisp.obs}</p>
          <div>
             <p>Criado em:</p>
             <p>{createdAt}</p>

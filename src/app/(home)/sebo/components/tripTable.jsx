@@ -56,7 +56,7 @@ const getColorForDate = (dateString) => {
 
 const TripTable = ({ trips, setRow, activeRow }) => {
    return (
-      <div className='my-4 overflow-y-auto max-h-[80%] md:w-fit w-full'>
+      <div className='my-4 overflow-y-auto max-h-[80%] md:w-fit w-full shadow-lg'>
          <Table theme={tableTheme}>
             {/* Cabeçalho fixo */}
             <Table.Head className='sticky top-0 z-10 bg-gray-100'>

@@ -71,10 +71,10 @@ export const TripIndisp = ({ trip, indisps, update }) => {
                                              {indispProps.label}
                                           </span>
                                        </Table.Cell>
-                                       <Table.Cell className='p-1'>
+                                       <Table.Cell className='p-1 font-semibold'>
                                           {dateStart}
                                        </Table.Cell>
-                                       <Table.Cell className='p-1'>
+                                       <Table.Cell className='p-1 font-semibold'>
                                           {dateEnd}
                                        </Table.Cell>
                                        <Table.Cell className='p-1'>

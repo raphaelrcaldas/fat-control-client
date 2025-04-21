@@ -1,23 +1,34 @@
 import IndispContent from "./components/content";
 import { Button, Popover } from "flowbite-react";
-import { dateIsIn } from "@/utils/dateHandler";
+import { dateIsIn, isoStrLocalToDate } from "@/utils/dateHandler";
 import { indispsOptions, getIndisp } from "../options";
 
-export default function IndispCell({ dateRef, trip, indisps }) {
+export default function IndispCell({ dateRef, trip, indisps, cemal, ultVoo }) {
    // FILTRA INDISP QUE ESTEJA DENTRO DA DATA REFERENTE
    const filterIndisp = indisps.filter((indisp) =>
       dateIsIn(dateRef, indisp.date_start, indisp.date_end)
    );
 
-   // const isValidCEMAL = isoStrToDate(trip.info.cemal).valueOf() >= dateRef.valueOf();
-   // const isDesadaptado = (dateRef.valueOf() - isoStrToDate(trip.info.ult_voo).valueOf()) >= 3888000000;
+   const isValidCEMAL = isoStrLocalToDate(cemal).valueOf() >= dateRef.valueOf();
+   const isDesadaptado =
+      dateRef.valueOf() - isoStrLocalToDate(ultVoo).valueOf() >= 3888000000 &&
+      trip.func.oper != "al";
    // 3888000000 = 45 dias
 
+   if (trip.trig == "vrg") {
+      console.log(trip);
+   }
+
    const btn = (
-      <Button className={"h-10 w-10 " + colorBtn(filterIndisp)}>{""}</Button>
+      <Button
+         className={
+            "h-10 w-10 p-0 font-bold " +
+            colorBtn(filterIndisp, isValidCEMAL, isDesadaptado)
+         }
+      ></Button>
    );
 
-   if (filterIndisp.length < 1) return btn;
+   if (filterIndisp.length < 1 && isValidCEMAL && !isDesadaptado) return btn;
 
    return (
       <Popover
@@ -26,6 +37,8 @@ export default function IndispCell({ dateRef, trip, indisps }) {
                trip={trip}
                filterIndisp={filterIndisp}
                dateRef={dateRef}
+               isValidCEMAL={isValidCEMAL}
+               isDesadaptado={isDesadaptado}
             />
          }
          placement='right'
@@ -36,8 +49,6 @@ export default function IndispCell({ dateRef, trip, indisps }) {
 }
 
 function colorBtn(dataIndisp, cemal, dasadaptado) {
-   let colorBtn = "bg-green-500";
-
    // INDISPONIBILIDADES
    for (let index = 0; index < indispsOptions.length; index++) {
       const option = indispsOptions[index];
@@ -48,20 +59,18 @@ function colorBtn(dataIndisp, cemal, dasadaptado) {
 
       if (filterOption.length > 0) {
          const indispProps = getIndisp(option.value);
-         colorBtn = indispProps.color.button;
-         break;
+         return indispProps.color.button;
       }
    }
-
    // INFORMAÇÕES
 
-   // if (!cemal) {
-   //     return 'purple';
-   // }
+   if (!cemal) {
+      return "bg-purple-600 enabled:hover:bg-purple-800";
+   }
 
-   // if (dasadaptado) {
-   //     return 'dark';
-   // }
+   if (dasadaptado) {
+      return "bg-slate-600 enabled:hover:bg-slate-800";
+   }
 
-   return colorBtn;
+   return "bg-emerald-600";
 }

@@ -11,7 +11,7 @@ import profilePic from "@/public/assets/1_1_gt.jpg";
 
 export default function RootLayout({ children }) {
    const [IsCollapsed, setIsCollapsed] = useState(false);
-   const [alwaysOpen, setAlwaysOpen] = useState(false);
+   const [alwaysOpen, setAlwaysOpen] = useState(true);
 
    function handleClose() {
       setIsCollapsed(!IsCollapsed);
@@ -84,7 +84,7 @@ export default function RootLayout({ children }) {
                            alwaysOpen={alwaysOpen}
                         />
                      </div>
-                     <main className='px-4 mt-6 ml-0 w-full h-full overflow-auto'>
+                     <main className='p-4 mt-6 ml-0 w-full h-full overflow-y-auto'>
                         {children}
                      </main>
                   </div>

@@ -1,7 +1,7 @@
 "use server";
 import { google } from "googleapis";
 
-export async function getSheetData() {
+async function getSheetData() {
    const glAuth = await google.auth.getClient({
       projectId: "analog-subset-279022",
       credentials: {
