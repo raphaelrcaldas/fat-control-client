@@ -15,10 +15,6 @@ export default function IndispCell({ dateRef, trip, indisps, cemal, ultVoo }) {
       trip.func.oper != "al";
    // 3888000000 = 45 dias
 
-   if (trip.trig == "vrg") {
-      console.log(trip);
-   }
-
    const btn = (
       <Button
          className={

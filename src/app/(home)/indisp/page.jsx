@@ -93,7 +93,7 @@ export default function IndispPage() {
       // indisps.length > 0 &&
       indisps.length > 0 && dataTrip.length > 0 ? (
          <div className='h-full'>
-            <h2>Indisponibilidades</h2>
+            {/* <h2>Indisponibilidades</h2> */}
             <div className='mt-6'>
                <Select
                   className='w-36'

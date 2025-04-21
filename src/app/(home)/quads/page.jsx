@@ -57,9 +57,9 @@ export default function QuadPage() {
 
    return (
       <>
-         <h2>Quadrinhos</h2>
+         {/* <h2>Quadrinhos</h2> */}
 
-         <div className='flex my-5'>
+         <div className='flex mb-5'>
             <div className='flex gap-2'>
                <Select
                   value={filterFunc}
@@ -102,7 +102,7 @@ export default function QuadPage() {
             </div>
          </div>
 
-         <div className='m-4 uppercase'>
+         <div className='m-2 uppercase'>
             <p className='text-2xl font-bold'>{groupName}</p>
             <p className='text-base font-semibold'>{typeName}</p>
          </div>

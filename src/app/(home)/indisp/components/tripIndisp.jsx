@@ -58,7 +58,7 @@ export const TripIndisp = ({ trip, indisps, update }) => {
 
                                  return (
                                     <Table.Row key={indisp.id}>
-                                       <Table.Cell className='p-1'>
+                                       <Table.Cell className='p-1 hidden sm:table-cell'>
                                           {indisp.id}
                                        </Table.Cell>
                                        <Table.Cell className='p-1 font-semibold'>
@@ -68,7 +68,7 @@ export const TripIndisp = ({ trip, indisps, update }) => {
                                                 indispProps.color.bg
                                              }
                                           >
-                                             {indispProps.label}
+                                             {indispProps.value}
                                           </span>
                                        </Table.Cell>
                                        <Table.Cell className='p-1 font-semibold'>
