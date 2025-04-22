@@ -1,43 +1,64 @@
 "use client";
 import { useEffect, useState } from "react";
 import { Button, Label, Modal, Select, TextInput } from "flowbite-react";
-import { addUser, updateUser, getUserById } from "@/services/routes/users";
+import {
+   addUser,
+   updateUser,
+   getUserById,
+} from "../../../../../services/routes/users";
 import { useForm } from "react-hook-form";
 import {
    validateNoNumber,
    onlyText,
    validateOnlyNumber,
    sanitizeText,
-} from "@/utils/textFormat";
+} from "../../../../../utils/textFormat";
 import { IoMdInformationCircleOutline } from "react-icons/io";
 import { HiMail } from "react-icons/hi";
 
-export function UserRegister({ user_id, updateUsers, readOnly, postos }) {
+interface UserRegisterProps {
+   user_id: number;
+   updateUsers: () => void;
+   readOnly: boolean;
+}
+
+const values = {
+   p_g: "",
+   unidade: "",
+   ult_promo: null,
+   nasc: null,
+   esp: "",
+   nome_completo: "",
+   nome_guerra: "",
+   saram: null,
+   id_fab: null,
+   cpf: "",
+   email_fab: "",
+   email_pess: "",
+};
+
+export function UserRegister({
+   user_id,
+   updateUsers,
+   readOnly,
+}: UserRegisterProps) {
    const [show, setShow] = useState(false);
    const { register, handleSubmit, reset, setValue } = useForm({
-      defaultValues: {
-         p_g: "",
-         unidade: "",
-         ult_promo: null,
-         nasc: null,
-      },
+      defaultValues: values,
    });
 
    useEffect(() => {
       if (show && user_id) {
-         getUserById(user_id)
-            .then((res) => res.json())
-            .then((data) => {
-               reset(data);
-               setValue("esp", data.esp.toUpperCase());
-               setValue("nome_completo", data.nome_completo.toUpperCase());
-               setValue("nome_guerra", data.nome_guerra.toUpperCase());
-            });
+         getUserById(user_id).then((data) => {
+            reset(data);
+            setValue("esp", data.esp.toUpperCase());
+            setValue("nome_completo", data.nome_completo.toUpperCase());
+            setValue("nome_guerra", data.nome_guerra.toUpperCase());
+         });
       }
    }, [show]);
 
-   async function onAddUser(data) {
-      console.log(data);
+   async function onAddUser(data: any) {
       let response;
       if (user_id) {
          response = await updateUser(user_id, data);
@@ -91,14 +112,23 @@ export function UserRegister({ user_id, updateUsers, readOnly, postos }) {
                                  disabled={readOnly ? true : false}
                               >
                                  <option value='' disabled></option>
-                                 {postos.map((posto) => (
-                                    <option
-                                       key={posto.short}
-                                       value={posto.short}
-                                    >
-                                       {posto.short.toUpperCase()}
-                                    </option>
-                                 ))}
+                                 <option value='tb'>TB</option>
+                                 <option value='mb'>MB</option>
+                                 <option value='br'>BR</option>
+                                 <option value='cl'>CL</option>
+                                 <option value='tc'>TC</option>
+                                 <option value='mj'>MJ</option>
+                                 <option value='cp'>CP</option>
+                                 <option value='1t'>1T</option>
+                                 <option value='2t'>2T</option>
+                                 <option value='as'>AS</option>
+                                 <option value='so'>SO</option>
+                                 <option value='1s'>1S</option>
+                                 <option value='2s'>2S</option>
+                                 <option value='3s'>3S</option>
+                                 <option value='cb'>CB</option>
+                                 <option value='s1'>S1</option>
+                                 <option value='s2'>S2</option>
                               </Select>
                            </div>
                            <div className='px-2 w-32'>

@@ -2,8 +2,8 @@
 
 import { Table, TextInput } from "flowbite-react";
 import { useState, useEffect } from "react";
-import { getUsers } from "@/services/routes/users";
-import { getPostos } from "@/services/routes/postos";
+import { getUsers, UserPublic } from "../../../../services/routes/users";
+import { getPostos } from "../../../../services/routes/postos";
 import { UserRegister } from "./components/userForm";
 import { BadgeUAE } from "../components/badges";
 
@@ -37,23 +37,28 @@ function useUsers() {
    const [usuarios, setUsuarios] = useState([]);
 
    const updateListUsers = () => {
-      getUsers()
-         .then((res) => res.json())
-         .then((users) => {
-            const sortedUltPromo = users.sort(
-               (a, b) => new Date(a.ult_promo) - new Date(b.ult_promo)
-            );
-            const sortedAnt = sortedUltPromo.sort(
-               (a, b) => a.posto.ant - b.posto.ant
-            );
-            setUsuarios(sortedAnt);
-         });
+      getUsers().then((users) => {
+         const sortedUltPromo = users.sort(
+            (a, b) =>
+               new Date(a.ult_promo).getTime() - new Date(b.ult_promo).getTime()
+         );
+         const sortedAnt = sortedUltPromo.sort(
+            (a, b) => a.posto.ant - b.posto.ant
+         );
+         setUsuarios(sortedAnt);
+      });
    };
 
    return { usuarios, updateListUsers };
 }
 
-function useFilterUsers(usuarios, filterName) {
+function useFilterUsers(
+   usuarios: UserPublic[],
+   filterName: string
+): {
+   filterUsers: UserPublic[];
+   setFilterUsers: React.Dispatch<React.SetStateAction<UserPublic[]>>;
+} {
    const [filterUsers, setFilterUsers] = useState([]);
 
    useEffect(() => {
@@ -77,22 +82,13 @@ export default function UsersPage() {
    const { usuarios, updateListUsers } = useUsers();
    const [filterName, setFilterName] = useState("");
    const { filterUsers } = useFilterUsers(usuarios, filterName);
-   const [postos, setPostos] = useState([]);
 
    useEffect(() => {
-      if (postos.length == 0) {
-         getPostos()
-            .then((res) => res.json())
-            .then((data) => {
-               setPostos(data);
-            });
-      }
       updateListUsers();
    }, []);
 
    return (
       <>
-         <h2 className='mb-4'>Usuários</h2>
          <div className='w-full h-full'>
             <div className='flex flex-col md:flex-row justify-between gap-2 my-4'>
                <TextInput
@@ -105,12 +101,12 @@ export default function UsersPage() {
                   <UserRegister
                      user_id={null}
                      updateUsers={updateListUsers}
-                     postos={postos}
+                     readOnly={false}
                   />
                </div>
             </div>
 
-            <div className='relative w-full overflow-x-auto overflow-y-auto shadow-md rounded-lg max-h-[75%]'>
+            <div className='relative w-full overflow-x-auto overflow-y-auto shadow-md rounded-lg max-h-[85%]'>
                <Table hoverable theme={themeTable}>
                   <Table.Head className='text-sm'>
                      <Table.HeadCell className='text-center hidden md:table-cell'>
@@ -134,13 +130,13 @@ export default function UsersPage() {
                      </Table.HeadCell>
                   </Table.Head>
                   <Table.Body>
-                     {filterUsers.map((user, index) => (
+                     {filterUsers.map((user) => (
                         <Table.Row key={user.id}>
                            <Table.Cell className='hidden md:table-cell'>
                               {user.id}
                            </Table.Cell>
                            <Table.Cell className='font-medium text-gray-900'>
-                              {user.posto.mid}
+                              {user.posto.short}
                            </Table.Cell>
                            <Table.Cell className='hidden md:table-cell'>
                               {user.esp}
@@ -157,7 +153,6 @@ export default function UsersPage() {
                                  readOnly={false}
                                  user_id={user.id}
                                  updateUsers={updateListUsers}
-                                 postos={postos}
                               />
                            </Table.Cell>
                         </Table.Row>
