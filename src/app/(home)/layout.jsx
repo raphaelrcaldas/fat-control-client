@@ -1,10 +1,10 @@
 "use client";
 
+import "./global.css";
 import { useState, useEffect } from "react";
 import { AuthProvider } from "../../context/auth";
 import { MsgProvider } from "../../context/infoMsg";
 import AppSideBar from "./components/sidebar";
-import "./global.css";
 import { Navbar, NavbarBrand } from "flowbite-react";
 import { HiMenuAlt1 } from "react-icons/hi";
 import profilePic from "@/public/assets/1_1_gt.jpg";
