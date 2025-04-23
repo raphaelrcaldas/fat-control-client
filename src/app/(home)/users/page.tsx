@@ -1,37 +1,11 @@
 "use client";
 
-import { Table, TextInput } from "flowbite-react";
+import { Table, TextInput, Button } from "flowbite-react";
 import { useState, useEffect } from "react";
 import { getUsers, UserPublic } from "../../../../services/routes/users";
-import { getPostos } from "../../../../services/routes/postos";
 import { UserRegister } from "./components/userForm";
 import { BadgeUAE } from "../components/badges";
-
-const themeTable = {
-   root: {
-      base: "w-full text-base text-gray-500 uppercase text-center",
-      shadow:
-         "absolute left-0 top-0 -z-10 h-full w-full rounded-lg bg-white drop-shadow-md",
-      wrapper: "relative",
-   },
-   body: {
-      base: "group/body",
-      cell: {
-         base: "px-3 py-1 group-first/body:group-first/row:first:rounded-tl-lg group-first/body:group-first/row:last:rounded-tr-lg group-last/body:group-last/row:first:rounded-bl-lg group-last/body:group-last/row:last:rounded-br-lg",
-      },
-   },
-   head: {
-      base: "group/head text-xs text-gray-700 dark:text-gray-400",
-      cell: {
-         base: "bg-gray-100 px-1 py-3 group-first/head:first:rounded-tl-lg group-first/head:last:rounded-tr-lg dark:bg-gray-700",
-      },
-   },
-   row: {
-      base: "group/row bg-white hover:font-semibold",
-      hovered: "hover:bg-gray-50",
-      striped: "odd:bg-white even:bg-gray-50",
-   },
-};
+import { IoMdInformationCircleOutline } from "react-icons/io";
 
 function useUsers() {
    const [usuarios, setUsuarios] = useState([]);
@@ -83,12 +57,26 @@ export default function UsersPage() {
    const [filterName, setFilterName] = useState("");
    const { filterUsers } = useFilterUsers(usuarios, filterName);
 
+   const [showUserModal, setShowUserModal] = useState(false);
+   const [userId, setUserId] = useState(null);
+
+   const handleUserForm = (userId?: number) => {
+      setUserId(userId);
+      setShowUserModal(true);
+   };
+
    useEffect(() => {
       updateListUsers();
    }, []);
 
    return (
       <>
+         <UserRegister
+            userId={userId}
+            updateUsers={updateListUsers}
+            show={showUserModal}
+            setShow={setShowUserModal}
+         />
          <div className='w-full h-full'>
             <div className='flex flex-col md:flex-row justify-between gap-2 my-4'>
                <TextInput
@@ -98,67 +86,80 @@ export default function UsersPage() {
                   onChange={(e) => setFilterName(e.target.value)}
                />
                <div className='flex justify-center'>
-                  <UserRegister
-                     user_id={null}
-                     updateUsers={updateListUsers}
-                     readOnly={false}
-                  />
+                  <Button color='blue' onClick={() => handleUserForm(null)}>
+                     Adicionar Usuário
+                  </Button>
                </div>
             </div>
 
-            <div className='relative w-full overflow-x-auto overflow-y-auto shadow-md rounded-lg max-h-[85%]'>
-               <Table hoverable theme={themeTable}>
-                  <Table.Head className='text-sm'>
-                     <Table.HeadCell className='text-center hidden md:table-cell'>
-                        #
-                     </Table.HeadCell>
-                     <Table.HeadCell className='text-center'>
-                        P/G
-                     </Table.HeadCell>
-                     <Table.HeadCell className='text-center hidden md:table-cell'>
-                        Especialidade
-                     </Table.HeadCell>
-                     <Table.HeadCell>Nome de Guerra</Table.HeadCell>
-                     <Table.HeadCell className='hidden md:table-cell'>
-                        Nome Completo
-                     </Table.HeadCell>
-                     <Table.HeadCell className='text-center'>
-                        Unidade
-                     </Table.HeadCell>
-                     <Table.HeadCell>
-                        <span className='sr-only'>Detalhes</span>
-                     </Table.HeadCell>
-                  </Table.Head>
-                  <Table.Body>
+            <div className='relative w-full overflow-x-auto overflow-y-auto shadow-lg rounded-lg max-h-[85%]'>
+               <table className='w-full text-base text-gray-500 uppercase text-center overflow-visible'>
+                  <thead className='text-xs text-gray-700 bg-gray-200 sticky top-0 z-10'>
+                     <tr>
+                        <th
+                           scope='col'
+                           className='px-3 py-3 text-center hidden md:table-cell'
+                        >
+                           #
+                        </th>
+                        <th scope='col' className='px-3 py-3 text-center'>
+                           P/G
+                        </th>
+                        <th
+                           scope='col'
+                           className='px-3 py-3 text-center hidden md:table-cell'
+                        >
+                           Especialidade
+                        </th>
+                        <th scope='col' className='px-3 py-3'>
+                           Nome de Guerra
+                        </th>
+                        <th
+                           scope='col'
+                           className='px-3 py-3 hidden md:table-cell'
+                        >
+                           Nome Completo
+                        </th>
+                        <th scope='col' className='px-3 py-3 text-center'>
+                           Unidade
+                        </th>
+                        <th scope='col'>
+                           <span className='px-3 py-3 sr-only'>Detalhes</span>
+                        </th>
+                     </tr>
+                  </thead>
+                  <tbody>
                      {filterUsers.map((user) => (
-                        <Table.Row key={user.id}>
-                           <Table.Cell className='hidden md:table-cell'>
+                        <tr
+                           className='bg-white hover:bg-gray-50 hover:font-semibold'
+                           key={user.id}
+                        >
+                           <td className='hidden md:table-cell text-zinc-300'>
                               {user.id}
-                           </Table.Cell>
-                           <Table.Cell className='font-medium text-gray-900'>
+                           </td>
+                           <td className='font-medium text-gray-900'>
                               {user.posto.short}
-                           </Table.Cell>
-                           <Table.Cell className='hidden md:table-cell'>
-                              {user.esp}
-                           </Table.Cell>
-                           <Table.Cell>{user.nome_guerra}</Table.Cell>
-                           <Table.Cell className='text-center hidden md:table-cell'>
+                           </td>
+                           <td className='hidden md:table-cell'>{user.esp}</td>
+                           <td>{user.nome_guerra}</td>
+                           <td className='text-center hidden md:table-cell'>
                               {user.nome_completo}
-                           </Table.Cell>
-                           <Table.Cell className='grid py-4 justify-items-center'>
+                           </td>
+                           <td className='grid py-4 justify-items-center'>
                               <BadgeUAE>{user.unidade}</BadgeUAE>
-                           </Table.Cell>
-                           <Table.Cell>
-                              <UserRegister
-                                 readOnly={false}
-                                 user_id={user.id}
-                                 updateUsers={updateListUsers}
-                              />
-                           </Table.Cell>
-                        </Table.Row>
+                           </td>
+                           <td className='px-1 py-2 align-middle text-center'>
+                              <button
+                                 className='py-2.5 px-5 text-lg font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100'
+                                 onClick={() => handleUserForm(user.id)}
+                              >
+                                 <IoMdInformationCircleOutline />
+                              </button>
+                           </td>
+                        </tr>
                      ))}
-                  </Table.Body>
-               </Table>
+                  </tbody>
+               </table>
             </div>
          </div>
       </>

@@ -22,8 +22,8 @@ export interface UserSchema {
    id_fab: number | null
    saram: number
    cpf: string
-   ult_promo: Date | null
-   nasc: Date | null
+   ult_promo: string | null
+   nasc: string | null
    email_pess: string
    email_fab: string
    unidade: string
@@ -42,15 +42,15 @@ export async function getUserById(userId: number): Promise<UserFull> {
    return (await request("GET", usersRoute + userId)).json();
 }
 
-export async function addUser(userBody) {
+export async function addUser(userBody: UserSchema) {
    return await request("POST", usersRoute, userBody);
 }
 
-export async function updateUser(userId, userBody) {
+export async function updateUser(userId: number, userBody: UserSchema) {
    return await request("PUT", usersRoute + userId, userBody);
 }
 
-export async function changePassword(pwdBody, token) {
+export async function changePassword(pwdBody: string, token:string) {
    return await request(
       "POST",
       usersRoute + "change-pwd/",

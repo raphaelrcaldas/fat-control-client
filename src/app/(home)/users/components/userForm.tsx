@@ -1,28 +1,36 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Button, Label, Modal, Select, TextInput } from "flowbite-react";
-import {
-   addUser,
-   updateUser,
-   getUserById,
-} from "../../../../../services/routes/users";
+import * as UserAPI from "../../../../../services/routes/users";
 import { useForm } from "react-hook-form";
+import { cpf } from "cpf-cnpj-validator";
+import clsx from "clsx";
 import {
    validateNoNumber,
    onlyText,
    validateOnlyNumber,
    sanitizeText,
 } from "../../../../../utils/textFormat";
-import { IoMdInformationCircleOutline } from "react-icons/io";
 import { HiMail } from "react-icons/hi";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 
-interface UserRegisterProps {
-   user_id: number;
-   updateUsers: () => void;
-   readOnly: boolean;
+interface DefaultValues {
+   p_g: string;
+   unidade: string;
+   esp: string;
+   nome_completo: string;
+   nome_guerra: string;
+   saram: number | null;
+   id_fab: number | null;
+   cpf: string;
+   email_fab: string;
+   email_pess: string;
+   ult_promo: string | null;
+   nasc: string | null;
 }
 
-const values = {
+const values: DefaultValues = {
    p_g: "",
    unidade: "",
    ult_promo: null,
@@ -37,19 +45,46 @@ const values = {
    email_pess: "",
 };
 
-export function UserRegister({
-   user_id,
-   updateUsers,
-   readOnly,
-}: UserRegisterProps) {
-   const [show, setShow] = useState(false);
-   const { register, handleSubmit, reset, setValue } = useForm({
+const createUserFormSchema = z.object({
+   p_g: z.string().nonempty("Obrigatório").length(2),
+   esp: z.string().transform(sanitizeText),
+   nome_guerra: z.string().nonempty("Obrigatório"),
+   nome_completo: z.string().transform(sanitizeText),
+   unidade: z.string().nonempty("Obrigatório"),
+   saram: z.coerce.number().gt(1000000).lt(9999999),
+   id_fab: z.nullable(z.coerce.number()),
+   cpf: z.union([
+      z.literal(""),
+      z
+         .string()
+         .refine((userCPF) => cpf.isValid(userCPF), "Digite um CPF válido"),
+   ]),
+   email_fab: z.union([
+      z.literal(""),
+      z.string().email().endsWith("fab.mil.br"),
+   ]),
+   email_pess: z.union([z.literal(""), z.string().email()]),
+   nasc: z.nullable(z.string()),
+   ult_promo: z.nullable(z.string()),
+});
+
+type CreateUserFormData = z.infer<typeof createUserFormSchema>;
+
+export function UserRegister({ userId, updateUsers, show, setShow }) {
+   const {
+      register,
+      handleSubmit,
+      reset,
+      setValue,
+      formState: { errors },
+   } = useForm<CreateUserFormData>({
       defaultValues: values,
+      resolver: zodResolver(createUserFormSchema),
    });
 
    useEffect(() => {
-      if (show && user_id) {
-         getUserById(user_id).then((data) => {
+      if (show && userId) {
+         UserAPI.getUserById(userId).then((data) => {
             reset(data);
             setValue("esp", data.esp.toUpperCase());
             setValue("nome_completo", data.nome_completo.toUpperCase());
@@ -58,17 +93,15 @@ export function UserRegister({
       }
    }, [show]);
 
-   async function onAddUser(data: any) {
+   async function onAddUser(data: CreateUserFormData) {
       let response;
-      if (user_id) {
-         response = await updateUser(user_id, data);
+      if (userId) {
+         response = await UserAPI.updateUser(userId, data);
       } else {
-         response = await addUser(data);
+         response = await UserAPI.addUser(data);
       }
-
       const dataRes = await response.json();
       alert(dataRes.detail);
-
       if (response.ok) {
          reset();
          setShow(false);
@@ -77,39 +110,36 @@ export function UserRegister({
    }
 
    function onClose() {
-      reset();
+      reset(values);
       setShow(false);
    }
 
    return (
       <>
-         <Button
-            color={user_id ? "gray" : "blue"}
-            onClick={() => setShow(true)}
-         >
-            {user_id ? (
-               <IoMdInformationCircleOutline className='h-6 w-6' />
-            ) : (
-               "Adicionar Usuário"
-            )}
-         </Button>
-
          {show && (
             <Modal show={show} size='lg' onClose={onClose} popup>
                <Modal.Header />
                <Modal.Body>
                   <form onSubmit={handleSubmit(onAddUser)}>
                      <h3 className='mb-7 text-xl text-center font-semibold'>
-                        {user_id ? "Info User" : "Adicionar Usuário"}
+                        Usuário
                      </h3>
                      <div className='space-y-2 text-center text-base'>
                         <div className='flex justify-between'>
                            <div className='px-2 w-24'>
-                              <Label className='mb-2 block' value='P/G' />
-                              <Select
+                              <label className='block mb-2 text-sm font-medium text-gray-900'>
+                                 P/G
+                              </label>
+                              <select
+                                 className={clsx(
+                                    "bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5",
+                                    {
+                                       "focus:ring-red-500 focus:border-red-500":
+                                          errors.p_g,
+                                    }
+                                 )}
                                  defaultValue=''
-                                 {...register("p_g", { required: true })}
-                                 disabled={readOnly ? true : false}
+                                 {...register("p_g")}
                               >
                                  <option value='' disabled></option>
                                  <option value='tb'>TB</option>
@@ -129,62 +159,75 @@ export function UserRegister({
                                  <option value='cb'>CB</option>
                                  <option value='s1'>S1</option>
                                  <option value='s2'>S2</option>
-                              </Select>
+                              </select>
+                              {errors.p_g && (
+                                 <span className='text-xs text-red-600'>
+                                    {errors.p_g.message}
+                                 </span>
+                              )}
                            </div>
                            <div className='px-2 w-32'>
-                              <Label
-                                 className='mb-2 block'
-                                 value='Especialidade'
-                              />
-                              <TextInput
-                                 {...register("esp", {
-                                    setValueAs: (t) => sanitizeText(t),
-                                 })}
+                              <label className='block mb-2 text-sm font-medium text-gray-900'>
+                                 Especialidade
+                              </label>
+                              <input
+                                 {...register("esp")}
                                  autoComplete='off'
                                  maxLength={6}
+                                 className='bg-gray-50 border text-center border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5'
                                  onKeyPress={(event) => onlyText(event)}
-                                 disabled={readOnly ? true : false}
                               />
                            </div>
                            <div className='px-2 w-52'>
-                              <Label
-                                 className='mb-2 block'
-                                 value='Nome de Guerra'
-                              />
-                              <TextInput
-                                 {...register("nome_guerra", {
-                                    required: true,
-                                    setValueAs: (t) => sanitizeText(t),
-                                 })}
-                                 disabled={readOnly ? true : false}
+                              <label className='block mb-2 text-sm font-medium text-gray-900'>
+                                 Nome de Guerra
+                              </label>
+                              <input
+                                 {...register("nome_guerra")}
                                  autoComplete='off'
                                  onKeyPress={(event) => validateNoNumber(event)}
+                                 className={clsx(
+                                    "bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5",
+                                    {
+                                       "focus:ring-red-500 focus:border-red-500":
+                                          errors.nome_guerra,
+                                    }
+                                 )}
                               />
+                              {errors.nome_guerra && (
+                                 <span className='text-xs text-red-600'>
+                                    {errors.nome_guerra.message}
+                                 </span>
+                              )}
                            </div>
                         </div>
 
                         <div className='flex justify-between'>
                            <div className='px-2 w-full'>
-                              <Label
-                                 className='mb-2 block'
-                                 value='Nome completo'
-                              />
-                              <TextInput
-                                 {...register("nome_completo", {
-                                    required: true,
-                                    setValueAs: (t) => sanitizeText(t),
-                                 })}
-                                 disabled={readOnly ? true : false}
+                              <label className='block mb-2 text-sm font-medium text-gray-900'>
+                                 Nome Completo
+                              </label>
+                              <input
+                                 {...register("nome_completo")}
                                  autoComplete='off'
+                                 className='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5'
                                  onKeyPress={(event) => validateNoNumber(event)}
                               />
                            </div>
                            <div className='px-2 w-48'>
-                              <Label className='mb-2 block' value='Unidade' />
-                              <Select
+                              <label className='block mb-2 text-sm font-medium text-gray-900'>
+                                 Unidade
+                              </label>
+                              <select
                                  defaultValue=''
-                                 {...register("unidade", { required: true })}
-                                 disabled={readOnly ? true : false}
+                                 {...register("unidade")}
+                                 className={clsx(
+                                    "bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5",
+                                    {
+                                       "focus:ring-red-500 focus:border-red-500":
+                                          errors.unidade,
+                                    }
+                                 )}
                               >
                                  <option value='' disabled></option>
                                  <option value='11gt'>1º/1º GT</option>
@@ -197,62 +240,90 @@ export function UserRegister({
                                  <option value='pama_gl'>PAMA-GL</option>
                                  <option value='ctla'>CTLA</option>
                                  <option value='gapgl'>GAP-GL</option>
-                              </Select>
+                              </select>
+                              {errors.unidade && (
+                                 <span className='text-xs text-red-600'>
+                                    {errors.unidade.message}
+                                 </span>
+                              )}
                            </div>
                         </div>
 
                         <div className='flex justify-between'>
-                           <div className='px-2'>
-                              <Label className='mb-2 block'>SARAM</Label>
-                              <TextInput
-                                 {...register("saram", {
-                                    required: true,
-                                    setValueAs: (t) => parseInt(t),
-                                 })}
-                                 disabled={readOnly ? true : false}
+                           <div className='px-2 w-32'>
+                              <label className='block mb-2 text-sm font-medium text-gray-900'>
+                                 SARAM
+                              </label>
+                              <input
+                                 {...register("saram")}
                                  autoComplete='off'
                                  onKeyPress={(event) =>
                                     validateOnlyNumber(event)
                                  }
+                                 className={clsx(
+                                    "bg-gray-50 border text-center border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5",
+                                    {
+                                       "focus:ring-red-500 focus:border-red-500":
+                                          errors.saram,
+                                    }
+                                 )}
                                  maxLength={7}
                                  minLength={7}
                               />
+                              {errors.saram && (
+                                 <span className='text-xs text-red-600'>
+                                    Insira um SARAM válido
+                                 </span>
+                              )}
                            </div>
-                           <div className='px-2'>
-                              <Label className='mb-2 block'>ID FAB</Label>
-                              <TextInput
-                                 {...register("id_fab", {
-                                    required: true,
-                                    setValueAs: (t) => parseInt(t),
-                                 })}
-                                 disabled={readOnly ? true : false}
+                           <div className='px-2 w-32'>
+                              <label className='block mb-2 text-sm font-medium text-gray-900'>
+                                 ID FAB
+                              </label>
+                              <input
+                                 {...register("id_fab")}
                                  autoComplete='off'
                                  onKeyPress={(event) =>
                                     validateOnlyNumber(event)
                                  }
+                                 className='bg-gray-50 border text-center border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5'
                                  minLength={6}
                               />
                            </div>
                            <div className='px-2'>
-                              <Label className='mb-2 block'>CPF</Label>
-                              <TextInput
-                                 {...register("cpf", { required: true })}
-                                 disabled={readOnly ? true : false}
+                              <label className='block mb-2 text-sm font-medium text-gray-900'>
+                                 CPF
+                              </label>
+                              <input
+                                 {...register("cpf")}
                                  autoComplete='off'
                                  onKeyPress={(event) =>
                                     validateOnlyNumber(event)
                                  }
+                                 className={clsx(
+                                    "bg-gray-50 border text-center border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5",
+                                    {
+                                       "focus:ring-red-500 focus:border-red-500":
+                                          errors.cpf,
+                                    }
+                                 )}
                                  minLength={11}
                                  maxLength={11}
                               />
+                              {errors.cpf && (
+                                 <span className='text-xs text-red-600'>
+                                    {errors.cpf.message}
+                                 </span>
+                              )}
                            </div>
                         </div>
 
                         <div className='px-2'>
-                           <Label className='mb-2 block' value='Zimbra' />
+                           <label className='block mb-2 text-sm font-medium text-gray-900'>
+                              Zimbra
+                           </label>
                            <TextInput
                               {...register("email_fab")}
-                              disabled={readOnly ? true : false}
                               type='email'
                               autoComplete='off'
                               icon={HiMail}
@@ -266,7 +337,6 @@ export function UserRegister({
                            />
                            <TextInput
                               {...register("email_pess")}
-                              disabled={readOnly ? true : false}
                               type='email'
                               autoComplete='off'
                               icon={HiMail}
@@ -281,12 +351,16 @@ export function UserRegister({
                               />
                               <TextInput
                                  {...register("nasc")}
-                                 disabled={readOnly ? true : false}
                                  defaultValue={null}
                                  className='text-sm text-gray-900'
                                  type='date'
                                  autoComplete='off'
                               />
+                              {errors.nasc && (
+                                 <span className='text-xs text-red-600'>
+                                    {errors.nasc.message}
+                                 </span>
+                              )}
                            </div>
 
                            <div className='px-2 w-1/2'>
@@ -296,7 +370,6 @@ export function UserRegister({
                               />
                               <TextInput
                                  {...register("ult_promo")}
-                                 disabled={readOnly ? true : false}
                                  defaultValue={null}
                                  className='text-sm text-gray-900'
                                  type='date'
@@ -306,7 +379,7 @@ export function UserRegister({
                         </div>
                      </div>
                      <div className='grid justify-center mt-6'>
-                        {readOnly ? "" : <Button type='submit'>Salvar</Button>}
+                        <Button type='submit'>Salvar</Button>
                      </div>
                   </form>
                </Modal.Body>
