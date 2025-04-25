@@ -5,7 +5,7 @@ import {
    MdAirplanemodeInactive,
    MdHail,
    MdOutlinePeopleAlt,
-   MdDashboard,
+   MdHome,
 } from "react-icons/md";
 import { FaUsers } from "react-icons/fa6";
 import { FaPaperPlane } from "react-icons/fa";
@@ -24,7 +24,7 @@ export default function AppSideBar({
    const path = usePathname();
    const router = useRouter();
 
-   const { user, role } = useAuth();
+   const { user } = useAuth();
 
    const themeSideBar = {
       root: {
@@ -128,6 +128,13 @@ export default function AppSideBar({
                style={{ height: "93%" }}
             >
                <Sidebar.ItemGroup>
+                  <Sidebar.Item
+                     active={path === "/"}
+                     icon={MdHome}
+                     onClick={() => handlePush("/")}
+                  >
+                     Home
+                  </Sidebar.Item>
                   <RoleBasedRoute
                      requiredRoles={[
                         "admin",

@@ -42,11 +42,11 @@ export async function getUserById(userId: number): Promise<UserFull> {
    return (await request("GET", usersRoute + userId)).json();
 }
 
-export async function addUser(userBody: UserSchema) {
+export async function addUser(userBody: any) {
    return await request("POST", usersRoute, userBody);
 }
 
-export async function updateUser(userId: number, userBody: UserSchema) {
+export async function updateUser(userId: number, userBody: any) {
    return await request("PUT", usersRoute + userId, userBody);
 }
 

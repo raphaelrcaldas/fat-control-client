@@ -51,7 +51,7 @@ export default function RootLayout({ children }) {
                      <div className='flex items-center justify-between w-full'>
                         <div className='flex items-center'>
                            <HiMenuAlt1
-                              className='size-8 mr-4 cursor-pointer text-red-600 md:hidden'
+                              className='size-8 mr-4 cursor-pointer text-red-600 lg:hidden'
                               onClick={handleClose}
                            />
                            <NavbarBrand>

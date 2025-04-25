@@ -37,7 +37,6 @@ export default function IndispCell({ dateRef, trip, indisps, cemal, ultVoo }) {
                isDesadaptado={isDesadaptado}
             />
          }
-         placement='right'
       >
          {btn}
       </Popover>

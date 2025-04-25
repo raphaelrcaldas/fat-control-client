@@ -98,14 +98,19 @@ export function QuadsTrip({ trip, typeQuad, lenTotalQuads, quadsAllUpdate }) {
                            {quads.map((quad) => {
                               return (
                                  <Table.Row key={quad.id}>
-                                    <Table.Cell>{quad.id}</Table.Cell>
-                                    <Table.Cell className="font-semibold">
+                                    <Table.Cell className='text-slate-300'>
+                                       {quad.id}
+                                    </Table.Cell>
+                                    <Table.Cell className='font-semibold'>
                                        {quad.value
                                           ? isoDateToString(quad.value)
                                           : "LASTRO"}
                                     </Table.Cell>
                                     <Table.Cell className='grid justify-items-center'>
-                                       <PermBased resource={"quad_ops"} requiredPerm={"create"}>
+                                       <PermBased
+                                          resource={"quad_ops"}
+                                          requiredPerm={"create"}
+                                       >
                                           <QuadUpdateModal
                                              quad={quad}
                                              tridId={trip.id}

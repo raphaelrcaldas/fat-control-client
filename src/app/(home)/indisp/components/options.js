@@ -11,7 +11,7 @@ export const indispsOptions = [
       value: "sde",
       label: "Saúde",
       color: {
-         button: "bg-red-600 enabled:hover:bg-red-800",
+         button: "bg-red-500 enabled:hover:bg-red-800",
          bg: "bg-red-100",
       },
    },
@@ -19,7 +19,7 @@ export const indispsOptions = [
       value: "rep",
       label: "Representação",
       color: {
-         button: "bg-red-600 enabled:hover:bg-red-800",
+         button: "bg-red-500 enabled:hover:bg-red-800",
          bg: "bg-red-100",
       },
    },
@@ -27,7 +27,7 @@ export const indispsOptions = [
       value: "fer",
       label: "Férias",
       color: {
-         button: "bg-red-600 enabled:hover:bg-red-800",
+         button: "bg-red-500 enabled:hover:bg-red-800",
          bg: "bg-red-100",
       },
    },
@@ -35,7 +35,7 @@ export const indispsOptions = [
       value: "lic",
       label: "Licença",
       color: {
-         button: "bg-red-600 enabled:hover:bg-red-800",
+         button: "bg-red-500 enabled:hover:bg-red-800",
          bg: "bg-red-100",
       },
    },
@@ -45,6 +45,14 @@ export const indispsOptions = [
       color: {
          button: "bg-orange-500 enabled:hover:bg-orange-800",
          bg: "bg-orange-100",
+      },
+   },
+   {
+      value: "odm",
+      label: "Ordem de Missão",
+      color: {
+         button: "bg-rose-700 enabled:hover:bg-rose-900",
+         bg: "bg-rose-200",
       },
    },
    {

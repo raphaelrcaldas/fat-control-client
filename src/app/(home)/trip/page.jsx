@@ -8,7 +8,7 @@ import { FaFilter } from "react-icons/fa";
 import { SearchUser } from "./components/searchUserTrip";
 import { getTrips } from "@/services/routes/trips";
 import { SelectFuncao, SelectOper } from "../components/inputForm";
-import { FuncBadge } from "../components/badges";
+import { FuncBadge, OperBadge } from "../components/badges";
 import { TripDetail } from "./components/tripDetail";
 import { PermBased } from "../hooks/usePermBased";
 
@@ -54,16 +54,7 @@ export default function TripPage() {
       getTrips({ uae: uae, active: active })
          .then((res) => res.json())
          .then((data) => {
-            data.sort((a, b) => {
-               const nameA = a.user.nome_guerra;
-               const nameB = b.user.nome_guerra;
-               if (nameA < nameB) return -1;
-               if (nameA > nameB) {
-                  return 1;
-               }
-               return 0;
-            });
-
+            data.sort((a, b) => a.user.posto.ant - b.user.posto.ant);
             setTrips(data);
             setFilterTrips(data);
          });
@@ -106,9 +97,8 @@ export default function TripPage() {
 
    return (
       <>
-         <h2>Tripulantes</h2>
          <div className='h-full'>
-            <div className='mt-4 gap-2 hidden'>
+            <div className='mt-2 gap-2 hidden'>
                <Select
                   onChange={(e) => setUae(e.target.value)}
                   defaultValue={uae}
@@ -130,10 +120,10 @@ export default function TripPage() {
                   </option>
                </Select>
             </div>
-            <div className='mt-4 flex flex-col gap-12 md:flex-row'>
+            <div className='mt-2 flex flex-col gap-12 md:flex-row'>
                <div className='flex flex-wrap gap-2'>
                   <TextInput
-                     className='w-80'
+                     className='w-64'
                      icon={IoSearchSharp}
                      placeholder='Search for Crew Member'
                      value={filterName}
@@ -153,7 +143,7 @@ export default function TripPage() {
                   />
                </div>
             </div>
-            <div className='mt-4 w-full sm:max-w-4/5 overflow-auto shadow-md max-h-[80%]'>
+            <div className='mt-4 w-full lg:max-w-[50%] sm:max-h-[90%] overflow-auto shadow-md max-h-[80%]'>
                <Table hoverable theme={themeTable}>
                   <Table.Head className='text-center'>
                      <Table.HeadCell className='hidden md:table-cell'>
@@ -176,7 +166,7 @@ export default function TripPage() {
                   <Table.Body>
                      {filterTrips.map((trip) => (
                         <Table.Row key={trip.id}>
-                           <Table.Cell className='hidden md:table-cell'>
+                           <Table.Cell className='hidden md:table-cell text-slate-300'>
                               {trip.id}
                            </Table.Cell>
                            <Table.Cell className='font-medium'>
@@ -200,13 +190,13 @@ export default function TripPage() {
                                  trip.funcs[0]["func"]
                               )}
                            </Table.Cell>
-                           <Table.Cell className=''>
+                           <Table.Cell className='justify-items-center'>
                               {trip.funcs.length < 1 ? (
                                  <span className='text-red-600 text-xs'>
                                     Sem Função
                                  </span>
                               ) : (
-                                 trip.funcs[0]["oper"]
+                                 <OperBadge oper={trip.funcs[0]["oper"]} />
                               )}
                            </Table.Cell>
                            <Table.Cell className='justify-items-center'>

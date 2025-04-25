@@ -6,6 +6,7 @@ import IndispCell from "./components/indispCell";
 import { TripIndisp } from "./components/tripIndisp";
 import { getCrewIndisps } from "@/services/routes/indisps";
 import { getTripData } from "@/services/google-sheets/sheets";
+import clsx from "clsx";
 
 function genDates(dateRefer, daysToGenerate) {
    const offset = -1;
@@ -73,12 +74,14 @@ export default function IndispPage() {
          setDataTrip(data);
       });
 
-      typeof window !== "undefined" && window.innerWidth >= 1024
-         ? setDaysToGenerate(25)
-         : setDaysToGenerate(7);
+      function dayRefWindowsSize(size) {
+         return parseInt(size / 55);
+      }
+
+      setDaysToGenerate(dayRefWindowsSize(window.innerWidth));
 
       const handleResize = () => {
-         setDaysToGenerate(window.innerWidth >= 1024 ? 30 : 8);
+         setDaysToGenerate(dayRefWindowsSize(window.innerWidth));
       };
 
       window.addEventListener("resize", handleResize);
@@ -333,9 +336,9 @@ function TdCell({ children, dref, activeD }) {
 
    return (
       <td
-         className={
-            "px-1 " + (checkRef ? "bg-blue-300 border-x-2 border-blue-500" : "")
-         }
+         className={clsx("px-1", {
+            "bg-blue-300 border-x-2 border-blue-500": checkRef,
+         })}
       >
          {children}
       </td>

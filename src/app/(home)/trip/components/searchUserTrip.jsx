@@ -33,7 +33,7 @@ export function SearchUser({ uae, trips, updateTrips }) {
       }
 
       if (userSearchInput.length > 0) {
-         let users = await getUsers().then((res) => res.json());
+         let users = await getUsers();
 
          // FILTRAR USUARIOS QUE NÃO SÃO TRIPULANTES
          users = users.filter((user) => {

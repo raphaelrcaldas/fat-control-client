@@ -1,4 +1,3 @@
-import { useState } from "react";
 import pgs from "../../../../public/infoFAB/infoPGs";
 import { Select } from "flowbite-react";
 
@@ -45,14 +44,14 @@ export function SelectFuncao({ callFunc, value }) {
       <>
          <Select
             onChange={(event) => callFunc(event.target.value)}
-            className="w-28"
+            className='w-28'
             value={value}
             required
          >
             <option disabled value=''>
                Função
             </option>
-            {/* <option>Piloto</option> */}
+            <option value='pil'>PIL</option>
             <option value='mc'>MC</option>
             <option value='lm'>LM</option>
             <option value='tf'>TF</option>
