@@ -97,21 +97,21 @@ export default function IndispPage() {
       indisps.length > 0 && dataTrip.length > 0 ? (
          <div className='h-full'>
             {/* <h2>Indisponibilidades</h2> */}
-            <div className='mt-6'>
-               <Select
-                  className='w-36'
-                  value={filterFunc}
-                  onChange={(e) => setFilterFunc(e.target.value)}
-               >
-                  <option value='mc'>Mecânico</option>
-                  <option value='lm'>LoadMaster</option>
-                  <option value='tf'>Taifeiro</option>
-                  <option value='os'>Observador-SAR</option>
-                  <option value='oe'>OE</option>
-               </Select>
-            </div>
             <div className='w-fit h-full'>
                <div className='grid justify-center'>
+                  <div className='grid justify-center'>
+                     <Select
+                        className='w-36'
+                        value={filterFunc}
+                        onChange={(e) => setFilterFunc(e.target.value)}
+                     >
+                        <option value='mc'>Mecânico</option>
+                        <option value='lm'>LoadMaster</option>
+                        <option value='tf'>Taifeiro</option>
+                        <option value='os'>Observador-SAR</option>
+                        <option value='oe'>OE</option>
+                     </Select>
+                  </div>
                   <div className='flex gap-3 m-1 font-semibold text-center'>
                      <Button
                         className='p-0'
@@ -159,7 +159,7 @@ export default function IndispPage() {
                      Hoje
                   </Button>
                </div>
-               <div className='overflow-y-scroll max-h-[72%] bg-white shadow-lg mt-4 pb-2 px-3 rounded-lg'>
+               <div className='overflow-y-scroll max-h-[77%] bg-white shadow-lg mt-4 pb-2 px-3 rounded-lg'>
                   <table className='relative overflow-visible h-full w-full'>
                      <thead className='bg-white sticky top-0 z-10'>
                         <tr>

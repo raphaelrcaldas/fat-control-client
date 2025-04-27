@@ -29,9 +29,7 @@ function SeboPage() {
 
    return (
       <>
-         <div className='p-2 h-full'>
-            <h2>Pau de Sebo</h2>
-
+         <div className='p-2 h-full w-full'>
             <div className='flex mt-4'>
                <Select
                   value={selectFunc}
@@ -45,7 +43,7 @@ function SeboPage() {
                   <option value='acm'>OE</option>
                </Select>
             </div>
-            <div className='flex flex-row h-full gap-4 mr-4'>
+            <div className='flex flex-row h-full gap-4 mr-4 w-full'>
                <TripTable
                   trips={arrayFunc}
                   activeRow={activeRow}

@@ -48,7 +48,7 @@ const values: DefaultValues = {
 const createUserFormSchema = z.object({
    p_g: z.string().nonempty("Obrigatório").length(2),
    esp: z.string().transform(sanitizeText),
-   nome_guerra: z.string().nonempty("Obrigatório"),
+   nome_guerra: z.string().nonempty("Obrigatório").transform(sanitizeText),
    nome_completo: z.string().transform(sanitizeText),
    unidade: z.string().nonempty("Obrigatório"),
    saram: z.coerce.number().gt(1000000).lt(9999999),
@@ -196,7 +196,7 @@ export function UserRegister({ userId, updateUsers, show, setShow }) {
                               />
                               {errors.nome_guerra && (
                                  <span className='text-xs text-red-600'>
-                                    {errors.nome_guerra.message}
+                                    {typeof errors.nome_guerra?.message === "string" && errors.nome_guerra.message}
                                  </span>
                               )}
                            </div>
