@@ -75,9 +75,9 @@ export default function RootLayout({ children }) {
                   )}
 
                   {/* Layout principal */}
-                  <div className='flex h-screen pt-12 bg-gray-50'>
+                  <div className='flex h-screen pt-12 w-full bg-gray-50'>
                      {/* Sidebar Responsiva */}
-                     <div className='fixed lg:relative h-full z-40'>
+                     <div className='fixed lg:relative w-fit h-full z-40'>
                         <AppSideBar
                            isCollapsed={IsCollapsed}
                            setIsCollapsed={setIsCollapsed}
