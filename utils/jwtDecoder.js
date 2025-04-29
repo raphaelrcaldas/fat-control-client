@@ -32,13 +32,12 @@ export async function checkToken(token) {
    if (!token) {
       return false;
    }
-
    try {
-      const decoded = await decodeJWS(token.value);
-
+      const decoded = await decodeJWS(token);
+      
       const tokekValidTime = checkTokenExpiration(decoded.exp);
       const tokekValidContent = checkTokenPayload(decoded.sub);
-
+      
       return tokekValidContent && tokekValidTime;
    } catch (error) {
       return false;

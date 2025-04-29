@@ -5,7 +5,7 @@ import {
    MdAirplanemodeInactive,
    MdHail,
    MdOutlinePeopleAlt,
-   MdHome,
+   MdHome,MdMoney
 } from "react-icons/md";
 import { FaUsers } from "react-icons/fa6";
 import { FaPaperPlane } from "react-icons/fa";
@@ -28,10 +28,10 @@ export default function AppSideBar({
 
    const themeSideBar = {
       root: {
-         base: "h-full bg-white shadow-md transition-all duration-300 ease-in-out",
+         base: "h-full bg-red-200 shadow-md",
          collapsed: {
-            on: "w-16",
-            off: "w-64",
+            on: "w-[19rem]",
+            off: "w-[19rem]",
          },
          inner: "h-full overflow-y-auto overflow-x-hidden rounded bg-white px-3 py-4 dark:bg-gray-800",
       },
@@ -108,7 +108,7 @@ export default function AppSideBar({
 
    const logout = () => {
       deleteCookie("token");
-      router.push("/login");
+      router.push("/");
    };
 
    const handlePush = (route) => {
@@ -133,7 +133,7 @@ export default function AppSideBar({
                      icon={MdHome}
                      onClick={() => handlePush("/")}
                   >
-                     Home
+                     Início
                   </Sidebar.Item>
                   <RoleBasedRoute
                      requiredRoles={[
@@ -189,9 +189,15 @@ export default function AppSideBar({
                         </PermBased>
                      </Sidebar.Collapse>
                   </RoleBasedRoute>
-                  {/* <Sidebar.Collapse icon={FaUsers} label='Pessoal'>
-                  
-               </Sidebar.Collapse> */}
+                  <Sidebar.Collapse open icon={FaUsers} label='Pessoal'>
+                     <Sidebar.Item
+                        active={path === "/cegep/comiss"}
+                        icon={MdMoney}
+                        onClick={() => handlePush("/cegep/comiss")}
+                     >
+                        Comissionamento
+                     </Sidebar.Item>
+                  </Sidebar.Collapse>
                </Sidebar.ItemGroup>
                <Sidebar.ItemGroup>
                   <RoleBasedRoute requiredRoles={["admin"]}>
