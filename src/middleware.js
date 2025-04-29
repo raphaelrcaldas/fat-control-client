@@ -2,28 +2,28 @@ import { NextResponse } from "next/server";
 import { checkToken } from "../utils/jwtDecoder";
 import { refreshToken } from "@/services/routes/auth";
 
+const loginRedirect = process.env.LOGIN_REDIRECT;
+
 export async function middleware(request) {
-   const cookiesR = request.cookies;
-   const token = cookiesR.get("token");
+   const cookiesToken = await request.cookies.get("token");
 
-   const currentPath = request.nextUrl.pathname;
-   const isLoginPage = currentPath === "/login";
+   let tokenValue = cookiesToken?.value;
 
-   const checked = await checkToken(token);
-
-   if (!checked && !isLoginPage) {
-      return NextResponse.redirect(request.nextUrl.origin + "/login");
+   if (!tokenValue) {
+      const searchParam = request.nextUrl.searchParams;
+      tokenValue = await searchParam.get("token");
    }
 
-   if (checked && isLoginPage) {
-      return NextResponse.redirect(request.nextUrl.origin);
+   const checked = await checkToken(tokenValue);
+   if (!checked) {
+      return NextResponse.redirect(
+         `${loginRedirect}?redirect=${request.nextUrl.origin}`
+      );
    }
 
    const response = NextResponse.next();
 
    if (checked) {
-      let tokenValue = token.value;
-
       const [header, payload, assign] = tokenValue.split(".");
       let expiration = JSON.parse(atob(payload)).exp;
 
@@ -40,7 +40,9 @@ export async function middleware(request) {
             tokenValue = data.access_token;
          } catch (error) {
             console.error("Erro ao renovar o token:", error);
-            return NextResponse.redirect(request.nextUrl.origin + "/login");
+            return NextResponse.redirect(
+               `${loginRedirect}?redirect=${request.nextUrl.origin}`
+            );
          }
       }
 
