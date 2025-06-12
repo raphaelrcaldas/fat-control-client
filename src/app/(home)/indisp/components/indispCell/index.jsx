@@ -11,6 +11,8 @@ export default function IndispCell({ dateRef, trip, indisps, cemal, ultVoo }) {
 
    const isValidCEMAL = isoStrLocalToDate(cemal).valueOf() >= dateRef.valueOf();
    const isDesadaptado =
+      trip.func.func != "oe" &&
+      trip.func.func != "os" &&
       dateRef.valueOf() - isoStrLocalToDate(ultVoo).valueOf() >= 3888000000 &&
       trip.func.oper != "al";
    // 3888000000 = 45 dias
@@ -37,6 +39,7 @@ export default function IndispCell({ dateRef, trip, indisps, cemal, ultVoo }) {
                isDesadaptado={isDesadaptado}
             />
          }
+         placement='right'
       >
          {btn}
       </Popover>

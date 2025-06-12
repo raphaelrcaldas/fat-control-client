@@ -143,7 +143,7 @@ export default function TripPage() {
                   />
                </div>
             </div>
-            <div className='mt-4 w-full lg:max-w-[50%] sm:max-h-[90%] overflow-auto shadow-md max-h-[80%]'>
+            <div className='mt-4 w-full lg:max-w-[80%] sm:max-h-[90%] overflow-auto shadow-md max-h-[80%]'>
                <Table hoverable theme={themeTable}>
                   <Table.Head className='text-center'>
                      <Table.HeadCell className='hidden md:table-cell'>

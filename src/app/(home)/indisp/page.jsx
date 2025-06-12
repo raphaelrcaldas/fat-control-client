@@ -75,7 +75,7 @@ export default function IndispPage() {
       });
 
       function dayRefWindowsSize(size) {
-         return parseInt(size / 55);
+         return parseInt(size / 57);
       }
 
       setDaysToGenerate(dayRefWindowsSize(window.innerWidth));
@@ -101,13 +101,13 @@ export default function IndispPage() {
                <div className='grid justify-center'>
                   <div className='grid justify-center'>
                      <Select
-                        className='w-36'
+                        className='w-fit'
                         value={filterFunc}
                         onChange={(e) => setFilterFunc(e.target.value)}
                      >
                         <option value='mc'>Mecânico</option>
                         <option value='lm'>LoadMaster</option>
-                        <option value='tf'>Taifeiro</option>
+                        <option value='tf'>Comissário</option>
                         <option value='os'>Observador-SAR</option>
                         <option value='oe'>OE</option>
                      </Select>
@@ -217,9 +217,6 @@ export default function IndispPage() {
                                  trips.trig.toLowerCase() ==
                                  item.trip.trig.toLowerCase()
                            );
-                           // if (item.trip.trig == "mes") {
-                           //    console.log('r');
-                           // }
 
                            return (
                               <tr key={index}>

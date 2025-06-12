@@ -67,7 +67,7 @@ export default function QuadPage() {
                >
                   <option value='mc'>Mecânico</option>
                   <option value='lm'>LoadMaster</option>
-                  <option value='tf'>Taifeiro</option>
+                  <option value='tf'>Comissário</option>
                   <option value='os'>Observador-SAR</option>
                   <option value='oe'>OE</option>
                </Select>
