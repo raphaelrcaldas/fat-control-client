@@ -5,7 +5,8 @@ import {
    MdAirplanemodeInactive,
    MdHail,
    MdOutlinePeopleAlt,
-   MdHome,MdMoney
+   MdHome,
+   MdMoney,
 } from "react-icons/md";
 import { FaUsers } from "react-icons/fa6";
 import { FaPaperPlane } from "react-icons/fa";
@@ -140,7 +141,6 @@ export default function AppSideBar({
                         "admin",
                         "ops_avancado",
                         "ops_basico",
-                        "trip",
                      ]}
                   >
                      <Sidebar.Collapse
@@ -189,7 +189,14 @@ export default function AppSideBar({
                         </PermBased>
                      </Sidebar.Collapse>
                   </RoleBasedRoute>
-                  <Sidebar.Collapse open icon={FaUsers} label='Pessoal'>
+                  {/* <Sidebar.Collapse open icon={FaUsers} label='Pessoal'>
+                     <Sidebar.Item
+                        active={path === "/cegep/missoes"}
+                        icon={MdAirplaneTicket}
+                        onClick={() => handlePush("/cegep/missoes")}
+                     >
+                        Missões
+                     </Sidebar.Item>
                      <Sidebar.Item
                         active={path === "/cegep/comiss"}
                         icon={MdMoney}
@@ -197,7 +204,7 @@ export default function AppSideBar({
                      >
                         Comissionamento
                      </Sidebar.Item>
-                  </Sidebar.Collapse>
+                  </Sidebar.Collapse> */}
                </Sidebar.ItemGroup>
                <Sidebar.ItemGroup>
                   <RoleBasedRoute requiredRoles={["admin"]}>
