@@ -9,14 +9,12 @@ if (process.env.NODE_ENV === 'development' && process.env.DEV_TOKEN) {
 }
 
 export async function middleware(request: NextRequest) {
+   const searchParam = request.nextUrl.searchParams;
+   const tokenParam = searchParam.get("token");
+
    const cookiesToken = request.cookies.get("token");
 
-   let tokenValue: string | undefined = cookiesToken?.value || tokenDev;
-
-   if (!tokenValue) {
-      const searchParam = request.nextUrl.searchParams;
-      tokenValue = searchParam.get("token");
-   }
+   let tokenValue: string | undefined = cookiesToken?.value || tokenParam || tokenDev;
 
    const checked = await checkToken(tokenValue);
    if (!checked) {
