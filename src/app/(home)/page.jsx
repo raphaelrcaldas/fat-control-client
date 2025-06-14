@@ -7,7 +7,7 @@ export default function HomeApp() {
 
    return (
       <>
-         {user && !role ? (
+         {user && role ? (
             <div className='grid justify-items-center h-full'>
                <div className='p-4 w-2/3 lg:w-1/3 flex flex-col rounded-md shadow-lg text-center h-fit bg-red-100'>
                   <span className='text-base'>Bem vindo</span>
