@@ -31,7 +31,7 @@ const getColorForDate = (dateString) => {
 const TripTable = ({ trips, setRow, activeRow }) => {
    return (
       <div className='my-4 overflow-y-auto max-h-[85%] h-fit rounded-lg md:w-fit w-full shadow-lg relative'>
-         <table className='w-full text-gray-500 bg-white text-center text-base'>
+         <table className='w-full text-gray-500 bg-white text-center text-base overflow-visible'>
             <thead className='sticky top-0 z-10 bg-gray-200'>
                <tr>
                   <th className='py-1.5 px-2.5 hidden md:table-cell'>PG</th>
@@ -46,62 +46,64 @@ const TripTable = ({ trips, setRow, activeRow }) => {
                   <th className='py-1.5 px-2.5'>H ANO</th>
                </tr>
             </thead>
-            {trips.length > 0 ? (
-               <tbody>
-                  {trips.map((trip, index) => (
-                     <tr
-                        key={trip.trig}
-                        onClick={() => setRow(index)}
-                        className={clsx({
-                           "bg-gray-300": index === activeRow,
-                        })}
-                     >
-                        <td className='py-1.5 px-2.5 hidden md:table-cell'>
-                           {trip.pg}
-                        </td>
-                        <td className='py-1.5 px-2.5 hidden md:table-cell'>
-                           {trip.nomeGuerra}
-                        </td>
-                        <td className='py-1.5 px-2.5 font-semibold'>
-                           {trip.trig}
-                        </td>
-                        <td
-                           className={clsx("py-1.5 px-2.5 font-semibold", {
-                              "text-emerald-600": trip.oper === "AL",
-                              "text-yellow-400": trip.oper === "OP",
-                              "text-yellow-500": trip.oper === "PO",
-                              "text-yellow-600": trip.oper === "PB",
-                              "text-red-700": trip.oper === "IN",
+            <tbody>
+               {trips.length > 0 ? (
+                  <>
+                     {trips.map((trip, index) => (
+                        <tr
+                           key={trip.trig}
+                           onClick={() => setRow(index)}
+                           className={clsx({
+                              "bg-gray-300": index === activeRow,
                            })}
                         >
-                           {trip.oper}
-                        </td>
-                        <td className='py-1.5 px-2.5'>
-                           <span className={getColor(trip.dsv)}>
-                              {trip.dsv}
-                           </span>
-                        </td>
-                        <td className='py-1.5 px-2.5 hidden md:table-cell'>
-                           <span className={getColorForDate(trip.cemal)}>
-                              {trip.cemal}
-                           </span>
-                        </td>
-                        <td className='py-1.5 px-2.5'>{trip.hTotal}</td>
-                        <td className='py-1.5 px-2.5 font-semibold'>
-                           {trip.hAno}
-                        </td>
-                     </tr>
-                  ))}
-               </tbody>
-            ) : (
-               <tbody></tbody>
-            )}
+                           <td className='py-1.5 px-2.5 hidden md:table-cell'>
+                              {trip.pg}
+                           </td>
+                           <td className='py-1.5 px-2.5 hidden md:table-cell'>
+                              {trip.nomeGuerra}
+                           </td>
+                           <td className='py-1.5 px-2.5 font-semibold'>
+                              {trip.trig}
+                           </td>
+                           <td
+                              className={clsx("py-1.5 px-2.5 font-semibold", {
+                                 "text-emerald-600": trip.oper === "AL",
+                                 "text-yellow-400": trip.oper === "OP",
+                                 "text-yellow-500": trip.oper === "PO",
+                                 "text-yellow-600": trip.oper === "PB",
+                                 "text-red-700": trip.oper === "IN",
+                              })}
+                           >
+                              {trip.oper}
+                           </td>
+                           <td className='py-1.5 px-2.5'>
+                              <span className={getColor(trip.dsv)}>
+                                 {trip.dsv}
+                              </span>
+                           </td>
+                           <td className='py-1.5 px-2.5 hidden md:table-cell'>
+                              <span className={getColorForDate(trip.cemal)}>
+                                 {trip.cemal}
+                              </span>
+                           </td>
+                           <td className='py-1.5 px-2.5'>{trip.hTotal}</td>
+                           <td className='py-1.5 px-2.5 font-semibold'>
+                              {trip.hAno}
+                           </td>
+                        </tr>
+                     ))}
+                  </>
+               ) : (
+                  <TableLoading />
+               )}
+            </tbody>
          </table>
       </div>
    );
 };
 
-function tableLoading() {
+function TableLoading() {
    return (
       <>
          {Array(15)
@@ -109,29 +111,29 @@ function tableLoading() {
             .map((_, i) => {
                return (
                   <tr key={i}>
-                     <td>
+                     <td className='px-2.5 py-1.5'>
                         <div className='h-6 bg-gray-200 rounded-full animate-pulse max-w-[360px]'></div>
                      </td>
-                     <td>
+                     <td className='px-2.5 py-1.5'>
                         <div className='h-6 bg-gray-200 rounded-full animate-pulse max-w-[360px]'></div>
                      </td>
-                     <td>
+                     <td className='px-2.5 py-1.5'>
                         <div className='h-6 bg-gray-200 rounded-full animate-pulse max-w-[360px]'></div>
                      </td>
-                     <td>
+                     <td className='px-2.5 py-1.5'>
                         <div className='h-6 bg-gray-200 rounded-full animate-pulse max-w-[360px]'></div>
                      </td>
-                     <td>
+                     <td className='px-2.5 py-1.5'>
                         <div className='h-6 bg-gray-200 rounded-full animate-pulse max-w-[360px]'></div>
                      </td>
-                     <td>
-                        <div className='h-6 bg-gray-200 rounded-full hidden md:flex animate-pulse max-w-[360px]'></div>
+                     <td className='px-2.5 py-1.5 hidden md:table-cell'>
+                        <div className='h-6 bg-gray-200 rounded-full animate-pulse max-w-[360px]'></div>
                      </td>
-                     <td>
-                        <div className='h-6 bg-gray-200 rounded-full hidden md:flex animate-pulse max-w-[360px]'></div>
+                     <td className='px-2.5 py-1.5 hidden md:table-cell'>
+                        <div className='h-6 bg-gray-200 rounded-full animate-pulse max-w-[360px]'></div>
                      </td>
-                     <td>
-                        <div className='h-6 bg-gray-200 rounded-full hidden md:flex animate-pulse max-w-[360px]'></div>
+                     <td className='px-2.5 py-1.5 hidden md:table-cell'>
+                        <div className='h-6 bg-gray-200 rounded-full animate-pulse max-w-[360px]'></div>
                      </td>
                   </tr>
                );
