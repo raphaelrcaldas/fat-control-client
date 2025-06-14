@@ -1,30 +1,4 @@
-import { Table, TableCell, TableHeadCell, TableRow } from "flowbite-react";
-
-const tableTheme = {
-   root: {
-      base: "w-full text-center bg-white shadow-md text-base rounded-lg text-gray-500",
-      shadow:
-         "absolute left-0 top-0 -z-10 h-full w-full rounded-lg bg-white drop-shadow-md",
-      wrapper: "relative",
-   },
-   body: {
-      base: "group/body",
-      cell: {
-         base: "px-2 py-2 group-first/body:group-first/row:first:rounded-tl-lg group-first/body:group-first/row:last:rounded-tr-lg group-last/body:group-last/row:first:rounded-bl-lg group-last/body:group-last/row:last:rounded-br-lg",
-      },
-   },
-   head: {
-      base: "group/head text-sm uppercase text-gray-700",
-      cell: {
-         base: "bg-gray-100 px-4 py-3 group-first/head:first:rounded-tl-lg group-first/head:last:rounded-tr-lg",
-      },
-   },
-   row: {
-      base: "group/row",
-      hovered: "hover:bg-gray-50",
-      striped: "odd:bg-white even:bg-gray-50",
-   },
-};
+import clsx from "clsx";
 
 const getColor = (value) => {
    let styles = "rounded-lg text-white font-semibold p-1";
@@ -56,99 +30,114 @@ const getColorForDate = (dateString) => {
 
 const TripTable = ({ trips, setRow, activeRow }) => {
    return (
-      <div className='my-4 overflow-y-auto max-h-[85%] md:w-fit w-full shadow-lg'>
-         <Table theme={tableTheme}>
-            {/* Cabeçalho fixo */}
-            <Table.Head className='sticky top-0 z-10 bg-gray-100'>
-               <TableHeadCell className='hidden md:table-cell'>
-                  PG
-               </TableHeadCell>
-               <TableHeadCell className='hidden md:table-cell'>
-                  NOME DE GUERRA
-               </TableHeadCell>
-               <TableHeadCell>TRIG</TableHeadCell>
-               <TableHeadCell>OP</TableHeadCell>
-               <TableHeadCell>DSV</TableHeadCell>
-               <TableHeadCell className='hidden md:table-cell'>
-                  CEMAL
-               </TableHeadCell>
-               <TableHeadCell>TOTAL</TableHeadCell>
-               <TableHeadCell>H ANO</TableHeadCell>
-            </Table.Head>
+      <div className='my-4 overflow-y-auto max-h-[85%] h-fit rounded-lg md:w-fit w-full shadow-lg relative'>
+         <table className='w-full text-gray-500 bg-white text-center text-base'>
+            <thead className='sticky top-0 z-10 bg-gray-200'>
+               <tr>
+                  <th className='py-1.5 px-2.5 hidden md:table-cell'>PG</th>
+                  <th className='py-1.5 px-2.5 hidden md:table-cell'>
+                     NOME DE GUERRA
+                  </th>
+                  <th className='py-1.5 px-2.5'>TRIG</th>
+                  <th className='py-1.5 px-2.5'>OP</th>
+                  <th className='py-1.5 px-2.5'>DSV</th>
+                  <th className='py-1.5 px-2.5 hidden md:table-cell'>CEMAL</th>
+                  <th className='py-1.5 px-2.5'>TOTAL</th>
+                  <th className='py-1.5 px-2.5'>H ANO</th>
+               </tr>
+            </thead>
             {trips.length > 0 ? (
-               <Table.Body>
+               <tbody>
                   {trips.map((trip, index) => (
-                     <TableRow
+                     <tr
                         key={trip.trig}
                         onClick={() => setRow(index)}
-                        className={index === activeRow && "bg-gray-300"}
+                        className={clsx({
+                           "bg-gray-300": index === activeRow,
+                        })}
                      >
-                        <TableCell className='hidden md:table-cell'>
+                        <td className='py-1.5 px-2.5 hidden md:table-cell'>
                            {trip.pg}
-                        </TableCell>
-                        <TableCell className='hidden md:table-cell'>
+                        </td>
+                        <td className='py-1.5 px-2.5 hidden md:table-cell'>
                            {trip.nomeGuerra}
-                        </TableCell>
-                        <TableCell className='font-semibold'>
+                        </td>
+                        <td className='py-1.5 px-2.5 font-semibold'>
                            {trip.trig}
-                        </TableCell>
-                        <TableCell>{trip.oper}</TableCell>
-                        <TableCell>
+                        </td>
+                        <td
+                           className={clsx("py-1.5 px-2.5 font-semibold", {
+                              "text-emerald-600": trip.oper === "AL",
+                              "text-yellow-400": trip.oper === "OP",
+                              "text-yellow-500": trip.oper === "PO",
+                              "text-yellow-600": trip.oper === "PB",
+                              "text-red-700": trip.oper === "IN",
+                           })}
+                        >
+                           {trip.oper}
+                        </td>
+                        <td className='py-1.5 px-2.5'>
                            <span className={getColor(trip.dsv)}>
                               {trip.dsv}
                            </span>
-                        </TableCell>
-                        <TableCell className='hidden md:table-cell'>
+                        </td>
+                        <td className='py-1.5 px-2.5 hidden md:table-cell'>
                            <span className={getColorForDate(trip.cemal)}>
                               {trip.cemal}
                            </span>
-                        </TableCell>
-                        <TableCell>{trip.hTotal}</TableCell>
-                        <TableCell className='font-semibold'>
+                        </td>
+                        <td className='py-1.5 px-2.5'>{trip.hTotal}</td>
+                        <td className='py-1.5 px-2.5 font-semibold'>
                            {trip.hAno}
-                        </TableCell>
-                     </TableRow>
+                        </td>
+                     </tr>
                   ))}
-               </Table.Body>
+               </tbody>
             ) : (
-               <Table.Body>
-                  {Array(15)
-                     .fill()
-                     .map((_, i) => {
-                        return (
-                           <TableRow key={i}>
-                              <TableCell>
-                                 <div className='h-6 bg-gray-200 rounded-full animate-pulse max-w-[360px]'></div>
-                              </TableCell>
-                              <TableCell>
-                                 <div className='h-6 bg-gray-200 rounded-full animate-pulse max-w-[360px]'></div>
-                              </TableCell>
-                              <TableCell>
-                                 <div className='h-6 bg-gray-200 rounded-full animate-pulse max-w-[360px]'></div>
-                              </TableCell>
-                              <TableCell>
-                                 <div className='h-6 bg-gray-200 rounded-full animate-pulse max-w-[360px]'></div>
-                              </TableCell>
-                              <TableCell>
-                                 <div className='h-6 bg-gray-200 rounded-full animate-pulse max-w-[360px]'></div>
-                              </TableCell> 
-                              <TableCell>
-                                 <div className='h-6 bg-gray-200 rounded-full hidden md:flex animate-pulse max-w-[360px]'></div>
-                              </TableCell>
-                              <TableCell>
-                                 <div className='h-6 bg-gray-200 rounded-full hidden md:flex animate-pulse max-w-[360px]'></div>
-                              </TableCell>
-                              <TableCell>
-                                 <div className='h-6 bg-gray-200 rounded-full hidden md:flex animate-pulse max-w-[360px]'></div>
-                              </TableCell>
-                           </TableRow>
-                        );
-                     })}
-               </Table.Body>
+               <tbody></tbody>
             )}
-         </Table>
+         </table>
       </div>
    );
 };
+
+function tableLoading() {
+   return (
+      <>
+         {Array(15)
+            .fill()
+            .map((_, i) => {
+               return (
+                  <tr key={i}>
+                     <td>
+                        <div className='h-6 bg-gray-200 rounded-full animate-pulse max-w-[360px]'></div>
+                     </td>
+                     <td>
+                        <div className='h-6 bg-gray-200 rounded-full animate-pulse max-w-[360px]'></div>
+                     </td>
+                     <td>
+                        <div className='h-6 bg-gray-200 rounded-full animate-pulse max-w-[360px]'></div>
+                     </td>
+                     <td>
+                        <div className='h-6 bg-gray-200 rounded-full animate-pulse max-w-[360px]'></div>
+                     </td>
+                     <td>
+                        <div className='h-6 bg-gray-200 rounded-full animate-pulse max-w-[360px]'></div>
+                     </td>
+                     <td>
+                        <div className='h-6 bg-gray-200 rounded-full hidden md:flex animate-pulse max-w-[360px]'></div>
+                     </td>
+                     <td>
+                        <div className='h-6 bg-gray-200 rounded-full hidden md:flex animate-pulse max-w-[360px]'></div>
+                     </td>
+                     <td>
+                        <div className='h-6 bg-gray-200 rounded-full hidden md:flex animate-pulse max-w-[360px]'></div>
+                     </td>
+                  </tr>
+               );
+            })}
+      </>
+   );
+}
 
 export default TripTable;
