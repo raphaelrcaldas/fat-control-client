@@ -55,23 +55,38 @@ function SeboPage() {
                   <option value='os'>Observador SAR</option>
                   <option value='acm'>OE</option>
                </Select>
-               <div className='flex flex-row gap-2 ml-4 items-center'>
-                  <span className=' px-2 py-1 rounded-lg text-sm'>
+               <div className='flex flex-row gap-2 justify-between ml-4 items-center'>
+                  <span className='px-2'>
                      <ToggleSwitch
+                        theme={{
+                           root: {
+                              base: "group flex flex-col rounded-lg focus:outline-none",
+                           },
+                        }}
                         checked={opIn}
                         onChange={setOpIn}
                         label='IN'
                      />
                   </span>
-                  <span className='px-2 py-1 rounded-lg text-sm'>
+                  <span className='px-2'>
                      <ToggleSwitch
+                        theme={{
+                           root: {
+                              base: "group flex flex-col rounded-lg focus:outline-none",
+                           },
+                        }}
                         checked={opOp}
                         onChange={setOpOp}
                         label='OP'
                      />
                   </span>
-                  <span className='px-2 py-1 rounded-lg text-sm'>
+                  <span className='px-2'>
                      <ToggleSwitch
+                        theme={{
+                           root: {
+                              base: "group flex flex-col rounded-lg focus:outline-none",
+                           },
+                        }}
                         checked={opAl}
                         onChange={setOpAl}
                         label='AL'

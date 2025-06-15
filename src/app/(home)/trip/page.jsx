@@ -1,16 +1,14 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Table, TextInput, Button, Select } from "flowbite-react";
+import { Table, TextInput, Select } from "flowbite-react";
 import { IoSearchSharp } from "react-icons/io5";
-import { FaFilter } from "react-icons/fa";
 
 import { SearchUser } from "./components/searchUserTrip";
 import { getTrips } from "@/services/routes/trips";
-import { SelectFuncao, SelectOper } from "../components/inputForm";
-import { FuncBadge, OperBadge } from "../components/badges";
 import { TripDetail } from "./components/tripDetail";
 import { PermBased } from "../hooks/usePermBased";
+import clsx from "clsx";
 
 export default function TripPage() {
    const [trips, setTrips] = useState([]);
@@ -20,8 +18,6 @@ export default function TripPage() {
    const [active, setActive] = useState(true);
 
    const [filterName, setFilterName] = useState("");
-   const [filterFunc, setFilterFunc] = useState("");
-   const [filterOp, setFilterOp] = useState("");
 
    const themeTable = {
       root: {
@@ -60,27 +56,9 @@ export default function TripPage() {
          });
    }
 
-   function filters() {
-      // FILTRO FUNÇOES E OPER
-      let filter = trips.filter((trip) => {
-         const funcs = trip.funcs.filter((f) => {
-            const funcVal = f.func.includes(filterFunc);
-            const opVal = f.oper.includes(filterOp);
-
-            if (funcVal && opVal) {
-               return true;
-            } else {
-               return false;
-            }
-         });
-
-         if (funcs.length > 0) {
-            return true;
-         }
-      });
-
+   useEffect(() => {
       // FILTRO NOME
-      filter = filter.filter((trip) => {
+      let filter = trips.filter((trip) => {
          const inputFilter = filterName.toLowerCase();
          const checkTrig = trip.trig.includes(inputFilter);
          const checkGuerra = trip.user.nome_guerra.includes(inputFilter);
@@ -89,7 +67,7 @@ export default function TripPage() {
       });
 
       setFilterTrips(filter);
-   }
+   }, [filterName]);
 
    useEffect(() => {
       getListTrips();
@@ -121,19 +99,16 @@ export default function TripPage() {
                </Select>
             </div>
             <div className='mt-2 flex flex-col gap-12 md:flex-row'>
-               <div className='flex flex-wrap gap-2'>
-                  <TextInput
-                     className='w-64'
-                     icon={IoSearchSharp}
-                     placeholder='Search for Crew Member'
-                     value={filterName}
-                     onChange={(e) => setFilterName(e.target.value)}
-                  />
-                  <SelectFuncao value={filterFunc} callFunc={setFilterFunc} />
-                  <SelectOper value={filterOp} callFunc={setFilterOp} />
-                  <Button color='blue' onClick={filters}>
-                     <FaFilter className='h-4 w-4' />
-                  </Button>
+               <div className='md:flex'>
+                  <div className='flex gap-2'>
+                     <TextInput
+                        className='w-64'
+                        icon={IoSearchSharp}
+                        placeholder='Search for Crew Member'
+                        value={filterName}
+                        onChange={(e) => setFilterName(e.target.value)}
+                     />
+                  </div>
                </div>
                <div className='hidden lg:flex'>
                   <SearchUser
@@ -143,7 +118,7 @@ export default function TripPage() {
                   />
                </div>
             </div>
-            <div className='mt-4 w-full lg:max-w-[80%] sm:max-h-[90%] overflow-auto shadow-md max-h-[80%]'>
+            <div className='mt-4 w-full lg:max-w-fit sm:max-h-[90%] overflow-auto shadow-md max-h-[80%]'>
                <Table hoverable theme={themeTable}>
                   <Table.Head className='text-center'>
                      <Table.HeadCell className='hidden md:table-cell'>
@@ -196,7 +171,25 @@ export default function TripPage() {
                                     Sem Função
                                  </span>
                               ) : (
-                                 <OperBadge oper={trip.funcs[0]["oper"]} />
+                                 <span
+                                    className={clsx(
+                                       "py-1.5 px-2.5 font-semibold",
+                                       {
+                                          "text-emerald-600":
+                                             trip.funcs[0]["oper"] === "al",
+                                          "text-yellow-400":
+                                             trip.funcs[0]["oper"] === "op",
+                                          "text-yellow-500":
+                                             trip.funcs[0]["oper"] === "po",
+                                          "text-yellow-600":
+                                             trip.funcs[0]["oper"] === "pb",
+                                          "text-red-700":
+                                             trip.funcs[0]["oper"] === "in",
+                                       }
+                                    )}
+                                 >
+                                    {trip.funcs[0]["oper"]}
+                                 </span>
                               )}
                            </Table.Cell>
                            <Table.Cell className='justify-items-center'>

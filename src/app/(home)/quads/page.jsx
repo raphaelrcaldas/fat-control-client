@@ -1,12 +1,11 @@
 "use client";
 import { useEffect, useState } from "react";
 
-import { Button, Select } from "flowbite-react";
+import { Select, Spinner } from "flowbite-react";
 import { QuadPopover } from "./components/quadPopover";
 import { QuadsTrip } from "./components/quadsTrip";
 import { getQuads, getQuadsType } from "@/services/routes/quads";
 import AddQuadModal from "./components/addQuad";
-import { FaSearch } from "react-icons/fa";
 import { PermBased } from "../hooks/usePermBased";
 
 export default function QuadPage() {
@@ -47,6 +46,11 @@ export default function QuadPage() {
    }
 
    useEffect(() => {
+      setQuads([]);
+      getQuadsParams();
+   }, [filterFunc, filterQuad]);
+
+   useEffect(() => {
       if (quadsType.length == 0) {
          getQuadsType("11gt")
             .then((res) => res.json())
@@ -57,8 +61,6 @@ export default function QuadPage() {
 
    return (
       <>
-         {/* <h2>Quadrinhos</h2> */}
-
          <div className='flex mb-5'>
             <div className='flex gap-2'>
                <Select
@@ -92,13 +94,6 @@ export default function QuadPage() {
                      );
                   })}
                </Select>
-
-               <Button
-                  className='grid items-center p-0'
-                  onClick={getQuadsParams}
-               >
-                  <FaSearch />
-               </Button>
             </div>
          </div>
 
@@ -111,33 +106,42 @@ export default function QuadPage() {
             id='quad_table'
             className='flex flex-col gap-1 px-2 py-3 relative bg-white rounded-lg whitespace-nowrap shadow-md max-h-[80%] md:max-h-[80%] overflow-x-auto overflow-y-auto'
          >
-            {quads.map((item) => {
-               return (
-                  <div
-                     key={item.trip.id}
-                     className='flex justify-start items-center gap-1 overflow-visible'
-                  >
-                     <div className='flex-shrink-0 sticky left-0 z-10 bg-white overflow-visible'>
-                        <QuadsTrip
-                           trip={item.trip}
-                           lenTotalQuads={item.quads_len}
-                           typeQuad={filterQuad}
-                           quadsAllUpdate={getQuadsParams}
-                        />
+            {quads.length === 0 ? (
+               <div className='flex flex-col font-semibold items-center justify-center gap-2 p-2'>
+                  Carregando <Spinner size='lg' />
+               </div>
+            ) : (
+               quads.map((item) => {
+                  return (
+                     <div
+                        key={item.trip.id}
+                        className='flex justify-start items-center gap-1 overflow-visible'
+                     >
+                        <div className='flex-shrink-0 sticky left-0 z-10 bg-white overflow-visible'>
+                           <QuadsTrip
+                              trip={item.trip}
+                              lenTotalQuads={item.quads_len}
+                              typeQuad={filterQuad}
+                              quadsAllUpdate={getQuadsParams}
+                           />
+                        </div>
+                        {item.quads.map((quad) => {
+                           return <QuadPopover key={quad.id} quad={quad} />;
+                        })}
+                        <PermBased
+                           resource={"quad_ops"}
+                           requiredPerm={"create"}
+                        >
+                           <AddQuadModal
+                              trip={item.trip}
+                              callFunc={getQuadsParams}
+                              type={filterQuad}
+                           />
+                        </PermBased>
                      </div>
-                     {item.quads.map((quad) => {
-                        return <QuadPopover key={quad.id} quad={quad} />;
-                     })}
-                     <PermBased resource={"quad_ops"} requiredPerm={"create"}>
-                        <AddQuadModal
-                           trip={item.trip}
-                           callFunc={getQuadsParams}
-                           type={filterQuad}
-                        />
-                     </PermBased>
-                  </div>
-               );
-            })}
+                  );
+               })
+            )}
          </div>
       </>
    );

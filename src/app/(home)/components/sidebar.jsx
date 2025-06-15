@@ -59,19 +59,19 @@ export default function AppSideBar({
          list: "space-y-2 py-2",
       },
       cta: {
-         base: "mt-6 rounded-lg bg-gray-100 p-4 dark:bg-gray-700",
+         base: "mt-6 rounded-lg bg-gray-100 py-4",
          color: {
-            blue: "bg-cyan-50 dark:bg-cyan-900",
-            dark: "bg-dark-50 dark:bg-dark-900",
-            failure: "bg-red-50 dark:bg-red-900",
-            gray: "bg-alternative-50 dark:bg-alternative-900",
-            green: "bg-green-50 dark:bg-green-900",
-            light: "bg-light-50 dark:bg-light-900",
-            red: "bg-red-50 dark:bg-red-900",
-            purple: "bg-purple-50 dark:bg-purple-900",
-            success: "bg-green-50 dark:bg-green-900",
-            yellow: "bg-yellow-50 dark:bg-yellow-900",
-            warning: "bg-yellow-50 dark:bg-yellow-900",
+            blue: "bg-cyan-50",
+            dark: "bg-dark-50",
+            failure: "bg-red-50",
+            gray: "bg-alternative-50",
+            green: "bg-green-50",
+            light: "bg-light-50",
+            red: "bg-red-50",
+            purple: "bg-purple-50",
+            success: "bg-green-50",
+            yellow: "bg-yellow-50",
+            warning: "bg-yellow-50",
          },
       },
       item: {
@@ -86,7 +86,7 @@ export default function AppSideBar({
          },
          icon: {
             base: "h-6 w-6 flex-shrink-0 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white",
-            active: "text-gray-700 dark:text-gray-100",
+            active: "text-gray-700",
          },
          label: "",
          listItem: "",
@@ -137,11 +137,7 @@ export default function AppSideBar({
                      Início
                   </Sidebar.Item>
                   <RoleBasedRoute
-                     requiredRoles={[
-                        "admin",
-                        "ops_avancado",
-                        "ops_basico",
-                     ]}
+                     requiredRoles={["admin", "ops_avancado", "ops_basico"]}
                   >
                      <Sidebar.Collapse
                         open
@@ -220,7 +216,7 @@ export default function AppSideBar({
                <Sidebar.CTA className='mt-auto bg-red-200 shadow-md'>
                   <div className='flex items-center justify-evenly'>
                      {user ? (
-                        <span className='font-semibold text-center uppercase'>
+                        <span className='font-semibold text-center uppercase px-2 text-wrap'>
                            {user}
                         </span>
                      ) : (
