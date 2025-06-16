@@ -137,7 +137,13 @@ export default function AppSideBar({
                      Início
                   </Sidebar.Item>
                   <RoleBasedRoute
-                     requiredRoles={["admin", "ops_avancado", "ops_basico"]}
+                     requiredRoles={[
+                        "admin",
+                        "ops_avancado",
+                        "ops_basico",
+                        "dout_avancado",
+                        "dout_basico",
+                     ]}
                   >
                      <Sidebar.Collapse
                         open
