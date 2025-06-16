@@ -257,6 +257,12 @@ export default function IndispPage() {
                                  </td>
                               </tr>
                               {indispsAl.map((item, index) => {
+                                 const tripSheet = dataTrip.find(
+                                    (trips) =>
+                                       trips.trig.toLowerCase() ==
+                                       item.trip.trig.toLowerCase()
+                                 );
+
                                  return (
                                     <tr key={index}>
                                        <td className='p-px'>
@@ -277,6 +283,8 @@ export default function IndispPage() {
                                                    dateRef={dayR}
                                                    trip={item.trip}
                                                    indisps={item.indisps}
+                                                   cemal={tripSheet.cemal}
+                                                   ultVoo={tripSheet.duv}
                                                 />
                                              </TdCell>
                                           );
