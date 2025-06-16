@@ -109,7 +109,7 @@ export function QuadsTrip({ trip, typeQuad, lenTotalQuads, quadsAllUpdate }) {
                                     <Table.Cell className='grid justify-items-center'>
                                        <PermBased
                                           resource={"quad_ops"}
-                                          requiredPerm={"create"}
+                                          requiredPerm={"update"}
                                        >
                                           <QuadUpdateModal
                                              quad={quad}

@@ -195,7 +195,7 @@ export default function TripPage() {
                            <Table.Cell className='justify-items-center'>
                               <PermBased
                                  resource={"trips"}
-                                 requiredPerm={"create"}
+                                 requiredPerm={"update"}
                               >
                                  <TripDetail
                                     trip={trip}

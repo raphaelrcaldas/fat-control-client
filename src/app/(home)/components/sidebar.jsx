@@ -171,7 +171,7 @@ export default function AppSideBar({
                               icon={MdAirplanemodeInactive}
                               onClick={() => handlePush("/indisp")}
                            >
-                              Indisp
+                              Indisponibilidades
                            </Sidebar.Item>
                         </PermBased>
                         <PermBased resource={"trips"} requiredPerm={"view"}>

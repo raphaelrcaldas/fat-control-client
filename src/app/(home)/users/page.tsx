@@ -1,6 +1,6 @@
 "use client";
 
-import { Table, TextInput, Button } from "flowbite-react";
+import { TextInput, Button } from "flowbite-react";
 import { useState, useEffect } from "react";
 import { getUsers, UserPublic } from "../../../../services/routes/users";
 import { UserRegister } from "./components/userForm";
@@ -148,6 +148,7 @@ export default function UsersPage() {
                            <td className='grid py-4 justify-items-center'>
                               <BadgeUAE>{user.unidade}</BadgeUAE>
                            </td>
+
                            <td className='px-1 py-2 align-middle text-center'>
                               <button
                                  className='py-2.5 px-5 text-lg font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100'

@@ -79,7 +79,7 @@ export const TripIndisp = ({ trip, indisps, update }) => {
                                        </Table.Cell>
                                        <Table.Cell className='p-1'>
                                           <PermBased
-                                             requiredPerm={"create"}
+                                             requiredPerm={"update"}
                                              resource={"indisp_trips"}
                                           >
                                              <EditIndisp
@@ -102,7 +102,9 @@ export const TripIndisp = ({ trip, indisps, update }) => {
                   )}
                </Modal.Body>
                <Modal.Footer className='grid justify-items-center'>
-                  <NewIndisp update={update} trip={trip} />
+                  <PermBased requiredPerm={"create"} resource={"indisp_trips"}>
+                     <NewIndisp update={update} trip={trip} />
+                  </PermBased>
                </Modal.Footer>
             </Modal>
          )}
