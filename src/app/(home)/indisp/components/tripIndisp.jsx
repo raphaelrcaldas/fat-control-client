@@ -36,9 +36,6 @@ export const TripIndisp = ({ trip, indisps, update }) => {
                      <div className='mt-6 shadow-md rounded-lg'>
                         <Table hoverable className='text-center uppercase'>
                            <Table.Head>
-                              <Table.HeadCell className='p-3'>
-                                 ID
-                              </Table.HeadCell>
                               <Table.HeadCell>MOTIVO</Table.HeadCell>
                               <Table.HeadCell>INICIO</Table.HeadCell>
                               <Table.HeadCell>FIM</Table.HeadCell>
