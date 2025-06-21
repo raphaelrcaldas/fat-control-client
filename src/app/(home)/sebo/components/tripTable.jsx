@@ -43,7 +43,7 @@ const TripTable = ({ trips, setRow, activeRow }) => {
                   <th className='py-1.5 px-2.5'>DSV</th>
                   <th className='py-1.5 px-2.5 hidden md:table-cell'>CEMAL</th>
                   <th className='py-1.5 px-2.5'>TOTAL</th>
-                  <th className='py-1.5 px-2.5'>H ANO</th>
+                  <th className='py-1.5 px-2.5'>ANO</th>
                </tr>
             </thead>
             <tbody>

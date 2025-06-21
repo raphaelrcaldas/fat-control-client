@@ -92,16 +92,10 @@ export default function UsersPage() {
                </div>
             </div>
 
-            <div className='relative w-full overflow-x-auto overflow-y-auto shadow-lg rounded-lg max-h-[85%]'>
+            <div className='relative w-full overflow-x-auto lg:w-1/2 overflow-y-auto shadow-lg rounded-lg max-h-[85%]'>
                <table className='w-full text-base text-gray-500 uppercase text-center overflow-visible'>
                   <thead className='text-xs text-gray-700 bg-gray-200 sticky top-0 z-10'>
                      <tr>
-                        <th
-                           scope='col'
-                           className='px-3 py-3 text-center hidden md:table-cell'
-                        >
-                           #
-                        </th>
                         <th scope='col' className='px-3 py-3 text-center'>
                            P/G
                         </th>
@@ -134,9 +128,6 @@ export default function UsersPage() {
                            className='bg-white hover:bg-gray-50 hover:font-semibold'
                            key={user.id}
                         >
-                           <td className='hidden md:table-cell text-zinc-300'>
-                              {user.id}
-                           </td>
                            <td className='font-medium text-gray-900'>
                               {user.posto.short}
                            </td>
@@ -145,10 +136,9 @@ export default function UsersPage() {
                            <td className='text-center hidden md:table-cell'>
                               {user.nome_completo}
                            </td>
-                           <td className='grid py-4 justify-items-center'>
-                              <BadgeUAE>{user.unidade}</BadgeUAE>
+                           <td className='grid py-4 justify-items-center font-semibold'>
+                              {user.unidade}
                            </td>
-
                            <td className='px-1 py-2 align-middle text-center'>
                               <button
                                  className='py-2.5 px-5 text-lg font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100'
