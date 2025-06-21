@@ -1,6 +1,6 @@
 "use client";
 import { useEffect } from "react";
-import { Button, Label, Modal, Select, TextInput } from "flowbite-react";
+import { Button, Label, Modal, TextInput } from "flowbite-react";
 import * as UserAPI from "../../../../../services/routes/users";
 import { useForm } from "react-hook-form";
 import { cpf } from "cpf-cnpj-validator";

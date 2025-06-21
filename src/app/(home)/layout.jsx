@@ -84,7 +84,7 @@ export default function RootLayout({ children }) {
                            alwaysOpen={alwaysOpen}
                         />
                      </div>
-                     <main className='p-4 mt-6 ml-0 w-full h-full overflow-y-auto'>
+                     <main className='p-4 pb-6 mt-6 ml-0 w-full h-full overflow-y-auto'>
                         {children}
                      </main>
                   </div>

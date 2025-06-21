@@ -85,10 +85,9 @@ export function QuadsTrip({ trip, typeQuad, lenTotalQuads, quadsAllUpdate }) {
                         {`${trip.user.posto.short} ${trip.user.esp} ${trip.user.nome_guerra}`}
                      </h3>
                   </div>
-                  <div className='max-h-[45rem] overflow-y-auto shadow-lg rounded-lg'>
+                  <div className='max-h-[35rem] overflow-y-auto shadow-lg rounded-lg'>
                      <Table theme={themeTable} hoverable>
                         <Table.Head>
-                           <Table.HeadCell>#</Table.HeadCell>
                            <Table.HeadCell>VALOR</Table.HeadCell>
                            <Table.HeadCell>
                               <span className='sr-only'>Edit</span>
@@ -98,9 +97,6 @@ export function QuadsTrip({ trip, typeQuad, lenTotalQuads, quadsAllUpdate }) {
                            {quads.map((quad) => {
                               return (
                                  <Table.Row key={quad.id}>
-                                    <Table.Cell className='text-slate-300'>
-                                       {quad.id}
-                                    </Table.Cell>
                                     <Table.Cell className='font-semibold'>
                                        {quad.value
                                           ? isoDateToString(quad.value)
