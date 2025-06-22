@@ -1,22 +1,36 @@
 export const baseUrl = process.env.NEXT_PUBLIC_API_URL;
 
-export default async function request(method, endpoint, body = null, params = null, token = null) {
-    let fullUrl = `${baseUrl}${endpoint}`;
-    let headers = { 'Content-Type': 'application/json' };
-    let options = { method: method, headers: headers };
+function getTokenFromCookies() {
+   const match = document.cookie.match(new RegExp("(^| )token=([^;]+)"));
+   return match ? match[2] : null;
+}
 
-    if (params) {
-        let searchParams = Object.entries(params).map((e) => (e.join("=")));
-        searchParams = searchParams.join("&");
+export default async function request(
+   method,
+   endpoint,
+   body = null,
+   params = null
+) {
+   let fullUrl = `${baseUrl}${endpoint}`;
+   let headers = { "Content-Type": "application/json" };
+   let options = { method: method, headers: headers };
 
-        fullUrl += `?${searchParams}`
-    }
+   if (params) {
+      let searchParams = Object.entries(params).map((e) => e.join("="));
+      searchParams = searchParams.join("&");
 
-    if (body) { options.body = JSON.stringify(body) };
+      fullUrl += `?${searchParams}`;
+   }
 
-    if (token) {
-        headers.Authorization = `Bearer ${token}`;
-    };
+   if (body) {
+      options.body = JSON.stringify(body);
+   }
 
-    return await fetch(fullUrl, options);
-};
+   const token = getTokenFromCookies();
+
+   if (token) {
+      headers.Authorization = `Bearer ${token}`;
+   }
+
+   return await fetch(fullUrl, options);
+}

@@ -37,7 +37,7 @@ export default function RootLayout({ children }) {
    return (
       <html lang='pt-br'>
          <head>
-            <title>1º/1º GT - FATCONTROL</title>
+            <title>FATCONTROL</title>
          </head>
          <body>
             <AuthProvider>

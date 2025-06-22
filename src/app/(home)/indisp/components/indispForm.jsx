@@ -83,7 +83,7 @@ function IndispForm({ open, setOpen, trip, update, indisp }) {
             response = await updateIndisp(data);
          } else {
             data.user_id = trip.user.id;
-            response = await addIndisp(data, token);
+            response = await addIndisp(data);
          }
 
          const rdata = await response.json();
