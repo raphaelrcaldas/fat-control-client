@@ -50,12 +50,10 @@ export async function updateUser(userId: number, userBody: any) {
    return await request("PUT", usersRoute + userId, userBody);
 }
 
-export async function changePassword(pwdBody: string, token:string) {
+export async function changePassword(pwdBody: string) {
    return await request(
       "POST",
       usersRoute + "change-pwd/",
       pwdBody,
-      null,
-      token
    );
 }
