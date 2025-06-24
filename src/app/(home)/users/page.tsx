@@ -4,7 +4,6 @@ import { TextInput, Button } from "flowbite-react";
 import { useState, useEffect } from "react";
 import { getUsers, UserPublic } from "../../../../services/routes/users";
 import { UserRegister } from "./components/userForm";
-import { BadgeUAE } from "../components/badges";
 import { IoMdInformationCircleOutline } from "react-icons/io";
 
 function useUsers() {
@@ -77,8 +76,8 @@ export default function UsersPage() {
             show={showUserModal}
             setShow={setShowUserModal}
          />
-         <div className='w-full h-full'>
-            <div className='flex flex-col md:flex-row justify-between gap-2 my-4'>
+         <div className='w-full lg:w-2/3 h-full'>
+            <div className='flex flex-row justify-between gap-2 my-4'>
                <TextInput
                   className='w-full md:w-1/2'
                   placeholder='Search for User'
@@ -92,7 +91,7 @@ export default function UsersPage() {
                </div>
             </div>
 
-            <div className='relative w-full overflow-x-auto lg:w-1/2 overflow-y-auto shadow-lg rounded-lg max-h-[85%]'>
+            <div className='relative w-full overflow-x-auto overflow-y-auto shadow-lg rounded-lg max-h-[85%]'>
                <table className='w-full text-base text-gray-500 uppercase text-center overflow-visible'>
                   <thead className='text-xs text-gray-700 bg-gray-200 sticky top-0 z-10'>
                      <tr>
