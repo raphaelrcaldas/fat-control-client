@@ -5,9 +5,9 @@ const SelectContext = createContext({});
 
 export const SelectProvider = ({ children }) => {
    const [seboFunc, setSeboFunc] = useState("mc");
-
    const [quadFunc, setQuadFunc] = useState("mc");
    const [quadType, setQuadType] = useState(1);
+   const [indispFunc, setIndispFunc] = useState(1);
 
    return (
       <SelectContext.Provider
@@ -18,7 +18,7 @@ export const SelectProvider = ({ children }) => {
                type: { state: quadType, setState: setQuadType },
             },
             indispPage: {
-               func: { state: quadFunc, setState: setQuadFunc },
+               func: { state: indispFunc, setState: setIndispFunc },
             },
          }}
       >
