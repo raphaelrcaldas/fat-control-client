@@ -7,7 +7,7 @@ export const SelectProvider = ({ children }) => {
    const [seboFunc, setSeboFunc] = useState("mc");
    const [quadFunc, setQuadFunc] = useState("mc");
    const [quadType, setQuadType] = useState(1);
-   const [indispFunc, setIndispFunc] = useState(1);
+   const [indispFunc, setIndispFunc] = useState("mc");
 
    return (
       <SelectContext.Provider
