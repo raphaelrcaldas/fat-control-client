@@ -6,16 +6,18 @@ import { QuadPopover } from "./components/quadPopover";
 import { QuadsTrip } from "./components/quadsTrip";
 import { getQuads, getQuadsType } from "@/services/routes/quads";
 import AddQuadModal from "./components/addQuad";
+import { useSelect } from "../../../context/select";
 import { PermBased } from "../hooks/usePermBased";
 
 export default function QuadPage() {
-   const [filterFunc, setFilterFunc] = useState("mc");
    const [filterQuad, setFilterQuad] = useState(1);
    const [quadsType, setQuadsType] = useState([]);
    const [quads, setQuads] = useState([]);
 
    const [groupName, setGroupName] = useState("");
    const [typeName, setTypeName] = useState("");
+
+   const { quadsPage } = useSelect();
 
    function getQuadsName() {
       for (const group of quadsType) {
@@ -31,8 +33,8 @@ export default function QuadPage() {
 
    function getQuadsParams() {
       const params = {
-         funcao: filterFunc,
-         tipo_quad: filterQuad,
+         funcao: quadsPage.func.state,
+         tipo_quad: quadsPage.type.state,
          uae: "11gt",
          proj: "kc-390",
       };
@@ -48,7 +50,7 @@ export default function QuadPage() {
    useEffect(() => {
       setQuads([]);
       getQuadsParams();
-   }, [filterFunc, filterQuad]);
+   }, [quadsPage.func.state, quadsPage.type.state]);
 
    useEffect(() => {
       if (quadsType.length == 0) {
@@ -64,8 +66,8 @@ export default function QuadPage() {
          <div className='flex mb-5'>
             <div className='flex gap-2'>
                <Select
-                  value={filterFunc}
-                  onChange={(e) => setFilterFunc(e.target.value)}
+                  value={quadsPage.func.state}
+                  onChange={(e) => quadsPage.func.setState(e.target.value)}
                >
                   <option value='mc'>Mecânico</option>
                   <option value='lm'>LoadMaster</option>
@@ -75,8 +77,10 @@ export default function QuadPage() {
                </Select>
 
                <Select
-                  value={filterQuad}
-                  onChange={(e) => setFilterQuad(parseInt(e.target.value))}
+                  value={quadsPage.type.state}
+                  onChange={(e) =>
+                     quadsPage.type.setState(parseInt(e.target.value))
+                  }
                >
                   {quadsType.map((group, index) => {
                      const nameGroup = group.long.toUpperCase();

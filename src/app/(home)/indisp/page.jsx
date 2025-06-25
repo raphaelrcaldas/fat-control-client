@@ -7,6 +7,7 @@ import { TripIndisp } from "./components/tripIndisp";
 import { getCrewIndisps } from "@/services/routes/indisps";
 import { getTripData } from "@/services/google-sheets/sheets";
 import clsx from "clsx";
+import { useSelect } from "../../../context/select";
 
 function genDates(dateRefer, daysToGenerate) {
    const offset = -1;
@@ -30,9 +31,10 @@ export default function IndispPage() {
    const [datesArray, setDatesArray] = useState([]);
    const [dataTrip, setDataTrip] = useState([]);
 
-   const [filterFunc, setFilterFunc] = useState("mc");
    const [indisps, setIndisps] = useState([]);
    const [indispsAl, setIndispsAl] = useState([]);
+
+   const { indispPage } = useSelect();
 
    const changeDateRef = (day, month) => {
       const dateCopy = new Date(dateRef.getTime());
@@ -51,7 +53,7 @@ export default function IndispPage() {
    };
 
    const updateCrewIndisps = () => {
-      getCrewIndisps(filterFunc, "11gt")
+      getCrewIndisps(indispPage.func.state, "11gt")
          .then((res) => res.json())
          .then((data) => {
             const filterOp = data.filter((item) => item.trip.func.oper != "al");
@@ -67,7 +69,7 @@ export default function IndispPage() {
       setActiveDate(new Date());
    };
 
-   useEffect(updateCrewIndisps, [filterFunc]);
+   useEffect(updateCrewIndisps, [indispPage.func.state]);
 
    useEffect(() => {
       getTripData().then((data) => {
@@ -102,8 +104,10 @@ export default function IndispPage() {
                   <div className='grid justify-center'>
                      <Select
                         className='w-fit'
-                        value={filterFunc}
-                        onChange={(e) => setFilterFunc(e.target.value)}
+                        value={indispPage.func.state}
+                        onChange={(e) =>
+                           indispPage.func.setState(e.target.value)
+                        }
                      >
                         <option value='mc'>Mecânico</option>
                         <option value='lm'>LoadMaster</option>
