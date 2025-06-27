@@ -10,7 +10,6 @@ import { useSelect } from "../../../context/select";
 import { PermBased } from "../hooks/usePermBased";
 
 export default function QuadPage() {
-   const [filterQuad, setFilterQuad] = useState(1);
    const [quadsType, setQuadsType] = useState([]);
    const [quads, setQuads] = useState([]);
 
@@ -22,7 +21,7 @@ export default function QuadPage() {
    function getQuadsName() {
       for (const group of quadsType) {
          for (const type of group.types) {
-            if (type.id === filterQuad) {
+            if (type.id === quadsPage.type.state) {
                setGroupName(group.long);
                setTypeName(type.long);
                break;
@@ -125,7 +124,7 @@ export default function QuadPage() {
                            <QuadsTrip
                               trip={item.trip}
                               lenTotalQuads={item.quads_len}
-                              typeQuad={filterQuad}
+                              typeQuad={quadsPage.type.state}
                               quadsAllUpdate={getQuadsParams}
                            />
                         </div>
@@ -139,7 +138,7 @@ export default function QuadPage() {
                            <AddQuadModal
                               trip={item.trip}
                               callFunc={getQuadsParams}
-                              type={filterQuad}
+                              type={quadsPage.type.state}
                            />
                         </PermBased>
                      </div>
