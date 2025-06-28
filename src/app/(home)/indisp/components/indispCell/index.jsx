@@ -20,10 +20,12 @@ export default function IndispCell({ dateRef, trip, indisps, cemal, ultVoo }) {
    const btn = (
       <Button
          className={
-            "h-10 w-10 p-0 font-bold " +
+            "size-10 p-0 font-bold " +
             colorBtn(filterIndisp, isValidCEMAL, isDesadaptado)
          }
-      ></Button>
+      >
+         {""}
+      </Button>
    );
 
    if (filterIndisp.length < 1 && isValidCEMAL && !isDesadaptado) return btn;

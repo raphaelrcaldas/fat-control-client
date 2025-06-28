@@ -97,210 +97,202 @@ export default function IndispPage() {
    return (
       // indisps.length > 0 &&
       indisps.length > 0 && dataTrip.length > 0 ? (
-         <div className='h-full'>
-            {/* <h2>Indisponibilidades</h2> */}
-            <div className='w-fit h-full'>
+         <div className='w-full h-full'>
+            <div className='grid justify-center'>
                <div className='grid justify-center'>
-                  <div className='grid justify-center'>
-                     <Select
-                        className='w-fit'
-                        value={indispPage.func.state}
-                        onChange={(e) =>
-                           indispPage.func.setState(e.target.value)
-                        }
-                     >
-                        <option value='mc'>Mecânico</option>
-                        <option value='lm'>LoadMaster</option>
-                        <option value='tf'>Comissário</option>
-                        <option value='os'>Observador-SAR</option>
-                        <option value='oe'>OE</option>
-                     </Select>
-                  </div>
-                  <div className='flex gap-3 m-1 font-semibold text-center'>
-                     <Button
-                        className='p-0'
-                        color='light'
-                        size='sm'
-                        onClick={() => changeDateRef(null, -1)}
-                     >
-                        <span className='text-lg'>{"<<"}</span>
-                     </Button>
-                     <Button
-                        className='p-0'
-                        color='light'
-                        size='sm'
-                        onClick={() => changeDateRef(-1)}
-                     >
-                        <span className='text-lg'>{"<"}</span>
-                     </Button>
-                     <span className='content-center text-lg'>
-                        {dateRef.toLocaleDateString("pt-BR", {
-                           day: "2-digit",
-                           month: "long",
-                           year: "numeric",
-                        })}
-                     </span>
-                     <Button
-                        className='p-0'
-                        color='light'
-                        size='sm'
-                        onClick={() => changeDateRef(1)}
-                     >
-                        <span className='text-lg'>{">"}</span>
-                     </Button>
-                     <Button
-                        className='p-0'
-                        color='light'
-                        size='sm'
-                        onClick={() => changeDateRef(null, 1)}
-                     >
-                        <span className='text-lg'>{">>"}</span>
-                     </Button>
-                  </div>
+                  <Select
+                     className='w-fit'
+                     value={indispPage.func.state}
+                     onChange={(e) => indispPage.func.setState(e.target.value)}
+                  >
+                     <option value='mc'>Mecânico</option>
+                     <option value='lm'>LoadMaster</option>
+                     <option value='tf'>Comissário</option>
+                     <option value='os'>Observador-SAR</option>
+                     <option value='oe'>OE</option>
+                  </Select>
                </div>
-               <div className='grid justify-center'>
+               <div className='flex gap-3 mt-4 font-semibold text-center'>
+                  <Button
+                     className='p-0'
+                     color='light'
+                     size='sm'
+                     onClick={() => changeDateRef(null, -1)}
+                  >
+                     <span className='text-lg'>{"<<"}</span>
+                  </Button>
+                  <Button
+                     className='p-0'
+                     color='light'
+                     size='sm'
+                     onClick={() => changeDateRef(-1)}
+                  >
+                     <span className='text-lg'>{"<"}</span>
+                  </Button>
+
                   <Button color='light' size='sm' onClick={handleTodayDate}>
                      Hoje
                   </Button>
+
+                  <Button
+                     className='p-0'
+                     color='light'
+                     size='sm'
+                     onClick={() => changeDateRef(1)}
+                  >
+                     <span className='text-lg'>{">"}</span>
+                  </Button>
+                  <Button
+                     className='p-0'
+                     color='light'
+                     size='sm'
+                     onClick={() => changeDateRef(null, 1)}
+                  >
+                     <span className='text-lg'>{">>"}</span>
+                  </Button>
                </div>
-               <div className='overflow-y-scroll max-h-[77%] bg-white shadow-lg mt-4 pb-2 px-3 rounded-lg'>
-                  <table className='relative overflow-visible h-full w-full'>
-                     <thead className='bg-white sticky top-0 z-10'>
-                        <tr>
-                           <th scope='col' />
-                           {datesArray.map((dayR, index) => {
-                              let bold;
-                              if (dayR.getDay() != 0 && dayR.getDay() != 6) {
-                                 bold = "font-normal";
-                              }
+            </div>
 
-                              return (
-                                 <th
-                                    key={index}
-                                    scope='col'
-                                    className={
-                                       "px-0 text-center cursor-pointer " + bold
-                                    }
-                                    onClick={() => setActiveDate(dayR)}
-                                 >
-                                    {dayR.toLocaleDateString("pt-BR", {
-                                       weekday: "short",
-                                    })}
-                                 </th>
-                              );
-                           })}
-                        </tr>
-                        <tr>
-                           <th scope='col' />
-                           {datesArray.map((dayR, index) => {
-                              const dateStr = dayR.toLocaleDateString("pt-BR", {
-                                 month: "2-digit",
-                                 day: "2-digit",
-                              });
-
-                              return (
-                                 <th
-                                    key={index}
-                                    className={
-                                       "px-0 text-center font-semibold cursor-pointer " +
-                                       getDayColor(dayR)
-                                    }
-                                    onClick={() => setActiveDate(dayR)}
-                                    scope='col'
-                                 >
-                                    {dateStr}
-                                 </th>
-                              );
-                           })}
-                        </tr>
-                     </thead>
-                     <tbody className='divide-y'>
-                        {indisps.map((item, index) => {
-                           const tripSheet = dataTrip.find(
-                              (trips) =>
-                                 trips.trig.toLowerCase() ==
-                                 item.trip.trig.toLowerCase()
-                           );
+            <div className='overflow-y-auto max-h-[80%] h-full bg-white shadow-lg mt-4 pb-2 px-3 rounded-lg'>
+               <table className='relative overflow-visible h-full w-full'>
+                  <thead className='bg-white sticky top-0 z-10'>
+                     <tr>
+                        <th scope='col' />
+                        {datesArray.map((dayR, index) => {
+                           let bold;
+                           if (dayR.getDay() != 0 && dayR.getDay() != 6) {
+                              bold = "font-normal";
+                           }
 
                            return (
-                              <tr key={index}>
-                                 <th scope='row' className='p-px'>
-                                    <TripIndisp
-                                       trip={item.trip}
-                                       indisps={item.indisps}
-                                       update={updateCrewIndisps}
-                                    />
-                                 </th>
-                                 {datesArray.map((dayR, index) => {
-                                    return (
-                                       <TdCell
-                                          key={index}
-                                          dref={dayR}
-                                          activeD={activeDate}
-                                       >
-                                          <IndispCell
-                                             dateRef={dayR}
-                                             trip={item.trip}
-                                             indisps={item.indisps}
-                                             cemal={tripSheet.cemal}
-                                             ultVoo={tripSheet.duv}
-                                          />
-                                       </TdCell>
-                                    );
+                              <th
+                                 key={index}
+                                 scope='col'
+                                 className={
+                                    "px-0 text-center cursor-pointer " + bold
+                                 }
+                                 onClick={() => setActiveDate(dayR)}
+                              >
+                                 {dayR.toLocaleDateString("pt-BR", {
+                                    weekday: "short",
                                  })}
-                              </tr>
+                              </th>
                            );
                         })}
-                        {indispsAl.length > 0 && (
-                           <>
-                              <tr>
-                                 <td className='grid justify-center p-1 pt-4'>
-                                    <span className='text-base font-semibold text-center'>
-                                       Alunos
-                                    </span>
-                                 </td>
-                              </tr>
-                              {indispsAl.map((item, index) => {
-                                 const tripSheet = dataTrip.find(
-                                    (trips) =>
-                                       trips.trig.toLowerCase() ==
-                                       item.trip.trig.toLowerCase()
-                                 );
+                     </tr>
+                     <tr>
+                        <th scope='col' />
+                        {datesArray.map((dayR, index) => {
+                           const dateStr = dayR.toLocaleDateString("pt-BR", {
+                              month: "2-digit",
+                              day: "2-digit",
+                           });
 
+                           return (
+                              <th
+                                 key={index}
+                                 className={
+                                    "px-0 text-center font-semibold cursor-pointer " +
+                                    getDayColor(dayR)
+                                 }
+                                 onClick={() => setActiveDate(dayR)}
+                                 scope='col'
+                              >
+                                 {dateStr}
+                              </th>
+                           );
+                        })}
+                     </tr>
+                  </thead>
+                  <tbody className='divide-y'>
+                     {indisps.map((item, index) => {
+                        const tripSheet = dataTrip.find(
+                           (trips) =>
+                              trips.trig.toLowerCase() ==
+                              item.trip.trig.toLowerCase()
+                        );
+
+                        return (
+                           <tr key={index}>
+                              <th
+                                 scope='row'
+                                 className='p-px grid justify-items-center '
+                              >
+                                 <TripIndisp
+                                    trip={item.trip}
+                                    indisps={item.indisps}
+                                    update={updateCrewIndisps}
+                                 />
+                              </th>
+                              {datesArray.map((dayR, index) => {
                                  return (
-                                    <tr key={index}>
-                                       <td className='p-px'>
-                                          <TripIndisp
-                                             trip={item.trip}
-                                             indisps={item.indisps}
-                                             update={updateCrewIndisps}
-                                          />
-                                       </td>
-                                       {datesArray.map((dayR, index) => {
-                                          return (
-                                             <TdCell
-                                                key={index}
-                                                dref={dayR}
-                                                activeD={activeDate}
-                                             >
-                                                <IndispCell
-                                                   dateRef={dayR}
-                                                   trip={item.trip}
-                                                   indisps={item.indisps}
-                                                   cemal={tripSheet.cemal}
-                                                   ultVoo={tripSheet.duv}
-                                                />
-                                             </TdCell>
-                                          );
-                                       })}
-                                    </tr>
+                                    <TdCell
+                                       key={index}
+                                       dref={dayR}
+                                       activeD={activeDate}
+                                    >
+                                       <IndispCell
+                                          dateRef={dayR}
+                                          trip={item.trip}
+                                          indisps={item.indisps}
+                                          cemal={tripSheet.cemal}
+                                          ultVoo={tripSheet.duv}
+                                       />
+                                    </TdCell>
                                  );
                               })}
-                           </>
-                        )}
-                     </tbody>
-                  </table>
-               </div>
+                           </tr>
+                        );
+                     })}
+                     {indispsAl.length > 0 && (
+                        <>
+                           <tr>
+                              <td className='grid justify-center p-1 pt-4'>
+                                 <span className='text-base font-semibold text-center'>
+                                    Alunos
+                                 </span>
+                              </td>
+                           </tr>
+                           {indispsAl.map((item, index) => {
+                              const tripSheet = dataTrip.find(
+                                 (trips) =>
+                                    trips.trig.toLowerCase() ==
+                                    item.trip.trig.toLowerCase()
+                              );
+
+                              return (
+                                 <tr key={index}>
+                                    <td className='p-px'>
+                                       <TripIndisp
+                                          trip={item.trip}
+                                          indisps={item.indisps}
+                                          update={updateCrewIndisps}
+                                       />
+                                    </td>
+                                    {datesArray.map((dayR, index) => {
+                                       return (
+                                          <TdCell
+                                             key={index}
+                                             dref={dayR}
+                                             activeD={activeDate}
+                                          >
+                                             <IndispCell
+                                                dateRef={dayR}
+                                                trip={item.trip}
+                                                indisps={item.indisps}
+                                                cemal={tripSheet.cemal}
+                                                ultVoo={tripSheet.duv}
+                                             />
+                                          </TdCell>
+                                       );
+                                    })}
+                                 </tr>
+                              );
+                           })}
+                        </>
+                     )}
+                  </tbody>
+               </table>
             </div>
          </div>
       ) : (
