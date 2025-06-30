@@ -8,6 +8,7 @@ import { getCrewIndisps } from "@/services/routes/indisps";
 import { getTripData } from "@/services/google-sheets/sheets";
 import clsx from "clsx";
 import { useSelect } from "../../../context/select";
+import { LastIndisps } from "./components/lastIndisps";
 
 function genDates(dateRefer, daysToGenerate) {
    const offset = -1;
@@ -77,7 +78,7 @@ export default function IndispPage() {
       });
 
       function dayRefWindowsSize(size) {
-         return parseInt(size / 57);
+         return parseInt(size / 80);
       }
 
       setDaysToGenerate(dayRefWindowsSize(window.innerWidth));
@@ -97,7 +98,7 @@ export default function IndispPage() {
    return (
       // indisps.length > 0 &&
       indisps.length > 0 && dataTrip.length > 0 ? (
-         <div className='w-full h-full'>
+         <div className='h-full'>
             <div className='grid justify-center'>
                <div className='grid justify-center'>
                   <Select
@@ -153,150 +154,155 @@ export default function IndispPage() {
                </div>
             </div>
 
-            <div className='overflow-y-auto max-h-[80%] h-full bg-white shadow-lg mt-4 pb-2 px-3 rounded-lg'>
-               <table className='relative overflow-visible h-full w-full'>
-                  <thead className='bg-white sticky top-0 z-10'>
-                     <tr>
-                        <th scope='col' />
-                        {datesArray.map((dayR, index) => {
-                           let bold;
-                           if (dayR.getDay() != 0 && dayR.getDay() != 6) {
-                              bold = "font-normal";
-                           }
-
-                           return (
-                              <th
-                                 key={index}
-                                 scope='col'
-                                 className={
-                                    "px-0 text-center cursor-pointer " + bold
-                                 }
-                                 onClick={() => setActiveDate(dayR)}
-                              >
-                                 {dayR.toLocaleDateString("pt-BR", {
-                                    weekday: "short",
-                                 })}
-                              </th>
-                           );
-                        })}
-                     </tr>
-                     <tr>
-                        <th scope='col' />
-                        {datesArray.map((dayR, index) => {
-                           const dateStr = dayR.toLocaleDateString("pt-BR", {
-                              month: "2-digit",
-                              day: "2-digit",
-                           });
-
-                           return (
-                              <th
-                                 key={index}
-                                 className={
-                                    "px-0 text-center font-semibold cursor-pointer " +
-                                    getDayColor(dayR)
-                                 }
-                                 onClick={() => setActiveDate(dayR)}
-                                 scope='col'
-                              >
-                                 {dateStr}
-                              </th>
-                           );
-                        })}
-                     </tr>
-                  </thead>
-                  <tbody className='divide-y'>
-                     {indisps.map((item, index) => {
-                        const tripSheet = dataTrip.find(
-                           (trips) =>
-                              trips.trig.toLowerCase() ==
-                              item.trip.trig.toLowerCase()
-                        );
-
-                        return (
-                           <tr key={index}>
-                              <th
-                                 scope='row'
-                                 className='p-px grid justify-items-center '
-                              >
-                                 <TripIndisp
-                                    trip={item.trip}
-                                    indisps={item.indisps}
-                                    update={updateCrewIndisps}
-                                 />
-                              </th>
-                              {datesArray.map((dayR, index) => {
-                                 return (
-                                    <TdCell
-                                       key={index}
-                                       dref={dayR}
-                                       activeD={activeDate}
-                                    >
-                                       <IndispCell
-                                          dateRef={dayR}
-                                          trip={item.trip}
-                                          indisps={item.indisps}
-                                          cemal={tripSheet.cemal}
-                                          ultVoo={tripSheet.duv}
-                                       />
-                                    </TdCell>
-                                 );
-                              })}
-                           </tr>
-                        );
-                     })}
-                     {indispsAl.length > 0 && (
-                        <>
-                           <tr>
-                              <td className='grid justify-center p-1 pt-4'>
-                                 <span className='text-base font-semibold text-center'>
-                                    Alunos
-                                 </span>
-                              </td>
-                           </tr>
-                           {indispsAl.map((item, index) => {
-                              const tripSheet = dataTrip.find(
-                                 (trips) =>
-                                    trips.trig.toLowerCase() ==
-                                    item.trip.trig.toLowerCase()
-                              );
+            <div className='md:flex h-full md:flex-row mt-3'>
+               <div className='w-fit overflow-y-auto h-fit max-h-[80%] bg-white shadow-lg pb-2 px-3 rounded-lg'>
+                  <table className='relative overflow-visible h-full w-full'>
+                     <thead className='bg-white sticky top-0 z-10'>
+                        <tr>
+                           <th scope='col' />
+                           {datesArray.map((dayR, index) => {
+                              let bold;
+                              if (dayR.getDay() != 0 && dayR.getDay() != 6) {
+                                 bold = "font-normal";
+                              }
 
                               return (
-                                 <tr key={index}>
-                                    <td className='p-px'>
-                                       <TripIndisp
-                                          trip={item.trip}
-                                          indisps={item.indisps}
-                                          update={updateCrewIndisps}
-                                       />
-                                    </td>
-                                    {datesArray.map((dayR, index) => {
-                                       return (
-                                          <TdCell
-                                             key={index}
-                                             dref={dayR}
-                                             activeD={activeDate}
-                                          >
-                                             <IndispCell
-                                                dateRef={dayR}
-                                                trip={item.trip}
-                                                indisps={item.indisps}
-                                                cemal={tripSheet.cemal}
-                                                ultVoo={tripSheet.duv}
-                                             />
-                                          </TdCell>
-                                       );
+                                 <th
+                                    key={index}
+                                    scope='col'
+                                    className={
+                                       "px-0 text-center cursor-pointer " + bold
+                                    }
+                                    onClick={() => setActiveDate(dayR)}
+                                 >
+                                    {dayR.toLocaleDateString("pt-BR", {
+                                       weekday: "short",
                                     })}
-                                 </tr>
+                                 </th>
                               );
                            })}
-                        </>
-                     )}
-                  </tbody>
-               </table>
+                        </tr>
+                        <tr>
+                           <th scope='col' />
+                           {datesArray.map((dayR, index) => {
+                              const dateStr = dayR.toLocaleDateString("pt-BR", {
+                                 month: "2-digit",
+                                 day: "2-digit",
+                              });
+
+                              return (
+                                 <th
+                                    key={index}
+                                    className={
+                                       "px-0 text-center font-semibold cursor-pointer " +
+                                       getDayColor(dayR)
+                                    }
+                                    onClick={() => setActiveDate(dayR)}
+                                    scope='col'
+                                 >
+                                    {dateStr}
+                                 </th>
+                              );
+                           })}
+                        </tr>
+                     </thead>
+                     <tbody className='divide-y'>
+                        {indisps.map((item, index) => {
+                           const tripSheet = dataTrip.find(
+                              (trips) =>
+                                 trips.trig.toLowerCase() ==
+                                 item.trip.trig.toLowerCase()
+                           );
+
+                           return (
+                              <tr key={index}>
+                                 <th
+                                    scope='row'
+                                    className='p-px grid justify-items-center '
+                                 >
+                                    <TripIndisp
+                                       trip={item.trip}
+                                       indisps={item.indisps}
+                                       update={updateCrewIndisps}
+                                    />
+                                 </th>
+                                 {datesArray.map((dayR, index) => {
+                                    return (
+                                       <TdCell
+                                          key={index}
+                                          dref={dayR}
+                                          activeD={activeDate}
+                                       >
+                                          <IndispCell
+                                             dateRef={dayR}
+                                             trip={item.trip}
+                                             indisps={item.indisps}
+                                             cemal={tripSheet.cemal}
+                                             ultVoo={tripSheet.duv}
+                                          />
+                                       </TdCell>
+                                    );
+                                 })}
+                              </tr>
+                           );
+                        })}
+                        {indispsAl.length > 0 && (
+                           <>
+                              <tr>
+                                 <td className='grid justify-center p-1 pt-4'>
+                                    <span className='text-base font-semibold text-center'>
+                                       Alunos
+                                    </span>
+                                 </td>
+                              </tr>
+                              {indispsAl.map((item, index) => {
+                                 const tripSheet = dataTrip.find(
+                                    (trips) =>
+                                       trips.trig.toLowerCase() ==
+                                       item.trip.trig.toLowerCase()
+                                 );
+
+                                 return (
+                                    <tr key={index}>
+                                       <td className='p-px'>
+                                          <TripIndisp
+                                             trip={item.trip}
+                                             indisps={item.indisps}
+                                             update={updateCrewIndisps}
+                                          />
+                                       </td>
+                                       {datesArray.map((dayR, index) => {
+                                          return (
+                                             <TdCell
+                                                key={index}
+                                                dref={dayR}
+                                                activeD={activeDate}
+                                             >
+                                                <IndispCell
+                                                   dateRef={dayR}
+                                                   trip={item.trip}
+                                                   indisps={item.indisps}
+                                                   cemal={tripSheet.cemal}
+                                                   ultVoo={tripSheet.duv}
+                                                />
+                                             </TdCell>
+                                          );
+                                       })}
+                                    </tr>
+                                 );
+                              })}
+                           </>
+                        )}
+                     </tbody>
+                  </table>
+               </div>
+               <div className='hidden flex-1 mx-2 md:flex rounded-lg shadow-md flex-col h-fit'>
+                  <LastIndisps indisps={indisps} />
+               </div>
             </div>
          </div>
       ) : (
-         <div className=' grid justify-items-center align-middle h-full '>
+         <div className='grid justify-items-center align-middle h-full'>
             <Spinner color='failure' size='xl' />
          </div>
       )
@@ -341,7 +347,9 @@ function TdCell({ children, dref, activeD }) {
             "bg-blue-300 border-x-2 border-blue-500": checkRef,
          })}
       >
-         {children}
+         <div className='w-full h-full flex items-center justify-center'>
+            {children}
+         </div>
       </td>
    );
 }
