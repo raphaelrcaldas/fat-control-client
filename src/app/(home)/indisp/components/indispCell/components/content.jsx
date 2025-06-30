@@ -1,7 +1,13 @@
 import { isoDateToString } from "@/utils/dateHandler";
 import { getIndisp } from "../../options";
 
-export default function IndispContent({ dateRef, trip, filterIndisp, isDesadaptado, isValidCEMAL }) {
+export default function IndispContent({
+   dateRef,
+   trip,
+   filterIndisp,
+   isDesadaptado,
+   isValidCEMAL,
+}) {
    const diaSemana = dateRef.toLocaleDateString("pt-BR", { weekday: "long" });
 
    return (
@@ -42,7 +48,13 @@ function IndispBody({ indisp }) {
    const indispProps = getIndisp(indisp.mtv);
    const dateStart = isoDateToString(indisp.date_start);
    const dateEnd = isoDateToString(indisp.date_end);
-   const createdAt = new Date(indisp.created_at).toLocaleString();
+   const createdAt = new Date(indisp.created_at).toLocaleString("pt-br", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+   });
    const bgColor = indispProps.color.bg;
    const resp = indisp.user_created;
 
@@ -50,16 +62,13 @@ function IndispBody({ indisp }) {
       <div
          className={`flex flex-col gap-2 m-2 px-3 py-2 rounded-lg ${bgColor}`}
       >
-         <p>ID: {indisp.id}</p>
-         <p className='uppercase text-base font-semibold'>
+         <p className='uppercase text-center text-base font-semibold'>
             {indispProps.label}
          </p>
-         <p className='text-base font-semibold'>{`${dateStart} a ${dateEnd}`}</p>
-         <p className='text-base font-semibold'>{indisp.obs}</p>
-         <div>
-            <p>Criado em:</p>
-            <p>{createdAt}</p>
-            <p className='uppercase'>{`${resp.posto.short} ${resp.nome_guerra}`}</p>
+         <p className='text-sm font-medium text-center'>{`${dateStart} a ${dateEnd}`}</p>
+         <p className='text-base font-medium '>{indisp.obs}</p>
+         <div className='border-t border-slate-300 py-1'>
+            <p className='uppercase'>{`${createdAt}: ${resp.posto.short} ${resp.nome_guerra}`}</p>
          </div>
       </div>
    );
