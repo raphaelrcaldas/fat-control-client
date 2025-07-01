@@ -33,7 +33,6 @@ export default function IndispPage() {
    const [dataTrip, setDataTrip] = useState([]);
 
    const [indisps, setIndisps] = useState([]);
-   const [indispsAl, setIndispsAl] = useState([]);
 
    const { indispPage } = useSelect();
 
@@ -54,14 +53,11 @@ export default function IndispPage() {
    };
 
    const updateCrewIndisps = () => {
+      setIndisps([]);
       getCrewIndisps(indispPage.func.state, "11gt")
          .then((res) => res.json())
          .then((data) => {
-            const filterOp = data.filter((item) => item.trip.func.oper != "al");
-            const filterAl = data.filter((item) => item.trip.func.oper == "al");
-
-            setIndispsAl(filterAl);
-            setIndisps(filterOp);
+            setIndisps(data);
          });
    };
 
@@ -96,66 +92,65 @@ export default function IndispPage() {
    }, [dateRef, daysToGenerate]);
 
    return (
-      // indisps.length > 0 &&
-      indisps.length > 0 && dataTrip.length > 0 ? (
-         <div className='h-full'>
+      <div className='h-full'>
+         <div className='grid justify-center'>
             <div className='grid justify-center'>
-               <div className='grid justify-center'>
-                  <Select
-                     className='w-fit'
-                     value={indispPage.func.state}
-                     onChange={(e) => indispPage.func.setState(e.target.value)}
-                  >
-                     <option value='mc'>Mecânico</option>
-                     <option value='lm'>LoadMaster</option>
-                     <option value='tf'>Comissário</option>
-                     <option value='os'>Observador-SAR</option>
-                     <option value='oe'>OE</option>
-                  </Select>
-               </div>
-               <div className='flex gap-3 mt-4 font-semibold text-center'>
-                  <Button
-                     className='p-0'
-                     color='light'
-                     size='sm'
-                     onClick={() => changeDateRef(null, -1)}
-                  >
-                     <span className='text-lg'>{"<<"}</span>
-                  </Button>
-                  <Button
-                     className='p-0'
-                     color='light'
-                     size='sm'
-                     onClick={() => changeDateRef(-1)}
-                  >
-                     <span className='text-lg'>{"<"}</span>
-                  </Button>
-
-                  <Button color='light' size='sm' onClick={handleTodayDate}>
-                     Hoje
-                  </Button>
-
-                  <Button
-                     className='p-0'
-                     color='light'
-                     size='sm'
-                     onClick={() => changeDateRef(1)}
-                  >
-                     <span className='text-lg'>{">"}</span>
-                  </Button>
-                  <Button
-                     className='p-0'
-                     color='light'
-                     size='sm'
-                     onClick={() => changeDateRef(null, 1)}
-                  >
-                     <span className='text-lg'>{">>"}</span>
-                  </Button>
-               </div>
+               <Select
+                  className='w-fit'
+                  value={indispPage.func.state}
+                  onChange={(e) => indispPage.func.setState(e.target.value)}
+               >
+                  <option value='mc'>Mecânico</option>
+                  <option value='lm'>LoadMaster</option>
+                  <option value='tf'>Comissário</option>
+                  <option value='os'>Observador-SAR</option>
+                  <option value='oe'>OE</option>
+               </Select>
             </div>
+            <div className='flex gap-3 mt-4 font-semibold text-center'>
+               <Button
+                  className='p-0'
+                  color='light'
+                  size='sm'
+                  onClick={() => changeDateRef(null, -1)}
+               >
+                  <span className='text-lg'>{"<<"}</span>
+               </Button>
+               <Button
+                  className='p-0'
+                  color='light'
+                  size='sm'
+                  onClick={() => changeDateRef(-1)}
+               >
+                  <span className='text-lg'>{"<"}</span>
+               </Button>
 
+               <Button color='light' size='sm' onClick={handleTodayDate}>
+                  Hoje
+               </Button>
+
+               <Button
+                  className='p-0'
+                  color='light'
+                  size='sm'
+                  onClick={() => changeDateRef(1)}
+               >
+                  <span className='text-lg'>{">"}</span>
+               </Button>
+               <Button
+                  className='p-0'
+                  color='light'
+                  size='sm'
+                  onClick={() => changeDateRef(null, 1)}
+               >
+                  <span className='text-lg'>{">>"}</span>
+               </Button>
+            </div>
+         </div>
+
+         {indisps.length > 0 && dataTrip.length > 0 ? (
             <div className='md:flex h-full md:flex-row mt-3'>
-               <div className='w-fit overflow-y-auto h-fit max-h-[80%] bg-white shadow-lg pb-2 px-3 rounded-lg'>
+               <div className='md:w-fit overflow-y-auto h-fit max-h-[80%] bg-white shadow-lg pb-2 px-3 rounded-lg'>
                   <table className='relative overflow-visible h-full w-full'>
                      <thead className='bg-white sticky top-0 z-10'>
                         <tr>
@@ -207,46 +202,48 @@ export default function IndispPage() {
                         </tr>
                      </thead>
                      <tbody className='divide-y'>
-                        {indisps.map((item, index) => {
-                           const tripSheet = dataTrip.find(
-                              (trips) =>
-                                 trips.trig.toLowerCase() ==
-                                 item.trip.trig.toLowerCase()
-                           );
+                        {indisps
+                           .filter((item) => item.trip.func.oper != "al")
+                           .map((item, index) => {
+                              const tripSheet = dataTrip.find(
+                                 (trips) =>
+                                    trips.trig.toLowerCase() ==
+                                    item.trip.trig.toLowerCase()
+                              );
 
-                           return (
-                              <tr key={index}>
-                                 <th
-                                    scope='row'
-                                    className='p-px grid justify-items-center '
-                                 >
-                                    <TripIndisp
-                                       trip={item.trip}
-                                       indisps={item.indisps}
-                                       update={updateCrewIndisps}
-                                    />
-                                 </th>
-                                 {datesArray.map((dayR, index) => {
-                                    return (
-                                       <TdCell
-                                          key={index}
-                                          dref={dayR}
-                                          activeD={activeDate}
-                                       >
-                                          <IndispCell
-                                             dateRef={dayR}
-                                             trip={item.trip}
-                                             indisps={item.indisps}
-                                             cemal={tripSheet.cemal}
-                                             ultVoo={tripSheet.duv}
-                                          />
-                                       </TdCell>
-                                    );
-                                 })}
-                              </tr>
-                           );
-                        })}
-                        {indispsAl.length > 0 && (
+                              return (
+                                 <tr key={index}>
+                                    <th
+                                       scope='row'
+                                       className='p-px grid justify-items-center '
+                                    >
+                                       <TripIndisp
+                                          trip={item.trip}
+                                          indisps={item.indisps}
+                                          update={updateCrewIndisps}
+                                       />
+                                    </th>
+                                    {datesArray.map((dayR, index) => {
+                                       return (
+                                          <TdCell
+                                             key={index}
+                                             dref={dayR}
+                                             activeD={activeDate}
+                                          >
+                                             <IndispCell
+                                                dateRef={dayR}
+                                                trip={item.trip}
+                                                indisps={item.indisps}
+                                                cemal={tripSheet.cemal}
+                                                ultVoo={tripSheet.duv}
+                                             />
+                                          </TdCell>
+                                       );
+                                    })}
+                                 </tr>
+                              );
+                           })}
+                        {
                            <>
                               <tr>
                                  <td className='grid justify-center p-1 pt-4'>
@@ -255,44 +252,46 @@ export default function IndispPage() {
                                     </span>
                                  </td>
                               </tr>
-                              {indispsAl.map((item, index) => {
-                                 const tripSheet = dataTrip.find(
-                                    (trips) =>
-                                       trips.trig.toLowerCase() ==
-                                       item.trip.trig.toLowerCase()
-                                 );
+                              {indisps
+                                 .filter((item) => item.trip.func.oper == "al")
+                                 .map((item, index) => {
+                                    const tripSheet = dataTrip.find(
+                                       (trips) =>
+                                          trips.trig.toLowerCase() ==
+                                          item.trip.trig.toLowerCase()
+                                    );
 
-                                 return (
-                                    <tr key={index}>
-                                       <td className='p-px'>
-                                          <TripIndisp
-                                             trip={item.trip}
-                                             indisps={item.indisps}
-                                             update={updateCrewIndisps}
-                                          />
-                                       </td>
-                                       {datesArray.map((dayR, index) => {
-                                          return (
-                                             <TdCell
-                                                key={index}
-                                                dref={dayR}
-                                                activeD={activeDate}
-                                             >
-                                                <IndispCell
-                                                   dateRef={dayR}
-                                                   trip={item.trip}
-                                                   indisps={item.indisps}
-                                                   cemal={tripSheet.cemal}
-                                                   ultVoo={tripSheet.duv}
-                                                />
-                                             </TdCell>
-                                          );
-                                       })}
-                                    </tr>
-                                 );
-                              })}
+                                    return (
+                                       <tr key={index}>
+                                          <td className='p-px'>
+                                             <TripIndisp
+                                                trip={item.trip}
+                                                indisps={item.indisps}
+                                                update={updateCrewIndisps}
+                                             />
+                                          </td>
+                                          {datesArray.map((dayR, index) => {
+                                             return (
+                                                <TdCell
+                                                   key={index}
+                                                   dref={dayR}
+                                                   activeD={activeDate}
+                                                >
+                                                   <IndispCell
+                                                      dateRef={dayR}
+                                                      trip={item.trip}
+                                                      indisps={item.indisps}
+                                                      cemal={tripSheet.cemal}
+                                                      ultVoo={tripSheet.duv}
+                                                   />
+                                                </TdCell>
+                                             );
+                                          })}
+                                       </tr>
+                                    );
+                                 })}
                            </>
-                        )}
+                        }
                      </tbody>
                   </table>
                </div>
@@ -300,12 +299,12 @@ export default function IndispPage() {
                   <LastIndisps indisps={indisps} />
                </div>
             </div>
-         </div>
-      ) : (
-         <div className='grid justify-items-center align-middle h-full'>
-            <Spinner color='failure' size='xl' />
-         </div>
-      )
+         ) : (
+            <div className='grid justify-items-center align-middle mt-4 h-full'>
+               <Spinner color='failure' size='xl' />
+            </div>
+         )}
+      </div>
    );
 }
 
