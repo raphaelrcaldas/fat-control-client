@@ -1,7 +1,6 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Modal, Button, Label, TextInput, Textarea } from "flowbite-react";
 import { indispsOptions } from "./options";
-import { useAuth } from "src/context/auth";
 import {
    addIndisp,
    updateIndisp,
@@ -9,21 +8,35 @@ import {
 } from "@/services/routes/indisps";
 
 function IndispForm({ open, setOpen, trip, update, indisp }) {
-   const [mtv, setMtv] = useState(indisp ? indisp.mtv : "");
-   const [dateStart, setDateStart] = useState(indisp ? indisp.date_start : "");
-   const [dateEnd, setDateEnd] = useState(indisp ? indisp.date_end : "");
-   const [obs, setObs] = useState(indisp ? indisp.obs : "");
+   const defaultValues = useMemo(
+      () => ({
+         mtv: indisp ? indisp.mtv : "",
+         dateStart: indisp ? indisp.date_start : "",
+         dateEnd: indisp ? indisp.date_end : "",
+         obs: indisp ? indisp.obs : "",
+      }),
+      [indisp]
+   );
 
-   const { token } = useAuth();
+   const [mtv, setMtv] = useState(defaultValues.mtv);
+   const [dateStart, setDateStart] = useState(defaultValues.dateStart);
+   const [dateEnd, setDateEnd] = useState(defaultValues.dateEnd);
+   const [obs, setObs] = useState(defaultValues.obs);
 
    const closeModal = () => setOpen(false);
 
    const clearModal = () => {
-      setMtv("");
-      setDateStart("");
-      setDateEnd("");
-      setObs("");
+      setMtv(defaultValues.mtv);
+      setDateStart(defaultValues.dateStart);
+      setDateEnd(defaultValues.dateEnd);
+      setObs(defaultValues.obs);
    };
+
+   const isChanged =
+      mtv !== defaultValues.mtv ||
+      dateStart !== defaultValues.dateStart ||
+      dateEnd !== defaultValues.dateEnd ||
+      obs !== defaultValues.obs;
 
    const handleDelIndisp = async () => {
       const checkExclude = window.confirm(
@@ -99,7 +112,14 @@ function IndispForm({ open, setOpen, trip, update, indisp }) {
    };
 
    return (
-      <Modal show={open} size='md' onClose={closeModal}>
+      <Modal
+         show={open}
+         size='md'
+         onClose={() => {
+            clearModal();
+            closeModal();
+         }}
+      >
          <Modal.Header>
             {indisp ? "Atualizar" : "Adicionar"} Indisponibilidade
          </Modal.Header>
@@ -157,7 +177,10 @@ function IndispForm({ open, setOpen, trip, update, indisp }) {
             </div>
          </Modal.Body>
          <Modal.Footer className='flex gap-2 justify-center'>
-            <Button onClick={handleIndisp}>
+            <Button
+               onClick={handleIndisp}
+               disabled={indisp ? !isChanged : false}
+            >
                {indisp ? "Atualizar" : "Adicionar"}
             </Button>
             {indisp && (

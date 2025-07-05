@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { Modal, Button, TextInput, Textarea } from "flowbite-react";
 import { updateQuad, deleteQuad } from "@/services/routes/quads";
 
@@ -8,9 +8,20 @@ export function QuadUpdateModal({
    quadsAllUpdate,
    tridId,
 }) {
-   const [quadValue, setQuadValue] = useState(quad.value);
+   const defaultValues = useMemo(
+      () => ({
+         value: quad.value,
+         description: quad.description,
+      }),
+      [quad]
+   );
+
+   const [quadValue, setQuadValue] = useState(defaultValues.value);
    const [isOpen, setIsOpen] = useState(false);
-   const [obs, setObs] = useState(quad.description);
+   const [obs, setObs] = useState(defaultValues.description);
+
+   const isChanged =
+      quadValue !== defaultValues.value || obs !== defaultValues.description;
 
    const handleSubmit = async (event) => {
       event.preventDefault();
@@ -52,18 +63,24 @@ export function QuadUpdateModal({
       }
    };
 
+   useEffect(() => {
+      if (isOpen) {
+         setQuadValue(defaultValues.value);
+         setObs(defaultValues.description);
+      }
+   }, [isOpen, defaultValues]);
+
    return (
       <>
-         <Button pill color="light" onClick={() => setIsOpen(true)}>Editar</Button>
+         <Button pill color='light' onClick={() => setIsOpen(true)}>
+            Editar
+         </Button>
 
          {isOpen && (
             <Modal show={isOpen} onClose={() => setIsOpen(false)} size='sm'>
                <Modal.Header>Atualizar Quadrinho</Modal.Header>
                <Modal.Body>
                   <form onSubmit={handleSubmit}>
-                     <h3 className='text-center font-semibold'>
-                        ID: {quad.id}
-                     </h3>
                      <h3 className='text-center font-semibold mt-4'>
                         {quad.type}
                      </h3>
@@ -103,7 +120,9 @@ export function QuadUpdateModal({
 
                         <div className='flex justify-center gap-2 mt-6'>
                            {quadValue && (
-                              <Button type='submit'>Atualizar</Button>
+                              <Button type='submit' disabled={!isChanged}>
+                                 Atualizar
+                              </Button>
                            )}
                            <Button onClick={handleDelete} color='failure'>
                               Deletar
