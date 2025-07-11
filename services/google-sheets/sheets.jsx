@@ -53,12 +53,13 @@ export async function getTripData() {
          crm: row[8],
          imae: row[9],
          val_pass: row[10],
-         simulador: row[11],
-         ant_opr: row[12],
-         duv: row[13],
-         dsv: row[14],
-         hTotal: row[15],
-         hAno: row[16],
+         val_visa: row[11],
+         simulador: row[12],
+         ant_opr: row[13],
+         duv: row[14],
+         dsv: row[15],
+         hTotal: row[16],
+         hAno: row[17],
       };
    });
 
