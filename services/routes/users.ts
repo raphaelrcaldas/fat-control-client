@@ -34,7 +34,7 @@ export interface UserFull extends UserSchema {
    posto: PostoGrad
 }
 
-export async function getUsers(search: string): Promise<UserPublic[]> {
+export async function getUsers(search?: string): Promise<UserPublic[]> {
    const response = await request("GET", usersRoute, null, { search: search });
    return await response.json() as UserPublic[];
 }
