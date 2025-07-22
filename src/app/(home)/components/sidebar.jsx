@@ -138,11 +138,11 @@ export default function AppSideBar({
                   </Sidebar.Item>
                   <RoleBasedRoute
                      requiredRoles={[
-                        "admin",
                         "ops_avancado",
                         "ops_basico",
                         "dout_avancado",
                         "dout_basico",
+                        "apoio_avancado",
                      ]}
                   >
                      <Sidebar.Collapse
@@ -191,25 +191,37 @@ export default function AppSideBar({
                         </PermBased>
                      </Sidebar.Collapse>
                   </RoleBasedRoute>
-                  {/* <Sidebar.Collapse open icon={FaUsers} label='Pessoal'>
-                     <Sidebar.Item
-                        active={path === "/cegep/missoes"}
-                        icon={MdAirplaneTicket}
-                        onClick={() => handlePush("/cegep/missoes")}
-                     >
-                        Missões
-                     </Sidebar.Item>
-                     <Sidebar.Item
-                        active={path === "/cegep/comiss"}
-                        icon={MdMoney}
-                        onClick={() => handlePush("/cegep/comiss")}
-                     >
-                        Comissionamento
-                     </Sidebar.Item>
-                  </Sidebar.Collapse> */}
+                  <RoleBasedRoute
+                     requiredRoles={[
+                        // "ops_avancado",
+                        // "ops_basico",
+                        // "dout_avancado",
+                        // "dout_basico",
+                        "apoio_avancado",
+                     ]}
+                  >
+                     <Sidebar.Collapse open icon={FaUsers} label='Pessoal'>
+                        <Sidebar.Item
+                           active={path === "/cegep/missoes"}
+                           icon={MdAirplaneTicket}
+                           onClick={() => handlePush("/cegep/missoes")}
+                        >
+                           Missões
+                        </Sidebar.Item>
+                        {/* <Sidebar.Item
+                           active={path === "/cegep/comiss"}
+                           icon={MdMoney}
+                           onClick={() => handlePush("/cegep/comiss")}
+                        >
+                           Comissionamento
+                        </Sidebar.Item> */}
+                     </Sidebar.Collapse>
+                  </RoleBasedRoute>
                </Sidebar.ItemGroup>
                <Sidebar.ItemGroup>
-                  <RoleBasedRoute requiredRoles={["admin"]}>
+                  <RoleBasedRoute
+                     requiredRoles={["apoio_avancado", "apoio_basico"]}
+                  >
                      <Sidebar.Item
                         active={path === "/users"}
                         icon={MdOutlinePeopleAlt}

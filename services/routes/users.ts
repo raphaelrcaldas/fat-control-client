@@ -5,6 +5,7 @@ const usersRoute = "users/";
 
 export interface UserPublic {
    id: number;
+   p_g: string
    posto: PostoGrad;
    esp: string;
    nome_guerra: string;
@@ -33,8 +34,8 @@ export interface UserFull extends UserSchema {
    posto: PostoGrad
 }
 
-export async function getUsers(): Promise<UserPublic[]> {
-   const response = await request("GET", usersRoute);
+export async function getUsers(search: string): Promise<UserPublic[]> {
+   const response = await request("GET", usersRoute, null, { search: search });
    return await response.json() as UserPublic[];
 }
 

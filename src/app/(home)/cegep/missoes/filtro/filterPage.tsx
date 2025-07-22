@@ -1,0 +1,255 @@
+import React, { useEffect } from "react";
+import { Label, TextInput, Select, Checkbox, Button } from "flowbite-react";
+import { getPgts } from "services/routes/cegep/financeiro";
+import { UserRow } from "./components/userRow";
+import { useFilterContext } from "../../context/filterContext";
+
+export function FilterPage({ active }) {
+   const {
+      misRecords,
+      setMisRecords,
+      nDoc,
+      setNDoc,
+      tipoDoc,
+      setTipoDoc,
+      selectedTipo,
+      userSearch,
+      setUserSearch,
+      setSelectedTipo,
+      selectedSit,
+      setSelectedSit,
+      dataInicio,
+      setDataInicio,
+      dataFim,
+      setDataFim,
+      selectedAll,
+      setSelectedAll,
+      valorSoma,
+      setValorSoma,
+      listKey,
+      setListKey,
+      selectedIds,
+      setSelectedIds,
+   } = useFilterContext();
+
+   const fetchData = async () => {
+      let req: { [key: string]: any } = {};
+
+      if (userSearch) req.user = userSearch.toLowerCase();
+      if (tipoDoc) req.tipo_doc = tipoDoc;
+      if (nDoc) req.n_doc = nDoc;
+      if (selectedTipo) req.tipo = selectedTipo;
+      if (selectedSit) req.sit = selectedSit;
+      if (dataInicio) req.ini = dataInicio;
+      if (dataFim) req.fim = dataFim;
+
+      const data = await getPgts(req);
+
+      setMisRecords(data);
+      setListKey(Date.now());
+      setSelectedIds([]);
+      setValorSoma(0);
+      setSelectedAll(false);
+   };
+
+   useEffect(() => {
+      if (!active) return;
+      if (misRecords == null) {
+         fetchData();
+      }
+   }, [active]);
+
+   useEffect(() => {
+      if (misRecords && selectedAll) {
+         setSelectedIds(misRecords.map((r) => r.id));
+         setValorSoma(
+            misRecords.reduce((acc, r) => acc + Number(r.valor_total), 0)
+         );
+      } else if (misRecords && !selectedAll) {
+         setSelectedIds([]);
+         setValorSoma(0);
+      }
+   }, [selectedAll, misRecords]);
+
+   function handleSelect(id, valor, checked) {
+      if (checked) {
+         setSelectedIds((prev) => [...prev, id]);
+         setValorSoma((prev) => prev + Number(valor));
+      } else {
+         setSelectedIds((prev) => prev.filter((item) => item !== id));
+         setValorSoma((prev) => prev - Number(valor));
+      }
+   }
+
+   return (
+      <div className=''>
+         <section className='flex flex-col bg-gray-50'>
+            <div className='w-full max-w-screen-xl p-2 mx-auto lg:px-12'>
+               <div className='relative overflow-hidden bg-white shadow-md sm:rounded-lg'>
+                  <div className='flex-row items-center justify-evenly p-4 space-y-3 sm:flex sm:space-y-0 sm:space-x-4'>
+                     <div>
+                        <div className='mb-2 text-center'>
+                           <Label>Tipo da Ordem</Label>
+                        </div>
+                        <Select
+                           value={tipoDoc}
+                           onChange={(e) => setTipoDoc(e.target.value)}
+                        >
+                           <option value=''>Selecione</option>
+                           <option value='om'>Missão</option>
+                           <option value='os'>Serviço</option>
+                        </Select>
+                     </div>
+                     <div className='w-24'>
+                        <div className='mb-2 text-center'>
+                           <Label>Nº da Ordem</Label>
+                        </div>
+                        <TextInput
+                           type='text'
+                           value={nDoc ?? ""}
+                           onChange={(e) =>
+                              setNDoc(
+                                 e.target.value === ""
+                                    ? undefined
+                                    : Number(e.target.value)
+                              )
+                           }
+                           onKeyDown={(e) => {
+                              // Permite apenas números, backspace, tab, delete, setas
+                              if (
+                                 !(
+                                    (e.key >= "0" && e.key <= "9") ||
+                                    [
+                                       "Backspace",
+                                       "Tab",
+                                       "Delete",
+                                       "ArrowLeft",
+                                       "ArrowRight",
+                                    ].includes(e.key)
+                                 )
+                              ) {
+                                 e.preventDefault();
+                              }
+                           }}
+                        />
+                     </div>
+
+                     <div className=''>
+                        <div className='mb-2 text-center'>
+                           <Label>Militar</Label>
+                        </div>
+                        <TextInput
+                           type='text'
+                           value={userSearch}
+                           onChange={(e) => setUserSearch(e.target.value)}
+                           placeholder='Nome completo ou de guerra'
+                        />
+                     </div>
+
+                     <div>
+                        <div className='mb-2 text-center'>
+                           <Label>Tipo de Missão</Label>
+                        </div>
+                        <Select
+                           value={selectedTipo}
+                           onChange={(e) => setSelectedTipo(e.target.value)}
+                        >
+                           <option value=''>Selecione</option>
+                           <option value='tal'>TAL</option>
+                           <option value='adm'>ADM</option>
+                           <option value='opr'>OPR</option>
+                        </Select>
+                     </div>
+                     <div>
+                        <div className='mb-2 text-center'>
+                           <Label>Situação</Label>
+                        </div>
+                        <Select
+                           value={selectedSit}
+                           onChange={(e) => setSelectedSit(e.target.value)}
+                        >
+                           <option value=''>Selecione</option>
+                           <option value='d'>Diária</option>
+                           <option value='c'>Comissionado</option>
+                           <option value='g'>Grat Rep</option>
+                        </Select>
+                     </div>
+
+                     <div className='w-40'>
+                        <div className='mb-2 text-center'>
+                           <Label>Inicio</Label>
+                        </div>
+                        <input
+                           type='date'
+                           value={dataInicio}
+                           onChange={(e) => setDataInicio(e.target.value)}
+                           className='block w-full text-center p-2.5 text-sm text-gray-900 bg-white border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500'
+                        />
+                     </div>
+                     <div className='w-40'>
+                        <div className='mb-2 text-center'>
+                           <Label>Fim</Label>
+                        </div>
+                        <input
+                           type='date'
+                           value={dataFim}
+                           onChange={(e) => setDataFim(e.target.value)}
+                           className='block w-full text-center p-2.5 text-sm text-gray-900 bg-white border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500'
+                        />
+                     </div>
+
+                     <div className='pt-6'>
+                        <Button color='light' pill onClick={fetchData}>
+                           Filtrar
+                        </Button>
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </section>
+
+         <section className='flex flex-col bg-gray-50'>
+            <div className='w-full max-w-screen-xl p-2 mx-auto lg:px-12'>
+               <div className='relative overflow-hidden bg-white shadow-md sm:rounded-lg'>
+                  <div className='grid grid-cols-3 items-center justify-evenly p-4 space-y-3 sm:flex sm:space-y-0 sm:space-x-4'>
+                     <div className='p-2 rounded-lg flex gap-2 items-center justify-center'>
+                        <Label className='text-base'>Marcar todos</Label>
+                        <Checkbox
+                           className='size-6'
+                           checked={selectedAll}
+                           onChange={(e) => setSelectedAll(!selectedAll)}
+                        />
+                     </div>
+                     <div className='flex flex-row col-span-2'>
+                        <Label className='text-lg'>Total</Label>
+                        <span className='ml-2 font-semibold w-32 text-lg'>
+                           {valorSoma.toLocaleString("pt-BR", {
+                              style: "currency",
+                              currency: "BRL",
+                           })}{" "}
+                        </span>
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </section>
+
+         <div>
+            {misRecords ? (
+               <ul className='list-disc px-8' key={listKey}>
+                  {misRecords.map((record) => (
+                     <UserRow
+                        key={record.id}
+                        record={record}
+                        checked={selectedIds.includes(record.id)}
+                        onSelect={handleSelect}
+                     />
+                  ))}
+               </ul>
+            ) : (
+               <p className='text-center'>Nenhum registro encontrado.</p>
+            )}
+         </div>
+      </div>
+   );
+}
