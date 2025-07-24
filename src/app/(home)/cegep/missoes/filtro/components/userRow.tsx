@@ -1,5 +1,16 @@
 "use client";
-import { Checkbox } from "flowbite-react";
+import {
+   Checkbox,
+   Button,
+   Popover,
+   Table,
+   TableBody,
+   TableCell,
+   TableHead,
+   TableHeadCell,
+   TableRow,
+} from "flowbite-react";
+import { IoMdInformationCircleOutline } from "react-icons/io";
 import clsx from "clsx";
 
 export function UserRow({ record, checked, onSelect }) {
@@ -33,9 +44,9 @@ export function UserRow({ record, checked, onSelect }) {
          className={clsx(
             "p-2 mb-2 text-base text-center rounded-lg shadow flex flex-row gap-2 uppercase justify-evenly items-center",
             {
-               "bg-orange-200 hover:bg-orange-300": record.sit === "g",
-               "bg-green-200 hover:bg-green-300": record.sit === "d",
-               "bg-blue-200 hover:bg-blue-300": record.sit === "c",
+               "bg-orange-100 hover:bg-orange-300": record.sit === "g",
+               "bg-green-100 hover:bg-green-300": record.sit === "d",
+               "bg-blue-100 hover:bg-blue-300": record.sit === "c",
             }
          )}
       >
@@ -96,6 +107,67 @@ export function UserRow({ record, checked, onSelect }) {
                   </div>
                ))}
          </div>
+         <Popover content={<PgtContent pernoites={pnts} />} placement='left'>
+            <Button className='p-0' disabled={record.sit === "g"} color='light'>
+               <IoMdInformationCircleOutline size={20} />
+            </Button>
+         </Popover>
       </li>
+   );
+}
+
+function PgtContent({ pernoites }) {
+   return (
+      <div className='overflow-x-auto'>
+         <Table className='text-center'>
+            <TableHead>
+               <TableHeadCell>Chegada</TableHeadCell>
+               <TableHeadCell>Saída</TableHeadCell>
+               <TableHeadCell>Cidade</TableHeadCell>
+               <TableHeadCell>UF</TableHeadCell>
+               <TableHeadCell>QTD</TableHeadCell>
+               <TableHeadCell>Acresc Desloc</TableHeadCell>
+               <TableHeadCell>SubTotal</TableHeadCell>
+            </TableHead>
+            <TableBody className='divide-y'>
+               {pernoites.map((pnt) => {
+                  const ini =
+                     new Date(pnt.data_ini).toLocaleDateString("pt-BR", {
+                        day: "2-digit",
+                        month: "2-digit",
+                        year: "2-digit",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                     }) || "N/A";
+                  const fim =
+                     new Date(pnt.data_fim).toLocaleDateString("pt-BR", {
+                        day: "2-digit",
+                        month: "2-digit",
+                        year: "2-digit",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                     }) || "N/A";
+                  return (
+                     <TableRow key={pnt.id}>
+                        <TableCell>{ini}</TableCell>
+                        <TableCell>{fim}</TableCell>
+                        <TableCell>{pnt.cidade.nome}</TableCell>
+                        <TableCell>{pnt.cidade.uf}</TableCell>
+                        <TableCell>{Number(pnt.diarias).toFixed(1)}</TableCell>
+                        <TableCell>
+                           {pnt.acrec_desloc ? "Sim" : "Não"}
+                        </TableCell>
+                        <TableCell>
+                           {Number(pnt.subtotal).toLocaleString("pt-BR", {
+                              style: "currency",
+                              currency: "BRL",
+                           })}
+                        </TableCell>
+                     </TableRow>
+                  );
+               })}
+            </TableBody>
+         </Table>
+      </div>
    );
 }
