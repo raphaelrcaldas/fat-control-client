@@ -2,7 +2,7 @@
 
 import { getFragMissoes } from "services/routes/cegep/missoes";
 import { useEffect, useState } from "react";
-import { Label, HR } from "flowbite-react";
+import { Label, HR, Spinner } from "flowbite-react";
 import { Missao } from "services/routes/cegep/missoes";
 import { CardMission } from "./components/cardMission";
 import MissionDetail from "./components/missionDetail";
@@ -11,13 +11,17 @@ import { useRegisterContext } from "../../context/registerContext";
 export function RegisPage() {
    const [missoes, setMissoes] = useState<Missao[] | null>(null);
    const [showForm, setShowForm] = useState(false);
+   const [loading, setLoading] = useState(true);
    const { dataInicio, setDataInicio, dataFim, setDataFim } =
       useRegisterContext();
 
    function updateMis() {
-      getFragMissoes(dataInicio, dataFim).then((data) => {
-         setMissoes(data);
-      });
+      setLoading(true);
+      getFragMissoes(dataInicio, dataFim)
+         .then((data) => {
+            setMissoes(data);
+         })
+         .finally(() => setLoading(false));
    }
 
    useEffect(() => {
@@ -79,17 +83,26 @@ export function RegisPage() {
                   </div>
                </div>
                <HR />
-               <div className='flex p-2 flex-wrap gap-4'>
-                  {missoes === null ? (
-                     <p>Carregando missões...</p>
-                  ) : missoes.length === 0 ? (
-                     <p>Nenhuma missão cadastrada.</p>
-                  ) : (
-                     missoes.map((m) => (
-                        <CardMission key={m.id} missao={m} update={updateMis} />
-                     ))
-                  )}
-               </div>
+
+               {loading ? (
+                  <div className='flex flex-col font-semibold items-center justify-center gap-2 p-2'>
+                     Carregando <Spinner size='lg' color='failure' />
+                  </div>
+               ) : (
+                  <div className='flex p-2 flex-wrap gap-4'>
+                     {missoes.length === 0 ? (
+                        <p>Nenhuma missão encontrada.</p>
+                     ) : (
+                        missoes.map((m) => (
+                           <CardMission
+                              key={m.id}
+                              missao={m}
+                              update={updateMis}
+                           />
+                        ))
+                     )}
+                  </div>
+               )}
             </section>
          </div>
 

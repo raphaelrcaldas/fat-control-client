@@ -1,10 +1,18 @@
-import React, { useEffect } from "react";
-import { Label, TextInput, Select, Checkbox, Button } from "flowbite-react";
+import React, { useEffect, useState } from "react";
+import {
+   Label,
+   TextInput,
+   Spinner,
+   Select,
+   Checkbox,
+   Button,
+} from "flowbite-react";
 import { getPgts } from "services/routes/cegep/financeiro";
 import { UserRow } from "./components/userRow";
 import { useFilterContext } from "../../context/filterContext";
 
 export function FilterPage({ active }) {
+   const [loading, setLoading] = useState(true);
    const {
       misRecords,
       setMisRecords,
@@ -33,6 +41,8 @@ export function FilterPage({ active }) {
    } = useFilterContext();
 
    const fetchData = async () => {
+      setLoading(true);
+
       let req: { [key: string]: any } = {};
 
       if (userSearch) req.user = userSearch.toLowerCase();
@@ -50,6 +60,7 @@ export function FilterPage({ active }) {
       setSelectedIds([]);
       setValorSoma(0);
       setSelectedAll(false);
+      setLoading(false);
    };
 
    useEffect(() => {
@@ -235,7 +246,11 @@ export function FilterPage({ active }) {
          </section>
 
          <div>
-            {misRecords ? (
+            {loading ? (
+               <div className='flex flex-col font-semibold items-center justify-center gap-2 p-2'>
+                  Carregando <Spinner size='lg' color="failure" />
+               </div>
+            ) : misRecords ? (
                <ul className='list-disc px-8' key={listKey}>
                   {misRecords.map((record) => (
                      <UserRow
