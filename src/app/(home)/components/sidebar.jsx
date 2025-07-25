@@ -16,6 +16,7 @@ import { useAuth } from "src/context/auth";
 import { deleteCookie } from "cookies-next";
 import { RoleBasedRoute } from "../hooks/useRoleBased";
 import { PermBased } from "../hooks/usePermBased";
+import { TbLogs } from "react-icons/tb";
 
 export default function AppSideBar({
    isCollapsed,
@@ -228,6 +229,17 @@ export default function AppSideBar({
                         onClick={() => handlePush("/users")}
                      >
                         Usuários
+                     </Sidebar.Item>
+                  </RoleBasedRoute>
+                  <RoleBasedRoute
+                     requiredRoles={[]}
+                  >
+                     <Sidebar.Item
+                        active={path === "/logs"}
+                        icon={TbLogs}
+                        onClick={() => handlePush("/logs")}
+                     >
+                        Logs
                      </Sidebar.Item>
                   </RoleBasedRoute>
                </Sidebar.ItemGroup>
