@@ -169,17 +169,20 @@ export default function MissionDetail({
    }
 
    async function onDelete() {
-      const response = await deleteFragMis(missao.id);
-      if (response.ok) {
-         const data = await response.json();
-         alert(data.detail);
-         setShow(false);
-         update(); // Atualiza lista, se necessário
-      } else {
-         const error = await response.json();
-         alert(
-            "Erro ao deletar missão: " + (error.detail || "Erro desconhecido")
-         );
+      if (confirm("Deseja excluir essa missão ?")) {
+         const response = await deleteFragMis(missao.id);
+         if (response.ok) {
+            const data = await response.json();
+            alert(data.detail);
+            setShow(false);
+            update(); // Atualiza lista, se necessário
+         } else {
+            const error = await response.json();
+            alert(
+               "Erro ao deletar missão: " +
+                  (error.detail || "Erro desconhecido")
+            );
+         }
       }
    }
 

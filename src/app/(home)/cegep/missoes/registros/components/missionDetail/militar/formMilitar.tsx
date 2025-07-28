@@ -88,8 +88,7 @@ export function FormMilitar({
          );
       } else {
          setMils([...mils, newUserMis]);
-      }
-
+      }      
       onClose();
    }
 

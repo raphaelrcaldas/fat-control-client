@@ -1,18 +1,29 @@
-import { Modal, ModalHeader, ModalBody, TextInput, Button } from "flowbite-react";
+import {
+   Modal,
+   ModalHeader,
+   ModalBody,
+   TextInput,
+   Button,
+   Spinner,
+} from "flowbite-react";
 import { useState } from "react";
 import { FaCheckSquare } from "react-icons/fa";
 import { IoMdSearch } from "react-icons/io";
 import { getCities } from "services/routes/cities";
 
-
 export function SearchLocal({ show, setShow, setLocal }) {
    const [cities, setCities] = useState([]);
    const [searchCity, setSearchCity] = useState("");
+   const [isLoading, setIsLoading] = useState(false);
 
    function searchCities() {
       const searchData = searchCity.trim();
       if (searchData != "") {
-         getCities(searchCity).then((data) => setCities(data));
+         setIsLoading(true);
+         getCities(searchCity).then((data) => {
+            setCities(data);
+            setIsLoading(false);
+         });
       }
    }
 
@@ -48,8 +59,16 @@ export function SearchLocal({ show, setShow, setLocal }) {
                         }
                      }}
                   />
-                  <Button onClick={searchCities} color='light'>
-                     <IoMdSearch className='size-5' />
+                  <Button
+                     onClick={searchCities}
+                     disabled={isLoading}
+                     color='light'
+                  >
+                     {isLoading ? (
+                        <Spinner />
+                     ) : (
+                        <IoMdSearch className='size-5' />
+                     )}
                   </Button>
                </div>
 

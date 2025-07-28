@@ -4,6 +4,7 @@ import {
    ModalBody,
    TextInput,
    Button,
+   Spinner,
 } from "flowbite-react";
 import { useState } from "react";
 import { FaCheckSquare } from "react-icons/fa";
@@ -26,15 +27,18 @@ export function SearchUser({
 }) {
    const [users, setUsers] = useState<UserPublic[]>([]);
    const [searchUser, setSearchUser] = useState("");
+   const [isLoading, setIsLoading] = useState(false);
 
    function searchUsers() {
       const searchData = searchUser.trim();
       if (searchData != "") {
+         setIsLoading(true);
          getUsers(searchUser).then((data) => {
             const filterData = data.filter(
                (user) => !mils.some((mil) => mil.user.id === user.id)
             );
             setUsers(filterData);
+            setIsLoading(false);
          });
       }
    }
@@ -72,8 +76,16 @@ export function SearchUser({
                         }
                      }}
                   />
-                  <Button onClick={searchUsers} color='light'>
-                     <IoMdSearch className='size-5' />
+                  <Button
+                     onClick={searchUsers}
+                     disabled={isLoading}
+                     color='light'
+                  >
+                     {isLoading ? (
+                        <Spinner />
+                     ) : (
+                        <IoMdSearch className='size-5' />
+                     )}
                   </Button>
                </div>
 

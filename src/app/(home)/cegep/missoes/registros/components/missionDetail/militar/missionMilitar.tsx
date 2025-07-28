@@ -15,7 +15,6 @@ export function MissionMilitar({
    setMils: (mils: UserMission[]) => void;
 }) {
    const [showUserForm, setShowUserForm] = useState(false);
-   const [user, setUser] = useState(userMis);
 
    function handleClick() {
       if (edit) {
@@ -41,7 +40,7 @@ export function MissionMilitar({
             <FormMilitar
                show={showUserForm}
                setShow={setShowUserForm}
-               userMis={user}
+               userMis={userMis}
                mils={mils}
                setMils={setMils}
             />
