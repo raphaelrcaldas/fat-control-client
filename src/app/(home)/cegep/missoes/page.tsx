@@ -4,7 +4,7 @@ import { TabItem, Tabs } from "flowbite-react";
 import { MdOutlineAttachMoney } from "react-icons/md";
 import { IoMdPaper } from "react-icons/io";
 import { RegisPage } from "./registros/register";
-import { FilterPage } from "./filtro/filterPage";
+import { FilterPage } from "./pagamentos/filterPage";
 import { useState } from "react";
 import { FilterProvider } from "../context/filterContext";
 import { RegisterProvider } from "../context/registerContext";

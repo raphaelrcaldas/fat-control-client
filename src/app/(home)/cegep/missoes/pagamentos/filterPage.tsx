@@ -72,9 +72,9 @@ export function FilterPage({ active }) {
 
    useEffect(() => {
       if (misRecords && selectedAll) {
-         setSelectedIds(misRecords.map((r) => r.id));
+         setSelectedIds(misRecords.map((r) => r.user_mis.id));
          setValorSoma(
-            misRecords.reduce((acc, r) => acc + Number(r.valor_total), 0)
+            misRecords.reduce((acc, r) => acc + Number(r.missao.valor_total), 0)
          );
       } else if (misRecords && !selectedAll) {
          setSelectedIds([]);
@@ -248,15 +248,15 @@ export function FilterPage({ active }) {
          <div>
             {loading ? (
                <div className='flex flex-col font-semibold items-center justify-center gap-2 p-2'>
-                  Carregando <Spinner size='lg' color="failure" />
+                  Carregando <Spinner size='lg' color='failure' />
                </div>
             ) : misRecords ? (
                <ul className='list-disc px-8' key={listKey}>
                   {misRecords.map((record) => (
                      <UserRow
-                        key={record.id}
+                        key={record.user_mis.id}
                         record={record}
-                        checked={selectedIds.includes(record.id)}
+                        checked={selectedIds.includes(record.user_mis.id)}
                         onSelect={handleSelect}
                      />
                   ))}

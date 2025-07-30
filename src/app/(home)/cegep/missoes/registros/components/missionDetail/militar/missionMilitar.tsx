@@ -27,9 +27,9 @@ export function MissionMilitar({
          <span
             className={clsx("px-2.5 rounded-lg select-none font-medium", {
                "cursor-pointer": edit,
-               "bg-orange-300 hover:bg-orange-400": userMis.sit === "c",
-               "bg-blue-300 hover:bg-blue-400": userMis.sit === "d",
-               "bg-red-400 hover:bg-red-400": userMis.sit === "g",
+               "bg-blue-200 hover:bg-blue-300": userMis.sit === "c",
+               "bg-green-200 hover:bg-green-300": userMis.sit === "d",
+               "bg-orange-200 hover:bg-orange-300": userMis.sit === "g",
             })}
             onClick={handleClick}
          >
