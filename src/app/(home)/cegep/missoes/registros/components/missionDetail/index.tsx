@@ -11,6 +11,7 @@ import {
 } from "flowbite-react";
 import { MissionPernoite } from "./pernoite/missionPernoite";
 import { FormPernoite } from "./pernoite/formPernoite";
+import { Pernoite } from "services/routes/cegep/missoes";
 import { FormMilitar } from "./militar/formMilitar";
 import { MissionMilitar } from "./militar/missionMilitar";
 import { Missao } from "services/routes/cegep/missoes";
@@ -18,6 +19,7 @@ import { DateTimePicker } from "src/app/(home)/components/dateTimePicker";
 import { useState, useMemo, useEffect } from "react";
 import { FaPlaneDeparture, FaPlaneArrival } from "react-icons/fa";
 import { createUpdateFragMis } from "services/routes/cegep/missoes";
+import { isoStrToDate } from "utils/dateHandler";
 import { deleteFragMis } from "services/routes/cegep/missoes";
 import clsx from "clsx";
 
@@ -112,15 +114,35 @@ export default function MissionDetail({
       if (!checkPnts) errors.push("- Pelo menos um Pernoite");
       if (!checkMil) errors.push("- Pelo menos um Militar");
 
+      const dataAfast = new Date(afast);
+      const dataRegres = new Date(regres);
+
       // Checagem adicional: afastamento não pode ser maior que regresso
       if (checkAfast && checkRegres) {
-         const dataAfast = new Date(afast);
-         const dataRegres = new Date(regres);
          if (dataAfast > dataRegres) {
             errors.push(
                "- Data de afastamento não pode ser maior que a de regresso"
             );
          }
+      }
+
+      // Checar se pernoites não ultrapassam o afastamento e regresso
+      pnts.forEach((pnt) => {
+         if (new Date(pnt.data_ini) < dataAfast) {
+            errors.push(
+               `- O início do pernoite em ${pnt.cidade.nome}-${pnt.cidade.uf} esta conflito com a data de afastamento`
+            );
+         }
+         if (new Date(pnt.data_fim) > dataRegres) {
+            errors.push(
+               `- O fim do pernoite em ${pnt.cidade.nome}-${pnt.cidade.uf} esta conflito com a data de regresso`
+            );
+         }
+      });
+
+      const conectados = periodosEstaoConectados(pnts);
+      if (!conectados) {
+         errors.push("- Os pernoites não estão conectados.");
       }
 
       if (errors.length > 0) {
@@ -199,18 +221,22 @@ export default function MissionDetail({
       setCheckAfastRegres(afastValido && regresValido);
    }, [afast, regres]);
 
+   function setDefaultValues() {
+      setTipoDoc(defaultValues.tipoDoc);
+      setNDoc(defaultValues.nDoc);
+      setDesc(defaultValues.desc);
+      setTipo(defaultValues.tipo);
+      setAfast(defaultValues.afast);
+      setRegres(defaultValues.regres);
+      setInd(defaultValues.ind);
+      setObs(defaultValues.obs);
+      setPnts(defaultValues.pnts);
+      setMils(defaultValues.mils);
+   }
+
    useEffect(() => {
       if (show) {
-         setTipoDoc(defaultValues.tipoDoc);
-         setNDoc(defaultValues.nDoc);
-         setDesc(defaultValues.desc);
-         setTipo(defaultValues.tipo);
-         setAfast(defaultValues.afast);
-         setRegres(defaultValues.regres);
-         setInd(defaultValues.ind);
-         setObs(defaultValues.obs);
-         setPnts(defaultValues.pnts);
-         setMils(defaultValues.mils);
+         setDefaultValues();
          setEditMode(edit);
       }
    }, [show, defaultValues, edit]);
@@ -513,7 +539,10 @@ export default function MissionDetail({
                      </Button>
                      {missao && (
                         <Button
-                           onClick={() => setEditMode(false)}
+                           onClick={() => {
+                              setEditMode(false);
+                              setDefaultValues();
+                           }}
                            color='light'
                         >
                            Cancelar
@@ -525,4 +554,21 @@ export default function MissionDetail({
          </ModalFooter>
       </Modal>
    );
+}
+
+function periodosEstaoConectados(periodos: Pernoite[]): boolean {
+   const ordenados = [...periodos].sort((a, b) =>
+      a.data_ini.localeCompare(b.data_ini)
+   );
+
+   for (let i = 1; i < ordenados.length; i++) {
+      const anterior = ordenados[i - 1];
+      const atual = ordenados[i];
+
+      if (anterior.data_fim.split("T")[0] !== atual.data_ini.split("T")[0]) {
+         return false; // quebra na conexão
+      }
+   }
+
+   return true; // todos conectados
 }

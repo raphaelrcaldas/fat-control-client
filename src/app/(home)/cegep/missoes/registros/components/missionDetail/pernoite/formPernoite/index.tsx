@@ -72,70 +72,68 @@ export function FormPernoite({
    interface HandleSubmitEvent extends React.FormEvent<HTMLFormElement> {}
    function handleSubmit(e: HandleSubmitEvent) {
       e.preventDefault();
-      let errors = [];
+      const errors: string[] = [];
 
-      // Checagem de data de início
-      if (!dataIni || isNaN(new Date(dataIni).getTime())) {
+      const ini = new Date(dataIni);
+      const fim = new Date(dataFim);
+      const afastDate = new Date(afast);
+      const regresDate = new Date(regres);
+      const iniValue = ini.valueOf();
+      const fimValue = fim.valueOf();
+
+      // Checagem geral de datas
+      if (!dataIni || isNaN(ini.getTime())) {
          errors.push("- Data de início inválida");
       }
-      // Checagem de data de fim
-      if (!dataFim || isNaN(new Date(dataFim).getTime())) {
+      if (!dataFim || isNaN(fim.getTime())) {
          errors.push("- Data de fim inválida");
       }
-      // Checagem de localidade
-      if (!local || !local.codigo) {
-         errors.push("- Localidade não selecionada");
-      }
-      // Checagem se data de início é maior que data de fim
-      if (dataIni && dataFim && new Date(dataIni) > new Date(dataFim)) {
+      if (ini > fim) {
          errors.push("- Data de início não pode ser maior que a data de fim");
       }
+      if (!(afastDate <= ini && fim <= regresDate)) {
+         errors.push("- O pernoite deve estar contido no período da missão.");
+      }
 
-      const iniNew = new Date(dataIni).valueOf();
-      const fimNew = new Date(dataFim).valueOf();
+      // Checagem de localidade
+      if (!local?.codigo) {
+         errors.push("- Localidade não selecionada");
+      }
 
-      // Checagem se existe pernoite em conflito de data nos demais pernoites
-      const confDates = pnts.filter((p, index) => {
-         // Se estiver editando, ignora o próprio pernoite
+      // Conflito com outras datas de pernoite
+      const temConflitoDatas = pnts.some((p) => {
          if (
             pnt &&
             p.data_ini === pnt.data_ini &&
             p.data_fim === pnt.data_fim &&
             p.cidade?.codigo === pnt.cidade?.codigo
-         ) {
+         )
             return false;
-         }
 
          const pIni = new Date(p.data_ini).valueOf();
          const pFim = new Date(p.data_fim).valueOf();
 
-         if (iniNew == pIni && fimNew == pFim) return true;
-         if (iniNew > pIni && iniNew < pFim) return true;
-         if (fimNew > pIni && fimNew < pFim) return true;
-         if (iniNew < pIni && fimNew > pFim) return true;
-
-         return false;
+         return iniValue <= pFim && pIni <= fimValue;
       });
 
-      if (confDates.length > 0) {
-         errors.push("- Existe conflito de penoites, revise as datas.");
+      if (temConflitoDatas) {
+         errors.push("- Existe conflito de pernoites, revise as datas.");
       }
 
-      // Checagem se existe acrescimo deslocamento para a mesma localidade.
-      const confAcresDesloc = pnts.filter((p) => {
-         // Se estiver editando, ignora o próprio pernoite
+      // Conflito de acréscimo de deslocamento
+      const temAcrescimoDuplicado = pnts.some((p) => {
          if (
             pnt &&
             p.data_ini === pnt.data_ini &&
             p.data_fim === pnt.data_fim &&
             p.cidade?.codigo === pnt.cidade?.codigo
-         ) {
+         )
             return false;
-         }
 
-         return p.cidade.codigo === local.codigo && p.acrec_desloc;
+         return p.cidade?.codigo === local.codigo && p.acrec_desloc;
       });
-      if (confAcresDesloc.length > 0) {
+
+      if (temAcrescimoDuplicado) {
          errors.push(
             "- Existe conflito de acréscimo de deslocamento nessa localidade."
          );

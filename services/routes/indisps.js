@@ -15,6 +15,5 @@ export async function updateIndisp(indisp) {
 }
 
 export async function deleteIndisp(indispId) {
-   console.log(indispId);
    return await request("DELETE", indispRoute + indispId);
 }

@@ -25,12 +25,6 @@ export function RegisPage() {
    }
 
    useEffect(() => {
-      if (missoes === null) {
-         updateMis();
-      }
-   }, [missoes]);
-
-   useEffect(() => {
       if (dataInicio && dataFim) {
          updateMis();
       }

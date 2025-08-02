@@ -20,7 +20,7 @@ export function isoStrLocalToDate(localStr) {
       const [day, month, year] = localStr.split("/");
       dateRes = new Date(parseInt(year) + 2000, month - 1, day);
 
-      if (isNaN(dateRes)) return 0
+      if (isNaN(dateRes)) return 0;
 
       return dateRes;
    }
@@ -34,4 +34,8 @@ export function dateIsIn(dateToCheck, dateStart, dateEnd) {
    const checkEnd = dateToCheck.valueOf() <= isoStrToDate(dateEnd).valueOf();
 
    return checkStart && checkEnd;
+}
+
+function normalizarData(date) {
+   return date.toISOString().split("T")[0]; // → 'YYYY-MM-DD'
 }
