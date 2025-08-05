@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState } from "react";
+import { MissaoCusto } from "services/routes/cegep/financeiro";
 
 const FilterContext = createContext(null);
 
@@ -7,7 +8,7 @@ export function FilterProvider({ children }) {
    const quinzeDiasAntes = new Date();
    quinzeDiasAntes.setDate(hoje.getDate() - 15);
 
-   const [misRecords, setMisRecords] = useState(null);
+   const [misRecords, setMisRecords] = useState<MissaoCusto[] | null>(null);
    const [selectedTipo, setSelectedTipo] = useState("");
    const [selectedSit, setSelectedSit] = useState("");
    const [userSearch, setUserSearch] = useState("");

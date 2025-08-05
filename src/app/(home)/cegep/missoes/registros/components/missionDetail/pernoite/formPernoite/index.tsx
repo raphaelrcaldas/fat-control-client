@@ -81,59 +81,21 @@ export function FormPernoite({
       const iniValue = ini.valueOf();
       const fimValue = fim.valueOf();
 
-      // Checagem geral de datas
-      if (!dataIni || isNaN(ini.getTime())) {
-         errors.push("- Data de início inválida");
-      }
-      if (!dataFim || isNaN(fim.getTime())) {
-         errors.push("- Data de fim inválida");
-      }
-      if (ini > fim) {
-         errors.push("- Data de início não pode ser maior que a data de fim");
-      }
-      if (!(afastDate <= ini && fim <= regresDate)) {
-         errors.push("- O pernoite deve estar contido no período da missão.");
-      }
+      // ⏱ Validar datas
+      validarDatas(ini, fim, afastDate, regresDate, errors);
 
-      // Checagem de localidade
+      // Validar localidade
       if (!local?.codigo) {
          errors.push("- Localidade não selecionada");
       }
 
-      // Conflito com outras datas de pernoite
-      const temConflitoDatas = pnts.some((p) => {
-         if (
-            pnt &&
-            p.data_ini === pnt.data_ini &&
-            p.data_fim === pnt.data_fim &&
-            p.cidade?.codigo === pnt.cidade?.codigo
-         )
-            return false;
-
-         const pIni = new Date(p.data_ini).valueOf();
-         const pFim = new Date(p.data_fim).valueOf();
-
-         return iniValue <= pFim && pIni <= fimValue;
-      });
-
-      if (temConflitoDatas) {
+      // Validar conflitos com pernoites existentes
+      if (conflitoDeDataComPernoites(pnts, iniValue, fimValue, pnt)) {
          errors.push("- Existe conflito de pernoites, revise as datas.");
       }
 
-      // Conflito de acréscimo de deslocamento
-      const temAcrescimoDuplicado = pnts.some((p) => {
-         if (
-            pnt &&
-            p.data_ini === pnt.data_ini &&
-            p.data_fim === pnt.data_fim &&
-            p.cidade?.codigo === pnt.cidade?.codigo
-         )
-            return false;
-
-         return p.cidade?.codigo === local.codigo && p.acrec_desloc;
-      });
-
-      if (temAcrescimoDuplicado) {
+      // Validar conflito de acréscimo de deslocamento
+      if (conflitoAcrescimoLocal(pnts, local.codigo, pnt)) {
          errors.push(
             "- Existe conflito de acréscimo de deslocamento nessa localidade."
          );
@@ -295,4 +257,64 @@ export function FormPernoite({
          </ModalBody>
       </Modal>
    );
+}
+
+function validarDatas(
+   ini: Date,
+   fim: Date,
+   afast: Date,
+   regres: Date,
+   errors: string[]
+) {
+   if (!ini || isNaN(ini.getTime())) {
+      errors.push("- Data de início inválida");
+   }
+   if (!fim || isNaN(fim.getTime())) {
+      errors.push("- Data de fim inválida");
+   }
+   if (ini > fim) {
+      errors.push("- Data de início não pode ser maior que a data de fim");
+   }
+   if (!(afast <= ini && fim <= regres)) {
+      errors.push("- O pernoite deve estar contido no período da missão.");
+   }
+}
+
+function conflitoDeDataComPernoites(
+   pnts: Pernoite[],
+   iniValue: number,
+   fimValue: number,
+   pnt?: Pernoite
+): boolean {
+   return pnts.some((p) => {
+      if (
+         pnt &&
+         p.data_ini === pnt.data_ini &&
+         p.data_fim === pnt.data_fim &&
+         p.cidade?.codigo === pnt.cidade?.codigo
+      )
+         return false;
+
+      const pIni = new Date(p.data_ini).getTime();
+      const pFim = new Date(p.data_fim).getTime();
+      return iniValue <= pFim && pIni <= fimValue;
+   });
+}
+
+function conflitoAcrescimoLocal(
+   pnts: Pernoite[],
+   codigoLocal: number,
+   pnt?: Pernoite
+): boolean {
+   return pnts.some((p) => {
+      if (
+         pnt &&
+         p.data_ini === pnt.data_ini &&
+         p.data_fim === pnt.data_fim &&
+         p.cidade?.codigo === pnt.cidade?.codigo
+      )
+         return false;
+
+      return p.cidade?.codigo === codigoLocal && p.acrec_desloc;
+   });
 }

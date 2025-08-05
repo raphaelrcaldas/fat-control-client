@@ -7,8 +7,8 @@ import {
    Select,
 } from "flowbite-react";
 import { IoMdSearch } from "react-icons/io";
-import { useState, useMemo } from "react";
-import { SearchUser } from "./searchUser";
+import { useState, useMemo, useEffect } from "react";
+import { SearchUser } from "../../../../../../users/components/searchUser";
 import { UserMission } from "services/routes/cegep/missoes";
 
 type FormMilitarProps = {
@@ -40,6 +40,14 @@ export function FormMilitar({
    const [pgMis, setPgMis] = useState(defaultValues.pgMis);
    const [user, setUser] = useState(defaultValues.user);
    const [sit, setSit] = useState(defaultValues.sit);
+
+   const userIDsIgnr = mils.map((mil) => mil.user_id);
+
+   useEffect(() => {
+      if (user) {
+         setPgMis(user.p_g);
+      }
+   }, [user]);
 
    // Verifica se houve alteração em relação aos valores padrões
    const isChanged =
@@ -88,7 +96,7 @@ export function FormMilitar({
          );
       } else {
          setMils([...mils, newUserMis]);
-      }      
+      }
       onClose();
    }
 
@@ -142,9 +150,8 @@ export function FormMilitar({
                   <SearchUser
                      show={showUserSearch}
                      setShow={setShowUserSearch}
-                     setPgMis={setPgMis}
                      setUser={setUser}
-                     mils={mils}
+                     userIdsIgnr={userIDsIgnr}
                   />
                </div>
 

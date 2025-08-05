@@ -19,7 +19,6 @@ import { DateTimePicker } from "src/app/(home)/components/dateTimePicker";
 import { useState, useMemo, useEffect } from "react";
 import { FaPlaneDeparture, FaPlaneArrival } from "react-icons/fa";
 import { createUpdateFragMis } from "services/routes/cegep/missoes";
-import { isoStrToDate } from "utils/dateHandler";
 import { deleteFragMis } from "services/routes/cegep/missoes";
 import clsx from "clsx";
 

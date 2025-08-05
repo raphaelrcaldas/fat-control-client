@@ -209,13 +209,13 @@ export default function AppSideBar({
                         >
                            Missões
                         </Sidebar.Item>
-                        {/* <Sidebar.Item
+                        <Sidebar.Item
                            active={path === "/cegep/comiss"}
                            icon={MdMoney}
                            onClick={() => handlePush("/cegep/comiss")}
                         >
                            Comissionamento
-                        </Sidebar.Item> */}
+                        </Sidebar.Item>
                      </Sidebar.Collapse>
                   </RoleBasedRoute>
                </Sidebar.ItemGroup>
@@ -231,9 +231,7 @@ export default function AppSideBar({
                         Usuários
                      </Sidebar.Item>
                   </RoleBasedRoute>
-                  <RoleBasedRoute
-                     requiredRoles={[]}
-                  >
+                  <RoleBasedRoute requiredRoles={[]}>
                      <Sidebar.Item
                         active={path === "/logs"}
                         icon={TbLogs}

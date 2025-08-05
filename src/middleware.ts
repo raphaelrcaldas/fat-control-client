@@ -14,7 +14,7 @@ export async function middleware(request: NextRequest) {
 
    const cookiesToken = request.cookies.get("token");
 
-   let tokenValue: string | undefined = tokenParam || cookiesToken?.value  || tokenDev;
+   let tokenValue: string | undefined = tokenParam || cookiesToken?.value || tokenDev;
 
    const checked = await checkToken(tokenValue);
    if (!checked) {

@@ -24,7 +24,7 @@ export interface Pernoite {
    meia_diaria: boolean,
    obs: string,
    cidade_id: number,
-   cidade: Cidade
+   cidade?: Cidade
 }
 
 export interface Missao {

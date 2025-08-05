@@ -10,20 +10,17 @@ import { useState } from "react";
 import { FaCheckSquare } from "react-icons/fa";
 import { IoMdSearch } from "react-icons/io";
 import { getUsers, UserPublic } from "services/routes/users";
-import { UserMission } from "services/routes/cegep/missoes";
 
 export function SearchUser({
    show,
    setShow,
    setUser,
-   setPgMis,
-   mils,
+   userIdsIgnr,
 }: {
    show: boolean;
    setShow: (show: boolean) => void;
    setUser: (user: UserPublic) => void;
-   setPgMis: (pg: string) => void;
-   mils: UserMission[];
+   userIdsIgnr?: number[];
 }) {
    const [users, setUsers] = useState<UserPublic[]>([]);
    const [searchUser, setSearchUser] = useState("");
@@ -34,9 +31,13 @@ export function SearchUser({
       if (searchData != "") {
          setIsLoading(true);
          getUsers(searchUser).then((data) => {
-            const filterData = data.filter(
-               (user) => !mils.some((mil) => mil.user.id === user.id)
-            );
+            let filterData = data;
+            if (userIdsIgnr) {
+               filterData = data.filter(
+                  (user) => !userIdsIgnr.some((id) => id === user.id)
+               );
+            }
+
             setUsers(filterData);
             setIsLoading(false);
          });
@@ -50,7 +51,6 @@ export function SearchUser({
    }
 
    function onSetUser(user: UserPublic) {
-      setPgMis(user.p_g);
       setUser(user);
       onClose();
    }

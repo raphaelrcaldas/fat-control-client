@@ -21,6 +21,6 @@
       ],
       "target": "ES2017"
    },
-   "include": ["next-env.d.ts", ".next/types/**/*.ts", "**/*.ts", "**/*.tsx", "src/middleware.js"],
+   "include": ["next-env.d.ts", ".next/types/**/*.ts", "**/*.ts", "**/*.tsx", "src/middleware.js", "services/Api.js"],
    "exclude": ["node_modules"]
 }

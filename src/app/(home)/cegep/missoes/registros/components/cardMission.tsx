@@ -39,7 +39,7 @@ export function CardMission({
    return (
       <>
          <Card
-            className='uppercase size-52 hover:shadow-lg cursor-pointer transition-shadow duration-300 ease-in-out'
+            className='uppercase max-w-96 hover:shadow-lg cursor-pointer transition-shadow duration-300 ease-in-out'
             onClick={() => setShowDetail(true)}
          >
             <div className='flex justify-between mt-2'>
