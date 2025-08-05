@@ -1,11 +1,19 @@
 "use client";
 
 import { Button, Modal, ModalBody, ModalHeader } from "flowbite-react";
-import { useState } from "react";
 import { isoStrToDate } from "utils/dateHandler";
 import { realCurrency } from "utils/financeiro";
+import { ComissWithMiss } from "services/routes/cegep/comiss";
 
-export function DetailComiss({ show, setShow, comiss }) {
+export function DetailComiss({
+   show,
+   setShow,
+   comiss,
+}: {
+   show: boolean;
+   setShow: (show: boolean) => void;
+   comiss: ComissWithMiss;
+}) {
    const data_abertura = isoStrToDate(comiss.data_ab).toLocaleDateString(
       "pt-br",
       {
@@ -42,15 +50,11 @@ export function DetailComiss({ show, setShow, comiss }) {
                      <span className='text-slate-500'>Proposta</span>
                   </div>
                   <div className='grid'>
-                     <span className='text-lg uppercase'>
-                        {comiss.doc_prop}
-                     </span>
+                     <span className='text-lg uppercase'>{comiss.doc_aut}</span>
                      <span className='text-slate-500'>Autorização</span>
                   </div>
                   <div className='grid'>
-                     <span className='text-lg uppercase'>
-                        {comiss.doc_prop}
-                     </span>
+                     <span className='text-lg uppercase'>{comiss.doc_enc}</span>
                      <span className='text-slate-500'>Encerramento</span>
                   </div>
                </div>
