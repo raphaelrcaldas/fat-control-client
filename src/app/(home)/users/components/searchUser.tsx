@@ -70,6 +70,9 @@ export function SearchUser({
                         if (
                            !e.key.match(/^[a-zA-ZÀ-ÿ\s]$/) &&
                            e.key !== "Backspace" &&
+                           e.key !== "ArrowLeft" &&
+                           e.key !== "ArrowRight" &&
+                           e.key !== "Enter" &&
                            e.key !== "Tab"
                         ) {
                            e.preventDefault();

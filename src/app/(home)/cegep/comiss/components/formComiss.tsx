@@ -216,6 +216,8 @@ export function FormComiss({
                            value={qtdAjAb}
                            className='w-20 justify-self-center'
                            type='number'
+                           min={0}
+                           max={2}
                            onChange={(e) => setQtdAjAb(Number(e.target.value))}
                         />
                         <span className='text-slate-500'>Ajuda de Custo</span>
@@ -248,6 +250,8 @@ export function FormComiss({
                            value={qtdAjFc}
                            className='w-20 justify-self-center'
                            type='number'
+                           min={0}
+                           max={2}
                            onChange={(e) => setQtdAjFc(Number(e.target.value))}
                         />
                         <span className='text-slate-500'>Ajuda de Custo</span>
