@@ -11,7 +11,7 @@ export interface UserPublic {
    nome_guerra: string;
    nome_completo: string;
    unidade: string;
-   ult_promo: Date | null;
+   ult_promo: string | null;
    ant_rel: number | null;
 }
 

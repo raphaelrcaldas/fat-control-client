@@ -39,8 +39,9 @@ export function DetailComiss({
          <Modal show={show} size='5xl' onClose={() => setShow(false)}>
             <ModalHeader>Detalhes Comissionamento</ModalHeader>
             <ModalBody>
-               <h3 className='text-center capitalize text-lg'>
-                  {comiss.user.posto.mid} {comiss.user.nome_completo}
+               <h3 className='text-center uppercase text-lg'>
+                  {comiss.user.posto.mid} {comiss.user.esp}{" "}
+                  {comiss.user.nome_completo}
                </h3>
                <div className='grid grid-cols-3 mt-4 text-center'>
                   <div className='grid'>
@@ -54,7 +55,9 @@ export function DetailComiss({
                      <span className='text-slate-500'>Autorização</span>
                   </div>
                   <div className='grid'>
-                     <span className='text-lg uppercase'>{comiss.doc_enc}</span>
+                     <span className='text-lg uppercase'>
+                        {comiss.doc_enc || "ND"}
+                     </span>
                      <span className='text-slate-500'>Encerramento</span>
                   </div>
                </div>

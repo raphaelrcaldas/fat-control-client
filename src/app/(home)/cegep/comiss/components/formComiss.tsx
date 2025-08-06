@@ -226,6 +226,7 @@ export function FormComiss({
                         <TextInput
                            value={valAjAb}
                            className='w-32 justify-self-center'
+                           min={0}
                            type='number'
                            onChange={(e) => setValAjAb(Number(e.target.value))}
                         />
@@ -260,6 +261,7 @@ export function FormComiss({
                         <TextInput
                            value={valAjFc}
                            className='w-32 justify-self-center'
+                           min={0}
                            type='number'
                            onChange={(e) => setValAjFC(Number(e.target.value))}
                         />
@@ -291,6 +293,7 @@ export function FormComiss({
                      id='dias-cumprir'
                      type='number'
                      className='w-24'
+                     min={0}
                      value={diasCumprir}
                      onChange={(e) => setDiasCumprir(Number(e.target.value))}
                   />

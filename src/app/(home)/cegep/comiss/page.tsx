@@ -11,11 +11,28 @@ export default function HomeApp() {
    const [loading, setLoading] = useState(false);
    const [showFormComiss, setShowFormComiss] = useState(false);
 
-   function updateCmtos() {
+   async function updateCmtos() {
       setLoading(true);
-      getCmtos()
-         .then((data) => setCmtos(data))
-         .finally(() => setLoading(false));
+      try {
+         const data = await getCmtos();
+
+         const sorted = data.sort((a, b) => {
+            const antA = a.user.posto.ant;
+            const antB = b.user.posto.ant;
+
+            if (antA !== antB) return antA - antB;
+
+            const promoA = a.user.ult_promo || "";
+            const promoB = b.user.ult_promo || "";
+            return promoA.localeCompare(promoB);
+         });
+
+         setCmtos(sorted);
+      } catch (error) {
+         console.error("Erro ao carregar comissionamentos", error);
+      } finally {
+         setLoading(false);
+      }
    }
 
    useEffect(() => {
@@ -25,7 +42,7 @@ export default function HomeApp() {
    return (
       <>
          <div className='flex flex-col gap-2'>
-            <section className='flex flex-col h-screen bg-gray-50 dark:bg-gray-900'>
+            <section className='flex flex-col overflow-y-auto bg-gray-50 dark:bg-gray-900'>
                <div className='w-full max-w-screen-xl p-2 mx-auto lg:px-12'>
                   <div className='relative overflow-hidden bg-white shadow-md dark:bg-gray-800 sm:rounded-lg'>
                      <div className='flex-row items-center justify-between p-4 space-y-3 sm:flex sm:space-y-0 sm:space-x-4'>
@@ -68,27 +85,27 @@ export default function HomeApp() {
                      />
                   </div>
                </div> */}
-               <HR />
-
-               {loading ? (
-                  <div className='flex flex-col font-semibold items-center justify-center gap-2 p-2'>
-                     Carregando <Spinner size='lg' color='failure' />
-                  </div>
-               ) : (
-                  <div className='flex p-2 flex-wrap gap-4'>
-                     {cmtos.length === 0 ? (
-                        <p>Nenhum comissionamento encontrado.</p>
-                     ) : (
-                        cmtos.map((c) => (
-                           <CardComiss
-                              key={c.id}
-                              comiss={c}
-                              update={updateCmtos}
-                           />
-                        ))
-                     )}
-                  </div>
-               )}
+               <div className='flex-1 p-2'>
+                  {loading ? (
+                     <div className='flex-1 flex flex-col font-semibold items-center justify-center gap-2 p-2'>
+                        Carregando <Spinner size='lg' color='failure' />
+                     </div>
+                  ) : (
+                     <div className='flex flex-wrap gap-4'>
+                        {cmtos.length === 0 ? (
+                           <p>Nenhum comissionamento encontrado.</p>
+                        ) : (
+                           cmtos.map((c) => (
+                              <CardComiss
+                                 key={c.id}
+                                 comiss={c}
+                                 update={updateCmtos}
+                              />
+                           ))
+                        )}
+                     </div>
+                  )}
+               </div>
             </section>
          </div>
 

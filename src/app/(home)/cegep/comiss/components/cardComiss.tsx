@@ -56,13 +56,27 @@ export function CardComiss({
    if (completude > 1) completude = 1;
 
    async function deleteComiss() {
-      if (window.confirm("Deseja deletar esse comissionamento ?")) {
-         deleteCmto(comiss.id)
-            .then((res) => res.json())
-            .then((data) => {
-               alert(data.detail);
-               update();
-            });
+      const confirmed = window.confirm("Deseja deletar esse comissionamento?");
+      if (!confirmed) return;
+
+      try {
+         const response = await deleteCmto(comiss.id);
+
+         if (!response.ok) {
+            const errorData = await response.json();
+            alert(
+               `Erro ao deletar: ${errorData.detail || "Erro desconhecido."}`
+            );
+            return;
+         }
+
+         const data = await response.json();
+         alert(data.detail || "Comissionamento deletado com sucesso.");
+         update(); // Só atualiza se deu tudo certo
+      } catch (error) {
+         // Erros de rede ou falhas inesperadas
+         console.error("Erro ao deletar comissionamento:", error);
+         alert("Erro inesperado. Verifique sua conexão ou tente novamente.");
       }
    }
 
