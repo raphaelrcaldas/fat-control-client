@@ -34,14 +34,13 @@ const TripTable = ({ trips, setRow, activeRow }) => {
          <table className='w-full text-gray-500 bg-white text-center text-base overflow-visible'>
             <thead className='sticky top-0 z-10 bg-gray-200'>
                <tr>
-                  <th className='py-1.5 px-2.5 hidden md:table-cell'>PG</th>
-                  <th className='py-1.5 px-2.5 hidden md:table-cell'>
-                     NOME DE GUERRA
-                  </th>
                   <th className='py-1.5 px-2.5'>TRIG</th>
                   <th className='py-1.5 px-2.5'>OP</th>
                   <th className='py-1.5 px-2.5'>DSV</th>
                   <th className='py-1.5 px-2.5 hidden md:table-cell'>CEMAL</th>
+                  <th className='py-1.5 px-2.5 hidden md:table-cell'>CRM</th>
+                  <th className='py-1.5 px-2.5 hidden md:table-cell'>PASSAP</th>
+                  <th className='py-1.5 px-2.5 hidden md:table-cell'>VISA</th>
                   <th className='py-1.5 px-2.5'>TOTAL</th>
                   <th className='py-1.5 px-2.5'>ANO</th>
                </tr>
@@ -57,12 +56,6 @@ const TripTable = ({ trips, setRow, activeRow }) => {
                               "bg-gray-300": index === activeRow,
                            })}
                         >
-                           <td className='py-1.5 px-2.5 hidden md:table-cell'>
-                              {trip.pg}
-                           </td>
-                           <td className='py-1.5 px-2.5 hidden md:table-cell'>
-                              {trip.nomeGuerra}
-                           </td>
                            <td className='py-1.5 px-2.5 font-semibold'>
                               {trip.trig}
                            </td>
@@ -85,6 +78,21 @@ const TripTable = ({ trips, setRow, activeRow }) => {
                            <td className='py-1.5 px-2.5 hidden md:table-cell'>
                               <span className={getColorForDate(trip.cemal)}>
                                  {trip.cemal}
+                              </span>
+                           </td>
+                           <td className='py-1.5 px-2.5 hidden md:table-cell'>
+                              <span className={getColorForDate(trip.crm)}>
+                                 {trip.crm}
+                              </span>
+                           </td>
+                           <td className='py-1.5 px-2.5 hidden md:table-cell'>
+                              <span className={getColorForDate(trip.val_pass)}>
+                                 {trip.val_pass}
+                              </span>
+                           </td>
+                           <td className='py-1.5 px-2.5 hidden md:table-cell'>
+                              <span className={getColorForDate(trip.val_visa)}>
+                                 {trip.val_visa}
                               </span>
                            </td>
                            <td className='py-1.5 px-2.5'>{trip.hTotal}</td>
@@ -124,6 +132,9 @@ function TableLoading() {
                         <div className='h-6 bg-gray-200 rounded-full animate-pulse max-w-[360px]'></div>
                      </td>
                      <td className='px-2.5 py-1.5'>
+                        <div className='h-6 bg-gray-200 rounded-full animate-pulse max-w-[360px]'></div>
+                     </td>
+                     <td className='px-2.5 py-1.5 hidden md:table-cell'>
                         <div className='h-6 bg-gray-200 rounded-full animate-pulse max-w-[360px]'></div>
                      </td>
                      <td className='px-2.5 py-1.5 hidden md:table-cell'>

@@ -10,27 +10,27 @@ import profilePic from "@/public/assets/1_1_gt.jpg";
 
 export default function RootLayout({ children }) {
    const [IsCollapsed, setIsCollapsed] = useState(false);
-   const [alwaysOpen, setAlwaysOpen] = useState(true);
+   const [alwaysOpen, setAlwaysOpen] = useState(false);
 
    function handleClose() {
       setIsCollapsed(!IsCollapsed);
    }
 
    useEffect(() => {
-      typeof window !== "undefined" && window.innerWidth >= 1024
-         ? setIsCollapsed(false)
-         : setIsCollapsed(true);
+      // typeof window !== "undefined" && window.innerWidth >= 1024
+      //    ? setIsCollapsed(false)
+      //    : setIsCollapsed(true);
 
-      typeof window !== "undefined" && window.innerWidth >= 1024
-         ? setAlwaysOpen(true)
-         : setAlwaysOpen(false);
+      // typeof window !== "undefined" && window.innerWidth >= 1024
+      //    ? setAlwaysOpen(true)
+      //    : setAlwaysOpen(false);
 
-      const handleResize = () => {
-         setAlwaysOpen(window.innerWidth >= 1024 ? true : false);
-      };
+      // const handleResize = () => {
+      //    setAlwaysOpen(window.innerWidth >= 1024 ? true : false);
+      // };
 
-      window.addEventListener("resize", handleResize);
-      return () => window.removeEventListener("resize", handleResize);
+      // window.addEventListener("resize", handleResize);
+      // return () => window.removeEventListener("resize", handleResize);
    }, []);
 
    return (
@@ -49,7 +49,7 @@ export default function RootLayout({ children }) {
                   <div className='flex items-center justify-between w-full'>
                      <div className='flex items-center'>
                         <HiMenuAlt1
-                           className='size-8 mr-4 cursor-pointer text-red-600 lg:hidden'
+                           className='size-8 mr-4 cursor-pointer text-red-600'
                            onClick={handleClose}
                         />
                         <NavbarBrand>
@@ -67,13 +67,12 @@ export default function RootLayout({ children }) {
                   </div>
                </Navbar>
 
-               {/*Overlay */}
-               {!IsCollapsed && !alwaysOpen && (
+               {/* {!IsCollapsed && !alwaysOpen && (
                   <div className='fixed inset-0 bg-black bg-opacity-50 z-40' />
-               )}
+               )} */}
 
                {/* Layout principal */}
-               <div className='flex h-screen pt-12 w-full bg-gray-50'>
+               <div className='flex h-full pt-12 w-full bg-gray-50'>
                   {/* Sidebar Responsiva */}
                   <div className='fixed lg:relative w-fit h-full z-40'>
                      <AppSideBar

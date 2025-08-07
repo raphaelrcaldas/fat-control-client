@@ -115,7 +115,9 @@ export default function AppSideBar({
 
    const handlePush = (route) => {
       router.push(route);
-      setIsCollapsed(true);
+      if (typeof window !== "undefined" && window.innerWidth <= 1024) {
+         setIsCollapsed(true);
+      }
    };
 
    return (

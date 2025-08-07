@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Label, HR, Spinner } from "flowbite-react";
+import { Spinner } from "flowbite-react";
 import { CardComiss } from "./components/cardComiss";
 import { FormComiss } from "./components/formComiss";
 import { getCmtos, ComissWithMiss } from "services/routes/cegep/comiss";
