@@ -7,6 +7,7 @@ import {
    Textarea,
    Select,
    Label,
+   Spinner,
    TextInput,
 } from "flowbite-react";
 import { MissionPernoite } from "./pernoite/missionPernoite";
@@ -67,6 +68,8 @@ export default function MissionDetail({
    const [mils, setMils] = useState(defaultValues.mils);
 
    const [checkAfastRegres, setCheckAfastRegres] = useState(false);
+
+   const [isLoading, setIsloading] = useState(false);
 
    const sortedPnts = useMemo(
       () =>
@@ -153,6 +156,8 @@ export default function MissionDetail({
    }
 
    async function onSave() {
+      setIsloading(true);
+
       const pntsWithFragId = missao
          ? pnts.map((p) => ({ ...p, frag_id: missao.id }))
          : pnts;
@@ -187,6 +192,7 @@ export default function MissionDetail({
             "Erro ao salvar missão: " + (error.detail || "Erro desconhecido")
          );
       }
+      setIsloading(false);
    }
 
    async function onDelete() {
@@ -533,8 +539,17 @@ export default function MissionDetail({
                   </>
                ) : (
                   <>
-                     <Button onClick={handleFragMis} disabled={!isChanged}>
-                        {missao ? "Salvar" : "Adicionar"}
+                     <Button
+                        onClick={handleFragMis}
+                        disabled={!isChanged || isLoading}
+                     >
+                        {isLoading ? (
+                           <Spinner />
+                        ) : missao ? (
+                           "Salvar"
+                        ) : (
+                           "Adicionar"
+                        )}
                      </Button>
                      {missao && (
                         <Button

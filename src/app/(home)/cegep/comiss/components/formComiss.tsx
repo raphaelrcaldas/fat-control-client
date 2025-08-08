@@ -7,6 +7,7 @@ import {
    Checkbox,
    Button,
    Select,
+   Spinner,
    ModalFooter,
 } from "flowbite-react";
 import { useState, useMemo } from "react";
@@ -69,6 +70,8 @@ export function FormComiss({
    const [dep, setDep] = useState(defaultValues.dep);
    const [diasCumprir, setDiasCumprir] = useState(defaultValues.diasCumprir);
 
+   const [isLoading, setIsLoading] = useState(false);
+
    function verificarCampos(errors: string[]) {
       if (!(docProp != "")) errors.push("- Documento Proposta");
       if (!(docAut != "")) errors.push("- Documento Autorização");
@@ -86,6 +89,7 @@ export function FormComiss({
    async function handleComiss() {
       let errors = [];
       verificarCampos(errors);
+      setIsLoading(true);
 
       if (errors.length > 0) {
          alert("Preencha os campos obrigatórios:\n" + errors.join("\n"));
@@ -126,6 +130,8 @@ export function FormComiss({
          setShow(false);
       } catch (err) {
          alert("Erro ao salvar o comissionamento: " + err.message);
+      } finally {
+         setIsLoading(false);
       }
    }
 
@@ -314,7 +320,7 @@ export function FormComiss({
          </ModalBody>
          <ModalFooter className='flex justify-center'>
             <Button className='w-32' onClick={handleComiss}>
-               {comiss ? "Salvar" : "Adicionar"}
+               {isLoading ? <Spinner /> : comiss ? "Salvar" : "Adicionar"}
             </Button>
          </ModalFooter>
       </Modal>
