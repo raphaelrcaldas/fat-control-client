@@ -22,7 +22,7 @@ export function LastIndisps({ indisps }) {
    }, [indisps]);
 
    return (
-      <div className='p-2 bg-white '>
+      <div className='p-2 bg-white rounded-lg shadow-md'>
          <h3 className='text-center text-base font-medium'>
             Últimas Adicionadas
          </h3>

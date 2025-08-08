@@ -20,15 +20,12 @@ export default function RootLayout({ children }) {
       // typeof window !== "undefined" && window.innerWidth >= 1024
       //    ? setIsCollapsed(false)
       //    : setIsCollapsed(true);
-
       // typeof window !== "undefined" && window.innerWidth >= 1024
       //    ? setAlwaysOpen(true)
       //    : setAlwaysOpen(false);
-
       // const handleResize = () => {
       //    setAlwaysOpen(window.innerWidth >= 1024 ? true : false);
       // };
-
       // window.addEventListener("resize", handleResize);
       // return () => window.removeEventListener("resize", handleResize);
    }, []);
@@ -72,7 +69,7 @@ export default function RootLayout({ children }) {
                )} */}
 
                {/* Layout principal */}
-               <div className='flex h-full pt-12 w-full bg-gray-50'>
+               <div className='flex h-full w-full pt-14 bg-gray-50'>
                   {/* Sidebar Responsiva */}
                   <div className='fixed lg:relative w-fit h-full z-40'>
                      <AppSideBar
@@ -81,7 +78,7 @@ export default function RootLayout({ children }) {
                         alwaysOpen={alwaysOpen}
                      />
                   </div>
-                  <main className='p-4 pb-6 mt-6 ml-0 w-full h-full overflow-y-auto'>
+                  <main className='p-4 ml-0 h-full w-full overflow-auto'>
                      {children}
                   </main>
                </div>

@@ -30,10 +30,14 @@ const getColorForDate = (dateString) => {
 
 const TripTable = ({ trips, setRow, activeRow }) => {
    return (
-      <div className='my-4 overflow-y-auto max-h-[85%] h-fit rounded-lg md:w-fit w-full shadow-lg relative'>
+      <div className='rounded-lg w-full max-h-full md:w-fit shadow-lg relative'>
          <table className='w-full text-gray-500 bg-white text-center text-base overflow-visible'>
-            <thead className='sticky top-0 z-10 bg-gray-200'>
+            <thead className='bg-gray-200'>
                <tr>
+                  <th className='py-1.5 px-2.5 hidden md:table-cell'>PG</th>
+                  <th className='py-1.5 px-2.5 hidden md:table-cell'>
+                     NOME DE GUERRA
+                  </th>
                   <th className='py-1.5 px-2.5'>TRIG</th>
                   <th className='py-1.5 px-2.5'>OP</th>
                   <th className='py-1.5 px-2.5'>DSV</th>
@@ -56,6 +60,12 @@ const TripTable = ({ trips, setRow, activeRow }) => {
                               "bg-gray-300": index === activeRow,
                            })}
                         >
+                           <td className='py-1.5 px-2.5 font-semibold hidden md:table-cell'>
+                              {trip.pg}
+                           </td>
+                           <td className='py-1.5 px-2.5 font-semibold text-nowrap hidden md:table-cell'>
+                              {trip.nomeGuerra}
+                           </td>
                            <td className='py-1.5 px-2.5 font-semibold'>
                               {trip.trig}
                            </td>
@@ -132,6 +142,12 @@ function TableLoading() {
                         <div className='h-6 bg-gray-200 rounded-full animate-pulse max-w-[360px]'></div>
                      </td>
                      <td className='px-2.5 py-1.5'>
+                        <div className='h-6 bg-gray-200 rounded-full animate-pulse max-w-[360px]'></div>
+                     </td>
+                     <td className='px-2.5 py-1.5 hidden md:table-cell'>
+                        <div className='h-6 bg-gray-200 rounded-full animate-pulse max-w-[360px]'></div>
+                     </td>
+                     <td className='px-2.5 py-1.5 hidden md:table-cell'>
                         <div className='h-6 bg-gray-200 rounded-full animate-pulse max-w-[360px]'></div>
                      </td>
                      <td className='px-2.5 py-1.5 hidden md:table-cell'>

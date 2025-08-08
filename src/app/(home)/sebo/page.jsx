@@ -44,7 +44,7 @@ function SeboPage() {
 
    return (
       <>
-         <div className='p-2 h-full w-full'>
+         <div>
             <div className='flex mt-4'>
                <Select
                   value={seboPage.func.state}
@@ -96,23 +96,21 @@ function SeboPage() {
                   </span>
                </div>
             </div>
-            <div className='flex flex-row h-full gap-4 mr-4 w-full'>
+            <div className='flex mt-6 flex-row h-full gap-4 w-full'>
                <TripTable
                   trips={arrayFunc}
                   activeRow={activeRow}
                   setRow={setActiveRow}
                />
                {arrayFunc.length > 0 && (
-                  <div className='p-4 hidden lg:inline'>
-                     <div className='p-4 bg-white rounded-lg shadow-xl'>
-                        <ChartSebo
-                           data={arrayFunc.map((trip) =>
-                              durationToMinutes(trip.hAno)
-                           )}
-                           categories={arrayFunc.map((trip) => trip.trig)}
-                           activeRow={activeRow}
-                        />
-                     </div>
+                  <div className='hidden bg-white h-fit rounded-lg shadow-lg lg:inline'>
+                     <ChartSebo
+                        data={arrayFunc.map((trip) =>
+                           durationToMinutes(trip.hAno)
+                        )}
+                        categories={arrayFunc.map((trip) => trip.trig)}
+                        activeRow={activeRow}
+                     />
                   </div>
                )}
             </div>

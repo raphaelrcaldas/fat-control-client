@@ -149,9 +149,9 @@ export default function IndispPage() {
          </div>
 
          {indisps.length > 0 && dataTrip.length > 0 ? (
-            <div className='md:flex h-full md:flex-row mt-3'>
-               <div className='md:w-fit overflow-y-auto h-fit max-h-[80%] bg-white shadow-lg pb-2 px-3 rounded-lg'>
-                  <table className='relative overflow-visible h-full w-full'>
+            <div className='md:flex h-5/6 md:flex-row mt-3'>
+               <div className='px-2 md:w-fit overflow-y-auto bg-white shadow-lg rounded-lg'>
+                  <table className='relative overflow-visible w-full'>
                      <thead className='bg-white sticky top-0 z-10'>
                         <tr>
                            <th scope='col' />
@@ -215,7 +215,7 @@ export default function IndispPage() {
                                  <tr key={index}>
                                     <th
                                        scope='row'
-                                       className='p-px grid justify-items-center '
+                                       className='p-px grid justify-items-center'
                                     >
                                        <TripIndisp
                                           trip={item.trip}
@@ -263,13 +263,16 @@ export default function IndispPage() {
 
                                     return (
                                        <tr key={index}>
-                                          <td className='p-px'>
+                                          <th
+                                             scope='row'
+                                             className='p-px grid justify-items-center'
+                                          >
                                              <TripIndisp
                                                 trip={item.trip}
                                                 indisps={item.indisps}
                                                 update={updateCrewIndisps}
                                              />
-                                          </td>
+                                          </th>
                                           {datesArray.map((dayR, index) => {
                                              return (
                                                 <TdCell
@@ -295,7 +298,7 @@ export default function IndispPage() {
                      </tbody>
                   </table>
                </div>
-               <div className='hidden flex-1 mx-2 md:flex rounded-lg shadow-md flex-col h-fit'>
+               <div className='hidden w-fit ml-3 md:flex h-fit'>
                   <LastIndisps indisps={indisps} />
                </div>
             </div>
