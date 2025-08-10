@@ -9,6 +9,7 @@ export interface UserPublic {
    posto: PostoGrad;
    esp: string;
    nome_guerra: string;
+   saram?: number;
    nome_completo: string;
    unidade: string;
    ult_promo: string | null;

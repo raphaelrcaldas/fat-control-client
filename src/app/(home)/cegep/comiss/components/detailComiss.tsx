@@ -1,9 +1,17 @@
 "use client";
 
-import { Button, Modal, ModalBody, ModalHeader } from "flowbite-react";
+import {
+   Button,
+   Modal,
+   ModalBody,
+   ModalFooter,
+   ModalHeader,
+} from "flowbite-react";
 import { isoStrToDate } from "utils/dateHandler";
+import { gerarRelatorio } from "utils/relatorioComiss";
 import { realCurrency } from "utils/financeiro";
 import { ComissWithMiss } from "services/routes/cegep/comiss";
+import { LiaFileExportSolid } from "react-icons/lia";
 
 export function DetailComiss({
    show,
@@ -33,6 +41,17 @@ export function DetailComiss({
 
    const ajd_ab = comiss.valor_aj_ab;
    const ajd_fc = comiss.valor_aj_fc;
+
+   async function handleExport() {
+      const blob = await gerarRelatorio(comiss);
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      const userName = `${comiss.user.posto.short}_${comiss.user.nome_guerra}`;
+      a.download = `comissionamento_${userName}.xlsx`;
+      a.click();
+      URL.revokeObjectURL(url);
+   }
 
    return (
       <>
@@ -169,18 +188,31 @@ export function DetailComiss({
                   </div>
                </div>
 
-               <div className='p-2 grid border rounded-lg gap-1 mt-2'>
-                  {comiss.missoes.map((m) => {
-                     return (
-                        <MissionRow
-                           key={m.id}
-                           mis={m}
-                           diasPrev={comiss.dias_cumprir}
-                        />
-                     );
-                  })}
+               <div className='p-2 grid border rounded-lg gap-1 mt-4'>
+                  {comiss.missoes.length > 0
+                     ? comiss.missoes.map((m) => {
+                          return (
+                             <MissionRow
+                                key={m.id}
+                                mis={m}
+                                diasPrev={comiss.dias_cumprir}
+                             />
+                          );
+                       })
+                     : "Nenhuma missão adicionada"}
                </div>
             </ModalBody>
+            <ModalFooter className='grid justify-center'>
+               <Button
+                  color='light'
+                  onClick={handleExport}
+                  disabled={comiss.missoes.length == 0}
+               >
+                  <div className='flex flex-row gap-2'>
+                     <LiaFileExportSolid className='size-5' /> Exportar
+                  </div>
+               </Button>
+            </ModalFooter>
          </Modal>
       </>
    );

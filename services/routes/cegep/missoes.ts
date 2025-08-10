@@ -25,6 +25,12 @@ export interface Pernoite {
    obs: string,
    cidade_id: number,
    cidade?: Cidade
+   custo?: {
+      subtotal: number,
+      ac_desloc: number,
+      vals: { valor: number, qtd: number }[],
+      dias: number,
+   }
 }
 
 export interface Missao {
@@ -38,8 +44,13 @@ export interface Missao {
    obs: string,
    tipo: string,
    pernoites?: Pernoite[],
-   users?: UserMission[]
+   users?: UserMission[],
+   dias?: number
+   diarias?: number
+   valor_total?: number
+   qtd_ac?: number
 }
+
 
 export async function getFragMissoes(dataIni, dataFim): Promise<Missao[]> {
    return (await request("GET", missoesRoute + `?ini=${dataIni}&fim=${dataFim}`)).json();
