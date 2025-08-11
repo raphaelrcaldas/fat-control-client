@@ -47,6 +47,29 @@ export default function QuadPage() {
    }
 
    useEffect(() => {
+      if (quadsType.length === 0) return;
+
+      // Procura se o type atual é válido para a função escolhida
+      const isValidType = quadsType.some((group) =>
+         group.types.some(
+            (type) =>
+               type.id === quadsPage.type.state &&
+               type.funcs_list.includes(quadsPage.func.state)
+         )
+      );
+
+      if (!isValidType) {
+         // pega o primeiro type válido da lista
+         for (const group of quadsType) {
+            const validType = group.types.find((t) =>
+               t.funcs_list.includes(quadsPage.func.state)
+            );
+            if (validType) {
+               quadsPage.type.setState(validType.id);
+               break;
+            }
+         }
+      }
       setQuads([]);
       getQuadsParams();
    }, [quadsPage.func.state, quadsPage.type.state]);
@@ -81,21 +104,31 @@ export default function QuadPage() {
                      quadsPage.type.setState(parseInt(e.target.value))
                   }
                >
-                  {quadsType.map((group, index) => {
-                     const nameGroup = group.long.toUpperCase();
-                     return (
-                        <optgroup key={index} label={nameGroup}>
-                           {group.types.map((type, index) => {
-                              const typeLabel = type.long.toUpperCase();
-                              return (
-                                 <option key={index} value={type.id}>
-                                    {typeLabel}
-                                 </option>
-                              );
-                           })}
-                        </optgroup>
-                     );
-                  })}
+                  {quadsType
+                     .filter((group) =>
+                        group.types.some((type) =>
+                           type.funcs_list.includes(quadsPage.func.state)
+                        )
+                     )
+                     .map((group, index) => {
+                        const nameGroup = group.long.toUpperCase();
+                        return (
+                           <optgroup key={index} label={nameGroup}>
+                              {group.types.map((type) => {
+                                 const typeLabel = type.long.toUpperCase();
+                                 const funcsList = type.funcs_list;
+                                 if (!funcsList.includes(quadsPage.func.state))
+                                    return;
+
+                                 return (
+                                    <option key={type.id} value={type.id}>
+                                       {typeLabel}
+                                    </option>
+                                 );
+                              })}
+                           </optgroup>
+                        );
+                     })}
                </Select>
             </div>
          </div>
