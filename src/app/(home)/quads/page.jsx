@@ -1,7 +1,6 @@
 "use client";
-import { useEffect, useState } from "react";
-
-import { Select, Spinner } from "flowbite-react";
+import { useEffect, useState, useMemo } from "react";
+import { Select, Spinner, Radio, Label } from "flowbite-react";
 import { QuadPopover } from "./components/quadPopover";
 import { QuadsTrip } from "./components/quadsTrip";
 import { getQuads, getQuadsType } from "@/services/routes/quads";
@@ -12,6 +11,7 @@ import { PermBased } from "../hooks/usePermBased";
 export default function QuadPage() {
    const [quadsType, setQuadsType] = useState([]);
    const [quads, setQuads] = useState([]);
+   const [ordem, setOrdem] = useState("opr");
 
    const [groupName, setGroupName] = useState("");
    const [typeName, setTypeName] = useState("");
@@ -83,6 +83,48 @@ export default function QuadPage() {
       getQuadsParams();
    }, [quadsType]);
 
+   const quadsList = useMemo(() => {
+      const quadsOrdenados = [...quads].sort((a, b) => {
+         if (ordem === "opr") {
+            const tripOprA = new Date(a.trip.func.data_op);
+            const tripOprB = new Date(b.trip.func.data_op);
+
+            return tripOprA - tripOprB;
+         } else {
+            const postoA = a.trip.user.posto.ant;
+            const postoB = b.trip.user.posto.ant;
+
+            return postoA - postoB;
+         }
+      });
+
+      return quadsOrdenados.map((item) => (
+         <div
+            key={item.trip.id}
+            className='flex justify-start items-center gap-1 overflow-visible'
+         >
+            <div className='flex-shrink-0 sticky left-0 z-10 bg-white overflow-visible'>
+               <QuadsTrip
+                  trip={item.trip}
+                  lenTotalQuads={item.quads_len}
+                  typeQuad={quadsPage.type.state}
+                  quadsAllUpdate={getQuadsParams}
+               />
+            </div>
+            {item.quads.map((quad) => {
+               return <QuadPopover key={quad.id} quad={quad} />;
+            })}
+            <PermBased resource={"quad_ops"} requiredPerm={"create"}>
+               <AddQuadModal
+                  trip={item.trip}
+                  callFunc={getQuadsParams}
+                  type={quadsPage.type.state}
+               />
+            </PermBased>
+         </div>
+      ));
+   }, [quads, quadsPage.type.state, ordem]);
+
    return (
       <>
          <div className='flex mb-5'>
@@ -133,9 +175,39 @@ export default function QuadPage() {
             </div>
          </div>
 
-         <div className='m-2 uppercase'>
-            <p className='text-2xl font-bold'>{groupName}</p>
-            <p className='text-base font-semibold'>{typeName}</p>
+         <div className='grid grid-cols-2 my-2 uppercase gap-4 w-full'>
+            <div className=''>
+               <p className='text-2xl font-bold'>{groupName}</p>
+               <p className='text-base font-semibold'>{typeName}</p>
+            </div>
+
+            <div className='flex flex-row gap-2'>
+               <div className='flex w-52 flex-col gap-1 p-2 bg-white rounded-lg shadow-md'>
+                  <h3 className='text-center text-sm capitalize'>
+                     Antiguidade
+                  </h3>
+                  <div className='flex items-center gap-2'>
+                     <Radio
+                        id='opr'
+                        name='ordenar'
+                        value='opr'
+                        checked={ordem === "opr"}
+                        onChange={() => setOrdem("opr")}
+                     />
+                     <Label htmlFor='opr'>Operacional</Label>
+                  </div>
+                  <div className='flex items-center gap-2'>
+                     <Radio
+                        id='mil'
+                        name='ordenar'
+                        value='mil'
+                        checked={ordem === "mil"}
+                        onChange={() => setOrdem("mil")}
+                     />
+                     <Label htmlFor='mil'>Militar</Label>
+                  </div>
+               </div>
+            </div>
          </div>
 
          <div
@@ -147,36 +219,7 @@ export default function QuadPage() {
                   Carregando <Spinner size='lg' />
                </div>
             ) : (
-               quads.map((item) => {
-                  return (
-                     <div
-                        key={item.trip.id}
-                        className='flex justify-start items-center gap-1 overflow-visible'
-                     >
-                        <div className='flex-shrink-0 sticky left-0 z-10 bg-white overflow-visible'>
-                           <QuadsTrip
-                              trip={item.trip}
-                              lenTotalQuads={item.quads_len}
-                              typeQuad={quadsPage.type.state}
-                              quadsAllUpdate={getQuadsParams}
-                           />
-                        </div>
-                        {item.quads.map((quad) => {
-                           return <QuadPopover key={quad.id} quad={quad} />;
-                        })}
-                        <PermBased
-                           resource={"quad_ops"}
-                           requiredPerm={"create"}
-                        >
-                           <AddQuadModal
-                              trip={item.trip}
-                              callFunc={getQuadsParams}
-                              type={quadsPage.type.state}
-                           />
-                        </PermBased>
-                     </div>
-                  );
-               })
+               quadsList
             )}
          </div>
       </>
