@@ -161,27 +161,31 @@ export async function gerarRelatorio(comiss: ComissWithMiss) {
     missoes.forEach((m, index) => {
         const row = startRowData + index;
         // inicio
-        const afast = new Date(m.afast).toLocaleDateString();
+        const inicio = new Date(m.afast).setHours(0, 0)
+        sheet.getCell(row, 5).value = new Date(inicio);
         sheet.getCell(row, 5).numFmt = 'dd/mm/yyyy';
-        sheet.getCell(row, 5).value = afast;
 
         // termino
-        const regres = new Date(m.regres).toLocaleDateString();
+        const fim = new Date(m.regres).setHours(0, 0)
+        sheet.getCell(row, 6).value = new Date(fim);
         sheet.getCell(row, 6).numFmt = 'dd/mm/yyyy';
-        sheet.getCell(row, 6).value = regres;
 
         // n_dias
-        sheet.getCell(r1c1ToA1(row, 7)).value = {
-            formula: `${r1c1ToA1(row, 6)}-${r1c1ToA1(row, 5)}+1`
+        const n_dias = sheet.getCell(r1c1ToA1(row, 7));
+        n_dias.numFmt = "#";
+        n_dias.value = {
+            formula: `${r1c1ToA1(row, 6)}-${r1c1ToA1(row, 5)}+1`,
         };
 
         // n_diarias
-        sheet.getCell(r1c1ToA1(row, 9)).value = {
+        const n_diarias = sheet.getCell(r1c1ToA1(row, 9));
+        n_diarias.numFmt = "#.#";
+        n_diarias.value = {
             formula: `${r1c1ToA1(row, 7)}-0.5`
         };
 
         // miss e local do svc
-        let misStr = `${m.tipo_doc} ${m.n_doc}`;
+        let misStr = `${m.tipo_doc} ${m.n_doc} `;
         if (m.obs) misStr += `- ${m.obs}`;
         misStr += `- Missão ${m.tipo} - `
 
@@ -210,17 +214,22 @@ export async function gerarRelatorio(comiss: ComissWithMiss) {
     }
     )
 
-    sheet.getCell("H4").value = {
+    const total_dias = sheet.getCell("H4");
+    total_dias.numFmt = "#";
+    total_dias.value = {
         formula: `SUM(${r1c1ToA1(startRowData, 7)}:${r1c1ToA1(totalRows, 7)})`
     }
     sheet.mergeCells(startRowData, 8, totalRows, 8)
 
-    sheet.getCell("J4").value = {
+    const total_diarias = sheet.getCell("J4");
+    total_diarias.value = {
         formula: `SUM(${r1c1ToA1(startRowData, 9)}:${r1c1ToA1(totalRows, 9)})`
     }
+    total_diarias.numFmt = "#";
     sheet.mergeCells(startRowData, 10, totalRows, 10)
 
-    sheet.getCell("L4").value = comiss.qtd_aj_ab + comiss.qtd_aj_fc;
+    const qtd_aj_custo = sheet.getCell("L4");
+    qtd_aj_custo.value = comiss.qtd_aj_ab + comiss.qtd_aj_fc;
     sheet.mergeCells(startRowData, 12, totalRows, 12)
 
     const valAjdAb = sheet.getCell("M4");
