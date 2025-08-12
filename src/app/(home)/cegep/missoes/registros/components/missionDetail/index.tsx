@@ -308,6 +308,7 @@ export default function MissionDetail({
                {editMode ? (
                   <TextInput
                      className='w-2/3'
+                     placeholder="OFRAG XXX - APOIO XXX"
                      value={desc}
                      onChange={(e) => setDesc(e.target.value)}
                   />
@@ -420,6 +421,7 @@ export default function MissionDetail({
                   <Textarea
                      value={obs}
                      onChange={(e) => setObs(e.target.value)}
+                     placeholder="RETORNO OM XXX"
                   />
                ) : (
                   <span>

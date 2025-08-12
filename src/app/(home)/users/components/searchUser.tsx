@@ -108,8 +108,8 @@ export function SearchUser({
                                  onClick={() => onSetUser(user)}
                                  className='size-7 text-blue-400 hover:text-blue-600 cursor-pointer'
                               />
-                              <span className='p-1 uppercase text-base'>
-                                 {user.p_g} {user.nome_guerra}
+                              <span className='p-1 capitalize text-base'>
+                                 {user.posto.mid} {user.esp} {user.nome_guerra}
                               </span>
                            </div>
                         );
