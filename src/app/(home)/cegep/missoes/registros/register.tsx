@@ -10,6 +10,7 @@ import { useRegisterContext } from "../../context/registerContext";
 
 export function RegisPage() {
    const [missoes, setMissoes] = useState<Missao[] | null>(null);
+   const [cloneMis, setCloneMis] = useState<Missao | null>(null);
    const [showForm, setShowForm] = useState(false);
    const [loading, setLoading] = useState(true);
    const { dataInicio, setDataInicio, dataFim, setDataFim } =
@@ -92,6 +93,8 @@ export function RegisPage() {
                               key={m.id}
                               missao={m}
                               update={updateMis}
+                              setClone={setCloneMis}
+                              setShowForm={setShowForm}
                            />
                         ))
                      )}
@@ -104,8 +107,10 @@ export function RegisPage() {
             <MissionDetail
                show={showForm}
                edit={true}
+               missao={cloneMis}
                setShow={setShowForm}
                update={updateMis}
+               setClone={setCloneMis}
             />
          )}
       </>

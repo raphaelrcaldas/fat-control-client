@@ -29,11 +29,13 @@ export default function MissionDetail({
    setShow,
    edit,
    update,
+   setClone,
 }: {
    missao?: Missao;
    show: boolean;
    edit: boolean;
    setShow: React.Dispatch<React.SetStateAction<boolean>>;
+   setClone: React.Dispatch<React.SetStateAction<Missao | null>>;
    update: () => void;
 }) {
    // Valores padrões
@@ -217,6 +219,7 @@ export default function MissionDetail({
       if (missao) {
          setEditMode(false);
       }
+      setClone(null);
       setShow(false);
    }
 
@@ -308,7 +311,7 @@ export default function MissionDetail({
                {editMode ? (
                   <TextInput
                      className='w-2/3'
-                     placeholder="OFRAG XXX - APOIO XXX"
+                     placeholder='OFRAG XXX - APOIO XXX'
                      value={desc}
                      onChange={(e) => setDesc(e.target.value)}
                   />
@@ -421,7 +424,7 @@ export default function MissionDetail({
                   <Textarea
                      value={obs}
                      onChange={(e) => setObs(e.target.value)}
-                     placeholder="RETORNO OM XXX"
+                     placeholder='RETORNO OM XXX'
                   />
                ) : (
                   <span>
