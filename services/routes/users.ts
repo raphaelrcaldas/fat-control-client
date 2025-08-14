@@ -36,7 +36,8 @@ export interface UserFull extends UserSchema {
 }
 
 export async function getUsers(search?: string): Promise<UserPublic[]> {
-   const response = await request("GET", usersRoute, null, { search: search });
+   const params = search ? { search } : undefined;
+   const response = await request("GET", usersRoute, null, params);
    return await response.json() as UserPublic[];
 }
 

@@ -30,7 +30,7 @@ export function FormMilitar({
    // Valores padrões do militar
    const defaultValues = useMemo(
       () => ({
-         pgMis: userMis ? userMis.p_g : null,
+         pgMis: userMis ? userMis.p_g : "",
          user: userMis ? userMis.user : null,
          sit: userMis ? userMis.sit : "",
       }),
@@ -44,7 +44,7 @@ export function FormMilitar({
    const userIDsIgnr = mils.map((mil) => mil.user_id);
 
    useEffect(() => {
-      if (user) {
+      if (user && !pgMis) {
          setPgMis(user.p_g);
       }
    }, [user]);
@@ -59,7 +59,7 @@ export function FormMilitar({
 
    function onClose() {
       setUser(null);
-      setPgMis(null);
+      setPgMis("");
       setSit("");
       setShow(false);
    }
@@ -116,7 +116,7 @@ export function FormMilitar({
                   <div className='flex flex-row gap-2 p-2 mt-4 justify-center items-center text-base'>
                      {user ? (
                         <span className='uppercase font-medium bg-white shadow-md px-4 py-1 rounded-lg'>
-                           {pgMis} {user.nome_guerra}
+                           {user.p_g} {user.esp} {user.nome_guerra}
                         </span>
                      ) : (
                         <span className='text-red-600 text-sm'>
@@ -133,18 +133,47 @@ export function FormMilitar({
                      </Button>
                   </div>
 
-                  <div className='grid justify-items-center'>
-                     <Label>Situação</Label>
-                     <Select
-                        className='mt-1'
-                        value={sit}
-                        onChange={(e) => setSit(e.target.value)}
-                     >
-                        <option disabled value=''></option>
-                        <option value='c'>Comissionado</option>
-                        <option value='d'>Diária</option>
-                        <option value='g'>Grat Rep</option>
-                     </Select>
+                  <div className='grid grid-cols-2 gap-4'>
+                     <div className='grid justify-items-center'>
+                        <Label>Posto/Grad</Label>
+                        <Select
+                           className='mt-1'
+                           value={pgMis}
+                           onChange={(e) => setPgMis(e.target.value)}
+                        >
+                           <option value='' disabled></option>
+                           <option value='tb'>TB</option>
+                           <option value='mb'>MB</option>
+                           <option value='br'>BR</option>
+                           <option value='cl'>CL</option>
+                           <option value='tc'>TC</option>
+                           <option value='mj'>MJ</option>
+                           <option value='cp'>CP</option>
+                           <option value='1t'>1T</option>
+                           <option value='2t'>2T</option>
+                           <option value='as'>AS</option>
+                           <option value='so'>SO</option>
+                           <option value='1s'>1S</option>
+                           <option value='2s'>2S</option>
+                           <option value='3s'>3S</option>
+                           <option value='cb'>CB</option>
+                           <option value='s1'>S1</option>
+                           <option value='s2'>S2</option>
+                        </Select>
+                     </div>
+                     <div className='grid justify-items-center'>
+                        <Label>Situação</Label>
+                        <Select
+                           className='mt-1'
+                           value={sit}
+                           onChange={(e) => setSit(e.target.value)}
+                        >
+                           <option disabled value=''></option>
+                           <option value='c'>Comissionado</option>
+                           <option value='d'>Diária</option>
+                           <option value='g'>Grat Rep</option>
+                        </Select>
+                     </div>
                   </div>
 
                   <SearchUser
