@@ -72,7 +72,7 @@ export default function QuadPage() {
       }
       setQuads([]);
       getQuadsParams();
-   }, [quadsPage.func.state, quadsPage.type.state]);
+   }, [quadsType, quadsPage.func.state, quadsPage.type.state]);
 
    useEffect(() => {
       getQuadsType("11gt")
