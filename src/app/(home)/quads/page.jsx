@@ -75,13 +75,10 @@ export default function QuadPage() {
    }, [quadsPage.func.state, quadsPage.type.state]);
 
    useEffect(() => {
-      if (quadsType.length == 0) {
-         getQuadsType("11gt")
-            .then((res) => res.json())
-            .then((data) => setQuadsType(data));
-      }
-      getQuadsParams();
-   }, [quadsType]);
+      getQuadsType("11gt")
+         .then((res) => res.json())
+         .then((data) => setQuadsType(data));
+   }, []);
 
    const quadsList = useMemo(() => {
       const quadsOrdenados = [...quads].sort((a, b) => {
