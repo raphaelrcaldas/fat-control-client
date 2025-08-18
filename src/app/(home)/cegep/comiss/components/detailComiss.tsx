@@ -55,7 +55,7 @@ export function DetailComiss({
 
    return (
       <>
-         <Modal show={show} size='5xl' onClose={() => setShow(false)}>
+         <Modal show={show} size='6xl' onClose={() => setShow(false)}>
             <ModalHeader>Detalhes Comissionamento</ModalHeader>
             <ModalBody>
                <h3 className='text-center uppercase text-lg'>
@@ -251,7 +251,9 @@ function MissionRow({ mis, diasPrev }) {
             })}
          </div>
          <span className='w-36'>
-            {diasPrev ? `${mis.dias} dias` : realCurrency(mis.valor_total)}
+            {diasPrev
+               ? `${mis.dias} dia${mis.dias > 1 ? "s" : ""}`
+               : realCurrency(mis.valor_total)}
          </span>
       </div>
    );
