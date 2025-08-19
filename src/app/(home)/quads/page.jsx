@@ -82,16 +82,24 @@ export default function QuadPage() {
 
    const quadsList = useMemo(() => {
       const quadsOrdenados = [...quads].sort((a, b) => {
+         const tripA = a.trip;
+         const tripB = b.trip;
+
          if (ordem === "opr") {
-            const tripOprA = new Date(a.trip.func.data_op);
-            const tripOprB = new Date(b.trip.func.data_op);
+            const tripOprA = new Date(tripA.func.data_op);
+            const tripOprB = new Date(tripB.func.data_op);
 
             return tripOprA - tripOprB;
          } else {
-            const postoA = a.trip.user.posto.ant;
-            const postoB = b.trip.user.posto.ant;
+            const antA = tripA.user.posto.ant;
+            const antB = tripB.user.posto.ant;
 
-            return postoA - postoB;
+            if (antA !== antB) return antA - antB;
+
+            const promoA = tripA.user.ult_promo || "";
+            const promoB = tripB.user.ult_promo || "";
+
+            return promoA.localeCompare(promoB);
          }
       });
 
