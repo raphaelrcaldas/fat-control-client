@@ -161,13 +161,15 @@ export async function gerarRelatorio(comiss: ComissWithMiss) {
     missoes.forEach((m, index) => {
         const row = startRowData + index;
         // inicio
-        const inicio = new Date(m.afast).setHours(0, 0)
-        sheet.getCell(row, 5).value = new Date(inicio);
+        const afastZero = new Date(m.afast).setHours(0, 0);
+        const afast = new Date(afastZero);
+        sheet.getCell(row, 5).value = afast;
         sheet.getCell(row, 5).numFmt = 'dd/mm/yyyy';
 
         // termino
-        const fim = new Date(m.regres).setHours(0, 0)
-        sheet.getCell(row, 6).value = new Date(fim);
+        const daysToSum = m.dias - 1;
+        const regres = new Date(afast.getTime() + (daysToSum * 24 * 60 * 60 * 1000));
+        sheet.getCell(row, 6).value = regres;
         sheet.getCell(row, 6).numFmt = 'dd/mm/yyyy';
 
         // n_dias
@@ -181,7 +183,7 @@ export async function gerarRelatorio(comiss: ComissWithMiss) {
         const n_diarias = sheet.getCell(r1c1ToA1(row, 9));
         n_diarias.numFmt = "0.0";
         n_diarias.value = {
-            formula: `${r1c1ToA1(row, 7)}-0.5`
+            formula: `${r1c1ToA1(row, 7)}-${m.diarias % 1}`
         };
 
         // miss e local do svc
