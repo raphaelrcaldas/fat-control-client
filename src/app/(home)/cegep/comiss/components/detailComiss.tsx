@@ -231,26 +231,28 @@ function MissionRow({ mis, diasPrev }) {
    });
 
    return (
-      <div className='flex flex-row text-center text-base hover:bg-slate-100 font-mono uppercase gap-3 p-2 items-center rounded-md border-b last:border-none'>
+      <div className='flex flex-row text-center text-base hover:bg-slate-100 font-mono uppercase gap-1 p-2 items-center rounded-md border-b last:border-none'>
          <span className='w-8'>{mis.tipo_doc}</span>
-         <span className='w-10'>{mis.n_doc}</span>
+         <span className='w-10'>{String(mis.n_doc).padStart(3, "0")}</span>
          <span className='w-10'>{mis.tipo}</span>
          <span className='flex-1'>{mis.desc}</span>
-         <span className='w-24'>{ini}</span>
-         <span className='w-24'>{fim}</span>
-         <div className='grid gap-1 w-40'>
+         <div className='flex flex-row gap-3 w-44 justify-center'>
+            <span>{ini}</span>
+            <span>{fim}</span>
+         </div>
+         <div className='grid gap-1 w-56'>
             {mis.pernoites.map((p) => {
                return (
                   <span
                      key={p.id}
-                     className='bg-slate-200 py-0.5 px-2 rounded-lg'
+                     className='bg-slate-200 py-0.5 px-1 rounded-lg'
                   >
                      {p.cidade.nome}-{p.cidade.uf}
                   </span>
                );
             })}
          </div>
-         <span className='w-36'>
+         <span className='w-32'>
             {diasPrev
                ? `${mis.dias} dia${mis.dias > 1 ? "s" : ""}`
                : realCurrency(mis.valor_total)}

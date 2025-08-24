@@ -179,7 +179,7 @@ export async function gerarRelatorio(comiss: ComissWithMiss) {
 
         // n_diarias
         const n_diarias = sheet.getCell(r1c1ToA1(row, 9));
-        n_diarias.numFmt = "#.#";
+        n_diarias.numFmt = "0.0";
         n_diarias.value = {
             formula: `${r1c1ToA1(row, 7)}-0.5`
         };
@@ -190,12 +190,13 @@ export async function gerarRelatorio(comiss: ComissWithMiss) {
         misStr += `- Missão ${m.tipo} - `
 
         let listPntsStrFml: string[] = [];
+        let listPntsStrCids: string[] = [];
         m.pernoites.forEach(p => {
             const custo = p.custo;
             const vals = custo.vals;
 
             const diarias = vals.reduce((acc, val) => (val.qtd + acc), 0)
-            misStr += `${p.cidade.nome}-${p.cidade.uf} (${diarias})`
+            listPntsStrCids.push(`${p.cidade.nome}-${p.cidade.uf} (${diarias.toFixed(1)})`)
 
             let pntVals = vals.map(val => (
                 `(${val.qtd}*${val.valor})`
@@ -204,6 +205,7 @@ export async function gerarRelatorio(comiss: ComissWithMiss) {
             if (p.acrec_desloc) pntVals += `+${custo.ac_desloc}`
             listPntsStrFml.push(`(${pntVals})`);
         })
+        misStr += listPntsStrCids.join(', ')
 
         sheet.getCell(r1c1ToA1(row, 11)).value = misStr.toUpperCase();
 
