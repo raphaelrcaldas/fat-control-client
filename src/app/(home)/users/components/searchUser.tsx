@@ -56,7 +56,7 @@ export function SearchUser({
    }
 
    return (
-      <Modal size='md' show={show} onClose={() => setShow(false)}>
+      <Modal size='md' show={show} onClose={onClose}>
          <ModalHeader>Buscar Militar</ModalHeader>
          <ModalBody>
             <div>
@@ -72,10 +72,13 @@ export function SearchUser({
                            e.key !== "Backspace" &&
                            e.key !== "ArrowLeft" &&
                            e.key !== "ArrowRight" &&
-                           e.key !== "Enter" &&
                            e.key !== "Tab"
                         ) {
                            e.preventDefault();
+                        }
+
+                        if (e.key === "Enter") {
+                           searchUsers();
                         }
                      }}
                   />
@@ -108,8 +111,9 @@ export function SearchUser({
                                  onClick={() => onSetUser(user)}
                                  className='size-7 text-blue-400 hover:text-blue-600 cursor-pointer'
                               />
-                              <span className='p-1 capitalize text-base'>
-                                 {user.posto.mid} {user.esp} {user.nome_guerra}
+                              <span className='p-1 uppercase text-base'>
+                                 {user.posto.short} {user.esp}{" "}
+                                 {user.nome_guerra}
                               </span>
                            </div>
                         );
