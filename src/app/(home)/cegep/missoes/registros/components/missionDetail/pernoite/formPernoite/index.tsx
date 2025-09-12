@@ -5,17 +5,13 @@ import {
    Button,
    Checkbox,
    Textarea,
-   Dropdown,
-   DropdownItem,
 } from "flowbite-react";
 import { IoMdSearch } from "react-icons/io";
 import { useState, useMemo } from "react";
 import { Cidade } from "services/routes/cities";
-import { Missao, Pernoite } from "services/routes/cegep/missoes";
+import { Pernoite } from "services/routes/cegep/missoes";
 import { DateTimePicker } from "src/app/(home)/components/dateTimePicker";
 import { SearchLocal } from "../searchLocal";
-import clsx from "clsx";
-import MissionDetail from "../..";
 
 export function FormPernoite({
    showFormPnt,

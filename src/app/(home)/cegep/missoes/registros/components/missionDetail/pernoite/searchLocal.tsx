@@ -57,6 +57,10 @@ export function SearchLocal({ show, setShow, setLocal }) {
                         ) {
                            e.preventDefault();
                         }
+
+                        if (e.key === "Enter") {
+                           searchCities();
+                        }
                      }}
                   />
                   <Button
