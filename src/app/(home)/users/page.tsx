@@ -13,14 +13,18 @@ function useUsers() {
    const updateListUsers = () => {
       setLoading(true);
       getUsers().then((users) => {
-         const sortedUltPromo = users.sort(
-            (a, b) =>
-               new Date(a.ult_promo).getTime() - new Date(b.ult_promo).getTime()
-         );
-         const sortedAnt = sortedUltPromo.sort(
-            (a, b) => a.posto.ant - b.posto.ant
-         );
-         setUsuarios(sortedAnt);
+         const sorted = users.sort((a, b) => {
+            const antA = a.posto.ant;
+            const antB = b.posto.ant;
+            if (antA !== antB) return antA - antB;
+
+            const promoA = a.ult_promo || "";
+            const promoB = b.ult_promo || "";
+            if (promoA !== promoB) return promoA.localeCompare(promoB);
+
+            return a.ant_rel - b.ant_rel;
+         });
+         setUsuarios(sorted);
          setLoading(false);
       });
    };
@@ -134,7 +138,7 @@ export default function UsersPage() {
                      <tbody>
                         {filterUsers.map((user) => (
                            <tr
-                              className='bg-white hover:bg-gray-50 hover:font-semibold'
+                              className='bg-white hover:bg-gray-100'
                               key={user.id}
                            >
                               <td className='font-medium text-gray-900'>

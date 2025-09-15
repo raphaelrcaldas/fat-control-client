@@ -1,16 +1,11 @@
 "use client";
 import { useEffect, useState } from "react";
 import { Button, Label, Modal, TextInput, Spinner } from "flowbite-react";
-import * as UserAPI from "../../../../../services/routes/users";
+import { getUserById, updateUser, addUser } from "services/routes/users";
 import { useForm } from "react-hook-form";
 import { cpf } from "cpf-cnpj-validator";
 import clsx from "clsx";
-import {
-   validateNoNumber,
-   onlyText,
-   validateOnlyNumber,
-   sanitizeText,
-} from "../../../../../utils/textFormat";
+import { sanitizeText } from "../../../../../utils/textFormat";
 import { HiMail } from "react-icons/hi";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -26,6 +21,7 @@ interface DefaultValues {
    cpf: string;
    email_fab: string;
    email_pess: string;
+   ant_rel: number | null;
    ult_promo: string | null;
    nasc: string | null;
 }
@@ -34,6 +30,7 @@ const values: DefaultValues = {
    p_g: "",
    unidade: "",
    ult_promo: null,
+   ant_rel: null,
    nasc: null,
    esp: "",
    nome_completo: "",
@@ -66,6 +63,7 @@ const createUserFormSchema = z.object({
    email_pess: z.union([z.literal(""), z.string().email()]),
    nasc: z.nullable(z.string()),
    ult_promo: z.nullable(z.string()),
+   ant_rel: z.nullable(z.coerce.number().gt(0)),
 });
 
 type CreateUserFormData = z.infer<typeof createUserFormSchema>;
@@ -86,7 +84,7 @@ export function UserRegister({ userId, updateUsers, show, setShow }) {
    useEffect(() => {
       if (show && userId) {
          setLoadingUser(true);
-         UserAPI.getUserById(userId).then((data) => {
+         getUserById(userId).then((data) => {
             reset(data);
             setValue("esp", data.esp.toUpperCase());
             setValue("nome_completo", data.nome_completo.toUpperCase());
@@ -99,9 +97,9 @@ export function UserRegister({ userId, updateUsers, show, setShow }) {
    async function onAddUser(data: CreateUserFormData) {
       let response;
       if (userId) {
-         response = await UserAPI.updateUser(userId, data);
+         response = await updateUser(userId, data);
       } else {
-         response = await UserAPI.addUser(data);
+         response = await addUser(data);
       }
       const dataRes = await response.json();
       alert(dataRes.detail);
@@ -120,7 +118,7 @@ export function UserRegister({ userId, updateUsers, show, setShow }) {
    return (
       <>
          {show && (
-            <Modal show={show} size='lg' onClose={onClose} popup>
+            <Modal show={show} size='xl' onClose={onClose} popup>
                <Modal.Header />
                <Modal.Body>
                   <form onSubmit={handleSubmit(onAddUser)}>
@@ -184,7 +182,16 @@ export function UserRegister({ userId, updateUsers, show, setShow }) {
                                        autoComplete='off'
                                        maxLength={6}
                                        className='bg-gray-50 border text-center border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5'
-                                       onKeyPress={(event) => onlyText(event)}
+                                       onKeyDown={(e) => {
+                                          if (
+                                             !e.key.match(/^[a-zA-ZÀ-ÿ\s]$/) &&
+                                             e.key !== "Backspace" &&
+                                             e.key !== "Delete" &&
+                                             e.key !== "Tab"
+                                          ) {
+                                             e.preventDefault();
+                                          }
+                                       }}
                                     />
                                  </div>
                                  <div className='px-2 w-52'>
@@ -194,9 +201,16 @@ export function UserRegister({ userId, updateUsers, show, setShow }) {
                                     <input
                                        {...register("nome_guerra")}
                                        autoComplete='off'
-                                       onKeyPress={(event) =>
-                                          validateNoNumber(event)
-                                       }
+                                       onKeyDown={(e) => {
+                                          if (
+                                             !e.key.match(/^[a-zA-ZÀ-ÿ\s]$/) &&
+                                             e.key !== "Backspace" &&
+                                             e.key !== "Delete" &&
+                                             e.key !== "Tab"
+                                          ) {
+                                             e.preventDefault();
+                                          }
+                                       }}
                                        className={clsx(
                                           "bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5",
                                           {
@@ -224,9 +238,16 @@ export function UserRegister({ userId, updateUsers, show, setShow }) {
                                        {...register("nome_completo")}
                                        autoComplete='off'
                                        className='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5'
-                                       onKeyPress={(event) =>
-                                          validateNoNumber(event)
-                                       }
+                                       onKeyDown={(e) => {
+                                          if (
+                                             !e.key.match(/^[a-zA-ZÀ-ÿ\s]$/) &&
+                                             e.key !== "Backspace" &&
+                                             e.key !== "Delete" &&
+                                             e.key !== "Tab"
+                                          ) {
+                                             e.preventDefault();
+                                          }
+                                       }}
                                     />
                                  </div>
                                  <div className='px-2 w-48'>
@@ -272,9 +293,16 @@ export function UserRegister({ userId, updateUsers, show, setShow }) {
                                     <input
                                        {...register("saram")}
                                        autoComplete='off'
-                                       onKeyPress={(event) =>
-                                          validateOnlyNumber(event)
-                                       }
+                                       onKeyDown={(e) => {
+                                          if (
+                                             !e.key.match(/[0-9]/) &&
+                                             e.key !== "Backspace" &&
+                                             e.key !== "Delete" &&
+                                             e.key !== "Tab"
+                                          ) {
+                                             e.preventDefault();
+                                          }
+                                       }}
                                        className={clsx(
                                           "bg-gray-50 border text-center border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5",
                                           {
@@ -298,9 +326,16 @@ export function UserRegister({ userId, updateUsers, show, setShow }) {
                                     <input
                                        {...register("id_fab")}
                                        autoComplete='off'
-                                       onKeyPress={(event) =>
-                                          validateOnlyNumber(event)
-                                       }
+                                       onKeyDown={(e) => {
+                                          if (
+                                             !e.key.match(/[0-9]/) &&
+                                             e.key !== "Backspace" &&
+                                             e.key !== "Delete" &&
+                                             e.key !== "Tab"
+                                          ) {
+                                             e.preventDefault();
+                                          }
+                                       }}
                                        className='bg-gray-50 border text-center border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5'
                                        minLength={6}
                                     />
@@ -312,9 +347,16 @@ export function UserRegister({ userId, updateUsers, show, setShow }) {
                                     <input
                                        {...register("cpf")}
                                        autoComplete='off'
-                                       onKeyPress={(event) =>
-                                          validateOnlyNumber(event)
-                                       }
+                                       onKeyDown={(e) => {
+                                          if (
+                                             !e.key.match(/[0-9]/) &&
+                                             e.key !== "Backspace" &&
+                                             e.key !== "Delete" &&
+                                             e.key !== "Tab"
+                                          ) {
+                                             e.preventDefault();
+                                          }
+                                       }}
                                        className={clsx(
                                           "bg-gray-50 border text-center border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5",
                                           {
@@ -358,8 +400,8 @@ export function UserRegister({ userId, updateUsers, show, setShow }) {
                                  />
                               </div>
 
-                              <div className='flex'>
-                                 <div className='px-2 w-1/2'>
+                              <div className='grid grid-cols-3'>
+                                 <div className='px-2'>
                                     <Label
                                        className='mb-2 block'
                                        value='Data de Nascimento'
@@ -377,8 +419,7 @@ export function UserRegister({ userId, updateUsers, show, setShow }) {
                                        </span>
                                     )}
                                  </div>
-
-                                 <div className='px-2 w-1/2'>
+                                 <div className='px-2'>
                                     <Label
                                        className='mb-2 block'
                                        value='Última Promoção'
@@ -388,6 +429,20 @@ export function UserRegister({ userId, updateUsers, show, setShow }) {
                                        defaultValue={null}
                                        className='text-sm text-gray-900'
                                        type='date'
+                                       autoComplete='off'
+                                    />
+                                 </div>
+                                 <div className='px-2'>
+                                    <Label
+                                       className='mb-2 block'
+                                       value='Antiguidade Relativa'
+                                    />
+                                    <TextInput
+                                       {...register("ant_rel")}
+                                       defaultValue={null}
+                                       className='text-sm text-gray-900'
+                                       type='number'
+                                       min={1}
                                        autoComplete='off'
                                     />
                                  </div>
