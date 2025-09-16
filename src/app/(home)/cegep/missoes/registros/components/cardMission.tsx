@@ -87,15 +87,15 @@ export function CardMission({
                   </div>
                </div>
 
-               <div className='flex flex-wrap gap-2'>
+               <div className='flex flex-col gap-2'>
                   {missao.pernoites.map((pnt) => {
                      return (
-                        <span
-                           key={pnt.id}
-                           className='bg-slate-200 py-1 px-2 rounded-lg'
-                        >
-                           {pnt.cidade.nome}-{pnt.cidade.uf}
-                        </span>
+                        <div key={pnt.id}>
+                           
+                           <span className='bg-slate-200 py-1 px-2 rounded-lg'>
+                              {pnt.cidade.nome}-{pnt.cidade.uf}
+                           </span>
+                        </div>
                      );
                   })}
                </div>

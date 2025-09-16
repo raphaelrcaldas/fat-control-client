@@ -52,8 +52,18 @@ export interface Missao {
 }
 
 
-export async function getFragMissoes(dataIni, dataFim): Promise<Missao[]> {
-   return (await request("GET", missoesRoute + `?ini=${dataIni}&fim=${dataFim}`)).json();
+export async function getFragMissoes(reqs?: Record<string, any>): Promise<Missao[]> {
+   // Remove chaves com valores undefined ou string vazia
+   const params = reqs
+      ? Object.fromEntries(
+           Object.entries(reqs).filter(
+               ([, v]) => v !== undefined && v !== ""
+           )
+        )
+      : undefined;
+
+   const response = await request("GET", missoesRoute, null, params);
+   return await response.json() as Missao[];
 }
 
 export async function createUpdateFragMis(missao: Missao) {

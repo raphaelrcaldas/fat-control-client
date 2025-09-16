@@ -2,7 +2,7 @@
 
 import { getFragMissoes } from "services/routes/cegep/missoes";
 import { useEffect, useState } from "react";
-import { Label, HR, Spinner } from "flowbite-react";
+import { Label, HR, Spinner, Select, TextInput, Button } from "flowbite-react";
 import { Missao } from "services/routes/cegep/missoes";
 import { CardMission } from "./components/cardMission";
 import MissionDetail from "./components/missionDetail";
@@ -13,23 +13,39 @@ export function RegisPage() {
    const [cloneMis, setCloneMis] = useState<Missao | null>(null);
    const [showForm, setShowForm] = useState(false);
    const [loading, setLoading] = useState(true);
-   const { dataInicio, setDataInicio, dataFim, setDataFim } =
-      useRegisterContext();
+   const {
+      dataInicio,
+      setDataInicio,
+      dataFim,
+      setDataFim,
+      tipoDoc,
+      setTipoDoc,
+      nDoc,
+      setNDoc,
+      selectedTipo,
+      setSelectedTipo,
+   } = useRegisterContext();
 
-   function updateMis() {
+   const fetchData = async () => {
       setLoading(true);
-      getFragMissoes(dataInicio, dataFim)
-         .then((data) => {
-            setMissoes(data);
-         })
-         .finally(() => setLoading(false));
-   }
+
+      let req: { [key: string]: any } = {};
+
+      if (tipoDoc) req.tipo_doc = tipoDoc;
+      if (nDoc) req.n_doc = nDoc;
+      if (selectedTipo) req.tipo = selectedTipo;
+      if (dataInicio) req.ini = dataInicio;
+      if (dataFim) req.fim = dataFim;
+
+      const data = await getFragMissoes(req);
+
+      setMissoes(data);
+      setLoading(false);
+   };
 
    useEffect(() => {
-      if (dataInicio && dataFim) {
-         updateMis();
-      }
-   }, [dataInicio, dataFim]);
+      fetchData();
+   }, []);
 
    return (
       <>
@@ -57,26 +73,118 @@ export function RegisPage() {
                      </div>
                   </div>
                </div>
-               <div className='p-2 flex flex-row gap-4 w-full justify-center'>
-                  <div className='flex flex-row gap-2 items-center'>
-                     <Label>Início</Label>
-                     <input
-                        type='date'
-                        value={dataInicio}
-                        onChange={(e) => setDataInicio(e.target.value)}
-                        className='block text-center p-2.5 text-sm text-gray-900 bg-white border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500'
-                     />
+
+               <section className='flex flex-col bg-gray-50'>
+                  <div className='w-full max-w-screen-xl p-2 mx-auto lg:px-12'>
+                     <div className='relative overflow-hidden bg-white shadow-md sm:rounded-lg'>
+                        <div className='flex-row items-center justify-evenly p-4 space-y-3 sm:flex sm:space-y-0 sm:space-x-4'>
+                           <div>
+                              <div className='mb-2 text-center'>
+                                 <Label>Tipo da Ordem</Label>
+                              </div>
+                              <Select
+                                 value={tipoDoc}
+                                 onChange={(e) => setTipoDoc(e.target.value)}
+                              >
+                                 <option value=''>Selecione</option>
+                                 <option value='om'>Missão</option>
+                                 <option value='os'>Serviço</option>
+                              </Select>
+                           </div>
+                           <div className='w-24'>
+                              <div className='mb-2 text-center'>
+                                 <Label>Nº da Ordem</Label>
+                              </div>
+                              <TextInput
+                                 type='text'
+                                 value={nDoc ?? ""}
+                                 onChange={(e) =>
+                                    setNDoc(
+                                       e.target.value === ""
+                                          ? undefined
+                                          : Number(e.target.value)
+                                    )
+                                 }
+                                 onKeyDown={(e) => {
+                                    if (
+                                       !(
+                                          (e.key >= "0" && e.key <= "9") ||
+                                          [
+                                             "Backspace",
+                                             "Tab",
+                                             "Delete",
+                                             "ArrowLeft",
+                                             "ArrowRight",
+                                          ].includes(e.key)
+                                       )
+                                    ) {
+                                       e.preventDefault();
+                                    }
+                                 }}
+                              />
+                           </div>
+
+                           {/* <div className=''>
+                              <div className='mb-2 text-center'>
+                                 <Label>Militar</Label>
+                              </div>
+                              <TextInput
+                                 type='text'
+                                 value={userSearch}
+                                 onChange={(e) => setUserSearch(e.target.value)}
+                                 placeholder='Nome completo ou de guerra'
+                              />
+                           </div> */}
+
+                           <div>
+                              <div className='mb-2 text-center'>
+                                 <Label>Tipo de Missão</Label>
+                              </div>
+                              <Select
+                                 value={selectedTipo}
+                                 onChange={(e) =>
+                                    setSelectedTipo(e.target.value)
+                                 }
+                              >
+                                 <option value=''>Selecione</option>
+                                 <option value='tal'>TAL</option>
+                                 <option value='adm'>ADM</option>
+                                 <option value='opr'>OPR</option>
+                              </Select>
+                           </div>
+
+                           <div className='w-40'>
+                              <div className='mb-2 text-center'>
+                                 <Label>Inicio</Label>
+                              </div>
+                              <input
+                                 type='date'
+                                 value={dataInicio}
+                                 onChange={(e) => setDataInicio(e.target.value)}
+                                 className='block w-full text-center p-2.5 text-sm text-gray-900 bg-white border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500'
+                              />
+                           </div>
+                           <div className='w-40'>
+                              <div className='mb-2 text-center'>
+                                 <Label>Fim</Label>
+                              </div>
+                              <input
+                                 type='date'
+                                 value={dataFim}
+                                 onChange={(e) => setDataFim(e.target.value)}
+                                 className='block w-full text-center p-2.5 text-sm text-gray-900 bg-white border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500'
+                              />
+                           </div>
+
+                           <div className='pt-6'>
+                              <Button color='light' pill onClick={fetchData}>
+                                 Filtrar
+                              </Button>
+                           </div>
+                        </div>
+                     </div>
                   </div>
-                  <div className='flex flex-row gap-2 items-center'>
-                     <Label>Fim</Label>
-                     <input
-                        type='date'
-                        value={dataFim}
-                        onChange={(e) => setDataFim(e.target.value)}
-                        className='block text-center p-2.5 text-sm text-gray-900 bg-white border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500'
-                     />
-                  </div>
-               </div>
+               </section>
                <HR />
 
                {loading ? (
@@ -92,7 +200,7 @@ export function RegisPage() {
                            <CardMission
                               key={m.id}
                               missao={m}
-                              update={updateMis}
+                              update={fetchData}
                               setClone={setCloneMis}
                               setShowForm={setShowForm}
                            />
@@ -109,7 +217,7 @@ export function RegisPage() {
                edit={true}
                missao={cloneMis}
                setShow={setShowForm}
-               update={updateMis}
+               update={fetchData}
                setClone={setCloneMis}
             />
          )}
