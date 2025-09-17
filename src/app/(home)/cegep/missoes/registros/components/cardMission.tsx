@@ -113,14 +113,13 @@ function PernoiteCardMis({ pnt }) {
    const dayExt = {
       day: "2-digit" as const,
       month: "2-digit" as const,
-      year: "2-digit" as const,
    };
    const dataIni = new Date(pnt.data_ini).toLocaleDateString("pt-br", dayExt);
    const dataFim = new Date(pnt.data_fim).toLocaleDateString("pt-br", dayExt);
 
    return (
       <div className='p-1 flex flex-row gap-1 rounded-lg bg-gray-200 items-center justify-start text-sm'>
-         <span className='w-40 font-mono lowercase text-center'>
+         <span className='w-28 font-mono lowercase text-center'>
             {dataIni} a {dataFim}
          </span>
          <span className='font-medium'>
