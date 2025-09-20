@@ -33,6 +33,7 @@ export interface ComissWithMiss extends Comiss {
     diarias_comp: number
     vals_comp: number
     modulo: boolean
+    completude: number
 }
 
 export async function getCmtos(): Promise<ComissWithMiss[]> {

@@ -47,14 +47,6 @@ export function CardComiss({
    const ajd_ab = comiss.valor_aj_ab;
    const ajd_fc = comiss.valor_aj_fc;
 
-   let completude: number;
-   if (comiss.dias_cumprir) {
-      completude = comiss.dias_comp / comiss.dias_cumprir;
-   } else {
-      completude = comiss.vals_comp / (ajd_ab + ajd_fc);
-   }
-   if (completude > 1) completude = 1;
-
    async function deleteComiss() {
       const confirmed = window.confirm("Deseja deletar esse comissionamento?");
       if (!confirmed) return;
@@ -79,7 +71,6 @@ export function CardComiss({
          alert("Erro inesperado. Verifique sua conexão ou tente novamente.");
       }
    }
-
    return (
       <>
          <Card
@@ -134,7 +125,7 @@ export function CardComiss({
                   </div>
                   <div>
                      <ComissProgress
-                        value={completude}
+                        value={comiss.completude}
                         status={comiss.status}
                         modulo={comiss.modulo}
                      />
