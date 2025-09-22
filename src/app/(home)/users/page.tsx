@@ -1,173 +1,73 @@
 "use client";
 
-import { TextInput, Button, Spinner } from "flowbite-react";
+import { Spinner } from "flowbite-react";
 import { useState, useEffect } from "react";
-import { getUsers, UserPublic } from "../../../../services/routes/users";
+import useDebouncedValue from "./hooks/useDebouncedValue";
+import useUsers from "./hooks/useUsers";
+import UsersToolbar from "./components/UsersToolbar";
+import UsersTable from "./components/UsersTable";
 import { UserRegister } from "./components/userForm";
-import { IoMdInformationCircleOutline } from "react-icons/io";
-
-function useUsers() {
-   const [usuarios, setUsuarios] = useState([]);
-   const [loading, setLoading] = useState(false);
-
-   const updateListUsers = () => {
-      setLoading(true);
-      getUsers().then((users) => {
-         const sorted = users.sort((a, b) => {
-            const antA = a.posto.ant;
-            const antB = b.posto.ant;
-            if (antA !== antB) return antA - antB;
-
-            const promoA = a.ult_promo || "";
-            const promoB = b.ult_promo || "";
-            if (promoA !== promoB) return promoA.localeCompare(promoB);
-
-            return a.ant_rel - b.ant_rel;
-         });
-         setUsuarios(sorted);
-         setLoading(false);
-      });
-   };
-
-   return { usuarios, updateListUsers, loading };
-}
-
-function useFilterUsers(
-   usuarios: UserPublic[],
-   filterName: string
-): {
-   filterUsers: UserPublic[];
-   setFilterUsers: React.Dispatch<React.SetStateAction<UserPublic[]>>;
-} {
-   const [filterUsers, setFilterUsers] = useState([]);
-
-   useEffect(() => {
-      const filtered = usuarios.filter((user) => {
-         const inputFilter = filterName.toLowerCase();
-         const nomeCompletoCheck = user.nome_completo
-            .toLowerCase()
-            .includes(inputFilter);
-         const nomeGuerraCheck = user.nome_guerra
-            .toLowerCase()
-            .includes(inputFilter);
-
-         return nomeCompletoCheck || nomeGuerraCheck;
-      });
-      setFilterUsers(filtered);
-   }, [filterName, usuarios]);
-   return { filterUsers, setFilterUsers };
-}
+import { useToast } from "../../../context/toast";
 
 export default function UsersPage() {
+   const { push } = useToast();
    const { usuarios, updateListUsers, loading } = useUsers();
+
    const [filterName, setFilterName] = useState("");
-   const { filterUsers } = useFilterUsers(usuarios, filterName);
+   const debouncedFilter = useDebouncedValue(filterName, 220);
 
    const [showUserModal, setShowUserModal] = useState(false);
-   const [userId, setUserId] = useState(null);
+   const [userId, setUserId] = useState<number | null>(null);
 
-   const handleUserForm = (userId?: number) => {
-      setUserId(userId);
+   const handleUserForm = (id?: number | null) => {
+      setUserId(id ?? null);
       setShowUserModal(true);
    };
 
    useEffect(() => {
-      updateListUsers();
+      const ac = new AbortController();
+      updateListUsers(ac.signal, (msg: string) =>
+         push({ message: msg, type: "error" })
+      );
+      return () => ac.abort();
    }, []);
+
+   const filteredUsers = ((): any[] => {
+      const input = debouncedFilter.trim().toLowerCase();
+      if (!input) return usuarios;
+      return usuarios.filter((user) => {
+         const nomeCompleto = (user.nome_completo || "").toLowerCase();
+         const nomeGuerra = (user.nome_guerra || "").toLowerCase();
+         return nomeCompleto.includes(input) || nomeGuerra.includes(input);
+      });
+   })();
 
    return (
       <>
          <UserRegister
             userId={userId}
-            updateUsers={updateListUsers}
+            updateUsers={() => updateListUsers()}
             show={showUserModal}
             setShow={setShowUserModal}
          />
-         <div className='w-full h-full'>
-            <div className='flex flex-row justify-between gap-2 my-4'>
-               <TextInput
-                  className='w-full md:w-1/2'
-                  placeholder='Search for User'
-                  value={filterName}
-                  onChange={(e) => setFilterName(e.target.value)}
-               />
-               <div className='flex justify-center'>
-                  <Button color='blue' onClick={() => handleUserForm(null)}>
-                     Adicionar Usuário
-                  </Button>
-               </div>
-            </div>
 
-            <div className='relative w-full overflow-x-auto overflow-y-auto shadow-lg rounded-lg max-h-[90%]'>
-               {loading ? (
-                  <div className='flex justify-center items-center h-40'>
-                     <Spinner size='xl' />
-                  </div>
-               ) : (
-                  <table className='w-full text-base text-gray-500 uppercase text-center overflow-visible'>
-                     <thead className='text-xs text-gray-700 bg-gray-200 sticky top-0 z-10'>
-                        <tr>
-                           <th scope='col' className='px-3 py-3 text-center'>
-                              P/G
-                           </th>
-                           <th
-                              scope='col'
-                              className='px-3 py-3 text-center hidden md:table-cell'
-                           >
-                              Especialidade
-                           </th>
-                           <th scope='col' className='px-3 py-3'>
-                              Nome de Guerra
-                           </th>
-                           <th
-                              scope='col'
-                              className='px-3 py-3 hidden md:table-cell'
-                           >
-                              Nome Completo
-                           </th>
-                           <th scope='col' className='px-3 py-3 text-center'>
-                              Unidade
-                           </th>
-                           <th scope='col'>
-                              <span className='px-3 py-3 sr-only'>
-                                 Detalhes
-                              </span>
-                           </th>
-                        </tr>
-                     </thead>
-                     <tbody>
-                        {filterUsers.map((user) => (
-                           <tr
-                              className='bg-white hover:bg-gray-100'
-                              key={user.id}
-                           >
-                              <td className='font-medium text-gray-900'>
-                                 {user.posto.short}
-                              </td>
-                              <td className='hidden md:table-cell'>
-                                 {user.esp}
-                              </td>
-                              <td>{user.nome_guerra}</td>
-                              <td className='text-center hidden md:table-cell'>
-                                 {user.nome_completo}
-                              </td>
-                              <td className='grid py-4 justify-items-center font-semibold'>
-                                 {user.unidade}
-                              </td>
-                              <td className='px-1 py-2 align-middle text-center'>
-                                 <button
-                                    className='py-2.5 px-5 text-lg font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100'
-                                    onClick={() => handleUserForm(user.id)}
-                                 >
-                                    <IoMdInformationCircleOutline />
-                                 </button>
-                              </td>
-                           </tr>
-                        ))}
-                     </tbody>
-                  </table>
-               )}
-            </div>
+         <div className='w-full h-full'>
+            <UsersToolbar
+               filterName={filterName}
+               setFilterName={setFilterName}
+               onAdd={() => handleUserForm(null)}
+            />
+
+            {loading ? (
+               <div className='flex justify-center items-center h-40'>
+                  <Spinner size='xl' />
+               </div>
+            ) : (
+               <UsersTable
+                  users={filteredUsers}
+                  onOpen={(id?: number) => handleUserForm(id)}
+               />
+            )}
          </div>
       </>
    );

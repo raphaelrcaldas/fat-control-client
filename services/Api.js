@@ -9,7 +9,8 @@ export default async function request(
    method,
    endpoint,
    body = null,
-   params = null
+   params = null,
+   signal = undefined
 ) {
    let fullUrl = `${baseUrl}${endpoint}`;
    let headers = { "Content-Type": "application/json" };
@@ -30,6 +31,10 @@ export default async function request(
 
    if (token) {
       headers.Authorization = `Bearer ${token}`;
+   }
+
+   if (signal) {
+      options.signal = signal;
    }
 
    return await fetch(fullUrl, options);

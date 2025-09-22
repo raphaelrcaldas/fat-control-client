@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { Button, Label, Modal, TextInput, Spinner } from "flowbite-react";
 import { getUserById, updateUser, addUser } from "services/routes/users";
+import { useToast } from "../../../../context/toast";
 import { useForm } from "react-hook-form";
 import { cpf } from "cpf-cnpj-validator";
 import clsx from "clsx";
@@ -70,6 +71,7 @@ type CreateUserFormData = z.infer<typeof createUserFormSchema>;
 
 export function UserRegister({ userId, updateUsers, show, setShow }) {
    const [loadingUser, setLoadingUser] = useState(false);
+   const { push } = useToast();
    const {
       register,
       handleSubmit,
@@ -95,18 +97,30 @@ export function UserRegister({ userId, updateUsers, show, setShow }) {
    }, [show, userId, reset, setValue]);
 
    async function onAddUser(data: CreateUserFormData) {
-      let response;
-      if (userId) {
-         response = await updateUser(userId, data);
-      } else {
-         response = await addUser(data);
-      }
-      const dataRes = await response.json();
-      alert(dataRes.detail);
-      if (response.ok) {
-         reset();
-         setShow(false);
-         updateUsers();
+      try {
+         let response;
+         if (userId) {
+            response = await updateUser(userId, data);
+         } else {
+            response = await addUser(data);
+         }
+         const dataRes = await response.json();
+         push({
+            message:
+               dataRes.detail || (response.ok ? "Operação realizada" : "Erro"),
+            type: response.ok ? "success" : "error",
+         });
+         if (response.ok) {
+            reset();
+            setShow(false);
+            updateUsers();
+         }
+      } catch (err: any) {
+         console.error(err);
+         push({
+            message: err?.message || "Erro ao salvar usuário",
+            type: "error",
+         });
       }
    }
 
