@@ -125,23 +125,6 @@ function PernoiteCardMis({ pnt }) {
          <span className='font-medium'>
             {pnt.cidade.nome}-{pnt.cidade.uf}
          </span>
-         <div className='flex flex-row gap-0.5'>
-            {pnt.acrec_desloc && (
-               <Tooltip content='Acréscimo Deslocamento'>
-                  <span className='font-semibold bg-green-400 px-2 rounded-lg'>
-                     AC
-                  </span>
-               </Tooltip>
-            )}
-
-            {pnt.meia_diaria && (
-               <Tooltip content='Meia Diária'>
-                  <span className='font-semibold bg-amber-400 px-2 rounded-lg'>
-                     MD
-                  </span>
-               </Tooltip>
-            )}
-         </div>
       </div>
    );
 }
