@@ -29,6 +29,7 @@ export interface UserSchema {
    email_pess: string
    email_fab: string
    unidade: string
+   ant_rel: number | null
 }
 
 export interface UserFull extends UserSchema {

@@ -71,11 +71,14 @@ type CreateUserFormData = z.infer<typeof createUserFormSchema>;
 
 export function UserRegister({ userId, updateUsers, show, setShow }) {
    const [loadingUser, setLoadingUser] = useState(false);
+   const [initialValues, setInitialValues] =
+      useState<CreateUserFormData | null>(null);
    const { push } = useToast();
    const {
       register,
       handleSubmit,
       reset,
+      watch,
       setValue,
       formState: { errors },
    } = useForm<CreateUserFormData>({
@@ -87,20 +90,62 @@ export function UserRegister({ userId, updateUsers, show, setShow }) {
       if (show && userId) {
          setLoadingUser(true);
          getUserById(userId).then((data) => {
-            reset(data);
-            setValue("esp", data.esp.toUpperCase());
-            setValue("nome_completo", data.nome_completo.toUpperCase());
-            setValue("nome_guerra", data.nome_guerra.toUpperCase());
+            // normalizar para a forma do form
+            const init: CreateUserFormData = {
+               p_g: data.p_g || "",
+               unidade: data.unidade || "",
+               esp: (data.esp || "").toUpperCase(),
+               nome_guerra: (data.nome_guerra || "").toUpperCase(),
+               nome_completo: (data.nome_completo || "").toUpperCase(),
+               saram: data.saram ?? null,
+               id_fab: data.id_fab ?? null,
+               cpf: data.cpf || "",
+               email_fab: data.email_fab || "",
+               email_pess: data.email_pess || "",
+               nasc: data.nasc ?? null,
+               ult_promo: data.ult_promo ?? null,
+               ant_rel: data.ant_rel ?? null,
+            };
+
+            reset(init);
+            setInitialValues(init);
             setLoadingUser(false);
          });
       }
    }, [show, userId, reset, setValue]);
 
+   const currentValues = watch();
+   const baseValues = initialValues ?? values;
+   const diffPreview = getChangedFields(
+      baseValues as any,
+      currentValues as any
+   );
+   const hasChanges = Object.keys(diffPreview).length > 0;
+
    async function onAddUser(data: CreateUserFormData) {
       try {
          let response;
          if (userId) {
-            response = await updateUser(userId, data);
+            // enviar somente campos modificados
+            if (!initialValues) {
+               // fallback: enviar tudo se não temos referência
+               response = await updateUser(userId, data);
+            } else {
+               const diff = getChangedFields(
+                  initialValues as CreateUserFormData,
+                  data
+               );
+
+               if (Object.keys(diff).length === 0) {
+                  push({
+                     message: "Nenhuma alteração detectada",
+                     type: "info",
+                  });
+                  return;
+               }
+
+               response = await updateUser(userId, diff);
+            }
          } else {
             response = await addUser(data);
          }
@@ -463,7 +508,12 @@ export function UserRegister({ userId, updateUsers, show, setShow }) {
                               </div>
                            </div>
                            <div className='grid justify-center mt-6'>
-                              <Button type='submit'>Salvar</Button>
+                              <Button
+                                 type='submit'
+                                 disabled={!hasChanges || loadingUser}
+                              >
+                                 Salvar
+                              </Button>
                            </div>
                         </>
                      )}
@@ -473,4 +523,23 @@ export function UserRegister({ userId, updateUsers, show, setShow }) {
          )}
       </>
    );
+}
+
+function getChangedFields<T extends Record<string, any>>(oldObj: T, newObj: T) {
+   function isEmpty(val) {
+      return val === null || val === undefined || val === "";
+   }
+
+   const diff: Partial<T> = {};
+   Object.keys(newObj).forEach((k) => {
+      const key = k as keyof T;
+      const oldVal = oldObj[key];
+      const newVal = newObj[key];
+      const changed =
+         isEmpty(oldVal) !== isEmpty(newVal) ||
+         String(oldVal).toLowerCase() !== String(newVal).toLowerCase();
+
+      if (changed) diff[key] = newVal;
+   });
+   return diff;
 }
