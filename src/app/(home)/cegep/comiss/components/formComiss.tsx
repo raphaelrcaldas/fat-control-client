@@ -16,6 +16,7 @@ import { UserPublic } from "services/routes/users";
 import { Comiss as ComissSchema } from "services/routes/cegep/comiss";
 import { createCmto, updateCmto } from "services/routes/cegep/comiss";
 import { SearchUser } from "src/app/(home)/users/components/searchUser";
+import { useToast } from "src/context/toast";
 
 export function FormComiss({
    show,
@@ -29,6 +30,7 @@ export function FormComiss({
    update: () => void;
 }) {
    const [showUserSearch, setShowUserSearch] = useState(false);
+   const { push } = useToast();
 
    // Valores padrões do militar
    const defaultValues = useMemo(
@@ -89,12 +91,12 @@ export function FormComiss({
    async function handleComiss() {
       let errors = [];
       verificarCampos(errors);
-      setIsLoading(true);
-
       if (errors.length > 0) {
-         alert("Preencha os campos obrigatórios:\n" + errors.join("\n"));
+         // Apenas retorna, não mostra push nem alert
+         setIsLoading(false);
          return;
       }
+      setIsLoading(true);
 
       const comisObj: ComissSchema = {
          user_id: user.id,
@@ -124,12 +126,19 @@ export function FormComiss({
             throw new Error(data.detail || "Erro desconhecido");
          }
 
-         alert(data.detail);
+         push({
+            message: data.detail || "Erro desconhecido",
+            type: res.ok ? "success" : "error",
+         });
 
          update();
          setShow(false);
       } catch (err) {
-         alert("Erro ao salvar o comissionamento: " + err.message);
+         push({
+            title: "Erro",
+            message: "Erro ao salvar o comissionamento: " + err.message,
+            type: "error",
+         });
       } finally {
          setIsLoading(false);
       }
