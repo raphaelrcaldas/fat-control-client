@@ -1,13 +1,14 @@
 "use client";
 
-import { Spinner } from "flowbite-react";
+import { Spinner, TextInput, Button } from "flowbite-react";
 import { useState, useEffect } from "react";
 import useDebouncedValue from "./hooks/useDebouncedValue";
 import useUsers from "./hooks/useUsers";
-import UsersToolbar from "./components/UsersToolbar";
-import UsersTable from "./components/UsersTable";
-import { UserRegister } from "./components/userForm";
+import { UserPublic } from "services/routes/users";
+import { UserDetailsModal } from "./components/UserDetailsModal";
+import { IoMdInformationCircleOutline } from "react-icons/io";
 import { useToast } from "../../../context/toast";
+import { UserCreateModal } from "./components/userForm";
 
 export default function UsersPage() {
    const { push } = useToast();
@@ -15,14 +16,7 @@ export default function UsersPage() {
 
    const [filterName, setFilterName] = useState("");
    const debouncedFilter = useDebouncedValue(filterName, 220);
-
-   const [showUserModal, setShowUserModal] = useState(false);
-   const [userId, setUserId] = useState<number | null>(null);
-
-   const handleUserForm = (id?: number | null) => {
-      setUserId(id ?? null);
-      setShowUserModal(true);
-   };
+   const [showCreateModal, setShowCreateModal] = useState(false);
 
    useEffect(() => {
       const ac = new AbortController();
@@ -32,43 +26,128 @@ export default function UsersPage() {
       return () => ac.abort();
    }, []);
 
-   const filteredUsers = ((): any[] => {
+   const filteredUsers = ((): UserPublic[] => {
       const input = debouncedFilter.trim().toLowerCase();
       if (!input) return usuarios;
       return usuarios.filter((user) => {
          const nomeCompleto = (user.nome_completo || "").toLowerCase();
          const nomeGuerra = (user.nome_guerra || "").toLowerCase();
+
          return nomeCompleto.includes(input) || nomeGuerra.includes(input);
       });
    })();
 
    return (
-      <>
-         <UserRegister
-            userId={userId}
-            updateUsers={() => updateListUsers()}
-            show={showUserModal}
-            setShow={setShowUserModal}
-         />
-
-         <div className='w-full h-full'>
-            <UsersToolbar
-               filterName={filterName}
-               setFilterName={setFilterName}
-               onAdd={() => handleUserForm(null)}
-            />
-
-            {loading ? (
-               <div className='flex justify-center items-center h-40'>
-                  <Spinner size='xl' />
-               </div>
-            ) : (
-               <UsersTable
-                  users={filteredUsers}
-                  onOpen={(id?: number) => handleUserForm(id)}
+      <div className='w-full h-full'>
+         <div className='bg-white p-3 rounded-lg shadow-sm flex flex-col lg:flex-row lg:items-center gap-3 my-4'>
+            <div className='flex-1'>
+               <TextInput
+                  className='w-full lg:w-2/3'
+                  placeholder='Buscar usuário por nome de guerra ou nome completo...'
+                  value={filterName}
+                  onChange={(e) => setFilterName((e as any).target.value)}
                />
-            )}
+            </div>
+            <div className='flex items-center justify-end'>
+               <Button
+                  color='blue'
+                  onClick={() => setShowCreateModal(true)}
+                  className='whitespace-nowrap'
+               >
+                  Adicionar Usuário
+               </Button>
+            </div>
          </div>
+
+         {loading ? (
+            <div className='flex justify-center items-center h-40'>
+               <Spinner size='xl' />
+            </div>
+         ) : (
+            <>
+               <div className='relative w-full overflow-x-auto shadow-sm rounded-lg max-h-[80vh] bg-white border border-gray-100'>
+                  <table className='w-full text-sm text-gray-600 text-left overflow-visible'>
+                     <thead className='text-xs text-gray-600 bg-gray-50 sticky top-0 z-10'>
+                        <tr>
+                           <th scope='col' className='px-4 py-3'>
+                              P/G
+                           </th>
+                           <th
+                              scope='col'
+                              className='px-4 py-3 hidden md:table-cell'
+                           >
+                              Especialidade
+                           </th>
+                           <th scope='col' className='px-4 py-3'>
+                              Nome de Guerra
+                           </th>
+                           <th
+                              scope='col'
+                              className='px-4 py-3 hidden md:table-cell'
+                           >
+                              Nome Completo
+                           </th>
+                           <th scope='col' className='px-4 py-3'>
+                              Unidade
+                           </th>
+                           <th scope='col' className='px-4 py-3'>
+                              <span className='sr-only'>Detalhes</span>
+                           </th>
+                        </tr>
+                     </thead>
+                     <tbody className='uppercase'>
+                        {filteredUsers.map((user) => (
+                           <UserRow
+                              key={user.id}
+                              user={user}
+                              update={updateListUsers}
+                           />
+                        ))}
+                     </tbody>
+                  </table>
+               </div>
+            </>
+         )}
+         <UserCreateModal
+            show={showCreateModal}
+            setShow={setShowCreateModal}
+            updateUsers={updateListUsers}
+         />
+      </div>
+   );
+}
+
+function UserRow({ user, update }) {
+   const [showUser, setShowUser] = useState(false);
+
+   return (
+      <>
+         <tr className='border-b last:border-b-0 hover:bg-gray-50 transition-colors'>
+            <td className='px-4 py-3 font-medium text-gray-900'>
+               {user.posto.short}
+            </td>
+            <td className='px-4 py-3 hidden md:table-cell'>{user.esp}</td>
+            <td className='px-4 py-3'>{user.nome_guerra}</td>
+            <td className='px-4 py-3 hidden md:table-cell'>
+               {user.nome_completo}
+            </td>
+            <td className='px-4 py-3 font-semibold'>{user.unidade}</td>
+            <td className='px-4 py-3 text-right'>
+               <button
+                  className='inline-flex items-center justify-center w-10 h-10 rounded-md bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-blue-500 transition'
+                  onClick={() => setShowUser(true)}
+                  aria-label={`Detalhes ${user.nome_guerra}`}
+               >
+                  <IoMdInformationCircleOutline size={18} />
+               </button>
+            </td>
+         </tr>
+         <UserDetailsModal
+            show={showUser}
+            setShow={setShowUser}
+            updateUsers={update}
+            user={user}
+         />
       </>
    );
 }
