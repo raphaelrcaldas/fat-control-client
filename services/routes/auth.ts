@@ -2,7 +2,7 @@ import { baseUrl } from "../Api";
 
 const authRoute = `${baseUrl}auth/`;
 
-export async function getToken(formData) {
+export async function getToken(formData: FormData) {
    const response = await fetch(`${authRoute}token`, {
       body: formData,
       method: "POST",
@@ -11,7 +11,7 @@ export async function getToken(formData) {
    return response;
 }
 
-export async function refreshToken(token) {
+export async function refreshToken(token: string) {
    const response = await fetch(`${authRoute}refresh_token`, {
       method: "POST",
       headers: {
