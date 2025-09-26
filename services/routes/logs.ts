@@ -29,7 +29,15 @@ interface LogFilters {
 }
 
 export async function getUserActionLogs(filters: LogFilters = {}): Promise<UserActionLog[]> {
-    const res = await request('GET', `${logsRoute}user-actions`, null, filters);
+    // Remove undefined values and ensure all values are string or number
+    const params: Record<string, string | number> = {};
+    Object.entries(filters).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+            params[key] = value;
+        }
+    });
+
+    const res = await request('GET', `${logsRoute}user-actions`, null, params);
     if (!res.ok) {
         throw new Error('Erro ao buscar logs de usuário');
     }
