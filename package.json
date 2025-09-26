@@ -21,6 +21,7 @@
     "clsx": "^2.1.1",
     "cookies-next": "^5.1.0",
     "cpf-cnpj-validator": "^1.0.3",
+    "date-fns": "^4.1.0",
     "exceljs": "^4.4.0",
     "flowbite": "^2.5.1",
     "flowbite-react": "^0.10.1",

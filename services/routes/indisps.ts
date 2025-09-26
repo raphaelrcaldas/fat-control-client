@@ -4,14 +4,15 @@ import { UserPublic } from "./users";
 const indispRoute = "indisp/";
 
 export interface CrewIndisp {
-   trig: string,
-   id: number,
+   trig: string
+   id: number
+   user: UserPublic
    func: { func: string, oper: string, proj: string }
 }
 
 export interface IndispType {
    id?: number,
-   user_id: number,
+   user_id?: number,
    date_start: string,
    date_end: string,
    mtv: string,
