@@ -49,18 +49,16 @@ export function CardMission({
 
    return (
       <>
-         <div className='bg-white pb-4 px-3 pt-4 shadow-md flex flex-col gap-3 rounded-lg uppercase w-[28rem] hover:shadow-lg cursor-pointer transition-shadow duration-300 ease-in-out'>
-            <div>
-               <div className='flex justify-end'>
-                  <Dropdown color='light' inline>
-                     <DropdownItem icon={FaRegClone} onClick={() => onClone()}>
-                        Clonar
-                     </DropdownItem>
-                  </Dropdown>
-               </div>
+         <div className='bg-white p-3 shadow-md gap-1 rounded-lg uppercase w-[28rem] hover:shadow-lg cursor-pointer transition-shadow duration-300 ease-in-out'>
+            <div className='flex flex-row justify-between items-center'>
                <h3 className='text-center w-full font-bold'>
                   {missao.tipo_doc} {missao.n_doc}
                </h3>
+               <Dropdown color='light' inline>
+                  <DropdownItem icon={FaRegClone} onClick={() => onClone()}>
+                     Clonar
+                  </DropdownItem>
+               </Dropdown>
             </div>
 
             <div
