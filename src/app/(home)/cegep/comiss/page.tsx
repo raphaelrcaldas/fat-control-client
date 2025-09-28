@@ -19,12 +19,13 @@ export default function HomeApp() {
          const sorted = data.sort((a, b) => {
             const antA = a.user.posto.ant;
             const antB = b.user.posto.ant;
-
             if (antA !== antB) return antA - antB;
 
             const promoA = a.user.ult_promo || "";
             const promoB = b.user.ult_promo || "";
-            return promoA.localeCompare(promoB);
+            if (promoA !== promoB) return promoA.localeCompare(promoB);
+
+            return (a.user.ant_rel ?? 0) - (b.user.ant_rel ?? 0);
          });
 
          setCmtos(sorted);
