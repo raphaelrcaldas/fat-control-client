@@ -250,7 +250,7 @@ export default function MissionDetail({
    }, [show, defaultValues, edit]);
 
    return (
-      <Modal size='2xl' show={show} onClose={handleClose}>
+      <Modal size='3xl' show={show} onClose={handleClose}>
          <ModalHeader>Detalhes de Missão</ModalHeader>
          <ModalBody>
             <div className='flex flex-row justify-center items-center gap-4'>
@@ -487,11 +487,11 @@ export default function MissionDetail({
                )}
             </div>
 
-            <div className='bg-slate-50 shadow-md px-1 py-4 flex flex-col gap-3 rounded-lg'>
+            <div className='bg-slate-50 shadow-md p-4 flex flex-col gap-3 rounded-lg'>
                <h3 className='text-center text-sm font-medium text-slate-600'>
                   Militares
                </h3>
-               <div className='flex flex-wrap gap-2 uppercase font-medium'>
+               <div className='flex flex-wrap gap-1 uppercase font-medium justify-between'>
                   {mils.length == 0 && (
                      <div className='w-full text-center text-red-500'>
                         Nenhum Militar Adicionado

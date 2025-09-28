@@ -1,4 +1,4 @@
-import { Dropdown, DropdownItem, Tooltip } from "flowbite-react";
+import { Dropdown, DropdownItem, HR } from "flowbite-react";
 import { useState, Dispatch, SetStateAction } from "react";
 import { FaRegClone } from "react-icons/fa";
 import MissionDetail from "./missionDetail";
@@ -49,7 +49,7 @@ export function CardMission({
 
    return (
       <>
-         <div className='bg-white p-4 pt-6 shadow-md flex flex-col gap-3 rounded-lg uppercase max-w-96 hover:shadow-lg cursor-pointer transition-shadow duration-300 ease-in-out'>
+         <div className='bg-white pb-4 px-3 pt-4 shadow-md flex flex-col gap-3 rounded-lg uppercase w-[28rem] hover:shadow-lg cursor-pointer transition-shadow duration-300 ease-in-out'>
             <div>
                <div className='flex justify-end'>
                   <Dropdown color='light' inline>
@@ -64,7 +64,7 @@ export function CardMission({
             </div>
 
             <div
-               className='flex flex-col gap-3'
+               className='flex flex-col gap-3 h-full'
                onClick={() => setShowDetail(true)}
             >
                <h4 className='text-center text-sm'>{missao.desc}</h4>
@@ -81,13 +81,15 @@ export function CardMission({
                   </div>
                </div>
 
-               <div className='flex flex-col gap-2'>
+               <HR className=' m-0' />
+
+               <div className='flex flex-col'>
                   {missao.pernoites.map((pnt) => (
                      <PernoiteCardMis key={pnt.id} pnt={pnt} />
                   ))}
                </div>
-
-               <div className='flex gap-1 flex-wrap'>
+               <HR className=' m-0' />
+               <div className='flex gap-1 flex-wrap justify-between'>
                   {missao.users.map((user) => (
                      <UserCardMis key={user.id} user={user} />
                   ))}
@@ -118,11 +120,11 @@ function PernoiteCardMis({ pnt }) {
    const dataFim = new Date(pnt.data_fim).toLocaleDateString("pt-br", dayExt);
 
    return (
-      <div className='p-1 flex flex-row gap-1 rounded-lg bg-gray-200 items-center justify-start text-sm'>
+      <div className='p-1 flex flex-row items-center justify-start text-sm'>
          <span className='w-28 font-mono lowercase text-center'>
             {dataIni} a {dataFim}
          </span>
-         <span className='font-medium'>
+         <span className='ml-3 font-medium rounded-lg bg-gray-200 py-1 px-2'>
             {pnt.cidade.nome}-{pnt.cidade.uf}
          </span>
       </div>
@@ -131,14 +133,19 @@ function PernoiteCardMis({ pnt }) {
 
 function UserCardMis({ user }) {
    return (
-      <span
-         className={clsx("px-2.5 rounded-lg select-none font-medium", {
-            "bg-blue-200": user.sit === "c",
-            "bg-green-200": user.sit === "d",
-            "bg-orange-200": user.sit === "g",
-         })}
+      <div
+         className={clsx(
+            "px-2.5 py-0.5 rounded-lg select-none font-medium w-52 flex items-center",
+            {
+               "bg-blue-200": user.sit === "c",
+               "bg-green-200": user.sit === "d",
+               "bg-orange-200": user.sit === "g",
+            }
+         )}
       >
-         {user.sit} | {user.p_g} {user.user.nome_guerra}
-      </span>
+         <span>
+            {user.sit} | {user.p_g} {user.user.nome_guerra}
+         </span>
+      </div>
    );
 }
