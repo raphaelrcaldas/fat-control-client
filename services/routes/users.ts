@@ -36,6 +36,10 @@ export interface UserFull extends UserSchema {
    posto: PostoGrad
 }
 
+export async function getMe() {
+   return (await request('GET', usersRoute + "me")).json();
+}
+
 export async function getUsers(search?: string, signal?: AbortSignal): Promise<UserPublic[]> {
    const params = search ? { search } : undefined;
    const response = await request("GET", usersRoute, null, params, signal);
@@ -54,10 +58,10 @@ export async function updateUser(userId: number, userBody: any) {
    return await request("PUT", usersRoute + userId, userBody);
 }
 
-export async function changePassword(pwdBody: string) {
+export async function changePassword(pwdBody: { new_pwd: string }) {
    return await request(
       "POST",
-      usersRoute + "change-pwd/",
+      usersRoute + "change-pwd",
       pwdBody,
    );
 }

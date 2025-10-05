@@ -19,7 +19,7 @@ import {
    deleteIndisp,
    IndispType,
 } from "services/routes/indisps";
-import { useToast } from "src/context/toast";
+import { useToast } from "@/app/context/toast";
 
 export function IndispForm({ open, setOpen, trip, update, indisp }) {
    const { push } = useToast();

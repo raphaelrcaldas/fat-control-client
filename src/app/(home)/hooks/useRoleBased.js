@@ -1,13 +1,13 @@
-import { useAuth } from "src/context/auth";
+import { useAuth } from "@/app/context/auth";
 
 export const RoleBasedRoute = ({ children, requiredRoles }) => {
    const { role } = useAuth();
 
-   if (role?.role === "admin") {
+   if (role === "admin") {
       return children;
    }
 
-   if (!role || !requiredRoles.includes(role.role)) {
+   if (!role || !requiredRoles.includes(role)) {
       return null;
    }
 

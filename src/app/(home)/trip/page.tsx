@@ -14,7 +14,7 @@ import {
 import { IoSearchSharp } from "react-icons/io5";
 
 import { SearchUser } from "./components/searchUserTrip";
-import { getTrips } from "@/services/routes/trips";
+import { getTrips } from "services/routes/trips";
 import { TripDetail } from "./components/tripDetail";
 import { PermBased } from "../hooks/usePermBased";
 import clsx from "clsx";
@@ -27,31 +27,6 @@ export default function TripPage() {
    const [active, setActive] = useState(true);
 
    const [filterName, setFilterName] = useState("");
-
-   const themeTable = {
-      root: {
-         base: "w-full text-base text-gray-500 uppercase text-center",
-         wrapper: "relative",
-      },
-      body: {
-         base: "group/body",
-         cell: {
-            base: "px-4 py-1 group-first/body:group-first/row:first:rounded-tl-lg group-first/body:group-first/row:last:rounded-tr-lg group-last/body:group-last/row:first:rounded-bl-lg group-last/body:group-last/row:last:rounded-br-lg",
-         },
-      },
-      head: {
-         base: "group/head text-xs text-gray-700",
-         cell: {
-            base: "bg-gray-200 px-3 py-3 group-first/head:first:rounded-tl-lg group-first/head:last:rounded-tr-lg",
-         },
-      },
-      row: {
-         base: "group/row bg-white hover:font-semibold",
-         hovered: "hover:bg-gray-50",
-         striped:
-            "odd:bg-white even:bg-gray-50 odd:dark:bg-gray-800 even:dark:bg-gray-700",
-      },
-   };
 
    function getListTrips() {
       getTrips({ uae: uae, active: active })
@@ -82,8 +57,8 @@ export default function TripPage() {
 
    return (
       <>
-         <div className='h-full'>
-            <div className='mt-2 gap-2 hidden'>
+         <div className='flex flex-col h-full gap-3'>
+            <div className='gap-2 hidden'>
                <Select
                   onChange={(e) => setUae(e.target.value)}
                   defaultValue={uae}
@@ -94,41 +69,41 @@ export default function TripPage() {
                <Select
                   disabled
                   className={`font-semibold`}
-                  defaultValue={active}
-                  onChange={(e) => setActive(e.target.value)}
+                  onChange={(e) => setActive(e.target.value === "true")}
                >
-                  <option className='font-semibold text-green-600' value={true}>
+                  <option className='font-semibold text-green-600' value='true'>
                      ATIVO
                   </option>
-                  <option className='font-semibold text-red-600' value={false}>
+                  <option className='font-semibold text-red-600' value='false'>
                      INATIVO
                   </option>
                </Select>
             </div>
-            <div className='mt-2 flex flex-col gap-12 md:flex-row'>
-               <div className='md:flex'>
-                  <div className='flex gap-2'>
+
+            <div className='w-full lg:max-w-fit sm:max-h-[90%] overflow-auto max-h-[80%] h-full p-2'>
+               <div className='flex flex-col mb-4 bg-white gap-2 p-3 rounded-lg shadow-md'>
+                  <h5 className='font-semibold text-lg'>Tripulantes</h5>
+                  <p className='text-gray-500'>
+                     Gerencie todos os tripulantes existentes ou crie um novo
+                  </p>
+                  <div className='flex flex-row justify-between'>
                      <TextInput
-                        className='w-64'
+                        className='w-2/3'
                         icon={IoSearchSharp}
-                        placeholder='Search for Crew Member'
+                        placeholder='Busque pelo nome de guerra ou trigrama'
                         value={filterName}
                         onChange={(e) => setFilterName(e.target.value)}
                      />
+                     <SearchUser
+                        uae={uae}
+                        trips={trips}
+                        updateTrips={getListTrips}
+                     />
                   </div>
                </div>
-               <div className='hidden lg:flex'>
-                  <SearchUser
-                     uae={uae}
-                     trips={trips}
-                     updateTrips={getListTrips}
-                  />
-               </div>
-            </div>
-            <div className='mt-4 w-full lg:max-w-fit sm:max-h-[90%] overflow-auto shadow-md max-h-[80%]'>
-               <Table hoverable theme={themeTable}>
+               <Table hoverable>
                   <TableHead className='text-center'>
-                     <TableHeadCell className=''>P/G</TableHeadCell>
+                     <TableHeadCell className=''>PG</TableHeadCell>
                      <TableHeadCell className='hidden md:table-cell'>
                         Esp
                      </TableHeadCell>
@@ -144,7 +119,10 @@ export default function TripPage() {
                   </TableHead>
                   <TableBody>
                      {filterTrips.map((trip) => (
-                        <TableRow key={trip.id}>
+                        <TableRow
+                           key={trip.id}
+                           className='uppercase text-center'
+                        >
                            <TableCell className='font-medium'>
                               {trip.user.posto.short}
                            </TableCell>

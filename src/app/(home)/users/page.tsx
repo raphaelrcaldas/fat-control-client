@@ -7,7 +7,7 @@ import useUsers from "./hooks/useUsers";
 import { UserPublic } from "services/routes/users";
 import { UserDetailsModal } from "./components/UserDetailsModal";
 import { IoMdInformationCircleOutline } from "react-icons/io";
-import { useToast } from "../../../context/toast";
+import { useToast } from "../../context/toast";
 import { UserCreateModal } from "./components/userForm";
 
 export default function UsersPage() {
@@ -38,23 +38,22 @@ export default function UsersPage() {
    })();
 
    return (
-      <div className='w-full h-full'>
-         <div className='bg-white p-3 rounded-lg shadow-sm flex flex-col lg:flex-row lg:items-center gap-3 my-4'>
-            <div className='flex-1'>
+      <div className='w-full h-full px-1'>
+         <div className='grid bg-white p-3 rounded-lg shadow-md gap-3 my-4'>
+            <h5 className='font-semibold text-lg'>Usuários</h5>
+            <div className='flex flex-row justify-between gap-3'>
                <TextInput
                   className='w-full lg:w-2/3'
                   placeholder='Buscar usuário por nome de guerra ou nome completo...'
                   value={filterName}
                   onChange={(e) => setFilterName((e as any).target.value)}
                />
-            </div>
-            <div className='flex items-center justify-end'>
                <Button
                   color='blue'
                   onClick={() => setShowCreateModal(true)}
                   className='whitespace-nowrap'
                >
-                  Adicionar Usuário
+                  Adicionar
                </Button>
             </div>
          </div>
@@ -65,7 +64,7 @@ export default function UsersPage() {
             </div>
          ) : (
             <>
-               <div className='relative w-full overflow-x-auto shadow-sm rounded-lg max-h-[80vh] bg-white border border-gray-100'>
+               <div className='relative w-full overflow-x-auto shadow-md rounded-lg max-h-[80vh] bg-white border border-gray-100'>
                   <table className='w-full text-sm text-gray-600 text-left overflow-visible'>
                      <thead className='text-xs text-gray-600 bg-gray-50 sticky top-0 z-10'>
                         <tr>
@@ -87,7 +86,7 @@ export default function UsersPage() {
                            >
                               Nome Completo
                            </th>
-                           <th scope='col' className='px-4 py-3'>
+                           <th scope='col' className='px-4 py-3 text-center'>
                               Unidade
                            </th>
                            <th scope='col' className='px-4 py-3'>
@@ -131,7 +130,9 @@ function UserRow({ user, update }) {
             <td className='px-4 py-3 hidden md:table-cell'>
                {user.nome_completo}
             </td>
-            <td className='px-4 py-3 font-semibold'>{user.unidade}</td>
+            <td className='px-4 py-3 font-semibold text-center'>
+               {user.unidade}
+            </td>
             <td className='px-4 py-3 text-right'>
                <button
                   className='inline-flex items-center justify-center w-10 h-10 rounded-md bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-blue-500 transition'

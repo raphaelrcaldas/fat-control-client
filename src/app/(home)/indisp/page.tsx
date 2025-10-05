@@ -4,16 +4,16 @@ import { useEffect, useState } from "react";
 import { Button, Select, Spinner } from "flowbite-react";
 import IndispCell from "./components/indispCell";
 import { TripIndisp } from "./components/tripIndisp";
-import { getCrewIndisps } from "@/services/routes/indisps";
-import { getTripData } from "@/services/google-sheets/sheets";
+import { getCrewIndisps } from "services/routes/indisps";
+import { getTripData } from "services/google-sheets/sheets";
 import clsx from "clsx";
-import { useSelect } from "../../../context/select";
+import { useIndispContext } from "../context/indisp";
 import { LastIndisps } from "./components/lastIndisps";
 
 function genDates(dateRefer, daysToGenerate) {
    const offset = -1;
    const days = Array(daysToGenerate)
-      .fill()
+      .fill(null)
       .map((_, i) => {
          const yearUTC = dateRefer.getFullYear();
          const monthUTC = dateRefer.getMonth();
@@ -34,7 +34,7 @@ export default function IndispPage() {
 
    const [indisps, setIndisps] = useState([]);
 
-   const { indispPage } = useSelect();
+   const { indispFunc, setIndispFunc } = useIndispContext();
 
    const changeDateRef = (day, month) => {
       const dateCopy = new Date(dateRef.getTime());
@@ -54,7 +54,7 @@ export default function IndispPage() {
 
    const updateCrewIndisps = () => {
       setIndisps([]);
-      getCrewIndisps(indispPage.func.state, "11gt")
+      getCrewIndisps(indispFunc, "11gt")
          .then((res) => res.json())
          .then((data) => {
             setIndisps(data);
@@ -66,7 +66,7 @@ export default function IndispPage() {
       setActiveDate(new Date());
    };
 
-   useEffect(updateCrewIndisps, [indispPage.func.state]);
+   useEffect(updateCrewIndisps, [indispFunc]);
 
    useEffect(() => {
       getTripData().then((data) => {
@@ -74,7 +74,7 @@ export default function IndispPage() {
       });
 
       function dayRefWindowsSize(size) {
-         return parseInt(size / 80);
+         return parseInt((size / 80).toString());
       }
 
       setDaysToGenerate(dayRefWindowsSize(window.innerWidth));
@@ -97,8 +97,8 @@ export default function IndispPage() {
             <div className='grid justify-center'>
                <Select
                   className='w-fit'
-                  value={indispPage.func.state}
-                  onChange={(e) => indispPage.func.setState(e.target.value)}
+                  value={indispFunc}
+                  onChange={(e) => setIndispFunc(e.target.value)}
                >
                   <option value='mc'>Mecânico</option>
                   <option value='lm'>LoadMaster</option>
@@ -120,7 +120,7 @@ export default function IndispPage() {
                   className='p-0'
                   color='light'
                   size='sm'
-                  onClick={() => changeDateRef(-1)}
+                  onClick={() => changeDateRef(-1, null)}
                >
                   <span className='text-lg'>{"<"}</span>
                </Button>
@@ -133,7 +133,7 @@ export default function IndispPage() {
                   className='p-0'
                   color='light'
                   size='sm'
-                  onClick={() => changeDateRef(1)}
+                  onClick={() => changeDateRef(1, null)}
                >
                   <span className='text-lg'>{">"}</span>
                </Button>

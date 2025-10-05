@@ -43,7 +43,7 @@ export default function HomeApp() {
    return (
       <>
          <div className='flex flex-col gap-2'>
-            <section className='flex flex-col overflow-y-auto bg-gray-50 dark:bg-gray-900'>
+            <section className='flex flex-col overflow-y-auto'>
                <div className='w-full max-w-screen-xl p-2 mx-auto lg:px-12'>
                   <div className='relative overflow-hidden bg-white shadow-md dark:bg-gray-800 sm:rounded-lg'>
                      <div className='flex-row items-center justify-between p-4 space-y-3 sm:flex sm:space-y-0 sm:space-x-4'>
@@ -51,7 +51,7 @@ export default function HomeApp() {
                            <h5 className='mr-3 font-semibold text-lg dark:text-white'>
                               Comissionamentos
                            </h5>
-                           <p className='text-gray-500 dark:text-gray-400'>
+                           <p className='text-gray-500'>
                               Gerencie todos os comissionamentos existentes ou
                               crie um novo
                            </p>

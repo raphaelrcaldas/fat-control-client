@@ -1,6 +1,6 @@
 import IndispContent from "./components/content";
 import { Button, Popover } from "flowbite-react";
-import { dateIsIn, isoStrLocalToDate } from "@/utils/dateHandler";
+import { dateIsIn, isoStrLocalToDate } from "utils/dateHandler";
 import { indispsOptions, getIndisp } from "../options";
 
 export default function IndispCell({ dateRef, trip, indisps, cemal, ultVoo }) {

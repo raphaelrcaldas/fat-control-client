@@ -1,18 +1,8 @@
 import { useState, useEffect, useCallback } from "react";
 import { useForm } from "react-hook-form";
-import {
-   Modal,
-   Button,
-   TextInput,
-   Label,
-   Checkbox,
-   Table,
-} from "flowbite-react";
-import { IoMdInformationCircleOutline } from "react-icons/io";
-import { GoPlus } from "react-icons/go";
+import { Modal, Button, TextInput, Label, Checkbox } from "flowbite-react";
 import { FaEdit } from "react-icons/fa";
-import { onlyText } from "@/utils/textFormat";
-import { updateTrip } from "@/services/routes/trips";
+import { updateTrip } from "services/routes/trips";
 
 export function TripDetail({ trip, update }) {
    const [show, setShow] = useState(false);

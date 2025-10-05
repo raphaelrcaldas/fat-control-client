@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { changePassword } from "services/routes/users";
-import { useToast } from "src/context/toast";
+import { useToast } from "@/app/context/toast";
 
 export default function UserChangePassword({ userId }: { userId: number }) {
    const [password, setPassword] = useState("");

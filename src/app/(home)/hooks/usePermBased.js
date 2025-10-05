@@ -1,13 +1,12 @@
-import { useAuth } from "src/context/auth";
+import { useAuth } from "@/app/context/auth";
 
 export const PermBased = ({ children, resource, requiredPerm }) => {
-   const { role } = useAuth();
+   const { role, perms } = useAuth();
 
-   if (role?.role === "admin") {
+   if (role === "admin") {
       return children;
    }
 
-   const perms = role.perms;
    const checkPerm = perms.find(
       (p) => p.resource == resource && p.name == requiredPerm
    );

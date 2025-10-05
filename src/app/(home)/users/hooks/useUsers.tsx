@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import { getUsers, UserPublic } from "../../../../../services/routes/users";
+import { getUsers, UserPublic } from "services/routes/users";
 
 export default function useUsers() {
   const [usuarios, setUsuarios] = useState<UserPublic[]>([]);

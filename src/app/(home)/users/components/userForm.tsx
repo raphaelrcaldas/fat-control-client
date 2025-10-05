@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { Button, Label, TextInput, Spinner, Modal } from "flowbite-react";
 import { getUserById, updateUser, addUser } from "services/routes/users";
-import { useToast } from "../../../../context/toast";
+import { useToast } from "../../../context/toast";
 import { useForm } from "react-hook-form";
 import clsx from "clsx";
 import { HiMail } from "react-icons/hi";
@@ -290,6 +290,9 @@ function UserFormFields({ register, errors }: any) {
                   {...register("saram")}
                   autoComplete='off'
                   onKeyDown={(e) => {
+                     if (e.ctrlKey || e.metaKey) {
+                        return;
+                     }
                      if (
                         !e.key.match(/[0-9]/) &&
                         e.key !== "Backspace" &&
@@ -320,6 +323,9 @@ function UserFormFields({ register, errors }: any) {
                   {...register("id_fab")}
                   autoComplete='off'
                   onKeyDown={(e) => {
+                     if (e.ctrlKey || e.metaKey) {
+                        return;
+                     }
                      if (
                         !e.key.match(/[0-9]/) &&
                         e.key !== "Backspace" &&
@@ -341,6 +347,9 @@ function UserFormFields({ register, errors }: any) {
                   {...register("cpf")}
                   autoComplete='off'
                   onKeyDown={(e) => {
+                     if (e.ctrlKey || e.metaKey) {
+                        return;
+                     }
                      if (
                         !e.key.match(/[0-9]/) &&
                         e.key !== "Backspace" &&

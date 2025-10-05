@@ -1,4 +1,4 @@
-import { isoDateToString } from "@/utils/dateHandler";
+import { isoDateToString } from "utils/dateHandler";
 import { getIndisp } from "../../options";
 
 export default function IndispContent({

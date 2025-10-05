@@ -3,9 +3,9 @@ import { useEffect, useState, useMemo } from "react";
 import { Select, Spinner, Radio, Label } from "flowbite-react";
 import { QuadPopover } from "./components/quadPopover";
 import { QuadsTrip } from "./components/quadsTrip";
-import { getQuads, getQuadsType } from "@/services/routes/quads";
+import { getQuads, getQuadsType } from "services/routes/quads";
 import AddQuadModal from "./components/addQuad";
-import { useSelect } from "../../../context/select";
+import { useQuadsContext } from "../context/quads";
 import { PermBased } from "../hooks/usePermBased";
 
 export default function QuadPage() {
@@ -16,12 +16,12 @@ export default function QuadPage() {
    const [groupName, setGroupName] = useState("");
    const [typeName, setTypeName] = useState("");
 
-   const { quadsPage } = useSelect();
+   const { quadFunc, setQuadFunc, quadType, setQuadType } = useQuadsContext();
 
    function getQuadsName() {
       for (const group of quadsType) {
          for (const type of group.types) {
-            if (type.id === quadsPage.type.state) {
+            if (type.id === quadType) {
                setGroupName(group.long);
                setTypeName(type.long);
                break;
@@ -32,8 +32,8 @@ export default function QuadPage() {
 
    function getQuadsParams() {
       const params = {
-         funcao: quadsPage.func.state,
-         tipo_quad: quadsPage.type.state,
+         funcao: quadFunc,
+         tipo_quad: quadType,
          uae: "11gt",
          proj: "kc-390",
       };
@@ -52,9 +52,7 @@ export default function QuadPage() {
       // Procura se o type atual é válido para a função escolhida
       const isValidType = quadsType.some((group) =>
          group.types.some(
-            (type) =>
-               type.id === quadsPage.type.state &&
-               type.funcs_list.includes(quadsPage.func.state)
+            (type) => type.id === quadType && type.funcs_list.includes(quadFunc)
          )
       );
 
@@ -62,17 +60,17 @@ export default function QuadPage() {
          // pega o primeiro type válido da lista
          for (const group of quadsType) {
             const validType = group.types.find((t) =>
-               t.funcs_list.includes(quadsPage.func.state)
+               t.funcs_list.includes(quadFunc)
             );
             if (validType) {
-               quadsPage.type.setState(validType.id);
+               setQuadType(validType.id);
                break;
             }
          }
       }
       setQuads([]);
       getQuadsParams();
-   }, [quadsType, quadsPage.func.state, quadsPage.type.state]);
+   }, [quadsType, quadFunc, quadType]);
 
    useEffect(() => {
       getQuadsType("11gt")
@@ -89,17 +87,17 @@ export default function QuadPage() {
             const tripOprA = new Date(tripA.func.data_op);
             const tripOprB = new Date(tripB.func.data_op);
 
-            return tripOprA - tripOprB;
+            return tripOprA.getTime() - tripOprB.getTime();
          } else {
             const antA = tripA.user.posto.ant;
             const antB = tripB.user.posto.ant;
-
             if (antA !== antB) return antA - antB;
 
             const promoA = tripA.user.ult_promo || "";
             const promoB = tripB.user.ult_promo || "";
+            if (promoA !== promoB) return promoA.localeCompare(promoB);
 
-            return promoA.localeCompare(promoB);
+            return (a.user.ant_rel ?? 0) - (b.user.ant_rel ?? 0);
          }
       });
 
@@ -112,7 +110,7 @@ export default function QuadPage() {
                <QuadsTrip
                   trip={item.trip}
                   lenTotalQuads={item.quads_len}
-                  typeQuad={quadsPage.type.state}
+                  typeQuad={quadType}
                   quadsAllUpdate={getQuadsParams}
                />
             </div>
@@ -123,20 +121,20 @@ export default function QuadPage() {
                <AddQuadModal
                   trip={item.trip}
                   callFunc={getQuadsParams}
-                  type={quadsPage.type.state}
+                  type={quadType}
                />
             </PermBased>
          </div>
       ));
-   }, [quads, quadsPage.type.state, ordem]);
+   }, [quads, quadType, ordem]);
 
    return (
-      <>
+      <div className='p-2'>
          <div className='flex mb-5'>
             <div className='flex gap-2'>
                <Select
-                  value={quadsPage.func.state}
-                  onChange={(e) => quadsPage.func.setState(e.target.value)}
+                  value={quadFunc}
+                  onChange={(e) => setQuadFunc(e.target.value)}
                >
                   <option value='mc'>Mecânico</option>
                   <option value='lm'>LoadMaster</option>
@@ -146,15 +144,13 @@ export default function QuadPage() {
                </Select>
 
                <Select
-                  value={quadsPage.type.state}
-                  onChange={(e) =>
-                     quadsPage.type.setState(parseInt(e.target.value))
-                  }
+                  value={quadType}
+                  onChange={(e) => setQuadType(parseInt(e.target.value))}
                >
                   {quadsType
                      .filter((group) =>
                         group.types.some((type) =>
-                           type.funcs_list.includes(quadsPage.func.state)
+                           type.funcs_list.includes(quadFunc)
                         )
                      )
                      .map((group, index) => {
@@ -164,8 +160,7 @@ export default function QuadPage() {
                               {group.types.map((type) => {
                                  const typeLabel = type.long.toUpperCase();
                                  const funcsList = type.funcs_list;
-                                 if (!funcsList.includes(quadsPage.func.state))
-                                    return;
+                                 if (!funcsList.includes(quadFunc)) return;
 
                                  return (
                                     <option key={type.id} value={type.id}>
@@ -227,6 +222,6 @@ export default function QuadPage() {
                quadsList
             )}
          </div>
-      </>
+      </div>
    );
 }

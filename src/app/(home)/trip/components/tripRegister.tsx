@@ -2,46 +2,25 @@ import { useState } from "react";
 import { Modal, Button, TextInput, Label } from "flowbite-react";
 import { useForm } from "react-hook-form";
 import { IoMdAdd } from "react-icons/io";
+import { addTrip } from "services/routes/trips";
 
-import { addTrip } from "@/services/routes/trips";
-import { onlyText } from "@/utils/textFormat";
+type TripFormFields = {
+   user_id: number;
+   active: boolean;
+   uae: string;
+   trig: string;
+};
 
 export function TripRegister({ uae, user, update }) {
    const [show, setShow] = useState(false);
-   const { register, handleSubmit, reset } = useForm({
+   const { register, handleSubmit, reset } = useForm<TripFormFields>({
       defaultValues: {
          user_id: user.id,
          active: true,
          uae: uae,
+         trig: "",
       },
    });
-
-   function addFuncToList() {
-      if (funcao && oper) {
-         const filterFuncs = funcoes.filter((f) => f.funcao == funcao);
-
-         if (filterFuncs.length == 0) {
-            const newFunc = {
-               func: funcao,
-               oper: oper,
-               proj: "kc-390",
-            };
-
-            setFuncs([...funcoes, newFunc]);
-
-            setFuncao("");
-            setOper("");
-         } else {
-            alert("Função já cadastrada");
-         }
-      }
-   }
-
-   function exFunc(funcao) {
-      const newFuncs = funcoes.filter((f) => f.funcao != funcao);
-
-      setFuncs(newFuncs);
-   }
 
    function closeModal() {
       reset();
@@ -88,7 +67,16 @@ export function TripRegister({ uae, user, update }) {
                         className='w-16'
                         maxLength={3}
                         minLength={3}
-                        onKeyPress={(event) => onlyText(event)}
+                        onKeyDown={(e) => {
+                           if (
+                              !e.key.match(/^[a-zA-Z]$/) &&
+                              e.key !== "Backspace" &&
+                              e.key !== "Delete" &&
+                              e.key !== "Tab"
+                           ) {
+                              e.preventDefault();
+                           }
+                        }}
                      />
                   </div>
 

@@ -4,28 +4,13 @@ import { GoPlus } from "react-icons/go";
 import { Modal, Button, Table, TextInput } from "flowbite-react";
 import { useState, useEffect } from "react";
 import { IoSearchSharp } from "react-icons/io5";
-import { getUsers } from "@/services/routes/users";
+import { getUsers } from "services/routes/users";
 import { TripRegister } from "./tripRegister";
-import { getCookie } from "cookies-next";
 
 export function SearchUser({ uae, trips, updateTrips }) {
    const [openAddTrip, setAddTrip] = useState(false);
    const [usersTrip, setUsersTrip] = useState([]);
    const [userSearchInput, setSearchInput] = useState("");
-   const [disabledBtn, setDisabled] = useState(true);
-
-   async function checkPerm() {
-      const token = await getCookie("token");
-      const [header, payload, assign] = token.split(".");
-
-      const { role } = JSON.parse(atob(payload));
-
-      const find = role.perms.find(
-         (p) => p.resource == "trips" && p.name == "create"
-      );
-
-      return !(find != undefined);
-   }
 
    async function searchUserForTrip() {
       function getTripFromUserID(userID) {
@@ -66,17 +51,9 @@ export function SearchUser({ uae, trips, updateTrips }) {
       setAddTrip(false);
    }
 
-   useEffect(() => {
-      checkPerm().then((perm) => setDisabled(perm));
-   }, []);
-
    return (
       <>
-         <Button
-            color='blue'
-            disabled={disabledBtn}
-            onClick={() => setAddTrip(true)}
-         >
+         <Button onClick={() => setAddTrip(true)}>
             <GoPlus className='mr-2 h-5 w-5' /> Adicionar
          </Button>
 
@@ -95,7 +72,7 @@ export function SearchUser({ uae, trips, updateTrips }) {
                   <div className='flex gap-2 justify-between'>
                      <TextInput
                         className='w-full'
-                        placeholder='Search for User'
+                        placeholder='Nome de guerra'
                         value={userSearchInput}
                         onChange={(event) => setSearchInput(event.target.value)}
                      />

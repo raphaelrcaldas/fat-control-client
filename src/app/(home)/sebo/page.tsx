@@ -1,9 +1,9 @@
 "use client";
 import { Select, ToggleSwitch } from "flowbite-react";
 import { useState, useEffect } from "react";
-import { getTripData } from "@/services/google-sheets/sheets";
+import { getTripData } from "services/google-sheets/sheets";
 import TripTable from "./components/tripTable";
-import { useSelect } from "../../../context/select";
+import { useSeboContext } from "../context/sebo";
 import { durationToMinutes, sortTripsByDuration } from "./utils";
 import ChartSebo from "./components/chartSebo";
 
@@ -17,7 +17,7 @@ function SeboPage() {
    const [opOp, setOpOp] = useState(true);
    const [opAl, setOpAl] = useState(false);
 
-   const { seboPage } = useSelect();
+   const { seboFunc, setSeboFunc } = useSeboContext();
 
    useEffect(() => {
       getTripData().then((data) => {
@@ -27,7 +27,7 @@ function SeboPage() {
 
    useEffect(() => {
       let filteredFunc = dataTrip.filter(
-         (trip) => trip.func.toLowerCase() == seboPage.func.state
+         (trip) => trip.func.toLowerCase() == seboFunc
       );
 
       filteredFunc = filteredFunc.filter((trip) => {
@@ -40,15 +40,15 @@ function SeboPage() {
       });
 
       setArrayFunc(sortTripsByDuration(filteredFunc));
-   }, [seboPage.func.state, dataTrip, opIn, opOp, opAl]);
+   }, [seboFunc, dataTrip, opIn, opOp, opAl]);
 
    return (
       <>
          <div>
             <div className='flex mt-4'>
                <Select
-                  value={seboPage.func.state}
-                  onChange={(e) => seboPage.func.setState(e.target.value)}
+                  value={seboFunc}
+                  onChange={(e) => setSeboFunc(e.target.value)}
                >
                   <option value='pil'>Piloto</option>
                   <option value='mc'>Mecânico</option>

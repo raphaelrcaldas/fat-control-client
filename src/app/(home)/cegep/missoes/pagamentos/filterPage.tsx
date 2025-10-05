@@ -94,7 +94,7 @@ export function FilterPage({ active }) {
 
    return (
       <div className=''>
-         <section className='flex flex-col bg-gray-50'>
+         <section className='flex flex-col'>
             <div className='w-full max-w-screen-xl p-2 mx-auto lg:px-12'>
                <div className='relative overflow-hidden bg-white shadow-md sm:rounded-lg'>
                   <div className='flex-row items-center justify-evenly p-4 space-y-3 sm:flex sm:space-y-0 sm:space-x-4'>
@@ -219,7 +219,7 @@ export function FilterPage({ active }) {
             </div>
          </section>
 
-         <section className='flex flex-col bg-gray-50'>
+         <section className='flex flex-col'>
             <div className='w-full max-w-screen-xl p-2 mx-auto lg:px-12'>
                <div className='relative overflow-hidden bg-white shadow-md sm:rounded-lg'>
                   <div className='grid grid-cols-3 items-center justify-evenly p-4 space-y-3 sm:flex sm:space-y-0 sm:space-x-4'>

@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo } from "react";
 import { Modal, Button, TextInput, Textarea } from "flowbite-react";
-import { updateQuad, deleteQuad } from "@/services/routes/quads";
+import { updateQuad, deleteQuad } from "services/routes/quads";
 
 export function QuadUpdateModal({
    quad,

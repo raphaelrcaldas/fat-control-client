@@ -8,7 +8,7 @@ import {
    TextInput,
    Select,
 } from "flowbite-react";
-import { addQuad } from "@/services/routes/quads";
+import { addQuad } from "services/routes/quads";
 
 export default function AddQuadModal({ trip, type, callFunc }) {
    const [openModal, setOpenModal] = useState(false);

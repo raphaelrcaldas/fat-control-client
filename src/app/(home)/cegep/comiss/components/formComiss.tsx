@@ -16,7 +16,7 @@ import { UserPublic } from "services/routes/users";
 import { Comiss as ComissSchema } from "services/routes/cegep/comiss";
 import { createCmto, updateCmto } from "services/routes/cegep/comiss";
 import { SearchUser } from "src/app/(home)/users/components/searchUser";
-import { useToast } from "src/context/toast";
+import { useToast } from "@/app/context/toast";
 
 export function FormComiss({
    show,

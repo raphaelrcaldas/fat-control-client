@@ -8,25 +8,28 @@ import {
    MdHome,
    MdMoney,
 } from "react-icons/md";
+import { useState } from "react";
 import { FaUsers } from "react-icons/fa6";
 import { FaPaperPlane } from "react-icons/fa";
 import { useRouter, usePathname } from "next/navigation";
 import { Button, Sidebar, Spinner } from "flowbite-react";
-import { useAuth } from "src/context/auth";
-import { deleteCookie } from "cookies-next";
+import { useAuth } from "@/app/context/auth";
 import { RoleBasedRoute } from "../hooks/useRoleBased";
 import { PermBased } from "../hooks/usePermBased";
 import { TbLogs } from "react-icons/tb";
+import { useToast } from "@/app/context/toast";
+import { logoutUser } from "services/routes/auth";
 
 export default function AppSideBar({
    isCollapsed,
    setIsCollapsed,
    alwaysOpen,
 }) {
+   const [loading, setLoading] = useState(false);
    const path = usePathname();
    const router = useRouter();
-
    const { user } = useAuth();
+   const { push: pushToast } = useToast();
 
    const themeSideBar = {
       root: {
@@ -108,9 +111,30 @@ export default function AppSideBar({
       },
    };
 
-   const logout = () => {
-      deleteCookie("token");
-      router.push("/");
+   const handleLogout = async () => {
+      setLoading(true);
+      try {
+         const response = await logoutUser();
+
+         if (!response.ok) {
+            throw new Error("Falha ao comunicar com o servidor de logout.");
+         }
+
+         pushToast({
+            type: "success",
+            message: "Você foi desconectado com sucesso.",
+         });
+
+         window.location.href = "/";
+      } catch (error) {
+         console.error("Erro durante o logout:", error);
+         pushToast({
+            type: "error",
+            message: "Não foi possível fazer logout. Tente novamente.",
+         });
+      } finally {
+         setLoading(false);
+      }
    };
 
    const handlePush = (route) => {
@@ -245,24 +269,24 @@ export default function AppSideBar({
                </Sidebar.ItemGroup>
                <Sidebar.CTA className='mt-auto bg-red-200 shadow-md'>
                   <div className='flex items-center justify-evenly'>
-                     {user ? (
-                        <span className='font-semibold text-center uppercase px-2 text-wrap'>
-                           {user}
-                        </span>
-                     ) : (
-                        <Spinner
-                           color='failure'
-                           aria-label='Failure spinner example'
-                        />
-                     )}
-
+                     <span className='font-semibold text-center uppercase px-2 text-wrap'>
+                        {user}
+                     </span>
                      <Button
                         className='flex-shrink-0'
                         color='light'
+                        disabled={loading}
                         pill
-                        onClick={logout}
+                        onClick={handleLogout}
                      >
-                        Sair
+                        {loading ? (
+                           <Spinner
+                              color='failure'
+                              aria-label='Failure spinner example'
+                           />
+                        ) : (
+                           "Sair"
+                        )}
                      </Button>
                   </div>
                </Sidebar.CTA>

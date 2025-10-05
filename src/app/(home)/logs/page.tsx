@@ -20,9 +20,11 @@ export default function LogDashboard() {
    }, []);
 
    return (
-      <div className='bg-white p-2 rounded-lg'>
-         <h2>Logs</h2>
-         <div className='mt-2'>
+      <div className='grid gap-2 p-2'>
+         <div className='bg-white py-3 px-2 rounded-lg shadow-md'>
+            <h2>Logs</h2>
+         </div>
+         <div className=''>
             <Table className='' hoverable>
                <TableHead>
                   <TableHeadCell>timestamp</TableHeadCell>

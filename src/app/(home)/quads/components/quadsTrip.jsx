@@ -3,8 +3,8 @@
 import { Button, Modal, Table } from "flowbite-react";
 import { useState, useCallback, useEffect } from "react";
 import { QuadUpdateModal } from "./quadUpdate";
-import { getQuadById } from "@/services/routes/quads";
-import { isoDateToString } from "@/utils/dateHandler";
+import { getQuadById } from "services/routes/quads";
+import { isoDateToString } from "utils/dateHandler";
 import { PermBased } from "../../hooks/usePermBased";
 
 const themeTable = {

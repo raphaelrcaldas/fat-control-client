@@ -1,6 +1,6 @@
 import { NextResponse, NextRequest } from "next/server";
-import { checkToken } from "../utils/jwtDecoder";
-import { refreshToken } from "../services/routes/auth";
+import { getToken } from "services/routes/auth";
+import { generateRandomString, sha256 } from "../utils/auth";
 
 const loginRedirect = process.env.LOGIN_REDIRECT;
 
@@ -9,62 +9,85 @@ if (process.env.NODE_ENV === 'development' && process.env.DEV_TOKEN) {
 }
 
 export async function middleware(request: NextRequest) {
-   const searchParam = request.nextUrl.searchParams;
-   const tokenParam = searchParam.get("token");
+   const tokenCookie = request.cookies.get("token");
+   let tokenValue: string | undefined = tokenCookie?.value || tokenDev;
 
-   const cookiesToken = request.cookies.get("token");
+   // --- CENÁRIO 1: Usuário voltando do FATLOGIN com um código ---
+   const code = request.nextUrl.searchParams.get("code");
+   if (code) {
+      const pkceVerifier = request.cookies.get("pkce_code_verifier")?.value;
+      if (!pkceVerifier) {
+         return NextResponse.redirect(
+            new URL(loginRedirect + "?error=session_expired", request.url)
+         );
+      }
 
-   let tokenValue: string | undefined = tokenParam || cookiesToken?.value || tokenDev;
+      try {
+         const tokenResponse = await getToken(code, request.nextUrl.origin, pkceVerifier);
+         if (!tokenResponse.ok) {
+            return NextResponse.redirect(
+               new URL(loginRedirect + "?error=token_exchange_failed", request.url)
+            );
+         }
+         const { first_login, access_token } = await tokenResponse.json();
 
-   const checked = await checkToken(tokenValue);
-   if (!checked) {
-      return NextResponse.redirect(
-         `${loginRedirect}?redirect=${request.nextUrl.origin}`
-      );
+         const response = NextResponse.redirect(
+            new URL(first_login ? "/change-password" : "/", request.url)
+         );
+
+         response.cookies.delete("pkce_code_verifier");
+         response.cookies.set("token", access_token, {
+            maxAge: 24 * 60 * 60,
+         });
+
+         return response;
+
+      } catch (error) {
+         return NextResponse.redirect(new URL(loginRedirect + "?error=network_error", request.url));
+      }
+   }
+
+   // --- CENÁRIO 2: Usuário sem token ---
+   if (!tokenValue) {
+      return redirectToLogin(request);
    }
 
    const response = NextResponse.next();
+   response.cookies.set("token", tokenValue ?? "", {
+      maxAge: 24 * 60 * 60,
+   });
 
-   if (checked) {
-      const [header, payload, assign] = tokenValue.split(".");
-      let expiration = JSON.parse(atob(payload)).exp;
+   return response;
 
-      expiration = new Date(expiration * 1000);
-      const timeRemain = (expiration.getTime() - new Date().getTime()) / 1000 / 60;
+}
 
-      if (timeRemain < 15) {
-         try {
-            const res = await refreshToken(tokenValue);
-            if (!res.ok) {
-               throw new Error("Failed to refresh token");
-            }
-            const data = await res.json();
-            tokenValue = data.access_token;
-         } catch (error) {
-            console.error("Erro ao renovar o token:", error);
-            return NextResponse.redirect(
-               `${loginRedirect}?redirect=${request.nextUrl.origin}`
-            );
-         }
-      }
-
-      response.cookies.set("token", tokenValue, {
-         maxAge: 6 * 60 * 60,
-      });
+// Função auxiliar para centralizar a lógica de redirecionamento para o login
+async function redirectToLogin(request: NextRequest) {
+   if (!loginRedirect) {
+      console.error("ERRO: A variável de ambiente LOGIN_REDIRECT não está definida.");
+      return new NextResponse("Erro de configuração de autenticação.", { status: 500 });
    }
-
+   const codeVerifier = generateRandomString(32);
+   const codeChallenge = await sha256(codeVerifier);
+   const params = new URLSearchParams({
+      client_id: "fatcontrol",
+      redirect_uri: request.nextUrl.origin,
+      response_type: "code",
+      code_challenge: codeChallenge,
+      code_challenge_method: "S256",
+   });
+   const redirectUrl = `${loginRedirect}?${params.toString()}`;
+   const response = NextResponse.redirect(redirectUrl);
+   response.cookies.set("pkce_code_verifier", codeVerifier, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      path: "/",
+      maxAge: 300,
+      sameSite: "lax",
+   });
    return response;
 }
 
 export const config = {
-   matcher: [
-      /*
-       * Match all request paths except for the ones starting with:
-       * - api (API routes)
-       * - static (static files)
-       * - favicon.ico (favicon file)
-       * - _next internal calls
-       */
-      "/((?!api|static|favicon.ico|_next).*)",
-   ],
+   matcher: ["/((?!api|static|favicon.ico|_next).*)"],
 };
