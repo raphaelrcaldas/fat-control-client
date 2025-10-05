@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { Modal, Tabs, TabItem } from "flowbite-react";
 import { UserRegister } from "./userForm";
 import { UserAudit } from "./UserAudit";
-import UserChangePassword from "./UserChangePassword";
 import { UserPublic } from "services/routes/users";
 
 interface UserDetailsModalProps {
