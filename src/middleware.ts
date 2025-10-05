@@ -17,9 +17,7 @@ export async function middleware(request: NextRequest) {
    if (code) {
       const pkceVerifier = request.cookies.get("pkce_code_verifier")?.value;
       if (!pkceVerifier) {
-         return NextResponse.redirect(
-            new URL(loginRedirect + "?error=session_expired", request.url)
-         );
+         return redirectToLogin(request);
       }
 
       try {
