@@ -18,7 +18,7 @@ import { RoleBasedRoute } from "../hooks/useRoleBased";
 import { PermBased } from "../hooks/usePermBased";
 import { TbLogs } from "react-icons/tb";
 import { useToast } from "@/app/context/toast";
-import { logoutUser } from "services/routes/auth";
+import { deleteCookie } from "cookies-next";
 
 export default function AppSideBar({
    isCollapsed,
@@ -29,7 +29,6 @@ export default function AppSideBar({
    const path = usePathname();
    const router = useRouter();
    const { user } = useAuth();
-   const { push: pushToast } = useToast();
 
    const themeSideBar = {
       root: {
@@ -112,29 +111,8 @@ export default function AppSideBar({
    };
 
    const handleLogout = async () => {
-      setLoading(true);
-      try {
-         const response = await logoutUser();
-
-         if (!response.ok) {
-            throw new Error("Falha ao comunicar com o servidor de logout.");
-         }
-
-         pushToast({
-            type: "success",
-            message: "Você foi desconectado com sucesso.",
-         });
-
-         window.location.href = "/";
-      } catch (error) {
-         console.error("Erro durante o logout:", error);
-         pushToast({
-            type: "error",
-            message: "Não foi possível fazer logout. Tente novamente.",
-         });
-      } finally {
-         setLoading(false);
-      }
+      deleteCookie("token");
+      router.refresh();
    };
 
    const handlePush = (route) => {
