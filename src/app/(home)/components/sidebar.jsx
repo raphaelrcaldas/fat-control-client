@@ -17,7 +17,6 @@ import { useAuth } from "@/app/context/auth";
 import { RoleBasedRoute } from "../hooks/useRoleBased";
 import { PermBased } from "../hooks/usePermBased";
 import { TbLogs } from "react-icons/tb";
-import { useToast } from "@/app/context/toast";
 import { deleteCookie } from "cookies-next";
 
 export default function AppSideBar({

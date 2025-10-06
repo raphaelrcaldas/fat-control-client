@@ -1,4 +1,7 @@
+import { deleteCookie } from "cookies-next";
+
 export const baseUrl = process.env.NEXT_PUBLIC_API_URL || "";
+
 
 if (!baseUrl) {
    console.warn("A variável de ambiente NEXT_PUBLIC_API_URL não está definida.");
@@ -50,5 +53,14 @@ export default async function request<T = any>(
       options.body = JSON.stringify(body);
    }
 
-   return await fetch(fullUrl, options);
+   const response = await fetch(fullUrl, options);
+
+   // Interceptor para 401
+   if (response.status === 401 && typeof window !== "undefined") {
+      // Redireciona para a página de login
+      deleteCookie("token");
+      window.location.href = "/";
+   }
+
+   return response;
 }
