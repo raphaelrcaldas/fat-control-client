@@ -33,7 +33,7 @@ export function QuadPopover({ quad }) {
       // >
       <button
          type='button'
-         className={`text-white font-medium text-center flex-shrink-0 rounded-lg size-8 md:w-[65px] md:h-9 ${color}`}
+         className={`text-white font-medium text-center flex-shrink-0 text-sm rounded-lg size-8 md:w-[65px] md:h-9 ${color}`}
       >
          <span className='hidden md:grid'>{dateStr}</span>
       </button>

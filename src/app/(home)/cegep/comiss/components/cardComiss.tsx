@@ -108,7 +108,7 @@ export function CardComiss({
                         >
                            {" "}
                         </span>
-                        <span className='w-24 text-sm'>Abertura:</span>
+                        <span className='w-28 text-sm'>Abertura:</span>
                         <span className='font-mono'>{data_abertura}</span>
                      </div>
                      <div className='flex flex-row gap-2 items-center justify-start'>
@@ -119,7 +119,7 @@ export function CardComiss({
                         >
                            {" "}
                         </span>
-                        <span className='w-24 text-sm'>Fechamento:</span>
+                        <span className='w-28 text-sm'>Fechamento:</span>
                         <span className='font-mono'>{data_fechamento}</span>
                      </div>
                   </div>

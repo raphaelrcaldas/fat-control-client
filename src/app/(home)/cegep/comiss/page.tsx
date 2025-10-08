@@ -44,7 +44,7 @@ export default function HomeApp() {
       <>
          <div className='flex flex-col gap-2'>
             <section className='flex flex-col overflow-y-auto'>
-               <div className='w-full max-w-screen-xl p-2 mx-auto lg:px-12'>
+               <div className='w-full p-2'>
                   <div className='relative overflow-hidden bg-white shadow-md dark:bg-gray-800 sm:rounded-lg'>
                      <div className='flex-row items-center justify-between p-4 space-y-3 sm:flex sm:space-y-0 sm:space-x-4'>
                         <div>
@@ -92,7 +92,7 @@ export default function HomeApp() {
                         Carregando <Spinner size='lg' color='failure' />
                      </div>
                   ) : (
-                     <div className='flex flex-wrap gap-4'>
+                     <div className='flex flex-wrap gap-4 justify-evenly'>
                         {cmtos.length === 0 ? (
                            <p>Nenhum comissionamento encontrado.</p>
                         ) : (

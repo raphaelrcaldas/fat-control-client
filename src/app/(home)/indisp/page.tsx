@@ -93,7 +93,7 @@ export default function IndispPage() {
 
    return (
       <div className='h-full'>
-         <div className='grid justify-center'>
+         <div className='grid justify-center mt-3'>
             <div className='grid justify-center'>
                <Select
                   className='w-fit'

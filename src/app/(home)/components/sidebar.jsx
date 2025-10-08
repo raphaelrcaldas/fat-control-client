@@ -246,7 +246,7 @@ export default function AppSideBar({
                </Sidebar.ItemGroup>
                <Sidebar.CTA className='mt-auto bg-red-200 shadow-md'>
                   <div className='flex items-center justify-evenly'>
-                     <span className='font-semibold text-center uppercase px-2 text-wrap'>
+                     <span className='font-semibold text-center text-sm uppercase px-2 text-wrap'>
                         {user}
                      </span>
                      <Button
