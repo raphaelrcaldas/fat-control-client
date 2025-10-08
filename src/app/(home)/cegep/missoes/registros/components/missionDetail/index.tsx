@@ -266,7 +266,9 @@ export default function MissionDetail({
                         <option value='os'>Serviço</option>
                      </Select>
                   ) : (
-                     <h2 className='text-center uppercase'>{tipoDoc}</h2>
+                     <h2 className='text-center uppercase text-lg font-semibold'>
+                        {tipoDoc}
+                     </h2>
                   )}
                </div>
                <div className='flex flex-col justify-center items-center p-2'>
@@ -283,7 +285,6 @@ export default function MissionDetail({
                            )
                         }
                         onKeyDown={(e) => {
-                           // Permite apenas números, backspace, tab, delete, setas
                            if (
                               !(
                                  (e.key >= "0" && e.key <= "9") ||
@@ -301,7 +302,9 @@ export default function MissionDetail({
                         }}
                      />
                   ) : (
-                     <h2 className='text-center uppercase'>{nDoc}</h2>
+                     <h2 className='text-center uppercase text-lg font-semibold'>
+                        {nDoc}
+                     </h2>
                   )}
                </div>
             </div>
@@ -491,7 +494,7 @@ export default function MissionDetail({
                <h3 className='text-center text-sm font-medium text-slate-600'>
                   Militares
                </h3>
-               <div className='flex flex-wrap gap-1 uppercase font-medium justify-between'>
+               <div className='flex flex-wrap gap-1 uppercase font-medium'>
                   {mils.length == 0 && (
                      <div className='w-full text-center text-red-500'>
                         Nenhum Militar Adicionado

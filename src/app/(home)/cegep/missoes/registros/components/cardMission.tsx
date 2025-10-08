@@ -87,7 +87,7 @@ export function CardMission({
                   ))}
                </div>
                <HR className=' m-0' />
-               <div className='flex gap-1 flex-wrap justify-between'>
+               <div className='flex gap-1 flex-wrap'>
                   {missao.users.map((user) => (
                      <UserCardMis key={user.id} user={user} />
                   ))}
@@ -133,7 +133,7 @@ function UserCardMis({ user }) {
    return (
       <div
          className={clsx(
-            "px-2.5 py-0.5 rounded-lg select-none font-medium w-52 flex items-center",
+            "px-2.5 py-0.5 rounded-lg select-none text-sm font-medium w-52 flex items-center",
             {
                "bg-blue-200": user.sit === "c",
                "bg-green-200": user.sit === "d",

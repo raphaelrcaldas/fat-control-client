@@ -51,7 +51,7 @@ export function RegisPage() {
       <>
          <div className='h-full'>
             <section className='flex flex-col'>
-               <div className='w-full max-w-screen-xl p-2 mx-auto lg:px-12'>
+               <div className='w-full p-2'>
                   <div className='relative overflow-hidden bg-white shadow-md dark:bg-gray-800 sm:rounded-lg'>
                      <div className='flex-row items-center justify-between p-4 space-y-3 sm:flex sm:space-y-0 sm:space-x-4'>
                         <div>
@@ -76,7 +76,7 @@ export function RegisPage() {
             </section>
 
             <section className='flex flex-col mb-3'>
-               <div className='w-full max-w-screen-xl p-2 mx-auto lg:px-12'>
+               <div className='w-full p-2'>
                   <div className='relative overflow-hidden bg-white shadow-md sm:rounded-lg'>
                      <div className='flex-row items-center justify-evenly p-4 space-y-3 sm:flex sm:space-y-0 sm:space-x-4'>
                         <div>
@@ -190,7 +190,7 @@ export function RegisPage() {
                   Carregando <Spinner size='lg' color='failure' />
                </div>
             ) : (
-               <div className='flex p-2 flex-wrap gap-4'>
+               <div className='flex p-2 flex-wrap justify-evenly gap-4'>
                   {missoes.length === 0 ? (
                      <p>Nenhuma missão encontrada.</p>
                   ) : (

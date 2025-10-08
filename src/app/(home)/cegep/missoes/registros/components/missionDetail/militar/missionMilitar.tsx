@@ -26,7 +26,7 @@ export function MissionMilitar({
       <>
          <span
             className={clsx(
-               "px-2.5 py-0.5 rounded-lg select-none font-medium w-52",
+               "px-2.5 py-0.5 rounded-lg select-none text-sm font-medium w-52",
                {
                   "cursor-pointer": edit,
                   "bg-blue-200": userMis.sit === "c",
