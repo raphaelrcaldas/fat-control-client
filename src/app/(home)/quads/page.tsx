@@ -97,7 +97,7 @@ export default function QuadPage() {
             const promoB = tripB.user.ult_promo || "";
             if (promoA !== promoB) return promoA.localeCompare(promoB);
 
-            return (a.user.ant_rel ?? 0) - (b.user.ant_rel ?? 0);
+            return (tripA.user.ant_rel ?? 0) - (tripB.user.ant_rel ?? 0);
          }
       });
 
