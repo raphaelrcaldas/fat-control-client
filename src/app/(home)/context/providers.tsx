@@ -6,7 +6,7 @@ export default function Providers({ children }) {
    return (
       <IndispProvider>
          <QuadsProvider>
-            <SeboProvider>{children}</SeboProvider>;
+            <SeboProvider>{children}</SeboProvider>
          </QuadsProvider>
       </IndispProvider>
    );

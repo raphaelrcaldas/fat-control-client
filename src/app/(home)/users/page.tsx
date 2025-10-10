@@ -38,8 +38,8 @@ export default function UsersPage() {
    })();
 
    return (
-      <div className='w-full h-full px-1'>
-         <div className='grid bg-white p-3 rounded-lg shadow-md gap-3 my-4'>
+      <div className='w-full h-full px-1 py-2 overflow-auto'>
+         <div className='grid bg-white p-3 rounded-lg shadow-md gap-3 mb-5'>
             <h5 className='font-semibold text-lg'>Usuários</h5>
             <div className='flex flex-row justify-between gap-3'>
                <TextInput
@@ -64,11 +64,11 @@ export default function UsersPage() {
             </div>
          ) : (
             <>
-               <div className='relative w-full overflow-x-auto shadow-md rounded-lg max-h-[80vh] bg-white border border-gray-100'>
-                  <table className='w-full text-sm text-gray-600 text-left overflow-visible'>
-                     <thead className='text-xs text-gray-600 bg-gray-50 sticky top-0 z-10'>
+               <div className='w-full shadow-md rounded-lg bg-white'>
+                  <table className='w-full text-sm text-gray-600 text-left'>
+                     <thead className='text-xs text-gray-600 bg-gray-50'>
                         <tr>
-                           <th scope='col' className='px-4 py-3'>
+                           <th scope='col' className='px-4 py-3 text-nowrap'>
                               P/G
                            </th>
                            <th
@@ -143,12 +143,14 @@ function UserRow({ user, update }) {
                </button>
             </td>
          </tr>
-         <UserDetailsModal
-            show={showUser}
-            setShow={setShowUser}
-            updateUsers={update}
-            user={user}
-         />
+         {showUser && (
+            <UserDetailsModal
+               show={showUser}
+               setShow={setShowUser}
+               updateUsers={update}
+               user={user}
+            />
+         )}
       </>
    );
 }

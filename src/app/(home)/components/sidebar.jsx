@@ -19,11 +19,7 @@ import { PermBased } from "../hooks/usePermBased";
 import { TbLogs } from "react-icons/tb";
 import { deleteCookie } from "cookies-next";
 
-export default function AppSideBar({
-   isCollapsed,
-   setIsCollapsed,
-   alwaysOpen,
-}) {
+export default function AppSideBar({ isCollapsed, setIsCollapsed }) {
    const [loading, setLoading] = useState(false);
    const path = usePathname();
    const router = useRouter();
@@ -124,7 +120,7 @@ export default function AppSideBar({
    return (
       <>
          <Sidebar
-            collapsed={alwaysOpen ? false : isCollapsed}
+            collapsed={isCollapsed}
             theme={themeSideBar}
             collapseBehavior='hide'
          >

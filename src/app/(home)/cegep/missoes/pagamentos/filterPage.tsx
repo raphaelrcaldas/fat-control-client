@@ -93,9 +93,9 @@ export function FilterPage({ active }) {
    }
 
    return (
-      <div className=''>
+      <div className='grid gap-2'>
          <section className='flex flex-col'>
-            <div className='w-full max-w-screen-xl p-2 mx-auto lg:px-12'>
+            <div className='w-full'>
                <div className='relative overflow-hidden bg-white shadow-md sm:rounded-lg'>
                   <div className='flex-row items-center justify-evenly p-4 space-y-3 sm:flex sm:space-y-0 sm:space-x-4'>
                      <div>
@@ -220,7 +220,7 @@ export function FilterPage({ active }) {
          </section>
 
          <section className='flex flex-col'>
-            <div className='w-full max-w-screen-xl p-2 mx-auto lg:px-12'>
+            <div className='w-full'>
                <div className='relative overflow-hidden bg-white shadow-md sm:rounded-lg'>
                   <div className='grid grid-cols-3 items-center justify-evenly p-4 space-y-3 sm:flex sm:space-y-0 sm:space-x-4'>
                      <div className='p-2 rounded-lg flex gap-2 items-center justify-center'>
@@ -245,13 +245,13 @@ export function FilterPage({ active }) {
             </div>
          </section>
 
-         <div>
+         <div className="mt-2">
             {loading ? (
                <div className='flex flex-col font-semibold items-center justify-center gap-2 p-2'>
                   Carregando <Spinner size='lg' color='failure' />
                </div>
             ) : misRecords ? (
-               <ul className='list-disc px-8' key={listKey}>
+               <ul className='list-disc' key={listKey}>
                   {misRecords.map((record) => (
                      <UserRow
                         key={record.user_mis.id}

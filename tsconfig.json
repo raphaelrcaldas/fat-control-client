@@ -23,6 +23,6 @@
       ],
       "target": "ES2017"
    },
-   "include": ["next-env.d.ts", ".next/types/**/*.ts", "**/*.ts", "**/*.tsx", "src/middleware.js", "services/Api.js"],
+   "include": ["next-env.d.ts", ".next/types/**/*.ts", "**/*.ts", "**/*.tsx", "src/middleware.js", "services/Api.js", "src/app/(home)/quads/components/quadsTrip.jsx"],
    "exclude": ["node_modules"]
 }

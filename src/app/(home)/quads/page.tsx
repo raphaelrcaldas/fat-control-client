@@ -106,7 +106,7 @@ export default function QuadPage() {
             key={item.trip.id}
             className='flex justify-start items-center gap-1 overflow-visible'
          >
-            <div className='flex-shrink-0 sticky left-0 z-10 bg-white overflow-visible'>
+            <div className='flex-shrink-0 sticky px-1 left-0 z-10 bg-white overflow-visible'>
                <QuadsTrip
                   trip={item.trip}
                   lenTotalQuads={item.quads_len}
@@ -212,7 +212,7 @@ export default function QuadPage() {
 
          <div
             id='quad_table'
-            className='flex flex-col gap-1 px-2 py-3 relative bg-white rounded-lg whitespace-nowrap shadow-md max-h-[80%] md:max-h-[80%] overflow-x-auto overflow-y-auto'
+            className='flex flex-col gap-1 py-3 relative bg-white rounded-lg whitespace-nowrap shadow-md max-h-[80%] md:max-h-[80%] overflow-x-auto overflow-y-auto'
          >
             {quads.length === 0 ? (
                <div className='flex flex-col font-semibold items-center justify-center gap-2 p-2'>

@@ -9,7 +9,6 @@ import profilePic from "public/assets/1_1_gt.jpg";
 
 export default function RootLayout({ children }) {
    const [IsCollapsed, setIsCollapsed] = useState(false);
-   const [alwaysOpen, setAlwaysOpen] = useState(false);
 
    function handleClose() {
       setIsCollapsed(!IsCollapsed);
@@ -43,18 +42,11 @@ export default function RootLayout({ children }) {
             </div>
          </Navbar>
 
-         {/* {!IsCollapsed && !alwaysOpen && (
-                  <div className='fixed inset-0 bg-black bg-opacity-50 z-40' />
-               )} */}
-
-         {/* Layout principal */}
          <div className='flex h-full w-full pt-14'>
-            {/* Sidebar Responsiva */}
             <div className='fixed lg:relative w-fit h-full z-40'>
                <AppSideBar
                   isCollapsed={IsCollapsed}
                   setIsCollapsed={setIsCollapsed}
-                  alwaysOpen={alwaysOpen}
                />
             </div>
             <main className='p-2 h-full w-full overflow-auto'>{children}</main>
