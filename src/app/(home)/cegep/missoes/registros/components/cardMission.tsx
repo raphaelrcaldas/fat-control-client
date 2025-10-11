@@ -41,8 +41,7 @@ export function CardMission({
    // }
 
    function onClone() {
-      const clone = { ...missao };
-      clone.users = [];
+      const clone = { ...missao, users: [], id: null };
       setClone(clone);
       setShowForm(true);
    }
