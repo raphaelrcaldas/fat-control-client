@@ -22,7 +22,7 @@ export default function LogDashboard() {
    return (
       <div className='grid gap-2 p-2'>
          <div className='bg-white py-3 px-2 rounded-lg shadow-md'>
-            <h2>Logs</h2>
+            <h2 className='font-medium text-lg'>Logs</h2>
          </div>
          <div className=''>
             <Table className='' hoverable>
@@ -30,7 +30,9 @@ export default function LogDashboard() {
                   <TableHeadCell>timestamp</TableHeadCell>
                   <TableHeadCell>user</TableHeadCell>
                   <TableHeadCell>action</TableHeadCell>
-                  <TableHeadCell>resource</TableHeadCell>
+                  <TableHeadCell className='hidden md:table-cell'>
+                     resource
+                  </TableHeadCell>
                </TableHead>
                <TableBody className='divide-y'>
                   {logs.map((log) => (
@@ -57,11 +59,11 @@ function LogRow({ log }: { log: UserActionLog }) {
    return (
       <TableRow key={log.id} className='bg-white'>
          <TableCell className='font-mono text-base'>{timestamp}</TableCell>
-         <TableCell className='uppercase'>
+         <TableCell className='uppercase text-nowrap'>
             {log.user.p_g} {log.user.nome_guerra}
          </TableCell>
          <TableCell>{log.action}</TableCell>
-         <TableCell>{log.resource}</TableCell>
+         <TableCell className='hidden md:table-cell'>{log.resource}</TableCell>
       </TableRow>
    );
 }

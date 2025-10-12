@@ -18,6 +18,7 @@ import { getTrips } from "services/routes/trips";
 import { TripDetail } from "./components/tripDetail";
 import { PermBased } from "../hooks/usePermBased";
 import clsx from "clsx";
+import useDebouncedValue from "../users/hooks/useDebouncedValue";
 
 export default function TripPage() {
    const [trips, setTrips] = useState([]);
@@ -27,6 +28,7 @@ export default function TripPage() {
    const [active, setActive] = useState(true);
 
    const [filterName, setFilterName] = useState("");
+   const debouncedFilter = useDebouncedValue(filterName, 300);
 
    function getListTrips() {
       getTrips({ uae: uae, active: active })
@@ -39,9 +41,16 @@ export default function TripPage() {
    }
 
    useEffect(() => {
-      // FILTRO NOME
-      let filter = trips.filter((trip) => {
-         const inputFilter = filterName.toLowerCase();
+      // FILTRO NOME com debounce
+      if (!debouncedFilter || debouncedFilter.length === 0) {
+         // sem filtro, mostra todos os trips
+         setFilterTrips(trips);
+         return;
+      }
+
+      const inputFilter = debouncedFilter.toLowerCase();
+
+      const filter = trips.filter((trip) => {
          const checkTrig = trip.trig.includes(inputFilter);
          const checkGuerra = trip.user.nome_guerra.includes(inputFilter);
 
@@ -49,7 +58,7 @@ export default function TripPage() {
       });
 
       setFilterTrips(filter);
-   }, [filterName]);
+   }, [debouncedFilter, trips]);
 
    useEffect(() => {
       getListTrips();
@@ -80,7 +89,7 @@ export default function TripPage() {
                </Select>
             </div>
 
-            <div className='w-full lg:max-w-fit sm:max-h-[90%] overflow-auto max-h-[80%] h-full p-2'>
+            <div className='w-full overflow-auto h-full p-2'>
                <div className='flex flex-col mb-4 bg-white gap-2 p-3 rounded-lg shadow-md'>
                   <h5 className='font-semibold text-lg'>Tripulantes</h5>
                   <p className='text-gray-500'>
@@ -105,7 +114,7 @@ export default function TripPage() {
                   <TableHead className='text-center'>
                      <TableHeadCell className=''>PG</TableHeadCell>
                      <TableHeadCell className='hidden md:table-cell'>
-                        Esp
+                        Especialidade
                      </TableHeadCell>
                      <TableHeadCell className='hidden md:table-cell'>
                         Nome de Guerra
