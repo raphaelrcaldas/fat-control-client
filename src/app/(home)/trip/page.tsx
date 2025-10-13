@@ -10,6 +10,7 @@ import {
    TableCell,
    TextInput,
    Select,
+   Spinner,
 } from "flowbite-react";
 import { IoSearchSharp } from "react-icons/io5";
 
@@ -29,15 +30,22 @@ export default function TripPage() {
 
    const [filterName, setFilterName] = useState("");
    const debouncedFilter = useDebouncedValue(filterName, 300);
+   const [loading, setLoading] = useState(false);
 
-   function getListTrips() {
-      getTrips({ uae: uae, active: active })
+   function getListTrips(signal?: AbortSignal) {
+      setLoading(true);
+      getTrips({ uae: uae, active: active }, signal)
          .then((res) => res.json())
          .then((data) => {
             data.sort((a, b) => a.user.posto.ant - b.user.posto.ant);
             setTrips(data);
             setFilterTrips(data);
-         });
+         })
+         .catch((err) => {
+            if (err.name === "AbortError") return;
+            console.error(err);
+         })
+         .finally(() => setLoading(false));
    }
 
    useEffect(() => {
@@ -61,7 +69,9 @@ export default function TripPage() {
    }, [debouncedFilter, trips]);
 
    useEffect(() => {
-      getListTrips();
+      const ac = new AbortController();
+      getListTrips(ac.signal);
+      return () => ac.abort();
    }, [uae, active]);
 
    return (
@@ -110,93 +120,101 @@ export default function TripPage() {
                      />
                   </div>
                </div>
-               <Table hoverable>
-                  <TableHead className='text-center'>
-                     <TableHeadCell className=''>PG</TableHeadCell>
-                     <TableHeadCell className='hidden md:table-cell'>
-                        Especialidade
-                     </TableHeadCell>
-                     <TableHeadCell className='hidden md:table-cell'>
-                        Nome de Guerra
-                     </TableHeadCell>
-                     <TableHeadCell>Trigrama</TableHeadCell>
-                     <TableHeadCell>Função</TableHeadCell>
-                     <TableHeadCell>Oper</TableHeadCell>
-                     <TableHeadCell>
-                        <span className='sr-only'>Detalhes</span>
-                     </TableHeadCell>
-                  </TableHead>
-                  <TableBody>
-                     {filterTrips.map((trip) => (
-                        <TableRow
-                           key={trip.id}
-                           className='uppercase text-center'
-                        >
-                           <TableCell className='font-medium'>
-                              {trip.user.posto.short}
-                           </TableCell>
-                           <TableCell className='hidden md:table-cell'>
-                              {trip.user.esp}
-                           </TableCell>
-                           <TableCell className='hidden md:table-cell'>
-                              {trip.user.nome_guerra}
-                           </TableCell>
-                           <TableCell className='font-semibold'>
-                              {trip.trig}
-                           </TableCell>
-                           <TableCell className=''>
-                              {trip.funcs.length < 1 ? (
-                                 <span className='text-red-600 text-xs'>
-                                    Sem Função
-                                 </span>
-                              ) : (
-                                 trip.funcs[0]["func"]
-                              )}
-                           </TableCell>
-                           <TableCell className='justify-items-center'>
-                              {trip.funcs.length < 1 ? (
-                                 <span className='text-red-600 text-xs'>
-                                    Sem Função
-                                 </span>
-                              ) : (
-                                 <span
-                                    className={clsx(
-                                       "py-1.5 px-2.5 font-semibold",
-                                       {
-                                          "text-emerald-600":
-                                             trip.funcs[0]["oper"] === "al",
-                                          "text-yellow-400":
-                                             trip.funcs[0]["oper"] === "op",
-                                          "text-yellow-500":
-                                             trip.funcs[0]["oper"] === "po",
-                                          "text-yellow-600":
-                                             trip.funcs[0]["oper"] === "pb",
-                                          "text-red-700":
-                                             trip.funcs[0]["oper"] === "in",
-                                       }
-                                    )}
-                                 >
-                                    {trip.funcs[0]["oper"]}
-                                 </span>
-                              )}
-                           </TableCell>
-                           <TableCell className='justify-items-center'>
-                              <PermBased
-                                 resource={"trips"}
-                                 requiredPerm={"update"}
-                              >
-                                 <TripDetail
-                                    trip={trip}
-                                    update={getListTrips}
-                                 />
-                              </PermBased>
-                           </TableCell>
-                        </TableRow>
-                     ))}
-                  </TableBody>
-               </Table>
+               {loading ? (
+                  <div className='flex justify-center items-center h-40'>
+                     <Spinner size='xl' />
+                  </div>
+               ) : (
+                  <Table hoverable>
+                     <TableHead className='text-center'>
+                        <TableHeadCell className=''>PG</TableHeadCell>
+                        <TableHeadCell className='hidden md:table-cell'>
+                           Especialidade
+                        </TableHeadCell>
+                        <TableHeadCell className='hidden md:table-cell'>
+                           Nome de Guerra
+                        </TableHeadCell>
+                        <TableHeadCell>Trigrama</TableHeadCell>
+                        <TableHeadCell>Função</TableHeadCell>
+                        <TableHeadCell>
+                           <span className='sr-only'>Detalhes</span>
+                        </TableHeadCell>
+                     </TableHead>
+                     <TableBody>
+                        {filterTrips.map((trip) => (
+                           <TripRow
+                              key={trip.id}
+                              trip={trip}
+                              update={getListTrips}
+                           />
+                        ))}
+                     </TableBody>
+                  </Table>
+               )}
             </div>
          </div>
       </>
+   );
+}
+
+function TripRow({ trip, update }) {
+   const user = trip.user;
+   const tripFuncs = trip.funcs;
+
+   return (
+      <TableRow className='uppercase text-center'>
+         <TableCell className='font-medium'>{user.posto.short}</TableCell>
+         <TableCell className='hidden md:table-cell'>{user.esp}</TableCell>
+         <TableCell className='hidden md:table-cell'>
+            {user.nome_guerra}
+         </TableCell>
+         <TableCell className='font-semibold'>{trip.trig}</TableCell>
+         <TableCell className=''>
+            {tripFuncs.length < 1 ? (
+               <span className='text-red-600 text-xs'>Sem Função</span>
+            ) : (
+               <div className='flex flex-col gap-1'>
+                  {tripFuncs.map((f) => (
+                     <FuncTripRow key={f.id} func={f} />
+                  ))}
+               </div>
+            )}
+         </TableCell>
+         <TableCell className='justify-items-center'>
+            <PermBased resource={"trips"} requiredPerm={"update"}>
+               <TripDetail trip={trip} update={update} />
+            </PermBased>
+         </TableCell>
+      </TableRow>
+   );
+}
+
+function FuncTripRow({ func }) {
+   const oper = func.oper;
+
+   return (
+      <div
+         className={clsx("px-2 py-1 rounded-md shadow-sm font-semibold", {
+            "bg-blue-100": func.func == "pil",
+            "bg-yellow-100": func.func == "mc",
+            "bg-emerald-100": func.func == "lm",
+            "bg-orange-100": func.func == "os",
+            "bg-red-200": func.func == "oe",
+            "bg-gray-200": func.func == "tf",
+         })}
+      >
+         {func.func}:{" "}
+         <span
+            className={clsx("", {
+               "text-emerald-600": oper === "al",
+               "text-yellow-400": oper === "op",
+               "text-yellow-500": oper === "po",
+               "text-yellow-600": oper === "pb",
+               "text-red-700": oper === "in",
+            })}
+         >
+            {oper}
+         </span>
+      </div>
    );
 }

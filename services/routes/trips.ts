@@ -2,9 +2,9 @@ import request from "../Api";
 
 const tripRoute = "ops/trips/";
 
-export async function getTrips(params) {
+export async function getTrips(params, signal?: AbortSignal) {
 
-    return await request("GET", tripRoute, null, params);
+    return await request("GET", tripRoute, null, params, signal);
 }
 
 
