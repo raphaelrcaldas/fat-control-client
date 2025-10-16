@@ -3,6 +3,8 @@ import { Modal, Tabs, TabItem } from "flowbite-react";
 import { UserRegister } from "./userForm";
 import { UserAudit } from "./UserAudit";
 import { UserPublic } from "services/routes/users";
+import { RoleBasedRoute } from "../../hooks/useRoleBased";
+import { ResetPassword } from "./resetPwd";
 
 interface UserDetailsModalProps {
    show: boolean;
@@ -45,11 +47,16 @@ export function UserDetailsModal({
                      <UserRegister userId={user.id} updateUsers={updateUsers} />
                   </TabItem>
                   <TabItem title='Auditoria' active={activeTab === 1}>
-                     {activeTab === 1 && <UserAudit userId={user.id ?? undefined} />}
+                     {activeTab === 1 && (
+                        <UserAudit userId={user.id ?? undefined} />
+                     )}
                   </TabItem>
                   {/* <TabItem title='Alterar Senha' active={activeTab === 2}>
-                     {activeTab === 2 && user.id && <UserChangePassword userId={user.id} />}
+                     {activeTab === 2 && user.id && <ChangePassword />}
                   </TabItem> */}
+                  <TabItem title='Senha' active={activeTab === 3}>
+                     <ResetPassword userId={user.id} />
+                  </TabItem>
                </Tabs>
             </div>
          </Modal.Body>

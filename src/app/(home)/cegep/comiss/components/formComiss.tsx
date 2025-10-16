@@ -44,7 +44,7 @@ export function FormComiss({
          valAjAb: comiss ? comiss.valor_aj_ab : 0,
          dataFc: comiss ? comiss.data_fc : "",
          qtdAjFc: comiss ? comiss.qtd_aj_fc : 0,
-         valAjFc: comiss ? comiss.valor_aj_ab : 0,
+         valAjFc: comiss ? comiss.valor_aj_fc : 0,
          userId: comiss ? comiss.user_id : null,
          status: comiss ? comiss.status : "",
          dep: comiss ? comiss.dep : false,
@@ -328,7 +328,11 @@ export function FormComiss({
             </div>
          </ModalBody>
          <ModalFooter className='flex justify-center'>
-            <Button className='w-32' onClick={handleComiss}>
+            <Button
+               className='w-32'
+               onClick={handleComiss}
+               disabled={isLoading}
+            >
                {isLoading ? <Spinner /> : comiss ? "Salvar" : "Adicionar"}
             </Button>
          </ModalFooter>

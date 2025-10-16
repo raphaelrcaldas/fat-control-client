@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Spinner } from "flowbite-react";
+import { Button, Label, Select, Spinner, TextInput } from "flowbite-react";
 import { CardComiss } from "./components/cardComiss";
 import { FormComiss } from "./components/formComiss";
 import { getCmtos, ComissWithMiss } from "services/routes/cegep/comiss";
@@ -10,11 +10,13 @@ export default function HomeApp() {
    const [cmtos, setCmtos] = useState<ComissWithMiss[]>([]);
    const [loading, setLoading] = useState(false);
    const [showFormComiss, setShowFormComiss] = useState(false);
+   const [statusComis, setStatusComis] = useState("aberto");
+   const [searchUser, setSearchUser] = useState("");
 
    async function updateCmtos() {
       setLoading(true);
       try {
-         const data = await getCmtos();
+         const data = await getCmtos(statusComis, searchUser);
 
          const sorted = data.sort((a, b) => {
             const antA = a.user.posto.ant;
@@ -42,7 +44,7 @@ export default function HomeApp() {
 
    return (
       <>
-         <div className='flex flex-col gap-2'>
+         <div className='flex flex-col gap-1'>
             <section className='flex flex-col overflow-y-auto'>
                <div className='w-full p-2'>
                   <div className='relative overflow-hidden bg-white shadow-md dark:bg-gray-800 sm:rounded-lg'>
@@ -86,28 +88,67 @@ export default function HomeApp() {
                      />
                   </div>
                </div> */}
-               <div className='flex-1 p-2'>
-                  {loading ? (
-                     <div className='flex-1 flex flex-col font-semibold items-center justify-center gap-2 p-2'>
-                        Carregando <Spinner size='lg' color='failure' />
+            </section>
+
+            <section className='flex flex-col'>
+               <div className='w-full p-2'>
+                  <div className='relative overflow-hidden bg-white shadow-md sm:rounded-lg'>
+                     <div className='flex-row items-center justify-evenly p-4 space-y-3 sm:flex sm:space-y-0 sm:space-x-4'>
+                        <div className='w-80'>
+                           <div className='mb-2 text-center'>
+                              <Label>Militar</Label>
+                           </div>
+                           <TextInput
+                              type='text'
+                              value={searchUser}
+                              onChange={(e) => setSearchUser(e.target.value)}
+                              placeholder='Nome completo ou de guerra'
+                           />
+                        </div>
+
+                        <div>
+                           <div className='mb-2 text-center'>
+                              <Label>Situação</Label>
+                           </div>
+                           <Select
+                              value={statusComis}
+                              onChange={(e) => setStatusComis(e.target.value)}
+                           >
+                              <option value='aberto'>Aberto</option>
+                              <option value='fechado'>Fechado</option>
+                           </Select>
+                        </div>
+                        <div className='pt-6'>
+                           <Button color='light' pill onClick={updateCmtos}>
+                              Filtrar
+                           </Button>
+                        </div>
                      </div>
-                  ) : (
-                     <div className='flex flex-wrap gap-4 justify-evenly'>
-                        {cmtos.length === 0 ? (
-                           <p>Nenhum comissionamento encontrado.</p>
-                        ) : (
-                           cmtos.map((c) => (
-                              <CardComiss
-                                 key={c.id}
-                                 comiss={c}
-                                 update={updateCmtos}
-                              />
-                           ))
-                        )}
-                     </div>
-                  )}
+                  </div>
                </div>
             </section>
+
+            <div className='flex-1 p-2'>
+               {loading ? (
+                  <div className='flex-1 flex flex-col font-semibold items-center justify-center gap-2 p-2'>
+                     Carregando <Spinner size='lg' color='failure' />
+                  </div>
+               ) : (
+                  <div className='flex flex-wrap gap-4 justify-evenly'>
+                     {cmtos.length === 0 ? (
+                        <p>Nenhum comissionamento encontrado.</p>
+                     ) : (
+                        cmtos.map((c) => (
+                           <CardComiss
+                              key={c.id}
+                              comiss={c}
+                              update={updateCmtos}
+                           />
+                        ))
+                     )}
+                  </div>
+               )}
+            </div>
          </div>
 
          {showFormComiss && (

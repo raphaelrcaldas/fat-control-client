@@ -36,8 +36,8 @@ export interface ComissWithMiss extends Comiss {
     completude: number
 }
 
-export async function getCmtos(): Promise<ComissWithMiss[]> {
-    return (await request("GET", comissRoute)).json();
+export async function getCmtos(status: string, search: string): Promise<ComissWithMiss[]> {
+    return (await request("GET", comissRoute, null, { status: status, search: search })).json();
 }
 
 export async function createCmto(comiss: Comiss) {

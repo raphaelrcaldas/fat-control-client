@@ -103,7 +103,7 @@ export function CardComiss({
                      <div className='flex flex-row gap-2 items-center justify-start'>
                         <span
                            className={clsx("size-4 bg-green-500 rounded-lg", {
-                              "bg-slate-500": comiss.status == "finalizado",
+                              "bg-slate-500": comiss.status == "fechado",
                            })}
                         >
                            {" "}
@@ -114,7 +114,7 @@ export function CardComiss({
                      <div className='flex flex-row gap-2 items-center justify-start'>
                         <span
                            className={clsx("size-4 bg-red-500 rounded-lg", {
-                              "bg-slate-500": comiss.status == "finalizado",
+                              "bg-slate-500": comiss.status == "fechado",
                            })}
                         >
                            {" "}
@@ -216,7 +216,7 @@ function ComissProgress({
    status: string;
 }) {
    let color = modulo ? "#009401" : "#d70001";
-   color = status == "finalizado" ? "#919191" : color;
+   color = status == "fechado" ? "#919191" : color;
 
    return (
       <CircularProgressbar

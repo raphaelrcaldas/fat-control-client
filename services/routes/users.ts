@@ -65,3 +65,7 @@ export async function changePassword(pwdBody: { new_pwd: string }) {
       pwdBody,
    );
 }
+
+export async function resetPassword(userId: number) {
+   return await request("POST", usersRoute + "reset-pwd", null, { user_id: userId });
+}

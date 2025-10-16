@@ -29,7 +29,9 @@ export default async function request<T = any>(
    if (params) {
       const searchParams = new URLSearchParams();
       for (const [key, value] of Object.entries(params)) {
-         searchParams.append(key, String(value));
+         if (value) {
+            searchParams.append(key, String(value));
+         }
       }
       fullUrl += `?${searchParams.toString()}`;
    }
