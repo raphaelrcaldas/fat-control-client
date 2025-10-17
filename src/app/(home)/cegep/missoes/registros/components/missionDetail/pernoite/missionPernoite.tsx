@@ -49,22 +49,18 @@ export function MissionPernoite({
       <>
          <div
             className={clsx(
-               "p-1 flex flex-row gap-0.5 rounded-xl justify-start",
+               "p-1 flex flex-row gap-0.5 rounded-xl text-sm justify-start items-center",
                {
                   "hover:bg-slate-200 cursor-pointer": edit,
                }
             )}
             onClick={editPntShow}
          >
-            <span className='w-32 text-sm text-center font-medium'>
-               {dataIni}
-            </span>
+            <span className='w-32 text-center font-medium'>{dataIni}</span>
             <span>a</span>
-            <span className='w-32 text-sm text-center font-medium'>
-               {dataFim}
-            </span>
+            <span className='w-32 text-center font-medium'>{dataFim}</span>
 
-            <span className='px-1'>
+            <span className='px-1 text-base'>
                {pnt.cidade.nome}-{pnt.cidade.uf}
             </span>
 

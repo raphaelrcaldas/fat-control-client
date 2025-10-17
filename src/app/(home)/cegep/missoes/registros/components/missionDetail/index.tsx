@@ -144,11 +144,6 @@ export default function MissionDetail({
          }
       });
 
-      const conectados = periodosEstaoConectados(pnts);
-      if (!conectados) {
-         errors.push("- Os pernoites não estão conectados.");
-      }
-
       if (errors.length > 0) {
          alert("Preencha os campos obrigatórios:\n" + errors.join("\n"));
          return;
@@ -434,7 +429,7 @@ export default function MissionDetail({
                      {obs ? (
                         obs
                      ) : (
-                        <div className='w-full text-center mt-2 uppercase text-red-500'>
+                        <div className='w-full text-center mt-2 text-sm uppercase text-red-500'>
                            Nenhuma Observação adicionada
                         </div>
                      )}
@@ -576,21 +571,4 @@ export default function MissionDetail({
          </ModalFooter>
       </Modal>
    );
-}
-
-function periodosEstaoConectados(periodos: Pernoite[]): boolean {
-   const ordenados = [...periodos].sort((a, b) =>
-      a.data_ini.localeCompare(b.data_ini)
-   );
-
-   for (let i = 1; i < ordenados.length; i++) {
-      const anterior = ordenados[i - 1];
-      const atual = ordenados[i];
-
-      if (anterior.data_fim.split("T")[0] !== atual.data_ini.split("T")[0]) {
-         return false; // quebra na conexão
-      }
-   }
-
-   return true; // todos conectados
 }

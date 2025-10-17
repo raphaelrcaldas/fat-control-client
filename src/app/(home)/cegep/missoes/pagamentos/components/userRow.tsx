@@ -80,7 +80,7 @@ export function UserRow({ record, checked, onSelect }) {
             <span className='text-gray-500'>{regres}</span>
          </div>
          <span className='w-10 text-sm capitalize'>
-            {record.missao.dias} dias
+            {record.missao.dias} dia{record.missao.dias > 1 ? "s" : ""}
          </span>
          <span
             className={clsx("w-14 text-sm capitalize", {

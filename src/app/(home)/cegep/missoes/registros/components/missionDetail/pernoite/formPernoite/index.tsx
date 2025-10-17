@@ -95,7 +95,7 @@ export function FormPernoite({
       }
 
       // Validar conflito de acréscimo de deslocamento
-      if (conflitoAcrescimoLocal(pnts, local.codigo, pnt)) {
+      if (conflitoAcrescimoLocal(pnts, local.codigo, acDesloc, pnt)) {
          errors.push(
             "- Existe conflito de acréscimo de deslocamento nessa localidade."
          );
@@ -304,6 +304,7 @@ function conflitoDeDataComPernoites(
 function conflitoAcrescimoLocal(
    pnts: Pernoite[],
    codigoLocal: number,
+   acDesloc: boolean,
    pnt?: Pernoite
 ): boolean {
    return pnts.some((p) => {
@@ -315,6 +316,6 @@ function conflitoAcrescimoLocal(
       )
          return false;
 
-      return p.cidade?.codigo === codigoLocal && p.acrec_desloc;
+      return p.cidade?.codigo === codigoLocal && p.acrec_desloc && acDesloc;
    });
 }
