@@ -247,7 +247,9 @@ export async function gerarRelatorio(comiss: ComissWithMiss) {
     sheet.mergeCells(startRowData, 14, totalRows, 14)
 
     const valAjdTotal = sheet.getCell("O4");
-    valAjdTotal.value = comiss.valor_aj_ab + comiss.valor_aj_fc;
+    valAjdTotal.value = {
+        formula: `${r1c1ToA1(startRowData, 13)}+${r1c1ToA1(startRowData, 14)}`
+    };
     valAjdTotal.numFmt = 'R$ #,##0.00';
     sheet.mergeCells(startRowData, 15, totalRows, 15)
 
