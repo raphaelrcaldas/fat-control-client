@@ -53,6 +53,10 @@ export function SearchLocal({ show, setShow, setLocal }) {
                         if (
                            !e.key.match(/^[a-zA-ZÀ-ÿ\s]$/) &&
                            e.key !== "Backspace" &&
+                           e.key !== "Delete" &&
+                           e.key !== "ArrowLeft" &&
+                           e.key !== "ArrowRight" &&
+                           e.key !== "ArrowRight" &&
                            e.key !== "Tab"
                         ) {
                            e.preventDefault();

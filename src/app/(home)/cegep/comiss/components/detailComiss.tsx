@@ -234,7 +234,6 @@ function MissionRow({ mis, diasPrev }) {
       <div className='flex flex-row text-center text-base hover:bg-slate-100 font-mono uppercase gap-1 p-2 items-center rounded-md border-b last:border-none'>
          <span className='w-8'>{mis.tipo_doc}</span>
          <span className='w-10'>{String(mis.n_doc).padStart(3, "0")}</span>
-         <span className='w-10'>{mis.tipo}</span>
          <span className='flex-1'>{mis.desc}</span>
          <div className='flex flex-row gap-3 w-44 justify-center'>
             <span>{ini}</span>

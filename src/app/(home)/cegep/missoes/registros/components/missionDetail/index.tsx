@@ -21,6 +21,7 @@ import { useState, useMemo, useEffect } from "react";
 import { FaPlaneDeparture, FaPlaneArrival } from "react-icons/fa";
 import { createUpdateFragMis } from "services/routes/cegep/missoes";
 import { deleteFragMis } from "services/routes/cegep/missoes";
+import { useToast } from "@/app/context/toast";
 import clsx from "clsx";
 
 export default function MissionDetail({
@@ -72,6 +73,7 @@ export default function MissionDetail({
    const [checkAfastRegres, setCheckAfastRegres] = useState(false);
 
    const [isLoading, setIsloading] = useState(false);
+   const { push } = useToast();
 
    const sortedPnts = useMemo(
       () =>
@@ -180,14 +182,17 @@ export default function MissionDetail({
       const response = await createUpdateFragMis(fragMis);
       if (response.ok) {
          const data = await response.json();
-         alert(data.detail);
+         push({ message: data.detail, type: "success" });
          setEditMode(false);
-         update(); // Atualiza lista, se necessário
+         update();
       } else {
          const error = await response.json();
-         alert(
-            "Erro ao salvar missão: " + (error.detail || "Erro desconhecido")
-         );
+         push({
+            message:
+               "Erro ao salvar missão: " +
+               (error.detail || "Erro desconhecido"),
+            type: "error",
+         });
       }
       setIsloading(false);
    }
@@ -197,15 +202,17 @@ export default function MissionDetail({
          const response = await deleteFragMis(missao.id);
          if (response.ok) {
             const data = await response.json();
-            alert(data.detail);
+            push({ message: data.detail, type: "success" });
             setShow(false);
-            update(); // Atualiza lista, se necessário
+            update();
          } else {
             const error = await response.json();
-            alert(
-               "Erro ao deletar missão: " +
-                  (error.detail || "Erro desconhecido")
-            );
+            push({
+               message:
+                  "Erro ao deletar missão: " +
+                  (error.detail || "Erro desconhecido"),
+               type: "error",
+            });
          }
       }
    }

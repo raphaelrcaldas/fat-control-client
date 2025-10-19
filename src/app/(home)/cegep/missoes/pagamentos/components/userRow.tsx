@@ -57,10 +57,10 @@ export function UserRow({ record, checked, onSelect }) {
                onChange={onChange}
             />
          </span>
-         <span className='w-8 font-semibold'>{record.missao.tipo_doc}</span>
-         <span className='w-8 font-medium'>{record.missao.n_doc}</span>
-         <span className='w-10 font-medium'>{record.missao.tipo}</span>
-         <span className='w-32'>
+         <span className='w-16 font-semibold'>
+            {record.missao.tipo_doc} {record.missao.n_doc}
+         </span>
+         <span className='w-40'>
             {record.user_mis.p_g} {record.user_mis.user.nome_guerra}
          </span>
          <span
