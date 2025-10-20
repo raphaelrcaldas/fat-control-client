@@ -1,12 +1,13 @@
 "use client";
 import { useState } from "react";
-import { Progress, Dropdown, DropdownItem, Label } from "flowbite-react";
+import { Progress, Label, Button } from "flowbite-react";
 import { isoStrToDate } from "utils/dateHandler";
 import { FormComiss } from "./formComiss";
 import {
    MdOutlineAttachMoney,
    MdOutlineCalendarToday,
    MdOutlineEdit,
+   MdInfoOutline,
 } from "react-icons/md";
 import { FaRegTrashAlt } from "react-icons/fa";
 import { DetailComiss } from "./detailComiss";
@@ -76,29 +77,31 @@ export function ListComiss({
                <div className='font-medium text-center w-96'>
                   {user.p_g} {user.nome_guerra}
                </div>
-               <div className='flex flex-row gap-2 w-40 items-center justify-center'>
-                  <span
-                     className={clsx("size-4 bg-green-500 rounded-lg", {
-                        "bg-slate-500": comiss.status == "fechado",
-                     })}
-                  >
-                     {" "}
-                  </span>
-                  <span className='font-mono'>{data_abertura}</span>
-               </div>
-               <div className='flex flex-row gap-2 w-40 items-center justify-center'>
-                  <span
-                     className={clsx("size-4 bg-red-500 rounded-lg", {
-                        "bg-slate-500": comiss.status == "fechado",
-                     })}
-                  >
-                     {" "}
-                  </span>
-                  <span className='font-mono'>{data_fechamento}</span>
+               <div className='md:grid grid-cols-2'>
+                  <div className='flex flex-row gap-2 w-40 items-center justify-center'>
+                     <span
+                        className={clsx("size-4 bg-green-500 rounded-lg", {
+                           "bg-slate-500": comiss.status == "fechado",
+                        })}
+                     >
+                        {" "}
+                     </span>
+                     <span className='font-mono'>{data_abertura}</span>
+                  </div>
+                  <div className='flex flex-row gap-2 w-40 items-center justify-center'>
+                     <span
+                        className={clsx("size-4 bg-red-500 rounded-lg", {
+                           "bg-slate-500": comiss.status == "fechado",
+                        })}
+                     >
+                        {" "}
+                     </span>
+                     <span className='font-mono'>{data_fechamento}</span>
+                  </div>
                </div>
                <div
                   className={clsx(
-                     "w-36 hidden md:grid justify-items-center text-sm font-medium text-blue-800",
+                     "w-36 hidden lg:grid justify-items-center text-sm font-medium text-blue-800",
                      {
                         "text-green-700": !comiss.dias_cumprir,
                      }
@@ -122,7 +125,7 @@ export function ListComiss({
                   />
                </div>
 
-               <div className='hidden md:grid grid-cols-3 w-[24rem] text-base'>
+               <div className='hidden lg:grid grid-cols-3 w-[24rem] text-base'>
                   <div className='grid text-center'>
                      <div className=''>
                         {comiss.dias_cumprir ? (
@@ -164,6 +167,14 @@ export function ListComiss({
                   </div>
                </div>
 
+               <div className='hidden md:grid grid-cols-2 gap-2 px-2'>
+                  <Button onClick={() => setShowDetail(true)} color='light'>
+                     <MdInfoOutline size={20} />
+                  </Button>
+                  <Button onClick={() => setShowForm(true)} color='light'>
+                     <MdOutlineEdit size={20} />
+                  </Button>
+               </div>
                {/* <Dropdown color='light' inline dismissOnClick={false}>
                   <DropdownItem
                      icon={MdOutlineEdit}
