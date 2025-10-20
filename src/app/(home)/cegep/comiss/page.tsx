@@ -1,10 +1,19 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Button, Label, Select, Spinner, TextInput } from "flowbite-react";
+import {
+   Button,
+   ButtonGroup,
+   Label,
+   Select,
+   Spinner,
+   TextInput,
+} from "flowbite-react";
 import { CardComiss } from "./components/cardComiss";
+import { ListComiss } from "./components/listComiss";
 import { FormComiss } from "./components/formComiss";
 import { getCmtos, ComissWithMiss } from "services/routes/cegep/comiss";
+import { MdOutlineDashboard, MdFormatListBulleted } from "react-icons/md";
 
 export default function HomeApp() {
    const [cmtos, setCmtos] = useState<ComissWithMiss[]>([]);
@@ -12,6 +21,7 @@ export default function HomeApp() {
    const [showFormComiss, setShowFormComiss] = useState(false);
    const [statusComis, setStatusComis] = useState("aberto");
    const [searchUser, setSearchUser] = useState("");
+   const [activeView, setActiveView] = useState<"lista" | "card">("lista");
 
    async function updateCmtos() {
       setLoading(true);
@@ -90,9 +100,9 @@ export default function HomeApp() {
                </div> */}
             </section>
 
-            <section className='flex flex-col'>
+            <section>
                <div className='w-full p-2'>
-                  <div className='relative overflow-hidden bg-white shadow-md sm:rounded-lg'>
+                  <div className='relative overflow-hidden bg-white shadow-md sm:rounded-lg flex flex-row justify-between'>
                      <div className='flex-row items-center justify-evenly p-4 space-y-3 sm:flex sm:space-y-0 sm:space-x-4'>
                         <div className='w-80'>
                            <div className='mb-2 text-center'>
@@ -105,7 +115,6 @@ export default function HomeApp() {
                               placeholder='Nome completo ou de guerra'
                            />
                         </div>
-
                         <div>
                            <div className='mb-2 text-center'>
                               <Label>Situação</Label>
@@ -124,6 +133,24 @@ export default function HomeApp() {
                            </Button>
                         </div>
                      </div>
+                     <div className='grid justify-end place-items-center'>
+                        <ButtonGroup className='mr-6'>
+                           <Button
+                              color={activeView == "lista" ? "info" : "light"}
+                              onClick={() => setActiveView("lista")}
+                           >
+                              <MdFormatListBulleted className='me-2 h-5 w-5' />
+                              Lista
+                           </Button>
+                           <Button
+                              color={activeView == "card" ? "info" : "light"}
+                              onClick={() => setActiveView("card")}
+                           >
+                              <MdOutlineDashboard className='me-2 h-5 w-5' />
+                              Card
+                           </Button>
+                        </ButtonGroup>
+                     </div>
                   </div>
                </div>
             </section>
@@ -133,20 +160,12 @@ export default function HomeApp() {
                   <div className='flex-1 flex flex-col font-semibold items-center justify-center gap-2 p-2'>
                      Carregando <Spinner size='lg' color='failure' />
                   </div>
+               ) : cmtos.length === 0 ? (
+                  <p>Nenhum comissionamento encontrado.</p>
+               ) : activeView === "card" ? (
+                  <CardView cmtos={cmtos} update={updateCmtos} />
                ) : (
-                  <div className='flex flex-wrap gap-4 justify-evenly'>
-                     {cmtos.length === 0 ? (
-                        <p>Nenhum comissionamento encontrado.</p>
-                     ) : (
-                        cmtos.map((c) => (
-                           <CardComiss
-                              key={c.id}
-                              comiss={c}
-                              update={updateCmtos}
-                           />
-                        ))
-                     )}
-                  </div>
+                  <ListView cmtos={cmtos} update={updateCmtos} />
                )}
             </div>
          </div>
@@ -159,5 +178,25 @@ export default function HomeApp() {
             />
          )}
       </>
+   );
+}
+
+function CardView({ cmtos, update }) {
+   return (
+      <div className='flex flex-wrap gap-4 justify-evenly'>
+         {cmtos.map((c) => (
+            <CardComiss key={c.id} comiss={c} update={update} />
+         ))}
+      </div>
+   );
+}
+
+function ListView({ cmtos, update }) {
+   return (
+      <div className='flex flex-col gap-1.5'>
+         {cmtos.map((c) => (
+            <ListComiss key={c.id} comiss={c} update={update} />
+         ))}
+      </div>
    );
 }
