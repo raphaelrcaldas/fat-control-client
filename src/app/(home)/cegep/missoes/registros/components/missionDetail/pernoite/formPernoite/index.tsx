@@ -76,8 +76,8 @@ export function FormPernoite({
 
       const ini = new Date(dataIni);
       const fim = new Date(dataFim);
-      const afastDate = new Date(afast);
-      const regresDate = new Date(regres);
+      const afastDate = new Date(afast.split("T")[0]);
+      const regresDate = new Date(regres.split("T")[0]);
       const iniValue = ini.valueOf();
       const fimValue = fim.valueOf();
 
@@ -160,22 +160,30 @@ export function FormPernoite({
                      <span className='font-medium text-base text-center w-12'>
                         Início
                      </span>
-                     <DateTimePicker
+                     <input
+                        className='bg-gray-50 border text-center border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-40 p-2.5'
+                        type='date'
                         value={dataIni}
-                        setValue={setDataIni}
-                        max={regres}
-                        min={afast}
+                        min={afast ? afast.split("T")[0] : ""}
+                        max={regres ? regres.split("T")[0] : ""}
+                        onChange={(e) => {
+                           setDataIni(e.target.value);
+                        }}
                      />
                   </div>
                   <div className='flex flex-row gap-2 justify-center items-center'>
                      <span className='font-medium text-base text-center w-12'>
                         Fim
                      </span>
-                     <DateTimePicker
+                     <input
+                        className='bg-gray-50 border text-center border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-40 p-2.5'
+                        type='date'
                         value={dataFim}
-                        setValue={setDataFim}
-                        max={regres}
-                        min={afast}
+                        min={afast ? afast.split("T")[0] : ""}
+                        max={regres ? regres.split("T")[0] : ""}
+                        onChange={(e) => {
+                           setDataFim(e.target.value);
+                        }}
                      />
                   </div>
                </div>
@@ -230,13 +238,13 @@ export function FormPernoite({
                   />
                </div>
 
-               <div className='px-12'>
+               {/* <div className='px-12'>
                   <Textarea
                      placeholder='Observação'
                      value={obs}
                      onChange={(e) => setObs(e.target.value)}
                   />
-               </div>
+               </div> */}
 
                <div className='flex gap-3 justify-center'>
                   <Button className='w-28' type='submit' disabled={!isChanged}>
@@ -297,7 +305,7 @@ function conflitoDeDataComPernoites(
 
       const pIni = new Date(p.data_ini).getTime();
       const pFim = new Date(p.data_fim).getTime();
-      return iniValue <= pFim && pIni <= fimValue;
+      return iniValue < pFim && pIni < fimValue;
    });
 }
 

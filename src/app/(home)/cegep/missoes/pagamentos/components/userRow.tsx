@@ -115,7 +115,16 @@ export function UserRow({ record, checked, onSelect }) {
                   );
                })}
          </div>
-         <Popover content={<PgtContent pernoites={pnts} />} placement='left'>
+         <Popover
+            content={
+               <PgtContent
+                  pernoites={pnts}
+                  acDeslocSede={record.missao.acrec_desloc}
+                  total={record.missao.valor_total}
+               />
+            }
+            placement='left'
+         >
             <Button className='p-0' disabled={record.sit === "g"} color='light'>
                <IoMdInformationCircleOutline size={20} />
             </Button>
@@ -124,9 +133,10 @@ export function UserRow({ record, checked, onSelect }) {
    );
 }
 
-function PgtContent({ pernoites }) {
+function PgtContent({ pernoites, acDeslocSede, total }) {
    return (
-      <div className='overflow-x-auto'>
+      <div className='overflow-x-auto p-2'>
+         <span className='capitalize'>Pernoites</span>
          <Table className='text-center'>
             <TableHead>
                <TableHeadCell>Chegada</TableHeadCell>
@@ -206,6 +216,32 @@ function PgtContent({ pernoites }) {
                })}
             </TableBody>
          </Table>
+         <div className='mt-2 grid grid-cols-2'>
+            <div>
+               <span className='text-sm capitalize mr-2'>
+                  Acréscimo Deslocamento em sede:
+               </span>
+               <span className='font-semibold'>
+                  {acDeslocSede
+                     ? Number(95).toLocaleString("pt-BR", {
+                          style: "currency",
+                          currency: "BRL",
+                       })
+                     : Number(0).toLocaleString("pt-BR", {
+                          style: "currency",
+                          currency: "BRL",
+                       })}
+               </span>
+            </div>
+
+            <span className='font-semibold'>
+               Total:{" "}
+               {Number(total).toLocaleString("pt-BR", {
+                  style: "currency",
+                  currency: "BRL",
+               })}
+            </span>
+         </div>
       </div>
    );
 }

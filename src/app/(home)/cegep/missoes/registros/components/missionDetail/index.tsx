@@ -9,10 +9,12 @@ import {
    Label,
    Spinner,
    TextInput,
+   Checkbox,
 } from "flowbite-react";
 import { MissionPernoite } from "./pernoite/missionPernoite";
 import { FormPernoite } from "./pernoite/formPernoite";
 import { Pernoite } from "services/routes/cegep/missoes";
+import { isoStrToDate } from "utils/dateHandler";
 import { FormMilitar } from "./militar/formMilitar";
 import { MissionMilitar } from "./militar/missionMilitar";
 import { Missao } from "services/routes/cegep/missoes";
@@ -49,6 +51,7 @@ export default function MissionDetail({
          regres: missao ? missao.regres : "",
          tipo: missao ? missao.tipo : "",
          ind: missao ? (missao.indenizavel ? "ind" : "n_ind") : "",
+         acrecDesloc: missao ? missao.acrec_desloc : false,
          obs: missao ? missao.obs : "",
          pnts: missao ? missao.pernoites : [],
          mils: missao ? missao.users : [],
@@ -63,6 +66,7 @@ export default function MissionDetail({
    const [tipo, setTipo] = useState(defaultValues.tipo);
    const [afast, setAfast] = useState(defaultValues.afast);
    const [regres, setRegres] = useState(defaultValues.regres);
+   const [acrecDesloc, setAcrecDesloc] = useState(defaultValues.acrecDesloc);
    const [ind, setInd] = useState(defaultValues.ind);
    const [obs, setObs] = useState(defaultValues.obs);
    const [formPnt, setFormPnt] = useState(false);
@@ -92,6 +96,7 @@ export default function MissionDetail({
       tipo !== defaultValues.tipo ||
       afast !== defaultValues.afast ||
       regres !== defaultValues.regres ||
+      acrecDesloc !== defaultValues.acrecDesloc ||
       ind !== defaultValues.ind ||
       obs !== defaultValues.obs ||
       JSON.stringify(pnts) !== JSON.stringify(defaultValues.pnts) ||
@@ -120,8 +125,8 @@ export default function MissionDetail({
       if (!checkPnts) errors.push("- Pelo menos um Pernoite");
       if (!checkMil) errors.push("- Pelo menos um Militar");
 
-      const dataAfast = new Date(afast);
-      const dataRegres = new Date(regres);
+      const dataAfast = new Date(afast.split("T")[0]);
+      const dataRegres = new Date(regres.split("T")[0]);
 
       // Checagem adicional: afastamento não pode ser maior que regresso
       if (checkAfast && checkRegres) {
@@ -170,6 +175,7 @@ export default function MissionDetail({
          tipo_doc: tipoDoc,
          n_doc: nDoc,
          desc: desc,
+         acrec_desloc: acrecDesloc,
          tipo: tipo,
          afast: afast,
          regres: regres,
@@ -187,12 +193,9 @@ export default function MissionDetail({
          update();
       } else {
          const error = await response.json();
-         push({
-            message:
-               "Erro ao salvar missão: " +
-               (error.detail || "Erro desconhecido"),
-            type: "error",
-         });
+         alert(
+            "Erro ao salvar missão: " + (error.detail || "Erro desconhecido")
+         );
       }
       setIsloading(false);
    }
@@ -381,44 +384,65 @@ export default function MissionDetail({
                </div>
             </div>
 
-            <div className='flex flex-row gap-2 mt-4 justify-center items-center'>
-               <Label className='text-center w-28'>Afastamento</Label>
-               {editMode ? (
-                  <DateTimePicker value={afast} setValue={setAfast} />
-               ) : (
-                  <div className='flex text-base bg-yellow-200 p-1 rounded-lg justify-around w-48'>
-                     <FaPlaneDeparture className='size-5' />
-                     <span className='text-center font-medium'>
-                        {new Date(afast).toLocaleDateString("pt-BR", {
-                           year: "numeric",
-                           month: "numeric",
-                           day: "numeric",
-                           hour: "2-digit",
-                           minute: "2-digit",
-                        })}
-                     </span>
+            <div className='flex flex-row gap-2 justify-center'>
+               <div className=''>
+                  <div className='flex flex-row gap-2 mt-4 justify-center items-center'>
+                     <Label className='text-center w-28'>Afastamento</Label>
+                     {editMode ? (
+                        <DateTimePicker value={afast} setValue={setAfast} />
+                     ) : (
+                        <div className='flex text-base bg-yellow-200 p-1 rounded-lg justify-around w-48'>
+                           <FaPlaneDeparture className='size-5' />
+                           <span className='text-center font-medium'>
+                              {new Date(afast).toLocaleDateString("pt-BR", {
+                                 year: "numeric",
+                                 month: "numeric",
+                                 day: "numeric",
+                                 hour: "2-digit",
+                                 minute: "2-digit",
+                              })}
+                           </span>
+                        </div>
+                     )}
                   </div>
-               )}
-            </div>
 
-            <div className='flex flex-row gap-2 mt-4 justify-center items-center'>
-               <Label className='text-center w-28'>Regresso</Label>
-               {editMode ? (
-                  <DateTimePicker value={regres} setValue={setRegres} />
-               ) : (
-                  <div className='flex text-base bg-yellow-200 p-1 rounded-lg justify-around w-48'>
-                     <FaPlaneArrival className='size-5' />
-                     <span className='text-center font-medium'>
-                        {new Date(regres).toLocaleDateString("pt-BR", {
-                           year: "numeric",
-                           month: "numeric",
-                           day: "numeric",
-                           hour: "2-digit",
-                           minute: "2-digit",
-                        })}
-                     </span>
+                  <div className='flex flex-row gap-2 mt-4 justify-center items-center'>
+                     <Label className='text-center w-28'>Regresso</Label>
+                     {editMode ? (
+                        <DateTimePicker value={regres} setValue={setRegres} />
+                     ) : (
+                        <div className='flex text-base bg-yellow-200 p-1 rounded-lg justify-around w-48'>
+                           <FaPlaneArrival className='size-5' />
+                           <span className='text-center font-medium'>
+                              {new Date(regres).toLocaleDateString("pt-BR", {
+                                 year: "numeric",
+                                 month: "numeric",
+                                 day: "numeric",
+                                 hour: "2-digit",
+                                 minute: "2-digit",
+                              })}
+                           </span>
+                        </div>
+                     )}
                   </div>
-               )}
+               </div>
+               <div className='p-2 flex flex-col gap-2 justify-center items-center'>
+                  <Label className='w-36 text-center' htmlFor='ac_desloc'>
+                     Acréscimo Deslocamento
+                  </Label>
+                  {editMode ? (
+                     <Checkbox
+                        id='ac_desloc'
+                        onChange={(e) => setAcrecDesloc(e.target.checked)}
+                        className='size-5'
+                        checked={acrecDesloc}
+                     />
+                  ) : (
+                     <span className='font-semibold'>
+                        {acrecDesloc ? "SIM" : "NÃO"}
+                     </span>
+                  )}
+               </div>
             </div>
 
             <div className='p-4 bg-slate-50 rounded-lg shadow-md my-4'>

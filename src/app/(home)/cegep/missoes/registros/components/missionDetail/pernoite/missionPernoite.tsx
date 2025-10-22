@@ -3,6 +3,7 @@ import { Pernoite } from "services/routes/cegep/missoes";
 import { FormPernoite } from "./formPernoite";
 import { useState } from "react";
 import clsx from "clsx";
+import { isoStrToDate } from "utils/dateHandler";
 
 interface MissionPernoiteProps {
    pnt: Pernoite;
@@ -23,20 +24,16 @@ export function MissionPernoite({
 }: MissionPernoiteProps) {
    const [showFormPnt, setShowFormPnt] = useState<boolean>(false);
 
-   const dataIni = new Date(pnt.data_ini).toLocaleDateString("pt-br", {
+   const dataIni = isoStrToDate(pnt.data_ini).toLocaleDateString("pt-br", {
       day: "2-digit",
       month: "2-digit",
       year: "2-digit",
-      hour: "2-digit",
-      minute: "2-digit",
    });
 
-   const dataFim = new Date(pnt.data_fim).toLocaleDateString("pt-br", {
+   const dataFim = isoStrToDate(pnt.data_fim).toLocaleDateString("pt-br", {
       day: "2-digit",
       month: "2-digit",
       year: "2-digit",
-      hour: "2-digit",
-      minute: "2-digit",
    });
 
    function editPntShow(): void {
@@ -56,9 +53,9 @@ export function MissionPernoite({
             )}
             onClick={editPntShow}
          >
-            <span className='w-32 text-center font-medium'>{dataIni}</span>
+            <span className='w-20 text-center font-medium'>{dataIni}</span>
             <span>a</span>
-            <span className='w-32 text-center font-medium'>{dataFim}</span>
+            <span className='w-20 text-center font-medium'>{dataFim}</span>
 
             <span className='px-1 text-base'>
                {pnt.cidade.nome}-{pnt.cidade.uf}

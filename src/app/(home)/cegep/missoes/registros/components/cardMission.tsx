@@ -4,6 +4,7 @@ import { FaRegClone } from "react-icons/fa";
 import MissionDetail from "./missionDetail";
 import { Missao } from "services/routes/cegep/missoes";
 import clsx from "clsx";
+import { isoStrToDate } from "utils/dateHandler";
 
 export function CardMission({
    missao,
@@ -115,8 +116,14 @@ function PernoiteCardMis({ pnt }) {
       day: "2-digit" as const,
       month: "2-digit" as const,
    };
-   const dataIni = new Date(pnt.data_ini).toLocaleDateString("pt-br", dayExt);
-   const dataFim = new Date(pnt.data_fim).toLocaleDateString("pt-br", dayExt);
+   const dataIni = isoStrToDate(pnt.data_ini).toLocaleDateString(
+      "pt-br",
+      dayExt
+   );
+   const dataFim = isoStrToDate(pnt.data_fim).toLocaleDateString(
+      "pt-br",
+      dayExt
+   );
 
    return (
       <div className='p-1 flex flex-row items-center justify-start text-sm'>

@@ -41,6 +41,7 @@ export interface Missao {
    afast: string,
    regres: string,
    indenizavel: boolean,
+   acrec_desloc: boolean,
    obs: string,
    tipo: string,
    pernoites?: Pernoite[],
@@ -56,10 +57,10 @@ export async function getFragMissoes(reqs?: Record<string, any>): Promise<Missao
    // Remove chaves com valores undefined ou string vazia
    const params = reqs
       ? Object.fromEntries(
-           Object.entries(reqs).filter(
-               ([, v]) => v !== undefined && v !== ""
-           )
-        )
+         Object.entries(reqs).filter(
+            ([, v]) => v !== undefined && v !== ""
+         )
+      )
       : undefined;
 
    const response = await request("GET", missoesRoute, null, params);
