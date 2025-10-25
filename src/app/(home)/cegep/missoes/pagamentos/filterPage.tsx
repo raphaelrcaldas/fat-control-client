@@ -1,12 +1,5 @@
-import React, { useEffect, useState, useMemo } from "react";
-import {
-   Label,
-   TextInput,
-   Spinner,
-   Select,
-   Checkbox,
-   Button,
-} from "flowbite-react";
+import React, { useEffect, useState, useMemo, useCallback } from "react";
+import { Label, TextInput, Spinner, Select, Checkbox } from "flowbite-react";
 import { getPgts } from "services/routes/cegep/financeiro";
 import { UserRow } from "./components/userRow";
 import { useFilterContext } from "../../context/filterContext";
@@ -49,9 +42,9 @@ export function FilterPage({ active }) {
             onSelect={handleSelect}
          />
       ));
-   }, [misRecords]);
+   }, [misRecords, selectedIds]);
 
-   const fetchData = async () => {
+   const fetchData = useCallback(async () => {
       setLoading(true);
 
       let req: { [key: string]: any } = {};
@@ -72,7 +65,15 @@ export function FilterPage({ active }) {
       setValorSoma(0);
       setSelectedAll(false);
       setLoading(false);
-   };
+   }, [
+      userSearch,
+      tipoDoc,
+      nDoc,
+      selectedTipo,
+      selectedSit,
+      dataInicio,
+      dataFim,
+   ]);
 
    useEffect(() => {
       if (!active) return;
@@ -80,6 +81,17 @@ export function FilterPage({ active }) {
          fetchData();
       }
    }, [active]);
+
+   // Debounce para os filtros
+   useEffect(() => {
+      if (!active || misRecords == null) return;
+
+      const timer = setTimeout(() => {
+         fetchData();
+      }, 500);
+
+      return () => clearTimeout(timer);
+   }, [fetchData, active]);
 
    useEffect(() => {
       if (misRecords && selectedAll) {
@@ -137,7 +149,6 @@ export function FilterPage({ active }) {
                               )
                            }
                            onKeyDown={(e) => {
-                              // Permite apenas números, backspace, tab, delete, setas
                               if (
                                  !(
                                     (e.key >= "0" && e.key <= "9") ||
@@ -218,12 +229,6 @@ export function FilterPage({ active }) {
                            onChange={(e) => setDataFim(e.target.value)}
                            className='block w-full text-center p-2.5 text-sm text-gray-900 bg-white border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500'
                         />
-                     </div>
-
-                     <div className='pt-6'>
-                        <Button color='light' pill onClick={fetchData}>
-                           Filtrar
-                        </Button>
                      </div>
                   </div>
                </div>

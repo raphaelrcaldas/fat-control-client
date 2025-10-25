@@ -1,4 +1,4 @@
-import { Dropdown, DropdownItem, HR } from "flowbite-react";
+import { Dropdown, DropdownItem, HR, Tooltip } from "flowbite-react";
 import { useState, Dispatch, SetStateAction } from "react";
 import { FaRegClone } from "react-icons/fa";
 import MissionDetail from "./missionDetail";
@@ -70,15 +70,25 @@ export function CardMission({
                <h4 className='text-center text-sm'>{missao.desc}</h4>
                <h4 className='text-sm'>{missao.obs}</h4>
 
-               <div className='flex flex-col gap-1 capitalize'>
-                  <div className='flex flex-row'>
-                     <span className='w-28'>Afastamento:</span>
-                     <span className='font-mono'>{ini}</span>
+               <div className='flex flex-row gap-2'>
+                  <div className='flex flex-col gap-1 capitalize'>
+                     <div className='flex flex-row'>
+                        <span className='w-28'>Afastamento:</span>
+                        <span className='font-mono'>{ini}</span>
+                     </div>
+                     <div className='flex flex-row'>
+                        <span className='w-28'>Regresso:</span>
+                        <span className='font-mono'>{fim}</span>
+                     </div>
                   </div>
-                  <div className='flex flex-row'>
-                     <span className='w-28'>Regresso:</span>
-                     <span className='font-mono'>{fim}</span>
-                  </div>
+
+                  {missao.acrec_desloc && (
+                     <div className='flex-1 flex justify-center items-center'>
+                        <span className='bg-green-300 text-sm h-fit px-2.5 font-medium rounded-lg'>
+                           AC
+                        </span>
+                     </div>
+                  )}
                </div>
 
                <HR className=' m-0' />
@@ -88,7 +98,7 @@ export function CardMission({
                      <PernoiteCardMis key={pnt.id} pnt={pnt} />
                   ))}
                </div>
-               <HR className=' m-0' />
+               <HR className='m-0' />
                <div className='flex gap-1 flex-wrap'>
                   {missao.users.map((user) => (
                      <UserCardMis key={user.id} user={user} />
@@ -126,13 +136,25 @@ function PernoiteCardMis({ pnt }) {
    );
 
    return (
-      <div className='p-1 flex flex-row items-center justify-start text-sm'>
+      <div className='p-1 flex flex-row items-center justify-start text-sm gap-1'>
          <span className='w-28 font-mono lowercase text-center'>
             {dataIni} a {dataFim}
          </span>
-         <span className='ml-3 font-medium rounded-lg bg-gray-200 py-1 px-2'>
+         <span className='ml-2 font-medium rounded-lg bg-gray-200 py-1 px-2'>
             {pnt.cidade.nome}-{pnt.cidade.uf}
          </span>
+
+         {pnt.acrec_desloc && (
+            <span className='font-semibold bg-green-300 px-2.5 rounded-lg'>
+               AC
+            </span>
+         )}
+
+         {pnt.meia_diaria && (
+            <span className='font-semibold bg-amber-300 px-2.5 rounded-lg'>
+               MD
+            </span>
+         )}
       </div>
    );
 }

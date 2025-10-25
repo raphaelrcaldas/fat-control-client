@@ -72,7 +72,7 @@ export function ListComiss({
    }
    return (
       <>
-         <div className='bg-white uppercase hover:bg-green-100 px-2 py-1 rounded-md'>
+         <div className='bg-white uppercase hover:bg-green-100 px-2 py-1 rounded-md shadow'>
             <div className='flex flex-row justify-between items-center'>
                <div className='font-medium text-center w-96'>
                   {user.p_g} {user.nome_guerra}

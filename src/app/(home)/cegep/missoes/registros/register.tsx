@@ -1,7 +1,7 @@
 "use client";
 
 import { getFragMissoes } from "services/routes/cegep/missoes";
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import { Label, Spinner, Select, TextInput, Button } from "flowbite-react";
 import { Missao } from "services/routes/cegep/missoes";
 import { CardMission } from "./components/cardMission";
@@ -30,7 +30,7 @@ export function RegisPage() {
       setCitySearch,
    } = useRegisterContext();
 
-   const fetchData = async () => {
+   const fetchData = useCallback(async () => {
       setLoading(true);
 
       let req: { [key: string]: any } = {};
@@ -47,7 +47,15 @@ export function RegisPage() {
 
       setMissoes(data);
       setLoading(false);
-   };
+   }, [
+      tipoDoc,
+      nDoc,
+      selectedTipo,
+      dataInicio,
+      dataFim,
+      userSearch,
+      citySearch,
+   ]);
 
    const memoizedMissoes = useMemo(() => {
       return missoes?.map((m) => (
@@ -62,8 +70,12 @@ export function RegisPage() {
    }, [missoes]);
 
    useEffect(() => {
-      fetchData();
-   }, []);
+      const timer = setTimeout(() => {
+         fetchData();
+      }, 500);
+
+      return () => clearTimeout(timer);
+   }, [fetchData]);
 
    return (
       <>
@@ -178,7 +190,7 @@ export function RegisPage() {
                               type='text'
                               value={citySearch}
                               onChange={(e) => setCitySearch(e.target.value)}
-                              placeholder='Nome do municípo'
+                              placeholder='Nome do município'
                            />
                         </div>
 
@@ -203,12 +215,6 @@ export function RegisPage() {
                               onChange={(e) => setDataFim(e.target.value)}
                               className='block w-full text-center p-2.5 text-sm text-gray-900 bg-white border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500'
                            />
-                        </div>
-
-                        <div className='pt-6'>
-                           <Button color='light' pill onClick={fetchData}>
-                              Filtrar
-                           </Button>
                         </div>
                      </div>
                   </div>

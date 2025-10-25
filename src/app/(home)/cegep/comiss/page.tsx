@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import {
    Button,
    ButtonGroup,
@@ -23,7 +23,7 @@ export default function ComissPage() {
    const [searchUser, setSearchUser] = useState("");
    const [activeView, setActiveView] = useState<"lista" | "card">("lista");
 
-   async function updateCmtos() {
+   const updateCmtos = useCallback(async () => {
       setLoading(true);
       try {
          const data = await getCmtos(statusComis, searchUser);
@@ -46,11 +46,15 @@ export default function ComissPage() {
       } finally {
          setLoading(false);
       }
-   }
+   }, [statusComis, searchUser]);
 
    useEffect(() => {
-      updateCmtos();
-   }, []);
+      const timer = setTimeout(() => {
+         updateCmtos();
+      }, 500);
+
+      return () => clearTimeout(timer);
+   }, [updateCmtos]);
 
    const memoComiss = useMemo(() => {
       if (activeView === "card")
@@ -58,7 +62,7 @@ export default function ComissPage() {
 
       if (activeView === "lista")
          return <ListView cmtos={cmtos} update={updateCmtos} />;
-   }, [cmtos, activeView, updateCmtos]);
+   }, [cmtos, activeView]);
 
    return (
       <>
@@ -114,11 +118,6 @@ export default function ComissPage() {
                               <option value='aberto'>Aberto</option>
                               <option value='fechado'>Fechado</option>
                            </Select>
-                        </div>
-                        <div className='pt-6 grid justify-center'>
-                           <Button color='light' pill onClick={updateCmtos}>
-                              Filtrar
-                           </Button>
                         </div>
                      </div>
                      <div className='hidden md:grid justify-end place-items-center'>
