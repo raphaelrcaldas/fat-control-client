@@ -24,6 +24,10 @@ export function RegisPage() {
       setNDoc,
       selectedTipo,
       setSelectedTipo,
+      userSearch,
+      setUserSearch,
+      citySearch,
+      setCitySearch,
    } = useRegisterContext();
 
    const fetchData = async () => {
@@ -36,6 +40,8 @@ export function RegisPage() {
       if (selectedTipo) req.tipo = selectedTipo;
       if (dataInicio) req.ini = dataInicio;
       if (dataFim) req.fim = dataFim;
+      if (userSearch) req.user_search = userSearch;
+      if (citySearch) req.city = citySearch;
 
       const data = await getFragMissoes(req);
 
@@ -137,18 +143,6 @@ export function RegisPage() {
                            />
                         </div>
 
-                        {/* <div className=''>
-                              <div className='mb-2 text-center'>
-                                 <Label>Militar</Label>
-                              </div>
-                              <TextInput
-                                 type='text'
-                                 value={userSearch}
-                                 onChange={(e) => setUserSearch(e.target.value)}
-                                 placeholder='Nome completo ou de guerra'
-                              />
-                           </div> */}
-
                         <div>
                            <div className='mb-2 text-center'>
                               <Label>Tipo de Missão</Label>
@@ -164,9 +158,33 @@ export function RegisPage() {
                            </Select>
                         </div>
 
+                        <div className=''>
+                           <div className='mb-2 text-center'>
+                              <Label>Militar</Label>
+                           </div>
+                           <TextInput
+                              type='text'
+                              value={userSearch}
+                              onChange={(e) => setUserSearch(e.target.value)}
+                              placeholder='Nome de guerra'
+                           />
+                        </div>
+
+                        <div className=''>
+                           <div className='mb-2 text-center'>
+                              <Label>Cidade</Label>
+                           </div>
+                           <TextInput
+                              type='text'
+                              value={citySearch}
+                              onChange={(e) => setCitySearch(e.target.value)}
+                              placeholder='Nome do municípo'
+                           />
+                        </div>
+
                         <div className='w-40'>
                            <div className='mb-2 text-center'>
-                              <Label>Inicio</Label>
+                              <Label>Afastamento</Label>
                            </div>
                            <input
                               type='date'
@@ -177,7 +195,7 @@ export function RegisPage() {
                         </div>
                         <div className='w-40'>
                            <div className='mb-2 text-center'>
-                              <Label>Fim</Label>
+                              <Label>Regresso</Label>
                            </div>
                            <input
                               type='date'

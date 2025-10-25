@@ -10,6 +10,8 @@ export function RegisterProvider({ children }) {
    ); // Default to 15 days ago
    const [dataFim, setDataFim] = useState(hoje.toISOString().split("T")[0]);
    const [tipoDoc, setTipoDoc] = useState("");
+   const [userSearch, setUserSearch] = useState("");
+   const [citySearch, setCitySearch] = useState("");
    const [nDoc, setNDoc] = useState("");
    const [selectedTipo, setSelectedTipo] = useState("");
 
@@ -26,6 +28,10 @@ export function RegisterProvider({ children }) {
             setNDoc,
             selectedTipo,
             setSelectedTipo,
+            userSearch,
+            setUserSearch,
+            citySearch,
+            setCitySearch,
          }}
       >
          {children}
