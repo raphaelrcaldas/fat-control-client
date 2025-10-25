@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import {
    Button,
    ButtonGroup,
@@ -15,7 +15,7 @@ import { FormComiss } from "./components/formComiss";
 import { getCmtos, ComissWithMiss } from "services/routes/cegep/comiss";
 import { MdOutlineDashboard, MdFormatListBulleted } from "react-icons/md";
 
-export default function HomeApp() {
+export default function ComissPage() {
    const [cmtos, setCmtos] = useState<ComissWithMiss[]>([]);
    const [loading, setLoading] = useState(false);
    const [showFormComiss, setShowFormComiss] = useState(false);
@@ -51,6 +51,14 @@ export default function HomeApp() {
    useEffect(() => {
       updateCmtos();
    }, []);
+
+   const memoComiss = useMemo(() => {
+      if (activeView === "card")
+         return <CardView cmtos={cmtos} update={updateCmtos} />;
+
+      if (activeView === "lista")
+         return <ListView cmtos={cmtos} update={updateCmtos} />;
+   }, [cmtos, activeView, updateCmtos]);
 
    return (
       <>
@@ -142,10 +150,8 @@ export default function HomeApp() {
                   </div>
                ) : cmtos.length === 0 ? (
                   <p>Nenhum comissionamento encontrado.</p>
-               ) : activeView === "card" ? (
-                  <CardView cmtos={cmtos} update={updateCmtos} />
                ) : (
-                  <ListView cmtos={cmtos} update={updateCmtos} />
+                  memoComiss
                )}
             </div>
          </div>
@@ -161,7 +167,13 @@ export default function HomeApp() {
    );
 }
 
-function CardView({ cmtos, update }) {
+function CardView({
+   cmtos,
+   update,
+}: {
+   cmtos: ComissWithMiss[];
+   update: () => void;
+}) {
    return (
       <div className='flex flex-wrap gap-4 justify-evenly'>
          {cmtos.map((c) => (
@@ -171,7 +183,13 @@ function CardView({ cmtos, update }) {
    );
 }
 
-function ListView({ cmtos, update }) {
+function ListView({
+   cmtos,
+   update,
+}: {
+   cmtos: ComissWithMiss[];
+   update: () => void;
+}) {
    return (
       <div className='flex flex-col gap-1.5'>
          {cmtos.map((c) => (

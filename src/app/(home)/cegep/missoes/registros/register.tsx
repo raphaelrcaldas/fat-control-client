@@ -1,8 +1,8 @@
 "use client";
 
 import { getFragMissoes } from "services/routes/cegep/missoes";
-import { useEffect, useState } from "react";
-import { Label, HR, Spinner, Select, TextInput, Button } from "flowbite-react";
+import { useEffect, useState, useMemo } from "react";
+import { Label, Spinner, Select, TextInput, Button } from "flowbite-react";
 import { Missao } from "services/routes/cegep/missoes";
 import { CardMission } from "./components/cardMission";
 import MissionDetail from "./components/missionDetail";
@@ -42,6 +42,18 @@ export function RegisPage() {
       setMissoes(data);
       setLoading(false);
    };
+
+   const memoizedMissoes = useMemo(() => {
+      return missoes?.map((m) => (
+         <CardMission
+            key={m.id}
+            missao={m}
+            update={fetchData}
+            setClone={setCloneMis}
+            setShowForm={setShowForm}
+         />
+      ));
+   }, [missoes]);
 
    useEffect(() => {
       fetchData();
@@ -194,15 +206,7 @@ export function RegisPage() {
                   {missoes.length === 0 ? (
                      <p>Nenhuma missão encontrada.</p>
                   ) : (
-                     missoes.map((m) => (
-                        <CardMission
-                           key={m.id}
-                           missao={m}
-                           update={fetchData}
-                           setClone={setCloneMis}
-                           setShowForm={setShowForm}
-                        />
-                     ))
+                     memoizedMissoes
                   )}
                </div>
             )}

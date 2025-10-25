@@ -9,14 +9,20 @@ import {
    TableCell,
    TableBody,
    TableRow,
+   Spinner,
 } from "flowbite-react";
 
 export default function LogDashboard() {
    const [logs, setLogs] = useState<UserActionLog[]>([]);
+   const [loading, setLoading] = useState<boolean>(true);
 
    useEffect(() => {
       const filters = { action: "login" };
-      getUserActionLogs(filters).then(setLogs).catch(console.error);
+      setLoading(true);
+      getUserActionLogs(filters)
+         .then(setLogs)
+         .catch(console.error)
+         .finally(() => setLoading(false));
    }, []);
 
    return (
@@ -35,9 +41,26 @@ export default function LogDashboard() {
                   </TableHeadCell>
                </TableHead>
                <TableBody className='divide-y'>
-                  {logs.map((log) => (
-                     <LogRow key={log.id} log={log} />
-                  ))}
+                  {loading ? (
+                     <TableRow className='bg-white'>
+                        <TableCell colSpan={4} className='py-6 text-center'>
+                           <div className='flex justify-center items-center gap-2'>
+                              <Spinner size='lg' aria-label='loading' />
+                              <span className='text-sm text-gray-600'>Carregando...</span>
+                           </div>
+                        </TableCell>
+                     </TableRow>
+                  ) : logs.length === 0 ? (
+                     <TableRow className='bg-white'>
+                        <TableCell colSpan={4} className='py-6 text-center text-gray-500'>
+                           Nenhum log encontrado
+                        </TableCell>
+                     </TableRow>
+                  ) : (
+                     logs.map((log) => (
+                        <LogRow key={log.id} log={log} />
+                     ))
+                  )}
                </TableBody>
             </Table>
          </div>

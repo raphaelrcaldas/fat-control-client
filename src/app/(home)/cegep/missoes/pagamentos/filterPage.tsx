@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import {
    Label,
    TextInput,
@@ -39,6 +39,17 @@ export function FilterPage({ active }) {
       selectedIds,
       setSelectedIds,
    } = useFilterContext();
+
+   const memoUsersRowPgto = useMemo(() => {
+      return misRecords?.map((record) => (
+         <UserRow
+            key={record.user_mis.id}
+            record={record}
+            checked={selectedIds.includes(record.user_mis.id)}
+            onSelect={handleSelect}
+         />
+      ));
+   }, [misRecords]);
 
    const fetchData = async () => {
       setLoading(true);
@@ -245,21 +256,14 @@ export function FilterPage({ active }) {
             </div>
          </section>
 
-         <div className="mt-2">
+         <div className='mt-2'>
             {loading ? (
                <div className='flex flex-col font-semibold items-center justify-center gap-2 p-2'>
                   Carregando <Spinner size='lg' color='failure' />
                </div>
             ) : misRecords ? (
                <ul className='list-disc' key={listKey}>
-                  {misRecords.map((record) => (
-                     <UserRow
-                        key={record.user_mis.id}
-                        record={record}
-                        checked={selectedIds.includes(record.user_mis.id)}
-                        onSelect={handleSelect}
-                     />
-                  ))}
+                  {memoUsersRowPgto}
                </ul>
             ) : (
                <p className='text-center'>Nenhum registro encontrado.</p>
