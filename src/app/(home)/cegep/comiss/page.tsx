@@ -69,7 +69,7 @@ export default function ComissPage() {
          <div className='flex flex-col gap-1'>
             <section className='flex flex-col overflow-y-auto'>
                <div className='w-full p-2'>
-                  <div className='relative overflow-hidden bg-white shadow-md dark:bg-gray-800 sm:rounded-lg'>
+                  <div className='relative overflow-hidden bg-white shadow-md sm:rounded-lg'>
                      <div className='flex-row items-center justify-between p-4 space-y-3 sm:flex sm:space-y-0 sm:space-x-4'>
                         <div>
                            <h5 className='mr-3 font-semibold text-lg dark:text-white'>
