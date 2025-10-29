@@ -1,31 +1,53 @@
 import IndispContent from "./components/content";
 import { Button, Popover } from "flowbite-react";
-import { dateIsIn, isoStrLocalToDate } from "utils/dateHandler";
+import { dateIsIn } from "utils/dateHandler";
 import { indispsOptions, getIndisp } from "../options";
+import { CrewIndispList, IndispType } from "services/routes/indisps";
+import clsx from "clsx";
 
-export default function IndispCell({ dateRef, trip, indisps, cemal, ultVoo }) {
+export default function IndispCell({
+   dateRef,
+   tripData,
+   cemal,
+   ultVoo,
+}: {
+   dateRef: Date;
+   tripData: CrewIndispList;
+   cemal: Date | null;
+   ultVoo: Date | null;
+}) {
+   const indisps = tripData.indisps;
+   const trip = tripData.trip;
+
+   const startOfDay = (d: Date) =>
+      new Date(d.getFullYear(), d.getMonth(), d.getDate()).valueOf();
+
    // FILTRA INDISP QUE ESTEJA DENTRO DA DATA REFERENTE
    const filterIndisp = indisps.filter((indisp) =>
       dateIsIn(dateRef, indisp.date_start, indisp.date_end)
    );
 
-   const isValidCEMAL = isoStrLocalToDate(cemal).valueOf() >= dateRef.valueOf();
-   const isDesadaptado =
-      trip.func.func != "oe" &&
-      trip.func.func != "os" &&
-      dateRef.valueOf() - isoStrLocalToDate(ultVoo).valueOf() >= 3888000000 &&
-      trip.func.oper != "al";
-   // 3888000000 = 45 dias
+   const isValidCEMAL =
+      cemal instanceof Date &&
+      !isNaN(cemal.getTime()) &&
+      startOfDay(cemal) >= startOfDay(dateRef);
 
+   const daysSinceLastFlightMs =
+      ultVoo instanceof Date && !isNaN(ultVoo.getTime())
+         ? startOfDay(dateRef) - startOfDay(ultVoo)
+         : null;
+
+   const MIN_DESADAPTA_MS = 45 * 24 * 60 * 60 * 1000; // 45 dias
+   const isDesadaptado =
+      daysSinceLastFlightMs !== null &&
+      daysSinceLastFlightMs >= MIN_DESADAPTA_MS &&
+      trip?.func?.func !== "oe" &&
+      trip?.func?.func !== "os" &&
+      trip?.func?.oper !== "al";
+
+   const btnClass = colorBtn(filterIndisp, isValidCEMAL, isDesadaptado);
    const btn = (
-      <Button
-         className={
-            "size-10 p-0 font-bold " +
-            colorBtn(filterIndisp, isValidCEMAL, isDesadaptado)
-         }
-      >
-         {""}
-      </Button>
+      <Button className={clsx("size-10", btnClass)}>{""}</Button>
    );
 
    if (filterIndisp.length < 1 && isValidCEMAL && !isDesadaptado) return btn;
@@ -41,15 +63,18 @@ export default function IndispCell({ dateRef, trip, indisps, cemal, ultVoo }) {
                isDesadaptado={isDesadaptado}
             />
          }
-         placement='right'
       >
          {btn}
       </Popover>
    );
 }
 
-function colorBtn(dataIndisp, cemal, dasadaptado) {
-   // INDISPONIBILIDADES
+function colorBtn(
+   dataIndisp: IndispType[],
+   hasValidCemal: boolean,
+   isDesadaptado: boolean
+) {
+   // prioridade: tipos de indisponibilidade
    for (let index = 0; index < indispsOptions.length; index++) {
       const option = indispsOptions[index];
 
@@ -59,16 +84,16 @@ function colorBtn(dataIndisp, cemal, dasadaptado) {
 
       if (filterOption.length > 0) {
          const indispProps = getIndisp(option.value);
-         return indispProps.color.button;
+         return indispProps?.color?.button ?? "bg-slate-500";
       }
    }
-   // INFORMAÇÕES
 
-   if (!cemal) {
+   // sem indisps: tratar CEMAL / desadaptado / disponível
+   if (!hasValidCemal) {
       return "bg-purple-600 enabled:hover:bg-purple-800";
    }
 
-   if (dasadaptado) {
+   if (isDesadaptado) {
       return "bg-slate-600 enabled:hover:bg-slate-800";
    }
 

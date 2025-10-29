@@ -192,6 +192,8 @@ export async function gerarRelatorio(comiss: ComissWithMiss) {
         misStr += `- Missão ${m.tipo} - `
 
         let listPntsStrFml: string[] = [];
+        if (m.acrec_desloc) listPntsStrFml.push("95");
+
         let listPntsStrCids: string[] = [];
         m.pernoites.forEach(p => {
             const custo = p.custo;
