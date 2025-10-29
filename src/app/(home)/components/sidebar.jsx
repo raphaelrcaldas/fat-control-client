@@ -191,16 +191,8 @@ export default function AppSideBar({ isCollapsed, setIsCollapsed }) {
                         </PermBased>
                      </Sidebar.Collapse>
                   </RoleBasedRoute>
-                  <RoleBasedRoute
-                     requiredRoles={[
-                        // "ops_avancado",
-                        // "ops_basico",
-                        // "dout_avancado",
-                        // "dout_basico",
-                        "apoio_avancado",
-                     ]}
-                  >
-                     <Sidebar.Collapse open icon={FaUsers} label='Pessoal'>
+                  <Sidebar.Collapse open icon={FaUsers} label='Pessoal'>
+                     <RoleBasedRoute requiredRoles={["apoio_avancado"]}>
                         <Sidebar.Item
                            active={path === "/cegep/missoes"}
                            icon={MdAirplaneTicket}
@@ -208,15 +200,15 @@ export default function AppSideBar({ isCollapsed, setIsCollapsed }) {
                         >
                            Missões
                         </Sidebar.Item>
-                        <Sidebar.Item
-                           active={path === "/cegep/comiss"}
-                           icon={MdMoney}
-                           onClick={() => handlePush("/cegep/comiss")}
-                        >
-                           Comissionamento
-                        </Sidebar.Item>
-                     </Sidebar.Collapse>
-                  </RoleBasedRoute>
+                     </RoleBasedRoute>
+                     <Sidebar.Item
+                        active={path === "/cegep/comiss"}
+                        icon={MdMoney}
+                        onClick={() => handlePush("/cegep/comiss")}
+                     >
+                        Comissionamento
+                     </Sidebar.Item>
+                  </Sidebar.Collapse>
                </Sidebar.ItemGroup>
                <Sidebar.ItemGroup>
                   <RoleBasedRoute

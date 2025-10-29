@@ -60,6 +60,9 @@ export function DetailComiss({
             <ModalBody>
                <h3 className='text-center uppercase text-lg'>
                   {comiss.user.posto.mid} {comiss.user.esp}{" "}
+                  {comiss.user.nome_guerra}
+               </h3>
+               <h3 className='text-center uppercase text-slate-600'>
                   {comiss.user.nome_completo}
                </h3>
                <div className='grid grid-cols-3 mt-4 text-center'>
@@ -81,7 +84,7 @@ export function DetailComiss({
                   </div>
                </div>
                <div className='grid grid-cols-2 mt-4 gap-6'>
-                  <div className='bg-green-100 text-center p-2 rounded-lg'>
+                  <div className='bg-green-100 text-center p-2 rounded-lg shadow'>
                      <h3>Abertura</h3>
                      <div className='grid grid-cols-3 mt-2'>
                         <div className='grid'>
@@ -104,7 +107,7 @@ export function DetailComiss({
                         </div>
                      </div>
                   </div>
-                  <div className='bg-orange-100 text-center p-2 rounded-lg'>
+                  <div className='bg-orange-100 text-center p-2 rounded-lg shadow'>
                      <h3>Fechamento</h3>
                      <div className='grid grid-cols-3 mt-2'>
                         <div className='grid'>

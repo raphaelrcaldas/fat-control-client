@@ -1,19 +1,11 @@
 "use client";
 
 import { useEffect, useState, useMemo, useCallback } from "react";
-import {
-   Button,
-   ButtonGroup,
-   Label,
-   Select,
-   Spinner,
-   TextInput,
-} from "flowbite-react";
-import { CardComiss } from "./components/cardComiss";
+import { Label, Select, Spinner, TextInput } from "flowbite-react";
 import { ListComiss } from "./components/listComiss";
 import { FormComiss } from "./components/formComiss";
 import { getCmtos, ComissWithMiss } from "services/routes/cegep/comiss";
-import { MdOutlineDashboard, MdFormatListBulleted } from "react-icons/md";
+import { RoleBasedRoute } from "../../hooks/useRoleBased";
 
 export default function ComissPage() {
    const [cmtos, setCmtos] = useState<ComissWithMiss[]>([]);
@@ -21,7 +13,6 @@ export default function ComissPage() {
    const [showFormComiss, setShowFormComiss] = useState(false);
    const [statusComis, setStatusComis] = useState("aberto");
    const [searchUser, setSearchUser] = useState("");
-   const [activeView, setActiveView] = useState<"lista" | "card">("lista");
 
    const updateCmtos = useCallback(async () => {
       setLoading(true);
@@ -57,12 +48,14 @@ export default function ComissPage() {
    }, [updateCmtos]);
 
    const memoComiss = useMemo(() => {
-      if (activeView === "card")
-         return <CardView cmtos={cmtos} update={updateCmtos} />;
-
-      if (activeView === "lista")
-         return <ListView cmtos={cmtos} update={updateCmtos} />;
-   }, [cmtos, activeView]);
+      return (
+         <div className='flex flex-col gap-1.5'>
+            {cmtos.map((c) => (
+               <ListComiss key={c.id} comiss={c} update={updateCmtos} />
+            ))}
+         </div>
+      );
+   }, [cmtos]);
 
    return (
       <>
@@ -80,67 +73,55 @@ export default function ComissPage() {
                               crie um novo
                            </p>
                         </div>
-                        <button
-                           type='button'
-                           onClick={() => setShowFormComiss(true)}
-                           className='flex items-center justify-center px-4 py-2 text-sm font-medium text-white rounded-lg bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800'
-                        >
-                           Adicionar
-                        </button>
+                        <RoleBasedRoute requiredRoles={["apoio_avancado"]}>
+                           <button
+                              type='button'
+                              onClick={() => setShowFormComiss(true)}
+                              className='flex items-center justify-center px-4 py-2 text-sm font-medium text-white rounded-lg bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800'
+                           >
+                              Adicionar
+                           </button>
+                        </RoleBasedRoute>
                      </div>
                   </div>
                </div>
             </section>
 
-            <section>
-               <div className='w-full p-2'>
-                  <div className='relative overflow-hidden bg-white shadow-md sm:rounded-lg flex flex-row justify-between'>
-                     <div className='flex-row items-center justify-evenly p-4 space-y-3 sm:flex sm:space-y-0 sm:space-x-4'>
-                        <div className='w-80'>
-                           <div className='mb-2 text-center'>
-                              <Label>Militar</Label>
+            <RoleBasedRoute requiredRoles={["apoio_avancado"]}>
+               <section>
+                  <div className='w-full p-2'>
+                     <div className='relative overflow-hidden bg-white shadow-md sm:rounded-lg flex flex-row justify-between'>
+                        <div className='flex-row items-center justify-evenly p-4 space-y-3 sm:flex sm:space-y-0 sm:space-x-4'>
+                           <div className='w-80'>
+                              <div className='mb-2 text-center'>
+                                 <Label>Militar</Label>
+                              </div>
+                              <TextInput
+                                 type='text'
+                                 value={searchUser}
+                                 onChange={(e) => setSearchUser(e.target.value)}
+                                 placeholder='Nome completo ou de guerra'
+                              />
                            </div>
-                           <TextInput
-                              type='text'
-                              value={searchUser}
-                              onChange={(e) => setSearchUser(e.target.value)}
-                              placeholder='Nome completo ou de guerra'
-                           />
-                        </div>
-                        <div>
-                           <div className='mb-2 text-center'>
-                              <Label>Situação</Label>
+                           <div>
+                              <div className='mb-2 text-center'>
+                                 <Label>Situação</Label>
+                              </div>
+                              <Select
+                                 value={statusComis}
+                                 onChange={(e) =>
+                                    setStatusComis(e.target.value)
+                                 }
+                              >
+                                 <option value='aberto'>Aberto</option>
+                                 <option value='fechado'>Fechado</option>
+                              </Select>
                            </div>
-                           <Select
-                              value={statusComis}
-                              onChange={(e) => setStatusComis(e.target.value)}
-                           >
-                              <option value='aberto'>Aberto</option>
-                              <option value='fechado'>Fechado</option>
-                           </Select>
                         </div>
-                     </div>
-                     <div className='hidden md:grid justify-end place-items-center'>
-                        <ButtonGroup className='mr-6'>
-                           <Button
-                              color={activeView == "lista" ? "info" : "light"}
-                              onClick={() => setActiveView("lista")}
-                           >
-                              <MdFormatListBulleted className='me-2 h-5 w-5' />
-                              Lista
-                           </Button>
-                           <Button
-                              color={activeView == "card" ? "info" : "light"}
-                              onClick={() => setActiveView("card")}
-                           >
-                              <MdOutlineDashboard className='me-2 h-5 w-5' />
-                              Card
-                           </Button>
-                        </ButtonGroup>
                      </div>
                   </div>
-               </div>
-            </section>
+               </section>
+            </RoleBasedRoute>
 
             <div className='flex-1 p-2'>
                {loading ? (
@@ -163,37 +144,5 @@ export default function ComissPage() {
             />
          )}
       </>
-   );
-}
-
-function CardView({
-   cmtos,
-   update,
-}: {
-   cmtos: ComissWithMiss[];
-   update: () => void;
-}) {
-   return (
-      <div className='flex flex-wrap gap-4 justify-evenly'>
-         {cmtos.map((c) => (
-            <CardComiss key={c.id} comiss={c} update={update} />
-         ))}
-      </div>
-   );
-}
-
-function ListView({
-   cmtos,
-   update,
-}: {
-   cmtos: ComissWithMiss[];
-   update: () => void;
-}) {
-   return (
-      <div className='flex flex-col gap-1.5'>
-         {cmtos.map((c) => (
-            <ListComiss key={c.id} comiss={c} update={update} />
-         ))}
-      </div>
    );
 }

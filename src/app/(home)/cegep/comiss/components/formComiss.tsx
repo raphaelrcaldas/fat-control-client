@@ -215,7 +215,7 @@ export function FormComiss({
                </div>
             </div>
             <div className='grid grid-cols-2 mt-4 gap-2'>
-               <div className='bg-green-100 text-center p-2 rounded-lg'>
+               <div className='bg-green-100 text-center p-2 rounded-lg shadow'>
                   <Label>Abertura</Label>
                   <div className='grid grid-cols-3 mt-2 gap-2'>
                      <div className='grid'>
@@ -249,7 +249,7 @@ export function FormComiss({
                      </div>
                   </div>
                </div>
-               <div className='bg-orange-100 text-center p-2 rounded-lg'>
+               <div className='bg-orange-100 text-center p-2 rounded-lg shadow'>
                   <Label>Fechamento</Label>
                   <div className='grid grid-cols-3 mt-2 gap-2'>
                      <div className='grid'>

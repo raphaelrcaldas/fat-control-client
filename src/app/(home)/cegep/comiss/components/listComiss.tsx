@@ -13,6 +13,7 @@ import { DetailComiss } from "./detailComiss";
 import clsx from "clsx";
 import { deleteCmto } from "services/routes/cegep/comiss";
 import { ComissWithMiss } from "services/routes/cegep/comiss";
+import { RoleBasedRoute } from "@/app/(home)/hooks/useRoleBased";
 
 export function ListComiss({
    comiss,
@@ -161,14 +162,16 @@ export function ListComiss({
                   </div>
                </div>
 
-               <div className='hidden md:grid grid-cols-2 gap-2 px-2'>
-                  <Button onClick={() => setShowDetail(true)} color='light'>
-                     <MdInfoOutline size={20} />
-                  </Button>
-                  <Button onClick={() => setShowForm(true)} color='light'>
-                     <MdOutlineEdit size={20} />
-                  </Button>
-               </div>
+               <RoleBasedRoute requiredRoles={["apoio_avancado"]}>
+                  <div className='hidden md:grid grid-cols-2 gap-2 px-2'>
+                     <Button onClick={() => setShowDetail(true)} color='light'>
+                        <MdInfoOutline size={20} />
+                     </Button>
+                     <Button onClick={() => setShowForm(true)} color='light'>
+                        <MdOutlineEdit size={20} />
+                     </Button>
+                  </div>
+               </RoleBasedRoute>
                {/* <Dropdown color='light' inline dismissOnClick={false}>
                   <DropdownItem
                      icon={MdOutlineEdit}
