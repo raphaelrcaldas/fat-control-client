@@ -142,7 +142,7 @@ export function ListComiss({
                   <div className='grid text-center'>
                      <div>
                         {comiss.dias_cumprir
-                           ? comiss.dias_cumprir
+                           ? comiss.dias_comp
                            : `~ ${(comiss.vals_comp / 335).toFixed(0)}`}
                         <span className='text-sm capitalize'> dias</span>
                      </div>
@@ -151,7 +151,7 @@ export function ListComiss({
                   <div className='grid text-center'>
                      <div className=''>
                         {comiss.dias_cumprir
-                           ? comiss.dias_cumprir
+                           ? (comiss.dias_cumprir - comiss.dias_comp)
                            : `~ ${(
                                 (ajd_ab + ajd_fc - comiss.vals_comp) /
                                 335
