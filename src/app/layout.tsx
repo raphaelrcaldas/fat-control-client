@@ -5,6 +5,9 @@ import "./global.css";
 
 export const metadata: Metadata = {
    title: "FATCONTROL",
+   icons: {
+      icon: "/assets/favicon.ico",
+   },
 };
 
 export default function RootLayout({

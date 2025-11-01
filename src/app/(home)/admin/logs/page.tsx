@@ -11,6 +11,7 @@ import {
    TableRow,
    Spinner,
 } from "flowbite-react";
+import { parseJSON } from "date-fns";
 
 export default function LogDashboard() {
    const [logs, setLogs] = useState<UserActionLog[]>([]);
@@ -46,20 +47,23 @@ export default function LogDashboard() {
                         <TableCell colSpan={4} className='py-6 text-center'>
                            <div className='flex justify-center items-center gap-2'>
                               <Spinner size='lg' aria-label='loading' />
-                              <span className='text-sm text-gray-600'>Carregando...</span>
+                              <span className='text-sm text-gray-600'>
+                                 Carregando...
+                              </span>
                            </div>
                         </TableCell>
                      </TableRow>
                   ) : logs.length === 0 ? (
                      <TableRow className='bg-white'>
-                        <TableCell colSpan={4} className='py-6 text-center text-gray-500'>
+                        <TableCell
+                           colSpan={4}
+                           className='py-6 text-center text-gray-500'
+                        >
                            Nenhum log encontrado
                         </TableCell>
                      </TableRow>
                   ) : (
-                     logs.map((log) => (
-                        <LogRow key={log.id} log={log} />
-                     ))
+                     logs.map((log) => <LogRow key={log.id} log={log} />)
                   )}
                </TableBody>
             </Table>
@@ -79,6 +83,8 @@ function LogRow({ log }: { log: UserActionLog }) {
          second: "2-digit",
       }) || "N/A";
 
+   const afterParse = JSON.parse(log.after);
+
    return (
       <TableRow key={log.id} className='bg-white'>
          <TableCell className='font-mono text-base'>{timestamp}</TableCell>
@@ -86,7 +92,9 @@ function LogRow({ log }: { log: UserActionLog }) {
             {log.user.p_g} {log.user.nome_guerra}
          </TableCell>
          <TableCell>{log.action}</TableCell>
-         <TableCell className='hidden md:table-cell'>{log.resource}</TableCell>
+         <TableCell className='hidden md:table-cell'>
+            {afterParse.client}
+         </TableCell>
       </TableRow>
    );
 }

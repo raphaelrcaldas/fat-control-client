@@ -2,6 +2,7 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { getMe } from "services/routes/users";
 import { AppLoadingScreen } from "src/app/(home)/components/appLoadingScreen";
+import PermDenied from "../components/permDenied";
 
 interface PermType {
    name: string;
@@ -48,14 +49,7 @@ export const AuthProvider = ({ children }) => {
    }
 
    if (!role) {
-      return (
-         <div className='flex flex-col items-center justify-center h-screen'>
-            <h1 className='text-2xl font-bold text-gray-700'>Acesso Negado</h1>
-            <p className='text-base uppercase'>
-               Você não tem permissão para acessar esta página.
-            </p>
-         </div>
-      );
+      return <PermDenied />;
    }
 
    return (

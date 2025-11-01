@@ -9,7 +9,7 @@ import { RoleBasedRoute } from "../../hooks/useRoleBased";
 
 export default function ComissPage() {
    const [cmtos, setCmtos] = useState<ComissWithMiss[]>([]);
-   const [loading, setLoading] = useState(false);
+   const [loading, setLoading] = useState(true);
    const [showFormComiss, setShowFormComiss] = useState(false);
    const [statusComis, setStatusComis] = useState("aberto");
    const [searchUser, setSearchUser] = useState("");

@@ -18,6 +18,8 @@ import { RoleBasedRoute } from "../hooks/useRoleBased";
 import { PermBased } from "../hooks/usePermBased";
 import { TbLogs } from "react-icons/tb";
 import { deleteCookie } from "cookies-next";
+import { RiAdminLine } from "react-icons/ri";
+import { GiSecurityGate } from "react-icons/gi";
 
 export default function AppSideBar({ isCollapsed, setIsCollapsed }) {
    const [loading, setLoading] = useState(false);
@@ -223,13 +225,22 @@ export default function AppSideBar({ isCollapsed, setIsCollapsed }) {
                      </Sidebar.Item>
                   </RoleBasedRoute>
                   <RoleBasedRoute requiredRoles={[]}>
-                     <Sidebar.Item
-                        active={path === "/logs"}
-                        icon={TbLogs}
-                        onClick={() => handlePush("/logs")}
-                     >
-                        Logs
-                     </Sidebar.Item>
+                     <Sidebar.Collapse icon={RiAdminLine} label='Admin'>
+                        <Sidebar.Item
+                           active={path === "/admin/roles"}
+                           icon={GiSecurityGate}
+                           onClick={() => handlePush("/admin/roles")}
+                        >
+                           Roles
+                        </Sidebar.Item>
+                        <Sidebar.Item
+                           active={path === "/admin/logs"}
+                           icon={TbLogs}
+                           onClick={() => handlePush("/admin/logs")}
+                        >
+                           Logs
+                        </Sidebar.Item>
+                     </Sidebar.Collapse>
                   </RoleBasedRoute>
                </Sidebar.ItemGroup>
                <Sidebar.CTA className='mt-auto bg-red-200 shadow-md'>

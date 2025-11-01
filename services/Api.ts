@@ -64,5 +64,11 @@ export default async function request<T = any>(
       window.location.href = "/";
    }
 
+   // Interceptor para 403
+   if (response.status === 403 && typeof window !== "undefined") {
+      // Redireciona para a página de login
+      window.location.href = "/";
+   }
+
    return response;
 }
