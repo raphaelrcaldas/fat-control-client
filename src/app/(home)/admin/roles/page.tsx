@@ -107,12 +107,13 @@ export default function RolePage() {
             usersIgnr={userRoles.map((u) => u.user.id)}
             roles={roles}
          />
-         <div className='p-2 grid grid-cols-2 gap-4'>
-            <div className='flex flex-col gap-3 w-fit bg-white p-2 px-3 rounded-md'>
+         <div className='p-2 grid md:grid-cols-2 gap-4'>
+            <div className='grid gap-3 bg-white p-2 px-3 rounded-md shadow'>
                <h3 className='text-center'>Perfis de Usuários</h3>
 
-               <div className='flex flex-row justify-between'>
+               <div className='flex justify-between gap-3'>
                   <TextInput
+                     className='w-full'
                      value={filterName}
                      onChange={(e) => setFilterName(e.target.value)}
                      placeholder='Buscar por nome de guerra'
@@ -121,59 +122,54 @@ export default function RolePage() {
                      Adicionar
                   </Button>
                </div>
-               <div className='shadow'>
-                  <Table hoverable>
-                     <TableHead>
-                        <TableHeadCell>Usuário</TableHeadCell>
-                        <TableHeadCell>Perfil</TableHeadCell>
-                        <TableHeadCell>Action</TableHeadCell>
-                     </TableHead>
-                     <TableBody className='divide-y'>
-                        {filteredUsers.map((ur) => {
-                           return (
-                              <TableRow
-                                 key={ur.user.id}
-                                 className='bg-white uppercase'
-                              >
-                                 <TableCell className='whitespace-nowrap font-medium text-gray-900 '>
-                                    {`${ur.user.p_g} ${ur.user.nome_guerra}`}
-                                 </TableCell>
-                                 <TableCell className=''>
-                                    <Select
-                                       onChange={(e) =>
-                                          pathUserRole(
-                                             ur.user.id,
-                                             e.target.value
-                                          )
-                                       }
-                                       value={ur.role.id}
-                                    >
-                                       {roles.map((r) => (
-                                          <option key={r.id} value={r.id}>
-                                             {r.name.toUpperCase()}
-                                          </option>
-                                       ))}
-                                    </Select>
-                                 </TableCell>
-                                 <TableCell className='grid place-items-center justify-center'>
-                                    <span
-                                       className='p-3 text-red-500 cursor-pointer'
-                                       onClick={() =>
-                                          delUserRole(ur.user.id, ur.role.id)
-                                       }
-                                    >
-                                       <FaRegTrashCan className='text-xl' />
-                                    </span>
-                                 </TableCell>
-                              </TableRow>
-                           );
-                        })}
-                     </TableBody>
-                  </Table>
-               </div>
+               <Table hoverable>
+                  <TableHead>
+                     <TableHeadCell>Usuário</TableHeadCell>
+                     <TableHeadCell>Perfil</TableHeadCell>
+                     <TableHeadCell>Action</TableHeadCell>
+                  </TableHead>
+                  <TableBody className='divide-y'>
+                     {filteredUsers.map((ur) => {
+                        return (
+                           <TableRow
+                              key={ur.user.id}
+                              className='bg-white uppercase'
+                           >
+                              <TableCell className='font-medium text-gray-900 '>
+                                 {`${ur.user.p_g} ${ur.user.nome_guerra}`}
+                              </TableCell>
+                              <TableCell className=''>
+                                 <Select
+                                    onChange={(e) =>
+                                       pathUserRole(ur.user.id, e.target.value)
+                                    }
+                                    value={ur.role.id}
+                                 >
+                                    {roles.map((r) => (
+                                       <option key={r.id} value={r.id}>
+                                          {r.name.toUpperCase()}
+                                       </option>
+                                    ))}
+                                 </Select>
+                              </TableCell>
+                              <TableCell className='flex'>
+                                 <span
+                                    onClick={() =>
+                                       delUserRole(ur.user.id, ur.role.id)
+                                    }
+                                    className='p-2 hover:bg-red-500 hover:text-white text-red-500 cursor-pointer rounded-md'
+                                 >
+                                    <FaRegTrashCan className='size-5' />
+                                 </span>
+                              </TableCell>
+                           </TableRow>
+                        );
+                     })}
+                  </TableBody>
+               </Table>
             </div>
 
-            <Table className='w-fit' hoverable>
+            <Table className='hidden md:block w-fit' hoverable>
                <TableHead>
                   <TableHeadCell>ID</TableHeadCell>
                   <TableHeadCell>Perfil</TableHeadCell>
@@ -184,7 +180,7 @@ export default function RolePage() {
                      return (
                         <TableRow key={r.id} className='bg-white uppercase'>
                            <TableCell>{r.id}</TableCell>
-                           <TableCell className='whitespace-nowrap font-medium text-gray-900 '>
+                           <TableCell className='font-medium text-gray-900 '>
                               {r.name}
                            </TableCell>
                            <TableCell>{r.description}</TableCell>

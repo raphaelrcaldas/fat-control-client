@@ -68,6 +68,12 @@ export default function UsersPage() {
                   <table className='w-full text-sm text-gray-600 text-left'>
                      <thead className='text-xs text-gray-600 bg-gray-50'>
                         <tr>
+                           <th
+                              scope='col'
+                              className='hidden md:table-cell px-4 py-3'
+                           >
+                              #
+                           </th>
                            <th scope='col' className='px-4 py-3 text-nowrap'>
                               P/G
                            </th>
@@ -122,6 +128,9 @@ function UserRow({ user, update }) {
    return (
       <>
          <tr className='border-b last:border-b-0 hover:bg-gray-50 transition-colors'>
+            <td className='px-4 py-3 hidden md:table-cell text-slate-400'>
+               {user.id}
+            </td>
             <td className='px-4 py-3 font-medium text-gray-900'>
                {user.posto.short}
             </td>

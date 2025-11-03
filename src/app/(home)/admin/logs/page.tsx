@@ -11,7 +11,6 @@ import {
    TableRow,
    Spinner,
 } from "flowbite-react";
-import { parseJSON } from "date-fns";
 
 export default function LogDashboard() {
    const [logs, setLogs] = useState<UserActionLog[]>([]);
@@ -36,10 +35,10 @@ export default function LogDashboard() {
                <TableHead>
                   <TableHeadCell>timestamp</TableHeadCell>
                   <TableHeadCell>user</TableHeadCell>
-                  <TableHeadCell>action</TableHeadCell>
                   <TableHeadCell className='hidden md:table-cell'>
-                     resource
+                     action
                   </TableHeadCell>
+                  <TableHeadCell>origin</TableHeadCell>
                </TableHead>
                <TableBody className='divide-y'>
                   {loading ? (
@@ -88,13 +87,11 @@ function LogRow({ log }: { log: UserActionLog }) {
    return (
       <TableRow key={log.id} className='bg-white'>
          <TableCell className='font-mono text-base'>{timestamp}</TableCell>
-         <TableCell className='uppercase text-nowrap'>
+         <TableCell className='uppercase'>
             {log.user.p_g} {log.user.nome_guerra}
          </TableCell>
-         <TableCell>{log.action}</TableCell>
-         <TableCell className='hidden md:table-cell'>
-            {afterParse.client}
-         </TableCell>
+         <TableCell className='hidden md:table-cell'>{log.action}</TableCell>
+         <TableCell>{afterParse.client}</TableCell>
       </TableRow>
    );
 }
