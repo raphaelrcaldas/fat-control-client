@@ -32,17 +32,15 @@ export default function TripPage() {
    const debouncedFilter = useDebouncedValue(filterName, 300);
    const [loading, setLoading] = useState(false);
 
-   function getListTrips(signal?: AbortSignal) {
+   function getListTrips() {
       setLoading(true);
-      getTrips({ uae: uae, active: active }, signal)
-         .then((res) => res.json())
+      getTrips({ uae: uae, active: active })
          .then((data) => {
             data.sort((a, b) => a.user.posto.ant - b.user.posto.ant);
             setTrips(data);
             setFilterTrips(data);
          })
          .catch((err) => {
-            if (err.name === "AbortError") return;
             console.error(err);
          })
          .finally(() => setLoading(false));
@@ -69,9 +67,7 @@ export default function TripPage() {
    }, [debouncedFilter, trips]);
 
    useEffect(() => {
-      const ac = new AbortController();
-      getListTrips(ac.signal);
-      return () => ac.abort();
+      getListTrips();
    }, [uae, active]);
 
    return (

@@ -2,9 +2,24 @@ import request from "../Api";
 
 const tripRoute = "ops/trips/";
 
-export async function getTrips(params, signal?: AbortSignal) {
+import { UserPublic } from "./users";
+import { CrewFunc } from "./funcs";
 
-    return await request("GET", tripRoute, null, params, signal);
+export interface CrewMember {
+    id?: number
+    trig: string
+    user: UserPublic
+    uae: string
+    active: boolean
+    funcs?: CrewFunc[]
+    func?: CrewFunc
+}
+
+
+export async function getTrips(params): Promise<CrewMember[]> {
+    const response = await request("GET", tripRoute, null, params);
+
+    return await response.json() as CrewMember[];
 }
 
 

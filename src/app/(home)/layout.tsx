@@ -7,7 +7,11 @@ import Providers from "./context/providers";
 import { HiMenuAlt1 } from "react-icons/hi";
 import profilePic from "public/assets/1_1_gt.jpg";
 
-export default function RootLayout({ children }) {
+interface RootLayoutProps {
+   children: React.ReactNode;
+}
+
+export default function RootLayout({ children }: RootLayoutProps) {
    const [IsCollapsed, setIsCollapsed] = useState(false);
 
    function handleClose() {
