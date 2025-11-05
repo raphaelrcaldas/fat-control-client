@@ -6,12 +6,15 @@ import {
    ModalBody,
    ModalFooter,
    ModalHeader,
+   Popover,
 } from "flowbite-react";
 import { isoStrToDate } from "utils/dateHandler";
 import { gerarRelatorio } from "utils/relatorioComiss";
 import { realCurrency } from "utils/financeiro";
 import { ComissWithMiss } from "services/routes/cegep/comiss";
 import { LiaFileExportSolid } from "react-icons/lia";
+import { MisPntsTable } from "../../components/popMisPnts";
+import { IoMdInformationCircleOutline } from "react-icons/io";
 
 export function DetailComiss({
    show,
@@ -234,31 +237,33 @@ function MissionRow({ mis, diasPrev }) {
    });
 
    return (
-      <div className='flex flex-row text-center text-base hover:bg-slate-100 font-mono uppercase gap-1 p-2 items-center rounded-md border-b last:border-none'>
-         <span className='w-8'>{mis.tipo_doc}</span>
-         <span className='w-10'>{String(mis.n_doc).padStart(3, "0")}</span>
+      <div className='flex text-center text-sm hover:bg-slate-100 uppercase gap-1 p-2 items-center border-b last:border-none'>
+         <span className='w-16'>
+            {mis.tipo_doc} {String(mis.n_doc).padStart(3, "0")}
+         </span>
          <span className='flex-1'>{mis.desc}</span>
-         <div className='flex flex-row gap-3 w-44 justify-center'>
+         <div className='flex gap-3 w-44 justify-center font-mono'>
             <span>{ini}</span>
             <span>{fim}</span>
-         </div>
-         <div className='grid gap-1 w-56'>
-            {mis.pernoites.map((p) => {
-               return (
-                  <span
-                     key={p.id}
-                     className='bg-slate-200 py-0.5 px-1 rounded-lg'
-                  >
-                     {p.cidade.nome}-{p.cidade.uf}
-                  </span>
-               );
-            })}
          </div>
          <span className='w-32'>
             {diasPrev
                ? `${mis.dias} dia${mis.dias > 1 ? "s" : ""}`
                : realCurrency(mis.valor_total)}
          </span>
+         <Popover
+            content={
+               <MisPntsTable
+                  pernoites={mis.pernoites}
+                  acDeslocSede={mis.acrec_desloc}
+                  total={mis.valor_total}
+               />
+            }
+         >
+            <Button className="size-12 p-0" color={"alternative"}>
+               <IoMdInformationCircleOutline size={20} />
+            </Button>
+         </Popover>
       </div>
    );
 }

@@ -57,12 +57,12 @@ export function LastIndisps({ indisps }) {
 
                return (
                   <div
-                     className='flex justify-evenly rounded-lg hover:bg-slate-200 border-b p-1 uppercase text-center last:border-b-0'
+                     className='flex justify-evenly select-none gap-1 hover:bg-slate-200 border-b p-1 uppercase text-center last:border-b-0'
                      key={idx}
                   >
                      <span className='font-medium w-10'>{idp.trig}</span>
                      <span
-                        className={`w-10 rounded-lg ${indispTheme.color.bg}`}
+                        className={`w-10 text-center rounded ${indispTheme.color.bg}`}
                      >
                         {idp.mtv}
                      </span>

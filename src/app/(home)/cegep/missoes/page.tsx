@@ -18,7 +18,7 @@ export default function MissPage() {
          variant='default'
          onActiveTabChange={setActiveTab}
       >
-         <TabItem active={activeTab === 0} title='Registros' icon={IoMdPaper}>
+         <TabItem active={activeTab === 0} color="blue" title='Registros' icon={IoMdPaper}>
             <RegisterProvider>
                <RegisPage />
             </RegisterProvider>

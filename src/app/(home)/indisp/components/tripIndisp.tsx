@@ -1,5 +1,17 @@
 import { useState } from "react";
-import { Modal, Button, Table } from "flowbite-react";
+import {
+   Button,
+   Modal,
+   ModalBody,
+   ModalFooter,
+   ModalHeader,
+   Table,
+   TableBody,
+   TableCell,
+   TableHead,
+   TableHeadCell,
+   TableRow,
+} from "flowbite-react";
 import { IndispForm } from "./indispForm";
 import { isoDateToString } from "utils/dateHandler";
 import { getIndisp } from "./options";
@@ -38,8 +50,8 @@ export const TripIndisp = ({
 
          {isOpen && (
             <Modal show={isOpen} size='2xl' onClose={closeModal}>
-               <Modal.Header>Indisponibilidades</Modal.Header>
-               <Modal.Body>
+               <ModalHeader>Indisponibilidades</ModalHeader>
+               <ModalBody>
                   <h3 className='uppercase text-center font-semibold'>
                      {user.posto.mid} {user.esp} {user.nome_guerra}
                   </h3>
@@ -50,16 +62,18 @@ export const TripIndisp = ({
                   {indisps.length > 0 ? (
                      <div className='mt-6 shadow-md rounded-lg'>
                         <Table hoverable className='text-center uppercase'>
-                           <Table.Head>
-                              <Table.HeadCell>MOTIVO</Table.HeadCell>
-                              <Table.HeadCell>OBS</Table.HeadCell>
-                              <Table.HeadCell>INICIO</Table.HeadCell>
-                              <Table.HeadCell>FIM</Table.HeadCell>
-                              <Table.HeadCell>
-                                 <span className='sr-only'>Edit</span>
-                              </Table.HeadCell>
-                           </Table.Head>
-                           <Table.Body>
+                           <TableHead>
+                              <TableRow>
+                                 <TableHeadCell>MOTIVO</TableHeadCell>
+                                 <TableHeadCell>OBS</TableHeadCell>
+                                 <TableHeadCell>INICIO</TableHeadCell>
+                                 <TableHeadCell>FIM</TableHeadCell>
+                                 <TableHeadCell>
+                                    <span className='sr-only'>Edit</span>
+                                 </TableHeadCell>
+                              </TableRow>
+                           </TableHead>
+                           <TableBody>
                               {indisps.map((indisp) => (
                                  <TripIndispRow
                                     key={indisp.id}
@@ -68,7 +82,7 @@ export const TripIndisp = ({
                                     update={update}
                                  />
                               ))}
-                           </Table.Body>
+                           </TableBody>
                         </Table>
                      </div>
                   ) : (
@@ -76,10 +90,14 @@ export const TripIndisp = ({
                         Não há indisponibilidades
                      </p>
                   )}
-               </Modal.Body>
-               <Modal.Footer className='grid justify-items-center'>
+               </ModalBody>
+               <ModalFooter className='grid justify-items-center'>
                   <PermBased requiredPerm={"create"} resource={"indisp_trips"}>
-                     <Button size='md' onClick={() => setIsOpenNewInd(true)}>
+                     <Button
+                        color="blue"
+                        size='md'
+                        onClick={() => setIsOpenNewInd(true)}
+                     >
                         Adicionar
                      </Button>
                      <IndispForm
@@ -90,7 +108,7 @@ export const TripIndisp = ({
                         indisp={null}
                      />
                   </PermBased>
-               </Modal.Footer>
+               </ModalFooter>
             </Modal>
          )}
       </>
@@ -104,16 +122,16 @@ function TripIndispRow({ indisp, trip, update }) {
    const indispProps = getIndisp(indisp.mtv);
 
    return (
-      <Table.Row>
-         <Table.Cell className='p-1 font-semibold'>
+      <TableRow>
+         <TableCell className='p-1 font-semibold'>
             <span className={"rounded-md p-2 " + indispProps.color.bg}>
                {indispProps.value}
             </span>
-         </Table.Cell>
-         <Table.Cell className='p-1'>{indisp.obs}</Table.Cell>
-         <Table.Cell className='p-1 font-semibold'>{dateStart}</Table.Cell>
-         <Table.Cell className='p-1 font-semibold'>{dateEnd}</Table.Cell>
-         <Table.Cell className='p-1'>
+         </TableCell>
+         <TableCell className='p-1'>{indisp.obs}</TableCell>
+         <TableCell className='p-1 font-semibold'>{dateStart}</TableCell>
+         <TableCell className='p-1 font-semibold'>{dateEnd}</TableCell>
+         <TableCell className='p-1'>
             <PermBased requiredPerm={"update"} resource={"indisp_trips"}>
                <Button
                   pill
@@ -134,7 +152,7 @@ function TripIndispRow({ indisp, trip, update }) {
                   />
                )}
             </PermBased>
-         </Table.Cell>
-      </Table.Row>
+         </TableCell>
+      </TableRow>
    );
 }

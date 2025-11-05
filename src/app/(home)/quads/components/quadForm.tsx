@@ -1,13 +1,15 @@
 "use client";
 import React, { useMemo, useState } from "react";
 import {
+   Button,
    Label,
    Modal,
+   ModalBody,
+   ModalHeader,
+   Select,
+   Spinner,
    Textarea,
    TextInput,
-   Select,
-   Button,
-   Spinner,
 } from "flowbite-react";
 import { addQuad, updateQuad, deleteQuad } from "services/routes/quads";
 import { useToast } from "@/app/context/toast";
@@ -64,6 +66,7 @@ export default function QuadForm({
    const handleSubmit = async () => {
       if (lastro === 0 && date === "") {
          push({ message: "Insira lastros ou uma data", type: "warning" });
+         return;
       }
 
       setLoading(true);
@@ -108,27 +111,29 @@ export default function QuadForm({
       <>
          {show && (
             <Modal show={show} onClose={cleanAndClose} size='sm' popup>
-               <Modal.Header>
+               <ModalHeader>
                   {quad ? "Atualizar Quadrinho" : "Adicionar Quadrinho"}
-               </Modal.Header>
-               <Modal.Body>
+               </ModalHeader>
+               <ModalBody>
                   <div className='grid justify-center gap-4 text-center mt-4'>
-                     <div className='grid justify-center gap-1'>
-                        <Label value='Tipo de Entrada' />
-                        <Select
-                           className='w-fit'
-                           value={inputType}
-                           onChange={(e) => setInputType(e.target.value)}
-                        >
-                           <option value='data'>Data</option>
-                           <option value='lastro'>Lastro</option>
-                        </Select>
-                     </div>
+                     {!quad && (
+                        <div className='grid justify-center gap-1'>
+                           <Label>Tipo de Entrada</Label>
+                           <Select
+                              className='w-fit'
+                              value={inputType}
+                              onChange={(e) => setInputType(e.target.value)}
+                           >
+                              <option value='data'>Data</option>
+                              <option value='lastro'>Lastro</option>
+                           </Select>
+                        </div>
+                     )}
 
                      <div className='grid justify-center gap-1'>
                         {inputType === "data" ? (
                            <>
-                              <Label value='Data' />
+                              <Label>Data</Label>
                               <TextInput
                                  value={date ?? ""}
                                  onChange={(e) => setDate(e.target.value)}
@@ -139,7 +144,7 @@ export default function QuadForm({
                            </>
                         ) : (
                            <>
-                              <Label value='Quantidade' />
+                              <Label>Quantidade</Label>
                               <TextInput
                                  value={lastro}
                                  onChange={handleLastroChange}
@@ -152,7 +157,7 @@ export default function QuadForm({
                      </div>
 
                      <div className='grid gap-1'>
-                        <Label value='Observações' />
+                        <Label>Observações</Label>
                         <Textarea
                            className='text-base'
                            value={!obs ? "" : obs}
@@ -163,12 +168,13 @@ export default function QuadForm({
                   </div>
 
                   <div className='grid justify-center mt-6'>
-                     <Button onClick={handleSubmit} disabled={loading}>
+                     <Button
+                        color='blue'
+                        onClick={handleSubmit}
+                        disabled={loading}
+                     >
                         {loading ? (
-                           <Spinner
-                              color='failure'
-                              aria-label='Loading spinner'
-                           />
+                           <Spinner color='red' aria-label='Loading spinner' />
                         ) : quad ? (
                            "Atualizar"
                         ) : (
@@ -176,7 +182,7 @@ export default function QuadForm({
                         )}
                      </Button>
                   </div>
-               </Modal.Body>
+               </ModalBody>
             </Modal>
          )}
       </>

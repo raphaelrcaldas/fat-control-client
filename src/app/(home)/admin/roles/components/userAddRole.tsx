@@ -121,7 +121,7 @@ export default function UserAddRole({
                   <Button color='light' onClick={onClose} disabled={isSaving}>
                      Fechar
                   </Button>
-                  <Button onClick={handleAdd} disabled={isSaving}>
+                  <Button color='blue' onClick={handleAdd} disabled={isSaving}>
                      {isSaving ? "Salvando..." : "Adicionar"}
                   </Button>
                </div>

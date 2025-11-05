@@ -150,11 +150,16 @@ export function FormComiss({
             {comiss ? "Editar" : "Adicionar"} Comissionamento
          </ModalHeader>
          <ModalBody>
-            <div className='flex flex-row gap-2 p-2 m-4 justify-center items-center text-base'>
+            <div className='flex flex-row gap-2 p-2 justify-center text-base'>
                {user ? (
-                  <span className='uppercase font-medium bg-white shadow-md px-4 py-1 rounded-lg'>
-                     {user.posto.mid} {user.esp} {user.nome_completo}
-                  </span>
+                  <div className='grid uppercase justify-items-center'>
+                     <span className='font-medium'>
+                        {user.posto.mid} {user.esp} {user.nome_guerra}
+                     </span>
+                     <span className='text-stone-500'>
+                        {user.nome_completo}
+                     </span>
+                  </div>
                ) : (
                   <span className='text-red-600 text-sm'>
                      Insira uma Militar
@@ -178,9 +183,7 @@ export function FormComiss({
             />
             <div className='grid grid-cols-3 gap-3 text-center'>
                <div>
-                  <div className='mb-2 block'>
-                     <Label htmlFor='doc-prop'>Proposta</Label>
-                  </div>
+                  <Label htmlFor='doc-prop'>Proposta</Label>
                   <TextInput
                      id='doc-prop'
                      required
@@ -190,9 +193,7 @@ export function FormComiss({
                   />
                </div>
                <div>
-                  <div className='mb-2 block'>
-                     <Label htmlFor='doc-aut'>Autorização</Label>
-                  </div>
+                  <Label htmlFor='doc-aut'>Autorização</Label>
                   <TextInput
                      id='doc-aut'
                      required
@@ -202,9 +203,7 @@ export function FormComiss({
                   />
                </div>
                <div>
-                  <div className='mb-2 block'>
-                     <Label htmlFor='doc-enc'>Encerramento</Label>
-                  </div>
+                  <Label htmlFor='doc-enc'>Encerramento</Label>
                   <TextInput
                      id='doc-enc'
                      required
@@ -287,23 +286,21 @@ export function FormComiss({
             </div>
             <div className='grid grid-cols-3 mt-3 justify-items-center text-center'>
                <div>
-                  <div className='mb-2 block'>
-                     <Label htmlFor='status'>Status</Label>
-                  </div>
+                  <Label htmlFor='status'>Status</Label>
                   <Select
                      id='status'
                      value={status}
                      onChange={(e) => setStatus(e.target.value)}
                   >
-                     <option value='' disabled></option>
+                     <option value='' disabled>
+                        Selecione
+                     </option>
                      <option value='aberto'>Aberto</option>
                      <option value='fechado'>Fechado</option>
                   </Select>
                </div>
                <div>
-                  <div className='mb-2 block'>
-                     <Label htmlFor='dias-cumprir'>Dias a Cumprir</Label>
-                  </div>
+                  <Label htmlFor='dias-cumprir'>Dias a Cumprir</Label>
                   <TextInput
                      id='dias-cumprir'
                      type='number'
@@ -313,14 +310,13 @@ export function FormComiss({
                      onChange={(e) => setDiasCumprir(Number(e.target.value))}
                   />
                </div>
-               <div>
-                  <div className='mb-2 block'>
-                     <Label htmlFor='dep'>Possui Dependente</Label>
-                  </div>
+               <div className='grid justify-items-center'>
+                  <Label htmlFor='dep'>Possui Dependente</Label>
                   <Checkbox
                      id='del'
                      size={10}
-                     className='size-7'
+                     color='blue'
+                     className='ml-2 size-7'
                      checked={dep}
                      onChange={(e) => setDep(e.target.checked)}
                   />
@@ -330,6 +326,7 @@ export function FormComiss({
          <ModalFooter className='flex justify-center'>
             <Button
                className='w-32'
+               color='blue'
                onClick={handleComiss}
                disabled={isLoading}
             >

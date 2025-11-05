@@ -1,6 +1,18 @@
 "use client";
 
-import { Button, Modal, Table, Spinner } from "flowbite-react";
+import {
+   Button,
+   Modal,
+   ModalBody,
+   ModalHeader,
+   Spinner,
+   Table,
+   TableBody,
+   TableCell,
+   TableHead,
+   TableHeadCell,
+   TableRow,
+} from "flowbite-react";
 import { useState, useEffect, useCallback } from "react";
 import { getQuadById } from "services/routes/quads";
 import { isoDateToString } from "utils/dateHandler";
@@ -66,8 +78,8 @@ export function QuadsTrip({
                onClose={() => setOpenModal(false)}
                popup
             >
-               <Modal.Header>Quadrinhos</Modal.Header>
-               <Modal.Body>
+               <ModalHeader>Quadrinhos</ModalHeader>
+               <ModalBody>
                   <div className='m-4 text-base text-center uppercase'>
                      <h3 className='font-medium'>
                         {`${trip.user.posto.short} ${trip.user.nome_guerra}`}
@@ -81,11 +93,13 @@ export function QuadsTrip({
                         </div>
                      ) : (
                         <Table className='text-center' hoverable>
-                           <Table.Head>
-                              <Table.HeadCell>Valor</Table.HeadCell>
-                              <Table.HeadCell>Action</Table.HeadCell>
-                           </Table.Head>
-                           <Table.Body>
+                           <TableHead>
+                              <TableRow>
+                                 <TableHeadCell>Valor</TableHeadCell>
+                                 <TableHeadCell>Action</TableHeadCell>
+                              </TableRow>
+                           </TableHead>
+                           <TableBody>
                               {quads.map((quad) => (
                                  <QuadRow
                                     key={quad.id}
@@ -94,12 +108,12 @@ export function QuadsTrip({
                                     update={update}
                                  />
                               ))}
-                           </Table.Body>
+                           </TableBody>
                         </Table>
                      )}
                   </div>
                   <div className='grid justify-center mt-4'>
-                     <Button onClick={() => setShowForm(true)}>
+                     <Button color='blue' onClick={() => setShowForm(true)}>
                         Adicionar
                      </Button>
 
@@ -110,7 +124,7 @@ export function QuadsTrip({
                         onSuccess={update}
                      />
                   </div>
-               </Modal.Body>
+               </ModalBody>
             </Modal>
          )}
       </>
@@ -155,11 +169,11 @@ function QuadRow({
    }, [quad]);
 
    return (
-      <Table.Row>
-         <Table.Cell className='font-semibold text-center'>
+      <TableRow>
+         <TableCell className='font-semibold text-center'>
             {quad.value ? isoDateToString(quad.value) : "LASTRO"}
-         </Table.Cell>
-         <Table.Cell className='flex justify-center items-center gap-2'>
+         </TableCell>
+         <TableCell className='flex justify-center items-center gap-2'>
             {quad.value && (
                <>
                   <span
@@ -187,7 +201,7 @@ function QuadRow({
                   <FaRegTrashCan className='size-5' />
                </span>
             )}
-         </Table.Cell>
-      </Table.Row>
+         </TableCell>
+      </TableRow>
    );
 }

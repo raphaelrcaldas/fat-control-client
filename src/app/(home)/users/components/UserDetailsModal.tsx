@@ -1,9 +1,8 @@
-import React, { useState } from "react";
-import { Modal, Tabs, TabItem } from "flowbite-react";
+import { useState } from "react";
+import { Modal, ModalBody, ModalHeader, TabItem, Tabs } from "flowbite-react";
 import { UserRegister } from "./userForm";
 import { UserAudit } from "./UserAudit";
 import { UserPublic } from "services/routes/users";
-import { RoleBasedRoute } from "../../hooks/useRoleBased";
 import { ResetPassword } from "./resetPwd";
 
 interface UserDetailsModalProps {
@@ -26,7 +25,7 @@ export function UserDetailsModal({
    const [activeTab, setActiveTab] = useState(0);
    return (
       <Modal show={show} size='4xl' onClose={onClose} popup>
-         <Modal.Header>
+         <ModalHeader>
             <div className='flex flex-col uppercase'>
                <span className='font-bold text-lg'>
                   {user.posto.mid} {user?.nome_guerra}
@@ -35,8 +34,8 @@ export function UserDetailsModal({
                   {user?.nome_completo}
                </span>
             </div>
-         </Modal.Header>
-         <Modal.Body>
+         </ModalHeader>
+         <ModalBody>
             <div className='py-2 h-96'>
                <Tabs
                   aria-label='Tabs de usuário'
@@ -59,7 +58,7 @@ export function UserDetailsModal({
                   </TabItem>
                </Tabs>
             </div>
-         </Modal.Body>
+         </ModalBody>
       </Modal>
    );
 }

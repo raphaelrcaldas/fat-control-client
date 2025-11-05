@@ -1,7 +1,17 @@
 "use client";
 
 import { GoPlus } from "react-icons/go";
-import { Modal, Button, Table, TextInput } from "flowbite-react";
+import {
+   Button,
+   Modal,
+   ModalBody,
+   ModalHeader,
+   Table,
+   TableBody,
+   TableCell,
+   TableRow,
+   TextInput,
+} from "flowbite-react";
 import { useState, useEffect } from "react";
 import { IoSearchSharp } from "react-icons/io5";
 import { getUsers } from "services/routes/users";
@@ -53,7 +63,7 @@ export function SearchUser({ uae, trips, updateTrips }) {
 
    return (
       <>
-         <Button onClick={() => setAddTrip(true)}>
+         <Button color='blue' onClick={() => setAddTrip(true)}>
             <GoPlus className='mr-2 h-5 w-5' /> Adicionar
          </Button>
 
@@ -64,8 +74,8 @@ export function SearchUser({ uae, trips, updateTrips }) {
                onClose={closeTripRegister}
                popup
             >
-               <Modal.Header />
-               <Modal.Body>
+               <ModalHeader />
+               <ModalBody>
                   <h3 className='mb-7 text-xl text-center font-semibold'>
                      Adicionar Tripulante
                   </h3>
@@ -76,40 +86,40 @@ export function SearchUser({ uae, trips, updateTrips }) {
                         value={userSearchInput}
                         onChange={(event) => setSearchInput(event.target.value)}
                      />
-                     <Button onClick={searchUserForTrip}>
-                        <IoSearchSharp className='h-5 w-5' />
+                     <Button color='blue' onClick={searchUserForTrip}>
+                        <IoSearchSharp className='size-5' />
                      </Button>
                   </div>
                   <div className='mt-8 overflow shadow-lg h-72 bg-gray-100 rounded-lg'>
                      <Table hoverable>
-                        <Table.Body>
+                        <TableBody>
                            {usersTrip.map((user) => {
                               const pg = user.posto.short;
                               const esp = user.esp;
                               const guerra = user.nome_guerra;
 
                               return (
-                                 <Table.Row
+                                 <TableRow
                                     className='hover:font-semibold'
                                     key={user.id}
                                  >
-                                    <Table.Cell className='text-center uppercase'>
+                                    <TableCell className='text-center uppercase'>
                                        {`${pg} ${esp} ${guerra}`}
-                                    </Table.Cell>
-                                    <Table.Cell className='w-20'>
+                                    </TableCell>
+                                    <TableCell className='w-20'>
                                        <TripRegister
                                           user={user}
                                           uae={uae}
                                           update={updateTrips}
                                        />
-                                    </Table.Cell>
-                                 </Table.Row>
+                                    </TableCell>
+                                 </TableRow>
                               );
                            })}
-                        </Table.Body>
+                        </TableBody>
                      </Table>
                   </div>
-               </Modal.Body>
+               </ModalBody>
             </Modal>
          )}
       </>

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo, useCallback } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import { Label, TextInput, Spinner, Select, Checkbox } from "flowbite-react";
 import { getPgts } from "services/routes/cegep/financeiro";
 import { UserRow } from "./components/userRow";
@@ -120,7 +120,7 @@ export function FilterPage({ active }) {
          <section className='flex flex-col'>
             <div className='w-full'>
                <div className='relative overflow-hidden bg-white shadow-md sm:rounded-lg'>
-                  <div className='flex-row items-center justify-evenly p-4 space-y-3 sm:flex sm:space-y-0 sm:space-x-4'>
+                  <div className='flex items-center justify-evenly p-2 sm:flex sm:space-y-0 sm:space-x-4'>
                      <div>
                         <div className='mb-2 text-center'>
                            <Label>Tipo da Ordem</Label>
@@ -244,6 +244,7 @@ export function FilterPage({ active }) {
                         <Checkbox
                            className='size-6'
                            checked={selectedAll}
+                           color="blue"
                            onChange={(e) => setSelectedAll(!selectedAll)}
                         />
                      </div>

@@ -1,5 +1,12 @@
 import { useState } from "react";
-import { Modal, Button, TextInput, Label } from "flowbite-react";
+import {
+   Button,
+   Label,
+   Modal,
+   ModalBody,
+   ModalHeader,
+   TextInput,
+} from "flowbite-react";
 import { useForm } from "react-hook-form";
 import { IoMdAdd } from "react-icons/io";
 import { addTrip } from "services/routes/trips";
@@ -47,8 +54,8 @@ export function TripRegister({ uae, user, update }) {
          />
 
          <Modal show={show} size='sm' onClose={closeModal} popup>
-            <Modal.Header>Cadastro Tripulante</Modal.Header>
-            <Modal.Body>
+            <ModalHeader>Cadastro Tripulante</ModalHeader>
+            <ModalBody>
                <form onSubmit={handleSubmit(registerTrip)}>
                   <div className='m-4 text-base uppercase text-center'>
                      <div className='font-semibold'>
@@ -128,10 +135,12 @@ export function TripRegister({ uae, user, update }) {
                     </div> */}
 
                   <div className='grid mt-9 justify-center'>
-                     <Button type='submit'>Salvar</Button>
+                     <Button color='blue' type='submit'>
+                        Salvar
+                     </Button>
                   </div>
                </form>
-            </Modal.Body>
+            </ModalBody>
          </Modal>
       </>
    );

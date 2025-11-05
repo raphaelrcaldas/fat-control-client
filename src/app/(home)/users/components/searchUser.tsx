@@ -109,9 +109,9 @@ export function SearchUser({
                            >
                               <FaCheckSquare
                                  onClick={() => onSetUser(user)}
-                                 className='size-7 text-blue-400 hover:text-blue-600 cursor-pointer'
+                                 className='size-6 text-blue-400 hover:text-blue-600 cursor-pointer'
                               />
-                              <span className='p-1 uppercase text-base'>
+                              <span className='p-1 uppercase text-sm'>
                                  {user.posto.short} {user.esp}{" "}
                                  {user.nome_guerra}
                               </span>

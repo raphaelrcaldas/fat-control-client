@@ -1,6 +1,6 @@
 'use client'
 
-import { Button, Modal } from 'flowbite-react';
+import { Button, Modal, ModalBody, ModalHeader } from 'flowbite-react';
 import { MdCheckCircle,MdError,MdOutlineDelete } from "react-icons/md";
 import { HiOutlineExclamationCircle } from "react-icons/hi";
 import { useState } from 'react';
@@ -19,8 +19,8 @@ export function MessageModal({ msg, active, callFunc, typeMsg }) {
   return (
     <>
       <Modal show={active} size="md" onClose={() => callFunc(false)} popup>
-        <Modal.Header />
-        <Modal.Body>
+        <ModalHeader />
+        <ModalBody>
           <div className="text-center">
             <Icon className="mx-auto mb-4 h-14 w-14 text-gray-400 dark:text-gray-200" />
             <h3 className="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
@@ -32,10 +32,10 @@ export function MessageModal({ msg, active, callFunc, typeMsg }) {
               </Button>
             </div>
           </div>
-        </Modal.Body>
+        </ModalBody>
       </Modal>
     </>
-  )
+  );
 }
 
 
@@ -47,8 +47,8 @@ export function QuestionExclude({ callFunc }) {
       <Button color={'red'} onClick={() => setOpenModal(true)}><MdOutlineDelete /></Button>
 
       <Modal show={openModal} size="md" onClose={() => setOpenModal(false)} popup>
-        <Modal.Header />
-        <Modal.Body>
+        <ModalHeader />
+        <ModalBody>
           <div className="text-center">
             <HiOutlineExclamationCircle className="mx-auto mb-4 h-14 w-14 text-gray-400 dark:text-gray-200" />
             <h3 className="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
@@ -63,7 +63,7 @@ export function QuestionExclude({ callFunc }) {
               </Button>
             </div>
           </div>
-        </Modal.Body>
+        </ModalBody>
       </Modal>
     </>
   );

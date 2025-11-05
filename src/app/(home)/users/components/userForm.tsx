@@ -1,9 +1,18 @@
 "use client";
 import { useEffect, useState } from "react";
-import { Button, Label, TextInput, Spinner, Modal } from "flowbite-react";
+import {
+   Button,
+   Label,
+   Modal,
+   ModalBody,
+   ModalHeader,
+   Spinner,
+   TextInput,
+   Select,
+} from "flowbite-react";
 import { getUserById, updateUser, addUser } from "services/routes/users";
 import { useToast } from "../../../context/toast";
-import { useForm } from "react-hook-form";
+import { useForm, Resolver } from "react-hook-form";
 import clsx from "clsx";
 import { HiMail } from "react-icons/hi";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -27,7 +36,9 @@ export function UserRegister({ userId, updateUsers }) {
       formState: { errors },
    } = useForm<CreateUserFormData>({
       defaultValues: defaultUserValues,
-      resolver: zodResolver(createUserFormSchema),
+      resolver: zodResolver(
+         createUserFormSchema
+      ) as Resolver<CreateUserFormData>,
    });
 
    useEffect(() => {
@@ -125,7 +136,11 @@ export function UserRegister({ userId, updateUsers }) {
             <UserFormFields register={register} errors={errors} />
          )}
          <div className='grid justify-center mt-6'>
-            <Button type='submit' disabled={!hasChanges || loadingUser}>
+            <Button
+               color='blue'
+               type='submit'
+               disabled={!hasChanges || loadingUser}
+            >
                Salvar
             </Button>
          </div>
@@ -138,14 +153,11 @@ function UserFormFields({ register, errors }: any) {
       <div className='space-y-2 text-center text-base'>
          <div className='flex gap-2 justify-between'>
             <div className='w-24'>
-               <label className='block mb-2 text-sm font-medium text-gray-900'>
-                  P/G
-               </label>
-               <select
-                  className={clsx(
-                     "bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5",
-                     { "focus:ring-red-500 focus:border-red-500": errors.p_g }
-                  )}
+               <Label>P/G</Label>
+               <Select
+                  className={clsx("", {
+                     "focus:ring-red-500 focus:border-red-500": errors.p_g,
+                  })}
                   defaultValue=''
                   {...register("p_g")}
                >
@@ -167,7 +179,7 @@ function UserFormFields({ register, errors }: any) {
                   <option value='cb'>CB</option>
                   <option value='s1'>S1</option>
                   <option value='s2'>S2</option>
-               </select>
+               </Select>
                {errors.p_g && (
                   <span className='text-xs text-red-600'>
                      {errors.p_g.message}
@@ -175,14 +187,11 @@ function UserFormFields({ register, errors }: any) {
                )}
             </div>
             <div className='w-32'>
-               <label className='block mb-2 text-sm font-medium text-gray-900'>
-                  Especialidade
-               </label>
-               <input
+               <Label>Especialidade</Label>
+               <TextInput
                   {...register("esp")}
                   autoComplete='off'
                   maxLength={6}
-                  className='bg-gray-50 border text-center border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5'
                   onKeyDown={(e) => {
                      if (
                         !e.key.match(/^[a-zA-ZÀ-ÿ\s]$/) &&
@@ -196,10 +205,8 @@ function UserFormFields({ register, errors }: any) {
                />
             </div>
             <div className='w-52'>
-               <label className='block mb-2 text-sm font-medium text-gray-900'>
-                  Nome de Guerra
-               </label>
-               <input
+               <Label>Nome de Guerra</Label>
+               <TextInput
                   {...register("nome_guerra")}
                   autoComplete='off'
                   onKeyDown={(e) => {
@@ -212,13 +219,10 @@ function UserFormFields({ register, errors }: any) {
                         e.preventDefault();
                      }
                   }}
-                  className={clsx(
-                     "bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5",
-                     {
-                        "focus:ring-red-500 focus:border-red-500":
-                           errors.nome_guerra,
-                     }
-                  )}
+                  className={clsx({
+                     "focus:ring-red-500 focus:border-red-500":
+                        errors.nome_guerra,
+                  })}
                />
                {errors.nome_guerra && (
                   <span className='text-xs text-red-600'>
@@ -228,13 +232,10 @@ function UserFormFields({ register, errors }: any) {
                )}
             </div>
             <div className='flex-1'>
-               <label className='block mb-2 text-sm font-medium text-gray-900'>
-                  Nome Completo
-               </label>
-               <input
+               <Label>Nome Completo</Label>
+               <TextInput
                   {...register("nome_completo")}
                   autoComplete='off'
-                  className='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5'
                   onKeyDown={(e) => {
                      if (
                         !e.key.match(/^[a-zA-ZÀ-ÿ\s]$/) &&
@@ -250,19 +251,13 @@ function UserFormFields({ register, errors }: any) {
          </div>
          <div className='flex gap-2 justify-between'>
             <div className='w-28'>
-               <label className='block mb-2 text-sm font-medium text-gray-900'>
-                  Unidade
-               </label>
-               <select
+               <Label>Unidade</Label>
+               <Select
                   defaultValue=''
                   {...register("unidade")}
-                  className={clsx(
-                     "bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5",
-                     {
-                        "focus:ring-red-500 focus:border-red-500":
-                           errors.unidade,
-                     }
-                  )}
+                  className={clsx("", {
+                     "focus:ring-red-500 focus:border-red-500": errors.unidade,
+                  })}
                >
                   <option value='' disabled></option>
                   <option value='11gt'>1º/1º GT</option>
@@ -275,7 +270,7 @@ function UserFormFields({ register, errors }: any) {
                   <option value='pama_gl'>PAMA-GL</option>
                   <option value='ctla'>CTLA</option>
                   <option value='gapgl'>GAP-GL</option>
-               </select>
+               </Select>
                {errors.unidade && (
                   <span className='text-xs text-red-600'>
                      {errors.unidade.message}
@@ -283,10 +278,8 @@ function UserFormFields({ register, errors }: any) {
                )}
             </div>
             <div className='w-28'>
-               <label className='block mb-2 text-sm font-medium text-gray-900'>
-                  SARAM
-               </label>
-               <input
+               <Label>SARAM</Label>
+               <TextInput
                   {...register("saram")}
                   autoComplete='off'
                   onKeyDown={(e) => {
@@ -302,10 +295,9 @@ function UserFormFields({ register, errors }: any) {
                         e.preventDefault();
                      }
                   }}
-                  className={clsx(
-                     "bg-gray-50 border text-center border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5",
-                     { "focus:ring-red-500 focus:border-red-500": errors.saram }
-                  )}
+                  className={clsx("", {
+                     "focus:ring-red-500 focus:border-red-500": errors.saram,
+                  })}
                   maxLength={7}
                   minLength={7}
                />
@@ -316,10 +308,8 @@ function UserFormFields({ register, errors }: any) {
                )}
             </div>
             <div className='w-28'>
-               <label className='block mb-2 text-sm font-medium text-gray-900'>
-                  ID FAB
-               </label>
-               <input
+               <Label>ID FAB</Label>
+               <TextInput
                   {...register("id_fab")}
                   autoComplete='off'
                   onKeyDown={(e) => {
@@ -335,15 +325,12 @@ function UserFormFields({ register, errors }: any) {
                         e.preventDefault();
                      }
                   }}
-                  className='bg-gray-50 border text-center border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5'
                   minLength={6}
                />
             </div>
             <div className='w-40'>
-               <label className='block mb-2 text-sm font-medium text-gray-900'>
-                  CPF
-               </label>
-               <input
+               <Label>CPF</Label>
+               <TextInput
                   {...register("cpf")}
                   autoComplete='off'
                   onKeyDown={(e) => {
@@ -359,10 +346,9 @@ function UserFormFields({ register, errors }: any) {
                         e.preventDefault();
                      }
                   }}
-                  className={clsx(
-                     "bg-gray-50 border text-center border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5",
-                     { "focus:ring-red-500 focus:border-red-500": errors.cpf }
-                  )}
+                  className={clsx("", {
+                     "focus:ring-red-500 focus:border-red-500": errors.cpf,
+                  })}
                   minLength={11}
                   maxLength={11}
                />
@@ -373,7 +359,7 @@ function UserFormFields({ register, errors }: any) {
                )}
             </div>
             <div className='w-40'>
-               <Label className='mb-2 block' value='Data de Nascimento' />
+               <Label>Data de Nascimento</Label>
                <TextInput
                   {...register("nasc")}
                   defaultValue={null}
@@ -389,10 +375,8 @@ function UserFormFields({ register, errors }: any) {
             </div>
          </div>
          <div className='flex gap-2 justify-between'>
-            <div className=''>
-               <label className='block mb-2 text-sm font-medium text-gray-900'>
-                  Zimbra
-               </label>
+            <div>
+               <Label>Zimbra</Label>
                <TextInput
                   {...register("email_fab")}
                   type='email'
@@ -400,8 +384,8 @@ function UserFormFields({ register, errors }: any) {
                   icon={HiMail}
                />
             </div>
-            <div className=''>
-               <Label className='mb-2 block' value='Email particular' />
+            <div>
+               <Label>Email particular</Label>
                <TextInput
                   {...register("email_pess")}
                   type='email'
@@ -410,7 +394,7 @@ function UserFormFields({ register, errors }: any) {
                />
             </div>
             <div className='w-40'>
-               <Label className='mb-2 block' value='Última Promoção' />
+               <Label>Última Promoção</Label>
                <TextInput
                   {...register("ult_promo")}
                   defaultValue={null}
@@ -420,7 +404,7 @@ function UserFormFields({ register, errors }: any) {
                />
             </div>
             <div className='w-28'>
-               <Label className='mb-2 block' value='Ant Relativa' />
+               <Label>Ant Relativa</Label>
                <TextInput
                   {...register("ant_rel")}
                   defaultValue={null}
@@ -447,10 +431,10 @@ export function UserCreateModal({
 }) {
    return (
       <Modal show={show} size='4xl' onClose={() => setShow(false)} popup>
-         <Modal.Header>Cadastrar novo usuário</Modal.Header>
-         <Modal.Body>
+         <ModalHeader>Cadastrar novo usuário</ModalHeader>
+         <ModalBody>
             <UserRegister userId={null} updateUsers={updateUsers} />
-         </Modal.Body>
+         </ModalBody>
       </Modal>
    );
 }

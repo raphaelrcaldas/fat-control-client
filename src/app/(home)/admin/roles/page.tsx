@@ -118,15 +118,17 @@ export default function RolePage() {
                      onChange={(e) => setFilterName(e.target.value)}
                      placeholder='Buscar por nome de guerra'
                   />
-                  <Button onClick={() => setShowAddModal(true)}>
+                  <Button color='blue' onClick={() => setShowAddModal(true)}>
                      Adicionar
                   </Button>
                </div>
                <Table hoverable>
                   <TableHead>
-                     <TableHeadCell>Usuário</TableHeadCell>
-                     <TableHeadCell>Perfil</TableHeadCell>
-                     <TableHeadCell>Action</TableHeadCell>
+                     <TableRow>
+                        <TableHeadCell>Usuário</TableHeadCell>
+                        <TableHeadCell>Perfil</TableHeadCell>
+                        <TableHeadCell>Action</TableHeadCell>
+                     </TableRow>
                   </TableHead>
                   <TableBody className='divide-y'>
                      {filteredUsers.map((ur) => {
@@ -171,9 +173,11 @@ export default function RolePage() {
 
             <Table className='hidden md:block w-fit' hoverable>
                <TableHead>
-                  <TableHeadCell>ID</TableHeadCell>
-                  <TableHeadCell>Perfil</TableHeadCell>
-                  <TableHeadCell>Descrição</TableHeadCell>
+                  <TableRow>
+                     <TableHeadCell>ID</TableHeadCell>
+                     <TableHeadCell>Perfil</TableHeadCell>
+                     <TableHeadCell>Descrição</TableHeadCell>
+                  </TableRow>
                </TableHead>
                <TableBody className='divide-y'>
                   {roles.map((r) => {

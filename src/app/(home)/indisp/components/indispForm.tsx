@@ -2,12 +2,15 @@
 
 import { useState, useMemo, useEffect } from "react";
 import {
-   Modal,
    Button,
    Label,
-   TextInput,
-   Textarea,
+   Modal,
+   ModalBody,
+   ModalFooter,
+   ModalHeader,
    Select,
+   Textarea,
+   TextInput,
 } from "flowbite-react";
 import { format } from "date-fns";
 import { HiOutlineExclamationCircle } from "react-icons/hi";
@@ -163,10 +166,10 @@ export function IndispForm({ open, setOpen, trip, update, indisp }) {
                closeModal();
             }}
          >
-            <Modal.Header>
+            <ModalHeader>
                {indisp ? "Atualizar" : "Adicionar"} Indisponibilidade
-            </Modal.Header>
-            <Modal.Body>
+            </ModalHeader>
+            <ModalBody>
                <div className='grid gap-4 text-center'>
                   <div className='grid justify-center'>
                      <Label htmlFor='mtv' value='Motivo' />
@@ -217,10 +220,11 @@ export function IndispForm({ open, setOpen, trip, update, indisp }) {
                      />
                   </div>
                </div>
-            </Modal.Body>
-            <Modal.Footer>
+            </ModalBody>
+            <ModalFooter>
                <div className='w-full flex justify-center gap-4'>
                   <Button
+                     color='blue'
                      onClick={handleIndisp}
                      disabled={indisp ? !isChanged : false}
                   >
@@ -230,13 +234,13 @@ export function IndispForm({ open, setOpen, trip, update, indisp }) {
                      <Button
                         type='button'
                         onClick={() => setShowConfirmModal(true)}
-                        color='failure'
+                        color='red'
                      >
                         Excluir
                      </Button>
                   )}
                </div>
-            </Modal.Footer>
+            </ModalFooter>
          </Modal>
 
          <Modal
@@ -245,26 +249,26 @@ export function IndispForm({ open, setOpen, trip, update, indisp }) {
             onClose={() => setShowConfirmModal(false)}
             popup
          >
-            <Modal.Header />
-            <Modal.Body>
+            <ModalHeader />
+            <ModalBody>
                <div className='text-center'>
                   <HiOutlineExclamationCircle className='mx-auto mb-4 h-14 w-14 text-gray-400 dark:text-gray-200' />
                   <h3 className='mb-5 text-lg font-normal text-gray-500 dark:text-gray-400'>
                      Tem certeza que deseja excluir esta indisponibilidade?
                   </h3>
                   <div className='flex justify-center gap-4'>
-                     <Button color='failure' onClick={confirmDelete}>
+                     <Button color='red' onClick={confirmDelete}>
                         Sim, excluir
                      </Button>
                      <Button
-                        color='gray'
+                        color='light'
                         onClick={() => setShowConfirmModal(false)}
                      >
                         Não, cancelar
                      </Button>
                   </div>
                </div>
-            </Modal.Body>
+            </ModalBody>
          </Modal>
       </>
    );

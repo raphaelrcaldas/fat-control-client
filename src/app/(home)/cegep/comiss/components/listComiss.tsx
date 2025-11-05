@@ -151,7 +151,7 @@ export function ListComiss({
                   <div className='grid text-center'>
                      <div className=''>
                         {comiss.dias_cumprir
-                           ? (comiss.dias_cumprir - comiss.dias_comp)
+                           ? comiss.dias_cumprir - comiss.dias_comp
                            : `~ ${(
                                 (ajd_ab + ajd_fc - comiss.vals_comp) /
                                 335
@@ -221,21 +221,14 @@ function ComissProgress({
 }) {
    let color = modulo ? "green" : "red";
    color = status == "fechado" ? "gray" : color;
-   const theme = {
-      label: "mb-0.5 flex font-medium justify-center",
-   };
+
+   const percent = Number(value) * 100;
+   const labelText = `${percent.toFixed(1)}%`;
 
    return (
       <div className='grid'>
-         <Label className='text-center w-full'>{`${(
-            Number(value) * 100
-         ).toFixed(1)}%`}</Label>
-         <Progress
-            progress={value * 100}
-            theme={theme}
-            color={color}
-            size='lg'
-         />
+         <Label className='text-center w-full'>{labelText}</Label>
+         <Progress progress={value * 100} color={color} size='lg' />
       </div>
    );
 }

@@ -123,18 +123,20 @@ export default function TripPage() {
                ) : (
                   <Table hoverable>
                      <TableHead className='text-center'>
-                        <TableHeadCell className=''>PG</TableHeadCell>
-                        <TableHeadCell className='hidden md:table-cell'>
-                           Especialidade
-                        </TableHeadCell>
-                        <TableHeadCell className='hidden md:table-cell'>
-                           Nome de Guerra
-                        </TableHeadCell>
-                        <TableHeadCell>Trigrama</TableHeadCell>
-                        <TableHeadCell>Função</TableHeadCell>
-                        <TableHeadCell>
-                           <span className='sr-only'>Detalhes</span>
-                        </TableHeadCell>
+                        <TableRow>
+                           <TableHeadCell className=''>PG</TableHeadCell>
+                           <TableHeadCell className='hidden md:table-cell'>
+                              Especialidade
+                           </TableHeadCell>
+                           <TableHeadCell className='hidden md:table-cell'>
+                              Nome de Guerra
+                           </TableHeadCell>
+                           <TableHeadCell>Trigrama</TableHeadCell>
+                           <TableHeadCell>Função</TableHeadCell>
+                           <TableHeadCell>
+                              <span className='sr-only'>Detalhes</span>
+                           </TableHeadCell>
+                        </TableRow>
                      </TableHead>
                      <TableBody>
                         {filterTrips.map((trip) => (
@@ -190,13 +192,13 @@ function FuncTripRow({ func }) {
 
    return (
       <div
-         className={clsx("px-2 py-1 rounded-md shadow-sm font-semibold", {
-            "bg-blue-100": func.func == "pil",
-            "bg-yellow-100": func.func == "mc",
-            "bg-emerald-100": func.func == "lm",
-            "bg-orange-100": func.func == "os",
-            "bg-red-200": func.func == "oe",
-            "bg-gray-200": func.func == "tf",
+         className={clsx("px-2 py-1 font-semibold", {
+            // "bg-blue-100": func.func == "pil",
+            // "bg-yellow-100": func.func == "mc",
+            // "bg-emerald-100": func.func == "lm",
+            // "bg-orange-100": func.func == "os",
+            // "bg-red-200": func.func == "oe",
+            // "bg-gray-200": func.func == "tf",
          })}
       >
          {func.func}:{" "}

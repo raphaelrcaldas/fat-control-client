@@ -12,7 +12,16 @@ import { useState } from "react";
 import { FaUsers } from "react-icons/fa6";
 import { FaPaperPlane } from "react-icons/fa";
 import { useRouter, usePathname } from "next/navigation";
-import { Button, Sidebar, Spinner } from "flowbite-react";
+import {
+   Button,
+   Sidebar,
+   SidebarCollapse,
+   SidebarCTA,
+   SidebarItem,
+   SidebarItemGroup,
+   SidebarItems,
+   Spinner,
+} from "flowbite-react";
 import { useAuth } from "@/app/context/auth";
 import { RoleBasedRoute } from "../hooks/useRoleBased";
 import { PermBased } from "../hooks/usePermBased";
@@ -126,18 +135,18 @@ export default function AppSideBar({ isCollapsed, setIsCollapsed }) {
             theme={themeSideBar}
             collapseBehavior='hide'
          >
-            <Sidebar.Items
+            <SidebarItems
                className='flex flex-col justify-start'
                style={{ height: "93%" }}
             >
-               <Sidebar.ItemGroup>
-                  <Sidebar.Item
+               <SidebarItemGroup>
+                  <SidebarItem
                      active={path === "/"}
                      icon={MdHome}
                      onClick={() => handlePush("/")}
                   >
                      Início
-                  </Sidebar.Item>
+                  </SidebarItem>
                   <RoleBasedRoute
                      requiredRoles={[
                         "ops_avancado",
@@ -147,103 +156,103 @@ export default function AppSideBar({ isCollapsed, setIsCollapsed }) {
                         "apoio_avancado",
                      ]}
                   >
-                     <Sidebar.Collapse
+                     <SidebarCollapse
                         open
                         icon={FaPaperPlane}
                         label='Operações'
                      >
                         <PermBased resource={"sebo"} requiredPerm={"view"}>
-                           <Sidebar.Item
+                           <SidebarItem
                               active={path === "/sebo"}
                               icon={MdSort}
                               onClick={() => handlePush("/sebo")}
                            >
                               Pau de Sebo
-                           </Sidebar.Item>
+                           </SidebarItem>
                         </PermBased>
                         <PermBased resource={"quad_ops"} requiredPerm={"view"}>
-                           <Sidebar.Item
+                           <SidebarItem
                               active={path === "/quads"}
                               icon={MdAirplaneTicket}
                               onClick={() => handlePush("/quads")}
                            >
                               Quadrinhos
-                           </Sidebar.Item>
+                           </SidebarItem>
                         </PermBased>
                         <PermBased
                            resource={"indisp_trips"}
                            requiredPerm={"view"}
                         >
-                           <Sidebar.Item
+                           <SidebarItem
                               active={path === "/indisp"}
                               icon={MdAirplanemodeInactive}
                               onClick={() => handlePush("/indisp")}
                            >
                               Indisponibilidades
-                           </Sidebar.Item>
+                           </SidebarItem>
                         </PermBased>
                         <PermBased resource={"trips"} requiredPerm={"view"}>
-                           <Sidebar.Item
+                           <SidebarItem
                               active={path === "/trip"}
                               icon={MdHail}
                               onClick={() => handlePush("/trip")}
                            >
                               Tripulantes
-                           </Sidebar.Item>
+                           </SidebarItem>
                         </PermBased>
-                     </Sidebar.Collapse>
+                     </SidebarCollapse>
                   </RoleBasedRoute>
-                  <Sidebar.Collapse open icon={FaUsers} label='Pessoal'>
+                  <SidebarCollapse open icon={FaUsers} label='Pessoal'>
                      <RoleBasedRoute requiredRoles={["apoio_avancado"]}>
-                        <Sidebar.Item
+                        <SidebarItem
                            active={path === "/cegep/missoes"}
                            icon={MdAirplaneTicket}
                            onClick={() => handlePush("/cegep/missoes")}
                         >
                            Missões
-                        </Sidebar.Item>
+                        </SidebarItem>
                      </RoleBasedRoute>
-                     <Sidebar.Item
+                     <SidebarItem
                         active={path === "/cegep/comiss"}
                         icon={MdMoney}
                         onClick={() => handlePush("/cegep/comiss")}
                      >
                         Comissionamento
-                     </Sidebar.Item>
-                  </Sidebar.Collapse>
-               </Sidebar.ItemGroup>
-               <Sidebar.ItemGroup>
+                     </SidebarItem>
+                  </SidebarCollapse>
+               </SidebarItemGroup>
+               <SidebarItemGroup>
                   <RoleBasedRoute
                      requiredRoles={["apoio_avancado", "apoio_basico"]}
                   >
-                     <Sidebar.Item
+                     <SidebarItem
                         active={path === "/users"}
                         icon={MdOutlinePeopleAlt}
                         onClick={() => handlePush("/users")}
                      >
                         Usuários
-                     </Sidebar.Item>
+                     </SidebarItem>
                   </RoleBasedRoute>
                   <RoleBasedRoute requiredRoles={[]}>
-                     <Sidebar.Collapse icon={RiAdminLine} label='Admin'>
-                        <Sidebar.Item
+                     <SidebarCollapse icon={RiAdminLine} label='Admin'>
+                        <SidebarItem
                            active={path === "/admin/roles"}
                            icon={GiSecurityGate}
                            onClick={() => handlePush("/admin/roles")}
                         >
                            Roles
-                        </Sidebar.Item>
-                        <Sidebar.Item
+                        </SidebarItem>
+                        <SidebarItem
                            active={path === "/admin/logs"}
                            icon={TbLogs}
                            onClick={() => handlePush("/admin/logs")}
                         >
                            Logs
-                        </Sidebar.Item>
-                     </Sidebar.Collapse>
+                        </SidebarItem>
+                     </SidebarCollapse>
                   </RoleBasedRoute>
-               </Sidebar.ItemGroup>
-               <Sidebar.CTA className='mt-auto bg-red-200 shadow-md'>
+               </SidebarItemGroup>
+               <SidebarCTA className='mt-auto bg-red-200 shadow-md'>
                   <div className='flex items-center justify-evenly'>
                      <span className='font-semibold text-center text-sm uppercase px-2 text-wrap'>
                         {user}
@@ -265,8 +274,8 @@ export default function AppSideBar({ isCollapsed, setIsCollapsed }) {
                         )}
                      </Button>
                   </div>
-               </Sidebar.CTA>
-            </Sidebar.Items>
+               </SidebarCTA>
+            </SidebarItems>
          </Sidebar>
       </>
    );

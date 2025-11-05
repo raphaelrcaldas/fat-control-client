@@ -13,8 +13,6 @@ import {
 } from "flowbite-react";
 import { MissionPernoite } from "./pernoite/missionPernoite";
 import { FormPernoite } from "./pernoite/formPernoite";
-import { Pernoite } from "services/routes/cegep/missoes";
-import { isoStrToDate } from "utils/dateHandler";
 import { FormMilitar } from "./militar/formMilitar";
 import { MissionMilitar } from "./militar/missionMilitar";
 import { Missao } from "services/routes/cegep/missoes";
@@ -433,8 +431,9 @@ export default function MissionDetail({
                   {editMode ? (
                      <Checkbox
                         id='ac_desloc'
+                        color='blue'
                         onChange={(e) => setAcrecDesloc(e.target.checked)}
-                        className='size-5'
+                        className='size-6'
                         checked={acrecDesloc}
                      />
                   ) : (
@@ -503,11 +502,10 @@ export default function MissionDetail({
 
                {editMode && (
                   <Button
-                     color='light'
+                     color='alternative'
                      size='sm'
                      onClick={() => setFormPnt(true)}
                      disabled={!checkAfastRegres}
-                     outline
                      pill
                      className='w-full'
                   >
@@ -550,9 +548,8 @@ export default function MissionDetail({
 
                {editMode && (
                   <Button
-                     color='light'
+                     color='alternative'
                      size='sm'
-                     outline
                      onClick={() => setFormMil(true)}
                      pill
                      className='w-full'
@@ -566,8 +563,10 @@ export default function MissionDetail({
             <div className='flex gap-2 w-full justify-center'>
                {!editMode ? (
                   <>
-                     <Button onClick={() => setEditMode(true)}>Editar</Button>
-                     <Button color='failure' onClick={onDelete}>
+                     <Button color='blue' onClick={() => setEditMode(true)}>
+                        Editar
+                     </Button>
+                     <Button color='red' onClick={onDelete}>
                         Deletar
                      </Button>
                   </>
@@ -575,6 +574,7 @@ export default function MissionDetail({
                   <>
                      <Button
                         onClick={handleFragMis}
+                        color='blue'
                         disabled={!isChanged || isLoading}
                      >
                         {isLoading ? (
@@ -591,7 +591,7 @@ export default function MissionDetail({
                               setEditMode(false);
                               setDefaultValues();
                            }}
-                           color='light'
+                           color='alternative'
                         >
                            Cancelar
                         </Button>

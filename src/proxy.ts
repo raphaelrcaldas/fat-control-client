@@ -8,7 +8,7 @@ if (process.env.NODE_ENV === 'development' && process.env.DEV_TOKEN) {
    var tokenDev = process.env.DEV_TOKEN;
 }
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
    const tokenCookie = request.cookies.get("token");
    let tokenValue: string | undefined = tokenCookie?.value || tokenDev;
 

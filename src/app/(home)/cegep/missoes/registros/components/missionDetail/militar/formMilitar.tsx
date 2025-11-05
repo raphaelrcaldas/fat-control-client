@@ -185,16 +185,17 @@ export function FormMilitar({
                </div>
 
                <div className='flex gap-3 mt-4 justify-center'>
-                  <Button className='w-28' type='submit' disabled={!isChanged}>
+                  <Button
+                     color='blue'
+                     className='w-28'
+                     type='submit'
+                     disabled={!isChanged}
+                  >
                      Salvar
                   </Button>
 
                   {userMis && (
-                     <Button
-                        onClick={onDelete}
-                        className='w-28'
-                        color='failure'
-                     >
+                     <Button onClick={onDelete} className='w-28' color='red'>
                         Excluir
                      </Button>
                   )}

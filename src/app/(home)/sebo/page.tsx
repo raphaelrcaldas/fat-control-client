@@ -60,11 +60,8 @@ function SeboPage() {
                <div className='flex flex-row gap-2 justify-between ml-4 items-center'>
                   <span className='px-2'>
                      <ToggleSwitch
-                        theme={{
-                           root: {
-                              base: "group flex flex-col rounded-lg focus:outline-none",
-                           },
-                        }}
+                        color='blue'
+                        className='grid'
                         checked={opIn}
                         onChange={setOpIn}
                         label='IN'
@@ -72,11 +69,8 @@ function SeboPage() {
                   </span>
                   <span className='px-2'>
                      <ToggleSwitch
-                        theme={{
-                           root: {
-                              base: "group flex flex-col rounded-lg focus:outline-none",
-                           },
-                        }}
+                        color='blue'
+                        className='grid'
                         checked={opOp}
                         onChange={setOpOp}
                         label='OP'
@@ -84,11 +78,8 @@ function SeboPage() {
                   </span>
                   <span className='px-2'>
                      <ToggleSwitch
-                        theme={{
-                           root: {
-                              base: "group flex flex-col rounded-lg focus:outline-none",
-                           },
-                        }}
+                        color='blue'
+                        className='grid'
                         checked={opAl}
                         onChange={setOpAl}
                         label='AL'

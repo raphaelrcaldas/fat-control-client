@@ -1,17 +1,8 @@
 "use client";
-import {
-   Checkbox,
-   Button,
-   Popover,
-   Table,
-   TableBody,
-   TableCell,
-   TableHead,
-   TableHeadCell,
-   TableRow,
-} from "flowbite-react";
+import { Checkbox, Button, Popover } from "flowbite-react";
 import { IoMdInformationCircleOutline } from "react-icons/io";
 import clsx from "clsx";
+import { MisPntsTable } from "../../../components/popMisPnts";
 
 export function UserRow({ record, checked, onSelect }) {
    const pnts = record.missao.pernoites || [];
@@ -53,6 +44,7 @@ export function UserRow({ record, checked, onSelect }) {
          <span className='w-8'>
             <Checkbox
                className='size-6'
+               color='blue'
                checked={checked}
                onChange={onChange}
             />
@@ -79,15 +71,17 @@ export function UserRow({ record, checked, onSelect }) {
             <span className='text-gray-500'>{afast}</span>
             <span className='text-gray-500'>{regres}</span>
          </div>
-         <span className='w-10 text-sm capitalize'>
-            {record.missao.dias} dia{record.missao.dias > 1 ? "s" : ""}
+         <span className='w-10 text-sm grid'>
+            <span>{record.missao.dias}</span>
+            <span className='capitalize'>dia</span>
          </span>
          <span
-            className={clsx("w-14 text-sm capitalize", {
+            className={clsx("w-14 grid text-sm capitalize", {
                "text-slate-400": record.user_mis.sit === "g",
             })}
          >
-            {Number(record.missao.diarias).toFixed(1)} diárias
+            <span>{Number(record.missao.diarias).toFixed(1)}</span>
+            <span>diária{record.missao.diarias > 1 ? "s" : ""}</span>
          </span>
          <span className='w-32 font-medium text-center'>
             {Number(record.missao.valor_total).toLocaleString("pt-BR", {
@@ -117,7 +111,7 @@ export function UserRow({ record, checked, onSelect }) {
          </div>
          <Popover
             content={
-               <PgtContent
+               <MisPntsTable
                   pernoites={pnts}
                   acDeslocSede={record.missao.acrec_desloc}
                   total={record.missao.valor_total}
@@ -125,123 +119,14 @@ export function UserRow({ record, checked, onSelect }) {
             }
             placement='left'
          >
-            <Button className='p-0' disabled={record.sit === "g"} color='light'>
-               <IoMdInformationCircleOutline size={20} />
+            <Button
+               className='size-11 p-0'
+               disabled={record.sit === "g"}
+               color='light'
+            >
+               <IoMdInformationCircleOutline size={23} />
             </Button>
          </Popover>
       </li>
-   );
-}
-
-function PgtContent({ pernoites, acDeslocSede, total }) {
-   return (
-      <div className='overflow-x-auto p-2'>
-         <span className='capitalize'>Pernoites</span>
-         <Table className='text-center'>
-            <TableHead>
-               <TableHeadCell>Chegada</TableHeadCell>
-               <TableHeadCell>Saída</TableHeadCell>
-               <TableHeadCell>Cidade</TableHeadCell>
-               <TableHeadCell>UF</TableHeadCell>
-               <TableHeadCell>Valores</TableHeadCell>
-               <TableHeadCell>Acresc Desloc</TableHeadCell>
-               <TableHeadCell>SubTotal</TableHeadCell>
-            </TableHead>
-            <TableBody className='divide-y'>
-               {pernoites.map((pnt) => {
-                  const ini =
-                     new Date(pnt.data_ini).toLocaleDateString("pt-BR", {
-                        day: "2-digit",
-                        month: "2-digit",
-                        year: "2-digit",
-                        hour: "2-digit",
-                        minute: "2-digit",
-                     }) || "N/A";
-                  const fim =
-                     new Date(pnt.data_fim).toLocaleDateString("pt-BR", {
-                        day: "2-digit",
-                        month: "2-digit",
-                        year: "2-digit",
-                        hour: "2-digit",
-                        minute: "2-digit",
-                     }) || "N/A";
-
-                  const subtotal = Number(pnt.custo.subtotal).toLocaleString(
-                     "pt-BR",
-                     {
-                        style: "currency",
-                        currency: "BRL",
-                     }
-                  );
-                  let ac_desloc;
-                  if (pnt.acrec_desloc) {
-                     ac_desloc = 95;
-                  } else {
-                     ac_desloc = 0;
-                  }
-                  ac_desloc = Number(ac_desloc).toLocaleString("pt-BR", {
-                     style: "currency",
-                     currency: "BRL",
-                  });
-
-                  return (
-                     <TableRow key={pnt.id}>
-                        <TableCell>{ini}</TableCell>
-                        <TableCell>{fim}</TableCell>
-                        <TableCell>{pnt.cidade.nome}</TableCell>
-                        <TableCell>{pnt.cidade.uf}</TableCell>
-                        <TableCell>
-                           {pnt.custo.vals.map((val, i) => {
-                              const qtd = Number(val.qtd).toFixed(1);
-                              const valor = Number(val.valor).toLocaleString(
-                                 "pt-BR",
-                                 {
-                                    style: "currency",
-                                    currency: "BRL",
-                                 }
-                              );
-
-                              return (
-                                 <div key={i}>
-                                    {qtd} x {valor}
-                                 </div>
-                              );
-                           })}
-                           {}
-                        </TableCell>
-                        <TableCell>{ac_desloc}</TableCell>
-                        <TableCell>{subtotal}</TableCell>
-                     </TableRow>
-                  );
-               })}
-            </TableBody>
-         </Table>
-         <div className='mt-2 grid grid-cols-2'>
-            <div>
-               <span className='text-sm capitalize mr-2'>
-                  Acréscimo Deslocamento em sede:
-               </span>
-               <span className='font-semibold'>
-                  {acDeslocSede
-                     ? Number(95).toLocaleString("pt-BR", {
-                          style: "currency",
-                          currency: "BRL",
-                       })
-                     : Number(0).toLocaleString("pt-BR", {
-                          style: "currency",
-                          currency: "BRL",
-                       })}
-               </span>
-            </div>
-
-            <span className='font-semibold'>
-               Total:{" "}
-               {Number(total).toLocaleString("pt-BR", {
-                  style: "currency",
-                  currency: "BRL",
-               })}
-            </span>
-         </div>
-      </div>
    );
 }

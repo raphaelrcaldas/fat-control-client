@@ -1,18 +1,20 @@
 import { useState, useEffect, useCallback } from "react";
 import { useForm } from "react-hook-form";
 import {
-   Modal,
    Button,
-   TextInput,
-   Label,
    Checkbox,
-   Table,
-   TableHeadCell,
-   TableHead,
-   TableBody,
-   TableRow,
-   TableCell,
+   Label,
+   Modal,
+   ModalBody,
+   ModalHeader,
    Spinner,
+   Table,
+   TableBody,
+   TableCell,
+   TableHead,
+   TableHeadCell,
+   TableRow,
+   TextInput,
 } from "flowbite-react";
 import { FaEdit } from "react-icons/fa";
 import { updateTrip } from "services/routes/trips";
@@ -50,11 +52,17 @@ export function TripDetail({ trip, update }) {
             .then(() => {
                update();
                handleClose();
-               push({ type: "success", message: "Tripulante atualizado com sucesso." });
+               push({
+                  type: "success",
+                  message: "Tripulante atualizado com sucesso.",
+               });
             })
             .catch((err) => {
                console.error(err);
-               push({ type: "error", message: "Erro ao atualizar tripulante." });
+               push({
+                  type: "error",
+                  message: "Erro ao atualizar tripulante.",
+               });
             })
             .finally(() => setSubmitting(false));
       },
@@ -70,9 +78,12 @@ export function TripDetail({ trip, update }) {
             <FaEdit className='size-5' />
          </button>
          <Modal show={show} onClose={handleClose} size='md' popup>
-            <Modal.Header>Editar Tripulante</Modal.Header>
-            <Modal.Body>
+            <ModalHeader>Editar Tripulante</ModalHeader>
+            <ModalBody>
                <form onSubmit={handleSubmit(onSubmit)}>
+                  <h3 className='text-center uppercase mb-2'>
+                     {`${trip.user.p_g} ${trip.user.nome_guerra}`}
+                  </h3>
                   <div className='flex flex-row justify-evenly'>
                      <div className='grid mb-4 justify-items-center'>
                         <Label htmlFor='trig'>Trigrama</Label>
@@ -86,6 +97,7 @@ export function TripDetail({ trip, update }) {
                         <Label htmlFor='active'>Ativo</Label>
                         <Checkbox
                            className='size-6'
+                           color='blue'
                            id='active'
                            {...register("active")}
                         />
@@ -114,7 +126,7 @@ export function TripDetail({ trip, update }) {
                   </div>
 
                   <div className='flex mt-6 justify-center'>
-                     <Button type='submit' disabled={submitting}>
+                     <Button type='submit' disabled={submitting} color='blue'>
                         {submitting ? (
                            <div className='flex items-center gap-2'>
                               <Spinner size='sm' />
@@ -126,7 +138,7 @@ export function TripDetail({ trip, update }) {
                      </Button>
                   </div>
                </form>
-            </Modal.Body>
+            </ModalBody>
          </Modal>
       </div>
    );

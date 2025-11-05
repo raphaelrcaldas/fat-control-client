@@ -106,7 +106,6 @@ export default function IndispPage() {
             </Select>
             <div className='flex flex-row gap-2'>
                <Button
-                  className='p-0'
                   color='light'
                   size='sm'
                   onClick={() => changeDateRef(null, -1)}
@@ -114,7 +113,6 @@ export default function IndispPage() {
                   <span className='text-lg'>{"<<"}</span>
                </Button>
                <Button
-                  className='p-0'
                   color='light'
                   size='sm'
                   onClick={() => changeDateRef(-1, null)}
@@ -131,7 +129,6 @@ export default function IndispPage() {
                </Button>
 
                <Button
-                  className='p-0'
                   color='light'
                   size='sm'
                   onClick={() => changeDateRef(1, null)}
@@ -139,7 +136,6 @@ export default function IndispPage() {
                   <span className='text-lg'>{">"}</span>
                </Button>
                <Button
-                  className='p-0'
                   color='light'
                   size='sm'
                   onClick={() => changeDateRef(null, 1)}

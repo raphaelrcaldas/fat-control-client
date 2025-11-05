@@ -33,12 +33,14 @@ export default function LogDashboard() {
          <div className=''>
             <Table className='' hoverable>
                <TableHead>
-                  <TableHeadCell>timestamp</TableHeadCell>
-                  <TableHeadCell>user</TableHeadCell>
-                  <TableHeadCell className='hidden md:table-cell'>
-                     action
-                  </TableHeadCell>
-                  <TableHeadCell>origin</TableHeadCell>
+                  <TableRow>
+                     <TableHeadCell>timestamp</TableHeadCell>
+                     <TableHeadCell>user</TableHeadCell>
+                     <TableHeadCell className='hidden md:table-cell'>
+                        action
+                     </TableHeadCell>
+                     <TableHeadCell>origin</TableHeadCell>
+                  </TableRow>
                </TableHead>
                <TableBody className='divide-y'>
                   {loading ? (

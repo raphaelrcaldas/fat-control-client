@@ -33,7 +33,7 @@ export function ResetPassword({ userId }) {
          <div className='bg-white p-4 rounded-lg shadow-md'>
             <h2 className='text-center m-4'>Resetar Senha</h2>
             <div className='flex justify-center'>
-               <Button disabled={isLoading} onClick={handlePasswordReset}>
+               <Button color='blue' disabled={isLoading} onClick={handlePasswordReset}>
                   {isLoading ? (
                      <Spinner color='failure' aria-label='Loading spinner' />
                   ) : (

@@ -4,13 +4,11 @@ import {
    ModalHeader,
    Button,
    Checkbox,
-   Textarea,
 } from "flowbite-react";
 import { IoMdSearch } from "react-icons/io";
 import { useState, useMemo } from "react";
 import { Cidade } from "services/routes/cities";
 import { Pernoite } from "services/routes/cegep/missoes";
-import { DateTimePicker } from "src/app/(home)/components/dateTimePicker";
 import { SearchLocal } from "../searchLocal";
 
 export function FormPernoite({
@@ -224,6 +222,7 @@ export function FormPernoite({
                   </label>
                   <Checkbox
                      checked={acDesloc}
+                     color='blue'
                      onChange={(e) => setAcDesloc(e.target.checked)}
                      className='size-6'
                   />
@@ -233,6 +232,7 @@ export function FormPernoite({
                   <label className='text-base font-medium '>Meia Diária</label>
                   <Checkbox
                      checked={meiaDiaria}
+                     color='blue'
                      onChange={(e) => setMeiaDiaria(e.target.checked)}
                      className='size-6'
                   />
@@ -247,7 +247,12 @@ export function FormPernoite({
                </div> */}
 
                <div className='flex gap-3 justify-center'>
-                  <Button className='w-28' type='submit' disabled={!isChanged}>
+                  <Button
+                     color='blue'
+                     className='w-28'
+                     type='submit'
+                     disabled={!isChanged}
+                  >
                      Salvar
                   </Button>
 
