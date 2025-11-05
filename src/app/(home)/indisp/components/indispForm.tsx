@@ -172,7 +172,7 @@ export function IndispForm({ open, setOpen, trip, update, indisp }) {
             <ModalBody>
                <div className='grid gap-4 text-center'>
                   <div className='grid justify-center'>
-                     <Label htmlFor='mtv' value='Motivo' />
+                     <Label htmlFor='mtv'>Motivo</Label>
                      <Select
                         id='mtv'
                         className='w-fit'
@@ -191,7 +191,7 @@ export function IndispForm({ open, setOpen, trip, update, indisp }) {
                   </div>
                   <div className='flex gap-4'>
                      <div className='w-full'>
-                        <Label htmlFor='date_start' value='Início' />
+                        <Label htmlFor='date_start'>Início</Label>
                         <TextInput
                            id='date_start'
                            type='date'
@@ -200,7 +200,7 @@ export function IndispForm({ open, setOpen, trip, update, indisp }) {
                         />
                      </div>
                      <div className='w-full'>
-                        <Label htmlFor='date_end' value='Fim' />
+                        <Label htmlFor='date_end'>Fim</Label>
                         <TextInput
                            id='date_end'
                            type='date'
@@ -211,7 +211,7 @@ export function IndispForm({ open, setOpen, trip, update, indisp }) {
                      </div>
                   </div>
                   <div>
-                     <Label htmlFor='obs' value='Observações' />
+                     <Label htmlFor='obs'>Observações</Label>
                      <Textarea
                         id='obs'
                         placeholder='Detalhes adicionais...'
