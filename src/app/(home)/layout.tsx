@@ -2,10 +2,14 @@
 
 import { useState } from "react";
 import AppSideBar from "./components/sidebar";
-import { Navbar, NavbarBrand } from "flowbite-react";
+import { Navbar, NavbarBrand, Button } from "flowbite-react";
 import Providers from "./context/providers";
 import { HiMenuAlt1 } from "react-icons/hi";
 import profilePic from "public/assets/1_1_gt.jpg";
+import { PiSignOut } from "react-icons/pi";
+import { deleteCookie } from "cookies-next";
+import { useRouter } from "next/navigation";
+import { useAuth } from "../context/auth";
 
 interface RootLayoutProps {
    children: React.ReactNode;
@@ -13,10 +17,17 @@ interface RootLayoutProps {
 
 export default function RootLayout({ children }: RootLayoutProps) {
    const [IsCollapsed, setIsCollapsed] = useState(false);
+   const { user } = useAuth();
+   const router = useRouter();
 
    function handleClose() {
       setIsCollapsed(!IsCollapsed);
    }
+
+   const handleLogout = async () => {
+      deleteCookie("token");
+      router.refresh();
+   };
 
    return (
       <Providers>
@@ -42,6 +53,16 @@ export default function RootLayout({ children }: RootLayoutProps) {
                         <span className='text-red-600'>CONTROL</span>
                      </span>
                   </NavbarBrand>
+               </div>
+               <div className='inline-flex items-center gap-2 uppercase text-sm'>
+                  <span>{user}</span>
+                  <Button
+                     onClick={handleLogout}
+                     className='uppercase px-2'
+                     color='alternative'
+                  >
+                     <PiSignOut size={18} />
+                  </Button>
                </div>
             </div>
          </Navbar>

@@ -8,33 +8,25 @@ import {
    MdHome,
    MdMoney,
 } from "react-icons/md";
-import { useState } from "react";
 import { FaUsers } from "react-icons/fa6";
 import { FaPaperPlane } from "react-icons/fa";
 import { useRouter, usePathname } from "next/navigation";
 import {
-   Button,
    Sidebar,
    SidebarCollapse,
-   SidebarCTA,
    SidebarItem,
    SidebarItemGroup,
    SidebarItems,
-   Spinner,
 } from "flowbite-react";
-import { useAuth } from "@/app/context/auth";
 import { RoleBasedRoute } from "../hooks/useRoleBased";
 import { PermBased } from "../hooks/usePermBased";
 import { TbLogs } from "react-icons/tb";
-import { deleteCookie } from "cookies-next";
 import { RiAdminLine } from "react-icons/ri";
 import { GiSecurityGate } from "react-icons/gi";
 
 export default function AppSideBar({ isCollapsed, setIsCollapsed }) {
-   const [loading, setLoading] = useState(false);
    const path = usePathname();
    const router = useRouter();
-   const { user } = useAuth();
 
    const themeSideBar = {
       root: {
@@ -114,11 +106,6 @@ export default function AppSideBar({ isCollapsed, setIsCollapsed }) {
          },
          img: "mr-2 h-12 w-10",
       },
-   };
-
-   const handleLogout = async () => {
-      deleteCookie("token");
-      router.refresh();
    };
 
    const handlePush = (route) => {
@@ -252,29 +239,6 @@ export default function AppSideBar({ isCollapsed, setIsCollapsed }) {
                      </SidebarCollapse>
                   </RoleBasedRoute>
                </SidebarItemGroup>
-               <SidebarCTA className='mt-auto bg-red-200 shadow-md'>
-                  <div className='flex items-center justify-evenly'>
-                     <span className='font-semibold text-center text-sm uppercase px-2 text-wrap'>
-                        {user}
-                     </span>
-                     <Button
-                        className='flex-shrink-0'
-                        color='light'
-                        disabled={loading}
-                        pill
-                        onClick={handleLogout}
-                     >
-                        {loading ? (
-                           <Spinner
-                              color='failure'
-                              aria-label='Failure spinner example'
-                           />
-                        ) : (
-                           "Sair"
-                        )}
-                     </Button>
-                  </div>
-               </SidebarCTA>
             </SidebarItems>
          </Sidebar>
       </>
