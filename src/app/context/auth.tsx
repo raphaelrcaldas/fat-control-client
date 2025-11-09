@@ -10,6 +10,7 @@ interface PermType {
 }
 
 interface AuthContextType {
+   userPg: string | null;
    user: string | null;
    userId: string | null;
    role: string | null;
@@ -24,6 +25,7 @@ interface AuthProviderProps {
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
    const [user, setUser] = useState<string | null>(null);
+   const [userPg, setUserPg] = useState<string | null>(null);
    const [userId, setUserId] = useState<string | null>(null);
    const [role, setRole] = useState<string | null>(null);
    const [perms, setPerms] = useState<PermType[]>([]);
@@ -34,7 +36,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
          try {
             const data = await getMe();
 
-            setUser(`${data.posto} ${data.nome_guerra}`);
+            setUser(data.nome_guerra);
+            setUserPg(data.posto);
             setUserId(data.id);
             setRole(data.role);
             setPerms(data.permissions || []);
@@ -58,7 +61,13 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
    return (
       <AuthContext.Provider
-         value={{ user: user, userId: userId, role: role, perms: perms }}
+         value={{
+            userPg: userPg,
+            user: user,
+            userId: userId,
+            role: role,
+            perms: perms,
+         }}
       >
          {children}
       </AuthContext.Provider>

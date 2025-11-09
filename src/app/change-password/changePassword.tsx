@@ -5,76 +5,139 @@ import { useForm } from "react-hook-form";
 import { useToast } from "@/app/context/toast";
 import { useRouter } from "next/navigation";
 
-interface changePwdSchema {
+interface ChangePwdSchema {
    oldPassword: string;
    newPassword: string;
    confirmPassword: string;
 }
 
 export function ChangePassword() {
-   const { register, handleSubmit, reset } = useForm<changePwdSchema>();
+   const {
+      register,
+      handleSubmit,
+      watch,
+      formState: { errors },
+   } = useForm<ChangePwdSchema>();
    const [isLoading, setIsLoading] = useState(false);
 
    const route = useRouter();
    const { push } = useToast();
 
-   const handlePasswordChange = async (data: changePwdSchema) => {
+   const newPassword = watch("newPassword");
+
+   const handlePasswordChange = async (data: ChangePwdSchema) => {
       setIsLoading(true);
-      if (data.newPassword !== data.confirmPassword) {
-         alert("As senhas não conferem.");
+
+      try {
+         const res = await changePassword({ new_pwd: data.newPassword });
+         const responseData = await res.json();
+
+         if (!res.ok) {
+            throw new Error(responseData.detail || "Erro ao alterar senha");
+         }
+
+         push({
+            message: responseData.detail || "Senha alterada com sucesso!",
+            type: "success",
+         });
+         route.push("/");
+      } catch (error) {
+         push({
+            message:
+               error instanceof Error
+                  ? error.message
+                  : "Erro ao alterar senha. Tente novamente.",
+            type: "error",
+         });
+      } finally {
          setIsLoading(false);
-         return;
       }
-      const payload = { new_pwd: data.newPassword };
-      changePassword(payload)
-         .then((res) => res.json())
-         .then((data) => {
-            push({
-               message: data.detail,
-               type: "success",
-            });
-            route.push("/");
-         })
-         .catch((error) =>
-            push({
-               message: error.response?.data?.detail,
-               type: "error",
-            })
-         )
-         .finally(() => setIsLoading(false));
    };
 
    return (
       <div className='flex justify-center items-center h-full'>
-         <div className='bg-white p-4 rounded-lg shadow-md'>
-            <h2 className='text-center m-4'>Alterar Senha</h2>
+         <div className='bg-white p-6 rounded-lg shadow-md w-full max-w-md'>
+            <h2 className='text-2xl font-semibold text-center mb-6'>
+               Alterar Senha
+            </h2>
             <form onSubmit={handleSubmit(handlePasswordChange)}>
-               <div className='grid mb-4 gap-1'>
-                  <Label htmlFor='newPassword'>Nova Senha</Label>
+               {/* <div className='mb-4'>
+                  <div className='mb-2'>
+                     <Label htmlFor='oldPassword'>Senha Atual</Label>
+                  </div>
+                  <TextInput
+                     id='oldPassword'
+                     {...register("oldPassword", {
+                        required: "Senha atual é obrigatória",
+                     })}
+                     type='password'
+                     color={errors.oldPassword ? "failure" : undefined}
+                  />
+                  {errors.oldPassword && (
+                     <p className='text-red-600 text-sm mt-1'>
+                        {errors.oldPassword.message}
+                     </p>
+                  )}
+               </div> */}
+
+               <div className='mb-4'>
+                  <div className='mb-2'>
+                     <Label htmlFor='newPassword'>Nova Senha</Label>
+                  </div>
                   <TextInput
                      id='newPassword'
                      {...register("newPassword", {
-                        required: true,
-                        minLength: 8,
+                        required: "Nova senha é obrigatória",
+                        minLength: {
+                           value: 8,
+                           message: "A senha deve ter no mínimo 8 caracteres",
+                        },
+                        pattern: {
+                           value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
+                           message:
+                              "A senha deve conter letras maiúsculas, minúsculas e números",
+                        },
                      })}
                      type='password'
+                     color={errors.newPassword ? "failure" : undefined}
                   />
+                  {errors.newPassword && (
+                     <p className='text-red-600 text-sm mt-1'>
+                        {errors.newPassword.message}
+                     </p>
+                  )}
                </div>
-               <div className='grid mb-4 gap-1'>
-                  <Label htmlFor='confirmPassword'>Confirmar Nova Senha</Label>
+
+               <div className='mb-6'>
+                  <div className='mb-2'>
+                     <Label htmlFor='confirmPassword'>
+                        Confirmar Nova Senha
+                     </Label>
+                  </div>
                   <TextInput
                      id='confirmPassword'
                      {...register("confirmPassword", {
-                        required: true,
-                        minLength: 8,
+                        required: "Confirmação de senha é obrigatória",
+                        validate: (value) =>
+                           value === newPassword || "As senhas não conferem",
                      })}
                      type='password'
+                     color={errors.confirmPassword ? "failure" : undefined}
                   />
+                  {errors.confirmPassword && (
+                     <p className='text-red-600 text-sm mt-1'>
+                        {errors.confirmPassword.message}
+                     </p>
+                  )}
                </div>
-               <div className='flex justify-center'>
-                  <Button type='submit' disabled={isLoading}>
+
+               <div className='flex justify-center gap-3'>
+                  <Button type='submit' disabled={isLoading} color='blue'>
                      {isLoading ? (
-                        <Spinner color='failure' aria-label='Loading spinner' />
+                        <>
+                           <Spinner size='sm' className='mr-2' />
+                           Salvando...
+                        </>
                      ) : (
                         "Salvar"
                      )}

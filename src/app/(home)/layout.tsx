@@ -1,80 +1,87 @@
 "use client";
 
-import { useState } from "react";
-import AppSideBar from "./components/sidebar";
-import { Navbar, NavbarBrand, Button } from "flowbite-react";
-import Providers from "./context/providers";
-import { HiMenuAlt1 } from "react-icons/hi";
-import profilePic from "public/assets/1_1_gt.jpg";
-import { PiSignOut } from "react-icons/pi";
+import { useState, useEffect } from "react";
+import { useRouter, usePathname } from "next/navigation";
 import { deleteCookie } from "cookies-next";
-import { useRouter } from "next/navigation";
 import { useAuth } from "../context/auth";
+import Navbar from "./components/layout/navbar";
+import SidebarWithFooter from "./components/layout/sidebar";
+import PageTransition from "./components/layout/page-transition";
+import Providers from "./context/providers";
 
 interface RootLayoutProps {
    children: React.ReactNode;
 }
 
 export default function RootLayout({ children }: RootLayoutProps) {
-   const [IsCollapsed, setIsCollapsed] = useState(false);
+   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+   const [isMobile, setIsMobile] = useState(false);
    const { user } = useAuth();
    const router = useRouter();
+   const pathname = usePathname();
 
-   function handleClose() {
-      setIsCollapsed(!IsCollapsed);
-   }
+   useEffect(() => {
+      const checkMobile = () => {
+         const mobile = window.innerWidth < 1024;
+         setIsMobile(mobile);
+         if (!mobile) setIsSidebarOpen(true);
+         if (mobile) setIsSidebarOpen(false);
+      };
+
+      checkMobile();
+      window.addEventListener("resize", checkMobile);
+      return () => window.removeEventListener("resize", checkMobile);
+   }, []);
+
+   useEffect(() => {
+      if (isMobile && isSidebarOpen) {
+         document.body.style.overflow = "hidden";
+      } else {
+         document.body.style.overflow = "unset";
+      }
+   }, [isMobile, isSidebarOpen]);
 
    const handleLogout = async () => {
       deleteCookie("token");
       router.refresh();
    };
 
+   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
+
    return (
       <Providers>
-         <Navbar
-            fluid
-            rounded
-            className='fixed top-0 left-0 w-full bg-gradient-to-r from-white to-red-100 shadow-lg z-50'
-         >
-            <div className='flex items-center justify-between w-full'>
-               <div className='flex items-center'>
-                  <HiMenuAlt1
-                     className='size-8 mr-4 cursor-pointer text-red-600'
-                     onClick={handleClose}
-                  />
-                  <NavbarBrand>
-                     <img
-                        src={profilePic.src}
-                        alt='Gordo logo'
-                        className='mr-3 h-8 sm:h-10 shadow-md'
-                     />
-                     <span className='self-center  whitespace-nowrap text-xl font-bold text-gray-800'>
-                        FAT
-                        <span className='text-red-600'>CONTROL</span>
-                     </span>
-                  </NavbarBrand>
-               </div>
-               <div className='inline-flex items-center gap-2 uppercase text-sm'>
-                  <span>{user}</span>
-                  <Button
-                     onClick={handleLogout}
-                     className='uppercase px-2'
-                     color='alternative'
-                  >
-                     <PiSignOut size={18} />
-                  </Button>
-               </div>
-            </div>
-         </Navbar>
+         <div className='h-screen flex flex-col overflow-hidden bg-gray-50'>
+            {/* Navbar inteligente */}
+            <Navbar
+               user={user}
+               onToggleSidebar={toggleSidebar}
+               isSidebarOpen={isSidebarOpen}
+            />
 
-         <div className='flex h-full w-full pt-14'>
-            <div className='fixed lg:relative w-fit h-full z-40'>
-               <AppSideBar
-                  isCollapsed={IsCollapsed}
-                  setIsCollapsed={setIsCollapsed}
+            {/* Container principal - ajusta padding baseado na navbar */}
+            <div className='flex flex-1 pt-16 overflow-hidden'>
+               {/* Backdrop */}
+               {isMobile && isSidebarOpen && (
+                  <div
+                     className='fixed inset-0 bg-black/50 z-40 lg:hidden animate-in fade-in duration-300'
+                     onClick={() => setIsSidebarOpen(false)}
+                     aria-hidden='true'
+                  />
+               )}
+
+               {/* Sidebar */}
+               <SidebarWithFooter
+                  isOpen={isSidebarOpen}
+                  isMobile={isMobile}
+                  onLogout={handleLogout}
+                  onClose={() => setIsSidebarOpen(false)}
                />
+
+               {/* Conteúdo */}
+               <main className="flex-1 overflow-auto p-2">
+                  <PageTransition key={pathname}>{children}</PageTransition>
+               </main>
             </div>
-            <main className='p-2 h-full w-full overflow-auto'>{children}</main>
          </div>
       </Providers>
    );

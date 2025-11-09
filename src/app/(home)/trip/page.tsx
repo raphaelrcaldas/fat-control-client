@@ -9,10 +9,11 @@ import {
    TableRow,
    TableCell,
    TextInput,
-   Select,
    Spinner,
+   Badge,
 } from "flowbite-react";
 import { IoSearchSharp } from "react-icons/io5";
+import { HiUserGroup, HiExclamationCircle } from "react-icons/hi";
 
 import { SearchUser } from "./components/searchUserTrip";
 import { getTrips } from "services/routes/trips";
@@ -25,8 +26,8 @@ export default function TripPage() {
    const [trips, setTrips] = useState([]);
    const [filterTrips, setFilterTrips] = useState([]);
 
-   const [uae, setUae] = useState("11gt");
-   const [active, setActive] = useState(true);
+   const [uae] = useState("11gt");
+   const [active] = useState(true);
 
    const [filterName, setFilterName] = useState("");
    const debouncedFilter = useDebouncedValue(filterName, 300);
@@ -58,7 +59,9 @@ export default function TripPage() {
 
       const filter = trips.filter((trip) => {
          const checkTrig = trip.trig.includes(inputFilter);
-         const checkGuerra = trip.user.nome_guerra.includes(inputFilter);
+         const checkGuerra = trip.user.nome_guerra
+            .toLowerCase()
+            .includes(inputFilter);
 
          return checkTrig || checkGuerra;
       });
@@ -71,87 +74,100 @@ export default function TripPage() {
    }, [uae, active]);
 
    return (
-      <>
-         <div className='flex flex-col h-full gap-3'>
-            <div className='gap-2 hidden'>
-               <Select
-                  onChange={(e) => setUae(e.target.value)}
-                  defaultValue={uae}
-                  disabled
-               >
-                  <option value='11gt'>1°/1° GT</option>
-               </Select>
-               <Select
-                  disabled
-                  className={`font-semibold`}
-                  onChange={(e) => setActive(e.target.value === "true")}
-               >
-                  <option className='font-semibold text-green-600' value='true'>
-                     ATIVO
-                  </option>
-                  <option className='font-semibold text-red-600' value='false'>
-                     INATIVO
-                  </option>
-               </Select>
-            </div>
-
-            <div className='w-full overflow-auto h-full p-2'>
-               <div className='flex flex-col mb-4 bg-white gap-2 p-3 rounded-lg shadow-md'>
-                  <h5 className='font-semibold text-lg'>Tripulantes</h5>
-                  <p className='text-gray-500'>
-                     Gerencie todos os tripulantes existentes ou crie um novo
+      <div className='flex flex-col h-full gap-4 p-2'>
+         {/* Header Section */}
+         <div className='bg-gradient-to-r from-blue-50 to-indigo-50 p-4 py-3 rounded-lg shadow-md border border-blue-200'>
+            <div className='flex items-center gap-3 mb-2'>
+               <HiUserGroup className='size-8 text-blue-600' />
+               <div>
+                  <h1 className='font-bold text-2xl text-gray-800'>
+                     Tripulantes
+                  </h1>
+                  <p className='text-gray-600 text-sm'>
+                     Gerencie todos os tripulantes cadastrados
                   </p>
-                  <div className='flex flex-row justify-between'>
-                     <TextInput
-                        className='w-2/3'
-                        icon={IoSearchSharp}
-                        placeholder='Busque pelo nome de guerra ou trigrama'
-                        value={filterName}
-                        onChange={(e) => setFilterName(e.target.value)}
-                     />
+               </div>
+            </div>
+         </div>
+
+         {/* Filters Section */}
+         <div className='bg-white p-4 rounded-lg shadow-md border border-gray-200'>
+            <div className='flex flex-col sm:flex-row gap-3 items-center justify-between'>
+               <TextInput
+                  className='w-full sm:w-2/3'
+                  icon={IoSearchSharp}
+                  placeholder='Busque pelo nome de guerra ou trigrama'
+                  value={filterName}
+                  onChange={(e) => setFilterName(e.target.value)}
+                  sizing='md'
+               />
+               <div className='flex gap-2 items-center w-full sm:w-auto'>
+                  {!loading && (
+                     <Badge color='info' size='sm' className='px-3 py-1'>
+                        {filterTrips.length}{" "}
+                        {filterTrips.length === 1
+                           ? "tripulante"
+                           : "tripulantes"}
+                     </Badge>
+                  )}
+                  <PermBased resource={"trips"} requiredPerm={"create"}>
                      <SearchUser
                         uae={uae}
                         trips={trips}
                         updateTrips={getListTrips}
                      />
-                  </div>
+                  </PermBased>
                </div>
-               {loading ? (
-                  <div className='flex justify-center items-center h-40'>
-                     <Spinner size='xl' />
-                  </div>
-               ) : (
-                  <Table hoverable>
-                     <TableHead className='text-center'>
-                        <TableRow>
-                           <TableHeadCell className=''>PG</TableHeadCell>
-                           <TableHeadCell className='hidden md:table-cell'>
-                              Especialidade
-                           </TableHeadCell>
-                           <TableHeadCell className='hidden md:table-cell'>
-                              Nome de Guerra
-                           </TableHeadCell>
-                           <TableHeadCell>Trigrama</TableHeadCell>
-                           <TableHeadCell>Função</TableHeadCell>
-                           <TableHeadCell>
-                              <span className='sr-only'>Detalhes</span>
-                           </TableHeadCell>
-                        </TableRow>
-                     </TableHead>
-                     <TableBody>
-                        {filterTrips.map((trip) => (
-                           <TripRow
-                              key={trip.id}
-                              trip={trip}
-                              update={getListTrips}
-                           />
-                        ))}
-                     </TableBody>
-                  </Table>
-               )}
             </div>
          </div>
-      </>
+
+         {/* Table Section */}
+         <div className='overflow-auto bg-gray-50 rounded-lg shadow-md border border-gray-200'>
+            {loading ? (
+               <div className='flex flex-col justify-center items-center gap-3 bg-white rounded-lg m-2 py-12'>
+                  <Spinner color='failure' size='xl' />
+                  <p className='text-gray-500'>Carregando tripulantes...</p>
+               </div>
+            ) : filterTrips.length === 0 ? (
+               <div className='flex flex-col justify-center items-center gap-3 text-gray-400 bg-white rounded-lg m-2 py-12'>
+                  <HiExclamationCircle className='size-16 opacity-30' />
+                  <p className='text-center'>
+                     {debouncedFilter
+                        ? "Nenhum tripulante encontrado com esse filtro"
+                        : "Nenhum tripulante cadastrado"}
+                  </p>
+               </div>
+            ) : (
+               <Table hoverable>
+                  <TableHead className='text-center sticky top-0 bg-gray-100 shadow-sm'>
+                     <TableRow>
+                        <TableHeadCell className=''>PG</TableHeadCell>
+                        <TableHeadCell className='hidden lg:table-cell'>
+                           Especialidade
+                        </TableHeadCell>
+                        <TableHeadCell className='hidden md:table-cell'>
+                           Nome de Guerra
+                        </TableHeadCell>
+                        <TableHeadCell>Trigrama</TableHeadCell>
+                        <TableHeadCell>Funções</TableHeadCell>
+                        <TableHeadCell>
+                           <span className='sr-only'>Ações</span>
+                        </TableHeadCell>
+                     </TableRow>
+                  </TableHead>
+                  <TableBody className='divide-y bg-white'>
+                     {filterTrips.map((trip) => (
+                        <TripRow
+                           key={trip.id}
+                           trip={trip}
+                           update={getListTrips}
+                        />
+                     ))}
+                  </TableBody>
+               </Table>
+            )}
+         </div>
+      </div>
    );
 }
 
@@ -160,25 +176,33 @@ function TripRow({ trip, update }) {
    const tripFuncs = trip.funcs;
 
    return (
-      <TableRow className='uppercase text-center'>
-         <TableCell className='font-medium'>{user.posto.short}</TableCell>
-         <TableCell className='hidden md:table-cell'>{user.esp}</TableCell>
-         <TableCell className='hidden md:table-cell'>
+      <TableRow className='uppercase text-center hover:bg-gray-50 transition-colors'>
+         <TableCell className='font-bold text-gray-700'>
+            {user.posto.short}
+         </TableCell>
+         <TableCell className='hidden lg:table-cell text-gray-600'>
+            {user.esp}
+         </TableCell>
+         <TableCell className='hidden md:table-cell font-medium text-gray-800'>
             {user.nome_guerra}
          </TableCell>
-         <TableCell className='font-semibold'>{trip.trig}</TableCell>
-         <TableCell className=''>
+         <TableCell className='font-bold text-blue-600'>{trip.trig}</TableCell>
+         <TableCell>
             {tripFuncs.length < 1 ? (
-               <span className='text-red-600 text-xs'>Sem Função</span>
+               <div className='flex justify-center'>
+                  <Badge color='failure' size='sm'>
+                     Sem Função Cadastrada
+                  </Badge>
+               </div>
             ) : (
-               <div className='flex flex-col gap-1'>
+               <div className='flex flex-wrap gap-1 justify-center'>
                   {tripFuncs.map((f) => (
                      <FuncTripRow key={f.id} func={f} />
                   ))}
                </div>
             )}
          </TableCell>
-         <TableCell className='justify-items-center'>
+         <TableCell className='text-center'>
             <PermBased resource={"trips"} requiredPerm={"update"}>
                <TripDetail trip={trip} update={update} />
             </PermBased>
@@ -190,27 +214,65 @@ function TripRow({ trip, update }) {
 function FuncTripRow({ func }) {
    const oper = func.oper;
 
+   const getOperColor = () => {
+      switch (oper) {
+         case "al":
+            return "text-emerald-700 bg-emerald-100";
+         case "op":
+         case "po":
+         case "pb":
+            return "text-yellow-700 bg-yellow-100";
+         case "in":
+            return "text-red-700 bg-red-100";
+         default:
+            return "text-gray-700 bg-gray-100";
+      }
+   };
+
+   const getOperLabel = () => {
+      switch (oper) {
+         case "al":
+            return "Aluno";
+         case "op":
+            return "Operacional";
+         case "po":
+            return "Operacional";
+         case "pb":
+            return "Básico";
+         case "in":
+            return "Instrutor";
+         default:
+            return oper;
+      }
+   };
+
+   const getFuncLabel = () => {
+      switch (func.func) {
+         case "pil":
+            return "Piloto";
+         case "mc":
+            return "Mecânico";
+         case "lm":
+            return "LoadMaster";
+         case "tf":
+            return "Comissário";
+         case "os":
+            return "Observador-SAR";
+         case "oe":
+            return "OE-3";
+         default:
+            return func.func;
+      }
+   };
+
    return (
       <div
-         className={clsx("px-2 py-1 font-semibold", {
-            // "bg-blue-100": func.func == "pil",
-            // "bg-yellow-100": func.func == "mc",
-            // "bg-emerald-100": func.func == "lm",
-            // "bg-orange-100": func.func == "os",
-            // "bg-red-200": func.func == "oe",
-            // "bg-gray-200": func.func == "tf",
-         })}
+         className='inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border border-gray-200 bg-white shadow-sm hover:shadow-md transition-shadow'
+         title={`${getFuncLabel()}: ${getOperLabel()}`}
       >
-         {func.func}:{" "}
-         <span
-            className={clsx("", {
-               "text-emerald-600": oper === "al",
-               "text-yellow-400": oper === "op",
-               "text-yellow-500": oper === "po",
-               "text-yellow-600": oper === "pb",
-               "text-red-700": oper === "in",
-            })}
-         >
+         <span className='text-gray-700'>{func.func}</span>
+         <span className='text-gray-400'>•</span>
+         <span className={clsx("px-1.5 py-0.5 rounded", getOperColor())}>
             {oper}
          </span>
       </div>

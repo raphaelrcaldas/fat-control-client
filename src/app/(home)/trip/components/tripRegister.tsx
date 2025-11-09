@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
    Button,
    Label,
@@ -6,10 +6,13 @@ import {
    ModalBody,
    ModalHeader,
    TextInput,
+   Spinner,
 } from "flowbite-react";
 import { useForm } from "react-hook-form";
-import { IoMdAdd } from "react-icons/io";
+import { HiUserAdd } from "react-icons/hi";
 import { addTrip } from "services/routes/trips";
+import { useToast } from "../../../context/toast";
+import { UserPublic } from "services/routes/users";
 
 type TripFormFields = {
    user_id: number;
@@ -18,9 +21,37 @@ type TripFormFields = {
    trig: string;
 };
 
-export function TripRegister({ uae, user, update }) {
-   const [show, setShow] = useState(false);
-   const { register, handleSubmit, reset } = useForm<TripFormFields>({
+type TripRegisterProps = {
+   uae: string;
+   user: UserPublic;
+   update: () => void;
+   show?: boolean;
+   onClose?: () => void;
+};
+
+export function TripRegister({
+   uae,
+   user,
+   update,
+   show: externalShow,
+   onClose: externalOnClose,
+}: TripRegisterProps) {
+   const [internalShow, setInternalShow] = useState(false);
+   const [submitting, setSubmitting] = useState(false);
+   const { push } = useToast();
+
+   const show = externalShow !== undefined ? externalShow : internalShow;
+   const setShow =
+      externalOnClose !== undefined
+         ? (value: boolean) => !value && externalOnClose()
+         : setInternalShow;
+
+   const {
+      register,
+      handleSubmit,
+      reset,
+      formState: { errors },
+   } = useForm<TripFormFields>({
       defaultValues: {
          user_id: user.id,
          active: true,
@@ -29,114 +60,154 @@ export function TripRegister({ uae, user, update }) {
       },
    });
 
+   useEffect(() => {
+      if (show) {
+         reset({
+            user_id: user.id,
+            active: true,
+            uae: uae,
+            trig: "",
+         });
+      }
+   }, [show, user.id, uae, reset]);
+
    function closeModal() {
       reset();
-      setShow(false);
+      if (externalOnClose) {
+         externalOnClose();
+      } else {
+         setInternalShow(false);
+      }
    }
 
-   async function registerTrip(data) {
-      const response = await addTrip(data);
-      const dataRes = await response.json();
+   async function registerTrip(data: TripFormFields) {
+      setSubmitting(true);
 
-      if (response.ok) {
-         update();
-         closeModal();
+      try {
+         const response = await addTrip(data);
+         const dataRes = await response.json();
+
+         if (response.ok) {
+            push({
+               type: "success",
+               message: "Tripulante adicionado com sucesso!",
+            });
+            update();
+            closeModal();
+         } else {
+            push({
+               type: "error",
+               message: dataRes.detail || "Erro ao adicionar tripulante.",
+            });
+         }
+      } catch (error) {
+         push({
+            type: "error",
+            message: "Erro ao adicionar tripulante. Tente novamente.",
+         });
+      } finally {
+         setSubmitting(false);
       }
-
-      alert(dataRes.detail);
    }
 
    return (
       <>
-         <IoMdAdd
-            className='cursor-pointer text-white bg-blue-700 h-6 w-6'
-            onClick={() => setShow(true)}
-         />
+         {externalShow === undefined && (
+            <button
+               className='flex items-center gap-2 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-3 py-2 transition-colors'
+               onClick={() => setInternalShow(true)}
+            >
+               <HiUserAdd className='size-5' />
+               <span>Adicionar</span>
+            </button>
+         )}
 
-         <Modal show={show} size='sm' onClose={closeModal} popup>
-            <ModalHeader>Cadastro Tripulante</ModalHeader>
+         <Modal show={show} size='md' onClose={closeModal}>
+            <ModalHeader>Cadastrar Tripulante</ModalHeader>
             <ModalBody>
-               <form onSubmit={handleSubmit(registerTrip)}>
-                  <div className='m-4 text-base uppercase text-center'>
-                     <div className='font-semibold'>
-                        {`${user.posto.short} ${user.esp} ${user.nome_guerra} - ${user.unidade}`}
+               <form
+                  onSubmit={handleSubmit(registerTrip)}
+                  className='space-y-4'
+               >
+                  <div className='p-4 text-base uppercase text-center bg-blue-50 rounded-lg border border-blue-200'>
+                     <div className='font-semibold text-gray-800'>
+                        {`${user.posto.short} ${user.esp} ${user.nome_guerra}`}
                      </div>
-                     <div className='mt-1'>{user.nome_completo}</div>
-                  </div>
-                  <div className='flex py-2 gap-4 justify-center shadow-md bg-gray-100 rounded-lg'>
-                     <Label className='content-center'>Trigrama</Label>
-                     <TextInput
-                        {...register("trig", {
-                           required: true,
-                           setValueAs: (t) => t.toLowerCase(),
-                        })}
-                        autoComplete='off'
-                        className='w-16'
-                        maxLength={3}
-                        minLength={3}
-                        onKeyDown={(e) => {
-                           if (
-                              !e.key.match(/^[a-zA-Z]$/) &&
-                              e.key !== "Backspace" &&
-                              e.key !== "Delete" &&
-                              e.key !== "Tab"
-                           ) {
-                              e.preventDefault();
-                           }
-                        }}
-                     />
+                     <div className='text-sm text-gray-600 mt-1 normal-case'>
+                        {user.nome_completo}
+                     </div>
+                     <div className='text-sm text-gray-500 mt-1'>
+                        {user.unidade}
+                     </div>
                   </div>
 
-                  {/* <div className="mt-4 p-3 text-center bg-gray-100 rounded-lg shadow-md">
-                        <h3>Adicionar Função</h3>
-                        <div className="flex mt-2 gap-2">
-                            <div className="flex justify-around w-52">
-                                <SelectFuncao callFunc={setFuncao} value={funcao} />
-                                <SelectOper callFunc={setOper} value={oper} />
-                            </div>
+                  <div className='p-4 bg-gray-50 rounded-lg border border-gray-200'>
+                     <div className='flex flex-col gap-2'>
+                        <Label htmlFor='trig' className='text-sm font-semibold'>
+                           Trigrama <span className='text-red-500'>*</span>
+                        </Label>
+                        <TextInput
+                           id='trig'
+                           {...register("trig", {
+                              required: "Trigrama é obrigatório",
+                              setValueAs: (t) => t.toLowerCase(),
+                              minLength: {
+                                 value: 3,
+                                 message: "Trigrama deve ter 3 letras",
+                              },
+                              maxLength: {
+                                 value: 3,
+                                 message: "Trigrama deve ter 3 letras",
+                              },
+                           })}
+                           autoComplete='off'
+                           placeholder='Ex: abc'
+                           maxLength={3}
+                           autoFocus
+                           color={errors.trig ? "failure" : "gray"}
+                           onKeyDown={(e) => {
+                              if (
+                                 !e.key.match(/^[a-zA-Z]$/) &&
+                                 e.key !== "Backspace" &&
+                                 e.key !== "Delete" &&
+                                 e.key !== "Tab" &&
+                                 e.key !== "ArrowLeft" &&
+                                 e.key !== "ArrowRight" &&
+                                 e.key !== "Home" &&
+                                 e.key !== "End"
+                              ) {
+                                 e.preventDefault();
+                              }
+                           }}
+                        />
+                        {errors.trig && (
+                           <p className='text-xs text-gray-500'>
+                              {errors.trig?.message}
+                           </p>
+                        )}
+                     </div>
+                  </div>
 
-                            <div className="grid w-20 content-center justify-center">
-                                <AddBoxSharpIcon
-                                    className="cursor-pointer"
-                                    fontSize="large"
-                                    color="info"
-                                    onClick={addFuncToList}
-                                />
-
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="mt-4 h-56 bg-gray-100 overflow-auto shadow-md">
-                        <Table className="text-center uppercase" hoverable>
-                            <Table.Head className="sticky top-0">
-                                <Table.HeadCell>Função</Table.HeadCell>
-                                <Table.HeadCell>Oper</Table.HeadCell>
-                                <Table.HeadCell>
-                                    <span></span>
-                                </Table.HeadCell>
-                            </Table.Head>
-                            <Table.Body>
-                                {funcoes.map((funcao, index) => (
-                                    <Table.Row key={index}>
-                                        <Table.Cell>{funcao.func}</Table.Cell>
-                                        <Table.Cell>{funcao.oper}</Table.Cell>
-                                        <Table.Cell>
-                                            <ClearSharpIcon
-                                                className="cursor-pointer"
-                                                onClick={() => exFunc(funcao.funcao)}
-                                            />
-                                        </Table.Cell>
-                                    </Table.Row>
-                                ))}
-
-                            </Table.Body>
-                        </Table>
-                    </div> */}
-
-                  <div className='grid mt-9 justify-center'>
-                     <Button color='blue' type='submit'>
-                        Salvar
+                  <div className='flex gap-3 justify-end pt-2'>
+                     <Button
+                        color='gray'
+                        onClick={closeModal}
+                        disabled={submitting}
+                     >
+                        Cancelar
+                     </Button>
+                     <Button color='blue' type='submit' disabled={submitting}>
+                        {submitting ? (
+                           <div className='flex items-center gap-2'>
+                              <Spinner size='sm' />
+                              <span>Salvando...</span>
+                           </div>
+                        ) : (
+                           <div className='flex items-center gap-2'>
+                              <HiUserAdd className='size-5' />
+                              <span>Cadastrar</span>
+                           </div>
+                        )}
                      </Button>
                   </div>
                </form>

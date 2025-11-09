@@ -127,292 +127,314 @@ export function UserRegister({ userId, updateUsers }) {
    }
 
    return (
-      <form onSubmit={handleSubmit(onAddUser)}>
+      <form onSubmit={handleSubmit(onAddUser)} className='h-full flex flex-col'>
          {loadingUser ? (
             <div className='flex justify-center items-center h-40'>
                <Spinner size='xl' />
             </div>
          ) : (
-            <UserFormFields register={register} errors={errors} />
+            <>
+               <div className='flex-1'>
+                  <UserFormFields register={register} errors={errors} />
+               </div>
+               <div className='flex justify-center gap-3 pt-4 mt-4 border-t border-gray-200 sticky bottom-0 bg-white'>
+                  <Button
+                     color='blue'
+                     type='submit'
+                     disabled={!hasChanges || loadingUser}
+                     size='lg'
+                  >
+                     {!userId ? "Adicionar" : "Salvar Alterações"}
+                  </Button>
+               </div>
+            </>
          )}
-         <div className='grid justify-center mt-6'>
-            <Button
-               color='blue'
-               type='submit'
-               disabled={!hasChanges || loadingUser}
-            >
-               Salvar
-            </Button>
-         </div>
       </form>
    );
 }
 
 function UserFormFields({ register, errors }: any) {
    return (
-      <div className='space-y-2 text-center text-base'>
-         <div className='flex gap-2 justify-between'>
-            <div className='w-24'>
-               <Label>P/G</Label>
-               <Select
-                  className={clsx("", {
-                     "focus:ring-red-500 focus:border-red-500": errors.p_g,
-                  })}
-                  defaultValue=''
-                  {...register("p_g")}
-               >
-                  <option value='' disabled></option>
-                  <option value='tb'>TB</option>
-                  <option value='mb'>MB</option>
-                  <option value='br'>BR</option>
-                  <option value='cl'>CL</option>
-                  <option value='tc'>TC</option>
-                  <option value='mj'>MJ</option>
-                  <option value='cp'>CP</option>
-                  <option value='1t'>1T</option>
-                  <option value='2t'>2T</option>
-                  <option value='as'>AS</option>
-                  <option value='so'>SO</option>
-                  <option value='1s'>1S</option>
-                  <option value='2s'>2S</option>
-                  <option value='3s'>3S</option>
-                  <option value='cb'>CB</option>
-                  <option value='s1'>S1</option>
-                  <option value='s2'>S2</option>
-               </Select>
-               {errors.p_g && (
-                  <span className='text-xs text-red-600'>
-                     {errors.p_g.message}
-                  </span>
-               )}
-            </div>
-            <div className='w-32'>
-               <Label>Especialidade</Label>
-               <TextInput
-                  {...register("esp")}
-                  autoComplete='off'
-                  maxLength={6}
-                  onKeyDown={(e) => {
-                     if (
-                        !e.key.match(/^[a-zA-ZÀ-ÿ\s]$/) &&
-                        e.key !== "Backspace" &&
-                        e.key !== "Delete" &&
-                        e.key !== "Tab"
-                     ) {
-                        e.preventDefault();
-                     }
-                  }}
-               />
-            </div>
-            <div className='w-52'>
-               <Label>Nome de Guerra</Label>
-               <TextInput
-                  {...register("nome_guerra")}
-                  autoComplete='off'
-                  onKeyDown={(e) => {
-                     if (
-                        !e.key.match(/^[a-zA-ZÀ-ÿ\s]$/) &&
-                        e.key !== "Backspace" &&
-                        e.key !== "Delete" &&
-                        e.key !== "Tab"
-                     ) {
-                        e.preventDefault();
-                     }
-                  }}
-                  className={clsx({
-                     "focus:ring-red-500 focus:border-red-500":
-                        errors.nome_guerra,
-                  })}
-               />
-               {errors.nome_guerra && (
-                  <span className='text-xs text-red-600'>
-                     {typeof errors.nome_guerra?.message === "string" &&
-                        errors.nome_guerra.message}
-                  </span>
-               )}
-            </div>
-            <div className='flex-1'>
-               <Label>Nome Completo</Label>
-               <TextInput
-                  {...register("nome_completo")}
-                  autoComplete='off'
-                  onKeyDown={(e) => {
-                     if (
-                        !e.key.match(/^[a-zA-ZÀ-ÿ\s]$/) &&
-                        e.key !== "Backspace" &&
-                        e.key !== "Delete" &&
-                        e.key !== "Tab"
-                     ) {
-                        e.preventDefault();
-                     }
-                  }}
-               />
-            </div>
-         </div>
-         <div className='flex gap-2 justify-between'>
-            <div className='w-28'>
-               <Label>Unidade</Label>
-               <Select
-                  defaultValue=''
-                  {...register("unidade")}
-                  className={clsx("", {
-                     "focus:ring-red-500 focus:border-red-500": errors.unidade,
-                  })}
-               >
-                  <option value='' disabled></option>
-                  <option value='11gt'>1º/1º GT</option>
-                  <option value='12gt'>1º/2º GT</option>
-                  <option value='22gt'>2º/2º GT</option>
-                  <option value='eta3'>3º ETA</option>
-                  <option value='bagl'>BAGL</option>
-                  <option value='glog'>GLOG</option>
-                  <option value='gsd_gl'>GSD-GL</option>
-                  <option value='pama_gl'>PAMA-GL</option>
-                  <option value='ctla'>CTLA</option>
-                  <option value='gapgl'>GAP-GL</option>
-               </Select>
-               {errors.unidade && (
-                  <span className='text-xs text-red-600'>
-                     {errors.unidade.message}
-                  </span>
-               )}
-            </div>
-            <div className='w-28'>
-               <Label>SARAM</Label>
-               <TextInput
-                  {...register("saram")}
-                  autoComplete='off'
-                  onKeyDown={(e) => {
-                     if (e.ctrlKey || e.metaKey) {
-                        return;
-                     }
-                     if (
-                        !e.key.match(/[0-9]/) &&
-                        e.key !== "Backspace" &&
-                        e.key !== "Delete" &&
-                        e.key !== "Tab"
-                     ) {
-                        e.preventDefault();
-                     }
-                  }}
-                  className={clsx("", {
-                     "focus:ring-red-500 focus:border-red-500": errors.saram,
-                  })}
-                  maxLength={7}
-                  minLength={7}
-               />
-               {errors.saram && (
-                  <span className='text-xs text-red-600'>
-                     Insira um SARAM válido
-                  </span>
-               )}
-            </div>
-            <div className='w-28'>
-               <Label>ID FAB</Label>
-               <TextInput
-                  {...register("id_fab")}
-                  autoComplete='off'
-                  onKeyDown={(e) => {
-                     if (e.ctrlKey || e.metaKey) {
-                        return;
-                     }
-                     if (
-                        !e.key.match(/[0-9]/) &&
-                        e.key !== "Backspace" &&
-                        e.key !== "Delete" &&
-                        e.key !== "Tab"
-                     ) {
-                        e.preventDefault();
-                     }
-                  }}
-                  minLength={6}
-               />
-            </div>
-            <div className='w-40'>
-               <Label>CPF</Label>
-               <TextInput
-                  {...register("cpf")}
-                  autoComplete='off'
-                  onKeyDown={(e) => {
-                     if (e.ctrlKey || e.metaKey) {
-                        return;
-                     }
-                     if (
-                        !e.key.match(/[0-9]/) &&
-                        e.key !== "Backspace" &&
-                        e.key !== "Delete" &&
-                        e.key !== "Tab"
-                     ) {
-                        e.preventDefault();
-                     }
-                  }}
-                  className={clsx("", {
-                     "focus:ring-red-500 focus:border-red-500": errors.cpf,
-                  })}
-                  minLength={11}
-                  maxLength={11}
-               />
-               {errors.cpf && (
-                  <span className='text-xs text-red-600'>
-                     {errors.cpf.message}
-                  </span>
-               )}
-            </div>
-            <div className='w-40'>
-               <Label>Data de Nascimento</Label>
-               <TextInput
-                  {...register("nasc")}
-                  defaultValue={null}
-                  className='text-sm text-gray-900'
-                  type='date'
-                  autoComplete='off'
-               />
-               {errors.nasc && (
-                  <span className='text-xs text-red-600'>
-                     {errors.nasc.message}
-                  </span>
-               )}
+      <div className='space-y-4'>
+         {/* Seção: Identificação */}
+         <div>
+            <div className='grid grid-cols-12 gap-3'>
+               <div className='col-span-2'>
+                  <Label>P/G</Label>
+                  <Select
+                     className={clsx("", {
+                        "focus:ring-red-500 focus:border-red-500": errors.p_g,
+                     })}
+                     defaultValue=''
+                     {...register("p_g")}
+                  >
+                     <option value='' disabled></option>
+                     <option value='tb'>TB</option>
+                     <option value='mb'>MB</option>
+                     <option value='br'>BR</option>
+                     <option value='cl'>CL</option>
+                     <option value='tc'>TC</option>
+                     <option value='mj'>MJ</option>
+                     <option value='cp'>CP</option>
+                     <option value='1t'>1T</option>
+                     <option value='2t'>2T</option>
+                     <option value='as'>AS</option>
+                     <option value='so'>SO</option>
+                     <option value='1s'>1S</option>
+                     <option value='2s'>2S</option>
+                     <option value='3s'>3S</option>
+                     <option value='cb'>CB</option>
+                     <option value='s1'>S1</option>
+                     <option value='s2'>S2</option>
+                  </Select>
+                  {errors.p_g && (
+                     <span className='text-xs text-red-600'>
+                        {errors.p_g.message}
+                     </span>
+                  )}
+               </div>
+               <div className='col-span-2'>
+                  <Label>Especialidade</Label>
+                  <TextInput
+                     {...register("esp")}
+                     autoComplete='off'
+                     maxLength={6}
+                     onKeyDown={(e) => {
+                        if (
+                           !e.key.match(/^[a-zA-ZÀ-ÿ\s]$/) &&
+                           e.key !== "Backspace" &&
+                           e.key !== "Delete" &&
+                           e.key !== "Tab"
+                        ) {
+                           e.preventDefault();
+                        }
+                     }}
+                  />
+               </div>
+               <div className='col-span-3'>
+                  <Label>Nome de Guerra</Label>
+                  <TextInput
+                     {...register("nome_guerra")}
+                     autoComplete='off'
+                     onKeyDown={(e) => {
+                        if (
+                           !e.key.match(/^[a-zA-ZÀ-ÿ\s]$/) &&
+                           e.key !== "Backspace" &&
+                           e.key !== "Delete" &&
+                           e.key !== "Tab"
+                        ) {
+                           e.preventDefault();
+                        }
+                     }}
+                     className={clsx({
+                        "focus:ring-red-500 focus:border-red-500":
+                           errors.nome_guerra,
+                     })}
+                  />
+                  {errors.nome_guerra && (
+                     <span className='text-xs text-red-600'>
+                        {typeof errors.nome_guerra?.message === "string" &&
+                           errors.nome_guerra.message}
+                     </span>
+                  )}
+               </div>
+               <div className='col-span-5'>
+                  <Label>Nome Completo</Label>
+                  <TextInput
+                     {...register("nome_completo")}
+                     autoComplete='off'
+                     onKeyDown={(e) => {
+                        if (
+                           !e.key.match(/^[a-zA-ZÀ-ÿ\s]$/) &&
+                           e.key !== "Backspace" &&
+                           e.key !== "Delete" &&
+                           e.key !== "Tab"
+                        ) {
+                           e.preventDefault();
+                        }
+                     }}
+                  />
+               </div>
             </div>
          </div>
-         <div className='flex gap-2 justify-between'>
-            <div>
-               <Label>Zimbra</Label>
-               <TextInput
-                  {...register("email_fab")}
-                  type='email'
-                  autoComplete='off'
-                  icon={HiMail}
-               />
+         {/* Seção: Documentação */}
+         <div>
+            <div className='grid grid-cols-12 gap-3'>
+               <div className='col-span-3'>
+                  <Label>Unidade</Label>
+                  <Select
+                     defaultValue=''
+                     {...register("unidade")}
+                     className={clsx("", {
+                        "focus:ring-red-500 focus:border-red-500":
+                           errors.unidade,
+                     })}
+                  >
+                     <option value='' disabled></option>
+                     <option value='11gt'>1º/1º GT</option>
+                     <option value='12gt'>1º/2º GT</option>
+                     <option value='22gt'>2º/2º GT</option>
+                     <option value='eta3'>3º ETA</option>
+                     <option value='bagl'>BAGL</option>
+                     <option value='glog'>GLOG</option>
+                     <option value='gsd_gl'>GSD-GL</option>
+                     <option value='pama_gl'>PAMA-GL</option>
+                     <option value='ctla'>CTLA</option>
+                     <option value='gapgl'>GAP-GL</option>
+                  </Select>
+                  {errors.unidade && (
+                     <span className='text-xs text-red-600'>
+                        {errors.unidade.message}
+                     </span>
+                  )}
+               </div>
+               <div className='col-span-3'>
+                  <Label>SARAM</Label>
+                  <TextInput
+                     {...register("saram")}
+                     autoComplete='off'
+                     onKeyDown={(e) => {
+                        if (e.ctrlKey || e.metaKey) {
+                           return;
+                        }
+                        if (
+                           !e.key.match(/[0-9]/) &&
+                           e.key !== "Backspace" &&
+                           e.key !== "Delete" &&
+                           e.key !== "Tab"
+                        ) {
+                           e.preventDefault();
+                        }
+                     }}
+                     className={clsx("", {
+                        "focus:ring-red-500 focus:border-red-500": errors.saram,
+                     })}
+                     maxLength={7}
+                     minLength={7}
+                  />
+                  {errors.saram && (
+                     <span className='text-xs text-red-600'>
+                        Insira um SARAM válido
+                     </span>
+                  )}
+               </div>
+               <div className='col-span-3'>
+                  <Label>ID FAB</Label>
+                  <TextInput
+                     {...register("id_fab")}
+                     autoComplete='off'
+                     onKeyDown={(e) => {
+                        if (e.ctrlKey || e.metaKey) {
+                           return;
+                        }
+                        if (
+                           !e.key.match(/[0-9]/) &&
+                           e.key !== "Backspace" &&
+                           e.key !== "Delete" &&
+                           e.key !== "Tab"
+                        ) {
+                           e.preventDefault();
+                        }
+                     }}
+                     minLength={6}
+                  />
+               </div>
+               <div className='col-span-3'>
+                  <Label>CPF</Label>
+                  <TextInput
+                     {...register("cpf")}
+                     autoComplete='off'
+                     onKeyDown={(e) => {
+                        if (e.ctrlKey || e.metaKey) {
+                           return;
+                        }
+                        if (
+                           !e.key.match(/[0-9]/) &&
+                           e.key !== "Backspace" &&
+                           e.key !== "Delete" &&
+                           e.key !== "Tab"
+                        ) {
+                           e.preventDefault();
+                        }
+                     }}
+                     className={clsx("", {
+                        "focus:ring-red-500 focus:border-red-500": errors.cpf,
+                     })}
+                     minLength={11}
+                     maxLength={11}
+                  />
+                  {errors.cpf && (
+                     <span className='text-xs text-red-600'>
+                        {errors.cpf.message}
+                     </span>
+                  )}
+               </div>
             </div>
-            <div>
-               <Label>Email particular</Label>
-               <TextInput
-                  {...register("email_pess")}
-                  type='email'
-                  autoComplete='off'
-                  icon={HiMail}
-               />
+         </div>
+
+         {/* Seção: Contato e Datas */}
+         <div>
+            <div className='grid grid-cols-12 gap-3'>
+               <div className='col-span-4'>
+                  <Label>Email Zimbra</Label>
+                  <TextInput
+                     {...register("email_fab")}
+                     type='email'
+                     autoComplete='off'
+                     icon={HiMail}
+                  />
+               </div>
+               <div className='col-span-4'>
+                  <Label>Email Particular</Label>
+                  <TextInput
+                     {...register("email_pess")}
+                     type='email'
+                     autoComplete='off'
+                     icon={HiMail}
+                  />
+               </div>
+               <div className='col-span-4'>
+                  <Label>Data de Nascimento</Label>
+                  <TextInput
+                     {...register("nasc")}
+                     defaultValue={null}
+                     className='text-sm text-gray-900'
+                     type='date'
+                     autoComplete='off'
+                  />
+                  {errors.nasc && (
+                     <span className='text-xs text-red-600'>
+                        {errors.nasc.message}
+                     </span>
+                  )}
+               </div>
             </div>
-            <div className='w-40'>
-               <Label>Última Promoção</Label>
-               <TextInput
-                  {...register("ult_promo")}
-                  defaultValue={null}
-                  className='text-sm text-gray-900'
-                  type='date'
-                  autoComplete='off'
-               />
-            </div>
-            <div className='w-28'>
-               <Label>Ant Relativa</Label>
-               <TextInput
-                  {...register("ant_rel")}
-                  defaultValue={null}
-                  className='text-sm text-gray-900'
-                  type='number'
-                  min={1}
-                  autoComplete='off'
-               />
+         </div>
+
+         {/* Seção: Carreira */}
+         <div>
+            <div className='grid grid-cols-12 gap-3'>
+               <div className='col-span-6'>
+                  <Label>Última Promoção</Label>
+                  <TextInput
+                     {...register("ult_promo")}
+                     defaultValue={null}
+                     className='text-sm text-gray-900'
+                     type='date'
+                     autoComplete='off'
+                  />
+               </div>
+               <div className='col-span-6'>
+                  <Label>Antiguidade Relativa</Label>
+                  <TextInput
+                     {...register("ant_rel")}
+                     defaultValue={null}
+                     className='text-sm text-gray-900'
+                     type='number'
+                     min={1}
+                     autoComplete='off'
+                  />
+               </div>
             </div>
          </div>
       </div>

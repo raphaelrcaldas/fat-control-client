@@ -1,17 +1,17 @@
 "use client";
-import { Select, ToggleSwitch } from "flowbite-react";
 import { useState, useEffect } from "react";
 import { getTripData } from "services/google-sheets/sheets";
 import TripTable from "./components/tripTable";
 import { useSeboContext } from "../context/sebo";
 import { durationToMinutes, sortTripsByDuration } from "./utils";
 import ChartSebo from "./components/chartSebo";
+import FilterPanel from "./components/filterPanel";
 
 function SeboPage() {
    const [dataTrip, setData] = useState([]);
-
    const [arrayFunc, setArrayFunc] = useState([]);
    const [activeRow, setActiveRow] = useState(0);
+   const [isLoading, setIsLoading] = useState(true);
 
    const [opIn, setOpIn] = useState(true);
    const [opOp, setOpOp] = useState(true);
@@ -20,14 +20,19 @@ function SeboPage() {
    const { seboFunc, setSeboFunc } = useSeboContext();
 
    useEffect(() => {
-      getTripData().then((data) => {
-         setData(data);
-      });
+      setIsLoading(true);
+      getTripData()
+         .then((data) => {
+            setData(data);
+         })
+         .finally(() => {
+            setIsLoading(false);
+         });
    }, []);
 
    useEffect(() => {
       let filteredFunc = dataTrip.filter(
-         (trip) => trip.func.toLowerCase() == seboFunc
+         (trip) => trip.func.toLowerCase() === seboFunc
       );
 
       filteredFunc = filteredFunc.filter((trip) => {
@@ -43,70 +48,91 @@ function SeboPage() {
    }, [seboFunc, dataTrip, opIn, opOp, opAl]);
 
    return (
-      <>
-         <div>
-            <div className='flex mt-4'>
-               <Select
-                  value={seboFunc}
-                  onChange={(e) => setSeboFunc(e.target.value)}
-               >
-                  <option value='pil'>Piloto</option>
-                  <option value='mc'>Mecânico</option>
-                  <option value='lm'>LoadMaster</option>
-                  <option value='tf'>Comissário</option>
-                  <option value='os'>Observador SAR</option>
-                  <option value='acm'>OE</option>
-               </Select>
-               <div className='flex flex-row gap-2 justify-between ml-4 items-center'>
-                  <span className='px-2'>
-                     <ToggleSwitch
-                        color='blue'
-                        className='grid'
-                        checked={opIn}
-                        onChange={setOpIn}
-                        label='IN'
-                     />
-                  </span>
-                  <span className='px-2'>
-                     <ToggleSwitch
-                        color='blue'
-                        className='grid'
-                        checked={opOp}
-                        onChange={setOpOp}
-                        label='OP'
-                     />
-                  </span>
-                  <span className='px-2'>
-                     <ToggleSwitch
-                        color='blue'
-                        className='grid'
-                        checked={opAl}
-                        onChange={setOpAl}
-                        label='AL'
-                     />
-                  </span>
-               </div>
-            </div>
-            <div className='flex mt-6 flex-row h-full gap-4 w-full'>
+      <div className='min-h-screen bg-gray-50 p-2'>
+         {/* Header Section */}
+         <div className='mb-3'>
+            <h1 className='text-3xl font-bold text-gray-800 mb-2'>
+               Pau de Sebo
+            </h1>
+            <p className='text-gray-600'>
+               Acompanhe as horas de voo e informações dos tripulantes
+            </p>
+         </div>
+
+         {/* Filter Panel */}
+         <FilterPanel
+            seboFunc={seboFunc}
+            setSeboFunc={setSeboFunc}
+            opIn={opIn}
+            setOpIn={setOpIn}
+            opOp={opOp}
+            setOpOp={setOpOp}
+            opAl={opAl}
+            setOpAl={setOpAl}
+            totalResults={arrayFunc.length}
+            isLoading={isLoading}
+         />
+
+         {/* Content Grid */}
+         <div className='grid grid-cols-1 xl:grid-cols-3 gap-3 mt-3'>
+            {/* Table Section - Takes 2 columns on xl screens */}
+            <div className='xl:col-span-2'>
                <TripTable
                   trips={arrayFunc}
                   activeRow={activeRow}
                   setRow={setActiveRow}
+                  isLoading={isLoading}
                />
-               {arrayFunc.length > 0 && (
-                  <div className='hidden bg-white h-fit rounded-lg shadow-lg lg:inline'>
+            </div>
+
+            {/* Chart Section - Takes 1 column on xl screens */}
+            {!isLoading && arrayFunc.length > 0 && (
+               <div className='xl:col-span-1'>
+                  <div className='bg-white rounded-xl shadow-lg p-4 sticky top-4'>
+                     <h3 className='text-lg font-semibold text-gray-800 mb-4'>
+                        Gráfico de Horas de Voo
+                     </h3>
                      <ChartSebo
                         data={arrayFunc.map((trip) =>
                            durationToMinutes(trip.hAno)
                         )}
                         categories={arrayFunc.map((trip) => trip.trig)}
                         activeRow={activeRow}
+                        trips={arrayFunc}
                      />
                   </div>
-               )}
-            </div>
+               </div>
+            )}
          </div>
-      </>
+
+         {/* Empty State */}
+         {!isLoading && arrayFunc.length === 0 && (
+            <div className='mt-12 text-center'>
+               <div className='inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-200 mb-4'>
+                  <svg
+                     className='w-8 h-8 text-gray-400'
+                     fill='none'
+                     stroke='currentColor'
+                     viewBox='0 0 24 24'
+                  >
+                     <path
+                        strokeLinecap='round'
+                        strokeLinejoin='round'
+                        strokeWidth={2}
+                        d='M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z'
+                     />
+                  </svg>
+               </div>
+               <h3 className='text-lg font-medium text-gray-900 mb-2'>
+                  Nenhum resultado encontrado
+               </h3>
+               <p className='text-gray-600'>
+                  Tente ajustar os filtros ou a busca para encontrar o que
+                  precisa.
+               </p>
+            </div>
+         )}
+      </div>
    );
 }
 
