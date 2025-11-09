@@ -98,7 +98,7 @@ const TripTable = ({ trips, setRow, activeRow, isLoading }) => {
                      <th className='py-3 px-4 cursor-pointer hover:bg-gray-300 transition-colors group'>
                         <div className='flex items-center justify-center gap-1'>
                            <span className='font-semibold text-gray-700'>
-                              TRIGRAMA
+                              TRIG
                            </span>
                         </div>
                      </th>

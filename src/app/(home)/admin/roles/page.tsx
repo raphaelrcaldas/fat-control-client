@@ -171,11 +171,13 @@ export default function RolePage() {
                         Gerencie permissões e perfis de acesso dos usuários
                      </p>
                   </div>
-                  <div className='flex flex-col sm:flex-row gap-3'>
+                  <div className='hidden sm:flex gap-3'>
                      <Badge color='light' size='lg' className='w-fit'>
                         <FaUsers className='mr-2' />
-                        {userRoles.length}{" "}
-                        {userRoles.length === 1 ? "usuário" : "usuários"}
+                        <span>
+                           {userRoles.length}{" "}
+                           {userRoles.length === 1 ? "usuário" : "usuários"}
+                        </span>
                      </Badge>
                      <Badge color='light' size='lg' className='w-fit'>
                         <FaUserShield className='mr-2' />

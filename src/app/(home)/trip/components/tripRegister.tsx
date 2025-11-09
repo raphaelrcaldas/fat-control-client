@@ -41,11 +41,7 @@ export function TripRegister({
    const { push } = useToast();
 
    const show = externalShow !== undefined ? externalShow : internalShow;
-   const setShow =
-      externalOnClose !== undefined
-         ? (value: boolean) => !value && externalOnClose()
-         : setInternalShow;
-
+   
    const {
       register,
       handleSubmit,
@@ -133,10 +129,10 @@ export function TripRegister({
                      <div className='font-semibold text-gray-800'>
                         {`${user.posto.short} ${user.esp} ${user.nome_guerra}`}
                      </div>
-                     <div className='text-sm text-gray-600 mt-1 normal-case'>
+                     <div className='text-sm text-gray-600 mt-1 capitalize'>
                         {user.nome_completo}
                      </div>
-                     <div className='text-sm text-gray-500 mt-1'>
+                     <div className='text-sm text-gray-500 mt-1 font-medium'>
                         {user.unidade}
                      </div>
                   </div>
@@ -188,7 +184,7 @@ export function TripRegister({
                      </div>
                   </div>
 
-                  <div className='flex gap-3 justify-end pt-2'>
+                  <div className='flex gap-3 justify-center pt-2'>
                      <Button
                         color='gray'
                         onClick={closeModal}

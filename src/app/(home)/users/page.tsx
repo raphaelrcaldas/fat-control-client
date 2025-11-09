@@ -191,9 +191,7 @@ function UserRow({ user, update }) {
          <tr className='border-b last:border-b-0 hover:bg-gray-50 transition-colors duration-150'>
             <td className='px-4 py-3 text-gray-400 font-mono'>{user.id}</td>
             <td className='px-4 py-3 uppercase'>{user.posto.short}</td>
-            <td className='px-4 py-3 text-gray-600 uppercase'>
-               {user.esp}
-            </td>
+            <td className='px-4 py-3 text-gray-600 uppercase'>{user.esp}</td>
             <td className='px-4 py-3 font-medium text-gray-900 uppercase'>
                {user.nome_guerra}
             </td>
@@ -234,7 +232,7 @@ function UserCard({ user, update }) {
                <div className='flex items-center gap-2'>
                   <div className='w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center'>
                      <span className='text-blue-600 font-bold text-sm uppercase'>
-                        {user.nome_guerra?.substring(0, 2) || "??"}
+                        {user.p_g}
                      </span>
                   </div>
                   <div>
@@ -255,11 +253,17 @@ function UserCard({ user, update }) {
                </button>
             </div>
 
-            <div className='grid grid-cols-2 gap-2 pt-3 border-t border-gray-100'>
+            <div className='grid grid-cols-3 gap-2 pt-3 border-t border-gray-100'>
                <div>
                   <p className='text-xs text-gray-500 mb-1'>Posto/Graduação</p>
-                  <Badge color='gray' className='uppercase text-xs'>
-                     {user.posto.short}
+                  <Badge color='gray' className='capitalize text-xs'>
+                     {user.posto.long}
+                  </Badge>
+               </div>
+               <div>
+                  <p className='text-xs text-gray-500 mb-1'>Especialidade</p>
+                  <Badge color='gray' className='uppercase text-xs '>
+                     {user.esp}
                   </Badge>
                </div>
                <div>
@@ -267,10 +271,6 @@ function UserCard({ user, update }) {
                   <Badge color='blue' className='uppercase text-xs'>
                      {user.unidade}
                   </Badge>
-               </div>
-               <div className='col-span-2'>
-                  <p className='text-xs text-gray-500 mb-1'>Especialidade</p>
-                  <p className='text-sm text-gray-700 uppercase'>{user.esp}</p>
                </div>
             </div>
          </div>

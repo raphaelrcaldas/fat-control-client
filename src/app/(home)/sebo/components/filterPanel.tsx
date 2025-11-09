@@ -63,7 +63,7 @@ const FilterPanel = ({
 
    return (
       <div className='bg-white rounded-xl shadow-lg p-4 space-y-4'>
-         <div className='flex gap-4'>
+         <div className='grid sm:flex gap-4'>
             <div className=''>
                <label className='block text-sm font-medium text-gray-700 mb-2'>
                   Função

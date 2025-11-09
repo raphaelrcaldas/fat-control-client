@@ -206,7 +206,7 @@ function LogRow({ log }: { log: UserActionLog }) {
 
    return (
       <TableRow className='bg-white hover:bg-gray-50 transition-colors'>
-         <TableCell className='font-mono text-sm whitespace-nowrap'>
+         <TableCell className='font-mono text-sm'>
             {timestamp}
          </TableCell>
          <TableCell>
