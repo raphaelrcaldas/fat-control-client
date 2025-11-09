@@ -16,7 +16,7 @@ export default function CrewRow({ tripQuadRes, update }: CrewRowProps) {
    const [showForm, setShowForm] = useState(false);
 
    return (
-      <div className='flex justify-start items-center gap-1 overflow-visible'>
+      <div className='flex justify-start items-center gap-1 overflow-visible py-1 px-2'>
          <div className='flex-shrink-0 sticky px-1 left-0 z-10 bg-white overflow-visible'>
             <QuadsTrip
                trip={tripQuadRes.trip}

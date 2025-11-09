@@ -73,10 +73,10 @@ function SeboPage() {
             isLoading={isLoading}
          />
 
-         {/* Content Grid */}
-         <div className='grid grid-cols-1 xl:grid-cols-3 gap-3 mt-3'>
-            {/* Table Section - Takes 2 columns on xl screens */}
-            <div className='xl:col-span-2'>
+         {/* Content Flex Layout */}
+         <div className='flex flex-col xl:flex-row gap-3 mt-3'>
+            {/* Table Section - Width auto (only necessary) */}
+            <div className='w-auto'>
                <TripTable
                   trips={arrayFunc}
                   activeRow={activeRow}
@@ -85,9 +85,9 @@ function SeboPage() {
                />
             </div>
 
-            {/* Chart Section - Takes 1 column on xl screens */}
+            {/* Chart Section - Occupies remaining space */}
             {!isLoading && arrayFunc.length > 0 && (
-               <div className='xl:col-span-1'>
+               <div className='flex-1'>
                   <div className='bg-white rounded-xl shadow-lg p-4 sticky top-4'>
                      <h3 className='text-lg font-semibold text-gray-800 mb-4'>
                         Gráfico de Horas de Voo

@@ -160,27 +160,41 @@ export function IndispForm({ open, setOpen, trip, update, indisp }) {
       <>
          <Modal
             show={open}
-            size='md'
+            size='lg'
             onClose={() => {
                clearModal();
                closeModal();
             }}
          >
             <ModalHeader>
-               {indisp ? "Atualizar" : "Adicionar"} Indisponibilidade
+               <span className='font-bold text-lg'>
+                  {indisp ? "Atualizar" : "Adicionar"} Indisponibilidade
+               </span>
             </ModalHeader>
             <ModalBody>
-               <div className='grid gap-4 text-center'>
-                  <div className='grid justify-center'>
-                     <Label htmlFor='mtv'>Motivo</Label>
+               <div className='bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-4 mb-4 border border-blue-200'>
+                  <h3 className='uppercase text-center font-bold text-gray-900 text-lg'>
+                     {trip.user.posto.short} {trip.user.esp} {trip.user.nome_guerra}
+                  </h3>
+                  <h3 className='uppercase text-center text-gray-600 text-sm mt-1'>
+                     {trip.user.nome_completo}
+                  </h3>
+               </div>
+
+               <div className='grid gap-5'>
+                  <div className='grid gap-2'>
+                     <Label htmlFor='mtv' className='font-semibold text-gray-700'>
+                        Motivo <span className='text-red-500'>*</span>
+                     </Label>
                      <Select
                         id='mtv'
-                        className='w-fit'
+                        className='w-full'
                         value={mtv}
                         onChange={(e) => setMtv(e.target.value)}
+                        required
                      >
                         <option value='' disabled>
-                           Selecione
+                           Selecione um motivo
                         </option>
                         {indispsOptions.map((item) => (
                            <option key={item.value} value={item.value}>
@@ -189,57 +203,78 @@ export function IndispForm({ open, setOpen, trip, update, indisp }) {
                         ))}
                      </Select>
                   </div>
-                  <div className='flex gap-4'>
-                     <div className='w-full'>
-                        <Label htmlFor='date_start'>Início</Label>
+
+                  <div className='grid md:grid-cols-2 gap-4'>
+                     <div className='grid gap-2'>
+                        <Label htmlFor='date_start' className='font-semibold text-gray-700'>
+                           Data de Início <span className='text-red-500'>*</span>
+                        </Label>
                         <TextInput
                            id='date_start'
                            type='date'
                            value={dateStart}
                            onChange={(e) => setDateStart(e.target.value)}
+                           required
                         />
                      </div>
-                     <div className='w-full'>
-                        <Label htmlFor='date_end'>Fim</Label>
+                     <div className='grid gap-2'>
+                        <Label htmlFor='date_end' className='font-semibold text-gray-700'>
+                           Data de Fim <span className='text-red-500'>*</span>
+                        </Label>
                         <TextInput
                            id='date_end'
                            type='date'
                            value={dateEnd}
                            min={dateStart}
                            onChange={(e) => setDateEnd(e.target.value)}
+                           required
                         />
                      </div>
                   </div>
-                  <div>
-                     <Label htmlFor='obs'>Observações</Label>
+
+                  <div className='grid gap-2'>
+                     <Label htmlFor='obs' className='font-semibold text-gray-700'>
+                        Observações
+                     </Label>
                      <Textarea
                         id='obs'
-                        placeholder='Detalhes adicionais...'
+                        placeholder='Detalhes adicionais sobre a indisponibilidade...'
                         value={obs}
                         onChange={(e) => setObs(e.target.value)}
+                        rows={4}
                      />
                   </div>
                </div>
             </ModalBody>
-            <ModalFooter>
-               <div className='w-full flex justify-center gap-4'>
+            <ModalFooter className='bg-gray-50 flex justify-center gap-3'>
+               <Button
+                  color='blue'
+                  onClick={handleIndisp}
+                  disabled={indisp ? !isChanged : false}
+                  size='md'
+               >
+                  {indisp ? "Atualizar" : "Adicionar"}
+               </Button>
+               {indisp && (
                   <Button
-                     color='blue'
-                     onClick={handleIndisp}
-                     disabled={indisp ? !isChanged : false}
+                     type='button'
+                     onClick={() => setShowConfirmModal(true)}
+                     color='red'
+                     size='md'
                   >
-                     {indisp ? "Atualizar" : "Adicionar"}
+                     Excluir
                   </Button>
-                  {indisp && (
-                     <Button
-                        type='button'
-                        onClick={() => setShowConfirmModal(true)}
-                        color='red'
-                     >
-                        Excluir
-                     </Button>
-                  )}
-               </div>
+               )}
+               <Button
+                  color='gray'
+                  onClick={() => {
+                     clearModal();
+                     closeModal();
+                  }}
+                  size='md'
+               >
+                  Cancelar
+               </Button>
             </ModalFooter>
          </Modal>
 

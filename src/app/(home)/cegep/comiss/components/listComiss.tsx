@@ -2,18 +2,14 @@
 import { useState } from "react";
 import { Progress, Label, Button } from "flowbite-react";
 import { isoStrToDate } from "utils/dateHandler";
-import { FormComiss } from "./formComiss";
 import {
    MdOutlineAttachMoney,
    MdOutlineCalendarToday,
-   MdOutlineEdit,
-   MdInfoOutline,
+   MdChevronRight,
 } from "react-icons/md";
 import { DetailComiss } from "./detailComiss";
 import clsx from "clsx";
-import { deleteCmto } from "services/routes/cegep/comiss";
 import { ComissWithMiss } from "services/routes/cegep/comiss";
-import { RoleBasedRoute } from "@/app/(home)/hooks/useRoleBased";
 
 export function ListComiss({
    comiss,
@@ -23,7 +19,6 @@ export function ListComiss({
    update: () => void;
 }) {
    const [showDetail, setShowDetail] = useState(false);
-   const [showForm, setShowForm] = useState(false);
    const user = comiss.user;
    const data_abertura = isoStrToDate(comiss.data_ab).toLocaleDateString(
       "pt-br",
@@ -45,82 +40,82 @@ export function ListComiss({
    const ajd_ab = comiss.valor_aj_ab;
    const ajd_fc = comiss.valor_aj_fc;
 
-   async function deleteComiss() {
-      const confirmed = window.confirm("Deseja deletar esse comissionamento?");
-      if (!confirmed) return;
-
-      try {
-         const response = await deleteCmto(comiss.id);
-
-         if (!response.ok) {
-            const errorData = await response.json();
-            alert(
-               `Erro ao deletar: ${errorData.detail || "Erro desconhecido."}`
-            );
-            return;
-         }
-
-         const data = await response.json();
-         alert(data.detail || "Comissionamento deletado com sucesso.");
-         update(); // Só atualiza se deu tudo certo
-      } catch (error) {
-         // Erros de rede ou falhas inesperadas
-         console.error("Erro ao deletar comissionamento:", error);
-         alert("Erro inesperado. Verifique sua conexão ou tente novamente.");
-      }
-   }
    return (
       <>
          <div
-            className={clsx("bg-white uppercase px-2 py-1 rounded-md shadow", {
-               "hover:bg-blue-100": comiss.dias_cumprir,
-               "hover:bg-green-100": !comiss.dias_cumprir,
-            })}
+            onClick={() => setShowDetail(true)}
+            className={clsx(
+               "group bg-white/80 backdrop-blur-sm rounded-xl shadow-sm border border-gray-100 transition-all duration-300 hover:shadow-md hover:border-gray-200 cursor-pointer",
+               {
+                  "hover:bg-blue-50/50": comiss.dias_cumprir,
+                  "hover:bg-green-50/50": !comiss.dias_cumprir,
+               }
+            )}
          >
-            <div className='flex flex-row justify-between items-center'>
-               <div className='font-medium text-center w-72'>
+            <div className='flex flex-row justify-between items-center p-4 gap-4'>
+               {/* Nome do Militar */}
+               <div className='font-semibold text-gray-900 uppercase min-w-[11rem] text-sm'>
                   {user.p_g} {user.nome_guerra}
                </div>
-               <div className='hidden md:grid grid-cols-2'>
-                  <div className='flex flex-row gap-2 w-40 items-center justify-center'>
-                     <span
-                        className={clsx("size-4 bg-green-500 rounded-lg", {
-                           "bg-slate-500": comiss.status == "fechado",
-                        })}
-                     >
-                        {" "}
+
+               {/* Datas de Abertura/Fechamento */}
+               <div className='hidden md:flex gap-6'>
+                  <div className='flex items-center gap-2.5'>
+                     <div
+                        className={clsx(
+                           "w-2 h-2 rounded-full transition-colors duration-300",
+                           {
+                              "bg-emerald-500 shadow-sm shadow-emerald-200":
+                                 comiss.status === "aberto",
+                              "bg-gray-400": comiss.status === "fechado",
+                           }
+                        )}
+                     />
+                     <span className='font-mono text-sm text-gray-700'>
+                        {data_abertura}
                      </span>
-                     <span className='font-mono'>{data_abertura}</span>
                   </div>
-                  <div className='flex flex-row gap-2 w-40 items-center justify-center'>
-                     <span
-                        className={clsx("size-4 bg-red-500 rounded-lg", {
-                           "bg-slate-500": comiss.status == "fechado",
-                        })}
-                     >
-                        {" "}
+                  <div className='flex items-center gap-2.5'>
+                     <div
+                        className={clsx(
+                           "w-2 h-2 rounded-full transition-colors duration-300",
+                           {
+                              "bg-rose-500 shadow-sm shadow-rose-200":
+                                 comiss.status === "aberto",
+                              "bg-gray-400": comiss.status === "fechado",
+                           }
+                        )}
+                     />
+                     <span className='font-mono text-sm text-gray-700'>
+                        {data_fechamento}
                      </span>
-                     <span className='font-mono'>{data_fechamento}</span>
                   </div>
                </div>
+
+               {/* Tipo de Comissionamento */}
                <div
                   className={clsx(
-                     "w-36 hidden lg:grid justify-items-center text-sm font-medium text-blue-800",
+                     "flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors duration-200",
                      {
-                        "text-green-700": !comiss.dias_cumprir,
+                        "bg-blue-100 text-blue-700": comiss.dias_cumprir,
+                        "bg-green-100 text-green-700": !comiss.dias_cumprir,
                      }
                   )}
                >
                   {comiss.dias_cumprir ? (
                      <>
-                        <MdOutlineCalendarToday /> <span>Período</span>
+                        <MdOutlineCalendarToday size={14} />
+                        <span className='hidden md:flex'>Período</span>
                      </>
                   ) : (
                      <>
-                        <MdOutlineAttachMoney /> <span>Comparativo</span>
+                        <MdOutlineAttachMoney size={14} />
+                        <span className='hidden md:flex'>Comparativo</span>
                      </>
                   )}
                </div>
+
+               {/* Progress */}
                <div className='w-40'>
                   <ComissProgress
                      value={comiss.completude}
@@ -129,64 +124,59 @@ export function ListComiss({
                   />
                </div>
 
-               <div className='hidden lg:grid grid-cols-3 w-[24rem] text-base'>
-                  <div className='grid text-center'>
-                     <div>
+               {/* Métricas */}
+               <div className='hidden lg:grid grid-cols-3 gap-6 min-w-[24rem]'>
+                  <div className='text-center'>
+                     <div className='text-base font-semibold text-gray-900'>
                         {comiss.dias_cumprir
                            ? comiss.dias_cumprir
                            : `~ ${((ajd_ab + ajd_fc) / 335).toFixed(0)}`}
-                        <span className='text-sm capitalize'> dias</span>
+                        <span className='text-xs font-normal text-gray-500 ml-1'>
+                           dias
+                        </span>
                      </div>
-                     <div className='text-slate-500'>Previsto</div>
+                     <div className='text-xs text-gray-500 mt-0.5'>
+                        Previsto
+                     </div>
                   </div>
-                  <div className='grid text-center'>
-                     <div>
+                  <div className='text-center'>
+                     <div className='text-base font-semibold text-gray-900'>
                         {comiss.dias_cumprir
                            ? comiss.dias_comp
                            : `~ ${(comiss.vals_comp / 335).toFixed(0)}`}
-                        <span className='text-sm capitalize'> dias</span>
+                        <span className='text-xs font-normal text-gray-500 ml-1'>
+                           dias
+                        </span>
                      </div>
-                     <div className='text-slate-500'>Computado</div>
+                     <div className='text-xs text-gray-500 mt-0.5'>
+                        Computado
+                     </div>
                   </div>
-                  <div className='grid text-center'>
-                     <div className=''>
+                  <div className='text-center'>
+                     <div className='text-base font-semibold text-gray-900'>
                         {comiss.dias_cumprir
                            ? comiss.dias_cumprir - comiss.dias_comp
                            : `~ ${(
                                 (ajd_ab + ajd_fc - comiss.vals_comp) /
                                 335
                              ).toFixed(0)}`}
-                        <span className='text-sm capitalize'> dias</span>
+                        <span className='text-xs font-normal text-gray-500 ml-1'>
+                           dias
+                        </span>
                      </div>
-                     <div className='text-slate-500'>Restante</div>
+                     <div className='text-xs text-gray-500 mt-0.5'>
+                        Restante
+                     </div>
                   </div>
                </div>
 
-               <RoleBasedRoute requiredRoles={["apoio_avancado"]}>
-                  <div className='hidden md:grid grid-cols-2 gap-2 px-2'>
-                     <Button onClick={() => setShowDetail(true)} color='light'>
-                        <MdInfoOutline size={20} />
-                     </Button>
-                     <Button onClick={() => setShowForm(true)} color='light'>
-                        <MdOutlineEdit size={20} />
-                     </Button>
-                  </div>
-               </RoleBasedRoute>
-               {/* <Dropdown color='light' inline dismissOnClick={false}>
-                  <DropdownItem
-                     icon={MdOutlineEdit}
-                     onClick={() => setShowForm(true)}
-                  >
-                     Editar
-                  </DropdownItem>
-                  <DropdownItem
-                     onClick={deleteComiss}
-                     className='text-red-500'
-                     icon={FaRegTrashAlt}
-                  >
-                     Deletar
-                  </DropdownItem>
-               </Dropdown> */}
+               {/* Indicador Clicável */}
+               <div className='hidden sm:flex items-center justify-center w-8 h-8 rounded-full bg-gray-100 group-hover:bg-blue-100 transition-colors duration-200'>
+                  <MdChevronRight
+                     size={20}
+                     className='text-gray-400 group-hover:text-blue-600 group-hover:translate-x-0.5 transition-all duration-200'
+                  />
+               </div>
             </div>
          </div>
 
@@ -194,14 +184,6 @@ export function ListComiss({
             <DetailComiss
                show={showDetail}
                setShow={setShowDetail}
-               comiss={comiss}
-            />
-         )}
-
-         {showForm && (
-            <FormComiss
-               show={showForm}
-               setShow={setShowForm}
                comiss={comiss}
                update={update}
             />
@@ -226,9 +208,18 @@ function ComissProgress({
    const labelText = `${percent.toFixed(1)}%`;
 
    return (
-      <div className='grid'>
-         <Label className='text-center w-full'>{labelText}</Label>
-         <Progress progress={value * 100} color={color} size='lg' />
+      <div className='space-y-2'>
+         <div className='flex items-center justify-between'>
+            <Label className='text-sm font-medium text-gray-600'>
+               {labelText}
+            </Label>
+         </div>
+         <Progress
+            progress={value * 100}
+            color={color}
+            size='md'
+            className='h-3'
+         />
       </div>
    );
 }

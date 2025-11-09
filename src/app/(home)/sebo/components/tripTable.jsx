@@ -33,6 +33,8 @@ const getColorForDate = (dateString) => {
       } else {
          return styles + " bg-green-500";
       }
+   } else {
+      return styles + " bg-slate-500";
    }
 };
 
@@ -65,7 +67,6 @@ const getDsvTooltip = (value) => {
 };
 
 const TripTable = ({ trips, setRow, activeRow, isLoading }) => {
-
    if (isLoading) {
       return <TableLoading />;
    }
@@ -213,7 +214,7 @@ const TripTable = ({ trips, setRow, activeRow, isLoading }) => {
                                     <span
                                        className={getColorForDate(trip.cemal)}
                                     >
-                                       {trip.cemal || "-"}
+                                       {trip.cemal || "NIL"}
                                     </span>
                                  </Tooltip>
                               </td>
@@ -222,7 +223,7 @@ const TripTable = ({ trips, setRow, activeRow, isLoading }) => {
                                     content={getDateTooltip(trip.crm, "CRM")}
                                  >
                                     <span className={getColorForDate(trip.crm)}>
-                                       {trip.crm || "-"}
+                                       {trip.crm || "NIL"}
                                     </span>
                                  </Tooltip>
                               </td>
@@ -238,7 +239,7 @@ const TripTable = ({ trips, setRow, activeRow, isLoading }) => {
                                           trip.val_pass
                                        )}
                                     >
-                                       {trip.val_pass || "-"}
+                                       {trip.val_pass || "NIL"}
                                     </span>
                                  </Tooltip>
                               </td>
@@ -254,7 +255,7 @@ const TripTable = ({ trips, setRow, activeRow, isLoading }) => {
                                           trip.val_visa
                                        )}
                                     >
-                                       {trip.val_visa || "-"}
+                                       {trip.val_visa || "NIL"}
                                     </span>
                                  </Tooltip>
                               </td>

@@ -49,89 +49,101 @@ export default function ComissPage() {
 
    const memoComiss = useMemo(() => {
       return (
-         <div className='flex flex-col gap-1.5'>
+         <>
             {cmtos.map((c) => (
                <ListComiss key={c.id} comiss={c} update={updateCmtos} />
             ))}
-         </div>
+         </>
       );
    }, [cmtos]);
 
    return (
       <>
-         <div className='flex flex-col gap-1'>
-            <section className='flex flex-col overflow-y-auto'>
-               <div className='w-full p-2'>
-                  <div className='relative overflow-hidden bg-white shadow-md sm:rounded-lg'>
-                     <div className='flex-row items-center justify-between p-4 space-y-3 sm:flex sm:space-y-0 sm:space-x-4'>
-                        <div>
-                           <h5 className='mr-3 font-semibold text-lg dark:text-white'>
-                              Comissionamentos
-                           </h5>
-                           <p className='text-gray-500'>
-                              Gerencie todos os comissionamentos existentes ou
-                              crie um novo
-                           </p>
-                        </div>
-                        <RoleBasedRoute requiredRoles={["apoio_avancado"]}>
-                           <button
-                              type='button'
-                              onClick={() => setShowFormComiss(true)}
-                              className='flex items-center justify-center px-4 py-2 text-sm font-medium text-white rounded-lg bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800'
-                           >
-                              Adicionar
-                           </button>
-                        </RoleBasedRoute>
+         <div className='flex flex-col gap-6'>
+            {/* Header Section */}
+            <section className='transition-all duration-300'>
+               <div className='bg-white/80 backdrop-blur-sm shadow-sm hover:shadow-md transition-shadow duration-300 rounded-xl border border-gray-100'>
+                  <div className='flex flex-col sm:flex-row items-start sm:items-center justify-between p-6 gap-4'>
+                     <div className='space-y-1'>
+                        <h1 className='text-2xl font-bold text-gray-900 tracking-tight'>
+                           Comissionamentos
+                        </h1>
+                        <p className='text-sm text-gray-500'>
+                           Gerencie todos os comissionamentos existentes ou crie um novo
+                        </p>
                      </div>
+                     <RoleBasedRoute requiredRoles={["apoio_avancado"]}>
+                        <button
+                           type='button'
+                           onClick={() => setShowFormComiss(true)}
+                           className='flex items-center gap-2 px-5 py-2.5 text-sm font-medium text-white rounded-lg bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:ring-blue-200 transition-all duration-200 hover:shadow-lg hover:scale-[1.02] active:scale-[0.98]'
+                        >
+                           <span className='text-lg'>+</span>
+                           Adicionar
+                        </button>
+                     </RoleBasedRoute>
                   </div>
                </div>
             </section>
 
+            {/* Filters Section */}
             <RoleBasedRoute requiredRoles={["apoio_avancado"]}>
-               <section>
-                  <div className='w-full p-2'>
-                     <div className='relative overflow-hidden bg-white shadow-md sm:rounded-lg flex flex-row justify-between'>
-                        <div className='flex-row items-center justify-evenly p-4 space-y-3 sm:flex sm:space-y-0 sm:space-x-4'>
-                           <div className='w-80'>
-                              <div className='mb-2 text-center'>
-                                 <Label>Militar</Label>
-                              </div>
-                              <TextInput
-                                 type='text'
-                                 value={searchUser}
-                                 onChange={(e) => setSearchUser(e.target.value)}
-                                 placeholder='Nome completo ou de guerra'
-                              />
-                           </div>
-                           <div>
-                              <div className='mb-2 text-center'>
-                                 <Label>Situação</Label>
-                              </div>
-                              <Select
-                                 value={statusComis}
-                                 onChange={(e) =>
-                                    setStatusComis(e.target.value)
-                                 }
-                              >
-                                 <option value='aberto'>Aberto</option>
-                                 <option value='fechado'>Fechado</option>
-                              </Select>
-                           </div>
+               <section className='transition-all duration-300'>
+                  <div className='bg-white/80 backdrop-blur-sm shadow-sm rounded-xl border border-gray-100 p-6'>
+                     <div className='flex flex-col sm:flex-row items-end gap-4'>
+                        <div className='flex-1 w-full sm:max-w-md'>
+                           <Label htmlFor='search-military' className='text-sm font-medium text-gray-700 mb-2 block'>
+                              Militar
+                           </Label>
+                           <TextInput
+                              id='search-military'
+                              type='text'
+                              value={searchUser}
+                              onChange={(e) => setSearchUser(e.target.value)}
+                              placeholder='Nome completo ou de guerra'
+                              className='transition-all duration-200'
+                           />
+                        </div>
+                        <div className='w-full sm:w-48'>
+                           <Label htmlFor='status-filter' className='text-sm font-medium text-gray-700 mb-2 block'>
+                              Situação
+                           </Label>
+                           <Select
+                              id='status-filter'
+                              value={statusComis}
+                              onChange={(e) => setStatusComis(e.target.value)}
+                              className='transition-all duration-200'
+                           >
+                              <option value='aberto'>Aberto</option>
+                              <option value='fechado'>Fechado</option>
+                           </Select>
                         </div>
                      </div>
                   </div>
                </section>
             </RoleBasedRoute>
 
-            <div className='flex-1 p-2'>
+            {/* Content Section */}
+            <div className='flex-1 min-h-[200px]'>
                {loading ? (
-                  <div className='flex-1 flex flex-col font-semibold items-center justify-center gap-2 p-2'>
-                     Carregando <Spinner size='lg' color='failure' />
+                  <div className='flex flex-col items-center justify-center gap-4 py-16'>
+                     <Spinner size='xl' color='info' />
+                     <p className='text-sm font-medium text-gray-600'>Carregando comissionamentos...</p>
                   </div>
                ) : cmtos.length === 0 ? (
-                  <p>Nenhum comissionamento encontrado.</p>
+                  <div className='flex flex-col items-center justify-center py-16 px-4'>
+                     <div className='bg-gray-50 rounded-full p-6 mb-4'>
+                        <svg className='w-16 h-16 text-gray-400' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                           <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={1.5} d='M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z' />
+                        </svg>
+                     </div>
+                     <h3 className='text-lg font-semibold text-gray-900 mb-1'>Nenhum comissionamento encontrado</h3>
+                     <p className='text-sm text-gray-500'>Tente ajustar os filtros ou adicione um novo comissionamento</p>
+                  </div>
                ) : (
-                  memoComiss
+                  <div className='space-y-3'>
+                     {memoComiss}
+                  </div>
                )}
             </div>
          </div>

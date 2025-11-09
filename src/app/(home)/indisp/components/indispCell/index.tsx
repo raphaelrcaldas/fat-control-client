@@ -10,11 +10,13 @@ export default function IndispCell({
    tripData,
    cemal,
    ultVoo,
+   update,
 }: {
    dateRef: Date;
    tripData: CrewIndispList;
    cemal: Date | null;
    ultVoo: Date | null;
+   update: () => void;
 }) {
    const indisps = tripData.indisps;
    const trip = tripData.trip;
@@ -47,7 +49,12 @@ export default function IndispCell({
 
    const btnClass = colorBtn(filterIndisp, isValidCEMAL, isDesadaptado);
    const btn = (
-      <Button className={clsx("size-10", btnClass)}>{""}</Button>
+      <Button
+         className={clsx("size-10 transition-all duration-200 hover:scale-110 hover:shadow-lg", btnClass)}
+         aria-label="Status de disponibilidade"
+      >
+         {""}
+      </Button>
    );
 
    if (filterIndisp.length < 1 && isValidCEMAL && !isDesadaptado) return btn;
@@ -61,6 +68,7 @@ export default function IndispCell({
                dateRef={dateRef}
                isValidCEMAL={isValidCEMAL}
                isDesadaptado={isDesadaptado}
+               update={update}
             />
          }
       >

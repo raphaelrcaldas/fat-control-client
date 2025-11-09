@@ -39,41 +39,49 @@ export const TripIndisp = ({
       <>
          <Button
             color='light'
-            className='uppercase w-[55px] p-0 h-10 text-sm font-medium overflow-visible'
+            className='uppercase w-[55px] p-0 h-10 text-sm font-medium overflow-visible hover:shadow-md transition-shadow'
             onClick={openModal}
+            aria-label={`Ver indisponibilidades de ${trip.trig}`}
          >
             {trip.trig}
             {trip.func.oper == "in" && (
-               <div className='absolute size-4 border-2 bg-red-400 rounded-full -top-1 -end-1'></div>
+               <div
+                  className='absolute size-4 border-2 bg-red-400 rounded-full -top-1 -end-1 animate-pulse'
+                  aria-label="Instrutor"
+               ></div>
             )}
          </Button>
 
          {isOpen && (
-            <Modal show={isOpen} size='2xl' onClose={closeModal}>
-               <ModalHeader>Indisponibilidades</ModalHeader>
+            <Modal show={isOpen} size='3xl' onClose={closeModal}>
+               <ModalHeader>
+                  <span className='text-lg font-bold'>Indisponibilidades</span>
+               </ModalHeader>
                <ModalBody>
-                  <h3 className='uppercase text-center font-semibold'>
-                     {user.posto.mid} {user.esp} {user.nome_guerra}
-                  </h3>
-                  <h3 className='uppercase text-center text-slate-500'>
-                     {user.nome_completo}
-                  </h3>
+                  <div className='bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-4 mb-4 border border-blue-200'>
+                     <h3 className='uppercase text-center font-bold text-gray-900 text-lg'>
+                        {user.posto.short} {user.esp} {user.nome_guerra}
+                     </h3>
+                     <h3 className='uppercase text-center text-gray-600 text-sm mt-1'>
+                        {user.nome_completo}
+                     </h3>
+                  </div>
 
                   {indisps.length > 0 ? (
-                     <div className='mt-6 shadow-md rounded-lg'>
+                     <div className='mt-4 shadow-md rounded-lg overflow-hidden border border-gray-200'>
                         <Table hoverable className='text-center uppercase'>
-                           <TableHead>
+                           <TableHead className='bg-gray-100'>
                               <TableRow>
-                                 <TableHeadCell>MOTIVO</TableHeadCell>
-                                 <TableHeadCell>OBS</TableHeadCell>
-                                 <TableHeadCell>INICIO</TableHeadCell>
-                                 <TableHeadCell>FIM</TableHeadCell>
+                                 <TableHeadCell className='font-bold'>MOTIVO</TableHeadCell>
+                                 <TableHeadCell className='font-bold'>OBS</TableHeadCell>
+                                 <TableHeadCell className='font-bold'>INÍCIO</TableHeadCell>
+                                 <TableHeadCell className='font-bold'>FIM</TableHeadCell>
                                  <TableHeadCell>
-                                    <span className='sr-only'>Edit</span>
+                                    <span className='sr-only'>Ações</span>
                                  </TableHeadCell>
                               </TableRow>
                            </TableHead>
-                           <TableBody>
+                           <TableBody className='divide-y'>
                               {indisps.map((indisp) => (
                                  <TripIndispRow
                                     key={indisp.id}
@@ -86,19 +94,21 @@ export const TripIndisp = ({
                         </Table>
                      </div>
                   ) : (
-                     <p className='mt-2 text-center'>
-                        Não há indisponibilidades
-                     </p>
+                     <div className='mt-6 p-8 text-center bg-gray-50 rounded-lg border border-gray-200'>
+                        <p className='text-gray-500 text-base'>
+                           Nenhuma indisponibilidade registrada
+                        </p>
+                     </div>
                   )}
                </ModalBody>
-               <ModalFooter className='grid justify-items-center'>
+               <ModalFooter className='flex justify-center gap-3 bg-gray-50'>
                   <PermBased requiredPerm={"create"} resource={"indisp_trips"}>
                      <Button
                         color="blue"
                         size='md'
                         onClick={() => setIsOpenNewInd(true)}
                      >
-                        Adicionar
+                        + Adicionar Indisponibilidade
                      </Button>
                      <IndispForm
                         open={isOpenNewInd}
@@ -108,6 +118,13 @@ export const TripIndisp = ({
                         indisp={null}
                      />
                   </PermBased>
+                  <Button
+                     color='gray'
+                     size='md'
+                     onClick={closeModal}
+                  >
+                     Fechar
+                  </Button>
                </ModalFooter>
             </Modal>
          )}
