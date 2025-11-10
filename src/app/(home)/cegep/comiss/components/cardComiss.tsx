@@ -3,7 +3,6 @@ import { useState } from "react";
 import { Card, Dropdown, DropdownItem } from "flowbite-react";
 import { isoStrToDate } from "utils/dateHandler";
 import { CircularProgressbar, buildStyles } from "react-circular-progressbar";
-import { FormComiss } from "./formComiss";
 import {
    MdOutlineAttachMoney,
    MdOutlineCalendarToday,
@@ -25,7 +24,6 @@ export function CardComiss({
    update: () => void;
 }) {
    const [showDetail, setShowDetail] = useState(false);
-   const [showForm, setShowForm] = useState(false);
    const user = comiss.user;
    const data_abertura = isoStrToDate(comiss.data_ab).toLocaleDateString(
       "pt-br",
@@ -84,7 +82,7 @@ export function CardComiss({
                <Dropdown color='light' inline dismissOnClick={false}>
                   <DropdownItem
                      icon={MdOutlineEdit}
-                     onClick={() => setShowForm(true)}
+                     onClick={() => setShowDetail(true)}
                   >
                      Editar
                   </DropdownItem>
@@ -190,14 +188,6 @@ export function CardComiss({
             <DetailComiss
                show={showDetail}
                setShow={setShowDetail}
-               comiss={comiss}
-            />
-         )}
-
-         {showForm && (
-            <FormComiss
-               show={showForm}
-               setShow={setShowForm}
                comiss={comiss}
                update={update}
             />

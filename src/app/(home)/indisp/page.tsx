@@ -104,9 +104,6 @@ export default function IndispPage() {
          setDaysToGenerate(newDays);
       };
 
-      // Aguarda renderização inicial
-      const timeoutId = setTimeout(updateDays, 150);
-
       const handleResize = () => {
          updateDays();
       };
@@ -115,19 +112,45 @@ export default function IndispPage() {
 
       // Observer para detectar mudanças no tamanho do container
       const resizeObserver = new ResizeObserver(() => {
-         updateDays();
+         // Usa requestAnimationFrame para garantir que o layout foi aplicado
+         requestAnimationFrame(() => {
+            updateDays();
+         });
       });
 
       if (tableContainerRef.current) {
          resizeObserver.observe(tableContainerRef.current);
+         // Força atualização inicial após o container estar montado
+         requestAnimationFrame(() => {
+            updateDays();
+         });
       }
 
       return () => {
          window.removeEventListener("resize", handleResize);
          resizeObserver.disconnect();
-         clearTimeout(timeoutId);
       };
-   }, []); // Executa apenas uma vez na montagem e responde a eventos de resize
+   }, []);
+
+   // Recalcula quando os dados forem carregados e o container aparecer no DOM
+   useEffect(() => {
+      if (indisps && dataTrip && tableContainerRef.current) {
+         const calculateDaysToShow = () => {
+            const containerWidth = tableContainerRef.current.offsetWidth;
+            const cellWidth = 40;
+            const firstColumnWidth = 65;
+            const availableWidth = containerWidth - firstColumnWidth - 24;
+            const days = Math.floor(availableWidth / cellWidth);
+            return Math.max(5, Math.min(days, 30));
+         };
+
+         // Usa requestAnimationFrame para garantir que o layout está aplicado
+         requestAnimationFrame(() => {
+            const newDays = calculateDaysToShow();
+            setDaysToGenerate(newDays);
+         });
+      }
+   }, [indisps, dataTrip]);
 
    useEffect(() => {
       setDatesArray(genDates(dateRef, daysToGenerate));

@@ -15,6 +15,8 @@ import { MissionPernoite } from "./pernoite/missionPernoite";
 import { FormPernoite } from "./pernoite/formPernoite";
 import { FormMilitar } from "./militar/formMilitar";
 import { MissionMilitar } from "./militar/missionMilitar";
+import { ErrorModal } from "./errorModal";
+import { DeleteMissionModal } from "./deleteMissionModal";
 import { Missao } from "services/routes/cegep/missoes";
 import { DateTimePicker } from "src/app/(home)/components/dateTimePicker";
 import { useState, useMemo, useEffect } from "react";
@@ -75,6 +77,9 @@ export default function MissionDetail({
    const [checkAfastRegres, setCheckAfastRegres] = useState(false);
 
    const [isLoading, setIsloading] = useState(false);
+   const [showErrorModal, setShowErrorModal] = useState(false);
+   const [errorMessage, setErrorMessage] = useState("");
+   const [showDeleteModal, setShowDeleteModal] = useState(false);
    const { push } = useToast();
 
    const sortedPnts = useMemo(
@@ -191,30 +196,25 @@ export default function MissionDetail({
          update();
       } else {
          const error = await response.json();
-         alert(
-            "Erro ao salvar missão: " + (error.detail || "Erro desconhecido")
-         );
+         setErrorMessage(error.detail || "Erro desconhecido ao salvar missão");
+         setShowErrorModal(true);
       }
       setIsloading(false);
    }
 
    async function onDelete() {
-      if (confirm("Deseja excluir essa missão ?")) {
-         const response = await deleteFragMis(missao.id);
-         if (response.ok) {
-            const data = await response.json();
-            push({ message: data.detail, type: "success" });
-            setShow(false);
-            update();
-         } else {
-            const error = await response.json();
-            push({
-               message:
-                  "Erro ao deletar missão: " +
-                  (error.detail || "Erro desconhecido"),
-               type: "error",
-            });
-         }
+      const response = await deleteFragMis(missao.id);
+      if (response.ok) {
+         const data = await response.json();
+         push({ message: data.detail, type: "success" });
+         setShow(false);
+         update();
+      } else {
+         const error = await response.json();
+         setErrorMessage(
+            error.detail || "Erro desconhecido ao deletar missão"
+         );
+         setShowErrorModal(true);
       }
    }
 
@@ -253,199 +253,301 @@ export default function MissionDetail({
    }, [show, defaultValues, edit]);
 
    return (
-      <Modal size='3xl' show={show} onClose={handleClose}>
-         <ModalHeader>Detalhes de Missão</ModalHeader>
-         <ModalBody>
-            <div className='flex flex-row justify-center items-center gap-4'>
-               <div className='flex flex-col justify-center items-center p-2'>
-                  <Label>Tipo de Ordem</Label>
-                  {editMode ? (
-                     <Select
-                        value={tipoDoc}
-                        onChange={(e) => setTipoDoc(e.target.value)}
-                     >
-                        <option value=''></option>
-                        <option value='om'>Missão</option>
-                        <option value='os'>Serviço</option>
-                     </Select>
-                  ) : (
-                     <h2 className='text-center uppercase text-lg font-semibold'>
-                        {tipoDoc}
-                     </h2>
-                  )}
+      <>
+         <ErrorModal
+            show={showErrorModal}
+            onClose={() => setShowErrorModal(false)}
+            errorMessage={errorMessage}
+            errorTitle="Erro"
+         />
+         <DeleteMissionModal
+            show={showDeleteModal}
+            onClose={() => setShowDeleteModal(false)}
+            onConfirm={onDelete}
+            missionInfo={{
+               tipoDoc: tipoDoc,
+               nDoc: nDoc,
+               desc: desc,
+            }}
+         />
+         <Modal size='4xl' show={show} onClose={handleClose}>
+         <ModalHeader className='border-b border-slate-200 pb-4'>
+            <div className='flex items-center gap-3'>
+               <div className='flex items-center justify-center w-10 h-10 rounded-full bg-blue-100'>
+                  <FaPlaneDeparture className='text-blue-600' />
                </div>
-               <div className='flex flex-col justify-center items-center p-2'>
-                  <Label>Nº Documento</Label>
-                  {editMode ? (
-                     <TextInput
-                        className='w-24'
-                        value={nDoc ?? ""}
-                        onChange={(e) =>
-                           setNDoc(
-                              e.target.value === ""
-                                 ? undefined
-                                 : Number(e.target.value)
-                           )
-                        }
-                        onKeyDown={(e) => {
-                           if (
-                              !(
-                                 (e.key >= "0" && e.key <= "9") ||
-                                 [
-                                    "Backspace",
-                                    "Tab",
-                                    "Delete",
-                                    "ArrowLeft",
-                                    "ArrowRight",
-                                 ].includes(e.key)
-                              )
-                           ) {
-                              e.preventDefault();
-                           }
-                        }}
-                     />
-                  ) : (
-                     <h2 className='text-center uppercase text-lg font-semibold'>
-                        {nDoc}
-                     </h2>
+               <div>
+                  <h2 className='text-xl font-bold text-slate-800'>
+                     {editMode && !missao ? "Nova Missão" : "Detalhes da Missão"}
+                  </h2>
+                  {!editMode && (
+                     <p className='text-sm text-slate-500'>
+                        Visualizando informações da missão
+                     </p>
                   )}
                </div>
             </div>
+         </ModalHeader>
+         <ModalBody className='space-y-6 py-2'>
+            {/* Seção: Informações do Documento */}
+            <div className='bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl p-6 border border-slate-200 shadow-sm'>
+               <h3 className='text-sm font-semibold text-slate-700 uppercase tracking-wide mb-4 flex items-center gap-2'>
+                  <div className='w-1 h-4 bg-blue-500 rounded-full'></div>
+                  Documento de Referência
+               </h3>
+               <div className='grid grid-cols-2 gap-6'>
+                  <div className='space-y-2'>
+                     <Label className='text-sm font-medium text-slate-600'>
+                        Tipo de Ordem
+                     </Label>
+                     {editMode ? (
+                        <Select
+                           value={tipoDoc}
+                           onChange={(e) => setTipoDoc(e.target.value)}
+                           className='w-full'
+                        >
+                           <option value=''></option>
+                           <option value='om'>Missão</option>
+                           <option value='os'>Serviço</option>
+                        </Select>
+                     ) : (
+                        <div className='px-4 py-2 bg-white rounded-lg border border-slate-200'>
+                           <span className='text-base font-semibold text-slate-800 uppercase'>
+                              {tipoDoc}
+                           </span>
+                        </div>
+                     )}
+                  </div>
+                  <div className='space-y-2'>
+                     <Label className='text-sm font-medium text-slate-600'>
+                        Nº do Documento
+                     </Label>
+                     {editMode ? (
+                        <TextInput
+                           className='w-full'
+                           value={nDoc ?? ""}
+                           onChange={(e) =>
+                              setNDoc(
+                                 e.target.value === ""
+                                    ? undefined
+                                    : Number(e.target.value)
+                              )
+                           }
+                           onKeyDown={(e) => {
+                              if (
+                                 !(
+                                    (e.key >= "0" && e.key <= "9") ||
+                                    [
+                                       "Backspace",
+                                       "Tab",
+                                       "Delete",
+                                       "ArrowLeft",
+                                       "ArrowRight",
+                                    ].includes(e.key)
+                                 )
+                              ) {
+                                 e.preventDefault();
+                              }
+                           }}
+                        />
+                     ) : (
+                        <div className='px-4 py-2 bg-white rounded-lg border border-slate-200'>
+                           <span className='text-base font-semibold text-slate-800'>
+                              {nDoc}
+                           </span>
+                        </div>
+                     )}
+                  </div>
+               </div>
+            </div>
 
-            <div className='grid justify-items-center mt-4'>
-               <Label>Descrição</Label>
+            {/* Seção: Descrição */}
+            <div className='bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl p-6 border border-slate-200 shadow-sm'>
+               <h3 className='text-sm font-semibold text-slate-700 uppercase tracking-wide mb-4 flex items-center gap-2'>
+                  <div className='w-1 h-4 bg-blue-500 rounded-full'></div>
+                  Descrição
+               </h3>
                {editMode ? (
                   <TextInput
-                     className='w-2/3'
+                     className='w-full'
                      placeholder='OFRAG XXX - APOIO XXX'
                      value={desc}
                      onChange={(e) => setDesc(e.target.value)}
                   />
                ) : (
-                  <h3 className='text-center uppercase'>{desc}</h3>
+                  <div className='px-4 py-3 bg-white rounded-lg border border-slate-200'>
+                     <p className='text-base font-medium text-slate-800 uppercase'>
+                        {desc}
+                     </p>
+                  </div>
                )}
             </div>
 
-            <div className='mt-4 flex justify-around items-center'>
-               <div className='flex flex-col gap-1'>
-                  <Label className='text-center'>Tipo Missão</Label>
-                  {editMode ? (
-                     <Select
-                        value={tipo}
-                        onChange={(e) => setTipo(e.target.value)}
-                     >
-                        <option value='' disabled></option>
-                        <option value='tal'>TAL</option>
-                        <option value='opr'>OPR</option>
-                        <option value='adm'>ADM</option>
-                     </Select>
-                  ) : (
-                     <span
-                        className={clsx(
-                           "text-center rounded-lg uppercase px-2 py-1 font-semibold text-slate-700",
-                           {
-                              "bg-amber-300": tipo === "opr",
-                              "bg-blue-300": tipo === "adm",
-                              "bg-green-300": tipo === "tal",
-                           }
-                        )}
-                     >
-                        {tipo}
-                     </span>
-                  )}
-               </div>
-               <div className='flex flex-col gap-1'>
-                  <Label className='text-center'>Natureza</Label>
-                  {editMode ? (
-                     <Select
-                        value={ind}
-                        onChange={(e) => setInd(e.target.value)}
-                     >
-                        <option disabled value=''></option>
-                        <option value='n_ind'>NÃO INDENIZÁVEL</option>
-                        <option value='ind'>INDENIZÁVEL</option>
-                     </Select>
-                  ) : (
-                     <span
-                        className={clsx(
-                           "text-center uppercase px-2 py-1 rounded-lg font-semibold text-slate-700",
-                           {
-                              "bg-emerald-300": ind == "ind",
-                              "bg-slate-200": ind == "n_ind",
-                           }
-                        )}
-                     >
-                        {ind == "ind" && "Indenizável"}
-                        {ind == "n_ind" && "Não Indenizável"}
-                     </span>
-                  )}
-               </div>
-            </div>
-
-            <div className='flex flex-row gap-2 justify-center'>
-               <div className=''>
-                  <div className='flex flex-row gap-2 mt-4 justify-center items-center'>
-                     <Label className='text-center w-28'>Afastamento</Label>
+            {/* Seção: Classificação */}
+            <div className='bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl p-6 border border-slate-200 shadow-sm'>
+               <h3 className='text-sm font-semibold text-slate-700 uppercase tracking-wide mb-4 flex items-center gap-2'>
+                  <div className='w-1 h-4 bg-blue-500 rounded-full'></div>
+                  Classificação
+               </h3>
+               <div className='grid grid-cols-2 gap-6'>
+                  <div className='space-y-2'>
+                     <Label className='text-sm font-medium text-slate-600 mr-2'>
+                        Tipo de Missão
+                     </Label>
                      {editMode ? (
-                        <DateTimePicker value={afast} setValue={setAfast} />
+                        <Select
+                           value={tipo}
+                           onChange={(e) => setTipo(e.target.value)}
+                           className='w-full'
+                        >
+                           <option value='' disabled></option>
+                           <option value='tal'>TAL</option>
+                           <option value='opr'>OPR</option>
+                           <option value='adm'>ADM</option>
+                        </Select>
                      ) : (
-                        <div className='flex text-base bg-yellow-200 p-1 rounded-lg justify-around w-48'>
-                           <FaPlaneDeparture className='size-5' />
-                           <span className='text-center font-medium'>
-                              {new Date(afast).toLocaleDateString("pt-BR", {
-                                 year: "numeric",
-                                 month: "numeric",
-                                 day: "numeric",
-                                 hour: "2-digit",
-                                 minute: "2-digit",
-                              })}
+                        <div className='inline-block'>
+                           <span
+                              className={clsx(
+                                 "inline-flex items-center px-4 py-2 rounded-lg font-bold text-sm uppercase tracking-wide shadow-sm transition-all",
+                                 {
+                                    "bg-gradient-to-r from-amber-400 to-amber-500 text-white":
+                                       tipo === "opr",
+                                    "bg-gradient-to-r from-blue-400 to-blue-500 text-white":
+                                       tipo === "adm",
+                                    "bg-gradient-to-r from-green-400 to-green-500 text-white":
+                                       tipo === "tal",
+                                 }
+                              )}
+                           >
+                              {tipo}
                            </span>
                         </div>
                      )}
                   </div>
-
-                  <div className='flex flex-row gap-2 mt-4 justify-center items-center'>
-                     <Label className='text-center w-28'>Regresso</Label>
+                  <div className='space-y-2'>
+                     <Label className='text-sm font-medium text-slate-600 mr-2'>
+                        Natureza
+                     </Label>
                      {editMode ? (
-                        <DateTimePicker value={regres} setValue={setRegres} />
+                        <Select
+                           value={ind}
+                           onChange={(e) => setInd(e.target.value)}
+                           className='w-full'
+                        >
+                           <option disabled value=''></option>
+                           <option value='n_ind'>NÃO INDENIZÁVEL</option>
+                           <option value='ind'>INDENIZÁVEL</option>
+                        </Select>
                      ) : (
-                        <div className='flex text-base bg-yellow-200 p-1 rounded-lg justify-around w-48'>
-                           <FaPlaneArrival className='size-5' />
-                           <span className='text-center font-medium'>
-                              {new Date(regres).toLocaleDateString("pt-BR", {
-                                 year: "numeric",
-                                 month: "numeric",
-                                 day: "numeric",
-                                 hour: "2-digit",
-                                 minute: "2-digit",
-                              })}
+                        <div className='inline-block'>
+                           <span
+                              className={clsx(
+                                 "inline-flex items-center px-4 py-2 rounded-lg font-bold text-sm uppercase tracking-wide shadow-sm transition-all",
+                                 {
+                                    "bg-gradient-to-r from-emerald-400 to-emerald-500 text-white":
+                                       ind == "ind",
+                                    "bg-slate-200 text-slate-700": ind == "n_ind",
+                                 }
+                              )}
+                           >
+                              {ind == "ind" && "Indenizável"}
+                              {ind == "n_ind" && "Não Indenizável"}
                            </span>
                         </div>
                      )}
                   </div>
                </div>
-               <div className='p-2 flex flex-col gap-2 justify-center items-center'>
-                  <Label className='w-36 text-center' htmlFor='ac_desloc'>
-                     Acréscimo Deslocamento
-                  </Label>
-                  {editMode ? (
-                     <Checkbox
-                        id='ac_desloc'
-                        color='blue'
-                        onChange={(e) => setAcrecDesloc(e.target.checked)}
-                        className='size-6'
-                        checked={acrecDesloc}
-                     />
-                  ) : (
-                     <span className='font-semibold'>
-                        {acrecDesloc ? "SIM" : "NÃO"}
-                     </span>
-                  )}
+            </div>
+
+            {/* Seção: Datas e Deslocamento */}
+            <div className='bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl p-6 border border-slate-200 shadow-sm'>
+               <h3 className='text-sm font-semibold text-slate-700 uppercase tracking-wide mb-4 flex items-center gap-2'>
+                  <div className='w-1 h-4 bg-blue-500 rounded-full'></div>
+                  Período e Deslocamento
+               </h3>
+               <div className='space-y-4'>
+                  <div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
+                     <div className='space-y-2'>
+                        <Label className='text-sm font-medium text-slate-600 flex items-center gap-2'>
+                           <FaPlaneDeparture className='text-slate-500' />
+                           Afastamento
+                        </Label>
+                        {editMode ? (
+                           <DateTimePicker value={afast} setValue={setAfast} />
+                        ) : (
+                           <div className='flex items-center gap-3 px-4 py-3 bg-gradient-to-r from-yellow-100 to-yellow-200 rounded-lg border border-yellow-300 shadow-sm'>
+                              <FaPlaneDeparture className='text-yellow-700 text-lg' />
+                              <span className='font-semibold text-slate-800'>
+                                 {new Date(afast).toLocaleDateString("pt-BR", {
+                                    year: "numeric",
+                                    month: "numeric",
+                                    day: "numeric",
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                 })}
+                              </span>
+                           </div>
+                        )}
+                     </div>
+
+                     <div className='space-y-2'>
+                        <Label className='text-sm font-medium text-slate-600 flex items-center gap-2'>
+                           <FaPlaneArrival className='text-slate-500' />
+                           Regresso
+                        </Label>
+                        {editMode ? (
+                           <DateTimePicker value={regres} setValue={setRegres} />
+                        ) : (
+                           <div className='flex items-center gap-3 px-4 py-3 bg-gradient-to-r from-yellow-100 to-yellow-200 rounded-lg border border-yellow-300 shadow-sm'>
+                              <FaPlaneArrival className='text-yellow-700 text-lg' />
+                              <span className='font-semibold text-slate-800'>
+                                 {new Date(regres).toLocaleDateString("pt-BR", {
+                                    year: "numeric",
+                                    month: "numeric",
+                                    day: "numeric",
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                 })}
+                              </span>
+                           </div>
+                        )}
+                     </div>
+                  </div>
+
+                  <div className='flex items-center gap-3 pt-2 border-t border-slate-200'>
+                     <Label className='font-medium text-slate-500' htmlFor='ac_desloc'>
+                        Acréscimo de Deslocamento:
+                     </Label>
+                     {editMode ? (
+                        <Checkbox
+                           id='ac_desloc'
+                           color='blue'
+                           onChange={(e) => setAcrecDesloc(e.target.checked)}
+                           className='size-5'
+                           checked={acrecDesloc}
+                        />
+                     ) : (
+                        <span
+                           className={clsx(
+                              "px-3 py-1 rounded-md font-semibold uppercase",
+                              {
+                                 "bg-green-100 text-green-700": acrecDesloc,
+                                 "bg-slate-200 text-slate-600": !acrecDesloc,
+                              }
+                           )}
+                        >
+                           {acrecDesloc ? "Sim" : "Não"}
+                        </span>
+                     )}
+                  </div>
                </div>
             </div>
 
-            <div className='p-4 bg-slate-50 rounded-lg shadow-md my-4'>
-               <h3 className='text-center text-sm font-medium text-slate-600'>
+            {/* Seção: Observações */}
+            <div className='bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl p-6 border border-slate-200 shadow-sm'>
+               <h3 className='text-sm font-semibold text-slate-700 uppercase tracking-wide mb-4 flex items-center gap-2'>
+                  <div className='w-1 h-4 bg-blue-500 rounded-full'></div>
                   Observações
                </h3>
                {editMode ? (
@@ -453,43 +555,52 @@ export default function MissionDetail({
                      value={obs}
                      onChange={(e) => setObs(e.target.value)}
                      placeholder='RETORNO OM XXX'
+                     rows={4}
+                     className='w-full'
                   />
                ) : (
-                  <span>
+                  <div className='px-4 py-3 bg-white rounded-lg border border-slate-200 min-h-[100px]'>
                      {obs ? (
-                        obs
+                        <p className='text-slate-700 whitespace-pre-wrap'>{obs}</p>
                      ) : (
-                        <div className='w-full text-center mt-2 text-sm uppercase text-red-500'>
-                           Nenhuma Observação adicionada
+                        <div className='flex items-center justify-center h-full text-sm text-slate-400 italic'>
+                           Nenhuma observação adicionada
                         </div>
                      )}
-                  </span>
+                  </div>
                )}
             </div>
 
-            <div className='bg-slate-50 flex flex-col gap-2 rounded-lg shadow-md px-1 py-4 my-2'>
-               <h3 className='text-center text-sm font-medium text-slate-600'>
+            {/* Seção: Pernoites */}
+            <div className='bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl p-6 border border-slate-200 shadow-sm'>
+               <h3 className='text-sm font-semibold text-slate-700 uppercase tracking-wide mb-4 flex items-center gap-2'>
+                  <div className='w-1 h-4 bg-blue-500 rounded-full'></div>
                   Pernoites
                </h3>
+
                {pnts.length == 0 && (
-                  <div className='w-full text-center uppercase text-red-500'>
-                     Nenhum Pernoite Adicionado
+                  <div className='flex items-center justify-center py-8 px-4 bg-white rounded-lg border border-slate-200'>
+                     <p className='text-sm text-slate-400 italic'>
+                        Nenhum pernoite adicionado
+                     </p>
                   </div>
                )}
 
-               {sortedPnts.map((pnt, index: number) => {
-                  return (
-                     <MissionPernoite
-                        key={index}
-                        pnt={pnt}
-                        edit={editMode}
-                        afast={afast}
-                        regres={regres}
-                        pnts={pnts}
-                        setPnts={setPnts}
-                     />
-                  );
-               })}
+               <div className='space-y-2'>
+                  {sortedPnts.map((pnt, index: number) => {
+                     return (
+                        <MissionPernoite
+                           key={index}
+                           pnt={pnt}
+                           edit={editMode}
+                           afast={afast}
+                           regres={regres}
+                           pnts={pnts}
+                           setPnts={setPnts}
+                        />
+                     );
+                  })}
+               </div>
 
                <FormPernoite
                   afast={afast}
@@ -502,28 +613,33 @@ export default function MissionDetail({
 
                {editMode && (
                   <Button
-                     color='alternative'
+                     color='blue'
                      size='sm'
                      onClick={() => setFormPnt(true)}
                      disabled={!checkAfastRegres}
-                     pill
-                     className='w-full'
+                     className='w-full mt-4 font-semibold'
                   >
-                     + Pernoite
+                     + Adicionar Pernoite
                   </Button>
                )}
             </div>
 
-            <div className='bg-slate-50 shadow-md p-4 flex flex-col gap-3 rounded-lg'>
-               <h3 className='text-center text-sm font-medium text-slate-600'>
+            {/* Seção: Militares */}
+            <div className='bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl p-6 border border-slate-200 shadow-sm'>
+               <h3 className='text-sm font-semibold text-slate-700 uppercase tracking-wide mb-4 flex items-center gap-2'>
+                  <div className='w-1 h-4 bg-blue-500 rounded-full'></div>
                   Militares
                </h3>
-               <div className='flex flex-wrap gap-1 uppercase font-medium'>
-                  {mils.length == 0 && (
-                     <div className='w-full text-center text-red-500'>
-                        Nenhum Militar Adicionado
-                     </div>
-                  )}
+
+               {mils.length == 0 && (
+                  <div className='flex items-center justify-center py-8 px-4 bg-white rounded-lg border border-slate-200'>
+                     <p className='text-sm text-slate-400 italic'>
+                        Nenhum militar adicionado
+                     </p>
+                  </div>
+               )}
+
+               <div className='grid gap-2 uppercase font-medium' style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))' }}>
                   {mils.map((userMis) => {
                      return (
                         <MissionMilitar
@@ -548,43 +664,37 @@ export default function MissionDetail({
 
                {editMode && (
                   <Button
-                     color='alternative'
+                     color='blue'
                      size='sm'
                      onClick={() => setFormMil(true)}
-                     pill
-                     className='w-full'
+                     className='w-full mt-4 font-semibold'
                   >
-                     + Militar
+                     + Adicionar Militar
                   </Button>
                )}
             </div>
          </ModalBody>
-         <ModalFooter>
-            <div className='flex gap-2 w-full justify-center'>
+         <ModalFooter className='border-t border-slate-200 bg-slate-50'>
+            <div className='flex gap-3 w-full justify-center'>
                {!editMode ? (
                   <>
-                     <Button color='blue' onClick={() => setEditMode(true)}>
+                     <Button
+                        color='blue'
+                        onClick={() => setEditMode(true)}
+                        className='px-6 py-2.5 font-semibold shadow-md hover:shadow-lg transition-all'
+                     >
                         Editar
                      </Button>
-                     <Button color='red' onClick={onDelete}>
+                     <Button
+                        color='red'
+                        onClick={() => setShowDeleteModal(true)}
+                        className='px-6 py-2.5 font-semibold shadow-md hover:shadow-lg transition-all'
+                     >
                         Deletar
                      </Button>
                   </>
                ) : (
                   <>
-                     <Button
-                        onClick={handleFragMis}
-                        color='blue'
-                        disabled={!isChanged || isLoading}
-                     >
-                        {isLoading ? (
-                           <Spinner />
-                        ) : missao ? (
-                           "Salvar"
-                        ) : (
-                           "Adicionar"
-                        )}
-                     </Button>
                      {missao && (
                         <Button
                            onClick={() => {
@@ -592,14 +702,33 @@ export default function MissionDetail({
                               setDefaultValues();
                            }}
                            color='alternative'
+                           className='px-6 py-2.5 font-semibold'
                         >
                            Cancelar
                         </Button>
                      )}
+                     <Button
+                        onClick={handleFragMis}
+                        color='blue'
+                        disabled={!isChanged || isLoading}
+                        className='px-8 py-2.5 font-semibold shadow-md hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed'
+                     >
+                        {isLoading ? (
+                           <div className='flex items-center gap-2'>
+                              <Spinner size='sm' />
+                              <span>Salvando...</span>
+                           </div>
+                        ) : missao ? (
+                           "Salvar Alterações"
+                        ) : (
+                           "Criar Missão"
+                        )}
+                     </Button>
                   </>
                )}
             </div>
          </ModalFooter>
-      </Modal>
+         </Modal>
+      </>
    );
 }

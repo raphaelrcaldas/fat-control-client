@@ -3,7 +3,7 @@
 import { useEffect, useState, useMemo, useCallback } from "react";
 import { Label, Select, Spinner, TextInput } from "flowbite-react";
 import { ListComiss } from "./components/listComiss";
-import { FormComiss } from "./components/formComiss";
+import { DetailComiss } from "./components/detailComiss";
 import { getCmtos, ComissWithMiss } from "services/routes/cegep/comiss";
 import { RoleBasedRoute } from "../../hooks/useRoleBased";
 
@@ -141,7 +141,7 @@ export default function ComissPage() {
                      <p className='text-sm text-gray-500'>Tente ajustar os filtros ou adicione um novo comissionamento</p>
                   </div>
                ) : (
-                  <div className='space-y-3'>
+                  <div className='space-y-1'>
                      {memoComiss}
                   </div>
                )}
@@ -149,7 +149,7 @@ export default function ComissPage() {
          </div>
 
          {showFormComiss && (
-            <FormComiss
+            <DetailComiss
                show={showFormComiss}
                setShow={setShowFormComiss}
                update={updateCmtos}

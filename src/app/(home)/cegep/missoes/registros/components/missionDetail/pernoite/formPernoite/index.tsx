@@ -10,6 +10,7 @@ import { useState, useMemo } from "react";
 import { Cidade } from "services/routes/cities";
 import { Pernoite } from "services/routes/cegep/missoes";
 import { SearchLocal } from "../searchLocal";
+import { DeletePernoiteModal } from "../deletePernoiteModal";
 
 export function FormPernoite({
    showFormPnt,
@@ -29,6 +30,8 @@ export function FormPernoite({
    setPnts?: React.Dispatch<React.SetStateAction<any>>;
 }) {
    const [showSearchLocal, setShowSearchLocal] = useState(false);
+   const [showDeleteModal, setShowDeleteModal] = useState(false);
+
    // Valores padrões do pernoite
    const defaultValues = useMemo(
       () => ({
@@ -134,76 +137,166 @@ export function FormPernoite({
    }
 
    function onDelete() {
-      if (confirm("Confirma Exclusão do Pernoite ?")) {
-         setPnts(
-            pnts.filter((p) => {
-               const checkIni = p.data_ini !== dataIni;
-               const checkFim = p.data_fim !== dataFim;
-               const checkLocal = p.cidade.codigo !== local.codigo;
-               // Mantém apenas os que NÃO são iguais ao alvo
-               return checkIni || checkFim || checkLocal;
-            })
-         );
-         onClose();
-      }
+      setShowDeleteModal(true);
+   }
+
+   function confirmDelete() {
+      setPnts(
+         pnts.filter((p) => {
+            const checkIni = p.data_ini !== dataIni;
+            const checkFim = p.data_fim !== dataFim;
+            const checkLocal = p.cidade.codigo !== local.codigo;
+            // Mantém apenas os que NÃO são iguais ao alvo
+            return checkIni || checkFim || checkLocal;
+         })
+      );
+      onClose();
    }
 
    return (
-      <Modal size='md' show={showFormPnt} onClose={onClose}>
-         <ModalHeader>Pernoite</ModalHeader>
-         <ModalBody>
-            <form onSubmit={handleSubmit} className='flex flex-col gap-4'>
-               <div className='flex flex-col gap-4 justify-center'>
-                  <div className='flex flex-row gap-2 justify-center items-center'>
-                     <span className='font-medium text-base text-center w-12'>
-                        Início
+      <Modal size='xl' show={showFormPnt} onClose={onClose}>
+         <ModalHeader className='border-b-2 border-gray-100'>
+            <div className='flex items-center gap-2'>
+               <span className='text-xl font-bold text-gray-800'>
+                  {pnt ? "Editar Pernoite" : "Novo Pernoite"}
+               </span>
+            </div>
+         </ModalHeader>
+         <ModalBody className='p-6'>
+            {/* Informação das datas da missão */}
+            <div className='mb-4 bg-gradient-to-r from-amber-50 to-orange-50 p-4 rounded-lg border-2 border-amber-200'>
+               <h4 className='text-xs font-semibold text-amber-800 mb-2 uppercase tracking-wide'>
+                  Período da Missão
+               </h4>
+               <div className='flex items-center justify-center gap-6'>
+                  <div className='flex flex-col items-center'>
+                     <span className='text-xs text-gray-600 font-medium mb-1'>
+                        Afastamento
                      </span>
-                     <input
-                        className='bg-gray-50 border text-center border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-40 p-2.5'
-                        type='date'
-                        value={dataIni}
-                        min={afast ? afast.split("T")[0] : ""}
-                        max={regres ? regres.split("T")[0] : ""}
-                        onChange={(e) => {
-                           setDataIni(e.target.value);
-                        }}
-                     />
+                     <span className='text-base font-bold text-gray-800 bg-white px-4 py-2 rounded-md shadow-sm'>
+                        {afast
+                           ? new Date(afast).toLocaleDateString("pt-BR", {
+                                day: "2-digit",
+                                month: "short",
+                                year: "numeric",
+                             })
+                           : "Não informado"}
+                     </span>
                   </div>
-                  <div className='flex flex-row gap-2 justify-center items-center'>
-                     <span className='font-medium text-base text-center w-12'>
-                        Fim
+                  <div className='flex items-center'>
+                     <svg
+                        className='w-6 h-6 text-amber-600'
+                        fill='none'
+                        stroke='currentColor'
+                        viewBox='0 0 24 24'
+                     >
+                        <path
+                           strokeLinecap='round'
+                           strokeLinejoin='round'
+                           strokeWidth={2}
+                           d='M17 8l4 4m0 0l-4 4m4-4H3'
+                        />
+                     </svg>
+                  </div>
+                  <div className='flex flex-col items-center'>
+                     <span className='text-xs text-gray-600 font-medium mb-1'>
+                        Regresso
                      </span>
-                     <input
-                        className='bg-gray-50 border text-center border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-40 p-2.5'
-                        type='date'
-                        value={dataFim}
-                        min={afast ? afast.split("T")[0] : ""}
-                        max={regres ? regres.split("T")[0] : ""}
-                        onChange={(e) => {
-                           setDataFim(e.target.value);
-                        }}
-                     />
+                     <span className='text-base font-bold text-gray-800 bg-white px-4 py-2 rounded-md shadow-sm'>
+                        {regres
+                           ? new Date(regres).toLocaleDateString("pt-BR", {
+                                day: "2-digit",
+                                month: "short",
+                                year: "numeric",
+                             })
+                           : "Não informado"}
+                     </span>
+                  </div>
+               </div>
+               <p className='text-xs text-center text-amber-700 mt-3 font-medium'>
+                  O pernoite deve estar dentro deste período
+               </p>
+            </div>
+
+            <form onSubmit={handleSubmit} className='flex flex-col gap-6'>
+               {/* Seção de Datas */}
+               <div className='bg-gradient-to-r from-blue-50 to-indigo-50 p-5 rounded-xl border border-blue-100'>
+                  <h3 className='text-sm font-semibold text-gray-700 mb-4 flex items-center gap-2'>
+                     <span className='w-6 h-6 bg-blue-500 text-white rounded-full flex items-center justify-center text-xs'>
+                        1
+                     </span>
+                     Período do Pernoite
+                  </h3>
+                  <div className='grid grid-cols-2 gap-4'>
+                     <div className='flex flex-col gap-2'>
+                        <label className='text-sm font-medium text-gray-700'>
+                           Data de Início
+                        </label>
+                        <input
+                           className='bg-white border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 block w-full p-3 transition-all'
+                           type='date'
+                           value={dataIni}
+                           min={afast ? afast.split("T")[0] : ""}
+                           max={regres ? regres.split("T")[0] : ""}
+                           onChange={(e) => {
+                              setDataIni(e.target.value);
+                           }}
+                           required
+                        />
+                     </div>
+                     <div className='flex flex-col gap-2'>
+                        <label className='text-sm font-medium text-gray-700'>
+                           Data de Fim
+                        </label>
+                        <input
+                           className='bg-white border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 block w-full p-3 transition-all'
+                           type='date'
+                           value={dataFim}
+                           min={afast ? afast.split("T")[0] : ""}
+                           max={regres ? regres.split("T")[0] : ""}
+                           onChange={(e) => {
+                              setDataFim(e.target.value);
+                           }}
+                           required
+                        />
+                     </div>
                   </div>
                </div>
 
-               <div className='bg-slate-100 p-2 rounded-lg shadow-md flex flex-col justify-center items-center'>
-                  <h3 className='text-center font-medium'>Localidade</h3>
-                  <div className='flex flex-row gap-2 p-2 justify-center items-center text-base'>
+               {/* Seção de Localidade */}
+               <div className='bg-gradient-to-r from-purple-50 to-pink-50 p-5 rounded-xl border border-purple-100'>
+                  <h3 className='text-sm font-semibold text-gray-700 mb-4 flex items-center gap-2'>
+                     <span className='w-6 h-6 bg-purple-500 text-white rounded-full flex items-center justify-center text-xs'>
+                        2
+                     </span>
+                     Localidade
+                  </h3>
+                  <div className='flex flex-row gap-3 justify-between items-center'>
                      {local.nome ? (
-                        <span className='uppercase font-medium bg-white shadow-md px-4 py-1 rounded-lg'>
-                           {local.nome}-{local.uf}
-                        </span>
+                        <div className='flex-1 bg-white border-2 border-green-300 rounded-lg px-4 py-3 shadow-sm'>
+                           <div className='flex items-center gap-2'>
+                              <span className='w-2 h-2 bg-green-500 rounded-full'></span>
+                              <span className='font-semibold text-gray-800 text-base'>
+                                 {local.nome}, {local.uf}
+                              </span>
+                           </div>
+                        </div>
                      ) : (
-                        <>
-                           <span className='text-red-600 text-sm'>
-                              Insira uma localidade
-                           </span>
-                        </>
+                        <div className='flex-1 bg-white border-2 border-red-300 rounded-lg px-4 py-3 shadow-sm'>
+                           <div className='flex items-center gap-2'>
+                              <span className='w-2 h-2 bg-red-500 rounded-full'></span>
+                              <span className='text-red-600 text-sm font-medium'>
+                                 Nenhuma localidade selecionada
+                              </span>
+                           </div>
+                        </div>
                      )}
                      <Button
+                        size='lg'
                         pill
                         onClick={() => setShowSearchLocal(true)}
-                        color='light'
+                        color='purple'
+                        className='shadow-md hover:shadow-lg transition-shadow'
                      >
                         <IoMdSearch className='size-5' />
                      </Button>
@@ -216,58 +309,117 @@ export function FormPernoite({
                   />
                </div>
 
-               <div className='flex gap-2 justify-center items-center'>
-                  <label className='text-base font-medium '>
-                     Acréscimo Deslocamento
-                  </label>
-                  <Checkbox
-                     checked={acDesloc}
-                     color='blue'
-                     onChange={(e) => setAcDesloc(e.target.checked)}
-                     className='size-6'
-                  />
+               {/* Seção de Opções */}
+               <div className='bg-gradient-to-r from-green-50 to-emerald-50 p-5 rounded-xl border border-green-100'>
+                  <h3 className='text-sm font-semibold text-gray-700 mb-4 flex items-center gap-2'>
+                     <span className='w-6 h-6 bg-green-500 text-white rounded-full flex items-center justify-center text-xs'>
+                        3
+                     </span>
+                     Opções Adicionais
+                  </h3>
+                  <div className='grid grid-cols-2 gap-4'>
+                     <div
+                        className='bg-white p-4 rounded-lg border-2 border-gray-200 hover:border-green-300 transition-colors cursor-pointer'
+                        onClick={() => setAcDesloc(!acDesloc)}
+                     >
+                        <div className='flex items-center justify-between'>
+                           <div className='flex flex-col'>
+                              <label className='text-sm font-semibold text-gray-800 cursor-pointer'>
+                                 Acréscimo Deslocamento
+                              </label>
+                              <span className='text-xs text-gray-500'>
+                                 + R$ 95,00
+                              </span>
+                           </div>
+                           <Checkbox
+                              checked={acDesloc}
+                              color='green'
+                              onChange={(e) => setAcDesloc(e.target.checked)}
+                              className='size-6'
+                           />
+                        </div>
+                     </div>
+
+                     <div
+                        className='bg-white p-4 rounded-lg border-2 border-gray-200 hover:border-amber-300 transition-colors cursor-pointer'
+                        onClick={() => setMeiaDiaria(!meiaDiaria)}
+                     >
+                        <div className='flex items-center justify-between'>
+                           <div className='flex flex-col'>
+                              <label className='text-sm font-semibold text-gray-800 cursor-pointer'>
+                                 Meia Diária
+                              </label>
+                              <span className='text-xs text-gray-500'>
+                                 50% do valor
+                              </span>
+                           </div>
+                           <Checkbox
+                              checked={meiaDiaria}
+                              color='yellow'
+                              onChange={(e) => setMeiaDiaria(e.target.checked)}
+                              className='size-6'
+                           />
+                        </div>
+                     </div>
+                  </div>
                </div>
 
-               <div className='flex gap-2 justify-center items-center'>
-                  <label className='text-base font-medium '>Meia Diária</label>
-                  <Checkbox
-                     checked={meiaDiaria}
-                     color='blue'
-                     onChange={(e) => setMeiaDiaria(e.target.checked)}
-                     className='size-6'
-                  />
-               </div>
-
-               {/* <div className='px-12'>
-                  <Textarea
-                     placeholder='Observação'
-                     value={obs}
-                     onChange={(e) => setObs(e.target.value)}
-                  />
-               </div> */}
-
-               <div className='flex gap-3 justify-center'>
+               {/* Botões de Ação */}
+               <div className='flex gap-3 justify-center pt-4 border-t-2 border-gray-100'>
                   <Button
-                     color='blue'
-                     className='w-28'
-                     type='submit'
-                     disabled={!isChanged}
+                     color='gray'
+                     className='w-32'
+                     onClick={onClose}
+                     type='button'
                   >
-                     Salvar
+                     Cancelar
                   </Button>
 
                   {pnt && (
                      <Button
                         onClick={onDelete}
-                        className='w-28'
-                        color='failure'
+                        className='w-32'
+                        color='red'
+                        type='button'
                      >
                         Excluir
                      </Button>
                   )}
+
+                  <Button
+                     color='blue'
+                     className='w-32'
+                     type='submit'
+                     disabled={!isChanged}
+                  >
+                     {pnt ? "Atualizar" : "Salvar"}
+                  </Button>
                </div>
             </form>
          </ModalBody>
+
+         <DeletePernoiteModal
+            show={showDeleteModal}
+            onClose={() => setShowDeleteModal(false)}
+            onConfirm={confirmDelete}
+            pernoiteInfo={{
+               cidade: local.nome ? `${local.nome}, ${local.uf}` : "Não informado",
+               dataIni: dataIni
+                  ? new Date(dataIni).toLocaleDateString("pt-BR", {
+                       day: "2-digit",
+                       month: "short",
+                       year: "numeric",
+                    })
+                  : "Não informado",
+               dataFim: dataFim
+                  ? new Date(dataFim).toLocaleDateString("pt-BR", {
+                       day: "2-digit",
+                       month: "short",
+                       year: "numeric",
+                    })
+                  : "Não informado",
+            }}
+         />
       </Modal>
    );
 }

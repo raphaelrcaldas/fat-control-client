@@ -1,10 +1,18 @@
-import { Dropdown, DropdownItem, HR, Tooltip } from "flowbite-react";
+import { Dropdown, DropdownItem, Tooltip } from "flowbite-react";
 import { useState, Dispatch, SetStateAction } from "react";
 import { FaRegClone } from "react-icons/fa";
 import MissionDetail from "./missionDetail";
 import { Missao } from "services/routes/cegep/missoes";
 import clsx from "clsx";
 import { isoStrToDate } from "utils/dateHandler";
+import {
+   MdCalendarToday,
+   MdLocationOn,
+   MdAttachMoney,
+   MdDescription,
+   MdGroup,
+} from "react-icons/md";
+import { HiDocumentText } from "react-icons/hi2";
 
 export function CardMission({
    missao,
@@ -49,61 +57,113 @@ export function CardMission({
 
    return (
       <>
-         <div className='bg-white p-3 shadow-md gap-1 rounded-lg uppercase w-[28rem] hover:shadow-lg cursor-pointer transition-shadow duration-300 ease-in-out'>
-            <div className='flex flex-row relative justify-between items-center'>
-               <h3 className='text-center w-full font-bold'>
-                  {missao.tipo_doc} {missao.n_doc}
-               </h3>
-               <div className='absolute right-0 top-0'>
-                  <Dropdown color='light' inline>
-                     <DropdownItem icon={FaRegClone} onClick={() => onClone()}>
-                        Clonar
-                     </DropdownItem>
-                  </Dropdown>
+         <div className='relative bg-gradient-to-br from-white to-gray-50 p-5 shadow-lg rounded-2xl w-[32rem] border-2 border-gray-100 cursor-pointer'>
+            {/* Header com documento */}
+            <div className='flex items-center justify-between mb-4'>
+               <div className='flex items-center gap-3'>
+                  <div className='p-2 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg shadow-md'>
+                     <HiDocumentText className='text-white text-xl' />
+                  </div>
+                  <div>
+                     <h3 className='text-lg font-bold text-gray-800 uppercase'>
+                        {missao.tipo_doc} {missao.n_doc}
+                     </h3>
+                     {missao.desc && (
+                        <p className='text-sm text-gray-600 font-medium uppercase'>
+                           {missao.desc}
+                        </p>
+                     )}
+                  </div>
                </div>
+
+               <Dropdown color='light' inline>
+                  <DropdownItem icon={FaRegClone} onClick={() => onClone()}>
+                     Clonar
+                  </DropdownItem>
+               </Dropdown>
             </div>
 
             <div
-               className='flex flex-col gap-3 h-full'
+               className='flex flex-col gap-4 h-full'
                onClick={() => setShowDetail(true)}
             >
-               <h4 className='text-center text-sm'>{missao.desc}</h4>
-               <h4 className='text-sm'>{missao.obs}</h4>
+               {/* Observações */}
+               {missao.obs && (
+                  <div className='flex items-start gap-2 p-3 bg-blue-50 rounded-lg border border-blue-200'>
+                     <MdDescription className='text-blue-600 text-lg mt-0.5 flex-shrink-0' />
+                     <p className='text-sm text-gray-700 uppercase'>
+                        {missao.obs}
+                     </p>
+                  </div>
+               )}
 
-               <div className='flex flex-row gap-2'>
-                  <div className='flex flex-col gap-1 capitalize'>
-                     <div className='flex flex-row'>
-                        <span className='w-28'>Afastamento:</span>
-                        <span className='font-mono'>{ini}</span>
+               {/* Datas de afastamento e regresso */}
+               <div className='flex flex-col gap-2'>
+                  <div className='flex items-center justify-between p-4 bg-white rounded-xl border-2 border-gray-200 shadow-sm'>
+                     <div className='flex items-center gap-3'>
+                        <MdCalendarToday className='text-blue-500 text-xl' />
+                        <div className='flex flex-col'>
+                           <span className='text-xs text-gray-500 font-medium uppercase'>
+                              Afastamento
+                           </span>
+                           <span className='font-mono font-semibold text-gray-800'>
+                              {ini}
+                           </span>
+                        </div>
                      </div>
-                     <div className='flex flex-row'>
-                        <span className='w-28'>Regresso:</span>
-                        <span className='font-mono'>{fim}</span>
+
+                     <div className='flex items-center gap-2'>
+                        <span className='text-gray-400 text-xl'>→</span>
+                     </div>
+
+                     <div className='flex items-center gap-3'>
+                        <div className='flex flex-col items-end'>
+                           <span className='text-xs text-gray-500 font-medium uppercase'>
+                              Regresso
+                           </span>
+                           <span className='font-mono font-semibold text-gray-800'>
+                              {fim}
+                           </span>
+                        </div>
+                        <MdCalendarToday className='text-green-500 text-xl' />
                      </div>
                   </div>
 
-                  {missao.acrec_desloc && (
-                     <div className='flex-1 flex justify-center items-center'>
-                        <span className='bg-green-300 text-sm h-fit px-2.5 font-medium rounded-lg'>
+                  {/* {missao.acrec_desloc && (
+                     <Tooltip content='Acréscimo Deslocamento'>
+                        <span className='flex items-center gap-1 font-semibold bg-gradient-to-r from-green-400 to-green-500 text-white px-3 py-1.5 rounded-full text-xs shadow-sm w-fit'>
+                           <MdAttachMoney className='text-sm' />
                            AC
                         </span>
+                     </Tooltip>
+                  )} */}
+               </div>
+
+               {/* Pernoites */}
+               {missao.pernoites.length > 0 && (
+                  <div className='flex flex-col gap-2'>
+                     {missao.pernoites.map((pnt) => (
+                        <PernoiteCardMis key={pnt.id} pnt={pnt} />
+                     ))}
+                  </div>
+               )}
+
+               {/* Militares */}
+               {missao.users.length > 0 && (
+                  <div className='space-y-2'>
+                     <div className='flex items-center gap-2 px-1'>
+                        <MdGroup className='text-blue-500 text-lg' />
+                        <h4 className='text-sm font-bold text-gray-700 uppercase'>
+                           Militares ({missao.users.length})
+                        </h4>
                      </div>
-                  )}
-               </div>
-
-               <HR className=' m-0' />
-
-               <div className='flex flex-col'>
-                  {missao.pernoites.map((pnt) => (
-                     <PernoiteCardMis key={pnt.id} pnt={pnt} />
-                  ))}
-               </div>
-               <HR className='m-0' />
-               <div className='flex gap-1 flex-wrap'>
-                  {missao.users.map((user) => (
-                     <UserCardMis key={user.id} user={user} />
-                  ))}
-               </div>
+                     <div className='grid grid-cols-1 sm:grid-cols-2 gap-2'>
+                        {missao.users.map((user) => (
+                           <UserCardMis key={user.id} user={user} />
+                        ))}
+                     </div>
+                  </div>
+               )}
             </div>
          </div>
 
@@ -122,58 +182,125 @@ export function CardMission({
 }
 
 function PernoiteCardMis({ pnt }) {
-   const dayExt = {
-      day: "2-digit" as const,
-      month: "2-digit" as const,
-   };
-   const dataIni = isoStrToDate(pnt.data_ini).toLocaleDateString(
-      "pt-br",
-      dayExt
-   );
-   const dataFim = isoStrToDate(pnt.data_fim).toLocaleDateString(
-      "pt-br",
-      dayExt
-   );
+   const dataIni = isoStrToDate(pnt.data_ini).toLocaleDateString("pt-br", {
+      day: "2-digit",
+      month: "short",
+   });
+
+   const dataFim = isoStrToDate(pnt.data_fim).toLocaleDateString("pt-br", {
+      day: "2-digit",
+      month: "short",
+   });
 
    return (
-      <div className='p-1 flex flex-row items-center justify-start text-sm gap-1'>
-         <span className='w-28 font-mono lowercase text-center'>
-            {dataIni} a {dataFim}
-         </span>
-         <span className='ml-2 font-medium rounded-lg bg-gray-200 py-1 px-2'>
-            {pnt.cidade.nome}-{pnt.cidade.uf}
-         </span>
+      <div className='flex items-center gap-3 p-3 rounded-lg border border-gray-200 bg-white'>
+         {/* Datas */}
+         <div className='flex items-center gap-2'>
+            <MdCalendarToday className='text-gray-500 text-sm' />
+            <div className='flex items-center gap-1.5'>
+               <span className='font-semibold text-gray-700 text-sm'>
+                  {dataIni}
+               </span>
+               <span className='text-gray-400 text-xs'>→</span>
+               <span className='font-semibold text-gray-700 text-sm'>
+                  {dataFim}
+               </span>
+            </div>
+         </div>
 
-         {pnt.acrec_desloc && (
-            <span className='font-semibold bg-green-300 px-2.5 rounded-lg'>
-               AC
+         {/* Localização */}
+         <div className='flex items-center gap-1.5 flex-1'>
+            <MdLocationOn className='text-red-500 text-base' />
+            <span className='font-medium text-gray-800 text-sm uppercase'>
+               {pnt.cidade.nome}-{pnt.cidade.uf}
             </span>
-         )}
+         </div>
 
-         {pnt.meia_diaria && (
-            <span className='font-semibold bg-amber-300 px-2.5 rounded-lg'>
-               MD
-            </span>
-         )}
+         {/* Tags */}
+         <div className='flex items-center gap-2'>
+            {pnt.acrec_desloc && (
+               <Tooltip content='Acréscimo Deslocamento'>
+                  <span className='flex items-center gap-1 font-semibold bg-gradient-to-r from-green-400 to-green-500 text-white px-2.5 py-1 rounded-full text-xs shadow-sm'>
+                     <MdAttachMoney className='text-sm' />
+                     AC
+                  </span>
+               </Tooltip>
+            )}
+
+            {pnt.meia_diaria && (
+               <Tooltip content='Meia Diária'>
+                  <span className='font-semibold bg-gradient-to-r from-amber-400 to-amber-500 text-white px-2.5 py-1 rounded-full text-xs shadow-sm'>
+                     MD
+                  </span>
+               </Tooltip>
+            )}
+         </div>
       </div>
    );
 }
 
 function UserCardMis({ user }) {
+   const getSituacaoConfig = () => {
+      switch (user.sit) {
+         case "c":
+            return {
+               label: "Comissionado",
+               bgColor: "bg-blue-50",
+               borderColor: "border-blue-300",
+               textColor: "text-blue-800",
+               badgeColor: "bg-blue-500",
+            };
+         case "d":
+            return {
+               label: "Diária",
+               bgColor: "bg-green-50",
+               borderColor: "border-green-300",
+               textColor: "text-green-800",
+               badgeColor: "bg-green-500",
+            };
+         case "g":
+            return {
+               label: "Grat Rep",
+               bgColor: "bg-orange-50",
+               borderColor: "border-orange-300",
+               textColor: "text-orange-800",
+               badgeColor: "bg-orange-500",
+            };
+         default:
+            return {
+               label: "",
+               bgColor: "bg-gray-50",
+               borderColor: "border-gray-300",
+               textColor: "text-gray-800",
+               badgeColor: "bg-gray-500",
+            };
+      }
+   };
+
+   const config = getSituacaoConfig();
+
    return (
       <div
          className={clsx(
-            "px-2.5 py-0.5 rounded-lg select-none text-sm font-medium w-52 flex items-center",
-            {
-               "bg-blue-200": user.sit === "c",
-               "bg-green-200": user.sit === "d",
-               "bg-orange-200": user.sit === "g",
-            }
+            "flex items-center gap-2 px-3 py-1.5 rounded-xl border-2 select-none",
+            config.bgColor,
+            config.borderColor
          )}
       >
-         <span>
-            {user.sit} | {user.p_g} {user.user.nome_guerra}
+         <span
+            className={clsx(
+               "text-xs font-semibold uppercase px-2 py-0.5 rounded-md text-white",
+               config.badgeColor
+            )}
+         >
+            {user.sit}
          </span>
+         <div
+            className={clsx("font-medium text-sm uppercase", config.textColor)}
+         >
+            <span className='font-bold uppercase'>{user.p_g}</span>{" "}
+            <span>{user.user.nome_guerra}</span>
+         </div>
       </div>
    );
 }

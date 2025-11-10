@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import {
    Button,
    Modal,
@@ -8,19 +8,33 @@ import {
    ModalFooter,
    ModalHeader,
    Popover,
+   Label,
+   TextInput,
+   Checkbox,
+   Select,
+   Spinner,
+   Progress,
 } from "flowbite-react";
 import { isoStrToDate } from "utils/dateHandler";
 import { gerarRelatorio } from "utils/relatorioComiss";
 import { realCurrency } from "utils/financeiro";
-import { ComissWithMiss } from "services/routes/cegep/comiss";
+import {
+   ComissWithMiss,
+   Comiss as ComissSchema,
+} from "services/routes/cegep/comiss";
 import { LiaFileExportSolid } from "react-icons/lia";
 import { MisPntsTable } from "../../components/popMisPnts";
-import { IoMdInformationCircleOutline } from "react-icons/io";
+import { IoMdInformationCircleOutline, IoMdSearch } from "react-icons/io";
 import { MdOutlineEdit, MdDeleteOutline } from "react-icons/md";
-import { FormComiss } from "./formComiss";
 import { RoleBasedRoute } from "@/app/(home)/hooks/useRoleBased";
-import { deleteCmto } from "services/routes/cegep/comiss";
+import {
+   deleteCmto,
+   createCmto,
+   updateCmto,
+} from "services/routes/cegep/comiss";
 import { useToast } from "@/app/context/toast";
+import { UserPublic } from "services/routes/users";
+import { SearchUser } from "src/app/(home)/users/components/searchUser";
 
 export function DetailComiss({
    show,
@@ -30,34 +44,146 @@ export function DetailComiss({
 }: {
    show: boolean;
    setShow: (show: boolean) => void;
-   comiss: ComissWithMiss;
+   comiss?: ComissWithMiss;
    update?: () => void;
 }) {
-   const [showEditForm, setShowEditForm] = useState(false);
+   const [isEditMode, setIsEditMode] = useState(false);
+   const [showDeleteModal, setShowDeleteModal] = useState(false);
    const [isDeleting, setIsDeleting] = useState(false);
+   const [showUserSearch, setShowUserSearch] = useState(false);
+   const [isLoading, setIsLoading] = useState(false);
    const { push } = useToast();
 
-   const data_abertura = isoStrToDate(comiss.data_ab).toLocaleDateString(
-      "pt-br",
-      {
-         day: "2-digit",
-         month: "2-digit",
-         year: "2-digit",
-      }
-   );
-   const data_fechamento = isoStrToDate(comiss.data_fc).toLocaleDateString(
-      "pt-br",
-      {
-         day: "2-digit",
-         month: "2-digit",
-         year: "2-digit",
-      }
+   // Valores padrões do formulário
+   const defaultValues = useMemo(
+      () => ({
+         user: comiss ? comiss.user : null,
+         docProp: comiss ? comiss.doc_prop : "",
+         docAut: comiss ? comiss.doc_aut : "",
+         docEnc: comiss ? comiss.doc_enc : "",
+         dataAb: comiss ? comiss.data_ab : "",
+         qtdAjAb: comiss ? comiss.qtd_aj_ab : 0,
+         valAjAb: comiss ? comiss.valor_aj_ab : 0,
+         dataFc: comiss ? comiss.data_fc : "",
+         qtdAjFc: comiss ? comiss.qtd_aj_fc : 0,
+         valAjFc: comiss ? comiss.valor_aj_fc : 0,
+         userId: comiss ? comiss.user_id : null,
+         status: comiss ? comiss.status : "",
+         dep: comiss ? comiss.dep : false,
+         diasCumprir: comiss
+            ? comiss.dias_cumprir
+               ? comiss.dias_cumprir
+               : 0
+            : 0,
+      }),
+      [comiss]
    );
 
-   const ajd_ab = comiss.valor_aj_ab;
-   const ajd_fc = comiss.valor_aj_fc;
+   const [user, setUser] = useState<UserPublic | null>(defaultValues.user);
+   const [docProp, setDocProp] = useState(defaultValues.docProp);
+   const [docAut, setDocAut] = useState(defaultValues.docAut);
+   const [docEnc, setDocEnc] = useState(defaultValues.docEnc);
+   const [dataAb, setDataAb] = useState(defaultValues.dataAb);
+   const [qtdAjAb, setQtdAjAb] = useState(defaultValues.qtdAjAb);
+   const [valAjAb, setValAjAb] = useState(defaultValues.valAjAb);
+   const [dataFc, setDataFc] = useState(defaultValues.dataFc);
+   const [qtdAjFc, setQtdAjFc] = useState(defaultValues.qtdAjFc);
+   const [valAjFc, setValAjFC] = useState(defaultValues.valAjFc);
+   const [status, setStatus] = useState(defaultValues.status);
+   const [dep, setDep] = useState(defaultValues.dep);
+   const [diasCumprir, setDiasCumprir] = useState(defaultValues.diasCumprir);
+
+   // Dados computados para visualização
+   const data_abertura = comiss
+      ? isoStrToDate(comiss.data_ab).toLocaleDateString("pt-br", {
+           day: "2-digit",
+           month: "2-digit",
+           year: "2-digit",
+        })
+      : "";
+   const data_fechamento = comiss
+      ? isoStrToDate(comiss.data_fc).toLocaleDateString("pt-br", {
+           day: "2-digit",
+           month: "2-digit",
+           year: "2-digit",
+        })
+      : "";
+
+   const ajd_ab = comiss?.valor_aj_ab || 0;
+   const ajd_fc = comiss?.valor_aj_fc || 0;
+
+   function verificarCampos(errors: string[]) {
+      if (!(docProp != "")) errors.push("- Documento Proposta");
+      if (!(docAut != "")) errors.push("- Documento Autorização");
+      if (!(dataAb != "")) errors.push("- Data de Abertura");
+      if (!(dataFc != "")) errors.push("- Data de Encerramento");
+      if (!(qtdAjAb != 0))
+         errors.push("- Quantidade da Ajuda de Custo da Abertura");
+      if (!(qtdAjFc != 0))
+         errors.push("- Quantidade da Ajuda de Custo do Encerramento");
+      if (!(valAjAb != 0)) errors.push("- Valor da Ajuda de Custo da Abertura");
+      if (!(valAjFc != 0))
+         errors.push("- Valor da Ajuda de Custo do Encerramento");
+   }
+
+   async function handleSaveComiss() {
+      let errors = [];
+      verificarCampos(errors);
+      if (errors.length > 0) {
+         setIsLoading(false);
+         return;
+      }
+      setIsLoading(true);
+
+      const comisObj: ComissSchema = {
+         user_id: user!.id,
+         doc_prop: docProp,
+         doc_aut: docAut,
+         doc_enc: docEnc,
+         data_ab: dataAb,
+         data_fc: dataFc,
+         qtd_aj_ab: qtdAjAb,
+         qtd_aj_fc: qtdAjFc,
+         valor_aj_ab: valAjAb,
+         valor_aj_fc: valAjFc,
+         status: status,
+         dep: dep,
+         dias_cumprir: diasCumprir == 0 ? null : diasCumprir,
+         ...(comiss?.id && { id: comiss.id }),
+      };
+
+      try {
+         const res = comiss
+            ? await updateCmto(comisObj)
+            : await createCmto(comisObj);
+
+         const data = await res.json();
+
+         if (!res.ok) {
+            throw new Error(data.detail || "Erro desconhecido");
+         }
+
+         push({
+            message: data.detail || "Salvo com sucesso",
+            type: "success",
+         });
+
+         if (update) update();
+         setIsEditMode(false);
+         if (!comiss) setShow(false); // Se for criação, fecha o modal
+      } catch (err) {
+         push({
+            title: "Erro",
+            message: "Erro ao salvar o comissionamento: " + err.message,
+            type: "error",
+         });
+      } finally {
+         setIsLoading(false);
+      }
+   }
 
    async function handleExport() {
+      if (!comiss) return;
       const blob = await gerarRelatorio(comiss);
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
@@ -68,24 +194,7 @@ export function DetailComiss({
       URL.revokeObjectURL(url);
    }
 
-   const handleFormSuccess = () => {
-      if (update) update();
-      setShowEditForm(false);
-   };
-
-   const handleCloseEdit = (value: boolean) => {
-      setShowEditForm(value);
-      // Se fechou o form e não tem update (não salvou), mantém o detail aberto
-   };
-
    const handleDelete = async () => {
-      const userName = `${comiss.user.posto.mid} ${comiss.user.nome_guerra}`;
-      const confirmed = window.confirm(
-         `Tem certeza que deseja excluir o comissionamento de ${userName}?\n\nEsta ação não pode ser desfeita.`
-      );
-
-      if (!confirmed) return;
-
       setIsDeleting(true);
       try {
          const response = await deleteCmto(comiss.id);
@@ -103,6 +212,7 @@ export function DetailComiss({
             type: "success",
          });
 
+         setShowDeleteModal(false);
          setShow(false);
          if (update) update();
       } catch (error) {
@@ -118,17 +228,320 @@ export function DetailComiss({
       }
    };
 
+   // Renderiza modo de edição/criação
+   if (isEditMode || !comiss) {
+      return (
+         <Modal show={show} size='6xl' onClose={() => setShow(false)}>
+            <ModalHeader className='border-b border-gray-200'>
+               <h3 className='text-xl font-semibold text-gray-900'>
+                  {comiss ? "Editar" : "Adicionar"} Comissionamento
+               </h3>
+            </ModalHeader>
+            <ModalBody className='space-y-6'>
+               {/* Seleção de Militar */}
+               <div className='flex items-center justify-center gap-3 p-4 bg-gray-50 rounded-xl border border-gray-200'>
+                  {user ? (
+                     <div className='text-center space-y-1'>
+                        <span className='font-semibold text-gray-900 uppercase block'>
+                           {user.posto.mid} {user.esp} {user.nome_guerra}
+                        </span>
+                        <span className='text-sm text-gray-600 capitalize'>
+                           {user.nome_completo}
+                        </span>
+                     </div>
+                  ) : (
+                     <span className='text-red-600 text-sm font-medium'>
+                        Selecione um militar
+                     </span>
+                  )}
+
+                  {!comiss && (
+                     <Button
+                        pill
+                        onClick={() => setShowUserSearch(true)}
+                        color='light'
+                        className='hover:bg-white transition-colors duration-200'
+                     >
+                        <IoMdSearch className='size-5' />
+                     </Button>
+                  )}
+               </div>
+
+               <SearchUser
+                  show={showUserSearch}
+                  setShow={setShowUserSearch}
+                  setUser={setUser}
+               />
+
+               {/* Documentos */}
+               <div className='space-y-3'>
+                  <h4 className='text-sm font-semibold text-gray-700 uppercase tracking-wide'>
+                     Documentos
+                  </h4>
+                  <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
+                     <div>
+                        <Label
+                           htmlFor='doc-prop'
+                           className='text-sm font-medium text-gray-700 mb-2 block'
+                        >
+                           Proposta
+                        </Label>
+                        <TextInput
+                           id='doc-prop'
+                           required
+                           value={docProp}
+                           onChange={(e) => setDocProp(e.target.value)}
+                           placeholder='Ex: OF-123/2024'
+                        />
+                     </div>
+                     <div>
+                        <Label
+                           htmlFor='doc-aut'
+                           className='text-sm font-medium text-gray-700 mb-2 block'
+                        >
+                           Autorização
+                        </Label>
+                        <TextInput
+                           id='doc-aut'
+                           required
+                           value={docAut}
+                           onChange={(e) => setDocAut(e.target.value)}
+                           placeholder='Ex: PORT-456/2024'
+                        />
+                     </div>
+                     <div>
+                        <Label
+                           htmlFor='doc-enc'
+                           className='text-sm font-medium text-gray-700 mb-2 block'
+                        >
+                           Encerramento
+                        </Label>
+                        <TextInput
+                           id='doc-enc'
+                           value={docEnc}
+                           onChange={(e) => setDocEnc(e.target.value)}
+                           placeholder='Ex: OF-789/2024'
+                        />
+                     </div>
+                  </div>
+               </div>
+
+               {/* Datas e Valores */}
+               <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+                  {/* Abertura */}
+                  <div className='bg-gradient-to-br from-emerald-50 to-green-50 p-5 rounded-xl border border-emerald-200 shadow-sm'>
+                     <h4 className='text-sm font-semibold text-emerald-800 mb-4 flex items-center gap-2'>
+                        <div className='w-2 h-2 bg-emerald-500 rounded-full' />
+                        Abertura
+                     </h4>
+                     <div className='space-y-4'>
+                        <div>
+                           <Label className='text-xs font-medium text-gray-600 mb-1.5 block'>
+                              Data
+                           </Label>
+                           <TextInput
+                              type='date'
+                              value={dataAb}
+                              onChange={(e) => setDataAb(e.target.value)}
+                           />
+                        </div>
+                        <div className='grid grid-cols-2 gap-3'>
+                           <div>
+                              <Label className='text-xs font-medium text-gray-600 mb-1.5 block'>
+                                 Qtd. Ajuda
+                              </Label>
+                              <TextInput
+                                 value={qtdAjAb}
+                                 type='number'
+                                 min={0}
+                                 max={2}
+                                 step={0.5}
+                                 onChange={(e) =>
+                                    setQtdAjAb(Number(e.target.value))
+                                 }
+                              />
+                           </div>
+                           <div>
+                              <Label className='text-xs font-medium text-gray-600 mb-1.5 block'>
+                                 Valor (R$)
+                              </Label>
+                              <TextInput
+                                 value={valAjAb}
+                                 min={0}
+                                 type='number'
+                                 step={0.01}
+                                 onChange={(e) =>
+                                    setValAjAb(Number(e.target.value))
+                                 }
+                              />
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+
+                  {/* Fechamento */}
+                  <div className='bg-gradient-to-br from-orange-50 to-amber-50 p-5 rounded-xl border border-orange-200 shadow-sm'>
+                     <h4 className='text-sm font-semibold text-orange-800 mb-4 flex items-center gap-2'>
+                        <div className='w-2 h-2 bg-orange-500 rounded-full' />
+                        Fechamento
+                     </h4>
+                     <div className='space-y-4'>
+                        <div>
+                           <Label className='text-xs font-medium text-gray-600 mb-1.5 block'>
+                              Data
+                           </Label>
+                           <TextInput
+                              type='date'
+                              min={dataAb}
+                              value={dataFc}
+                              onChange={(e) => setDataFc(e.target.value)}
+                           />
+                        </div>
+                        <div className='grid grid-cols-2 gap-3'>
+                           <div>
+                              <Label className='text-xs font-medium text-gray-600 mb-1.5 block'>
+                                 Qtd. Ajuda
+                              </Label>
+                              <TextInput
+                                 value={qtdAjFc}
+                                 type='number'
+                                 min={0}
+                                 max={2}
+                                 step={0.5}
+                                 onChange={(e) =>
+                                    setQtdAjFc(Number(e.target.value))
+                                 }
+                              />
+                           </div>
+                           <div>
+                              <Label className='text-xs font-medium text-gray-600 mb-1.5 block'>
+                                 Valor (R$)
+                              </Label>
+                              <TextInput
+                                 value={valAjFc}
+                                 min={0}
+                                 type='number'
+                                 step={0.01}
+                                 onChange={(e) =>
+                                    setValAjFC(Number(e.target.value))
+                                 }
+                              />
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+
+               {/* Configurações Adicionais */}
+               <div className='space-y-3'>
+                  <h4 className='text-sm font-semibold text-gray-700 uppercase tracking-wide'>
+                     Configurações
+                  </h4>
+                  <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
+                     <div>
+                        <Label
+                           htmlFor='status'
+                           className='text-sm font-medium text-gray-700 mb-2 block'
+                        >
+                           Status
+                        </Label>
+                        <Select
+                           id='status'
+                           value={status}
+                           onChange={(e) => setStatus(e.target.value)}
+                        >
+                           <option value='' disabled>
+                              Selecione
+                           </option>
+                           <option value='aberto'>Aberto</option>
+                           <option value='fechado'>Fechado</option>
+                        </Select>
+                     </div>
+                     <div>
+                        <Label
+                           htmlFor='dias-cumprir'
+                           className='text-sm font-medium text-gray-700 mb-2 block'
+                        >
+                           Dias a Cumprir
+                        </Label>
+                        <TextInput
+                           id='dias-cumprir'
+                           type='number'
+                           min={0}
+                           value={diasCumprir}
+                           onChange={(e) =>
+                              setDiasCumprir(Number(e.target.value))
+                           }
+                           placeholder='0 = Comparativo'
+                        />
+                     </div>
+                     <div className='flex flex-col justify-center'>
+                        <Label
+                           htmlFor='dep'
+                           className='text-sm font-medium text-gray-700 mb-2 block'
+                        >
+                           Possui Dependente
+                        </Label>
+                        <div className='flex items-center gap-2'>
+                           <Checkbox
+                              id='dep'
+                              color='blue'
+                              className='w-5 h-5'
+                              checked={dep}
+                              onChange={(e) => setDep(e.target.checked)}
+                           />
+                           <span className='text-sm text-gray-600'>
+                              {dep ? "Sim" : "Não"}
+                           </span>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+            </ModalBody>
+            <ModalFooter className='flex justify-center gap-3 border-t border-gray-200'>
+               <Button
+                  color='gray'
+                  onClick={() => {
+                     if (comiss) {
+                        setIsEditMode(false);
+                     } else {
+                        setShow(false);
+                     }
+                  }}
+                  disabled={isLoading}
+               >
+                  Cancelar
+               </Button>
+               <Button
+                  className='px-6'
+                  color='blue'
+                  onClick={handleSaveComiss}
+                  disabled={isLoading}
+               >
+                  {isLoading ? (
+                     <div className='flex items-center gap-2'>
+                        <Spinner size='sm' />
+                        <span>Salvando...</span>
+                     </div>
+                  ) : comiss ? (
+                     "Salvar Alterações"
+                  ) : (
+                     "Adicionar Comissionamento"
+                  )}
+               </Button>
+            </ModalFooter>
+         </Modal>
+      );
+   }
+
+   // Renderiza modo de visualização
    return (
       <>
-         <Modal
-            show={show && !showEditForm}
-            size='6xl'
-            onClose={() => setShow(false)}
-         >
+         <Modal show={show} size='6xl' onClose={() => setShow(false)}>
             <ModalHeader className='border-b border-gray-200'>
                Detalhes do Comissionamento
             </ModalHeader>
-            <ModalBody className='space-y-6'>
+            <ModalBody className='space-y-3'>
                {/* Botão Exportar */}
                <div className='flex justify-end -mt-2'>
                   <Button
@@ -155,7 +568,7 @@ export function DetailComiss({
                </div>
 
                {/* Documentos */}
-               <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
+               <div className='hidden md:grid md:grid-cols-3 gap-4'>
                   <div className='text-center p-4 bg-gray-50 rounded-xl border border-gray-200'>
                      <span className='text-base font-semibold text-gray-900 uppercase block'>
                         {comiss.doc_prop}
@@ -183,10 +596,10 @@ export function DetailComiss({
                </div>
 
                {/* Datas e Valores */}
-               <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+               <div className='grid grid-cols-1 md:grid-cols-2 gap-2'>
                   {/* Abertura */}
-                  <div className='bg-gradient-to-br from-emerald-50 to-green-50 p-5 rounded-xl border border-emerald-200 shadow-sm'>
-                     <h4 className='text-sm font-semibold text-emerald-800 mb-4 flex items-center gap-2'>
+                  <div className='bg-gradient-to-br from-emerald-50 to-green-50 p-4 rounded-xl border border-emerald-200 shadow-sm'>
+                     <h4 className='text-sm font-semibold text-emerald-800 mb-1 flex items-center gap-2'>
                         <div className='w-2 h-2 bg-emerald-500 rounded-full' />
                         Abertura
                      </h4>
@@ -215,8 +628,8 @@ export function DetailComiss({
                   </div>
 
                   {/* Fechamento */}
-                  <div className='bg-gradient-to-br from-orange-50 to-amber-50 p-5 rounded-xl border border-orange-200 shadow-sm'>
-                     <h4 className='text-sm font-semibold text-orange-800 mb-4 flex items-center gap-2'>
+                  <div className='bg-gradient-to-br from-orange-50 to-amber-50 p-4 rounded-xl border border-orange-200 shadow-sm'>
+                     <h4 className='text-sm font-semibold text-orange-800 mb-1 flex items-center gap-2'>
                         <div className='w-2 h-2 bg-orange-500 rounded-full' />
                         Fechamento
                      </h4>
@@ -248,7 +661,7 @@ export function DetailComiss({
                </div>
 
                {/* Status e Informações */}
-               <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
+               <div className='grid grid-cols-3 gap-4'>
                   <div className='flex items-center justify-center gap-2 p-4 bg-gray-50 rounded-xl border border-gray-200'>
                      <span className='text-sm text-gray-600'>Status:</span>
                      <span className='text-sm font-semibold text-gray-900 uppercase'>
@@ -270,57 +683,175 @@ export function DetailComiss({
                </div>
 
                {/* Métricas */}
-               <div className='grid grid-cols-1 md:grid-cols-3 gap-4 p-6 bg-gradient-to-r from-gray-50 to-slate-50 rounded-xl border border-gray-200'>
-                  <div className='text-center'>
-                     <div className='text-xl font-bold text-gray-900'>
-                        {comiss.dias_cumprir ? (
-                           <span>
-                              {comiss.dias_cumprir}
-                              <span className='text-sm font-normal text-gray-500 ml-1'>
-                                 dias
-                              </span>
-                           </span>
-                        ) : (
-                           realCurrency(ajd_ab + ajd_fc)
-                        )}
+               <div className='space-y-4 p-6 bg-gradient-to-r from-gray-50 to-slate-50 rounded-xl border border-gray-200'>
+                  {/* Dica para comissionamento comparativo */}
+                  {!comiss.dias_cumprir && (
+                     <div className='flex items-center gap-2 p-2 bg-blue-50 border border-blue-200 rounded-lg text-xs text-blue-800'>
+                        <IoMdInformationCircleOutline className='text-blue-600 size-4 shrink-0' />
+                        <span>Cálculo baseado na menor diária (R$ 335,00)</span>
                      </div>
-                     <div className='text-xs text-gray-500 uppercase tracking-wide mt-1'>
-                        Previsto
+                  )}
+
+                  <div className='grid grid-cols-3 gap-4'>
+                     <div className='text-center'>
+                        {!comiss.dias_cumprir ? (
+                           <Popover
+                              content={
+                                 <div className='p-3 max-w-xs'>
+                                    <p className='text-sm font-semibold text-gray-900 mb-2'>
+                                       Valor Previsto
+                                    </p>
+                                    <div className='space-y-1 text-sm text-gray-700'>
+                                       <p>
+                                          <span className='font-medium'>Valor:</span>{" "}
+                                          {realCurrency(ajd_ab + ajd_fc)}
+                                       </p>
+                                       <p>
+                                          <span className='font-medium'>Equivalente:</span>{" "}
+                                          ~{((ajd_ab + ajd_fc) / 335).toFixed(1)} dias
+                                       </p>
+                                       <p className='text-xs text-gray-500 mt-2'>
+                                          (baseado em R$ 335,00 por diária)
+                                       </p>
+                                    </div>
+                                 </div>
+                              }
+                              trigger="hover"
+                           >
+                              <div className='font-bold text-gray-900 cursor-help'>
+                                 {realCurrency(ajd_ab + ajd_fc)}
+                                 <div className='text-xs font-normal text-gray-500'>
+                                    ~{((ajd_ab + ajd_fc) / 335).toFixed(1)} dias
+                                 </div>
+                              </div>
+                           </Popover>
+                        ) : (
+                           <div className='font-bold text-gray-900'>
+                              <span>
+                                 {comiss.dias_cumprir}
+                                 <span className='text-sm font-normal text-gray-500 ml-1'>
+                                    dias
+                                 </span>
+                              </span>
+                           </div>
+                        )}
+                        <div className='text-xs text-gray-500 uppercase tracking-wide mt-1'>
+                           Previsto
+                        </div>
+                     </div>
+                     <div className='text-center'>
+                        {!comiss.dias_cumprir ? (
+                           <Popover
+                              content={
+                                 <div className='p-3 max-w-xs'>
+                                    <p className='text-sm font-semibold text-gray-900 mb-2'>
+                                       Valor Computado
+                                    </p>
+                                    <div className='space-y-1 text-sm text-gray-700'>
+                                       <p>
+                                          <span className='font-medium'>Valor:</span>{" "}
+                                          {realCurrency(comiss.vals_comp)}
+                                       </p>
+                                       <p>
+                                          <span className='font-medium'>Equivalente:</span>{" "}
+                                          ~{(comiss.vals_comp / 335).toFixed(1)} dias
+                                       </p>
+                                       <p className='text-xs text-gray-500 mt-2'>
+                                          (baseado em R$ 335,00 por diária)
+                                       </p>
+                                    </div>
+                                 </div>
+                              }
+                              trigger="hover"
+                           >
+                              <div className='font-bold text-gray-900 cursor-help'>
+                                 {realCurrency(comiss.vals_comp)}
+                                 <div className='text-xs font-normal text-gray-500'>
+                                    ~{(comiss.vals_comp / 335).toFixed(1)} dias
+                                 </div>
+                              </div>
+                           </Popover>
+                        ) : (
+                           <div className='font-bold text-gray-900'>
+                              <span>
+                                 {comiss.dias_comp}
+                                 <span className='text-sm font-normal text-gray-500 ml-1'>
+                                    dias
+                                 </span>
+                              </span>
+                           </div>
+                        )}
+                        <div className='text-xs text-gray-500 uppercase tracking-wide mt-1'>
+                           Computado
+                        </div>
+                     </div>
+                     <div className='text-center'>
+                        {!comiss.dias_cumprir ? (
+                           <Popover
+                              content={
+                                 <div className='p-3 max-w-xs'>
+                                    <p className='text-sm font-semibold text-gray-900 mb-2'>
+                                       Valor Restante
+                                    </p>
+                                    <div className='space-y-1 text-sm text-gray-700'>
+                                       <p>
+                                          <span className='font-medium'>Valor:</span>{" "}
+                                          {realCurrency(ajd_ab + ajd_fc - comiss.vals_comp)}
+                                       </p>
+                                       <p>
+                                          <span className='font-medium'>Equivalente:</span>{" "}
+                                          ~{((ajd_ab + ajd_fc - comiss.vals_comp) / 335).toFixed(1)} dias
+                                       </p>
+                                       <p className='text-xs text-gray-500 mt-2'>
+                                          (baseado em R$ 335,00 por diária)
+                                       </p>
+                                    </div>
+                                 </div>
+                              }
+                              trigger="hover"
+                           >
+                              <div className='font-bold text-gray-900 cursor-help'>
+                                 {realCurrency(ajd_ab + ajd_fc - comiss.vals_comp)}
+                                 <div className='text-xs font-normal text-gray-500'>
+                                    ~{((ajd_ab + ajd_fc - comiss.vals_comp) / 335).toFixed(1)} dias
+                                 </div>
+                              </div>
+                           </Popover>
+                        ) : (
+                           <div className='font-bold text-gray-900'>
+                              <span>
+                                 {comiss.dias_cumprir - comiss.dias_comp}
+                                 <span className='text-sm font-normal text-gray-500 ml-1'>
+                                    dias
+                                 </span>
+                              </span>
+                           </div>
+                        )}
+                        <div className='text-xs text-gray-500 uppercase tracking-wide mt-1'>
+                           Restante
+                        </div>
                      </div>
                   </div>
-                  <div className='text-center'>
-                     <div className='text-xl font-bold text-gray-900'>
-                        {comiss.dias_cumprir ? (
-                           <span>
-                              {comiss.dias_comp}
-                              <span className='text-sm font-normal text-gray-500 ml-1'>
-                                 dias
-                              </span>
-                           </span>
-                        ) : (
-                           realCurrency(comiss.vals_comp)
-                        )}
+
+                  {/* Progress Bar */}
+                  <div className='space-y-2'>
+                     <div className='flex justify-between text-sm'>
+                        <span className='text-gray-600'>Progresso</span>
+                        <span className='font-semibold text-gray-900'>
+                           {comiss.dias_cumprir
+                              ? `${Math.round((comiss.dias_comp / comiss.dias_cumprir) * 100)}%`
+                              : `${Math.round((comiss.vals_comp / (ajd_ab + ajd_fc)) * 100)}%`}
+                        </span>
                      </div>
-                     <div className='text-xs text-gray-500 uppercase tracking-wide mt-1'>
-                        Computado
-                     </div>
-                  </div>
-                  <div className='text-center'>
-                     <div className='text-xl font-bold text-gray-900'>
-                        {comiss.dias_cumprir ? (
-                           <span>
-                              {comiss.dias_cumprir - comiss.dias_comp}
-                              <span className='text-sm font-normal text-gray-500 ml-1'>
-                                 dias
-                              </span>
-                           </span>
-                        ) : (
-                           realCurrency(ajd_ab + ajd_fc - comiss.vals_comp)
-                        )}
-                     </div>
-                     <div className='text-xs text-gray-500 uppercase tracking-wide mt-1'>
-                        Restante
-                     </div>
+                     <Progress
+                        progress={
+                           comiss.dias_cumprir
+                              ? Math.round((comiss.dias_comp / comiss.dias_cumprir) * 100)
+                              : Math.round((comiss.vals_comp / (ajd_ab + ajd_fc)) * 100)
+                        }
+                        size='lg'
+                        color={comiss.modulo ? "green" : "red"}
+                     />
                   </div>
                </div>
 
@@ -353,7 +884,7 @@ export function DetailComiss({
                   <div className='flex justify-center items-center w-full gap-3'>
                      <Button
                         color='blue'
-                        onClick={() => setShowEditForm(true)}
+                        onClick={() => setIsEditMode(true)}
                         disabled={isDeleting}
                         className='transition-all duration-200 hover:shadow-md hover:scale-105 active:scale-95'
                      >
@@ -364,41 +895,13 @@ export function DetailComiss({
                      </Button>
                      <Button
                         color='red'
-                        onClick={handleDelete}
+                        onClick={() => setShowDeleteModal(true)}
                         disabled={isDeleting}
                         className='transition-all duration-200 hover:shadow-md hover:scale-105 active:scale-95'
                      >
                         <div className='flex items-center gap-2'>
-                           {isDeleting ? (
-                              <>
-                                 <svg
-                                    className='animate-spin h-4 w-4'
-                                    xmlns='http://www.w3.org/2000/svg'
-                                    fill='none'
-                                    viewBox='0 0 24 24'
-                                 >
-                                    <circle
-                                       className='opacity-25'
-                                       cx='12'
-                                       cy='12'
-                                       r='10'
-                                       stroke='currentColor'
-                                       strokeWidth='4'
-                                    ></circle>
-                                    <path
-                                       className='opacity-75'
-                                       fill='currentColor'
-                                       d='M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z'
-                                    ></path>
-                                 </svg>
-                                 <span>Excluindo...</span>
-                              </>
-                           ) : (
-                              <>
-                                 <MdDeleteOutline size={18} />
-                                 <span>Excluir</span>
-                              </>
-                           )}
+                           <MdDeleteOutline size={18} />
+                           <span>Excluir</span>
                         </div>
                      </Button>
                   </div>
@@ -406,14 +909,100 @@ export function DetailComiss({
             </ModalFooter>
          </Modal>
 
-         {showEditForm && (
-            <FormComiss
-               show={showEditForm}
-               setShow={handleCloseEdit}
-               comiss={comiss}
-               update={handleFormSuccess}
-            />
-         )}
+         {/* Modal de Confirmação de Exclusão */}
+         <Modal
+            show={showDeleteModal}
+            size='md'
+            onClose={() => !isDeleting && setShowDeleteModal(false)}
+            popup
+         >
+            <ModalHeader />
+            <ModalBody>
+               <div className='text-center px-4 py-2'>
+                  <div className='mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-red-100'>
+                     <MdDeleteOutline className='h-9 w-9 text-red-600' />
+                  </div>
+
+                  <h3 className='mb-2 text-xl font-semibold text-gray-900'>
+                     Excluir Comissionamento
+                  </h3>
+
+                  <div className='mb-6 space-y-3'>
+                     <p className='text-base text-gray-600'>
+                        Você está prestes a excluir o comissionamento de:
+                     </p>
+                     <div className='bg-gray-50 rounded-lg p-4 border border-gray-200'>
+                        <p className='text-lg font-bold text-gray-900 uppercase'>
+                           {comiss.user.posto.mid} {comiss.user.esp}{" "}
+                           {comiss.user.nome_guerra}
+                        </p>
+                        <p className='text-sm text-gray-600 capitalize mt-1'>
+                           {comiss.user.nome_completo}
+                        </p>
+                     </div>
+                     <div className='flex items-center justify-center gap-2 text-sm text-red-600 font-medium'>
+                        <svg
+                           className='w-5 h-5'
+                           fill='currentColor'
+                           viewBox='0 0 20 20'
+                        >
+                           <path
+                              fillRule='evenodd'
+                              d='M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z'
+                              clipRule='evenodd'
+                           />
+                        </svg>
+                        Esta ação não pode ser desfeita
+                     </div>
+                  </div>
+
+                  <div className='flex justify-center gap-3'>
+                     <Button
+                        color='red'
+                        onClick={handleDelete}
+                        disabled={isDeleting}
+                        className='px-6'
+                     >
+                        {isDeleting ? (
+                           <div className='flex items-center gap-2'>
+                              <svg
+                                 className='animate-spin h-4 w-4'
+                                 xmlns='http://www.w3.org/2000/svg'
+                                 fill='none'
+                                 viewBox='0 0 24 24'
+                              >
+                                 <circle
+                                    className='opacity-25'
+                                    cx='12'
+                                    cy='12'
+                                    r='10'
+                                    stroke='currentColor'
+                                    strokeWidth='4'
+                                 ></circle>
+                                 <path
+                                    className='opacity-75'
+                                    fill='currentColor'
+                                    d='M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z'
+                                 ></path>
+                              </svg>
+                              <span>Excluindo...</span>
+                           </div>
+                        ) : (
+                           "Sim, excluir"
+                        )}
+                     </Button>
+                     <Button
+                        color='gray'
+                        onClick={() => setShowDeleteModal(false)}
+                        disabled={isDeleting}
+                        className='px-6'
+                     >
+                        Cancelar
+                     </Button>
+                  </div>
+               </div>
+            </ModalBody>
+         </Modal>
       </>
    );
 }

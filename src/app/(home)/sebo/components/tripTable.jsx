@@ -1,5 +1,4 @@
 import clsx from "clsx";
-import { useState } from "react";
 import Tooltip from "./tooltip";
 
 const getColor = (value) => {
@@ -77,25 +76,20 @@ const TripTable = ({ trips, setRow, activeRow, isLoading }) => {
             <table className='w-full text-gray-600 text-center text-sm'>
                <thead className='bg-gradient-to-r from-gray-100 to-gray-200 border-b-2 border-gray-300'>
                   <tr>
-                     {/* <th
-                        className='py-3 px-4 hidden md:table-cell cursor-pointer hover:bg-gray-300 transition-colors group'
-                     >
+                     <th className='py-3 px-4 hidden 2xl:table-cell cursor-pointer hover:bg-gray-300 transition-colors group'>
                         <div className='flex items-center justify-center gap-1'>
                            <span className='font-semibold text-gray-700'>
                               PG
                            </span>
                         </div>
                      </th>
-                     <th
-                        className='py-3 px-4 hidden md:table-cell cursor-pointer hover:bg-gray-300 transition-colors group'
-                        
-                     >
+                     <th className='py-3 px-4 hidden 2xl:table-cell cursor-pointer hover:bg-gray-300 transition-colors group'>
                         <div className='flex items-center justify-center gap-1'>
                            <span className='font-semibold text-gray-700'>
                               NOME DE GUERRA
                            </span>
                         </div>
-                     </th> */}
+                     </th>
                      <th className='py-3 px-4 cursor-pointer hover:bg-gray-300 transition-colors group'>
                         <div className='flex items-center justify-center gap-1'>
                            <span className='font-semibold text-gray-700'>
@@ -167,12 +161,12 @@ const TripTable = ({ trips, setRow, activeRow, isLoading }) => {
                                  }
                               )}
                            >
-                              {/* <td className='py-2 px-4 font-semibold text-gray-700 hidden md:table-cell'>
+                              <td className='py-2 px-4 font-semibold text-gray-700 hidden 2xl:table-cell'>
                                  {trip.pg}
                               </td>
-                              <td className='py-2 px-4 font-semibold text-gray-800 text-nowrap hidden md:table-cell'>
+                              <td className='py-2 px-4 font-semibold text-gray-800 text-nowrap hidden 2xl:table-cell'>
                                  {trip.nomeGuerra}
-                              </td> */}
+                              </td>
                               <td className='py-2 px-4 font-bold text-gray-900'>
                                  {trip.trig}
                               </td>
@@ -292,10 +286,10 @@ function TableLoading() {
             <table className='w-full text-gray-600 text-center text-sm'>
                <thead className='bg-gradient-to-r from-gray-100 to-gray-200 border-b-2 border-gray-300'>
                   <tr>
-                     <th className='py-3 px-4 hidden md:table-cell'>
+                     <th className='py-3 px-4 hidden lg:table-cell'>
                         <div className='h-4 bg-gray-300 rounded animate-pulse w-12 mx-auto'></div>
                      </th>
-                     <th className='py-3 px-4 hidden md:table-cell'>
+                     <th className='py-3 px-4 hidden lg:table-cell'>
                         <div className='h-4 bg-gray-300 rounded animate-pulse w-32 mx-auto'></div>
                      </th>
                      <th className='py-3 px-4'>
@@ -333,10 +327,10 @@ function TableLoading() {
                      .map((_, i) => {
                         return (
                            <tr key={i} className='border-b border-gray-100'>
-                              <td className='py-3 px-4 hidden md:table-cell'>
+                              <td className='py-3 px-4 hidden lg:table-cell'>
                                  <div className='h-4 bg-gray-200 rounded animate-pulse w-12 mx-auto'></div>
                               </td>
-                              <td className='py-3 px-4 hidden md:table-cell'>
+                              <td className='py-3 px-4 hidden lg:table-cell'>
                                  <div className='h-4 bg-gray-200 rounded animate-pulse w-32 mx-auto'></div>
                               </td>
                               <td className='py-3 px-4'>

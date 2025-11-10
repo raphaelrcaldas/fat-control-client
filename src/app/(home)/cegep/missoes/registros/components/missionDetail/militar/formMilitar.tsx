@@ -7,9 +7,11 @@ import {
    Select,
 } from "flowbite-react";
 import { IoMdSearch } from "react-icons/io";
+import { HiUserCircle, HiTrash, HiCheckCircle, HiXCircle } from "react-icons/hi2";
 import { useState, useMemo, useEffect } from "react";
 import { SearchUser } from "../../../../../../users/components/searchUser";
 import { UserMission } from "services/routes/cegep/missoes";
+import { DeleteMilitarModal } from "./deleteMilitarModal";
 
 type FormMilitarProps = {
    show: boolean;
@@ -27,6 +29,7 @@ export function FormMilitar({
    setMils,
 }: FormMilitarProps) {
    const [showUserSearch, setShowUserSearch] = useState(false);
+   const [showDeleteModal, setShowDeleteModal] = useState(false);
    // Valores padrões do militar
    const defaultValues = useMemo(
       () => ({
@@ -100,79 +103,69 @@ export function FormMilitar({
       onClose();
    }
 
-   function onDelete() {
-      if (userMis && confirm("Confirma Exclusão do Militar?")) {
+   function handleDeleteClick() {
+      setShowDeleteModal(true);
+   }
+
+   function onConfirmDelete() {
+      if (userMis) {
          setMils(mils.filter((mil) => mil.user.id !== userMis.user.id));
          onClose();
       }
    }
 
    return (
-      <Modal size='md' show={show} onClose={() => setShow(false)}>
-         <ModalHeader>Militar</ModalHeader>
-         <ModalBody>
-            <form onSubmit={handleSubmit} className='flex flex-col gap-4'>
-               <div className='bg-slate-100 p-2 rounded-lg flex flex-col justify-center items-center'>
-                  <div className='flex flex-row gap-2 p-2 mt-4 justify-center items-center text-base'>
-                     {user ? (
-                        <span className='uppercase font-medium bg-white shadow-md px-4 py-1 rounded-lg'>
-                           {user.p_g} {user.esp} {user.nome_guerra}
-                        </span>
-                     ) : (
-                        <span className='text-red-600 text-sm'>
-                           Insira uma Militar
-                        </span>
-                     )}
-
-                     <Button
-                        pill
-                        onClick={() => setShowUserSearch(true)}
-                        color='light'
-                     >
-                        <IoMdSearch className='size-5' />
-                     </Button>
-                  </div>
-
-                  <div className='grid grid-cols-2 gap-4'>
-                     <div className='grid justify-items-center'>
-                        <Label>Posto/Grad</Label>
-                        <Select
-                           className='mt-1'
-                           value={pgMis}
-                           onChange={(e) => setPgMis(e.target.value)}
+      <Modal size='lg' show={show} onClose={() => setShow(false)}>
+         <ModalHeader className="border-b-2 border-gray-100 pb-4">
+            <div className="flex items-center gap-3">
+               <div className="p-2 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg">
+                  <HiUserCircle className="w-6 h-6 text-white" />
+               </div>
+               <span className="text-xl font-semibold text-gray-800">
+                  {userMis ? "Editar Militar" : "Adicionar Militar"}
+               </span>
+            </div>
+         </ModalHeader>
+         <ModalBody className="p-6">
+            <form onSubmit={handleSubmit} className='flex flex-col gap-6'>
+               {/* Card de Seleção do Militar */}
+               <div className='bg-gradient-to-br from-slate-50 to-slate-100 px-3 py-2 rounded-2xl border-2 border-slate-200 shadow-sm'>
+                  <div className='flex flex-col gap-2'>
+                     <div className='flex items-center justify-between'>
+                        <Label className='text-sm font-semibold text-gray-700 flex items-center gap-2'>
+                           <HiUserCircle className='w-5 h-5 text-blue-500' />
+                           Militar Selecionado
+                        </Label>
+                        <Button
+                           pill
+                           onClick={() => setShowUserSearch(true)}
+                           size="sm"
+                           className='bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 transition-all duration-300 shadow-md hover:shadow-lg'
                         >
-                           <option value='' disabled></option>
-                           <option value='tb'>TB</option>
-                           <option value='mb'>MB</option>
-                           <option value='br'>BR</option>
-                           <option value='cl'>CL</option>
-                           <option value='tc'>TC</option>
-                           <option value='mj'>MJ</option>
-                           <option value='cp'>CP</option>
-                           <option value='1t'>1T</option>
-                           <option value='2t'>2T</option>
-                           <option value='as'>AS</option>
-                           <option value='so'>SO</option>
-                           <option value='1s'>1S</option>
-                           <option value='2s'>2S</option>
-                           <option value='3s'>3S</option>
-                           <option value='cb'>CB</option>
-                           <option value='s1'>S1</option>
-                           <option value='s2'>S2</option>
-                        </Select>
+                           <IoMdSearch className='w-4 h-4 mr-2' />
+                           Buscar
+                        </Button>
                      </div>
-                     <div className='grid justify-items-center'>
-                        <Label>Situação</Label>
-                        <Select
-                           className='mt-1'
-                           value={sit}
-                           onChange={(e) => setSit(e.target.value)}
-                        >
-                           <option disabled value=''></option>
-                           <option value='c'>Comissionado</option>
-                           <option value='d'>Diária</option>
-                           <option value='g'>Grat Rep</option>
-                        </Select>
+
+                     <div className='flex justify-center items-center p-2'>
+                        {user ? (
+                           <div className='bg-white shadow-lg px-6 py-3 rounded-xl border-2 border-blue-200 transition-all duration-300 hover:shadow-xl'>
+                              <span className='uppercase font-semibold text-base text-gray-800'>
+                                 <span className='text-blue-600'>{user.p_g}</span>
+                                 {" "}
+                                 <span className='text-gray-500'>{user.esp}</span>
+                                 {" "}
+                                 <span>{user.nome_guerra}</span>
+                              </span>
+                           </div>
+                        ) : (
+                           <div className='flex items-center gap-2 text-red-500 bg-red-50 px-4 py-2 rounded-lg border border-red-200'>
+                              <HiXCircle className='w-5 h-5' />
+                              <span className='text-sm font-medium'>
+                                 Nenhum militar selecionado
+                              </span>
+                           </div>
+                        )}
                      </div>
                   </div>
 
@@ -184,24 +177,92 @@ export function FormMilitar({
                   />
                </div>
 
-               <div className='flex gap-3 mt-4 justify-center'>
-                  <Button
-                     color='blue'
-                     className='w-28'
-                     type='submit'
-                     disabled={!isChanged}
-                  >
-                     Salvar
-                  </Button>
+               {/* Grid de Campos */}
+               <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
+                  {/* Posto/Graduação */}
+                  <div className='flex flex-col gap-2'>
+                     <Label className='text-sm font-semibold text-gray-700'>
+                        Posto/Graduação
+                     </Label>
+                     <span className='text-xs text-gray-500 -mt-1 mb-1'>
+                        Posto/Graduação que o militar estava no dia da missão
+                     </span>
+                     <Select
+                        value={pgMis}
+                        onChange={(e) => setPgMis(e.target.value)}
+                        className='rounded-lg border-2 border-gray-200 focus:border-blue-500 focus:ring-blue-500 transition-all duration-300'
+                     >
+                        <option value='' disabled>Selecione...</option>
+                        <option value='tb'>TB - Tenente Brigadeiro</option>
+                        <option value='mb'>MB - Major Brigadeiro</option>
+                        <option value='br'>BR - Brigadeiro</option>
+                        <option value='cl'>CL - Coronel</option>
+                        <option value='tc'>TC - Tenente Coronel</option>
+                        <option value='mj'>MJ - Major</option>
+                        <option value='cp'>CP - Capitão</option>
+                        <option value='1t'>1T - Primeiro Tenente</option>
+                        <option value='2t'>2T - Segundo Tenente</option>
+                        <option value='as'>AS - Aspirante</option>
+                        <option value='so'>SO - Suboficial</option>
+                        <option value='1s'>1S - Primeiro Sargento</option>
+                        <option value='2s'>2S - Segundo Sargento</option>
+                        <option value='3s'>3S - Terceiro Sargento</option>
+                        <option value='cb'>CB - Cabo</option>
+                        <option value='s1'>S1 - Soldado 1ª Classe</option>
+                        <option value='s2'>S2 - Soldado 2ª Classe</option>
+                     </Select>
+                  </div>
 
+                  {/* Situação */}
+                  <div className='flex flex-col gap-2'>
+                     <Label className='text-sm font-semibold text-gray-700'>
+                        Situação
+                     </Label>
+                     <Select
+                        value={sit}
+                        onChange={(e) => setSit(e.target.value)}
+                        className='rounded-lg border-2 border-gray-200 focus:border-blue-500 focus:ring-blue-500 transition-all duration-300'
+                     >
+                        <option disabled value=''>Selecione...</option>
+                        <option value='c'>Comissionado</option>
+                        <option value='d'>Diária</option>
+                        <option value='g'>Grat Rep</option>
+                     </Select>
+                  </div>
+               </div>
+
+               {/* Botões de Ação */}
+               <div className='flex gap-3 mt-4 justify-center border-t-2 border-gray-100 pt-6'>
                   {userMis && (
-                     <Button onClick={onDelete} className='w-28' color='red'>
+                     <Button
+                        onClick={handleDeleteClick}
+                        className='min-w-32 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 transition-all duration-300 shadow-md hover:shadow-lg'
+                     >
+                        <HiTrash className='w-4 h-4 mr-2' />
                         Excluir
                      </Button>
                   )}
+                  <Button
+                     type='submit'
+                     disabled={!isChanged}
+                     className='min-w-32 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 disabled:from-gray-300 disabled:to-gray-400 transition-all duration-300 shadow-md hover:shadow-lg disabled:shadow-none'
+                  >
+                     <HiCheckCircle className='w-4 h-4 mr-2' />
+                     Salvar
+                  </Button>
                </div>
             </form>
          </ModalBody>
+
+         {/* Modal de Confirmação de Exclusão */}
+         {userMis && (
+            <DeleteMilitarModal
+               show={showDeleteModal}
+               setShow={setShowDeleteModal}
+               userMis={userMis}
+               onConfirm={onConfirmDelete}
+            />
+         )}
       </Modal>
    );
 }
