@@ -123,14 +123,14 @@ export function CardMission({
 
                {/* Datas de afastamento e regresso */}
                <div className='flex flex-col gap-2'>
-                  <div className='flex items-center justify-between p-4 bg-white rounded-xl border-2 border-gray-200 shadow-sm'>
+                  <div className='flex items-center justify-between p-2 bg-white rounded-xl border-2 border-gray-200 shadow-sm'>
                      <div className='flex items-center gap-3'>
                         <MdCalendarToday className='text-blue-500 text-xl' />
                         <div className='flex flex-col'>
                            <span className='text-xs text-gray-500 font-medium uppercase'>
                               Afastamento
                            </span>
-                           <span className='font-mono font-semibold text-gray-800'>
+                           <span className='font-semibold text-gray-800 text-sm'>
                               {ini}
                            </span>
                         </div>
@@ -145,7 +145,7 @@ export function CardMission({
                            <span className='text-xs text-gray-500 font-medium uppercase'>
                               Regresso
                            </span>
-                           <span className='font-mono font-semibold text-gray-800'>
+                           <span className='font-semibold text-gray-800 text-sm'>
                               {fim}
                            </span>
                         </div>
@@ -181,7 +181,7 @@ export function CardMission({
                            Militares ({missao.users.length})
                         </h4>
                      </div>
-                     <div className='grid grid-cols-1 sm:grid-cols-2 gap-2'>
+                     <div className='grid grid-cols-2 gap-2'>
                         {missao.users.map((user) => (
                            <UserCardMis key={user.id} user={user} />
                         ))}
@@ -217,7 +217,7 @@ function PernoiteCardMis({ pnt }) {
    });
 
    return (
-      <div className='flex items-center gap-3 p-3 rounded-lg border border-gray-200 bg-white'>
+      <div className='flex items-center gap-3 p-1 rounded-lg border border-gray-200 bg-white'>
          {/* Datas */}
          <div className='flex items-center gap-2'>
             <MdCalendarToday className='text-gray-500 text-sm' />
@@ -234,7 +234,6 @@ function PernoiteCardMis({ pnt }) {
 
          {/* Localização */}
          <div className='flex items-center gap-1.5 flex-1'>
-            <MdLocationOn className='text-red-500 text-base' />
             <span className='font-medium text-gray-800 text-xs uppercase'>
                {pnt.cidade.nome}-{pnt.cidade.uf}
             </span>
@@ -305,7 +304,7 @@ function UserCardMis({ user }) {
    return (
       <div
          className={clsx(
-            "flex items-center gap-2 px-3 py-1.5 rounded-xl border-2 select-none text-sm",
+            "flex items-center gap-2 px-1 py-0.5 rounded-xl border-2 select-none text-sm",
             config.bgColor,
             config.borderColor
          )}
@@ -319,7 +318,7 @@ function UserCardMis({ user }) {
             {user.sit}
          </span>
          <div
-            className={clsx("font-medium uppercase", config.textColor)}
+            className={clsx("font-medium uppercase text-xs", config.textColor)}
          >
             <span className='font-bold uppercase'>{user.p_g}</span>{" "}
             <span>{user.user.nome_guerra}</span>

@@ -3,7 +3,7 @@
 export function AppLoadingScreen() {
    return (
       <div className='h-full grid justify-items-center content-center bg-gradient-to-br from-gray-50 to-gray-100'>
-         <div className='relative grid justify-items-center max-w-md w-full mx-4 p-8 bg-white border border-gray-200 rounded-xl shadow-xl animate-fade-in'>
+         <div className='relative grid justify-items-center max-w-md w-full mx-8 p-10 bg-white border border-gray-200 rounded-xl shadow-xl animate-fade-in'>
             {/* Logo/Título com animação de pulse suave */}
             <div className='mb-6 text-center animate-pulse-subtle'>
                <h3 className='mb-2 text-2xl md:text-3xl font-bold tracking-tight text-gray-800'>

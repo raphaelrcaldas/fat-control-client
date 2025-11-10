@@ -2,19 +2,21 @@
 
 import { getFragMissoes } from "services/routes/cegep/missoes";
 import { useEffect, useState, useMemo, useCallback } from "react";
-import {
-   Label,
-   Spinner,
-   Select,
-   TextInput,
-   Button,
-   Badge,
-} from "flowbite-react";
+import { Label, Spinner, Select, TextInput, Badge } from "flowbite-react";
 import { Missao } from "services/routes/cegep/missoes";
 import { CardMission } from "./components/cardMission";
 import MissionDetail from "./components/missionDetail";
 import { useRegisterContext } from "../../context/registerContext";
-import { HiX, HiFilter, HiRefresh } from "react-icons/hi";
+import {
+   HiX,
+   HiFilter,
+   HiDocumentText,
+   HiHashtag,
+   HiUser,
+   HiLocationMarker,
+   HiCalendar,
+   HiTag,
+} from "react-icons/hi";
 
 export function RegisPage() {
    const [missoes, setMissoes] = useState<Missao[] | null>(null);
@@ -161,21 +163,33 @@ export function RegisPage() {
 
             {/* Filters Section */}
             {showFilters && (
-               <section className='flex-shrink-0'>
+               <section className='flex-shrink-0 animate-in fade-in slide-in-from-top-4 duration-300'>
                   <div className='w-full px-3 pb-3'>
-                     <div className='relative overflow-hidden bg-white shadow-md border border-gray-200 rounded-xl'>
-                        <div className='p-4'>
-                           <div className='flex items-center justify-between mb-4'>
-                              <h6 className='font-semibold text-gray-700 flex items-center gap-2'>
-                                 <HiFilter className='text-blue-600' />
-                                 Filtros de Busca
-                              </h6>
+                     <div className='relative overflow-hidden bg-gradient-to-br from-white via-blue-50/30 to-white shadow-lg border-2 border-blue-100/50 rounded-2xl'>
+                        {/* Background Decoration */}
+                        <div className='absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-blue-100/20 to-transparent rounded-full blur-3xl -z-10'></div>
+
+                        <div className='p-5'>
+                           <div className='flex items-center justify-between mb-5'>
+                              <div className='flex items-center gap-2.5'>
+                                 <div className='p-2 bg-blue-100 rounded-lg'>
+                                    <HiFilter className='text-blue-600 text-lg' />
+                                 </div>
+                                 <div>
+                                    <h6 className='font-bold text-gray-800 text-base'>
+                                       Filtros de Busca
+                                    </h6>
+                                    <p className='text-xs text-gray-500'>
+                                       Refine sua pesquisa
+                                    </p>
+                                 </div>
+                              </div>
                               {hasActiveFilters && (
                                  <button
                                     onClick={clearFilters}
-                                    className='flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-colors'
+                                    className='flex items-center gap-2 px-4 py-2 text-sm font-medium text-red-600 bg-red-50 hover:bg-red-100 border border-red-200 rounded-lg transition-all hover:shadow-md hover:scale-105 active:scale-95'
                                  >
-                                    <HiX className='text-sm' />
+                                    <HiX className='text-base' />
                                     Limpar Filtros
                                  </button>
                               )}
@@ -183,134 +197,195 @@ export function RegisPage() {
 
                            <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7 gap-4'>
                               {/* Tipo da Ordem */}
-                              <div className='flex flex-col'>
-                                 <Label className='mb-2 text-xs font-semibold text-gray-700'>
+                              <div className='flex flex-col group'>
+                                 <Label className='mb-2 text-xs font-semibold text-gray-700 flex items-center gap-1.5'>
+                                    <HiDocumentText className='text-blue-500 text-sm' />
                                     Tipo da Ordem
                                  </Label>
-                                 <Select
-                                    value={tipoDoc}
-                                    onChange={(e) => setTipoDoc(e.target.value)}
-                                    className='text-sm'
-                                 >
-                                    <option value=''>Todos</option>
-                                    <option value='om'>Missão</option>
-                                    <option value='os'>Serviço</option>
-                                 </Select>
+                                 <div className='relative'>
+                                    <Select
+                                       value={tipoDoc}
+                                       onChange={(e) =>
+                                          setTipoDoc(e.target.value)
+                                       }
+                                       className={`text-sm transition-all ${
+                                          tipoDoc
+                                             ? "ring-2 ring-blue-500 border-blue-500"
+                                             : ""
+                                       }`}
+                                    >
+                                       <option value=''>Todos</option>
+                                       <option value='om'>Missão</option>
+                                       <option value='os'>Serviço</option>
+                                    </Select>
+                                    {tipoDoc && (
+                                       <div className='absolute -top-1 -right-1 w-3 h-3 bg-blue-500 rounded-full animate-pulse'></div>
+                                    )}
+                                 </div>
                               </div>
 
                               {/* Nº da Ordem */}
-                              <div className='flex flex-col'>
-                                 <Label className='mb-2 text-xs font-semibold text-gray-700'>
+                              <div className='flex flex-col group'>
+                                 <Label className='mb-2 text-xs font-semibold text-gray-700 flex items-center gap-1.5'>
+                                    <HiHashtag className='text-purple-500 text-sm' />
                                     Nº da Ordem
                                  </Label>
-                                 <TextInput
-                                    type='text'
-                                    value={nDoc ?? ""}
-                                    onChange={(e) =>
-                                       setNDoc(
-                                          e.target.value === ""
-                                             ? undefined
-                                             : Number(e.target.value)
-                                       )
-                                    }
-                                    onKeyDown={(e) => {
-                                       if (
-                                          !(
-                                             (e.key >= "0" && e.key <= "9") ||
-                                             [
-                                                "Backspace",
-                                                "Tab",
-                                                "Delete",
-                                                "ArrowLeft",
-                                                "ArrowRight",
-                                             ].includes(e.key)
+                                 <div className='relative'>
+                                    <TextInput
+                                       type='text'
+                                       value={nDoc ?? ""}
+                                       onChange={(e) =>
+                                          setNDoc(
+                                             e.target.value === ""
+                                                ? undefined
+                                                : Number(e.target.value)
                                           )
-                                       ) {
-                                          e.preventDefault();
                                        }
-                                    }}
-                                    placeholder='Número'
-                                    className='text-sm'
-                                 />
+                                       onKeyDown={(e) => {
+                                          if (
+                                             !(
+                                                (e.key >= "0" &&
+                                                   e.key <= "9") ||
+                                                [
+                                                   "Backspace",
+                                                   "Tab",
+                                                   "Delete",
+                                                   "ArrowLeft",
+                                                   "ArrowRight",
+                                                ].includes(e.key)
+                                             )
+                                          ) {
+                                             e.preventDefault();
+                                          }
+                                       }}
+                                       placeholder='Número'
+                                       className={`text-sm transition-all ${
+                                          nDoc
+                                             ? "ring-2 ring-purple-500 border-purple-500"
+                                             : ""
+                                       }`}
+                                    />
+                                    {nDoc && (
+                                       <div className='absolute -top-1 -right-1 w-3 h-3 bg-purple-500 rounded-full animate-pulse'></div>
+                                    )}
+                                 </div>
                               </div>
 
                               {/* Tipo de Missão */}
-                              <div className='flex flex-col'>
-                                 <Label className='mb-2 text-xs font-semibold text-gray-700'>
+                              <div className='flex flex-col group'>
+                                 <Label className='mb-2 text-xs font-semibold text-gray-700 flex items-center gap-1.5'>
+                                    <HiTag className='text-green-500 text-sm' />
                                     Tipo de Missão
                                  </Label>
-                                 <Select
-                                    value={selectedTipo}
-                                    onChange={(e) =>
-                                       setSelectedTipo(e.target.value)
-                                    }
-                                    className='text-sm'
-                                 >
-                                    <option value=''>Todos</option>
-                                    <option value='tal'>TAL</option>
-                                    <option value='adm'>ADM</option>
-                                    <option value='opr'>OPR</option>
-                                 </Select>
+                                 <div className='relative'>
+                                    <Select
+                                       value={selectedTipo}
+                                       onChange={(e) =>
+                                          setSelectedTipo(e.target.value)
+                                       }
+                                       className={`text-sm transition-all ${
+                                          selectedTipo
+                                             ? "ring-2 ring-green-500 border-green-500"
+                                             : ""
+                                       }`}
+                                    >
+                                       <option value=''>Todos</option>
+                                       <option value='tal'>TAL</option>
+                                       <option value='adm'>ADM</option>
+                                       <option value='opr'>OPR</option>
+                                    </Select>
+                                    {selectedTipo && (
+                                       <div className='absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full animate-pulse'></div>
+                                    )}
+                                 </div>
                               </div>
 
                               {/* Militar */}
-                              <div className='flex flex-col'>
-                                 <Label className='mb-2 text-xs font-semibold text-gray-700'>
+                              <div className='flex flex-col group'>
+                                 <Label className='mb-2 text-xs font-semibold text-gray-700 flex items-center gap-1.5'>
+                                    <HiUser className='text-indigo-500 text-sm' />
                                     Militar
                                  </Label>
-                                 <TextInput
-                                    type='text'
-                                    value={userSearch}
-                                    onChange={(e) =>
-                                       setUserSearch(e.target.value)
-                                    }
-                                    placeholder='Nome de guerra'
-                                    className='text-sm'
-                                 />
+                                 <div className='relative'>
+                                    <TextInput
+                                       type='text'
+                                       value={userSearch}
+                                       onChange={(e) =>
+                                          setUserSearch(e.target.value)
+                                       }
+                                       placeholder='Nome de guerra'
+                                       className={`text-sm transition-all ${
+                                          userSearch
+                                             ? "ring-2 ring-indigo-500 border-indigo-500"
+                                             : ""
+                                       }`}
+                                    />
+                                    {userSearch && (
+                                       <div className='absolute -top-1 -right-1 w-3 h-3 bg-indigo-500 rounded-full animate-pulse'></div>
+                                    )}
+                                 </div>
                               </div>
 
                               {/* Cidade */}
-                              <div className='flex flex-col'>
-                                 <Label className='mb-2 text-xs font-semibold text-gray-700'>
+                              <div className='flex flex-col group'>
+                                 <Label className='mb-2 text-xs font-semibold text-gray-700 flex items-center gap-1.5'>
+                                    <HiLocationMarker className='text-rose-500 text-sm' />
                                     Cidade
                                  </Label>
-                                 <TextInput
-                                    type='text'
-                                    value={citySearch}
-                                    onChange={(e) =>
-                                       setCitySearch(e.target.value)
-                                    }
-                                    placeholder='Município'
-                                    className='text-sm'
-                                 />
+                                 <div className='relative'>
+                                    <TextInput
+                                       type='text'
+                                       value={citySearch}
+                                       onChange={(e) =>
+                                          setCitySearch(e.target.value)
+                                       }
+                                       placeholder='Município'
+                                       className={`text-sm transition-all ${
+                                          citySearch
+                                             ? "ring-2 ring-rose-500 border-rose-500"
+                                             : ""
+                                       }`}
+                                    />
+                                    {citySearch && (
+                                       <div className='absolute -top-1 -right-1 w-3 h-3 bg-rose-500 rounded-full animate-pulse'></div>
+                                    )}
+                                 </div>
                               </div>
 
                               {/* Data Afastamento */}
-                              <div className='flex flex-col'>
-                                 <Label className='mb-2 text-xs font-semibold text-gray-700'>
+                              <div className='flex flex-col group'>
+                                 <Label className='mb-2 text-xs font-semibold text-gray-700 flex items-center gap-1.5'>
+                                    <HiCalendar className='text-amber-500 text-sm' />
                                     Afastamento
                                  </Label>
-                                 <input
-                                    type='date'
-                                    value={dataInicio}
-                                    onChange={(e) =>
-                                       setDataInicio(e.target.value)
-                                    }
-                                    className='block w-full p-2.5 text-sm text-gray-900 bg-white border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500'
-                                 />
+                                 <div className='relative'>
+                                    <input
+                                       type='date'
+                                       value={dataInicio}
+                                       onChange={(e) =>
+                                          setDataInicio(e.target.value)
+                                       }
+                                       className='block w-full p-2.5 text-sm text-gray-900 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all hover:border-amber-400'
+                                    />
+                                 </div>
                               </div>
 
                               {/* Data Regresso */}
-                              <div className='flex flex-col'>
-                                 <Label className='mb-2 text-xs font-semibold text-gray-700'>
+                              <div className='flex flex-col group'>
+                                 <Label className='mb-2 text-xs font-semibold text-gray-700 flex items-center gap-1.5'>
+                                    <HiCalendar className='text-teal-500 text-sm' />
                                     Regresso
                                  </Label>
-                                 <input
-                                    type='date'
-                                    value={dataFim}
-                                    onChange={(e) => setDataFim(e.target.value)}
-                                    className='block w-full p-2.5 text-sm text-gray-900 bg-white border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500'
-                                 />
+                                 <div className='relative'>
+                                    <input
+                                       type='date'
+                                       value={dataFim}
+                                       onChange={(e) =>
+                                          setDataFim(e.target.value)
+                                       }
+                                       className='block w-full p-2.5 text-sm text-gray-900 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all hover:border-teal-400'
+                                    />
+                                 </div>
                               </div>
                            </div>
                         </div>

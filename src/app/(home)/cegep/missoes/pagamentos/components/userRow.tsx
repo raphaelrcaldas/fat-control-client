@@ -1,6 +1,12 @@
 "use client";
-import { Checkbox, Button, Popover } from "flowbite-react";
+import { Checkbox, Button, Popover, Badge } from "flowbite-react";
 import { IoMdInformationCircleOutline } from "react-icons/io";
+import {
+   HiCalendar,
+   HiClock,
+   HiCurrencyDollar,
+   HiLocationMarker,
+} from "react-icons/hi";
 import clsx from "clsx";
 import { MisPntsTable } from "../../../components/popMisPnts";
 
@@ -29,68 +35,151 @@ export function UserRow({ record, checked, onSelect }) {
       onSelect(record.user_mis.id, record.missao.valor_total, !checked);
    }
 
+   const getStatusConfig = (sit: string) => {
+      const configs = {
+         g: {
+            label: "G",
+            color: "warning",
+            bgClass: "bg-gradient-to-br from-orange-50 to-orange-100/50",
+            hoverClass: "hover:from-orange-100 hover:to-orange-150",
+            borderClass: "border-l-4 border-orange-400",
+         },
+         d: {
+            label: "D",
+            color: "success",
+            bgClass: "bg-gradient-to-br from-green-50 to-green-100/50",
+            hoverClass: "hover:from-green-100 hover:to-green-150",
+            borderClass: "border-l-4 border-green-400",
+         },
+         c: {
+            label: "C",
+            color: "info",
+            bgClass: "bg-gradient-to-br from-blue-50 to-blue-100/50",
+            hoverClass: "hover:from-blue-100 hover:to-blue-150",
+            borderClass: "border-l-4 border-blue-400",
+         },
+      };
+      return configs[sit] || configs.g;
+   };
+
+   const statusConfig = getStatusConfig(record.user_mis.sit);
+
    return (
       <li
          key={record.missao.id}
          className={clsx(
-            "p-2 mb-2 text-base text-center rounded-lg shadow flex flex-row gap-2 uppercase justify-evenly items-center",
+            "group relative p-2 my-1.5 rounded transition-all duration-200 ease-in-out",
+            "flex flex-row gap-0.5 sm:gap-2 items-center",
+            statusConfig.bgClass,
+            statusConfig.hoverClass,
+            statusConfig.borderClass,
+            "hover:shadow",
             {
-               "bg-orange-100 hover:bg-orange-200": record.user_mis.sit === "g",
-               "bg-green-100 hover:bg-green-200": record.user_mis.sit === "d",
-               "bg-blue-100 hover:bg-blue-200": record.user_mis.sit === "c",
+               "ring-2 ring-blue-400 ring-offset-1": checked,
             }
          )}
       >
-         <span className='w-8'>
+         {/* Checkbox Section */}
+         <div className='flex items-center justify-center w-8'>
             <Checkbox
-               className='size-6'
+               className='size-5 cursor-pointer transition-transform hover:scale-105'
                color='blue'
                checked={checked}
                onChange={onChange}
             />
-         </span>
-         <span className='w-16 font-semibold'>
-            {record.missao.tipo_doc} {record.missao.n_doc}
-         </span>
-         <span className='w-40'>
-            {record.user_mis.p_g} {record.user_mis.user.nome_guerra}
-         </span>
-         <span
-            className={clsx("w-4 font-medium", {
-               "text-orange-500": record.user_mis.sit === "g",
-               "text-green-500": record.user_mis.sit === "d",
-               "text-blue-600": record.user_mis.sit === "c",
-            })}
-         >
-            {record.user_mis.sit}
-         </span>
-         <span className='flex-1 text-sm text-left'>
-            {record.missao.desc || "Sem descrição"}
-         </span>
-         <div className='w-36 flex flex-col'>
-            <span className='text-gray-500'>{afast}</span>
-            <span className='text-gray-500'>{regres}</span>
          </div>
-         <span className='w-10 text-sm grid'>
-            <span>{record.missao.dias}</span>
-            <span className='capitalize'>dia</span>
-         </span>
-         <span
-            className={clsx("w-14 grid text-sm capitalize", {
-               "text-slate-400": record.user_mis.sit === "g",
-            })}
-         >
-            <span>{Number(record.missao.diarias).toFixed(1)}</span>
-            <span>diária{record.missao.diarias > 1 ? "s" : ""}</span>
-         </span>
-         <span className='w-32 font-medium text-center'>
-            {Number(record.missao.valor_total).toLocaleString("pt-BR", {
-               style: "currency",
-               currency: "BRL",
-            })}
-         </span>
-         <div className='w-60 items-center gap-1 flex flex-col'>
-            {pnts.length > 0 &&
+
+         {/* Document Info */}
+         <div className='flex flex-col items-center min-w-[70px]'>
+            <span className='text-[10px] font-medium text-gray-500 uppercase tracking-wider'>
+               {record.missao.tipo_doc}
+            </span>
+            <span className='text-base font-bold text-gray-900'>
+               {record.missao.n_doc}
+            </span>
+         </div>
+
+         {/* User Info */}
+         <div className='text-xs sm:text-base flex flex-col min-w-[160px]'>
+            <span className='text-[10px] text-gray-500 uppercase tracking-wide'>
+               Militar
+            </span>
+            <span className='font-semibold text-gray-900 uppercase'>
+               {record.user_mis.p_g} {record.user_mis.user.nome_guerra}
+            </span>
+         </div>
+
+         {/* Status Badge */}
+         <div className='hidden md:flex items-center'>
+            <Badge
+               color={statusConfig.color}
+               size='sm'
+               className='font-medium px-2 py-0.5 text-xs'
+            >
+               {statusConfig.label}
+            </Badge>
+         </div>
+
+         {/* Description */}
+         <div className='hidden sm:flex sm:flex-1 min-w-[150px]'>
+            <p className='text-xs text-gray-700 line-clamp-2 leading-tight'>
+               {record.missao.desc || (
+                  <span className='italic text-gray-400'>Sem descrição</span>
+               )}
+            </p>
+         </div>
+
+         {/* Dates Section */}
+         <div className='flex flex-col gap-1 min-w-[140px]'>
+            <div className='flex items-center gap-2'>
+               <HiCalendar className='text-gray-400 flex-shrink-0' size={14} />
+               <span className='text-xs text-gray-600'>{afast}</span>
+            </div>
+            <div className='flex items-center gap-2'>
+               <HiCalendar className='text-gray-400 flex-shrink-0' size={14} />
+               <span className='text-xs text-gray-600'>{regres}</span>
+            </div>
+         </div>
+
+         {/* Days & Diarias */}
+         <div className='flex gap-3'>
+            <div className='flex flex-col items-center min-w-[60px]'>
+               <span className='text-base font-bold text-gray-900'>
+                  {record.missao.dias}
+               </span>
+               <span className='text-[10px] uppercase text-gray-500 font-medium'>
+                  dia{record.missao.dias > 1 ? "s" : ""}
+               </span>
+            </div>
+
+            <div
+               className={clsx("flex flex-col items-center min-w-[70px]", {
+                  "opacity-50": record.user_mis.sit === "g",
+               })}
+            >
+               <span className='text-base font-bold text-gray-900'>
+                  {Number(record.missao.diarias).toFixed(1)}
+               </span>
+               <span className='text-[10px] uppercase text-gray-500 font-medium'>
+                  diária{record.missao.diarias > 1 ? "s" : ""}
+               </span>
+            </div>
+         </div>
+
+         {/* Total Value */}
+         <div className='flex flex-col items-center bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-lg px-3 py-1.5 min-w-[120px]'>
+            <HiCurrencyDollar className='text-emerald-600 mb-0.5' size={16} />
+            <span className='text-sm font-bold text-emerald-700'>
+               {Number(record.missao.valor_total).toLocaleString("pt-BR", {
+                  style: "currency",
+                  currency: "BRL",
+               })}
+            </span>
+         </div>
+
+         {/* Pernoites */}
+         <div className='flex flex-wrap gap-1 items-center min-w-[240px] max-w-[240px]'>
+            {pnts.length > 0 ? (
                pnts.map((pnt) => {
                   const totalDiarias = pnt.custo.vals.reduce(
                      (acc, val) => acc + val.qtd,
@@ -99,34 +188,50 @@ export function UserRow({ record, checked, onSelect }) {
                   return (
                      <div
                         key={pnt.id}
-                        className='text-sm bg-gray-200 px-2 py-1 rounded-lg'
+                        className='inline-flex items-center gap-1 text-[11px] bg-gradient-to-r from-gray-100 to-gray-200 hover:from-gray-200 hover:to-gray-300 px-2 py-1 rounded-full transition-all duration-200'
                      >
-                        {pnt.cidade.nome}-{pnt.cidade.uf}
-                        {record.user_mis.sit != "g" && (
-                           <> ({Number(totalDiarias).toFixed(1)})</>
+                        <HiLocationMarker className='text-gray-500' size={11} />
+                        <span className='font-medium text-gray-700'>
+                           {pnt.cidade.nome}-{pnt.cidade.uf}
+                        </span>
+                        {record.user_mis.sit !== "g" && (
+                           <span className='text-gray-500 font-semibold'>
+                              ({Number(totalDiarias).toFixed(1)})
+                           </span>
                         )}
                      </div>
                   );
-               })}
+               })
+            ) : (
+               <span className='text-xs text-gray-400 italic'>
+                  Sem pernoites
+               </span>
+            )}
          </div>
-         <Popover
-            content={
-               <MisPntsTable
-                  pernoites={pnts}
-                  acDeslocSede={record.missao.acrec_desloc}
-                  total={record.missao.valor_total}
-               />
-            }
-            placement='left'
-         >
-            <Button
-               className='size-11 p-0'
-               disabled={record.sit === "g"}
-               color='light'
+
+         {/* Info Button */}
+         <div className='flex items-center'>
+            <Popover
+               content={
+                  <MisPntsTable
+                     pernoites={pnts}
+                     acDeslocSede={record.missao.acrec_desloc}
+                     total={record.missao.valor_total}
+                  />
+               }
+               placement='left'
             >
-               <IoMdInformationCircleOutline size={23} />
-            </Button>
-         </Popover>
+               <Button
+                  className='transition-opacity duration-200 hover:opacity-70'
+                  size='xs'
+                  disabled={record.sit === "g"}
+                  color='gray'
+                  pill
+               >
+                  <IoMdInformationCircleOutline size={18} />
+               </Button>
+            </Popover>
+         </div>
       </li>
    );
 }
