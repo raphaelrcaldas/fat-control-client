@@ -14,7 +14,7 @@ export default function MissPage() {
 
    return (
       <div className="min-h-screen  bg-gradient-to-br from-gray-50 via-blue-50 to-gray-100">
-         <div className="mx-auto p-2">
+         <div className="mx-auto p-1">
             {/* Header Section */}
             <div className="mb-4">
                <div className="relative">
@@ -31,7 +31,7 @@ export default function MissPage() {
             </div>
 
             {/* Tabs Section */}
-            <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-gray-200 overflow-hidden">
+            <div className="bg-white/80 rounded-2xl shadow-xl border border-gray-200 overflow-hidden">
                <Tabs
                   aria-label='Tabs de missões'
                   variant='underline'

@@ -1,20 +1,22 @@
 import { Dropdown, DropdownItem, Tooltip } from "flowbite-react";
-import { useState, Dispatch, SetStateAction } from "react";
+import { useState, Dispatch, SetStateAction, memo, useMemo, useCallback } from "react";
 import { FaRegClone } from "react-icons/fa";
 import MissionDetail from "./missionDetail";
 import { Missao } from "services/routes/cegep/missoes";
 import clsx from "clsx";
 import { isoStrToDate } from "utils/dateHandler";
-import {
-   MdCalendarToday,
-   MdLocationOn,
-   MdAttachMoney,
-   MdDescription,
-   MdGroup,
-} from "react-icons/md";
+import { MdCalendarToday, MdDescription, MdGroup } from "react-icons/md";
 import { HiDocumentText } from "react-icons/hi2";
 
-export function CardMission({
+const dayExt = {
+   day: "2-digit" as const,
+   month: "2-digit" as const,
+   year: "2-digit" as const,
+   hour: "2-digit" as const,
+   minute: "2-digit" as const,
+};
+
+export const CardMission = memo(function CardMission({
    missao,
    update,
    setClone,
@@ -26,15 +28,11 @@ export function CardMission({
    setShowForm: Dispatch<SetStateAction<boolean>>;
 }) {
    const [showDetail, setShowDetail] = useState(false);
-   const dayExt = {
-      day: "2-digit" as const,
-      month: "2-digit" as const,
-      year: "2-digit" as const,
-      hour: "2-digit" as const,
-      minute: "2-digit" as const,
-   };
-   const ini = new Date(missao.afast).toLocaleDateString("pt-BR", dayExt);
-   const fim = new Date(missao.regres).toLocaleDateString("pt-BR", dayExt);
+
+   const { ini, fim } = useMemo(() => ({
+      ini: new Date(missao.afast).toLocaleDateString("pt-BR", dayExt),
+      fim: new Date(missao.regres).toLocaleDateString("pt-BR", dayExt),
+   }), [missao.afast, missao.regres]);
 
    // let colorBadge: string;
    // switch (missao.tipo) {
@@ -49,11 +47,11 @@ export function CardMission({
    //       break;
    // }
 
-   function onClone() {
+   const onClone = useCallback(() => {
       const clone = { ...missao, users: [], id: null };
       setClone(clone);
       setShowForm(true);
-   }
+   }, [missao, setClone, setShowForm]);
 
    return (
       <>
@@ -203,18 +201,19 @@ export function CardMission({
          )}
       </>
    );
-}
+});
 
-function PernoiteCardMis({ pnt }) {
-   const dataIni = isoStrToDate(pnt.data_ini).toLocaleDateString("pt-br", {
-      day: "2-digit",
-      month: "short",
-   });
-
-   const dataFim = isoStrToDate(pnt.data_fim).toLocaleDateString("pt-br", {
-      day: "2-digit",
-      month: "short",
-   });
+const PernoiteCardMis = memo(function PernoiteCardMis({ pnt }: { pnt: any }) {
+   const { dataIni, dataFim } = useMemo(() => ({
+      dataIni: isoStrToDate(pnt.data_ini).toLocaleDateString("pt-br", {
+         day: "2-digit",
+         month: "short",
+      }),
+      dataFim: isoStrToDate(pnt.data_fim).toLocaleDateString("pt-br", {
+         day: "2-digit",
+         month: "short",
+      }),
+   }), [pnt.data_ini, pnt.data_fim]);
 
    return (
       <div className='flex items-center gap-3 p-1 rounded-lg border border-gray-200 bg-white'>
@@ -259,10 +258,10 @@ function PernoiteCardMis({ pnt }) {
          </div>
       </div>
    );
-}
+});
 
-function UserCardMis({ user }) {
-   const getSituacaoConfig = () => {
+const UserCardMis = memo(function UserCardMis({ user }: { user: any }) {
+   const config = useMemo(() => {
       switch (user.sit) {
          case "c":
             return {
@@ -297,9 +296,7 @@ function UserCardMis({ user }) {
                badgeColor: "bg-gray-500",
             };
       }
-   };
-
-   const config = getSituacaoConfig();
+   }, [user.sit]);
 
    return (
       <div
@@ -325,4 +322,4 @@ function UserCardMis({ user }) {
          </div>
       </div>
    );
-}
+});

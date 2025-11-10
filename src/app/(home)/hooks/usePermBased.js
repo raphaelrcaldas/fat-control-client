@@ -17,3 +17,25 @@ export const PermBased = ({ children, resource, requiredPerm }) => {
 
    return children;
 };
+
+export const usePermBased = () => {
+   const { role, perms } = useAuth();
+
+   const hasPerm = (resource, requiredPerm) => {
+      if (role === "admin") {
+         return true;
+      }
+
+      if (!resource || !requiredPerm) {
+         return true;
+      }
+
+      const checkPerm = perms?.find(
+         (p) => p.resource === resource && p.name === requiredPerm
+      );
+
+      return !!checkPerm;
+   };
+
+   return { hasPerm };
+};

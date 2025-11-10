@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { usePathname } from "next/navigation";
 import clsx from "clsx";
 import { useAuth } from "@/app/context/auth";
@@ -10,6 +10,8 @@ import { navItems } from "./navItems";
 import { PiSignOut } from "react-icons/pi";
 import { Button } from "flowbite-react";
 import LoadingOverlay from "./loadingOverlay";
+import { useRoleBased } from "../../hooks/useRoleBased";
+import { usePermBased } from "../../hooks/usePermBased";
 
 interface SidebarProps {
    isOpen: boolean;
@@ -26,6 +28,8 @@ export default function SidebarWithFooter({
 }: SidebarProps) {
    const pathname = usePathname();
    const { user, userPg, role } = useAuth();
+   const { hasRole } = useRoleBased();
+   const { hasPerm } = usePermBased();
    const useOverlay = isMobile;
    const [isLoggingOut, setIsLoggingOut] = useState(false);
 
@@ -34,6 +38,65 @@ export default function SidebarWithFooter({
       await onLogout();
       // O loading será removido quando o componente desmontar após o logout
    };
+
+   const filteredNavItems = useMemo(() => {
+      return navItems.filter((item) => {
+         // Verifica permissão baseada em roles do item principal
+         if (item.roles && item.roles.length > 0) {
+            if (!hasRole(item.roles)) {
+               return false;
+            }
+         }
+
+         // Se for um collapse, filtra os filhos
+         if (item.type === "collapse" && item.children) {
+            const filteredChildren = item.children.filter((child: any) => {
+               // Verifica permissão por resource e permission
+               if (child.resource && child.permission) {
+                  return hasPerm(child.resource, child.permission);
+               }
+
+               // Verifica permissão por roles
+               if (child.roles && child.roles.length > 0) {
+                  return hasRole(child.roles);
+               }
+
+               return true;
+            });
+
+            // Retorna o item com os filhos filtrados, ou não retorna se não houver filhos visíveis
+            if (filteredChildren.length > 0) {
+               return true;
+            }
+
+            return false;
+         }
+
+         return true;
+      }).map((item) => {
+         // Cria uma cópia do item com os filhos filtrados
+         if (item.type === "collapse" && item.children) {
+            const filteredChildren = item.children.filter((child: any) => {
+               if (child.resource && child.permission) {
+                  return hasPerm(child.resource, child.permission);
+               }
+
+               if (child.roles && child.roles.length > 0) {
+                  return hasRole(child.roles);
+               }
+
+               return true;
+            });
+
+            return {
+               ...item,
+               children: filteredChildren,
+            };
+         }
+
+         return item;
+      });
+   }, [hasRole, hasPerm]);
 
    return (
       <>
@@ -50,7 +113,7 @@ export default function SidebarWithFooter({
          >
             {/* Área de navegação com scroll */}
             <nav className='flex-1 overflow-y-auto p-1 space-y-1'>
-            {navItems.map((item, index) => {
+            {filteredNavItems.map((item, index) => {
                if (item.type === "item") {
                   return (
                      <SidebarItem

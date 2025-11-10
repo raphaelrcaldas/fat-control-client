@@ -94,7 +94,7 @@ export const navItems = [
       type: "collapse",
       icon: RiAdminLine,
       label: "Admin",
-      roles: [],
+      roles: ["admin"],
       children: [
          {
             icon: GiSecurityGate,
