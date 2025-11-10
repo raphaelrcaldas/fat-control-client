@@ -57,11 +57,20 @@ export function CardMission({
 
    return (
       <>
-         <div className='relative bg-gradient-to-br from-white to-gray-50 p-5 shadow-lg rounded-2xl w-[32rem] border-2 border-gray-100 cursor-pointer'>
+         <div className='relative bg-gradient-to-br from-white to-gray-50 p-5 shadow-lg rounded-2xl w-full border-2 border-gray-100 hover:shadow-xl transition-shadow duration-200 cursor-pointer'>
             {/* Header com documento */}
             <div className='flex items-center justify-between mb-4'>
                <div className='flex items-center gap-3'>
-                  <div className='p-2 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg shadow-md'>
+                  <div
+                     className={clsx(
+                        "p-2 bg-gradient-to-br rounded-lg shadow-md",
+                        {
+                           "from-blue-500 to-blue-600": missao.tipo_doc == "om",
+                           "from-orange-500 to-orange-600":
+                              missao.tipo_doc == "os",
+                        }
+                     )}
+                  >
                      <HiDocumentText className='text-white text-xl' />
                   </div>
                   <div>
@@ -89,8 +98,23 @@ export function CardMission({
             >
                {/* Observações */}
                {missao.obs && (
-                  <div className='flex items-start gap-2 p-3 bg-blue-50 rounded-lg border border-blue-200'>
-                     <MdDescription className='text-blue-600 text-lg mt-0.5 flex-shrink-0' />
+                  <div
+                     className={clsx(
+                        "flex items-start gap-2 p-3 rounded-lg border",
+                        {
+                           "border-blue-200 bg-blue-50":
+                              missao.tipo_doc == "om",
+                           "border-orange-200 bg-orange-50":
+                              missao.tipo_doc == "os",
+                        }
+                     )}
+                  >
+                     <MdDescription
+                        className={clsx("text-lg mt-0.5 flex-shrink-0", {
+                           "text-blue-600": missao.tipo_doc == "om",
+                           "text-orange-600": missao.tipo_doc == "os",
+                        })}
+                     />
                      <p className='text-sm text-gray-700 uppercase'>
                         {missao.obs}
                      </p>
@@ -211,7 +235,7 @@ function PernoiteCardMis({ pnt }) {
          {/* Localização */}
          <div className='flex items-center gap-1.5 flex-1'>
             <MdLocationOn className='text-red-500 text-base' />
-            <span className='font-medium text-gray-800 text-sm uppercase'>
+            <span className='font-medium text-gray-800 text-xs uppercase'>
                {pnt.cidade.nome}-{pnt.cidade.uf}
             </span>
          </div>
@@ -220,8 +244,7 @@ function PernoiteCardMis({ pnt }) {
          <div className='flex items-center gap-2'>
             {pnt.acrec_desloc && (
                <Tooltip content='Acréscimo Deslocamento'>
-                  <span className='flex items-center gap-1 font-semibold bg-gradient-to-r from-green-400 to-green-500 text-white px-2.5 py-1 rounded-full text-xs shadow-sm'>
-                     <MdAttachMoney className='text-sm' />
+                  <span className='font-semibold bg-gradient-to-r from-green-400 to-green-500 text-white px-2.5 py-1 rounded-full text-xs shadow-sm'>
                      AC
                   </span>
                </Tooltip>
@@ -282,7 +305,7 @@ function UserCardMis({ user }) {
    return (
       <div
          className={clsx(
-            "flex items-center gap-2 px-3 py-1.5 rounded-xl border-2 select-none",
+            "flex items-center gap-2 px-3 py-1.5 rounded-xl border-2 select-none text-sm",
             config.bgColor,
             config.borderColor
          )}
@@ -296,7 +319,7 @@ function UserCardMis({ user }) {
             {user.sit}
          </span>
          <div
-            className={clsx("font-medium text-sm uppercase", config.textColor)}
+            className={clsx("font-medium uppercase", config.textColor)}
          >
             <span className='font-bold uppercase'>{user.p_g}</span>{" "}
             <span>{user.user.nome_guerra}</span>

@@ -2,17 +2,26 @@
 
 import { getFragMissoes } from "services/routes/cegep/missoes";
 import { useEffect, useState, useMemo, useCallback } from "react";
-import { Label, Spinner, Select, TextInput, Button } from "flowbite-react";
+import {
+   Label,
+   Spinner,
+   Select,
+   TextInput,
+   Button,
+   Badge,
+} from "flowbite-react";
 import { Missao } from "services/routes/cegep/missoes";
 import { CardMission } from "./components/cardMission";
 import MissionDetail from "./components/missionDetail";
 import { useRegisterContext } from "../../context/registerContext";
+import { HiX, HiFilter, HiRefresh } from "react-icons/hi";
 
 export function RegisPage() {
    const [missoes, setMissoes] = useState<Missao[] | null>(null);
    const [cloneMis, setCloneMis] = useState<Missao | null>(null);
    const [showForm, setShowForm] = useState(false);
    const [loading, setLoading] = useState(true);
+   const [showFilters, setShowFilters] = useState(true);
    const {
       dataInicio,
       setDataInicio,
@@ -29,6 +38,26 @@ export function RegisPage() {
       citySearch,
       setCitySearch,
    } = useRegisterContext();
+
+   const hasActiveFilters = !!(
+      tipoDoc ||
+      nDoc ||
+      selectedTipo ||
+      userSearch ||
+      citySearch
+   );
+
+   const clearFilters = () => {
+      setTipoDoc("");
+      setNDoc(undefined);
+      setSelectedTipo("");
+      setUserSearch("");
+      setCitySearch("");
+      const hoje = new Date();
+      const quinzeDiasAntes = new Date(hoje.getFullYear(), 0, 1);
+      setDataInicio(quinzeDiasAntes.toISOString().split("T")[0]);
+      setDataFim(hoje.toISOString().split("T")[0]);
+   };
 
    const fetchData = useCallback(async () => {
       setLoading(true);
@@ -79,161 +108,269 @@ export function RegisPage() {
 
    return (
       <>
-         <div className='h-full'>
-            <section className='flex flex-col'>
-               <div className='w-full p-2'>
-                  <div className='relative overflow-hidden bg-white shadow-md dark:bg-gray-800 sm:rounded-lg'>
-                     <div className='flex-row items-center justify-between p-4 space-y-3 sm:flex sm:space-y-0 sm:space-x-4'>
-                        <div>
-                           <h5 className='mr-3 font-semibold text-lg dark:text-white'>
+         <div className='h-full flex flex-col'>
+            {/* Header Section */}
+            <section className='flex-shrink-0'>
+               <div className='w-full p-3'>
+                  <div className='relative overflow-hidden bg-gradient-to-br from-white to-gray-50 shadow-lg border-2 border-gray-100 rounded-2xl'>
+                     <div className='flex flex-col sm:flex-row items-start sm:items-center justify-between p-5 gap-4'>
+                        <div className='flex-1'>
+                           <h5 className='font-bold text-2xl text-gray-800 mb-1'>
                               Missões
                            </h5>
-                           <p className='text-gray-500 dark:text-gray-400'>
+                           <p className='text-gray-600 text-sm'>
                               Gerencie todas as missões existentes ou crie uma
                               nova
                            </p>
                         </div>
-                        <button
-                           type='button'
-                           onClick={() => setShowForm(true)}
-                           className='flex items-center justify-center px-4 py-2 text-sm font-medium text-white rounded-lg bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800'
-                        >
-                           Adicionar Missão
-                        </button>
-                     </div>
-                  </div>
-               </div>
-            </section>
-
-            <section className='flex flex-col mb-3'>
-               <div className='w-full p-2'>
-                  <div className='relative overflow-hidden bg-white shadow-md sm:rounded-lg'>
-                     <div className='flex-row items-center justify-evenly p-4 space-y-3 sm:flex sm:space-y-0 sm:space-x-4'>
-                        <div>
-                           <div className='mb-2 text-center'>
-                              <Label>Tipo da Ordem</Label>
-                           </div>
-                           <Select
-                              value={tipoDoc}
-                              onChange={(e) => setTipoDoc(e.target.value)}
+                        <div className='flex items-center gap-2'>
+                           <button
+                              type='button'
+                              onClick={() => setShowFilters(!showFilters)}
+                              className='flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-gray-700 bg-white border-2 border-gray-300 rounded-lg hover:bg-gray-50 focus:ring-4 focus:ring-gray-200 transition-all'
                            >
-                              <option value=''>Selecione</option>
-                              <option value='om'>Missão</option>
-                              <option value='os'>Serviço</option>
-                           </Select>
-                        </div>
-                        <div className='w-24'>
-                           <div className='mb-2 text-center'>
-                              <Label>Nº da Ordem</Label>
-                           </div>
-                           <TextInput
-                              type='text'
-                              value={nDoc ?? ""}
-                              onChange={(e) =>
-                                 setNDoc(
-                                    e.target.value === ""
-                                       ? undefined
-                                       : Number(e.target.value)
-                                 )
-                              }
-                              onKeyDown={(e) => {
-                                 if (
-                                    !(
-                                       (e.key >= "0" && e.key <= "9") ||
-                                       [
-                                          "Backspace",
-                                          "Tab",
-                                          "Delete",
-                                          "ArrowLeft",
-                                          "ArrowRight",
-                                       ].includes(e.key)
-                                    )
-                                 ) {
-                                    e.preventDefault();
-                                 }
-                              }}
-                           />
-                        </div>
-
-                        <div>
-                           <div className='mb-2 text-center'>
-                              <Label>Tipo de Missão</Label>
-                           </div>
-                           <Select
-                              value={selectedTipo}
-                              onChange={(e) => setSelectedTipo(e.target.value)}
+                              <HiFilter className='text-lg' />
+                              {showFilters ? "Ocultar" : "Filtros"}
+                              {hasActiveFilters && (
+                                 <Badge color='failure' size='sm'>
+                                    {
+                                       Object.values({
+                                          tipoDoc,
+                                          nDoc,
+                                          selectedTipo,
+                                          userSearch,
+                                          citySearch,
+                                       }).filter((v) => v).length
+                                    }
+                                 </Badge>
+                              )}
+                           </button>
+                           <button
+                              type='button'
+                              onClick={() => setShowForm(true)}
+                              className='flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-white rounded-lg bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 shadow-md transition-all'
                            >
-                              <option value=''>Selecione</option>
-                              <option value='tal'>TAL</option>
-                              <option value='adm'>ADM</option>
-                              <option value='opr'>OPR</option>
-                           </Select>
-                        </div>
-
-                        <div className=''>
-                           <div className='mb-2 text-center'>
-                              <Label>Militar</Label>
-                           </div>
-                           <TextInput
-                              type='text'
-                              value={userSearch}
-                              onChange={(e) => setUserSearch(e.target.value)}
-                              placeholder='Nome de guerra'
-                           />
-                        </div>
-
-                        <div className=''>
-                           <div className='mb-2 text-center'>
-                              <Label>Cidade</Label>
-                           </div>
-                           <TextInput
-                              type='text'
-                              value={citySearch}
-                              onChange={(e) => setCitySearch(e.target.value)}
-                              placeholder='Nome do município'
-                           />
-                        </div>
-
-                        <div className='w-40'>
-                           <div className='mb-2 text-center'>
-                              <Label>Afastamento</Label>
-                           </div>
-                           <input
-                              type='date'
-                              value={dataInicio}
-                              onChange={(e) => setDataInicio(e.target.value)}
-                              className='block w-full text-center p-2.5 text-sm text-gray-900 bg-white border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500'
-                           />
-                        </div>
-                        <div className='w-40'>
-                           <div className='mb-2 text-center'>
-                              <Label>Regresso</Label>
-                           </div>
-                           <input
-                              type='date'
-                              value={dataFim}
-                              onChange={(e) => setDataFim(e.target.value)}
-                              className='block w-full text-center p-2.5 text-sm text-gray-900 bg-white border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500'
-                           />
+                              <span className='text-lg'>+</span>
+                              Nova Missão
+                           </button>
                         </div>
                      </div>
                   </div>
                </div>
             </section>
 
-            {loading ? (
-               <div className='flex flex-col font-semibold items-center justify-center gap-2 p-2'>
-                  Carregando <Spinner size='lg' color='failure' />
-               </div>
-            ) : (
-               <div className='flex p-2 flex-wrap justify-evenly gap-4'>
-                  {missoes.length === 0 ? (
-                     <p>Nenhuma missão encontrada.</p>
-                  ) : (
-                     memoizedMissoes
-                  )}
-               </div>
+            {/* Filters Section */}
+            {showFilters && (
+               <section className='flex-shrink-0'>
+                  <div className='w-full px-3 pb-3'>
+                     <div className='relative overflow-hidden bg-white shadow-md border border-gray-200 rounded-xl'>
+                        <div className='p-4'>
+                           <div className='flex items-center justify-between mb-4'>
+                              <h6 className='font-semibold text-gray-700 flex items-center gap-2'>
+                                 <HiFilter className='text-blue-600' />
+                                 Filtros de Busca
+                              </h6>
+                              {hasActiveFilters && (
+                                 <button
+                                    onClick={clearFilters}
+                                    className='flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-colors'
+                                 >
+                                    <HiX className='text-sm' />
+                                    Limpar Filtros
+                                 </button>
+                              )}
+                           </div>
+
+                           <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7 gap-4'>
+                              {/* Tipo da Ordem */}
+                              <div className='flex flex-col'>
+                                 <Label className='mb-2 text-xs font-semibold text-gray-700'>
+                                    Tipo da Ordem
+                                 </Label>
+                                 <Select
+                                    value={tipoDoc}
+                                    onChange={(e) => setTipoDoc(e.target.value)}
+                                    className='text-sm'
+                                 >
+                                    <option value=''>Todos</option>
+                                    <option value='om'>Missão</option>
+                                    <option value='os'>Serviço</option>
+                                 </Select>
+                              </div>
+
+                              {/* Nº da Ordem */}
+                              <div className='flex flex-col'>
+                                 <Label className='mb-2 text-xs font-semibold text-gray-700'>
+                                    Nº da Ordem
+                                 </Label>
+                                 <TextInput
+                                    type='text'
+                                    value={nDoc ?? ""}
+                                    onChange={(e) =>
+                                       setNDoc(
+                                          e.target.value === ""
+                                             ? undefined
+                                             : Number(e.target.value)
+                                       )
+                                    }
+                                    onKeyDown={(e) => {
+                                       if (
+                                          !(
+                                             (e.key >= "0" && e.key <= "9") ||
+                                             [
+                                                "Backspace",
+                                                "Tab",
+                                                "Delete",
+                                                "ArrowLeft",
+                                                "ArrowRight",
+                                             ].includes(e.key)
+                                          )
+                                       ) {
+                                          e.preventDefault();
+                                       }
+                                    }}
+                                    placeholder='Número'
+                                    className='text-sm'
+                                 />
+                              </div>
+
+                              {/* Tipo de Missão */}
+                              <div className='flex flex-col'>
+                                 <Label className='mb-2 text-xs font-semibold text-gray-700'>
+                                    Tipo de Missão
+                                 </Label>
+                                 <Select
+                                    value={selectedTipo}
+                                    onChange={(e) =>
+                                       setSelectedTipo(e.target.value)
+                                    }
+                                    className='text-sm'
+                                 >
+                                    <option value=''>Todos</option>
+                                    <option value='tal'>TAL</option>
+                                    <option value='adm'>ADM</option>
+                                    <option value='opr'>OPR</option>
+                                 </Select>
+                              </div>
+
+                              {/* Militar */}
+                              <div className='flex flex-col'>
+                                 <Label className='mb-2 text-xs font-semibold text-gray-700'>
+                                    Militar
+                                 </Label>
+                                 <TextInput
+                                    type='text'
+                                    value={userSearch}
+                                    onChange={(e) =>
+                                       setUserSearch(e.target.value)
+                                    }
+                                    placeholder='Nome de guerra'
+                                    className='text-sm'
+                                 />
+                              </div>
+
+                              {/* Cidade */}
+                              <div className='flex flex-col'>
+                                 <Label className='mb-2 text-xs font-semibold text-gray-700'>
+                                    Cidade
+                                 </Label>
+                                 <TextInput
+                                    type='text'
+                                    value={citySearch}
+                                    onChange={(e) =>
+                                       setCitySearch(e.target.value)
+                                    }
+                                    placeholder='Município'
+                                    className='text-sm'
+                                 />
+                              </div>
+
+                              {/* Data Afastamento */}
+                              <div className='flex flex-col'>
+                                 <Label className='mb-2 text-xs font-semibold text-gray-700'>
+                                    Afastamento
+                                 </Label>
+                                 <input
+                                    type='date'
+                                    value={dataInicio}
+                                    onChange={(e) =>
+                                       setDataInicio(e.target.value)
+                                    }
+                                    className='block w-full p-2.5 text-sm text-gray-900 bg-white border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500'
+                                 />
+                              </div>
+
+                              {/* Data Regresso */}
+                              <div className='flex flex-col'>
+                                 <Label className='mb-2 text-xs font-semibold text-gray-700'>
+                                    Regresso
+                                 </Label>
+                                 <input
+                                    type='date'
+                                    value={dataFim}
+                                    onChange={(e) => setDataFim(e.target.value)}
+                                    className='block w-full p-2.5 text-sm text-gray-900 bg-white border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500'
+                                 />
+                              </div>
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+               </section>
             )}
+
+            {/* Results Section */}
+            <section className='flex-1'>
+               {loading ? (
+                  <div className='flex flex-col font-semibold items-center justify-center gap-3 p-8 min-h-[300px]'>
+                     <Spinner size='xl' color='info' />
+                     <p className='text-gray-600'>Carregando missões...</p>
+                  </div>
+               ) : (
+                  <div className='p-3'>
+                     {/* Results Header */}
+                     <div className='flex items-center justify-between mb-4 px-1'>
+                        <div className='flex items-center gap-2'>
+                           <h6 className='font-semibold text-gray-700'>
+                              Resultados
+                           </h6>
+                           <Badge color='info' size='sm'>
+                              {missoes?.length || 0}{" "}
+                              {missoes?.length === 1 ? "missão" : "missões"}
+                           </Badge>
+                        </div>
+                     </div>
+
+                     {/* Results Grid */}
+                     {missoes?.length === 0 ? (
+                        <div className='flex flex-col items-center justify-center p-12 bg-gray-50 rounded-xl border-2 border-dashed border-gray-300'>
+                           <div className='w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center mb-4'>
+                              <HiFilter className='text-3xl text-gray-400' />
+                           </div>
+                           <h3 className='text-lg font-semibold text-gray-700 mb-2'>
+                              Nenhuma missão encontrada
+                           </h3>
+                           <p className='text-gray-500 text-sm text-center mb-4'>
+                              Tente ajustar os filtros ou criar uma nova missão
+                           </p>
+                           {hasActiveFilters && (
+                              <button
+                                 onClick={clearFilters}
+                                 className='flex items-center gap-2 px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors'
+                              >
+                                 <HiX />
+                                 Limpar Filtros
+                              </button>
+                           )}
+                        </div>
+                     ) : (
+                        <div className='grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4'>
+                           {memoizedMissoes}
+                        </div>
+                     )}
+                  </div>
+               )}
+            </section>
          </div>
 
          {showForm && (

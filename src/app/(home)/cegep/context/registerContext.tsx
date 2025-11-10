@@ -4,7 +4,8 @@ const RegisterContext = createContext(null);
 
 export function RegisterProvider({ children }) {
    const hoje = new Date();
-   const quinzeDiasAntes = new Date(hoje.getFullYear(), 0, 1);
+   const quinzeDiasAntes = new Date();
+   quinzeDiasAntes.setDate(hoje.getDate() - 30);
    const [dataInicio, setDataInicio] = useState(
       quinzeDiasAntes.toISOString().split("T")[0]
    ); // Default to 15 days ago
