@@ -2,7 +2,6 @@ import clsx from "clsx";
 import { UserMission } from "services/routes/cegep/missoes";
 import { FormMilitar } from "./formMilitar";
 import { useState } from "react";
-import { HiPencil, HiUserCircle } from "react-icons/hi2";
 
 export function MissionMilitar({
    userMis,
@@ -100,7 +99,7 @@ export function MissionMilitar({
                      {userMis.sit}
                   </span>
                </div>
-               <div className={clsx("font-medium text-sm", config.textColor)}>
+               <div className={clsx("font-medium text-xs", config.textColor)}>
                   <span className='font-bold uppercase'>{userMis.p_g}</span>{" "}
                   <span>{userMis.user.nome_guerra}</span>
                </div>

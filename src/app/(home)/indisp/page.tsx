@@ -256,7 +256,7 @@ export default function IndispPage() {
                      </button>
                   </Tooltip>
                </div>
-               <div className='text-sm font-semibold text-gray-700 bg-white px-3 py-1 rounded-full shadow-sm border border-gray-200'>
+               <div className='hidden md:block text-sm font-semibold text-gray-700 bg-white px-3 py-1 rounded-full shadow-sm border border-gray-200'>
                   {getCurrentPeriod()}
                </div>
             </div>
@@ -369,7 +369,7 @@ export default function IndispPage() {
 
 function ColorLegend() {
    return (
-      <div className='flex flex-wrap justify-center gap-2 px-2 py-2 bg-white shadow rounded-lg text-xs md:text-sm flex-shrink-0'>
+      <div className='hidden md:flex flex-wrap justify-center gap-2 px-2 py-2 bg-white shadow rounded-lg text-xs md:text-sm flex-shrink-0'>
          {indispsOptions.map((option) => (
             <div key={option.value} className='flex items-center gap-1'>
                <div className={`w-4 h-4 rounded ${option.color.button}`} />

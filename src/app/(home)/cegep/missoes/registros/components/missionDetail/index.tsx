@@ -307,8 +307,8 @@ export default function MissionDetail({
                            className='w-full'
                         >
                            <option value=''></option>
-                           <option value='om'>Missão</option>
-                           <option value='os'>Serviço</option>
+                           <option value='om'>Ordem de Missão</option>
+                           <option value='os'>Ordem de Serviço</option>
                         </Select>
                      ) : (
                         <div className='px-4 py-2 bg-white rounded-lg border border-slate-200'>
@@ -401,9 +401,9 @@ export default function MissionDetail({
                            className='w-full'
                         >
                            <option value='' disabled></option>
-                           <option value='tal'>TAL</option>
-                           <option value='opr'>OPR</option>
-                           <option value='adm'>ADM</option>
+                           <option value='tal'>TAL - Transporte Aerologístico</option>
+                           <option value='opr'>OPR - Operacional</option>
+                           <option value='adm'>ADM - Administrativo</option>
                         </Select>
                      ) : (
                         <div className='inline-block'>

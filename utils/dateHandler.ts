@@ -1,3 +1,11 @@
+export const DATE_FORMAT_EXTENDED = {
+   day: "2-digit" as const,
+   month: "2-digit" as const,
+   year: "2-digit" as const,
+   hour: "2-digit" as const,
+   minute: "2-digit" as const,
+} as const;
+
 export function isoStrToDate(isoStr: string): Date {
    const [yearStr, monthStr, dayStr] = isoStr.split("-");
    const year = parseInt(yearStr, 10);

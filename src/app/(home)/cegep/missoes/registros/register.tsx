@@ -7,14 +7,23 @@ import { Missao } from "services/routes/cegep/missoes";
 import { CardMission } from "./components/cardMission";
 import MissionDetail from "./components/missionDetail";
 import { useRegisterContext } from "../../context/registerContext";
-import { HiX, HiFilter } from "react-icons/hi";
+import {
+   HiX,
+   HiFilter,
+   HiDocumentText,
+   HiHashtag,
+   HiClipboardList,
+   HiUser,
+   HiLocationMarker,
+   HiCalendar,
+} from "react-icons/hi";
 
 export function RegisPage() {
    const [missoes, setMissoes] = useState<Missao[] | null>(null);
    const [cloneMis, setCloneMis] = useState<Missao | null>(null);
    const [showForm, setShowForm] = useState(false);
    const [loading, setLoading] = useState(true);
-   const [showFilters, setShowFilters] = useState(true);
+   const [showFilters, setShowFilters] = useState(false);
    const {
       dataInicio,
       setDataInicio,
@@ -37,7 +46,9 @@ export function RegisPage() {
       nDoc ||
       selectedTipo ||
       userSearch ||
-      citySearch
+      citySearch ||
+      dataInicio ||
+      dataFim
    );
 
    const clearFilters = () => {
@@ -121,6 +132,8 @@ export function RegisPage() {
                                     selectedTipo,
                                     userSearch,
                                     citySearch,
+                                    dataInicio,
+                                    dataFim,
                                  }).filter((v) => v).length
                               }
                            </Badge>
@@ -137,6 +150,159 @@ export function RegisPage() {
                   </div>
                </div>
             </section>
+
+            {/* Active Filters Tags */}
+            {hasActiveFilters && (
+               <section className='flex-shrink-0 mb-3'>
+                  <div className='flex flex-wrap items-center gap-2'>
+                     <span className='text-xs font-medium text-gray-600'>
+                        Filtros ativos:
+                     </span>
+
+                     {tipoDoc && (
+                        <Badge color='info' className=''>
+                           <div className='flex items-center gap-1.5'>
+                              <HiDocumentText className='w-3 h-3' />
+                              <span>
+                                 Ordem:{" "}
+                                 {tipoDoc === "om" ? "Missão" : "Serviço"}
+                              </span>
+                              <button
+                                 onClick={() => setTipoDoc("")}
+                                 className='ml-1 hover:text-red-600'
+                              >
+                                 <HiX className='w-3 h-3' />
+                              </button>
+                           </div>
+                        </Badge>
+                     )}
+
+                     {nDoc && (
+                        <Badge color='info'>
+                           <div className='flex items-center gap-1.5'>
+                              <HiHashtag className='w-3 h-3' />
+                              <span>Nº {nDoc}</span>
+                              <button
+                                 onClick={() => setNDoc(undefined)}
+                                 className='ml-1 hover:text-red-600'
+                              >
+                                 <HiX className='w-3 h-3' />
+                              </button>
+                           </div>
+                        </Badge>
+                     )}
+
+                     {selectedTipo && (
+                        <Badge color='info'>
+                           <div className='flex items-center gap-1.5'>
+                              <HiClipboardList className='w-3 h-3' />
+                              <span>Tipo: {selectedTipo.toUpperCase()}</span>
+                              <button
+                                 onClick={() => setSelectedTipo("")}
+                                 className='ml-1 hover:text-red-600'
+                              >
+                                 <HiX className='w-3 h-3' />
+                              </button>
+                           </div>
+                        </Badge>
+                     )}
+
+                     {userSearch && (
+                        <Badge color='info'>
+                           <div className='flex items-center gap-1.5'>
+                              <HiUser className='w-3 h-3' />
+                              <span>Militar: {userSearch}</span>
+                              <button
+                                 onClick={() => setUserSearch("")}
+                                 className='ml-1 hover:text-red-600'
+                              >
+                                 <HiX className='w-3 h-3' />
+                              </button>
+                           </div>
+                        </Badge>
+                     )}
+
+                     {citySearch && (
+                        <Badge color='info'>
+                           <div className='flex items-center gap-1.5'>
+                              <HiLocationMarker className='w-3 h-3' />
+                              <span>Cidade: {citySearch}</span>
+                              <button
+                                 onClick={() => setCitySearch("")}
+                                 className='ml-1 hover:text-red-600'
+                              >
+                                 <HiX className='w-3 h-3' />
+                              </button>
+                           </div>
+                        </Badge>
+                     )}
+
+                     {dataInicio && (
+                        <Badge color='info'>
+                           <div className='flex items-center gap-1.5'>
+                              <HiCalendar className='w-3 h-3' />
+                              <span>
+                                 Afastamento:{" "}
+                                 {new Date(
+                                    dataInicio + "T00:00:00"
+                                 ).toLocaleDateString("pt-BR")}
+                              </span>
+                              <button
+                                 onClick={() => {
+                                    const hoje = new Date();
+                                    const quinzeDiasAntes = new Date(
+                                       hoje.getFullYear(),
+                                       0,
+                                       1
+                                    );
+                                    setDataInicio(
+                                       quinzeDiasAntes
+                                          .toISOString()
+                                          .split("T")[0]
+                                    );
+                                 }}
+                                 className='ml-1 hover:text-red-600'
+                              >
+                                 <HiX className='w-3 h-3' />
+                              </button>
+                           </div>
+                        </Badge>
+                     )}
+
+                     {dataFim && (
+                        <Badge color='info'>
+                           <div className='flex items-center gap-1.5'>
+                              <HiCalendar className='w-3 h-3' />
+                              <span>
+                                 Regresso:{" "}
+                                 {new Date(
+                                    dataFim + "T00:00:00"
+                                 ).toLocaleDateString("pt-BR")}
+                              </span>
+                              <button
+                                 onClick={() => {
+                                    const hoje = new Date();
+                                    setDataFim(
+                                       hoje.toISOString().split("T")[0]
+                                    );
+                                 }}
+                                 className='ml-1 hover:text-red-600'
+                              >
+                                 <HiX className='w-3 h-3' />
+                              </button>
+                           </div>
+                        </Badge>
+                     )}
+
+                     <button
+                        onClick={clearFilters}
+                        className='text-xs text-gray-500 hover:text-gray-700 underline'
+                     >
+                        Limpar todos
+                     </button>
+                  </div>
+               </section>
+            )}
 
             {/* Filters Section */}
             {showFilters && (
@@ -160,7 +326,8 @@ export function RegisPage() {
                      <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7 gap-3'>
                         {/* Tipo da Ordem */}
                         <div>
-                           <Label className='mb-1.5 text-xs text-gray-600'>
+                           <Label className='mb-1.5 text-xs text-gray-600 flex items-center gap-1.5'>
+                              <HiDocumentText className='text-gray-500' />
                               Tipo da Ordem
                            </Label>
                            <Select
@@ -177,7 +344,8 @@ export function RegisPage() {
 
                         {/* Nº da Ordem */}
                         <div>
-                           <Label className='mb-1.5 text-xs text-gray-600'>
+                           <Label className='mb-1.5 text-xs text-gray-600 flex items-center gap-1.5'>
+                              <HiHashtag className='text-gray-500' />
                               Nº da Ordem
                            </Label>
                            <TextInput
@@ -213,7 +381,8 @@ export function RegisPage() {
 
                         {/* Tipo de Missão */}
                         <div>
-                           <Label className='mb-1.5 text-xs text-gray-600'>
+                           <Label className='mb-1.5 text-xs text-gray-600 flex items-center gap-1.5'>
+                              <HiClipboardList className='text-gray-500' />
                               Tipo de Missão
                            </Label>
                            <Select
@@ -231,7 +400,8 @@ export function RegisPage() {
 
                         {/* Militar */}
                         <div>
-                           <Label className='mb-1.5 text-xs text-gray-600'>
+                           <Label className='mb-1.5 text-xs text-gray-600 flex items-center gap-1.5'>
+                              <HiUser className='text-gray-500' />
                               Militar
                            </Label>
                            <TextInput
@@ -245,7 +415,8 @@ export function RegisPage() {
 
                         {/* Cidade */}
                         <div>
-                           <Label className='mb-1.5 text-xs text-gray-600'>
+                           <Label className='mb-1.5 text-xs text-gray-600 flex items-center gap-1.5'>
+                              <HiLocationMarker className='text-gray-500' />
                               Cidade
                            </Label>
                            <TextInput
@@ -259,7 +430,8 @@ export function RegisPage() {
 
                         {/* Data Afastamento */}
                         <div>
-                           <Label className='mb-1.5 text-xs text-gray-600'>
+                           <Label className='mb-1.5 text-xs text-gray-600 flex items-center gap-1.5'>
+                              <HiCalendar className='text-gray-500' />
                               Afastamento
                            </Label>
                            <input
@@ -272,7 +444,8 @@ export function RegisPage() {
 
                         {/* Data Regresso */}
                         <div>
-                           <Label className='mb-1.5 text-xs text-gray-600'>
+                           <Label className='mb-1.5 text-xs text-gray-600 flex items-center gap-1.5'>
+                              <HiCalendar className='text-gray-500' />
                               Regresso
                            </Label>
                            <input
@@ -296,14 +469,6 @@ export function RegisPage() {
                   </div>
                ) : (
                   <div>
-                     {/* Results Header */}
-                     <div className='mb-3'>
-                        <span className='text-sm text-gray-600'>
-                           {missoes?.length || 0}{" "}
-                           {missoes?.length === 1 ? "missão" : "missões"}
-                        </span>
-                     </div>
-
                      {/* Results Grid */}
                      {missoes?.length === 0 ? (
                         <div className='flex flex-col items-center justify-center p-8 bg-gray-50 rounded-lg border border-gray-200'>
@@ -320,7 +485,7 @@ export function RegisPage() {
                            )}
                         </div>
                      ) : (
-                        <div className='grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-3'>
+                        <div className='grid grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3 gap-3'>
                            {missoes?.map((m) => (
                               <CardMission
                                  key={m.id}

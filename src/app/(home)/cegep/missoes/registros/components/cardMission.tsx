@@ -1,20 +1,18 @@
-import { Dropdown, DropdownItem, Tooltip } from "flowbite-react";
-import { useState, Dispatch, SetStateAction, memo, useMemo, useCallback } from "react";
+import {
+   useState,
+   Dispatch,
+   SetStateAction,
+   memo,
+   useMemo,
+   useCallback,
+} from "react";
 import { FaRegClone } from "react-icons/fa";
 import MissionDetail from "./missionDetail";
 import { Missao } from "services/routes/cegep/missoes";
 import clsx from "clsx";
-import { isoStrToDate } from "utils/dateHandler";
-import { MdCalendarToday, MdDescription, MdGroup } from "react-icons/md";
+import { isoStrToDate, DATE_FORMAT_EXTENDED } from "utils/dateHandler";
+import { MdDescription } from "react-icons/md";
 import { HiDocumentText } from "react-icons/hi2";
-
-const dayExt = {
-   day: "2-digit" as const,
-   month: "2-digit" as const,
-   year: "2-digit" as const,
-   hour: "2-digit" as const,
-   minute: "2-digit" as const,
-};
 
 export const CardMission = memo(function CardMission({
    missao,
@@ -29,23 +27,13 @@ export const CardMission = memo(function CardMission({
 }) {
    const [showDetail, setShowDetail] = useState(false);
 
-   const { ini, fim } = useMemo(() => ({
-      ini: new Date(missao.afast).toLocaleDateString("pt-BR", dayExt),
-      fim: new Date(missao.regres).toLocaleDateString("pt-BR", dayExt),
-   }), [missao.afast, missao.regres]);
-
-   // let colorBadge: string;
-   // switch (missao.tipo) {
-   //    case "adm":
-   //       colorBadge = "info";
-   //       break;
-   //    case "opr":
-   //       colorBadge = "warning";
-   //       break;
-   //    case "tal":
-   //       colorBadge = "success";
-   //       break;
-   // }
+   const { ini, fim } = useMemo(
+      () => ({
+         ini: new Date(missao.afast).toLocaleDateString("pt-BR", DATE_FORMAT_EXTENDED),
+         fim: new Date(missao.regres).toLocaleDateString("pt-BR", DATE_FORMAT_EXTENDED),
+      }),
+      [missao.afast, missao.regres]
+   );
 
    const onClone = useCallback(() => {
       const clone = { ...missao, users: [], id: null };
@@ -55,17 +43,16 @@ export const CardMission = memo(function CardMission({
 
    return (
       <>
-         <div className='relative bg-gradient-to-br from-white to-gray-50 p-5 shadow-lg rounded-2xl w-full border-2 border-gray-100 hover:shadow-xl transition-shadow duration-200 cursor-pointer'>
+         <div className='relative bg-white p-5 shadow-lg rounded-2xl w-full border-2 border-gray-100 cursor-pointer'>
             {/* Header com documento */}
             <div className='flex items-center justify-between mb-4'>
                <div className='flex items-center gap-3'>
                   <div
                      className={clsx(
-                        "p-2 bg-gradient-to-br rounded-lg shadow-md",
+                        "p-2 rounded-lg shadow-md",
                         {
-                           "from-blue-500 to-blue-600": missao.tipo_doc == "om",
-                           "from-orange-500 to-orange-600":
-                              missao.tipo_doc == "os",
+                           "bg-blue-600": missao.tipo_doc == "om",
+                           "bg-orange-600": missao.tipo_doc == "os",
                         }
                      )}
                   >
@@ -83,11 +70,13 @@ export const CardMission = memo(function CardMission({
                   </div>
                </div>
 
-               <Dropdown color='light' inline>
-                  <DropdownItem icon={FaRegClone} onClick={() => onClone()}>
-                     Clonar
-                  </DropdownItem>
-               </Dropdown>
+               <button
+                  onClick={onClone}
+                  title="Clonar missão"
+                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+               >
+                  <FaRegClone className="text-gray-600 text-lg" />
+               </button>
             </div>
 
             <div
@@ -123,7 +112,6 @@ export const CardMission = memo(function CardMission({
                <div className='flex flex-col gap-2'>
                   <div className='flex items-center justify-between p-2 bg-white rounded-xl border-2 border-gray-200 shadow-sm'>
                      <div className='flex items-center gap-3'>
-                        <MdCalendarToday className='text-blue-500 text-xl' />
                         <div className='flex flex-col'>
                            <span className='text-xs text-gray-500 font-medium uppercase'>
                               Afastamento
@@ -147,18 +135,8 @@ export const CardMission = memo(function CardMission({
                               {fim}
                            </span>
                         </div>
-                        <MdCalendarToday className='text-green-500 text-xl' />
                      </div>
                   </div>
-
-                  {/* {missao.acrec_desloc && (
-                     <Tooltip content='Acréscimo Deslocamento'>
-                        <span className='flex items-center gap-1 font-semibold bg-gradient-to-r from-green-400 to-green-500 text-white px-3 py-1.5 rounded-full text-xs shadow-sm w-fit'>
-                           <MdAttachMoney className='text-sm' />
-                           AC
-                        </span>
-                     </Tooltip>
-                  )} */}
                </div>
 
                {/* Pernoites */}
@@ -173,12 +151,6 @@ export const CardMission = memo(function CardMission({
                {/* Militares */}
                {missao.users.length > 0 && (
                   <div className='space-y-2'>
-                     <div className='flex items-center gap-2 px-1'>
-                        <MdGroup className='text-blue-500 text-lg' />
-                        <h4 className='text-sm font-bold text-gray-700 uppercase'>
-                           Militares ({missao.users.length})
-                        </h4>
-                     </div>
                      <div className='grid grid-cols-2 gap-2'>
                         {missao.users.map((user) => (
                            <UserCardMis key={user.id} user={user} />
@@ -204,22 +176,24 @@ export const CardMission = memo(function CardMission({
 });
 
 const PernoiteCardMis = memo(function PernoiteCardMis({ pnt }: { pnt: any }) {
-   const { dataIni, dataFim } = useMemo(() => ({
-      dataIni: isoStrToDate(pnt.data_ini).toLocaleDateString("pt-br", {
-         day: "2-digit",
-         month: "short",
+   const { dataIni, dataFim } = useMemo(
+      () => ({
+         dataIni: isoStrToDate(pnt.data_ini).toLocaleDateString("pt-br", {
+            day: "2-digit",
+            month: "short",
+         }),
+         dataFim: isoStrToDate(pnt.data_fim).toLocaleDateString("pt-br", {
+            day: "2-digit",
+            month: "short",
+         }),
       }),
-      dataFim: isoStrToDate(pnt.data_fim).toLocaleDateString("pt-br", {
-         day: "2-digit",
-         month: "short",
-      }),
-   }), [pnt.data_ini, pnt.data_fim]);
+      [pnt.data_ini, pnt.data_fim]
+   );
 
    return (
       <div className='flex items-center gap-3 p-1 rounded-lg border border-gray-200 bg-white'>
          {/* Datas */}
-         <div className='flex items-center gap-2'>
-            <MdCalendarToday className='text-gray-500 text-sm' />
+         <div className='flex items-center gap-2 pl-1'>
             <div className='flex items-center gap-1.5'>
                <span className='font-semibold text-gray-700 text-sm'>
                   {dataIni}
@@ -241,19 +215,21 @@ const PernoiteCardMis = memo(function PernoiteCardMis({ pnt }: { pnt: any }) {
          {/* Tags */}
          <div className='flex items-center gap-2'>
             {pnt.acrec_desloc && (
-               <Tooltip content='Acréscimo Deslocamento'>
-                  <span className='font-semibold bg-gradient-to-r from-green-400 to-green-500 text-white px-2.5 py-1 rounded-full text-xs shadow-sm'>
-                     AC
-                  </span>
-               </Tooltip>
+               <span
+                  title='Acréscimo Deslocamento'
+                  className='font-semibold bg-green-500 text-white px-2.5 py-1 rounded-full text-xs shadow-sm cursor-help'
+               >
+                  AC
+               </span>
             )}
 
             {pnt.meia_diaria && (
-               <Tooltip content='Meia Diária'>
-                  <span className='font-semibold bg-gradient-to-r from-amber-400 to-amber-500 text-white px-2.5 py-1 rounded-full text-xs shadow-sm'>
-                     MD
-                  </span>
-               </Tooltip>
+               <span
+                  title='Meia Diária'
+                  className='font-semibold bg-amber-500 text-white px-2.5 py-1 rounded-full text-xs shadow-sm cursor-help'
+               >
+                  MD
+               </span>
             )}
          </div>
       </div>
