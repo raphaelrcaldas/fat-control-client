@@ -162,7 +162,7 @@ export function FilterPage({ active }) {
                      <Checkbox
                         className='w-4 h-4'
                         checked={selectedAll}
-                        color='blue'
+                        color='red'
                         onChange={() => setSelectedAll(!selectedAll)}
                      />
                      <Label className='text-xs font-medium text-gray-700 cursor-pointer'>
@@ -352,7 +352,7 @@ export function FilterPage({ active }) {
                            type='date'
                            value={dataInicio}
                            onChange={(e) => setDataInicio(e.target.value)}
-                           className='block w-full p-2 text-sm text-gray-900 bg-white border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500'
+                           className='block w-full p-2 text-sm text-gray-900 bg-white border border-gray-300 rounded-lg focus:ring-red-500 focus:border-red-500'
                         />
                      </div>
 
@@ -365,7 +365,7 @@ export function FilterPage({ active }) {
                            type='date'
                            value={dataFim}
                            onChange={(e) => setDataFim(e.target.value)}
-                           className='block w-full p-2 text-sm text-gray-900 bg-white border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500'
+                           className='block w-full p-2 text-sm text-gray-900 bg-white border border-gray-300 rounded-lg focus:ring-red-500 focus:border-red-500'
                         />
                      </div>
                   </div>

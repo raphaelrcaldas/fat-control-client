@@ -143,7 +143,7 @@ export function RegisPage() {
                      <button
                         type='button'
                         onClick={() => handleSetShowForm(true)}
-                        className='flex items-center gap-1.5 px-3 py-2 text-sm text-white rounded-lg bg-blue-600 hover:bg-blue-700'
+                        className='flex items-center gap-1.5 px-3 py-2 text-sm text-white rounded-lg bg-red-600 hover:bg-red-700'
                      >
                         <span>+</span>
                         Nova Missão
@@ -439,7 +439,7 @@ export function RegisPage() {
                               type='date'
                               value={dataInicio}
                               onChange={(e) => setDataInicio(e.target.value)}
-                              className='block w-full p-2 text-sm text-gray-900 bg-white border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500'
+                              className='block w-full p-2 text-sm text-gray-900 bg-white border border-gray-300 rounded-lg focus:ring-red-500 focus:border-red-500'
                            />
                         </div>
 
@@ -453,7 +453,7 @@ export function RegisPage() {
                               type='date'
                               value={dataFim}
                               onChange={(e) => setDataFim(e.target.value)}
-                              className='block w-full p-2 text-sm text-gray-900 bg-white border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500'
+                              className='block w-full p-2 text-sm text-gray-900 bg-white border border-gray-300 rounded-lg focus:ring-red-500 focus:border-red-500'
                            />
                         </div>
                      </div>
@@ -479,7 +479,7 @@ export function RegisPage() {
                            {hasActiveFilters && (
                               <button
                                  onClick={clearFilters}
-                                 className='text-sm text-blue-600 hover:text-blue-700'
+                                 className='text-sm text-red-600 hover:text-red-700'
                               >
                                  Limpar Filtros
                               </button>

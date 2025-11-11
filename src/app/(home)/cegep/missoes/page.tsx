@@ -17,8 +17,8 @@ export default function MissPage() {
          <div className='mx-auto p-1'>
             {/* Header Section */}
             <div className='mb-4'>
-               <div className='bg-white rounded-2xl shadow-xl p-4 border border-blue-100'>
-                  <h1 className='text-2xl font-bold text-blue-600 mb-1'>
+               <div className='bg-white rounded-2xl shadow-xl p-4 border border-red-100'>
+                  <h1 className='text-2xl font-bold text-red-600 mb-1'>
                      Gestão de Missões
                   </h1>
                   <p className='text-gray-600'>
@@ -92,13 +92,13 @@ export default function MissPage() {
             }
 
             .tabs-container [role="tab"]:hover {
-               background-color: rgba(59, 130, 246, 0.1);
+               background-color: rgba(220, 38, 38, 0.1);
             }
 
             .tabs-container [role="tab"][aria-selected="true"] {
-               background: #3b82f6;
+               background: #dc2626;
                color: white;
-               box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+               box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
             }
 
             .tabs-container [role="tabpanel"] {
