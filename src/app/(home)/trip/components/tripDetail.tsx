@@ -7,7 +7,6 @@ import {
    Modal,
    ModalBody,
    ModalHeader,
-   Spinner,
    Table,
    TableBody,
    TableCell,
@@ -17,6 +16,7 @@ import {
    TextInput,
    Badge,
 } from "flowbite-react";
+import { Spinner } from "@/components/Spinner";
 import { FaEdit, FaSave } from "react-icons/fa";
 import { HiCheckCircle, HiXCircle } from "react-icons/hi";
 import { updateTrip } from "services/routes/trips";
@@ -266,7 +266,7 @@ export function TripDetail({ trip, update }) {
                      >
                         {submitting ? (
                            <div className='flex items-center gap-2'>
-                              <Spinner size='sm' />
+                              <Spinner size='sm' color='white' />
                               <span>Salvando...</span>
                            </div>
                         ) : (

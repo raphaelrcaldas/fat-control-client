@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState, useMemo, useCallback } from "react";
-import { Select, Spinner, Radio, Label } from "flowbite-react";
+import { Select, Radio, Label } from "flowbite-react";
+import { Spinner } from "@/components/Spinner";
 import { getQuads, getQuadsType } from "services/routes/quads";
 import { useQuadsContext } from "../context/quads";
 import { CrewQuadRes } from "services/routes/quads";

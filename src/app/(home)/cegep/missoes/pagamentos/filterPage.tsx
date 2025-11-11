@@ -2,11 +2,11 @@ import { useEffect, useState, useMemo, useCallback } from "react";
 import {
    Label,
    TextInput,
-   Spinner,
    Select,
    Checkbox,
    Badge,
 } from "flowbite-react";
+import { Spinner } from "@/components/Spinner";
 import { getPgts } from "services/routes/cegep/financeiro";
 import { UserRow } from "./components/userRow";
 import { useFilterContext } from "../../context/filterContext";
@@ -151,31 +151,72 @@ export function FilterPage({ active }) {
       <div className='space-y-6'>
          {/* Header Section */}
          <section>
-            <div className='flex items-center justify-between'>
+            <div className='flex items-center justify-between flex-wrap gap-3'>
                <h5 className='font-semibold text-xl text-gray-800'>
                   Pagamentos
                </h5>
-               <button
-                  type='button'
-                  onClick={() => setShowFilters(!showFilters)}
-                  className='flex items-center gap-2 px-3 py-2 text-sm text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50'
-               >
-                  <HiFilter />
-                  {showFilters ? "Ocultar" : "Filtros"}
-                  {hasActiveFilters && (
-                     <Badge color='gray' size='sm'>
-                        {
-                           Object.values({
-                              tipoDoc,
-                              nDoc,
-                              selectedTipo,
-                              selectedSit,
-                              userSearch,
-                           }).filter((v) => v).length
-                        }
-                     </Badge>
-                  )}
-               </button>
+
+               <div className='flex items-center gap-3 flex-wrap'>
+                  {/* Checkbox Selecionar Todos */}
+                  <div className='flex items-center gap-2 bg-white border border-gray-200 rounded-lg px-3 py-1.5'>
+                     <Checkbox
+                        className='w-4 h-4'
+                        checked={selectedAll}
+                        color='blue'
+                        onChange={() => setSelectedAll(!selectedAll)}
+                     />
+                     <Label className='text-xs font-medium text-gray-700 cursor-pointer'>
+                        Selecionar Todos
+                     </Label>
+                  </div>
+
+                  {/* Valor Total */}
+                  <div className='flex items-center gap-2 bg-green-50 px-3 py-1.5 rounded-lg border border-green-200'>
+                     <div className='flex items-center gap-1.5'>
+                        <HiCurrencyDollar
+                           className='text-green-600'
+                           size={16}
+                        />
+                        <span className='text-xs text-gray-600'>Total:</span>
+                     </div>
+                     <div className='flex flex-col items-end'>
+                        <span className='text-sm font-bold text-green-700'>
+                           {valorSoma.toLocaleString("pt-BR", {
+                              style: "currency",
+                              currency: "BRL",
+                           })}
+                        </span>
+                        <span className='text-[10px] text-gray-500'>
+                           {selectedIds.length}{" "}
+                           {selectedIds.length === 1
+                              ? "selecionado"
+                              : "selecionados"}
+                        </span>
+                     </div>
+                  </div>
+
+                  <button
+                     type='button'
+                     onClick={() => setShowFilters(!showFilters)}
+                     className='flex items-center gap-2 px-3 py-2 text-sm text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50'
+                  >
+                     <HiFilter />
+                     {showFilters ? "Ocultar" : "Filtros"}
+                     {hasActiveFilters && (
+                        <Badge color='gray' size='sm'>
+                           {
+                              Object.values({
+                                 tipoDoc,
+                                 nDoc,
+                                 selectedTipo,
+                                 selectedSit,
+                                 userSearch,
+                              }).filter((v) => v).length
+                           }
+                        </Badge>
+                     )}
+                  </button>
+               </div>
             </div>
          </section>
 
@@ -332,57 +373,12 @@ export function FilterPage({ active }) {
             </section>
          )}
 
-         {/* Summary Section */}
-         <section>
-            <div className='bg-white border border-gray-200 rounded-lg p-4'>
-               <div className='flex items-center justify-between gap-4'>
-                  {/* Checkbox Selecionar Todos */}
-                  <div className='flex items-center gap-3'>
-                     <Checkbox
-                        className='w-5 h-5'
-                        checked={selectedAll}
-                        color='blue'
-                        onChange={() => setSelectedAll(!selectedAll)}
-                     />
-                     <Label className='text-sm font-medium text-gray-700 cursor-pointer'>
-                        Selecionar Todos
-                     </Label>
-                  </div>
-
-                  {/* Valor Total */}
-                  <div className='flex items-center gap-3 bg-green-50 px-4 py-2 rounded-lg border border-green-200'>
-                     <div className='flex items-center gap-2'>
-                        <HiCurrencyDollar
-                           className='text-green-600'
-                           size={20}
-                        />
-                        <span className='text-sm text-gray-600'>Total:</span>
-                     </div>
-                     <div className='flex flex-col items-end'>
-                        <span className='text-lg font-bold text-green-700'>
-                           {valorSoma.toLocaleString("pt-BR", {
-                              style: "currency",
-                              currency: "BRL",
-                           })}
-                        </span>
-                        <span className='text-xs text-gray-500'>
-                           {selectedIds.length}{" "}
-                           {selectedIds.length === 1
-                              ? "selecionado"
-                              : "selecionados"}
-                        </span>
-                     </div>
-                  </div>
-               </div>
-            </div>
-         </section>
-
          {/* Results Section */}
          <section className='relative'>
             <div className='bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden'>
                {loading ? (
                   <div className='flex flex-col items-center justify-center gap-4 p-16'>
-                     <Spinner size='xl' color='info' />
+                     <Spinner size='xl' />
                      <p className='text-gray-600 font-medium text-lg'>
                         Carregando registros...
                      </p>

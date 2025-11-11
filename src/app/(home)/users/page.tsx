@@ -1,6 +1,7 @@
 "use client";
 
-import { Spinner, TextInput, Button, Badge } from "flowbite-react";
+import { TextInput, Button, Badge } from "flowbite-react";
+import { Spinner } from "@/components/Spinner";
 import { useState, useEffect } from "react";
 import useDebouncedValue from "./hooks/useDebouncedValue";
 import useUsers from "./hooks/useUsers";

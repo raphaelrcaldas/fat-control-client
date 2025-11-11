@@ -2,11 +2,12 @@
 
 import { getFragMissoes } from "services/routes/cegep/missoes";
 import { useEffect, useState, useCallback } from "react";
-import { Label, Spinner, Select, TextInput, Badge } from "flowbite-react";
+import { Label, Select, TextInput, Badge } from "flowbite-react";
 import { Missao } from "services/routes/cegep/missoes";
 import { CardMission } from "./components/cardMission";
 import MissionDetail from "./components/missionDetail";
 import { useRegisterContext } from "../../context/registerContext";
+import { Spinner } from "@/components/Spinner";
 import {
    HiX,
    HiFilter,
@@ -110,7 +111,7 @@ export function RegisPage() {
       <>
          <div className='h-full flex flex-col overflow-hidden'>
             {/* Header Section */}
-            <section className='flex-shrink-0 mb-4'>
+            <section className='flex-shrink-0 mb-2'>
                <div className='flex items-center justify-between'>
                   <h5 className='font-semibold text-xl text-gray-800'>
                      Missões

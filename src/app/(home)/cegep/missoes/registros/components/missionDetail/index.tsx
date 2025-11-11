@@ -7,10 +7,10 @@ import {
    Textarea,
    Select,
    Label,
-   Spinner,
    TextInput,
    Checkbox,
 } from "flowbite-react";
+import { Spinner } from "@/components/Spinner";
 import { MissionPernoite } from "./pernoite/missionPernoite";
 import { FormPernoite } from "./pernoite/formPernoite";
 import { FormMilitar } from "./militar/formMilitar";
@@ -20,7 +20,7 @@ import { DeleteMissionModal } from "./deleteMissionModal";
 import { Missao } from "services/routes/cegep/missoes";
 import { DateTimePicker } from "src/app/(home)/components/dateTimePicker";
 import { useState, useMemo, useEffect } from "react";
-import { FaPlaneDeparture, FaPlaneArrival } from "react-icons/fa";
+import { FaPlaneDeparture, FaPlaneArrival, FaExclamationTriangle } from "react-icons/fa";
 import { createUpdateFragMis } from "services/routes/cegep/missoes";
 import { deleteFragMis } from "services/routes/cegep/missoes";
 import { useToast } from "@/app/context/toast";
@@ -80,6 +80,8 @@ export default function MissionDetail({
    const [showErrorModal, setShowErrorModal] = useState(false);
    const [errorMessage, setErrorMessage] = useState("");
    const [showDeleteModal, setShowDeleteModal] = useState(false);
+   const [showValidationModal, setShowValidationModal] = useState(false);
+   const [validationErrors, setValidationErrors] = useState<string[]>([]);
    const { push } = useToast();
 
    const sortedPnts = useMemo(
@@ -128,14 +130,22 @@ export default function MissionDetail({
       if (!checkPnts) errors.push("- Pelo menos um Pernoite");
       if (!checkMil) errors.push("- Pelo menos um Militar");
 
-      const dataAfast = new Date(afast.split("T")[0]);
-      const dataRegres = new Date(regres.split("T")[0]);
+      const dataAfast = new Date(afast);
+      const dataRegres = new Date(regres);
 
       // Checagem adicional: afastamento não pode ser maior que regresso
       if (checkAfast && checkRegres) {
          if (dataAfast > dataRegres) {
             errors.push(
                "- Data de afastamento não pode ser maior que a de regresso"
+            );
+         }
+
+         // Verifica se há pelo menos 8 horas entre afastamento e regresso
+         const diffInHours = (dataRegres.getTime() - dataAfast.getTime()) / (1000 * 60 * 60);
+         if (diffInHours < 8) {
+            errors.push(
+               "- Deve haver pelo menos 8 horas entre o afastamento e o regresso"
             );
          }
       }
@@ -155,7 +165,8 @@ export default function MissionDetail({
       });
 
       if (errors.length > 0) {
-         alert("Preencha os campos obrigatórios:\n" + errors.join("\n"));
+         setValidationErrors(errors);
+         setShowValidationModal(true);
          return;
       }
 
@@ -270,6 +281,61 @@ export default function MissionDetail({
                desc: desc,
             }}
          />
+         {/* Modal de Validação */}
+         <Modal
+            show={showValidationModal}
+            onClose={() => setShowValidationModal(false)}
+            size="md"
+         >
+            <ModalHeader className="border-b border-amber-200 bg-gradient-to-r from-amber-50 to-orange-50">
+               <div className="flex items-center gap-3">
+                  <div className="flex items-center justify-center w-12 h-12 rounded-full bg-amber-100 border-2 border-amber-300">
+                     <FaExclamationTriangle className="text-amber-600 text-xl" />
+                  </div>
+                  <div>
+                     <h3 className="text-lg font-bold text-amber-900">
+                        Validação de Campos
+                     </h3>
+                     <p className="text-sm text-amber-700">
+                        Alguns campos precisam ser corrigidos
+                     </p>
+                  </div>
+               </div>
+            </ModalHeader>
+            <ModalBody className="py-6">
+               <div className="space-y-3">
+                  <p className="text-sm font-medium text-slate-700 mb-4">
+                     Por favor, verifique os seguintes itens:
+                  </p>
+                  <div className="space-y-2">
+                     {validationErrors.map((error, index) => (
+                        <div
+                           key={index}
+                           className="flex items-start gap-3 p-3 bg-amber-50 border border-amber-200 rounded-lg"
+                        >
+                           <div className="flex-shrink-0 w-6 h-6 rounded-full bg-amber-100 flex items-center justify-center mt-0.5">
+                              <span className="text-xs font-bold text-amber-700">
+                                 {index + 1}
+                              </span>
+                           </div>
+                           <p className="text-sm text-slate-700 flex-1 leading-relaxed">
+                              {error.replace(/^- /, "")}
+                           </p>
+                        </div>
+                     ))}
+                  </div>
+               </div>
+            </ModalBody>
+            <ModalFooter className="border-t border-slate-200 bg-slate-50">
+               <Button
+                  color="blue"
+                  onClick={() => setShowValidationModal(false)}
+                  className="w-full font-semibold"
+               >
+                  Entendi
+               </Button>
+            </ModalFooter>
+         </Modal>
          <Modal size='4xl' show={show} onClose={handleClose}>
          <ModalHeader className='border-b border-slate-200 pb-4'>
             <div className='flex items-center gap-3'>
@@ -715,7 +781,7 @@ export default function MissionDetail({
                      >
                         {isLoading ? (
                            <div className='flex items-center gap-2'>
-                              <Spinner size='sm' />
+                              <Spinner size='sm' color='white' />
                               <span>Salvando...</span>
                            </div>
                         ) : missao ? (

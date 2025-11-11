@@ -22,9 +22,9 @@ import {
    TextInput,
    Button,
    Badge,
-   Spinner,
    Tooltip,
 } from "flowbite-react";
+import { Spinner } from "@/components/Spinner";
 import UserAddRole from "./components/userAddRole";
 import useDebouncedValue from "../../users/hooks/useDebouncedValue";
 import { FaSearch } from "react-icons/fa";

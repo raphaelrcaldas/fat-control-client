@@ -6,8 +6,8 @@ import {
    ModalBody,
    ModalHeader,
    TextInput,
-   Spinner,
 } from "flowbite-react";
+import { Spinner } from "@/components/Spinner";
 import { useForm } from "react-hook-form";
 import { HiUserAdd } from "react-icons/hi";
 import { addTrip } from "services/routes/trips";
@@ -195,7 +195,7 @@ export function TripRegister({
                      <Button color='blue' type='submit' disabled={submitting}>
                         {submitting ? (
                            <div className='flex items-center gap-2'>
-                              <Spinner size='sm' />
+                              <Spinner size='sm' color='white' />
                               <span>Salvando...</span>
                            </div>
                         ) : (

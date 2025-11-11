@@ -5,7 +5,6 @@ import {
    Modal,
    ModalBody,
    ModalHeader,
-   Spinner,
    Table,
    TableBody,
    TableCell,
@@ -13,6 +12,7 @@ import {
    TableHeadCell,
    TableRow,
 } from "flowbite-react";
+import { Spinner } from "@/components/Spinner";
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { getQuadById, deleteQuad } from "services/routes/quads";
 import { isoDateToString } from "utils/dateHandler";
@@ -239,7 +239,7 @@ function QuadRow({ quad, trip, onUpdate, onDelete }: QuadRowProps) {
 
                   {deleting ? (
                      <div className="p-2">
-                        <Spinner color="failure" size="sm" aria-label="Deletando..." />
+                        <Spinner size="sm" />
                      </div>
                   ) : (
                      <button
@@ -276,7 +276,7 @@ function QuadRow({ quad, trip, onUpdate, onDelete }: QuadRowProps) {
 function LoadingState() {
    return (
       <div className="flex flex-col items-center justify-center h-full gap-3 p-4">
-         <Spinner color="info" size="lg" />
+         <Spinner size="lg" />
          <p className="text-sm text-gray-600 dark:text-gray-400">
             Carregando quadrinhos...
          </p>

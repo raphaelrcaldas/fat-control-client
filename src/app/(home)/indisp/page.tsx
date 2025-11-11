@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
-import { Spinner, Tooltip } from "flowbite-react";
+import { Tooltip } from "flowbite-react";
+import { Spinner } from "@/components/Spinner";
 import IndispCell from "./components/indispCell";
 import { TripIndisp } from "./components/tripIndisp";
 import { getCrewIndisps } from "services/routes/indisps";
@@ -356,7 +357,7 @@ export default function IndispPage() {
          ) : (
             <div className='flex-1 flex flex-col items-center justify-center gap-4'>
                <div className='text-center'>
-                  <Spinner color='info' size='xl' />
+                  <Spinner size='xl' />
                   <p className='mt-4 text-gray-600 font-medium'>
                      Carregando indisponibilidades...
                   </p>

@@ -12,9 +12,9 @@ import {
    TextInput,
    Checkbox,
    Select,
-   Spinner,
    Progress,
 } from "flowbite-react";
+import { Spinner } from "@/components/Spinner";
 import { isoStrToDate } from "utils/dateHandler";
 import { gerarRelatorio } from "utils/relatorioComiss";
 import { realCurrency } from "utils/financeiro";
@@ -233,9 +233,7 @@ export function DetailComiss({
       return (
          <Modal show={show} size='6xl' onClose={() => setShow(false)}>
             <ModalHeader className='border-b border-gray-200'>
-               <h3 className='text-xl font-semibold text-gray-900'>
-                  {comiss ? "Editar" : "Adicionar"} Comissionamento
-               </h3>
+               {comiss ? "Editar" : "Adicionar"} Comissionamento
             </ModalHeader>
             <ModalBody className='space-y-6'>
                {/* Seleção de Militar */}
@@ -520,7 +518,7 @@ export function DetailComiss({
                >
                   {isLoading ? (
                      <div className='flex items-center gap-2'>
-                        <Spinner size='sm' />
+                        <Spinner size='sm' color='white' />
                         <span>Salvando...</span>
                      </div>
                   ) : comiss ? (

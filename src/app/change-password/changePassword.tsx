@@ -1,5 +1,6 @@
 import { changePassword } from "services/routes/users";
-import { Label, TextInput, Button, Spinner } from "flowbite-react";
+import { Label, TextInput, Button } from "flowbite-react";
+import { Spinner } from "@/components/Spinner";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useToast } from "@/app/context/toast";
@@ -135,7 +136,7 @@ export function ChangePassword() {
                   <Button type='submit' disabled={isLoading} color='blue'>
                      {isLoading ? (
                         <>
-                           <Spinner size='sm' className='mr-2' />
+                           <Spinner size='sm' color='white' />
                            Salvando...
                         </>
                      ) : (

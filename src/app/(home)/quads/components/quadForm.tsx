@@ -7,10 +7,10 @@ import {
    ModalBody,
    ModalHeader,
    Select,
-   Spinner,
    Textarea,
    TextInput,
 } from "flowbite-react";
+import { Spinner } from "@/components/Spinner";
 import { addQuad, updateQuad } from "services/routes/quads";
 import { useToast } from "@/app/context/toast";
 import { Quad } from "services/routes/quads";
@@ -218,7 +218,7 @@ export default function QuadForm({
                >
                   {loading ? (
                      <div className='flex items-center gap-2'>
-                        <Spinner size='sm' />
+                        <Spinner size='sm' color='white' />
                         <span>Salvando...</span>
                      </div>
                   ) : quad ? (

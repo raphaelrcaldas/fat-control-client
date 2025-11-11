@@ -1,5 +1,6 @@
 import { resetPassword } from "services/routes/users";
-import { Button, Spinner } from "flowbite-react";
+import { Button } from "flowbite-react";
+import { Spinner } from "@/components/Spinner";
 import { useState } from "react";
 import { useToast } from "@/app/context/toast";
 import { HiKey, HiExclamation, HiCheckCircle, HiShieldCheck } from "react-icons/hi";
@@ -83,7 +84,7 @@ export function ResetPassword({ userId }) {
                >
                   {isLoading ? (
                      <>
-                        <Spinner size='sm' className='mr-2' />
+                        <Spinner size='sm' color='white' />
                         Redefinindo...
                      </>
                   ) : (

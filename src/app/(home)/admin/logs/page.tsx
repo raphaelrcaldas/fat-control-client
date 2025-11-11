@@ -9,11 +9,11 @@ import {
    TableCell,
    TableBody,
    TableRow,
-   Spinner,
    TextInput,
    Select,
    Badge,
 } from "flowbite-react";
+import { Spinner } from "@/components/Spinner";
 import { HiSearch, HiRefresh, HiFilter } from "react-icons/hi";
 
 export default function LogDashboard() {

@@ -102,7 +102,7 @@ export default function MissPage() {
             }
 
             .tabs-container [role="tabpanel"] {
-               padding: 2rem;
+               padding: 1rem;
             }
          `}</style>
       </div>

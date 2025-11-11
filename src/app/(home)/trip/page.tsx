@@ -9,9 +9,9 @@ import {
    TableRow,
    TableCell,
    TextInput,
-   Spinner,
    Badge,
 } from "flowbite-react";
+import { Spinner } from "@/components/Spinner";
 import { IoSearchSharp } from "react-icons/io5";
 import { HiUserGroup, HiExclamationCircle } from "react-icons/hi";
 
@@ -125,7 +125,7 @@ export default function TripPage() {
          <div className='overflow-auto bg-gray-50 rounded-lg shadow-md border border-gray-200'>
             {loading ? (
                <div className='flex flex-col justify-center items-center gap-3 bg-white rounded-lg m-2 py-12'>
-                  <Spinner color='failure' size='xl' />
+                  <Spinner size='xl' />
                   <p className='text-gray-500'>Carregando tripulantes...</p>
                </div>
             ) : filterTrips.length === 0 ? (

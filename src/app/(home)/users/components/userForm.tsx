@@ -6,10 +6,10 @@ import {
    Modal,
    ModalBody,
    ModalHeader,
-   Spinner,
    TextInput,
    Select,
 } from "flowbite-react";
+import { Spinner } from "@/components/Spinner";
 import { getUserById, updateUser, addUser } from "services/routes/users";
 import { useToast } from "../../../context/toast";
 import { useForm, Resolver } from "react-hook-form";

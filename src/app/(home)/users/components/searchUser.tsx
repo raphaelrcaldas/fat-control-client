@@ -4,8 +4,8 @@ import {
    ModalBody,
    TextInput,
    Button,
-   Spinner,
 } from "flowbite-react";
+import { Spinner } from "@/components/Spinner";
 import { useState } from "react";
 import { FaCheckCircle, FaSearch } from "react-icons/fa";
 import { IoMdSearch } from "react-icons/io";
@@ -114,7 +114,7 @@ export function SearchUser({
                         className="px-4"
                      >
                         {isLoading ? (
-                           <Spinner size="sm" />
+                           <Spinner size="sm" color="white" />
                         ) : (
                            <IoMdSearch className='size-5' />
                         )}

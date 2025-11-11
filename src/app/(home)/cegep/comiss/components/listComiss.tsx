@@ -95,7 +95,7 @@ export function ListComiss({
                {/* Tipo de Comissionamento */}
                <div
                   className={clsx(
-                     "flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors duration-200",
+                     "flex items-center gap-2 px-3 py-1.5 md:w-32 rounded-lg text-xs font-medium transition-colors duration-200",
                      {
                         "bg-blue-100 text-blue-700": comiss.dias_cumprir,
                         "bg-green-100 text-green-700": !comiss.dias_cumprir,
@@ -105,12 +105,16 @@ export function ListComiss({
                   {comiss.dias_cumprir ? (
                      <>
                         <MdOutlineCalendarToday size={14} />
-                        <span className='hidden md:flex'>Período</span>
+                        <span className='hidden w-full text-center md:flex'>
+                           Período
+                        </span>
                      </>
                   ) : (
                      <>
                         <MdOutlineAttachMoney size={14} />
-                        <span className='hidden md:flex'>Comparativo</span>
+                        <span className='hidden w-full text-center md:flex'>
+                           Comparativo
+                        </span>
                      </>
                   )}
                </div>
