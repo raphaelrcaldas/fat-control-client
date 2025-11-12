@@ -161,7 +161,7 @@ export function RegisPage() {
                      </span>
 
                      {tipoDoc && (
-                        <Badge color='info' className=''>
+                        <Badge color='red' className=''>
                            <div className='flex items-center gap-1.5'>
                               <HiDocumentText className='w-3 h-3' />
                               <span>
@@ -179,7 +179,7 @@ export function RegisPage() {
                      )}
 
                      {nDoc && (
-                        <Badge color='info'>
+                        <Badge color='red'>
                            <div className='flex items-center gap-1.5'>
                               <HiHashtag className='w-3 h-3' />
                               <span>Nº {nDoc}</span>
@@ -194,7 +194,7 @@ export function RegisPage() {
                      )}
 
                      {selectedTipo && (
-                        <Badge color='info'>
+                        <Badge color='red'>
                            <div className='flex items-center gap-1.5'>
                               <HiClipboardList className='w-3 h-3' />
                               <span>Tipo: {selectedTipo.toUpperCase()}</span>
@@ -209,7 +209,7 @@ export function RegisPage() {
                      )}
 
                      {userSearch && (
-                        <Badge color='info'>
+                        <Badge color='red'>
                            <div className='flex items-center gap-1.5'>
                               <HiUser className='w-3 h-3' />
                               <span>Militar: {userSearch}</span>
@@ -224,7 +224,7 @@ export function RegisPage() {
                      )}
 
                      {citySearch && (
-                        <Badge color='info'>
+                        <Badge color='red'>
                            <div className='flex items-center gap-1.5'>
                               <HiLocationMarker className='w-3 h-3' />
                               <span>Cidade: {citySearch}</span>
@@ -239,7 +239,7 @@ export function RegisPage() {
                      )}
 
                      {dataInicio && (
-                        <Badge color='info'>
+                        <Badge color="red">
                            <div className='flex items-center gap-1.5'>
                               <HiCalendar className='w-3 h-3' />
                               <span>
@@ -271,7 +271,7 @@ export function RegisPage() {
                      )}
 
                      {dataFim && (
-                        <Badge color='info'>
+                        <Badge color='red'>
                            <div className='flex items-center gap-1.5'>
                               <HiCalendar className='w-3 h-3' />
                               <span>
@@ -486,7 +486,7 @@ export function RegisPage() {
                            )}
                         </div>
                      ) : (
-                        <div className='grid grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3 gap-3'>
+                        <div className='grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-3'>
                            {missoes?.map((m) => (
                               <CardMission
                                  key={m.id}
