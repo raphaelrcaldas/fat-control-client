@@ -125,7 +125,7 @@ export function RegisPage() {
                         <HiFilter />
                         {showFilters ? "Ocultar" : "Filtros"}
                         {hasActiveFilters && (
-                           <Badge color='gray' size='sm'>
+                           <Badge color='red' size='sm'>
                               {
                                  Object.values({
                                     tipoDoc,
@@ -143,7 +143,7 @@ export function RegisPage() {
                      <button
                         type='button'
                         onClick={() => handleSetShowForm(true)}
-                        className='flex items-center gap-1.5 px-3 py-2 text-sm text-white rounded-lg bg-red-600 hover:bg-red-700'
+                        className='flex items-center gap-1.5 px-3 py-2 font-semibold text-sm text-white rounded-lg bg-red-600 hover:bg-red-700'
                      >
                         <span>+</span>
                         Nova Missão
@@ -239,7 +239,7 @@ export function RegisPage() {
                      )}
 
                      {dataInicio && (
-                        <Badge color="red">
+                        <Badge color='red'>
                            <div className='flex items-center gap-1.5'>
                               <HiCalendar className='w-3 h-3' />
                               <span>

@@ -35,7 +35,8 @@ export const CardMission = memo(function CardMission({
       [missao.afast, missao.regres]
    );
 
-   const onClone = useCallback(() => {
+   const onClone = useCallback((e: React.MouseEvent) => {
+      e.stopPropagation();
       const clone = { ...missao, users: [], id: null };
       setClone(clone);
       setShowForm(true);
@@ -43,7 +44,7 @@ export const CardMission = memo(function CardMission({
 
    return (
       <>
-         <div className='relative bg-white p-5 shadow-lg rounded-2xl w-full border-2 border-gray-100 cursor-pointer'>
+         <div className='relative bg-white p-5 shadow-lg rounded-2xl w-full border-2 border-gray-100'>
             {/* Header com documento */}
             <div className='flex items-center justify-between mb-4'>
                <div className='flex items-center gap-3'>
@@ -80,7 +81,7 @@ export const CardMission = memo(function CardMission({
             </div>
 
             <div
-               className='flex flex-col gap-4 h-full'
+               className='flex flex-col gap-4 h-full cursor-pointer'
                onClick={() => setShowDetail(true)}
             >
                {/* Observações */}

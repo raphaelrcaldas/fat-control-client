@@ -107,7 +107,7 @@ export default function SidebarWithFooter({
                "top-16 left-0 bottom-0 z-40 flex-shrink-0",
                "flex flex-col bg-white shadow-xl overflow-hidden",
                "transition-all duration-200 ease-in-out",
-               isOpen ? "w-72" : useOverlay ? "w-72" : "w-0",
+               isOpen ? "w-64" : useOverlay ? "w-64" : "w-0",
                useOverlay && (isOpen ? "translate-x-0" : "-translate-x-full")
             )}
          >

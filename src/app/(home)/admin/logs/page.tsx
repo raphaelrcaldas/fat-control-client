@@ -15,6 +15,7 @@ import {
 } from "flowbite-react";
 import { Spinner } from "@/components/Spinner";
 import { HiSearch, HiRefresh, HiFilter } from "react-icons/hi";
+import clsx from "clsx";
 
 export default function LogDashboard() {
    const [logs, setLogs] = useState<UserActionLog[]>([]);
@@ -65,23 +66,21 @@ export default function LogDashboard() {
          <div className='bg-white py-4 px-5 rounded-lg shadow-md'>
             <div className='flex flex-col md:flex-row md:items-center md:justify-between gap-3'>
                <div>
-                  <h2 className='font-semibold text-2xl text-gray-800'>
-                     Logs de Ações
-                  </h2>
+                  <h2 className='font-semibold text-2xl text-gray-800'>Logs</h2>
                   <p className='text-sm text-gray-500 mt-1'>
                      Última atualização:{" "}
                      {lastUpdate.toLocaleTimeString("pt-BR")}
                   </p>
                </div>
                <div className='flex items-center gap-3'>
-                  <Badge color='info' size='lg'>
+                  <Badge color='red' size='lg'>
                      {filteredLogs.length}{" "}
                      {filteredLogs.length === 1 ? "registro" : "registros"}
                   </Badge>
                   <button
                      onClick={fetchLogs}
                      disabled={loading}
-                     className='flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white rounded-lg transition-colors'
+                     className='flex items-center font-semibold gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 disabled:bg-red-400 text-white rounded-lg transition-colors'
                   >
                      <HiRefresh className={loading ? "animate-spin" : ""} />
                      Atualizar
@@ -206,9 +205,7 @@ function LogRow({ log }: { log: UserActionLog }) {
 
    return (
       <TableRow className='bg-white hover:bg-gray-50 transition-colors'>
-         <TableCell className='font-mono text-sm'>
-            {timestamp}
-         </TableCell>
+         <TableCell className='font-mono text-sm'>{timestamp}</TableCell>
          <TableCell>
             <span className='font-medium uppercase'>
                {log.user.p_g} {log.user.nome_guerra}
@@ -218,7 +215,19 @@ function LogRow({ log }: { log: UserActionLog }) {
             {getActionBadge(log.action)}
          </TableCell>
          <TableCell>
-            <span className='text-gray-600 text-sm'>{afterParse.client}</span>
+            <span
+               className={clsx(
+                  "text-gray-600 text-xs p-1 rounded font-medium shadow border",
+                  {
+                     "bg-red-200 border-red-400":
+                        afterParse.client == "fatbird",
+                     "bg-blue-200 border-blue-400":
+                        afterParse.client == "fatcontrol",
+                  }
+               )}
+            >
+               {afterParse.client}
+            </span>
          </TableCell>
       </TableRow>
    );

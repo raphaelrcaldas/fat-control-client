@@ -1,66 +1,67 @@
-const themes = {
-   amber: {
-      button: "bg-amber-400 enabled:hover:bg-amber-700",
-      bg: "bg-amber-200",
-   },
-   red: {
-      button: "bg-red-500 enabled:hover:bg-red-800",
-      bg: "bg-red-100",
-   },
-   orange: {
-      button: "bg-orange-500 enabled:hover:bg-orange-800",
-      bg: "bg-orange-100",
-   },
-   rose: {
-      button: "bg-rose-700 enabled:hover:bg-rose-900",
-      bg: "bg-rose-200",
-   },
-   blue: {
-      button: "bg-blue-700 enabled:hover:bg-blue-800",
-      bg: "bg-blue-200",
-   }
-}
-
 export const indispsOptions = [
    {
       value: "svc",
-      label: "Serviço",
-      color: themes.amber,
+      label: "🔧 Serviço",
+      color: {
+         button: "bg-amber-400 enabled:hover:bg-amber-700",
+         bg: "bg-amber-200",
+      },
    },
    {
       value: "sde",
-      label: "Saúde",
-      color: themes.red,
+      label: "🏥 Saúde",
+      color: {
+         button: "bg-red-500 enabled:hover:bg-red-800",
+         bg: "bg-red-100",
+      },
    },
    {
       value: "rep",
-      label: "Representação",
-      color: themes.red,
+      label: "🤝 Representação",
+      color: {
+         button: "bg-red-500 enabled:hover:bg-red-800",
+         bg: "bg-red-100",
+      },
    },
    {
       value: "fer",
-      label: "Férias",
-      color: themes.red,
+      label: "🌴 Férias",
+      color: {
+         button: "bg-red-500 enabled:hover:bg-red-800",
+         bg: "bg-red-100",
+      },
    },
    {
       value: "lic",
-      label: "Licença",
-      color: themes.red,
+      label: "📄 Licença",
+      color: {
+         button: "bg-red-500 enabled:hover:bg-red-800",
+         bg: "bg-red-100",
+      },
    },
    {
       value: "mis",
-      label: "Missão",
-      color: themes.orange,
+      label: "✈️ Missão",
+      color: {
+         button: "bg-orange-500 enabled:hover:bg-orange-800",
+         bg: "bg-orange-100",
+      },
    },
    {
       value: "odm",
-      label: "Ordem de Missão",
-      color: themes.rose,
+      label: "🪖 Ordem de Missão",
+      color: {
+         button: "bg-rose-700 enabled:hover:bg-rose-900",
+         bg: "bg-rose-200",
+      },
    },
    {
       value: "pes",
-      label: "Particular",
-      color: themes.blue,
+      label: "🏡 Particular",
+      color: {
+         button: "bg-blue-700 enabled:hover:bg-blue-800",
+         bg: "bg-blue-200",
+      },
    },
 ];
 

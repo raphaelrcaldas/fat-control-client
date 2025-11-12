@@ -356,7 +356,7 @@ export default function IndispPage() {
             </div>
          ) : (
             <div className='flex-1 flex flex-col items-center justify-center gap-4'>
-               <div className='text-center'>
+               <div className='grid justify-items-center'>
                   <Spinner size='xl' />
                   <p className='mt-4 text-gray-600 font-medium'>
                      Carregando indisponibilidades...
@@ -371,12 +371,15 @@ export default function IndispPage() {
 function ColorLegend() {
    return (
       <div className='hidden md:flex flex-wrap justify-center gap-2 px-2 py-2 bg-white shadow rounded-lg text-xs md:text-sm flex-shrink-0'>
-         {indispsOptions.map((option) => (
-            <div key={option.value} className='flex items-center gap-1'>
-               <div className={`w-4 h-4 rounded ${option.color.button}`} />
-               <span className='font-medium'>{option.label}</span>
-            </div>
-         ))}
+         {indispsOptions.map((option) => {
+            const label = option.label.split(" ")[1];
+            return (
+               <div key={option.value} className='flex items-center gap-1'>
+                  <div className={`w-4 h-4 rounded ${option.color.button}`} />
+                  <span className='font-medium'>{label}</span>
+               </div>
+            );
+         })}
          <div className='flex items-center gap-1'>
             <div className='w-4 h-4 rounded bg-emerald-600' />
             <span className='font-medium'>Disponível</span>
