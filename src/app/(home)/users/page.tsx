@@ -45,8 +45,8 @@ export default function UsersPage() {
          <div className='bg-white p-4 rounded-lg shadow-sm border border-gray-200 mb-4'>
             <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4'>
                <div className='flex items-center gap-3'>
-                  <div className='p-2 bg-blue-100 rounded-lg'>
-                     <HiUsers className='w-6 h-6 text-blue-600' />
+                  <div className='p-2 bg-red-100 rounded-lg'>
+                     <HiUsers className='w-6 h-6 text-red-600' />
                   </div>
                   <div>
                      <h5 className='font-semibold text-lg text-gray-900'>
@@ -64,7 +64,7 @@ export default function UsersPage() {
                   </div>
                </div>
                <Button
-                  color='blue'
+                  color='red'
                   onClick={() => setShowCreateModal(true)}
                   className='whitespace-nowrap'
                >
@@ -109,7 +109,7 @@ export default function UsersPage() {
                      : "Comece adicionando o primeiro usuário ao sistema."}
                </p>
                {!debouncedFilter && (
-                  <Button color='blue' onClick={() => setShowCreateModal(true)}>
+                  <Button color='red' onClick={() => setShowCreateModal(true)}>
                      <HiUserAdd className='w-5 h-5 mr-2' />
                      Adicionar Primeiro Usuário
                   </Button>
@@ -202,7 +202,7 @@ function UserRow({ user, update }) {
             <td className='px-4 py-3 text-center uppercase'>{user.unidade}</td>
             <td className='px-4 py-3 text-right'>
                <button
-                  className='inline-flex items-center justify-center w-9 h-9 rounded-lg text-blue-600 hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 transition-all duration-150'
+                  className='inline-flex items-center justify-center w-9 h-9 rounded-lg text-red-600 hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-1 transition-all duration-150'
                   onClick={() => setShowUser(true)}
                   aria-label={`Ver detalhes de ${user.nome_guerra}`}
                   title='Ver detalhes'
@@ -231,8 +231,8 @@ function UserCard({ user, update }) {
          <div className='bg-white rounded-lg shadow-sm border border-gray-200 p-4 hover:shadow-md transition-shadow duration-150'>
             <div className='flex items-start justify-between mb-3'>
                <div className='flex items-center gap-2'>
-                  <div className='w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center'>
-                     <span className='text-blue-600 font-bold text-sm uppercase'>
+                  <div className='w-10 h-10 bg-red-100 rounded-full flex items-center justify-center'>
+                     <span className='text-red-600 font-bold text-sm uppercase'>
                         {user.p_g}
                      </span>
                   </div>
@@ -246,7 +246,7 @@ function UserCard({ user, update }) {
                   </div>
                </div>
                <button
-                  className='p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors'
+                  className='p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors'
                   onClick={() => setShowUser(true)}
                   aria-label={`Ver detalhes de ${user.nome_guerra}`}
                >
@@ -269,7 +269,7 @@ function UserCard({ user, update }) {
                </div>
                <div>
                   <p className='text-xs text-gray-500 mb-1'>Unidade</p>
-                  <Badge color='blue' className='uppercase text-xs'>
+                  <Badge color='red' className='uppercase text-xs'>
                      {user.unidade}
                   </Badge>
                </div>

@@ -110,7 +110,7 @@ export function SearchUser({
                      <Button
                         onClick={searchUsers}
                         disabled={isLoading}
-                        color='blue'
+                        color='red'
                         className="px-4"
                      >
                         {isLoading ? (
@@ -169,8 +169,8 @@ export function SearchUser({
                                  }
                               }}
                            >
-                              <FaCheckCircle className='size-5 text-blue-500 group-hover:text-blue-700 flex-shrink-0' />
-                              <span className='flex-1 uppercase text-sm font-medium text-gray-700 group-hover:text-blue-900'>
+                              <FaCheckCircle className='size-5 text-red-500 group-hover:text-red-700 flex-shrink-0' />
+                              <span className='flex-1 uppercase text-sm font-medium text-gray-700 group-hover:text-red-900'>
                                  {user.posto.short} {user.esp} {user.nome_guerra}
                               </span>
                            </div>

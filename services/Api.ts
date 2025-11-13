@@ -70,5 +70,10 @@ export default async function request<T = any>(
       window.location.href = "/";
    }
 
+   // Lança erro se a resposta não for bem-sucedida
+   if (!response.ok) {
+      throw new Error(`HTTP Error: ${response.status} ${response.statusText}`);
+   }
+
    return response;
 }

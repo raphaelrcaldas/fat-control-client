@@ -44,7 +44,7 @@ export function UserDetailsModal({
       <Modal show={show} size='4xl' onClose={onClose}>
          <div className='relative flex flex-col max-h-[90vh]'>
             {/* Header customizado com gradiente - compacto */}
-            <div className='bg-gradient-to-r from-blue-600 to-blue-700 text-white p-4 rounded-t-lg flex-shrink-0'>
+            <div className='bg-gradient-to-r from-red-600 to-red-700 text-white p-4 rounded-t-lg flex-shrink-0'>
                <button
                   onClick={onClose}
                   className='absolute top-3 right-3 p-1.5 hover:bg-white/20 rounded-lg transition-colors z-10'
@@ -77,7 +77,7 @@ export function UserDetailsModal({
                         )}
                      </div>
 
-                     <p className='text-blue-100 text-sm capitalize mb-2 truncate'>
+                     <p className='text-red-100 text-sm capitalize mb-2 truncate'>
                         {user?.nome_completo}
                      </p>
 
@@ -109,7 +109,7 @@ export function UserDetailsModal({
                                  flex items-center gap-2 px-3 py-2.5 border-b-2 font-medium text-sm transition-all duration-200
                                  ${
                                     isActive
-                                       ? "border-blue-600 text-blue-600 bg-blue-50"
+                                       ? "border-red-600 text-red-600 bg-red-50"
                                        : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 hover:bg-gray-50"
                                  }
                                  rounded-t-lg
@@ -117,7 +117,7 @@ export function UserDetailsModal({
                            >
                               <Icon
                                  className={`w-4 h-4 ${
-                                    isActive ? "text-blue-600" : "text-gray-400"
+                                    isActive ? "text-red-600" : "text-gray-400"
                                  }`}
                               />
                               <span>{tab.label}</span>

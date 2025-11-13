@@ -13,13 +13,11 @@ import { HiUserAdd } from "react-icons/hi";
 import { addTrip } from "services/routes/trips";
 import { useToast } from "../../../context/toast";
 import { UserPublic } from "services/routes/users";
-
-type TripFormFields = {
-   user_id: number;
-   active: boolean;
-   uae: string;
-   trig: string;
-};
+import {
+   isValidTrigramaKey,
+   trigramaValidationRules,
+} from "../utils/validateTrigrama";
+import type { TripRegisterFormFields } from "../types/trip.types";
 
 type TripRegisterProps = {
    uae: string;
@@ -41,13 +39,13 @@ export function TripRegister({
    const { push } = useToast();
 
    const show = externalShow !== undefined ? externalShow : internalShow;
-   
+
    const {
       register,
       handleSubmit,
       reset,
       formState: { errors },
-   } = useForm<TripFormFields>({
+   } = useForm<TripRegisterFormFields>({
       defaultValues: {
          user_id: user.id,
          active: true,
@@ -76,7 +74,7 @@ export function TripRegister({
       }
    }
 
-   async function registerTrip(data: TripFormFields) {
+   async function registerTrip(data: TripRegisterFormFields) {
       setSubmitting(true);
 
       try {
@@ -110,7 +108,7 @@ export function TripRegister({
       <>
          {externalShow === undefined && (
             <button
-               className='flex items-center gap-2 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-3 py-2 transition-colors'
+               className='flex items-center gap-2 text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-3 py-2 transition-colors'
                onClick={() => setInternalShow(true)}
             >
                <HiUserAdd className='size-5' />
@@ -125,14 +123,14 @@ export function TripRegister({
                   onSubmit={handleSubmit(registerTrip)}
                   className='space-y-4'
                >
-                  <div className='p-4 text-base uppercase text-center bg-blue-50 rounded-lg border border-blue-200'>
+                  <div className='p-4 text-base uppercase text-center bg-red-50 rounded-lg border border-red-200'>
                      <div className='font-semibold text-gray-800'>
                         {`${user.posto.short} ${user.esp} ${user.nome_guerra}`}
                      </div>
                      <div className='text-sm text-gray-600 mt-1 capitalize'>
                         {user.nome_completo}
                      </div>
-                     <div className='text-sm text-gray-500 mt-1 font-medium'>
+                     <div className='text-sm text-gray-500 mt-1 font-semibold'>
                         {user.unidade}
                      </div>
                   </div>
@@ -145,16 +143,8 @@ export function TripRegister({
                         <TextInput
                            id='trig'
                            {...register("trig", {
-                              required: "Trigrama é obrigatório",
+                              ...trigramaValidationRules,
                               setValueAs: (t) => t.toLowerCase(),
-                              minLength: {
-                                 value: 3,
-                                 message: "Trigrama deve ter 3 letras",
-                              },
-                              maxLength: {
-                                 value: 3,
-                                 message: "Trigrama deve ter 3 letras",
-                              },
                            })}
                            autoComplete='off'
                            placeholder='Ex: abc'
@@ -162,16 +152,7 @@ export function TripRegister({
                            autoFocus
                            color={errors.trig ? "failure" : "gray"}
                            onKeyDown={(e) => {
-                              if (
-                                 !e.key.match(/^[a-zA-Z]$/) &&
-                                 e.key !== "Backspace" &&
-                                 e.key !== "Delete" &&
-                                 e.key !== "Tab" &&
-                                 e.key !== "ArrowLeft" &&
-                                 e.key !== "ArrowRight" &&
-                                 e.key !== "Home" &&
-                                 e.key !== "End"
-                              ) {
+                              if (!isValidTrigramaKey(e.key)) {
                                  e.preventDefault();
                               }
                            }}
@@ -192,7 +173,7 @@ export function TripRegister({
                      >
                         Cancelar
                      </Button>
-                     <Button color='blue' type='submit' disabled={submitting}>
+                     <Button color='red' type='submit' disabled={submitting}>
                         {submitting ? (
                            <div className='flex items-center gap-2'>
                               <Spinner size='sm' color='white' />

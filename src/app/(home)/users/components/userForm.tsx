@@ -139,7 +139,7 @@ export function UserRegister({ userId, updateUsers }) {
                </div>
                <div className='flex justify-center gap-3 pt-4 mt-4 border-t border-gray-200 sticky bottom-0 bg-white'>
                   <Button
-                     color='blue'
+                     color='red'
                      type='submit'
                      disabled={!hasChanges || loadingUser}
                      size='lg'
