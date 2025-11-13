@@ -10,14 +10,8 @@ export interface PostoGrad {
 }
 
 export const postoGradRecords: PostoGrad[] = [
-    {
-        ant: 1, short: "tb", mid: "ten brig", long: "tenente-brigadeiro",
-
-    },
-    {
-        ant: 2, short: "mb", mid: "maj brig", long: "major-brigadeiro",
-
-    },
+    { ant: 1, short: "tb", mid: "ten brig", long: "tenente-brigadeiro" },
+    { ant: 2, short: "mb", mid: "maj brig", long: "major-brigadeiro" },
     { ant: 3, short: "br", mid: "brig", long: "brigadeiro" },
     { ant: 4, short: "cl", mid: "cel", long: "coronel" },
     { ant: 5, short: "tc", mid: "ten cel", long: "tenente-coronel" },

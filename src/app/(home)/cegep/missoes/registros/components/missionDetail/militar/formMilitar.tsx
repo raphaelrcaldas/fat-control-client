@@ -7,11 +7,17 @@ import {
    Select,
 } from "flowbite-react";
 import { IoMdSearch } from "react-icons/io";
-import { HiUserCircle, HiTrash, HiCheckCircle, HiXCircle } from "react-icons/hi2";
+import {
+   HiUserCircle,
+   HiTrash,
+   HiCheckCircle,
+   HiXCircle,
+} from "react-icons/hi2";
 import { useState, useMemo, useEffect } from "react";
 import { SearchUser } from "../../../../../../users/components/searchUser";
 import { UserMission } from "services/routes/cegep/missoes";
 import { DeleteMilitarModal } from "./deleteMilitarModal";
+import { postoGradRecords } from "services/routes/postos";
 
 type FormMilitarProps = {
    show: boolean;
@@ -116,17 +122,17 @@ export function FormMilitar({
 
    return (
       <Modal size='lg' show={show} onClose={() => setShow(false)}>
-         <ModalHeader className="border-b-2 border-gray-100 pb-4">
-            <div className="flex items-center gap-3">
-               <div className="p-2 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg">
-                  <HiUserCircle className="w-6 h-6 text-white" />
+         <ModalHeader className='border-b-2 border-gray-100 pb-4'>
+            <div className='flex items-center gap-3'>
+               <div className='p-2 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg'>
+                  <HiUserCircle className='w-6 h-6 text-white' />
                </div>
-               <span className="text-xl font-semibold text-gray-800">
+               <span className='text-xl font-semibold text-gray-800'>
                   {userMis ? "Editar Militar" : "Adicionar Militar"}
                </span>
             </div>
          </ModalHeader>
-         <ModalBody className="p-6">
+         <ModalBody className='p-6'>
             <form onSubmit={handleSubmit} className='flex flex-col gap-6'>
                {/* Card de Seleção do Militar */}
                <div className='bg-gradient-to-br from-slate-50 to-slate-100 px-3 py-2 rounded-2xl border-2 border-slate-200 shadow-sm'>
@@ -139,7 +145,7 @@ export function FormMilitar({
                         <Button
                            pill
                            onClick={() => setShowUserSearch(true)}
-                           size="sm"
+                           size='sm'
                            className='bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 transition-all duration-300 shadow-md hover:shadow-lg'
                         >
                            <IoMdSearch className='w-4 h-4 mr-2' />
@@ -151,10 +157,12 @@ export function FormMilitar({
                         {user ? (
                            <div className='bg-white shadow-lg px-6 py-3 rounded-xl border-2 border-blue-200 transition-all duration-300 hover:shadow-xl'>
                               <span className='uppercase font-semibold text-base text-gray-800'>
-                                 <span className='text-blue-600'>{user.p_g}</span>
-                                 {" "}
-                                 <span className='text-gray-500'>{user.esp}</span>
-                                 {" "}
+                                 <span className='text-blue-600'>
+                                    {user.p_g}
+                                 </span>{" "}
+                                 <span className='text-gray-500'>
+                                    {user.esp}
+                                 </span>{" "}
                                  <span>{user.nome_guerra}</span>
                               </span>
                            </div>
@@ -184,33 +192,23 @@ export function FormMilitar({
                      <Label className='text-sm font-semibold text-gray-700'>
                         Posto/Graduação
                      </Label>
-                     <span className='text-xs text-gray-500 -mt-1 mb-1'>
-                        Posto/Graduação que o militar estava no dia da missão
-                     </span>
                      <Select
                         value={pgMis}
                         onChange={(e) => setPgMis(e.target.value)}
                         className='rounded-lg border-2 border-gray-200 focus:border-blue-500 focus:ring-blue-500 transition-all duration-300'
                      >
-                        <option value='' disabled>Selecione...</option>
-                        <option value='tb'>TB - Tenente Brigadeiro</option>
-                        <option value='mb'>MB - Major Brigadeiro</option>
-                        <option value='br'>BR - Brigadeiro</option>
-                        <option value='cl'>CL - Coronel</option>
-                        <option value='tc'>TC - Tenente Coronel</option>
-                        <option value='mj'>MJ - Major</option>
-                        <option value='cp'>CP - Capitão</option>
-                        <option value='1t'>1T - Primeiro Tenente</option>
-                        <option value='2t'>2T - Segundo Tenente</option>
-                        <option value='as'>AS - Aspirante</option>
-                        <option value='so'>SO - Suboficial</option>
-                        <option value='1s'>1S - Primeiro Sargento</option>
-                        <option value='2s'>2S - Segundo Sargento</option>
-                        <option value='3s'>3S - Terceiro Sargento</option>
-                        <option value='cb'>CB - Cabo</option>
-                        <option value='s1'>S1 - Soldado 1ª Classe</option>
-                        <option value='s2'>S2 - Soldado 2ª Classe</option>
+                        <option value='' disabled>
+                           Selecione...
+                        </option>
+                        {postoGradRecords.map((p) => (
+                           <option value={p.short}>
+                              {p.short.toUpperCase()}
+                           </option>
+                        ))}
                      </Select>
+                     <span className='text-xs text-gray-500 -mt-1 mb-1'>
+                        Posto/Graduação que o militar estava no dia da missão
+                     </span>
                   </div>
 
                   {/* Situação */}
@@ -223,7 +221,9 @@ export function FormMilitar({
                         onChange={(e) => setSit(e.target.value)}
                         className='rounded-lg border-2 border-gray-200 focus:border-blue-500 focus:ring-blue-500 transition-all duration-300'
                      >
-                        <option disabled value=''>Selecione...</option>
+                        <option disabled value=''>
+                           Selecione...
+                        </option>
                         <option value='c'>Comissionado</option>
                         <option value='d'>Diária</option>
                         <option value='g'>Grat Rep</option>

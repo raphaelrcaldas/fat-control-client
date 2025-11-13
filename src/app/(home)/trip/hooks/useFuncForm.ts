@@ -32,8 +32,8 @@ export function useFuncForm({
       formState: { errors },
    } = useForm<FuncFormFields>({
       defaultValues: {
-         func: editingFunc?.func || "pil",
-         oper: editingFunc?.oper || "op",
+         func: editingFunc?.func,
+         oper: editingFunc?.oper,
          proj: editingFunc?.proj || "kc-390",
          data_op: editingFunc?.data_op || "",
       },

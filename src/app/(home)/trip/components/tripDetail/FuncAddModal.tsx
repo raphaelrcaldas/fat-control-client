@@ -102,15 +102,15 @@ export function FuncAddModal({
                      <Select
                         id='oper'
                         {...register("oper", {
-                           required: "Operacional é obrigatório",
+                           required: "Operacionalidade é obrigatório",
                         })}
                         color={errors.oper ? "failure" : "gray"}
                      >
                         <option value=''>Selecione</option>
-                        <option value='ba'>⭐ BA - Básico</option>
-                        <option value='op'>✓ OP - Operacional</option>
-                        <option value='in'>🎓 IN - Instrutor</option>
                         <option value='al'>📚 AL - Aluno</option>
+                        <option value='ba'>⭐ BA - Básico</option>
+                        <option value='op'>🪖 OP - Operacional</option>
+                        <option value='in'>🎓 IN - Instrutor</option>
                      </Select>
                      {errors.oper && (
                         <p className='text-sm text-red-600'>

@@ -38,7 +38,7 @@ const FUNC_LABELS: Record<string, string> = {
    oe: "Operador de Equipamentos",
    os: "Observador-SAR",
    tf: "Comissário",
-   ml: "Meste de Lançamento",
+   ml: "Mestre de Lançamento",
    md: "Médico",
 };
 

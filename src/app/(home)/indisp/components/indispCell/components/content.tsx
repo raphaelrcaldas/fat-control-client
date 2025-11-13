@@ -118,16 +118,12 @@ function IndispBody({ indisp, onClick }) {
 
          {indisp.obs && (
             <div className='rounded px-2 py-1.5 mt-1'>
-               <p className='text-gray-700 leading-relaxed'>
-                  {indisp.obs}
-               </p>
+               <p className='text-gray-700 leading-relaxed'>{indisp.obs}</p>
             </div>
          )}
 
-         <div className='border-t border-gray-400/30 pt-2 mt-1'>
-            <p className='text-xs text-gray-600 uppercase'>
-               {createdAt}
-            </p>
+         <div className='border-t border-gray-400/30 pt-2 mt-1 flex gap-1'>
+            <p className='text-xs text-gray-600 uppercase'>{createdAt}</p>
             <p className='text-xs font-medium text-gray-700 uppercase'>
                {resp.posto.short} {resp.nome_guerra}
             </p>

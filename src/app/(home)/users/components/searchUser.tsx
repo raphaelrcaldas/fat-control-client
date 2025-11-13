@@ -42,14 +42,7 @@ export function SearchUser({
 
       try {
          const data = await getUsers(searchUser);
-         let filterData = data;
-         if (userIdsIgnr) {
-            filterData = data.filter(
-               (user) => !userIdsIgnr.some((id) => id === user.id)
-            );
-         }
-
-         setUsers(filterData);
+         setUsers(data);
       } catch (err) {
          setError("Erro ao buscar usuários. Tente novamente.");
          setUsers([]);
@@ -154,27 +147,47 @@ export function SearchUser({
                            <HiOutlineUserGroup className="size-4" />
                            <span>{users.length} militar{users.length !== 1 ? "es" : ""} encontrado{users.length !== 1 ? "s" : ""}</span>
                         </div>
-                        {users.map((user, index) => (
-                           <div
-                              key={user.id}
-                              onClick={() => onSetUser(user)}
-                              className='flex flex-row p-3 gap-3 items-center border-b last:border-b-0 hover:bg-blue-50 hover:border-blue-200 cursor-pointer rounded transition-colors group animate-in fade-in slide-in-from-left-1 duration-200'
-                              style={{ animationDelay: `${index * 30}ms` }}
-                              role="button"
-                              tabIndex={0}
-                              onKeyDown={(e) => {
-                                 if (e.key === "Enter" || e.key === " ") {
-                                    e.preventDefault();
-                                    onSetUser(user);
-                                 }
-                              }}
-                           >
-                              <FaCheckCircle className='size-5 text-red-500 group-hover:text-red-700 flex-shrink-0' />
-                              <span className='flex-1 uppercase text-sm font-medium text-gray-700 group-hover:text-red-900'>
-                                 {user.posto.short} {user.esp} {user.nome_guerra}
-                              </span>
-                           </div>
-                        ))}
+                        {users.map((user, index) => {
+                           const isAlreadySelected = userIdsIgnr?.some((id) => id === user.id);
+                           return (
+                              <div
+                                 key={user.id}
+                                 onClick={() => !isAlreadySelected && onSetUser(user)}
+                                 className={`flex flex-row p-3 gap-3 items-center border-b last:border-b-0 rounded transition-colors group animate-in fade-in slide-in-from-left-1 duration-200 ${
+                                    isAlreadySelected
+                                       ? 'bg-gray-100 opacity-60 cursor-not-allowed'
+                                       : 'hover:bg-blue-50 hover:border-blue-200 cursor-pointer'
+                                 }`}
+                                 style={{ animationDelay: `${index * 30}ms` }}
+                                 role="button"
+                                 tabIndex={isAlreadySelected ? -1 : 0}
+                                 onKeyDown={(e) => {
+                                    if (!isAlreadySelected && (e.key === "Enter" || e.key === " ")) {
+                                       e.preventDefault();
+                                       onSetUser(user);
+                                    }
+                                 }}
+                              >
+                                 <FaCheckCircle className={`size-5 flex-shrink-0 ${
+                                    isAlreadySelected
+                                       ? 'text-gray-400'
+                                       : 'text-red-500 group-hover:text-red-700'
+                                 }`} />
+                                 <span className={`flex-1 uppercase text-sm font-medium ${
+                                    isAlreadySelected
+                                       ? 'text-gray-500'
+                                       : 'text-gray-700 group-hover:text-red-900'
+                                 }`}>
+                                    {user.posto.short} {user.esp} {user.nome_guerra}
+                                 </span>
+                                 {isAlreadySelected && (
+                                    <span className='text-xs text-gray-500 bg-gray-200 px-2 py-1 rounded-full'>
+                                       Já cadastrado
+                                    </span>
+                                 )}
+                              </div>
+                           );
+                        })}
                      </div>
                   )}
                </div>
