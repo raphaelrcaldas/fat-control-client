@@ -201,7 +201,7 @@ export function FormMilitar({
                            Selecione...
                         </option>
                         {postoGradRecords.map((p) => (
-                           <option value={p.short}>
+                           <option key={p.short} value={p.short}>
                               {p.short.toUpperCase()}
                            </option>
                         ))}

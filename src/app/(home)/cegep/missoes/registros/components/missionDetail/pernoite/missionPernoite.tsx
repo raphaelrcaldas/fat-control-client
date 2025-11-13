@@ -51,16 +51,15 @@ export function MissionPernoite({
       <>
          <div
             className={clsx(
-               "group relative p-4 flex gap-3 rounded-xl border-2 border-gray-200 bg-gradient-to-br from-white to-gray-50 shadow-sm transition-all duration-300",
+               "group relative p-4 flex gap-3 rounded-xl border-2 border-gray-200 bg-gradient-to-br from-white to-gray-50 shadow-sm",
                {
-                  "hover:shadow-lg hover:border-blue-300 hover:scale-[1.02] cursor-pointer": edit,
+                  "hover:shadow-lg hover:border-blue-300 cursor-pointer": edit,
                }
             )}
             onClick={editPntShow}
          >
             {/* Header com ícone e datas */}
             <div className='flex items-center gap-3'>
-               
                <div className='flex items-center gap-2 flex-1'>
                   <MdCalendarToday className='text-gray-500 text-sm' />
                   <span className='font-semibold text-gray-700'>{dataIni}</span>
@@ -68,7 +67,7 @@ export function MissionPernoite({
                   <span className='font-semibold text-gray-700'>{dataFim}</span>
                   {dias > 0 && (
                      <span className='ml-2 text-xs font-medium text-gray-500 bg-gray-100 px-2 py-1 rounded-full'>
-                        {dias} {dias === 1 ? 'dia' : 'dias'}
+                        {dias} {dias === 1 ? "dia" : "dias"}
                      </span>
                   )}
                </div>
@@ -115,9 +114,9 @@ export function MissionPernoite({
                   <div className='flex items-center gap-1 font-bold text-green-700 bg-green-50 px-3 py-1 rounded-lg border border-green-200'>
                      <MdAttachMoney />
                      <span className='text-sm'>
-                        {valorTotal.toLocaleString('pt-BR', {
-                           style: 'currency',
-                           currency: 'BRL',
+                        {valorTotal.toLocaleString("pt-BR", {
+                           style: "currency",
+                           currency: "BRL",
                         })}
                      </span>
                   </div>
@@ -127,7 +126,9 @@ export function MissionPernoite({
             {/* Indicador de edição */}
             {edit && (
                <div className='absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity'>
-                  <span className='text-xs text-blue-500 font-medium'>Clique para editar</span>
+                  <span className='text-xs text-blue-500 font-medium'>
+                     Clique para editar
+                  </span>
                </div>
             )}
          </div>

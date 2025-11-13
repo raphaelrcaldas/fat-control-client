@@ -13,6 +13,7 @@ import clsx from "clsx";
 import { isoStrToDate, DATE_FORMAT_EXTENDED } from "utils/dateHandler";
 import { MdDescription } from "react-icons/md";
 import { HiDocumentText } from "react-icons/hi2";
+import { MissionMilitar } from "./missionDetail/militar/missionMilitar";
 
 export const CardMission = memo(function CardMission({
    missao,
@@ -29,18 +30,27 @@ export const CardMission = memo(function CardMission({
 
    const { ini, fim } = useMemo(
       () => ({
-         ini: new Date(missao.afast).toLocaleDateString("pt-BR", DATE_FORMAT_EXTENDED),
-         fim: new Date(missao.regres).toLocaleDateString("pt-BR", DATE_FORMAT_EXTENDED),
+         ini: new Date(missao.afast).toLocaleDateString(
+            "pt-BR",
+            DATE_FORMAT_EXTENDED
+         ),
+         fim: new Date(missao.regres).toLocaleDateString(
+            "pt-BR",
+            DATE_FORMAT_EXTENDED
+         ),
       }),
       [missao.afast, missao.regres]
    );
 
-   const onClone = useCallback((e: React.MouseEvent) => {
-      e.stopPropagation();
-      const clone = { ...missao, users: [], id: null };
-      setClone(clone);
-      setShowForm(true);
-   }, [missao, setClone, setShowForm]);
+   const onClone = useCallback(
+      (e: React.MouseEvent) => {
+         e.stopPropagation();
+         const clone = { ...missao, users: [], id: null };
+         setClone(clone);
+         setShowForm(true);
+      },
+      [missao, setClone, setShowForm]
+   );
 
    return (
       <>
@@ -49,13 +59,10 @@ export const CardMission = memo(function CardMission({
             <div className='flex items-center justify-between mb-4'>
                <div className='flex items-center gap-3'>
                   <div
-                     className={clsx(
-                        "p-2 rounded-lg shadow-md",
-                        {
-                           "bg-blue-600": missao.tipo_doc == "om",
-                           "bg-orange-600": missao.tipo_doc == "os",
-                        }
-                     )}
+                     className={clsx("p-2 rounded-lg shadow-md", {
+                        "bg-blue-600": missao.tipo_doc == "om",
+                        "bg-orange-600": missao.tipo_doc == "os",
+                     })}
                   >
                      <HiDocumentText className='text-white text-xl' />
                   </div>
@@ -73,10 +80,10 @@ export const CardMission = memo(function CardMission({
 
                <button
                   onClick={onClone}
-                  title="Clonar missão"
-                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                  title='Clonar missão'
+                  className='p-2 hover:bg-gray-100 rounded-lg transition-colors'
                >
-                  <FaRegClone className="text-gray-600 text-lg" />
+                  <FaRegClone className='text-gray-600 text-lg' />
                </button>
             </div>
 
@@ -154,7 +161,7 @@ export const CardMission = memo(function CardMission({
                   <div className='space-y-2'>
                      <div className='grid grid-cols-2 gap-2'>
                         {missao.users.map((user) => (
-                           <UserCardMis key={user.id} user={user} />
+                           <MissionMilitar key={user.id} userMis={user} />
                         ))}
                      </div>
                   </div>
@@ -232,70 +239,6 @@ const PernoiteCardMis = memo(function PernoiteCardMis({ pnt }: { pnt: any }) {
                   MD
                </span>
             )}
-         </div>
-      </div>
-   );
-});
-
-const UserCardMis = memo(function UserCardMis({ user }: { user: any }) {
-   const config = useMemo(() => {
-      switch (user.sit) {
-         case "c":
-            return {
-               label: "Comissionado",
-               bgColor: "bg-blue-50",
-               borderColor: "border-blue-300",
-               textColor: "text-blue-800",
-               badgeColor: "bg-blue-500",
-            };
-         case "d":
-            return {
-               label: "Diária",
-               bgColor: "bg-green-50",
-               borderColor: "border-green-300",
-               textColor: "text-green-800",
-               badgeColor: "bg-green-500",
-            };
-         case "g":
-            return {
-               label: "Grat Rep",
-               bgColor: "bg-orange-50",
-               borderColor: "border-orange-300",
-               textColor: "text-orange-800",
-               badgeColor: "bg-orange-500",
-            };
-         default:
-            return {
-               label: "",
-               bgColor: "bg-gray-50",
-               borderColor: "border-gray-300",
-               textColor: "text-gray-800",
-               badgeColor: "bg-gray-500",
-            };
-      }
-   }, [user.sit]);
-
-   return (
-      <div
-         className={clsx(
-            "flex items-center gap-2 px-1 py-0.5 rounded-xl border-2 select-none text-sm",
-            config.bgColor,
-            config.borderColor
-         )}
-      >
-         <span
-            className={clsx(
-               "text-xs font-semibold uppercase px-2 py-0.5 rounded-md text-white",
-               config.badgeColor
-            )}
-         >
-            {user.sit}
-         </span>
-         <div
-            className={clsx("font-medium uppercase text-xs", config.textColor)}
-         >
-            <span className='font-bold uppercase'>{user.p_g}</span>{" "}
-            <span>{user.user.nome_guerra}</span>
          </div>
       </div>
    );
