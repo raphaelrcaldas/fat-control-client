@@ -222,30 +222,39 @@ export default function MissionDetail({
          users: usersWithFragId,
       };
 
-      const response = await createUpdateFragMis(fragMis);
-      if (response.ok) {
+      try {
+         const response = await createUpdateFragMis(fragMis);
          const data = await response.json();
-         push({ message: data.detail, type: "success" });
-         setEditMode(false);
-         update();
-      } else {
-         const error = await response.json();
-         setErrorMessage(error.detail || "Erro desconhecido ao salvar missão");
+         if (response.ok) {
+            push({ message: data.detail || "Missão salva com sucesso", type: "success" });
+            setEditMode(false);
+            update();
+         } else {
+            setErrorMessage(data.detail || "Erro desconhecido ao salvar missão");
+            setShowErrorModal(true);
+         }
+      } catch (err: any) {
+         setErrorMessage(err?.message || "Erro ao salvar missão");
          setShowErrorModal(true);
+      } finally {
+         setIsloading(false);
       }
-      setIsloading(false);
    }
 
    async function onDelete() {
-      const response = await deleteFragMis(missao.id);
-      if (response.ok) {
+      try {
+         const response = await deleteFragMis(missao.id);
          const data = await response.json();
-         push({ message: data.detail, type: "success" });
-         setShow(false);
-         update();
-      } else {
-         const error = await response.json();
-         setErrorMessage(error.detail || "Erro desconhecido ao deletar missão");
+         if (response.ok) {
+            push({ message: data.detail || "Missão excluída com sucesso", type: "success" });
+            setShow(false);
+            update();
+         } else {
+            setErrorMessage(data.detail || "Erro desconhecido ao deletar missão");
+            setShowErrorModal(true);
+         }
+      } catch (err: any) {
+         setErrorMessage(err?.message || "Erro ao deletar missão");
          setShowErrorModal(true);
       }
    }

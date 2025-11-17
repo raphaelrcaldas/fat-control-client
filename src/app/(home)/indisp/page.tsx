@@ -64,16 +64,24 @@ export default function IndispPage() {
       setDateRef(dateCopy);
    };
 
-   const updateCrewIndisps = () => {
+   const updateCrewIndisps = async () => {
       setIndisps([]);
-      getCrewIndisps(indispFunc, "11gt")
-         .then((res) => res.json())
-         .then((data) => {
+      try {
+         const response = await getCrewIndisps(indispFunc, "11gt");
+         const data = await response.json();
+         if (response.ok) {
             setIndisps(data);
-         });
+         } else {
+            console.error("Erro ao buscar indisponibilidades:", data);
+         }
+      } catch (err: any) {
+         console.error("Erro ao buscar indisponibilidades:", err);
+      }
    };
 
-   useEffect(updateCrewIndisps, [indispFunc]);
+   useEffect(() => {
+      updateCrewIndisps();
+   }, [indispFunc]);
 
    useEffect(() => {
       getTripData().then((data) => {

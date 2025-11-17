@@ -22,30 +22,35 @@ export function FuncDeleteModal({
    const [loading, setLoading] = useState(false);
    const { push } = useToast();
 
-   const handleDelete = useCallback(() => {
+   const handleDelete = useCallback(async () => {
       if (!deletingFunc) return;
 
       setLoading(true);
 
-      deleteCrewFunc(deletingFunc.id)
-         .then(() => {
+      try {
+         const response = await deleteCrewFunc(deletingFunc.id);
+         const data = await response.json();
+         if (response.ok) {
             onSuccess();
             onClose();
             push({
                type: "success",
-               message: "Função excluída com sucesso.",
+               message: data.detail || "Função excluída com sucesso.",
             });
-         })
-         .catch((err) => {
-            console.error(err);
+         } else {
             push({
                type: "error",
-               message: "Erro ao excluir função.",
+               message: data.detail || "Erro ao excluir função.",
             });
-         })
-         .finally(() => {
-            setLoading(false);
+         }
+      } catch (err: any) {
+         push({
+            type: "error",
+            message: err?.message || "Erro ao excluir função.",
          });
+      } finally {
+         setLoading(false);
+      }
    }, [deletingFunc, onSuccess, onClose, push]);
 
    return (

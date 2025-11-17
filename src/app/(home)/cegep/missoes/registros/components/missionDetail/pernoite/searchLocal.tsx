@@ -30,22 +30,20 @@ export function SearchLocal({ show, setShow, setLocal }) {
       }
    }, [show]);
 
-   function searchCities() {
+   async function searchCities() {
       const searchData = searchCity.trim();
       if (searchData !== "") {
          setIsLoading(true);
          setHasSearched(true);
-         getCities(searchCity)
-            .then((data) => {
-               setCities(data);
-            })
-            .catch((error) => {
-               console.error("Erro ao buscar cidades:", error);
-               setCities([]);
-            })
-            .finally(() => {
-               setIsLoading(false);
-            });
+         try {
+            const data = await getCities(searchCity);
+            setCities(data);
+         } catch (error: any) {
+            console.error("Erro ao buscar cidades:", error);
+            setCities([]);
+         } finally {
+            setIsLoading(false);
+         }
       }
    }
 

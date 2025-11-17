@@ -42,34 +42,42 @@ export function UserRegister({ userId, updateUsers }) {
    });
 
    useEffect(() => {
-      if (userId) {
-         setLoadingUser(true);
-         getUserById(userId).then((data) => {
-            // normalizar para a forma do form
-            const init: CreateUserFormData = {
-               p_g: data.p_g || "",
-               unidade: data.unidade || "",
-               esp: (data.esp || "").toUpperCase(),
-               nome_guerra: (data.nome_guerra || "").toUpperCase(),
-               nome_completo: (data.nome_completo || "").toUpperCase(),
-               saram: data.saram ?? null,
-               id_fab: data.id_fab ?? null,
-               cpf: data.cpf || "",
-               email_fab: data.email_fab || "",
-               email_pess: data.email_pess || "",
-               nasc: data.nasc ?? null,
-               ult_promo: data.ult_promo ?? null,
-               ant_rel: data.ant_rel ?? null,
-            };
+      const fetchUser = async () => {
+         if (userId) {
+            setLoadingUser(true);
+            try {
+               const data = await getUserById(userId);
+               // normalizar para a forma do form
+               const init: CreateUserFormData = {
+                  p_g: data.p_g || "",
+                  unidade: data.unidade || "",
+                  esp: (data.esp || "").toUpperCase(),
+                  nome_guerra: (data.nome_guerra || "").toUpperCase(),
+                  nome_completo: (data.nome_completo || "").toUpperCase(),
+                  saram: data.saram ?? null,
+                  id_fab: data.id_fab ?? null,
+                  cpf: data.cpf || "",
+                  email_fab: data.email_fab || "",
+                  email_pess: data.email_pess || "",
+                  nasc: data.nasc ?? null,
+                  ult_promo: data.ult_promo ?? null,
+                  ant_rel: data.ant_rel ?? null,
+               };
 
-            reset(init);
-            setInitialValues(init);
-            setLoadingUser(false);
-         });
-      } else {
-         reset(defaultUserValues);
-         setInitialValues(null);
-      }
+               reset(init);
+               setInitialValues(init);
+            } catch (err: any) {
+               console.error("Erro ao buscar usuário:", err);
+            } finally {
+               setLoadingUser(false);
+            }
+         } else {
+            reset(defaultUserValues);
+            setInitialValues(null);
+         }
+      };
+
+      fetchUser();
    }, [userId, reset, setValue]);
 
    const currentValues = watch();

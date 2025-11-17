@@ -25,17 +25,19 @@ export default function LogDashboard() {
    const [actionFilter, setActionFilter] = useState<string>("login");
    const [lastUpdate, setLastUpdate] = useState<Date>(new Date());
 
-   const fetchLogs = () => {
+   const fetchLogs = async () => {
       const filters = { action: actionFilter };
       setLoading(true);
-      getUserActionLogs(filters)
-         .then((data) => {
-            setLogs(data);
-            setFilteredLogs(data);
-            setLastUpdate(new Date());
-         })
-         .catch(console.error)
-         .finally(() => setLoading(false));
+      try {
+         const data = await getUserActionLogs(filters);
+         setLogs(data);
+         setFilteredLogs(data);
+         setLastUpdate(new Date());
+      } catch (err: any) {
+         console.error("Erro ao buscar logs:", err);
+      } finally {
+         setLoading(false);
+      }
    };
 
    useEffect(() => {

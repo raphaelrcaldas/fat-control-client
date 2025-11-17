@@ -152,33 +152,33 @@ export function DetailComiss({
          ...(comiss?.id && { id: comiss.id }),
       };
 
-      let data: any;
       try {
          const res = comiss
             ? await updateCmto(comisObj)
             : await createCmto(comisObj);
 
-         data = await res.json();
+         const data = await res.json();
 
-         if (!res.ok) {
-            throw new Error(data.detail || "Erro desconhecido");
+         if (res.ok) {
+            push({
+               message: data.detail || "Salvo com sucesso",
+               type: "success",
+            });
+
+            if (update) update();
+            setIsEditMode(false);
+            if (!comiss) setShow(false); // Se for criação, fecha o modal
+         } else {
+            push({
+               title: "Erro",
+               message: data.detail || "Erro ao salvar o comissionamento",
+               type: "error",
+            });
          }
-
-         push({
-            message: data.detail || "Salvo com sucesso",
-            type: "success",
-         });
-
-         if (update) update();
-         setIsEditMode(false);
-         if (!comiss) setShow(false); // Se for criação, fecha o modal
-      } catch (err) {
+      } catch (err: any) {
          push({
             title: "Erro",
-            message:
-               "Erro ao salvar o comissionamento: " +
-               (data?.detail ||
-                  (err instanceof Error ? err.message : "Erro desconhecido")),
+            message: err?.message || "Erro ao salvar o comissionamento",
             type: "error",
          });
       } finally {
@@ -202,29 +202,28 @@ export function DetailComiss({
       setIsDeleting(true);
       try {
          const response = await deleteCmto(comiss.id);
-
-         if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(
-               errorData.detail || "Erro ao excluir comissionamento"
-            );
-         }
-
          const data = await response.json();
-         push({
-            message: data.detail || "Comissionamento excluído com sucesso",
-            type: "success",
-         });
 
-         setShowDeleteModal(false);
-         setShow(false);
-         if (update) update();
-      } catch (error) {
-         console.error("Erro ao excluir comissionamento:", error);
+         if (response.ok) {
+            push({
+               message: data.detail || "Comissionamento excluído com sucesso",
+               type: "success",
+            });
+
+            setShowDeleteModal(false);
+            setShow(false);
+            if (update) update();
+         } else {
+            push({
+               title: "Erro",
+               message: data.detail || "Erro ao excluir comissionamento",
+               type: "error",
+            });
+         }
+      } catch (err: any) {
          push({
             title: "Erro",
-            message:
-               error.message || "Erro inesperado ao excluir. Tente novamente.",
+            message: err?.message || "Erro ao excluir comissionamento",
             type: "error",
          });
       } finally {

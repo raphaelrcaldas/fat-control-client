@@ -40,7 +40,7 @@ export default function QuadPage() {
       setTypeName("");
    }, [quadsType, quadType]);
 
-   function getQuadsParams() {
+   async function getQuadsParams() {
       setLoadingQuads(true);
 
       const params = {
@@ -50,12 +50,15 @@ export default function QuadPage() {
          proj: DEFAULT_PROJ,
       };
 
-      getQuads(params)
-         .then((data) => {
-            setQuads(data);
-            getQuadsName();
-         })
-         .finally(() => setLoadingQuads(false));
+      try {
+         const data = await getQuads(params);
+         setQuads(data);
+         getQuadsName();
+      } catch (err: any) {
+         console.error("Erro ao buscar quadrinhos:", err);
+      } finally {
+         setLoadingQuads(false);
+      }
    }
 
    useEffect(() => {

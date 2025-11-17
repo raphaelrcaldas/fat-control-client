@@ -124,7 +124,17 @@ export default function RolePage() {
 
    useEffect(() => {
       updateUserRoles();
-      getRoles().then((data) => setRoles(data));
+
+      const fetchRoles = async () => {
+         try {
+            const data = await getRoles();
+            setRoles(data);
+         } catch (err: any) {
+            console.error("Erro ao buscar roles:", err);
+         }
+      };
+
+      fetchRoles();
    }, []);
 
    const getRoleBadgeColor = (roleName: string) => {

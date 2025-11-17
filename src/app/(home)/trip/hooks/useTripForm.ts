@@ -34,27 +34,34 @@ export function useTripForm({ trip, onSuccess, onClose }: UseTripFormParams) {
    }, [trip, reset]);
 
    const onSubmit = useCallback(
-      (data: TripFormFields) => {
+      async (data: TripFormFields) => {
          data.trig = data.trig.toLowerCase();
          setSubmitting(true);
 
-         updateTrip(trip.id!, data)
-            .then(() => {
+         try {
+            const response = await updateTrip(trip.id!, data);
+            const responseData = await response.json();
+            if (response.ok) {
                onSuccess();
                onClose();
                push({
                   type: "success",
-                  message: "Tripulante atualizado com sucesso.",
+                  message: responseData.detail || "Tripulante atualizado com sucesso.",
                });
-            })
-            .catch((err) => {
-               console.error(err);
+            } else {
                push({
                   type: "error",
-                  message: "Erro ao atualizar tripulante.",
+                  message: responseData.detail || "Erro ao atualizar tripulante.",
                });
-            })
-            .finally(() => setSubmitting(false));
+            }
+         } catch (err: any) {
+            push({
+               type: "error",
+               message: err?.message || "Erro ao atualizar tripulante.",
+            });
+         } finally {
+            setSubmitting(false);
+         }
       },
       [trip.id, onSuccess, onClose, push]
    );

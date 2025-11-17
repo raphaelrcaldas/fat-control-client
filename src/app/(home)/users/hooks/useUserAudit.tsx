@@ -8,12 +8,21 @@ export function useUserAudit(userId?: number) {
 
   useEffect(() => {
     if (!userId) return;
-    setLoading(true);
-    setError(null);
-    getUserActionLogs({ resource: "user", resource_id: userId })
-      .then(setLogs)
-      .catch((err) => setError(err.message || "Erro ao buscar auditoria"))
-      .finally(() => setLoading(false));
+
+    const fetchLogs = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const data = await getUserActionLogs({ resource: "user", resource_id: userId });
+        setLogs(data);
+      } catch (err: any) {
+        setError(err?.message || "Erro ao buscar auditoria");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchLogs();
   }, [userId]);
 
   return { logs, loading, error };

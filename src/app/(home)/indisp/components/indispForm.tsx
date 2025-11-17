@@ -112,19 +112,24 @@ export function IndispForm({ open, setOpen, trip, update, indisp }) {
             }
 
             const rdata = await response.json();
-            push({
-               message: rdata.detail,
-               type: response.ok ? "success" : "error",
-            });
 
             if (response.ok) {
+               push({
+                  message: rdata.detail || "Operação realizada com sucesso",
+                  type: "success",
+               });
                update();
                clearModal();
                closeModal();
+            } else {
+               push({
+                  message: rdata.detail || "Erro na operação",
+                  type: "error",
+               });
             }
-         } catch (error) {
+         } catch (err: any) {
             push({
-               message: "Falha na comunicação com o servidor.",
+               message: err?.message || "Falha na comunicação com o servidor.",
                type: "error",
             });
          }
@@ -139,18 +144,23 @@ export function IndispForm({ open, setOpen, trip, update, indisp }) {
       try {
          const response = await deleteIndisp(indisp.id);
          const rData = await response.json();
-         push({
-            message: rData.detail,
-            type: response.ok ? "success" : "error",
-         });
 
          if (response.ok) {
+            push({
+               message: rData.detail || "Indisponibilidade excluída com sucesso",
+               type: "success",
+            });
             update();
             closeModal();
+         } else {
+            push({
+               message: rData.detail || "Erro ao excluir indisponibilidade",
+               type: "error",
+            });
          }
-      } catch (error) {
+      } catch (err: any) {
          push({
-            message: "Falha ao excluir indisponibilidade.",
+            message: err?.message || "Falha ao excluir indisponibilidade.",
             type: "error",
          });
       }

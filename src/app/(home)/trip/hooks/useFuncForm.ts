@@ -42,7 +42,7 @@ export function useFuncForm({
    const currentOper = watch("oper");
 
    const onSubmit = useCallback(
-      (data: FuncFormFields) => {
+      async (data: FuncFormFields) => {
          setSubmitting(true);
 
          const funcData: CreateCrewFunc = {
@@ -64,23 +64,30 @@ export function useFuncForm({
             ? "Erro ao atualizar função."
             : "Erro ao adicionar função.";
 
-         action
-            .then(() => {
+         try {
+            const response = await action;
+            const responseData = await response.json();
+            if (response.ok) {
                onSuccess();
                onClose();
                push({
                   type: "success",
-                  message: successMessage,
+                  message: responseData.detail || successMessage,
                });
-            })
-            .catch((err) => {
-               console.error(err);
+            } else {
                push({
                   type: "error",
-                  message: errorMessage,
+                  message: responseData.detail || errorMessage,
                });
-            })
-            .finally(() => setSubmitting(false));
+            }
+         } catch (err: any) {
+            push({
+               type: "error",
+               message: err?.message || errorMessage,
+            });
+         } finally {
+            setSubmitting(false);
+         }
       },
       [tripId, editingFunc, onSuccess, onClose, push]
    );

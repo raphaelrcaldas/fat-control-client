@@ -20,14 +20,19 @@ function SeboPage() {
    const { seboFunc, setSeboFunc } = useSeboContext();
 
    useEffect(() => {
-      setIsLoading(true);
-      getTripData()
-         .then((data) => {
+      const fetchData = async () => {
+         setIsLoading(true);
+         try {
+            const data = await getTripData();
             setData(data);
-         })
-         .finally(() => {
+         } catch (err: any) {
+            console.error("Erro ao buscar dados:", err);
+         } finally {
             setIsLoading(false);
-         });
+         }
+      };
+
+      fetchData();
    }, []);
 
    useEffect(() => {

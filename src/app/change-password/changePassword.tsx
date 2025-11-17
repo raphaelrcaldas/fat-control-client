@@ -33,21 +33,21 @@ export function ChangePassword() {
          const res = await changePassword({ new_pwd: data.newPassword });
          const responseData = await res.json();
 
-         if (!res.ok) {
-            throw new Error(responseData.detail || "Erro ao alterar senha");
+         if (res.ok) {
+            push({
+               message: responseData.detail || "Senha alterada com sucesso!",
+               type: "success",
+            });
+            route.push("/");
+         } else {
+            push({
+               message: responseData.detail || "Erro ao alterar senha",
+               type: "error",
+            });
          }
-
+      } catch (err: any) {
          push({
-            message: responseData.detail || "Senha alterada com sucesso!",
-            type: "success",
-         });
-         route.push("/");
-      } catch (error) {
-         push({
-            message:
-               error instanceof Error
-                  ? error.message
-                  : "Erro ao alterar senha. Tente novamente.",
+            message: err?.message || "Erro ao alterar senha. Tente novamente.",
             type: "error",
          });
       } finally {

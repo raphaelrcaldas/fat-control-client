@@ -26,18 +26,18 @@ export function useTripList({ uae, active }: UseTripListParams) {
       oper: [],
    });
 
-   function fetchTrips() {
+   async function fetchTrips() {
       setLoading(true);
-      getTrips({ uae: uae, active: active })
-         .then((data) => {
-            data.sort((a, b) => a.user.posto.ant - b.user.posto.ant);
-            setTrips(data);
-            setFilterTrips(data);
-         })
-         .catch((err) => {
-            console.error(err);
-         })
-         .finally(() => setLoading(false));
+      try {
+         const data = await getTrips({ uae: uae, active: active });
+         data.sort((a, b) => a.user.posto.ant - b.user.posto.ant);
+         setTrips(data);
+         setFilterTrips(data);
+      } catch (err: any) {
+         console.error("Erro ao buscar tripulações:", err);
+      } finally {
+         setLoading(false);
+      }
    }
 
 

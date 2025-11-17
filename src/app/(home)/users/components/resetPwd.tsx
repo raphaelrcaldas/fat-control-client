@@ -15,24 +15,32 @@ export function ResetPassword({ userId }) {
    const handlePasswordReset = async () => {
       setIsLoading(true);
 
-      resetPassword(userId)
-         .then((res) => res.json())
-         .then((data) => {
+      try {
+         const response = await resetPassword(userId);
+         const data = await response.json();
+         if (response.ok) {
             push({
-               message: data.detail,
+               message: data.detail || "Senha resetada com sucesso",
                type: "success",
             });
             setResetSuccess(true);
             setShowConfirm(false);
-         })
-         .catch((error) => {
+         } else {
             push({
-               message: error.response?.data?.detail || "Erro ao resetar senha",
+               message: data.detail || "Erro ao resetar senha",
                type: "error",
             });
             setShowConfirm(false);
-         })
-         .finally(() => setIsLoading(false));
+         }
+      } catch (err: any) {
+         push({
+            message: err?.message || "Erro ao resetar senha",
+            type: "error",
+         });
+         setShowConfirm(false);
+      } finally {
+         setIsLoading(false);
+      }
    };
 
    if (resetSuccess) {
