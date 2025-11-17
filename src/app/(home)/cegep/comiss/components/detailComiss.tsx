@@ -152,12 +152,13 @@ export function DetailComiss({
          ...(comiss?.id && { id: comiss.id }),
       };
 
+      let data: any;
       try {
          const res = comiss
             ? await updateCmto(comisObj)
             : await createCmto(comisObj);
 
-         const data = await res.json();
+         data = await res.json();
 
          if (!res.ok) {
             throw new Error(data.detail || "Erro desconhecido");
@@ -174,7 +175,10 @@ export function DetailComiss({
       } catch (err) {
          push({
             title: "Erro",
-            message: "Erro ao salvar o comissionamento: " + err.message,
+            message:
+               "Erro ao salvar o comissionamento: " +
+               (data?.detail ||
+                  (err instanceof Error ? err.message : "Erro desconhecido")),
             type: "error",
          });
       } finally {
@@ -701,12 +705,18 @@ export function DetailComiss({
                                     </p>
                                     <div className='space-y-1 text-sm text-gray-700'>
                                        <p>
-                                          <span className='font-medium'>Valor:</span>{" "}
+                                          <span className='font-medium'>
+                                             Valor:
+                                          </span>{" "}
                                           {realCurrency(ajd_ab + ajd_fc)}
                                        </p>
                                        <p>
-                                          <span className='font-medium'>Equivalente:</span>{" "}
-                                          ~{((ajd_ab + ajd_fc) / 335).toFixed(1)} dias
+                                          <span className='font-medium'>
+                                             Equivalente:
+                                          </span>{" "}
+                                          ~
+                                          {((ajd_ab + ajd_fc) / 335).toFixed(1)}{" "}
+                                          dias
                                        </p>
                                        <p className='text-xs text-gray-500 mt-2'>
                                           (baseado em R$ 335,00 por diária)
@@ -714,7 +724,7 @@ export function DetailComiss({
                                     </div>
                                  </div>
                               }
-                              trigger="hover"
+                              trigger='hover'
                            >
                               <div className='font-bold text-gray-900 cursor-help'>
                                  {realCurrency(ajd_ab + ajd_fc)}
@@ -747,12 +757,17 @@ export function DetailComiss({
                                     </p>
                                     <div className='space-y-1 text-sm text-gray-700'>
                                        <p>
-                                          <span className='font-medium'>Valor:</span>{" "}
+                                          <span className='font-medium'>
+                                             Valor:
+                                          </span>{" "}
                                           {realCurrency(comiss.vals_comp)}
                                        </p>
                                        <p>
-                                          <span className='font-medium'>Equivalente:</span>{" "}
-                                          ~{(comiss.vals_comp / 335).toFixed(1)} dias
+                                          <span className='font-medium'>
+                                             Equivalente:
+                                          </span>{" "}
+                                          ~{(comiss.vals_comp / 335).toFixed(1)}{" "}
+                                          dias
                                        </p>
                                        <p className='text-xs text-gray-500 mt-2'>
                                           (baseado em R$ 335,00 por diária)
@@ -760,7 +775,7 @@ export function DetailComiss({
                                     </div>
                                  </div>
                               }
-                              trigger="hover"
+                              trigger='hover'
                            >
                               <div className='font-bold text-gray-900 cursor-help'>
                                  {realCurrency(comiss.vals_comp)}
@@ -793,12 +808,25 @@ export function DetailComiss({
                                     </p>
                                     <div className='space-y-1 text-sm text-gray-700'>
                                        <p>
-                                          <span className='font-medium'>Valor:</span>{" "}
-                                          {realCurrency(ajd_ab + ajd_fc - comiss.vals_comp)}
+                                          <span className='font-medium'>
+                                             Valor:
+                                          </span>{" "}
+                                          {realCurrency(
+                                             ajd_ab + ajd_fc - comiss.vals_comp
+                                          )}
                                        </p>
                                        <p>
-                                          <span className='font-medium'>Equivalente:</span>{" "}
-                                          ~{((ajd_ab + ajd_fc - comiss.vals_comp) / 335).toFixed(1)} dias
+                                          <span className='font-medium'>
+                                             Equivalente:
+                                          </span>{" "}
+                                          ~
+                                          {(
+                                             (ajd_ab +
+                                                ajd_fc -
+                                                comiss.vals_comp) /
+                                             335
+                                          ).toFixed(1)}{" "}
+                                          dias
                                        </p>
                                        <p className='text-xs text-gray-500 mt-2'>
                                           (baseado em R$ 335,00 por diária)
@@ -806,12 +834,19 @@ export function DetailComiss({
                                     </div>
                                  </div>
                               }
-                              trigger="hover"
+                              trigger='hover'
                            >
                               <div className='font-bold text-gray-900 cursor-help'>
-                                 {realCurrency(ajd_ab + ajd_fc - comiss.vals_comp)}
+                                 {realCurrency(
+                                    ajd_ab + ajd_fc - comiss.vals_comp
+                                 )}
                                  <div className='text-xs font-normal text-gray-500'>
-                                    ~{((ajd_ab + ajd_fc - comiss.vals_comp) / 335).toFixed(1)} dias
+                                    ~
+                                    {(
+                                       (ajd_ab + ajd_fc - comiss.vals_comp) /
+                                       335
+                                    ).toFixed(1)}{" "}
+                                    dias
                                  </div>
                               </div>
                            </Popover>
@@ -837,15 +872,25 @@ export function DetailComiss({
                         <span className='text-gray-600'>Progresso</span>
                         <span className='font-semibold text-gray-900'>
                            {comiss.dias_cumprir
-                              ? `${Math.round((comiss.dias_comp / comiss.dias_cumprir) * 100)}%`
-                              : `${Math.round((comiss.vals_comp / (ajd_ab + ajd_fc)) * 100)}%`}
+                              ? `${Math.round(
+                                   (comiss.dias_comp / comiss.dias_cumprir) *
+                                      100
+                                )}%`
+                              : `${Math.round(
+                                   (comiss.vals_comp / (ajd_ab + ajd_fc)) * 100
+                                )}%`}
                         </span>
                      </div>
                      <Progress
                         progress={
                            comiss.dias_cumprir
-                              ? Math.round((comiss.dias_comp / comiss.dias_cumprir) * 100)
-                              : Math.round((comiss.vals_comp / (ajd_ab + ajd_fc)) * 100)
+                              ? Math.round(
+                                   (comiss.dias_comp / comiss.dias_cumprir) *
+                                      100
+                                )
+                              : Math.round(
+                                   (comiss.vals_comp / (ajd_ab + ajd_fc)) * 100
+                                )
                         }
                         size='lg'
                         color={comiss.modulo ? "green" : "red"}
