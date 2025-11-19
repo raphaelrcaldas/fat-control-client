@@ -23,6 +23,7 @@ import QuadForm from "./quadForm";
 import { FaRegTrashCan } from "react-icons/fa6";
 import { FaEdit, FaPlus } from "react-icons/fa";
 import { useToast } from "@/app/context/toast";
+import { PermBased } from "../../hooks/usePermBased";
 
 interface QuadsTripProps {
    trip: CrewMember;
@@ -79,7 +80,10 @@ export function QuadsTrip({ trip, totalQuads, update }: QuadsTripProps) {
                update();
             } else {
                const data = await res.json();
-               push({ message: data.detail || "Erro ao deletar", type: "error" });
+               push({
+                  message: data.detail || "Erro ao deletar",
+                  type: "error",
+               });
             }
          } catch (err) {
             console.error(err);
@@ -114,15 +118,15 @@ export function QuadsTrip({ trip, totalQuads, update }: QuadsTripProps) {
    return (
       <>
          <Button
-            color="light"
+            color='light'
             onClick={() => setOpenModal(true)}
-            className="inline-flex items-center w-[4rem] px-0 text-sm font-medium uppercase overflow-visible hover:bg-gray-100 transition-colors"
-            size="sm"
+            className='inline-flex items-center w-[4rem] px-0 text-sm font-medium uppercase overflow-visible hover:bg-gray-100 transition-colors'
+            size='sm'
             aria-label={`Ver quadrinhos de ${userName}`}
          >
             {trip.trig}
             <div
-               className="absolute inline-flex items-center justify-center w-6 h-6 text-xs font-bold text-white bg-blue-500 border-2 border-white rounded-full -top-2 -right-2"
+               className='absolute inline-flex items-center justify-center w-6 h-6 text-xs font-bold text-white bg-blue-500 border-2 border-white rounded-full -top-2 -right-2'
                aria-label={`${totalQuads} quadrinhos`}
             >
                {totalQuads}
@@ -131,31 +135,31 @@ export function QuadsTrip({ trip, totalQuads, update }: QuadsTripProps) {
 
          <Modal
             show={openModal}
-            size="md"
+            size='md'
             onClose={handleCloseModal}
             popup
             dismissible
          >
             <ModalHeader>Quadrinhos</ModalHeader>
             <ModalBody>
-               <div className="mb-4 text-base text-center uppercase">
-                  <h3 className="font-medium text-gray-900 dark:text-white">
+               <div className='mb-4 text-base text-center uppercase'>
+                  <h3 className='font-medium text-gray-900 dark:text-white'>
                      {userName}
                   </h3>
                </div>
 
-               <div className="h-96 overflow-y-auto shadow-lg rounded-lg bg-white dark:bg-gray-800">
+               <div className='h-96 overflow-y-auto shadow-lg rounded-lg bg-white dark:bg-gray-800'>
                   {loading ? (
                      <LoadingState />
                   ) : hasQuads ? (
-                     <Table className="text-center" hoverable>
+                     <Table className='text-center' hoverable>
                         <TableHead>
                            <TableRow>
                               <TableHeadCell>Valor</TableHeadCell>
                               <TableHeadCell>Ações</TableHeadCell>
                            </TableRow>
                         </TableHead>
-                        <TableBody className="divide-y">
+                        <TableBody className='divide-y'>
                            {quads.map((quad) => (
                               <QuadRow
                                  key={quad.id}
@@ -172,16 +176,18 @@ export function QuadsTrip({ trip, totalQuads, update }: QuadsTripProps) {
                   )}
                </div>
 
-               <div className="flex justify-center mt-4">
-                  <Button
-                     color="blue"
-                     onClick={() => setShowForm(true)}
-                     className="w-full sm:w-auto"
-                  >
-                     <FaPlus className="mr-2 h-4 w-4" />
-                     Adicionar Quadrinho
-                  </Button>
-               </div>
+               <PermBased resource={"quad"} requiredPerm={"create"}>
+                  <div className='flex justify-center mt-4'>
+                     <Button
+                        color='blue'
+                        onClick={() => setShowForm(true)}
+                        className='w-full sm:w-auto'
+                     >
+                        <FaPlus className='mr-2 h-4 w-4' />
+                        Adicionar Quadrinho
+                     </Button>
+                  </div>
+               </PermBased>
 
                <QuadForm
                   trip={trip}
@@ -220,36 +226,38 @@ function QuadRow({ quad, trip, onUpdate, onDelete }: QuadRowProps) {
 
    return (
       <>
-         <TableRow className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
-            <TableCell className="font-semibold text-center">
+         <TableRow className='hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors'>
+            <TableCell className='font-semibold text-center'>
                {displayValue}
             </TableCell>
             <TableCell>
-               <div className="flex justify-center items-center gap-2">
-                  {canEdit && (
-                     <button
-                        onClick={() => setShowForm(true)}
-                        className="p-2 hover:bg-blue-500 hover:text-white text-blue-500 cursor-pointer rounded-md transition-all duration-200 active:scale-95"
-                        aria-label="Editar quadrinho"
-                        disabled={deleting}
-                     >
-                        <FaEdit className="size-5" />
-                     </button>
-                  )}
+               <div className='flex justify-center items-center gap-2'>
+                  <PermBased resource={"quad"} requiredPerm={"create"}>
+                     {canEdit && (
+                        <button
+                           onClick={() => setShowForm(true)}
+                           className='p-2 hover:bg-blue-500 hover:text-white text-blue-500 cursor-pointer rounded-md transition-all duration-200 active:scale-95'
+                           aria-label='Editar quadrinho'
+                           disabled={deleting}
+                        >
+                           <FaEdit className='size-5' />
+                        </button>
+                     )}
 
-                  {deleting ? (
-                     <div className="p-2">
-                        <Spinner size="sm" />
-                     </div>
-                  ) : (
-                     <button
-                        onClick={() => setShowDeleteConfirm(true)}
-                        className="p-2 hover:bg-red-500 hover:text-white text-red-500 cursor-pointer rounded-md transition-all duration-200 active:scale-95"
-                        aria-label="Deletar quadrinho"
-                     >
-                        <FaRegTrashCan className="size-5" />
-                     </button>
-                  )}
+                     {deleting ? (
+                        <div className='p-2'>
+                           <Spinner size='sm' />
+                        </div>
+                     ) : (
+                        <button
+                           onClick={() => setShowDeleteConfirm(true)}
+                           className='p-2 hover:bg-red-500 hover:text-white text-red-500 cursor-pointer rounded-md transition-all duration-200 active:scale-95'
+                           aria-label='Deletar quadrinho'
+                        >
+                           <FaRegTrashCan className='size-5' />
+                        </button>
+                     )}
+                  </PermBased>
                </div>
             </TableCell>
          </TableRow>
@@ -275,9 +283,9 @@ function QuadRow({ quad, trip, onUpdate, onDelete }: QuadRowProps) {
 
 function LoadingState() {
    return (
-      <div className="flex flex-col items-center justify-center h-full gap-3 p-4">
-         <Spinner size="lg" />
-         <p className="text-sm text-gray-600 dark:text-gray-400">
+      <div className='flex flex-col items-center justify-center h-full gap-3 p-4'>
+         <Spinner size='lg' />
+         <p className='text-sm text-gray-600 dark:text-gray-400'>
             Carregando quadrinhos...
          </p>
       </div>
@@ -286,12 +294,12 @@ function LoadingState() {
 
 function EmptyState() {
    return (
-      <div className="flex flex-col items-center justify-center h-full gap-3 p-8 text-center">
-         <div className="text-6xl text-gray-300 dark:text-gray-600">📋</div>
-         <h4 className="text-lg font-medium text-gray-700 dark:text-gray-300">
+      <div className='flex flex-col items-center justify-center h-full gap-3 p-8 text-center'>
+         <div className='text-6xl text-gray-300 dark:text-gray-600'>📋</div>
+         <h4 className='text-lg font-medium text-gray-700 dark:text-gray-300'>
             Nenhum quadrinho encontrado
          </h4>
-         <p className="text-sm text-gray-500 dark:text-gray-400">
+         <p className='text-sm text-gray-500 dark:text-gray-400'>
             Clique em &quot;Adicionar Quadrinho&quot; para começar
          </p>
       </div>
@@ -308,19 +316,19 @@ function ConfirmDeleteModal({
    onCancel: () => void;
 }) {
    return (
-      <Modal show={show} size="sm" onClose={onCancel} popup>
+      <Modal show={show} size='sm' onClose={onCancel} popup>
          <ModalHeader />
          <ModalBody>
-            <div className="text-center">
-               <FaRegTrashCan className="mx-auto mb-4 h-14 w-14 text-red-500" />
-               <h3 className="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
+            <div className='text-center'>
+               <FaRegTrashCan className='mx-auto mb-4 h-14 w-14 text-red-500' />
+               <h3 className='mb-5 text-lg font-normal text-gray-500 dark:text-gray-400'>
                   Tem certeza que deseja deletar este quadrinho?
                </h3>
-               <div className="flex justify-center gap-4">
-                  <Button color="red" onClick={onConfirm}>
+               <div className='flex justify-center gap-4'>
+                  <Button color='red' onClick={onConfirm}>
                      Sim, deletar
                   </Button>
-                  <Button color="gray" onClick={onCancel}>
+                  <Button color='gray' onClick={onCancel}>
                      Cancelar
                   </Button>
                </div>

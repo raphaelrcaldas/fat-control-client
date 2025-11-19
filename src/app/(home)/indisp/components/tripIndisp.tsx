@@ -47,7 +47,7 @@ export const TripIndisp = ({
             {trip.func.oper == "in" && (
                <div
                   className='absolute size-4 border-2 bg-red-400 rounded-full -top-1 -end-1 animate-pulse'
-                  aria-label="Instrutor"
+                  aria-label='Instrutor'
                ></div>
             )}
          </Button>
@@ -72,10 +72,18 @@ export const TripIndisp = ({
                         <Table hoverable className='text-center uppercase'>
                            <TableHead className='bg-gray-100'>
                               <TableRow>
-                                 <TableHeadCell className='font-bold'>MOTIVO</TableHeadCell>
-                                 <TableHeadCell className='font-bold'>OBS</TableHeadCell>
-                                 <TableHeadCell className='font-bold'>INÍCIO</TableHeadCell>
-                                 <TableHeadCell className='font-bold'>FIM</TableHeadCell>
+                                 <TableHeadCell className='font-bold'>
+                                    MOTIVO
+                                 </TableHeadCell>
+                                 <TableHeadCell className='font-bold'>
+                                    OBS
+                                 </TableHeadCell>
+                                 <TableHeadCell className='font-bold'>
+                                    INÍCIO
+                                 </TableHeadCell>
+                                 <TableHeadCell className='font-bold'>
+                                    FIM
+                                 </TableHeadCell>
                                  <TableHeadCell>
                                     <span className='sr-only'>Ações</span>
                                  </TableHeadCell>
@@ -104,7 +112,7 @@ export const TripIndisp = ({
                <ModalFooter className='flex justify-center gap-3 bg-gray-50'>
                   <PermBased requiredPerm={"create"} resource={"indisp_trips"}>
                      <Button
-                        color="blue"
+                        color='blue'
                         size='md'
                         onClick={() => setIsOpenNewInd(true)}
                      >
@@ -118,11 +126,7 @@ export const TripIndisp = ({
                         indisp={null}
                      />
                   </PermBased>
-                  <Button
-                     color='gray'
-                     size='md'
-                     onClick={closeModal}
-                  >
+                  <Button color='gray' size='md' onClick={closeModal}>
                      Fechar
                   </Button>
                </ModalFooter>
@@ -149,7 +153,7 @@ function TripIndispRow({ indisp, trip, update }) {
          <TableCell className='p-1 font-semibold'>{dateStart}</TableCell>
          <TableCell className='p-1 font-semibold'>{dateEnd}</TableCell>
          <TableCell className='p-1'>
-            <PermBased requiredPerm={"update"} resource={"indisp_trips"}>
+            <PermBased requiredPerm={"create"} resource={"indisp_trips"}>
                <Button
                   pill
                   color='light'

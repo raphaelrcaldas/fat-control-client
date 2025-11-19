@@ -717,29 +717,30 @@ export function DetailComiss({
                         </div>
                      </div>
                   </div>
+                  {/* Status e Informações */}
+                  <div className='grid grid-cols-3 gap-4'>
+                     <div className='flex items-center justify-center gap-2 p-4 bg-gray-50 rounded-xl border border-gray-200'>
+                        <span className='text-sm text-gray-600'>Status:</span>
+                        <span className='text-sm font-semibold text-gray-900 uppercase'>
+                           {comiss.status}
+                        </span>
+                     </div>
+                     <div className='flex items-center justify-center gap-2 p-4 bg-gray-50 rounded-xl border border-gray-200'>
+                        <span className='text-sm text-gray-600'>Módulo:</span>
+                        <span className='text-sm font-semibold text-gray-900 uppercase'>
+                           {comiss.modulo ? "Sim" : "Não"}
+                        </span>
+                     </div>
+                     <div className='flex items-center justify-center gap-2 p-4 bg-gray-50 rounded-xl border border-gray-200'>
+                        <span className='text-sm text-gray-600'>
+                           Dependente:
+                        </span>
+                        <span className='text-sm font-semibold text-gray-900 uppercase'>
+                           {comiss.dep ? "Sim" : "Não"}
+                        </span>
+                     </div>
+                  </div>
                </PermBased>
-
-               {/* Status e Informações */}
-               <div className='grid grid-cols-3 gap-4'>
-                  <div className='flex items-center justify-center gap-2 p-4 bg-gray-50 rounded-xl border border-gray-200'>
-                     <span className='text-sm text-gray-600'>Status:</span>
-                     <span className='text-sm font-semibold text-gray-900 uppercase'>
-                        {comiss.status}
-                     </span>
-                  </div>
-                  <div className='flex items-center justify-center gap-2 p-4 bg-gray-50 rounded-xl border border-gray-200'>
-                     <span className='text-sm text-gray-600'>Módulo:</span>
-                     <span className='text-sm font-semibold text-gray-900 uppercase'>
-                        {comiss.modulo ? "Sim" : "Não"}
-                     </span>
-                  </div>
-                  <div className='flex items-center justify-center gap-2 p-4 bg-gray-50 rounded-xl border border-gray-200'>
-                     <span className='text-sm text-gray-600'>Dependente:</span>
-                     <span className='text-sm font-semibold text-gray-900 uppercase'>
-                        {comiss.dep ? "Sim" : "Não"}
-                     </span>
-                  </div>
-               </div>
 
                {/* Métricas */}
                <div className='space-y-4 p-6 bg-gradient-to-r from-gray-50 to-slate-50 rounded-xl border border-gray-200'>
