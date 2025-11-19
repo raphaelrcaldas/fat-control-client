@@ -16,13 +16,15 @@ import {
 } from "flowbite-react";
 import { Spinner } from "@/components/Spinner";
 import { isoStrToDate } from "utils/dateHandler";
-import { gerarRelatorio } from "utils/relatorioComiss";
+import { gerarRelatorio } from "utils/planilhaComiss";
+import { gerarRelatorioDocx } from "utils/apostilaComiss";
 import { realCurrency } from "utils/financeiro";
 import {
    ComissWithMiss,
    Comiss as ComissSchema,
 } from "services/routes/cegep/comiss";
-import { LiaFileExportSolid } from "react-icons/lia";
+import { RiFileExcel2Fill } from "react-icons/ri";
+import { HiDocumentText } from "react-icons/hi";
 import { MisPntsTable } from "../../components/popMisPnts";
 import { IoMdInformationCircleOutline, IoMdSearch } from "react-icons/io";
 import { MdOutlineEdit, MdDeleteOutline } from "react-icons/md";
@@ -35,6 +37,7 @@ import {
 import { useToast } from "@/app/context/toast";
 import { UserPublic } from "services/routes/users";
 import { SearchUser } from "src/app/(home)/users/components/searchUser";
+import { PermBased } from "@/app/(home)/hooks/usePermBased";
 
 export function DetailComiss({
    show,
@@ -194,6 +197,18 @@ export function DetailComiss({
       a.href = url;
       const userName = `${comiss.user.posto.short}_${comiss.user.nome_guerra}`;
       a.download = `comissionamento_${userName}.xlsx`;
+      a.click();
+      URL.revokeObjectURL(url);
+   }
+
+   async function handleExportDocx() {
+      if (!comiss) return;
+      const blob = await gerarRelatorioDocx(comiss);
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      const userName = `${comiss.user.posto.short}_${comiss.user.nome_guerra}`;
+      a.download = `apostila_${userName}.docx`;
       a.click();
       URL.revokeObjectURL(url);
    }
@@ -543,20 +558,54 @@ export function DetailComiss({
                Detalhes do Comissionamento
             </ModalHeader>
             <ModalBody className='space-y-3'>
-               {/* Botão Exportar */}
-               <div className='flex justify-end -mt-2'>
-                  <Button
-                     color='light'
-                     onClick={handleExport}
-                     disabled={comiss.missoes.length == 0 || isDeleting}
-                     className='transition-all duration-200 hover:shadow-md'
-                  >
-                     <div className='flex items-center gap-2'>
-                        <LiaFileExportSolid className='size-5' />
-                        <span>Exportar</span>
+               <PermBased resource='comis' requiredPerm='create'>
+                  {/* Seção de Exportação */}
+                  <div className='bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 border-2 border-blue-200 rounded-xl p-4 shadow-md -mt-2'>
+                     <div className='flex items-center justify-between'>
+                        <div className='flex items-center gap-3'>
+                           <div className='bg-white p-2 rounded-lg shadow-sm'>
+                              <RiFileExcel2Fill className='size-6 text-green-600' />
+                           </div>
+                           <div>
+                              <h4 className='text-sm font-bold text-gray-800 uppercase tracking-wide'>
+                                 Exportar Relatórios
+                              </h4>
+                              <p className='text-xs text-gray-600'>
+                                 Gere planilha ou apostila do comissionamento
+                              </p>
+                           </div>
+                        </div>
+                        <div className='flex gap-2'>
+                           <Button
+                              color='light'
+                              onClick={handleExport}
+                              disabled={
+                                 comiss.missoes.length == 0 || isDeleting
+                              }
+                              className='transition-all duration-200 hover:shadow-lg hover:scale-105 active:scale-95 bg-white'
+                           >
+                              <div className='flex items-center gap-2'>
+                                 <RiFileExcel2Fill className='size-5 text-green-600' />
+                                 <span className='font-semibold'>Planilha</span>
+                              </div>
+                           </Button>
+                           <Button
+                              color='light'
+                              onClick={handleExportDocx}
+                              disabled={
+                                 comiss.missoes.length == 0 || isDeleting
+                              }
+                              className='transition-all duration-200 hover:shadow-lg hover:scale-105 active:scale-95 bg-white'
+                           >
+                              <div className='flex items-center gap-2'>
+                                 <HiDocumentText className='size-5 text-blue-600' />
+                                 <span className='font-semibold'>Apostila</span>
+                              </div>
+                           </Button>
+                        </div>
                      </div>
-                  </Button>
-               </div>
+                  </div>
+               </PermBased>
                {/* Informações do Militar */}
                <div className='text-center space-y-2 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-100'>
                   <h3 className='text-lg font-bold text-gray-900 uppercase tracking-wide'>
@@ -568,98 +617,106 @@ export function DetailComiss({
                   </p>
                </div>
 
-               {/* Documentos */}
-               <div className='hidden md:grid md:grid-cols-3 gap-4'>
-                  <div className='text-center p-4 bg-gray-50 rounded-xl border border-gray-200'>
-                     <span className='text-base font-semibold text-gray-900 uppercase block'>
-                        {comiss.doc_prop}
-                     </span>
-                     <span className='text-xs text-gray-500 uppercase tracking-wide'>
-                        Proposta
-                     </span>
-                  </div>
-                  <div className='text-center p-4 bg-gray-50 rounded-xl border border-gray-200'>
-                     <span className='text-base font-semibold text-gray-900 uppercase block'>
-                        {comiss.doc_aut}
-                     </span>
-                     <span className='text-xs text-gray-500 uppercase tracking-wide'>
-                        Autorização
-                     </span>
-                  </div>
-                  <div className='text-center p-4 bg-gray-50 rounded-xl border border-gray-200'>
-                     <span className='text-base font-semibold text-gray-900 uppercase block'>
-                        {comiss.doc_enc || "ND"}
-                     </span>
-                     <span className='text-xs text-gray-500 uppercase tracking-wide'>
-                        Encerramento
-                     </span>
-                  </div>
-               </div>
-
-               {/* Datas e Valores */}
-               <div className='grid grid-cols-1 md:grid-cols-2 gap-2'>
-                  {/* Abertura */}
-                  <div className='bg-gradient-to-br from-emerald-50 to-green-50 p-4 rounded-xl border border-emerald-200 shadow-sm'>
-                     <h4 className='text-sm font-semibold text-emerald-800 mb-1 flex items-center gap-2'>
-                        <div className='w-2 h-2 bg-emerald-500 rounded-full' />
-                        Abertura
-                     </h4>
-                     <div className='grid grid-cols-3 gap-4'>
-                        <div className='text-center'>
-                           <span className='text-base font-semibold text-gray-900 block'>
-                              {data_abertura}
-                           </span>
-                           <span className='text-xs text-gray-500'>Data</span>
-                        </div>
-                        <div className='text-center'>
-                           <span className='text-base font-semibold text-gray-900 block'>
-                              {Number(comiss.qtd_aj_ab).toFixed(1)}
-                           </span>
-                           <span className='text-xs text-gray-500'>
-                              Ajuda de Custo
-                           </span>
-                        </div>
-                        <div className='text-center'>
-                           <span className='text-base font-semibold text-gray-900 block'>
-                              {realCurrency(comiss.valor_aj_ab)}
-                           </span>
-                           <span className='text-xs text-gray-500'>Valor</span>
-                        </div>
+               <PermBased resource='comis' requiredPerm='create'>
+                  {/* Documentos */}
+                  <div className='hidden md:grid md:grid-cols-3 gap-4'>
+                     <div className='text-center p-4 bg-gray-50 rounded-xl border border-gray-200'>
+                        <span className='text-base font-semibold text-gray-900 uppercase block'>
+                           {comiss.doc_prop}
+                        </span>
+                        <span className='text-xs text-gray-500 uppercase tracking-wide'>
+                           Proposta
+                        </span>
+                     </div>
+                     <div className='text-center p-4 bg-gray-50 rounded-xl border border-gray-200'>
+                        <span className='text-base font-semibold text-gray-900 uppercase block'>
+                           {comiss.doc_aut}
+                        </span>
+                        <span className='text-xs text-gray-500 uppercase tracking-wide'>
+                           Autorização
+                        </span>
+                     </div>
+                     <div className='text-center p-4 bg-gray-50 rounded-xl border border-gray-200'>
+                        <span className='text-base font-semibold text-gray-900 uppercase block'>
+                           {comiss.doc_enc || "ND"}
+                        </span>
+                        <span className='text-xs text-gray-500 uppercase tracking-wide'>
+                           Encerramento
+                        </span>
                      </div>
                   </div>
 
-                  {/* Fechamento */}
-                  <div className='bg-gradient-to-br from-orange-50 to-amber-50 p-4 rounded-xl border border-orange-200 shadow-sm'>
-                     <h4 className='text-sm font-semibold text-orange-800 mb-1 flex items-center gap-2'>
-                        <div className='w-2 h-2 bg-orange-500 rounded-full' />
-                        Fechamento
-                     </h4>
-                     <div className='grid grid-cols-3 gap-4'>
-                        <div className='text-center'>
-                           <span className='text-base font-semibold text-gray-900 block'>
-                              {data_fechamento}
-                           </span>
-                           <span className='text-xs text-gray-500'>
-                              Data Prevista
-                           </span>
+                  {/* Datas e Valores */}
+                  <div className='grid grid-cols-1 md:grid-cols-2 gap-2'>
+                     {/* Abertura */}
+                     <div className='bg-gradient-to-br from-emerald-50 to-green-50 p-4 rounded-xl border border-emerald-200 shadow-sm'>
+                        <h4 className='text-sm font-semibold text-emerald-800 mb-1 flex items-center gap-2'>
+                           <div className='w-2 h-2 bg-emerald-500 rounded-full' />
+                           Abertura
+                        </h4>
+                        <div className='grid grid-cols-3 gap-4'>
+                           <div className='text-center'>
+                              <span className='text-base font-semibold text-gray-900 block'>
+                                 {data_abertura}
+                              </span>
+                              <span className='text-xs text-gray-500'>
+                                 Data
+                              </span>
+                           </div>
+                           <div className='text-center'>
+                              <span className='text-base font-semibold text-gray-900 block'>
+                                 {Number(comiss.qtd_aj_ab).toFixed(1)}
+                              </span>
+                              <span className='text-xs text-gray-500'>
+                                 Ajuda de Custo
+                              </span>
+                           </div>
+                           <div className='text-center'>
+                              <span className='text-base font-semibold text-gray-900 block'>
+                                 {realCurrency(comiss.valor_aj_ab)}
+                              </span>
+                              <span className='text-xs text-gray-500'>
+                                 Valor
+                              </span>
+                           </div>
                         </div>
-                        <div className='text-center'>
-                           <span className='text-base font-semibold text-gray-900 block'>
-                              {Number(comiss.qtd_aj_fc).toFixed(1)}
-                           </span>
-                           <span className='text-xs text-gray-500'>
-                              Ajuda de Custo
-                           </span>
-                        </div>
-                        <div className='text-center'>
-                           <span className='text-base font-semibold text-gray-900 block'>
-                              {realCurrency(comiss.valor_aj_fc)}
-                           </span>
-                           <span className='text-xs text-gray-500'>Valor</span>
+                     </div>
+
+                     {/* Fechamento */}
+                     <div className='bg-gradient-to-br from-orange-50 to-amber-50 p-4 rounded-xl border border-orange-200 shadow-sm'>
+                        <h4 className='text-sm font-semibold text-orange-800 mb-1 flex items-center gap-2'>
+                           <div className='w-2 h-2 bg-orange-500 rounded-full' />
+                           Fechamento
+                        </h4>
+                        <div className='grid grid-cols-3 gap-4'>
+                           <div className='text-center'>
+                              <span className='text-base font-semibold text-gray-900 block'>
+                                 {data_fechamento}
+                              </span>
+                              <span className='text-xs text-gray-500'>
+                                 Data Prevista
+                              </span>
+                           </div>
+                           <div className='text-center'>
+                              <span className='text-base font-semibold text-gray-900 block'>
+                                 {Number(comiss.qtd_aj_fc).toFixed(1)}
+                              </span>
+                              <span className='text-xs text-gray-500'>
+                                 Ajuda de Custo
+                              </span>
+                           </div>
+                           <div className='text-center'>
+                              <span className='text-base font-semibold text-gray-900 block'>
+                                 {realCurrency(comiss.valor_aj_fc)}
+                              </span>
+                              <span className='text-xs text-gray-500'>
+                                 Valor
+                              </span>
+                           </div>
                         </div>
                      </div>
                   </div>
-               </div>
+               </PermBased>
 
                {/* Status e Informações */}
                <div className='grid grid-cols-3 gap-4'>
