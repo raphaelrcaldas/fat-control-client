@@ -26,7 +26,7 @@ export async function gerarRelatorioDocx(comiss: ComissWithMiss): Promise<Blob> 
             const om_os = `${mis.tipo_doc} ${mis.n_doc}`.toUpperCase()
             const tipo = mis.tipo == 'tal' ? 'Transporte Aerologístico' : `Missão ${mis.tipo.toUpperCase()}`
             const localidades = mis.pernoites.map(pnt => (
-                `${pnt.cidade.nome}-${pnt.cidade.uf} (${pnt.custo.dias})`
+                `${pnt.cidade.nome}-${pnt.cidade.uf} (${pnt.custo.dias.toFixed(1)})`
             )).join(", ")
 
             const afast = new Date(mis.afast).toLocaleDateString()
