@@ -35,6 +35,6 @@ export async function refreshToken(token: string) {
    return response;
 }
 
-export async function logoutUser() {
-   return await request('POST', `auth/logout`);
+export async function devLogin(userId: number) {
+   return await request('POST', `auth/dev_login?user_id=${userId}`)
 }

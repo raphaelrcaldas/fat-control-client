@@ -7,10 +7,13 @@ import {
    updateUserRole,
    deleteUserRole,
 } from "services/routes/security/roles";
+import { devLogin as devLoginApi } from "services/routes/auth";
+import { setCookie } from "cookies-next";
 import { UserWithRole, Role } from "services/routes/security/roles";
 import { useToast } from "@/app/context/toast";
 import { FaRegTrashCan, FaUserShield, FaUsers, FaPlus } from "react-icons/fa6";
 import { HiRefresh } from "react-icons/hi";
+import { FaSignInAlt } from "react-icons/fa";
 import {
    Table,
    TableBody,
@@ -119,6 +122,54 @@ export default function RolePage() {
          } catch (error) {
             push({ type: "error", message: "Erro ao deletar perfil" });
          }
+      }
+   }
+
+   async function devLogin(userId: number) {
+      const confirmLogin = window.confirm(
+         `Fazer login como este usuário?`
+      );
+
+      if (!confirmLogin) return;
+
+      try {
+         const response = await devLoginApi(userId);
+
+         if (!response.ok) {
+            const error = await response.json();
+            push({
+               type: "error",
+               message: error.detail || "Erro ao fazer login",
+            });
+            return;
+         }
+
+         const data = await response.json();
+
+         if (data.access_token) {
+            // Seta o cookie com o token
+            setCookie("token", data.access_token, {
+               maxAge: 24 * 60 * 60, // 24 horas
+            });
+
+            push({
+               type: "success",
+               message: "Login realizado com sucesso!",
+            });
+
+            // Recarrega a página para aplicar a nova autenticação
+            window.location.href = "/";
+         } else {
+            push({
+               type: "error",
+               message: "Token não recebido do servidor",
+            });
+         }
+      } catch (error) {
+         push({
+            type: "error",
+            message: "Erro ao fazer login como usuário",
+         });
       }
    }
 
@@ -313,7 +364,17 @@ export default function RolePage() {
                                           </Select>
                                        </TableCell>
                                        <TableCell>
-                                          <div className='flex justify-center'>
+                                          <div className='flex justify-center gap-2'>
+                                             <Tooltip content='Login como usuário'>
+                                                <button
+                                                   onClick={() =>
+                                                      devLogin(ur.user.id)
+                                                   }
+                                                   className='p-2 hover:bg-blue-100 text-blue-600 cursor-pointer rounded-lg transition-all hover:scale-110'
+                                                >
+                                                   <FaSignInAlt className='size-4' />
+                                                </button>
+                                             </Tooltip>
                                              <Tooltip content='Remover perfil'>
                                                 <button
                                                    onClick={() =>

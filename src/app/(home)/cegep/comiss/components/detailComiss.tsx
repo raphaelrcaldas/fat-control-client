@@ -189,7 +189,7 @@ export function DetailComiss({
       }
    }
 
-   async function handleExport() {
+   async function handleExportSheet() {
       if (!comiss) return;
       const blob = await gerarRelatorio(comiss);
       const url = URL.createObjectURL(blob);
@@ -558,14 +558,11 @@ export function DetailComiss({
                Detalhes do Comissionamento
             </ModalHeader>
             <ModalBody className='space-y-3'>
-               <PermBased resource='comis' requiredPerm='create'>
+               <PermBased resource={"comiss"} requiredPerm={"create"}>
                   {/* Seção de Exportação */}
                   <div className='bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 border-2 border-blue-200 rounded-xl p-4 shadow-md -mt-2'>
                      <div className='flex items-center justify-between'>
                         <div className='flex items-center gap-3'>
-                           <div className='bg-white p-2 rounded-lg shadow-sm'>
-                              <RiFileExcel2Fill className='size-6 text-green-600' />
-                           </div>
                            <div>
                               <h4 className='text-sm font-bold text-gray-800 uppercase tracking-wide'>
                                  Exportar Relatórios
@@ -575,10 +572,10 @@ export function DetailComiss({
                               </p>
                            </div>
                         </div>
-                        <div className='flex gap-2'>
+                        <div className='grid sm:flex gap-2'>
                            <Button
                               color='light'
-                              onClick={handleExport}
+                              onClick={handleExportSheet}
                               disabled={
                                  comiss.missoes.length == 0 || isDeleting
                               }
@@ -586,7 +583,9 @@ export function DetailComiss({
                            >
                               <div className='flex items-center gap-2'>
                                  <RiFileExcel2Fill className='size-5 text-green-600' />
-                                 <span className='font-semibold'>Planilha</span>
+                                 <span className='hidden sm:flex font-semibold'>
+                                    Planilha
+                                 </span>
                               </div>
                            </Button>
                            <Button
@@ -599,7 +598,9 @@ export function DetailComiss({
                            >
                               <div className='flex items-center gap-2'>
                                  <HiDocumentText className='size-5 text-blue-600' />
-                                 <span className='font-semibold'>Apostila</span>
+                                 <span className='hidden sm:flex font-semibold'>
+                                    Apostila
+                                 </span>
                               </div>
                            </Button>
                         </div>
@@ -617,7 +618,7 @@ export function DetailComiss({
                   </p>
                </div>
 
-               <PermBased resource='comis' requiredPerm='create'>
+               <PermBased resource='comiss' requiredPerm='create'>
                   {/* Documentos */}
                   <div className='hidden md:grid md:grid-cols-3 gap-4'>
                      <div className='text-center p-4 bg-gray-50 rounded-xl border border-gray-200'>
