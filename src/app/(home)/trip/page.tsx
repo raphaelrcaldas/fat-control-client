@@ -28,7 +28,7 @@ import { SearchUser } from "./components/searchUserTrip";
 import { TripRow } from "./components/TripRow";
 import { MultiSelect } from "./components/MultiSelect";
 import { PermBased } from "../hooks/usePermBased";
-import useDebouncedValue from "../users/hooks/useDebouncedValue";
+import useDebouncedValue from "@/hooks/useDebouncedValue";
 import { useTripList } from "./hooks/useTripList";
 
 const FUNC_LABELS: Record<string, string> = {

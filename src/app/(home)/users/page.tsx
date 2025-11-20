@@ -3,7 +3,7 @@
 import { TextInput, Button, Badge } from "flowbite-react";
 import { Spinner } from "@/components/Spinner";
 import { useState, useEffect, useCallback } from "react";
-import useDebouncedValue from "./hooks/useDebouncedValue";
+import useDebouncedValue from "@/hooks/useDebouncedValue";
 import { getUsers, UserPublic } from "services/routes/users";
 import { UserDetailsModal } from "./components/UserDetailsModal";
 import { IoMdInformationCircleOutline } from "react-icons/io";

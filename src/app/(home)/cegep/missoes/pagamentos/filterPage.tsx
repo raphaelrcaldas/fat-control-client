@@ -10,6 +10,7 @@ import { Spinner } from "@/components/Spinner";
 import { getPgts } from "services/routes/cegep/financeiro";
 import { UserRow } from "./components/userRow";
 import { useFilterContext } from "../../context/filterContext";
+import useDebouncedValue from "@/hooks/useDebouncedValue";
 import {
    HiDocumentText,
    HiCurrencyDollar,
@@ -58,18 +59,31 @@ export function FilterPage({ active }) {
       ));
    }, [misRecords, selectedIds]);
 
+   // Agrupa os filtros em um objeto para debounce
+   const filters = useMemo(() => ({
+      userSearch,
+      tipoDoc,
+      nDoc,
+      selectedTipo,
+      selectedSit,
+      dataInicio,
+      dataFim,
+   }), [userSearch, tipoDoc, nDoc, selectedTipo, selectedSit, dataInicio, dataFim]);
+
+   const debouncedFilters = useDebouncedValue(filters, 500);
+
    const fetchData = useCallback(async () => {
       setLoading(true);
 
       let req: { [key: string]: any } = {};
 
-      if (userSearch) req.user = userSearch.toLowerCase();
-      if (tipoDoc) req.tipo_doc = tipoDoc;
-      if (nDoc) req.n_doc = nDoc;
-      if (selectedTipo) req.tipo = selectedTipo;
-      if (selectedSit) req.sit = selectedSit;
-      if (dataInicio) req.ini = dataInicio;
-      if (dataFim) req.fim = dataFim;
+      if (debouncedFilters.userSearch) req.user = debouncedFilters.userSearch.toLowerCase();
+      if (debouncedFilters.tipoDoc) req.tipo_doc = debouncedFilters.tipoDoc;
+      if (debouncedFilters.nDoc) req.n_doc = debouncedFilters.nDoc;
+      if (debouncedFilters.selectedTipo) req.tipo = debouncedFilters.selectedTipo;
+      if (debouncedFilters.selectedSit) req.sit = debouncedFilters.selectedSit;
+      if (debouncedFilters.dataInicio) req.ini = debouncedFilters.dataInicio;
+      if (debouncedFilters.dataFim) req.fim = debouncedFilters.dataFim;
 
       const data = await getPgts(req);
 
@@ -79,15 +93,7 @@ export function FilterPage({ active }) {
       setValorSoma(0);
       setSelectedAll(false);
       setLoading(false);
-   }, [
-      userSearch,
-      tipoDoc,
-      nDoc,
-      selectedTipo,
-      selectedSit,
-      dataInicio,
-      dataFim,
-   ]);
+   }, [debouncedFilters]);
 
    useEffect(() => {
       if (!active) return;
@@ -96,16 +102,11 @@ export function FilterPage({ active }) {
       }
    }, [active]);
 
-   // Debounce para os filtros
+   // Chama fetchData quando os filtros debounced mudarem
    useEffect(() => {
       if (!active || misRecords == null) return;
-
-      const timer = setTimeout(() => {
-         fetchData();
-      }, 500);
-
-      return () => clearTimeout(timer);
-   }, [fetchData, active]);
+      fetchData();
+   }, [debouncedFilters, active]);
 
    useEffect(() => {
       if (misRecords && selectedAll) {

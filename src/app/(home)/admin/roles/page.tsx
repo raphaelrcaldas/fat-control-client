@@ -29,7 +29,7 @@ import {
 } from "flowbite-react";
 import { Spinner } from "@/components/Spinner";
 import UserAddRole from "./components/userAddRole";
-import useDebouncedValue from "../../users/hooks/useDebouncedValue";
+import useDebouncedValue from "@/hooks/useDebouncedValue";
 import { FaSearch } from "react-icons/fa";
 
 export default function RolePage() {
