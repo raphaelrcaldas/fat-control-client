@@ -8,6 +8,7 @@ import {
    ModalHeader,
    TextInput,
    Select,
+   Checkbox,
 } from "flowbite-react";
 import { Spinner } from "@/components/Spinner";
 import { getUserById, updateUser, addUser } from "services/routes/users";
@@ -62,6 +63,7 @@ export function UserRegister({ userId, updateUsers }) {
                   nasc: data.nasc ?? null,
                   ult_promo: data.ult_promo ?? null,
                   ant_rel: data.ant_rel ?? null,
+                  active: data.active ?? true,
                };
 
                reset(init);
@@ -443,6 +445,21 @@ function UserFormFields({ register, errors }: any) {
                      autoComplete='off'
                   />
                </div>
+            </div>
+         </div>
+
+         {/* Seção: Status */}
+         <div>
+            <div className='flex items-center gap-2 p-3 bg-gray-50 rounded-lg'>
+               <Checkbox
+                  id='active'
+                  className='size-5'
+                  color='red'
+                  {...register("active")}
+               />
+               <Label htmlFor='active' className='cursor-pointer'>
+                  Usuário ativo
+               </Label>
             </div>
          </div>
       </div>

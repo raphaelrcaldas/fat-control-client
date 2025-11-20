@@ -10,6 +10,8 @@ import {
    HiKey,
    HiX,
    HiIdentification,
+   HiCheckCircle,
+   HiXCircle,
 } from "react-icons/hi";
 
 interface UserDetailsModalProps {
@@ -44,7 +46,7 @@ export function UserDetailsModal({
       <Modal show={show} size='4xl' onClose={onClose}>
          <div className='relative flex flex-col max-h-[90vh]'>
             {/* Header customizado com gradiente - compacto */}
-            <div className='bg-gradient-to-r from-red-600 to-red-700 text-white p-4 rounded-t-lg flex-shrink-0'>
+            <div className='bg-gradient-to-r from-red-500 to-red-700 text-white p-4 rounded-t-lg flex-shrink-0'>
                <button
                   onClick={onClose}
                   className='absolute top-3 right-3 p-1.5 hover:bg-white/20 rounded-lg transition-colors z-10'
@@ -89,6 +91,27 @@ export function UserDetailsModal({
                               {user?.unidade}
                            </span>
                         </div>
+                        {user?.active !== undefined && (
+                           <div
+                              className={`flex items-center gap-1 px-2 py-1 rounded text-xs font-medium ${
+                                 user.active
+                                    ? "bg-green-500/90 text-white"
+                                    : "bg-gray-500/90 text-white"
+                              }`}
+                           >
+                              {user.active ? (
+                                 <>
+                                    <HiCheckCircle className='w-3.5 h-3.5' />
+                                    <span>Ativo</span>
+                                 </>
+                              ) : (
+                                 <>
+                                    <HiXCircle className='w-3.5 h-3.5' />
+                                    <span>Inativo</span>
+                                 </>
+                              )}
+                           </div>
+                        )}
                      </div>
                   </div>
                </div>

@@ -12,6 +12,7 @@ export interface UserPublic {
    saram?: number;
    nome_completo: string;
    unidade: string;
+   active: boolean;
    ult_promo: string | null;
    ant_rel: number | null;
 }
@@ -25,6 +26,7 @@ export interface UserSchema {
    saram: number
    cpf: string
    ult_promo: string | null
+   active: boolean;
    nasc: string | null
    email_pess: string
    email_fab: string

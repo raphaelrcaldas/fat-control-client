@@ -22,6 +22,7 @@ export const createUserFormSchema = z.object({
     nasc: z.nullable(z.string()),
     ult_promo: z.nullable(z.string()),
     ant_rel: z.nullable(z.coerce.number().gt(0)),
+    active: z.boolean(),
 });
 
 export type CreateUserFormData = z.infer<typeof createUserFormSchema>;
@@ -40,4 +41,5 @@ export const defaultUserValues: CreateUserFormData = {
     cpf: "",
     email_fab: "",
     email_pess: "",
+    active: true,
 };
