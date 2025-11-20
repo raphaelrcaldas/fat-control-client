@@ -9,10 +9,17 @@ import { VscAdd } from "react-icons/vsc";
 
 interface CrewRowProps {
    tripQuadRes: CrewQuadRes;
+   groupName: string;
+   typeName: string;
    update: () => void;
 }
 
-export default function CrewRow({ tripQuadRes, update }: CrewRowProps) {
+export default function CrewRow({
+   tripQuadRes,
+   groupName,
+   typeName,
+   update,
+}: CrewRowProps) {
    const [showForm, setShowForm] = useState(false);
 
    return (
@@ -21,6 +28,8 @@ export default function CrewRow({ tripQuadRes, update }: CrewRowProps) {
             <QuadsTrip
                trip={tripQuadRes.trip}
                totalQuads={tripQuadRes.quads_len}
+               groupName={groupName}
+               typeName={typeName}
                update={update}
             />
          </div>

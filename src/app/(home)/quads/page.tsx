@@ -118,6 +118,8 @@ export default function QuadPage() {
          <CrewRow
             key={item.trip.id}
             tripQuadRes={item}
+            groupName={groupName}
+            typeName={typeName}
             update={getQuadsParams}
          />
       ));
@@ -206,7 +208,7 @@ export default function QuadPage() {
                   <Radio
                      id='comp'
                      name='visual'
-                     color="blue"
+                     color='blue'
                      value='comp'
                      checked={visual === "comp"}
                      onChange={() => setVisual("comp")}
@@ -217,7 +219,7 @@ export default function QuadPage() {
                   <Radio
                      id='reduz'
                      name='visual'
-                     color="blue"
+                     color='blue'
                      value='reduz'
                      checked={visual === "reduz"}
                      onChange={() => setVisual("reduz")}

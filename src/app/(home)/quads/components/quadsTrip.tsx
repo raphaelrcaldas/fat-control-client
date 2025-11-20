@@ -28,6 +28,8 @@ import { PermBased } from "../../hooks/usePermBased";
 interface QuadsTripProps {
    trip: CrewMember;
    totalQuads: number;
+   groupName: string;
+   typeName: string;
    update: () => void;
 }
 
@@ -38,7 +40,13 @@ interface QuadRowProps {
    onDelete: (id: number) => Promise<void>;
 }
 
-export function QuadsTrip({ trip, totalQuads, update }: QuadsTripProps) {
+export function QuadsTrip({
+   trip,
+   totalQuads,
+   groupName,
+   typeName,
+   update,
+}: QuadsTripProps) {
    const [openModal, setOpenModal] = useState(false);
    const [quads, setQuads] = useState<Quad[]>([]);
    const [loading, setLoading] = useState(false);
@@ -113,8 +121,6 @@ export function QuadsTrip({ trip, totalQuads, update }: QuadsTripProps) {
       }
    }, [openModal, fetchQuads]);
 
-   const hasQuads = quads.length > 0;
-
    return (
       <>
          <Button
@@ -140,18 +146,55 @@ export function QuadsTrip({ trip, totalQuads, update }: QuadsTripProps) {
             popup
             dismissible
          >
-            <ModalHeader>Quadrinhos</ModalHeader>
+            <ModalHeader>
+               <div className='flex items-center gap-2'>
+                  <div className='w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center'>
+                     <svg
+                        className='w-6 h-6 text-white'
+                        fill='none'
+                        stroke='currentColor'
+                        viewBox='0 0 24 24'
+                     >
+                        <path
+                           strokeLinecap='round'
+                           strokeLinejoin='round'
+                           strokeWidth={2}
+                           d='M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z'
+                        />
+                     </svg>
+                  </div>
+                  <span className='text-xl font-bold text-gray-800'>
+                     Quadrinhos
+                  </span>
+               </div>
+            </ModalHeader>
             <ModalBody>
-               <div className='mb-4 text-base text-center uppercase'>
-                  <h3 className='font-medium text-gray-900 dark:text-white'>
-                     {userName}
-                  </h3>
+               <div className='mb-2 p-4 bg-gradient-to-r from-blue-50 to-blue-100 rounded-xl border border-blue-200'>
+                  <div className='text-center uppercase'>
+                     <h2 className='font-bold text-lg text-gray-900'>
+                        {userName}
+                     </h2>
+                  </div>
+               </div>
+
+               <div className='mb-4 p-2 bg-gray-50 rounded-lg border border-gray-200'>
+                  <div className='text-center'>
+                     <p className='text-xs font-semibold text-gray-500 uppercase mb-1 flex items-center justify-center gap-1'>
+                        {groupName.toLowerCase().includes("internacional") && (
+                           <span className='text-blue-600'>🌍</span>
+                        )}
+                        {groupName}
+                     </p>
+                     <p className='text-sm font-bold text-gray-900 uppercase'>
+                        {typeName}
+                     </p>
+                  </div>
                </div>
 
                <div className='h-96 overflow-y-auto shadow-lg rounded-lg bg-white dark:bg-gray-800'>
                   {loading ? (
                      <LoadingState />
-                  ) : hasQuads ? (
+                  ) : quads.length > 0 ? (
                      <Table className='text-center' hoverable>
                         <TableHead>
                            <TableRow>
@@ -159,10 +202,10 @@ export function QuadsTrip({ trip, totalQuads, update }: QuadsTripProps) {
                               <TableHeadCell>Ações</TableHeadCell>
                            </TableRow>
                         </TableHead>
-                        <TableBody className='divide-y'>
-                           {quads.map((quad) => (
+                        <TableBody>
+                           {quads.map((quad, index) => (
                               <QuadRow
-                                 key={quad.id}
+                                 key={index}
                                  quad={quad}
                                  trip={trip}
                                  onUpdate={handleSuccess}
@@ -294,13 +337,27 @@ function LoadingState() {
 
 function EmptyState() {
    return (
-      <div className='flex flex-col items-center justify-center h-full gap-3 p-8 text-center'>
-         <div className='text-6xl text-gray-300 dark:text-gray-600'>📋</div>
-         <h4 className='text-lg font-medium text-gray-700 dark:text-gray-300'>
+      <div className='flex flex-col items-center justify-center py-12 px-4'>
+         <div className='w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mb-4'>
+            <svg
+               className='w-10 h-10 text-gray-400'
+               fill='none'
+               stroke='currentColor'
+               viewBox='0 0 24 24'
+            >
+               <path
+                  strokeLinecap='round'
+                  strokeLinejoin='round'
+                  strokeWidth={2}
+                  d='M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z'
+               />
+            </svg>
+         </div>
+         <h3 className='text-lg font-semibold text-gray-700 mb-2'>
             Nenhum quadrinho encontrado
-         </h4>
-         <p className='text-sm text-gray-500 dark:text-gray-400'>
-            Clique em &quot;Adicionar Quadrinho&quot; para começar
+         </h3>
+         <p className='text-gray-500 text-center text-sm'>
+            Não há quadrinhos cadastrados para este tripulante.
          </p>
       </div>
    );
