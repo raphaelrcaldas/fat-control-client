@@ -6,6 +6,7 @@ import {
    MdOutlinePeopleAlt,
    MdHome,
    MdMoney,
+   MdAccountBalance,
 } from "react-icons/md";
 import { FaUsers } from "react-icons/fa6";
 import { FaPaperPlane } from "react-icons/fa";
@@ -80,6 +81,12 @@ export const navItems = [
             label: "Comissionamento",
             path: "/cegep/comiss",
             roles: [],
+         },
+         {
+            icon: MdAccountBalance,
+            label: "Dados Bancários",
+            path: "/cegep/dados-bancarios",
+            roles: ["apoio_avancado"],
          },
       ],
    },
