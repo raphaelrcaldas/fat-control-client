@@ -81,7 +81,7 @@ export default function HomeApp() {
             </div>
 
             {/* Quick Actions */}
-            <div className='max-w-5xl mx-auto'>
+            {/* <div className='max-w-5xl mx-auto'>
                <div className='mb-2'>
                   <h2 className='text-2xl font-bold text-gray-900 mb-2 tracking-tight'>
                      Acesso Rápido
@@ -94,7 +94,7 @@ export default function HomeApp() {
                   </div>
                </div>
                <QuickActions />
-            </div>
+            </div> */}
 
             {/* Stats or Additional Info Card */}
             {/* <div className="bg-gradient-to-r from-red-500 to-red-600 rounded-2xl shadow-xl p-8 text-white transform transition-all duration-700 delay-300">

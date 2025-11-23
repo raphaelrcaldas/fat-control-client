@@ -82,12 +82,12 @@ export const navItems = [
             path: "/cegep/comiss",
             roles: [],
          },
-         {
-            icon: MdAccountBalance,
-            label: "Dados Bancários",
-            path: "/cegep/dados-bancarios",
-            roles: ["apoio_avancado"],
-         },
+         // {
+         //    icon: MdAccountBalance,
+         //    label: "Dados Bancários",
+         //    path: "/cegep/dados-bancarios",
+         //    roles: ["apoio_avancado"],
+         // },
       ],
    },
    {
