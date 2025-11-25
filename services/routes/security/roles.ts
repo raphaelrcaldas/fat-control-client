@@ -10,6 +10,17 @@ export interface Role {
     description: string
 }
 
+export interface PermissionDetail {
+    id: number
+    resource: string
+    action: string
+    description: string
+}
+
+export interface RoleDetail extends Role {
+    permissions: PermissionDetail[]
+}
+
 export interface UserWithRole {
     role: Role
     user: UserPublic
@@ -45,8 +56,14 @@ export async function deleteUserRole(roleId, userId) {
     return response;
 }
 
-export async function getRoles(): Promise<Role[]> {
+export async function getRoles(): Promise<RoleDetail[]> {
     const response = await request("GET", rolesPath)
 
-    return await response.json() as Role[];
+    return await response.json() as RoleDetail[];
+}
+
+export async function getRoleDetail(roleId: number): Promise<RoleDetail> {
+    const response = await request("GET", `${rolesPath}/${roleId}`)
+
+    return await response.json() as RoleDetail;
 }

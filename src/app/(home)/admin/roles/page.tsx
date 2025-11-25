@@ -1,46 +1,84 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import {
    getUsersRoles,
    getRoles,
    updateUserRole,
    deleteUserRole,
+   type UserWithRole,
+   type RoleDetail,
 } from "services/routes/security/roles";
+import {
+   getResources,
+   getPermissions,
+   type Resource,
+   type PermissionDetail,
+} from "services/routes/security/resources";
 import { devLogin as devLoginApi } from "services/routes/auth";
 import { setCookie } from "cookies-next";
-import { UserWithRole, Role } from "services/routes/security/roles";
 import { useToast } from "@/app/context/toast";
-import { FaRegTrashCan, FaUserShield, FaUsers, FaPlus } from "react-icons/fa6";
-import { HiRefresh } from "react-icons/hi";
-import { FaSignInAlt } from "react-icons/fa";
-import {
-   Table,
-   TableBody,
-   TableCell,
-   TableHead,
-   TableHeadCell,
-   TableRow,
-   Select,
-   TextInput,
-   Button,
-   Badge,
-   Tooltip,
-} from "flowbite-react";
+import { FaUserShield, FaUsers, FaShield } from "react-icons/fa6";
+import { Badge, Tabs, TabItem } from "flowbite-react";
 import { Spinner } from "@/components/Spinner";
 import UserAddRole from "./components/userAddRole";
 import useDebouncedValue from "@/hooks/useDebouncedValue";
-import { FaSearch } from "react-icons/fa";
+import { UsersTab, PermissionsMatrixTab } from "./components";
+import type { PermissionMatrixType } from "./components";
+
+// Mover função para fora do componente (melhor performance)
+const buildPermissionMatrix = (
+   allPermissions: PermissionDetail[],
+   allRolesDetails: RoleDetail[]
+): PermissionMatrixType => {
+   const matrix: PermissionMatrixType = {};
+
+   allPermissions.forEach((perm) => {
+      if (!matrix[perm.resource]) {
+         matrix[perm.resource] = {};
+      }
+      matrix[perm.resource][perm.action] = {
+         permissionId: perm.id,
+         description: perm.description,
+         roleIds: new Set(),
+      };
+   });
+
+   allRolesDetails.forEach((roleDetail) => {
+      roleDetail.permissions.forEach((perm) => {
+         if (matrix[perm.resource] && matrix[perm.resource][perm.action]) {
+            matrix[perm.resource][perm.action].roleIds.add(roleDetail.id);
+         }
+      });
+   });
+
+   return matrix;
+};
 
 export default function RolePage() {
    const [userRoles, setUserRoles] = useState<UserWithRole[] | null>(null);
-   const [roles, setRoles] = useState<Role[]>([]);
+   const [roles, setRoles] = useState<RoleDetail[]>([]);
    const [showAddModal, setShowAddModal] = useState(false);
    const [filterName, setFilterName] = useState("");
    const [isUpdating, setIsUpdating] = useState(false);
-   const debouncedFilter = useDebouncedValue(filterName, 220);
+   const debouncedFilter = useDebouncedValue(filterName, 400); // Otimizado: 220ms -> 400ms
 
-   const filteredUsers = ((): UserWithRole[] => {
+   const [resources, setResources] = useState<Resource[] | null>(null);
+   const [permissions, setPermissions] = useState<PermissionDetail[] | null>(
+      null
+   );
+   const [isLoadingMatrix, setIsLoadingMatrix] = useState(false);
+
+   const { push } = useToast();
+
+   // Memoizar matriz de permissões para evitar recálculo desnecessário
+   const matrix = useMemo(() => {
+      if (!permissions || !roles.length) return {};
+      return buildPermissionMatrix(permissions, roles);
+   }, [permissions, roles]);
+
+   // Memoizar filtro para evitar recálculo a cada render
+   const filteredUsers = useMemo((): UserWithRole[] => {
       const input = debouncedFilter.trim().toLowerCase();
       if (!input || !userRoles) return userRoles || [];
 
@@ -55,11 +93,10 @@ export default function RolePage() {
             roleName.includes(input)
          );
       });
-   })();
+   }, [debouncedFilter, userRoles]);
 
-   const { push } = useToast();
-
-   async function updateUserRoles() {
+   // Memoizar função de atualização de usuários
+   const updateUserRoles = useCallback(async () => {
       setIsUpdating(true);
       try {
          const data = await getUsersRoles();
@@ -83,35 +120,13 @@ export default function RolePage() {
       } finally {
          setIsUpdating(false);
       }
-   }
+   }, [push]);
 
-   async function pathUserRole(userId: number, roleId: string) {
-      try {
-         const res = await updateUserRole(roleId, userId);
-         const data = await res.json();
-         if (res.ok) {
-            push({ type: "success", message: data.detail });
-            updateUserRoles();
-         } else {
-            push({ type: "error", message: data.detail });
-         }
-      } catch (error) {
-         push({ type: "error", message: "Erro ao atualizar perfil" });
-      }
-   }
-
-   async function delUserRole(
-      userId: number,
-      roleId: number,
-      userName: string
-   ) {
-      const confirmDel = window.confirm(
-         `Tem certeza que deseja remover o perfil de ${userName.toUpperCase()}?`
-      );
-
-      if (confirmDel) {
+   // Memoizar callbacks para evitar recriação
+   const pathUserRole = useCallback(
+      async (userId: number, roleId: string) => {
          try {
-            const res = await deleteUserRole(roleId, userId);
+            const res = await updateUserRole(roleId, userId);
             const data = await res.json();
             if (res.ok) {
                push({ type: "success", message: data.detail });
@@ -120,83 +135,138 @@ export default function RolePage() {
                push({ type: "error", message: data.detail });
             }
          } catch (error) {
-            push({ type: "error", message: "Erro ao deletar perfil" });
+            push({ type: "error", message: "Erro ao atualizar perfil" });
          }
-      }
-   }
+      },
+      [push, updateUserRoles]
+   );
 
-   async function devLogin(userId: number) {
-      const confirmLogin = window.confirm(
-         `Fazer login como este usuário?`
-      );
+   const delUserRole = useCallback(
+      async (userId: number, roleId: number, userName: string) => {
+         const confirmDel = window.confirm(
+            `Tem certeza que deseja remover o perfil de ${userName.toUpperCase()}?`
+         );
 
-      if (!confirmLogin) return;
-
-      try {
-         const response = await devLoginApi(userId);
-
-         if (!response.ok) {
-            const error = await response.json();
-            push({
-               type: "error",
-               message: error.detail || "Erro ao fazer login",
-            });
-            return;
+         if (confirmDel) {
+            try {
+               const res = await deleteUserRole(roleId, userId);
+               const data = await res.json();
+               if (res.ok) {
+                  push({ type: "success", message: data.detail });
+                  updateUserRoles();
+               } else {
+                  push({ type: "error", message: data.detail });
+               }
+            } catch (error) {
+               push({ type: "error", message: "Erro ao deletar perfil" });
+            }
          }
+      },
+      [push, updateUserRoles]
+   );
 
-         const data = await response.json();
+   const devLogin = useCallback(
+      async (userId: number) => {
+         const confirmLogin = window.confirm(`Fazer login como este usuário?`);
 
-         if (data.access_token) {
-            // Seta o cookie com o token
-            setCookie("token", data.access_token, {
-               maxAge: 24 * 60 * 60, // 24 horas
-            });
+         if (!confirmLogin) return;
 
-            push({
-               type: "success",
-               message: "Login realizado com sucesso!",
-            });
-
-            // Recarrega a página para aplicar a nova autenticação
-            window.location.href = "/";
-         } else {
-            push({
-               type: "error",
-               message: "Token não recebido do servidor",
-            });
-         }
-      } catch (error) {
-         push({
-            type: "error",
-            message: "Erro ao fazer login como usuário",
-         });
-      }
-   }
-
-   useEffect(() => {
-      updateUserRoles();
-
-      const fetchRoles = async () => {
          try {
-            const data = await getRoles();
-            setRoles(data);
-         } catch (err: any) {
-            console.error("Erro ao buscar roles:", err);
+            const response = await devLoginApi(userId);
+
+            if (!response.ok) {
+               const error = await response.json();
+               push({
+                  type: "error",
+                  message: error.detail || "Erro ao fazer login",
+               });
+               return;
+            }
+
+            const data = await response.json();
+
+            if (data.access_token) {
+               setCookie("token", data.access_token, {
+                  maxAge: 24 * 60 * 60,
+               });
+
+               push({
+                  type: "success",
+                  message: "Login realizado com sucesso!",
+               });
+
+               window.location.href = "/";
+            } else {
+               push({
+                  type: "error",
+                  message: "Token não recebido do servidor",
+               });
+            }
+         } catch (error) {
+            push({
+               type: "error",
+               message: "Erro ao fazer login como usuário",
+            });
+         }
+      },
+      [push]
+   );
+
+   // Consolidar TODAS as chamadas API em paralelo (Otimização crítica!)
+   useEffect(() => {
+      const loadAllData = async () => {
+         setIsUpdating(true);
+         setIsLoadingMatrix(true);
+
+         try {
+            // Executar TODAS as 4 APIs em paralelo (antes eram sequenciais)
+            const [usersRolesData, rolesData, resourcesData, permissionsData] =
+               await Promise.all([
+                  getUsersRoles(),
+                  getRoles(),
+                  getResources(),
+                  getPermissions(),
+               ]);
+
+            // Processar dados
+            usersRolesData.sort((a, b) => {
+               const antA = a.user.posto.ant;
+               const antB = b.user.posto.ant;
+               if (antA !== antB) return antA - antB;
+
+               const promoA = a.user.ult_promo || "";
+               const promoB = b.user.ult_promo || "";
+               if (promoA !== promoB) return promoA.localeCompare(promoB);
+
+               return (a.user.ant_rel ?? 0) - (b.user.ant_rel ?? 0);
+            });
+
+            resourcesData.sort((a, b) => a.name.localeCompare(b.name));
+            permissionsData.sort((a, b) => {
+               const resourceCompare = a.resource.localeCompare(b.resource);
+               if (resourceCompare !== 0) return resourceCompare;
+               return a.action.localeCompare(b.action);
+            });
+
+            // Atualizar estados
+            setUserRoles(usersRolesData);
+            setRoles(rolesData);
+            setResources(resourcesData);
+            setPermissions(permissionsData);
+         } catch (error) {
+            push({
+               type: "error",
+               message: "Erro ao carregar dados",
+            });
+         } finally {
+            setIsUpdating(false);
+            setIsLoadingMatrix(false);
          }
       };
 
-      fetchRoles();
+      loadAllData();
+      // eslint-disable-next-line react-hooks/exhaustive-deps
    }, []);
-
-   const getRoleBadgeColor = (roleName: string) => {
-      const colors: Record<string, string> = {
-         admin: "failure",
-         moderator: "warning",
-         user: "info",
-         guest: "gray",
-      };
-      return colors[roleName.toLowerCase()] || "purple";
-   };
 
    if (!userRoles) {
       return (
@@ -214,234 +284,41 @@ export default function RolePage() {
          <UserAddRole
             show={showAddModal}
             setShow={setShowAddModal}
-            update={() => updateUserRoles()}
+            update={updateUserRoles}
             usersIgnr={userRoles.map((u) => u.user.id)}
             roles={roles}
          />
 
          <div className='p-2 grid gap-4'>
-            {/* Header */}
-            <div className='bg-gradient-to-r from-blue-600 to-blue-700 p-3 rounded-lg shadow-lg text-white'>
-               <div className='flex flex-col md:flex-row md:items-center md:justify-between gap-4'>
-                  <div>
-                     <h1 className='text-2xl font-bold flex items-center gap-3'>
-                        <FaUserShield className='text-2xl' />
-                        Gerenciamento de Perfis
-                     </h1>
-                     <p className='text-blue-100 mt-2'>
-                        Gerencie permissões e perfis de acesso dos usuários
-                     </p>
-                  </div>
-                  <div className='hidden sm:flex gap-3'>
-                     <Badge color='light' size='lg' className='w-fit'>
-                        <FaUsers className='mr-2' />
-                        <span>
-                           {userRoles.length}{" "}
-                           {userRoles.length === 1 ? "usuário" : "usuários"}
-                        </span>
-                     </Badge>
-                     <Badge color='light' size='lg' className='w-fit'>
-                        <FaUserShield className='mr-2' />
-                        {roles.length}{" "}
-                        {roles.length === 1 ? "perfil" : "perfis"}
-                     </Badge>
-                  </div>
-               </div>
-            </div>
+            <Tabs
+               aria-label='Tabs de gerenciamento de perfis'
+               variant='underline'
+            >
+               <TabItem active title='Usuários' icon={FaUsers}>
+                  <UsersTab
+                     filteredUsers={filteredUsers}
+                     roles={roles}
+                     filterName={filterName}
+                     isUpdating={isUpdating}
+                     onFilterChange={setFilterName}
+                     onRefresh={updateUserRoles}
+                     onAddUser={() => setShowAddModal(true)}
+                     onRoleChange={pathUserRole}
+                     onDevLogin={devLogin}
+                     onDeleteRole={delUserRole}
+                  />
+               </TabItem>
 
-            <div className='grid lg:grid-cols-3 gap-4'>
-               {/* Tabela Principal de Usuários */}
-               <div className='lg:col-span-2 bg-white rounded-lg shadow-md overflow-hidden'>
-                  <div className='p-4 border-b bg-gray-50'>
-                     <div className='flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-3'>
-                        <h3 className='text-lg font-semibold text-gray-800 flex items-center gap-2'>
-                           <FaUsers />
-                           Usuários com Perfis
-                        </h3>
-                        <div className='flex gap-2'>
-                           <Tooltip content='Atualizar lista'>
-                              <Button
-                                 size='sm'
-                                 color='light'
-                                 onClick={() => updateUserRoles()}
-                                 disabled={isUpdating}
-                              >
-                                 <HiRefresh
-                                    className={isUpdating ? "animate-spin" : ""}
-                                 />
-                              </Button>
-                           </Tooltip>
-                           <Button
-                              size='sm'
-                              color='blue'
-                              onClick={() => setShowAddModal(true)}
-                           >
-                              <FaPlus className='mr-2' />
-                              Adicionar
-                           </Button>
-                        </div>
-                     </div>
-
-                     <TextInput
-                        icon={FaSearch}
-                        className='w-full'
-                        value={filterName}
-                        onChange={(e) => setFilterName(e.target.value)}
-                        placeholder='Buscar por nome, posto ou perfil...'
-                     />
-                  </div>
-
-                  <div className='overflow-x-auto'>
-                     <Table hoverable>
-                        <TableHead>
-                           <TableRow>
-                              <TableHeadCell>Usuário</TableHeadCell>
-                              <TableHeadCell>Perfil</TableHeadCell>
-                              <TableHeadCell className='text-center'>
-                                 Ações
-                              </TableHeadCell>
-                           </TableRow>
-                        </TableHead>
-                        <TableBody className='divide-y'>
-                           {filteredUsers.length === 0 ? (
-                              <TableRow>
-                                 <TableCell
-                                    colSpan={3}
-                                    className='py-12 text-center'
-                                 >
-                                    <div className='flex flex-col items-center gap-2'>
-                                       <FaUsers className='text-5xl text-gray-300' />
-                                       <p className='text-gray-600 font-medium'>
-                                          {filterName
-                                             ? "Nenhum usuário encontrado"
-                                             : "Nenhum usuário cadastrado"}
-                                       </p>
-                                       {filterName && (
-                                          <button
-                                             onClick={() => setFilterName("")}
-                                             className='text-blue-600 hover:underline text-sm'
-                                          >
-                                             Limpar filtro
-                                          </button>
-                                       )}
-                                    </div>
-                                 </TableCell>
-                              </TableRow>
-                           ) : (
-                              filteredUsers.map((ur) => {
-                                 const userName = `${ur.user.p_g} ${ur.user.nome_guerra}`;
-                                 return (
-                                    <TableRow
-                                       key={ur.user.id}
-                                       className='bg-white hover:bg-gray-50 transition-colors'
-                                    >
-                                       <TableCell className='font-medium'>
-                                          <div className='flex items-center gap-3'>
-                                             <div className='hidden w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 sm:flex items-center justify-center text-white font-bold text-sm shadow uppercase'>
-                                                {ur.user.p_g}
-                                             </div>
-                                             <span className='uppercase'>
-                                                {userName}
-                                             </span>
-                                          </div>
-                                       </TableCell>
-                                       <TableCell>
-                                          <Select
-                                             onChange={(e) =>
-                                                pathUserRole(
-                                                   ur.user.id,
-                                                   e.target.value
-                                                )
-                                             }
-                                             value={ur.role.id}
-                                             // sizing='sm'
-                                          >
-                                             {roles.map((r) => (
-                                                <option key={r.id} value={r.id}>
-                                                   {r.name.toUpperCase()}
-                                                </option>
-                                             ))}
-                                          </Select>
-                                       </TableCell>
-                                       <TableCell>
-                                          <div className='flex justify-center gap-2'>
-                                             <Tooltip content='Login como usuário'>
-                                                <button
-                                                   onClick={() =>
-                                                      devLogin(ur.user.id)
-                                                   }
-                                                   className='p-2 hover:bg-blue-100 text-blue-600 cursor-pointer rounded-lg transition-all hover:scale-110'
-                                                >
-                                                   <FaSignInAlt className='size-4' />
-                                                </button>
-                                             </Tooltip>
-                                             <Tooltip content='Remover perfil'>
-                                                <button
-                                                   onClick={() =>
-                                                      delUserRole(
-                                                         ur.user.id,
-                                                         ur.role.id,
-                                                         userName
-                                                      )
-                                                   }
-                                                   className='p-2 hover:bg-red-100 text-red-600 cursor-pointer rounded-lg transition-all hover:scale-110'
-                                                >
-                                                   <FaRegTrashCan className='size-4' />
-                                                </button>
-                                             </Tooltip>
-                                          </div>
-                                       </TableCell>
-                                    </TableRow>
-                                 );
-                              })
-                           )}
-                        </TableBody>
-                     </Table>
-                  </div>
-               </div>
-
-               {/* Tabela de Perfis Disponíveis */}
-               <div className='bg-white rounded-lg shadow-md overflow-hidden h-fit'>
-                  <div className='p-4 border-b bg-gray-50'>
-                     <h3 className='text-lg font-semibold text-gray-800 flex items-center gap-2'>
-                        <FaUserShield />
-                        Perfis Disponíveis
-                     </h3>
-                  </div>
-                  <div className='overflow-x-auto'>
-                     <Table hoverable>
-                        <TableHead>
-                           <TableRow>
-                              <TableHeadCell>Perfil</TableHeadCell>
-                              <TableHeadCell>Descrição</TableHeadCell>
-                           </TableRow>
-                        </TableHead>
-                        <TableBody className='divide-y'>
-                           {roles.map((r) => {
-                              return (
-                                 <TableRow
-                                    key={r.id}
-                                    className='bg-white hover:bg-gray-50'
-                                 >
-                                    <TableCell>
-                                       <Badge
-                                          color={getRoleBadgeColor(r.name)}
-                                          className='uppercase w-fit'
-                                       >
-                                          {r.name}
-                                       </Badge>
-                                    </TableCell>
-                                    <TableCell className='text-sm text-gray-600 uppercase'>
-                                       {r.description || "Sem descrição"}
-                                    </TableCell>
-                                 </TableRow>
-                              );
-                           })}
-                        </TableBody>
-                     </Table>
-                  </div>
-               </div>
-            </div>
+               <TabItem title='Permissões' icon={FaShield}>
+                  <PermissionsMatrixTab
+                     isLoading={isLoadingMatrix}
+                     resources={resources}
+                     permissions={permissions}
+                     matrix={matrix}
+                     roles={roles}
+                  />
+               </TabItem>
+            </Tabs>
          </div>
       </>
    );
