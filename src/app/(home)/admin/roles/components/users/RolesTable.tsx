@@ -9,8 +9,8 @@ import {
    Badge,
 } from "flowbite-react";
 import { FaUserShield } from "react-icons/fa6";
-import type { RoleDetail } from "./types";
-import { getRoleBadgeColor } from "./utils";
+import type { RoleDetail } from "../../config/types";
+import { getRoleBadgeColor } from "../../config/utils";
 
 interface RolesTableProps {
    roles: RoleDetail[];

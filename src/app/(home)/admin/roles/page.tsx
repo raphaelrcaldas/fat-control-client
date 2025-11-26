@@ -1,11 +1,9 @@
 "use client";
 
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
    getUsersRoles,
    getRoles,
-   updateUserRole,
-   deleteUserRole,
    type UserWithRole,
    type RoleDetail,
 } from "services/routes/security/roles";
@@ -15,89 +13,23 @@ import {
    type Resource,
    type PermissionDetail,
 } from "services/routes/security/resources";
-import { devLogin as devLoginApi } from "services/routes/auth";
-import { setCookie } from "cookies-next";
 import { useToast } from "@/app/context/toast";
-import { FaUserShield, FaUsers, FaShield } from "react-icons/fa6";
-import { Badge, Tabs, TabItem } from "flowbite-react";
+import { FaUsers, FaShield } from "react-icons/fa6";
+import { Tabs, TabItem } from "flowbite-react";
 import { Spinner } from "@/components/Spinner";
-import UserAddRole from "./components/userAddRole";
-import useDebouncedValue from "@/hooks/useDebouncedValue";
 import { UsersTab, PermissionsMatrixTab } from "./components";
-import type { PermissionMatrixType } from "./components";
-
-// Mover função para fora do componente (melhor performance)
-const buildPermissionMatrix = (
-   allPermissions: PermissionDetail[],
-   allRolesDetails: RoleDetail[]
-): PermissionMatrixType => {
-   const matrix: PermissionMatrixType = {};
-
-   allPermissions.forEach((perm) => {
-      if (!matrix[perm.resource]) {
-         matrix[perm.resource] = {};
-      }
-      matrix[perm.resource][perm.action] = {
-         permissionId: perm.id,
-         description: perm.description,
-         roleIds: new Set(),
-      };
-   });
-
-   allRolesDetails.forEach((roleDetail) => {
-      roleDetail.permissions.forEach((perm) => {
-         if (matrix[perm.resource] && matrix[perm.resource][perm.action]) {
-            matrix[perm.resource][perm.action].roleIds.add(roleDetail.id);
-         }
-      });
-   });
-
-   return matrix;
-};
 
 export default function RolePage() {
    const [userRoles, setUserRoles] = useState<UserWithRole[] | null>(null);
    const [roles, setRoles] = useState<RoleDetail[]>([]);
-   const [showAddModal, setShowAddModal] = useState(false);
-   const [filterName, setFilterName] = useState("");
-   const [isUpdating, setIsUpdating] = useState(false);
-   const debouncedFilter = useDebouncedValue(filterName, 400); // Otimizado: 220ms -> 400ms
-
    const [resources, setResources] = useState<Resource[] | null>(null);
    const [permissions, setPermissions] = useState<PermissionDetail[] | null>(
       null
    );
-   const [isLoadingMatrix, setIsLoadingMatrix] = useState(false);
 
    const { push } = useToast();
 
-   // Memoizar matriz de permissões para evitar recálculo desnecessário
-   const matrix = useMemo(() => {
-      if (!permissions || !roles.length) return {};
-      return buildPermissionMatrix(permissions, roles);
-   }, [permissions, roles]);
-
-   // Memoizar filtro para evitar recálculo a cada render
-   const filteredUsers = useMemo((): UserWithRole[] => {
-      const input = debouncedFilter.trim().toLowerCase();
-      if (!input || !userRoles) return userRoles || [];
-
-      return userRoles.filter((ur) => {
-         const nomeGuerra = (ur.user.nome_guerra || "").toLowerCase();
-         const pg = (ur.user.p_g || "").toLowerCase();
-         const roleName = (ur.role.name || "").toLowerCase();
-
-         return (
-            nomeGuerra.includes(input) ||
-            pg.includes(input) ||
-            roleName.includes(input)
-         );
-      });
-   }, [debouncedFilter, userRoles]);
-
-   // Memoizar função de atualização de usuários
-   const updateUserRoles = useCallback(async () => {
-      setIsUpdating(true);
+   const refreshUserRoles = useCallback(async () => {
       try {
          const data = await getUsersRoles();
          data.sort((a, b) => {
@@ -117,109 +49,12 @@ export default function RolePage() {
             type: "error",
             message: "Erro ao carregar perfis de usuários",
          });
-      } finally {
-         setIsUpdating(false);
       }
    }, [push]);
 
-   // Memoizar callbacks para evitar recriação
-   const pathUserRole = useCallback(
-      async (userId: number, roleId: string) => {
-         try {
-            const res = await updateUserRole(roleId, userId);
-            const data = await res.json();
-            if (res.ok) {
-               push({ type: "success", message: data.detail });
-               updateUserRoles();
-            } else {
-               push({ type: "error", message: data.detail });
-            }
-         } catch (error) {
-            push({ type: "error", message: "Erro ao atualizar perfil" });
-         }
-      },
-      [push, updateUserRoles]
-   );
-
-   const delUserRole = useCallback(
-      async (userId: number, roleId: number, userName: string) => {
-         const confirmDel = window.confirm(
-            `Tem certeza que deseja remover o perfil de ${userName.toUpperCase()}?`
-         );
-
-         if (confirmDel) {
-            try {
-               const res = await deleteUserRole(roleId, userId);
-               const data = await res.json();
-               if (res.ok) {
-                  push({ type: "success", message: data.detail });
-                  updateUserRoles();
-               } else {
-                  push({ type: "error", message: data.detail });
-               }
-            } catch (error) {
-               push({ type: "error", message: "Erro ao deletar perfil" });
-            }
-         }
-      },
-      [push, updateUserRoles]
-   );
-
-   const devLogin = useCallback(
-      async (userId: number) => {
-         const confirmLogin = window.confirm(`Fazer login como este usuário?`);
-
-         if (!confirmLogin) return;
-
-         try {
-            const response = await devLoginApi(userId);
-
-            if (!response.ok) {
-               const error = await response.json();
-               push({
-                  type: "error",
-                  message: error.detail || "Erro ao fazer login",
-               });
-               return;
-            }
-
-            const data = await response.json();
-
-            if (data.access_token) {
-               setCookie("token", data.access_token, {
-                  maxAge: 24 * 60 * 60,
-               });
-
-               push({
-                  type: "success",
-                  message: "Login realizado com sucesso!",
-               });
-
-               window.location.href = "/";
-            } else {
-               push({
-                  type: "error",
-                  message: "Token não recebido do servidor",
-               });
-            }
-         } catch (error) {
-            push({
-               type: "error",
-               message: "Erro ao fazer login como usuário",
-            });
-         }
-      },
-      [push]
-   );
-
-   // Consolidar TODAS as chamadas API em paralelo (Otimização crítica!)
    useEffect(() => {
       const loadAllData = async () => {
-         setIsUpdating(true);
-         setIsLoadingMatrix(true);
-
          try {
-            // Executar TODAS as 4 APIs em paralelo (antes eram sequenciais)
             const [usersRolesData, rolesData, resourcesData, permissionsData] =
                await Promise.all([
                   getUsersRoles(),
@@ -228,7 +63,6 @@ export default function RolePage() {
                   getPermissions(),
                ]);
 
-            // Processar dados
             usersRolesData.sort((a, b) => {
                const antA = a.user.posto.ant;
                const antB = b.user.posto.ant;
@@ -248,7 +82,6 @@ export default function RolePage() {
                return a.action.localeCompare(b.action);
             });
 
-            // Atualizar estados
             setUserRoles(usersRolesData);
             setRoles(rolesData);
             setResources(resourcesData);
@@ -258,9 +91,6 @@ export default function RolePage() {
                type: "error",
                message: "Erro ao carregar dados",
             });
-         } finally {
-            setIsUpdating(false);
-            setIsLoadingMatrix(false);
          }
       };
 
@@ -280,46 +110,27 @@ export default function RolePage() {
    }
 
    return (
-      <>
-         <UserAddRole
-            show={showAddModal}
-            setShow={setShowAddModal}
-            update={updateUserRoles}
-            usersIgnr={userRoles.map((u) => u.user.id)}
-            roles={roles}
-         />
+      <div className='p-2 grid gap-4'>
+         <Tabs
+            aria-label='Tabs de gerenciamento de perfis'
+            variant='underline'
+         >
+            <TabItem active title='Usuários' icon={FaUsers}>
+               <UsersTab
+                  userRoles={userRoles}
+                  roles={roles}
+                  onRefreshUsers={refreshUserRoles}
+               />
+            </TabItem>
 
-         <div className='p-2 grid gap-4'>
-            <Tabs
-               aria-label='Tabs de gerenciamento de perfis'
-               variant='underline'
-            >
-               <TabItem active title='Usuários' icon={FaUsers}>
-                  <UsersTab
-                     filteredUsers={filteredUsers}
-                     roles={roles}
-                     filterName={filterName}
-                     isUpdating={isUpdating}
-                     onFilterChange={setFilterName}
-                     onRefresh={updateUserRoles}
-                     onAddUser={() => setShowAddModal(true)}
-                     onRoleChange={pathUserRole}
-                     onDevLogin={devLogin}
-                     onDeleteRole={delUserRole}
-                  />
-               </TabItem>
-
-               <TabItem title='Permissões' icon={FaShield}>
-                  <PermissionsMatrixTab
-                     isLoading={isLoadingMatrix}
-                     resources={resources}
-                     permissions={permissions}
-                     matrix={matrix}
-                     roles={roles}
-                  />
-               </TabItem>
-            </Tabs>
-         </div>
-      </>
+            <TabItem title='Permissões' icon={FaShield}>
+               <PermissionsMatrixTab
+                  resources={resources}
+                  permissions={permissions}
+                  roles={roles}
+               />
+            </TabItem>
+         </Tabs>
+      </div>
    );
 }

@@ -6,14 +6,20 @@ import {
    TableHead,
    TableHeadCell,
    TableRow,
-   Select,
    TextInput,
    Button,
    Tooltip,
 } from "flowbite-react";
-import { FaUsers, FaPlus, FaMagnifyingGlass, FaArrowRightToBracket, FaRegTrashCan } from "react-icons/fa6";
+import {
+   FaUsers,
+   FaPlus,
+   FaMagnifyingGlass,
+   FaArrowRightToBracket,
+   FaRegTrashCan,
+} from "react-icons/fa6";
 import { HiRefresh } from "react-icons/hi";
-import type { UserWithRole, RoleDetail } from "./types";
+import type { UserWithRole, RoleDetail } from "../../config/types";
+import { RoleBadgeDropdown } from "./RoleBadgeDropdown";
 
 interface UsersTableProps {
    filteredUsers: UserWithRole[];
@@ -56,10 +62,12 @@ export const UsersTable = memo(function UsersTable({
                         onClick={onRefresh}
                         disabled={isUpdating}
                      >
-                        <HiRefresh className={isUpdating ? "animate-spin" : ""} />
+                        <HiRefresh
+                           className={isUpdating ? "animate-spin" : ""}
+                        />
                      </Button>
                   </Tooltip>
-                  <Button size='sm' color='blue' onClick={onAddUser}>
+                  <Button size='sm' color='red' onClick={onAddUser}>
                      <FaPlus className='mr-2' />
                      Adicionar
                   </Button>
@@ -81,7 +89,9 @@ export const UsersTable = memo(function UsersTable({
                   <TableRow>
                      <TableHeadCell>Usuário</TableHeadCell>
                      <TableHeadCell>Perfil</TableHeadCell>
-                     <TableHeadCell className='text-center'>Ações</TableHeadCell>
+                     <TableHeadCell className='text-center'>
+                        Ações
+                     </TableHeadCell>
                   </TableRow>
                </TableHead>
                <TableBody className='divide-y'>
@@ -116,25 +126,23 @@ export const UsersTable = memo(function UsersTable({
                            >
                               <TableCell className='font-medium'>
                                  <div className='flex items-center gap-3'>
-                                    <div className='hidden w-10 h-10 rounded-full bg-blue-600 sm:flex items-center justify-center text-white font-bold text-sm shadow uppercase'>
+                                    <div className='hidden w-10 h-10 rounded-full bg-red-600 sm:flex items-center justify-center text-white font-bold text-sm shadow uppercase'>
                                        {ur.user.p_g}
                                     </div>
-                                    <span className='uppercase'>{userName}</span>
+                                    <span className='uppercase'>
+                                       {ur.user.nome_guerra}
+                                    </span>
                                  </div>
                               </TableCell>
                               <TableCell>
-                                 <Select
-                                    onChange={(e) =>
-                                       onRoleChange(ur.user.id, e.target.value)
+                                 <RoleBadgeDropdown
+                                    currentRole={ur.role}
+                                    roles={roles}
+                                    onRoleChange={(roleId) =>
+                                       onRoleChange(ur.user.id, roleId)
                                     }
-                                    value={ur.role.id}
-                                 >
-                                    {roles.map((r) => (
-                                       <option key={r.id} value={r.id}>
-                                          {r.name.toUpperCase()}
-                                       </option>
-                                    ))}
-                                 </Select>
+                                    disabled={isUpdating}
+                                 />
                               </TableCell>
                               <TableCell>
                                  <div className='flex justify-center gap-2'>

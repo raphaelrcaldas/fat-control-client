@@ -1,5 +1,5 @@
 import { memo, useMemo } from "react";
-import type { RoleDetail, PermissionMatrix as PermissionMatrixType } from "./types";
+import type { RoleDetail, PermissionMatrix as PermissionMatrixType } from "../../config/types";
 
 interface PermissionMatrixProps {
    matrix: PermissionMatrixType;

@@ -44,6 +44,14 @@ export function IndispForm({ open, setOpen, trip, update, indisp }) {
    const [dateEnd, setDateEnd] = useState(defaultValues.dateEnd);
    const [obs, setObs] = useState(defaultValues.obs);
 
+   // Efeito para atualizar os estados quando a indisponibilidade mudar
+   useEffect(() => {
+      setMtv(defaultValues.mtv);
+      setDateStart(defaultValues.dateStart);
+      setDateEnd(defaultValues.dateEnd);
+      setObs(defaultValues.obs);
+   }, [defaultValues]);
+
    // Efeito para sincronizar a data final com a inicial
    useEffect(() => {
       if (dateStart && dateEnd && dateEnd < dateStart) {

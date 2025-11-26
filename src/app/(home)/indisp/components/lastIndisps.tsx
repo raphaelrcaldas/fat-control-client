@@ -67,7 +67,7 @@ export function LastIndisps({ indisps, update }) {
                return (
                   <div
                      className='flex items-center select-none gap-2 hover:bg-blue-50 border-b border-gray-100 px-2 py-1 uppercase text-xs last:border-b-0 transition-colors rounded cursor-pointer'
-                     key={idx}
+                     key={idp.id || `${idp.trig}-${idp.created_at}-${idx}`}
                      onClick={() => handleIndispClick(idp)}
                   >
                      <span className='font-bold w-10 text-gray-900 text-center flex-shrink-0'>

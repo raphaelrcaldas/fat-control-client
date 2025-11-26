@@ -95,8 +95,8 @@ export default function UserAddRole({
          <Modal show={show} size='lg' onClose={onClose}>
             <ModalHeader className='border-b'>
                <div className='flex items-center gap-3'>
-                  <div className='w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center'>
-                     <FaUserPlus className='text-blue-600' />
+                  <div className='w-10 h-10 rounded-full bg-red-100 flex items-center justify-center'>
+                     <FaUserPlus className='text-red-600' />
                   </div>
                   <div>
                      <h3 className='text-xl font-semibold'>
@@ -125,9 +125,9 @@ export default function UserAddRole({
                      </label>
                      <div className='flex gap-2 items-center'>
                         {selectedUser ? (
-                           <div className='flex-1 p-3 bg-green-50 border border-green-200 rounded-lg flex items-center justify-between'>
+                           <div className='flex-1 p-3 bg-blue-50 border border-blue-200 rounded-lg flex items-center justify-between'>
                               <div className='flex items-center gap-3'>
-                                 <div className='w-10 h-10 rounded-full bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center text-white font-bold shadow uppercase'>
+                                 <div className='w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white font-bold shadow uppercase'>
                                     {selectedUser.posto.short}
                                  </div>
                                  <div>
@@ -155,10 +155,7 @@ export default function UserAddRole({
                               </p>
                            </div>
                         )}
-                        <Button
-                           color='blue'
-                           onClick={() => setShowSearch(true)}
-                        >
+                        <Button color='red' onClick={() => setShowSearch(true)}>
                            <FaSearch className='mr-2' />
                            {selectedUser ? "Trocar" : "Buscar"}
                         </Button>
@@ -177,7 +174,7 @@ export default function UserAddRole({
                            setValidationError("");
                         }}
                         color={selectedRole ? "gray" : "gray"}
-                        className={selectedRole ? "border-green-300" : ""}
+                        className={selectedRole ? "border-blue-300" : ""}
                      >
                         <option value=''>Selecione um perfil</option>
                         {roles.map((r) => (
@@ -187,10 +184,10 @@ export default function UserAddRole({
                         ))}
                      </Select>
                      {selectedRole && (
-                        <Alert color='blue' className='mt-2'>
+                        <Alert color='warning' className='mt-2'>
                            <div className='flex items-start gap-2'>
                               <FaCheckCircle className='mt-0.5 flex-shrink-0' />
-                              <div className='text-sm'>Perfil selecionado</div>
+                              <div>Perfil selecionado</div>
                            </div>
                         </Alert>
                      )}
@@ -198,7 +195,7 @@ export default function UserAddRole({
 
                   {/* Preview da ação */}
                   {isFormValid && (
-                     <Alert color='info'>
+                     <Alert color='warning'>
                         <div className='flex items-start gap-2'>
                            <FaCheckCircle className='mt-0.5 flex-shrink-0' />
                            <div className='text-sm'>
@@ -245,7 +242,7 @@ export default function UserAddRole({
                      Cancelar
                   </Button>
                   <Button
-                     color='blue'
+                     color='red'
                      onClick={handleAdd}
                      disabled={isSaving || !isFormValid}
                      className='flex-1 sm:flex-none'
