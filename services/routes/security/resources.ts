@@ -2,8 +2,8 @@ import { z } from "zod";
 import request from "../../Api";
 import { secRoute } from ".";
 
-const resourcesPath = secRoute + "resources";
-const permissionsPath = secRoute + "permissions";
+const resourcesPath = secRoute + "resources/";
+const permissionsPath = secRoute + "permissions/";
 
 // Zod Schemas (equivalentes aos Pydantic schemas do backend)
 
