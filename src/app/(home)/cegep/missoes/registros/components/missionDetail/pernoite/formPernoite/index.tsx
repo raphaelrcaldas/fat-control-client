@@ -9,7 +9,7 @@ import { IoMdSearch } from "react-icons/io";
 import { useState, useMemo } from "react";
 import { Cidade } from "services/routes/cities";
 import { Pernoite } from "services/routes/cegep/missoes";
-import { SearchLocal } from "../searchLocal";
+import { SearchLocal } from "@/components/location/SearchLocal";
 import { DeletePernoiteModal } from "../deletePernoiteModal";
 
 export function FormPernoite({
@@ -403,7 +403,9 @@ export function FormPernoite({
             onClose={() => setShowDeleteModal(false)}
             onConfirm={confirmDelete}
             pernoiteInfo={{
-               cidade: local.nome ? `${local.nome}, ${local.uf}` : "Não informado",
+               cidade: local.nome
+                  ? `${local.nome}, ${local.uf}`
+                  : "Não informado",
                dataIni: dataIni
                   ? new Date(dataIni).toLocaleDateString("pt-BR", {
                        day: "2-digit",

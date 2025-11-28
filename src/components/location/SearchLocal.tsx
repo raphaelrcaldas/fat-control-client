@@ -12,12 +12,20 @@ import { IoMdSearch } from "react-icons/io";
 import { MdLocationCity } from "react-icons/md";
 import { getCities } from "services/routes/cities";
 
-export function SearchLocal({ show, setShow, setLocal }) {
-   const [cities, setCities] = useState([]);
+interface SearchLocalProps {
+   show: boolean;
+   setShow: (show: boolean) => void;
+   setLocal: (local: { codigo: number; nome: string; uf: string }) => void;
+}
+
+export function SearchLocal({ show, setShow, setLocal }: SearchLocalProps) {
+   const [cities, setCities] = useState<
+      Array<{ codigo: number; nome: string; uf: string }>
+   >([]);
    const [searchCity, setSearchCity] = useState("");
    const [isLoading, setIsLoading] = useState(false);
    const [hasSearched, setHasSearched] = useState(false);
-   const [hoveredIndex, setHoveredIndex] = useState(null);
+   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
    useEffect(() => {
       if (!show) {
@@ -51,32 +59,29 @@ export function SearchLocal({ show, setShow, setLocal }) {
       setShow(false);
    }
 
-   function onSetLocal(local) {
+   function onSetLocal(local: { codigo: number; nome: string; uf: string }) {
       setLocal(local);
       onClose();
    }
 
    return (
-      <Modal
-         size='xl'
-         show={show}
-         onClose={onClose}
-         dismissible
-      >
+      <Modal size="xl" show={show} onClose={onClose} dismissible>
          <ModalHeader className="border-b border-gray-200 pb-4">
             <div className="flex items-center gap-2">
                <MdLocationCity className="text-blue-600 size-6" />
-               <span className="text-xl font-semibold text-gray-800">Buscar Cidade</span>
+               <span className="text-xl font-semibold text-gray-800">
+                  Buscar Cidade
+               </span>
             </div>
          </ModalHeader>
          <ModalBody className="p-6">
             <div className="space-y-4">
                {/* Search Input Section */}
-               <div className='flex flex-row gap-3'>
+               <div className="flex flex-row gap-3">
                   <div className="relative flex-1">
                      <TextInput
-                        placeholder='Digite o nome da cidade...'
-                        className='w-full'
+                        placeholder="Digite o nome da cidade..."
+                        className="w-full"
                         value={searchCity}
                         onChange={(e) => setSearchCity(e.target.value)}
                         onKeyDown={(e) => {
@@ -102,7 +107,7 @@ export function SearchLocal({ show, setShow, setLocal }) {
                   <Button
                      onClick={searchCities}
                      disabled={isLoading || !searchCity.trim()}
-                     color='blue'
+                     color="blue"
                      size="lg"
                      className="px-6"
                   >
@@ -113,7 +118,7 @@ export function SearchLocal({ show, setShow, setLocal }) {
                         </div>
                      ) : (
                         <div className="flex items-center gap-2">
-                           <IoMdSearch className='size-5' />
+                           <IoMdSearch className="size-5" />
                            <span>Buscar</span>
                         </div>
                      )}
@@ -121,12 +126,16 @@ export function SearchLocal({ show, setShow, setLocal }) {
                </div>
 
                {/* Results Section */}
-               <div className='flex flex-col rounded-xl border border-gray-200 bg-gradient-to-br from-slate-50 to-gray-50 shadow-sm overflow-hidden'>
+               <div className="flex flex-col rounded-xl border border-gray-200 bg-gradient-to-br from-slate-50 to-gray-50 shadow-sm overflow-hidden">
                   {isLoading ? (
                      <div className="flex flex-col items-center justify-center py-16 px-4">
                         <Spinner size="xl" />
-                        <p className="text-gray-600 font-medium">Procurando cidades...</p>
-                        <p className="text-gray-400 text-sm mt-1">Isso pode levar alguns segundos</p>
+                        <p className="text-gray-600 font-medium">
+                           Procurando cidades...
+                        </p>
+                        <p className="text-gray-400 text-sm mt-1">
+                           Isso pode levar alguns segundos
+                        </p>
                      </div>
                   ) : cities.length === 0 ? (
                      <div className="flex flex-col items-center justify-center py-16 px-4">
@@ -135,14 +144,18 @@ export function SearchLocal({ show, setShow, setLocal }) {
                         </div>
                         {hasSearched ? (
                            <>
-                              <p className="text-gray-700 font-semibold text-lg">Nenhuma cidade encontrada</p>
+                              <p className="text-gray-700 font-semibold text-lg">
+                                 Nenhuma cidade encontrada
+                              </p>
                               <p className="text-gray-500 text-sm mt-2 text-center max-w-xs">
                                  Tente buscar novamente com um nome diferente
                               </p>
                            </>
                         ) : (
                            <>
-                              <p className="text-gray-700 font-semibold text-lg">Pronto para buscar</p>
+                              <p className="text-gray-700 font-semibold text-lg">
+                                 Pronto para buscar
+                              </p>
                               <p className="text-gray-500 text-sm mt-2 text-center max-w-xs">
                                  Digite o nome de uma cidade e clique em buscar
                               </p>
@@ -160,25 +173,29 @@ export function SearchLocal({ show, setShow, setLocal }) {
                                     className={`
                                        flex flex-row items-center gap-4 p-4
                                        transition-all duration-200 cursor-pointer
-                                       ${isHovered
-                                          ? 'bg-blue-50 shadow-sm'
-                                          : 'bg-white hover:bg-gray-50'
+                                       ${
+                                          isHovered
+                                             ? "bg-blue-50 shadow-sm"
+                                             : "bg-white hover:bg-gray-50"
                                        }
                                     `}
                                     onClick={() => onSetLocal(citie)}
                                     onMouseEnter={() => setHoveredIndex(index)}
                                     onMouseLeave={() => setHoveredIndex(null)}
                                  >
-                                    <div className={`
+                                    <div
+                                       className={`
                                        flex-shrink-0 transition-all duration-200
-                                       ${isHovered ? 'scale-110' : 'scale-100'}
-                                    `}>
+                                       ${isHovered ? "scale-110" : "scale-100"}
+                                    `}
+                                    >
                                        <FaCheckCircle
                                           className={`
                                              size-6 transition-colors duration-200
-                                             ${isHovered
-                                                ? 'text-blue-600'
-                                                : 'text-gray-300'
+                                             ${
+                                                isHovered
+                                                   ? "text-blue-600"
+                                                   : "text-gray-300"
                                              }
                                           `}
                                        />
@@ -188,37 +205,50 @@ export function SearchLocal({ show, setShow, setLocal }) {
                                           <FaMapMarkerAlt
                                              className={`
                                                 size-4 transition-colors duration-200
-                                                ${isHovered ? 'text-blue-500' : 'text-gray-400'}
+                                                ${
+                                                   isHovered
+                                                      ? "text-blue-500"
+                                                      : "text-gray-400"
+                                                }
                                              `}
                                           />
-                                          <span className={`
+                                          <span
+                                             className={`
                                              text-base transition-all duration-200
-                                             ${isHovered
-                                                ? 'font-semibold text-gray-900'
-                                                : 'font-medium text-gray-700'
+                                             ${
+                                                isHovered
+                                                   ? "font-semibold text-gray-900"
+                                                   : "font-medium text-gray-700"
                                              }
-                                          `}>
+                                          `}
+                                          >
                                              {citie.nome}
                                           </span>
-                                          <span className={`
+                                          <span
+                                             className={`
                                              px-2 py-0.5 rounded-full text-xs font-medium
                                              transition-all duration-200
-                                             ${isHovered
-                                                ? 'bg-blue-600 text-white'
-                                                : 'bg-gray-200 text-gray-600'
+                                             ${
+                                                isHovered
+                                                   ? "bg-blue-600 text-white"
+                                                   : "bg-gray-200 text-gray-600"
                                              }
-                                          `}>
+                                          `}
+                                          >
                                              {citie.uf}
                                           </span>
                                        </div>
                                     </div>
-                                    <div className={`
+                                    <div
+                                       className={`
                                        text-sm transition-all duration-200
-                                       ${isHovered
-                                          ? 'text-blue-600 font-medium opacity-100'
-                                          : 'text-gray-400 opacity-0'
+                                       ${
+                                          isHovered
+                                             ? "text-blue-600 font-medium opacity-100"
+                                             : "text-gray-400 opacity-0"
                                        }
-                                    `}>
+                                    `}
+                                    >
                                        Selecionar →
                                     </div>
                                  </div>
@@ -233,8 +263,12 @@ export function SearchLocal({ show, setShow, setLocal }) {
                {cities.length > 0 && !isLoading && (
                   <div className="text-center">
                      <p className="text-sm text-gray-500">
-                        <span className="font-semibold text-blue-600">{cities.length}</span>
-                        {cities.length === 1 ? ' cidade encontrada' : ' cidades encontradas'}
+                        <span className="font-semibold text-blue-600">
+                           {cities.length}
+                        </span>
+                        {cities.length === 1
+                           ? " cidade encontrada"
+                           : " cidades encontradas"}
                      </p>
                   </div>
                )}
