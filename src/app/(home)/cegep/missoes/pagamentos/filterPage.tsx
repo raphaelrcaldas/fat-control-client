@@ -1,11 +1,5 @@
 import { useEffect, useState, useMemo, useCallback } from "react";
-import {
-   Label,
-   TextInput,
-   Select,
-   Checkbox,
-   Badge,
-} from "flowbite-react";
+import { Label, TextInput, Select, Checkbox, Badge } from "flowbite-react";
 import { Spinner } from "@/components/Spinner";
 import { getPgts } from "services/routes/cegep/financeiro";
 import { UserRow } from "./components/userRow";
@@ -16,6 +10,11 @@ import {
    HiCurrencyDollar,
    HiFilter,
    HiX,
+   HiHashtag,
+   HiClipboardList,
+   HiUser,
+   HiCalendar,
+   HiTag,
 } from "react-icons/hi";
 
 export function FilterPage({ active }) {
@@ -60,15 +59,26 @@ export function FilterPage({ active }) {
    }, [misRecords, selectedIds]);
 
    // Agrupa os filtros em um objeto para debounce
-   const filters = useMemo(() => ({
-      userSearch,
-      tipoDoc,
-      nDoc,
-      selectedTipo,
-      selectedSit,
-      dataInicio,
-      dataFim,
-   }), [userSearch, tipoDoc, nDoc, selectedTipo, selectedSit, dataInicio, dataFim]);
+   const filters = useMemo(
+      () => ({
+         userSearch,
+         tipoDoc,
+         nDoc,
+         selectedTipo,
+         selectedSit,
+         dataInicio,
+         dataFim,
+      }),
+      [
+         userSearch,
+         tipoDoc,
+         nDoc,
+         selectedTipo,
+         selectedSit,
+         dataInicio,
+         dataFim,
+      ]
+   );
 
    const debouncedFilters = useDebouncedValue(filters, 500);
 
@@ -77,10 +87,12 @@ export function FilterPage({ active }) {
 
       let req: { [key: string]: any } = {};
 
-      if (debouncedFilters.userSearch) req.user = debouncedFilters.userSearch.toLowerCase();
+      if (debouncedFilters.userSearch)
+         req.user = debouncedFilters.userSearch.toLowerCase();
       if (debouncedFilters.tipoDoc) req.tipo_doc = debouncedFilters.tipoDoc;
       if (debouncedFilters.nDoc) req.n_doc = debouncedFilters.nDoc;
-      if (debouncedFilters.selectedTipo) req.tipo = debouncedFilters.selectedTipo;
+      if (debouncedFilters.selectedTipo)
+         req.tipo = debouncedFilters.selectedTipo;
       if (debouncedFilters.selectedSit) req.sit = debouncedFilters.selectedSit;
       if (debouncedFilters.dataInicio) req.ini = debouncedFilters.dataInicio;
       if (debouncedFilters.dataFim) req.fim = debouncedFilters.dataFim;
@@ -135,7 +147,9 @@ export function FilterPage({ active }) {
       nDoc ||
       selectedTipo ||
       selectedSit ||
-      userSearch
+      userSearch ||
+      dataInicio ||
+      dataFim
    );
 
    const clearFilters = () => {
@@ -144,8 +158,10 @@ export function FilterPage({ active }) {
       setSelectedTipo("");
       setSelectedSit("");
       setUserSearch("");
-      setDataInicio("");
-      setDataFim("");
+      const hoje = new Date();
+      const quinzeDiasAntes = new Date(hoje.getFullYear(), 0, 1);
+      setDataInicio(quinzeDiasAntes.toISOString().split("T")[0]);
+      setDataFim(hoje.toISOString().split("T")[0]);
    };
 
    return (
@@ -212,6 +228,8 @@ export function FilterPage({ active }) {
                                  selectedTipo,
                                  selectedSit,
                                  userSearch,
+                                 dataInicio,
+                                 dataFim,
                               }).filter((v) => v).length
                            }
                         </Badge>
@@ -220,6 +238,161 @@ export function FilterPage({ active }) {
                </div>
             </div>
          </section>
+
+         {/* Active Filters Tags */}
+         {hasActiveFilters && (
+            <section>
+               <div className='flex flex-wrap items-center gap-2'>
+                  <span className='text-xs font-medium text-gray-600'>
+                     Filtros ativos:
+                  </span>
+
+                  {tipoDoc && (
+                     <Badge color='red'>
+                        <div className='flex items-center gap-1.5'>
+                           <HiDocumentText className='w-3 h-3' />
+                           <span>
+                              Ordem: {tipoDoc === "om" ? "Missão" : "Serviço"}
+                           </span>
+                           <button
+                              onClick={() => setTipoDoc("")}
+                              className='ml-1 hover:text-red-600'
+                           >
+                              <HiX className='w-3 h-3' />
+                           </button>
+                        </div>
+                     </Badge>
+                  )}
+
+                  {nDoc && (
+                     <Badge color='red'>
+                        <div className='flex items-center gap-1.5'>
+                           <HiHashtag className='w-3 h-3' />
+                           <span>Nº {nDoc}</span>
+                           <button
+                              onClick={() => setNDoc(undefined)}
+                              className='ml-1 hover:text-red-600'
+                           >
+                              <HiX className='w-3 h-3' />
+                           </button>
+                        </div>
+                     </Badge>
+                  )}
+
+                  {selectedTipo && (
+                     <Badge color='red'>
+                        <div className='flex items-center gap-1.5'>
+                           <HiClipboardList className='w-3 h-3' />
+                           <span>Tipo: {selectedTipo.toUpperCase()}</span>
+                           <button
+                              onClick={() => setSelectedTipo("")}
+                              className='ml-1 hover:text-red-600'
+                           >
+                              <HiX className='w-3 h-3' />
+                           </button>
+                        </div>
+                     </Badge>
+                  )}
+
+                  {selectedSit && (
+                     <Badge color='red'>
+                        <div className='flex items-center gap-1.5'>
+                           <HiTag className='w-3 h-3' />
+                           <span>
+                              Situação:{" "}
+                              {selectedSit === "d"
+                                 ? "Diária"
+                                 : selectedSit === "c"
+                                 ? "Comissionado"
+                                 : "Grat Rep"}
+                           </span>
+                           <button
+                              onClick={() => setSelectedSit("")}
+                              className='ml-1 hover:text-red-600'
+                           >
+                              <HiX className='w-3 h-3' />
+                           </button>
+                        </div>
+                     </Badge>
+                  )}
+
+                  {userSearch && (
+                     <Badge color='red'>
+                        <div className='flex items-center gap-1.5'>
+                           <HiUser className='w-3 h-3' />
+                           <span>Militar: {userSearch}</span>
+                           <button
+                              onClick={() => setUserSearch("")}
+                              className='ml-1 hover:text-red-600'
+                           >
+                              <HiX className='w-3 h-3' />
+                           </button>
+                        </div>
+                     </Badge>
+                  )}
+
+                  {dataInicio && (
+                     <Badge color='red'>
+                        <div className='flex items-center gap-1.5'>
+                           <HiCalendar className='w-3 h-3' />
+                           <span>
+                              Afastamento:{" "}
+                              {new Date(
+                                 dataInicio + "T00:00:00"
+                              ).toLocaleDateString("pt-BR")}
+                           </span>
+                           <button
+                              onClick={() => {
+                                 const hoje = new Date();
+                                 const quinzeDiasAntes = new Date(
+                                    hoje.getFullYear(),
+                                    0,
+                                    1
+                                 );
+                                 setDataInicio(
+                                    quinzeDiasAntes.toISOString().split("T")[0]
+                                 );
+                              }}
+                              className='ml-1 hover:text-red-600'
+                           >
+                              <HiX className='w-3 h-3' />
+                           </button>
+                        </div>
+                     </Badge>
+                  )}
+
+                  {dataFim && (
+                     <Badge color='red'>
+                        <div className='flex items-center gap-1.5'>
+                           <HiCalendar className='w-3 h-3' />
+                           <span>
+                              Regresso:{" "}
+                              {new Date(
+                                 dataFim + "T00:00:00"
+                              ).toLocaleDateString("pt-BR")}
+                           </span>
+                           <button
+                              onClick={() => {
+                                 const hoje = new Date();
+                                 setDataFim(hoje.toISOString().split("T")[0]);
+                              }}
+                              className='ml-1 hover:text-red-600'
+                           >
+                              <HiX className='w-3 h-3' />
+                           </button>
+                        </div>
+                     </Badge>
+                  )}
+
+                  <button
+                     onClick={clearFilters}
+                     className='text-xs text-gray-500 hover:text-gray-700 underline'
+                  >
+                     Limpar todos
+                  </button>
+               </div>
+            </section>
+         )}
 
          {/* Filters Section */}
          {showFilters && (
@@ -240,10 +413,11 @@ export function FilterPage({ active }) {
                      )}
                   </div>
 
-                  <div className='flex flex-wrap gap-3 justify-around'>
+                  <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7 gap-3'>
                      {/* Tipo da Ordem */}
                      <div>
-                        <Label className='mb-1.5 text-xs text-gray-600'>
+                        <Label className='mb-1.5 text-xs text-gray-600 flex items-center gap-1.5'>
+                           <HiDocumentText className='text-gray-500' />
                            Tipo da Ordem
                         </Label>
                         <Select
@@ -259,8 +433,9 @@ export function FilterPage({ active }) {
                      </div>
 
                      {/* Nº da Ordem */}
-                     <div className='w-24'>
-                        <Label className='mb-1.5 text-xs text-gray-600'>
+                     <div>
+                        <Label className='mb-1.5 text-xs text-gray-600 flex items-center gap-1.5'>
+                           <HiHashtag className='text-gray-500' />
                            Nº da Ordem
                         </Label>
                         <TextInput
@@ -296,7 +471,8 @@ export function FilterPage({ active }) {
 
                      {/* Tipo de Missão */}
                      <div>
-                        <Label className='mb-1.5 text-xs text-gray-600'>
+                        <Label className='mb-1.5 text-xs text-gray-600 flex items-center gap-1.5'>
+                           <HiClipboardList className='text-gray-500' />
                            Tipo de Missão
                         </Label>
                         <Select
@@ -314,7 +490,8 @@ export function FilterPage({ active }) {
 
                      {/* Situação */}
                      <div>
-                        <Label className='mb-1.5 text-xs text-gray-600'>
+                        <Label className='mb-1.5 text-xs text-gray-600 flex items-center gap-1.5'>
+                           <HiTag className='text-gray-500' />
                            Situação
                         </Label>
                         <Select
@@ -332,21 +509,23 @@ export function FilterPage({ active }) {
 
                      {/* Militar */}
                      <div>
-                        <Label className='mb-1.5 text-xs text-gray-600'>
+                        <Label className='mb-1.5 text-xs text-gray-600 flex items-center gap-1.5'>
+                           <HiUser className='text-gray-500' />
                            Militar
                         </Label>
                         <TextInput
                            type='text'
                            value={userSearch}
                            onChange={(e) => setUserSearch(e.target.value)}
-                           placeholder='Nome de guerra'
+                           placeholder='Nome de completo ou de guerra'
                            sizing='sm'
                         />
                      </div>
 
-                     {/* Data Início */}
+                     {/* Data Afastamento */}
                      <div>
-                        <Label className='mb-1.5 text-xs text-gray-600'>
+                        <Label className='mb-1.5 text-xs text-gray-600 flex items-center gap-1.5'>
+                           <HiCalendar className='text-gray-500' />
                            Afastamento
                         </Label>
                         <input
@@ -357,9 +536,10 @@ export function FilterPage({ active }) {
                         />
                      </div>
 
-                     {/* Data Fim */}
+                     {/* Data Regresso */}
                      <div>
-                        <Label className='mb-1.5 text-xs text-gray-600'>
+                        <Label className='mb-1.5 text-xs text-gray-600 flex items-center gap-1.5'>
+                           <HiCalendar className='text-gray-500' />
                            Regresso
                         </Label>
                         <input
