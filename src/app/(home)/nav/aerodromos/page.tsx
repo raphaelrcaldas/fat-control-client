@@ -312,6 +312,20 @@ export default function AerodromoCadastro() {
          utc: -4,
          base_aerea: { nome: "Base Aérea de Campo Grande", sigla: "BACG" },
       },
+      {
+         id: "21",
+         nome: "Aeropuerto Presidente Carlos Ibáñez del Campo",
+         codigo_icao: "SCCI",
+         codigo_iata: "PUQ",
+         latitude: -53.0026,
+         longitude: -70.8546,
+         elevacao: 139,
+         codigo_cidade: null,
+         cidade_manual: "Punta Arenas",
+         pais: "Chile",
+         utc: -3,
+         base_aerea: null,
+      },
    ]);
 
    const [showModal, setShowModal] = useState(false);

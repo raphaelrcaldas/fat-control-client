@@ -1,18 +1,8 @@
+import { Cidade } from "services/routes/cities";
+
 export interface BaseAerea {
    nome: string;
    sigla: string;
-}
-
-export interface Estado {
-   codigo_uf: number;
-   nome: string;
-   uf: string;
-}
-
-export interface Cidade {
-   codigo: number;
-   nome: string;
-   uf: string;
 }
 
 export interface Aerodromo {

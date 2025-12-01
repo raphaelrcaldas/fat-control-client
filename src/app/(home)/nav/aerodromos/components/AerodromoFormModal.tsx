@@ -12,7 +12,8 @@ import {
 import { HiShieldCheck } from "react-icons/hi";
 import { MdFlight } from "react-icons/md";
 import { IoMdSearch } from "react-icons/io";
-import { Aerodromo, AerodromoFormData, Cidade } from "../types";
+import { Aerodromo, AerodromoFormData } from "../types";
+import { Cidade } from "services/routes/cities";
 import { SearchLocal } from "@/components/location/SearchLocal";
 
 interface AerodromoFormModalProps {
@@ -117,7 +118,11 @@ export default function AerodromoFormModal({
             {editingAerodromo ? "Editar Aeródromo" : "Novo Aeródromo"}
          </ModalHeader>
          <ModalBody>
-            <form onSubmit={handleSubmit} className='space-y-4'>
+            <form
+               onSubmit={handleSubmit}
+               className='space-y-4'
+               autoComplete='off'
+            >
                {/* Informações Básicas */}
                <div>
                   <h6 className='flex items-center gap-2 text-sm font-semibold text-gray-900 mb-3 pb-2 border-b border-gray-200'>
@@ -130,6 +135,7 @@ export default function AerodromoFormModal({
                         <TextInput
                            id='nome'
                            required
+                           autoComplete='off'
                            value={formData.nome}
                            onChange={(e) =>
                               setFormData({
@@ -145,8 +151,10 @@ export default function AerodromoFormModal({
                            <Label htmlFor='codigo_icao'>Código ICAO *</Label>
                            <TextInput
                               id='codigo_icao'
+                              name='codigo_icao_field'
                               required
                               maxLength={4}
+                              autoComplete='new-password'
                               placeholder='Ex: SBBR'
                               value={formData.codigo_icao}
                               onChange={(e) =>
@@ -161,7 +169,9 @@ export default function AerodromoFormModal({
                            <Label htmlFor='codigo_iata'>Código IATA</Label>
                            <TextInput
                               id='codigo_iata'
+                              name='codigo_iata_field'
                               maxLength={3}
+                              autoComplete='new-password'
                               placeholder='Ex: BSB'
                               value={formData.codigo_iata || ""}
                               onChange={(e) =>
@@ -178,6 +188,7 @@ export default function AerodromoFormModal({
                               id='utc'
                               type='number'
                               required
+                              autoComplete='off'
                               placeholder='Ex: -3'
                               value={formData.utc}
                               onChange={(e) =>
@@ -204,6 +215,7 @@ export default function AerodromoFormModal({
                         <TextInput
                            id='base_nome'
                            value={formData.base_aerea?.nome || ""}
+                           autoComplete='off'
                            onChange={(e) =>
                               setFormData({
                                  ...formData,
@@ -221,6 +233,7 @@ export default function AerodromoFormModal({
                         <TextInput
                            id='base_sigla'
                            maxLength={4}
+                           autoComplete='off'
                            value={formData.base_aerea?.sigla || ""}
                            onChange={(e) =>
                               setFormData({
@@ -312,6 +325,7 @@ export default function AerodromoFormModal({
                               id='pais'
                               required
                               value={formData.pais}
+                              autoComplete='off'
                               onChange={(e) =>
                                  setFormData({
                                     ...formData,
@@ -327,6 +341,7 @@ export default function AerodromoFormModal({
                               id='cidade_manual'
                               required
                               value={formData.cidade_manual || ""}
+                              autoComplete='off'
                               onChange={(e) =>
                                  setFormData({
                                     ...formData,
@@ -352,6 +367,7 @@ export default function AerodromoFormModal({
                            id='latitude'
                            type='number'
                            step='0.000001'
+                           autoComplete='off'
                            required
                            placeholder='Ex: -15.869722'
                            value={formData.latitude}
@@ -369,6 +385,7 @@ export default function AerodromoFormModal({
                            id='longitude'
                            type='number'
                            step='0.000001'
+                           autoComplete='off'
                            required
                            placeholder='Ex: -47.920556'
                            value={formData.longitude}
@@ -385,6 +402,7 @@ export default function AerodromoFormModal({
                         <TextInput
                            id='elevacao'
                            type='number'
+                           autoComplete='off'
                            required
                            placeholder='Ex: 3497'
                            value={formData.elevacao}

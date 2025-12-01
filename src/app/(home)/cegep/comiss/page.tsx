@@ -164,7 +164,7 @@ export default function ComissPage() {
                      </span>
 
                      {searchUser && (
-                        <Badge color='info'>
+                        <Badge color='red'>
                            <div className='flex items-center gap-1.5'>
                               <svg
                                  className='w-3 h-3'

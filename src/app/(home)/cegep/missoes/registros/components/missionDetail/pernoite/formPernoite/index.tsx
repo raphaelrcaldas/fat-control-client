@@ -40,7 +40,7 @@ export function FormPernoite({
          meiaDiaria: pnt ? pnt.meia_diaria : false,
          acDesloc: pnt ? pnt.acrec_desloc : false,
          obs: pnt ? pnt.obs : "",
-         local: pnt ? pnt.cidade : {},
+         local: pnt ? pnt.cidade : null,
       }),
       [pnt]
    );
@@ -50,7 +50,7 @@ export function FormPernoite({
    const [meiaDiaria, setMeiaDiaria] = useState(defaultValues.meiaDiaria);
    const [acDesloc, setAcDesloc] = useState(defaultValues.acDesloc);
    const [obs, setObs] = useState(defaultValues.obs);
-   const [local, setLocal] = useState<Cidade>(defaultValues.local);
+   const [local, setLocal] = useState<Cidade | null>(defaultValues.local);
 
    // Verifica se houve alteração em relação aos valores padrões
    const isChanged =
@@ -62,7 +62,7 @@ export function FormPernoite({
       local?.codigo !== defaultValues.local?.codigo;
 
    function onClose() {
-      setLocal({});
+      setLocal(null);
       setDataIni("");
       setDataFim("");
       setAcDesloc(false);
@@ -96,7 +96,7 @@ export function FormPernoite({
       }
 
       // Validar conflito de acréscimo de deslocamento
-      if (conflitoAcrescimoLocal(pnts, local.codigo, acDesloc, pnt)) {
+      if (local && conflitoAcrescimoLocal(pnts, local.codigo, acDesloc, pnt)) {
          errors.push(
             "- Existe conflito de acréscimo de deslocamento nessa localidade."
          );
@@ -111,6 +111,8 @@ export function FormPernoite({
    }
 
    function onSave() {
+      if (!local) return;
+
       const newPnt: Pernoite = {
          data_ini: dataIni,
          data_fim: dataFim,
@@ -145,7 +147,7 @@ export function FormPernoite({
          pnts.filter((p) => {
             const checkIni = p.data_ini !== dataIni;
             const checkFim = p.data_fim !== dataFim;
-            const checkLocal = p.cidade.codigo !== local.codigo;
+            const checkLocal = p.cidade.codigo !== local?.codigo;
             // Mantém apenas os que NÃO são iguais ao alvo
             return checkIni || checkFim || checkLocal;
          })
@@ -272,7 +274,7 @@ export function FormPernoite({
                      Localidade
                   </h3>
                   <div className='flex flex-row gap-3 justify-between items-center'>
-                     {local.nome ? (
+                     {local?.nome ? (
                         <div className='flex-1 bg-white border-2 border-green-300 rounded-lg px-4 py-3 shadow-sm'>
                            <div className='flex items-center gap-2'>
                               <span className='w-2 h-2 bg-green-500 rounded-full'></span>
@@ -403,7 +405,7 @@ export function FormPernoite({
             onClose={() => setShowDeleteModal(false)}
             onConfirm={confirmDelete}
             pernoiteInfo={{
-               cidade: local.nome
+               cidade: local?.nome
                   ? `${local.nome}, ${local.uf}`
                   : "Não informado",
                dataIni: dataIni
