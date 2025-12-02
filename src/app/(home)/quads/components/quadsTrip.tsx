@@ -275,7 +275,7 @@ function QuadRow({ quad, trip, onUpdate, onDelete }: QuadRowProps) {
             </TableCell>
             <TableCell>
                <div className='flex justify-center items-center gap-2'>
-                  <PermBased resource={"quad"} requiredPerm={"create"}>
+                  <PermBased resource={"quad_ops"} requiredPerm={"create"}>
                      {canEdit && (
                         <button
                            onClick={() => setShowForm(true)}
