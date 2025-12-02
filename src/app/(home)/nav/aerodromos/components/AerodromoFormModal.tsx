@@ -15,6 +15,7 @@ import { IoMdSearch } from "react-icons/io";
 import { Aerodromo, AerodromoFormData } from "../types";
 import { Cidade } from "services/routes/cities";
 import { SearchLocal } from "@/components/location/SearchLocal";
+import CoordinateInput from "../../CoordinateInput";
 
 interface AerodromoFormModalProps {
    show: boolean;
@@ -50,6 +51,7 @@ export default function AerodromoFormModal({
       null
    );
    const [showSearchModal, setShowSearchModal] = useState(false);
+   const [coordError, setCoordError] = useState<string>("");
 
    useEffect(() => {
       if (editingAerodromo) {
@@ -66,16 +68,35 @@ export default function AerodromoFormModal({
 
    const handleSubmit = (e: React.FormEvent) => {
       e.preventDefault();
+
+      // Validação de coordenadas
+      if (formData.latitude === 0 && formData.longitude === 0) {
+         setCoordError("Por favor, preencha as coordenadas (latitude e longitude)");
+         return;
+      }
+
+      if (formData.latitude === 0) {
+         setCoordError("Por favor, preencha a latitude");
+         return;
+      }
+
+      if (formData.longitude === 0) {
+         setCoordError("Por favor, preencha a longitude");
+         return;
+      }
+
       onSubmit(formData);
       setFormData(initialFormState);
       setIsNacional(true);
       setCidadeSelecionada(null);
+      setCoordError("");
    };
 
    const handleClose = () => {
       setFormData(initialFormState);
       setIsNacional(true);
       setCidadeSelecionada(null);
+      setCoordError("");
       onClose();
    };
 
@@ -357,46 +378,37 @@ export default function AerodromoFormModal({
 
                {/* Coordenadas */}
                <div>
-                  <h6 className='text-sm font-semibold text-gray-900'>
+                  <h6 className='text-sm font-semibold text-gray-900 mb-3'>
                      Coordenadas Geográficas
                   </h6>
-                  <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
-                     <div>
-                        <Label htmlFor='latitude'>Latitude *</Label>
-                        <TextInput
-                           id='latitude'
-                           type='number'
-                           step='0.000001'
-                           autoComplete='off'
-                           required
-                           placeholder='Ex: -15.869722'
-                           value={formData.latitude}
-                           onChange={(e) =>
-                              setFormData({
-                                 ...formData,
-                                 latitude: parseFloat(e.target.value) || 0,
-                              })
-                           }
-                        />
-                     </div>
-                     <div>
-                        <Label htmlFor='longitude'>Longitude *</Label>
-                        <TextInput
-                           id='longitude'
-                           type='number'
-                           step='0.000001'
-                           autoComplete='off'
-                           required
-                           placeholder='Ex: -47.920556'
-                           value={formData.longitude}
-                           onChange={(e) =>
-                              setFormData({
-                                 ...formData,
-                                 longitude: parseFloat(e.target.value) || 0,
-                              })
-                           }
-                        />
-                     </div>
+                  <div className='grid grid-cols-1 md:grid-cols-1 gap-4'>
+                     <CoordinateInput
+                        id='latitude'
+                        label='Latitude'
+                        type='latitude'
+                        value={formData.latitude}
+                        onChange={(value) => {
+                           setFormData({ ...formData, latitude: value });
+                           setCoordError("");
+                        }}
+                        required
+                     />
+                     <CoordinateInput
+                        id='longitude'
+                        label='Longitude'
+                        type='longitude'
+                        value={formData.longitude}
+                        onChange={(value) => {
+                           setFormData({ ...formData, longitude: value });
+                           setCoordError("");
+                        }}
+                        required
+                     />
+                     {coordError && (
+                        <div className='col-span-full'>
+                           <p className='text-sm text-red-600 mt-1'>{coordError}</p>
+                        </div>
+                     )}
                      <div>
                         <Label htmlFor='elevacao'>Elevação (pés) *</Label>
                         <TextInput

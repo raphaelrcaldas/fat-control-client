@@ -42,3 +42,6 @@ yarn-error.log*
 # claude
 CLAUDE.md
 /.claude/
+
+# vscode
+/.vscode/

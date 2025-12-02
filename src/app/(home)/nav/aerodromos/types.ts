@@ -6,20 +6,18 @@ export interface BaseAerea {
 }
 
 export interface Aerodromo {
-   id: string;
+   id: number;
    nome: string;
    codigo_icao: string;
-   codigo_iata?: string;
+   codigo_iata?: string | null;
    latitude: number;
    longitude: number;
    elevacao: number;
    pais: string;
    utc: number;
    base_aerea: BaseAerea | null;
-   // Para Brasil (busca via API)
    codigo_cidade: number | null;
-   cidade?: Cidade;
-   // Para outros países (input manual)
+   cidade?: Cidade | null;
    cidade_manual: string | null;
 }
 

@@ -25,7 +25,7 @@ const mapTypes = {
 export type MapType = keyof typeof mapTypes;
 
 // --- CONSTANTES ---
-const DEFAULT_CENTER: [number, number] = [-15.79, -47.86];
+const DEFAULT_CENTER: [number, number] = [-15.79, -52.86];
 const DEFAULT_ZOOM = 4;
 
 // --- HELPER: Ícone Customizado ---
@@ -61,9 +61,15 @@ const FlyToLocation = ({
             if (!map) return;
 
             // Verifica se o mapa tem o método flyTo
-            if (typeof map.flyTo !== 'function') return;
+            if (typeof map.flyTo !== "function") return;
 
-            if (target && typeof target.latitude === 'number' && typeof target.longitude === 'number' && !isNaN(target.latitude) && !isNaN(target.longitude)) {
+            if (
+               target &&
+               typeof target.latitude === "number" &&
+               typeof target.longitude === "number" &&
+               !isNaN(target.latitude) &&
+               !isNaN(target.longitude)
+            ) {
                const targetLat = Number(target.latitude);
                const targetLng = Number(target.longitude);
 
@@ -77,7 +83,12 @@ const FlyToLocation = ({
                const centerLat = defaultCenter?.[0] ?? -15.79;
                const centerLng = defaultCenter?.[1] ?? -47.86;
 
-               if (isFinite(centerLat) && isFinite(centerLng) && !isNaN(centerLat) && !isNaN(centerLng)) {
+               if (
+                  isFinite(centerLat) &&
+                  isFinite(centerLng) &&
+                  !isNaN(centerLat) &&
+                  !isNaN(centerLng)
+               ) {
                   map.flyTo([centerLat, centerLng], 4, {
                      duration: 1.5,
                   });
@@ -158,8 +169,8 @@ export default function AerodromoMap({
                .filter((aero) => {
                   // Filtra aeródromos com coordenadas válidas
                   return (
-                     typeof aero.latitude === 'number' &&
-                     typeof aero.longitude === 'number' &&
+                     typeof aero.latitude === "number" &&
+                     typeof aero.longitude === "number" &&
                      isFinite(aero.latitude) &&
                      isFinite(aero.longitude) &&
                      !isNaN(aero.latitude) &&
@@ -184,7 +195,8 @@ export default function AerodromoMap({
                            <div className='mt-1 text-xs'>
                               {aero.cidade
                                  ? `${aero.cidade.nome} - ${aero.cidade.uf}`
-                                 : aero.cidade_manual || 'Localização não informada'}
+                                 : aero.cidade_manual ||
+                                   "Localização não informada"}
                            </div>
                         </div>
                      </Popup>

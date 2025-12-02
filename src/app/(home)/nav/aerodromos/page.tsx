@@ -1,6 +1,6 @@
 "use client";
-import { useState, useMemo } from "react";
-import { Button, TextInput } from "flowbite-react";
+import { useState, useMemo, useEffect } from "react";
+import { Button, TextInput, Spinner, Alert } from "flowbite-react";
 import {
    HiPlus,
    HiPencil,
@@ -9,6 +9,7 @@ import {
    HiSearch,
    HiShieldCheck,
    HiHome,
+   HiExclamation,
 } from "react-icons/hi";
 import { MdTerrain, MdMyLocation } from "react-icons/md";
 import { LuMapPin } from "react-icons/lu";
@@ -16,318 +17,18 @@ import AerodromoMap from "./components/AerodromoMap";
 import AerodromoFormModal from "./components/AerodromoFormModal";
 import clsx from "clsx";
 import { Aerodromo, AerodromoFormData } from "./types";
+import {
+   getAerodromos,
+   createAerodromo,
+   updateAerodromo,
+   deleteAerodromo,
+} from "services/routes/nav/aerodromos";
+import { useToast } from "../../../context/toast";
 
 export default function AerodromoCadastro() {
-   const [aerodromos, setAerodromos] = useState<Aerodromo[]>([
-      {
-         id: "1",
-         nome: "Aeroporto Internacional de Brasília",
-         codigo_icao: "SBBR",
-         codigo_iata: "BSB",
-         latitude: -15.8697,
-         longitude: -47.9206,
-         elevacao: 3497,
-         codigo_cidade: 5300108,
-         cidade: { codigo: 5300108, nome: "Brasília", uf: "DF" },
-         pais: "Brasil",
-         utc: -3,
-         base_aerea: null,
-         cidade_manual: null,
-      },
-      {
-         id: "2",
-         nome: "Aeroporto de Anápolis",
-         codigo_icao: "SBAN",
-         latitude: -16.2267,
-         longitude: -48.9644,
-         elevacao: 3730,
-         codigo_cidade: 5201108,
-         cidade: { codigo: 5201108, nome: "Anápolis", uf: "GO" },
-         cidade_manual: null,
-         pais: "Brasil",
-         utc: -3,
-         base_aerea: { nome: "Base Aérea de Anápolis", sigla: "BAAN" },
-      },
-      {
-         id: "3",
-         nome: "Aeroporto Internacional de São Paulo/Guarulhos",
-         codigo_icao: "SBGR",
-         codigo_iata: "GRU",
-         latitude: -23.4356,
-         longitude: -46.4731,
-         elevacao: 2459,
-         codigo_cidade: 3518800,
-         cidade: { codigo: 3518800, nome: "Guarulhos", uf: "SP" },
-         cidade_manual: null,
-         pais: "Brasil",
-         utc: -3,
-         base_aerea: null,
-      },
-      {
-         id: "4",
-         nome: "Aeroporto Santos Dumont",
-         codigo_icao: "SBRJ",
-         codigo_iata: "SDU",
-         latitude: -22.9104,
-         longitude: -43.1631,
-         elevacao: 11,
-         codigo_cidade: 3304557,
-         cidade: { codigo: 3304557, nome: "Rio de Janeiro", uf: "RJ" },
-         cidade_manual: null,
-         pais: "Brasil",
-         utc: -3,
-         base_aerea: null,
-      },
-      {
-         id: "5",
-         nome: "Aeroporto do Galeão",
-         codigo_icao: "SBSC",
-         latitude: -22.9324,
-         longitude: -43.7189,
-         elevacao: 10,
-         codigo_cidade: 3304557,
-         cidade: { codigo: 3304557, nome: "Rio de Janeiro", uf: "RJ" },
-         cidade_manual: null,
-         pais: "Brasil",
-         utc: -3,
-         base_aerea: { nome: "Base Aérea de Santa Cruz", sigla: "BASC" },
-      },
-      {
-         id: "6",
-         nome: "Aeroporto Internacional de Confins",
-         codigo_icao: "SBCF",
-         codigo_iata: "CNF",
-         latitude: -19.6244,
-         longitude: -43.9719,
-         elevacao: 2715,
-         codigo_cidade: 3118007,
-         cidade: { codigo: 3118007, nome: "Confins", uf: "MG" },
-         cidade_manual: null,
-         pais: "Brasil",
-         utc: -3,
-         base_aerea: null,
-      },
-      {
-         id: "7",
-         nome: "Aeroporto de Congonhas",
-         codigo_icao: "SBSP",
-         codigo_iata: "CGH",
-         latitude: -23.6261,
-         longitude: -46.6564,
-         elevacao: 2631,
-         codigo_cidade: 3550308,
-         cidade: { codigo: 3550308, nome: "São Paulo", uf: "SP" },
-         cidade_manual: null,
-         pais: "Brasil",
-         utc: -3,
-         base_aerea: null,
-      },
-      {
-         id: "8",
-         nome: "Aeroporto de Canoas",
-         codigo_icao: "SBCO",
-         latitude: -29.9461,
-         longitude: -51.1444,
-         elevacao: 26,
-         codigo_cidade: 4305108,
-         cidade: { codigo: 4305108, nome: "Canoas", uf: "RS" },
-         cidade_manual: null,
-         pais: "Brasil",
-         utc: -3,
-         base_aerea: { nome: "Base Aérea de Canoas", sigla: "BACO" },
-      },
-      {
-         id: "9",
-         nome: "Aeroporto Internacional Salgado Filho",
-         codigo_icao: "SBPA",
-         codigo_iata: "POA",
-         latitude: -29.9939,
-         longitude: -51.1714,
-         elevacao: 11,
-         codigo_cidade: 4314902,
-         cidade: { codigo: 4314902, nome: "Porto Alegre", uf: "RS" },
-         cidade_manual: null,
-         pais: "Brasil",
-         utc: -3,
-         base_aerea: null,
-      },
-      {
-         id: "10",
-         nome: "Aeroporto Internacional de Recife",
-         codigo_icao: "SBRF",
-         codigo_iata: "REC",
-         latitude: -8.1264,
-         longitude: -34.9236,
-         elevacao: 33,
-         codigo_cidade: 2611606,
-         cidade: { codigo: 2611606, nome: "Recife", uf: "PE" },
-         cidade_manual: null,
-         pais: "Brasil",
-         utc: -3,
-         base_aerea: null,
-      },
-      {
-         id: "11",
-         nome: "Aeroporto de Recife",
-         codigo_icao: "SBRF",
-         latitude: -8.0326,
-         longitude: -34.9228,
-         elevacao: 31,
-         codigo_cidade: 2611606,
-         cidade: { codigo: 2611606, nome: "Recife", uf: "PE" },
-         cidade_manual: null,
-         pais: "Brasil",
-         utc: -3,
-         base_aerea: { nome: "Base Aérea de Recife", sigla: "BARF" },
-      },
-      {
-         id: "12",
-         nome: "Aeroporto Internacional de Salvador",
-         codigo_icao: "SBSV",
-         codigo_iata: "SSA",
-         latitude: -12.9086,
-         longitude: -38.3225,
-         elevacao: 64,
-         codigo_cidade: 2927408,
-         cidade: { codigo: 2927408, nome: "Salvador", uf: "BA" },
-         cidade_manual: null,
-         pais: "Brasil",
-         utc: -3,
-         base_aerea: null,
-      },
-      {
-         id: "13",
-         nome: "Aeroporto Internacional de Fortaleza",
-         codigo_icao: "SBFZ",
-         codigo_iata: "FOR",
-         latitude: -3.7763,
-         longitude: -38.5326,
-         elevacao: 82,
-         codigo_cidade: 2304400,
-         cidade: { codigo: 2304400, nome: "Fortaleza", uf: "CE" },
-         cidade_manual: null,
-         pais: "Brasil",
-         utc: -3,
-         base_aerea: null,
-      },
-      {
-         id: "14",
-         nome: "Aeroporto Pinto Martins",
-         codigo_icao: "SBFZ",
-         latitude: -3.7628,
-         longitude: -38.5367,
-         elevacao: 79,
-         codigo_cidade: 2304400,
-         cidade: { codigo: 2304400, nome: "Fortaleza", uf: "CE" },
-         cidade_manual: null,
-         pais: "Brasil",
-         utc: -3,
-         base_aerea: { nome: "Base Aérea de Fortaleza", sigla: "BAFZ" },
-      },
-      {
-         id: "15",
-         nome: "Aeroporto de Viracopos",
-         codigo_icao: "SBKP",
-         codigo_iata: "VCP",
-         latitude: -23.0074,
-         longitude: -47.1345,
-         elevacao: 2170,
-         codigo_cidade: 3509502,
-         cidade: { codigo: 3509502, nome: "Campinas", uf: "SP" },
-         cidade_manual: null,
-         pais: "Brasil",
-         utc: -3,
-         base_aerea: null,
-      },
-      {
-         id: "16",
-         nome: "Aeroporto Internacional de Manaus",
-         codigo_icao: "SBEG",
-         codigo_iata: "MAO",
-         latitude: -3.0386,
-         longitude: -60.0497,
-         elevacao: 264,
-         codigo_cidade: 1302603,
-         cidade: { codigo: 1302603, nome: "Manaus", uf: "AM" },
-         cidade_manual: null,
-         pais: "Brasil",
-         utc: -4,
-         base_aerea: null,
-      },
-      {
-         id: "17",
-         nome: "Aeroporto Internacional de Belém",
-         codigo_icao: "SBBE",
-         codigo_iata: "BEL",
-         latitude: -1.3793,
-         longitude: -48.4763,
-         elevacao: 54,
-         codigo_cidade: 1501402,
-         cidade: { codigo: 1501402, nome: "Belém", uf: "PA" },
-         cidade_manual: null,
-         pais: "Brasil",
-         utc: -3,
-         base_aerea: null,
-      },
-      {
-         id: "18",
-         nome: "Aeródromo de Jundiaí",
-         codigo_icao: "SBJD",
-         latitude: -23.2081,
-         longitude: -46.9436,
-         elevacao: 2477,
-         codigo_cidade: 3522208,
-         cidade: { codigo: 3522208, nome: "Jundiaí", uf: "SP" },
-         cidade_manual: null,
-         pais: "Brasil",
-         utc: -3,
-         base_aerea: null,
-      },
-      {
-         id: "19",
-         nome: "Aeroporto de Curitiba",
-         codigo_icao: "SBCT",
-         codigo_iata: "CWB",
-         latitude: -25.5285,
-         longitude: -49.1758,
-         elevacao: 2988,
-         codigo_cidade: 4106902,
-         cidade: { codigo: 4106902, nome: "Curitiba", uf: "PR" },
-         cidade_manual: null,
-         pais: "Brasil",
-         utc: -3,
-         base_aerea: null,
-      },
-      {
-         id: "20",
-         nome: "Aeroporto Internacional de Campo Grande",
-         codigo_icao: "SBCG",
-         latitude: -20.4686,
-         longitude: -54.6725,
-         elevacao: 1833,
-         codigo_cidade: 5002704,
-         cidade: { codigo: 5002704, nome: "Campo Grande", uf: "MS" },
-         cidade_manual: null,
-         pais: "Brasil",
-         utc: -4,
-         base_aerea: { nome: "Base Aérea de Campo Grande", sigla: "BACG" },
-      },
-      {
-         id: "21",
-         nome: "Aeropuerto Presidente Carlos Ibáñez del Campo",
-         codigo_icao: "SCCI",
-         codigo_iata: "PUQ",
-         latitude: -53.0026,
-         longitude: -70.8546,
-         elevacao: 139,
-         codigo_cidade: null,
-         cidade_manual: "Punta Arenas",
-         pais: "Chile",
-         utc: -3,
-         base_aerea: null,
-      },
-   ]);
-
+   const [aerodromos, setAerodromos] = useState<Aerodromo[]>([]);
+   const [loading, setLoading] = useState(true);
+   const [error, setError] = useState<string | null>(null);
    const [showModal, setShowModal] = useState(false);
    const [editingAerodromo, setEditingAerodromo] = useState<Aerodromo | null>(
       null
@@ -336,6 +37,53 @@ export default function AerodromoCadastro() {
    const [showOnlyBases, setShowOnlyBases] = useState(true);
    const [selectedAero, setSelectedAero] = useState<Aerodromo | null>(null);
    const [mapResetKey, setMapResetKey] = useState(0);
+   const [isXlScreen, setIsXlScreen] = useState(false);
+   const { push } = useToast();
+
+   // Detecta se a tela é xl+ para renderizar o mapa apenas quando visível
+   useEffect(() => {
+      const mediaQuery = window.matchMedia("(min-width: 1280px)");
+
+      // Define o estado inicial
+      setIsXlScreen(mediaQuery.matches);
+
+      // Listener para mudanças no tamanho da tela
+      const handleChange = (e: MediaQueryListEvent) => {
+         setIsXlScreen(e.matches);
+      };
+
+      mediaQuery.addEventListener("change", handleChange);
+
+      return () => {
+         mediaQuery.removeEventListener("change", handleChange);
+      };
+   }, []);
+
+   // Carrega aeródromos da API
+   useEffect(() => {
+      loadAerodromos();
+   }, []);
+
+   const loadAerodromos = async () => {
+      try {
+         setLoading(true);
+         setError(null);
+         const data = await getAerodromos();
+         setAerodromos(data);
+      } catch (err: any) {
+         const errorMessage =
+            err?.message || "Erro ao carregar aeródromos. Tente novamente.";
+         setError(errorMessage);
+         push({
+            title: "Erro",
+            message: errorMessage,
+            type: "error",
+         });
+         console.error(err);
+      } finally {
+         setLoading(false);
+      }
+   };
 
    const handleOpenModal = (aerodromo: Aerodromo | null = null) => {
       setEditingAerodromo(aerodromo);
@@ -347,29 +95,95 @@ export default function AerodromoCadastro() {
       setEditingAerodromo(null);
    };
 
-   const handleSubmit = (formData: AerodromoFormData) => {
-      if (editingAerodromo) {
-         setAerodromos(
-            aerodromos.map((a) =>
-               a.id === editingAerodromo.id
-                  ? { ...formData, id: editingAerodromo.id }
-                  : a
-            )
-         );
-      } else {
-         const newAerodromo: Aerodromo = {
-            ...formData,
-            id: Date.now().toString(),
-         };
-         setAerodromos([...aerodromos, newAerodromo]);
-      }
+   const handleSubmit = async (formData: AerodromoFormData) => {
+      try {
+         setError(null);
 
-      handleCloseModal();
+         // Prepara os dados para envio
+         const dataToSend = {
+            nome: formData.nome,
+            codigo_icao: formData.codigo_icao,
+            codigo_iata: formData.codigo_iata || null,
+            latitude: formData.latitude,
+            longitude: formData.longitude,
+            elevacao: formData.elevacao,
+            pais: formData.pais,
+            utc: formData.utc,
+            base_aerea:
+               formData.base_aerea &&
+               formData.base_aerea.nome &&
+               formData.base_aerea.sigla
+                  ? formData.base_aerea
+                  : null,
+            codigo_cidade: formData.codigo_cidade || null,
+            cidade_manual: formData.cidade_manual || null,
+         };
+
+         if (editingAerodromo) {
+            const updated = await updateAerodromo(
+               editingAerodromo.id,
+               dataToSend
+            );
+            setAerodromos(
+               aerodromos.map((a) =>
+                  a.id === editingAerodromo.id ? updated : a
+               )
+            );
+            push({
+               title: "Sucesso!",
+               message: `${updated.codigo_icao} atualizado com sucesso`,
+               type: "success",
+            });
+         } else {
+            const created = await createAerodromo(dataToSend);
+            setAerodromos([...aerodromos, created]);
+            push({
+               title: "Sucesso!",
+               message: `${created.codigo_icao} cadastrado com sucesso`,
+               type: "success",
+            });
+         }
+
+         handleCloseModal();
+      } catch (err: any) {
+         const errorMessage =
+            err?.message || "Erro ao salvar aeródromo. Tente novamente.";
+         push({
+            title: "Erro",
+            message: errorMessage,
+            type: "error",
+         });
+         console.error(err);
+      }
    };
 
-   const handleDelete = (id: string) => {
+   const handleDelete = async (id: number) => {
+      const aeroToDelete = aerodromos.find((a) => a.id === id);
       if (confirm("Tem certeza que deseja excluir este aeródromo?")) {
-         setAerodromos(aerodromos.filter((a) => a.id !== id));
+         try {
+            setError(null);
+            await deleteAerodromo(id);
+            setAerodromos(aerodromos.filter((a) => a.id !== id));
+            if (selectedAero?.id === id) {
+               setSelectedAero(null);
+            }
+            push({
+               title: "Sucesso!",
+               message: `Aeródromo ${
+                  aeroToDelete?.codigo_icao || ""
+               } excluído com sucesso`,
+               type: "success",
+            });
+         } catch (err: any) {
+            const errorMessage =
+               err?.message || "Erro ao excluir aeródromo. Tente novamente.";
+            push({
+               title: "Erro",
+               message: errorMessage,
+               type: "error",
+            });
+            console.error(err);
+         }
       }
    };
 
@@ -412,14 +226,20 @@ export default function AerodromoCadastro() {
                         Cadastro de Aeródromos
                      </h5>
                      <p className='text-sm text-gray-500'>
-                        {filteredAerodromos.length}{" "}
-                        {filteredAerodromos.length === 1
-                           ? showOnlyBases
-                              ? "base aérea encontrada"
-                              : "aeródromo encontrado"
-                           : showOnlyBases
-                           ? "bases aéreas encontradas"
-                           : "aeródromos encontrados"}
+                        {loading ? (
+                           "Carregando..."
+                        ) : (
+                           <>
+                              {filteredAerodromos.length}{" "}
+                              {filteredAerodromos.length === 1
+                                 ? showOnlyBases
+                                    ? "base aérea encontrada"
+                                    : "aeródromo encontrado"
+                                 : showOnlyBases
+                                 ? "bases aéreas encontradas"
+                                 : "aeródromos encontrados"}
+                           </>
+                        )}
                      </p>
                   </div>
                </div>
@@ -427,11 +247,19 @@ export default function AerodromoCadastro() {
                   color='red'
                   onClick={() => handleOpenModal()}
                   className='whitespace-nowrap'
+                  disabled={loading}
                >
                   <HiPlus className='w-5 h-5 mr-2' />
                   Novo Aeródromo
                </Button>
             </div>
+
+            {/* Alerta de erro */}
+            {error && (
+               <Alert color='failure' icon={HiExclamation} className='mb-4'>
+                  <span className='font-medium'>Erro!</span> {error}
+               </Alert>
+            )}
 
             {/* Filtros */}
             <div className='flex items-center gap-4'>
@@ -446,6 +274,7 @@ export default function AerodromoCadastro() {
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                         style={{ paddingLeft: "2.5rem" }}
+                        disabled={loading}
                      />
                   </div>
                </div>
@@ -456,6 +285,7 @@ export default function AerodromoCadastro() {
                      checked={showOnlyBases}
                      onChange={(e) => setShowOnlyBases(e.target.checked)}
                      className='w-4 h-4 text-red-600 bg-gray-100 border-gray-300 rounded focus:ring-red-500'
+                     disabled={loading}
                   />
                   <label
                      htmlFor='filterBases'
@@ -469,10 +299,17 @@ export default function AerodromoCadastro() {
          </div>
 
          <div className='flex-1 min-h-0'>
-            <div className='h-full grid grid-cols-1 lg:grid-cols-5 gap-4'>
-               <div className='lg:col-span-3 flex flex-col min-h-0 h-full'>
+            <div className='h-full grid grid-cols-1 xl:grid-cols-5 gap-4'>
+               <div className='xl:col-span-3 flex flex-col min-h-0 h-full'>
                   <div className='bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden flex-1 flex flex-col min-h-0'>
-                     {filteredAerodromos.length === 0 ? (
+                     {loading ? (
+                        <div className='flex flex-col justify-center items-center h-64'>
+                           <Spinner size='xl' color='failure' />
+                           <p className='mt-4 text-gray-600'>
+                              Carregando aeródromos...
+                           </p>
+                        </div>
+                     ) : filteredAerodromos.length === 0 ? (
                         <div className='flex flex-col justify-center items-center h-64'>
                            <div className='p-4 bg-gray-100 rounded-full mb-4'>
                               <HiLocationMarker className='w-12 h-12 text-gray-400' />
@@ -536,12 +373,6 @@ export default function AerodromoCadastro() {
                                        scope='col'
                                        className='px-4 py-3 font-semibold'
                                     >
-                                       Coordernadas
-                                    </th>
-                                    <th
-                                       scope='col'
-                                       className='px-4 py-3 font-semibold'
-                                    >
                                        Elevação
                                     </th>
                                     <th scope='col' className='px-4 py-3'>
@@ -554,7 +385,7 @@ export default function AerodromoCadastro() {
                                     <tr
                                        key={aero.id}
                                        className={clsx(
-                                          "border-b last:border-b-0 cursor-pointer",
+                                          "border-b last:border-b-0 cursor-pointer hover:bg-gray-50 transition-colors",
                                           {
                                              "bg-slate-100":
                                                 selectedAero &&
@@ -600,9 +431,20 @@ export default function AerodromoCadastro() {
                                        </td>
                                        <td className='px-4 py-3'>
                                           <div className='text-sm'>
-                                             <div className='flex items-center gap-1.5 font-medium text-gray-900'>
-                                                {aero.cidade?.nome}-{aero.cidade?.uf}
-                                             </div>
+                                             {aero.cidade ? (
+                                                <div className='flex items-center gap-1.5 font-medium text-gray-900'>
+                                                   {aero.cidade.nome}-
+                                                   {aero.cidade.uf}
+                                                </div>
+                                             ) : aero.cidade_manual ? (
+                                                <div className='flex items-center gap-1.5 font-medium text-gray-900'>
+                                                   {aero.cidade_manual}
+                                                </div>
+                                             ) : (
+                                                <span className='text-gray-400'>
+                                                   -
+                                                </span>
+                                             )}
                                           </div>
                                        </td>
                                        <td className='px-4 py-3'>
@@ -623,17 +465,6 @@ export default function AerodromoCadastro() {
                                        <td className='px-4 py-3'>
                                           <div className='space-y-1'>
                                              <div className='flex items-center gap-1.5 text-xs text-gray-600'>
-                                                <MdMyLocation className='w-3.5 h-3.5 text-blue-500' />
-                                                <span className='font-mono'>
-                                                   {aero.latitude.toFixed(4)},{" "}
-                                                   {aero.longitude.toFixed(4)}
-                                                </span>
-                                             </div>
-                                          </div>
-                                       </td>
-                                       <td className='px-4 py-3'>
-                                          <div className='space-y-1'>
-                                             <div className='flex items-center gap-1.5 text-xs text-gray-600'>
                                                 <MdTerrain className='w-3.5 h-3.5 text-green-600' />
                                                 <span>{aero.elevacao} ft</span>
                                              </div>
@@ -642,18 +473,20 @@ export default function AerodromoCadastro() {
                                        <td className='px-4 py-3'>
                                           <div className='flex gap-2 justify-end'>
                                              <button
-                                                onClick={() =>
-                                                   handleOpenModal(aero)
-                                                }
+                                                onClick={(e) => {
+                                                   e.stopPropagation();
+                                                   handleOpenModal(aero);
+                                                }}
                                                 className='text-gray-600 hover:text-red-600'
                                                 title='Editar'
                                              >
                                                 <HiPencil className='h-5 w-5' />
                                              </button>
                                              <button
-                                                onClick={() =>
-                                                   handleDelete(aero.id)
-                                                }
+                                                onClick={(e) => {
+                                                   e.stopPropagation();
+                                                   handleDelete(aero.id);
+                                                }}
                                                 className='text-gray-600 hover:text-red-600'
                                                 title='Excluir'
                                              >
@@ -670,49 +503,53 @@ export default function AerodromoCadastro() {
                   </div>
                </div>
 
-               <div className='hidden lg:block lg:col-span-2 bg-gray-200 rounded-lg shadow border border-gray-300 overflow-hidden relative min-h-0 h-full'>
-                  {/* 1. Chamada do Componente */}
-                  <AerodromoMap
-                     aerodromos={filteredAerodromos}
-                     selectedAero={selectedAero}
-                     resetKey={mapResetKey}
-                  />
+               <div className='hidden xl:block xl:col-span-2 bg-gray-200 rounded-lg shadow border border-gray-300 overflow-hidden relative min-h-0 h-full'>
+                  {/* Renderiza o mapa apenas quando a tela é xl+ para evitar erro do Leaflet */}
+                  {isXlScreen && (
+                     <>
+                        <AerodromoMap
+                           aerodromos={filteredAerodromos}
+                           selectedAero={selectedAero}
+                           resetKey={mapResetKey}
+                        />
 
-                  {/* Botão de Reset - sempre visível */}
-                  <button
-                     onClick={() => {
-                        setSelectedAero(null);
-                        setMapResetKey((prev) => prev + 1);
-                     }}
-                     className='absolute top-4 right-4 bg-white/95 backdrop-blur p-2.5 rounded-lg shadow-lg border border-gray-200 hover:bg-gray-50 transition-colors z-[500] group'
-                     title='Resetar visualização do mapa'
-                  >
-                     <HiHome className='w-5 h-5 text-gray-600 group-hover:text-red-600 transition-colors' />
-                  </button>
-
-                  {/* 2. Overlay de Informação (Pode ficar aqui no pai ou mover para dentro do componente filho se preferir) */}
-                  {selectedAero && (
-                     <div className='absolute bottom-4 left-4 right-4 bg-white/95 backdrop-blur p-4 rounded-lg shadow-lg border border-gray-200 z-[500] flex justify-between items-center'>
-                        <div>
-                           <h4 className='font-bold text-gray-900'>
-                              {selectedAero.base_aerea?.nome ||
-                                 selectedAero.nome ||
-                                 "Sem nome"}
-                           </h4>
-                           <p className='text-xs text-gray-500 font-mono'>
-                              {selectedAero.codigo_icao} | Lat:{" "}
-                              {selectedAero.latitude.toFixed(4)} | Lon:{" "}
-                              {selectedAero.longitude.toFixed(4)}
-                           </p>
-                        </div>
-                        <Button
-                           size='xs'
-                           color='gray'
-                           onClick={() => setSelectedAero(null)}
+                        {/* Botão de Reset */}
+                        <button
+                           onClick={() => {
+                              setSelectedAero(null);
+                              setMapResetKey((prev) => prev + 1);
+                           }}
+                           className='absolute top-4 right-4 bg-white/95 backdrop-blur p-2.5 rounded-lg shadow-lg border border-gray-200 hover:bg-gray-50 transition-colors z-[500] group'
+                           title='Resetar visualização do mapa'
                         >
-                           Fechar
-                        </Button>
-                     </div>
+                           <HiHome className='w-5 h-5 text-gray-600 group-hover:text-red-600 transition-colors' />
+                        </button>
+
+                        {/* Overlay de Informação */}
+                        {selectedAero && (
+                           <div className='absolute bottom-4 left-4 right-4 bg-white/95 backdrop-blur p-4 rounded-lg shadow-lg border border-gray-200 z-[500] flex justify-between items-center'>
+                              <div>
+                                 <h4 className='font-bold text-gray-900'>
+                                    {selectedAero.base_aerea?.nome ||
+                                       selectedAero.nome ||
+                                       "Sem nome"}
+                                 </h4>
+                                 <p className='text-xs text-gray-500 font-mono'>
+                                    {selectedAero.codigo_icao} | Lat:{" "}
+                                    {selectedAero.latitude.toFixed(4)} | Lon:{" "}
+                                    {selectedAero.longitude.toFixed(4)}
+                                 </p>
+                              </div>
+                              <Button
+                                 size='xs'
+                                 color='gray'
+                                 onClick={() => setSelectedAero(null)}
+                              >
+                                 Fechar
+                              </Button>
+                           </div>
+                        )}
+                     </>
                   )}
                </div>
             </div>
