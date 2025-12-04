@@ -11,7 +11,7 @@ import { Spinner } from "@/components/Spinner";
 import { useForm } from "react-hook-form";
 import { HiUserAdd } from "react-icons/hi";
 import { addTrip } from "services/routes/trips";
-import { useToast } from "../../../context/toast";
+import { useToast } from "@/app/context/toast";
 import { UserPublic } from "services/routes/users";
 import {
    isValidTrigramaKey,

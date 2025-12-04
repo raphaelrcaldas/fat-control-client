@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { getTripData } from "services/google-sheets/sheets";
 import TripTable from "./components/tripTable";
-import { useSeboContext } from "../context/sebo";
+import { useSeboContext } from "../../context/sebo";
 import { durationToMinutes, sortTripsByDuration } from "./utils";
 import ChartSebo from "./components/chartSebo";
 import FilterPanel from "./components/filterPanel";
@@ -31,7 +31,6 @@ function SeboPage() {
             setIsLoading(false);
          }
       };
-
       fetchData();
    }, []);
 

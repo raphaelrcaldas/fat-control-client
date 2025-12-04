@@ -1,7 +1,7 @@
 import { useState, useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { addCrewFunc, updateCrewFunc } from "services/routes/trips";
-import { useToast } from "../../../context/toast";
+import { useToast } from "@/app/context/toast";
 import type {
    FuncFormFields,
    CreateCrewFunc,

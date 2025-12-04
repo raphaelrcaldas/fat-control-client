@@ -16,14 +16,14 @@ import { Spinner } from "@/components/Spinner";
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { getQuadById, deleteQuad } from "services/routes/quads";
 import { isoDateToString } from "utils/dateHandler";
-import { useQuadsContext } from "../../context/quads";
+import { useQuadsContext } from "@/app/(home)/context/quads";
 import { CrewMember } from "services/routes/trips";
 import { Quad } from "services/routes/quads";
 import QuadForm from "./quadForm";
 import { FaRegTrashCan } from "react-icons/fa6";
 import { FaEdit, FaPlus } from "react-icons/fa";
 import { useToast } from "@/app/context/toast";
-import { PermBased } from "../../hooks/usePermBased";
+import { PermBased } from "@/app/(home)/hooks/usePermBased";
 
 interface QuadsTripProps {
    trip: CrewMember;

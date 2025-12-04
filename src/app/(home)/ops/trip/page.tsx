@@ -27,7 +27,7 @@ import { postoGradRecords } from "services/routes/postos";
 import { SearchUser } from "./components/searchUserTrip";
 import { TripRow } from "./components/TripRow";
 import { MultiSelect } from "./components/MultiSelect";
-import { PermBased } from "../hooks/usePermBased";
+import { PermBased } from "../../hooks/usePermBased";
 import useDebouncedValue from "@/hooks/useDebouncedValue";
 import { useTripList } from "./hooks/useTripList";
 

@@ -15,7 +15,7 @@ import { addQuad, updateQuad } from "services/routes/quads";
 import { useToast } from "@/app/context/toast";
 import { Quad } from "services/routes/quads";
 import { CrewMember } from "services/routes/trips";
-import { useQuadsContext } from "../../context/quads";
+import { useQuadsContext } from "@/app/(home)/context/quads";
 
 interface QuadFormProps {
    trip: CrewMember;

@@ -3,7 +3,7 @@ import { Modal, ModalHeader, ModalBody, Button } from "flowbite-react";
 import { Spinner } from "@/components/Spinner";
 import { FaTrash } from "react-icons/fa";
 import { deleteCrewFunc } from "services/routes/trips";
-import { useToast } from "../../../../context/toast";
+import { useToast } from "@/app/context/toast";
 import type { CrewFunc } from "../../types/trip.types";
 
 type FuncDeleteModalProps = {

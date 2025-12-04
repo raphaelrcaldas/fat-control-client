@@ -15,7 +15,7 @@ import {
 import { IndispForm } from "./indispForm";
 import { isoDateToString } from "utils/dateHandler";
 import { getIndisp } from "./options";
-import { PermBased } from "../../hooks/usePermBased";
+import { PermBased } from "@/app/(home)/hooks/usePermBased";
 import { CrewIndisp, IndispType } from "services/routes/indisps";
 
 export const TripIndisp = ({

@@ -5,7 +5,7 @@ import {
 } from "flowbite-react";
 import { TripDetail } from "./tripDetail";
 import { FuncTripRow } from "./FuncTripRow";
-import { PermBased } from "../../hooks/usePermBased";
+import { PermBased } from "@/app/(home)/hooks/usePermBased";
 import type { Trip } from "../types/trip.types";
 
 type TripRowProps = {

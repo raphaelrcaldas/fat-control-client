@@ -3,7 +3,7 @@
 import { GoPlus } from "react-icons/go";
 import { Button } from "flowbite-react";
 import { useState } from "react";
-import { SearchUser as UserSearchModal } from "../../users/components/searchUser";
+import { SearchUser as UserSearchModal } from "@/app/(home)/users/components/searchUser";
 import { TripRegister } from "./tripRegister";
 import { UserPublic } from "services/routes/users";
 

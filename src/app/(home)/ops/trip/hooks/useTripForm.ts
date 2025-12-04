@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { updateTrip } from "services/routes/trips";
-import { useToast } from "../../../context/toast";
+import { useToast } from "@/app/context/toast";
 import type { TripFormFields, Trip } from "../types/trip.types";
 
 type UseTripFormParams = {

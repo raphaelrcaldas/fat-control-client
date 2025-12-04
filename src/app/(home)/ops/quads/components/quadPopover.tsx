@@ -1,7 +1,7 @@
 import { isoDateToString } from "utils/dateHandler";
 import clsx from "clsx";
 import { Quad } from "services/routes/quads";
-import { useQuadsContext } from "../../context/quads";
+import { useQuadsContext } from "@/app/(home)/context/quads";
 
 export function QuadPopover({ quad }: { quad: Quad }) {
    const cellContent = quad.value ? isoDateToString(quad.value) : "LASTRO";

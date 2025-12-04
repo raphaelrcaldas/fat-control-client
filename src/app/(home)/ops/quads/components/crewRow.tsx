@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { PermBased } from "../../hooks/usePermBased";
+import { PermBased } from "@/app/(home)/hooks/usePermBased";
 import { QuadsTrip } from "./quadsTrip";
 import QuadForm from "./quadForm";
 import { QuadPopover } from "./quadPopover";
