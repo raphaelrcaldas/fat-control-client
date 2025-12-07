@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronDown } from "lucide-react";
+import { IoChevronDown } from "react-icons/io5";
 import SidebarItem from "./sidebarItem";
 import type { IconType } from "react-icons";
 
@@ -56,7 +56,7 @@ export default function SidebarCollapse({
                <Icon className='w-5 h-5 flex-shrink-0' />
                <span className='font-medium'>{item.label}</span>
             </div>
-            <ChevronDown
+            <IoChevronDown
                className={`w-4 h-4 transition-transform duration-200 ${
                   isOpen ? "rotate-180" : ""
                }`}
