@@ -133,6 +133,110 @@ export default function TripPage() {
             </div>
          </section>
 
+         {/* Active Filters Tags */}
+         {hasActiveFilters && (
+            <section className='flex-shrink-0 mb-3 px-4'>
+               <div className='flex flex-wrap items-center gap-2'>
+                  <span className='text-xs font-medium text-gray-600'>
+                     Filtros ativos:
+                  </span>
+
+                  {filters.name && (
+                     <Badge color='red'>
+                        <div className='flex items-center gap-1.5'>
+                           <IoSearchSharp className='w-3 h-3' />
+                           <span>Nome: {filters.name}</span>
+                           <button
+                              onClick={() => {
+                                 setFilterName("");
+                                 updateFilter("name", "");
+                              }}
+                              className='ml-1 hover:text-red-600'
+                           >
+                              <HiX className='w-3 h-3' />
+                           </button>
+                        </div>
+                     </Badge>
+                  )}
+
+                  {filters.p_g.map((pg) => (
+                     <Badge key={pg} color='red'>
+                        <div className='flex items-center gap-1.5'>
+                           <HiShieldCheck className='w-3 h-3' />
+                           <span>
+                              {
+                                 postoGradRecords.find((p) => p.short === pg)
+                                    ?.mid.toUpperCase()
+                              }
+                           </span>
+                           <button
+                              onClick={() => {
+                                 const newPG = filters.p_g.filter(
+                                    (p) => p !== pg
+                                 );
+                                 updateFilter("p_g", newPG);
+                              }}
+                              className='ml-1 hover:text-red-600'
+                           >
+                              <HiX className='w-3 h-3' />
+                           </button>
+                        </div>
+                     </Badge>
+                  ))}
+
+                  {filters.func.map((func) => (
+                     <Badge key={func} color='red'>
+                        <div className='flex items-center gap-1.5'>
+                           <HiBriefcase className='w-3 h-3' />
+                           <span>{FUNC_LABELS[func]}</span>
+                           <button
+                              onClick={() => {
+                                 const newFunc = filters.func.filter(
+                                    (f) => f !== func
+                                 );
+                                 updateFilter("func", newFunc);
+                              }}
+                              className='ml-1 hover:text-red-600'
+                           >
+                              <HiX className='w-3 h-3' />
+                           </button>
+                        </div>
+                     </Badge>
+                  ))}
+
+                  {filters.oper.map((oper) => (
+                     <Badge key={oper} color='red'>
+                        <div className='flex items-center gap-1.5'>
+                           <HiAcademicCap className='w-3 h-3' />
+                           <span>{OPER_LABELS[oper]}</span>
+                           <button
+                              onClick={() => {
+                                 const newOper = filters.oper.filter(
+                                    (o) => o !== oper
+                                 );
+                                 updateFilter("oper", newOper);
+                              }}
+                              className='ml-1 hover:text-red-600'
+                           >
+                              <HiX className='w-3 h-3' />
+                           </button>
+                        </div>
+                     </Badge>
+                  ))}
+
+                  <button
+                     onClick={() => {
+                        clearFilters();
+                        setFilterName("");
+                     }}
+                     className='text-xs text-gray-500 hover:text-gray-700 underline'
+                  >
+                     Limpar todos
+                  </button>
+               </div>
+            </section>
+         )}
+
          {/* Filters Section */}
          {showFilters && (
             <section className='flex-shrink-0 mb-4 animate-in fade-in slide-in-from-top-3 duration-300 relative z-40'>

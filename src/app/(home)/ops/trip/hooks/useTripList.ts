@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import { getTrips } from "services/routes/trips";
 import type { Trip } from "../types/trip.types";
 import type { FuncType, OperType } from "../types/trip.types";
@@ -32,7 +32,21 @@ export function useTripList({ uae, active }: UseTripListParams) {
          const data = await getTrips({ uae: uae, active: active });
          data.sort((a, b) => a.user.posto.ant - b.user.posto.ant);
          setTrips(data);
-         setFilterTrips(data);
+
+         // Verifica se há filtros ativos
+         const hasActiveFilters =
+            filters.name !== "" ||
+            filters.p_g.length > 0 ||
+            filters.func.length > 0 ||
+            filters.oper.length > 0;
+
+         // Se houver filtros ativos, reaplica os filtros nos novos dados
+         if (hasActiveFilters) {
+            const filtered = applyFiltersToData(data, filters);
+            setFilterTrips(filtered);
+         } else {
+            setFilterTrips(data);
+         }
       } catch (err: any) {
          console.error("Erro ao buscar tripulações:", err);
       } finally {
@@ -42,9 +56,9 @@ export function useTripList({ uae, active }: UseTripListParams) {
 
 
 
-   // Aplica todos os filtros
-   function applyFilters(filterParams: FilterParams) {
-      let filtered = [...trips];
+   // Função auxiliar para aplicar filtros em um array de trips
+   function applyFiltersToData(data: Trip[], filterParams: FilterParams): Trip[] {
+      let filtered = [...data];
 
       // Filtro por nome/trigrama
       if (filterParams.name && filterParams.name.length > 0) {
@@ -79,6 +93,12 @@ export function useTripList({ uae, active }: UseTripListParams) {
          );
       }
 
+      return filtered;
+   }
+
+   // Aplica todos os filtros
+   function applyFilters(filterParams: FilterParams) {
+      const filtered = applyFiltersToData(trips, filterParams);
       setFilterTrips(filtered);
    }
 
