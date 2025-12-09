@@ -182,6 +182,7 @@ export default function IndispPage() {
    };
 
    const funcLabels = {
+      pil: "Piloto",
       mc: "Mecânico",
       lm: "LoadMaster",
       tf: "Comissário",
@@ -208,6 +209,7 @@ export default function IndispPage() {
                      backgroundSize: "1.5em 1.5em",
                   }}
                >
+                  <option value='pil'>Piloto</option>
                   <option value='mc'>Mecânico</option>
                   <option value='lm'>LoadMaster</option>
                   <option value='tf'>Comissário</option>

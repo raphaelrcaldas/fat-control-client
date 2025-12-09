@@ -46,7 +46,7 @@ export const TripIndisp = ({
             {trip.trig}
             {trip.func.oper == "in" && (
                <div
-                  className='absolute size-4 border-2 bg-red-400 rounded-full -top-1 -end-1 animate-pulse'
+                  className='absolute size-4 border-2 bg-red-400 rounded-full -top-1 -end-1'
                   aria-label='Instrutor'
                ></div>
             )}

@@ -36,11 +36,17 @@ export function FuncEditModal({
          onClose,
       });
 
+   const onFormSubmit = (e: React.FormEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      handleSubmit(e);
+   };
+
    return (
       <Modal show={show} onClose={onClose} size='md'>
          <ModalHeader>Editar Função</ModalHeader>
          <ModalBody>
-            <form onSubmit={handleSubmit} className='space-y-4'>
+            <form onSubmit={onFormSubmit} className='space-y-4'>
                {/* Informações do Tripulante */}
                <div className='p-3 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200'>
                   <h3 className='text-sm font-bold text-gray-800 uppercase'>
@@ -143,8 +149,9 @@ export function FuncEditModal({
                         id='data_op'
                         type='date'
                         {...register("data_op", {
-                           validate: (value) => {
-                              if (currentOper !== "al" && !value) {
+                           validate: (value, formValues) => {
+                              const trimmedValue = value?.trim();
+                              if (formValues.oper !== "al" && !trimmedValue) {
                                  return "Data operacional é obrigatória";
                               }
                               return true;

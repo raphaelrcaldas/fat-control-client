@@ -31,6 +31,8 @@ export function useFuncForm({
       watch,
       formState: { errors },
    } = useForm<FuncFormFields>({
+      mode: "onSubmit",
+      reValidateMode: "onChange",
       defaultValues: {
          func: editingFunc?.func,
          oper: editingFunc?.oper,
@@ -43,6 +45,16 @@ export function useFuncForm({
 
    const onSubmit = useCallback(
       async (data: FuncFormFields) => {
+         // Validação adicional no submit
+         const dataOpValue = data.data_op?.trim();
+         if (data.oper !== "al" && !dataOpValue) {
+            push({
+               type: "error",
+               message: "Data operacional é obrigatória para operacionais.",
+            });
+            return;
+         }
+
          setSubmitting(true);
 
          const funcData: CreateCrewFunc = {
@@ -104,9 +116,16 @@ export function useFuncForm({
       [reset]
    );
 
+   const wrappedHandleSubmit = useCallback(
+      (e?: React.BaseSyntheticEvent) => {
+         return handleSubmit(onSubmit)(e);
+      },
+      [handleSubmit, onSubmit]
+   );
+
    return {
       register,
-      handleSubmit: handleSubmit(onSubmit),
+      handleSubmit: wrappedHandleSubmit,
       errors,
       submitting,
       currentOper,

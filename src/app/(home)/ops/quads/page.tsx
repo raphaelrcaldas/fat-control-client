@@ -41,6 +41,8 @@ export default function QuadPage() {
    }, [quadsType, quadType]);
 
    async function getQuadsParams() {
+      if (!quadFunc || !quadType) return;
+
       setLoadingQuads(true);
 
       const params = {
@@ -134,6 +136,7 @@ export default function QuadPage() {
                   value={quadFunc}
                   onChange={(e) => setQuadFunc(e.target.value)}
                >
+                  <option value='pil'>Piloto</option>
                   <option value='mc'>Mecânico</option>
                   <option value='lm'>LoadMaster</option>
                   <option value='tf'>Comissário</option>
