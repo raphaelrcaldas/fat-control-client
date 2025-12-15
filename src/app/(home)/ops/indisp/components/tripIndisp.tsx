@@ -75,7 +75,7 @@ export const TripIndisp = ({
                                  <TableHeadCell className='font-bold'>
                                     MOTIVO
                                  </TableHeadCell>
-                                 <TableHeadCell className='font-bold'>
+                                 <TableHeadCell className='font-bold hidden md:table-column'>
                                     OBS
                                  </TableHeadCell>
                                  <TableHeadCell className='font-bold'>
@@ -149,7 +149,7 @@ function TripIndispRow({ indisp, trip, update }) {
                {indispProps.value}
             </span>
          </TableCell>
-         <TableCell className='p-1'>{indisp.obs}</TableCell>
+         <TableCell className='p-1 hidden md:table-cell'>{indisp.obs}</TableCell>
          <TableCell className='p-1 font-semibold'>{dateStart}</TableCell>
          <TableCell className='p-1 font-semibold'>{dateEnd}</TableCell>
          <TableCell className='p-1'>
