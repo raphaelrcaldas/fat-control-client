@@ -155,7 +155,8 @@ export function IndispForm({ open, setOpen, trip, update, indisp }) {
 
          if (response.ok) {
             push({
-               message: rData.detail || "Indisponibilidade excluída com sucesso",
+               message:
+                  rData.detail || "Indisponibilidade excluída com sucesso",
                type: "success",
             });
             update();
@@ -185,14 +186,22 @@ export function IndispForm({ open, setOpen, trip, update, indisp }) {
             }}
          >
             <ModalHeader>
-               <span className='font-bold text-lg'>
-                  {indisp ? "Atualizar" : "Adicionar"} Indisponibilidade
-               </span>
+               <div className='flex flex-col'>
+                  <span className='font-bold text-lg'>
+                     {indisp ? "Atualizar" : "Adicionar"} Indisponibilidade
+                  </span>
+                  {indisp && (
+                     <span className='text-sm font-normal text-gray-500'>
+                        ID: {indisp.id}
+                     </span>
+                  )}
+               </div>
             </ModalHeader>
             <ModalBody>
                <div className='bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-4 mb-4 border border-blue-200'>
                   <h3 className='uppercase text-center font-bold text-gray-900 text-lg'>
-                     {trip.user.posto.short} {trip.user.esp} {trip.user.nome_guerra}
+                     {trip.user.posto.short} {trip.user.esp}{" "}
+                     {trip.user.nome_guerra}
                   </h3>
                   <h3 className='uppercase text-center text-gray-600 text-sm mt-1'>
                      {trip.user.nome_completo}
@@ -201,7 +210,10 @@ export function IndispForm({ open, setOpen, trip, update, indisp }) {
 
                <div className='grid gap-5'>
                   <div className='grid gap-2'>
-                     <Label htmlFor='mtv' className='font-semibold text-gray-700'>
+                     <Label
+                        htmlFor='mtv'
+                        className='font-semibold text-gray-700'
+                     >
                         Motivo <span className='text-red-500'>*</span>
                      </Label>
                      <Select
@@ -224,8 +236,12 @@ export function IndispForm({ open, setOpen, trip, update, indisp }) {
 
                   <div className='grid md:grid-cols-2 gap-4'>
                      <div className='grid gap-2'>
-                        <Label htmlFor='date_start' className='font-semibold text-gray-700'>
-                           Data de Início <span className='text-red-500'>*</span>
+                        <Label
+                           htmlFor='date_start'
+                           className='font-semibold text-gray-700'
+                        >
+                           Data de Início{" "}
+                           <span className='text-red-500'>*</span>
                         </Label>
                         <TextInput
                            id='date_start'
@@ -236,7 +252,10 @@ export function IndispForm({ open, setOpen, trip, update, indisp }) {
                         />
                      </div>
                      <div className='grid gap-2'>
-                        <Label htmlFor='date_end' className='font-semibold text-gray-700'>
+                        <Label
+                           htmlFor='date_end'
+                           className='font-semibold text-gray-700'
+                        >
                            Data de Fim <span className='text-red-500'>*</span>
                         </Label>
                         <TextInput
@@ -251,7 +270,10 @@ export function IndispForm({ open, setOpen, trip, update, indisp }) {
                   </div>
 
                   <div className='grid gap-2'>
-                     <Label htmlFor='obs' className='font-semibold text-gray-700'>
+                     <Label
+                        htmlFor='obs'
+                        className='font-semibold text-gray-700'
+                     >
                         Observações
                      </Label>
                      <Textarea

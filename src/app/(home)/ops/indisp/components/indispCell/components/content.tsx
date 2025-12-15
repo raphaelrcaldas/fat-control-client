@@ -101,9 +101,13 @@ function IndispBody({ indisp, onClick }) {
 
    return (
       <div
-         className={`flex flex-col gap-2 px-3 py-3 rounded-lg shadow-sm border ${bgColor} border-gray-300 cursor-pointer hover:shadow-md transition-all`}
+         className={`relative flex flex-col gap-2 px-3 py-3 rounded-lg shadow-sm border ${bgColor} border-gray-300 cursor-pointer hover:shadow-md transition-all`}
          onClick={onClick}
       >
+         <span className='absolute top-1 left-2 text-xs text-gray-500'>
+            ID: {indisp.id}
+         </span>
+
          <div className='flex items-center justify-center'>
             <span className='uppercase text-center text-sm font-bold text-gray-900'>
                {indispProps.label}
