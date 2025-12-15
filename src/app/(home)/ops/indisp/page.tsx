@@ -94,7 +94,7 @@ export default function IndispPage() {
          if (tableContainerRef.current) {
             const containerWidth = tableContainerRef.current.offsetWidth;
             // Largura aproximada de cada coluna de dia (40px) + coluna da tripulação (65px)
-            const cellWidth = 40;
+            const cellWidth = 44;
             const firstColumnWidth = 65;
             const availableWidth = containerWidth - firstColumnWidth - 24; // 24px de padding interno
             const days = Math.floor(availableWidth / cellWidth);

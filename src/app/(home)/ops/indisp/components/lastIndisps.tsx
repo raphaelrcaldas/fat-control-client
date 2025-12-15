@@ -15,12 +15,15 @@ export function LastIndisps({ indisps, update }) {
                ...idp,
                trig: item.trip.trig,
                trip: item.trip,
+               // Usa updated_at se existir, senão created_at
+               lastChange: idp.updated_at || idp.created_at,
+               wasModified: !!idp.updated_at,
             }))
          )
          .sort(
             (a, b) =>
-               new Date(b.created_at).getTime() -
-               new Date(a.created_at).getTime()
+               new Date(b.lastChange).getTime() -
+               new Date(a.lastChange).getTime()
          );
       setLastIndisp(oIndis);
    }, [indisps]);
@@ -33,7 +36,7 @@ export function LastIndisps({ indisps, update }) {
    return (
       <div className='p-3 bg-white rounded-lg shadow-lg border border-gray-200 w-fit h-fit'>
          <h3 className='text-center text-base font-bold text-gray-900 mb-3 pb-2 border-b border-gray-200 whitespace-nowrap'>
-            Últimas Adicionadas
+            Últimas Atualizações
          </h3>
 
          <div className='flex flex-col gap-0.5'>
@@ -52,15 +55,14 @@ export function LastIndisps({ indisps, update }) {
                      month: "2-digit",
                   }
                );
-               const createdAt = new Date(idp.created_at).toLocaleDateString(
-                  "pt-br",
-                  {
-                     day: "2-digit",
-                     month: "2-digit",
-                     hour: "2-digit",
-                     minute: "2-digit",
-                  }
-               );
+               const lastChangeDate = new Date(
+                  idp.lastChange
+               ).toLocaleDateString("pt-br", {
+                  day: "2-digit",
+                  month: "2-digit",
+                  hour: "2-digit",
+                  minute: "2-digit",
+               });
 
                const indispTheme = getIndisp(idp.mtv);
 
@@ -83,8 +85,9 @@ export function LastIndisps({ indisps, update }) {
                         <span className='lowercase text-gray-500'>a</span>{" "}
                         {dateEnd}
                      </span>
-                     <span className='w-20 text-center flex-shrink-0 text-gray-500 text-xs whitespace-nowrap'>
-                        {createdAt}
+                     <span className='w-24 text-center flex-shrink-0 text-gray-500 text-xs whitespace-nowrap'>
+                        {idp.wasModified && <span title='Modificado'>✏️</span>}{" "}
+                        {lastChangeDate}
                      </span>
                   </div>
                );

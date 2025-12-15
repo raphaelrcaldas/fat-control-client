@@ -13,20 +13,31 @@ import {
    TextInput,
 } from "flowbite-react";
 import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
 import { HiOutlineExclamationCircle } from "react-icons/hi";
 
-import { indispsOptions } from "./options";
+import { indispsOptions, getIndisp } from "./options";
 import {
    addIndisp,
    updateIndisp,
    deleteIndisp,
    IndispType,
 } from "services/routes/indisps";
+import { getUserActionLogs, UserActionLog } from "services/routes/logs";
 import { useToast } from "@/app/context/toast";
+
+// Labels amigáveis para os campos do log
+const fieldLabels: Record<string, string> = {
+   date_start: "Data Início",
+   date_end: "Data Fim",
+   mtv: "Motivo",
+   obs: "Observações",
+};
 
 export function IndispForm({ open, setOpen, trip, update, indisp }) {
    const { push } = useToast();
-   const [showConfirmModal, setShowConfirmModal] = useState(false); // Estado para o modal de confirmação
+   const [showConfirmModal, setShowConfirmModal] = useState(false);
+   const [logs, setLogs] = useState<UserActionLog[]>([]);
 
    // 1. Gerenciamento de estado com useState
    const defaultValues = useMemo(() => {
@@ -51,6 +62,17 @@ export function IndispForm({ open, setOpen, trip, update, indisp }) {
       setDateEnd(defaultValues.dateEnd);
       setObs(defaultValues.obs);
    }, [defaultValues]);
+
+   // Buscar logs de alteração quando estiver editando
+   useEffect(() => {
+      if (open && indisp?.id) {
+         getUserActionLogs({ resource: "indisp", resource_id: indisp.id })
+            .then(setLogs)
+            .catch(() => setLogs([]));
+      } else {
+         setLogs([]);
+      }
+   }, [open, indisp?.id]);
 
    // Efeito para sincronizar a data final com a inicial
    useEffect(() => {
@@ -102,20 +124,32 @@ export function IndispForm({ open, setOpen, trip, update, indisp }) {
    // 3. Submissão manual
    const handleIndisp = async () => {
       if (validateForm()) {
-         const data: IndispType = {
-            mtv,
-            date_start: dateStart,
-            date_end: dateEnd,
-            obs,
-         };
+         let data: IndispType;
+
+         if (indisp) {
+            // Para atualização, envia apenas os campos que mudaram
+            data = { id: indisp.id } as IndispType;
+            if (mtv !== defaultValues.mtv) data.mtv = mtv;
+            if (dateStart !== defaultValues.dateStart)
+               data.date_start = dateStart;
+            if (dateEnd !== defaultValues.dateEnd) data.date_end = dateEnd;
+            if (obs !== defaultValues.obs) data.obs = obs;
+         } else {
+            // Para criação, envia todos os campos
+            data = {
+               mtv,
+               date_start: dateStart,
+               date_end: dateEnd,
+               obs,
+               user_id: trip.user.id,
+            };
+         }
 
          try {
             let response: Response;
             if (indisp) {
-               data.id = indisp.id;
                response = await updateIndisp(data);
             } else {
-               data.user_id = trip.user.id;
                response = await addIndisp(data);
             }
 
@@ -284,6 +318,82 @@ export function IndispForm({ open, setOpen, trip, update, indisp }) {
                         rows={4}
                      />
                   </div>
+
+                  {/* Histórico de Alterações */}
+                  {indisp && logs.length > 0 && (
+                     <div className='mt-6 border-t border-gray-200 pt-4'>
+                        <h4 className='font-semibold text-gray-700 mb-3 flex items-center gap-2'>
+                           <span>📝</span> Histórico de Alterações
+                        </h4>
+                        <div className='space-y-3 max-h-48 overflow-y-auto'>
+                           {logs.map((log) => {
+                              const before = log.before
+                                 ? JSON.parse(log.before)
+                                 : {};
+                              const after = log.after
+                                 ? JSON.parse(log.after)
+                                 : {};
+                              const changedFields = Object.keys(after);
+
+                              return (
+                                 <div
+                                    key={log.id}
+                                    className='bg-gray-50 rounded-lg p-3 text-sm border border-gray-100'
+                                 >
+                                    <div className='flex justify-between items-center mb-2'>
+                                       <span className='font-medium text-gray-900 uppercase'>
+                                          {log.user.p_g} {log.user.nome_guerra}
+                                       </span>
+                                       <span className='text-gray-500 text-xs'>
+                                          {format(
+                                             new Date(log.timestamp),
+                                             "dd/MM/yyyy HH:mm",
+                                             { locale: ptBR }
+                                          )}
+                                       </span>
+                                    </div>
+                                    <ul className='space-y-1'>
+                                       {changedFields.map((field) => {
+                                          const label =
+                                             fieldLabels[field] || field;
+                                          let oldVal = before[field] ?? "";
+                                          let newVal = after[field] ?? "";
+
+                                          // Traduzir valores de motivo
+                                          if (field === "mtv") {
+                                             oldVal =
+                                                getIndisp(oldVal)?.label ||
+                                                oldVal;
+                                             newVal =
+                                                getIndisp(newVal)?.label ||
+                                                newVal;
+                                          }
+
+                                          return (
+                                             <li
+                                                key={field}
+                                                className='text-gray-600'
+                                             >
+                                                <span className='font-medium'>
+                                                   {label}:
+                                                </span>{" "}
+                                                <span className='text-red-600 line-through'>
+                                                   {oldVal || "(vazio)"}
+                                                </span>
+                                                {" → "}
+                                                <span className='text-green-600'>
+                                                   {newVal || "(vazio)"}
+                                                </span>
+                                             </li>
+                                          );
+                                       })}
+                                    </ul>
+                                 </div>
+                              );
+                           })}
+                        </div>
+                     </div>
+                  )}
                </div>
             </ModalBody>
             <ModalFooter className='bg-gray-50 flex justify-center gap-3'>

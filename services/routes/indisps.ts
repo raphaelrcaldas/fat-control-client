@@ -4,27 +4,28 @@ import { UserPublic } from "./users";
 const indispRoute = "indisp/";
 
 export interface CrewIndisp {
-   trig: string
-   id: number
-   user: UserPublic
-   func: { func: string, oper: string, proj: string }
+   trig: string;
+   id: number;
+   user: UserPublic;
+   func: { func: string; oper: string; proj: string };
 }
 
 export interface IndispType {
-   id?: number,
-   user_id?: number,
-   date_start: string,
-   date_end: string,
-   mtv: string,
-   obs: string | null,
-   created_by?: number,
-   created_at?: string,
-   user_created?: UserPublic
+   id?: number;
+   user_id?: number;
+   date_start: string;
+   date_end: string;
+   mtv: string;
+   obs: string | null;
+   created_by?: number;
+   created_at?: string;
+   updated_at?: string | null;
+   user_created?: UserPublic;
 }
 
 export interface CrewIndispList {
-   trip: CrewIndisp,
-   indisps: IndispType[]
+   trip: CrewIndisp;
+   indisps: IndispType[];
 }
 
 export async function getCrewIndisps(func: string, uae: string) {
