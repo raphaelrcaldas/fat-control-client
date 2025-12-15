@@ -1,7 +1,7 @@
 "use client";
 
 import { useAuth } from "@/app/context/auth";
-import { FaUserCircle, FaShieldAlt, FaClock } from "react-icons/fa";
+import { FaUserCircle, FaShieldAlt, FaClock, FaHistory } from "react-icons/fa";
 import {
    MdDashboard,
    MdAssignment,
@@ -12,10 +12,12 @@ import {
 } from "react-icons/md";
 import { useEffect, useState } from "react";
 import QuickActions from "./components/quickActions";
+import { getUserActionLogs } from "services/routes/logs";
 
 export default function HomeApp() {
-   const { user, role, userPg } = useAuth();
+   const { user, role, userPg, userId } = useAuth();
    const [currentTime, setCurrentTime] = useState(new Date());
+   const [lastLogin, setLastLogin] = useState<string | null>(null);
 
    useEffect(() => {
       const timer = setInterval(() => {
@@ -23,6 +25,37 @@ export default function HomeApp() {
       }, 1000);
       return () => clearInterval(timer);
    }, []);
+
+   useEffect(() => {
+      const fetchLastLogin = async () => {
+         if (!userId) return;
+         try {
+            const logs = await getUserActionLogs({
+               user_id: Number(userId),
+               action: "login",
+            });
+            // O primeiro log é o login atual, pegamos o segundo (penúltimo login)
+            if (logs.length > 1) {
+               const previousLogin = logs[1];
+               const date = new Date(previousLogin.timestamp);
+               setLastLogin(
+                  date.toLocaleDateString("pt-BR", {
+                     day: "2-digit",
+                     month: "2-digit",
+                     year: "numeric",
+                     hour: "2-digit",
+                     minute: "2-digit",
+                  })
+               );
+            } else {
+               setLastLogin("Primeiro acesso");
+            }
+         } catch (error) {
+            console.error("Erro ao buscar último login:", error);
+         }
+      };
+      fetchLastLogin();
+   }, [userId]);
 
    const getGreeting = () => {
       const hour = currentTime.getHours();
@@ -75,6 +108,17 @@ export default function HomeApp() {
                               {currentTime.toLocaleTimeString("pt-BR")}
                            </span>
                         </div>
+                        {lastLogin && (
+                           <div className='flex items-center gap-2 bg-green-50 px-4 py-2 rounded-lg'>
+                              <FaHistory className='text-green-500' />
+                              <span className='text-sm font-medium text-gray-700'>
+                                 Último acesso:{" "}
+                                 <span className='font-semibold'>
+                                    {lastLogin}
+                                 </span>
+                              </span>
+                           </div>
+                        )}
                      </div>
                   </div>
                </div>
