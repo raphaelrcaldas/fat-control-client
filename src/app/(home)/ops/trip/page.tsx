@@ -366,6 +366,9 @@ export default function TripPage() {
                               <TableHeadCell className='hidden md:table-cell'>
                                  Nome de Guerra
                               </TableHeadCell>
+                              <TableHeadCell className='hidden md:table-cell'>
+                                 Nome Completo
+                              </TableHeadCell>
                               <TableHeadCell>Trigrama</TableHeadCell>
                               <TableHeadCell>Funções</TableHeadCell>
                               <TableHeadCell>

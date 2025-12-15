@@ -1,8 +1,4 @@
-import {
-   TableRow,
-   TableCell,
-   Badge,
-} from "flowbite-react";
+import { TableRow, TableCell, Badge } from "flowbite-react";
 import { TripDetail } from "./tripDetail";
 import { FuncTripRow } from "./FuncTripRow";
 import { PermBased } from "@/app/(home)/hooks/usePermBased";
@@ -25,8 +21,11 @@ export function TripRow({ trip, update }: TripRowProps) {
          <TableCell className='hidden lg:table-cell text-gray-600'>
             {user.esp}
          </TableCell>
-         <TableCell className='hidden md:table-cell font-medium text-gray-800'>
+         <TableCell className='hidden md:table-cell text-gray-800'>
             {user.nome_guerra}
+         </TableCell>
+         <TableCell className='hidden md:table-cell text-gray-800'>
+            {user.nome_completo}
          </TableCell>
          <TableCell className='font-bold text-red-600'>{trip.trig}</TableCell>
          <TableCell>
