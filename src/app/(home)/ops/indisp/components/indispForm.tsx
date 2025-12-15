@@ -346,7 +346,7 @@ export function IndispForm({ open, setOpen, trip, update, indisp }) {
                                        </span>
                                        <span className='text-gray-500 text-xs'>
                                           {format(
-                                             new Date(log.timestamp),
+                                             new Date(log.timestamp+"Z"),
                                              "dd/MM/yyyy HH:mm",
                                              { locale: ptBR }
                                           )}
