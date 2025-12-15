@@ -6,11 +6,10 @@ import {
    TableHead,
    TableHeadCell,
    TableRow,
-   Badge,
 } from "flowbite-react";
 import { FaUserShield } from "react-icons/fa6";
 import type { RoleDetail } from "../../config/types";
-import { getRoleBadgeColor } from "../../config/utils";
+import { getRoleTheme } from "../../config/roleThemes";
 
 interface RolesTableProps {
    roles: RoleDetail[];
@@ -34,21 +33,26 @@ export const RolesTable = memo(function RolesTable({ roles }: RolesTableProps) {
                   </TableRow>
                </TableHead>
                <TableBody className='divide-y'>
-                  {roles.map((r) => (
-                     <TableRow key={r.id} className='bg-white hover:bg-gray-50'>
-                        <TableCell>
-                           <Badge
-                              color={getRoleBadgeColor(r.name)}
-                              className='uppercase w-fit'
-                           >
-                              {r.name}
-                           </Badge>
-                        </TableCell>
-                        <TableCell className='text-sm text-gray-600 uppercase'>
-                           {r.description || "Sem descrição"}
-                        </TableCell>
-                     </TableRow>
-                  ))}
+                  {roles.map((r) => {
+                     const theme = getRoleTheme(r.name);
+                     return (
+                        <TableRow
+                           key={r.id}
+                           className='bg-white hover:bg-gray-50'
+                        >
+                           <TableCell>
+                              <span
+                                 className={`uppercase w-fit inline-block px-3 py-1 rounded-full text-xs font-medium ${theme.bg} ${theme.text}`}
+                              >
+                                 {r.name}
+                              </span>
+                           </TableCell>
+                           <TableCell className='text-sm text-gray-600 uppercase'>
+                              {r.description || "Sem descrição"}
+                           </TableCell>
+                        </TableRow>
+                     );
+                  })}
                </TableBody>
             </Table>
          </div>

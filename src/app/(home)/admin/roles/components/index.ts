@@ -9,5 +9,4 @@ export { PermissionsMatrixTab } from "./permissions/PermissionsMatrixTab";
 export { PermissionMatrix } from "./permissions/PermissionMatrix";
 
 // Config exports
-export { getRoleBadgeColor } from "../config/utils";
 export type { PermissionMatrix as PermissionMatrixType } from "../config/types";
