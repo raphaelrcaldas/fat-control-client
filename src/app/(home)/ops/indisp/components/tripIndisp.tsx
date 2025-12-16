@@ -35,6 +35,9 @@ export const TripIndisp = ({
 
    const user = trip.user;
 
+   // Filtra indisps deletadas para a tabela principal
+   const activeIndisps = indisps.filter((i) => !i.deleted_at);
+
    return (
       <>
          <Button
@@ -67,7 +70,7 @@ export const TripIndisp = ({
                      </h3>
                   </div>
 
-                  {indisps.length > 0 ? (
+                  {activeIndisps.length > 0 ? (
                      <div className='mt-4 shadow-md rounded-lg overflow-hidden border border-gray-200'>
                         <Table hoverable className='text-center uppercase'>
                            <TableHead className='bg-gray-100'>
@@ -75,7 +78,7 @@ export const TripIndisp = ({
                                  <TableHeadCell className='font-bold'>
                                     MOTIVO
                                  </TableHeadCell>
-                                 <TableHeadCell className='font-bold hidden md:table-column'>
+                                 <TableHeadCell className='font-bold hidden md:table-cell'>
                                     OBS
                                  </TableHeadCell>
                                  <TableHeadCell className='font-bold'>
@@ -90,7 +93,7 @@ export const TripIndisp = ({
                               </TableRow>
                            </TableHead>
                            <TableBody className='divide-y'>
-                              {indisps.map((indisp) => (
+                              {activeIndisps.map((indisp) => (
                                  <TripIndispRow
                                     key={indisp.id}
                                     indisp={indisp}
@@ -149,7 +152,9 @@ function TripIndispRow({ indisp, trip, update }) {
                {indispProps.value}
             </span>
          </TableCell>
-         <TableCell className='p-1 hidden md:table-cell'>{indisp.obs}</TableCell>
+         <TableCell className='p-1 hidden md:table-cell'>
+            {indisp.obs}
+         </TableCell>
          <TableCell className='p-1 font-semibold'>{dateStart}</TableCell>
          <TableCell className='p-1 font-semibold'>{dateEnd}</TableCell>
          <TableCell className='p-1'>

@@ -24,9 +24,11 @@ export default function IndispCell({
    const startOfDay = (d: Date) =>
       new Date(d.getFullYear(), d.getMonth(), d.getDate()).valueOf();
 
-   // FILTRA INDISP QUE ESTEJA DENTRO DA DATA REFERENTE
-   const filterIndisp = indisps.filter((indisp) =>
-      dateIsIn(dateRef, indisp.date_start, indisp.date_end)
+   // FILTRA INDISP QUE ESTEJA DENTRO DA DATA REFERENTE E NÃO DELETADAS
+   const filterIndisp = indisps.filter(
+      (indisp) =>
+         !indisp.deleted_at &&
+         dateIsIn(dateRef, indisp.date_start, indisp.date_end)
    );
 
    const isValidCEMAL =
@@ -50,8 +52,11 @@ export default function IndispCell({
    const btnClass = colorBtn(filterIndisp, isValidCEMAL, isDesadaptado);
    const btn = (
       <Button
-         className={clsx("size-10 transition-all duration-200 hover:scale-110 hover:shadow-lg", btnClass)}
-         aria-label="Status de disponibilidade"
+         className={clsx(
+            "size-10 transition-all duration-200 hover:scale-110 hover:shadow-lg",
+            btnClass
+         )}
+         aria-label='Status de disponibilidade'
       >
          {""}
       </Button>

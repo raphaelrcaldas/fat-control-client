@@ -34,7 +34,14 @@ const fieldLabels: Record<string, string> = {
    obs: "Observações",
 };
 
-export function IndispForm({ open, setOpen, trip, update, indisp }) {
+export function IndispForm({
+   open,
+   setOpen,
+   trip,
+   update,
+   indisp,
+   readOnly = false,
+}) {
    const { push } = useToast();
    const [showConfirmModal, setShowConfirmModal] = useState(false);
    const [logs, setLogs] = useState<UserActionLog[]>([]);
@@ -214,31 +221,40 @@ export function IndispForm({ open, setOpen, trip, update, indisp }) {
          <Modal
             show={open}
             size='lg'
+            popup
             onClose={() => {
                clearModal();
                closeModal();
             }}
          >
             <ModalHeader>
-               <div className='flex flex-col'>
-                  <span className='font-bold text-lg'>
-                     {indisp ? "Atualizar" : "Adicionar"} Indisponibilidade
-                  </span>
+               <div className='flex flex-row gap-2 items-center'>
                   {indisp && (
                      <span className='text-sm font-normal text-gray-500'>
                         ID: {indisp.id}
                      </span>
                   )}
+
+                  <span className='font-bold text-lg'>
+                     {readOnly
+                        ? "Visualizar"
+                        : indisp
+                        ? "Atualizar"
+                        : "Adicionar"}{" "}
+                     Indisponibilidade
+                  </span>
                </div>
             </ModalHeader>
             <ModalBody>
-               <div className='bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-4 mb-4 border border-blue-200'>
-                  <h3 className='uppercase text-center font-bold text-gray-900 text-lg'>
+               {readOnly && (
+                  <div className='bg-red-100 border border-red-300 text-red-700 px-4 py-2 rounded-lg mb-4 text-center font-medium'>
+                     🗑️ Esta indisponibilidade foi deletada
+                  </div>
+               )}
+               <div className='bg-red-50 rounded-lg p-4 mb-4 border border-red-200'>
+                  <h3 className='uppercase text-center font-bold text-gray-900'>
                      {trip.user.posto.short} {trip.user.esp}{" "}
                      {trip.user.nome_guerra}
-                  </h3>
-                  <h3 className='uppercase text-center text-gray-600 text-sm mt-1'>
-                     {trip.user.nome_completo}
                   </h3>
                </div>
 
@@ -256,6 +272,7 @@ export function IndispForm({ open, setOpen, trip, update, indisp }) {
                         value={mtv}
                         onChange={(e) => setMtv(e.target.value)}
                         required
+                        disabled={readOnly}
                      >
                         <option value='' disabled>
                            Selecione um motivo
@@ -283,6 +300,7 @@ export function IndispForm({ open, setOpen, trip, update, indisp }) {
                            value={dateStart}
                            onChange={(e) => setDateStart(e.target.value)}
                            required
+                           disabled={readOnly}
                         />
                      </div>
                      <div className='grid gap-2'>
@@ -299,6 +317,7 @@ export function IndispForm({ open, setOpen, trip, update, indisp }) {
                            min={dateStart}
                            onChange={(e) => setDateEnd(e.target.value)}
                            required
+                           disabled={readOnly}
                         />
                      </div>
                   </div>
@@ -315,7 +334,7 @@ export function IndispForm({ open, setOpen, trip, update, indisp }) {
                         placeholder='Detalhes adicionais sobre a indisponibilidade...'
                         value={obs}
                         onChange={(e) => setObs(e.target.value)}
-                        rows={4}
+                        disabled={readOnly}
                      />
                   </div>
 
@@ -334,11 +353,16 @@ export function IndispForm({ open, setOpen, trip, update, indisp }) {
                                  ? JSON.parse(log.after)
                                  : {};
                               const changedFields = Object.keys(after);
+                              const isDeleteAction = log.action === "delete";
 
                               return (
                                  <div
                                     key={log.id}
-                                    className='bg-gray-50 rounded-lg p-3 text-sm border border-gray-100'
+                                    className={`rounded-lg p-3 text-sm border ${
+                                       isDeleteAction
+                                          ? "bg-red-50 border-red-200"
+                                          : "bg-gray-50 border-gray-100"
+                                    }`}
                                  >
                                     <div className='flex justify-between items-center mb-2'>
                                        <span className='font-medium text-gray-900 uppercase'>
@@ -346,48 +370,54 @@ export function IndispForm({ open, setOpen, trip, update, indisp }) {
                                        </span>
                                        <span className='text-gray-500 text-xs'>
                                           {format(
-                                             new Date(log.timestamp+"Z"),
+                                             new Date(log.timestamp + "Z"),
                                              "dd/MM/yyyy HH:mm",
                                              { locale: ptBR }
                                           )}
                                        </span>
                                     </div>
-                                    <ul className='space-y-1'>
-                                       {changedFields.map((field) => {
-                                          const label =
-                                             fieldLabels[field] || field;
-                                          let oldVal = before[field] ?? "";
-                                          let newVal = after[field] ?? "";
+                                    {isDeleteAction ? (
+                                       <div className='text-red-600 font-medium'>
+                                          🗑️ Indisponibilidade deletada
+                                       </div>
+                                    ) : (
+                                       <ul className='space-y-1'>
+                                          {changedFields.map((field) => {
+                                             const label =
+                                                fieldLabels[field] || field;
+                                             let oldVal = before[field] ?? "";
+                                             let newVal = after[field] ?? "";
 
-                                          // Traduzir valores de motivo
-                                          if (field === "mtv") {
-                                             oldVal =
-                                                getIndisp(oldVal)?.label ||
-                                                oldVal;
-                                             newVal =
-                                                getIndisp(newVal)?.label ||
-                                                newVal;
-                                          }
+                                             // Traduzir valores de motivo
+                                             if (field === "mtv") {
+                                                oldVal =
+                                                   getIndisp(oldVal)?.label ||
+                                                   oldVal;
+                                                newVal =
+                                                   getIndisp(newVal)?.label ||
+                                                   newVal;
+                                             }
 
-                                          return (
-                                             <li
-                                                key={field}
-                                                className='text-gray-600'
-                                             >
-                                                <span className='font-medium'>
-                                                   {label}:
-                                                </span>{" "}
-                                                <span className='text-red-600 line-through'>
-                                                   {oldVal || "(vazio)"}
-                                                </span>
-                                                {" → "}
-                                                <span className='text-green-600'>
-                                                   {newVal || "(vazio)"}
-                                                </span>
-                                             </li>
-                                          );
-                                       })}
-                                    </ul>
+                                             return (
+                                                <li
+                                                   key={field}
+                                                   className='text-gray-600'
+                                                >
+                                                   <span className='font-medium'>
+                                                      {label}:
+                                                   </span>{" "}
+                                                   <span className='text-red-600 line-through'>
+                                                      {oldVal || "(vazio)"}
+                                                   </span>
+                                                   {" → "}
+                                                   <span className='text-green-600'>
+                                                      {newVal || "(vazio)"}
+                                                   </span>
+                                                </li>
+                                             );
+                                          })}
+                                       </ul>
+                                    )}
                                  </div>
                               );
                            })}
@@ -397,15 +427,17 @@ export function IndispForm({ open, setOpen, trip, update, indisp }) {
                </div>
             </ModalBody>
             <ModalFooter className='bg-gray-50 flex justify-center gap-3'>
-               <Button
-                  color='blue'
-                  onClick={handleIndisp}
-                  disabled={indisp ? !isChanged : false}
-                  size='md'
-               >
-                  {indisp ? "Atualizar" : "Adicionar"}
-               </Button>
-               {indisp && (
+               {!readOnly && (
+                  <Button
+                     color='blue'
+                     onClick={handleIndisp}
+                     disabled={indisp ? !isChanged : false}
+                     size='md'
+                  >
+                     {indisp ? "Atualizar" : "Adicionar"}
+                  </Button>
+               )}
+               {indisp && !readOnly && (
                   <Button
                      type='button'
                      onClick={() => setShowConfirmModal(true)}

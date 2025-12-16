@@ -15,9 +15,10 @@ export function LastIndisps({ indisps, update }) {
                ...idp,
                trig: item.trip.trig,
                trip: item.trip,
-               // Usa updated_at se existir, senão created_at
-               lastChange: idp.updated_at || idp.created_at,
+               // Prioridade: deleted_at > updated_at > created_at
+               lastChange: idp.deleted_at || idp.updated_at || idp.created_at,
                wasModified: !!idp.updated_at,
+               isDeleted: !!idp.deleted_at,
             }))
          )
          .sort(
@@ -68,25 +69,48 @@ export function LastIndisps({ indisps, update }) {
 
                return (
                   <div
-                     className='flex items-center select-none gap-2 hover:bg-blue-50 border-b border-gray-100 px-2 py-1 uppercase text-xs last:border-b-0 transition-colors rounded cursor-pointer'
+                     className={`flex items-center select-none gap-2 border-b border-gray-100 px-2 py-1 uppercase text-xs last:border-b-0 transition-colors rounded cursor-pointer ${
+                        idp.isDeleted
+                           ? "bg-red-100 opacity-70"
+                           : "hover:bg-blue-50"
+                     }`}
                      key={idp.id || `${idp.trig}-${idp.created_at}-${idx}`}
                      onClick={() => handleIndispClick(idp)}
                   >
-                     <span className='font-bold w-10 text-gray-900 text-center flex-shrink-0'>
+                     <span
+                        className={`font-bold w-10 text-center flex-shrink-0 ${
+                           idp.isDeleted
+                              ? "text-gray-500 line-through"
+                              : "text-gray-900"
+                        }`}
+                     >
                         {idp.trig}
                      </span>
                      <span
-                        className={`w-12 flex-shrink-0 text-center text-xs font-semibold rounded px-2 py-0.5 ${indispTheme.color.bg} border border-gray-300`}
+                        className={`w-12 flex-shrink-0 text-center text-xs font-semibold rounded px-2 py-0.5 border border-gray-300 ${
+                           idp.isDeleted
+                              ? "bg-gray-200 line-through"
+                              : indispTheme.color.bg
+                        }`}
                      >
                         {idp.mtv}
                      </span>
-                     <span className='w-24 flex-shrink-0 text-center text-gray-700 font-medium text-xs whitespace-nowrap'>
+                     <span
+                        className={`w-24 flex-shrink-0 text-center font-medium text-xs whitespace-nowrap ${
+                           idp.isDeleted
+                              ? "text-gray-500 line-through"
+                              : "text-gray-700"
+                        }`}
+                     >
                         {dateIni}{" "}
                         <span className='lowercase text-gray-500'>a</span>{" "}
                         {dateEnd}
                      </span>
                      <span className='w-24 text-center flex-shrink-0 text-gray-500 text-xs whitespace-nowrap'>
-                        {idp.wasModified && <span title='Modificado'>✏️</span>}{" "}
+                        {idp.isDeleted && <span title='Deletado'>🗑️</span>}
+                        {!idp.isDeleted && idp.wasModified && (
+                           <span title='Modificado'>✏️</span>
+                        )}{" "}
                         {lastChangeDate}
                      </span>
                   </div>
@@ -101,6 +125,7 @@ export function LastIndisps({ indisps, update }) {
                trip={selectedIndisp.trip}
                update={update}
                indisp={selectedIndisp}
+               readOnly={selectedIndisp.isDeleted}
             />
          )}
       </div>
