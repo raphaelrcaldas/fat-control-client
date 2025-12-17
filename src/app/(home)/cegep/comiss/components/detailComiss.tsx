@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import {
    Button,
    Modal,
@@ -20,8 +20,10 @@ import { gerarRelatorio } from "utils/planilhaComiss";
 import { gerarRelatorioDocx } from "utils/apostilaComiss";
 import { realCurrency } from "utils/financeiro";
 import {
+   ComissList,
    ComissWithMiss,
    Comiss as ComissSchema,
+   getCmtoById,
 } from "services/routes/cegep/comiss";
 import { RiFileExcel2Fill } from "react-icons/ri";
 import { HiDocumentText } from "react-icons/hi";
@@ -47,7 +49,7 @@ export function DetailComiss({
 }: {
    show: boolean;
    setShow: (show: boolean) => void;
-   comiss?: ComissWithMiss;
+   comiss?: ComissList;
    update?: () => void;
 }) {
    const [isEditMode, setIsEditMode] = useState(false);
@@ -55,7 +57,19 @@ export function DetailComiss({
    const [isDeleting, setIsDeleting] = useState(false);
    const [showUserSearch, setShowUserSearch] = useState(false);
    const [isLoading, setIsLoading] = useState(false);
+   const [detail, setDetail] = useState<ComissWithMiss | null>(null);
+   const [loadingDetail, setLoadingDetail] = useState(false);
    const { push } = useToast();
+
+   // Fetch detail with missions when modal opens
+   useEffect(() => {
+      if (show && comiss?.id && !detail) {
+         setLoadingDetail(true);
+         getCmtoById(comiss.id)
+            .then((data) => setDetail(data))
+            .finally(() => setLoadingDetail(false));
+      }
+   }, [show, comiss?.id, detail]);
 
    // Valores padrões do formulário
    const defaultValues = useMemo(
@@ -190,24 +204,24 @@ export function DetailComiss({
    }
 
    async function handleExportSheet() {
-      if (!comiss) return;
-      const blob = await gerarRelatorio(comiss);
+      if (!detail) return;
+      const blob = await gerarRelatorio(detail);
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      const userName = `${comiss.user.posto.short}_${comiss.user.nome_guerra}`;
+      const userName = `${detail.user.posto.short}_${detail.user.nome_guerra}`;
       a.download = `comissionamento_${userName}.xlsx`;
       a.click();
       URL.revokeObjectURL(url);
    }
 
    async function handleExportDocx() {
-      if (!comiss) return;
-      const blob = await gerarRelatorioDocx(comiss);
+      if (!detail) return;
+      const blob = await gerarRelatorioDocx(detail);
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      const userName = `${comiss.user.posto.short}_${comiss.user.nome_guerra}`;
+      const userName = `${detail.user.posto.short}_${detail.user.nome_guerra}`;
       a.download = `apostila_${userName}.docx`;
       a.click();
       URL.revokeObjectURL(url);
@@ -577,7 +591,9 @@ export function DetailComiss({
                               color='light'
                               onClick={handleExportSheet}
                               disabled={
-                                 comiss.missoes.length == 0 || isDeleting
+                                 !detail?.missoes?.length ||
+                                 isDeleting ||
+                                 loadingDetail
                               }
                               className='transition-all duration-200 hover:shadow-lg hover:scale-105 active:scale-95 bg-white'
                            >
@@ -592,7 +608,9 @@ export function DetailComiss({
                               color='light'
                               onClick={handleExportDocx}
                               disabled={
-                                 comiss.missoes.length == 0 || isDeleting
+                                 !detail?.missoes?.length ||
+                                 isDeleting ||
+                                 loadingDetail
                               }
                               className='transition-all duration-200 hover:shadow-lg hover:scale-105 active:scale-95 bg-white'
                            >
@@ -962,13 +980,17 @@ export function DetailComiss({
                      Missões Relacionadas
                   </h4>
                   <div className='bg-white rounded-xl border border-gray-200 overflow-hidden'>
-                     {comiss.missoes.length > 0 ? (
+                     {loadingDetail ? (
+                        <div className='p-8 flex justify-center'>
+                           <Spinner size='md' />
+                        </div>
+                     ) : detail?.missoes && detail.missoes.length > 0 ? (
                         <div className='divide-y divide-gray-100'>
-                           {comiss.missoes.map((m) => (
+                           {detail.missoes.map((m) => (
                               <MissionRow
                                  key={m.id}
                                  mis={m}
-                                 diasPrev={comiss.dias_cumprir}
+                                 diasPrev={comiss?.dias_cumprir}
                               />
                            ))}
                         </div>

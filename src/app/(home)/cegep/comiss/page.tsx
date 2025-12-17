@@ -5,12 +5,12 @@ import { Label, Select, TextInput, Badge } from "flowbite-react";
 import { Spinner } from "@/components/Spinner";
 import { ListComiss } from "./components/listComiss";
 import { DetailComiss } from "./components/detailComiss";
-import { getCmtos, ComissWithMiss } from "services/routes/cegep/comiss";
+import { getCmtos, ComissList } from "services/routes/cegep/comiss";
 import { RoleBasedRoute } from "../../hooks/useRoleBased";
 import { HiFilter, HiX } from "react-icons/hi";
 
 export default function ComissPage() {
-   const [cmtos, setCmtos] = useState<ComissWithMiss[]>([]);
+   const [cmtos, setCmtos] = useState<ComissList[]>([]);
    const [loading, setLoading] = useState(true);
    const [showFormComiss, setShowFormComiss] = useState(false);
    const [statusComis, setStatusComis] = useState("aberto");
@@ -106,7 +106,9 @@ export default function ComissPage() {
                         <div className='flex items-center gap-2'>
                            <button
                               type='button'
-                              onClick={() => setFiltersExpanded(!filtersExpanded)}
+                              onClick={() =>
+                                 setFiltersExpanded(!filtersExpanded)
+                              }
                               className='flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors'
                            >
                               <HiFilter className='w-4 h-4' />

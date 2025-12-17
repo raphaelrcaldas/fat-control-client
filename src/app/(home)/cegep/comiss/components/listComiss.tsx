@@ -9,13 +9,13 @@ import {
 } from "react-icons/md";
 import { DetailComiss } from "./detailComiss";
 import clsx from "clsx";
-import { ComissWithMiss } from "services/routes/cegep/comiss";
+import { ComissList } from "services/routes/cegep/comiss";
 
 export function ListComiss({
    comiss,
    update,
 }: {
-   comiss: ComissWithMiss;
+   comiss: ComissList;
    update: () => void;
 }) {
    const [showDetail, setShowDetail] = useState(false);
