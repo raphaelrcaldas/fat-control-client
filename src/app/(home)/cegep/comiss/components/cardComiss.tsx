@@ -13,14 +13,14 @@ import { DetailComiss } from "./detailComiss";
 import clsx from "clsx";
 import { realCurrency } from "utils/financeiro";
 import { deleteCmto } from "services/routes/cegep/comiss";
-import { ComissWithMiss } from "services/routes/cegep/comiss";
+import { ComissList } from "services/routes/cegep/comiss";
 import "react-circular-progressbar/dist/styles.css";
 
 export function CardComiss({
    comiss,
    update,
 }: {
-   comiss: ComissWithMiss;
+   comiss: ComissList;
    update: () => void;
 }) {
    const [showDetail, setShowDetail] = useState(false);
