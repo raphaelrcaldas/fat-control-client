@@ -947,27 +947,11 @@ export function DetailComiss({
                      <div className='flex justify-between text-sm'>
                         <span className='text-gray-600'>Progresso</span>
                         <span className='font-semibold text-gray-900'>
-                           {comiss.dias_cumprir
-                              ? `${Math.round(
-                                   (comiss.dias_comp / comiss.dias_cumprir) *
-                                      100
-                                )}%`
-                              : `${Math.round(
-                                   (comiss.vals_comp / (ajd_ab + ajd_fc)) * 100
-                                )}%`}
+                           {`${comiss.completude * 100}%`}
                         </span>
                      </div>
                      <Progress
-                        progress={
-                           comiss.dias_cumprir
-                              ? Math.round(
-                                   (comiss.dias_comp / comiss.dias_cumprir) *
-                                      100
-                                )
-                              : Math.round(
-                                   (comiss.vals_comp / (ajd_ab + ajd_fc)) * 100
-                                )
-                        }
+                        progress={comiss.completude * 100}
                         size='lg'
                         color={comiss.modulo ? "green" : "red"}
                      />
