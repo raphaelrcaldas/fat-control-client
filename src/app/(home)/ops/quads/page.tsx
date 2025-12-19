@@ -184,7 +184,7 @@ export default function QuadPage() {
                   <Radio
                      id='opr'
                      name='ordenar'
-                     color='blue'
+                     color='red'
                      value='opr'
                      checked={ordem === "opr"}
                      onChange={() => setOrdem("opr")}
@@ -195,7 +195,7 @@ export default function QuadPage() {
                   <Radio
                      id='mil'
                      name='ordenar'
-                     color='blue'
+                     color='red'
                      value='mil'
                      checked={ordem === "mil"}
                      onChange={() => setOrdem("mil")}
@@ -211,7 +211,7 @@ export default function QuadPage() {
                   <Radio
                      id='comp'
                      name='visual'
-                     color='blue'
+                     color='red'
                      value='comp'
                      checked={visual === "comp"}
                      onChange={() => setVisual("comp")}
@@ -222,7 +222,7 @@ export default function QuadPage() {
                   <Radio
                      id='reduz'
                      name='visual'
-                     color='blue'
+                     color='red'
                      value='reduz'
                      checked={visual === "reduz"}
                      onChange={() => setVisual("reduz")}

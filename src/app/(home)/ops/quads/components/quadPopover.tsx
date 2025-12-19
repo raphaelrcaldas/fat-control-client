@@ -12,7 +12,7 @@ export function QuadPopover({ quad }: { quad: Quad }) {
       <button
          type='button'
          className={clsx(`flex-shrink-0 rounded h-9 w-9`, {
-            "bg-blue-600 hover:bg-blue-800": quad.value,
+            "bg-red-500 hover:bg-red-700": quad.value,
             "bg-slate-500 hover:bg-slate-700": !quad.value,
             "sm:w-[65px]": visual === "comp",
             "sm:w-9": visual === "reduz",

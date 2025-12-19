@@ -132,7 +132,7 @@ export function QuadsTrip({
          >
             {trip.trig}
             <div
-               className='absolute inline-flex items-center justify-center w-6 h-6 text-xs font-bold text-white bg-blue-500 border-2 border-white rounded-full -top-2 -right-2'
+               className='absolute inline-flex items-center justify-center w-6 h-6 text-xs font-bold text-white bg-red-500 border-2 border-white rounded-full -top-2 -right-2'
                aria-label={`${totalQuads} quadrinhos`}
             >
                {totalQuads}
@@ -148,7 +148,7 @@ export function QuadsTrip({
          >
             <ModalHeader>
                <div className='flex items-center gap-2'>
-                  <div className='w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center'>
+                  <div className='w-10 h-10 bg-red-600 rounded-lg flex items-center justify-center'>
                      <svg
                         className='w-6 h-6 text-white'
                         fill='none'
@@ -169,7 +169,7 @@ export function QuadsTrip({
                </div>
             </ModalHeader>
             <ModalBody>
-               <div className='mb-2 p-4 bg-gradient-to-r from-blue-50 to-blue-100 rounded-xl border border-blue-200'>
+               <div className='mb-2 p-4 bg-red-100 rounded-xl border border-red-200'>
                   <div className='text-center uppercase'>
                      <h2 className='font-bold text-lg text-gray-900'>
                         {userName}
@@ -222,7 +222,7 @@ export function QuadsTrip({
                <PermBased resource={"quad"} requiredPerm={"create"}>
                   <div className='flex justify-center mt-4'>
                      <Button
-                        color='blue'
+                        color='red'
                         onClick={() => setShowForm(true)}
                         className='w-full sm:w-auto'
                      >
