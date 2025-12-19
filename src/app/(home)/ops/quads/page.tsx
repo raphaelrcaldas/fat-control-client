@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState, useMemo, useCallback } from "react";
+import { useEffect, useState, useMemo, useCallback, useRef } from "react";
 import { Select, Radio, Label } from "flowbite-react";
 import { Spinner } from "@/components/Spinner";
 import { getQuads, getQuadsType } from "services/routes/quads";
@@ -22,6 +22,47 @@ export default function QuadPage() {
 
    const { quadFunc, setQuadFunc, quadType, setQuadType, visual, setVisual } =
       useQuadsContext();
+
+   // Drag scroll
+   const scrollRef = useRef<HTMLDivElement>(null);
+   const isDragging = useRef(false);
+   const startX = useRef(0);
+   const scrollLeft = useRef(0);
+
+   const handleMouseDown = (e: React.MouseEvent) => {
+      if (!scrollRef.current) return;
+      isDragging.current = true;
+      startX.current = e.pageX - scrollRef.current.offsetLeft;
+      scrollLeft.current = scrollRef.current.scrollLeft;
+      scrollRef.current.style.cursor = "grabbing";
+   };
+
+   const handleMouseMove = (e: React.MouseEvent) => {
+      if (!isDragging.current || !scrollRef.current) return;
+      e.preventDefault();
+      const x = e.pageX - scrollRef.current.offsetLeft;
+      const walk = (x - startX.current) * 1.5;
+      scrollRef.current.scrollLeft = scrollLeft.current - walk;
+   };
+
+   const handleMouseUp = () => {
+      isDragging.current = false;
+      if (scrollRef.current) scrollRef.current.style.cursor = "grab";
+   };
+
+   const handleTouchStart = (e: React.TouchEvent) => {
+      if (!scrollRef.current) return;
+      isDragging.current = true;
+      startX.current = e.touches[0].pageX - scrollRef.current.offsetLeft;
+      scrollLeft.current = scrollRef.current.scrollLeft;
+   };
+
+   const handleTouchMove = (e: React.TouchEvent) => {
+      if (!isDragging.current || !scrollRef.current) return;
+      const x = e.touches[0].pageX - scrollRef.current.offsetLeft;
+      const walk = (x - startX.current) * 1.5;
+      scrollRef.current.scrollLeft = scrollLeft.current - walk;
+   };
 
    const getQuadsName = useCallback(() => {
       if (quadsType.length === 0) return;
@@ -238,8 +279,16 @@ export default function QuadPage() {
          </div>
 
          <div
+            ref={scrollRef}
             id='quad_table'
-            className='flex flex-col gap-1 py-3 relative bg-white rounded-lg whitespace-nowrap shadow-md max-h-[80%] md:max-h-[80%] overflow-x-auto overflow-y-auto'
+            className='flex flex-col gap-1 py-3 relative bg-white rounded-lg whitespace-nowrap shadow-md max-h-[80%] md:max-h-[80%] overflow-x-auto overflow-y-auto cursor-grab select-none'
+            onMouseDown={handleMouseDown}
+            onMouseMove={handleMouseMove}
+            onMouseUp={handleMouseUp}
+            onMouseLeave={handleMouseUp}
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleMouseUp}
          >
             {loadingQuads ? (
                <div className='flex flex-col font-semibold items-center justify-center gap-2 p-2'>
