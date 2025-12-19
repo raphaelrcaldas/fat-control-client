@@ -44,3 +44,25 @@ export async function updateIndisp(indisp: IndispType) {
 export async function deleteIndisp(indispId: number) {
    return await request("DELETE", indispRoute + indispId);
 }
+
+// Interface para filtros de indisponibilidade
+export interface IndispFilters {
+   [key: string]: string | undefined;
+   date_from?: string;
+   date_to?: string;
+   mtv?: string;
+}
+
+// Busca indisponibilidades de um usuário específico com filtros
+export async function getIndispByUser(
+   userId: number,
+   filters?: IndispFilters
+): Promise<IndispType[]> {
+   const response = await request(
+      "GET",
+      `${indispRoute}user/${userId}`,
+      null,
+      filters
+   );
+   return (await response.json()) as IndispType[];
+}
