@@ -3,7 +3,7 @@ import request from "../../Api";
 import { cegepRoute } from ".";
 import { UserPublic } from "../users";
 import { Cidade } from "../cities";
-
+import { Etiqueta } from "../cegep/etiquetas";
 const missoesRoute = cegepRoute + "missoes/"
 
 export interface UserMission {
@@ -50,6 +50,7 @@ export interface Missao {
    diarias?: number
    valor_total?: number
    qtd_ac?: number
+   etiquetas?: Etiqueta[]
 }
 
 

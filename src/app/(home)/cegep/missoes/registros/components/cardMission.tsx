@@ -12,7 +12,7 @@ import { Missao } from "services/routes/cegep/missoes";
 import clsx from "clsx";
 import { isoStrToDate, DATE_FORMAT_EXTENDED } from "utils/dateHandler";
 import { MdDescription } from "react-icons/md";
-import { HiDocumentText } from "react-icons/hi2";
+import { HiDocumentText, HiTag } from "react-icons/hi2";
 import { MissionMilitar } from "./missionDetail/militar/missionMilitar";
 
 export const CardMission = memo(function CardMission({
@@ -27,6 +27,9 @@ export const CardMission = memo(function CardMission({
    setShowForm: Dispatch<SetStateAction<boolean>>;
 }) {
    const [showDetail, setShowDetail] = useState(false);
+   
+   // Etiquetas vêm diretamente da missão (objetos completos da API)
+   const etiquetas = missao.etiquetas || [];
 
    const { ini, fim } = useMemo(
       () => ({
@@ -55,6 +58,23 @@ export const CardMission = memo(function CardMission({
    return (
       <>
          <div className='relative bg-white p-5 shadow-lg rounded-2xl w-full border-2 border-gray-100'>
+            {/* Etiquetas no topo do card (somente exibição) */}
+            {etiquetas.length > 0 && (
+               <div className='flex flex-wrap items-center gap-1.5 mb-3 pb-3 border-b border-gray-100'>
+                  {etiquetas.map(etiqueta => (
+                     <span
+                        key={etiqueta.id}
+                        className='inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium rounded-full text-white'
+                        style={{ backgroundColor: etiqueta.cor }}
+                        title={etiqueta.descricao}
+                     >
+                        <HiTag className='w-2.5 h-2.5' />
+                        {etiqueta.nome}
+                     </span>
+                  ))}
+               </div>
+            )}
+
             {/* Header com documento */}
             <div className='flex items-center justify-between mb-4'>
                <div className='flex items-center gap-3'>

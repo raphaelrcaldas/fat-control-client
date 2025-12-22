@@ -7,6 +7,7 @@ import { Missao } from "services/routes/cegep/missoes";
 import { CardMission } from "./components/cardMission";
 import MissionDetail from "./components/missionDetail";
 import { useRegisterContext } from "../../context/registerContext";
+import { useEtiquetas } from "../../context/etiquetasContext";
 import { Spinner } from "@/components/Spinner";
 import {
    HiX,
@@ -17,6 +18,7 @@ import {
    HiUser,
    HiLocationMarker,
    HiCalendar,
+   HiTag,
 } from "react-icons/hi";
 
 export function RegisPage() {
@@ -25,6 +27,10 @@ export function RegisPage() {
    const [showForm, setShowForm] = useState(false);
    const [loading, setLoading] = useState(true);
    const [showFilters, setShowFilters] = useState(false);
+   const [selectedEtiquetaIds, setSelectedEtiquetaIds] = useState<number[]>([]);
+
+   const { etiquetas: etiquetasDisponiveis } = useEtiquetas();
+
    const {
       dataInicio,
       setDataInicio,
@@ -49,7 +55,8 @@ export function RegisPage() {
       userSearch ||
       citySearch ||
       dataInicio ||
-      dataFim
+      dataFim ||
+      selectedEtiquetaIds.length > 0
    );
 
    const clearFilters = () => {
@@ -58,6 +65,7 @@ export function RegisPage() {
       setSelectedTipo("");
       setUserSearch("");
       setCitySearch("");
+      setSelectedEtiquetaIds([]);
       const hoje = new Date();
       const quinzeDiasAntes = new Date(hoje.getFullYear(), 0, 1);
       setDataInicio(quinzeDiasAntes.toISOString().split("T")[0]);
@@ -76,6 +84,7 @@ export function RegisPage() {
       if (dataFim) req.fim = dataFim;
       if (userSearch) req.user_search = userSearch;
       if (citySearch) req.city = citySearch;
+      if (selectedEtiquetaIds.length > 0) req.etiqueta_ids = selectedEtiquetaIds.join(',');
 
       const data = await getFragMissoes(req);
 
@@ -89,6 +98,7 @@ export function RegisPage() {
       dataFim,
       userSearch,
       citySearch,
+      selectedEtiquetaIds,
    ]);
 
    const handleSetClone = useCallback((missao: Missao) => {
@@ -295,6 +305,28 @@ export function RegisPage() {
                         </Badge>
                      )}
 
+                     {/* Etiquetas selecionadas */}
+                     {selectedEtiquetaIds.map(id => {
+                        const etiqueta = etiquetasDisponiveis.find(e => e.id === id);
+                        if (!etiqueta) return null;
+                        return (
+                           <span
+                              key={id}
+                              className='inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium rounded-full text-white'
+                              style={{ backgroundColor: etiqueta.cor }}
+                           >
+                              <HiTag className='w-3 h-3' />
+                              {etiqueta.nome}
+                              <button
+                                 onClick={() => setSelectedEtiquetaIds(prev => prev.filter(eid => eid !== id))}
+                                 className='ml-0.5 hover:bg-white/20 rounded-full p-0.5'
+                              >
+                                 <HiX className='w-3 h-3' />
+                              </button>
+                           </span>
+                        );
+                     })}
+
                      <button
                         onClick={clearFilters}
                         className='text-xs text-gray-500 hover:text-gray-700 underline'
@@ -457,6 +489,48 @@ export function RegisPage() {
                            />
                         </div>
                      </div>
+
+                     {/* Multi-select Etiquetas */}
+                     {etiquetasDisponiveis.length > 0 && (
+                        <div className='mt-4 pt-4 border-t border-gray-200'>
+                           <Label className='mb-2 text-xs text-gray-600 flex items-center gap-1.5'>
+                              <HiTag className='text-gray-500' />
+                              Filtrar por Etiquetas
+                           </Label>
+                           <div className='flex flex-wrap gap-2'>
+                              {etiquetasDisponiveis.map(etiqueta => {
+                                 const isSelected = selectedEtiquetaIds.includes(etiqueta.id!);
+                                 return (
+                                    <button
+                                       key={etiqueta.id}
+                                       onClick={() => {
+                                          if (isSelected) {
+                                             setSelectedEtiquetaIds(prev => prev.filter(id => id !== etiqueta.id));
+                                          } else {
+                                             setSelectedEtiquetaIds(prev => [...prev, etiqueta.id!]);
+                                          }
+                                       }}
+                                       className={`inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium rounded-full transition-all ${isSelected
+                                          ? 'text-white shadow-sm'
+                                          : 'border border-dashed'
+                                          }`}
+                                       style={isSelected ? {
+                                          backgroundColor: etiqueta.cor
+                                       } : {
+                                          borderColor: etiqueta.cor,
+                                          color: etiqueta.cor,
+                                          backgroundColor: `${etiqueta.cor}10`
+                                       }}
+                                    >
+                                       <HiTag className='w-3 h-3' />
+                                       {etiqueta.nome}
+                                       {isSelected && <HiX className='w-3 h-3' />}
+                                    </button>
+                                 );
+                              })}
+                           </div>
+                        </div>
+                     )}
                   </div>
                </section>
             )}

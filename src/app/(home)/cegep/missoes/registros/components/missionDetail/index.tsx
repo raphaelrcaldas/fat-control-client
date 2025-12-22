@@ -18,6 +18,7 @@ import { MissionMilitar } from "./militar/missionMilitar";
 import { ErrorModal } from "./errorModal";
 import { DeleteMissionModal } from "./deleteMissionModal";
 import { Missao } from "services/routes/cegep/missoes";
+import { Etiqueta } from "services/routes/cegep/etiquetas";
 import { DateTimePicker } from "src/app/(home)/components/dateTimePicker";
 import { useState, useMemo, useEffect } from "react";
 import {
@@ -25,9 +26,11 @@ import {
    FaPlaneArrival,
    FaExclamationTriangle,
 } from "react-icons/fa";
+import { HiTag, HiX } from "react-icons/hi";
 import { createUpdateFragMis } from "services/routes/cegep/missoes";
 import { deleteFragMis } from "services/routes/cegep/missoes";
 import { useToast } from "@/app/context/toast";
+import { useEtiquetas } from "../../../../context/etiquetasContext";
 import clsx from "clsx";
 
 export default function MissionDetail({
@@ -59,6 +62,7 @@ export default function MissionDetail({
          obs: missao ? missao.obs : "",
          pnts: missao ? missao.pernoites : [],
          mils: missao ? missao.users : [],
+         etiquetas: missao ? missao.etiquetas : [],
       }),
       [missao]
    );
@@ -77,6 +81,7 @@ export default function MissionDetail({
    const [pnts, setPnts] = useState(defaultValues.pnts);
    const [formMil, setFormMil] = useState(false);
    const [mils, setMils] = useState(defaultValues.mils);
+   const [etiquetasMissao, setEtiquetasMissao] = useState(defaultValues.etiquetas);
 
    const [checkAfastRegres, setCheckAfastRegres] = useState(false);
 
@@ -87,6 +92,19 @@ export default function MissionDetail({
    const [showValidationModal, setShowValidationModal] = useState(false);
    const [validationErrors, setValidationErrors] = useState<string[]>([]);
    const { push } = useToast();
+
+   // Etiquetas disponíveis do context
+   const { etiquetas: etiquetasDisponiveis, loading: loadingEtiquetas } = useEtiquetas();
+
+   // Toggle para adicionar/remover etiqueta da missão
+   const toggleEtiqueta = (etiqueta: Etiqueta) => {
+      const isSelected = etiquetasMissao.some(e => e.id === etiqueta.id);
+      if (isSelected) {
+         setEtiquetasMissao(prev => prev.filter(e => e.id !== etiqueta.id));
+      } else {
+         setEtiquetasMissao(prev => [...prev, etiqueta]);
+      }
+   };
 
    const sortedPnts = useMemo(
       () =>
@@ -109,7 +127,8 @@ export default function MissionDetail({
       ind !== defaultValues.ind ||
       obs !== defaultValues.obs ||
       JSON.stringify(pnts) !== JSON.stringify(defaultValues.pnts) ||
-      JSON.stringify(mils) !== JSON.stringify(defaultValues.mils);
+      JSON.stringify(mils) !== JSON.stringify(defaultValues.mils) ||
+      JSON.stringify(etiquetasMissao) !== JSON.stringify(defaultValues.etiquetas);
 
    function handleFragMis() {
       const checkNDoc = nDoc != 0;
@@ -220,6 +239,7 @@ export default function MissionDetail({
          obs: obs,
          pernoites: pntsWithFragId,
          users: usersWithFragId,
+         etiquetas: etiquetasMissao,
       };
 
       try {
@@ -284,6 +304,7 @@ export default function MissionDetail({
       setObs(defaultValues.obs);
       setPnts(defaultValues.pnts);
       setMils(defaultValues.mils);
+      setEtiquetasMissao(defaultValues.etiquetas);
    }
 
    useEffect(() => {
@@ -387,6 +408,85 @@ export default function MissionDetail({
                </div>
             </ModalHeader>
             <ModalBody className='space-y-6 py-2'>
+               {/* Seção: Etiquetas */}
+               <div className='bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl p-6 border border-slate-200 shadow-sm'>
+                  <h3 className='text-sm font-semibold text-slate-700 uppercase tracking-wide mb-4 flex items-center gap-2'>
+                     <div className='w-1 h-4 bg-blue-500 rounded-full'></div>
+                     Etiquetas
+                  </h3>
+
+                  {/* Etiquetas selecionadas */}
+                  {etiquetasMissao.length > 0 && (
+                     <div className='mb-3'>
+                        <div className='flex flex-wrap gap-2'>
+                           {etiquetasMissao.map(etiqueta => (
+                              <span
+                                 key={etiqueta.id}
+                                 className='inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium rounded-full text-white'
+                                 style={{ backgroundColor: etiqueta.cor }}
+                              >
+                                 <HiTag className='w-3 h-3' />
+                                 {etiqueta.nome}
+                                 {editMode && (
+                                    <button
+                                       onClick={() => toggleEtiqueta(etiqueta)}
+                                       className='ml-0.5 hover:bg-white/20 rounded-full p-0.5'
+                                       title='Remover etiqueta'
+                                    >
+                                       <HiX className='w-3 h-3' />
+                                    </button>
+                                 )}
+                              </span>
+                           ))}
+                        </div>
+                     </div>
+                  )}
+
+                  {/* Seletor de etiquetas (modo edição) */}
+                  {editMode && (
+                     <div>
+                        {loadingEtiquetas ? (
+                           <div className='flex items-center gap-2 text-sm text-slate-500'>
+                              <Spinner className='w-4 h-4' />
+                              Carregando etiquetas...
+                           </div>
+                        ) : etiquetasDisponiveis.length === 0 ? (
+                           <p className='text-sm text-slate-500 italic'>
+                              Nenhuma etiqueta disponível. Crie etiquetas na aba Configurações.
+                           </p>
+                        ) : (
+                           <div className='flex flex-wrap gap-2'>
+                              {etiquetasDisponiveis
+                                 .filter(e => !etiquetasMissao.some(em => em.id === e.id))
+                                 .map(etiqueta => (
+                                    <button
+                                       key={etiqueta.id}
+                                       onClick={() => toggleEtiqueta(etiqueta)}
+                                       className='inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium rounded-full border border-dashed transition-colors'
+                                       style={{
+                                          borderColor: etiqueta.cor,
+                                          color: etiqueta.cor,
+                                          backgroundColor: `${etiqueta.cor}10`
+                                       }}
+                                       title={etiqueta.descricao || 'Clique para adicionar'}
+                                    >
+                                       <HiTag className='w-3 h-3' />
+                                       {etiqueta.nome}
+                                    </button>
+                                 ))}
+                           </div>
+                        )}
+                     </div>
+                  )}
+
+                  {/* Modo visualização sem etiquetas */}
+                  {!editMode && etiquetasMissao.length === 0 && (
+                     <p className='text-sm text-slate-500 italic'>
+                        Nenhuma etiqueta atribuída a esta missão.
+                     </p>
+                  )}
+               </div>
+
                {/* Seção: Informações do Documento */}
                <div className='bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl p-6 border border-slate-200 shadow-sm'>
                   <h3 className='text-sm font-semibold text-slate-700 uppercase tracking-wide mb-4 flex items-center gap-2'>
@@ -480,6 +580,7 @@ export default function MissionDetail({
                      </div>
                   )}
                </div>
+
 
                {/* Seção: Classificação */}
                <div className='bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl p-6 border border-slate-200 shadow-sm'>
