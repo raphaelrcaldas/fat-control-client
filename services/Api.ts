@@ -2,9 +2,10 @@ import { deleteCookie } from "cookies-next";
 
 export const baseUrl = process.env.NEXT_PUBLIC_API_URL || "";
 
-
 if (!baseUrl) {
-   console.warn("A variável de ambiente NEXT_PUBLIC_API_URL não está definida.");
+   console.warn(
+      "A variável de ambiente NEXT_PUBLIC_API_URL não está definida."
+   );
 }
 
 type HttpMethod = "GET" | "POST" | "PUT" | "DELETE" | "PATCH";

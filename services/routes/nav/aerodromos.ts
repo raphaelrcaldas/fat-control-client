@@ -107,9 +107,7 @@ export async function updateAerodromo(
    if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
       throw new Error(
-         errorData.detail ||
-            errorData.message ||
-            "Erro ao atualizar aeródromo"
+         errorData.detail || errorData.message || "Erro ao atualizar aeródromo"
       );
    }
    return (await response.json()) as AerodromoPublic;

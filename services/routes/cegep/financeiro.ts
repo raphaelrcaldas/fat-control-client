@@ -4,6 +4,5 @@ import { cegepRoute } from ".";
 
 const financeiroRoute = cegepRoute + "financeiro/pgts";
 export async function getPgts(search): Promise<Missao[]> {
-    return (await request("GET", financeiroRoute, null, search)).json();
+   return (await request("GET", financeiroRoute, null, search)).json();
 }
-
