@@ -46,12 +46,15 @@ export function useTripForm({ trip, onSuccess, onClose }: UseTripFormParams) {
                onClose();
                push({
                   type: "success",
-                  message: responseData.detail || "Tripulante atualizado com sucesso.",
+                  message:
+                     responseData.detail ||
+                     "Tripulante atualizado com sucesso.",
                });
             } else {
                push({
                   type: "error",
-                  message: responseData.detail || "Erro ao atualizar tripulante.",
+                  message:
+                     responseData.detail || "Erro ao atualizar tripulante.",
                });
             }
          } catch (err: any) {

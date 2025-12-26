@@ -149,7 +149,7 @@ export default function AerodromoMap({
    }, [showMapSelector]);
 
    return (
-      <div className='h-full w-full absolute inset-0 z-0'>
+      <div className="absolute inset-0 z-0 h-full w-full">
          <MapContainer
             // @ts-expect-error - MapContainer props typing issue
             center={DEFAULT_CENTER}
@@ -185,14 +185,14 @@ export default function AerodromoMap({
                      icon={createCustomIcon()}
                   >
                      <Popup>
-                        <div className='text-center'>
-                           <strong className='block text-sm text-gray-900'>
+                        <div className="text-center">
+                           <strong className="block text-sm text-gray-900">
                               {aero.nome}
                            </strong>
-                           <span className='text-xs text-gray-500 font-mono'>
+                           <span className="font-mono text-xs text-gray-500">
                               {aero.codigo_icao}
                            </span>
-                           <div className='mt-1 text-xs'>
+                           <div className="mt-1 text-xs">
                               {aero.cidade
                                  ? `${aero.cidade.nome} - ${aero.cidade.uf}`
                                  : aero.cidade_manual ||
@@ -206,25 +206,25 @@ export default function AerodromoMap({
 
          {/* Controle de Seleção de Mapa */}
          <div
-            className='absolute top-4 left-1/2 -translate-x-1/2 z-[500]'
+            className="absolute top-4 left-1/2 z-[500] -translate-x-1/2"
             ref={dropdownRef}
          >
-            <div className='relative'>
+            <div className="relative">
                {/* Botão para abrir o seletor */}
                <button
                   onClick={() => setShowMapSelector(!showMapSelector)}
-                  className='bg-white/95 backdrop-blur p-2.5 rounded-lg shadow-lg border border-gray-200 hover:bg-gray-50 transition-colors group flex items-center gap-2'
-                  title='Selecionar tipo de mapa'
+                  className="group flex items-center gap-2 rounded-lg border border-gray-200 bg-white/95 p-2.5 shadow-lg backdrop-blur transition-colors hover:bg-gray-50"
+                  title="Selecionar tipo de mapa"
                >
-                  <HiMap className='w-5 h-5 text-gray-600 group-hover:text-red-600 transition-colors' />
-                  <span className='text-sm font-medium text-gray-700'>
+                  <HiMap className="h-5 w-5 text-gray-600 transition-colors group-hover:text-red-600" />
+                  <span className="text-sm font-medium text-gray-700">
                      {currentMap.name}
                   </span>
                </button>
 
                {/* Dropdown com opções de mapas */}
                {showMapSelector && (
-                  <div className='absolute top-full left-1/2 -translate-x-1/2 mt-2 bg-white rounded-lg shadow-xl border border-gray-200 overflow-hidden min-w-[180px]'>
+                  <div className="absolute top-full left-1/2 mt-2 min-w-[180px] -translate-x-1/2 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-xl">
                      {(Object.keys(mapTypes) as MapType[]).map((type) => (
                         <button
                            key={type}
@@ -232,14 +232,14 @@ export default function AerodromoMap({
                               setSelectedMapType(type);
                               setShowMapSelector(false);
                            }}
-                           className={`w-full px-4 py-2.5 text-left text-sm hover:bg-gray-50 transition-colors flex items-center gap-2 ${
+                           className={`flex w-full items-center gap-2 px-4 py-2.5 text-left text-sm transition-colors hover:bg-gray-50 ${
                               selectedMapType === type
-                                 ? "bg-red-50 text-red-700 font-semibold"
+                                 ? "bg-red-50 font-semibold text-red-700"
                                  : "text-gray-700"
                            }`}
                         >
                            {selectedMapType === type && (
-                              <div className='w-2 h-2 rounded-full bg-red-600' />
+                              <div className="h-2 w-2 rounded-full bg-red-600" />
                            )}
                            <span
                               className={selectedMapType !== type ? "ml-4" : ""}

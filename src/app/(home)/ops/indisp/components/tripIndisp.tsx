@@ -140,60 +140,60 @@ export const TripIndisp = ({
    return (
       <>
          <Button
-            color='light'
-            className='uppercase w-[55px] p-0 h-10 text-sm font-medium overflow-visible hover:shadow-md transition-shadow'
+            color="light"
+            className="h-10 w-14 overflow-visible p-0 text-sm font-medium uppercase transition-shadow hover:shadow-md"
             onClick={openModal}
             aria-label={`Ver indisponibilidades de ${trip.trig}`}
          >
             {trip.trig}
             {trip.func.oper == "in" && (
                <div
-                  className='absolute size-4 border-2 bg-red-400 rounded-full -top-1 -end-1'
-                  aria-label='Instrutor'
+                  className="absolute -end-1 -top-1 size-4 rounded-full bg-red-400"
+                  aria-label="Instrutor"
                ></div>
             )}
          </Button>
 
          {isOpen && (
-            <Modal show={isOpen} size='3xl' onClose={closeModal}>
+            <Modal show={isOpen} size="3xl" onClose={closeModal} dismissible>
                <ModalHeader>
-                  <span className='text-lg font-bold'>Indisponibilidades</span>
+                  <h3 className="text-lg font-bold">Indisponibilidades</h3>
                </ModalHeader>
                <ModalBody>
-                  <div className='bg-red-50 rounded-lg p-4 mb-4 border border-red-200'>
-                     <h3 className='uppercase text-center font-bold text-gray-900 text-lg'>
+                  <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-4">
+                     <h3 className="text-center text-lg font-bold text-gray-900 uppercase">
                         {user.posto.short} {user.esp} {user.nome_guerra}
                      </h3>
-                     <h3 className='uppercase text-center text-gray-600 text-sm mt-1'>
+                     <h3 className="mt-1 text-center text-sm text-gray-600 uppercase">
                         {user.nome_completo}
                      </h3>
                   </div>
 
                   {/* Painel de Filtros */}
-                  <div className='mb-4'>
+                  <div className="mb-4">
                      {/* Botão toggle de filtros */}
                      <button
                         onClick={() => setShowFilters(!showFilters)}
                         className={clsx(
-                           "w-full flex items-center justify-between p-3 bg-white border rounded-lg transition-all duration-200 hover:bg-gray-50",
+                           "flex w-full items-center justify-between rounded-lg border bg-white p-3 transition-all duration-200 hover:bg-gray-50",
                            showFilters
-                              ? "border-blue-200 rounded-b-none"
+                              ? "rounded-b-none border-blue-200"
                               : "border-gray-200"
                         )}
                      >
-                        <div className='flex items-center gap-2'>
-                           <span className='text-sm font-medium text-gray-700'>
+                        <div className="flex items-center gap-2">
+                           <span className="text-sm font-medium text-gray-700">
                               Filtros
                            </span>
                            {hasCustomFilters && (
-                              <span className='text-xs bg-blue-500 text-white px-2 py-0.5 rounded-full'>
+                              <span className="rounded-full bg-blue-500 px-2 py-0.5 text-xs text-white">
                                  Personalizado
                               </span>
                            )}
                         </div>
                         <FaChevronDown
                            className={clsx(
-                              "w-4 h-4 text-gray-400 transition-transform duration-200",
+                              "h-4 w-4 text-gray-400 transition-transform duration-200",
                               showFilters && "rotate-180"
                            )}
                         />
@@ -201,38 +201,37 @@ export const TripIndisp = ({
 
                      {/* Painel de filtros expansível */}
                      {showFilters && (
-                        <div className='p-4 border border-t-0 border-gray-200 rounded-b-lg bg-gray-50 space-y-4'>
+                        <div className="space-y-4 rounded-b-lg border border-t-0 border-gray-200 bg-gray-50 p-4">
                            {/* Linha 1: Datas lado a lado */}
-                           <div className='grid grid-cols-2 gap-3'>
+                           <div className="grid grid-cols-2 gap-3">
                               <div>
-                                 <label className='block text-xs font-medium text-gray-500 mb-1.5'>
+                                 <label className="mb-1.5 block text-xs font-medium text-gray-500">
                                     Data início
                                  </label>
                                  <input
-                                    type='date'
+                                    type="date"
                                     value={dateFrom}
                                     max={showFuture ? undefined : dateTo}
                                     onChange={(e) =>
                                        handleDateFromChange(e.target.value)
                                     }
-                                    className='w-full px-3 py-2 text-sm bg-white border border-gray-200 
-                                               rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400'
+                                    className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm focus:border-blue-400 focus:ring-2 focus:ring-blue-500/20"
                                  />
                               </div>
                               <div>
-                                 <label className='block text-xs font-medium text-gray-500 mb-1.5'>
+                                 <label className="mb-1.5 block text-xs font-medium text-gray-500">
                                     Data fim
                                  </label>
                                  <input
-                                    type='date'
+                                    type="date"
                                     value={dateTo}
                                     min={dateFrom}
                                     disabled={showFuture}
                                     onChange={(e) => setDateTo(e.target.value)}
                                     className={clsx(
-                                       "w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400",
+                                       "w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-blue-400 focus:ring-2 focus:ring-blue-500/20",
                                        showFuture
-                                          ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                                          ? "cursor-not-allowed bg-gray-100 text-gray-400"
                                           : "bg-white text-gray-700"
                                     )}
                                  />
@@ -240,32 +239,31 @@ export const TripIndisp = ({
                            </div>
 
                            {/* Checkbox exibir futuras */}
-                           <label className='flex items-center gap-3 cursor-pointer select-none'>
+                           <label className="flex cursor-pointer items-center gap-3 select-none">
                               <input
-                                 type='checkbox'
+                                 type="checkbox"
                                  checked={showFuture}
                                  onChange={(e) =>
                                     setShowFuture(e.target.checked)
                                  }
-                                 className='w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500'
+                                 className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                               />
-                              <span className='text-sm text-gray-600'>
+                              <span className="text-sm text-gray-600">
                                  Exibir futuras
                               </span>
                            </label>
 
                            {/* Tipo */}
                            <div>
-                              <label className='block text-xs font-medium text-gray-500 mb-1.5'>
+                              <label className="mb-1.5 block text-xs font-medium text-gray-500">
                                  Tipo de indisponibilidade
                               </label>
                               <select
                                  value={mtvFilter}
                                  onChange={(e) => setMtvFilter(e.target.value)}
-                                 className='w-full px-3 py-2 text-sm bg-white border border-gray-200 
-                                            rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400'
+                                 className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm focus:border-blue-400 focus:ring-2 focus:ring-blue-500/20"
                               >
-                                 <option value=''>Todos os tipos</option>
+                                 <option value="">Todos os tipos</option>
                                  {indispsOptions.map((opt) => (
                                     <option key={opt.value} value={opt.value}>
                                        {opt.label}
@@ -276,13 +274,12 @@ export const TripIndisp = ({
 
                            {/* Botão restaurar padrão */}
                            {hasCustomFilters && (
-                              <div className='flex justify-end'>
+                              <div className="flex justify-end">
                                  <button
                                     onClick={clearAndRefetch}
-                                    className='flex items-center gap-2 px-3 py-1.5 text-sm text-gray-600 
-                                               bg-white border border-gray-200 rounded-lg hover:bg-gray-50'
+                                    className="flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-50"
                                  >
-                                    <FaTimes className='w-3 h-3' />
+                                    <FaTimes className="h-3 w-3" />
                                     Restaurar padrão
                                  </button>
                               </div>
@@ -290,8 +287,8 @@ export const TripIndisp = ({
 
                            {/* Indicador de loading */}
                            {isFiltering && (
-                              <div className='flex items-center justify-center gap-2 py-2 text-gray-500 text-sm'>
-                                 <div className='animate-spin rounded-full h-4 w-4 border-2 border-blue-500 border-t-transparent' />
+                              <div className="flex items-center justify-center gap-2 py-2 text-sm text-gray-500">
+                                 <div className="h-4 w-4 animate-spin rounded-full border-2 border-blue-500 border-t-transparent" />
                                  Atualizando...
                               </div>
                            )}
@@ -300,21 +297,15 @@ export const TripIndisp = ({
 
                      {/* Chips de filtros (quando fechado) */}
                      {!showFilters && (
-                        <div className='flex items-center gap-2 mt-2 overflow-x-auto'>
-                           <span
-                              className='inline-flex items-center gap-1 px-2 py-1 bg-gray-100 text-xs 
-                                            text-gray-600 rounded-full whitespace-nowrap'
-                           >
+                        <div className="mt-2 flex items-center gap-2 overflow-x-auto">
+                           <span className="inline-flex items-center gap-1 rounded-full bg-gray-100 px-2 py-1 text-xs whitespace-nowrap text-gray-600">
                               {showFuture ? "A partir de:" : "De:"}{" "}
                               {new Date(
                                  dateFrom + "T00:00:00"
                               ).toLocaleDateString("pt-BR")}
                            </span>
                            {!showFuture && (
-                              <span
-                                 className='inline-flex items-center gap-1 px-2 py-1 bg-gray-100 text-xs 
-                                               text-gray-600 rounded-full whitespace-nowrap'
-                              >
+                              <span className="inline-flex items-center gap-1 rounded-full bg-gray-100 px-2 py-1 text-xs whitespace-nowrap text-gray-600">
                                  Até:{" "}
                                  {new Date(
                                     dateTo + "T00:00:00"
@@ -322,10 +313,7 @@ export const TripIndisp = ({
                               </span>
                            )}
                            {mtvFilter && (
-                              <span
-                                 className='inline-flex items-center gap-1 px-2 py-1 bg-blue-100 text-xs 
-                                               text-blue-600 rounded-full whitespace-nowrap'
-                              >
+                              <span className="inline-flex items-center gap-1 rounded-full bg-blue-100 px-2 py-1 text-xs whitespace-nowrap text-blue-600">
                                  {
                                     indispsOptions.find(
                                        (o) => o.value === mtvFilter
@@ -336,7 +324,7 @@ export const TripIndisp = ({
                            {hasCustomFilters && (
                               <button
                                  onClick={clearAndRefetch}
-                                 className='text-xs text-blue-600 font-medium whitespace-nowrap ml-auto'
+                                 className="ml-auto text-xs font-medium whitespace-nowrap text-blue-600"
                               >
                                  Limpar
                               </button>
@@ -347,33 +335,33 @@ export const TripIndisp = ({
 
                   {/* Tabela de indisponibilidades */}
                   {isLoading ? (
-                     <div className='flex flex-col items-center justify-center py-12 text-gray-400'>
-                        <div className='animate-spin rounded-full h-8 w-8 border-2 border-blue-500 border-t-transparent mb-3' />
-                        <span className='text-sm'>Carregando...</span>
+                     <div className="flex flex-col items-center justify-center py-12 text-gray-400">
+                        <div className="mb-3 h-8 w-8 animate-spin rounded-full border-2 border-blue-500 border-t-transparent" />
+                        <span className="text-sm">Carregando...</span>
                      </div>
                   ) : activeIndisps.length > 0 ? (
-                     <div className='shadow-md rounded-lg overflow-hidden border border-gray-200'>
-                        <Table hoverable className='text-center uppercase'>
-                           <TableHead className='bg-gray-100'>
+                     <div className="overflow-hidden rounded-lg border border-gray-200 shadow-md">
+                        <Table hoverable className="text-center uppercase">
+                           <TableHead className="bg-gray-100">
                               <TableRow>
-                                 <TableHeadCell className='font-bold'>
+                                 <TableHeadCell className="font-bold">
                                     MOTIVO
                                  </TableHeadCell>
-                                 <TableHeadCell className='font-bold hidden md:table-cell'>
+                                 <TableHeadCell className="hidden font-bold md:table-cell">
                                     OBS
                                  </TableHeadCell>
-                                 <TableHeadCell className='font-bold'>
+                                 <TableHeadCell className="font-bold">
                                     INÍCIO
                                  </TableHeadCell>
-                                 <TableHeadCell className='font-bold'>
+                                 <TableHeadCell className="font-bold">
                                     FIM
                                  </TableHeadCell>
                                  <TableHeadCell>
-                                    <span className='sr-only'>Ações</span>
+                                    <span className="sr-only">Ações</span>
                                  </TableHeadCell>
                               </TableRow>
                            </TableHead>
-                           <TableBody className='divide-y'>
+                           <TableBody className="divide-y divide-gray-200">
                               {activeIndisps.map((indisp) => (
                                  <TripIndispRow
                                     key={indisp.id}
@@ -386,8 +374,8 @@ export const TripIndisp = ({
                         </Table>
                      </div>
                   ) : (
-                     <div className='p-8 text-center bg-gray-50 rounded-lg border border-gray-200'>
-                        <p className='text-gray-500 text-base'>
+                     <div className="rounded-lg border border-gray-200 bg-gray-50 p-8 text-center">
+                        <p className="text-base text-gray-500">
                            {hasCustomFilters
                               ? "Nenhuma indisponibilidade encontrada com os filtros aplicados"
                               : "Nenhuma indisponibilidade registrada"}
@@ -395,7 +383,7 @@ export const TripIndisp = ({
                         {hasCustomFilters && (
                            <button
                               onClick={clearAndRefetch}
-                              className='mt-3 text-sm text-blue-600 font-medium hover:underline'
+                              className="mt-3 text-sm font-medium text-blue-600 hover:underline"
                            >
                               Limpar filtros
                            </button>
@@ -403,11 +391,11 @@ export const TripIndisp = ({
                      </div>
                   )}
                </ModalBody>
-               <ModalFooter className='flex justify-center gap-3 bg-gray-50'>
+               <ModalFooter className="flex justify-center gap-3 bg-gray-50">
                   <PermBased requiredPerm={"create"} resource={"indisp_trips"}>
                      <Button
-                        color='red'
-                        size='md'
+                        color="red"
+                        size="md"
                         onClick={() => setIsOpenNewInd(true)}
                      >
                         + Adicionar Indisponibilidade
@@ -420,7 +408,7 @@ export const TripIndisp = ({
                         indisp={null}
                      />
                   </PermBased>
-                  <Button color='gray' size='md' onClick={closeModal}>
+                  <Button color="gray" size="md" onClick={closeModal}>
                      Fechar
                   </Button>
                </ModalFooter>
@@ -438,22 +426,22 @@ function TripIndispRow({ indisp, trip, update }) {
 
    return (
       <TableRow>
-         <TableCell className='p-1 font-semibold'>
+         <TableCell className="p-1 font-semibold">
             <span className={clsx("rounded-md p-2", indispProps.color.bg)}>
                {indispProps.value}
             </span>
          </TableCell>
-         <TableCell className='p-1 hidden md:table-cell'>
+         <TableCell className="hidden p-1 md:table-cell">
             {indisp.obs}
          </TableCell>
-         <TableCell className='p-1 font-semibold'>{dateStart}</TableCell>
-         <TableCell className='p-1 font-semibold'>{dateEnd}</TableCell>
-         <TableCell className='p-1'>
+         <TableCell className="p-1 font-semibold">{dateStart}</TableCell>
+         <TableCell className="p-1 font-semibold">{dateEnd}</TableCell>
+         <TableCell className="p-1">
             <PermBased requiredPerm={"create"} resource={"indisp_trips"}>
                <Button
                   pill
-                  color='light'
-                  size='sm'
+                  color="light"
+                  size="sm"
                   onClick={() => setOpenInd(true)}
                >
                   Editar

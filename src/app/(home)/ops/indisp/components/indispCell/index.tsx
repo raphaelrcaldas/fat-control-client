@@ -56,7 +56,7 @@ export default function IndispCell({
             "size-10 transition-all duration-200 hover:scale-110 hover:shadow-lg",
             btnClass
          )}
-         aria-label='Status de disponibilidade'
+         aria-label="Status de disponibilidade"
       >
          {""}
       </Button>

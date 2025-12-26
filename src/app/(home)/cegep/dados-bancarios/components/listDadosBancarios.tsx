@@ -27,27 +27,27 @@ export default function ListDadosBancarios({
 
    return (
       <>
-         <div className='bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden dark:bg-gray-800 dark:border-gray-700'>
-            <div className='overflow-x-auto'>
-               <table className='w-full text-sm text-gray-600 text-left'>
-                  <thead className='text-xs text-gray-700 uppercase bg-gray-50 border-b border-gray-200 dark:bg-gray-700 dark:text-gray-400 dark:border-gray-600'>
+         <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-lg dark:border-gray-700 dark:bg-gray-800">
+            <div className="overflow-x-auto">
+               <table className="w-full text-left text-sm text-gray-600">
+                  <thead className="border-b border-gray-200 bg-gray-50 text-xs text-gray-700 uppercase dark:border-gray-600 dark:bg-gray-700 dark:text-gray-400">
                      <tr>
-                        <th scope='col' className='px-4 py-3 font-semibold'>
+                        <th scope="col" className="px-4 py-3 font-semibold">
                            Militar
                         </th>
-                        <th scope='col' className='px-4 py-3 font-semibold'>
+                        <th scope="col" className="px-4 py-3 font-semibold">
                            Nome Completo
                         </th>
-                        <th scope='col' className='px-4 py-3 font-semibold'>
+                        <th scope="col" className="px-4 py-3 font-semibold">
                            Banco
                         </th>
-                        <th scope='col' className='px-4 py-3 font-semibold'>
+                        <th scope="col" className="px-4 py-3 font-semibold">
                            Agência
                         </th>
-                        <th scope='col' className='px-4 py-3 font-semibold'>
+                        <th scope="col" className="px-4 py-3 font-semibold">
                            Conta
                         </th>
-                        <th scope='col' className='px-4 py-3 font-semibold'>
+                        <th scope="col" className="px-4 py-3 font-semibold">
                            Atualizado em
                         </th>
                      </tr>
@@ -57,27 +57,27 @@ export default function ListDadosBancarios({
                         <tr
                            key={dado.id}
                            onClick={() => handleRowClick(dado)}
-                           className='cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors border-b border-gray-200 dark:border-gray-600'
+                           className="cursor-pointer border-b border-gray-200 transition-colors hover:bg-gray-50 dark:border-gray-600 dark:hover:bg-gray-700"
                         >
-                           <td className='px-4 py-3 whitespace-nowrap font-medium text-gray-900 dark:text-white uppercase'>
+                           <td className="px-4 py-3 font-medium whitespace-nowrap text-gray-900 uppercase dark:text-white">
                               {dado.user.posto.short} {dado.user.nome_guerra}
                            </td>
-                           <td className='px-4 py-3 text-gray-700 dark:text-gray-300 uppercase'>
+                           <td className="px-4 py-3 text-gray-700 uppercase dark:text-gray-300">
                               {dado.user.nome_completo}
                            </td>
-                           <td className='px-4 py-3 text-gray-700 dark:text-gray-300'>
+                           <td className="px-4 py-3 text-gray-700 dark:text-gray-300">
                               {dado.banco}{" "}
-                              <span className='text-gray-500 dark:text-gray-400'>
+                              <span className="text-gray-500 dark:text-gray-400">
                                  ({dado.codigo_banco})
                               </span>
                            </td>
-                           <td className='px-4 py-3 text-gray-700 dark:text-gray-300'>
+                           <td className="px-4 py-3 text-gray-700 dark:text-gray-300">
                               {dado.agencia}
                            </td>
-                           <td className='px-4 py-3 text-gray-700 dark:text-gray-300'>
+                           <td className="px-4 py-3 text-gray-700 dark:text-gray-300">
                               {dado.conta}
                            </td>
-                           <td className='px-4 py-3 text-gray-500 dark:text-gray-400 text-sm'>
+                           <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">
                               {new Date(dado.updated_at).toLocaleDateString(
                                  "pt-BR"
                               )}

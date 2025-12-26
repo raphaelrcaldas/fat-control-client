@@ -69,54 +69,54 @@ export default function ComissPage() {
 
    return (
       <>
-         <div className='flex flex-col gap-3'>
+         <div className="flex flex-col gap-3">
             {/* Header Section */}
-            <section className='flex-shrink-0'>
-               <div className='bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden'>
-                  <div className='px-6 py-5'>
-                     <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4'>
+            <section className="shrink-0">
+               <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-lg">
+                  <div className="px-6 py-5">
+                     <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                         {/* Title Section */}
-                        <div className='flex items-center gap-3'>
-                           <div className='bg-red-50 p-2.5 rounded-lg'>
+                        <div className="flex items-center gap-3">
+                           <div className="rounded-lg bg-red-50 p-2.5">
                               <svg
-                                 className='w-6 h-6 text-red-600'
-                                 fill='none'
-                                 stroke='currentColor'
-                                 viewBox='0 0 24 24'
+                                 className="h-6 w-6 text-red-600"
+                                 fill="none"
+                                 stroke="currentColor"
+                                 viewBox="0 0 24 24"
                               >
                                  <path
-                                    strokeLinecap='round'
-                                    strokeLinejoin='round'
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
                                     strokeWidth={2}
-                                    d='M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z'
+                                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
                                  />
                               </svg>
                            </div>
                            <div>
-                              <h5 className='text-xl font-bold text-gray-900'>
+                              <h5 className="text-xl font-bold text-gray-900">
                                  Comissionamentos
                               </h5>
-                              <p className='text-gray-600 text-sm'>
+                              <p className="text-sm text-gray-600">
                                  Gerencie todos os comissionamentos
                               </p>
                            </div>
                         </div>
 
                         {/* Action Buttons */}
-                        <div className='flex items-center gap-2'>
+                        <div className="flex items-center gap-2">
                            <button
-                              type='button'
+                              type="button"
                               onClick={() =>
                                  setFiltersExpanded(!filtersExpanded)
                               }
-                              className='flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors'
+                              className="flex items-center gap-2 rounded-lg bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-200"
                            >
-                              <HiFilter className='w-4 h-4' />
-                              <span className='hidden sm:inline'>
+                              <HiFilter className="h-4 w-4" />
+                              <span className="hidden sm:inline">
                                  {filtersExpanded ? "Ocultar" : "Filtros"}
                               </span>
                               {hasActiveFilters && (
-                                 <span className='flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-red-600 rounded-full'>
+                                 <span className="flex h-5 w-5 items-center justify-center rounded-full bg-red-600 text-xs font-bold text-white">
                                     {
                                        Object.values({
                                           searchUser,
@@ -131,24 +131,24 @@ export default function ComissPage() {
                            </button>
                            <RoleBasedRoute requiredRoles={["apoio_avancado"]}>
                               <button
-                                 type='button'
+                                 type="button"
                                  onClick={() => setShowFormComiss(true)}
-                                 className='flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors'
+                                 className="flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-red-700"
                               >
                                  <svg
-                                    className='w-4 h-4'
-                                    fill='none'
-                                    stroke='currentColor'
-                                    viewBox='0 0 24 24'
+                                    className="h-4 w-4"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
                                  >
                                     <path
-                                       strokeLinecap='round'
-                                       strokeLinejoin='round'
+                                       strokeLinecap="round"
+                                       strokeLinejoin="round"
                                        strokeWidth={2}
-                                       d='M12 4v16m8-8H4'
+                                       d="M12 4v16m8-8H4"
                                     />
                                  </svg>
-                                 <span className='hidden sm:inline'>Novo</span>
+                                 <span className="hidden sm:inline">Novo</span>
                               </button>
                            </RoleBasedRoute>
                         </div>
@@ -159,44 +159,44 @@ export default function ComissPage() {
 
             {/* Active Filters Tags */}
             {hasActiveFilters && (
-               <section className='transition-all duration-300'>
-                  <div className='flex flex-wrap items-center gap-2'>
-                     <span className='text-xs font-medium text-gray-600'>
+               <section className="transition-all duration-300">
+                  <div className="flex flex-wrap items-center gap-2">
+                     <span className="text-xs font-medium text-gray-600">
                         Filtros ativos:
                      </span>
 
                      {searchUser && (
-                        <Badge color='red'>
-                           <div className='flex items-center gap-1.5'>
+                        <Badge color="red">
+                           <div className="flex items-center gap-1.5">
                               <svg
-                                 className='w-3 h-3'
-                                 fill='none'
-                                 stroke='currentColor'
-                                 viewBox='0 0 24 24'
+                                 className="h-3 w-3"
+                                 fill="none"
+                                 stroke="currentColor"
+                                 viewBox="0 0 24 24"
                               >
                                  <path
-                                    strokeLinecap='round'
-                                    strokeLinejoin='round'
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
                                     strokeWidth={2}
-                                    d='M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z'
+                                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
                                  />
                               </svg>
                               <span>Militar: {searchUser}</span>
                               <button
                                  onClick={() => setSearchUser("")}
-                                 className='ml-1 hover:text-red-600'
+                                 className="ml-1 hover:text-red-600"
                               >
                                  <svg
-                                    className='w-3 h-3'
-                                    fill='none'
-                                    stroke='currentColor'
-                                    viewBox='0 0 24 24'
+                                    className="h-3 w-3"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
                                  >
                                     <path
-                                       strokeLinecap='round'
-                                       strokeLinejoin='round'
+                                       strokeLinecap="round"
+                                       strokeLinejoin="round"
                                        strokeWidth={2}
-                                       d='M6 18L18 6M6 6l12 12'
+                                       d="M6 18L18 6M6 6l12 12"
                                     />
                                  </svg>
                               </button>
@@ -205,37 +205,37 @@ export default function ComissPage() {
                      )}
 
                      {statusComis !== "aberto" && (
-                        <Badge color='info'>
-                           <div className='flex items-center gap-1.5'>
+                        <Badge color="info">
+                           <div className="flex items-center gap-1.5">
                               <svg
-                                 className='w-3 h-3'
-                                 fill='none'
-                                 stroke='currentColor'
-                                 viewBox='0 0 24 24'
+                                 className="h-3 w-3"
+                                 fill="none"
+                                 stroke="currentColor"
+                                 viewBox="0 0 24 24"
                               >
                                  <path
-                                    strokeLinecap='round'
-                                    strokeLinejoin='round'
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
                                     strokeWidth={2}
-                                    d='M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z'
+                                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
                                  />
                               </svg>
                               <span>Situação: Fechado</span>
                               <button
                                  onClick={() => setStatusComis("aberto")}
-                                 className='ml-1 hover:text-red-600'
+                                 className="ml-1 hover:text-red-600"
                               >
                                  <svg
-                                    className='w-3 h-3'
-                                    fill='none'
-                                    stroke='currentColor'
-                                    viewBox='0 0 24 24'
+                                    className="h-3 w-3"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
                                  >
                                     <path
-                                       strokeLinecap='round'
-                                       strokeLinejoin='round'
+                                       strokeLinecap="round"
+                                       strokeLinejoin="round"
                                        strokeWidth={2}
-                                       d='M6 18L18 6M6 6l12 12'
+                                       d="M6 18L18 6M6 6l12 12"
                                     />
                                  </svg>
                               </button>
@@ -245,7 +245,7 @@ export default function ComissPage() {
 
                      <button
                         onClick={clearFilters}
-                        className='text-xs text-gray-500 hover:text-gray-700 underline'
+                        className="text-xs text-gray-500 underline hover:text-gray-700"
                      >
                         Limpar todos
                      </button>
@@ -255,16 +255,16 @@ export default function ComissPage() {
 
             {/* Filters Section */}
             {filtersExpanded && (
-               <section className='flex-shrink-0'>
-                  <div className='bg-white border border-gray-200 rounded-lg p-4'>
-                     <div className='flex items-center justify-between mb-4'>
-                        <h6 className='text-sm font-medium text-gray-700'>
+               <section className="shrink-0">
+                  <div className="rounded-lg border border-gray-200 bg-white p-4">
+                     <div className="mb-4 flex items-center justify-between">
+                        <h6 className="text-sm font-medium text-gray-700">
                            Filtros
                         </h6>
                         {hasActiveFilters && (
                            <button
                               onClick={clearFilters}
-                              className='flex items-center gap-1.5 px-3 py-1.5 text-xs text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg'
+                              className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs text-gray-600 hover:bg-gray-100 hover:text-gray-800"
                            >
                               <HiX />
                               Limpar
@@ -272,48 +272,48 @@ export default function ComissPage() {
                         )}
                      </div>
 
-                     <div className='grid grid-cols-1 sm:grid-cols-2 gap-3'>
+                     <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                         {/* Militar */}
                         <div>
-                           <Label className='mb-1.5 text-xs text-gray-600 flex items-center gap-1.5'>
+                           <Label className="mb-1.5 flex items-center gap-1.5 text-xs text-gray-600">
                               <svg
-                                 className='w-4 h-4 text-gray-500'
-                                 fill='none'
-                                 stroke='currentColor'
-                                 viewBox='0 0 24 24'
+                                 className="h-4 w-4 text-gray-500"
+                                 fill="none"
+                                 stroke="currentColor"
+                                 viewBox="0 0 24 24"
                               >
                                  <path
-                                    strokeLinecap='round'
-                                    strokeLinejoin='round'
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
                                     strokeWidth={2}
-                                    d='M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z'
+                                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
                                  />
                               </svg>
                               Militar
                            </Label>
                            <TextInput
-                              type='text'
+                              type="text"
                               value={searchUser}
                               onChange={(e) => setSearchUser(e.target.value)}
-                              placeholder='Nome completo ou de guerra'
-                              sizing='sm'
+                              placeholder="Nome completo ou de guerra"
+                              sizing="sm"
                            />
                         </div>
 
                         {/* Situação */}
                         <div>
-                           <Label className='mb-1.5 text-xs text-gray-600 flex items-center gap-1.5'>
+                           <Label className="mb-1.5 flex items-center gap-1.5 text-xs text-gray-600">
                               <svg
-                                 className='w-4 h-4 text-gray-500'
-                                 fill='none'
-                                 stroke='currentColor'
-                                 viewBox='0 0 24 24'
+                                 className="h-4 w-4 text-gray-500"
+                                 fill="none"
+                                 stroke="currentColor"
+                                 viewBox="0 0 24 24"
                               >
                                  <path
-                                    strokeLinecap='round'
-                                    strokeLinejoin='round'
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
                                     strokeWidth={2}
-                                    d='M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z'
+                                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
                                  />
                               </svg>
                               Situação
@@ -321,11 +321,11 @@ export default function ComissPage() {
                            <Select
                               value={statusComis}
                               onChange={(e) => setStatusComis(e.target.value)}
-                              className='text-sm'
-                              sizing='sm'
+                              className="text-sm"
+                              sizing="sm"
                            >
-                              <option value='aberto'>Aberto</option>
-                              <option value='fechado'>Fechado</option>
+                              <option value="aberto">Aberto</option>
+                              <option value="fechado">Fechado</option>
                            </Select>
                         </div>
                      </div>
@@ -335,21 +335,21 @@ export default function ComissPage() {
 
             {/* Results Counter */}
             {!loading && cmtos.length > 0 && (
-               <div className='flex items-center gap-2 text-sm text-gray-600'>
+               <div className="flex items-center gap-2 text-sm text-gray-600">
                   <svg
-                     className='w-4 h-4'
-                     fill='none'
-                     stroke='currentColor'
-                     viewBox='0 0 24 24'
+                     className="h-4 w-4"
+                     fill="none"
+                     stroke="currentColor"
+                     viewBox="0 0 24 24"
                   >
                      <path
-                        strokeLinecap='round'
-                        strokeLinejoin='round'
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
                         strokeWidth={2}
-                        d='M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z'
+                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
                      />
                   </svg>
-                  <span className='font-medium'>
+                  <span className="font-medium">
                      {cmtos.length}{" "}
                      {cmtos.length === 1
                         ? "comissionamento encontrado"
@@ -359,41 +359,41 @@ export default function ComissPage() {
             )}
 
             {/* Content Section */}
-            <div className='flex-1 min-h-[200px]'>
+            <div className="min-h-[200px] flex-1">
                {loading ? (
-                  <div className='flex flex-col items-center justify-center gap-4 py-16'>
-                     <Spinner size='xl' />
-                     <p className='text-sm font-medium text-gray-600'>
+                  <div className="flex flex-col items-center justify-center gap-4 py-16">
+                     <Spinner size="xl" />
+                     <p className="text-sm font-medium text-gray-600">
                         Carregando comissionamentos...
                      </p>
                   </div>
                ) : cmtos.length === 0 ? (
-                  <div className='flex flex-col items-center justify-center py-16 px-4'>
-                     <div className='bg-gray-50 rounded-full p-6 mb-4'>
+                  <div className="flex flex-col items-center justify-center px-4 py-16">
+                     <div className="mb-4 rounded-full bg-gray-50 p-6">
                         <svg
-                           className='w-16 h-16 text-gray-400'
-                           fill='none'
-                           stroke='currentColor'
-                           viewBox='0 0 24 24'
+                           className="h-16 w-16 text-gray-400"
+                           fill="none"
+                           stroke="currentColor"
+                           viewBox="0 0 24 24"
                         >
                            <path
-                              strokeLinecap='round'
-                              strokeLinejoin='round'
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
                               strokeWidth={1.5}
-                              d='M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z'
+                              d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
                            />
                         </svg>
                      </div>
-                     <h3 className='text-lg font-semibold text-gray-900 mb-1'>
+                     <h3 className="mb-1 text-lg font-semibold text-gray-900">
                         Nenhum comissionamento encontrado
                      </h3>
-                     <p className='text-sm text-gray-500'>
+                     <p className="text-sm text-gray-500">
                         Tente ajustar os filtros ou adicione um novo
                         comissionamento
                      </p>
                   </div>
                ) : (
-                  <div className='space-y-1'>{memoComiss}</div>
+                  <div className="space-y-1 pb-3">{memoComiss}</div>
                )}
             </div>
          </div>

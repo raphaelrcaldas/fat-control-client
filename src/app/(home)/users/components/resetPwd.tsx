@@ -3,7 +3,12 @@ import { Button } from "flowbite-react";
 import { Spinner } from "@/components/Spinner";
 import { useState } from "react";
 import { useToast } from "@/app/context/toast";
-import { HiKey, HiExclamation, HiCheckCircle, HiShieldCheck } from "react-icons/hi";
+import {
+   HiKey,
+   HiExclamation,
+   HiCheckCircle,
+   HiShieldCheck,
+} from "react-icons/hi";
 
 export function ResetPassword({ userId }) {
    const [isLoading, setIsLoading] = useState(false);
@@ -45,20 +50,18 @@ export function ResetPassword({ userId }) {
 
    if (resetSuccess) {
       return (
-         <div className='flex flex-col justify-center items-center p-12'>
-            <div className='p-4 bg-green-100 rounded-full mb-4 animate-pulse'>
-               <HiCheckCircle className='w-16 h-16 text-green-600' />
+         <div className="flex flex-col items-center justify-center p-12">
+            <div className="mb-4 animate-pulse rounded-full bg-green-100 p-4">
+               <HiCheckCircle className="h-16 w-16 text-green-600" />
             </div>
-            <h3 className='text-xl font-bold text-gray-900 mb-2'>
+            <h3 className="mb-2 text-xl font-bold text-gray-900">
                Senha Redefinida!
             </h3>
-            <p className='text-gray-600 text-center max-w-md mb-6'>
-               A senha foi redefinida com sucesso. O usuário receberá as novas credenciais.
+            <p className="mb-6 max-w-md text-center text-gray-600">
+               A senha foi redefinida com sucesso. O usuário receberá as novas
+               credenciais.
             </p>
-            <Button
-               color='gray'
-               onClick={() => setResetSuccess(false)}
-            >
+            <Button color="gray" onClick={() => setResetSuccess(false)}>
                Fechar
             </Button>
          </div>
@@ -67,32 +70,33 @@ export function ResetPassword({ userId }) {
 
    if (showConfirm) {
       return (
-         <div className='flex flex-col justify-center items-center p-12'>
-            <div className='p-4 bg-yellow-100 rounded-full mb-4'>
-               <HiExclamation className='w-16 h-16 text-yellow-600' />
+         <div className="flex flex-col items-center justify-center p-12">
+            <div className="mb-4 rounded-full bg-yellow-100 p-4">
+               <HiExclamation className="h-16 w-16 text-yellow-600" />
             </div>
-            <h3 className='text-xl font-bold text-gray-900 mb-2'>
+            <h3 className="mb-2 text-xl font-bold text-gray-900">
                Confirmar Redefinição
             </h3>
-            <p className='text-gray-600 text-center max-w-md mb-6'>
-               Tem certeza que deseja redefinir a senha deste usuário? Esta ação não pode ser desfeita.
+            <p className="mb-6 max-w-md text-center text-gray-600">
+               Tem certeza que deseja redefinir a senha deste usuário? Esta ação
+               não pode ser desfeita.
             </p>
-            <div className='flex gap-3'>
+            <div className="flex gap-3">
                <Button
-                  color='gray'
+                  color="gray"
                   onClick={() => setShowConfirm(false)}
                   disabled={isLoading}
                >
                   Cancelar
                </Button>
                <Button
-                  color='red'
+                  color="red"
                   onClick={handlePasswordReset}
                   disabled={isLoading}
                >
                   {isLoading ? (
                      <>
-                        <Spinner size='sm' color='white' />
+                        <Spinner size="sm" color="white" />
                         Redefinindo...
                      </>
                   ) : (
@@ -105,56 +109,59 @@ export function ResetPassword({ userId }) {
    }
 
    return (
-      <div className='flex flex-col justify-center items-center p-12'>
-         <div className='max-w-lg w-full'>
+      <div className="flex flex-col items-center justify-center p-12">
+         <div className="w-full max-w-lg">
             {/* Card informativo */}
-            <div className='bg-blue-50 border-l-4 border-blue-500 p-4 mb-6'>
-               <div className='flex items-start gap-3'>
-                  <HiShieldCheck className='w-6 h-6 text-blue-600 flex-shrink-0 mt-0.5' />
+            <div className="mb-6 border-l-4 border-blue-500 bg-blue-50 p-4">
+               <div className="flex items-start gap-3">
+                  <HiShieldCheck className="mt-0.5 h-6 w-6 shrink-0 text-blue-600" />
                   <div>
-                     <h4 className='font-semibold text-blue-900 mb-1'>
+                     <h4 className="mb-1 font-semibold text-blue-900">
                         Redefinição de Senha
                      </h4>
-                     <p className='text-sm text-blue-700'>
-                        A senha do usuário será redefinida para o padrão do sistema.
-                        Uma nova senha temporária será gerada.
+                     <p className="text-sm text-blue-700">
+                        A senha do usuário será redefinida para o padrão do
+                        sistema. Uma nova senha temporária será gerada.
                      </p>
                   </div>
                </div>
             </div>
 
             {/* Card principal */}
-            <div className='bg-white border-2 border-gray-200 rounded-lg p-8 text-center'>
-               <div className='p-4 bg-gray-100 rounded-full inline-flex mb-4'>
-                  <HiKey className='w-12 h-12 text-gray-600' />
+            <div className="rounded-lg border-2 border-gray-200 bg-white p-8 text-center">
+               <div className="mb-4 inline-flex rounded-full bg-gray-100 p-4">
+                  <HiKey className="h-12 w-12 text-gray-600" />
                </div>
-               <h3 className='text-lg font-semibold text-gray-900 mb-2'>
+               <h3 className="mb-2 text-lg font-semibold text-gray-900">
                   Resetar Senha do Usuário
                </h3>
-               <p className='text-gray-600 mb-6'>
-                  Clique no botão abaixo para iniciar o processo de redefinição de senha.
+               <p className="mb-6 text-gray-600">
+                  Clique no botão abaixo para iniciar o processo de redefinição
+                  de senha.
                </p>
                <Button
-                  color='blue'
-                  size='lg'
+                  color="blue"
+                  size="lg"
                   onClick={() => setShowConfirm(true)}
-                  className='w-full'
+                  className="w-full"
                >
-                  <HiKey className='w-5 h-5 mr-2' />
+                  <HiKey className="mr-2 h-5 w-5" />
                   Redefinir Senha
                </Button>
             </div>
 
             {/* Avisos de segurança */}
-            <div className='mt-6 bg-yellow-50 border border-yellow-200 rounded-lg p-4'>
-               <div className='flex items-start gap-2'>
-                  <HiExclamation className='w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5' />
-                  <div className='text-sm text-yellow-800'>
-                     <p className='font-medium mb-1'>Aviso de Segurança</p>
-                     <ul className='list-disc list-inside space-y-1 text-yellow-700'>
+            <div className="mt-6 rounded-lg border border-yellow-200 bg-yellow-50 p-4">
+               <div className="flex items-start gap-2">
+                  <HiExclamation className="mt-0.5 h-5 w-5 shrink-0 text-yellow-600" />
+                  <div className="text-sm text-yellow-800">
+                     <p className="mb-1 font-medium">Aviso de Segurança</p>
+                     <ul className="list-inside list-disc space-y-1 text-yellow-700">
                         <li>Esta ação é irreversível</li>
                         <li>A senha atual será invalidada imediatamente</li>
-                        <li>O usuário precisará usar a nova senha temporária</li>
+                        <li>
+                           O usuário precisará usar a nova senha temporária
+                        </li>
                      </ul>
                   </div>
                </div>

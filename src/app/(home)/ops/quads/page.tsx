@@ -169,24 +169,24 @@ export default function QuadPage() {
    }, [quads, quadType, ordem, visual]);
 
    return (
-      <div className='p-2'>
-         <div className='p-2 py-3 flex gap-4 mb-3 bg-white rounded-lg shadow-md'>
-            <div className='grid text-center'>
-               <Label className='self-start'>Função</Label>
+      <div className="p-2">
+         <div className="mb-3 flex gap-4 rounded-lg bg-white p-2 py-3 shadow-md">
+            <div className="grid text-center">
+               <Label className="self-start">Função</Label>
                <Select
                   value={quadFunc}
                   onChange={(e) => setQuadFunc(e.target.value)}
                >
-                  <option value='pil'>Piloto</option>
-                  <option value='mc'>Mecânico</option>
-                  <option value='lm'>LoadMaster</option>
-                  <option value='tf'>Comissário</option>
-                  <option value='os'>Observador-SAR</option>
-                  <option value='oe'>OE</option>
+                  <option value="pil">Piloto</option>
+                  <option value="mc">Mecânico</option>
+                  <option value="lm">LoadMaster</option>
+                  <option value="tf">Comissário</option>
+                  <option value="os">Observador-SAR</option>
+                  <option value="oe">OE</option>
                </Select>
             </div>
-            <div className='grid text-center'>
-               <Label className='self-start'>Quadrinho</Label>
+            <div className="grid text-center">
+               <Label className="self-start">Quadrinho</Label>
                <Select
                   value={quadType}
                   onChange={(e) => setQuadType(parseInt(e.target.value))}
@@ -217,71 +217,71 @@ export default function QuadPage() {
                      })}
                </Select>
             </div>
-            <div className='grid'>
-               <h3 className='self-start text-center text-sm capitalize'>
+            <div className="grid">
+               <h3 className="self-start text-center text-sm capitalize">
                   Antiguidade
                </h3>
-               <div className='flex items-center gap-2'>
+               <div className="flex items-center gap-2">
                   <Radio
-                     id='opr'
-                     name='ordenar'
-                     color='red'
-                     value='opr'
+                     id="opr"
+                     name="ordenar"
+                     color="red"
+                     value="opr"
                      checked={ordem === "opr"}
                      onChange={() => setOrdem("opr")}
                   />
-                  <Label htmlFor='opr'>Operacional</Label>
+                  <Label htmlFor="opr">Operacional</Label>
                </div>
-               <div className='flex items-center gap-2'>
+               <div className="flex items-center gap-2">
                   <Radio
-                     id='mil'
-                     name='ordenar'
-                     color='red'
-                     value='mil'
+                     id="mil"
+                     name="ordenar"
+                     color="red"
+                     value="mil"
                      checked={ordem === "mil"}
                      onChange={() => setOrdem("mil")}
                   />
-                  <Label htmlFor='mil'>Militar</Label>
+                  <Label htmlFor="mil">Militar</Label>
                </div>
             </div>
-            <div className='hidden md:grid'>
-               <h3 className='self-start text-center text-sm capitalize'>
+            <div className="hidden md:grid">
+               <h3 className="self-start text-center text-sm capitalize">
                   Visualização
                </h3>
-               <div className='flex items-center gap-2'>
+               <div className="flex items-center gap-2">
                   <Radio
-                     id='comp'
-                     name='visual'
-                     color='red'
-                     value='comp'
+                     id="comp"
+                     name="visual"
+                     color="red"
+                     value="comp"
                      checked={visual === "comp"}
                      onChange={() => setVisual("comp")}
                   />
-                  <Label htmlFor='comp'>Completa</Label>
+                  <Label htmlFor="comp">Completa</Label>
                </div>
-               <div className='flex items-center gap-2'>
+               <div className="flex items-center gap-2">
                   <Radio
-                     id='reduz'
-                     name='visual'
-                     color='red'
-                     value='reduz'
+                     id="reduz"
+                     name="visual"
+                     color="red"
+                     value="reduz"
                      checked={visual === "reduz"}
                      onChange={() => setVisual("reduz")}
                   />
-                  <Label htmlFor='reduz'>Reduzida</Label>
+                  <Label htmlFor="reduz">Reduzida</Label>
                </div>
             </div>
          </div>
 
-         <div className='flex gap-2 items-center ml-5 mb-1 uppercase px-2'>
-            <p className='text-2xl font-bold'>{groupName}</p>
-            <p className='text-base font-semibold'>{typeName}</p>
+         <div className="mb-1 ml-5 flex items-center gap-2 px-2 uppercase">
+            <p className="text-2xl font-bold">{groupName}</p>
+            <p className="text-base font-semibold">{typeName}</p>
          </div>
 
          <div
             ref={scrollRef}
-            id='quad_table'
-            className='flex flex-col gap-1 py-3 relative bg-white rounded-lg whitespace-nowrap shadow-md max-h-[80%] md:max-h-[80%] overflow-x-auto overflow-y-auto cursor-grab select-none'
+            id="quad_table"
+            className="relative flex max-h-[80%] cursor-grab flex-col gap-1 overflow-x-auto overflow-y-auto rounded-lg bg-white py-3 whitespace-nowrap shadow-md select-none md:max-h-[80%]"
             onMouseDown={handleMouseDown}
             onMouseMove={handleMouseMove}
             onMouseUp={handleMouseUp}
@@ -291,11 +291,11 @@ export default function QuadPage() {
             onTouchEnd={handleMouseUp}
          >
             {loadingQuads ? (
-               <div className='flex flex-col font-semibold items-center justify-center gap-2 p-2'>
-                  Carregando <Spinner size='lg' />
+               <div className="flex flex-col items-center justify-center gap-2 p-2 font-semibold">
+                  Carregando <Spinner size="lg" />
                </div>
             ) : quads.length === 0 ? (
-               <div className='flex flex-col font-semibold items-center justify-center gap-2 p-2'>
+               <div className="flex flex-col items-center justify-center gap-2 p-2 font-semibold">
                   Nenhum quad encontrado
                </div>
             ) : (

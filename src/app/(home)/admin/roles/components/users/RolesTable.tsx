@@ -17,14 +17,14 @@ interface RolesTableProps {
 
 export const RolesTable = memo(function RolesTable({ roles }: RolesTableProps) {
    return (
-      <div className='bg-white rounded-lg shadow-md overflow-hidden h-fit'>
-         <div className='p-4 border-b bg-gray-50'>
-            <h3 className='text-lg font-semibold text-gray-800 flex items-center gap-2'>
+      <div className="h-fit overflow-hidden rounded-lg bg-white shadow-md">
+         <div className="border-b border-gray-200 bg-gray-50 p-4">
+            <h3 className="flex items-center gap-2 text-lg font-semibold text-gray-800">
                <FaUserShield />
                Perfis Disponíveis
             </h3>
          </div>
-         <div className='overflow-x-auto'>
+         <div className="overflow-x-auto">
             <Table hoverable>
                <TableHead>
                   <TableRow>
@@ -32,22 +32,22 @@ export const RolesTable = memo(function RolesTable({ roles }: RolesTableProps) {
                      <TableHeadCell>Descrição</TableHeadCell>
                   </TableRow>
                </TableHead>
-               <TableBody className='divide-y'>
+               <TableBody className="divide-y divide-gray-200">
                   {roles.map((r) => {
                      const theme = getRoleTheme(r.name);
                      return (
                         <TableRow
                            key={r.id}
-                           className='bg-white hover:bg-gray-50'
+                           className="bg-white hover:bg-gray-50"
                         >
                            <TableCell>
                               <span
-                                 className={`uppercase w-fit inline-block px-3 py-1 rounded-full text-xs font-medium ${theme.bg} ${theme.text}`}
+                                 className={`inline-block w-fit rounded-full px-3 py-1 text-xs font-medium uppercase ${theme.bg} ${theme.text}`}
                               >
                                  {r.name}
                               </span>
                            </TableCell>
-                           <TableCell className='text-sm text-gray-600 uppercase'>
+                           <TableCell className="text-sm text-gray-600 uppercase">
                               {r.description || "Sem descrição"}
                            </TableCell>
                         </TableRow>

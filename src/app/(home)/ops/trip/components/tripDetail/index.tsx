@@ -18,14 +18,14 @@ export function TripDetail({ trip, update }: TripDetailProps) {
    return (
       <div>
          <button
-            className='text-red-600 bg-red-50 border border-red-200 hover:bg-red-100 hover:border-red-300 focus:outline-none focus:ring-4 focus:ring-red-100 font-medium rounded-lg text-sm p-2.5 transition-all'
+            className="rounded-lg border border-red-200 bg-red-50 p-2.5 text-sm font-medium text-red-600 transition-all hover:border-red-300 hover:bg-red-100 focus:ring-4 focus:ring-red-100 focus:outline-none"
             onClick={handleShow}
-            title='Editar tripulante'
+            title="Editar tripulante"
          >
-            <FaEdit className='size-5' />
+            <FaEdit className="size-5" />
          </button>
 
-         <Modal show={show} onClose={handleClose} size='lg'>
+         <Modal show={show} onClose={handleClose} size="lg" dismissible>
             <ModalHeader>Editar Tripulante</ModalHeader>
             <ModalBody>
                <TripEditForm

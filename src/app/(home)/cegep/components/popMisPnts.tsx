@@ -24,50 +24,50 @@ export function MisPntsTable({
    total,
 }: MisPntsTableProps) {
    return (
-      <div className='p-2 bg-gradient-to-br from-gray-50 to-white rounded-xl'>
+      <div className="rounded-xl bg-gradient-to-br from-gray-50 to-white p-2">
          {/* Header */}
-         <div className='flex items-center gap-3 mb-2'>
-            <div className='flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 text-blue-600'>
-               <FaBed className='text-lg' />
+         <div className="mb-2 flex items-center gap-3">
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 text-blue-600">
+               <FaBed className="text-lg" />
             </div>
-            <h2 className='text-xl font-bold text-gray-800'>Pernoites</h2>
+            <h2 className="text-xl font-bold text-gray-800">Pernoites</h2>
          </div>
 
          {/* Tabela moderna */}
-         <div className='overflow-x-auto rounded-lg border border-gray-200 shadow-md'>
-            <Table className='text-center'>
-               <TableHead className='bg-gradient-to-r from-blue-600 to-indigo-600'>
+         <div className="overflow-x-auto rounded-lg border border-gray-200 shadow-md">
+            <Table className="text-center">
+               <TableHead className="bg-gradient-to-r from-blue-600 to-indigo-600">
                   <TableRow>
-                     <TableHeadCell className=''>
-                        <div className='flex items-center justify-center gap-2'>
+                     <TableHeadCell className="">
+                        <div className="flex items-center justify-center gap-2">
                            <MdCalendarToday />
                            Chegada
                         </div>
                      </TableHeadCell>
-                     <TableHeadCell className=''>
-                        <div className='flex items-center justify-center gap-2'>
+                     <TableHeadCell className="">
+                        <div className="flex items-center justify-center gap-2">
                            <MdCalendarToday />
                            Saída
                         </div>
                      </TableHeadCell>
-                     <TableHeadCell className=''>
-                        <div className='flex items-center justify-center gap-2'>
+                     <TableHeadCell className="">
+                        <div className="flex items-center justify-center gap-2">
                            <MdLocationOn />
                            Localidade
                         </div>
                      </TableHeadCell>
-                     <TableHeadCell className=''>Dias</TableHeadCell>
-                     <TableHeadCell className=''>Diárias</TableHeadCell>
-                     <TableHeadCell className=''>Acrésc. Desloc</TableHeadCell>
-                     <TableHeadCell className=''>
-                        <div className='flex items-center justify-center gap-2'>
+                     <TableHeadCell className="">Dias</TableHeadCell>
+                     <TableHeadCell className="">Diárias</TableHeadCell>
+                     <TableHeadCell className="">Acrésc. Desloc</TableHeadCell>
+                     <TableHeadCell className="">
+                        <div className="flex items-center justify-center gap-2">
                            <MdAttachMoney />
                            SubTotal
                         </div>
                      </TableHeadCell>
                   </TableRow>
                </TableHead>
-               <TableBody className='divide-y divide-gray-200'>
+               <TableBody className="divide-y divide-gray-200">
                   {pernoites.map((pnt, idx) => {
                      const ini = isoDateToString(pnt.data_ini);
                      const fim = isoDateToString(pnt.data_fim);
@@ -78,26 +78,26 @@ export function MisPntsTable({
                            key={pnt.id}
                            className={`${
                               idx % 2 === 0 ? "bg-white" : "bg-gray-50"
-                           } hover:bg-blue-50 transition-colors`}
+                           } transition-colors hover:bg-blue-50`}
                         >
-                           <TableCell className='font-medium text-gray-700'>
+                           <TableCell className="font-medium text-gray-700">
                               {ini}
                            </TableCell>
-                           <TableCell className='font-medium text-gray-700'>
+                           <TableCell className="font-medium text-gray-700">
                               {fim}
                            </TableCell>
                            <TableCell>
-                              <div className='flex flex-col items-center'>
-                                 <span className='font-semibold text-gray-800'>
+                              <div className="flex flex-col items-center">
+                                 <span className="font-semibold text-gray-800">
                                     {pnt.cidade.nome}-{pnt.cidade.uf}
                                  </span>
                               </div>
                            </TableCell>
                            <TableCell>
-                              <Badge color='info'>{pnt.custo.dias}</Badge>
+                              <Badge color="info">{pnt.custo.dias}</Badge>
                            </TableCell>
                            <TableCell>
-                              <div className='flex flex-col gap-1 items-center'>
+                              <div className="flex flex-col items-center gap-1">
                                  {pnt.custo.vals.map((val, i) => {
                                     const qtd = Number(val.qtd).toFixed(1);
                                     const valor = Number(
@@ -109,7 +109,7 @@ export function MisPntsTable({
 
                                     return (
                                        <div
-                                          className='text-nowrap bg-blue-50 px-2 py-1 rounded text-xs font-medium'
+                                          className="rounded bg-blue-50 px-2 py-1 text-xs font-medium text-nowrap"
                                           key={i}
                                        >
                                           {qtd} × {valor}
@@ -120,18 +120,18 @@ export function MisPntsTable({
                            </TableCell>
                            <TableCell>
                               {ac_desloc > 0 ? (
-                                 <Badge color='success' size='sm'>
+                                 <Badge color="success" size="sm">
                                     {Number(ac_desloc).toLocaleString("pt-BR", {
                                        style: "currency",
                                        currency: "BRL",
                                     })}
                                  </Badge>
                               ) : (
-                                 <span className='text-gray-400'>—</span>
+                                 <span className="text-gray-400">—</span>
                               )}
                            </TableCell>
                            <TableCell>
-                              <span className='font-bold text-green-700 bg-green-50 px-3 py-1 rounded-lg'>
+                              <span className="rounded-lg bg-green-50 px-3 py-1 font-bold text-green-700">
                                  {Number(pnt.custo.subtotal).toLocaleString(
                                     "pt-BR",
                                     {
@@ -149,24 +149,28 @@ export function MisPntsTable({
          </div>
 
          {/* Footer com totais */}
-         <div className='mt-4 grid grid-cols-1 md:grid-cols-3 gap-3'>
-            <div className='bg-gradient-to-r from-blue-50 to-blue-100 p-3 rounded-lg border border-blue-200 shadow-sm'>
-               <div className='flex items-center justify-between'>
-                  <span className='text-xs font-medium text-gray-600'>
+         <div className="mt-4 grid grid-cols-1 gap-3 md:grid-cols-3">
+            <div className="rounded-lg border border-blue-200 bg-gradient-to-r from-blue-50 to-blue-100 p-3 shadow-sm">
+               <div className="flex items-center justify-between">
+                  <span className="text-xs font-medium text-gray-600">
                      Total de Dias
                   </span>
-                  <span className='text-base font-bold text-blue-700'>
-                     {pernoites.reduce((acc, pnt) => acc + (pnt.custo?.dias || 0), 0)} dias
+                  <span className="text-base font-bold text-blue-700">
+                     {pernoites.reduce(
+                        (acc, pnt) => acc + (pnt.custo?.dias || 0),
+                        0
+                     )}{" "}
+                     dias
                   </span>
                </div>
             </div>
 
-            <div className='bg-gradient-to-r from-green-50 to-emerald-100 p-3 rounded-lg border border-green-200 shadow-sm'>
-               <div className='flex items-center justify-between'>
-                  <span className='text-xs font-medium text-gray-600'>
+            <div className="rounded-lg border border-green-200 bg-gradient-to-r from-green-50 to-emerald-100 p-3 shadow-sm">
+               <div className="flex items-center justify-between">
+                  <span className="text-xs font-medium text-gray-600">
                      Acresc. Desloc. Sede
                   </span>
-                  <span className='text-base font-bold text-green-700'>
+                  <span className="text-base font-bold text-green-700">
                      {acDeslocSede
                         ? Number(95).toLocaleString("pt-BR", {
                              style: "currency",
@@ -180,12 +184,12 @@ export function MisPntsTable({
                </div>
             </div>
 
-            <div className='bg-gradient-to-r from-indigo-500 to-blue-600 p-3 rounded-lg shadow-md'>
-               <div className='flex items-center justify-between'>
-                  <span className='text-xs font-semibold text-white uppercase'>
+            <div className="rounded-lg bg-gradient-to-r from-indigo-500 to-blue-600 p-3 shadow-md">
+               <div className="flex items-center justify-between">
+                  <span className="text-xs font-semibold text-white uppercase">
                      Valor Total
                   </span>
-                  <span className='text-base font-bold text-white'>
+                  <span className="text-base font-bold text-white">
                      {Number(total).toLocaleString("pt-BR", {
                         style: "currency",
                         currency: "BRL",

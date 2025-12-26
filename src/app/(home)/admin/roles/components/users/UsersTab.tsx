@@ -151,8 +151,8 @@ export const UsersTab = memo(function UsersTab({
             roles={roles}
          />
 
-         <div className='grid lg:grid-cols-3 gap-4'>
-            <div className='lg:col-span-2'>
+         <div className="grid gap-4 lg:grid-cols-3">
+            <div className="lg:col-span-2">
                <UsersTable
                   filteredUsers={filteredUsers}
                   roles={roles}

@@ -100,22 +100,19 @@ export default function RolePage() {
 
    if (!userRoles) {
       return (
-         <div className='flex items-center justify-center h-screen'>
-            <div className='flex flex-col items-center gap-3'>
-               <Spinner size='xl' />
-               <span className='text-gray-600'>Carregando perfis...</span>
+         <div className="flex h-screen items-center justify-center">
+            <div className="flex flex-col items-center gap-3">
+               <Spinner size="xl" />
+               <span className="text-gray-600">Carregando perfis...</span>
             </div>
          </div>
       );
    }
 
    return (
-      <div className='p-2 grid gap-4'>
-         <Tabs
-            aria-label='Tabs de gerenciamento de perfis'
-            variant='underline'
-         >
-            <TabItem active title='Usuários' icon={FaUsers}>
+      <div className="grid gap-4 p-2">
+         <Tabs aria-label="Tabs de gerenciamento de perfis" variant="underline">
+            <TabItem active title="Usuários" icon={FaUsers}>
                <UsersTab
                   userRoles={userRoles}
                   roles={roles}
@@ -123,7 +120,7 @@ export default function RolePage() {
                />
             </TabItem>
 
-            <TabItem title='Permissões' icon={FaShield}>
+            <TabItem title="Permissões" icon={FaShield}>
                <PermissionsMatrixTab
                   resources={resources}
                   permissions={permissions}

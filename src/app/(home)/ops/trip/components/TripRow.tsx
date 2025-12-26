@@ -14,36 +14,36 @@ export function TripRow({ trip, update }: TripRowProps) {
    const tripFuncs = trip.funcs || [];
 
    return (
-      <tr className='uppercase text-center bg-white border-b hover:bg-gray-50 transition-colors'>
-         <td className='px-4 py-3 font-bold text-gray-700'>
+      <tr className="border-b border-gray-200 bg-white text-center uppercase transition-colors hover:bg-gray-50">
+         <td className="px-4 py-3 font-bold text-gray-700">
             {user.posto.short}
          </td>
-         <td className='px-4 py-3 hidden lg:table-cell text-gray-600'>
+         <td className="hidden px-4 py-3 text-gray-600 lg:table-cell">
             {user.esp}
          </td>
-         <td className='px-4 py-3 hidden md:table-cell text-gray-800'>
+         <td className="hidden px-4 py-3 text-gray-800 md:table-cell">
             {user.nome_guerra}
          </td>
-         <td className='px-4 py-3 hidden md:table-cell text-gray-800'>
+         <td className="hidden px-4 py-3 text-gray-800 md:table-cell">
             {user.nome_completo}
          </td>
-         <td className='px-4 py-3 font-bold text-red-600'>{trip.trig}</td>
-         <td className='px-4 py-3'>
+         <td className="px-4 py-3 font-bold text-red-600">{trip.trig}</td>
+         <td className="px-4 py-3">
             {tripFuncs.length < 1 ? (
-               <div className='flex justify-center'>
-                  <Badge color='failure' size='sm'>
+               <div className="flex justify-center">
+                  <Badge color="failure" size="sm">
                      Sem Função Cadastrada
                   </Badge>
                </div>
             ) : (
-               <div className='flex flex-wrap gap-1 justify-center'>
+               <div className="flex flex-wrap justify-center gap-1">
                   {tripFuncs.map((f) => (
                      <FuncTripRow key={f.id} func={f} />
                   ))}
                </div>
             )}
          </td>
-         <td className='px-4 py-3 text-center'>
+         <td className="px-4 py-3 text-center">
             <PermBased resource={"trips"} requiredPerm={"update"}>
                <TripDetail trip={trip} update={update} />
             </PermBased>

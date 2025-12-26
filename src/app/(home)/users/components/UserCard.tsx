@@ -17,16 +17,16 @@ export function UserCard({ user, update }: UserCardProps) {
 
    return (
       <>
-         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 hover:shadow-md transition-shadow duration-150">
-            <div className="flex items-start justify-between mb-3">
+         <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm transition-shadow duration-150 hover:shadow-md">
+            <div className="mb-3 flex items-start justify-between">
                <div className="flex items-center gap-2">
-                  <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
-                     <span className="text-red-600 font-bold text-sm uppercase">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-red-100">
+                     <span className="text-sm font-bold text-red-600 uppercase">
                         {user.p_g}
                      </span>
                   </div>
                   <div>
-                     <h3 className="font-semibold text-gray-900 uppercase text-sm">
+                     <h3 className="text-sm font-semibold text-gray-900 uppercase">
                         {user.nome_guerra}
                      </h3>
                      <p className="text-xs text-gray-500 capitalize">
@@ -35,7 +35,7 @@ export function UserCard({ user, update }: UserCardProps) {
                   </div>
                </div>
                <button
-                  className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                  className="rounded-lg p-2 text-red-600 transition-colors hover:bg-red-50"
                   onClick={() => setShowUser(true)}
                   aria-label={`Ver detalhes de ${user.nome_guerra}`}
                >
@@ -43,27 +43,27 @@ export function UserCard({ user, update }: UserCardProps) {
                </button>
             </div>
 
-            <div className="grid grid-cols-4 gap-2 pt-3 border-t border-gray-100">
+            <div className="grid grid-cols-4 gap-2 border-t border-gray-100 pt-3">
                <div>
-                  <p className="text-xs text-gray-500 mb-1">Posto/Graduação</p>
-                  <Badge color="gray" className="capitalize text-xs">
+                  <p className="mb-1 text-xs text-gray-500">Posto/Graduação</p>
+                  <Badge color="gray" className="text-xs capitalize">
                      {user.posto.long}
                   </Badge>
                </div>
                <div>
-                  <p className="text-xs text-gray-500 mb-1">Especialidade</p>
-                  <Badge color="gray" className="uppercase text-xs">
+                  <p className="mb-1 text-xs text-gray-500">Especialidade</p>
+                  <Badge color="gray" className="text-xs uppercase">
                      {user.esp}
                   </Badge>
                </div>
                <div>
-                  <p className="text-xs text-gray-500 mb-1">Unidade</p>
-                  <Badge color="red" className="uppercase text-xs">
+                  <p className="mb-1 text-xs text-gray-500">Unidade</p>
+                  <Badge color="red" className="text-xs uppercase">
                      {user.unidade}
                   </Badge>
                </div>
                <div>
-                  <p className="text-xs text-gray-500 mb-1">Status</p>
+                  <p className="mb-1 text-xs text-gray-500">Status</p>
                   {user.active ? (
                      <Badge color="success" className="text-xs">
                         <div className="flex items-center gap-1">

@@ -63,26 +63,26 @@ export default function LogDashboard() {
    }, [searchTerm, logs]);
 
    return (
-      <div className='grid gap-4 p-2'>
+      <div className="grid gap-4 p-2">
          {/* Header com título e estatísticas */}
-         <div className='bg-white py-4 px-5 rounded-lg shadow-md'>
-            <div className='flex flex-col md:flex-row md:items-center md:justify-between gap-3'>
+         <div className="rounded-lg bg-white px-5 py-4 shadow-md">
+            <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                <div>
-                  <h2 className='font-semibold text-2xl text-gray-800'>Logs</h2>
-                  <p className='text-sm text-gray-500 mt-1'>
+                  <h2 className="text-2xl font-semibold text-gray-800">Logs</h2>
+                  <p className="mt-1 text-sm text-gray-500">
                      Última atualização:{" "}
                      {lastUpdate.toLocaleTimeString("pt-BR")}
                   </p>
                </div>
-               <div className='flex items-center gap-3'>
-                  <Badge color='red' size='lg'>
+               <div className="flex items-center gap-3">
+                  <Badge color="red" size="lg">
                      {filteredLogs.length}{" "}
                      {filteredLogs.length === 1 ? "registro" : "registros"}
                   </Badge>
                   <button
                      onClick={fetchLogs}
                      disabled={loading}
-                     className='flex items-center font-semibold gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 disabled:bg-red-400 text-white rounded-lg transition-colors'
+                     className="flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2 font-semibold text-white transition-colors hover:bg-red-700 disabled:bg-red-400"
                   >
                      <HiRefresh className={loading ? "animate-spin" : ""} />
                      Atualizar
@@ -92,15 +92,15 @@ export default function LogDashboard() {
          </div>
 
          {/* Filtros */}
-         <div className='bg-white p-4 rounded-lg shadow-md'>
-            <div className='flex items-center gap-2 mb-3'>
-               <HiFilter className='text-gray-600' />
-               <h3 className='font-medium text-gray-700'>Filtros</h3>
+         <div className="rounded-lg bg-white p-4 shadow-md">
+            <div className="mb-3 flex items-center gap-2">
+               <HiFilter className="text-gray-600" />
+               <h3 className="font-medium text-gray-700">Filtros</h3>
             </div>
-            <div className='grid grid-cols-1 md:grid-cols-2 gap-3'>
+            <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
                <TextInput
                   icon={HiSearch}
-                  placeholder='Buscar por usuário, data ou ação...'
+                  placeholder="Buscar por usuário, data ou ação..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                />
@@ -109,47 +109,47 @@ export default function LogDashboard() {
                   disabled
                   onChange={(e) => setActionFilter(e.target.value)}
                >
-                  <option value='login'>Login</option>
-                  <option value='logout'>Logout</option>
-                  <option value='create'>Criar</option>
-                  <option value='update'>Atualizar</option>
-                  <option value='delete'>Deletar</option>
-                  <option value=''>Todas as ações</option>
+                  <option value="login">Login</option>
+                  <option value="logout">Logout</option>
+                  <option value="create">Criar</option>
+                  <option value="update">Atualizar</option>
+                  <option value="delete">Deletar</option>
+                  <option value="">Todas as ações</option>
                </Select>
             </div>
          </div>
 
          {/* Tabela */}
-         <div className='bg-white rounded-lg shadow-md overflow-hidden'>
+         <div className="overflow-hidden rounded-lg bg-white shadow-md">
             <Table hoverable>
                <TableHead>
                   <TableRow>
                      <TableHeadCell>Data/Hora</TableHeadCell>
                      <TableHeadCell>Usuário</TableHeadCell>
-                     <TableHeadCell className='hidden md:table-cell'>
+                     <TableHeadCell className="hidden md:table-cell">
                         Ação
                      </TableHeadCell>
                      <TableHeadCell>Origem</TableHeadCell>
                   </TableRow>
                </TableHead>
-               <TableBody className='divide-y'>
+               <TableBody className="divide-y divide-gray-200">
                   {loading ? (
-                     <TableRow className='bg-white'>
-                        <TableCell colSpan={4} className='py-12 text-center'>
-                           <div className='flex flex-col justify-center items-center gap-3'>
-                              <Spinner size='xl' aria-label='loading' />
-                              <span className='text-base text-gray-600 font-medium'>
+                     <TableRow className="bg-white">
+                        <TableCell colSpan={4} className="py-12 text-center">
+                           <div className="flex flex-col items-center justify-center gap-3">
+                              <Spinner size="xl" aria-label="loading" />
+                              <span className="text-base font-medium text-gray-600">
                                  Carregando logs...
                               </span>
                            </div>
                         </TableCell>
                      </TableRow>
                   ) : filteredLogs.length === 0 ? (
-                     <TableRow className='bg-white'>
-                        <TableCell colSpan={4} className='py-12 text-center'>
-                           <div className='flex flex-col items-center gap-2'>
-                              <span className='text-gray-400 text-5xl'>📋</span>
-                              <p className='text-gray-600 font-medium'>
+                     <TableRow className="bg-white">
+                        <TableCell colSpan={4} className="py-12 text-center">
+                           <div className="flex flex-col items-center gap-2">
+                              <span className="text-5xl text-gray-400">📋</span>
+                              <p className="font-medium text-gray-600">
                                  {searchTerm
                                     ? "Nenhum log encontrado para essa busca"
                                     : "Nenhum log encontrado"}
@@ -157,7 +157,7 @@ export default function LogDashboard() {
                               {searchTerm && (
                                  <button
                                     onClick={() => setSearchTerm("")}
-                                    className='text-blue-600 hover:underline text-sm'
+                                    className="text-sm text-blue-600 hover:underline"
                                  >
                                     Limpar filtros
                                  </button>
@@ -199,31 +199,31 @@ function LogRow({ log }: { log: UserActionLog }) {
          delete: "failure",
       };
       return (
-         <Badge color={colors[action] || "gray"} className='capitalize w-fit'>
+         <Badge color={colors[action] || "gray"} className="w-fit capitalize">
             {action}
          </Badge>
       );
    };
 
    return (
-      <TableRow className='bg-white hover:bg-gray-50 transition-colors'>
-         <TableCell className='font-mono text-sm'>{timestamp}</TableCell>
+      <TableRow className="bg-white transition-colors hover:bg-gray-50">
+         <TableCell className="font-mono text-sm">{timestamp}</TableCell>
          <TableCell>
-            <span className='font-medium uppercase'>
+            <span className="font-medium uppercase">
                {log.user.p_g} {log.user.nome_guerra}
             </span>
          </TableCell>
-         <TableCell className='hidden md:table-cell'>
+         <TableCell className="hidden md:table-cell">
             {getActionBadge(log.action)}
          </TableCell>
          <TableCell>
             <span
                className={clsx(
-                  "text-gray-600 text-xs p-1 rounded font-medium shadow border",
+                  "rounded border p-1 text-xs font-medium text-gray-600 shadow",
                   {
-                     "bg-red-200 border-red-400":
+                     "border-red-400 bg-red-200":
                         afterParse.client == "fatbird",
-                     "bg-blue-200 border-blue-400":
+                     "border-blue-400 bg-blue-200":
                         afterParse.client == "fatcontrol",
                   }
                )}

@@ -62,16 +62,16 @@ const FilterPanel = ({
    };
 
    return (
-      <div className='bg-white rounded-xl shadow-lg p-4 space-y-4'>
-         <div className='grid sm:flex gap-4'>
-            <div className=''>
-               <label className='block text-sm font-medium text-gray-700 mb-2'>
+      <div className="space-y-4 rounded-xl bg-white p-4 shadow-lg">
+         <div className="grid gap-4 sm:flex">
+            <div className="">
+               <label className="mb-2 block text-sm font-medium text-gray-700">
                   Função
                </label>
                <Select
                   value={seboFunc}
                   onChange={(e) => setSeboFunc(e.target.value)}
-                  className='w-full'
+                  className="w-full"
                >
                   {funcOptions.map((option) => (
                      <option key={option.value} value={option.value}>
@@ -81,53 +81,49 @@ const FilterPanel = ({
                </Select>
             </div>
             <div>
-               <label className='block text-sm font-medium text-gray-700 mb-3'>
+               <label className="mb-3 block text-sm font-medium text-gray-700">
                   Operacionalidade
                </label>
-               <div className='flex flex-wrap gap-3'>
+               <div className="flex flex-wrap gap-3">
                   {operationFilters.map((filter) => (
                      <button
                         key={filter.id}
                         onClick={() => filter.onChange(!filter.checked)}
-                        className={`
-                        px-4 py-2 rounded-lg font-medium transition-all duration-200
-                        ${
+                        className={`rounded-lg px-4 py-2 font-medium transition-all duration-200 ${
                            filter.checked
                               ? filter.color === "red"
                                  ? "bg-red-500 text-white shadow-md hover:bg-red-600"
                                  : filter.color === "yellow"
-                                 ? "bg-yellow-400 text-gray-800 shadow-md hover:bg-yellow-500"
-                                 : "bg-green-500 text-white shadow-md hover:bg-green-600"
+                                   ? "bg-yellow-400 text-gray-800 shadow-md hover:bg-yellow-500"
+                                   : "bg-green-500 text-white shadow-md hover:bg-green-600"
                               : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                        }
-                        transform hover:scale-105 active:scale-95
-                     `}
+                        } transform hover:scale-105 active:scale-95`}
                      >
-                        <span className='flex items-center gap-2'>
+                        <span className="flex items-center gap-2">
                            {filter.checked ? (
                               <svg
-                                 className='w-5 h-5'
-                                 fill='currentColor'
-                                 viewBox='0 0 20 20'
+                                 className="h-5 w-5"
+                                 fill="currentColor"
+                                 viewBox="0 0 20 20"
                               >
                                  <path
-                                    fillRule='evenodd'
-                                    d='M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z'
-                                    clipRule='evenodd'
+                                    fillRule="evenodd"
+                                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                    clipRule="evenodd"
                                  />
                               </svg>
                            ) : (
                               <svg
-                                 className='w-5 h-5'
-                                 fill='none'
-                                 stroke='currentColor'
-                                 viewBox='0 0 24 24'
+                                 className="h-5 w-5"
+                                 fill="none"
+                                 stroke="currentColor"
+                                 viewBox="0 0 24 24"
                               >
                                  <path
-                                    strokeLinecap='round'
-                                    strokeLinejoin='round'
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
                                     strokeWidth={2}
-                                    d='M6 18L18 6M6 6l12 12'
+                                    d="M6 18L18 6M6 6l12 12"
                                  />
                               </svg>
                            )}
@@ -140,35 +136,35 @@ const FilterPanel = ({
          </div>
 
          {/* Results Summary */}
-         <div className='flex items-center justify-between pt-4 border-t border-gray-200'>
-            <div className='flex items-center gap-2 text-sm text-gray-600'>
+         <div className="flex items-center justify-between border-t border-gray-200 pt-4">
+            <div className="flex items-center gap-2 text-sm text-gray-600">
                <svg
-                  className='w-5 h-5'
-                  fill='none'
-                  stroke='currentColor'
-                  viewBox='0 0 24 24'
+                  className="h-5 w-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
                >
                   <path
-                     strokeLinecap='round'
-                     strokeLinejoin='round'
+                     strokeLinecap="round"
+                     strokeLinejoin="round"
                      strokeWidth={2}
-                     d='M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z'
+                     d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"
                   />
                </svg>
                <span>
                   Filtros ativos:{" "}
-                  <span className='font-semibold'>
+                  <span className="font-semibold">
                      {getActiveFilters().join(", ") || "Nenhum"}
                   </span>
                </span>
             </div>
-            <div className='text-sm'>
+            <div className="text-sm">
                {isLoading ? (
-                  <span className='text-gray-500 animate-pulse'>
+                  <span className="animate-pulse text-gray-500">
                      Carregando...
                   </span>
                ) : (
-                  <span className='text-gray-900 font-semibold'>
+                  <span className="font-semibold text-gray-900">
                      {totalResults}{" "}
                      {totalResults === 1 ? "resultado" : "resultados"}
                   </span>

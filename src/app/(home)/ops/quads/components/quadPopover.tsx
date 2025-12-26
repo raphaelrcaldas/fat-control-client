@@ -10,8 +10,8 @@ export function QuadPopover({ quad }: { quad: Quad }) {
 
    return (
       <button
-         type='button'
-         className={clsx(`flex-shrink-0 rounded h-9 w-9`, {
+         type="button"
+         className={clsx(`h-9 w-9 shrink-0 rounded`, {
             "bg-red-500 hover:bg-red-700": quad.value,
             "bg-slate-500 hover:bg-slate-700": !quad.value,
             "sm:w-[65px]": visual === "comp",
@@ -20,7 +20,7 @@ export function QuadPopover({ quad }: { quad: Quad }) {
       >
          <span
             className={clsx(
-               "hidden text-sm text-white font-medium text-center",
+               "hidden text-center text-sm font-medium text-white",
                {
                   "sm:grid": visual === "comp",
                   "sm:hidden": visual === "reduz",

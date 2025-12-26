@@ -165,45 +165,45 @@ export function FilterPage({ active }) {
    };
 
    return (
-      <div className='space-y-6'>
+      <div className="space-y-6">
          {/* Header Section */}
          <section>
-            <div className='flex items-center justify-between flex-wrap gap-3'>
-               <h5 className='font-semibold text-xl text-gray-800'>
+            <div className="flex flex-wrap items-center justify-between gap-3">
+               <h5 className="text-xl font-semibold text-gray-800">
                   Pagamentos
                </h5>
 
-               <div className='flex items-center gap-3 flex-wrap'>
+               <div className="flex flex-wrap items-center gap-3">
                   {/* Checkbox Selecionar Todos */}
-                  <div className='flex items-center gap-2 bg-white border border-gray-200 rounded-lg px-3 py-1.5'>
+                  <div className="flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-1.5">
                      <Checkbox
-                        className='w-4 h-4'
+                        className="h-4 w-4"
                         checked={selectedAll}
-                        color='red'
+                        color="red"
                         onChange={() => setSelectedAll(!selectedAll)}
                      />
-                     <Label className='text-xs font-medium text-gray-700 cursor-pointer'>
+                     <Label className="cursor-pointer text-xs font-medium text-gray-700">
                         Selecionar Todos
                      </Label>
                   </div>
 
                   {/* Valor Total */}
-                  <div className='flex items-center gap-2 bg-green-50 px-3 py-1.5 rounded-lg border border-green-200'>
-                     <div className='flex items-center gap-1.5'>
+                  <div className="flex items-center gap-2 rounded-lg border border-green-200 bg-green-50 px-3 py-1.5">
+                     <div className="flex items-center gap-1.5">
                         <HiCurrencyDollar
-                           className='text-green-600'
+                           className="text-green-600"
                            size={16}
                         />
-                        <span className='text-xs text-gray-600'>Total:</span>
+                        <span className="text-xs text-gray-600">Total:</span>
                      </div>
-                     <div className='flex flex-col items-end'>
-                        <span className='text-sm font-bold text-green-700'>
+                     <div className="flex flex-col items-end">
+                        <span className="text-sm font-bold text-green-700">
                            {valorSoma.toLocaleString("pt-BR", {
                               style: "currency",
                               currency: "BRL",
                            })}
                         </span>
-                        <span className='text-[10px] text-gray-500'>
+                        <span className="text-[10px] text-gray-500">
                            {selectedIds.length}{" "}
                            {selectedIds.length === 1
                               ? "selecionado"
@@ -213,14 +213,14 @@ export function FilterPage({ active }) {
                   </div>
 
                   <button
-                     type='button'
+                     type="button"
                      onClick={() => setShowFilters(!showFilters)}
-                     className='flex items-center gap-2 px-3 py-2 text-sm text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50'
+                     className="flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"
                   >
                      <HiFilter />
                      {showFilters ? "Ocultar" : "Filtros"}
                      {hasActiveFilters && (
-                        <Badge color='gray' size='sm'>
+                        <Badge color="gray" size="sm">
                            {
                               Object.values({
                                  tipoDoc,
@@ -242,99 +242,99 @@ export function FilterPage({ active }) {
          {/* Active Filters Tags */}
          {hasActiveFilters && (
             <section>
-               <div className='flex flex-wrap items-center gap-2'>
-                  <span className='text-xs font-medium text-gray-600'>
+               <div className="flex flex-wrap items-center gap-2">
+                  <span className="text-xs font-medium text-gray-600">
                      Filtros ativos:
                   </span>
 
                   {tipoDoc && (
-                     <Badge color='red'>
-                        <div className='flex items-center gap-1.5'>
-                           <HiDocumentText className='w-3 h-3' />
+                     <Badge color="red">
+                        <div className="flex items-center gap-1.5">
+                           <HiDocumentText className="h-3 w-3" />
                            <span>
                               Ordem: {tipoDoc === "om" ? "Missão" : "Serviço"}
                            </span>
                            <button
                               onClick={() => setTipoDoc("")}
-                              className='ml-1 hover:text-red-600'
+                              className="ml-1 hover:text-red-600"
                            >
-                              <HiX className='w-3 h-3' />
+                              <HiX className="h-3 w-3" />
                            </button>
                         </div>
                      </Badge>
                   )}
 
                   {nDoc && (
-                     <Badge color='red'>
-                        <div className='flex items-center gap-1.5'>
-                           <HiHashtag className='w-3 h-3' />
+                     <Badge color="red">
+                        <div className="flex items-center gap-1.5">
+                           <HiHashtag className="h-3 w-3" />
                            <span>Nº {nDoc}</span>
                            <button
                               onClick={() => setNDoc(undefined)}
-                              className='ml-1 hover:text-red-600'
+                              className="ml-1 hover:text-red-600"
                            >
-                              <HiX className='w-3 h-3' />
+                              <HiX className="h-3 w-3" />
                            </button>
                         </div>
                      </Badge>
                   )}
 
                   {selectedTipo && (
-                     <Badge color='red'>
-                        <div className='flex items-center gap-1.5'>
-                           <HiClipboardList className='w-3 h-3' />
+                     <Badge color="red">
+                        <div className="flex items-center gap-1.5">
+                           <HiClipboardList className="h-3 w-3" />
                            <span>Tipo: {selectedTipo.toUpperCase()}</span>
                            <button
                               onClick={() => setSelectedTipo("")}
-                              className='ml-1 hover:text-red-600'
+                              className="ml-1 hover:text-red-600"
                            >
-                              <HiX className='w-3 h-3' />
+                              <HiX className="h-3 w-3" />
                            </button>
                         </div>
                      </Badge>
                   )}
 
                   {selectedSit && (
-                     <Badge color='red'>
-                        <div className='flex items-center gap-1.5'>
-                           <HiTag className='w-3 h-3' />
+                     <Badge color="red">
+                        <div className="flex items-center gap-1.5">
+                           <HiTag className="h-3 w-3" />
                            <span>
                               Situação:{" "}
                               {selectedSit === "d"
                                  ? "Diária"
                                  : selectedSit === "c"
-                                 ? "Comissionado"
-                                 : "Grat Rep"}
+                                   ? "Comissionado"
+                                   : "Grat Rep"}
                            </span>
                            <button
                               onClick={() => setSelectedSit("")}
-                              className='ml-1 hover:text-red-600'
+                              className="ml-1 hover:text-red-600"
                            >
-                              <HiX className='w-3 h-3' />
+                              <HiX className="h-3 w-3" />
                            </button>
                         </div>
                      </Badge>
                   )}
 
                   {userSearch && (
-                     <Badge color='red'>
-                        <div className='flex items-center gap-1.5'>
-                           <HiUser className='w-3 h-3' />
+                     <Badge color="red">
+                        <div className="flex items-center gap-1.5">
+                           <HiUser className="h-3 w-3" />
                            <span>Militar: {userSearch}</span>
                            <button
                               onClick={() => setUserSearch("")}
-                              className='ml-1 hover:text-red-600'
+                              className="ml-1 hover:text-red-600"
                            >
-                              <HiX className='w-3 h-3' />
+                              <HiX className="h-3 w-3" />
                            </button>
                         </div>
                      </Badge>
                   )}
 
                   {dataInicio && (
-                     <Badge color='red'>
-                        <div className='flex items-center gap-1.5'>
-                           <HiCalendar className='w-3 h-3' />
+                     <Badge color="red">
+                        <div className="flex items-center gap-1.5">
+                           <HiCalendar className="h-3 w-3" />
                            <span>
                               Afastamento:{" "}
                               {new Date(
@@ -353,18 +353,18 @@ export function FilterPage({ active }) {
                                     quinzeDiasAntes.toISOString().split("T")[0]
                                  );
                               }}
-                              className='ml-1 hover:text-red-600'
+                              className="ml-1 hover:text-red-600"
                            >
-                              <HiX className='w-3 h-3' />
+                              <HiX className="h-3 w-3" />
                            </button>
                         </div>
                      </Badge>
                   )}
 
                   {dataFim && (
-                     <Badge color='red'>
-                        <div className='flex items-center gap-1.5'>
-                           <HiCalendar className='w-3 h-3' />
+                     <Badge color="red">
+                        <div className="flex items-center gap-1.5">
+                           <HiCalendar className="h-3 w-3" />
                            <span>
                               Regresso:{" "}
                               {new Date(
@@ -376,9 +376,9 @@ export function FilterPage({ active }) {
                                  const hoje = new Date();
                                  setDataFim(hoje.toISOString().split("T")[0]);
                               }}
-                              className='ml-1 hover:text-red-600'
+                              className="ml-1 hover:text-red-600"
                            >
-                              <HiX className='w-3 h-3' />
+                              <HiX className="h-3 w-3" />
                            </button>
                         </div>
                      </Badge>
@@ -386,7 +386,7 @@ export function FilterPage({ active }) {
 
                   <button
                      onClick={clearFilters}
-                     className='text-xs text-gray-500 hover:text-gray-700 underline'
+                     className="text-xs text-gray-500 underline hover:text-gray-700"
                   >
                      Limpar todos
                   </button>
@@ -397,15 +397,15 @@ export function FilterPage({ active }) {
          {/* Filters Section */}
          {showFilters && (
             <section>
-               <div className='bg-white border border-gray-200 rounded-lg p-4'>
-                  <div className='flex items-center justify-between mb-4'>
-                     <h6 className='text-sm font-medium text-gray-700'>
+               <div className="rounded-lg border border-gray-200 bg-white p-4">
+                  <div className="mb-4 flex items-center justify-between">
+                     <h6 className="text-sm font-medium text-gray-700">
                         Filtros
                      </h6>
                      {hasActiveFilters && (
                         <button
                            onClick={clearFilters}
-                           className='flex items-center gap-1.5 px-3 py-1.5 text-xs text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg'
+                           className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs text-gray-600 hover:bg-gray-100 hover:text-gray-800"
                         >
                            <HiX />
                            Limpar
@@ -413,33 +413,33 @@ export function FilterPage({ active }) {
                      )}
                   </div>
 
-                  <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7 gap-3'>
+                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7">
                      {/* Tipo da Ordem */}
                      <div>
-                        <Label className='mb-1.5 text-xs text-gray-600 flex items-center gap-1.5'>
-                           <HiDocumentText className='text-gray-500' />
+                        <Label className="mb-1.5 flex items-center gap-1.5 text-xs text-gray-600">
+                           <HiDocumentText className="text-gray-500" />
                            Tipo da Ordem
                         </Label>
                         <Select
                            value={tipoDoc}
                            onChange={(e) => setTipoDoc(e.target.value)}
-                           className='text-sm'
-                           sizing='sm'
+                           className="text-sm"
+                           sizing="sm"
                         >
-                           <option value=''>Todos</option>
-                           <option value='om'>Missão</option>
-                           <option value='os'>Serviço</option>
+                           <option value="">Todos</option>
+                           <option value="om">Missão</option>
+                           <option value="os">Serviço</option>
                         </Select>
                      </div>
 
                      {/* Nº da Ordem */}
                      <div>
-                        <Label className='mb-1.5 text-xs text-gray-600 flex items-center gap-1.5'>
-                           <HiHashtag className='text-gray-500' />
+                        <Label className="mb-1.5 flex items-center gap-1.5 text-xs text-gray-600">
+                           <HiHashtag className="text-gray-500" />
                            Nº da Ordem
                         </Label>
                         <TextInput
-                           type='text'
+                           type="text"
                            value={nDoc ?? ""}
                            onChange={(e) =>
                               setNDoc(
@@ -464,89 +464,89 @@ export function FilterPage({ active }) {
                                  e.preventDefault();
                               }
                            }}
-                           placeholder='Número'
-                           sizing='sm'
+                           placeholder="Número"
+                           sizing="sm"
                         />
                      </div>
 
                      {/* Tipo de Missão */}
                      <div>
-                        <Label className='mb-1.5 text-xs text-gray-600 flex items-center gap-1.5'>
-                           <HiClipboardList className='text-gray-500' />
+                        <Label className="mb-1.5 flex items-center gap-1.5 text-xs text-gray-600">
+                           <HiClipboardList className="text-gray-500" />
                            Tipo de Missão
                         </Label>
                         <Select
                            value={selectedTipo}
                            onChange={(e) => setSelectedTipo(e.target.value)}
-                           className='text-sm'
-                           sizing='sm'
+                           className="text-sm"
+                           sizing="sm"
                         >
-                           <option value=''>Todos</option>
-                           <option value='tal'>TAL</option>
-                           <option value='adm'>ADM</option>
-                           <option value='opr'>OPR</option>
+                           <option value="">Todos</option>
+                           <option value="tal">TAL</option>
+                           <option value="adm">ADM</option>
+                           <option value="opr">OPR</option>
                         </Select>
                      </div>
 
                      {/* Situação */}
                      <div>
-                        <Label className='mb-1.5 text-xs text-gray-600 flex items-center gap-1.5'>
-                           <HiTag className='text-gray-500' />
+                        <Label className="mb-1.5 flex items-center gap-1.5 text-xs text-gray-600">
+                           <HiTag className="text-gray-500" />
                            Situação
                         </Label>
                         <Select
                            value={selectedSit}
                            onChange={(e) => setSelectedSit(e.target.value)}
-                           className='text-sm'
-                           sizing='sm'
+                           className="text-sm"
+                           sizing="sm"
                         >
-                           <option value=''>Todos</option>
-                           <option value='d'>Diária</option>
-                           <option value='c'>Comissionado</option>
-                           <option value='g'>Grat Rep</option>
+                           <option value="">Todos</option>
+                           <option value="d">Diária</option>
+                           <option value="c">Comissionado</option>
+                           <option value="g">Grat Rep</option>
                         </Select>
                      </div>
 
                      {/* Militar */}
                      <div>
-                        <Label className='mb-1.5 text-xs text-gray-600 flex items-center gap-1.5'>
-                           <HiUser className='text-gray-500' />
+                        <Label className="mb-1.5 flex items-center gap-1.5 text-xs text-gray-600">
+                           <HiUser className="text-gray-500" />
                            Militar
                         </Label>
                         <TextInput
-                           type='text'
+                           type="text"
                            value={userSearch}
                            onChange={(e) => setUserSearch(e.target.value)}
-                           placeholder='Nome de completo ou de guerra'
-                           sizing='sm'
+                           placeholder="Nome de completo ou de guerra"
+                           sizing="sm"
                         />
                      </div>
 
                      {/* Data Afastamento */}
                      <div>
-                        <Label className='mb-1.5 text-xs text-gray-600 flex items-center gap-1.5'>
-                           <HiCalendar className='text-gray-500' />
+                        <Label className="mb-1.5 flex items-center gap-1.5 text-xs text-gray-600">
+                           <HiCalendar className="text-gray-500" />
                            Afastamento
                         </Label>
                         <input
-                           type='date'
+                           type="date"
                            value={dataInicio}
                            onChange={(e) => setDataInicio(e.target.value)}
-                           className='block w-full p-2 text-sm text-gray-900 bg-white border border-gray-300 rounded-lg focus:ring-red-500 focus:border-red-500'
+                           className="block w-full rounded-lg border border-gray-300 bg-white p-2 text-sm text-gray-900 focus:border-red-500 focus:ring-red-500"
                         />
                      </div>
 
                      {/* Data Regresso */}
                      <div>
-                        <Label className='mb-1.5 text-xs text-gray-600 flex items-center gap-1.5'>
-                           <HiCalendar className='text-gray-500' />
+                        <Label className="mb-1.5 flex items-center gap-1.5 text-xs text-gray-600">
+                           <HiCalendar className="text-gray-500" />
                            Regresso
                         </Label>
                         <input
-                           type='date'
+                           type="date"
                            value={dataFim}
                            onChange={(e) => setDataFim(e.target.value)}
-                           className='block w-full p-2 text-sm text-gray-900 bg-white border border-gray-300 rounded-lg focus:ring-red-500 focus:border-red-500'
+                           className="block w-full rounded-lg border border-gray-300 bg-white p-2 text-sm text-gray-900 focus:border-red-500 focus:ring-red-500"
                         />
                      </div>
                   </div>
@@ -555,25 +555,25 @@ export function FilterPage({ active }) {
          )}
 
          {/* Results Section */}
-         <section className='relative'>
-            <div className='bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden'>
+         <section className="relative">
+            <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-lg">
                {loading ? (
-                  <div className='flex flex-col items-center justify-center gap-4 p-16'>
-                     <Spinner size='xl' />
-                     <p className='text-gray-600 font-medium text-lg'>
+                  <div className="flex flex-col items-center justify-center gap-4 p-16">
+                     <Spinner size="xl" />
+                     <p className="text-lg font-medium text-gray-600">
                         Carregando registros...
                      </p>
                   </div>
                ) : misRecords && misRecords.length > 0 ? (
                   <div>
-                     <div className='bg-gray-50 px-6 py-4 border-b border-gray-200'>
-                        <h3 className='text-lg font-bold text-gray-800'>
+                     <div className="border-b border-gray-200 bg-gray-50 px-6 py-4">
+                        <h3 className="text-lg font-bold text-gray-800">
                            Registros Encontrados ({misRecords.length})
                         </h3>
                      </div>
-                     <div className='overflow-x-auto'>
+                     <div className="overflow-x-auto">
                         <ul
-                           className='divide-y divide-gray-200 p-2'
+                           className="divide-y divide-gray-200 p-2"
                            key={listKey}
                         >
                            {memoUsersRowPgto}
@@ -581,14 +581,14 @@ export function FilterPage({ active }) {
                      </div>
                   </div>
                ) : (
-                  <div className='flex flex-col items-center justify-center gap-4 p-16'>
-                     <div className='w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center'>
-                        <HiDocumentText className='text-gray-400 text-4xl' />
+                  <div className="flex flex-col items-center justify-center gap-4 p-16">
+                     <div className="flex h-20 w-20 items-center justify-center rounded-full bg-gray-100">
+                        <HiDocumentText className="text-4xl text-gray-400" />
                      </div>
-                     <p className='text-gray-500 font-medium text-lg'>
+                     <p className="text-lg font-medium text-gray-500">
                         Nenhum registro encontrado
                      </p>
-                     <p className='text-gray-400 text-sm'>
+                     <p className="text-sm text-gray-400">
                         Ajuste os filtros para encontrar resultados
                      </p>
                   </div>

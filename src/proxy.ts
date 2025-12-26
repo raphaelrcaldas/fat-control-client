@@ -4,7 +4,7 @@ import { generateRandomString, sha256 } from "../utils/auth";
 
 const loginRedirect = process.env.LOGIN_REDIRECT;
 
-if (process.env.NODE_ENV === 'development' && process.env.DEV_TOKEN) {
+if (process.env.NODE_ENV === "development" && process.env.DEV_TOKEN) {
    var tokenDev = process.env.DEV_TOKEN;
 }
 
@@ -21,10 +21,17 @@ export async function proxy(request: NextRequest) {
       }
 
       try {
-         const tokenResponse = await getToken(code, request.nextUrl.origin, pkceVerifier);
+         const tokenResponse = await getToken(
+            code,
+            request.nextUrl.origin,
+            pkceVerifier
+         );
          if (!tokenResponse.ok) {
             return NextResponse.redirect(
-               new URL(loginRedirect + "?error=token_exchange_failed", request.url)
+               new URL(
+                  loginRedirect + "?error=token_exchange_failed",
+                  request.url
+               )
             );
          }
          const { first_login, access_token } = await tokenResponse.json();
@@ -39,9 +46,10 @@ export async function proxy(request: NextRequest) {
          });
 
          return response;
-
       } catch (error) {
-         return NextResponse.redirect(new URL(loginRedirect + "?error=network_error", request.url));
+         return NextResponse.redirect(
+            new URL(loginRedirect + "?error=network_error", request.url)
+         );
       }
    }
 
@@ -56,14 +64,17 @@ export async function proxy(request: NextRequest) {
    });
 
    return response;
-
 }
 
 // Função auxiliar para centralizar a lógica de redirecionamento para o login
 async function redirectToLogin(request: NextRequest) {
    if (!loginRedirect) {
-      console.error("ERRO: A variável de ambiente LOGIN_REDIRECT não está definida.");
-      return new NextResponse("Erro de configuração de autenticação.", { status: 500 });
+      console.error(
+         "ERRO: A variável de ambiente LOGIN_REDIRECT não está definida."
+      );
+      return new NextResponse("Erro de configuração de autenticação.", {
+         status: 500,
+      });
    }
    const codeVerifier = generateRandomString(32);
    const codeChallenge = await sha256(codeVerifier);

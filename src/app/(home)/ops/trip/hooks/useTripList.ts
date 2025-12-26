@@ -24,7 +24,7 @@ export function useTripList({ uae, active }: UseTripListParams) {
    const [perPage, setPerPage] = useState(10);
    const [totalPages, setTotalPages] = useState(1);
    const [totalTrips, setTotalTrips] = useState(0);
-   
+
    const [filters, setFilters] = useState<FilterParams>({
       name: "",
       p_g: [],
@@ -51,9 +51,16 @@ export function useTripList({ uae, active }: UseTripListParams) {
                   page,
                   per_page: itemsPerPage,
                   search: filterParams.name || undefined,
-                  p_g: filterParams.p_g.length > 0 ? filterParams.p_g : undefined,
-                  func: filterParams.func.length > 0 ? filterParams.func : undefined,
-                  oper: filterParams.oper.length > 0 ? filterParams.oper : undefined,
+                  p_g:
+                     filterParams.p_g.length > 0 ? filterParams.p_g : undefined,
+                  func:
+                     filterParams.func.length > 0
+                        ? filterParams.func
+                        : undefined,
+                  oper:
+                     filterParams.oper.length > 0
+                        ? filterParams.oper
+                        : undefined,
                },
                signal
             );
@@ -84,12 +91,12 @@ export function useTripList({ uae, active }: UseTripListParams) {
          isFirstRender.current = false;
          return;
       }
-      
+
       const ac = new AbortController();
       const timeoutId = setTimeout(() => {
          fetchTrips(1, perPage, filters, ac.signal);
       }, 50); // Pequeno delay para debounce
-      
+
       return () => {
          clearTimeout(timeoutId);
          ac.abort();
@@ -97,7 +104,7 @@ export function useTripList({ uae, active }: UseTripListParams) {
    }, [filters.name, filters.p_g, filters.func, filters.oper, perPage]);
 
    function updateFilter<K extends keyof FilterParams>(
-      key: K, 
+      key: K,
       value: FilterParams[K]
    ) {
       setFilters((prev) => ({ ...prev, [key]: value }));

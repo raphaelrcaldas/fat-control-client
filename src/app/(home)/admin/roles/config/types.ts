@@ -1,5 +1,8 @@
 import type { UserWithRole, RoleDetail } from "services/routes/security/roles";
-import type { Resource, PermissionDetail } from "services/routes/security/resources";
+import type {
+   Resource,
+   PermissionDetail,
+} from "services/routes/security/resources";
 
 export interface PermissionMatrix {
    [resourceName: string]: {

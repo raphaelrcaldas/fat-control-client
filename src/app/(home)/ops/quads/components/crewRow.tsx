@@ -23,8 +23,8 @@ export default function CrewRow({
    const [showForm, setShowForm] = useState(false);
 
    return (
-      <div className='flex justify-start items-center gap-1 overflow-visible py-1 px-2'>
-         <div className='flex-shrink-0 sticky px-1 left-0 z-10 bg-white overflow-visible'>
+      <div className="flex items-center justify-start gap-1 overflow-visible px-2 py-1">
+         <div className="sticky left-0 z-10 shrink-0 overflow-visible bg-white px-1">
             <QuadsTrip
                trip={tripQuadRes.trip}
                totalQuads={tripQuadRes.quads_len}
@@ -38,7 +38,7 @@ export default function CrewRow({
          })}
          <PermBased resource={"quad_ops"} requiredPerm={"create"}>
             <VscAdd
-               className='size-6 p-0 cursor-pointer flex-shrink-0'
+               className="size-6 shrink-0 cursor-pointer p-0"
                onClick={() => setShowForm(true)}
             />
          </PermBased>

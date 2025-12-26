@@ -47,18 +47,18 @@ export const UsersTable = memo(function UsersTable({
    onDeleteRole,
 }: UsersTableProps) {
    return (
-      <div className='bg-white rounded-lg shadow-md overflow-hidden'>
-         <div className='p-4 border-b bg-gray-50'>
-            <div className='flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-3'>
-               <h3 className='text-lg font-semibold text-gray-800 flex items-center gap-2'>
+      <div className="overflow-hidden rounded-lg bg-white shadow-md">
+         <div className="border-b border-gray-200 bg-gray-50 p-4">
+            <div className="mb-3 flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center">
+               <h3 className="flex items-center gap-2 text-lg font-semibold text-gray-800">
                   <FaUsers />
                   Usuários com Perfis
                </h3>
-               <div className='flex gap-2'>
-                  <Tooltip content='Atualizar lista'>
+               <div className="flex gap-2">
+                  <Tooltip content="Atualizar lista">
                      <Button
-                        size='sm'
-                        color='light'
+                        size="sm"
+                        color="light"
                         onClick={onRefresh}
                         disabled={isUpdating}
                      >
@@ -67,8 +67,8 @@ export const UsersTable = memo(function UsersTable({
                         />
                      </Button>
                   </Tooltip>
-                  <Button size='sm' color='red' onClick={onAddUser}>
-                     <FaPlus className='mr-2' />
+                  <Button size="sm" color="red" onClick={onAddUser}>
+                     <FaPlus className="mr-2" />
                      Adicionar
                   </Button>
                </div>
@@ -76,31 +76,31 @@ export const UsersTable = memo(function UsersTable({
 
             <TextInput
                icon={FaMagnifyingGlass}
-               className='w-full'
+               className="w-full"
                value={filterName}
                onChange={(e) => onFilterChange(e.target.value)}
-               placeholder='Buscar por nome, posto ou perfil...'
+               placeholder="Buscar por nome, posto ou perfil..."
             />
          </div>
 
-         <div className='overflow-x-auto'>
+         <div className="overflow-x-auto">
             <Table hoverable>
                <TableHead>
                   <TableRow>
                      <TableHeadCell>Usuário</TableHeadCell>
                      <TableHeadCell>Perfil</TableHeadCell>
-                     <TableHeadCell className='text-center'>
+                     <TableHeadCell className="text-center">
                         Ações
                      </TableHeadCell>
                   </TableRow>
                </TableHead>
-               <TableBody className='divide-y'>
+               <TableBody className="divide-y divide-gray-200">
                   {filteredUsers.length === 0 ? (
                      <TableRow>
-                        <TableCell colSpan={3} className='py-12 text-center'>
-                           <div className='flex flex-col items-center gap-2'>
-                              <FaUsers className='text-5xl text-gray-300' />
-                              <p className='text-gray-600 font-medium'>
+                        <TableCell colSpan={3} className="py-12 text-center">
+                           <div className="flex flex-col items-center gap-2">
+                              <FaUsers className="text-5xl text-gray-300" />
+                              <p className="font-medium text-gray-600">
                                  {filterName
                                     ? "Nenhum usuário encontrado"
                                     : "Nenhum usuário cadastrado"}
@@ -108,7 +108,7 @@ export const UsersTable = memo(function UsersTable({
                               {filterName && (
                                  <button
                                     onClick={() => onFilterChange("")}
-                                    className='text-blue-600 hover:underline text-sm'
+                                    className="text-sm text-blue-600 hover:underline"
                                  >
                                     Limpar filtro
                                  </button>
@@ -122,14 +122,14 @@ export const UsersTable = memo(function UsersTable({
                         return (
                            <TableRow
                               key={ur.user.id}
-                              className='bg-white hover:bg-gray-50'
+                              className="bg-white hover:bg-gray-50"
                            >
-                              <TableCell className='font-medium'>
-                                 <div className='flex items-center gap-3'>
-                                    <div className='hidden w-10 h-10 rounded-full bg-red-600 sm:flex items-center justify-center text-white font-bold text-sm shadow uppercase'>
+                              <TableCell className="font-medium">
+                                 <div className="flex items-center gap-3">
+                                    <div className="hidden h-10 w-10 items-center justify-center rounded-full bg-red-600 text-sm font-bold text-white uppercase shadow sm:flex">
                                        {ur.user.p_g}
                                     </div>
-                                    <span className='uppercase'>
+                                    <span className="uppercase">
                                        {ur.user.nome_guerra}
                                     </span>
                                  </div>
@@ -145,16 +145,16 @@ export const UsersTable = memo(function UsersTable({
                                  />
                               </TableCell>
                               <TableCell>
-                                 <div className='flex justify-center gap-2'>
-                                    <Tooltip content='Login como usuário'>
+                                 <div className="flex justify-center gap-2">
+                                    <Tooltip content="Login como usuário">
                                        <button
                                           onClick={() => onDevLogin(ur.user.id)}
-                                          className='p-2 hover:bg-blue-100 text-blue-600 rounded-lg'
+                                          className="rounded-lg p-2 text-blue-600 hover:bg-blue-100"
                                        >
-                                          <FaArrowRightToBracket className='size-4' />
+                                          <FaArrowRightToBracket className="size-4" />
                                        </button>
                                     </Tooltip>
-                                    <Tooltip content='Remover perfil'>
+                                    <Tooltip content="Remover perfil">
                                        <button
                                           onClick={() =>
                                              onDeleteRole(
@@ -163,9 +163,9 @@ export const UsersTable = memo(function UsersTable({
                                                 userName
                                              )
                                           }
-                                          className='p-2 hover:bg-red-100 text-red-600 rounded-lg'
+                                          className="rounded-lg p-2 text-red-600 hover:bg-red-100"
                                        >
-                                          <FaRegTrashCan className='size-4' />
+                                          <FaRegTrashCan className="size-4" />
                                        </button>
                                     </Tooltip>
                                  </div>

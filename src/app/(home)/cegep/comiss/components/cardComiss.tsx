@@ -72,14 +72,14 @@ export function CardComiss({
    return (
       <>
          <Card
-            className='uppercase hover:shadow-lg w-[28rem] select-none transition-shadow duration-300 ease-in-out'
-         //
+            className="w-[28rem] uppercase transition-shadow duration-300 ease-in-out select-none hover:shadow-lg"
+            //
          >
-            <div className='flex flex-row justify-between items-center'>
-               <h3 className='font-medium text-center w-full'>
+            <div className="flex flex-row items-center justify-between">
+               <h3 className="w-full text-center font-medium">
                   {user.p_g} {user.nome_guerra}
                </h3>
-               <Dropdown color='light' inline dismissOnClick={false}>
+               <Dropdown color="light" inline dismissOnClick={false}>
                   <DropdownItem
                      icon={MdOutlineEdit}
                      onClick={() => setShowDetail(true)}
@@ -88,37 +88,37 @@ export function CardComiss({
                   </DropdownItem>
                   <DropdownItem
                      onClick={deleteComiss}
-                     className='text-red-500'
+                     className="text-red-500"
                      icon={FaRegTrashAlt}
                   >
                      Deletar
                   </DropdownItem>
                </Dropdown>
             </div>
-            <div className='cursor-pointer' onClick={() => setShowDetail(true)}>
-               <div className='flex flex-row justify-between mb-3'>
-                  <div className='grid text-base'>
-                     <div className='flex flex-row gap-2 items-center justify-start'>
+            <div className="cursor-pointer" onClick={() => setShowDetail(true)}>
+               <div className="mb-3 flex flex-row justify-between">
+                  <div className="grid text-base">
+                     <div className="flex flex-row items-center justify-start gap-2">
                         <span
-                           className={clsx("size-4 bg-green-500 rounded-lg", {
+                           className={clsx("size-4 rounded-lg bg-green-500", {
                               "bg-slate-500": comiss.status == "fechado",
                            })}
                         >
                            {" "}
                         </span>
-                        <span className='w-28 text-sm'>Abertura:</span>
-                        <span className='font-mono'>{data_abertura}</span>
+                        <span className="w-28 text-sm">Abertura:</span>
+                        <span className="font-mono">{data_abertura}</span>
                      </div>
-                     <div className='flex flex-row gap-2 items-center justify-start'>
+                     <div className="flex flex-row items-center justify-start gap-2">
                         <span
-                           className={clsx("size-4 bg-red-500 rounded-lg", {
+                           className={clsx("size-4 rounded-lg bg-red-500", {
                               "bg-slate-500": comiss.status == "fechado",
                            })}
                         >
                            {" "}
                         </span>
-                        <span className='w-28 text-sm'>Fechamento:</span>
-                        <span className='font-mono'>{data_fechamento}</span>
+                        <span className="w-28 text-sm">Fechamento:</span>
+                        <span className="font-mono">{data_fechamento}</span>
                      </div>
                   </div>
                   <div>
@@ -129,7 +129,7 @@ export function CardComiss({
                      />
                   </div>
                </div>
-               <h3 className='text-center border-t p-2 text-sm flex justify-center gap-2 items-center'>
+               <h3 className="flex items-center justify-center gap-2 border-t p-2 text-center text-sm">
                   {comiss.dias_cumprir ? (
                      <>
                         <MdOutlineCalendarToday /> <span>Período</span>
@@ -140,45 +140,45 @@ export function CardComiss({
                      </>
                   )}
                </h3>
-               <div className='grid grid-cols-3'>
-                  <div className='grid text-center'>
-                     <div className='text-lg'>
+               <div className="grid grid-cols-3">
+                  <div className="grid text-center">
+                     <div className="text-lg">
                         {comiss.dias_cumprir ? (
                            <span>
                               {comiss.dias_cumprir}
-                              <span className='text-sm capitalize'> dias</span>
+                              <span className="text-sm capitalize"> dias</span>
                            </span>
                         ) : (
                            realCurrency(ajd_ab + ajd_fc)
                         )}
                      </div>
-                     <div className='text-slate-500'>Previsto</div>
+                     <div className="text-slate-500">Previsto</div>
                   </div>
-                  <div className='grid text-center'>
-                     <div className='text-lg'>
+                  <div className="grid text-center">
+                     <div className="text-lg">
                         {comiss.dias_cumprir ? (
                            <span>
                               {comiss.dias_comp}
-                              <span className='text-sm capitalize'> dias</span>
+                              <span className="text-sm capitalize"> dias</span>
                            </span>
                         ) : (
                            realCurrency(comiss.vals_comp)
                         )}
                      </div>
-                     <div className='text-slate-500'>Computado</div>
+                     <div className="text-slate-500">Computado</div>
                   </div>
-                  <div className='grid text-center'>
-                     <div className='text-lg'>
+                  <div className="grid text-center">
+                     <div className="text-lg">
                         {comiss.dias_cumprir ? (
                            <span>
                               {comiss.dias_cumprir - comiss.dias_comp}
-                              <span className='text-sm capitalize'> dias</span>
+                              <span className="text-sm capitalize"> dias</span>
                            </span>
                         ) : (
                            realCurrency(ajd_ab + ajd_fc - comiss.vals_comp)
                         )}
                      </div>
-                     <div className='text-slate-500'>Restante</div>
+                     <div className="text-slate-500">Restante</div>
                   </div>
                </div>
             </div>
@@ -210,7 +210,7 @@ function ComissProgress({
 
    return (
       <CircularProgressbar
-         className='size-24'
+         className="size-24"
          value={value}
          strokeWidth={11}
          maxValue={100}

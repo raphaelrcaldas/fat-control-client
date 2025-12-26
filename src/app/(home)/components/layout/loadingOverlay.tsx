@@ -4,12 +4,14 @@ interface LoadingOverlayProps {
    message?: string;
 }
 
-export default function LoadingOverlay({ message = "Saindo..." }: LoadingOverlayProps) {
+export default function LoadingOverlay({
+   message = "Saindo...",
+}: LoadingOverlayProps) {
    return (
-      <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
-         <div className="bg-white rounded-lg p-8 flex flex-col items-center gap-4 shadow-2xl">
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+         <div className="flex flex-col items-center gap-4 rounded-lg bg-white p-8 shadow-2xl">
             <Spinner size="xl" />
-            <p className="text-gray-700 font-medium text-lg">{message}</p>
+            <p className="text-lg font-medium text-gray-700">{message}</p>
          </div>
       </div>
    );

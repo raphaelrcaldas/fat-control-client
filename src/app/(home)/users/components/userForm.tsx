@@ -137,22 +137,22 @@ export function UserRegister({ userId, updateUsers }) {
    }
 
    return (
-      <form onSubmit={handleSubmit(onAddUser)} className='h-full flex flex-col'>
+      <form onSubmit={handleSubmit(onAddUser)} className="flex h-full flex-col">
          {loadingUser ? (
-            <div className='flex justify-center items-center h-40'>
-               <Spinner size='xl' />
+            <div className="flex h-40 items-center justify-center">
+               <Spinner size="xl" />
             </div>
          ) : (
             <>
-               <div className='flex-1'>
+               <div className="flex-1">
                   <UserFormFields register={register} errors={errors} />
                </div>
-               <div className='flex justify-center gap-3 pt-4 mt-4 border-t border-gray-200 sticky bottom-0 bg-white'>
+               <div className="sticky bottom-0 mt-4 flex justify-center gap-3 border-t border-gray-200 bg-white pt-4">
                   <Button
-                     color='red'
-                     type='submit'
+                     color="red"
+                     type="submit"
                      disabled={!hasChanges || loadingUser}
-                     size='lg'
+                     size="lg"
                   >
                      {!userId ? "Adicionar" : "Salvar Alterações"}
                   </Button>
@@ -165,49 +165,49 @@ export function UserRegister({ userId, updateUsers }) {
 
 function UserFormFields({ register, errors }: any) {
    return (
-      <div className='space-y-4'>
+      <div className="space-y-4">
          {/* Seção: Identificação */}
          <div>
-            <div className='grid grid-cols-12 gap-3'>
-               <div className='col-span-2'>
+            <div className="grid grid-cols-12 gap-3">
+               <div className="col-span-2">
                   <Label>P/G</Label>
                   <Select
                      className={clsx("", {
-                        "focus:ring-red-500 focus:border-red-500": errors.p_g,
+                        "focus:border-red-500 focus:ring-red-500": errors.p_g,
                      })}
-                     defaultValue=''
+                     defaultValue=""
                      {...register("p_g")}
                   >
-                     <option value='' disabled></option>
-                     <option value='tb'>TB</option>
-                     <option value='mb'>MB</option>
-                     <option value='br'>BR</option>
-                     <option value='cl'>CL</option>
-                     <option value='tc'>TC</option>
-                     <option value='mj'>MJ</option>
-                     <option value='cp'>CP</option>
-                     <option value='1t'>1T</option>
-                     <option value='2t'>2T</option>
-                     <option value='as'>AS</option>
-                     <option value='so'>SO</option>
-                     <option value='1s'>1S</option>
-                     <option value='2s'>2S</option>
-                     <option value='3s'>3S</option>
-                     <option value='cb'>CB</option>
-                     <option value='s1'>S1</option>
-                     <option value='s2'>S2</option>
+                     <option value="" disabled></option>
+                     <option value="tb">TB</option>
+                     <option value="mb">MB</option>
+                     <option value="br">BR</option>
+                     <option value="cl">CL</option>
+                     <option value="tc">TC</option>
+                     <option value="mj">MJ</option>
+                     <option value="cp">CP</option>
+                     <option value="1t">1T</option>
+                     <option value="2t">2T</option>
+                     <option value="as">AS</option>
+                     <option value="so">SO</option>
+                     <option value="1s">1S</option>
+                     <option value="2s">2S</option>
+                     <option value="3s">3S</option>
+                     <option value="cb">CB</option>
+                     <option value="s1">S1</option>
+                     <option value="s2">S2</option>
                   </Select>
                   {errors.p_g && (
-                     <span className='text-xs text-red-600'>
+                     <span className="text-xs text-red-600">
                         {errors.p_g.message}
                      </span>
                   )}
                </div>
-               <div className='col-span-2'>
+               <div className="col-span-2">
                   <Label>Especialidade</Label>
                   <TextInput
                      {...register("esp")}
-                     autoComplete='off'
+                     autoComplete="off"
                      maxLength={6}
                      onKeyDown={(e) => {
                         if (
@@ -221,11 +221,11 @@ function UserFormFields({ register, errors }: any) {
                      }}
                   />
                </div>
-               <div className='col-span-3'>
+               <div className="col-span-3">
                   <Label>Nome de Guerra</Label>
                   <TextInput
                      {...register("nome_guerra")}
-                     autoComplete='off'
+                     autoComplete="off"
                      onKeyDown={(e) => {
                         if (
                            !e.key.match(/^[a-zA-ZÀ-ÿ\s]$/) &&
@@ -237,22 +237,22 @@ function UserFormFields({ register, errors }: any) {
                         }
                      }}
                      className={clsx({
-                        "focus:ring-red-500 focus:border-red-500":
+                        "focus:border-red-500 focus:ring-red-500":
                            errors.nome_guerra,
                      })}
                   />
                   {errors.nome_guerra && (
-                     <span className='text-xs text-red-600'>
+                     <span className="text-xs text-red-600">
                         {typeof errors.nome_guerra?.message === "string" &&
                            errors.nome_guerra.message}
                      </span>
                   )}
                </div>
-               <div className='col-span-5'>
+               <div className="col-span-5">
                   <Label>Nome Completo</Label>
                   <TextInput
                      {...register("nome_completo")}
-                     autoComplete='off'
+                     autoComplete="off"
                      onKeyDown={(e) => {
                         if (
                            !e.key.match(/^[a-zA-ZÀ-ÿ\s]$/) &&
@@ -269,40 +269,40 @@ function UserFormFields({ register, errors }: any) {
          </div>
          {/* Seção: Documentação */}
          <div>
-            <div className='grid grid-cols-12 gap-3'>
-               <div className='col-span-3'>
+            <div className="grid grid-cols-12 gap-3">
+               <div className="col-span-3">
                   <Label>Unidade</Label>
                   <Select
-                     defaultValue=''
+                     defaultValue=""
                      {...register("unidade")}
                      className={clsx("", {
-                        "focus:ring-red-500 focus:border-red-500":
+                        "focus:border-red-500 focus:ring-red-500":
                            errors.unidade,
                      })}
                   >
-                     <option value='' disabled></option>
-                     <option value='11gt'>1º/1º GT</option>
-                     <option value='12gt'>1º/2º GT</option>
-                     <option value='22gt'>2º/2º GT</option>
-                     <option value='eta3'>3º ETA</option>
-                     <option value='bagl'>BAGL</option>
-                     <option value='glog'>GLOG</option>
-                     <option value='gsd_gl'>GSD-GL</option>
-                     <option value='pama_gl'>PAMA-GL</option>
-                     <option value='ctla'>CTLA</option>
-                     <option value='gapgl'>GAP-GL</option>
+                     <option value="" disabled></option>
+                     <option value="11gt">1º/1º GT</option>
+                     <option value="12gt">1º/2º GT</option>
+                     <option value="22gt">2º/2º GT</option>
+                     <option value="eta3">3º ETA</option>
+                     <option value="bagl">BAGL</option>
+                     <option value="glog">GLOG</option>
+                     <option value="gsd_gl">GSD-GL</option>
+                     <option value="pama_gl">PAMA-GL</option>
+                     <option value="ctla">CTLA</option>
+                     <option value="gapgl">GAP-GL</option>
                   </Select>
                   {errors.unidade && (
-                     <span className='text-xs text-red-600'>
+                     <span className="text-xs text-red-600">
                         {errors.unidade.message}
                      </span>
                   )}
                </div>
-               <div className='col-span-3'>
+               <div className="col-span-3">
                   <Label>SARAM</Label>
                   <TextInput
                      {...register("saram")}
-                     autoComplete='off'
+                     autoComplete="off"
                      onKeyDown={(e) => {
                         if (e.ctrlKey || e.metaKey) {
                            return;
@@ -317,22 +317,22 @@ function UserFormFields({ register, errors }: any) {
                         }
                      }}
                      className={clsx("", {
-                        "focus:ring-red-500 focus:border-red-500": errors.saram,
+                        "focus:border-red-500 focus:ring-red-500": errors.saram,
                      })}
                      maxLength={7}
                      minLength={7}
                   />
                   {errors.saram && (
-                     <span className='text-xs text-red-600'>
+                     <span className="text-xs text-red-600">
                         Insira um SARAM válido
                      </span>
                   )}
                </div>
-               <div className='col-span-3'>
+               <div className="col-span-3">
                   <Label>ID FAB</Label>
                   <TextInput
                      {...register("id_fab")}
-                     autoComplete='off'
+                     autoComplete="off"
                      onKeyDown={(e) => {
                         if (e.ctrlKey || e.metaKey) {
                            return;
@@ -349,11 +349,11 @@ function UserFormFields({ register, errors }: any) {
                      minLength={6}
                   />
                </div>
-               <div className='col-span-3'>
+               <div className="col-span-3">
                   <Label>CPF</Label>
                   <TextInput
                      {...register("cpf")}
-                     autoComplete='off'
+                     autoComplete="off"
                      onKeyDown={(e) => {
                         if (e.ctrlKey || e.metaKey) {
                            return;
@@ -368,13 +368,13 @@ function UserFormFields({ register, errors }: any) {
                         }
                      }}
                      className={clsx("", {
-                        "focus:ring-red-500 focus:border-red-500": errors.cpf,
+                        "focus:border-red-500 focus:ring-red-500": errors.cpf,
                      })}
                      minLength={11}
                      maxLength={11}
                   />
                   {errors.cpf && (
-                     <span className='text-xs text-red-600'>
+                     <span className="text-xs text-red-600">
                         {errors.cpf.message}
                      </span>
                   )}
@@ -384,36 +384,36 @@ function UserFormFields({ register, errors }: any) {
 
          {/* Seção: Contato e Datas */}
          <div>
-            <div className='grid grid-cols-12 gap-3'>
-               <div className='col-span-4'>
+            <div className="grid grid-cols-12 gap-3">
+               <div className="col-span-4">
                   <Label>Email Zimbra</Label>
                   <TextInput
                      {...register("email_fab")}
-                     type='email'
-                     autoComplete='off'
+                     type="email"
+                     autoComplete="off"
                      icon={HiMail}
                   />
                </div>
-               <div className='col-span-4'>
+               <div className="col-span-4">
                   <Label>Email Particular</Label>
                   <TextInput
                      {...register("email_pess")}
-                     type='email'
-                     autoComplete='off'
+                     type="email"
+                     autoComplete="off"
                      icon={HiMail}
                   />
                </div>
-               <div className='col-span-4'>
+               <div className="col-span-4">
                   <Label>Data de Nascimento</Label>
                   <TextInput
                      {...register("nasc")}
                      defaultValue={null}
-                     className='text-sm text-gray-900'
-                     type='date'
-                     autoComplete='off'
+                     className="text-sm text-gray-900"
+                     type="date"
+                     autoComplete="off"
                   />
                   {errors.nasc && (
-                     <span className='text-xs text-red-600'>
+                     <span className="text-xs text-red-600">
                         {errors.nasc.message}
                      </span>
                   )}
@@ -423,26 +423,26 @@ function UserFormFields({ register, errors }: any) {
 
          {/* Seção: Carreira */}
          <div>
-            <div className='grid grid-cols-12 gap-3'>
-               <div className='col-span-6'>
+            <div className="grid grid-cols-12 gap-3">
+               <div className="col-span-6">
                   <Label>Última Promoção</Label>
                   <TextInput
                      {...register("ult_promo")}
                      defaultValue={null}
-                     className='text-sm text-gray-900'
-                     type='date'
-                     autoComplete='off'
+                     className="text-sm text-gray-900"
+                     type="date"
+                     autoComplete="off"
                   />
                </div>
-               <div className='col-span-6'>
+               <div className="col-span-6">
                   <Label>Antiguidade Relativa</Label>
                   <TextInput
                      {...register("ant_rel")}
                      defaultValue={null}
-                     className='text-sm text-gray-900'
-                     type='number'
+                     className="text-sm text-gray-900"
+                     type="number"
                      min={1}
-                     autoComplete='off'
+                     autoComplete="off"
                   />
                </div>
             </div>
@@ -450,14 +450,14 @@ function UserFormFields({ register, errors }: any) {
 
          {/* Seção: Status */}
          <div>
-            <div className='flex items-center gap-2 p-3 bg-gray-50 rounded-lg'>
+            <div className="flex items-center gap-2 rounded-lg bg-gray-50 p-3">
                <Checkbox
-                  id='active'
-                  className='size-5'
-                  color='red'
+                  id="active"
+                  className="size-5"
+                  color="red"
                   {...register("active")}
                />
-               <Label htmlFor='active' className='cursor-pointer'>
+               <Label htmlFor="active" className="cursor-pointer">
                   Usuário ativo
                </Label>
             </div>
@@ -477,7 +477,7 @@ export function UserCreateModal({
    updateUsers: () => void;
 }) {
    return (
-      <Modal show={show} size='4xl' onClose={() => setShow(false)} popup>
+      <Modal show={show} size="4xl" onClose={() => setShow(false)} popup>
          <ModalHeader>Cadastrar novo usuário</ModalHeader>
          <ModalBody>
             <UserRegister userId={null} updateUsers={updateUsers} />

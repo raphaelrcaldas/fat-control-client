@@ -28,11 +28,11 @@ export function SearchUser({ uae, trips, updateTrips }) {
    return (
       <>
          <Button
-            color='red'
-            className='font-semibold'
+            color="red"
+            className="font-semibold"
             onClick={() => setShowSearch(true)}
          >
-            <GoPlus className='mr-2 h-5 w-5' /> Adicionar
+            <GoPlus className="mr-2 h-5 w-5" /> Adicionar
          </Button>
 
          <UserSearchModal

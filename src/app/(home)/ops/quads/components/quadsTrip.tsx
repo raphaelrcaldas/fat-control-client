@@ -124,15 +124,15 @@ export function QuadsTrip({
    return (
       <>
          <Button
-            color='light'
+            color="light"
             onClick={() => setOpenModal(true)}
-            className='inline-flex items-center w-[4rem] px-0 text-sm font-medium uppercase overflow-visible hover:bg-gray-100 transition-colors'
-            size='sm'
+            className="inline-flex w-[4rem] items-center overflow-visible px-0 text-sm font-medium uppercase transition-colors hover:bg-gray-100"
+            size="sm"
             aria-label={`Ver quadrinhos de ${userName}`}
          >
             {trip.trig}
             <div
-               className='absolute inline-flex items-center justify-center w-6 h-6 text-xs font-bold text-white bg-red-500 border-2 border-white rounded-full -top-2 -right-2'
+               className="absolute -top-2 -right-2 inline-flex h-6 w-6 items-center justify-center rounded-full border-2 border-white bg-red-500 text-xs font-bold text-white"
                aria-label={`${totalQuads} quadrinhos`}
             >
                {totalQuads}
@@ -141,61 +141,61 @@ export function QuadsTrip({
 
          <Modal
             show={openModal}
-            size='md'
+            size="md"
             onClose={handleCloseModal}
             popup
             dismissible
          >
             <ModalHeader>
-               <div className='flex items-center gap-2'>
-                  <div className='w-10 h-10 bg-red-600 rounded-lg flex items-center justify-center'>
+               <div className="flex items-center gap-2">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-red-600">
                      <svg
-                        className='w-6 h-6 text-white'
-                        fill='none'
-                        stroke='currentColor'
-                        viewBox='0 0 24 24'
+                        className="h-6 w-6 text-white"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
                      >
                         <path
-                           strokeLinecap='round'
-                           strokeLinejoin='round'
+                           strokeLinecap="round"
+                           strokeLinejoin="round"
                            strokeWidth={2}
-                           d='M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z'
+                           d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
                         />
                      </svg>
                   </div>
-                  <span className='text-xl font-bold text-gray-800'>
+                  <span className="text-xl font-bold text-gray-800">
                      Quadrinhos
                   </span>
                </div>
             </ModalHeader>
             <ModalBody>
-               <div className='mb-2 p-4 bg-red-100 rounded-xl border border-red-200'>
-                  <div className='text-center uppercase'>
-                     <h2 className='font-bold text-lg text-gray-900'>
+               <div className="mb-2 rounded-xl border border-red-200 bg-red-100 p-4">
+                  <div className="text-center uppercase">
+                     <h2 className="text-lg font-bold text-gray-900">
                         {userName}
                      </h2>
                   </div>
                </div>
 
-               <div className='mb-4 p-2 bg-gray-50 rounded-lg border border-gray-200'>
-                  <div className='text-center'>
-                     <p className='text-xs font-semibold text-gray-500 uppercase mb-1 flex items-center justify-center gap-1'>
+               <div className="mb-4 rounded-lg border border-gray-200 bg-gray-50 p-2">
+                  <div className="text-center">
+                     <p className="mb-1 flex items-center justify-center gap-1 text-xs font-semibold text-gray-500 uppercase">
                         {groupName.toLowerCase().includes("internacional") && (
-                           <span className='text-blue-600'>🌍</span>
+                           <span className="text-blue-600">🌍</span>
                         )}
                         {groupName}
                      </p>
-                     <p className='text-sm font-bold text-gray-900 uppercase'>
+                     <p className="text-sm font-bold text-gray-900 uppercase">
                         {typeName}
                      </p>
                   </div>
                </div>
 
-               <div className='h-96 overflow-y-auto shadow-lg rounded-lg bg-white dark:bg-gray-800'>
+               <div className="h-96 overflow-y-auto rounded-lg bg-white shadow-lg dark:bg-gray-800">
                   {loading ? (
                      <LoadingState />
                   ) : quads.length > 0 ? (
-                     <Table className='text-center' hoverable>
+                     <Table className="text-center" hoverable>
                         <TableHead>
                            <TableRow>
                               <TableHeadCell>Valor</TableHeadCell>
@@ -220,13 +220,13 @@ export function QuadsTrip({
                </div>
 
                <PermBased resource={"quad"} requiredPerm={"create"}>
-                  <div className='flex justify-center mt-4'>
+                  <div className="mt-4 flex justify-center">
                      <Button
-                        color='red'
+                        color="red"
                         onClick={() => setShowForm(true)}
-                        className='w-full sm:w-auto'
+                        className="w-full sm:w-auto"
                      >
-                        <FaPlus className='mr-2 h-4 w-4' />
+                        <FaPlus className="mr-2 h-4 w-4" />
                         Adicionar Quadrinho
                      </Button>
                   </div>
@@ -269,35 +269,35 @@ function QuadRow({ quad, trip, onUpdate, onDelete }: QuadRowProps) {
 
    return (
       <>
-         <TableRow className='hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors'>
-            <TableCell className='font-semibold text-center'>
+         <TableRow className="transition-colors hover:bg-gray-50 dark:hover:bg-gray-700">
+            <TableCell className="text-center font-semibold">
                {displayValue}
             </TableCell>
             <TableCell>
-               <div className='flex justify-center items-center gap-2'>
+               <div className="flex items-center justify-center gap-2">
                   <PermBased resource={"quad_ops"} requiredPerm={"create"}>
                      {canEdit && (
                         <button
                            onClick={() => setShowForm(true)}
-                           className='p-2 hover:bg-blue-500 hover:text-white text-blue-500 cursor-pointer rounded-md transition-all duration-200 active:scale-95'
-                           aria-label='Editar quadrinho'
+                           className="cursor-pointer rounded-md p-2 text-blue-500 transition-all duration-200 hover:bg-blue-500 hover:text-white active:scale-95"
+                           aria-label="Editar quadrinho"
                            disabled={deleting}
                         >
-                           <FaEdit className='size-5' />
+                           <FaEdit className="size-5" />
                         </button>
                      )}
 
                      {deleting ? (
-                        <div className='p-2'>
-                           <Spinner size='sm' />
+                        <div className="p-2">
+                           <Spinner size="sm" />
                         </div>
                      ) : (
                         <button
                            onClick={() => setShowDeleteConfirm(true)}
-                           className='p-2 hover:bg-red-500 hover:text-white text-red-500 cursor-pointer rounded-md transition-all duration-200 active:scale-95'
-                           aria-label='Deletar quadrinho'
+                           className="cursor-pointer rounded-md p-2 text-red-500 transition-all duration-200 hover:bg-red-500 hover:text-white active:scale-95"
+                           aria-label="Deletar quadrinho"
                         >
-                           <FaRegTrashCan className='size-5' />
+                           <FaRegTrashCan className="size-5" />
                         </button>
                      )}
                   </PermBased>
@@ -326,9 +326,9 @@ function QuadRow({ quad, trip, onUpdate, onDelete }: QuadRowProps) {
 
 function LoadingState() {
    return (
-      <div className='flex flex-col items-center justify-center h-full gap-3 p-4'>
-         <Spinner size='lg' />
-         <p className='text-sm text-gray-600 dark:text-gray-400'>
+      <div className="flex h-full flex-col items-center justify-center gap-3 p-4">
+         <Spinner size="lg" />
+         <p className="text-sm text-gray-600 dark:text-gray-400">
             Carregando quadrinhos...
          </p>
       </div>
@@ -337,26 +337,26 @@ function LoadingState() {
 
 function EmptyState() {
    return (
-      <div className='flex flex-col items-center justify-center py-12 px-4'>
-         <div className='w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mb-4'>
+      <div className="flex flex-col items-center justify-center px-4 py-12">
+         <div className="mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-gray-100">
             <svg
-               className='w-10 h-10 text-gray-400'
-               fill='none'
-               stroke='currentColor'
-               viewBox='0 0 24 24'
+               className="h-10 w-10 text-gray-400"
+               fill="none"
+               stroke="currentColor"
+               viewBox="0 0 24 24"
             >
                <path
-                  strokeLinecap='round'
-                  strokeLinejoin='round'
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
                   strokeWidth={2}
-                  d='M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z'
+                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
                />
             </svg>
          </div>
-         <h3 className='text-lg font-semibold text-gray-700 mb-2'>
+         <h3 className="mb-2 text-lg font-semibold text-gray-700">
             Nenhum quadrinho encontrado
          </h3>
-         <p className='text-gray-500 text-center text-sm'>
+         <p className="text-center text-sm text-gray-500">
             Não há quadrinhos cadastrados para este tripulante.
          </p>
       </div>
@@ -373,19 +373,19 @@ function ConfirmDeleteModal({
    onCancel: () => void;
 }) {
    return (
-      <Modal show={show} size='sm' onClose={onCancel} popup>
+      <Modal show={show} size="sm" onClose={onCancel} popup>
          <ModalHeader />
          <ModalBody>
-            <div className='text-center'>
-               <FaRegTrashCan className='mx-auto mb-4 h-14 w-14 text-red-500' />
-               <h3 className='mb-5 text-lg font-normal text-gray-500 dark:text-gray-400'>
+            <div className="text-center">
+               <FaRegTrashCan className="mx-auto mb-4 h-14 w-14 text-red-500" />
+               <h3 className="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
                   Tem certeza que deseja deletar este quadrinho?
                </h3>
-               <div className='flex justify-center gap-4'>
-                  <Button color='red' onClick={onConfirm}>
+               <div className="flex justify-center gap-4">
+                  <Button color="red" onClick={onConfirm}>
                      Sim, deletar
                   </Button>
-                  <Button color='gray' onClick={onCancel}>
+                  <Button color="gray" onClick={onCancel}>
                      Cancelar
                   </Button>
                </div>

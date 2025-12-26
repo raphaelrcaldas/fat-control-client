@@ -73,49 +73,41 @@ function ToastItem({
 
    return (
       <div
-         className={`
-            pointer-events-auto w-full max-w-sm overflow-hidden rounded-lg
-            border ${config.border} ${config.bg}
-            shadow-lg
-            transition-all duration-300 ease-out
-            ${
-               isExiting
-                  ? "opacity-0 translate-y-2 scale-95"
-                  : "opacity-100 translate-y-0 scale-100"
-            }
-         `}
-         role='alert'
+         className={`pointer-events-auto w-full max-w-sm overflow-hidden rounded-lg border ${config.border} ${config.bg} shadow-lg transition-all duration-300 ease-out ${
+            isExiting
+               ? "translate-y-2 scale-95 opacity-0"
+               : "translate-y-0 scale-100 opacity-100"
+         } `}
+         role="alert"
       >
-         <div className='relative p-4'>
-            <div className='flex items-start gap-3'>
-               <div className={`flex-shrink-0 ${config.color}`}>
-                  <Icon className='h-6 w-6' />
+         <div className="relative p-4">
+            <div className="flex items-start gap-3">
+               <div className={`shrink-0 ${config.color}`}>
+                  <Icon className="h-6 w-6" />
                </div>
 
-               <div className='flex-1 min-w-0'>
+               <div className="min-w-0 flex-1">
                   {toast.title && (
-                     <h3 className='text-sm font-semibold text-gray-900 dark:text-white mb-1'>
+                     <h3 className="mb-1 text-sm font-semibold text-gray-900 dark:text-white">
                         {toast.title}
                      </h3>
                   )}
-                  <p className='text-sm text-gray-800 dark:text-gray-100'>
+                  <p className="text-sm text-gray-800 dark:text-gray-100">
                      {toast.message}
                   </p>
                </div>
 
                <button
                   onClick={handleRemove}
-                  className='flex-shrink-0 inline-flex text-gray-600 hover:text-gray-900
-                           dark:text-gray-300 dark:hover:text-white focus:outline-none focus:ring-2
-                           focus:ring-offset-2 focus:ring-gray-500 rounded-md transition-colors'
-                  aria-label='Fechar'
+                  className="inline-flex shrink-0 rounded-md text-gray-600 transition-colors hover:text-gray-900 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 focus:outline-none dark:text-gray-300 dark:hover:text-white"
+                  aria-label="Fechar"
                >
-                  <MdClose className='h-5 w-5' />
+                  <MdClose className="h-5 w-5" />
                </button>
             </div>
 
             {/* Progress bar */}
-            <div className='absolute bottom-0 left-0 right-0 h-1 bg-gray-200 dark:bg-gray-700'>
+            <div className="absolute right-0 bottom-0 left-0 h-1 bg-gray-200 dark:bg-gray-700">
                <div
                   className={`h-full ${config.progress} animate-toast-progress`}
                   style={{
@@ -152,8 +144,8 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
 
          {/* Toast container */}
          <div
-            aria-live='assertive'
-            className='fixed top-0 left-1/2 -translate-x-1/2 flex flex-col items-center px-4 py-6 pointer-events-none z-[9999] gap-4'
+            aria-live="assertive"
+            className="pointer-events-none fixed top-0 left-1/2 z-[9999] flex -translate-x-1/2 flex-col items-center gap-4 px-4 py-6"
          >
             {toasts.map((toast) => (
                <ToastItem key={toast.id} toast={toast} onRemove={remove} />

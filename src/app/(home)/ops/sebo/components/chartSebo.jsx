@@ -68,31 +68,31 @@ export default function ChartSebo({ categories, data, activeRow, trips }) {
    }
 
    return (
-      <div className='space-y-4'>
+      <div className="space-y-4">
          {/* Statistics Cards */}
          {showStats && stats && (
-            <div className='grid grid-cols-3 gap-3 mb-4'>
-               <div className='bg-gradient-to-br from-orange-50 to-orange-100 p-3 rounded-lg'>
-                  <div className='text-xs text-orange-600 font-medium'>
+            <div className="mb-4 grid grid-cols-3 gap-3">
+               <div className="rounded-lg bg-gradient-to-br from-orange-50 to-orange-100 p-3">
+                  <div className="text-xs font-medium text-orange-600">
                      Mínimo
                   </div>
-                  <div className='text-lg font-bold text-orange-900'>
+                  <div className="text-lg font-bold text-orange-900">
                      {stats.min}
                   </div>
                </div>
-               <div className='bg-gradient-to-br from-green-50 to-green-100 p-3 rounded-lg'>
-                  <div className='text-xs text-green-600 font-medium'>
+               <div className="rounded-lg bg-gradient-to-br from-green-50 to-green-100 p-3">
+                  <div className="text-xs font-medium text-green-600">
                      Média
                   </div>
-                  <div className='text-lg font-bold text-green-900'>
+                  <div className="text-lg font-bold text-green-900">
                      {stats.media}
                   </div>
                </div>
-               <div className='bg-gradient-to-br from-purple-50 to-purple-100 p-3 rounded-lg'>
-                  <div className='text-xs text-purple-600 font-medium'>
+               <div className="rounded-lg bg-gradient-to-br from-purple-50 to-purple-100 p-3">
+                  <div className="text-xs font-medium text-purple-600">
                      Máximo
                   </div>
-                  <div className='text-lg font-bold text-purple-900'>
+                  <div className="text-lg font-bold text-purple-900">
                      {stats.max}
                   </div>
                </div>
@@ -100,7 +100,7 @@ export default function ChartSebo({ categories, data, activeRow, trips }) {
          )}
 
          {/* Chart */}
-         <div className='relative'>
+         <div className="relative">
             <Chart
                options={{
                   chart: {
@@ -145,7 +145,6 @@ export default function ChartSebo({ categories, data, activeRow, trips }) {
                            fontWeight: 500,
                         },
                      },
-                     
                   },
                   tooltip: {
                      custom: customTooltip,
@@ -206,24 +205,24 @@ export default function ChartSebo({ categories, data, activeRow, trips }) {
                      data: data,
                   },
                ]}
-               type='bar'
-               width='100%'
-               height='380'
+               type="bar"
+               width="100%"
+               height="380"
             />
          </div>
 
          {/* Legend */}
-         <div className='flex items-center justify-center gap-4 text-xs text-gray-600 pt-2 border-t border-gray-200'>
-            <div className='flex items-center gap-2'>
-               <div className='w-3 h-3 bg-blue-400 rounded'></div>
+         <div className="flex items-center justify-center gap-4 border-t border-gray-200 pt-2 text-xs text-gray-600">
+            <div className="flex items-center gap-2">
+               <div className="h-3 w-3 rounded bg-blue-400"></div>
                <span>Horas de Voo</span>
             </div>
-            <div className='flex items-center gap-2'>
-               <div className='w-3 h-3 bg-blue-600 rounded'></div>
+            <div className="flex items-center gap-2">
+               <div className="h-3 w-3 rounded bg-blue-600"></div>
                <span>Selecionado</span>
             </div>
-            <div className='flex items-center gap-2'>
-               <div className='w-3 h-3 bg-yellow-100 border border-yellow-400 rounded'></div>
+            <div className="flex items-center gap-2">
+               <div className="h-3 w-3 rounded border border-yellow-400 bg-yellow-100"></div>
                <span>Zona ±25%</span>
             </div>
          </div>

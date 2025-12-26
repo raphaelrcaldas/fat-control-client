@@ -119,64 +119,51 @@ export default function UsersPage() {
    const hasFilters = debouncedFilter || filterPG || filterActive;
 
    return (
-      <div className='w-full h-full overflow-auto p-1'>
+      <div className="h-full w-full overflow-auto p-1">
          {/* Header da Página */}
-         <div className='flex items-center justify-between mb-4'>
-            <div className='flex items-center gap-3'>
-               <div className='p-2 bg-red-100 rounded-lg'>
-                  <HiUsers className='w-6 h-6 text-red-600' />
+         <div className="mb-4 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+               <div className="rounded-lg bg-red-100 p-2">
+                  <HiUsers className="h-6 w-6 text-red-600" />
                </div>
                <div>
-                  <h1 className='text-xl font-semibold text-gray-900'>
+                  <h1 className="text-xl font-semibold text-gray-900">
                      Usuários
                   </h1>
-                  {!loading && (
-                     <p className='text-sm text-gray-500'>
-                        {totalUsers}{" "}
-                        {totalUsers === 1
-                           ? "usuário encontrado"
-                           : "usuários encontrados"}
-                        {hasFilters && " com os filtros aplicados"}
-                     </p>
-                  )}
                </div>
             </div>
          </div>
 
          {/* Card da Tabela */}
-         <div className='bg-white relative shadow-md sm:rounded-lg overflow-hidden'>
+         <div className="relative overflow-hidden bg-white shadow-md sm:rounded-lg">
             {/* Barra de Busca e Filtros */}
-            <div className='flex flex-col md:flex-row gap-3 p-4'>
+            <div className="flex flex-col gap-3 p-4 md:flex-row">
                {/* Busca */}
-               <div className='relative flex-1'>
-                  <div className='absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none'>
-                     <HiSearch className='w-5 h-5 text-gray-500' />
+               <div className="relative flex-1">
+                  <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                     <HiSearch className="h-5 w-5 text-gray-500" />
                   </div>
                   <input
-                     type='text'
-                     className='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-red-500 focus:border-red-500 block w-full pl-10 p-2.5'
-                     placeholder='Buscar por nome de guerra...'
+                     type="text"
+                     className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 pl-10 text-sm text-gray-900 focus:border-red-500 focus:ring-red-500"
+                     placeholder="Buscar por nome de guerra..."
                      value={filterName}
                      onChange={(e) => setFilterName(e.target.value)}
                   />
                </div>
 
                {/* Filtros */}
-               <div className='flex flex-wrap gap-2'>
+               <div className="flex flex-wrap gap-2">
                   {/* Filtro P/G */}
                   <select
                      value={filterPG}
                      onChange={(e) => setFilterPG(e.target.value)}
-                     className='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-red-500 focus:border-red-500 p-2.5'
+                     className="w-28 rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-red-500 focus:ring-red-500"
                   >
-                     <option value=''>Todos P/G</option>
+                     <option value="">Todos P/G</option>
                      {postoGradRecords.map((pg) => (
-                        <option
-                           className='capitalize'
-                           key={pg.short}
-                           value={pg.short}
-                        >
-                           {pg.mid}
+                        <option key={pg.short} value={pg.short}>
+                           {pg.short.toUpperCase()}
                         </option>
                      ))}
                   </select>
@@ -185,20 +172,20 @@ export default function UsersPage() {
                   <select
                      value={filterActive}
                      onChange={(e) => setFilterActive(e.target.value)}
-                     className='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-red-500 focus:border-red-500 p-2.5'
+                     className="rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-red-500 focus:ring-red-500"
                   >
-                     <option value=''>Todos Status</option>
-                     <option value='true'>Ativo</option>
-                     <option value='false'>Inativo</option>
+                     <option value="">Todos Status</option>
+                     <option value="true">Ativo</option>
+                     <option value="false">Inativo</option>
                   </select>
 
                   {/* Botão Novo Usuário */}
                   <Button
-                     color='red'
+                     color="red"
                      onClick={() => setShowCreateModal(true)}
-                     className='whitespace-nowrap'
+                     className="whitespace-nowrap"
                   >
-                     <HiUserAdd className='w-4 h-4 mr-2' />
+                     <HiUserAdd className="mr-2 h-4 w-4" />
                      Novo Usuário
                   </Button>
                </div>
@@ -206,31 +193,31 @@ export default function UsersPage() {
 
             {/* Conteúdo */}
             {loading ? (
-               <div className='flex flex-col justify-center items-center h-64'>
-                  <Spinner size='xl' />
-                  <p className='mt-4 text-gray-500'>Carregando usuários...</p>
+               <div className="flex h-64 flex-col items-center justify-center">
+                  <Spinner size="xl" />
+                  <p className="mt-4 text-gray-500">Carregando usuários...</p>
                </div>
             ) : usuarios.length === 0 ? (
-               <div className='flex flex-col justify-center items-center h-64'>
-                  <div className='p-4 bg-gray-100 rounded-full mb-4'>
-                     <HiUsers className='w-12 h-12 text-gray-400' />
+               <div className="flex h-64 flex-col items-center justify-center">
+                  <div className="mb-4 rounded-full bg-gray-100 p-4">
+                     <HiUsers className="h-12 w-12 text-gray-400" />
                   </div>
-                  <h3 className='text-lg font-semibold text-gray-900 mb-2'>
+                  <h3 className="mb-2 text-lg font-semibold text-gray-900">
                      {hasFilters
                         ? "Nenhum usuário encontrado"
                         : "Nenhum usuário cadastrado"}
                   </h3>
-                  <p className='text-gray-500 text-center max-w-md mb-4'>
+                  <p className="mb-4 max-w-md text-center text-gray-500">
                      {hasFilters
                         ? "Não encontramos resultados com os filtros aplicados. Tente ajustar os filtros."
                         : "Comece adicionando o primeiro usuário ao sistema."}
                   </p>
                   {!hasFilters && (
                      <Button
-                        color='red'
+                        color="red"
                         onClick={() => setShowCreateModal(true)}
                      >
-                        <HiUserAdd className='w-5 h-5 mr-2' />
+                        <HiUserAdd className="mr-2 h-5 w-5" />
                         Adicionar Primeiro Usuário
                      </Button>
                   )}
@@ -238,33 +225,33 @@ export default function UsersPage() {
             ) : (
                <>
                   {/* Tabela Desktop */}
-                  <div className='hidden md:block overflow-x-auto'>
-                     <table className='w-full text-sm text-left text-gray-500'>
-                        <thead className='text-xs text-gray-700 uppercase bg-gray-50'>
+                  <div className="hidden overflow-x-auto md:block">
+                     <table className="w-full text-left text-sm text-gray-500">
+                        <thead className="bg-gray-50 text-xs text-gray-700 uppercase">
                            <tr>
-                              <th scope='col' className='px-4 py-3'>
+                              <th scope="col" className="px-4 py-3">
                                  #
                               </th>
-                              <th scope='col' className='px-4 py-3'>
+                              <th scope="col" className="px-4 py-3">
                                  P/G
                               </th>
-                              <th scope='col' className='px-4 py-3'>
+                              <th scope="col" className="px-4 py-3">
                                  Especialidade
                               </th>
-                              <th scope='col' className='px-4 py-3'>
+                              <th scope="col" className="px-4 py-3">
                                  Nome de Guerra
                               </th>
-                              <th scope='col' className='px-4 py-3'>
+                              <th scope="col" className="px-4 py-3">
                                  Nome Completo
                               </th>
-                              <th scope='col' className='px-4 py-3'>
+                              <th scope="col" className="px-4 py-3">
                                  Unidade
                               </th>
-                              <th scope='col' className='px-4 py-3'>
+                              <th scope="col" className="px-4 py-3">
                                  Status
                               </th>
-                              <th scope='col' className='px-4 py-3'>
-                                 <span className='sr-only'>Ações</span>
+                              <th scope="col" className="px-4 py-3">
+                                 <span className="sr-only">Ações</span>
                               </th>
                            </tr>
                         </thead>
@@ -281,7 +268,7 @@ export default function UsersPage() {
                   </div>
 
                   {/* Cards Mobile */}
-                  <div className='md:hidden space-y-3 p-4'>
+                  <div className="space-y-3 p-4 md:hidden">
                      {usuarios.map((user) => (
                         <UserCard
                            key={user.id}
@@ -293,36 +280,36 @@ export default function UsersPage() {
 
                   {/* Footer com Paginação */}
                   <nav
-                     className='flex flex-col md:flex-row justify-between items-start md:items-center space-y-3 md:space-y-0 p-4'
-                     aria-label='Navegação da tabela'
+                     className="flex flex-col items-start justify-between space-y-3 p-4 md:flex-row md:items-center md:space-y-0"
+                     aria-label="Navegação da tabela"
                   >
-                     <div className='flex items-center gap-4'>
-                        <span className='text-sm font-normal text-gray-500'>
+                     <div className="flex items-center gap-4">
+                        <span className="text-sm font-normal text-gray-500">
                            Mostrando{" "}
-                           <span className='font-semibold text-gray-900'>
+                           <span className="font-semibold text-gray-900">
                               {(currentPage - 1) * perPage + 1}-
                               {Math.min(currentPage * perPage, totalUsers)}
                            </span>{" "}
                            de{" "}
-                           <span className='font-semibold text-gray-900'>
+                           <span className="font-semibold text-gray-900">
                               {totalUsers}
                            </span>
                         </span>
-                        <div className='flex items-center gap-2'>
+                        <div className="flex items-center gap-2">
                            <label
-                              htmlFor='perPage'
-                              className='text-sm text-gray-500'
+                              htmlFor="perPage"
+                              className="text-sm text-gray-500"
                            >
                               Por página:
                            </label>
                            <Select
-                              id='perPage'
-                              sizing='sm'
+                              id="perPage"
+                              sizing="sm"
                               value={perPage}
                               onChange={(e) =>
                                  handlePerPageChange(Number(e.target.value))
                               }
-                              className='w-20'
+                              className="w-20"
                            >
                               {PER_PAGE_OPTIONS.map((option) => (
                                  <option key={option} value={option}>

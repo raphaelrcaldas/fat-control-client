@@ -50,7 +50,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
 
    return (
       <Providers>
-         <div className='h-screen flex flex-col overflow-hidden bg-gray-50'>
+         <div className="flex h-screen flex-col overflow-hidden bg-gray-50">
             {/* Navbar inteligente */}
             <Navbar
                user={user}
@@ -59,13 +59,13 @@ export default function RootLayout({ children }: RootLayoutProps) {
             />
 
             {/* Container principal - ajusta padding baseado na navbar */}
-            <div className='flex flex-1 pt-16 overflow-hidden'>
+            <div className="flex flex-1 overflow-hidden pt-16">
                {/* Backdrop */}
                {isMobile && isSidebarOpen && (
                   <div
-                     className='fixed inset-0 bg-black/50 z-40 lg:hidden animate-in fade-in duration-300'
+                     className="animate-in fade-in fixed inset-0 z-40 bg-black/50 duration-300 lg:hidden"
                      onClick={() => setIsSidebarOpen(false)}
-                     aria-hidden='true'
+                     aria-hidden="true"
                   />
                )}
 

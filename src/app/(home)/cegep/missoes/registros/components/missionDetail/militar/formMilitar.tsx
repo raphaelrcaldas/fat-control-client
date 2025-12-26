@@ -121,55 +121,55 @@ export function FormMilitar({
    }
 
    return (
-      <Modal size='lg' show={show} onClose={() => setShow(false)}>
-         <ModalHeader className='border-b-2 border-gray-100 pb-4'>
-            <div className='flex items-center gap-3'>
-               <div className='p-2 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg'>
-                  <HiUserCircle className='w-6 h-6 text-white' />
+      <Modal size="lg" show={show} onClose={() => setShow(false)} dismissible>
+         <ModalHeader className="border-b-2 border-gray-100 pb-4">
+            <div className="flex items-center gap-3">
+               <div className="rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 p-2">
+                  <HiUserCircle className="h-6 w-6 text-white" />
                </div>
-               <span className='text-xl font-semibold text-gray-800'>
+               <span className="text-xl font-semibold text-gray-800">
                   {userMis ? "Editar Militar" : "Adicionar Militar"}
                </span>
             </div>
          </ModalHeader>
-         <ModalBody className='p-6'>
-            <form onSubmit={handleSubmit} className='flex flex-col gap-6'>
+         <ModalBody className="p-6">
+            <form onSubmit={handleSubmit} className="flex flex-col gap-6">
                {/* Card de Seleção do Militar */}
-               <div className='bg-gradient-to-br from-slate-50 to-slate-100 px-3 py-2 rounded-2xl border-2 border-slate-200 shadow-sm'>
-                  <div className='flex flex-col gap-2'>
-                     <div className='flex items-center justify-between'>
-                        <Label className='text-sm font-semibold text-gray-700 flex items-center gap-2'>
-                           <HiUserCircle className='w-5 h-5 text-blue-500' />
+               <div className="rounded-2xl border-2 border-slate-200 bg-gradient-to-br from-slate-50 to-slate-100 px-3 py-2 shadow-sm">
+                  <div className="flex flex-col gap-2">
+                     <div className="flex items-center justify-between">
+                        <Label className="flex items-center gap-2 text-sm font-semibold text-gray-700">
+                           <HiUserCircle className="h-5 w-5 text-blue-500" />
                            Militar Selecionado
                         </Label>
                         <Button
                            pill
                            onClick={() => setShowUserSearch(true)}
-                           size='sm'
-                           className='bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 transition-all duration-300 shadow-md hover:shadow-lg'
+                           size="sm"
+                           className="bg-gradient-to-r from-blue-500 to-blue-600 shadow-md transition-all duration-300 hover:from-blue-600 hover:to-blue-700 hover:shadow-lg"
                         >
-                           <IoMdSearch className='w-4 h-4 mr-2' />
+                           <IoMdSearch className="mr-2 h-4 w-4" />
                            Buscar
                         </Button>
                      </div>
 
-                     <div className='flex justify-center items-center p-2'>
+                     <div className="flex items-center justify-center p-2">
                         {user ? (
-                           <div className='bg-white shadow-lg px-6 py-3 rounded-xl border-2 border-blue-200 transition-all duration-300 hover:shadow-xl'>
-                              <span className='uppercase font-semibold text-base text-gray-800'>
-                                 <span className='text-blue-600'>
+                           <div className="rounded-xl border-2 border-blue-200 bg-white px-6 py-3 shadow-lg transition-all duration-300 hover:shadow-xl">
+                              <span className="text-base font-semibold text-gray-800 uppercase">
+                                 <span className="text-blue-600">
                                     {user.p_g}
                                  </span>{" "}
-                                 <span className='text-gray-500'>
+                                 <span className="text-gray-500">
                                     {user.esp}
                                  </span>{" "}
                                  <span>{user.nome_guerra}</span>
                               </span>
                            </div>
                         ) : (
-                           <div className='flex items-center gap-2 text-red-500 bg-red-50 px-4 py-2 rounded-lg border border-red-200'>
-                              <HiXCircle className='w-5 h-5' />
-                              <span className='text-sm font-medium'>
+                           <div className="flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-2 text-red-500">
+                              <HiXCircle className="h-5 w-5" />
+                              <span className="text-sm font-medium">
                                  Nenhum militar selecionado
                               </span>
                            </div>
@@ -186,18 +186,18 @@ export function FormMilitar({
                </div>
 
                {/* Grid de Campos */}
-               <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
+               <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                   {/* Posto/Graduação */}
-                  <div className='flex flex-col gap-2'>
-                     <Label className='text-sm font-semibold text-gray-700'>
+                  <div className="flex flex-col gap-2">
+                     <Label className="text-sm font-semibold text-gray-700">
                         Posto/Graduação
                      </Label>
                      <Select
                         value={pgMis}
                         onChange={(e) => setPgMis(e.target.value)}
-                        className='rounded-lg border-2 border-gray-200 focus:border-blue-500 focus:ring-blue-500 transition-all duration-300'
+                        className="rounded-lg border-2 border-gray-200 transition-all duration-300 focus:border-blue-500 focus:ring-blue-500"
                      >
-                        <option value='' disabled>
+                        <option value="" disabled>
                            Selecione...
                         </option>
                         {postoGradRecords.map((p) => (
@@ -206,48 +206,48 @@ export function FormMilitar({
                            </option>
                         ))}
                      </Select>
-                     <span className='text-xs text-gray-500 -mt-1 mb-1'>
+                     <span className="-mt-1 mb-1 text-xs text-gray-500">
                         Posto/Graduação que o militar estava no dia da missão
                      </span>
                   </div>
 
                   {/* Situação */}
-                  <div className='flex flex-col gap-2'>
-                     <Label className='text-sm font-semibold text-gray-700'>
+                  <div className="flex flex-col gap-2">
+                     <Label className="text-sm font-semibold text-gray-700">
                         Situação
                      </Label>
                      <Select
                         value={sit}
                         onChange={(e) => setSit(e.target.value)}
-                        className='rounded-lg border-2 border-gray-200 focus:border-blue-500 focus:ring-blue-500 transition-all duration-300'
+                        className="rounded-lg border-2 border-gray-200 transition-all duration-300 focus:border-blue-500 focus:ring-blue-500"
                      >
-                        <option disabled value=''>
+                        <option disabled value="">
                            Selecione...
                         </option>
-                        <option value='c'>Comissionado</option>
-                        <option value='d'>Diária</option>
-                        <option value='g'>Grat Rep</option>
+                        <option value="c">Comissionado</option>
+                        <option value="d">Diária</option>
+                        <option value="g">Grat Rep</option>
                      </Select>
                   </div>
                </div>
 
                {/* Botões de Ação */}
-               <div className='flex gap-3 mt-4 justify-center border-t-2 border-gray-100 pt-6'>
+               <div className="mt-4 flex justify-center gap-3 border-t-2 border-gray-100 pt-6">
                   {userMis && (
                      <Button
                         onClick={handleDeleteClick}
-                        className='min-w-32 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 transition-all duration-300 shadow-md hover:shadow-lg'
+                        className="min-w-32 bg-gradient-to-r from-red-500 to-red-600 shadow-md transition-all duration-300 hover:from-red-600 hover:to-red-700 hover:shadow-lg"
                      >
-                        <HiTrash className='w-4 h-4 mr-2' />
+                        <HiTrash className="mr-2 h-4 w-4" />
                         Excluir
                      </Button>
                   )}
                   <Button
-                     type='submit'
+                     type="submit"
                      disabled={!isChanged}
-                     className='min-w-32 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 disabled:from-gray-300 disabled:to-gray-400 transition-all duration-300 shadow-md hover:shadow-lg disabled:shadow-none'
+                     className="min-w-32 bg-gradient-to-r from-green-500 to-green-600 shadow-md transition-all duration-300 hover:from-green-600 hover:to-green-700 hover:shadow-lg disabled:from-gray-300 disabled:to-gray-400 disabled:shadow-none"
                   >
-                     <HiCheckCircle className='w-4 h-4 mr-2' />
+                     <HiCheckCircle className="mr-2 h-4 w-4" />
                      Salvar
                   </Button>
                </div>

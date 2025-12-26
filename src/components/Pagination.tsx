@@ -55,7 +55,7 @@ export function Pagination({
                title="Página anterior"
             >
                <span className="sr-only">Anterior</span>
-               <HiChevronLeft className="w-5 h-5" />
+               <HiChevronLeft className="h-5 w-5" />
             </button>
          </li>
 
@@ -85,7 +85,7 @@ export function Pagination({
                title="Próxima página"
             >
                <span className="sr-only">Próximo</span>
-               <HiChevronRight className="w-5 h-5" />
+               <HiChevronRight className="h-5 w-5" />
             </button>
          </li>
       </ul>

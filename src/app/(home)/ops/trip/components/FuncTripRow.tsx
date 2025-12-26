@@ -59,12 +59,12 @@ export function FuncTripRow({ func }: FuncTripRowProps) {
 
    return (
       <div
-         className='inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border border-gray-200 bg-white shadow-sm hover:shadow-md transition-shadow'
+         className="inline-flex items-center gap-1.5 rounded-full border border-gray-200 bg-white px-2.5 py-1 text-xs font-semibold shadow-sm transition-shadow hover:shadow-md"
          title={`${getFuncLabel()}: ${getOperLabel()}`}
       >
-         <span className='text-gray-700'>{func.func}</span>
-         <span className='text-gray-400'>•</span>
-         <span className={clsx("px-1.5 py-0.5 rounded", getOperColor())}>
+         <span className="text-gray-700">{func.func}</span>
+         <span className="text-gray-400">•</span>
+         <span className={clsx("rounded px-1.5 py-0.5", getOperColor())}>
             {oper}
          </span>
       </div>

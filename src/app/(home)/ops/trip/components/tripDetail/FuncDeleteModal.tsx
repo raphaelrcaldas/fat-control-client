@@ -54,50 +54,50 @@ export function FuncDeleteModal({
    }, [deletingFunc, onSuccess, onClose, push]);
 
    return (
-      <Modal show={show} onClose={onClose} size='md' popup>
+      <Modal show={show} onClose={onClose} size="md" popup>
          <ModalHeader />
          <ModalBody>
-            <div className='text-center'>
-               <div className='mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-red-100'>
-                  <FaTrash className='h-7 w-7 text-red-600' />
+            <div className="text-center">
+               <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-red-100">
+                  <FaTrash className="h-7 w-7 text-red-600" />
                </div>
-               <h3 className='mb-3 text-lg font-semibold text-gray-800'>
+               <h3 className="mb-3 text-lg font-semibold text-gray-800">
                   Excluir Função
                </h3>
                {deletingFunc && (
-                  <div className='mb-5 space-y-2'>
-                     <p className='text-sm text-gray-600'>
+                  <div className="mb-5 space-y-2">
+                     <p className="text-sm text-gray-600">
                         Tem certeza que deseja excluir a função:
                      </p>
-                     <div className='p-3 bg-gray-50 rounded-lg border border-gray-200'>
-                        <p className='text-base font-bold text-gray-800 uppercase'>
+                     <div className="rounded-lg border border-gray-200 bg-gray-50 p-3">
+                        <p className="text-base font-bold text-gray-800 uppercase">
                            {deletingFunc.func}
                         </p>
-                        <p className='text-sm text-gray-600 mt-1'>
+                        <p className="mt-1 text-sm text-gray-600">
                            Operacionalidade:{" "}
-                           <span className='font-semibold uppercase'>
+                           <span className="font-semibold uppercase">
                               {deletingFunc.oper}
                            </span>
                         </p>
                      </div>
-                     <p className='text-sm text-red-600 font-medium mt-3'>
+                     <p className="mt-3 text-sm font-medium text-red-600">
                         Esta ação não pode ser desfeita.
                      </p>
                   </div>
                )}
-               <div className='flex justify-center gap-3'>
-                  <Button color='gray' onClick={onClose} disabled={loading}>
+               <div className="flex justify-center gap-3">
+                  <Button color="gray" onClick={onClose} disabled={loading}>
                      Cancelar
                   </Button>
-                  <Button color='red' onClick={handleDelete} disabled={loading}>
+                  <Button color="red" onClick={handleDelete} disabled={loading}>
                      {loading ? (
-                        <div className='flex items-center gap-2'>
-                           <Spinner size='sm' color='white' />
+                        <div className="flex items-center gap-2">
+                           <Spinner size="sm" color="white" />
                            <span>Excluindo...</span>
                         </div>
                      ) : (
-                        <div className='flex items-center gap-2'>
-                           <FaTrash className='size-4' />
+                        <div className="flex items-center gap-2">
+                           <FaTrash className="size-4" />
                            <span>Sim, excluir</span>
                         </div>
                      )}

@@ -33,7 +33,8 @@ export function MultiSelect({
       }
 
       document.addEventListener("mousedown", handleClickOutside);
-      return () => document.removeEventListener("mousedown", handleClickOutside);
+      return () =>
+         document.removeEventListener("mousedown", handleClickOutside);
    }, []);
 
    const toggleOption = (value: string) => {
@@ -50,38 +51,42 @@ export function MultiSelect({
       selected.length === 0
          ? placeholder
          : selected.length === 1
-            ? options.find((opt) => opt.value === selected[0])?.label || ""
-            : `${selected.length} selecionados`;
+           ? options.find((opt) => opt.value === selected[0])?.label || ""
+           : `${selected.length} selecionados`;
 
    return (
       <div className={`relative ${className}`} ref={containerRef}>
          <button
             type="button"
             onClick={() => setIsOpen(!isOpen)}
-            className={`w-full flex items-center justify-between gap-2 px-3 py-2 text-sm bg-white border rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 ${selected.length > 0
-                  ? "text-gray-900 border-red-300 bg-red-50 hover:bg-red-100"
-                  : "text-gray-900 border-gray-300 hover:bg-gray-50"
-               } ${isAnimating ? "scale-[0.98]" : ""}`}
+            className={`flex w-full items-center justify-between gap-2 rounded-lg border bg-white px-3 py-2 text-sm transition-all duration-200 focus:border-red-500 focus:ring-2 focus:ring-red-500 focus:outline-none ${
+               selected.length > 0
+                  ? "border-red-300 bg-red-50 text-gray-900 hover:bg-red-100"
+                  : "border-gray-300 text-gray-900 hover:bg-gray-50"
+            } ${isAnimating ? "scale-[0.98]" : ""}`}
          >
-            <span className={`flex items-center gap-1.5 truncate ${selected.length === 0 ? "text-gray-500" : ""}`}>
+            <span
+               className={`flex items-center gap-1.5 truncate ${selected.length === 0 ? "text-gray-500" : ""}`}
+            >
                <span className="truncate">{displayText}</span>
                {selected.length > 1 && (
-                  <span className="flex-shrink-0 inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 text-xs font-semibold text-white bg-red-600 rounded-full animate-in zoom-in-95 duration-200">
+                  <span className="animate-in zoom-in-95 inline-flex h-5 min-w-[20px] shrink-0 items-center justify-center rounded-full bg-red-600 px-1.5 text-xs font-semibold text-white duration-200">
                      {selected.length}
                   </span>
                )}
             </span>
             <HiChevronDown
-               className={`w-4 h-4 text-gray-500 transition-transform duration-200 ${isOpen ? "rotate-180" : ""
-                  }`}
+               className={`h-4 w-4 text-gray-500 transition-transform duration-200 ${
+                  isOpen ? "rotate-180" : ""
+               }`}
             />
          </button>
 
          {isOpen && (
             <div
-               className="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-xl max-h-60 overflow-auto"
+               className="absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded-lg border border-gray-300 bg-white shadow-xl"
                style={{
-                  animation: "fadeSlideIn 0.2s ease-out"
+                  animation: "fadeSlideIn 0.2s ease-out",
                }}
             >
                <style jsx>{`
@@ -97,7 +102,7 @@ export function MultiSelect({
                   }
                `}</style>
                {options.length === 0 ? (
-                  <div className="px-3 py-2 text-sm text-gray-500 text-center">
+                  <div className="px-3 py-2 text-center text-sm text-gray-500">
                      Nenhuma opção disponível
                   </div>
                ) : (
@@ -107,8 +112,9 @@ export function MultiSelect({
                         return (
                            <label
                               key={option.value}
-                              className={`flex items-center gap-3 px-3 py-2.5 cursor-pointer transition-all duration-150 hover:bg-gray-50 ${isSelected ? "bg-red-50" : ""
-                                 }`}
+                              className={`flex cursor-pointer items-center gap-3 px-3 py-2.5 transition-all duration-150 hover:bg-gray-50 ${
+                                 isSelected ? "bg-red-50" : ""
+                              }`}
                            >
                               <div className="relative flex items-center justify-center">
                                  <input
@@ -118,14 +124,15 @@ export function MultiSelect({
                                     className="peer sr-only"
                                  />
                                  <div
-                                    className={`w-5 h-5 border-2 rounded transition-all duration-200 flex items-center justify-center ${isSelected
-                                          ? "bg-red-600 border-red-600 scale-100"
-                                          : "bg-white border-gray-300 hover:border-red-400"
-                                       }`}
+                                    className={`flex h-5 w-5 items-center justify-center rounded border-2 transition-all duration-200 ${
+                                       isSelected
+                                          ? "scale-100 border-red-600 bg-red-600"
+                                          : "border-gray-300 bg-white hover:border-red-400"
+                                    }`}
                                  >
                                     {isSelected && (
                                        <svg
-                                          className="w-3 h-3 text-white animate-in zoom-in-90 duration-200"
+                                          className="animate-in zoom-in-90 h-3 w-3 text-white duration-200"
                                           fill="none"
                                           strokeLinecap="round"
                                           strokeLinejoin="round"
@@ -139,10 +146,11 @@ export function MultiSelect({
                                  </div>
                               </div>
                               <span
-                                 className={`flex-1 text-sm select-none transition-colors duration-150 ${isSelected
+                                 className={`flex-1 text-sm transition-colors duration-150 select-none ${
+                                    isSelected
                                        ? "font-medium text-red-600"
                                        : "text-gray-700"
-                                    }`}
+                                 }`}
                               >
                                  {option.label}
                               </span>

@@ -1,6 +1,26 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+@plugin "flowbite/plugin";
+
+@source "../**/*.{js,ts,jsx,tsx}";
+@source "../../node_modules/flowbite/**/*.{js,ts,jsx,tsx}";
+@source "../../node_modules/flowbite-react/**/*.{js,ts,jsx,tsx}";
+
+@variant dark (&:where(.dark, .dark *));
+
+@theme {
+    --animate-fade-in: fadeIn 0.3s ease-out;
+    --animate-spin: spin 1s linear infinite;
+
+    @keyframes fadeIn {
+        0% { opacity: 0; transform: translateY(10px); }
+        100% { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+}
 
 * {
     box-sizing: border-box;

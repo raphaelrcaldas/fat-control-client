@@ -15,36 +15,36 @@ export function ErrorModal({
    errorTitle = "Erro",
 }: ErrorModalProps) {
    return (
-      <Modal size='lg' show={show} onClose={onClose} dismissible>
-         <ModalHeader className='border-b-2 border-red-100 bg-gradient-to-r from-red-50 to-orange-50'>
-            <div className='flex items-center gap-3'>
-               <div className='bg-red-500 p-2 rounded-full'>
-                  <MdError className='text-white size-6' />
+      <Modal size="lg" show={show} onClose={onClose} dismissible>
+         <ModalHeader className="border-b-2 border-red-100 bg-gradient-to-r from-red-50 to-orange-50">
+            <div className="flex items-center gap-3">
+               <div className="rounded-full bg-red-500 p-2">
+                  <MdError className="size-6 text-white" />
                </div>
-               <span className='text-xl font-bold text-gray-800'>
+               <span className="text-xl font-bold text-gray-800">
                   {errorTitle}
                </span>
             </div>
          </ModalHeader>
-         <ModalBody className='p-6'>
-            <div className='flex flex-col gap-6'>
+         <ModalBody className="p-6">
+            <div className="flex flex-col gap-6">
                {/* Mensagem de erro */}
-               <div className='bg-red-50 border-l-4 border-red-500 p-4 rounded-r-lg'>
-                  <p className='text-gray-800 font-medium whitespace-pre-wrap text-sm'>
+               <div className="rounded-r-lg border-l-4 border-red-500 bg-red-50 p-4">
+                  <p className="text-sm font-medium whitespace-pre-wrap text-gray-800">
                      {errorMessage}
                   </p>
                </div>
 
                {/* Botão de fechar */}
-               <div className='flex justify-center pt-2'>
+               <div className="flex justify-center pt-2">
                   <Button
-                     color='gray'
-                     className='w-32'
+                     color="gray"
+                     className="w-32"
                      onClick={onClose}
-                     type='button'
+                     type="button"
                   >
-                     <div className='flex items-center gap-2'>
-                        <MdClose className='size-5' />
+                     <div className="flex items-center gap-2">
+                        <MdClose className="size-5" />
                         <span>Fechar</span>
                      </div>
                   </Button>

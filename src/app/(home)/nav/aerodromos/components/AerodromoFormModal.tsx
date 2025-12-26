@@ -71,7 +71,9 @@ export default function AerodromoFormModal({
 
       // Validação de coordenadas
       if (formData.latitude === 0 && formData.longitude === 0) {
-         setCoordError("Por favor, preencha as coordenadas (latitude e longitude)");
+         setCoordError(
+            "Por favor, preencha as coordenadas (latitude e longitude)"
+         );
          return;
       }
 
@@ -134,29 +136,29 @@ export default function AerodromoFormModal({
    };
 
    return (
-      <Modal show={show} onClose={handleClose} size='xl'>
+      <Modal show={show} onClose={handleClose} size="xl" dismissible>
          <ModalHeader>
             {editingAerodromo ? "Editar Aeródromo" : "Novo Aeródromo"}
          </ModalHeader>
          <ModalBody>
             <form
                onSubmit={handleSubmit}
-               className='space-y-4'
-               autoComplete='off'
+               className="space-y-4"
+               autoComplete="off"
             >
                {/* Informações Básicas */}
                <div>
-                  <h6 className='flex items-center gap-2 text-sm font-semibold text-gray-900 mb-3 pb-2 border-b border-gray-200'>
-                     <MdFlight className='w-5 h-5 text-red-600' />
+                  <h6 className="mb-3 flex items-center gap-2 border-b border-gray-200 pb-2 text-sm font-semibold text-gray-900">
+                     <MdFlight className="h-5 w-5 text-red-600" />
                      Informações Básicas
                   </h6>
-                  <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-                     <div className='md:col-span-2'>
-                        <Label htmlFor='nome'>Nome do Aeródromo *</Label>
+                  <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                     <div className="md:col-span-2">
+                        <Label htmlFor="nome">Nome do Aeródromo *</Label>
                         <TextInput
-                           id='nome'
+                           id="nome"
                            required
-                           autoComplete='off'
+                           autoComplete="off"
                            value={formData.nome}
                            onChange={(e) =>
                               setFormData({
@@ -164,19 +166,19 @@ export default function AerodromoFormModal({
                                  nome: e.target.value,
                               })
                            }
-                           placeholder='Ex: Aeroporto Internacional de Brasília'
+                           placeholder="Ex: Aeroporto Internacional de Brasília"
                         />
                      </div>
-                     <div className='grid grid-cols-3 gap-4 md:col-span-2'>
+                     <div className="grid grid-cols-3 gap-4 md:col-span-2">
                         <div>
-                           <Label htmlFor='codigo_icao'>Código ICAO *</Label>
+                           <Label htmlFor="codigo_icao">Código ICAO *</Label>
                            <TextInput
-                              id='codigo_icao'
-                              name='codigo_icao_field'
+                              id="codigo_icao"
+                              name="codigo_icao_field"
                               required
                               maxLength={4}
-                              autoComplete='new-password'
-                              placeholder='Ex: SBBR'
+                              autoComplete="new-password"
+                              placeholder="Ex: SBBR"
                               value={formData.codigo_icao}
                               onChange={(e) =>
                                  setFormData({
@@ -187,13 +189,13 @@ export default function AerodromoFormModal({
                            />
                         </div>
                         <div>
-                           <Label htmlFor='codigo_iata'>Código IATA</Label>
+                           <Label htmlFor="codigo_iata">Código IATA</Label>
                            <TextInput
-                              id='codigo_iata'
-                              name='codigo_iata_field'
+                              id="codigo_iata"
+                              name="codigo_iata_field"
                               maxLength={3}
-                              autoComplete='new-password'
-                              placeholder='Ex: BSB'
+                              autoComplete="new-password"
+                              placeholder="Ex: BSB"
                               value={formData.codigo_iata || ""}
                               onChange={(e) =>
                                  setFormData({
@@ -204,13 +206,13 @@ export default function AerodromoFormModal({
                            />
                         </div>
                         <div>
-                           <Label htmlFor='utc'>Fuso Horário (UTC) *</Label>
+                           <Label htmlFor="utc">Fuso Horário (UTC) *</Label>
                            <TextInput
-                              id='utc'
-                              type='number'
+                              id="utc"
+                              type="number"
                               required
-                              autoComplete='off'
-                              placeholder='Ex: -3'
+                              autoComplete="off"
+                              placeholder="Ex: -3"
                               value={formData.utc}
                               onChange={(e) =>
                                  setFormData({
@@ -226,17 +228,17 @@ export default function AerodromoFormModal({
 
                {/* Base Aérea */}
                <div>
-                  <h6 className='flex items-center gap-2 text-sm font-semibold text-gray-900 mb-3 pb-2 border-b border-gray-200'>
-                     <HiShieldCheck className='w-5 h-5 text-red-600' />
+                  <h6 className="mb-3 flex items-center gap-2 border-b border-gray-200 pb-2 text-sm font-semibold text-gray-900">
+                     <HiShieldCheck className="h-5 w-5 text-red-600" />
                      Informações da Base Aérea (Opcional)
                   </h6>
-                  <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+                  <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                      <div>
-                        <Label htmlFor='base_nome'>Nome da Base Aérea</Label>
+                        <Label htmlFor="base_nome">Nome da Base Aérea</Label>
                         <TextInput
-                           id='base_nome'
+                           id="base_nome"
                            value={formData.base_aerea?.nome || ""}
-                           autoComplete='off'
+                           autoComplete="off"
                            onChange={(e) =>
                               setFormData({
                                  ...formData,
@@ -246,15 +248,15 @@ export default function AerodromoFormModal({
                                  },
                               })
                            }
-                           placeholder='Ex: Base Aérea de Anápolis'
+                           placeholder="Ex: Base Aérea de Anápolis"
                         />
                      </div>
                      <div>
-                        <Label htmlFor='base_sigla'>Sigla da Base</Label>
+                        <Label htmlFor="base_sigla">Sigla da Base</Label>
                         <TextInput
-                           id='base_sigla'
+                           id="base_sigla"
                            maxLength={4}
-                           autoComplete='off'
+                           autoComplete="off"
                            value={formData.base_aerea?.sigla || ""}
                            onChange={(e) =>
                               setFormData({
@@ -265,7 +267,7 @@ export default function AerodromoFormModal({
                                  },
                               })
                            }
-                           placeholder='Ex: BAAN'
+                           placeholder="Ex: BAAN"
                         />
                      </div>
                   </div>
@@ -273,24 +275,24 @@ export default function AerodromoFormModal({
 
                {/* Localização */}
                <div>
-                  <h6 className='flex items-center gap-2 text-sm font-semibold text-gray-900 mb-3 pb-2 border-b border-gray-200'>
-                     <MdFlight className='w-5 h-5 text-red-600' />
+                  <h6 className="mb-3 flex items-center gap-2 border-b border-gray-200 pb-2 text-sm font-semibold text-gray-900">
+                     <MdFlight className="h-5 w-5 text-red-600" />
                      Localização
                   </h6>
 
                   {/* Checkbox Aeródromo Nacional */}
-                  <div className='mb-4'>
-                     <div className='flex items-center gap-2'>
+                  <div className="mb-4">
+                     <div className="flex items-center gap-2">
                         <Checkbox
-                           id='nacional'
+                           id="nacional"
                            checked={isNacional}
-                           className='size-5'
-                           color='red'
+                           className="size-5"
+                           color="red"
                            onChange={(e) =>
                               handleNacionalChange(e.target.checked)
                            }
                         />
-                        <Label htmlFor='nacional' className='cursor-pointer'>
+                        <Label htmlFor="nacional" className="cursor-pointer">
                            Aeródromo Nacional (Brasil)
                         </Label>
                      </div>
@@ -298,36 +300,36 @@ export default function AerodromoFormModal({
 
                   {/* Se Nacional: Seletor de Cidade */}
                   {isNacional ? (
-                     <div className='grid grid-cols-1 gap-4'>
-                        <div className='flex flex-row gap-3 justify-between items-center'>
+                     <div className="grid grid-cols-1 gap-4">
+                        <div className="flex flex-row items-center justify-between gap-3">
                            {cidadeSelecionada && cidadeSelecionada.nome ? (
-                              <div className='flex-1 bg-white border-2 border-green-300 rounded-lg px-4 py-3 shadow-sm'>
-                                 <div className='flex items-center gap-2'>
-                                    <span className='w-2 h-2 bg-green-500 rounded-full'></span>
-                                    <span className='font-semibold text-gray-800 text-base'>
+                              <div className="flex-1 rounded-lg border-2 border-green-300 bg-white px-4 py-3 shadow-sm">
+                                 <div className="flex items-center gap-2">
+                                    <span className="h-2 w-2 rounded-full bg-green-500"></span>
+                                    <span className="text-base font-semibold text-gray-800">
                                        {cidadeSelecionada.nome},{" "}
                                        {cidadeSelecionada.uf}
                                     </span>
                                  </div>
                               </div>
                            ) : (
-                              <div className='flex-1 bg-white border-2 border-red-300 rounded-lg px-4 py-3 shadow-sm'>
-                                 <div className='flex items-center gap-2'>
-                                    <span className='w-2 h-2 bg-red-500 rounded-full'></span>
-                                    <span className='text-red-600 text-sm font-medium'>
+                              <div className="flex-1 rounded-lg border-2 border-red-300 bg-white px-4 py-3 shadow-sm">
+                                 <div className="flex items-center gap-2">
+                                    <span className="h-2 w-2 rounded-full bg-red-500"></span>
+                                    <span className="text-sm font-medium text-red-600">
                                        Nenhuma localidade selecionada
                                     </span>
                                  </div>
                               </div>
                            )}
                            <Button
-                              size='lg'
+                              size="lg"
                               pill
                               onClick={() => setShowSearchModal(true)}
-                              color='red'
-                              className='shadow-md hover:shadow-lg transition-shadow'
+                              color="red"
+                              className="shadow-md transition-shadow hover:shadow-lg"
                            >
-                              <IoMdSearch className='size-5' />
+                              <IoMdSearch className="size-5" />
                            </Button>
                         </div>
 
@@ -339,37 +341,37 @@ export default function AerodromoFormModal({
                      </div>
                   ) : (
                      /* Se Internacional: Campos manuais */
-                     <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+                     <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                         <div>
-                           <Label htmlFor='pais'>País *</Label>
+                           <Label htmlFor="pais">País *</Label>
                            <TextInput
-                              id='pais'
+                              id="pais"
                               required
                               value={formData.pais}
-                              autoComplete='off'
+                              autoComplete="off"
                               onChange={(e) =>
                                  setFormData({
                                     ...formData,
                                     pais: e.target.value,
                                  })
                               }
-                              placeholder='Ex: Estados Unidos'
+                              placeholder="Ex: Estados Unidos"
                            />
                         </div>
                         <div>
-                           <Label htmlFor='cidade_manual'>Cidade *</Label>
+                           <Label htmlFor="cidade_manual">Cidade *</Label>
                            <TextInput
-                              id='cidade_manual'
+                              id="cidade_manual"
                               required
                               value={formData.cidade_manual || ""}
-                              autoComplete='off'
+                              autoComplete="off"
                               onChange={(e) =>
                                  setFormData({
                                     ...formData,
                                     cidade_manual: e.target.value,
                                  })
                               }
-                              placeholder='Ex: Los Angeles, CA'
+                              placeholder="Ex: Los Angeles, CA"
                            />
                         </div>
                      </div>
@@ -378,14 +380,14 @@ export default function AerodromoFormModal({
 
                {/* Coordenadas */}
                <div>
-                  <h6 className='text-sm font-semibold text-gray-900 mb-3'>
+                  <h6 className="mb-3 text-sm font-semibold text-gray-900">
                      Coordenadas Geográficas
                   </h6>
-                  <div className='grid grid-cols-1 md:grid-cols-1 gap-4'>
+                  <div className="grid grid-cols-1 gap-4 md:grid-cols-1">
                      <CoordinateInput
-                        id='latitude'
-                        label='Latitude'
-                        type='latitude'
+                        id="latitude"
+                        label="Latitude"
+                        type="latitude"
                         value={formData.latitude}
                         onChange={(value) => {
                            setFormData({ ...formData, latitude: value });
@@ -394,9 +396,9 @@ export default function AerodromoFormModal({
                         required
                      />
                      <CoordinateInput
-                        id='longitude'
-                        label='Longitude'
-                        type='longitude'
+                        id="longitude"
+                        label="Longitude"
+                        type="longitude"
                         value={formData.longitude}
                         onChange={(value) => {
                            setFormData({ ...formData, longitude: value });
@@ -405,18 +407,20 @@ export default function AerodromoFormModal({
                         required
                      />
                      {coordError && (
-                        <div className='col-span-full'>
-                           <p className='text-sm text-red-600 mt-1'>{coordError}</p>
+                        <div className="col-span-full">
+                           <p className="mt-1 text-sm text-red-600">
+                              {coordError}
+                           </p>
                         </div>
                      )}
                      <div>
-                        <Label htmlFor='elevacao'>Elevação (pés) *</Label>
+                        <Label htmlFor="elevacao">Elevação (pés) *</Label>
                         <TextInput
-                           id='elevacao'
-                           type='number'
-                           autoComplete='off'
+                           id="elevacao"
+                           type="number"
+                           autoComplete="off"
                            required
-                           placeholder='Ex: 3497'
+                           placeholder="Ex: 3497"
                            value={formData.elevacao}
                            onChange={(e) =>
                               setFormData({
@@ -430,11 +434,11 @@ export default function AerodromoFormModal({
                </div>
 
                {/* Botões */}
-               <div className='flex justify-end gap-3 pt-4 border-t border-gray-200'>
-                  <Button color='gray' onClick={handleClose}>
+               <div className="flex justify-end gap-3 border-t border-gray-200 pt-4">
+                  <Button color="gray" onClick={handleClose}>
                      Cancelar
                   </Button>
-                  <Button color='red' type='submit'>
+                  <Button color="red" type="submit">
                      {editingAerodromo
                         ? "Salvar Alterações"
                         : "Cadastrar Aeródromo"}

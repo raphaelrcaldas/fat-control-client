@@ -108,7 +108,7 @@ export default function CoordinateInput({
       onChange(decimalValue);
       setDecimal(decimalValue.toFixed(6));
       setDmmDegrees(Math.abs(deg).toString());
-      setDmmMinutes(((min + sec / 60)).toFixed(4));
+      setDmmMinutes((min + sec / 60).toFixed(4));
       setDmmDirection(dir);
    };
 
@@ -150,17 +150,17 @@ export default function CoordinateInput({
            ];
 
    return (
-      <div className='space-y-2'>
-         <div className='flex items-center justify-between'>
+      <div className="space-y-2">
+         <div className="flex items-center justify-between">
             <Label>
                {label}
                {required && " *"}
             </Label>
-            <div className='flex gap-1 text-xs'>
+            <div className="flex gap-1 text-xs">
                <button
-                  type='button'
+                  type="button"
                   onClick={() => setFormat("DD")}
-                  className={`px-2 py-1 rounded ${
+                  className={`rounded px-2 py-1 ${
                      format === "DD"
                         ? "bg-red-600 text-white"
                         : "bg-gray-200 text-gray-700 hover:bg-gray-300"
@@ -169,9 +169,9 @@ export default function CoordinateInput({
                   DD
                </button>
                <button
-                  type='button'
+                  type="button"
                   onClick={() => setFormat("DMS")}
-                  className={`px-2 py-1 rounded ${
+                  className={`rounded px-2 py-1 ${
                      format === "DMS"
                         ? "bg-red-600 text-white"
                         : "bg-gray-200 text-gray-700 hover:bg-gray-300"
@@ -180,9 +180,9 @@ export default function CoordinateInput({
                   DMS
                </button>
                <button
-                  type='button'
+                  type="button"
                   onClick={() => setFormat("DMM")}
-                  className={`px-2 py-1 rounded ${
+                  className={`rounded px-2 py-1 ${
                      format === "DMM"
                         ? "bg-red-600 text-white"
                         : "bg-gray-200 text-gray-700 hover:bg-gray-300"
@@ -197,65 +197,65 @@ export default function CoordinateInput({
          {format === "DD" && (
             <TextInput
                id={id}
-               type='text'
+               type="text"
                value={decimal}
                onChange={(e) => handleDecimalChange(e.target.value)}
                placeholder={type === "latitude" ? "-15.869722" : "-47.920556"}
                required={required}
-               autoComplete='off'
+               autoComplete="off"
             />
          )}
 
          {/* Formato DMS (Degrees Minutes Seconds) */}
          {format === "DMS" && (
-            <div className='space-y-2'>
-               <div className='grid grid-cols-4 gap-2'>
+            <div className="space-y-2">
+               <div className="grid grid-cols-4 gap-2">
                   <div>
                      <TextInput
-                        type='number'
+                        type="number"
                         value={degrees}
                         onChange={(e) => {
                            setDegrees(e.target.value);
                         }}
                         onBlur={() => handleDMSChange()}
-                        placeholder='15'
-                        min='0'
+                        placeholder="15"
+                        min="0"
                         max={type === "latitude" ? "90" : "180"}
                         required={required}
-                        sizing='sm'
-                        addon='°'
+                        sizing="sm"
+                        addon="°"
                      />
                   </div>
                   <div>
                      <TextInput
-                        type='number'
+                        type="number"
                         value={minutes}
                         onChange={(e) => {
                            setMinutes(e.target.value);
                         }}
                         onBlur={() => handleDMSChange()}
-                        placeholder='52'
-                        min='0'
-                        max='59'
+                        placeholder="52"
+                        min="0"
+                        max="59"
                         required={required}
-                        sizing='sm'
+                        sizing="sm"
                         addon="'"
                      />
                   </div>
                   <div>
                      <TextInput
-                        type='number'
+                        type="number"
                         value={seconds}
                         onChange={(e) => {
                            setSeconds(e.target.value);
                         }}
                         onBlur={() => handleDMSChange()}
-                        placeholder='11.00'
-                        min='0'
-                        max='59.99'
-                        step='0.01'
+                        placeholder="11.00"
+                        min="0"
+                        max="59.99"
+                        step="0.01"
                         required={required}
-                        sizing='sm'
+                        sizing="sm"
                         addon='"'
                      />
                   </div>
@@ -267,7 +267,7 @@ export default function CoordinateInput({
                            handleDMSChange(e.target.value);
                         }}
                         required={required}
-                        sizing='sm'
+                        sizing="sm"
                      >
                         {directionOptions.map((opt) => (
                            <option key={opt.value} value={opt.value}>
@@ -277,7 +277,7 @@ export default function CoordinateInput({
                      </Select>
                   </div>
                </div>
-               <p className='text-xs text-gray-500'>
+               <p className="text-xs text-gray-500">
                   Decimal: {decimal || "0.000000"}
                </p>
             </div>
@@ -285,38 +285,38 @@ export default function CoordinateInput({
 
          {/* Formato DMM (Degrees Decimal Minutes) */}
          {format === "DMM" && (
-            <div className='space-y-2'>
-               <div className='grid grid-cols-3 gap-2'>
+            <div className="space-y-2">
+               <div className="grid grid-cols-3 gap-2">
                   <div>
                      <TextInput
-                        type='number'
+                        type="number"
                         value={dmmDegrees}
                         onChange={(e) => {
                            setDmmDegrees(e.target.value);
                         }}
                         onBlur={() => handleDMMChange()}
-                        placeholder='15'
-                        min='0'
+                        placeholder="15"
+                        min="0"
                         max={type === "latitude" ? "90" : "180"}
                         required={required}
-                        sizing='sm'
-                        addon='°'
+                        sizing="sm"
+                        addon="°"
                      />
                   </div>
                   <div>
                      <TextInput
-                        type='number'
+                        type="number"
                         value={dmmMinutes}
                         onChange={(e) => {
                            setDmmMinutes(e.target.value);
                         }}
                         onBlur={() => handleDMMChange()}
-                        placeholder='52.1833'
-                        min='0'
-                        max='59.9999'
-                        step='0.0001'
+                        placeholder="52.1833"
+                        min="0"
+                        max="59.9999"
+                        step="0.0001"
                         required={required}
-                        sizing='sm'
+                        sizing="sm"
                         addon="'"
                      />
                   </div>
@@ -328,7 +328,7 @@ export default function CoordinateInput({
                            handleDMMChange(e.target.value);
                         }}
                         required={required}
-                        sizing='sm'
+                        sizing="sm"
                      >
                         {directionOptions.map((opt) => (
                            <option key={opt.value} value={opt.value}>
@@ -338,7 +338,7 @@ export default function CoordinateInput({
                      </Select>
                   </div>
                </div>
-               <p className='text-xs text-gray-500'>
+               <p className="text-xs text-gray-500">
                   Decimal: {decimal || "0.000000"}
                </p>
             </div>

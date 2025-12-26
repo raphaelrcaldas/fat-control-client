@@ -13,7 +13,9 @@ export function isValidTrigramaKey(key: string): boolean {
       "End",
    ];
 
-   return key.match(/^[a-zA-Z]$/) !== null || allowedNavigationKeys.includes(key);
+   return (
+      key.match(/^[a-zA-Z]$/) !== null || allowedNavigationKeys.includes(key)
+   );
 }
 
 /**

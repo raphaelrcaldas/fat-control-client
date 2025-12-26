@@ -191,17 +191,17 @@ export default function IndispPage() {
    };
 
    return (
-      <div className='h-full flex flex-col overflow-hidden'>
-         <div className='flex mb-2 flex-col md:flex-row items-center md:justify-between gap-3 py-3 flex-shrink-0 bg-gradient-to-r from-gray-50 to-white rounded-lg shadow-sm border border-gray-200 px-4'>
+      <div className="flex h-full flex-col overflow-hidden">
+         <div className="mb-2 flex shrink-0 flex-col items-center gap-3 rounded-lg border border-gray-200 bg-gradient-to-r from-gray-50 to-white px-4 py-3 shadow-sm md:flex-row md:justify-between">
             {/* Select de Função - Customizado */}
-            <div className='flex items-center gap-2'>
-               <HiUserGroup className='text-gray-500 text-lg flex-shrink-0' />
+            <div className="flex items-center gap-2">
+               <HiUserGroup className="shrink-0 text-lg text-gray-500" />
                Função
                <select
                   value={indispFunc}
                   onChange={(e) => setIndispFunc(e.target.value)}
-                  className='appearance-none bg-white border border-gray-300 rounded-lg px-3 py-2 pr-8 text-sm font-medium text-gray-700 hover:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all cursor-pointer shadow-sm hover:shadow'
-                  aria-label='Selecionar função'
+                  className="cursor-pointer appearance-none rounded-lg border border-gray-300 bg-white px-3 py-2 pr-8 text-sm font-medium text-gray-700 shadow-sm transition-all hover:border-blue-400 hover:shadow focus:border-transparent focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                  aria-label="Selecionar função"
                   style={{
                      backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`,
                      backgroundPosition: "right 0.5rem center",
@@ -209,105 +209,105 @@ export default function IndispPage() {
                      backgroundSize: "1.5em 1.5em",
                   }}
                >
-                  <option value='pil'>Piloto</option>
-                  <option value='mc'>Mecânico</option>
-                  <option value='lm'>LoadMaster</option>
-                  <option value='tf'>Comissário</option>
-                  <option value='os'>Observador-SAR</option>
-                  <option value='oe'>OE</option>
+                  <option value="pil">Piloto</option>
+                  <option value="mc">Mecânico</option>
+                  <option value="lm">LoadMaster</option>
+                  <option value="tf">Comissário</option>
+                  <option value="os">Observador-SAR</option>
+                  <option value="oe">OE</option>
                </select>
             </div>
 
             {/* Navegação de Datas */}
-            <div className='flex flex-col items-center gap-2'>
-               <div className='flex flex-row gap-1 items-center bg-white rounded-lg p-1 shadow-sm border border-gray-200'>
-                  <Tooltip content='Mês anterior'>
+            <div className="flex flex-col items-center gap-2">
+               <div className="flex flex-row items-center gap-1 rounded-lg border border-gray-200 bg-white p-1 shadow-sm">
+                  <Tooltip content="Mês anterior">
                      <button
                         onClick={() => changeDateRef(null, -1)}
-                        className='p-2 hover:bg-gray-100 rounded-md transition-colors text-gray-600 hover:text-gray-800'
-                        aria-label='Mês anterior'
+                        className="rounded-md p-2 text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-800"
+                        aria-label="Mês anterior"
                      >
-                        <HiChevronDoubleLeft className='text-lg' />
+                        <HiChevronDoubleLeft className="text-lg" />
                      </button>
                   </Tooltip>
-                  <Tooltip content='Dia anterior'>
+                  <Tooltip content="Dia anterior">
                      <button
                         onClick={() => changeDateRef(-1, null)}
-                        className='p-2 hover:bg-gray-100 rounded-md transition-colors text-gray-600 hover:text-gray-800'
-                        aria-label='Dia anterior'
+                        className="rounded-md p-2 text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-800"
+                        aria-label="Dia anterior"
                      >
-                        <HiChevronLeft className='text-lg' />
+                        <HiChevronLeft className="text-lg" />
                      </button>
                   </Tooltip>
 
                   <button
                      onClick={() => setDateRef(new Date())}
-                     className='px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md font-medium transition-colors mx-1 shadow-sm'
-                     aria-label='Ir para hoje'
+                     className="mx-1 rounded-md bg-blue-600 px-4 py-2 font-medium text-white shadow-sm transition-colors hover:bg-blue-700"
+                     aria-label="Ir para hoje"
                   >
                      Hoje
                   </button>
 
-                  <Tooltip content='Próximo dia'>
+                  <Tooltip content="Próximo dia">
                      <button
                         onClick={() => changeDateRef(1, null)}
-                        className='p-2 hover:bg-gray-100 rounded-md transition-colors text-gray-600 hover:text-gray-800'
-                        aria-label='Próximo dia'
+                        className="rounded-md p-2 text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-800"
+                        aria-label="Próximo dia"
                      >
-                        <HiChevronRight className='text-lg' />
+                        <HiChevronRight className="text-lg" />
                      </button>
                   </Tooltip>
-                  <Tooltip content='Próximo mês'>
+                  <Tooltip content="Próximo mês">
                      <button
                         onClick={() => changeDateRef(null, 1)}
-                        className='p-2 hover:bg-gray-100 rounded-md transition-colors text-gray-600 hover:text-gray-800'
-                        aria-label='Próximo mês'
+                        className="rounded-md p-2 text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-800"
+                        aria-label="Próximo mês"
                      >
-                        <HiChevronDoubleRight className='text-lg' />
+                        <HiChevronDoubleRight className="text-lg" />
                      </button>
                   </Tooltip>
                </div>
-               <div className='hidden md:block text-sm font-semibold text-gray-700 bg-white px-3 py-1 rounded-full shadow-sm border border-gray-200'>
+               <div className="hidden rounded-full border border-gray-200 bg-white px-3 py-1 text-sm font-semibold text-gray-700 shadow-sm md:block">
                   {getCurrentPeriod()}
                </div>
             </div>
 
             {/* Badge com função selecionada - Visível apenas em desktop */}
-            <div className='hidden md:flex items-center gap-2 bg-blue-50 border border-blue-200 rounded-lg px-3 py-2'>
-               <span className='text-xs font-medium text-blue-600 uppercase'>
+            <div className="hidden items-center gap-2 rounded-lg border border-blue-200 bg-blue-50 px-3 py-2 md:flex">
+               <span className="text-xs font-medium text-blue-600 uppercase">
                   Visualizando
                </span>
-               <span className='text-sm font-bold text-blue-700'>
+               <span className="text-sm font-bold text-blue-700">
                   {funcLabels[indispFunc]}
                </span>
             </div>
          </div>
 
          {indisps.length > 0 && dataTrip.length > 0 ? (
-            <div className='flex-1 min-h-0 flex flex-col gap-2 overflow-hidden'>
+            <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-hidden">
                <ColorLegend />
-               <div className='flex flex-col md:flex-row flex-1 min-h-0 gap-2'>
+               <div className="flex min-h-0 flex-1 flex-col gap-2 md:flex-row">
                   <div
                      ref={tableContainerRef}
-                     className='flex-1 min-w-0 overflow-x-auto overflow-y-auto bg-white shadow-lg rounded-lg border border-gray-200'
+                     className="min-w-0 flex-1 overflow-x-auto overflow-y-auto rounded-lg border border-gray-200 bg-white shadow-lg"
                   >
-                     <div className='px-2 pb-2 min-w-max h-fit'>
-                        <table className='relative overflow-visible w-full'>
-                           <thead className='bg-white sticky top-0 z-10'>
+                     <div className="h-fit min-w-max px-2 pb-2">
+                        <table className="relative w-full overflow-visible">
+                           <thead className="sticky top-0 z-10 bg-white">
                               <tr>
-                                 <th scope='col' />
+                                 <th scope="col" />
                                  {datesArray.map((dayR, index) => (
                                     <ThWeek key={index} dayRef={dayR} />
                                  ))}
                               </tr>
                               <tr>
-                                 <th scope='col' />
+                                 <th scope="col" />
                                  {datesArray.map((dayR, index) => (
                                     <ThMonth key={index} dayRef={dayR} />
                                  ))}
                               </tr>
                            </thead>
-                           <tbody className='divide-y'>
+                           <tbody className="divide-y divide-gray-200">
                               {indisps
                                  .filter((item) => item.trip.func.oper != "al")
                                  .map((item, index) => (
@@ -323,17 +323,17 @@ export default function IndispPage() {
                                  (item) => item.trip.func.oper == "al"
                               ).length > 0 && (
                                  <>
-                                    <tr className=''>
+                                    <tr className="">
                                        <td
                                           colSpan={datesArray.length + 1}
-                                          className='py-3 px-4'
+                                          className="px-4 py-3"
                                        >
-                                          <div className='flex items-center justify-center gap-2'>
-                                             <div className='h-px bg-gray-300 flex-1'></div>
-                                             <span className='text-base font-bold text-gray-700 uppercase'>
+                                          <div className="flex items-center justify-center gap-2">
+                                             <div className="h-px flex-1 bg-gray-300"></div>
+                                             <span className="text-base font-bold text-gray-700 uppercase">
                                                 Alunos
                                              </span>
-                                             <div className='h-px bg-gray-300 flex-1'></div>
+                                             <div className="h-px flex-1 bg-gray-300"></div>
                                           </div>
                                        </td>
                                     </tr>
@@ -356,7 +356,7 @@ export default function IndispPage() {
                         </table>
                      </div>
                   </div>
-                  <div className='hidden md:block flex-shrink-0 w-auto max-w-sm'>
+                  <div className="hidden w-auto max-w-sm shrink-0 md:block">
                      <LastIndisps
                         indisps={indisps}
                         update={updateCrewIndisps}
@@ -365,10 +365,10 @@ export default function IndispPage() {
                </div>
             </div>
          ) : (
-            <div className='flex-1 flex flex-col items-center justify-center gap-4'>
-               <div className='grid justify-items-center'>
-                  <Spinner size='xl' />
-                  <p className='mt-4 text-gray-600 font-medium'>
+            <div className="flex flex-1 flex-col items-center justify-center gap-4">
+               <div className="grid justify-items-center">
+                  <Spinner size="xl" />
+                  <p className="mt-4 font-medium text-gray-600">
                      Carregando indisponibilidades...
                   </p>
                </div>
@@ -380,27 +380,27 @@ export default function IndispPage() {
 
 function ColorLegend() {
    return (
-      <div className='hidden md:flex flex-wrap justify-center gap-2 px-2 py-2 bg-white shadow rounded-lg text-xs md:text-sm flex-shrink-0'>
+      <div className="hidden shrink-0 flex-wrap justify-center gap-2 rounded-lg bg-white px-2 py-2 text-xs shadow md:flex md:text-sm">
          {indispsOptions.map((option) => {
             const label = option.label.split(" ")[1];
             return (
-               <div key={option.value} className='flex items-center gap-1'>
-                  <div className={`w-4 h-4 rounded ${option.color.button}`} />
-                  <span className='font-medium'>{label}</span>
+               <div key={option.value} className="flex items-center gap-1">
+                  <div className={`h-4 w-4 rounded ${option.color.button}`} />
+                  <span className="font-medium">{label}</span>
                </div>
             );
          })}
-         <div className='flex items-center gap-1'>
-            <div className='w-4 h-4 rounded bg-emerald-600' />
-            <span className='font-medium'>Disponível</span>
+         <div className="flex items-center gap-1">
+            <div className="h-4 w-4 rounded bg-emerald-600" />
+            <span className="font-medium">Disponível</span>
          </div>
-         <div className='flex items-center gap-1'>
-            <div className='w-4 h-4 rounded bg-purple-600' />
-            <span className='font-medium'>CEMAL Inválido</span>
+         <div className="flex items-center gap-1">
+            <div className="h-4 w-4 rounded bg-purple-600" />
+            <span className="font-medium">CEMAL Inválido</span>
          </div>
-         <div className='flex items-center gap-1'>
-            <div className='w-4 h-4 rounded bg-slate-600' />
-            <span className='font-medium'>Desadaptado</span>
+         <div className="flex items-center gap-1">
+            <div className="h-4 w-4 rounded bg-slate-600" />
+            <span className="font-medium">Desadaptado</span>
          </div>
       </div>
    );
@@ -412,7 +412,7 @@ function ThWeek({ dayRef }: { dayRef: Date }) {
 
    return (
       <th
-         scope='col'
+         scope="col"
          className={clsx("px-1 py-2 text-center text-xs uppercase", {
             "font-bold text-red-700": isWeekend,
             "font-medium text-gray-600": !isWeekend,
@@ -447,9 +447,9 @@ function ThMonth({ dayRef }: { dayRef: Date }) {
 
    return (
       <th
-         scope='col'
+         scope="col"
          className={clsx(
-            "px-1 py-2 text-center font-bold text-sm transition-colors",
+            "px-1 py-2 text-center text-sm font-bold transition-colors",
             {
                "bg-red-400 text-white": isWeekend && !isToday,
                "bg-yellow-400 text-gray-900 shadow-md": isToday,
@@ -490,7 +490,7 @@ function TripRow({
 
    return (
       <tr>
-         <th scope='row' className='p-px grid justify-items-center'>
+         <th scope="row" className="grid justify-items-center p-px">
             <TripIndisp
                trip={tripData.trip}
                indisps={tripData.indisps}
@@ -504,10 +504,10 @@ function TripRow({
                <td
                   key={index}
                   className={clsx("px-1", {
-                     "bg-blue-300 border-x-2 border-blue-500": checkToday,
+                     "border-x-2 border-blue-500 bg-blue-300": checkToday,
                   })}
                >
-                  <div className='w-full h-full flex items-center justify-center'>
+                  <div className="flex h-full w-full items-center justify-center">
                      <IndispCell
                         dateRef={day}
                         tripData={tripData}

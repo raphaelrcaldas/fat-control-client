@@ -84,7 +84,8 @@ export function RegisPage() {
       if (dataFim) req.fim = dataFim;
       if (userSearch) req.user_search = userSearch;
       if (citySearch) req.city = citySearch;
-      if (selectedEtiquetaIds.length > 0) req.etiqueta_ids = selectedEtiquetaIds.join(',');
+      if (selectedEtiquetaIds.length > 0)
+         req.etiqueta_ids = selectedEtiquetaIds.join(",");
 
       const data = await getFragMissoes(req);
 
@@ -119,23 +120,23 @@ export function RegisPage() {
 
    return (
       <>
-         <div className='h-full flex flex-col overflow-hidden'>
+         <div className="flex h-full flex-col overflow-hidden">
             {/* Header Section */}
-            <section className='flex-shrink-0 mb-2'>
-               <div className='flex items-center justify-between'>
-                  <h5 className='font-semibold text-xl text-gray-800'>
+            <section className="mb-2 shrink-0">
+               <div className="flex items-center justify-between">
+                  <h5 className="text-xl font-semibold text-gray-800">
                      Missões
                   </h5>
-                  <div className='flex items-center gap-2'>
+                  <div className="flex items-center gap-2">
                      <button
-                        type='button'
+                        type="button"
                         onClick={() => setShowFilters(!showFilters)}
-                        className='flex items-center gap-2 px-3 py-2 text-sm text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50'
+                        className="flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"
                      >
                         <HiFilter />
                         {showFilters ? "Ocultar" : "Filtros"}
                         {hasActiveFilters && (
-                           <Badge color='red' size='sm'>
+                           <Badge color="red" size="sm">
                               {
                                  Object.values({
                                     tipoDoc,
@@ -151,9 +152,9 @@ export function RegisPage() {
                         )}
                      </button>
                      <button
-                        type='button'
+                        type="button"
                         onClick={() => handleSetShowForm(true)}
-                        className='flex items-center gap-1.5 px-3 py-2 font-semibold text-sm text-white rounded-lg bg-red-600 hover:bg-red-700'
+                        className="flex items-center gap-1.5 rounded-lg bg-red-600 px-3 py-2 text-sm font-semibold text-white hover:bg-red-700"
                      >
                         <span>+</span>
                         Nova Missão
@@ -164,94 +165,94 @@ export function RegisPage() {
 
             {/* Active Filters Tags */}
             {hasActiveFilters && (
-               <section className='flex-shrink-0 mb-3'>
-                  <div className='flex flex-wrap items-center gap-2'>
-                     <span className='text-xs font-medium text-gray-600'>
+               <section className="mb-3 shrink-0">
+                  <div className="flex flex-wrap items-center gap-2">
+                     <span className="text-xs font-medium text-gray-600">
                         Filtros ativos:
                      </span>
 
                      {tipoDoc && (
-                        <Badge color='red' className=''>
-                           <div className='flex items-center gap-1.5'>
-                              <HiDocumentText className='w-3 h-3' />
+                        <Badge color="red" className="">
+                           <div className="flex items-center gap-1.5">
+                              <HiDocumentText className="h-3 w-3" />
                               <span>
                                  Ordem:{" "}
                                  {tipoDoc === "om" ? "Missão" : "Serviço"}
                               </span>
                               <button
                                  onClick={() => setTipoDoc("")}
-                                 className='ml-1 hover:text-red-600'
+                                 className="ml-1 hover:text-red-600"
                               >
-                                 <HiX className='w-3 h-3' />
+                                 <HiX className="h-3 w-3" />
                               </button>
                            </div>
                         </Badge>
                      )}
 
                      {nDoc && (
-                        <Badge color='red'>
-                           <div className='flex items-center gap-1.5'>
-                              <HiHashtag className='w-3 h-3' />
+                        <Badge color="red">
+                           <div className="flex items-center gap-1.5">
+                              <HiHashtag className="h-3 w-3" />
                               <span>Nº {nDoc}</span>
                               <button
                                  onClick={() => setNDoc(undefined)}
-                                 className='ml-1 hover:text-red-600'
+                                 className="ml-1 hover:text-red-600"
                               >
-                                 <HiX className='w-3 h-3' />
+                                 <HiX className="h-3 w-3" />
                               </button>
                            </div>
                         </Badge>
                      )}
 
                      {selectedTipo && (
-                        <Badge color='red'>
-                           <div className='flex items-center gap-1.5'>
-                              <HiClipboardList className='w-3 h-3' />
+                        <Badge color="red">
+                           <div className="flex items-center gap-1.5">
+                              <HiClipboardList className="h-3 w-3" />
                               <span>Tipo: {selectedTipo.toUpperCase()}</span>
                               <button
                                  onClick={() => setSelectedTipo("")}
-                                 className='ml-1 hover:text-red-600'
+                                 className="ml-1 hover:text-red-600"
                               >
-                                 <HiX className='w-3 h-3' />
+                                 <HiX className="h-3 w-3" />
                               </button>
                            </div>
                         </Badge>
                      )}
 
                      {userSearch && (
-                        <Badge color='red'>
-                           <div className='flex items-center gap-1.5'>
-                              <HiUser className='w-3 h-3' />
+                        <Badge color="red">
+                           <div className="flex items-center gap-1.5">
+                              <HiUser className="h-3 w-3" />
                               <span>Militar: {userSearch}</span>
                               <button
                                  onClick={() => setUserSearch("")}
-                                 className='ml-1 hover:text-red-600'
+                                 className="ml-1 hover:text-red-600"
                               >
-                                 <HiX className='w-3 h-3' />
+                                 <HiX className="h-3 w-3" />
                               </button>
                            </div>
                         </Badge>
                      )}
 
                      {citySearch && (
-                        <Badge color='red'>
-                           <div className='flex items-center gap-1.5'>
-                              <HiLocationMarker className='w-3 h-3' />
+                        <Badge color="red">
+                           <div className="flex items-center gap-1.5">
+                              <HiLocationMarker className="h-3 w-3" />
                               <span>Cidade: {citySearch}</span>
                               <button
                                  onClick={() => setCitySearch("")}
-                                 className='ml-1 hover:text-red-600'
+                                 className="ml-1 hover:text-red-600"
                               >
-                                 <HiX className='w-3 h-3' />
+                                 <HiX className="h-3 w-3" />
                               </button>
                            </div>
                         </Badge>
                      )}
 
                      {dataInicio && (
-                        <Badge color='red'>
-                           <div className='flex items-center gap-1.5'>
-                              <HiCalendar className='w-3 h-3' />
+                        <Badge color="red">
+                           <div className="flex items-center gap-1.5">
+                              <HiCalendar className="h-3 w-3" />
                               <span>
                                  Afastamento:{" "}
                                  {new Date(
@@ -272,18 +273,18 @@ export function RegisPage() {
                                           .split("T")[0]
                                     );
                                  }}
-                                 className='ml-1 hover:text-red-600'
+                                 className="ml-1 hover:text-red-600"
                               >
-                                 <HiX className='w-3 h-3' />
+                                 <HiX className="h-3 w-3" />
                               </button>
                            </div>
                         </Badge>
                      )}
 
                      {dataFim && (
-                        <Badge color='red'>
-                           <div className='flex items-center gap-1.5'>
-                              <HiCalendar className='w-3 h-3' />
+                        <Badge color="red">
+                           <div className="flex items-center gap-1.5">
+                              <HiCalendar className="h-3 w-3" />
                               <span>
                                  Regresso:{" "}
                                  {new Date(
@@ -297,31 +298,37 @@ export function RegisPage() {
                                        hoje.toISOString().split("T")[0]
                                     );
                                  }}
-                                 className='ml-1 hover:text-red-600'
+                                 className="ml-1 hover:text-red-600"
                               >
-                                 <HiX className='w-3 h-3' />
+                                 <HiX className="h-3 w-3" />
                               </button>
                            </div>
                         </Badge>
                      )}
 
                      {/* Etiquetas selecionadas */}
-                     {selectedEtiquetaIds.map(id => {
-                        const etiqueta = etiquetasDisponiveis.find(e => e.id === id);
+                     {selectedEtiquetaIds.map((id) => {
+                        const etiqueta = etiquetasDisponiveis.find(
+                           (e) => e.id === id
+                        );
                         if (!etiqueta) return null;
                         return (
                            <span
                               key={id}
-                              className='inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium rounded-full text-white'
+                              className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium text-white"
                               style={{ backgroundColor: etiqueta.cor }}
                            >
-                              <HiTag className='w-3 h-3' />
+                              <HiTag className="h-3 w-3" />
                               {etiqueta.nome}
                               <button
-                                 onClick={() => setSelectedEtiquetaIds(prev => prev.filter(eid => eid !== id))}
-                                 className='ml-0.5 hover:bg-white/20 rounded-full p-0.5'
+                                 onClick={() =>
+                                    setSelectedEtiquetaIds((prev) =>
+                                       prev.filter((eid) => eid !== id)
+                                    )
+                                 }
+                                 className="ml-0.5 rounded-full p-0.5 hover:bg-white/20"
                               >
-                                 <HiX className='w-3 h-3' />
+                                 <HiX className="h-3 w-3" />
                               </button>
                            </span>
                         );
@@ -329,7 +336,7 @@ export function RegisPage() {
 
                      <button
                         onClick={clearFilters}
-                        className='text-xs text-gray-500 hover:text-gray-700 underline'
+                        className="text-xs text-gray-500 underline hover:text-gray-700"
                      >
                         Limpar todos
                      </button>
@@ -339,16 +346,16 @@ export function RegisPage() {
 
             {/* Filters Section */}
             {showFilters && (
-               <section className='flex-shrink-0 mb-4'>
-                  <div className='bg-white border border-gray-200 rounded-lg p-4'>
-                     <div className='flex items-center justify-between mb-4'>
-                        <h6 className='text-sm font-medium text-gray-700'>
+               <section className="mb-4 shrink-0">
+                  <div className="rounded-lg border border-gray-200 bg-white p-4">
+                     <div className="mb-4 flex items-center justify-between">
+                        <h6 className="text-sm font-medium text-gray-700">
                            Filtros
                         </h6>
                         {hasActiveFilters && (
                            <button
                               onClick={clearFilters}
-                              className='flex items-center gap-1.5 px-3 py-1.5 text-xs text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg'
+                              className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs text-gray-600 hover:bg-gray-100 hover:text-gray-800"
                            >
                               <HiX />
                               Limpar
@@ -356,33 +363,33 @@ export function RegisPage() {
                         )}
                      </div>
 
-                     <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7 gap-3'>
+                     <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7">
                         {/* Tipo da Ordem */}
                         <div>
-                           <Label className='mb-1.5 text-xs text-gray-600 flex items-center gap-1.5'>
-                              <HiDocumentText className='text-gray-500' />
+                           <Label className="mb-1.5 flex items-center gap-1.5 text-xs text-gray-600">
+                              <HiDocumentText className="text-gray-500" />
                               Tipo da Ordem
                            </Label>
                            <Select
                               value={tipoDoc}
                               onChange={(e) => setTipoDoc(e.target.value)}
-                              className='text-sm'
-                              sizing='sm'
+                              className="text-sm"
+                              sizing="sm"
                            >
-                              <option value=''>Todos</option>
-                              <option value='om'>Missão</option>
-                              <option value='os'>Serviço</option>
+                              <option value="">Todos</option>
+                              <option value="om">Missão</option>
+                              <option value="os">Serviço</option>
                            </Select>
                         </div>
 
                         {/* Nº da Ordem */}
                         <div>
-                           <Label className='mb-1.5 text-xs text-gray-600 flex items-center gap-1.5'>
-                              <HiHashtag className='text-gray-500' />
+                           <Label className="mb-1.5 flex items-center gap-1.5 text-xs text-gray-600">
+                              <HiHashtag className="text-gray-500" />
                               Nº da Ordem
                            </Label>
                            <TextInput
-                              type='text'
+                              type="text"
                               value={nDoc ?? ""}
                               onChange={(e) =>
                                  setNDoc(
@@ -407,124 +414,139 @@ export function RegisPage() {
                                     e.preventDefault();
                                  }
                               }}
-                              placeholder='Número'
-                              sizing='sm'
+                              placeholder="Número"
+                              sizing="sm"
                            />
                         </div>
 
                         {/* Tipo de Missão */}
                         <div>
-                           <Label className='mb-1.5 text-xs text-gray-600 flex items-center gap-1.5'>
-                              <HiClipboardList className='text-gray-500' />
+                           <Label className="mb-1.5 flex items-center gap-1.5 text-xs text-gray-600">
+                              <HiClipboardList className="text-gray-500" />
                               Tipo de Missão
                            </Label>
                            <Select
                               value={selectedTipo}
                               onChange={(e) => setSelectedTipo(e.target.value)}
-                              className='text-sm'
-                              sizing='sm'
+                              className="text-sm"
+                              sizing="sm"
                            >
-                              <option value=''>Todos</option>
-                              <option value='tal'>TAL</option>
-                              <option value='adm'>ADM</option>
-                              <option value='opr'>OPR</option>
+                              <option value="">Todos</option>
+                              <option value="tal">TAL</option>
+                              <option value="adm">ADM</option>
+                              <option value="opr">OPR</option>
                            </Select>
                         </div>
 
                         {/* Militar */}
                         <div>
-                           <Label className='mb-1.5 text-xs text-gray-600 flex items-center gap-1.5'>
-                              <HiUser className='text-gray-500' />
+                           <Label className="mb-1.5 flex items-center gap-1.5 text-xs text-gray-600">
+                              <HiUser className="text-gray-500" />
                               Militar
                            </Label>
                            <TextInput
-                              type='text'
+                              type="text"
                               value={userSearch}
                               onChange={(e) => setUserSearch(e.target.value)}
-                              placeholder='Nome de guerra'
-                              sizing='sm'
+                              placeholder="Nome de guerra"
+                              sizing="sm"
                            />
                         </div>
 
                         {/* Cidade */}
                         <div>
-                           <Label className='mb-1.5 text-xs text-gray-600 flex items-center gap-1.5'>
-                              <HiLocationMarker className='text-gray-500' />
+                           <Label className="mb-1.5 flex items-center gap-1.5 text-xs text-gray-600">
+                              <HiLocationMarker className="text-gray-500" />
                               Cidade
                            </Label>
                            <TextInput
-                              type='text'
+                              type="text"
                               value={citySearch}
                               onChange={(e) => setCitySearch(e.target.value)}
-                              placeholder='Município'
-                              sizing='sm'
+                              placeholder="Município"
+                              sizing="sm"
                            />
                         </div>
 
                         {/* Data Afastamento */}
                         <div>
-                           <Label className='mb-1.5 text-xs text-gray-600 flex items-center gap-1.5'>
-                              <HiCalendar className='text-gray-500' />
+                           <Label className="mb-1.5 flex items-center gap-1.5 text-xs text-gray-600">
+                              <HiCalendar className="text-gray-500" />
                               Afastamento
                            </Label>
                            <input
-                              type='date'
+                              type="date"
                               value={dataInicio}
                               onChange={(e) => setDataInicio(e.target.value)}
-                              className='block w-full p-2 text-sm text-gray-900 bg-white border border-gray-300 rounded-lg focus:ring-red-500 focus:border-red-500'
+                              className="block w-full rounded-lg border border-gray-300 bg-white p-2 text-sm text-gray-900 focus:border-red-500 focus:ring-red-500"
                            />
                         </div>
 
                         {/* Data Regresso */}
                         <div>
-                           <Label className='mb-1.5 text-xs text-gray-600 flex items-center gap-1.5'>
-                              <HiCalendar className='text-gray-500' />
+                           <Label className="mb-1.5 flex items-center gap-1.5 text-xs text-gray-600">
+                              <HiCalendar className="text-gray-500" />
                               Regresso
                            </Label>
                            <input
-                              type='date'
+                              type="date"
                               value={dataFim}
                               onChange={(e) => setDataFim(e.target.value)}
-                              className='block w-full p-2 text-sm text-gray-900 bg-white border border-gray-300 rounded-lg focus:ring-red-500 focus:border-red-500'
+                              className="block w-full rounded-lg border border-gray-300 bg-white p-2 text-sm text-gray-900 focus:border-red-500 focus:ring-red-500"
                            />
                         </div>
                      </div>
 
                      {/* Multi-select Etiquetas */}
                      {etiquetasDisponiveis.length > 0 && (
-                        <div className='mt-4 pt-4 border-t border-gray-200'>
-                           <Label className='mb-2 text-xs text-gray-600 flex items-center gap-1.5'>
-                              <HiTag className='text-gray-500' />
+                        <div className="mt-4 border-t border-gray-200 pt-4">
+                           <Label className="mb-2 flex items-center gap-1.5 text-xs text-gray-600">
+                              <HiTag className="text-gray-500" />
                               Filtrar por Etiquetas
                            </Label>
-                           <div className='flex flex-wrap gap-2'>
-                              {etiquetasDisponiveis.map(etiqueta => {
-                                 const isSelected = selectedEtiquetaIds.includes(etiqueta.id!);
+                           <div className="flex flex-wrap gap-2">
+                              {etiquetasDisponiveis.map((etiqueta) => {
+                                 const isSelected =
+                                    selectedEtiquetaIds.includes(etiqueta.id!);
                                  return (
                                     <button
                                        key={etiqueta.id}
                                        onClick={() => {
                                           if (isSelected) {
-                                             setSelectedEtiquetaIds(prev => prev.filter(id => id !== etiqueta.id));
+                                             setSelectedEtiquetaIds((prev) =>
+                                                prev.filter(
+                                                   (id) => id !== etiqueta.id
+                                                )
+                                             );
                                           } else {
-                                             setSelectedEtiquetaIds(prev => [...prev, etiqueta.id!]);
+                                             setSelectedEtiquetaIds((prev) => [
+                                                ...prev,
+                                                etiqueta.id!,
+                                             ]);
                                           }
                                        }}
-                                       className={`inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium rounded-full transition-all ${isSelected
-                                          ? 'text-white shadow-sm'
-                                          : 'border border-dashed'
-                                          }`}
-                                       style={isSelected ? {
-                                          backgroundColor: etiqueta.cor
-                                       } : {
-                                          borderColor: etiqueta.cor,
-                                          color: etiqueta.cor,
-                                          backgroundColor: `${etiqueta.cor}10`
-                                       }}
+                                       className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium transition-all ${
+                                          isSelected
+                                             ? "text-white shadow-sm"
+                                             : "border border-dashed"
+                                       }`}
+                                       style={
+                                          isSelected
+                                             ? {
+                                                  backgroundColor: etiqueta.cor,
+                                               }
+                                             : {
+                                                  borderColor: etiqueta.cor,
+                                                  color: etiqueta.cor,
+                                                  backgroundColor: `${etiqueta.cor}10`,
+                                               }
+                                       }
                                     >
-                                       <HiTag className='w-3 h-3' />
+                                       <HiTag className="h-3 w-3" />
                                        {etiqueta.nome}
-                                       {isSelected && <HiX className='w-3 h-3' />}
+                                       {isSelected && (
+                                          <HiX className="h-3 w-3" />
+                                       )}
                                     </button>
                                  );
                               })}
@@ -536,31 +558,31 @@ export function RegisPage() {
             )}
 
             {/* Results Section */}
-            <section className='flex-1'>
+            <section className="flex-1">
                {loading ? (
-                  <div className='flex flex-col items-center justify-center gap-2 p-8 min-h-[300px]'>
-                     <Spinner size='lg' />
-                     <p className='text-sm text-gray-500'>Carregando...</p>
+                  <div className="flex min-h-[300px] flex-col items-center justify-center gap-2 p-8">
+                     <Spinner size="lg" />
+                     <p className="text-sm text-gray-500">Carregando...</p>
                   </div>
                ) : (
                   <div>
                      {/* Results Grid */}
                      {missoes?.length === 0 ? (
-                        <div className='flex flex-col items-center justify-center p-8 bg-gray-50 rounded-lg border border-gray-200'>
-                           <p className='text-sm text-gray-600 mb-3'>
+                        <div className="flex flex-col items-center justify-center rounded-lg border border-gray-200 bg-gray-50 p-8">
+                           <p className="mb-3 text-sm text-gray-600">
                               Nenhuma missão encontrada
                            </p>
                            {hasActiveFilters && (
                               <button
                                  onClick={clearFilters}
-                                 className='text-sm text-red-600 hover:text-red-700'
+                                 className="text-sm text-red-600 hover:text-red-700"
                               >
                                  Limpar Filtros
                               </button>
                            )}
                         </div>
                      ) : (
-                        <div className='grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-3'>
+                        <div className="grid grid-cols-1 gap-3 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
                            {missoes?.map((m) => (
                               <CardMission
                                  key={m.id}

@@ -7,6 +7,7 @@ import {
    MdHome,
    MdMoney,
    MdAccountBalance,
+   MdAssignment,
 } from "react-icons/md";
 import { FaUsers, FaShield } from "react-icons/fa6";
 import { FaPaperPlane } from "react-icons/fa";
@@ -60,6 +61,13 @@ export const navItems = [
             label: "Tripulantes",
             path: "/ops/trip",
             resource: "trips",
+            permission: "view",
+         },
+         {
+            icon: MdAssignment,
+            label: "Ordens de Missão",
+            path: "/ops/om",
+            resource: "ordens_missao",
             permission: "view",
          },
       ],

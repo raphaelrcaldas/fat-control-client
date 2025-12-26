@@ -65,55 +65,55 @@ export default function HomeApp() {
    };
 
    return (
-      <div className='min-h-full bg-gradient-to-br from-gray-50 to-gray-100 p-4 md:p-8'>
-         <div className='max-w-6xl mx-auto space-y-6'>
+      <div className="min-h-full bg-gradient-to-br from-gray-50 to-gray-100 p-4 md:p-8">
+         <div className="mx-auto max-w-6xl space-y-6">
             {/* Welcome Card */}
-            <div className='bg-white rounded-2xl shadow-xl p-8'>
-               <div className='flex flex-col md:flex-row items-center md:items-start gap-6'>
+            <div className="rounded-2xl bg-white p-8 shadow-xl">
+               <div className="flex flex-col items-center gap-6 md:flex-row md:items-start">
                   {/* Avatar */}
-                  <div className='relative'>
-                     <div className='bg-gradient-to-br from-red-500 to-red-600 p-1 rounded-full'>
-                        <div className='bg-white p-1 rounded-full'>
-                           <FaUserCircle className='w-20 h-20 md:w-24 md:h-24 text-red-500' />
+                  <div className="relative">
+                     <div className="rounded-full bg-gradient-to-br from-red-500 to-red-600 p-1">
+                        <div className="rounded-full bg-white p-1">
+                           <FaUserCircle className="h-20 w-20 text-red-500 md:h-24 md:w-24" />
                         </div>
                      </div>
                   </div>
 
                   {/* User Info */}
-                  <div className='flex-1 text-center md:text-left'>
-                     <h1 className='text-xl text-gray-800 mb-2'>
+                  <div className="flex-1 text-center md:text-left">
+                     <h1 className="mb-2 text-xl text-gray-800">
                         {getGreeting()},{" "}
-                        <span className='uppercase font-bold'>
+                        <span className="font-bold uppercase">
                            {userPg} {user}
                         </span>
                         !
                      </h1>
-                     <p className='text-gray-600 mb-4'>
+                     <p className="mb-4 text-gray-600">
                         Seja bem-vindo ao FATCONTROL
                      </p>
 
-                     <div className='flex flex-wrap gap-3 justify-center md:justify-start'>
-                        <div className='flex items-center gap-2 bg-red-50 px-4 py-2 rounded-lg'>
-                           <FaShieldAlt className='text-red-500' />
-                           <span className='text-sm font-medium text-gray-700'>
+                     <div className="flex flex-wrap justify-center gap-3 md:justify-start">
+                        <div className="flex items-center gap-2 rounded-lg bg-red-50 px-4 py-2">
+                           <FaShieldAlt className="text-red-500" />
+                           <span className="text-sm font-medium text-gray-700">
                               Perfil:{" "}
-                              <span className='uppercase font-semibold'>
+                              <span className="font-semibold uppercase">
                                  {role}
                               </span>
                            </span>
                         </div>
-                        <div className='flex items-center gap-2 bg-blue-50 px-4 py-2 rounded-lg'>
-                           <FaClock className='text-blue-500' />
-                           <span className='text-sm font-medium text-gray-700'>
+                        <div className="flex items-center gap-2 rounded-lg bg-blue-50 px-4 py-2">
+                           <FaClock className="text-blue-500" />
+                           <span className="text-sm font-medium text-gray-700">
                               {currentTime.toLocaleTimeString("pt-BR")}
                            </span>
                         </div>
                         {lastLogin && (
-                           <div className='flex items-center gap-2 bg-green-50 px-4 py-2 rounded-lg'>
-                              <FaHistory className='text-green-500' />
-                              <span className='text-sm font-medium text-gray-700'>
+                           <div className="flex items-center gap-2 rounded-lg bg-green-50 px-4 py-2">
+                              <FaHistory className="text-green-500" />
+                              <span className="text-sm font-medium text-gray-700">
                                  Último acesso:{" "}
-                                 <span className='font-semibold'>
+                                 <span className="font-semibold">
                                     {lastLogin}
                                  </span>
                               </span>

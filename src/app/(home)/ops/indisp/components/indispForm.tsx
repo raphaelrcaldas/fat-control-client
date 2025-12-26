@@ -220,61 +220,62 @@ export function IndispForm({
       <>
          <Modal
             show={open}
-            size='lg'
+            size="lg"
             popup
             onClose={() => {
                clearModal();
                closeModal();
             }}
+            dismissible
          >
             <ModalHeader>
-               <div className='flex flex-row gap-2 items-center'>
+               <div className="flex flex-row items-center gap-2">
                   {indisp && (
-                     <span className='text-sm font-normal text-gray-500'>
+                     <span className="text-sm font-normal text-gray-500">
                         ID: {indisp.id}
                      </span>
                   )}
 
-                  <span className='font-bold text-lg'>
+                  <span className="text-lg font-bold">
                      {readOnly
                         ? "Visualizar"
                         : indisp
-                        ? "Atualizar"
-                        : "Adicionar"}{" "}
+                          ? "Atualizar"
+                          : "Adicionar"}{" "}
                      Indisponibilidade
                   </span>
                </div>
             </ModalHeader>
             <ModalBody>
                {readOnly && (
-                  <div className='bg-red-100 border border-red-300 text-red-700 px-4 py-2 rounded-lg mb-4 text-center font-medium'>
+                  <div className="mb-4 rounded-lg border border-red-300 bg-red-100 px-4 py-2 text-center font-medium text-red-700">
                      🗑️ Esta indisponibilidade foi deletada
                   </div>
                )}
-               <div className='bg-red-50 rounded-lg p-4 mb-4 border border-red-200'>
-                  <h3 className='uppercase text-center font-bold text-gray-900'>
+               <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-4">
+                  <h3 className="text-center font-bold text-gray-900 uppercase">
                      {trip.user.posto.short} {trip.user.esp}{" "}
                      {trip.user.nome_guerra}
                   </h3>
                </div>
 
-               <div className='grid gap-5'>
-                  <div className='grid gap-2'>
+               <div className="grid gap-5">
+                  <div className="grid gap-2">
                      <Label
-                        htmlFor='mtv'
-                        className='font-semibold text-gray-700'
+                        htmlFor="mtv"
+                        className="font-semibold text-gray-700"
                      >
-                        Motivo <span className='text-red-500'>*</span>
+                        Motivo <span className="text-red-500">*</span>
                      </Label>
                      <Select
-                        id='mtv'
-                        className='w-full'
+                        id="mtv"
+                        className="w-full"
                         value={mtv}
                         onChange={(e) => setMtv(e.target.value)}
                         required
                         disabled={readOnly}
                      >
-                        <option value='' disabled>
+                        <option value="" disabled>
                            Selecione um motivo
                         </option>
                         {indispsOptions.map((item) => (
@@ -285,34 +286,34 @@ export function IndispForm({
                      </Select>
                   </div>
 
-                  <div className='grid md:grid-cols-2 gap-4'>
-                     <div className='grid gap-2'>
+                  <div className="grid gap-4 md:grid-cols-2">
+                     <div className="grid gap-2">
                         <Label
-                           htmlFor='date_start'
-                           className='font-semibold text-gray-700'
+                           htmlFor="date_start"
+                           className="font-semibold text-gray-700"
                         >
                            Data de Início{" "}
-                           <span className='text-red-500'>*</span>
+                           <span className="text-red-500">*</span>
                         </Label>
                         <TextInput
-                           id='date_start'
-                           type='date'
+                           id="date_start"
+                           type="date"
                            value={dateStart}
                            onChange={(e) => setDateStart(e.target.value)}
                            required
                            disabled={readOnly}
                         />
                      </div>
-                     <div className='grid gap-2'>
+                     <div className="grid gap-2">
                         <Label
-                           htmlFor='date_end'
-                           className='font-semibold text-gray-700'
+                           htmlFor="date_end"
+                           className="font-semibold text-gray-700"
                         >
-                           Data de Fim <span className='text-red-500'>*</span>
+                           Data de Fim <span className="text-red-500">*</span>
                         </Label>
                         <TextInput
-                           id='date_end'
-                           type='date'
+                           id="date_end"
+                           type="date"
                            value={dateEnd}
                            min={dateStart}
                            onChange={(e) => setDateEnd(e.target.value)}
@@ -322,17 +323,18 @@ export function IndispForm({
                      </div>
                   </div>
 
-                  <div className='grid gap-2'>
+                  <div className="grid gap-2">
                      <Label
-                        htmlFor='obs'
-                        className='font-semibold text-gray-700'
+                        htmlFor="obs"
+                        className="font-semibold text-gray-700"
                      >
                         Observações
                      </Label>
                      <Textarea
-                        id='obs'
-                        placeholder='Detalhes adicionais sobre a indisponibilidade...'
+                        id="obs"
+                        placeholder="Detalhes adicionais sobre a indisponibilidade..."
                         value={obs}
+                        className="placeholder-slate-500"
                         onChange={(e) => setObs(e.target.value)}
                         disabled={readOnly}
                      />
@@ -340,11 +342,11 @@ export function IndispForm({
 
                   {/* Histórico de Alterações */}
                   {indisp && logs.length > 0 && (
-                     <div className='mt-6 border-t border-gray-200 pt-4'>
-                        <h4 className='font-semibold text-gray-700 mb-3 flex items-center gap-2'>
+                     <div className="mt-6 border-t border-gray-200 pt-4">
+                        <h4 className="mb-3 flex items-center gap-2 font-semibold text-gray-700">
                            <span>📝</span> Histórico de Alterações
                         </h4>
-                        <div className='space-y-3 max-h-48 overflow-y-auto'>
+                        <div className="max-h-48 space-y-3 overflow-y-auto">
                            {logs.map((log) => {
                               const before = log.before
                                  ? JSON.parse(log.before)
@@ -358,17 +360,17 @@ export function IndispForm({
                               return (
                                  <div
                                     key={log.id}
-                                    className={`rounded-lg p-3 text-sm border ${
+                                    className={`rounded-lg border p-3 text-sm ${
                                        isDeleteAction
-                                          ? "bg-red-50 border-red-200"
-                                          : "bg-gray-50 border-gray-100"
+                                          ? "border-red-200 bg-red-50"
+                                          : "border-gray-100 bg-gray-50"
                                     }`}
                                  >
-                                    <div className='flex justify-between items-center mb-2'>
-                                       <span className='font-medium text-gray-900 uppercase'>
+                                    <div className="mb-2 flex items-center justify-between">
+                                       <span className="font-medium text-gray-900 uppercase">
                                           {log.user.p_g} {log.user.nome_guerra}
                                        </span>
-                                       <span className='text-gray-500 text-xs'>
+                                       <span className="text-xs text-gray-500">
                                           {format(
                                              new Date(log.timestamp + "Z"),
                                              "dd/MM/yyyy HH:mm",
@@ -377,11 +379,11 @@ export function IndispForm({
                                        </span>
                                     </div>
                                     {isDeleteAction ? (
-                                       <div className='text-red-600 font-medium'>
+                                       <div className="font-medium text-red-600">
                                           🗑️ Indisponibilidade deletada
                                        </div>
                                     ) : (
-                                       <ul className='space-y-1'>
+                                       <ul className="space-y-1">
                                           {changedFields.map((field) => {
                                              const label =
                                                 fieldLabels[field] || field;
@@ -401,16 +403,16 @@ export function IndispForm({
                                              return (
                                                 <li
                                                    key={field}
-                                                   className='text-gray-600'
+                                                   className="text-gray-600"
                                                 >
-                                                   <span className='font-medium'>
+                                                   <span className="font-medium">
                                                       {label}:
                                                    </span>{" "}
-                                                   <span className='text-red-600 line-through'>
+                                                   <span className="text-red-600 line-through">
                                                       {oldVal || "(vazio)"}
                                                    </span>
                                                    {" → "}
-                                                   <span className='text-green-600'>
+                                                   <span className="text-green-600">
                                                       {newVal || "(vazio)"}
                                                    </span>
                                                 </li>
@@ -426,34 +428,34 @@ export function IndispForm({
                   )}
                </div>
             </ModalBody>
-            <ModalFooter className='bg-gray-50 flex justify-center gap-3'>
+            <ModalFooter className="flex justify-center gap-3 bg-gray-50">
                {!readOnly && (
                   <Button
-                     color='blue'
+                     color="blue"
                      onClick={handleIndisp}
                      disabled={indisp ? !isChanged : false}
-                     size='md'
+                     size="md"
                   >
                      {indisp ? "Atualizar" : "Adicionar"}
                   </Button>
                )}
                {indisp && !readOnly && (
                   <Button
-                     type='button'
+                     type="button"
                      onClick={() => setShowConfirmModal(true)}
-                     color='red'
-                     size='md'
+                     color="red"
+                     size="md"
                   >
                      Excluir
                   </Button>
                )}
                <Button
-                  color='gray'
+                  color="gray"
                   onClick={() => {
                      clearModal();
                      closeModal();
                   }}
-                  size='md'
+                  size="md"
                >
                   Cancelar
                </Button>
@@ -462,23 +464,23 @@ export function IndispForm({
 
          <Modal
             show={showConfirmModal}
-            size='md'
+            size="md"
             onClose={() => setShowConfirmModal(false)}
             popup
          >
             <ModalHeader />
             <ModalBody>
-               <div className='text-center'>
-                  <HiOutlineExclamationCircle className='mx-auto mb-4 h-14 w-14 text-gray-400 dark:text-gray-200' />
-                  <h3 className='mb-5 text-lg font-normal text-gray-500 dark:text-gray-400'>
+               <div className="text-center">
+                  <HiOutlineExclamationCircle className="mx-auto mb-4 h-14 w-14 text-gray-400 dark:text-gray-200" />
+                  <h3 className="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
                      Tem certeza que deseja excluir esta indisponibilidade?
                   </h3>
-                  <div className='flex justify-center gap-4'>
-                     <Button color='red' onClick={confirmDelete}>
+                  <div className="flex justify-center gap-4">
+                     <Button color="red" onClick={confirmDelete}>
                         Sim, excluir
                      </Button>
                      <Button
-                        color='light'
+                        color="light"
                         onClick={() => setShowConfirmModal(false)}
                      >
                         Não, cancelar

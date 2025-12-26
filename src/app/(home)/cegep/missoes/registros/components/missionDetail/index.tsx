@@ -81,7 +81,9 @@ export default function MissionDetail({
    const [pnts, setPnts] = useState(defaultValues.pnts);
    const [formMil, setFormMil] = useState(false);
    const [mils, setMils] = useState(defaultValues.mils);
-   const [etiquetasMissao, setEtiquetasMissao] = useState(defaultValues.etiquetas);
+   const [etiquetasMissao, setEtiquetasMissao] = useState(
+      defaultValues.etiquetas
+   );
 
    const [checkAfastRegres, setCheckAfastRegres] = useState(false);
 
@@ -94,15 +96,16 @@ export default function MissionDetail({
    const { push } = useToast();
 
    // Etiquetas disponíveis do context
-   const { etiquetas: etiquetasDisponiveis, loading: loadingEtiquetas } = useEtiquetas();
+   const { etiquetas: etiquetasDisponiveis, loading: loadingEtiquetas } =
+      useEtiquetas();
 
    // Toggle para adicionar/remover etiqueta da missão
    const toggleEtiqueta = (etiqueta: Etiqueta) => {
-      const isSelected = etiquetasMissao.some(e => e.id === etiqueta.id);
+      const isSelected = etiquetasMissao.some((e) => e.id === etiqueta.id);
       if (isSelected) {
-         setEtiquetasMissao(prev => prev.filter(e => e.id !== etiqueta.id));
+         setEtiquetasMissao((prev) => prev.filter((e) => e.id !== etiqueta.id));
       } else {
-         setEtiquetasMissao(prev => [...prev, etiqueta]);
+         setEtiquetasMissao((prev) => [...prev, etiqueta]);
       }
    };
 
@@ -128,7 +131,8 @@ export default function MissionDetail({
       obs !== defaultValues.obs ||
       JSON.stringify(pnts) !== JSON.stringify(defaultValues.pnts) ||
       JSON.stringify(mils) !== JSON.stringify(defaultValues.mils) ||
-      JSON.stringify(etiquetasMissao) !== JSON.stringify(defaultValues.etiquetas);
+      JSON.stringify(etiquetasMissao) !==
+         JSON.stringify(defaultValues.etiquetas);
 
    function handleFragMis() {
       const checkNDoc = nDoc != 0;
@@ -246,11 +250,16 @@ export default function MissionDetail({
          const response = await createUpdateFragMis(fragMis);
          const data = await response.json();
          if (response.ok) {
-            push({ message: data.detail || "Missão salva com sucesso", type: "success" });
+            push({
+               message: data.detail || "Missão salva com sucesso",
+               type: "success",
+            });
             setEditMode(false);
             update();
          } else {
-            setErrorMessage(data.detail || "Erro desconhecido ao salvar missão");
+            setErrorMessage(
+               data.detail || "Erro desconhecido ao salvar missão"
+            );
             setShowErrorModal(true);
          }
       } catch (err: any) {
@@ -266,11 +275,16 @@ export default function MissionDetail({
          const response = await deleteFragMis(missao.id);
          const data = await response.json();
          if (response.ok) {
-            push({ message: data.detail || "Missão excluída com sucesso", type: "success" });
+            push({
+               message: data.detail || "Missão excluída com sucesso",
+               type: "success",
+            });
             setShow(false);
             update();
          } else {
-            setErrorMessage(data.detail || "Erro desconhecido ao deletar missão");
+            setErrorMessage(
+               data.detail || "Erro desconhecido ao deletar missão"
+            );
             setShowErrorModal(true);
          }
       } catch (err: any) {
@@ -320,7 +334,7 @@ export default function MissionDetail({
             show={showErrorModal}
             onClose={() => setShowErrorModal(false)}
             errorMessage={errorMessage}
-            errorTitle='Erro'
+            errorTitle="Erro"
          />
          <DeleteMissionModal
             show={showDeleteModal}
@@ -336,40 +350,41 @@ export default function MissionDetail({
          <Modal
             show={showValidationModal}
             onClose={() => setShowValidationModal(false)}
-            size='md'
+            size="md"
+            dismissible
          >
-            <ModalHeader className='border-b border-amber-200 bg-gradient-to-r from-amber-50 to-orange-50'>
-               <div className='flex items-center gap-3'>
-                  <div className='flex items-center justify-center w-12 h-12 rounded-full bg-amber-100 border-2 border-amber-300'>
-                     <FaExclamationTriangle className='text-amber-600 text-xl' />
+            <ModalHeader className="border-b border-amber-200 bg-linear-to-r from-amber-50 to-orange-50">
+               <div className="flex items-center gap-3">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-full border-2 border-amber-300 bg-amber-100">
+                     <FaExclamationTriangle className="text-xl text-amber-600" />
                   </div>
                   <div>
-                     <h3 className='text-lg font-bold text-amber-900'>
+                     <h3 className="text-lg font-bold text-amber-900">
                         Validação de Campos
                      </h3>
-                     <p className='text-sm text-amber-700'>
+                     <p className="text-sm text-amber-700">
                         Alguns campos precisam ser corrigidos
                      </p>
                   </div>
                </div>
             </ModalHeader>
-            <ModalBody className='py-6'>
-               <div className='space-y-3'>
-                  <p className='text-sm font-medium text-slate-700 mb-4'>
+            <ModalBody className="py-6">
+               <div className="space-y-3">
+                  <p className="mb-4 text-sm font-medium text-slate-700">
                      Por favor, verifique os seguintes itens:
                   </p>
-                  <div className='space-y-2'>
+                  <div className="space-y-2">
                      {validationErrors.map((error, index) => (
                         <div
                            key={index}
-                           className='flex items-start gap-3 p-3 bg-amber-50 border border-amber-200 rounded-lg'
+                           className="flex items-start gap-3 rounded-lg border border-amber-200 bg-amber-50 p-3"
                         >
-                           <div className='flex-shrink-0 w-6 h-6 rounded-full bg-amber-100 flex items-center justify-center mt-0.5'>
-                              <span className='text-xs font-bold text-amber-700'>
+                           <div className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-amber-100">
+                              <span className="text-xs font-bold text-amber-700">
                                  {index + 1}
                               </span>
                            </div>
-                           <p className='text-sm text-slate-700 flex-1 leading-relaxed'>
+                           <p className="flex-1 text-sm leading-relaxed text-slate-700">
                               {error.replace(/^- /, "")}
                            </p>
                         </div>
@@ -377,63 +392,63 @@ export default function MissionDetail({
                   </div>
                </div>
             </ModalBody>
-            <ModalFooter className='border-t border-slate-200 bg-slate-50'>
+            <ModalFooter className="border-t border-slate-200 bg-slate-50">
                <Button
-                  color='blue'
+                  color="blue"
                   onClick={() => setShowValidationModal(false)}
-                  className='w-full font-semibold'
+                  className="w-full font-semibold"
                >
                   Entendi
                </Button>
             </ModalFooter>
          </Modal>
-         <Modal size='4xl' show={show} onClose={handleClose}>
-            <ModalHeader className='border-b border-slate-200 pb-4'>
-               <div className='flex items-center gap-3'>
-                  <div className='flex items-center justify-center w-10 h-10 rounded-full bg-blue-100'>
-                     <FaPlaneDeparture className='text-blue-600' />
+         <Modal size="4xl" show={show} onClose={handleClose} dismissible>
+            <ModalHeader className="border-b border-slate-200 pb-4">
+               <div className="flex items-center gap-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100">
+                     <FaPlaneDeparture className="text-blue-600" />
                   </div>
                   <div>
-                     <h2 className='text-xl font-bold text-slate-800'>
+                     <h2 className="text-xl font-bold text-slate-800">
                         {editMode && !missao
                            ? "Nova Missão"
                            : "Detalhes da Missão"}
                      </h2>
                      {!editMode && (
-                        <p className='text-sm text-slate-500'>
+                        <p className="text-sm text-slate-500">
                            Visualizando informações da missão
                         </p>
                      )}
                   </div>
                </div>
             </ModalHeader>
-            <ModalBody className='space-y-6 py-2'>
+            <ModalBody className="space-y-6 py-2">
                {/* Seção: Etiquetas */}
-               <div className='bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl p-6 border border-slate-200 shadow-sm'>
-                  <h3 className='text-sm font-semibold text-slate-700 uppercase tracking-wide mb-4 flex items-center gap-2'>
-                     <div className='w-1 h-4 bg-blue-500 rounded-full'></div>
+               <div className="rounded-xl border border-slate-200 bg-linear-to-br from-slate-50 to-slate-100 p-6 shadow-sm">
+                  <h3 className="mb-4 flex items-center gap-2 text-sm font-semibold tracking-wide text-slate-700 uppercase">
+                     <div className="h-4 w-1 rounded-full bg-blue-500"></div>
                      Etiquetas
                   </h3>
 
                   {/* Etiquetas selecionadas */}
                   {etiquetasMissao.length > 0 && (
-                     <div className='mb-3'>
-                        <div className='flex flex-wrap gap-2'>
-                           {etiquetasMissao.map(etiqueta => (
+                     <div className="mb-3">
+                        <div className="flex flex-wrap gap-2">
+                           {etiquetasMissao.map((etiqueta) => (
                               <span
                                  key={etiqueta.id}
-                                 className='inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium rounded-full text-white'
+                                 className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium text-white"
                                  style={{ backgroundColor: etiqueta.cor }}
                               >
-                                 <HiTag className='w-3 h-3' />
+                                 <HiTag className="h-3 w-3" />
                                  {etiqueta.nome}
                                  {editMode && (
                                     <button
                                        onClick={() => toggleEtiqueta(etiqueta)}
-                                       className='ml-0.5 hover:bg-white/20 rounded-full p-0.5'
-                                       title='Remover etiqueta'
+                                       className="ml-0.5 rounded-full p-0.5 hover:bg-white/20"
+                                       title="Remover etiqueta"
                                     >
-                                       <HiX className='w-3 h-3' />
+                                       <HiX className="h-3 w-3" />
                                     </button>
                                  )}
                               </span>
@@ -446,31 +461,40 @@ export default function MissionDetail({
                   {editMode && (
                      <div>
                         {loadingEtiquetas ? (
-                           <div className='flex items-center gap-2 text-sm text-slate-500'>
-                              <Spinner className='w-4 h-4' />
+                           <div className="flex items-center gap-2 text-sm text-slate-500">
+                              <Spinner className="h-4 w-4" />
                               Carregando etiquetas...
                            </div>
                         ) : etiquetasDisponiveis.length === 0 ? (
-                           <p className='text-sm text-slate-500 italic'>
-                              Nenhuma etiqueta disponível. Crie etiquetas na aba Configurações.
+                           <p className="text-sm text-slate-500 italic">
+                              Nenhuma etiqueta disponível. Crie etiquetas na aba
+                              Configurações.
                            </p>
                         ) : (
-                           <div className='flex flex-wrap gap-2'>
+                           <div className="flex flex-wrap gap-2">
                               {etiquetasDisponiveis
-                                 .filter(e => !etiquetasMissao.some(em => em.id === e.id))
-                                 .map(etiqueta => (
+                                 .filter(
+                                    (e) =>
+                                       !etiquetasMissao.some(
+                                          (em) => em.id === e.id
+                                       )
+                                 )
+                                 .map((etiqueta) => (
                                     <button
                                        key={etiqueta.id}
                                        onClick={() => toggleEtiqueta(etiqueta)}
-                                       className='inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium rounded-full border border-dashed transition-colors'
+                                       className="inline-flex items-center gap-1.5 rounded-full border border-dashed px-2.5 py-1 text-xs font-medium transition-colors"
                                        style={{
                                           borderColor: etiqueta.cor,
                                           color: etiqueta.cor,
-                                          backgroundColor: `${etiqueta.cor}10`
+                                          backgroundColor: `${etiqueta.cor}10`,
                                        }}
-                                       title={etiqueta.descricao || 'Clique para adicionar'}
+                                       title={
+                                          etiqueta.descricao ||
+                                          "Clique para adicionar"
+                                       }
                                     >
-                                       <HiTag className='w-3 h-3' />
+                                       <HiTag className="h-3 w-3" />
                                        {etiqueta.nome}
                                     </button>
                                  ))}
@@ -481,48 +505,48 @@ export default function MissionDetail({
 
                   {/* Modo visualização sem etiquetas */}
                   {!editMode && etiquetasMissao.length === 0 && (
-                     <p className='text-sm text-slate-500 italic'>
+                     <p className="text-sm text-slate-500 italic">
                         Nenhuma etiqueta atribuída a esta missão.
                      </p>
                   )}
                </div>
 
                {/* Seção: Informações do Documento */}
-               <div className='bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl p-6 border border-slate-200 shadow-sm'>
-                  <h3 className='text-sm font-semibold text-slate-700 uppercase tracking-wide mb-4 flex items-center gap-2'>
-                     <div className='w-1 h-4 bg-blue-500 rounded-full'></div>
+               <div className="rounded-xl border border-slate-200 bg-linear-to-br from-slate-50 to-slate-100 p-6 shadow-sm">
+                  <h3 className="mb-4 flex items-center gap-2 text-sm font-semibold tracking-wide text-slate-700 uppercase">
+                     <div className="h-4 w-1 rounded-full bg-blue-500"></div>
                      Documento de Referência
                   </h3>
-                  <div className='grid grid-cols-2 gap-6'>
-                     <div className='space-y-2'>
-                        <Label className='text-sm font-medium text-slate-600'>
+                  <div className="grid grid-cols-2 gap-6">
+                     <div className="space-y-2">
+                        <Label className="text-sm font-medium text-slate-600">
                            Tipo de Ordem
                         </Label>
                         {editMode ? (
                            <Select
                               value={tipoDoc}
                               onChange={(e) => setTipoDoc(e.target.value)}
-                              className='w-full'
+                              className="w-full"
                            >
-                              <option value=''></option>
-                              <option value='om'>Ordem de Missão</option>
-                              <option value='os'>Ordem de Serviço</option>
+                              <option value=""></option>
+                              <option value="om">Ordem de Missão</option>
+                              <option value="os">Ordem de Serviço</option>
                            </Select>
                         ) : (
-                           <div className='px-4 py-2 bg-white rounded-lg border border-slate-200'>
-                              <span className='text-base font-semibold text-slate-800 uppercase'>
+                           <div className="rounded-lg border border-slate-200 bg-white px-4 py-2">
+                              <span className="text-base font-semibold text-slate-800 uppercase">
                                  {tipoDoc}
                               </span>
                            </div>
                         )}
                      </div>
-                     <div className='space-y-2'>
-                        <Label className='text-sm font-medium text-slate-600'>
+                     <div className="space-y-2">
+                        <Label className="text-sm font-medium text-slate-600">
                            Nº do Documento
                         </Label>
                         {editMode ? (
                            <TextInput
-                              className='w-full'
+                              className="w-full"
                               value={nDoc ?? ""}
                               onChange={(e) =>
                                  setNDoc(
@@ -549,8 +573,8 @@ export default function MissionDetail({
                               }}
                            />
                         ) : (
-                           <div className='px-4 py-2 bg-white rounded-lg border border-slate-200'>
-                              <span className='text-base font-semibold text-slate-800'>
+                           <div className="rounded-lg border border-slate-200 bg-white px-4 py-2">
+                              <span className="text-base font-semibold text-slate-800">
                                  {nDoc}
                               </span>
                            </div>
@@ -560,63 +584,62 @@ export default function MissionDetail({
                </div>
 
                {/* Seção: Descrição */}
-               <div className='bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl p-6 border border-slate-200 shadow-sm'>
-                  <h3 className='text-sm font-semibold text-slate-700 uppercase tracking-wide mb-4 flex items-center gap-2'>
-                     <div className='w-1 h-4 bg-blue-500 rounded-full'></div>
+               <div className="rounded-xl border border-slate-200 bg-linear-to-br from-slate-50 to-slate-100 p-6 shadow-sm">
+                  <h3 className="mb-4 flex items-center gap-2 text-sm font-semibold tracking-wide text-slate-700 uppercase">
+                     <div className="h-4 w-1 rounded-full bg-blue-500"></div>
                      Descrição
                   </h3>
                   {editMode ? (
                      <TextInput
-                        className='w-full'
-                        placeholder='OFRAG XXX - APOIO XXX'
+                        className="w-full"
+                        placeholder="OFRAG XXX - APOIO XXX"
                         value={desc}
                         onChange={(e) => setDesc(e.target.value)}
                      />
                   ) : (
-                     <div className='px-4 py-3 bg-white rounded-lg border border-slate-200'>
-                        <p className='text-base font-medium text-slate-800 uppercase'>
+                     <div className="rounded-lg border border-slate-200 bg-white px-4 py-3">
+                        <p className="text-base font-medium text-slate-800 uppercase">
                            {desc}
                         </p>
                      </div>
                   )}
                </div>
 
-
                {/* Seção: Classificação */}
-               <div className='bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl p-6 border border-slate-200 shadow-sm'>
-                  <h3 className='text-sm font-semibold text-slate-700 uppercase tracking-wide mb-4 flex items-center gap-2'>
-                     <div className='w-1 h-4 bg-blue-500 rounded-full'></div>
+               <div className="rounded-xl border border-slate-200 bg-linear-to-br from-slate-50 to-slate-100 p-6 shadow-sm">
+                  <h3 className="mb-4 flex items-center gap-2 text-sm font-semibold tracking-wide text-slate-700 uppercase">
+                     <div className="h-4 w-1 rounded-full bg-blue-500"></div>
                      Classificação
                   </h3>
-                  <div className='grid grid-cols-2 gap-6'>
-                     <div className='space-y-2'>
-                        <Label className='text-sm font-medium text-slate-600 mr-2'>
+                  <div className="grid grid-cols-2 gap-6">
+                     <div className="space-y-2">
+                        <Label className="mr-2 text-sm font-medium text-slate-600">
                            Tipo de Missão
                         </Label>
                         {editMode ? (
                            <Select
                               value={tipo}
                               onChange={(e) => setTipo(e.target.value)}
-                              className='w-full'
+                              className="w-full"
                            >
-                              <option value='' disabled></option>
-                              <option value='tal'>
+                              <option value="" disabled></option>
+                              <option value="tal">
                                  TAL - Transporte Aerologístico
                               </option>
-                              <option value='opr'>OPR - Operacional</option>
-                              <option value='adm'>ADM - Administrativo</option>
+                              <option value="opr">OPR - Operacional</option>
+                              <option value="adm">ADM - Administrativo</option>
                            </Select>
                         ) : (
-                           <div className='inline-block'>
+                           <div className="inline-block">
                               <span
                                  className={clsx(
-                                    "inline-flex items-center px-4 py-2 rounded-lg font-bold text-sm uppercase tracking-wide shadow-sm transition-all",
+                                    "inline-flex items-center rounded-lg px-4 py-2 text-sm font-bold tracking-wide uppercase shadow-sm transition-all",
                                     {
-                                       "bg-gradient-to-r from-amber-400 to-amber-500 text-white":
+                                       "bg-linear-to-r from-amber-400 to-amber-500 text-white":
                                           tipo === "opr",
-                                       "bg-gradient-to-r from-blue-400 to-blue-500 text-white":
+                                       "bg-linear-to-r from-blue-400 to-blue-500 text-white":
                                           tipo === "adm",
-                                       "bg-gradient-to-r from-green-400 to-green-500 text-white":
+                                       "bg-linear-to-r from-green-400 to-green-500 text-white":
                                           tipo === "tal",
                                     }
                                  )}
@@ -626,27 +649,27 @@ export default function MissionDetail({
                            </div>
                         )}
                      </div>
-                     <div className='space-y-2'>
-                        <Label className='text-sm font-medium text-slate-600 mr-2'>
+                     <div className="space-y-2">
+                        <Label className="mr-2 text-sm font-medium text-slate-600">
                            Natureza
                         </Label>
                         {editMode ? (
                            <Select
                               value={ind}
                               onChange={(e) => setInd(e.target.value)}
-                              className='w-full'
+                              className="w-full"
                            >
-                              <option disabled value=''></option>
-                              <option value='n_ind'>NÃO INDENIZÁVEL</option>
-                              <option value='ind'>INDENIZÁVEL</option>
+                              <option disabled value=""></option>
+                              <option value="n_ind">NÃO INDENIZÁVEL</option>
+                              <option value="ind">INDENIZÁVEL</option>
                            </Select>
                         ) : (
-                           <div className='inline-block'>
+                           <div className="inline-block">
                               <span
                                  className={clsx(
-                                    "inline-flex items-center px-4 py-2 rounded-lg font-bold text-sm uppercase tracking-wide shadow-sm transition-all",
+                                    "inline-flex items-center rounded-lg px-4 py-2 text-sm font-bold tracking-wide uppercase shadow-sm transition-all",
                                     {
-                                       "bg-gradient-to-r from-emerald-400 to-emerald-500 text-white":
+                                       "bg-linear-to-r from-emerald-400 to-emerald-500 text-white":
                                           ind == "ind",
                                        "bg-slate-200 text-slate-700":
                                           ind == "n_ind",
@@ -663,16 +686,16 @@ export default function MissionDetail({
                </div>
 
                {/* Seção: Datas e Deslocamento */}
-               <div className='bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl p-6 border border-slate-200 shadow-sm'>
-                  <h3 className='text-sm font-semibold text-slate-700 uppercase tracking-wide mb-4 flex items-center gap-2'>
-                     <div className='w-1 h-4 bg-blue-500 rounded-full'></div>
+               <div className="rounded-xl border border-slate-200 bg-linear-to-br from-slate-50 to-slate-100 p-6 shadow-sm">
+                  <h3 className="mb-4 flex items-center gap-2 text-sm font-semibold tracking-wide text-slate-700 uppercase">
+                     <div className="h-4 w-1 rounded-full bg-blue-500"></div>
                      Período e Deslocamento
                   </h3>
-                  <div className='space-y-4'>
-                     <div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
-                        <div className='space-y-2'>
-                           <Label className='text-sm font-medium text-slate-600 flex items-center gap-2'>
-                              <FaPlaneDeparture className='text-slate-500' />
+                  <div className="space-y-4">
+                     <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+                        <div className="space-y-2">
+                           <Label className="flex items-center gap-2 text-sm font-medium text-slate-600">
+                              <FaPlaneDeparture className="text-slate-500" />
                               Afastamento
                            </Label>
                            {editMode ? (
@@ -681,9 +704,9 @@ export default function MissionDetail({
                                  setValue={setAfast}
                               />
                            ) : (
-                              <div className='flex items-center gap-3 px-4 py-3 bg-gradient-to-r from-yellow-100 to-yellow-200 rounded-lg border border-yellow-300 shadow-sm'>
-                                 <FaPlaneDeparture className='text-yellow-700 text-lg' />
-                                 <span className='font-semibold text-slate-800'>
+                              <div className="flex items-center gap-3 rounded-lg border border-yellow-300 bg-linear-to-r from-yellow-100 to-yellow-200 px-4 py-3 shadow-sm">
+                                 <FaPlaneDeparture className="text-lg text-yellow-700" />
+                                 <span className="font-semibold text-slate-800">
                                     {new Date(afast).toLocaleDateString(
                                        "pt-BR",
                                        {
@@ -699,9 +722,9 @@ export default function MissionDetail({
                            )}
                         </div>
 
-                        <div className='space-y-2'>
-                           <Label className='text-sm font-medium text-slate-600 flex items-center gap-2'>
-                              <FaPlaneArrival className='text-slate-500' />
+                        <div className="space-y-2">
+                           <Label className="flex items-center gap-2 text-sm font-medium text-slate-600">
+                              <FaPlaneArrival className="text-slate-500" />
                               Regresso
                            </Label>
                            {editMode ? (
@@ -710,9 +733,9 @@ export default function MissionDetail({
                                  setValue={setRegres}
                               />
                            ) : (
-                              <div className='flex items-center gap-3 px-4 py-3 bg-gradient-to-r from-yellow-100 to-yellow-200 rounded-lg border border-yellow-300 shadow-sm'>
-                                 <FaPlaneArrival className='text-yellow-700 text-lg' />
-                                 <span className='font-semibold text-slate-800'>
+                              <div className="flex items-center gap-3 rounded-lg border border-yellow-300 bg-linear-to-r from-yellow-100 to-yellow-200 px-4 py-3 shadow-sm">
+                                 <FaPlaneArrival className="text-lg text-yellow-700" />
+                                 <span className="font-semibold text-slate-800">
                                     {new Date(regres).toLocaleDateString(
                                        "pt-BR",
                                        {
@@ -729,25 +752,25 @@ export default function MissionDetail({
                         </div>
                      </div>
 
-                     <div className='flex items-center gap-3 pt-2 border-t border-slate-200'>
+                     <div className="flex items-center gap-3 border-t border-slate-200 pt-2">
                         <Label
-                           className='font-medium text-slate-500'
-                           htmlFor='ac_desloc'
+                           className="font-medium text-slate-500"
+                           htmlFor="ac_desloc"
                         >
                            Acréscimo de Deslocamento:
                         </Label>
                         {editMode ? (
                            <Checkbox
-                              id='ac_desloc'
-                              color='blue'
+                              id="ac_desloc"
+                              color="blue"
                               onChange={(e) => setAcrecDesloc(e.target.checked)}
-                              className='size-5'
+                              className="size-5"
                               checked={acrecDesloc}
                            />
                         ) : (
                            <span
                               className={clsx(
-                                 "px-3 py-1 rounded-md font-semibold uppercase",
+                                 "rounded-md px-3 py-1 font-semibold uppercase",
                                  {
                                     "bg-green-100 text-green-700": acrecDesloc,
                                     "bg-slate-200 text-slate-600": !acrecDesloc,
@@ -762,27 +785,27 @@ export default function MissionDetail({
                </div>
 
                {/* Seção: Observações */}
-               <div className='bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl p-6 border border-slate-200 shadow-sm'>
-                  <h3 className='text-sm font-semibold text-slate-700 uppercase tracking-wide mb-4 flex items-center gap-2'>
-                     <div className='w-1 h-4 bg-blue-500 rounded-full'></div>
+               <div className="rounded-xl border border-slate-200 bg-linear-to-br from-slate-50 to-slate-100 p-6 shadow-sm">
+                  <h3 className="mb-4 flex items-center gap-2 text-sm font-semibold tracking-wide text-slate-700 uppercase">
+                     <div className="h-4 w-1 rounded-full bg-blue-500"></div>
                      Observações
                   </h3>
                   {editMode ? (
                      <Textarea
                         value={obs}
                         onChange={(e) => setObs(e.target.value)}
-                        placeholder='RETORNO OM XXX'
+                        placeholder="RETORNO OM XXX"
                         rows={4}
-                        className='w-full'
+                        className="w-full"
                      />
                   ) : (
-                     <div className='px-4 py-3 bg-white rounded-lg border border-slate-200 min-h-[100px]'>
+                     <div className="min-h-25 rounded-lg border border-slate-200 bg-white px-4 py-3">
                         {obs ? (
-                           <p className='text-slate-700 whitespace-pre-wrap'>
+                           <p className="whitespace-pre-wrap text-slate-700">
                               {obs}
                            </p>
                         ) : (
-                           <div className='flex items-center justify-center h-full text-sm text-slate-400 italic'>
+                           <div className="flex h-full items-center justify-center text-sm text-slate-400 italic">
                               Nenhuma observação adicionada
                            </div>
                         )}
@@ -791,21 +814,21 @@ export default function MissionDetail({
                </div>
 
                {/* Seção: Pernoites */}
-               <div className='bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl p-6 border border-slate-200 shadow-sm'>
-                  <h3 className='text-sm font-semibold text-slate-700 uppercase tracking-wide mb-4 flex items-center gap-2'>
-                     <div className='w-1 h-4 bg-blue-500 rounded-full'></div>
+               <div className="rounded-xl border border-slate-200 bg-linear-to-br from-slate-50 to-slate-100 p-6 shadow-sm">
+                  <h3 className="mb-4 flex items-center gap-2 text-sm font-semibold tracking-wide text-slate-700 uppercase">
+                     <div className="h-4 w-1 rounded-full bg-blue-500"></div>
                      Pernoites
                   </h3>
 
                   {pnts.length == 0 && (
-                     <div className='flex items-center justify-center py-8 px-4 bg-white rounded-lg border border-slate-200'>
-                        <p className='text-sm text-slate-400 italic'>
+                     <div className="flex items-center justify-center rounded-lg border border-slate-200 bg-white px-4 py-8">
+                        <p className="text-sm text-slate-400 italic">
                            Nenhum pernoite adicionado
                         </p>
                      </div>
                   )}
 
-                  <div className='space-y-2'>
+                  <div className="space-y-2">
                      {sortedPnts.map((pnt, index: number) => {
                         return (
                            <MissionPernoite
@@ -832,11 +855,11 @@ export default function MissionDetail({
 
                   {editMode && (
                      <Button
-                        color='blue'
-                        size='sm'
+                        color="blue"
+                        size="sm"
                         onClick={() => setFormPnt(true)}
                         disabled={!checkAfastRegres}
-                        className='w-full mt-4 font-semibold'
+                        className="mt-4 w-full font-semibold"
                      >
                         + Adicionar Pernoite
                      </Button>
@@ -844,22 +867,22 @@ export default function MissionDetail({
                </div>
 
                {/* Seção: Militares */}
-               <div className='bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl p-6 border border-slate-200 shadow-sm'>
-                  <h3 className='text-sm font-semibold text-slate-700 uppercase tracking-wide mb-4 flex items-center gap-2'>
-                     <div className='w-1 h-4 bg-blue-500 rounded-full'></div>
+               <div className="rounded-xl border border-slate-200 bg-linear-to-br from-slate-50 to-slate-100 p-6 shadow-sm">
+                  <h3 className="mb-4 flex items-center gap-2 text-sm font-semibold tracking-wide text-slate-700 uppercase">
+                     <div className="h-4 w-1 rounded-full bg-blue-500"></div>
                      Militares
                   </h3>
 
                   {mils.length == 0 && (
-                     <div className='flex items-center justify-center py-8 px-4 bg-white rounded-lg border border-slate-200'>
-                        <p className='text-sm text-slate-400 italic'>
+                     <div className="flex items-center justify-center rounded-lg border border-slate-200 bg-white px-4 py-8">
+                        <p className="text-sm text-slate-400 italic">
                            Nenhum militar adicionado
                         </p>
                      </div>
                   )}
 
                   <div
-                     className='grid gap-2 uppercase font-medium'
+                     className="grid gap-2 font-medium uppercase"
                      style={{
                         gridTemplateColumns:
                            "repeat(auto-fit, minmax(150px, 1fr))",
@@ -889,31 +912,31 @@ export default function MissionDetail({
 
                   {editMode && (
                      <Button
-                        color='blue'
-                        size='sm'
+                        color="blue"
+                        size="sm"
                         onClick={() => setFormMil(true)}
-                        className='w-full mt-4 font-semibold'
+                        className="mt-4 w-full font-semibold"
                      >
                         + Adicionar Militar
                      </Button>
                   )}
                </div>
             </ModalBody>
-            <ModalFooter className='border-t border-slate-200 bg-slate-50'>
-               <div className='flex gap-3 w-full justify-center'>
+            <ModalFooter className="border-t border-slate-200 bg-slate-50">
+               <div className="flex w-full justify-center gap-3">
                   {!editMode ? (
                      <>
                         <Button
-                           color='blue'
+                           color="blue"
                            onClick={() => setEditMode(true)}
-                           className='px-6 py-2.5 font-semibold shadow-md hover:shadow-lg transition-all'
+                           className="px-6 py-2.5 font-semibold shadow-md transition-all hover:shadow-lg"
                         >
                            Editar
                         </Button>
                         <Button
-                           color='red'
+                           color="red"
                            onClick={() => setShowDeleteModal(true)}
-                           className='px-6 py-2.5 font-semibold shadow-md hover:shadow-lg transition-all'
+                           className="px-6 py-2.5 font-semibold shadow-md transition-all hover:shadow-lg"
                         >
                            Deletar
                         </Button>
@@ -926,21 +949,21 @@ export default function MissionDetail({
                                  setEditMode(false);
                                  setDefaultValues();
                               }}
-                              color='alternative'
-                              className='px-6 py-2.5 font-semibold'
+                              color="alternative"
+                              className="px-6 py-2.5 font-semibold"
                            >
                               Cancelar
                            </Button>
                         )}
                         <Button
                            onClick={handleFragMis}
-                           color='blue'
+                           color="blue"
                            disabled={!isChanged || isLoading}
-                           className='px-8 py-2.5 font-semibold shadow-md hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed'
+                           className="px-8 py-2.5 font-semibold shadow-md transition-all hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-50"
                         >
                            {isLoading ? (
-                              <div className='flex items-center gap-2'>
-                                 <Spinner size='sm' color='white' />
+                              <div className="flex items-center gap-2">
+                                 <Spinner size="sm" color="white" />
                                  <span>Salvando...</span>
                               </div>
                            ) : missao ? (

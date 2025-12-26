@@ -79,7 +79,8 @@ export function parseCoordinate(
       const degrees = parseInt(dmsMatch[1]);
       const minutes = parseInt(dmsMatch[2]);
       const seconds = parseFloat(dmsMatch[3]);
-      const direction = dmsMatch[4] || (degrees < 0 ? (type === "latitude" ? "S" : "W") : "");
+      const direction =
+         dmsMatch[4] || (degrees < 0 ? (type === "latitude" ? "S" : "W") : "");
 
       if (minutes >= 60 || seconds >= 60) {
          return {
@@ -106,7 +107,8 @@ export function parseCoordinate(
    if (dmmMatch) {
       const degrees = parseInt(dmmMatch[1]);
       const minutes = parseFloat(dmmMatch[2]);
-      const direction = dmmMatch[3] || (degrees < 0 ? (type === "latitude" ? "S" : "W") : "");
+      const direction =
+         dmmMatch[3] || (degrees < 0 ? (type === "latitude" ? "S" : "W") : "");
 
       if (minutes >= 60) {
          return {

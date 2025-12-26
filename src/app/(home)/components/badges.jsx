@@ -3,7 +3,7 @@ import unidades_bagl from "../../../../public/infoFAB/infoOMs";
 
 export function ActiveBadge(active) {
    return (
-      <Badge className='justify-center' color={active ? "success" : "failure"}>
+      <Badge className="justify-center" color={active ? "success" : "failure"}>
          {active ? "ATIVO" : "INATIVO"}
       </Badge>
    );
@@ -40,7 +40,7 @@ export function FuncBadge({ funcao }) {
    return (
       <Badge
          color={color}
-         className='m-1 text-nowrap uppercase justify-center p-1 w-14'
+         className="m-1 w-14 justify-center p-1 text-nowrap uppercase"
       >
          {funcao}
       </Badge>
@@ -74,7 +74,7 @@ export function OperBadge({ oper }) {
    return (
       <Badge
          color={color}
-         className='m-1 text-nowrap uppercase justify-center p-1 w-14'
+         className="m-1 w-14 justify-center p-1 text-nowrap uppercase"
       >
          {oper}
       </Badge>
@@ -85,7 +85,7 @@ export function BadgeUAE({ children }) {
    const color = unidades_bagl[children].color;
 
    return (
-      <Badge className='w-fit text-nowrap' color={color} size='sm'>
+      <Badge className="w-fit text-nowrap" color={color} size="sm">
          {unidades_bagl[children].value}
       </Badge>
    );

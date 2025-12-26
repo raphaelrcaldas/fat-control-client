@@ -1,6 +1,13 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect, ReactNode, useCallback } from "react";
+import {
+   createContext,
+   useContext,
+   useState,
+   useEffect,
+   ReactNode,
+   useCallback,
+} from "react";
 import {
    Etiqueta,
    coresPredefinidas,
@@ -51,10 +58,12 @@ export function EtiquetasProvider({ children }: { children: ReactNode }) {
       fetchEtiquetas();
    }, [fetchEtiquetas]);
 
-   const addEtiqueta = async (etiqueta: Omit<Etiqueta, "id">): Promise<Etiqueta | null> => {
+   const addEtiqueta = async (
+      etiqueta: Omit<Etiqueta, "id">
+   ): Promise<Etiqueta | null> => {
       try {
          const newEtiqueta = await createUpdateEtiqueta(etiqueta as Etiqueta);
-         setEtiquetas(prev => [...prev, newEtiqueta]);
+         setEtiquetas((prev) => [...prev, newEtiqueta]);
          return newEtiqueta;
       } catch (err) {
          console.error("Erro ao criar etiqueta:", err);
@@ -62,10 +71,14 @@ export function EtiquetasProvider({ children }: { children: ReactNode }) {
       }
    };
 
-   const updateEtiqueta = async (etiqueta: Etiqueta): Promise<Etiqueta | null> => {
+   const updateEtiqueta = async (
+      etiqueta: Etiqueta
+   ): Promise<Etiqueta | null> => {
       try {
          const updated = await createUpdateEtiqueta(etiqueta);
-         setEtiquetas(prev => prev.map(e => e.id === updated.id ? updated : e));
+         setEtiquetas((prev) =>
+            prev.map((e) => (e.id === updated.id ? updated : e))
+         );
          return updated;
       } catch (err) {
          console.error("Erro ao atualizar etiqueta:", err);
@@ -76,7 +89,7 @@ export function EtiquetasProvider({ children }: { children: ReactNode }) {
    const deleteEtiqueta = async (id: number): Promise<boolean> => {
       try {
          await deleteEtiquetaApi(id);
-         setEtiquetas(prev => prev.filter(e => e.id !== id));
+         setEtiquetas((prev) => prev.filter((e) => e.id !== id));
          return true;
       } catch (err) {
          console.error("Erro ao deletar etiqueta:", err);
@@ -84,19 +97,21 @@ export function EtiquetasProvider({ children }: { children: ReactNode }) {
       }
    };
 
-   const getEtiquetaById = (id: number) => etiquetas.find(e => e.id === id);
+   const getEtiquetaById = (id: number) => etiquetas.find((e) => e.id === id);
 
    return (
-      <EtiquetasContext.Provider value={{
-         etiquetas,
-         loading,
-         error,
-         fetchEtiquetas,
-         addEtiqueta,
-         updateEtiqueta,
-         deleteEtiqueta,
-         getEtiquetaById,
-      }}>
+      <EtiquetasContext.Provider
+         value={{
+            etiquetas,
+            loading,
+            error,
+            fetchEtiquetas,
+            addEtiqueta,
+            updateEtiqueta,
+            deleteEtiqueta,
+            getEtiquetaById,
+         }}
+      >
          {children}
       </EtiquetasContext.Provider>
    );
@@ -109,4 +124,3 @@ export function useEtiquetas() {
    }
    return context;
 }
-

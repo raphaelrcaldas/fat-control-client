@@ -71,74 +71,74 @@ const TripTable = ({ trips, setRow, activeRow, isLoading }) => {
    }
 
    return (
-      <div className='rounded-xl w-full shadow-lg overflow-hidden bg-white'>
-         <div className='overflow-x-auto'>
-            <table className='w-full text-gray-600 text-center text-sm'>
-               <thead className='bg-gradient-to-r from-gray-100 to-gray-200 border-b-2 border-gray-300'>
+      <div className="w-full overflow-hidden rounded-xl bg-white shadow-lg">
+         <div className="overflow-x-auto">
+            <table className="w-full text-center text-sm text-gray-600">
+               <thead className="border-b-2 border-gray-300 bg-gradient-to-r from-gray-100 to-gray-200">
                   <tr>
-                     <th className='py-3 px-4 hidden 2xl:table-cell cursor-pointer hover:bg-gray-300 transition-colors group'>
-                        <div className='flex items-center justify-center gap-1'>
-                           <span className='font-semibold text-gray-700'>
+                     <th className="group hidden cursor-pointer px-4 py-3 transition-colors hover:bg-gray-300 2xl:table-cell">
+                        <div className="flex items-center justify-center gap-1">
+                           <span className="font-semibold text-gray-700">
                               PG
                            </span>
                         </div>
                      </th>
-                     <th className='py-3 px-4 hidden 2xl:table-cell cursor-pointer hover:bg-gray-300 transition-colors group'>
-                        <div className='flex items-center justify-center gap-1'>
-                           <span className='font-semibold text-gray-700'>
+                     <th className="group hidden cursor-pointer px-4 py-3 transition-colors hover:bg-gray-300 2xl:table-cell">
+                        <div className="flex items-center justify-center gap-1">
+                           <span className="font-semibold text-gray-700">
                               NOME DE GUERRA
                            </span>
                         </div>
                      </th>
-                     <th className='py-3 px-4 cursor-pointer hover:bg-gray-300 transition-colors group'>
-                        <div className='flex items-center justify-center gap-1'>
-                           <span className='font-semibold text-gray-700'>
+                     <th className="group cursor-pointer px-4 py-3 transition-colors hover:bg-gray-300">
+                        <div className="flex items-center justify-center gap-1">
+                           <span className="font-semibold text-gray-700">
                               TRIG
                            </span>
                         </div>
                      </th>
-                     <th className='py-3 px-4 cursor-pointer hover:bg-gray-300 transition-colors group'>
-                        <div className='flex items-center justify-center gap-1'>
-                           <span className='font-semibold text-gray-700'>
+                     <th className="group cursor-pointer px-4 py-3 transition-colors hover:bg-gray-300">
+                        <div className="flex items-center justify-center gap-1">
+                           <span className="font-semibold text-gray-700">
                               OP
                            </span>
                         </div>
                      </th>
-                     <th className='py-3 px-4 cursor-pointer hover:bg-gray-300 transition-colors group'>
-                        <div className='flex items-center justify-center gap-1'>
-                           <span className='font-semibold text-gray-700'>
+                     <th className="group cursor-pointer px-4 py-3 transition-colors hover:bg-gray-300">
+                        <div className="flex items-center justify-center gap-1">
+                           <span className="font-semibold text-gray-700">
                               DSV
                            </span>
                         </div>
                      </th>
-                     <th className='py-3 px-4 hidden md:table-cell'>
-                        <span className='font-semibold text-gray-700'>
+                     <th className="hidden px-4 py-3 md:table-cell">
+                        <span className="font-semibold text-gray-700">
                            CEMAL
                         </span>
                      </th>
-                     <th className='py-3 px-4 hidden md:table-cell'>
-                        <span className='font-semibold text-gray-700'>CRM</span>
+                     <th className="hidden px-4 py-3 md:table-cell">
+                        <span className="font-semibold text-gray-700">CRM</span>
                      </th>
-                     <th className='py-3 px-4 hidden md:table-cell'>
-                        <span className='font-semibold text-gray-700'>
+                     <th className="hidden px-4 py-3 md:table-cell">
+                        <span className="font-semibold text-gray-700">
                            PASSAP
                         </span>
                      </th>
-                     <th className='py-3 px-4 hidden md:table-cell'>
-                        <span className='font-semibold text-gray-700'>
+                     <th className="hidden px-4 py-3 md:table-cell">
+                        <span className="font-semibold text-gray-700">
                            VISA
                         </span>
                      </th>
-                     <th className='py-3 px-4 cursor-pointer hover:bg-gray-300 transition-colors group'>
-                        <div className='flex items-center justify-center gap-1'>
-                           <span className='font-semibold text-gray-700'>
+                     <th className="group cursor-pointer px-4 py-3 transition-colors hover:bg-gray-300">
+                        <div className="flex items-center justify-center gap-1">
+                           <span className="font-semibold text-gray-700">
                               TOTAL
                            </span>
                         </div>
                      </th>
-                     <th className='py-3 px-4 cursor-pointer hover:bg-gray-300 transition-colors group'>
-                        <div className='flex items-center justify-center gap-1'>
-                           <span className='font-semibold text-gray-700'>
+                     <th className="group cursor-pointer px-4 py-3 transition-colors hover:bg-gray-300">
+                        <div className="flex items-center justify-center gap-1">
+                           <span className="font-semibold text-gray-700">
                               ANO
                            </span>
                         </div>
@@ -153,27 +153,27 @@ const TripTable = ({ trips, setRow, activeRow, isLoading }) => {
                               key={trip.trig}
                               onClick={() => setRow(index)}
                               className={clsx(
-                                 "border-b border-gray-100 cursor-pointer transition-all duration-150",
+                                 "cursor-pointer border-b border-gray-100 transition-all duration-150",
                                  {
-                                    "bg-blue-50 hover:bg-blue-100 border-l-4 border-l-blue-500":
+                                    "border-l-4 border-l-blue-500 bg-blue-50 hover:bg-blue-100":
                                        index === activeRow,
                                     "hover:bg-gray-50": index !== activeRow,
                                  }
                               )}
                            >
-                              <td className='py-2 px-4 font-semibold text-gray-700 hidden 2xl:table-cell'>
+                              <td className="hidden px-4 py-2 font-semibold text-gray-700 2xl:table-cell">
                                  {trip.pg}
                               </td>
-                              <td className='py-2 px-4 font-semibold text-gray-800 text-nowrap hidden 2xl:table-cell'>
+                              <td className="hidden px-4 py-2 font-semibold text-nowrap text-gray-800 2xl:table-cell">
                                  {trip.nomeGuerra}
                               </td>
-                              <td className='py-2 px-4 font-bold text-gray-900'>
+                              <td className="px-4 py-2 font-bold text-gray-900">
                                  {trip.trig}
                               </td>
-                              <td className='py-2 px-4'>
+                              <td className="px-4 py-2">
                                  <span
                                     className={clsx(
-                                       "px-3 py-1 rounded-full text-xs font-bold",
+                                       "rounded-full px-3 py-1 text-xs font-bold",
                                        {
                                           "bg-green-100 text-green-700":
                                              trip.oper === "AL",
@@ -191,14 +191,14 @@ const TripTable = ({ trips, setRow, activeRow, isLoading }) => {
                                     {trip.oper}
                                  </span>
                               </td>
-                              <td className='py-2 px-4'>
+                              <td className="px-4 py-2">
                                  <Tooltip content={getDsvTooltip(trip.dsv)}>
                                     <span className={getColor(trip.dsv)}>
                                        {trip.dsv}
                                     </span>
                                  </Tooltip>
                               </td>
-                              <td className='py-2 px-4 hidden md:table-cell'>
+                              <td className="hidden px-4 py-2 md:table-cell">
                                  <Tooltip
                                     content={getDateTooltip(
                                        trip.cemal,
@@ -212,7 +212,7 @@ const TripTable = ({ trips, setRow, activeRow, isLoading }) => {
                                     </span>
                                  </Tooltip>
                               </td>
-                              <td className='py-2 px-4 hidden md:table-cell'>
+                              <td className="hidden px-4 py-2 md:table-cell">
                                  <Tooltip
                                     content={getDateTooltip(trip.crm, "CRM")}
                                  >
@@ -221,7 +221,7 @@ const TripTable = ({ trips, setRow, activeRow, isLoading }) => {
                                     </span>
                                  </Tooltip>
                               </td>
-                              <td className='py-2 px-4 hidden md:table-cell'>
+                              <td className="hidden px-4 py-2 md:table-cell">
                                  <Tooltip
                                     content={getDateTooltip(
                                        trip.val_pass,
@@ -237,7 +237,7 @@ const TripTable = ({ trips, setRow, activeRow, isLoading }) => {
                                     </span>
                                  </Tooltip>
                               </td>
-                              <td className='py-2 px-4 hidden md:table-cell'>
+                              <td className="hidden px-4 py-2 md:table-cell">
                                  <Tooltip
                                     content={getDateTooltip(
                                        trip.val_visa,
@@ -253,10 +253,10 @@ const TripTable = ({ trips, setRow, activeRow, isLoading }) => {
                                     </span>
                                  </Tooltip>
                               </td>
-                              <td className='py-2 px-4 font-medium text-gray-700'>
+                              <td className="px-4 py-2 font-medium text-gray-700">
                                  {trip.hTotal}
                               </td>
-                              <td className='py-2 px-4 font-bold text-blue-600'>
+                              <td className="px-4 py-2 font-bold text-blue-600">
                                  {trip.hAno}
                               </td>
                            </tr>
@@ -265,8 +265,8 @@ const TripTable = ({ trips, setRow, activeRow, isLoading }) => {
                   ) : (
                      <tr>
                         <td
-                           colSpan='11'
-                           className='py-12 text-center text-gray-500'
+                           colSpan="11"
+                           className="py-12 text-center text-gray-500"
                         >
                            Nenhum registro encontrado
                         </td>
@@ -281,43 +281,43 @@ const TripTable = ({ trips, setRow, activeRow, isLoading }) => {
 
 function TableLoading() {
    return (
-      <div className='rounded-xl w-full shadow-lg overflow-hidden bg-white'>
-         <div className='overflow-x-auto'>
-            <table className='w-full text-gray-600 text-center text-sm'>
-               <thead className='bg-gradient-to-r from-gray-100 to-gray-200 border-b-2 border-gray-300'>
+      <div className="w-full overflow-hidden rounded-xl bg-white shadow-lg">
+         <div className="overflow-x-auto">
+            <table className="w-full text-center text-sm text-gray-600">
+               <thead className="border-b-2 border-gray-300 bg-gradient-to-r from-gray-100 to-gray-200">
                   <tr>
-                     <th className='py-3 px-4 hidden lg:table-cell'>
-                        <div className='h-4 bg-gray-300 rounded animate-pulse w-12 mx-auto'></div>
+                     <th className="hidden px-4 py-3 lg:table-cell">
+                        <div className="mx-auto h-4 w-12 animate-pulse rounded bg-gray-300"></div>
                      </th>
-                     <th className='py-3 px-4 hidden lg:table-cell'>
-                        <div className='h-4 bg-gray-300 rounded animate-pulse w-32 mx-auto'></div>
+                     <th className="hidden px-4 py-3 lg:table-cell">
+                        <div className="mx-auto h-4 w-32 animate-pulse rounded bg-gray-300"></div>
                      </th>
-                     <th className='py-3 px-4'>
-                        <div className='h-4 bg-gray-300 rounded animate-pulse w-16 mx-auto'></div>
+                     <th className="px-4 py-3">
+                        <div className="mx-auto h-4 w-16 animate-pulse rounded bg-gray-300"></div>
                      </th>
-                     <th className='py-3 px-4'>
-                        <div className='h-4 bg-gray-300 rounded animate-pulse w-12 mx-auto'></div>
+                     <th className="px-4 py-3">
+                        <div className="mx-auto h-4 w-12 animate-pulse rounded bg-gray-300"></div>
                      </th>
-                     <th className='py-3 px-4'>
-                        <div className='h-4 bg-gray-300 rounded animate-pulse w-12 mx-auto'></div>
+                     <th className="px-4 py-3">
+                        <div className="mx-auto h-4 w-12 animate-pulse rounded bg-gray-300"></div>
                      </th>
-                     <th className='py-3 px-4 hidden md:table-cell'>
-                        <div className='h-4 bg-gray-300 rounded animate-pulse w-20 mx-auto'></div>
+                     <th className="hidden px-4 py-3 md:table-cell">
+                        <div className="mx-auto h-4 w-20 animate-pulse rounded bg-gray-300"></div>
                      </th>
-                     <th className='py-3 px-4 hidden md:table-cell'>
-                        <div className='h-4 bg-gray-300 rounded animate-pulse w-16 mx-auto'></div>
+                     <th className="hidden px-4 py-3 md:table-cell">
+                        <div className="mx-auto h-4 w-16 animate-pulse rounded bg-gray-300"></div>
                      </th>
-                     <th className='py-3 px-4 hidden md:table-cell'>
-                        <div className='h-4 bg-gray-300 rounded animate-pulse w-20 mx-auto'></div>
+                     <th className="hidden px-4 py-3 md:table-cell">
+                        <div className="mx-auto h-4 w-20 animate-pulse rounded bg-gray-300"></div>
                      </th>
-                     <th className='py-3 px-4 hidden md:table-cell'>
-                        <div className='h-4 bg-gray-300 rounded animate-pulse w-16 mx-auto'></div>
+                     <th className="hidden px-4 py-3 md:table-cell">
+                        <div className="mx-auto h-4 w-16 animate-pulse rounded bg-gray-300"></div>
                      </th>
-                     <th className='py-3 px-4'>
-                        <div className='h-4 bg-gray-300 rounded animate-pulse w-16 mx-auto'></div>
+                     <th className="px-4 py-3">
+                        <div className="mx-auto h-4 w-16 animate-pulse rounded bg-gray-300"></div>
                      </th>
-                     <th className='py-3 px-4'>
-                        <div className='h-4 bg-gray-300 rounded animate-pulse w-12 mx-auto'></div>
+                     <th className="px-4 py-3">
+                        <div className="mx-auto h-4 w-12 animate-pulse rounded bg-gray-300"></div>
                      </th>
                   </tr>
                </thead>
@@ -326,39 +326,39 @@ function TableLoading() {
                      .fill()
                      .map((_, i) => {
                         return (
-                           <tr key={i} className='border-b border-gray-100'>
-                              <td className='py-3 px-4 hidden lg:table-cell'>
-                                 <div className='h-4 bg-gray-200 rounded animate-pulse w-12 mx-auto'></div>
+                           <tr key={i} className="border-b border-gray-100">
+                              <td className="hidden px-4 py-3 lg:table-cell">
+                                 <div className="mx-auto h-4 w-12 animate-pulse rounded bg-gray-200"></div>
                               </td>
-                              <td className='py-3 px-4 hidden lg:table-cell'>
-                                 <div className='h-4 bg-gray-200 rounded animate-pulse w-32 mx-auto'></div>
+                              <td className="hidden px-4 py-3 lg:table-cell">
+                                 <div className="mx-auto h-4 w-32 animate-pulse rounded bg-gray-200"></div>
                               </td>
-                              <td className='py-3 px-4'>
-                                 <div className='h-4 bg-gray-200 rounded animate-pulse w-20 mx-auto'></div>
+                              <td className="px-4 py-3">
+                                 <div className="mx-auto h-4 w-20 animate-pulse rounded bg-gray-200"></div>
                               </td>
-                              <td className='py-3 px-4'>
-                                 <div className='h-6 bg-gray-200 rounded-full animate-pulse w-12 mx-auto'></div>
+                              <td className="px-4 py-3">
+                                 <div className="mx-auto h-6 w-12 animate-pulse rounded-full bg-gray-200"></div>
                               </td>
-                              <td className='py-3 px-4'>
-                                 <div className='h-6 bg-gray-200 rounded animate-pulse w-10 mx-auto'></div>
+                              <td className="px-4 py-3">
+                                 <div className="mx-auto h-6 w-10 animate-pulse rounded bg-gray-200"></div>
                               </td>
-                              <td className='py-3 px-4 hidden md:table-cell'>
-                                 <div className='h-6 bg-gray-200 rounded animate-pulse w-20 mx-auto'></div>
+                              <td className="hidden px-4 py-3 md:table-cell">
+                                 <div className="mx-auto h-6 w-20 animate-pulse rounded bg-gray-200"></div>
                               </td>
-                              <td className='py-3 px-4 hidden md:table-cell'>
-                                 <div className='h-6 bg-gray-200 rounded animate-pulse w-20 mx-auto'></div>
+                              <td className="hidden px-4 py-3 md:table-cell">
+                                 <div className="mx-auto h-6 w-20 animate-pulse rounded bg-gray-200"></div>
                               </td>
-                              <td className='py-3 px-4 hidden md:table-cell'>
-                                 <div className='h-6 bg-gray-200 rounded animate-pulse w-20 mx-auto'></div>
+                              <td className="hidden px-4 py-3 md:table-cell">
+                                 <div className="mx-auto h-6 w-20 animate-pulse rounded bg-gray-200"></div>
                               </td>
-                              <td className='py-3 px-4 hidden md:table-cell'>
-                                 <div className='h-6 bg-gray-200 rounded animate-pulse w-20 mx-auto'></div>
+                              <td className="hidden px-4 py-3 md:table-cell">
+                                 <div className="mx-auto h-6 w-20 animate-pulse rounded bg-gray-200"></div>
                               </td>
-                              <td className='py-3 px-4'>
-                                 <div className='h-4 bg-gray-200 rounded animate-pulse w-16 mx-auto'></div>
+                              <td className="px-4 py-3">
+                                 <div className="mx-auto h-4 w-16 animate-pulse rounded bg-gray-200"></div>
                               </td>
-                              <td className='py-3 px-4'>
-                                 <div className='h-4 bg-gray-200 rounded animate-pulse w-14 mx-auto'></div>
+                              <td className="px-4 py-3">
+                                 <div className="mx-auto h-4 w-14 animate-pulse rounded bg-gray-200"></div>
                               </td>
                            </tr>
                         );

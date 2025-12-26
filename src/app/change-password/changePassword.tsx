@@ -56,9 +56,9 @@ export function ChangePassword() {
    };
 
    return (
-      <div className='flex justify-center items-center h-full'>
-         <div className='bg-white p-6 rounded-lg shadow-md w-full max-w-md'>
-            <h2 className='text-2xl font-semibold text-center mb-6'>
+      <div className="flex h-full items-center justify-center">
+         <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-md">
+            <h2 className="mb-6 text-center text-2xl font-semibold">
                Alterar Senha
             </h2>
             <form onSubmit={handleSubmit(handlePasswordChange)}>
@@ -81,12 +81,12 @@ export function ChangePassword() {
                   )}
                </div> */}
 
-               <div className='mb-4'>
-                  <div className='mb-2'>
-                     <Label htmlFor='newPassword'>Nova Senha</Label>
+               <div className="mb-4">
+                  <div className="mb-2">
+                     <Label htmlFor="newPassword">Nova Senha</Label>
                   </div>
                   <TextInput
-                     id='newPassword'
+                     id="newPassword"
                      {...register("newPassword", {
                         required: "Nova senha é obrigatória",
                         minLength: {
@@ -99,44 +99,44 @@ export function ChangePassword() {
                               "A senha deve conter letras maiúsculas, minúsculas e números",
                         },
                      })}
-                     type='password'
+                     type="password"
                      color={errors.newPassword ? "failure" : undefined}
                   />
                   {errors.newPassword && (
-                     <p className='text-red-600 text-sm mt-1'>
+                     <p className="mt-1 text-sm text-red-600">
                         {errors.newPassword.message}
                      </p>
                   )}
                </div>
 
-               <div className='mb-6'>
-                  <div className='mb-2'>
-                     <Label htmlFor='confirmPassword'>
+               <div className="mb-6">
+                  <div className="mb-2">
+                     <Label htmlFor="confirmPassword">
                         Confirmar Nova Senha
                      </Label>
                   </div>
                   <TextInput
-                     id='confirmPassword'
+                     id="confirmPassword"
                      {...register("confirmPassword", {
                         required: "Confirmação de senha é obrigatória",
                         validate: (value) =>
                            value === newPassword || "As senhas não conferem",
                      })}
-                     type='password'
+                     type="password"
                      color={errors.confirmPassword ? "failure" : undefined}
                   />
                   {errors.confirmPassword && (
-                     <p className='text-red-600 text-sm mt-1'>
+                     <p className="mt-1 text-sm text-red-600">
                         {errors.confirmPassword.message}
                      </p>
                   )}
                </div>
 
-               <div className='flex justify-center gap-3'>
-                  <Button type='submit' disabled={isLoading} color='blue'>
+               <div className="flex justify-center gap-3">
+                  <Button type="submit" disabled={isLoading} color="blue">
                      {isLoading ? (
                         <>
-                           <Spinner size='sm' color='white' />
+                           <Spinner size="sm" color="white" />
                            Salvando...
                         </>
                      ) : (

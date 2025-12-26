@@ -213,19 +213,19 @@ export default function AerodromoCadastro() {
    }, [aerodromos, searchTerm, showOnlyBases]);
 
    return (
-      <div className='w-full h-full flex flex-col bg-gray-50 overflow-hidden'>
+      <div className="flex h-full w-full flex-col overflow-hidden bg-gray-50">
          {/* Header com busca e contador */}
-         <div className='bg-white p-4 rounded-lg shadow-sm border border-gray-200 mb-2'>
-            <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4'>
-               <div className='flex items-center gap-3'>
-                  <div className='p-2 bg-red-100 rounded-lg'>
-                     <HiLocationMarker className='w-6 h-6 text-red-600' />
+         <div className="mb-2 rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
+            <div className="mb-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+               <div className="flex items-center gap-3">
+                  <div className="rounded-lg bg-red-100 p-2">
+                     <HiLocationMarker className="h-6 w-6 text-red-600" />
                   </div>
                   <div>
-                     <h5 className='font-semibold text-lg text-gray-900'>
+                     <h5 className="text-lg font-semibold text-gray-900">
                         Cadastro de Aeródromos
                      </h5>
-                     <p className='text-sm text-gray-500'>
+                     <p className="text-sm text-gray-500">
                         {loading ? (
                            "Carregando..."
                         ) : (
@@ -236,41 +236,41 @@ export default function AerodromoCadastro() {
                                     ? "base aérea encontrada"
                                     : "aeródromo encontrado"
                                  : showOnlyBases
-                                 ? "bases aéreas encontradas"
-                                 : "aeródromos encontrados"}
+                                   ? "bases aéreas encontradas"
+                                   : "aeródromos encontrados"}
                            </>
                         )}
                      </p>
                   </div>
                </div>
                <Button
-                  color='red'
+                  color="red"
                   onClick={() => handleOpenModal()}
-                  className='whitespace-nowrap'
+                  className="whitespace-nowrap"
                   disabled={loading}
                >
-                  <HiPlus className='w-5 h-5 mr-2' />
+                  <HiPlus className="mr-2 h-5 w-5" />
                   Novo Aeródromo
                </Button>
             </div>
 
             {/* Alerta de erro */}
             {error && (
-               <Alert color='failure' icon={HiExclamation} className='mb-4'>
-                  <span className='font-medium'>Erro!</span> {error}
+               <Alert color="failure" icon={HiExclamation} className="mb-4">
+                  <span className="font-medium">Erro!</span> {error}
                </Alert>
             )}
 
             {/* Filtros */}
-            <div className='flex items-center gap-4'>
-               <div className='flex-1'>
-                  <div className='relative'>
-                     <div className='absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none'>
-                        <HiSearch className='w-5 h-5 text-gray-400' />
+            <div className="flex items-center gap-4">
+               <div className="flex-1">
+                  <div className="relative">
+                     <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                        <HiSearch className="h-5 w-5 text-gray-400" />
                      </div>
                      <TextInput
-                        className='w-full'
-                        placeholder='Buscar por nome, código ICAO, cidade, país ou base aérea...'
+                        className="w-full"
+                        placeholder="Buscar por nome, código ICAO, cidade, país ou base aérea..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                         style={{ paddingLeft: "2.5rem" }}
@@ -278,105 +278,105 @@ export default function AerodromoCadastro() {
                      />
                   </div>
                </div>
-               <div className='flex items-center gap-2 bg-gray-50 px-4 py-2.5 rounded-lg border border-gray-200'>
+               <div className="flex items-center gap-2 rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5">
                   <input
-                     type='checkbox'
-                     id='filterBases'
+                     type="checkbox"
+                     id="filterBases"
                      checked={showOnlyBases}
                      onChange={(e) => setShowOnlyBases(e.target.checked)}
-                     className='w-4 h-4 text-red-600 bg-gray-100 border-gray-300 rounded focus:ring-red-500'
+                     className="h-4 w-4 rounded border-gray-300 bg-gray-100 text-red-600 focus:ring-red-500"
                      disabled={loading}
                   />
                   <label
-                     htmlFor='filterBases'
-                     className='text-sm font-medium text-gray-700 cursor-pointer whitespace-nowrap flex items-center gap-1.5'
+                     htmlFor="filterBases"
+                     className="flex cursor-pointer items-center gap-1.5 text-sm font-medium whitespace-nowrap text-gray-700"
                   >
-                     <HiShieldCheck className='w-4 h-4 text-red-600' />
+                     <HiShieldCheck className="h-4 w-4 text-red-600" />
                      Somente Bases Aéreas
                   </label>
                </div>
             </div>
          </div>
 
-         <div className='flex-1 min-h-0'>
-            <div className='h-full grid grid-cols-1 xl:grid-cols-5 gap-4'>
-               <div className='xl:col-span-3 flex flex-col min-h-0 h-full'>
-                  <div className='bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden flex-1 flex flex-col min-h-0'>
+         <div className="min-h-0 flex-1">
+            <div className="grid h-full grid-cols-1 gap-4 xl:grid-cols-5">
+               <div className="flex h-full min-h-0 flex-col xl:col-span-3">
+                  <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
                      {loading ? (
-                        <div className='flex flex-col justify-center items-center h-64'>
-                           <Spinner size='xl' color='failure' />
-                           <p className='mt-4 text-gray-600'>
+                        <div className="flex h-64 flex-col items-center justify-center">
+                           <Spinner size="xl" color="failure" />
+                           <p className="mt-4 text-gray-600">
                               Carregando aeródromos...
                            </p>
                         </div>
                      ) : filteredAerodromos.length === 0 ? (
-                        <div className='flex flex-col justify-center items-center h-64'>
-                           <div className='p-4 bg-gray-100 rounded-full mb-4'>
-                              <HiLocationMarker className='w-12 h-12 text-gray-400' />
+                        <div className="flex h-64 flex-col items-center justify-center">
+                           <div className="mb-4 rounded-full bg-gray-100 p-4">
+                              <HiLocationMarker className="h-12 w-12 text-gray-400" />
                            </div>
-                           <h3 className='text-lg font-semibold text-gray-900 mb-2'>
+                           <h3 className="mb-2 text-lg font-semibold text-gray-900">
                               {searchTerm || showOnlyBases
                                  ? "Nenhum aeródromo encontrado"
                                  : "Nenhum aeródromo cadastrado"}
                            </h3>
-                           <p className='text-gray-500 text-center max-w-md mb-4'>
+                           <p className="mb-4 max-w-md text-center text-gray-500">
                               {searchTerm || showOnlyBases
                                  ? "Não encontramos resultados com os filtros aplicados. Tente ajustar sua busca."
                                  : "Comece adicionando o primeiro aeródromo ao sistema."}
                            </p>
                            {!searchTerm && !showOnlyBases && (
                               <Button
-                                 color='red'
+                                 color="red"
                                  onClick={() => handleOpenModal()}
                               >
-                                 <HiPlus className='w-5 h-5 mr-2' />
+                                 <HiPlus className="mr-2 h-5 w-5" />
                                  Adicionar Primeiro Aeródromo
                               </Button>
                            )}
                         </div>
                      ) : (
-                        <div className='overflow-y-auto flex-1 min-h-0'>
-                           <table className='w-full text-sm text-gray-600 text-left'>
-                              <thead className='sticky top-0 z-10 text-xs text-gray-700 uppercase bg-gray-50 border-b border-gray-200'>
+                        <div className="min-h-0 flex-1 overflow-y-auto">
+                           <table className="w-full text-left text-sm text-gray-600">
+                              <thead className="sticky top-0 z-10 border-b border-gray-200 bg-gray-50 text-xs text-gray-700 uppercase">
                                  <tr>
                                     <th
-                                       scope='col'
-                                       className='px-4 py-3 font-semibold'
+                                       scope="col"
+                                       className="px-4 py-3 font-semibold"
                                     >
                                        Nome
                                     </th>
                                     <th
-                                       scope='col'
-                                       className='px-4 py-3 font-semibold'
+                                       scope="col"
+                                       className="px-4 py-3 font-semibold"
                                     >
                                        ICAO
                                     </th>
                                     <th
-                                       scope='col'
-                                       className='px-4 py-3 font-semibold'
+                                       scope="col"
+                                       className="px-4 py-3 font-semibold"
                                     >
                                        Localização
                                     </th>
                                     <th
-                                       scope='col'
-                                       className='px-4 py-3 font-semibold'
+                                       scope="col"
+                                       className="px-4 py-3 font-semibold"
                                     >
                                        País
                                     </th>
                                     <th
-                                       scope='col'
-                                       className='px-4 py-3 font-semibold'
+                                       scope="col"
+                                       className="px-4 py-3 font-semibold"
                                     >
                                        UTC
                                     </th>
                                     <th
-                                       scope='col'
-                                       className='px-4 py-3 font-semibold'
+                                       scope="col"
+                                       className="px-4 py-3 font-semibold"
                                     >
                                        Elevação
                                     </th>
-                                    <th scope='col' className='px-4 py-3'>
-                                       <span className='sr-only'>Ações</span>
+                                    <th scope="col" className="px-4 py-3">
+                                       <span className="sr-only">Ações</span>
                                     </th>
                                  </tr>
                               </thead>
@@ -385,7 +385,7 @@ export default function AerodromoCadastro() {
                                     <tr
                                        key={aero.id}
                                        className={clsx(
-                                          "border-b last:border-b-0 cursor-pointer hover:bg-gray-50 transition-colors",
+                                          "cursor-pointer border-b border-gray-200 transition-colors last:border-b-0 hover:bg-gray-50",
                                           {
                                              "bg-slate-100":
                                                 selectedAero &&
@@ -394,28 +394,28 @@ export default function AerodromoCadastro() {
                                        )}
                                        onClick={() => setSelectedAero(aero)}
                                     >
-                                       <td className='px-4 py-3 font-medium text-gray-900'>
-                                          <div className='flex items-center gap-2'>
-                                             <LuMapPin className='h-4 w-4 text-blue-600' />
-                                             <div className='flex flex-col gap-0.5'>
+                                       <td className="px-4 py-3 font-medium text-gray-900">
+                                          <div className="flex items-center gap-2">
+                                             <LuMapPin className="h-4 w-4 text-blue-600" />
+                                             <div className="flex flex-col gap-0.5">
                                                 {aero.base_aerea ? (
                                                    <>
-                                                      <div className='font-bold text-red-700 flex items-center gap-1.5'>
+                                                      <div className="flex items-center gap-1.5 font-bold text-red-700">
                                                          {aero.base_aerea.nome}
-                                                         <span className='text-xs font-mono bg-red-100 px-1.5 py-0.5 rounded'>
+                                                         <span className="rounded bg-red-100 px-1.5 py-0.5 font-mono text-xs">
                                                             {
                                                                aero.base_aerea
                                                                   .sigla
                                                             }
                                                          </span>
                                                       </div>
-                                                      <div className='text-xs text-gray-500 font-normal'>
+                                                      <div className="text-xs font-normal text-gray-500">
                                                          {aero.nome}
                                                       </div>
                                                    </>
                                                 ) : (
                                                    <div
-                                                      className='max-w-xs truncate'
+                                                      className="max-w-xs truncate"
                                                       title={aero.nome}
                                                    >
                                                       {aero.nome}
@@ -424,73 +424,73 @@ export default function AerodromoCadastro() {
                                              </div>
                                           </div>
                                        </td>
-                                       <td className='px-4 py-3'>
-                                          <span className='font-mono font-semibold text-red-600'>
+                                       <td className="px-4 py-3">
+                                          <span className="font-mono font-semibold text-red-600">
                                              {aero.codigo_icao}
                                           </span>
                                        </td>
-                                       <td className='px-4 py-3'>
-                                          <div className='text-sm'>
+                                       <td className="px-4 py-3">
+                                          <div className="text-sm">
                                              {aero.cidade ? (
-                                                <div className='flex items-center gap-1.5 font-medium text-gray-900'>
+                                                <div className="flex items-center gap-1.5 font-medium text-gray-900">
                                                    {aero.cidade.nome}-
                                                    {aero.cidade.uf}
                                                 </div>
                                              ) : aero.cidade_manual ? (
-                                                <div className='flex items-center gap-1.5 font-medium text-gray-900'>
+                                                <div className="flex items-center gap-1.5 font-medium text-gray-900">
                                                    {aero.cidade_manual}
                                                 </div>
                                              ) : (
-                                                <span className='text-gray-400'>
+                                                <span className="text-gray-400">
                                                    -
                                                 </span>
                                              )}
                                           </div>
                                        </td>
-                                       <td className='px-4 py-3'>
-                                          <div className='text-sm'>
-                                             <div className='flex items-center gap-1.5 text-gray-500 text-xs mt-0.5'>
+                                       <td className="px-4 py-3">
+                                          <div className="text-sm">
+                                             <div className="mt-0.5 flex items-center gap-1.5 text-xs text-gray-500">
                                                 {aero.pais}
                                              </div>
                                           </div>
                                        </td>
-                                       <td className='px-4 py-3'>
-                                          <div className='text-sm'>
-                                             <span className='font-mono font-semibold text-gray-700'>
+                                       <td className="px-4 py-3">
+                                          <div className="text-sm">
+                                             <span className="font-mono font-semibold text-gray-700">
                                                 {aero.utc >= 0 ? "+" : ""}
                                                 {aero.utc}
                                              </span>
                                           </div>
                                        </td>
-                                       <td className='px-4 py-3'>
-                                          <div className='space-y-1'>
-                                             <div className='flex items-center gap-1.5 text-xs text-gray-600'>
-                                                <MdTerrain className='w-3.5 h-3.5 text-green-600' />
+                                       <td className="px-4 py-3">
+                                          <div className="space-y-1">
+                                             <div className="flex items-center gap-1.5 text-xs text-gray-600">
+                                                <MdTerrain className="h-3.5 w-3.5 text-green-600" />
                                                 <span>{aero.elevacao} ft</span>
                                              </div>
                                           </div>
                                        </td>
-                                       <td className='px-4 py-3'>
-                                          <div className='flex gap-2 justify-end'>
+                                       <td className="px-4 py-3">
+                                          <div className="flex justify-end gap-2">
                                              <button
                                                 onClick={(e) => {
                                                    e.stopPropagation();
                                                    handleOpenModal(aero);
                                                 }}
-                                                className='text-gray-600 hover:text-red-600'
-                                                title='Editar'
+                                                className="text-gray-600 hover:text-red-600"
+                                                title="Editar"
                                              >
-                                                <HiPencil className='h-5 w-5' />
+                                                <HiPencil className="h-5 w-5" />
                                              </button>
                                              <button
                                                 onClick={(e) => {
                                                    e.stopPropagation();
                                                    handleDelete(aero.id);
                                                 }}
-                                                className='text-gray-600 hover:text-red-600'
-                                                title='Excluir'
+                                                className="text-gray-600 hover:text-red-600"
+                                                title="Excluir"
                                              >
-                                                <HiTrash className='h-5 w-5' />
+                                                <HiTrash className="h-5 w-5" />
                                              </button>
                                           </div>
                                        </td>
@@ -503,7 +503,7 @@ export default function AerodromoCadastro() {
                   </div>
                </div>
 
-               <div className='hidden xl:block xl:col-span-2 bg-gray-200 rounded-lg shadow border border-gray-300 overflow-hidden relative min-h-0 h-full'>
+               <div className="relative hidden h-full min-h-0 overflow-hidden rounded-lg border border-gray-300 bg-gray-200 shadow xl:col-span-2 xl:block">
                   {/* Renderiza o mapa apenas quando a tela é xl+ para evitar erro do Leaflet */}
                   {isXlScreen && (
                      <>
@@ -519,30 +519,30 @@ export default function AerodromoCadastro() {
                               setSelectedAero(null);
                               setMapResetKey((prev) => prev + 1);
                            }}
-                           className='absolute top-4 right-4 bg-white/95 backdrop-blur p-2.5 rounded-lg shadow-lg border border-gray-200 hover:bg-gray-50 transition-colors z-[500] group'
-                           title='Resetar visualização do mapa'
+                           className="group absolute top-4 right-4 z-[500] rounded-lg border border-gray-200 bg-white/95 p-2.5 shadow-lg backdrop-blur transition-colors hover:bg-gray-50"
+                           title="Resetar visualização do mapa"
                         >
-                           <HiHome className='w-5 h-5 text-gray-600 group-hover:text-red-600 transition-colors' />
+                           <HiHome className="h-5 w-5 text-gray-600 transition-colors group-hover:text-red-600" />
                         </button>
 
                         {/* Overlay de Informação */}
                         {selectedAero && (
-                           <div className='absolute bottom-4 left-4 right-4 bg-white/95 backdrop-blur p-4 rounded-lg shadow-lg border border-gray-200 z-[500] flex justify-between items-center'>
+                           <div className="absolute right-4 bottom-4 left-4 z-[500] flex items-center justify-between rounded-lg border border-gray-200 bg-white/95 p-4 shadow-lg backdrop-blur">
                               <div>
-                                 <h4 className='font-bold text-gray-900'>
+                                 <h4 className="font-bold text-gray-900">
                                     {selectedAero.base_aerea?.nome ||
                                        selectedAero.nome ||
                                        "Sem nome"}
                                  </h4>
-                                 <p className='text-xs text-gray-500 font-mono'>
+                                 <p className="font-mono text-xs text-gray-500">
                                     {selectedAero.codigo_icao} | Lat:{" "}
                                     {selectedAero.latitude.toFixed(4)} | Lon:{" "}
                                     {selectedAero.longitude.toFixed(4)}
                                  </p>
                               </div>
                               <Button
-                                 size='xs'
-                                 color='gray'
+                                 size="xs"
+                                 color="gray"
                                  onClick={() => setSelectedAero(null)}
                               >
                                  Fechar

@@ -19,7 +19,8 @@ const Tooltip = ({ content, children, position = "top" }: TooltipProps) => {
 
    const arrowClasses = {
       top: "top-full left-1/2 -translate-x-1/2 border-l-transparent border-r-transparent border-b-transparent border-t-gray-900",
-      bottom: "bottom-full left-1/2 -translate-x-1/2 border-l-transparent border-r-transparent border-t-transparent border-b-gray-900",
+      bottom:
+         "bottom-full left-1/2 -translate-x-1/2 border-l-transparent border-r-transparent border-t-transparent border-b-gray-900",
       left: "left-full top-1/2 -translate-y-1/2 border-t-transparent border-b-transparent border-r-transparent border-l-gray-900",
       right: "right-full top-1/2 -translate-y-1/2 border-t-transparent border-b-transparent border-l-transparent border-r-gray-900",
    };
@@ -35,10 +36,10 @@ const Tooltip = ({ content, children, position = "top" }: TooltipProps) => {
             <div
                className={`absolute z-50 ${positionClasses[position]} animate-in fade-in duration-150`}
             >
-               <div className="bg-gray-900 text-white text-xs rounded-lg py-2 px-3 whitespace-nowrap shadow-lg">
+               <div className="rounded-lg bg-gray-900 px-3 py-2 text-xs whitespace-nowrap text-white shadow-lg">
                   {content}
                   <div
-                     className={`absolute w-0 h-0 border-4 ${arrowClasses[position]}`}
+                     className={`absolute h-0 w-0 border-4 ${arrowClasses[position]}`}
                   />
                </div>
             </div>

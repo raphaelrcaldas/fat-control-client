@@ -32,10 +32,10 @@ export function DateTimePicker({
    }
 
    return (
-      <div className='flex flex-row gap-2'>
+      <div className="flex flex-row gap-2">
          <input
-            className='bg-gray-50 border text-center border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-40 p-2.5'
-            type='date'
+            className="block w-40 rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-center text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
+            type="date"
             value={date}
             min={min ? min.split("T")[0] : ""}
             max={max ? max.split("T")[0] : ""}
@@ -44,25 +44,25 @@ export function DateTimePicker({
                handleChange(e.target.value, time);
             }}
          />
-         <div className='relative'>
-            <div className='absolute inset-y-0 end-0 top-0 flex items-center pe-3.5 pointer-events-none'>
+         <div className="relative">
+            <div className="pointer-events-none absolute inset-y-0 end-0 top-0 flex items-center pe-3.5">
                <svg
-                  className='w-4 h-4 text-gray-500 dark:text-gray-400'
-                  aria-hidden='true'
-                  xmlns='http://www.w3.org/2000/svg'
-                  fill='currentColor'
-                  viewBox='0 0 24 24'
+                  className="h-4 w-4 text-gray-500 dark:text-gray-400"
+                  aria-hidden="true"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="currentColor"
+                  viewBox="0 0 24 24"
                >
                   <path
-                     fillRule='evenodd'
-                     d='M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm11-4a1 1 0 1 0-2 0v4a1 1 0 0 0 .293.707l3 3a1 1 0 0 0 1.414-1.414L13 11.586V8Z'
-                     clipRule='evenodd'
+                     fillRule="evenodd"
+                     d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm11-4a1 1 0 1 0-2 0v4a1 1 0 0 0 .293.707l3 3a1 1 0 0 0 1.414-1.414L13 11.586V8Z"
+                     clipRule="evenodd"
                   />
                </svg>
             </div>
             <input
-               type='time'
-               className='bg-gray-50 border leading-none border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-24 p-2.5'
+               type="time"
+               className="block w-24 rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm leading-none text-gray-900 focus:border-blue-500 focus:ring-blue-500"
                value={time}
                onChange={(e) => {
                   setTime(e.target.value);

@@ -1,7 +1,12 @@
 import { memo, useMemo } from "react";
 import { Spinner } from "@/components/Spinner";
 import { PermissionMatrix } from "./PermissionMatrix";
-import type { Resource, PermissionDetail, RoleDetail, PermissionMatrix as PermissionMatrixType } from "../../config/types";
+import type {
+   Resource,
+   PermissionDetail,
+   RoleDetail,
+   PermissionMatrix as PermissionMatrixType,
+} from "../../config/types";
 
 interface PermissionsMatrixTabProps {
    resources: Resource[] | null;
@@ -49,17 +54,17 @@ export const PermissionsMatrixTab = memo(function PermissionsMatrixTab({
 
    if (!resources || !permissions) {
       return (
-         <div className='flex items-center justify-center h-96'>
-            <div className='flex flex-col items-center gap-3'>
-               <Spinner size='xl' />
-               <span className='text-gray-600'>Carregando permissões...</span>
+         <div className="flex h-96 items-center justify-center">
+            <div className="flex flex-col items-center gap-3">
+               <Spinner size="xl" />
+               <span className="text-gray-600">Carregando permissões...</span>
             </div>
          </div>
       );
    }
 
    return (
-      <div className='grid gap-4'>
+      <div className="grid gap-4">
          <PermissionMatrix matrix={matrix} roles={roles} />
       </div>
    );

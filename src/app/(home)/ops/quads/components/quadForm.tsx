@@ -130,95 +130,95 @@ export default function QuadForm({
    };
 
    return (
-      <Modal show={show} onClose={cleanAndClose} size='md' popup>
+      <Modal show={show} onClose={cleanAndClose} size="md" popup>
          <ModalHeader>
             {quad ? "Atualizar Quadrinho" : "Adicionar Quadrinho"}
          </ModalHeader>
          <ModalBody>
-            <div className='space-y-5 mt-4'>
+            <div className="mt-4 space-y-5">
                {!quad && (
-                  <div className='space-y-2'>
-                     <Label htmlFor='inputType' className='text-sm font-medium'>
+                  <div className="space-y-2">
+                     <Label htmlFor="inputType" className="text-sm font-medium">
                         Tipo de Entrada
                      </Label>
                      <Select
-                        id='inputType'
+                        id="inputType"
                         value={inputType}
                         onChange={(e) => setInputType(e.target.value)}
-                        className='w-full'
+                        className="w-full"
                      >
-                        <option value='data'>Data</option>
-                        <option value='lastro'>Lastro</option>
+                        <option value="data">Data</option>
+                        <option value="lastro">Lastro</option>
                      </Select>
                   </div>
                )}
 
-               <div className='space-y-2'>
+               <div className="space-y-2">
                   {inputType === "data" ? (
                      <>
-                        <Label htmlFor='date' className='text-sm font-medium'>
+                        <Label htmlFor="date" className="text-sm font-medium">
                            Data
                         </Label>
                         <TextInput
-                           id='date'
+                           id="date"
                            value={date ?? ""}
                            onChange={(e) => setDate(e.target.value)}
-                           type='date'
-                           autoComplete='off'
+                           type="date"
+                           autoComplete="off"
                            autoFocus
                         />
                      </>
                   ) : (
                      <>
-                        <Label htmlFor='lastro' className='text-sm font-medium'>
+                        <Label htmlFor="lastro" className="text-sm font-medium">
                            Quantidade
                         </Label>
                         <TextInput
-                           id='lastro'
+                           id="lastro"
                            value={lastro}
                            onChange={handleLastroChange}
-                           type='number'
-                           autoComplete='off'
+                           type="number"
+                           autoComplete="off"
                            autoFocus
-                           min='0'
-                           placeholder='Digite a quantidade'
+                           min="0"
+                           placeholder="Digite a quantidade"
                         />
                      </>
                   )}
                </div>
 
-               <div className='space-y-2'>
-                  <Label htmlFor='obs' className='text-sm font-medium'>
+               <div className="space-y-2">
+                  <Label htmlFor="obs" className="text-sm font-medium">
                      Observações
                   </Label>
                   <Textarea
-                     id='obs'
+                     id="obs"
                      value={!obs ? "" : obs}
                      onChange={(e) => setObs(e.target.value)}
-                     placeholder='Digite observações (opcional)'
+                     placeholder="Digite observações (opcional)"
                      rows={3}
                   />
                </div>
             </div>
 
-            <div className='flex gap-3 mt-6'>
+            <div className="mt-6 flex gap-3">
                <Button
-                  color='gray'
+                  color="gray"
                   onClick={cleanAndClose}
                   disabled={loading}
-                  className='flex-1'
+                  className="flex-1"
                >
                   Cancelar
                </Button>
                <Button
-                  color='blue'
+                  color="blue"
                   onClick={handleSubmit}
                   disabled={loading || !isFormValid()}
-                  className='flex-1'
+                  className="flex-1"
                >
                   {loading ? (
-                     <div className='flex items-center gap-2'>
-                        <Spinner size='sm' color='white' />
+                     <div className="flex items-center gap-2">
+                        <Spinner size="sm" color="white" />
                         <span>Salvando...</span>
                      </div>
                   ) : quad ? (

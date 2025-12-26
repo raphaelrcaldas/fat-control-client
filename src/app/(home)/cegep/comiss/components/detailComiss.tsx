@@ -113,17 +113,17 @@ export function DetailComiss({
    // Dados computados para visualização
    const data_abertura = comiss
       ? isoStrToDate(comiss.data_ab).toLocaleDateString("pt-br", {
-         day: "2-digit",
-         month: "2-digit",
-         year: "2-digit",
-      })
+           day: "2-digit",
+           month: "2-digit",
+           year: "2-digit",
+        })
       : "";
    const data_fechamento = comiss
       ? isoStrToDate(comiss.data_fc).toLocaleDateString("pt-br", {
-         day: "2-digit",
-         month: "2-digit",
-         year: "2-digit",
-      })
+           day: "2-digit",
+           month: "2-digit",
+           year: "2-digit",
+        })
       : "";
 
    const ajd_ab = comiss?.valor_aj_ab || 0;
@@ -263,24 +263,29 @@ export function DetailComiss({
    // Renderiza modo de edição/criação
    if (isEditMode || !comiss) {
       return (
-         <Modal show={show} size='6xl' onClose={() => setShow(false)} dismissible>
-            <ModalHeader className='border-b border-gray-200'>
+         <Modal
+            show={show}
+            size="6xl"
+            onClose={() => setShow(false)}
+            dismissible
+         >
+            <ModalHeader className="border-b border-gray-200">
                {comiss ? "Editar" : "Adicionar"} Comissionamento
             </ModalHeader>
-            <ModalBody className='space-y-6'>
+            <ModalBody className="space-y-6">
                {/* Seleção de Militar */}
-               <div className='flex items-center justify-center gap-3 p-4 bg-gray-50 rounded-xl border border-gray-200'>
+               <div className="flex items-center justify-center gap-3 rounded-xl border border-gray-200 bg-gray-50 p-4">
                   {user ? (
-                     <div className='text-center space-y-1'>
-                        <span className='font-semibold text-gray-900 uppercase block'>
+                     <div className="space-y-1 text-center">
+                        <span className="block font-semibold text-gray-900 uppercase">
                            {user.posto.mid} {user.esp} {user.nome_guerra}
                         </span>
-                        <span className='text-sm text-gray-600 capitalize'>
+                        <span className="text-sm text-gray-600 capitalize">
                            {user.nome_completo}
                         </span>
                      </div>
                   ) : (
-                     <span className='text-red-600 text-sm font-medium'>
+                     <span className="text-sm font-medium text-red-600">
                         Selecione um militar
                      </span>
                   )}
@@ -289,10 +294,10 @@ export function DetailComiss({
                      <Button
                         pill
                         onClick={() => setShowUserSearch(true)}
-                        color='light'
-                        className='hover:bg-white transition-colors duration-200'
+                        color="light"
+                        className="transition-colors duration-200 hover:bg-white"
                      >
-                        <IoMdSearch className='size-5' />
+                        <IoMdSearch className="size-5" />
                      </Button>
                   )}
                </div>
@@ -304,85 +309,85 @@ export function DetailComiss({
                />
 
                {/* Documentos */}
-               <div className='space-y-3'>
-                  <h4 className='text-sm font-semibold text-gray-700 uppercase tracking-wide'>
+               <div className="space-y-3">
+                  <h4 className="text-sm font-semibold tracking-wide text-gray-700 uppercase">
                      Documentos
                   </h4>
-                  <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
+                  <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                      <div>
                         <Label
-                           htmlFor='doc-prop'
-                           className='text-sm font-medium text-gray-700 mb-2 block'
+                           htmlFor="doc-prop"
+                           className="mb-2 block text-sm font-medium text-gray-700"
                         >
                            Proposta
                         </Label>
                         <TextInput
-                           id='doc-prop'
+                           id="doc-prop"
                            required
                            value={docProp}
                            onChange={(e) => setDocProp(e.target.value)}
-                           placeholder='Ex: OF-123/2024'
+                           placeholder="Ex: OF-123/2024"
                         />
                      </div>
                      <div>
                         <Label
-                           htmlFor='doc-aut'
-                           className='text-sm font-medium text-gray-700 mb-2 block'
+                           htmlFor="doc-aut"
+                           className="mb-2 block text-sm font-medium text-gray-700"
                         >
                            Autorização
                         </Label>
                         <TextInput
-                           id='doc-aut'
+                           id="doc-aut"
                            required
                            value={docAut}
                            onChange={(e) => setDocAut(e.target.value)}
-                           placeholder='Ex: PORT-456/2024'
+                           placeholder="Ex: PORT-456/2024"
                         />
                      </div>
                      <div>
                         <Label
-                           htmlFor='doc-enc'
-                           className='text-sm font-medium text-gray-700 mb-2 block'
+                           htmlFor="doc-enc"
+                           className="mb-2 block text-sm font-medium text-gray-700"
                         >
                            Encerramento
                         </Label>
                         <TextInput
-                           id='doc-enc'
+                           id="doc-enc"
                            value={docEnc}
                            onChange={(e) => setDocEnc(e.target.value)}
-                           placeholder='Ex: OF-789/2024'
+                           placeholder="Ex: OF-789/2024"
                         />
                      </div>
                   </div>
                </div>
 
                {/* Datas e Valores */}
-               <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                   {/* Abertura */}
-                  <div className='bg-gradient-to-br from-emerald-50 to-green-50 p-5 rounded-xl border border-emerald-200 shadow-sm'>
-                     <h4 className='text-sm font-semibold text-emerald-800 mb-4 flex items-center gap-2'>
-                        <div className='w-2 h-2 bg-emerald-500 rounded-full' />
+                  <div className="rounded-xl border border-emerald-200 bg-gradient-to-br from-emerald-50 to-green-50 p-5 shadow-sm">
+                     <h4 className="mb-4 flex items-center gap-2 text-sm font-semibold text-emerald-800">
+                        <div className="h-2 w-2 rounded-full bg-emerald-500" />
                         Abertura
                      </h4>
-                     <div className='space-y-4'>
+                     <div className="space-y-4">
                         <div>
-                           <Label className='text-xs font-medium text-gray-600 mb-1.5 block'>
+                           <Label className="mb-1.5 block text-xs font-medium text-gray-600">
                               Data
                            </Label>
                            <TextInput
-                              type='date'
+                              type="date"
                               value={dataAb}
                               onChange={(e) => setDataAb(e.target.value)}
                            />
                         </div>
-                        <div className='grid grid-cols-2 gap-3'>
+                        <div className="grid grid-cols-2 gap-3">
                            <div>
-                              <Label className='text-xs font-medium text-gray-600 mb-1.5 block'>
+                              <Label className="mb-1.5 block text-xs font-medium text-gray-600">
                                  Qtd. Ajuda
                               </Label>
                               <TextInput
                                  value={qtdAjAb}
-                                 type='number'
+                                 type="number"
                                  min={0}
                                  max={2}
                                  step={0.5}
@@ -392,13 +397,13 @@ export function DetailComiss({
                               />
                            </div>
                            <div>
-                              <Label className='text-xs font-medium text-gray-600 mb-1.5 block'>
+                              <Label className="mb-1.5 block text-xs font-medium text-gray-600">
                                  Valor (R$)
                               </Label>
                               <TextInput
                                  value={valAjAb}
                                  min={0}
-                                 type='number'
+                                 type="number"
                                  step={0.01}
                                  onChange={(e) =>
                                     setValAjAb(Number(e.target.value))
@@ -410,31 +415,31 @@ export function DetailComiss({
                   </div>
 
                   {/* Fechamento */}
-                  <div className='bg-gradient-to-br from-orange-50 to-amber-50 p-5 rounded-xl border border-orange-200 shadow-sm'>
-                     <h4 className='text-sm font-semibold text-orange-800 mb-4 flex items-center gap-2'>
-                        <div className='w-2 h-2 bg-orange-500 rounded-full' />
+                  <div className="rounded-xl border border-orange-200 bg-gradient-to-br from-orange-50 to-amber-50 p-5 shadow-sm">
+                     <h4 className="mb-4 flex items-center gap-2 text-sm font-semibold text-orange-800">
+                        <div className="h-2 w-2 rounded-full bg-orange-500" />
                         Fechamento
                      </h4>
-                     <div className='space-y-4'>
+                     <div className="space-y-4">
                         <div>
-                           <Label className='text-xs font-medium text-gray-600 mb-1.5 block'>
+                           <Label className="mb-1.5 block text-xs font-medium text-gray-600">
                               Data
                            </Label>
                            <TextInput
-                              type='date'
+                              type="date"
                               min={dataAb}
                               value={dataFc}
                               onChange={(e) => setDataFc(e.target.value)}
                            />
                         </div>
-                        <div className='grid grid-cols-2 gap-3'>
+                        <div className="grid grid-cols-2 gap-3">
                            <div>
-                              <Label className='text-xs font-medium text-gray-600 mb-1.5 block'>
+                              <Label className="mb-1.5 block text-xs font-medium text-gray-600">
                                  Qtd. Ajuda
                               </Label>
                               <TextInput
                                  value={qtdAjFc}
-                                 type='number'
+                                 type="number"
                                  min={0}
                                  max={2}
                                  step={0.5}
@@ -444,13 +449,13 @@ export function DetailComiss({
                               />
                            </div>
                            <div>
-                              <Label className='text-xs font-medium text-gray-600 mb-1.5 block'>
+                              <Label className="mb-1.5 block text-xs font-medium text-gray-600">
                                  Valor (R$)
                               </Label>
                               <TextInput
                                  value={valAjFc}
                                  min={0}
-                                 type='number'
+                                 type="number"
                                  step={0.01}
                                  onChange={(e) =>
                                     setValAjFC(Number(e.target.value))
@@ -463,64 +468,64 @@ export function DetailComiss({
                </div>
 
                {/* Configurações Adicionais */}
-               <div className='space-y-3'>
-                  <h4 className='text-sm font-semibold text-gray-700 uppercase tracking-wide'>
+               <div className="space-y-3">
+                  <h4 className="text-sm font-semibold tracking-wide text-gray-700 uppercase">
                      Configurações
                   </h4>
-                  <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
+                  <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                      <div>
                         <Label
-                           htmlFor='status'
-                           className='text-sm font-medium text-gray-700 mb-2 block'
+                           htmlFor="status"
+                           className="mb-2 block text-sm font-medium text-gray-700"
                         >
                            Status
                         </Label>
                         <Select
-                           id='status'
+                           id="status"
                            value={status}
                            onChange={(e) => setStatus(e.target.value)}
                         >
-                           <option value='' disabled>
+                           <option value="" disabled>
                               Selecione
                            </option>
-                           <option value='aberto'>Aberto</option>
-                           <option value='fechado'>Fechado</option>
+                           <option value="aberto">Aberto</option>
+                           <option value="fechado">Fechado</option>
                         </Select>
                      </div>
                      <div>
                         <Label
-                           htmlFor='dias-cumprir'
-                           className='text-sm font-medium text-gray-700 mb-2 block'
+                           htmlFor="dias-cumprir"
+                           className="mb-2 block text-sm font-medium text-gray-700"
                         >
                            Dias a Cumprir
                         </Label>
                         <TextInput
-                           id='dias-cumprir'
-                           type='number'
+                           id="dias-cumprir"
+                           type="number"
                            min={0}
                            value={diasCumprir}
                            onChange={(e) =>
                               setDiasCumprir(Number(e.target.value))
                            }
-                           placeholder='0 = Comparativo'
+                           placeholder="0 = Comparativo"
                         />
                      </div>
-                     <div className='flex flex-col justify-center'>
+                     <div className="flex flex-col justify-center">
                         <Label
-                           htmlFor='dep'
-                           className='text-sm font-medium text-gray-700 mb-2 block'
+                           htmlFor="dep"
+                           className="mb-2 block text-sm font-medium text-gray-700"
                         >
                            Possui Dependente
                         </Label>
-                        <div className='flex items-center gap-2'>
+                        <div className="flex items-center gap-2">
                            <Checkbox
-                              id='dep'
-                              color='blue'
-                              className='w-5 h-5'
+                              id="dep"
+                              color="blue"
+                              className="h-5 w-5"
                               checked={dep}
                               onChange={(e) => setDep(e.target.checked)}
                            />
-                           <span className='text-sm text-gray-600'>
+                           <span className="text-sm text-gray-600">
                               {dep ? "Sim" : "Não"}
                            </span>
                         </div>
@@ -528,9 +533,9 @@ export function DetailComiss({
                   </div>
                </div>
             </ModalBody>
-            <ModalFooter className='flex justify-center gap-3 border-t border-gray-200'>
+            <ModalFooter className="flex justify-center gap-3 border-t border-gray-200">
                <Button
-                  color='gray'
+                  color="gray"
                   onClick={() => {
                      if (comiss) {
                         setIsEditMode(false);
@@ -543,14 +548,14 @@ export function DetailComiss({
                   Cancelar
                </Button>
                <Button
-                  className='px-6'
-                  color='blue'
+                  className="px-6"
+                  color="blue"
                   onClick={handleSaveComiss}
                   disabled={isLoading}
                >
                   {isLoading ? (
-                     <div className='flex items-center gap-2'>
-                        <Spinner size='sm' color='white' />
+                     <div className="flex items-center gap-2">
+                        <Spinner size="sm" color="white" />
                         <span>Salvando...</span>
                      </div>
                   ) : comiss ? (
@@ -567,56 +572,61 @@ export function DetailComiss({
    // Renderiza modo de visualização
    return (
       <>
-         <Modal show={show} size='6xl' onClose={() => setShow(false)} dismissible>
-            <ModalHeader className='border-b border-gray-200'>
+         <Modal
+            show={show}
+            size="6xl"
+            onClose={() => setShow(false)}
+            dismissible
+         >
+            <ModalHeader className="border-b border-gray-200">
                Detalhes do Comissionamento
             </ModalHeader>
-            <ModalBody className='space-y-3'>
+            <ModalBody className="space-y-3">
                <PermBased resource={"comiss"} requiredPerm={"create"}>
                   {/* Seção de Exportação */}
-                  <div className='bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 border-2 border-blue-200 rounded-xl p-4 shadow-md -mt-2'>
-                     <div className='flex items-center justify-between'>
-                        <div className='flex items-center gap-3'>
+                  <div className="-mt-2 rounded-xl border-2 border-blue-200 bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 p-4 shadow-md">
+                     <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
                            <div>
-                              <h4 className='text-sm font-bold text-gray-800 uppercase tracking-wide'>
+                              <h4 className="text-sm font-bold tracking-wide text-gray-800 uppercase">
                                  Exportar Relatórios
                               </h4>
-                              <p className='text-xs text-gray-600'>
+                              <p className="text-xs text-gray-600">
                                  Gere planilha ou apostila do comissionamento
                               </p>
                            </div>
                         </div>
-                        <div className='grid sm:flex gap-2'>
+                        <div className="grid gap-2 sm:flex">
                            <Button
-                              color='light'
+                              color="light"
                               onClick={handleExportSheet}
                               disabled={
                                  !detail?.missoes?.length ||
                                  isDeleting ||
                                  loadingDetail
                               }
-                              className='transition-all duration-200 hover:shadow-lg hover:scale-105 active:scale-95 bg-white'
+                              className="bg-white transition-all duration-200 hover:scale-105 hover:shadow-lg active:scale-95"
                            >
-                              <div className='flex items-center gap-2'>
-                                 <RiFileExcel2Fill className='size-5 text-green-600' />
-                                 <span className='hidden sm:flex font-semibold'>
+                              <div className="flex items-center gap-2">
+                                 <RiFileExcel2Fill className="size-5 text-green-600" />
+                                 <span className="hidden font-semibold sm:flex">
                                     Planilha
                                  </span>
                               </div>
                            </Button>
                            <Button
-                              color='light'
+                              color="light"
                               onClick={handleExportDocx}
                               disabled={
                                  !detail?.missoes?.length ||
                                  isDeleting ||
                                  loadingDetail
                               }
-                              className='transition-all duration-200 hover:shadow-lg hover:scale-105 active:scale-95 bg-white'
+                              className="bg-white transition-all duration-200 hover:scale-105 hover:shadow-lg active:scale-95"
                            >
-                              <div className='flex items-center gap-2'>
-                                 <HiDocumentText className='size-5 text-blue-600' />
-                                 <span className='hidden sm:flex font-semibold'>
+                              <div className="flex items-center gap-2">
+                                 <HiDocumentText className="size-5 text-blue-600" />
+                                 <span className="hidden font-semibold sm:flex">
                                     Apostila
                                  </span>
                               </div>
@@ -626,75 +636,75 @@ export function DetailComiss({
                   </div>
                </PermBased>
                {/* Informações do Militar */}
-               <div className='text-center space-y-2 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-100'>
-                  <h3 className='text-lg font-bold text-gray-900 uppercase tracking-wide'>
+               <div className="space-y-2 rounded-xl border border-blue-100 bg-gradient-to-r from-blue-50 to-indigo-50 p-4 text-center">
+                  <h3 className="text-lg font-bold tracking-wide text-gray-900 uppercase">
                      {comiss.user.posto.mid} {comiss.user.esp}{" "}
                      {comiss.user.nome_guerra}
                   </h3>
-                  <p className='text-sm text-gray-600 capitalize'>
+                  <p className="text-sm text-gray-600 capitalize">
                      {comiss.user.nome_completo}
                   </p>
                </div>
 
-               <PermBased resource='comiss' requiredPerm='create'>
+               <PermBased resource="comiss" requiredPerm="create">
                   {/* Documentos */}
-                  <div className='hidden md:grid md:grid-cols-3 gap-4'>
-                     <div className='text-center p-4 bg-gray-50 rounded-xl border border-gray-200'>
-                        <span className='text-base font-semibold text-gray-900 uppercase block'>
+                  <div className="hidden gap-4 md:grid md:grid-cols-3">
+                     <div className="rounded-xl border border-gray-200 bg-gray-50 p-4 text-center">
+                        <span className="block text-base font-semibold text-gray-900 uppercase">
                            {comiss.doc_prop}
                         </span>
-                        <span className='text-xs text-gray-500 uppercase tracking-wide'>
+                        <span className="text-xs tracking-wide text-gray-500 uppercase">
                            Proposta
                         </span>
                      </div>
-                     <div className='text-center p-4 bg-gray-50 rounded-xl border border-gray-200'>
-                        <span className='text-base font-semibold text-gray-900 uppercase block'>
+                     <div className="rounded-xl border border-gray-200 bg-gray-50 p-4 text-center">
+                        <span className="block text-base font-semibold text-gray-900 uppercase">
                            {comiss.doc_aut}
                         </span>
-                        <span className='text-xs text-gray-500 uppercase tracking-wide'>
+                        <span className="text-xs tracking-wide text-gray-500 uppercase">
                            Autorização
                         </span>
                      </div>
-                     <div className='text-center p-4 bg-gray-50 rounded-xl border border-gray-200'>
-                        <span className='text-base font-semibold text-gray-900 uppercase block'>
+                     <div className="rounded-xl border border-gray-200 bg-gray-50 p-4 text-center">
+                        <span className="block text-base font-semibold text-gray-900 uppercase">
                            {comiss.doc_enc || "ND"}
                         </span>
-                        <span className='text-xs text-gray-500 uppercase tracking-wide'>
+                        <span className="text-xs tracking-wide text-gray-500 uppercase">
                            Encerramento
                         </span>
                      </div>
                   </div>
 
                   {/* Datas e Valores */}
-                  <div className='grid grid-cols-1 md:grid-cols-2 gap-2'>
+                  <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
                      {/* Abertura */}
-                     <div className='bg-gradient-to-br from-emerald-50 to-green-50 p-4 rounded-xl border border-emerald-200 shadow-sm'>
-                        <h4 className='text-sm font-semibold text-emerald-800 mb-1 flex items-center gap-2'>
-                           <div className='w-2 h-2 bg-emerald-500 rounded-full' />
+                     <div className="rounded-xl border border-emerald-200 bg-gradient-to-br from-emerald-50 to-green-50 p-4 shadow-sm">
+                        <h4 className="mb-1 flex items-center gap-2 text-sm font-semibold text-emerald-800">
+                           <div className="h-2 w-2 rounded-full bg-emerald-500" />
                            Abertura
                         </h4>
-                        <div className='grid grid-cols-3 gap-4'>
-                           <div className='text-center'>
-                              <span className='text-base font-semibold text-gray-900 block'>
+                        <div className="grid grid-cols-3 gap-4">
+                           <div className="text-center">
+                              <span className="block text-base font-semibold text-gray-900">
                                  {data_abertura}
                               </span>
-                              <span className='text-xs text-gray-500'>
+                              <span className="text-xs text-gray-500">
                                  Data
                               </span>
                            </div>
-                           <div className='text-center'>
-                              <span className='text-base font-semibold text-gray-900 block'>
+                           <div className="text-center">
+                              <span className="block text-base font-semibold text-gray-900">
                                  {Number(comiss.qtd_aj_ab).toFixed(1)}
                               </span>
-                              <span className='text-xs text-gray-500'>
+                              <span className="text-xs text-gray-500">
                                  Ajuda de Custo
                               </span>
                            </div>
-                           <div className='text-center'>
-                              <span className='text-base font-semibold text-gray-900 block'>
+                           <div className="text-center">
+                              <span className="block text-base font-semibold text-gray-900">
                                  {realCurrency(comiss.valor_aj_ab)}
                               </span>
-                              <span className='text-xs text-gray-500'>
+                              <span className="text-xs text-gray-500">
                                  Valor
                               </span>
                            </div>
@@ -702,33 +712,33 @@ export function DetailComiss({
                      </div>
 
                      {/* Fechamento */}
-                     <div className='bg-gradient-to-br from-orange-50 to-amber-50 p-4 rounded-xl border border-orange-200 shadow-sm'>
-                        <h4 className='text-sm font-semibold text-orange-800 mb-1 flex items-center gap-2'>
-                           <div className='w-2 h-2 bg-orange-500 rounded-full' />
+                     <div className="rounded-xl border border-orange-200 bg-gradient-to-br from-orange-50 to-amber-50 p-4 shadow-sm">
+                        <h4 className="mb-1 flex items-center gap-2 text-sm font-semibold text-orange-800">
+                           <div className="h-2 w-2 rounded-full bg-orange-500" />
                            Fechamento
                         </h4>
-                        <div className='grid grid-cols-3 gap-4'>
-                           <div className='text-center'>
-                              <span className='text-base font-semibold text-gray-900 block'>
+                        <div className="grid grid-cols-3 gap-4">
+                           <div className="text-center">
+                              <span className="block text-base font-semibold text-gray-900">
                                  {data_fechamento}
                               </span>
-                              <span className='text-xs text-gray-500'>
+                              <span className="text-xs text-gray-500">
                                  Data Prevista
                               </span>
                            </div>
-                           <div className='text-center'>
-                              <span className='text-base font-semibold text-gray-900 block'>
+                           <div className="text-center">
+                              <span className="block text-base font-semibold text-gray-900">
                                  {Number(comiss.qtd_aj_fc).toFixed(1)}
                               </span>
-                              <span className='text-xs text-gray-500'>
+                              <span className="text-xs text-gray-500">
                                  Ajuda de Custo
                               </span>
                            </div>
-                           <div className='text-center'>
-                              <span className='text-base font-semibold text-gray-900 block'>
+                           <div className="text-center">
+                              <span className="block text-base font-semibold text-gray-900">
                                  {realCurrency(comiss.valor_aj_fc)}
                               </span>
-                              <span className='text-xs text-gray-500'>
+                              <span className="text-xs text-gray-500">
                                  Valor
                               </span>
                            </div>
@@ -736,24 +746,24 @@ export function DetailComiss({
                      </div>
                   </div>
                   {/* Status e Informações */}
-                  <div className='grid grid-cols-3 gap-4'>
-                     <div className='flex items-center justify-center gap-2 p-4 bg-gray-50 rounded-xl border border-gray-200'>
-                        <span className='text-sm text-gray-600'>Status:</span>
-                        <span className='text-sm font-semibold text-gray-900 uppercase'>
+                  <div className="grid grid-cols-3 gap-4">
+                     <div className="flex items-center justify-center gap-2 rounded-xl border border-gray-200 bg-gray-50 p-4">
+                        <span className="text-sm text-gray-600">Status:</span>
+                        <span className="text-sm font-semibold text-gray-900 uppercase">
                            {comiss.status}
                         </span>
                      </div>
-                     <div className='flex items-center justify-center gap-2 p-4 bg-gray-50 rounded-xl border border-gray-200'>
-                        <span className='text-sm text-gray-600'>Módulo:</span>
-                        <span className='text-sm font-semibold text-gray-900 uppercase'>
+                     <div className="flex items-center justify-center gap-2 rounded-xl border border-gray-200 bg-gray-50 p-4">
+                        <span className="text-sm text-gray-600">Módulo:</span>
+                        <span className="text-sm font-semibold text-gray-900 uppercase">
                            {comiss.modulo ? "Sim" : "Não"}
                         </span>
                      </div>
-                     <div className='flex items-center justify-center gap-2 p-4 bg-gray-50 rounded-xl border border-gray-200'>
-                        <span className='text-sm text-gray-600'>
+                     <div className="flex items-center justify-center gap-2 rounded-xl border border-gray-200 bg-gray-50 p-4">
+                        <span className="text-sm text-gray-600">
                            Dependente:
                         </span>
-                        <span className='text-sm font-semibold text-gray-900 uppercase'>
+                        <span className="text-sm font-semibold text-gray-900 uppercase">
                            {comiss.dep ? "Sim" : "Não"}
                         </span>
                      </div>
@@ -761,130 +771,130 @@ export function DetailComiss({
                </PermBased>
 
                {/* Métricas */}
-               <div className='space-y-4 p-6 bg-gradient-to-r from-gray-50 to-slate-50 rounded-xl border border-gray-200'>
+               <div className="space-y-4 rounded-xl border border-gray-200 bg-gradient-to-r from-gray-50 to-slate-50 p-6">
                   {/* Dica para comissionamento comparativo */}
                   {!comiss.dias_cumprir && (
-                     <div className='flex items-center gap-2 p-2 bg-blue-50 border border-blue-200 rounded-lg text-xs text-blue-800'>
-                        <IoMdInformationCircleOutline className='text-blue-600 size-4 shrink-0' />
+                     <div className="flex items-center gap-2 rounded-lg border border-blue-200 bg-blue-50 p-2 text-xs text-blue-800">
+                        <IoMdInformationCircleOutline className="size-4 shrink-0 text-blue-600" />
                         <span>Cálculo baseado na menor diária (R$ 335,00)</span>
                      </div>
                   )}
 
-                  <div className='grid grid-cols-3 gap-4'>
-                     <div className='text-center'>
+                  <div className="grid grid-cols-3 gap-4">
+                     <div className="text-center">
                         {!comiss.dias_cumprir ? (
                            <Popover
                               content={
-                                 <div className='p-3 max-w-xs'>
-                                    <p className='text-sm font-semibold text-gray-900 mb-2'>
+                                 <div className="max-w-xs p-3">
+                                    <p className="mb-2 text-sm font-semibold text-gray-900">
                                        Valor Previsto
                                     </p>
-                                    <div className='space-y-1 text-sm text-gray-700'>
+                                    <div className="space-y-1 text-sm text-gray-700">
                                        <p>
-                                          <span className='font-medium'>
+                                          <span className="font-medium">
                                              Valor:
                                           </span>{" "}
                                           {realCurrency(ajd_ab + ajd_fc)}
                                        </p>
                                        <p>
-                                          <span className='font-medium'>
+                                          <span className="font-medium">
                                              Equivalente:
                                           </span>{" "}
                                           ~
                                           {((ajd_ab + ajd_fc) / 335).toFixed(1)}{" "}
                                           dias
                                        </p>
-                                       <p className='text-xs text-gray-500 mt-2'>
+                                       <p className="mt-2 text-xs text-gray-500">
                                           (baseado em R$ 335,00 por diária)
                                        </p>
                                     </div>
                                  </div>
                               }
-                              trigger='hover'
+                              trigger="hover"
                            >
-                              <div className='font-bold text-gray-900 cursor-help'>
+                              <div className="cursor-help font-bold text-gray-900">
                                  {realCurrency(ajd_ab + ajd_fc)}
-                                 <div className='text-xs font-normal text-gray-500'>
+                                 <div className="text-xs font-normal text-gray-500">
                                     ~{((ajd_ab + ajd_fc) / 335).toFixed(1)} dias
                                  </div>
                               </div>
                            </Popover>
                         ) : (
-                           <div className='font-bold text-gray-900'>
+                           <div className="font-bold text-gray-900">
                               <span>
                                  {comiss.dias_cumprir}
-                                 <span className='text-sm font-normal text-gray-500 ml-1'>
+                                 <span className="ml-1 text-sm font-normal text-gray-500">
                                     dias
                                  </span>
                               </span>
                            </div>
                         )}
-                        <div className='text-xs text-gray-500 uppercase tracking-wide mt-1'>
+                        <div className="mt-1 text-xs tracking-wide text-gray-500 uppercase">
                            Previsto
                         </div>
                      </div>
-                     <div className='text-center'>
+                     <div className="text-center">
                         {!comiss.dias_cumprir ? (
                            <Popover
                               content={
-                                 <div className='p-3 max-w-xs'>
-                                    <p className='text-sm font-semibold text-gray-900 mb-2'>
+                                 <div className="max-w-xs p-3">
+                                    <p className="mb-2 text-sm font-semibold text-gray-900">
                                        Valor Computado
                                     </p>
-                                    <div className='space-y-1 text-sm text-gray-700'>
+                                    <div className="space-y-1 text-sm text-gray-700">
                                        <p>
-                                          <span className='font-medium'>
+                                          <span className="font-medium">
                                              Valor:
                                           </span>{" "}
                                           {realCurrency(comiss.vals_comp)}
                                        </p>
                                        <p>
-                                          <span className='font-medium'>
+                                          <span className="font-medium">
                                              Equivalente:
                                           </span>{" "}
                                           ~{(comiss.vals_comp / 335).toFixed(1)}{" "}
                                           dias
                                        </p>
-                                       <p className='text-xs text-gray-500 mt-2'>
+                                       <p className="mt-2 text-xs text-gray-500">
                                           (baseado em R$ 335,00 por diária)
                                        </p>
                                     </div>
                                  </div>
                               }
-                              trigger='hover'
+                              trigger="hover"
                            >
-                              <div className='font-bold text-gray-900 cursor-help'>
+                              <div className="cursor-help font-bold text-gray-900">
                                  {realCurrency(comiss.vals_comp)}
-                                 <div className='text-xs font-normal text-gray-500'>
+                                 <div className="text-xs font-normal text-gray-500">
                                     ~{(comiss.vals_comp / 335).toFixed(1)} dias
                                  </div>
                               </div>
                            </Popover>
                         ) : (
-                           <div className='font-bold text-gray-900'>
+                           <div className="font-bold text-gray-900">
                               <span>
                                  {comiss.dias_comp}
-                                 <span className='text-sm font-normal text-gray-500 ml-1'>
+                                 <span className="ml-1 text-sm font-normal text-gray-500">
                                     dias
                                  </span>
                               </span>
                            </div>
                         )}
-                        <div className='text-xs text-gray-500 uppercase tracking-wide mt-1'>
+                        <div className="mt-1 text-xs tracking-wide text-gray-500 uppercase">
                            Computado
                         </div>
                      </div>
-                     <div className='text-center'>
+                     <div className="text-center">
                         {!comiss.dias_cumprir ? (
                            <Popover
                               content={
-                                 <div className='p-3 max-w-xs'>
-                                    <p className='text-sm font-semibold text-gray-900 mb-2'>
+                                 <div className="max-w-xs p-3">
+                                    <p className="mb-2 text-sm font-semibold text-gray-900">
                                        Valor Restante
                                     </p>
-                                    <div className='space-y-1 text-sm text-gray-700'>
+                                    <div className="space-y-1 text-sm text-gray-700">
                                        <p>
-                                          <span className='font-medium'>
+                                          <span className="font-medium">
                                              Valor:
                                           </span>{" "}
                                           {realCurrency(
@@ -892,7 +902,7 @@ export function DetailComiss({
                                           )}
                                        </p>
                                        <p>
-                                          <span className='font-medium'>
+                                          <span className="font-medium">
                                              Equivalente:
                                           </span>{" "}
                                           ~
@@ -904,19 +914,19 @@ export function DetailComiss({
                                           ).toFixed(1)}{" "}
                                           dias
                                        </p>
-                                       <p className='text-xs text-gray-500 mt-2'>
+                                       <p className="mt-2 text-xs text-gray-500">
                                           (baseado em R$ 335,00 por diária)
                                        </p>
                                     </div>
                                  </div>
                               }
-                              trigger='hover'
+                              trigger="hover"
                            >
-                              <div className='font-bold text-gray-900 cursor-help'>
+                              <div className="cursor-help font-bold text-gray-900">
                                  {realCurrency(
                                     ajd_ab + ajd_fc - comiss.vals_comp
                                  )}
-                                 <div className='text-xs font-normal text-gray-500'>
+                                 <div className="text-xs font-normal text-gray-500">
                                     ~
                                     {(
                                        (ajd_ab + ajd_fc - comiss.vals_comp) /
@@ -927,49 +937,49 @@ export function DetailComiss({
                               </div>
                            </Popover>
                         ) : (
-                           <div className='font-bold text-gray-900'>
+                           <div className="font-bold text-gray-900">
                               <span>
                                  {comiss.dias_cumprir - comiss.dias_comp}
-                                 <span className='text-sm font-normal text-gray-500 ml-1'>
+                                 <span className="ml-1 text-sm font-normal text-gray-500">
                                     dias
                                  </span>
                               </span>
                            </div>
                         )}
-                        <div className='text-xs text-gray-500 uppercase tracking-wide mt-1'>
+                        <div className="mt-1 text-xs tracking-wide text-gray-500 uppercase">
                            Restante
                         </div>
                      </div>
                   </div>
 
                   {/* Progress Bar */}
-                  <div className='space-y-2'>
-                     <div className='flex justify-between text-sm'>
-                        <span className='text-gray-600'>Progresso</span>
-                        <span className='font-semibold text-gray-900'>
+                  <div className="space-y-2">
+                     <div className="flex justify-between text-sm">
+                        <span className="text-gray-600">Progresso</span>
+                        <span className="font-semibold text-gray-900">
                            {`${comiss.completude}%`}
                         </span>
                      </div>
                      <Progress
                         progress={comiss.completude}
-                        size='lg'
+                        size="lg"
                         color={comiss.modulo ? "green" : "red"}
                      />
                   </div>
                </div>
 
                {/* Missões */}
-               <div className='space-y-3'>
-                  <h4 className='text-sm font-semibold text-gray-700 uppercase tracking-wide'>
+               <div className="space-y-3">
+                  <h4 className="text-sm font-semibold tracking-wide text-gray-700 uppercase">
                      Missões Relacionadas
                   </h4>
-                  <div className='bg-white rounded-xl border border-gray-200 overflow-hidden'>
+                  <div className="overflow-hidden rounded-xl border border-gray-200 bg-white">
                      {loadingDetail ? (
-                        <div className='p-8 flex justify-center'>
-                           <Spinner size='md' />
+                        <div className="flex justify-center p-8">
+                           <Spinner size="md" />
                         </div>
                      ) : detail?.missoes && detail.missoes.length > 0 ? (
-                        <div className='divide-y divide-gray-100'>
+                        <div className="divide-y divide-gray-100">
                            {detail.missoes.map((m) => (
                               <MissionRow
                                  key={m.id}
@@ -979,34 +989,34 @@ export function DetailComiss({
                            ))}
                         </div>
                      ) : (
-                        <div className='p-8 text-center text-sm text-gray-500'>
+                        <div className="p-8 text-center text-sm text-gray-500">
                            Nenhuma missão adicionada
                         </div>
                      )}
                   </div>
                </div>
             </ModalBody>
-            <ModalFooter className='border-t border-gray-200'>
+            <ModalFooter className="border-t border-gray-200">
                <RoleBasedRoute requiredRoles={["apoio_avancado"]}>
-                  <div className='flex justify-center items-center w-full gap-3'>
+                  <div className="flex w-full items-center justify-center gap-3">
                      <Button
-                        color='blue'
+                        color="blue"
                         onClick={() => setIsEditMode(true)}
                         disabled={isDeleting}
-                        className='transition-all duration-200 hover:shadow-md hover:scale-105 active:scale-95'
+                        className="transition-all duration-200 hover:scale-105 hover:shadow-md active:scale-95"
                      >
-                        <div className='flex items-center gap-2'>
+                        <div className="flex items-center gap-2">
                            <MdOutlineEdit size={18} />
                            <span>Editar</span>
                         </div>
                      </Button>
                      <Button
-                        color='red'
+                        color="red"
                         onClick={() => setShowDeleteModal(true)}
                         disabled={isDeleting}
-                        className='transition-all duration-200 hover:shadow-md hover:scale-105 active:scale-95'
+                        className="transition-all duration-200 hover:scale-105 hover:shadow-md active:scale-95"
                      >
-                        <div className='flex items-center gap-2'>
+                        <div className="flex items-center gap-2">
                            <MdDeleteOutline size={18} />
                            <span>Excluir</span>
                         </div>
@@ -1019,77 +1029,77 @@ export function DetailComiss({
          {/* Modal de Confirmação de Exclusão */}
          <Modal
             show={showDeleteModal}
-            size='md'
+            size="md"
             onClose={() => !isDeleting && setShowDeleteModal(false)}
             popup
          >
             <ModalHeader />
             <ModalBody>
-               <div className='text-center px-4 py-2'>
-                  <div className='mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-red-100'>
-                     <MdDeleteOutline className='h-9 w-9 text-red-600' />
+               <div className="px-4 py-2 text-center">
+                  <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-red-100">
+                     <MdDeleteOutline className="h-9 w-9 text-red-600" />
                   </div>
 
-                  <h3 className='mb-2 text-xl font-semibold text-gray-900'>
+                  <h3 className="mb-2 text-xl font-semibold text-gray-900">
                      Excluir Comissionamento
                   </h3>
 
-                  <div className='mb-6 space-y-3'>
-                     <p className='text-base text-gray-600'>
+                  <div className="mb-6 space-y-3">
+                     <p className="text-base text-gray-600">
                         Você está prestes a excluir o comissionamento de:
                      </p>
-                     <div className='bg-gray-50 rounded-lg p-4 border border-gray-200'>
-                        <p className='text-lg font-bold text-gray-900 uppercase'>
+                     <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
+                        <p className="text-lg font-bold text-gray-900 uppercase">
                            {comiss.user.posto.mid} {comiss.user.esp}{" "}
                            {comiss.user.nome_guerra}
                         </p>
-                        <p className='text-sm text-gray-600 capitalize mt-1'>
+                        <p className="mt-1 text-sm text-gray-600 capitalize">
                            {comiss.user.nome_completo}
                         </p>
                      </div>
-                     <div className='flex items-center justify-center gap-2 text-sm text-red-600 font-medium'>
+                     <div className="flex items-center justify-center gap-2 text-sm font-medium text-red-600">
                         <svg
-                           className='w-5 h-5'
-                           fill='currentColor'
-                           viewBox='0 0 20 20'
+                           className="h-5 w-5"
+                           fill="currentColor"
+                           viewBox="0 0 20 20"
                         >
                            <path
-                              fillRule='evenodd'
-                              d='M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z'
-                              clipRule='evenodd'
+                              fillRule="evenodd"
+                              d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                              clipRule="evenodd"
                            />
                         </svg>
                         Esta ação não pode ser desfeita
                      </div>
                   </div>
 
-                  <div className='flex justify-center gap-3'>
+                  <div className="flex justify-center gap-3">
                      <Button
-                        color='red'
+                        color="red"
                         onClick={handleDelete}
                         disabled={isDeleting}
-                        className='px-6'
+                        className="px-6"
                      >
                         {isDeleting ? (
-                           <div className='flex items-center gap-2'>
+                           <div className="flex items-center gap-2">
                               <svg
-                                 className='animate-spin h-4 w-4'
-                                 xmlns='http://www.w3.org/2000/svg'
-                                 fill='none'
-                                 viewBox='0 0 24 24'
+                                 className="h-4 w-4 animate-spin"
+                                 xmlns="http://www.w3.org/2000/svg"
+                                 fill="none"
+                                 viewBox="0 0 24 24"
                               >
                                  <circle
-                                    className='opacity-25'
-                                    cx='12'
-                                    cy='12'
-                                    r='10'
-                                    stroke='currentColor'
-                                    strokeWidth='4'
+                                    className="opacity-25"
+                                    cx="12"
+                                    cy="12"
+                                    r="10"
+                                    stroke="currentColor"
+                                    strokeWidth="4"
                                  ></circle>
                                  <path
-                                    className='opacity-75'
-                                    fill='currentColor'
-                                    d='M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z'
+                                    className="opacity-75"
+                                    fill="currentColor"
+                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                                  ></path>
                               </svg>
                               <span>Excluindo...</span>
@@ -1099,10 +1109,10 @@ export function DetailComiss({
                         )}
                      </Button>
                      <Button
-                        color='gray'
+                        color="gray"
                         onClick={() => setShowDeleteModal(false)}
                         disabled={isDeleting}
-                        className='px-6'
+                        className="px-6"
                      >
                         Cancelar
                      </Button>
@@ -1127,27 +1137,27 @@ function MissionRow({ mis, diasPrev }) {
    });
 
    return (
-      <div className='flex items-center gap-4 p-4 hover:bg-gray-50 transition-colors duration-200'>
-         <div className='w-20 shrink-0'>
-            <span className='text-sm font-semibold text-gray-900 uppercase'>
+      <div className="flex items-center gap-4 p-4 transition-colors duration-200 hover:bg-gray-50">
+         <div className="w-20 shrink-0">
+            <span className="text-sm font-semibold text-gray-900 uppercase">
                {mis.tipo_doc} {String(mis.n_doc).padStart(3, "0")}
             </span>
          </div>
-         <div className='flex-1 min-w-0'>
-            <span className='text-sm text-gray-700 uppercase truncate block'>
+         <div className="min-w-0 flex-1">
+            <span className="block truncate text-sm text-gray-700 uppercase">
                {mis.desc}
             </span>
          </div>
-         <div className='grid sm:flex gap-2 shrink-0'>
-            <span className='text-sm font-mono text-gray-600 bg-emerald-50 px-2 py-1 rounded'>
+         <div className="grid shrink-0 gap-2 sm:flex">
+            <span className="rounded bg-emerald-50 px-2 py-1 font-mono text-sm text-gray-600">
                {ini}
             </span>
-            <span className='text-sm font-mono text-gray-600 bg-orange-50 px-2 py-1 rounded'>
+            <span className="rounded bg-orange-50 px-2 py-1 font-mono text-sm text-gray-600">
                {fim}
             </span>
          </div>
-         <div className='w-24 text-right shrink-0'>
-            <span className='text-sm font-semibold text-gray-900'>
+         <div className="w-24 shrink-0 text-right">
+            <span className="text-sm font-semibold text-gray-900">
                {diasPrev
                   ? `${mis.dias} dia${mis.dias > 1 ? "s" : ""}`
                   : realCurrency(mis.valor_total)}
@@ -1163,9 +1173,9 @@ function MissionRow({ mis, diasPrev }) {
             }
          >
             <Button
-               size='sm'
-               color='light'
-               className='shrink-0 hover:bg-gray-100 transition-colors duration-200'
+               size="sm"
+               color="light"
+               className="shrink-0 transition-colors duration-200 hover:bg-gray-100"
             >
                <IoMdInformationCircleOutline size={18} />
             </Button>

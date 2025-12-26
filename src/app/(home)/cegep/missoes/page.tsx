@@ -16,33 +16,33 @@ export default function MissPage() {
 
    return (
       <EtiquetasProvider>
-         <div className='min-h-screen bg-gray-50'>
-            <div className='mx-auto p-1'>
+         <div className="min-h-screen bg-gray-50">
+            <div className="mx-auto p-1">
                {/* Header Section */}
-               <div className='mb-4'>
-                  <div className='bg-white rounded-2xl shadow-xl p-4 border border-red-100'>
-                     <h1 className='text-2xl font-bold text-red-600 mb-1'>
+               <div className="mb-4">
+                  <div className="rounded-2xl border border-red-100 bg-white p-4 shadow-xl">
+                     <h1 className="mb-1 text-2xl font-bold text-red-600">
                         Gestão de Missões
                      </h1>
-                     <p className='text-gray-600'>
+                     <p className="text-gray-600">
                         Controle completo de registros e pagamentos de missões
                      </p>
                   </div>
                </div>
 
                {/* Tabs Section */}
-               <div className='bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden'>
+               <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-xl">
                   <Tabs
-                     aria-label='Tabs de missões'
+                     aria-label="Tabs de missões"
                      onActiveTabChange={setActiveTab}
-                     className='tabs-container'
+                     className="tabs-container"
                   >
                      <TabItem
                         active={activeTab === 0}
-                        title='Registros'
+                        title="Registros"
                         icon={IoMdPaper}
                      >
-                        <div className='animate-fadeIn'>
+                        <div className="animate-fadeIn">
                            <RegisterProvider>
                               <RegisPage />
                            </RegisterProvider>
@@ -51,10 +51,10 @@ export default function MissPage() {
 
                      <TabItem
                         active={activeTab === 1}
-                        title='Pagamentos'
+                        title="Pagamentos"
                         icon={MdOutlineAttachMoney}
                      >
-                        <div className='animate-fadeIn'>
+                        <div className="animate-fadeIn">
                            <FilterProvider>
                               <FilterPage active={activeTab === 1} />
                            </FilterProvider>
@@ -63,10 +63,10 @@ export default function MissPage() {
 
                      <TabItem
                         active={activeTab === 2}
-                        title='Configurações'
+                        title="Configurações"
                         icon={IoMdSettings}
                      >
-                        <div className='animate-fadeIn'>
+                        <div className="animate-fadeIn">
                            <ConfigPage />
                         </div>
                      </TabItem>
@@ -122,4 +122,3 @@ export default function MissPage() {
       </EtiquetasProvider>
    );
 }
-

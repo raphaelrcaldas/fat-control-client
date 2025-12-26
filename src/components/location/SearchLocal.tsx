@@ -68,7 +68,7 @@ export function SearchLocal({ show, setShow, setLocal }: SearchLocalProps) {
       <Modal size="xl" show={show} onClose={onClose} dismissible>
          <ModalHeader className="border-b border-gray-200 pb-4">
             <div className="flex items-center gap-2">
-               <MdLocationCity className="text-blue-600 size-6" />
+               <MdLocationCity className="size-6 text-blue-600" />
                <span className="text-xl font-semibold text-gray-800">
                   Buscar Cidade
                </span>
@@ -126,37 +126,37 @@ export function SearchLocal({ show, setShow, setLocal }: SearchLocalProps) {
                </div>
 
                {/* Results Section */}
-               <div className="flex flex-col rounded-xl border border-gray-200 bg-gradient-to-br from-slate-50 to-gray-50 shadow-sm overflow-hidden">
+               <div className="flex flex-col overflow-hidden rounded-xl border border-gray-200 bg-gradient-to-br from-slate-50 to-gray-50 shadow-sm">
                   {isLoading ? (
-                     <div className="flex flex-col items-center justify-center py-16 px-4">
+                     <div className="flex flex-col items-center justify-center px-4 py-16">
                         <Spinner size="xl" />
-                        <p className="text-gray-600 font-medium">
+                        <p className="font-medium text-gray-600">
                            Procurando cidades...
                         </p>
-                        <p className="text-gray-400 text-sm mt-1">
+                        <p className="mt-1 text-sm text-gray-400">
                            Isso pode levar alguns segundos
                         </p>
                      </div>
                   ) : cities.length === 0 ? (
-                     <div className="flex flex-col items-center justify-center py-16 px-4">
-                        <div className="bg-gray-100 rounded-full p-4 mb-4">
+                     <div className="flex flex-col items-center justify-center px-4 py-16">
+                        <div className="mb-4 rounded-full bg-gray-100 p-4">
                            <FaMapMarkerAlt className="size-12 text-gray-400" />
                         </div>
                         {hasSearched ? (
                            <>
-                              <p className="text-gray-700 font-semibold text-lg">
+                              <p className="text-lg font-semibold text-gray-700">
                                  Nenhuma cidade encontrada
                               </p>
-                              <p className="text-gray-500 text-sm mt-2 text-center max-w-xs">
+                              <p className="mt-2 max-w-xs text-center text-sm text-gray-500">
                                  Tente buscar novamente com um nome diferente
                               </p>
                            </>
                         ) : (
                            <>
-                              <p className="text-gray-700 font-semibold text-lg">
+                              <p className="text-lg font-semibold text-gray-700">
                                  Pronto para buscar
                               </p>
-                              <p className="text-gray-500 text-sm mt-2 text-center max-w-xs">
+                              <p className="mt-2 max-w-xs text-center text-sm text-gray-500">
                                  Digite o nome de uma cidade e clique em buscar
                               </p>
                            </>
@@ -170,84 +170,61 @@ export function SearchLocal({ show, setShow, setLocal }: SearchLocalProps) {
                               return (
                                  <div
                                     key={index}
-                                    className={`
-                                       flex flex-row items-center gap-4 p-4
-                                       transition-all duration-200 cursor-pointer
-                                       ${
-                                          isHovered
-                                             ? "bg-blue-50 shadow-sm"
-                                             : "bg-white hover:bg-gray-50"
-                                       }
-                                    `}
+                                    className={`flex cursor-pointer flex-row items-center gap-4 p-4 transition-all duration-200 ${
+                                       isHovered
+                                          ? "bg-blue-50 shadow-sm"
+                                          : "bg-white hover:bg-gray-50"
+                                    } `}
                                     onClick={() => onSetLocal(citie)}
                                     onMouseEnter={() => setHoveredIndex(index)}
                                     onMouseLeave={() => setHoveredIndex(null)}
                                  >
                                     <div
-                                       className={`
-                                       flex-shrink-0 transition-all duration-200
-                                       ${isHovered ? "scale-110" : "scale-100"}
-                                    `}
+                                       className={`shrink-0 transition-all duration-200 ${isHovered ? "scale-110" : "scale-100"} `}
                                     >
                                        <FaCheckCircle
-                                          className={`
-                                             size-6 transition-colors duration-200
-                                             ${
-                                                isHovered
-                                                   ? "text-blue-600"
-                                                   : "text-gray-300"
-                                             }
-                                          `}
+                                          className={`size-6 transition-colors duration-200 ${
+                                             isHovered
+                                                ? "text-blue-600"
+                                                : "text-gray-300"
+                                          } `}
                                        />
                                     </div>
                                     <div className="flex-1">
                                        <div className="flex items-center gap-2">
                                           <FaMapMarkerAlt
-                                             className={`
-                                                size-4 transition-colors duration-200
-                                                ${
-                                                   isHovered
-                                                      ? "text-blue-500"
-                                                      : "text-gray-400"
-                                                }
-                                             `}
+                                             className={`size-4 transition-colors duration-200 ${
+                                                isHovered
+                                                   ? "text-blue-500"
+                                                   : "text-gray-400"
+                                             } `}
                                           />
                                           <span
-                                             className={`
-                                             text-base transition-all duration-200
-                                             ${
+                                             className={`text-base transition-all duration-200 ${
                                                 isHovered
                                                    ? "font-semibold text-gray-900"
                                                    : "font-medium text-gray-700"
-                                             }
-                                          `}
+                                             } `}
                                           >
                                              {citie.nome}
                                           </span>
                                           <span
-                                             className={`
-                                             px-2 py-0.5 rounded-full text-xs font-medium
-                                             transition-all duration-200
-                                             ${
+                                             className={`rounded-full px-2 py-0.5 text-xs font-medium transition-all duration-200 ${
                                                 isHovered
                                                    ? "bg-blue-600 text-white"
                                                    : "bg-gray-200 text-gray-600"
-                                             }
-                                          `}
+                                             } `}
                                           >
                                              {citie.uf}
                                           </span>
                                        </div>
                                     </div>
                                     <div
-                                       className={`
-                                       text-sm transition-all duration-200
-                                       ${
+                                       className={`text-sm transition-all duration-200 ${
                                           isHovered
-                                             ? "text-blue-600 font-medium opacity-100"
+                                             ? "font-medium text-blue-600 opacity-100"
                                              : "text-gray-400 opacity-0"
-                                       }
-                                    `}
+                                       } `}
                                     >
                                        Selecionar →
                                     </div>

@@ -27,7 +27,7 @@ export const CardMission = memo(function CardMission({
    setShowForm: Dispatch<SetStateAction<boolean>>;
 }) {
    const [showDetail, setShowDetail] = useState(false);
-   
+
    // Etiquetas vêm diretamente da missão (objetos completos da API)
    const etiquetas = missao.etiquetas || [];
 
@@ -57,18 +57,18 @@ export const CardMission = memo(function CardMission({
 
    return (
       <>
-         <div className='relative bg-white p-5 shadow-lg rounded-2xl w-full border-2 border-gray-100'>
+         <div className="relative w-full rounded-2xl border-2 border-gray-100 bg-white p-5 shadow-lg">
             {/* Etiquetas no topo do card (somente exibição) */}
             {etiquetas.length > 0 && (
-               <div className='flex flex-wrap items-center gap-1.5 mb-3 pb-3 border-b border-gray-100'>
-                  {etiquetas.map(etiqueta => (
+               <div className="mb-3 flex flex-wrap items-center gap-1.5 border-b border-gray-100 pb-3">
+                  {etiquetas.map((etiqueta) => (
                      <span
                         key={etiqueta.id}
-                        className='inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium rounded-full text-white'
+                        className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium text-white"
                         style={{ backgroundColor: etiqueta.cor }}
                         title={etiqueta.descricao}
                      >
-                        <HiTag className='w-2.5 h-2.5' />
+                        <HiTag className="h-2.5 w-2.5" />
                         {etiqueta.nome}
                      </span>
                   ))}
@@ -76,22 +76,22 @@ export const CardMission = memo(function CardMission({
             )}
 
             {/* Header com documento */}
-            <div className='flex items-center justify-between mb-4'>
-               <div className='flex items-center gap-3'>
+            <div className="mb-4 flex items-center justify-between">
+               <div className="flex items-center gap-3">
                   <div
-                     className={clsx("p-2 rounded-lg shadow-md", {
+                     className={clsx("rounded-lg p-2 shadow-md", {
                         "bg-blue-600": missao.tipo_doc == "om",
                         "bg-orange-600": missao.tipo_doc == "os",
                      })}
                   >
-                     <HiDocumentText className='text-white text-xl' />
+                     <HiDocumentText className="text-xl text-white" />
                   </div>
                   <div>
-                     <h3 className='text-lg font-bold text-gray-800 uppercase'>
+                     <h3 className="text-lg font-bold text-gray-800 uppercase">
                         {missao.tipo_doc} {missao.n_doc}
                      </h3>
                      {missao.desc && (
-                        <p className='text-sm text-gray-600 font-medium uppercase'>
+                        <p className="text-sm font-medium text-gray-600 uppercase">
                            {missao.desc}
                         </p>
                      )}
@@ -100,22 +100,22 @@ export const CardMission = memo(function CardMission({
 
                <button
                   onClick={onClone}
-                  title='Clonar missão'
-                  className='p-2 hover:bg-gray-100 rounded-lg transition-colors'
+                  title="Clonar missão"
+                  className="rounded-lg p-2 transition-colors hover:bg-gray-100"
                >
-                  <FaRegClone className='text-gray-600 text-lg' />
+                  <FaRegClone className="text-lg text-gray-600" />
                </button>
             </div>
 
             <div
-               className='flex flex-col gap-4 h-full cursor-pointer'
+               className="flex h-full cursor-pointer flex-col gap-4"
                onClick={() => setShowDetail(true)}
             >
                {/* Observações */}
                {missao.obs && (
                   <div
                      className={clsx(
-                        "flex items-start gap-2 p-3 rounded-lg border",
+                        "flex items-start gap-2 rounded-lg border p-3",
                         {
                            "border-blue-200 bg-blue-50":
                               missao.tipo_doc == "om",
@@ -125,41 +125,41 @@ export const CardMission = memo(function CardMission({
                      )}
                   >
                      <MdDescription
-                        className={clsx("text-lg mt-0.5 flex-shrink-0", {
+                        className={clsx("mt-0.5 shrink-0 text-lg", {
                            "text-blue-600": missao.tipo_doc == "om",
                            "text-orange-600": missao.tipo_doc == "os",
                         })}
                      />
-                     <p className='text-sm text-gray-700 uppercase'>
+                     <p className="text-sm text-gray-700 uppercase">
                         {missao.obs}
                      </p>
                   </div>
                )}
 
                {/* Datas de afastamento e regresso */}
-               <div className='flex flex-col gap-2'>
-                  <div className='flex items-center justify-between p-2 bg-white rounded-xl border-2 border-gray-200 shadow-sm'>
-                     <div className='flex items-center gap-3'>
-                        <div className='flex flex-col'>
-                           <span className='text-xs text-gray-500 font-medium uppercase'>
+               <div className="flex flex-col gap-2">
+                  <div className="flex items-center justify-between rounded-xl border-2 border-gray-200 bg-white p-2 shadow-sm">
+                     <div className="flex items-center gap-3">
+                        <div className="flex flex-col">
+                           <span className="text-xs font-medium text-gray-500 uppercase">
                               Afastamento
                            </span>
-                           <span className='font-semibold text-gray-800 text-sm'>
+                           <span className="text-sm font-semibold text-gray-800">
                               {ini}
                            </span>
                         </div>
                      </div>
 
-                     <div className='flex items-center gap-2'>
-                        <span className='text-gray-400 text-xl'>→</span>
+                     <div className="flex items-center gap-2">
+                        <span className="text-xl text-gray-400">→</span>
                      </div>
 
-                     <div className='flex items-center gap-3'>
-                        <div className='flex flex-col items-end'>
-                           <span className='text-xs text-gray-500 font-medium uppercase'>
+                     <div className="flex items-center gap-3">
+                        <div className="flex flex-col items-end">
+                           <span className="text-xs font-medium text-gray-500 uppercase">
                               Regresso
                            </span>
-                           <span className='font-semibold text-gray-800 text-sm'>
+                           <span className="text-sm font-semibold text-gray-800">
                               {fim}
                            </span>
                         </div>
@@ -169,7 +169,7 @@ export const CardMission = memo(function CardMission({
 
                {/* Pernoites */}
                {missao.pernoites.length > 0 && (
-                  <div className='flex flex-col gap-2'>
+                  <div className="flex flex-col gap-2">
                      {missao.pernoites.map((pnt) => (
                         <PernoiteCardMis key={pnt.id} pnt={pnt} />
                      ))}
@@ -178,8 +178,8 @@ export const CardMission = memo(function CardMission({
 
                {/* Militares */}
                {missao.users.length > 0 && (
-                  <div className='space-y-2'>
-                     <div className='grid grid-cols-2 gap-2'>
+                  <div className="space-y-2">
+                     <div className="grid grid-cols-2 gap-2">
                         {missao.users.map((user) => (
                            <MissionMilitar key={user.id} userMis={user} />
                         ))}
@@ -219,33 +219,33 @@ const PernoiteCardMis = memo(function PernoiteCardMis({ pnt }: { pnt: any }) {
    );
 
    return (
-      <div className='flex items-center gap-3 p-1 rounded-lg border border-gray-200 bg-white'>
+      <div className="flex items-center gap-3 rounded-lg border border-gray-200 bg-white p-1">
          {/* Datas */}
-         <div className='flex items-center gap-2 pl-1'>
-            <div className='flex items-center gap-1.5'>
-               <span className='font-semibold text-gray-700 text-sm'>
+         <div className="flex items-center gap-2 pl-1">
+            <div className="flex items-center gap-1.5">
+               <span className="text-sm font-semibold text-gray-700">
                   {dataIni}
                </span>
-               <span className='text-gray-400 text-xs'>→</span>
-               <span className='font-semibold text-gray-700 text-sm'>
+               <span className="text-xs text-gray-400">→</span>
+               <span className="text-sm font-semibold text-gray-700">
                   {dataFim}
                </span>
             </div>
          </div>
 
          {/* Localização */}
-         <div className='flex items-center gap-1.5 flex-1'>
-            <span className='font-medium text-gray-800 text-xs uppercase'>
+         <div className="flex flex-1 items-center gap-1.5">
+            <span className="text-xs font-medium text-gray-800 uppercase">
                {pnt.cidade.nome}-{pnt.cidade.uf}
             </span>
          </div>
 
          {/* Tags */}
-         <div className='flex items-center gap-2'>
+         <div className="flex items-center gap-2">
             {pnt.acrec_desloc && (
                <span
-                  title='Acréscimo Deslocamento'
-                  className='font-semibold bg-green-500 text-white px-2.5 py-1 rounded-full text-xs shadow-sm cursor-help'
+                  title="Acréscimo Deslocamento"
+                  className="cursor-help rounded-full bg-green-500 px-2.5 py-1 text-xs font-semibold text-white shadow-sm"
                >
                   AC
                </span>
@@ -253,8 +253,8 @@ const PernoiteCardMis = memo(function PernoiteCardMis({ pnt }: { pnt: any }) {
 
             {pnt.meia_diaria && (
                <span
-                  title='Meia Diária'
-                  className='font-semibold bg-amber-500 text-white px-2.5 py-1 rounded-full text-xs shadow-sm cursor-help'
+                  title="Meia Diária"
+                  className="cursor-help rounded-full bg-amber-500 px-2.5 py-1 text-xs font-semibold text-white shadow-sm"
                >
                   MD
                </span>

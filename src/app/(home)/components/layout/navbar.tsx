@@ -16,30 +16,30 @@ export default function Navbar({
    isSidebarOpen,
 }: NavbarProps) {
    return (
-      <nav className='fixed top-0 left-0 right-0 h-16 bg-gradient-to-r from-white to-red-100 shadow-lg z-50 flex items-center justify-between px-4'>
-         <div className='flex items-center gap-3'>
+      <nav className="fixed top-0 right-0 left-0 z-50 flex h-16 items-center justify-between bg-gradient-to-r from-white to-red-100 px-4 shadow-lg">
+         <div className="flex items-center gap-3">
             {/* Botão menu */}
             <button
                onClick={onToggleSidebar}
-               className='p-2 rounded-lg hover:bg-red-100 transition-colors focus:outline-none'
+               className="rounded-lg p-2 transition-colors hover:bg-red-100 focus:outline-none"
                aria-label={isSidebarOpen ? "Fechar menu" : "Abrir menu"}
             >
                {isSidebarOpen ? (
-                  <MdClose className='w-7 h-7 text-red-600' />
+                  <MdClose className="h-7 w-7 text-red-600" />
                ) : (
-                  <HiMenuAlt1 className='w-7 h-7 text-red-600' />
+                  <HiMenuAlt1 className="h-7 w-7 text-red-600" />
                )}
             </button>
 
             {/* Logo */}
-            <div className='flex items-center gap-2'>
+            <div className="flex items-center gap-2">
                <Image
                   src={profilePic}
-                  alt='Gordo logo'
-                  className='h-10 w-8 rounded shadow-md object-cover'
+                  alt="Gordo logo"
+                  className="h-10 w-8 rounded object-cover shadow-md"
                />
-               <span className='font-bold text-gray-800 text-2xl block'>
-                  FAT<span className='text-red-600'>CONTROL</span>
+               <span className="block text-2xl font-bold text-gray-800">
+                  FAT<span className="text-red-600">CONTROL</span>
                </span>
             </div>
          </div>

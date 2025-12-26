@@ -52,13 +52,13 @@ function SeboPage() {
    }, [seboFunc, dataTrip, opIn, opOp, opAl]);
 
    return (
-      <div className='min-h-screen bg-gray-50 p-2'>
+      <div className="min-h-screen bg-gray-50 p-2">
          {/* Header Section */}
-         <div className='mb-3'>
-            <h1 className='text-3xl font-bold text-gray-800 mb-2'>
+         <div className="mb-3">
+            <h1 className="mb-2 text-3xl font-bold text-gray-800">
                Pau de Sebo
             </h1>
-            <p className='text-gray-600'>
+            <p className="text-gray-600">
                Acompanhe as horas de voo e informações dos tripulantes
             </p>
          </div>
@@ -78,9 +78,9 @@ function SeboPage() {
          />
 
          {/* Content Flex Layout */}
-         <div className='flex flex-col xl:flex-row gap-3 mt-3'>
+         <div className="mt-3 flex flex-col gap-3 xl:flex-row">
             {/* Table Section - Width auto (only necessary) */}
-            <div className='w-auto'>
+            <div className="w-auto">
                <TripTable
                   trips={arrayFunc}
                   activeRow={activeRow}
@@ -91,9 +91,9 @@ function SeboPage() {
 
             {/* Chart Section - Occupies remaining space */}
             {!isLoading && arrayFunc.length > 0 && (
-               <div className='flex-1'>
-                  <div className='bg-white rounded-xl shadow-lg p-4 sticky top-4'>
-                     <h3 className='text-lg font-semibold text-gray-800 mb-4'>
+               <div className="flex-1">
+                  <div className="sticky top-4 rounded-xl bg-white p-4 shadow-lg">
+                     <h3 className="mb-4 text-lg font-semibold text-gray-800">
                         Gráfico de Horas de Voo
                      </h3>
                      <ChartSebo
@@ -111,26 +111,26 @@ function SeboPage() {
 
          {/* Empty State */}
          {!isLoading && arrayFunc.length === 0 && (
-            <div className='mt-12 text-center'>
-               <div className='inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-200 mb-4'>
+            <div className="mt-12 text-center">
+               <div className="mb-4 inline-flex h-16 w-16 items-center justify-center rounded-full bg-gray-200">
                   <svg
-                     className='w-8 h-8 text-gray-400'
-                     fill='none'
-                     stroke='currentColor'
-                     viewBox='0 0 24 24'
+                     className="h-8 w-8 text-gray-400"
+                     fill="none"
+                     stroke="currentColor"
+                     viewBox="0 0 24 24"
                   >
                      <path
-                        strokeLinecap='round'
-                        strokeLinejoin='round'
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
                         strokeWidth={2}
-                        d='M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z'
+                        d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                      />
                   </svg>
                </div>
-               <h3 className='text-lg font-medium text-gray-900 mb-2'>
+               <h3 className="mb-2 text-lg font-medium text-gray-900">
                   Nenhum resultado encontrado
                </h3>
-               <p className='text-gray-600'>
+               <p className="text-gray-600">
                   Tente ajustar os filtros ou a busca para encontrar o que
                   precisa.
                </p>

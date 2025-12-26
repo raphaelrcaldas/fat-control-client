@@ -156,26 +156,26 @@ export function FormPernoite({
    }
 
    return (
-      <Modal size='xl' show={showFormPnt} onClose={onClose}>
-         <ModalHeader className='border-b-2 border-gray-100'>
-            <div className='flex items-center gap-2'>
-               <span className='text-xl font-bold text-gray-800'>
+      <Modal size="xl" show={showFormPnt} onClose={onClose} dismissible>
+         <ModalHeader className="border-b-2 border-gray-100">
+            <div className="flex items-center gap-2">
+               <span className="text-xl font-bold text-gray-800">
                   {pnt ? "Editar Pernoite" : "Novo Pernoite"}
                </span>
             </div>
          </ModalHeader>
-         <ModalBody className='p-6'>
+         <ModalBody className="p-6">
             {/* Informação das datas da missão */}
-            <div className='mb-4 bg-gradient-to-r from-amber-50 to-orange-50 p-4 rounded-lg border-2 border-amber-200'>
-               <h4 className='text-xs font-semibold text-amber-800 mb-2 uppercase tracking-wide'>
+            <div className="mb-4 rounded-lg border-2 border-amber-200 bg-gradient-to-r from-amber-50 to-orange-50 p-4">
+               <h4 className="mb-2 text-xs font-semibold tracking-wide text-amber-800 uppercase">
                   Período da Missão
                </h4>
-               <div className='flex items-center justify-center gap-6'>
-                  <div className='flex flex-col items-center'>
-                     <span className='text-xs text-gray-600 font-medium mb-1'>
+               <div className="flex items-center justify-center gap-6">
+                  <div className="flex flex-col items-center">
+                     <span className="mb-1 text-xs font-medium text-gray-600">
                         Afastamento
                      </span>
-                     <span className='text-base font-bold text-gray-800 bg-white px-4 py-2 rounded-md shadow-sm'>
+                     <span className="rounded-md bg-white px-4 py-2 text-base font-bold text-gray-800 shadow-sm">
                         {afast
                            ? new Date(afast).toLocaleDateString("pt-BR", {
                                 day: "2-digit",
@@ -185,26 +185,26 @@ export function FormPernoite({
                            : "Não informado"}
                      </span>
                   </div>
-                  <div className='flex items-center'>
+                  <div className="flex items-center">
                      <svg
-                        className='w-6 h-6 text-amber-600'
-                        fill='none'
-                        stroke='currentColor'
-                        viewBox='0 0 24 24'
+                        className="h-6 w-6 text-amber-600"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
                      >
                         <path
-                           strokeLinecap='round'
-                           strokeLinejoin='round'
+                           strokeLinecap="round"
+                           strokeLinejoin="round"
                            strokeWidth={2}
-                           d='M17 8l4 4m0 0l-4 4m4-4H3'
+                           d="M17 8l4 4m0 0l-4 4m4-4H3"
                         />
                      </svg>
                   </div>
-                  <div className='flex flex-col items-center'>
-                     <span className='text-xs text-gray-600 font-medium mb-1'>
+                  <div className="flex flex-col items-center">
+                     <span className="mb-1 text-xs font-medium text-gray-600">
                         Regresso
                      </span>
-                     <span className='text-base font-bold text-gray-800 bg-white px-4 py-2 rounded-md shadow-sm'>
+                     <span className="rounded-md bg-white px-4 py-2 text-base font-bold text-gray-800 shadow-sm">
                         {regres
                            ? new Date(regres).toLocaleDateString("pt-BR", {
                                 day: "2-digit",
@@ -215,28 +215,28 @@ export function FormPernoite({
                      </span>
                   </div>
                </div>
-               <p className='text-xs text-center text-amber-700 mt-3 font-medium'>
+               <p className="mt-3 text-center text-xs font-medium text-amber-700">
                   O pernoite deve estar dentro deste período
                </p>
             </div>
 
-            <form onSubmit={handleSubmit} className='flex flex-col gap-6'>
+            <form onSubmit={handleSubmit} className="flex flex-col gap-6">
                {/* Seção de Datas */}
-               <div className='bg-gradient-to-r from-blue-50 to-indigo-50 p-5 rounded-xl border border-blue-100'>
-                  <h3 className='text-sm font-semibold text-gray-700 mb-4 flex items-center gap-2'>
-                     <span className='w-6 h-6 bg-blue-500 text-white rounded-full flex items-center justify-center text-xs'>
+               <div className="rounded-xl border border-blue-100 bg-gradient-to-r from-blue-50 to-indigo-50 p-5">
+                  <h3 className="mb-4 flex items-center gap-2 text-sm font-semibold text-gray-700">
+                     <span className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-500 text-xs text-white">
                         1
                      </span>
                      Período do Pernoite
                   </h3>
-                  <div className='grid grid-cols-2 gap-4'>
-                     <div className='flex flex-col gap-2'>
-                        <label className='text-sm font-medium text-gray-700'>
+                  <div className="grid grid-cols-2 gap-4">
+                     <div className="flex flex-col gap-2">
+                        <label className="text-sm font-medium text-gray-700">
                            Data de Início
                         </label>
                         <input
-                           className='bg-white border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 block w-full p-3 transition-all'
-                           type='date'
+                           className="block w-full rounded-lg border-2 border-gray-300 bg-white p-3 text-sm text-gray-900 transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
+                           type="date"
                            value={dataIni}
                            min={afast ? afast.split("T")[0] : ""}
                            max={regres ? regres.split("T")[0] : ""}
@@ -246,13 +246,13 @@ export function FormPernoite({
                            required
                         />
                      </div>
-                     <div className='flex flex-col gap-2'>
-                        <label className='text-sm font-medium text-gray-700'>
+                     <div className="flex flex-col gap-2">
+                        <label className="text-sm font-medium text-gray-700">
                            Data de Fim
                         </label>
                         <input
-                           className='bg-white border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 block w-full p-3 transition-all'
-                           type='date'
+                           className="block w-full rounded-lg border-2 border-gray-300 bg-white p-3 text-sm text-gray-900 transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
+                           type="date"
                            value={dataFim}
                            min={afast ? afast.split("T")[0] : ""}
                            max={regres ? regres.split("T")[0] : ""}
@@ -266,41 +266,41 @@ export function FormPernoite({
                </div>
 
                {/* Seção de Localidade */}
-               <div className='bg-gradient-to-r from-purple-50 to-pink-50 p-5 rounded-xl border border-purple-100'>
-                  <h3 className='text-sm font-semibold text-gray-700 mb-4 flex items-center gap-2'>
-                     <span className='w-6 h-6 bg-purple-500 text-white rounded-full flex items-center justify-center text-xs'>
+               <div className="rounded-xl border border-purple-100 bg-gradient-to-r from-purple-50 to-pink-50 p-5">
+                  <h3 className="mb-4 flex items-center gap-2 text-sm font-semibold text-gray-700">
+                     <span className="flex h-6 w-6 items-center justify-center rounded-full bg-purple-500 text-xs text-white">
                         2
                      </span>
                      Localidade
                   </h3>
-                  <div className='flex flex-row gap-3 justify-between items-center'>
+                  <div className="flex flex-row items-center justify-between gap-3">
                      {local?.nome ? (
-                        <div className='flex-1 bg-white border-2 border-green-300 rounded-lg px-4 py-3 shadow-sm'>
-                           <div className='flex items-center gap-2'>
-                              <span className='w-2 h-2 bg-green-500 rounded-full'></span>
-                              <span className='font-semibold text-gray-800 text-base'>
+                        <div className="flex-1 rounded-lg border-2 border-green-300 bg-white px-4 py-3 shadow-sm">
+                           <div className="flex items-center gap-2">
+                              <span className="h-2 w-2 rounded-full bg-green-500"></span>
+                              <span className="text-base font-semibold text-gray-800">
                                  {local.nome}, {local.uf}
                               </span>
                            </div>
                         </div>
                      ) : (
-                        <div className='flex-1 bg-white border-2 border-red-300 rounded-lg px-4 py-3 shadow-sm'>
-                           <div className='flex items-center gap-2'>
-                              <span className='w-2 h-2 bg-red-500 rounded-full'></span>
-                              <span className='text-red-600 text-sm font-medium'>
+                        <div className="flex-1 rounded-lg border-2 border-red-300 bg-white px-4 py-3 shadow-sm">
+                           <div className="flex items-center gap-2">
+                              <span className="h-2 w-2 rounded-full bg-red-500"></span>
+                              <span className="text-sm font-medium text-red-600">
                                  Nenhuma localidade selecionada
                               </span>
                            </div>
                         </div>
                      )}
                      <Button
-                        size='lg'
+                        size="lg"
                         pill
                         onClick={() => setShowSearchLocal(true)}
-                        color='purple'
-                        className='shadow-md hover:shadow-lg transition-shadow'
+                        color="purple"
+                        className="shadow-md transition-shadow hover:shadow-lg"
                      >
-                        <IoMdSearch className='size-5' />
+                        <IoMdSearch className="size-5" />
                      </Button>
                   </div>
 
@@ -312,54 +312,54 @@ export function FormPernoite({
                </div>
 
                {/* Seção de Opções */}
-               <div className='bg-gradient-to-r from-green-50 to-emerald-50 p-5 rounded-xl border border-green-100'>
-                  <h3 className='text-sm font-semibold text-gray-700 mb-4 flex items-center gap-2'>
-                     <span className='w-6 h-6 bg-green-500 text-white rounded-full flex items-center justify-center text-xs'>
+               <div className="rounded-xl border border-green-100 bg-gradient-to-r from-green-50 to-emerald-50 p-5">
+                  <h3 className="mb-4 flex items-center gap-2 text-sm font-semibold text-gray-700">
+                     <span className="flex h-6 w-6 items-center justify-center rounded-full bg-green-500 text-xs text-white">
                         3
                      </span>
                      Opções Adicionais
                   </h3>
-                  <div className='grid grid-cols-2 gap-4'>
+                  <div className="grid grid-cols-2 gap-4">
                      <div
-                        className='bg-white p-4 rounded-lg border-2 border-gray-200 hover:border-green-300 transition-colors cursor-pointer'
+                        className="cursor-pointer rounded-lg border-2 border-gray-200 bg-white p-4 transition-colors hover:border-green-300"
                         onClick={() => setAcDesloc(!acDesloc)}
                      >
-                        <div className='flex items-center justify-between'>
-                           <div className='flex flex-col'>
-                              <label className='text-sm font-semibold text-gray-800 cursor-pointer'>
+                        <div className="flex items-center justify-between">
+                           <div className="flex flex-col">
+                              <label className="cursor-pointer text-sm font-semibold text-gray-800">
                                  Acréscimo Deslocamento
                               </label>
-                              <span className='text-xs text-gray-500'>
+                              <span className="text-xs text-gray-500">
                                  + R$ 95,00
                               </span>
                            </div>
                            <Checkbox
                               checked={acDesloc}
-                              color='green'
+                              color="green"
                               onChange={(e) => setAcDesloc(e.target.checked)}
-                              className='size-6'
+                              className="size-6"
                            />
                         </div>
                      </div>
 
                      <div
-                        className='bg-white p-4 rounded-lg border-2 border-gray-200 hover:border-amber-300 transition-colors cursor-pointer'
+                        className="cursor-pointer rounded-lg border-2 border-gray-200 bg-white p-4 transition-colors hover:border-amber-300"
                         onClick={() => setMeiaDiaria(!meiaDiaria)}
                      >
-                        <div className='flex items-center justify-between'>
-                           <div className='flex flex-col'>
-                              <label className='text-sm font-semibold text-gray-800 cursor-pointer'>
+                        <div className="flex items-center justify-between">
+                           <div className="flex flex-col">
+                              <label className="cursor-pointer text-sm font-semibold text-gray-800">
                                  Meia Diária
                               </label>
-                              <span className='text-xs text-gray-500'>
+                              <span className="text-xs text-gray-500">
                                  50% do valor
                               </span>
                            </div>
                            <Checkbox
                               checked={meiaDiaria}
-                              color='yellow'
+                              color="yellow"
                               onChange={(e) => setMeiaDiaria(e.target.checked)}
-                              className='size-6'
+                              className="size-6"
                            />
                         </div>
                      </div>
@@ -367,12 +367,12 @@ export function FormPernoite({
                </div>
 
                {/* Botões de Ação */}
-               <div className='flex gap-3 justify-center pt-4 border-t-2 border-gray-100'>
+               <div className="flex justify-center gap-3 border-t-2 border-gray-100 pt-4">
                   <Button
-                     color='gray'
-                     className='w-32'
+                     color="gray"
+                     className="w-32"
                      onClick={onClose}
-                     type='button'
+                     type="button"
                   >
                      Cancelar
                   </Button>
@@ -380,18 +380,18 @@ export function FormPernoite({
                   {pnt && (
                      <Button
                         onClick={onDelete}
-                        className='w-32'
-                        color='red'
-                        type='button'
+                        className="w-32"
+                        color="red"
+                        type="button"
                      >
                         Excluir
                      </Button>
                   )}
 
                   <Button
-                     color='blue'
-                     className='w-32'
-                     type='submit'
+                     color="blue"
+                     className="w-32"
+                     type="submit"
                      disabled={!isChanged}
                   >
                      {pnt ? "Atualizar" : "Salvar"}

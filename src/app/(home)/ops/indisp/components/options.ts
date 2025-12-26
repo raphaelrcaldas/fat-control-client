@@ -66,5 +66,5 @@ export const indispsOptions = [
 ];
 
 export const getIndisp = (mtv: string) => {
-   return indispsOptions.find((item) => item.value == mtv);;
+   return indispsOptions.find((item) => item.value == mtv);
 };

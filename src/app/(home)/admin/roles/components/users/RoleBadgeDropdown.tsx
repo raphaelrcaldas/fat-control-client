@@ -62,24 +62,19 @@ export const RoleBadgeDropdown = memo(function RoleBadgeDropdown({
    };
 
    return (
-      <div className='relative' ref={dropdownRef}>
+      <div className="relative" ref={dropdownRef}>
          <button
-            type='button'
+            type="button"
             onClick={() => !disabled && setIsOpen(!isOpen)}
             disabled={disabled}
-            className={`
-               inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium
-               transition-colors duration-200
-               ${colors.bg} ${colors.text} ${
-               !disabled ? colors.hover : "opacity-50 cursor-not-allowed"
-            }
-               focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-blue-500
-            `}
+            className={`inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-sm font-medium transition-colors duration-200 ${colors.bg} ${colors.text} ${
+               !disabled ? colors.hover : "cursor-not-allowed opacity-50"
+            } focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 focus:outline-none`}
          >
-            <span className='uppercase'>{currentRole.name}</span>
+            <span className="uppercase">{currentRole.name}</span>
             {!disabled && (
                <FaChevronDown
-                  className={`w-3 h-3 transition-transform duration-200 ${
+                  className={`h-3 w-3 transition-transform duration-200 ${
                      isOpen ? "rotate-180" : ""
                   }`}
                />
@@ -88,16 +83,12 @@ export const RoleBadgeDropdown = memo(function RoleBadgeDropdown({
 
          {isOpen && (
             <div
-               className={`
-                  absolute z-50 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1
-                  animate-in fade-in zoom-in-95 duration-100
-                  ${openUpwards ? "bottom-full mb-2" : "top-full mt-2"}
-               `}
+               className={`animate-in fade-in zoom-in-95 absolute z-50 w-48 rounded-lg border border-gray-200 bg-white py-1 shadow-lg duration-100 ${openUpwards ? "bottom-full mb-2" : "top-full mt-2"} `}
             >
-               <div className='px-3 py-2 text-xs font-semibold text-gray-500 uppercase border-b border-gray-100'>
+               <div className="border-b border-gray-100 px-3 py-2 text-xs font-semibold text-gray-500 uppercase">
                   Selecionar Perfil
                </div>
-               <div className='py-1 max-h-64 overflow-y-auto'>
+               <div className="max-h-64 overflow-y-auto py-1">
                   {roles.map((role) => {
                      const isSelected = role.id === currentRole.id;
                      const roleColors = getRoleTheme(role.name);
@@ -105,27 +96,19 @@ export const RoleBadgeDropdown = memo(function RoleBadgeDropdown({
                      return (
                         <button
                            key={role.id}
-                           type='button'
+                           type="button"
                            onClick={() => handleRoleSelect(String(role.id))}
-                           className={`
-                              w-full text-left px-3 py-2 text-sm
-                              flex items-center justify-between gap-2
-                              transition-colors duration-150
-                              ${isSelected ? "bg-blue-50" : "hover:bg-gray-50"}
-                           `}
+                           className={`flex w-full items-center justify-between gap-2 px-3 py-2 text-left text-sm transition-colors duration-150 ${isSelected ? "bg-blue-50" : "hover:bg-gray-50"} `}
                         >
-                           <div className='flex items-center gap-2'>
+                           <div className="flex items-center gap-2">
                               <span
-                                 className={`
-                                    px-2 py-0.5 rounded-full text-xs font-medium uppercase
-                                    ${roleColors.bg} ${roleColors.text}
-                                 `}
+                                 className={`rounded-full px-2 py-0.5 text-xs font-medium uppercase ${roleColors.bg} ${roleColors.text} `}
                               >
                                  {role.name}
                               </span>
                            </div>
                            {isSelected && (
-                              <FaCheck className='w-3 h-3 text-blue-600 flex-shrink-0' />
+                              <FaCheck className="h-3 w-3 shrink-0 text-blue-600" />
                            )}
                         </button>
                      );

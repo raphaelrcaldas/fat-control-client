@@ -65,15 +65,15 @@ export function SearchUser({
    }
 
    return (
-      <Modal size='md' show={show} onClose={onClose}>
+      <Modal size="md" show={show} onClose={onClose} dismissible>
          <ModalHeader>Buscar Militar</ModalHeader>
          <ModalBody>
             <div className="space-y-3">
                <div>
-                  <div className='flex flex-row gap-2'>
+                  <div className="flex flex-row gap-2">
                      <TextInput
-                        placeholder='Insira o nome do militar'
-                        className='flex-1'
+                        placeholder="Insira o nome do militar"
+                        className="flex-1"
                         value={searchUser}
                         onChange={(e) => {
                            setSearchUser(e.target.value);
@@ -103,85 +103,103 @@ export function SearchUser({
                      <Button
                         onClick={searchUsers}
                         disabled={isLoading}
-                        color='red'
+                        color="red"
                         className="px-4"
                      >
                         {isLoading ? (
                            <Spinner size="sm" color="white" />
                         ) : (
-                           <IoMdSearch className='size-5' />
+                           <IoMdSearch className="size-5" />
                         )}
                      </Button>
                   </div>
                   {error && (
-                     <div className="mt-1 text-sm text-red-600 flex items-center gap-1">
+                     <div className="mt-1 flex items-center gap-1 text-sm text-red-600">
                         <HiExclamationCircle className="size-4" />
                         <span>{error}</span>
                      </div>
                   )}
                </div>
 
-               <div className='relative flex flex-col px-4 bg-gray-50 h-80 overflow-y-auto rounded-lg border border-gray-200 transition-all duration-300'>
+               <div className="relative flex h-80 flex-col overflow-y-auto rounded-lg border border-gray-200 bg-gray-50 px-4 transition-all duration-300">
                   {isLoading ? (
-                     <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-gray-50 animate-in fade-in duration-200">
+                     <div className="animate-in fade-in absolute inset-0 flex flex-col items-center justify-center gap-3 bg-gray-50 duration-200">
                         <Spinner size="lg" />
-                        <span className="text-gray-500 text-sm">Buscando militares...</span>
+                        <span className="text-sm text-gray-500">
+                           Buscando militares...
+                        </span>
                      </div>
                   ) : !hasSearched ? (
-                     <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 text-gray-400 animate-in fade-in duration-200">
+                     <div className="animate-in fade-in absolute inset-0 flex flex-col items-center justify-center gap-3 text-gray-400 duration-200">
                         <FaSearch className="size-12 opacity-30" />
                         <span className="text-center text-sm">
                            Digite o nome do militar e clique em buscar
                         </span>
                      </div>
                   ) : users.length === 0 ? (
-                     <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 text-gray-400 animate-in fade-in duration-200">
+                     <div className="animate-in fade-in absolute inset-0 flex flex-col items-center justify-center gap-3 text-gray-400 duration-200">
                         <HiExclamationCircle className="size-12 opacity-30" />
                         <span className="text-center text-sm">
                            Nenhum militar encontrado com esse nome
                         </span>
                      </div>
                   ) : (
-                     <div className="space-y-1 animate-in fade-in slide-in-from-top-0 duration-300">
-                        <div className="flex items-center gap-2 mb-3 text-gray-600 text-xs sticky top-0 bg-gray-50 py-2 z-10 border-b border-gray-200 -mx-4 px-4">
+                     <div className="animate-in fade-in slide-in-from-top-0 space-y-1 duration-300">
+                        <div className="sticky top-0 z-10 -mx-4 mb-3 flex items-center gap-2 border-b border-gray-200 bg-gray-50 px-4 py-2 text-xs text-gray-600">
                            <HiOutlineUserGroup className="size-4" />
-                           <span>{users.length} militar{users.length !== 1 ? "es" : ""} encontrado{users.length !== 1 ? "s" : ""}</span>
+                           <span>
+                              {users.length} militar
+                              {users.length !== 1 ? "es" : ""} encontrado
+                              {users.length !== 1 ? "s" : ""}
+                           </span>
                         </div>
                         {users.map((user, index) => {
-                           const isAlreadySelected = userIdsIgnr?.some((id) => id === user.id);
+                           const isAlreadySelected = userIdsIgnr?.some(
+                              (id) => id === user.id
+                           );
                            return (
                               <div
                                  key={user.id}
-                                 onClick={() => !isAlreadySelected && onSetUser(user)}
-                                 className={`flex flex-row p-3 gap-3 items-center border-b last:border-b-0 rounded transition-colors group animate-in fade-in slide-in-from-left-1 duration-200 ${
+                                 onClick={() =>
+                                    !isAlreadySelected && onSetUser(user)
+                                 }
+                                 className={`group animate-in fade-in slide-in-from-left-1 flex flex-row items-center gap-3 rounded border-b border-gray-200 p-3 transition-colors duration-200 last:border-b-0 ${
                                     isAlreadySelected
-                                       ? 'bg-gray-100 opacity-60 cursor-not-allowed'
-                                       : 'hover:bg-blue-50 hover:border-blue-200 cursor-pointer'
+                                       ? "cursor-not-allowed bg-gray-100 opacity-60"
+                                       : "cursor-pointer hover:border-blue-200 hover:bg-blue-50"
                                  }`}
                                  style={{ animationDelay: `${index * 30}ms` }}
                                  role="button"
                                  tabIndex={isAlreadySelected ? -1 : 0}
                                  onKeyDown={(e) => {
-                                    if (!isAlreadySelected && (e.key === "Enter" || e.key === " ")) {
+                                    if (
+                                       !isAlreadySelected &&
+                                       (e.key === "Enter" || e.key === " ")
+                                    ) {
                                        e.preventDefault();
                                        onSetUser(user);
                                     }
                                  }}
                               >
-                                 <FaCheckCircle className={`size-5 flex-shrink-0 ${
-                                    isAlreadySelected
-                                       ? 'text-gray-400'
-                                       : 'text-red-500 group-hover:text-red-700'
-                                 }`} />
-                                 <span className={`flex-1 uppercase text-sm font-medium ${
-                                    isAlreadySelected
-                                       ? 'text-gray-500'
-                                       : 'text-gray-700 group-hover:text-red-900'
-                                 }`}>
-                                    {user.posto.short} {user.esp} {user.nome_guerra}
+                                 <FaCheckCircle
+                                    className={`size-5 shrink-0 ${
+                                       isAlreadySelected
+                                          ? "text-gray-400"
+                                          : "text-red-500 group-hover:text-red-700"
+                                    }`}
+                                 />
+                                 <span
+                                    className={`flex-1 text-sm font-medium uppercase ${
+                                       isAlreadySelected
+                                          ? "text-gray-500"
+                                          : "text-gray-700 group-hover:text-red-900"
+                                    }`}
+                                 >
+                                    {user.posto.short} {user.esp}{" "}
+                                    {user.nome_guerra}
                                  </span>
                                  {isAlreadySelected && (
-                                    <span className='text-xs text-gray-500 bg-gray-200 px-2 py-1 rounded-full'>
+                                    <span className="rounded-full bg-gray-200 px-2 py-1 text-xs text-gray-500">
                                        Já cadastrado
                                     </span>
                                  )}

@@ -28,7 +28,7 @@ export function MissionMilitar({
       <>
          <div
             className={clsx(
-               "group relative flex items-center gap-3 px-2 py-1 rounded-xl border-2 transition-all duration-300 select-none shadow-sm",
+               "group relative flex items-center gap-3 rounded-xl border-2 px-2 py-1 shadow-sm transition-all duration-300 select-none",
                config.bgColor,
                config.borderColor,
                {
@@ -41,11 +41,11 @@ export function MissionMilitar({
             onClick={handleClick}
          >
             {/* Informações do militar */}
-            <div className='flex-1 flex gap-1'>
-               <div className='flex items-center gap-2'>
+            <div className="flex flex-1 gap-1">
+               <div className="flex items-center gap-2">
                   <span
                      className={clsx(
-                        "text-xs font-semibold uppercase px-2 py-0.5 rounded-md",
+                        "rounded-md px-2 py-0.5 text-xs font-semibold uppercase",
                         config.badgeColor,
                         "text-white"
                      )}
@@ -55,11 +55,11 @@ export function MissionMilitar({
                </div>
                <div
                   className={clsx(
-                     "flex font-medium items-center text-xs gap-1 uppercase",
+                     "flex items-center gap-1 text-xs font-medium uppercase",
                      config.textColor
                   )}
                >
-                  <span className='font-bold'>{userMis.p_g}</span>{" "}
+                  <span className="font-bold">{userMis.p_g}</span>{" "}
                   <span>{userMis.user.nome_guerra}</span>
                </div>
             </div>
