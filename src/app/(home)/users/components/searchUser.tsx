@@ -41,8 +41,8 @@ export function SearchUser({
       setHasSearched(true);
 
       try {
-         const data = await getUsers(searchUser);
-         setUsers(data);
+         const response = await getUsers({ search: searchUser, per_page: 10 });
+         setUsers(response.items);
       } catch (err) {
          setError("Erro ao buscar usuários. Tente novamente.");
          setUsers([]);

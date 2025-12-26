@@ -17,6 +17,22 @@ export interface UserPublic {
    ant_rel: number | null;
 }
 
+export interface PaginatedResponse<T> {
+   items: T[];
+   total: number;
+   page: number;
+   per_page: number;
+   pages: number;
+}
+
+export interface GetUsersParams {
+   search?: string;
+   p_g?: string;
+   active?: boolean;
+   page?: number;
+   per_page?: number;
+}
+
 export interface UserSchema {
    p_g: string
    esp: string
@@ -42,10 +58,19 @@ export async function getMe() {
    return (await request('GET', usersRoute + "me")).json();
 }
 
-export async function getUsers(search?: string, signal?: AbortSignal): Promise<UserPublic[]> {
-   const params = search ? { search } : undefined;
-   const response = await request("GET", usersRoute, null, params, signal);
-   return await response.json() as UserPublic[];
+export async function getUsers(
+   params?: GetUsersParams,
+   signal?: AbortSignal
+): Promise<PaginatedResponse<UserPublic>> {
+   const queryParams = params ? {
+      ...(params.search && { search: params.search }),
+      ...(params.p_g && { p_g: params.p_g }),
+      ...(params.active !== undefined && { active: params.active.toString() }),
+      ...(params.page && { page: params.page.toString() }),
+      ...(params.per_page && { per_page: params.per_page.toString() }),
+   } : undefined;
+   const response = await request("GET", usersRoute, null, queryParams, signal);
+   return await response.json() as PaginatedResponse<UserPublic>;
 }
 
 export async function getUserById(userId: number): Promise<UserFull> {

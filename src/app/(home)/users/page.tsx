@@ -1,37 +1,62 @@
 "use client";
 
-import { TextInput, Button, Badge } from "flowbite-react";
+import { Button, Select } from "flowbite-react";
+import { HiSearch, HiUserAdd, HiUsers } from "react-icons/hi";
 import { Spinner } from "@/components/Spinner";
+import { Pagination } from "@/components/Pagination";
 import { useState, useEffect, useCallback } from "react";
 import useDebouncedValue from "@/hooks/useDebouncedValue";
 import { getUsers, UserPublic } from "services/routes/users";
-import { UserDetailsModal } from "./components/UserDetailsModal";
-import { IoMdInformationCircleOutline } from "react-icons/io";
-import {
-   HiSearch,
-   HiUserAdd,
-   HiUsers,
-   HiCheckCircle,
-   HiXCircle,
-} from "react-icons/hi";
+import { postoGradRecords } from "services/routes/postos";
 import { useToast } from "../../context/toast";
 import { UserCreateModal } from "./components/userForm";
+import { UserRow } from "./components/UserRow";
+import { UserCard } from "./components/UserCard";
+
+const PER_PAGE_OPTIONS = [10, 15, 25, 50, 100];
 
 export default function UsersPage() {
    const { push } = useToast();
    const [filterName, setFilterName] = useState("");
+   const [filterPG, setFilterPG] = useState("");
+   const [filterActive, setFilterActive] = useState<string>("true");
    const [showCreateModal, setShowCreateModal] = useState(false);
    const [usuarios, setUsuarios] = useState<UserPublic[]>([]);
    const [loading, setLoading] = useState(false);
-   const debouncedFilter = useDebouncedValue(filterName, 220);
+   const [currentPage, setCurrentPage] = useState(1);
+   const [perPage, setPerPage] = useState(10);
+   const [totalPages, setTotalPages] = useState(1);
+   const [totalUsers, setTotalUsers] = useState(0);
+   const debouncedFilter = useDebouncedValue(filterName, 350);
 
    const updateListUsers = useCallback(
-      async (signal?: AbortSignal, onError?: (msg: string) => void) => {
+      async (
+         page: number = 1,
+         itemsPerPage: number = 10,
+         search?: string,
+         p_g?: string,
+         active?: boolean,
+         signal?: AbortSignal,
+         onError?: (msg: string) => void
+      ) => {
          setLoading(true);
          try {
-            const users = await getUsers(undefined, signal);
-            setUsuarios(users);
+            const response = await getUsers(
+               {
+                  page,
+                  per_page: itemsPerPage,
+                  search: search || undefined,
+                  p_g: p_g || undefined,
+                  active,
+               },
+               signal
+            );
+            setUsuarios(response.items);
+            setTotalPages(response.pages);
+            setTotalUsers(response.total);
+            setCurrentPage(response.page);
          } catch (err: any) {
+            if (err?.name === "AbortError") return;
             const message =
                err?.message || String(err) || "Erro ao buscar usuários";
             if (onError) onError(message);
@@ -42,312 +67,296 @@ export default function UsersPage() {
       []
    );
 
+   // Converte filterActive string para boolean | undefined
+   const getActiveFilter = (): boolean | undefined => {
+      if (filterActive === "true") return true;
+      if (filterActive === "false") return false;
+      return undefined;
+   };
+
+   // Busca quando filtros mudam
    useEffect(() => {
       const ac = new AbortController();
-      updateListUsers(ac.signal, (msg: string) =>
-         push({ message: msg, type: "error" })
+      setCurrentPage(1);
+      updateListUsers(
+         1,
+         perPage,
+         debouncedFilter,
+         filterPG,
+         getActiveFilter(),
+         ac.signal,
+         (msg: string) => push({ message: msg, type: "error" })
       );
       return () => ac.abort();
-   }, []);
+   }, [debouncedFilter, perPage, filterPG, filterActive]);
 
-   const filteredUsers = ((): UserPublic[] => {
-      const input = debouncedFilter.trim().toLowerCase();
-      if (!input) return usuarios;
-      return usuarios.filter((user) => {
-         const nomeCompleto = (user.nome_completo || "").toLowerCase();
-         const nomeGuerra = (user.nome_guerra || "").toLowerCase();
+   const handlePageChange = (page: number) => {
+      updateListUsers(
+         page,
+         perPage,
+         debouncedFilter,
+         filterPG,
+         getActiveFilter(),
+         undefined,
+         (msg: string) => push({ message: msg, type: "error" })
+      );
+   };
 
-         return nomeCompleto.includes(input) || nomeGuerra.includes(input);
-      });
-   })();
+   const handlePerPageChange = (newPerPage: number) => {
+      setPerPage(newPerPage);
+   };
+
+   const refreshList = () => {
+      updateListUsers(
+         currentPage,
+         perPage,
+         debouncedFilter,
+         filterPG,
+         getActiveFilter()
+      );
+   };
+
+   const hasFilters = debouncedFilter || filterPG || filterActive;
 
    return (
-      <div className='w-full h-full px-1 py-2 overflow-auto'>
-         {/* Header com busca e contador */}
-         <div className='bg-white p-4 rounded-lg shadow-sm border border-gray-200 mb-4'>
-            <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4'>
-               <div className='flex items-center gap-3'>
-                  <div className='p-2 bg-red-100 rounded-lg'>
-                     <HiUsers className='w-6 h-6 text-red-600' />
-                  </div>
-                  <div>
-                     <h5 className='font-semibold text-lg text-gray-900'>
-                        Usuários
-                     </h5>
-                     {!loading && (
-                        <p className='text-sm text-gray-500'>
-                           {filteredUsers.length}{" "}
-                           {filteredUsers.length === 1
-                              ? "usuário encontrado"
-                              : "usuários encontrados"}
-                           {debouncedFilter && ` para "${debouncedFilter}"`}
-                        </p>
-                     )}
-                  </div>
+      <div className='w-full h-full overflow-auto p-1'>
+         {/* Header da Página */}
+         <div className='flex items-center justify-between mb-4'>
+            <div className='flex items-center gap-3'>
+               <div className='p-2 bg-red-100 rounded-lg'>
+                  <HiUsers className='w-6 h-6 text-red-600' />
                </div>
-               <Button
-                  color='red'
-                  onClick={() => setShowCreateModal(true)}
-                  className='whitespace-nowrap'
-               >
-                  <HiUserAdd className='w-5 h-5 mr-2' />
-                  Novo Usuário
-               </Button>
-            </div>
-
-            {/* Barra de busca aprimorada */}
-            <div className='relative'>
-               <div className='absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none z-10'>
-                  <HiSearch className='w-5 h-5 text-gray-400' />
+               <div>
+                  <h1 className='text-xl font-semibold text-gray-900'>
+                     Usuários
+                  </h1>
+                  {!loading && (
+                     <p className='text-sm text-gray-500'>
+                        {totalUsers}{" "}
+                        {totalUsers === 1
+                           ? "usuário encontrado"
+                           : "usuários encontrados"}
+                        {hasFilters && " com os filtros aplicados"}
+                     </p>
+                  )}
                </div>
-               <TextInput
-                  className='w-full'
-                  placeholder='Buscar por nome de guerra ou nome completo...'
-                  value={filterName}
-                  onChange={(e) => setFilterName((e as any).target.value)}
-                  style={{ paddingLeft: "2.5rem" }}
-               />
             </div>
          </div>
 
-         {loading ? (
-            <div className='flex flex-col justify-center items-center h-64 bg-white rounded-lg shadow-sm border border-gray-200'>
-               <Spinner size='xl' />
-               <p className='mt-4 text-gray-500'>Carregando usuários...</p>
-            </div>
-         ) : filteredUsers.length === 0 ? (
-            <div className='flex flex-col justify-center items-center h-64 bg-white rounded-lg shadow-sm border border-gray-200'>
-               <div className='p-4 bg-gray-100 rounded-full mb-4'>
-                  <HiUsers className='w-12 h-12 text-gray-400' />
-               </div>
-               <h3 className='text-lg font-semibold text-gray-900 mb-2'>
-                  {debouncedFilter
-                     ? "Nenhum usuário encontrado"
-                     : "Nenhum usuário cadastrado"}
-               </h3>
-               <p className='text-gray-500 text-center max-w-md mb-4'>
-                  {debouncedFilter
-                     ? `Não encontramos resultados para "${debouncedFilter}". Tente outro termo de busca.`
-                     : "Comece adicionando o primeiro usuário ao sistema."}
-               </p>
-               {!debouncedFilter && (
-                  <Button color='red' onClick={() => setShowCreateModal(true)}>
-                     <HiUserAdd className='w-5 h-5 mr-2' />
-                     Adicionar Primeiro Usuário
-                  </Button>
-               )}
-            </div>
-         ) : (
-            <>
-               {/* Tabela Desktop */}
-               <div className='hidden md:block w-full shadow-sm rounded-lg bg-white border border-gray-200 overflow-hidden'>
-                  <table className='w-full text-sm text-gray-600 text-left'>
-                     <thead className='text-xs text-gray-700 uppercase bg-gray-50 border-b border-gray-200'>
-                        <tr>
-                           <th scope='col' className='px-4 py-3 font-semibold'>
-                              #
-                           </th>
-                           <th
-                              scope='col'
-                              className='px-4 py-3 font-semibold text-nowrap'
-                           >
-                              P/G
-                           </th>
-                           <th scope='col' className='px-4 py-3 font-semibold'>
-                              Especialidade
-                           </th>
-                           <th scope='col' className='px-4 py-3 font-semibold'>
-                              Nome de Guerra
-                           </th>
-                           <th scope='col' className='px-4 py-3 font-semibold'>
-                              Nome Completo
-                           </th>
-                           <th
-                              scope='col'
-                              className='px-4 py-3 font-semibold text-center'
-                           >
-                              Unidade
-                           </th>
-                           <th
-                              scope='col'
-                              className='px-4 py-3 font-semibold text-center'
-                           >
-                              Status
-                           </th>
-                           <th scope='col' className='px-4 py-3'>
-                              <span className='sr-only'>Detalhes</span>
-                           </th>
-                        </tr>
-                     </thead>
-                     <tbody>
-                        {filteredUsers.map((user) => (
-                           <UserRow
-                              key={user.id}
-                              user={user}
-                              update={updateListUsers}
-                           />
-                        ))}
-                     </tbody>
-                  </table>
+         {/* Card da Tabela */}
+         <div className='bg-white relative shadow-md sm:rounded-lg overflow-hidden'>
+            {/* Barra de Busca e Filtros */}
+            <div className='flex flex-col md:flex-row gap-3 p-4'>
+               {/* Busca */}
+               <div className='relative flex-1'>
+                  <div className='absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none'>
+                     <HiSearch className='w-5 h-5 text-gray-500' />
+                  </div>
+                  <input
+                     type='text'
+                     className='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-red-500 focus:border-red-500 block w-full pl-10 p-2.5'
+                     placeholder='Buscar por nome de guerra...'
+                     value={filterName}
+                     onChange={(e) => setFilterName(e.target.value)}
+                  />
                </div>
 
-               {/* Cards Mobile */}
-               <div className='md:hidden space-y-3'>
-                  {filteredUsers.map((user) => (
-                     <UserCard
-                        key={user.id}
-                        user={user}
-                        update={updateListUsers}
-                     />
-                  ))}
+               {/* Filtros */}
+               <div className='flex flex-wrap gap-2'>
+                  {/* Filtro P/G */}
+                  <select
+                     value={filterPG}
+                     onChange={(e) => setFilterPG(e.target.value)}
+                     className='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-red-500 focus:border-red-500 p-2.5'
+                  >
+                     <option value=''>Todos P/G</option>
+                     {postoGradRecords.map((pg) => (
+                        <option
+                           className='capitalize'
+                           key={pg.short}
+                           value={pg.short}
+                        >
+                           {pg.mid}
+                        </option>
+                     ))}
+                  </select>
+
+                  {/* Filtro Status */}
+                  <select
+                     value={filterActive}
+                     onChange={(e) => setFilterActive(e.target.value)}
+                     className='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-red-500 focus:border-red-500 p-2.5'
+                  >
+                     <option value=''>Todos Status</option>
+                     <option value='true'>Ativo</option>
+                     <option value='false'>Inativo</option>
+                  </select>
+
+                  {/* Botão Novo Usuário */}
+                  <Button
+                     color='red'
+                     onClick={() => setShowCreateModal(true)}
+                     className='whitespace-nowrap'
+                  >
+                     <HiUserAdd className='w-4 h-4 mr-2' />
+                     Novo Usuário
+                  </Button>
                </div>
-            </>
-         )}
+            </div>
+
+            {/* Conteúdo */}
+            {loading ? (
+               <div className='flex flex-col justify-center items-center h-64'>
+                  <Spinner size='xl' />
+                  <p className='mt-4 text-gray-500'>Carregando usuários...</p>
+               </div>
+            ) : usuarios.length === 0 ? (
+               <div className='flex flex-col justify-center items-center h-64'>
+                  <div className='p-4 bg-gray-100 rounded-full mb-4'>
+                     <HiUsers className='w-12 h-12 text-gray-400' />
+                  </div>
+                  <h3 className='text-lg font-semibold text-gray-900 mb-2'>
+                     {hasFilters
+                        ? "Nenhum usuário encontrado"
+                        : "Nenhum usuário cadastrado"}
+                  </h3>
+                  <p className='text-gray-500 text-center max-w-md mb-4'>
+                     {hasFilters
+                        ? "Não encontramos resultados com os filtros aplicados. Tente ajustar os filtros."
+                        : "Comece adicionando o primeiro usuário ao sistema."}
+                  </p>
+                  {!hasFilters && (
+                     <Button
+                        color='red'
+                        onClick={() => setShowCreateModal(true)}
+                     >
+                        <HiUserAdd className='w-5 h-5 mr-2' />
+                        Adicionar Primeiro Usuário
+                     </Button>
+                  )}
+               </div>
+            ) : (
+               <>
+                  {/* Tabela Desktop */}
+                  <div className='hidden md:block overflow-x-auto'>
+                     <table className='w-full text-sm text-left text-gray-500'>
+                        <thead className='text-xs text-gray-700 uppercase bg-gray-50'>
+                           <tr>
+                              <th scope='col' className='px-4 py-3'>
+                                 #
+                              </th>
+                              <th scope='col' className='px-4 py-3'>
+                                 P/G
+                              </th>
+                              <th scope='col' className='px-4 py-3'>
+                                 Especialidade
+                              </th>
+                              <th scope='col' className='px-4 py-3'>
+                                 Nome de Guerra
+                              </th>
+                              <th scope='col' className='px-4 py-3'>
+                                 Nome Completo
+                              </th>
+                              <th scope='col' className='px-4 py-3'>
+                                 Unidade
+                              </th>
+                              <th scope='col' className='px-4 py-3'>
+                                 Status
+                              </th>
+                              <th scope='col' className='px-4 py-3'>
+                                 <span className='sr-only'>Ações</span>
+                              </th>
+                           </tr>
+                        </thead>
+                        <tbody>
+                           {usuarios.map((user) => (
+                              <UserRow
+                                 key={user.id}
+                                 user={user}
+                                 update={refreshList}
+                              />
+                           ))}
+                        </tbody>
+                     </table>
+                  </div>
+
+                  {/* Cards Mobile */}
+                  <div className='md:hidden space-y-3 p-4'>
+                     {usuarios.map((user) => (
+                        <UserCard
+                           key={user.id}
+                           user={user}
+                           update={refreshList}
+                        />
+                     ))}
+                  </div>
+
+                  {/* Footer com Paginação */}
+                  <nav
+                     className='flex flex-col md:flex-row justify-between items-start md:items-center space-y-3 md:space-y-0 p-4'
+                     aria-label='Navegação da tabela'
+                  >
+                     <div className='flex items-center gap-4'>
+                        <span className='text-sm font-normal text-gray-500'>
+                           Mostrando{" "}
+                           <span className='font-semibold text-gray-900'>
+                              {(currentPage - 1) * perPage + 1}-
+                              {Math.min(currentPage * perPage, totalUsers)}
+                           </span>{" "}
+                           de{" "}
+                           <span className='font-semibold text-gray-900'>
+                              {totalUsers}
+                           </span>
+                        </span>
+                        <div className='flex items-center gap-2'>
+                           <label
+                              htmlFor='perPage'
+                              className='text-sm text-gray-500'
+                           >
+                              Por página:
+                           </label>
+                           <Select
+                              id='perPage'
+                              sizing='sm'
+                              value={perPage}
+                              onChange={(e) =>
+                                 handlePerPageChange(Number(e.target.value))
+                              }
+                              className='w-20'
+                           >
+                              {PER_PAGE_OPTIONS.map((option) => (
+                                 <option key={option} value={option}>
+                                    {option}
+                                 </option>
+                              ))}
+                           </Select>
+                        </div>
+                     </div>
+                     {totalPages > 1 && (
+                        <Pagination
+                           currentPage={currentPage}
+                           totalPages={totalPages}
+                           onPageChange={handlePageChange}
+                        />
+                     )}
+                  </nav>
+               </>
+            )}
+         </div>
+
          <UserCreateModal
             show={showCreateModal}
             setShow={setShowCreateModal}
-            updateUsers={updateListUsers}
+            updateUsers={() =>
+               updateListUsers(
+                  1,
+                  perPage,
+                  debouncedFilter,
+                  filterPG,
+                  getActiveFilter()
+               )
+            }
          />
       </div>
-   );
-}
-
-function UserRow({ user, update }) {
-   const [showUser, setShowUser] = useState(false);
-
-   return (
-      <>
-         <tr className='border-b last:border-b-0 hover:bg-gray-50 transition-colors duration-150'>
-            <td className='px-4 py-3 text-gray-400 font-mono'>{user.id}</td>
-            <td className='px-4 py-3 uppercase'>{user.posto.short}</td>
-            <td className='px-4 py-3 text-gray-600 uppercase'>{user.esp}</td>
-            <td className='px-4 py-3 font-medium text-gray-900 uppercase'>
-               {user.nome_guerra}
-            </td>
-            <td className='px-4 py-3 text-gray-600 capitalize'>
-               {user.nome_completo}
-            </td>
-            <td className='px-4 py-3 text-center uppercase'>{user.unidade}</td>
-            <td className='px-4 py-3'>
-               <div className='flex justify-center'>
-                  {user.active ? (
-                     <Badge color='success' className='text-xs'>
-                        <div className='flex items-center gap-1'>
-                           <HiCheckCircle className='size-3' />
-                           <span>Ativo</span>
-                        </div>
-                     </Badge>
-                  ) : (
-                     <Badge color='gray' className='text-xs'>
-                        <div className='flex items-center gap-1'>
-                           <HiXCircle className='size-3' />
-                           <span>Inativo</span>
-                        </div>
-                     </Badge>
-                  )}
-               </div>
-            </td>
-            <td className='px-4 py-3 text-right'>
-               <button
-                  className='inline-flex items-center justify-center w-9 h-9 rounded-lg text-red-600 hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-1 transition-all duration-150'
-                  onClick={() => setShowUser(true)}
-                  aria-label={`Ver detalhes de ${user.nome_guerra}`}
-                  title='Ver detalhes'
-               >
-                  <IoMdInformationCircleOutline size={20} />
-               </button>
-            </td>
-         </tr>
-         {showUser && (
-            <UserDetailsModal
-               show={showUser}
-               setShow={setShowUser}
-               updateUsers={update}
-               user={user}
-            />
-         )}
-      </>
-   );
-}
-
-function UserCard({ user, update }) {
-   const [showUser, setShowUser] = useState(false);
-
-   return (
-      <>
-         <div className='bg-white rounded-lg shadow-sm border border-gray-200 p-4 hover:shadow-md transition-shadow duration-150'>
-            <div className='flex items-start justify-between mb-3'>
-               <div className='flex items-center gap-2'>
-                  <div className='w-10 h-10 bg-red-100 rounded-full flex items-center justify-center'>
-                     <span className='text-red-600 font-bold text-sm uppercase'>
-                        {user.p_g}
-                     </span>
-                  </div>
-                  <div>
-                     <h3 className='font-semibold text-gray-900 uppercase text-sm'>
-                        {user.nome_guerra}
-                     </h3>
-                     <p className='text-xs text-gray-500 capitalize'>
-                        {user.nome_completo}
-                     </p>
-                  </div>
-               </div>
-               <button
-                  className='p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors'
-                  onClick={() => setShowUser(true)}
-                  aria-label={`Ver detalhes de ${user.nome_guerra}`}
-               >
-                  <IoMdInformationCircleOutline size={22} />
-               </button>
-            </div>
-
-            <div className='grid grid-cols-4 gap-2 pt-3 border-t border-gray-100'>
-               <div>
-                  <p className='text-xs text-gray-500 mb-1'>Posto/Graduação</p>
-                  <Badge color='gray' className='capitalize text-xs'>
-                     {user.posto.long}
-                  </Badge>
-               </div>
-               <div>
-                  <p className='text-xs text-gray-500 mb-1'>Especialidade</p>
-                  <Badge color='gray' className='uppercase text-xs '>
-                     {user.esp}
-                  </Badge>
-               </div>
-               <div>
-                  <p className='text-xs text-gray-500 mb-1'>Unidade</p>
-                  <Badge color='red' className='uppercase text-xs'>
-                     {user.unidade}
-                  </Badge>
-               </div>
-               <div>
-                  <p className='text-xs text-gray-500 mb-1'>Status</p>
-                  {user.active ? (
-                     <Badge color='success' className='text-xs'>
-                        <div className='flex items-center gap-1'>
-                           <HiCheckCircle className='size-3' />
-                           <span>Ativo</span>
-                        </div>
-                     </Badge>
-                  ) : (
-                     <Badge color='gray' className='text-xs'>
-                        <div className='flex items-center gap-1'>
-                           <HiXCircle className='size-3' />
-                           <span>Inativo</span>
-                        </div>
-                     </Badge>
-                  )}
-               </div>
-            </div>
-         </div>
-         {showUser && (
-            <UserDetailsModal
-               show={showUser}
-               setShow={setShowUser}
-               updateUsers={update}
-               user={user}
-            />
-         )}
-      </>
    );
 }
