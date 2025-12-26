@@ -1,28 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import {
-   Table,
-   TableHeadCell,
-   TableHead,
-   TableBody,
-   TableRow,
-   TextInput,
-   Badge,
-   Label,
-} from "flowbite-react";
+import { Select } from "flowbite-react";
+import { HiSearch, HiUserGroup, HiX } from "react-icons/hi";
 import { Spinner } from "@/components/Spinner";
-import { IoSearchSharp } from "react-icons/io5";
-import {
-   HiUserGroup,
-   HiExclamationCircle,
-   HiX,
-   HiFilter,
-   HiShieldCheck,
-   HiBriefcase,
-   HiAcademicCap,
-} from "react-icons/hi";
-
+import { Pagination } from "@/components/Pagination";
 import { postoGradRecords } from "services/routes/postos";
 import { SearchUser } from "./components/searchUserTrip";
 import { TripRow } from "./components/TripRow";
@@ -30,6 +12,7 @@ import { MultiSelect } from "./components/MultiSelect";
 import { PermBased } from "../../hooks/usePermBased";
 import useDebouncedValue from "@/hooks/useDebouncedValue";
 import { useTripList } from "./hooks/useTripList";
+import type { FuncType, OperType } from "./types/trip.types";
 
 const FUNC_LABELS: Record<string, string> = {
    pil: "Piloto",
@@ -53,9 +36,7 @@ export default function TripPage() {
    const [uae] = useState("11gt");
    const [active] = useState(true);
    const [filterName, setFilterName] = useState("");
-   const [showFilters, setShowFilters] = useState(false);
-   const [isFiltering, setIsFiltering] = useState(false);
-   const debouncedFilter = useDebouncedValue(filterName, 300);
+   const debouncedFilter = useDebouncedValue(filterName, 350);
 
    const {
       trips,
@@ -65,15 +46,20 @@ export default function TripPage() {
       filters,
       updateFilter,
       clearFilters,
+      currentPage,
+      perPage,
+      totalPages,
+      totalTrips,
+      handlePageChange,
+      handlePerPageChange,
+      PER_PAGE_OPTIONS,
    } = useTripList({
       uae,
       active,
    });
 
    useEffect(() => {
-      setIsFiltering(true);
       updateFilter("name", debouncedFilter);
-      setTimeout(() => setIsFiltering(false), 400);
    }, [debouncedFilter]);
 
    const hasActiveFilters =
@@ -82,301 +68,171 @@ export default function TripPage() {
       filters.oper.length > 0 ||
       filters.name !== "";
 
-   const activeFiltersCount =
-      filters.p_g.length +
-      filters.func.length +
-      filters.oper.length +
-      (filters.name ? 1 : 0);
-
    return (
-      <div className='flex flex-col h-full overflow-hidden'>
-         {/* Header Section */}
-         <section className='flex-shrink-0 mb-2 p-4'>
-            <div className='flex items-center justify-between'>
-               <div className='flex items-center gap-3'>
-                  <HiUserGroup className='size-8 text-red-600' />
-                  <div>
-                     <h1 className='font-bold text-2xl text-gray-800'>
-                        Tripulantes
-                     </h1>
-                     <p className='text-gray-600 text-sm'>
-                        Gerencie todos os tripulantes cadastrados
-                     </p>
-                  </div>
+      <div className='w-full h-full overflow-auto p-1'>
+         {/* Header da Página */}
+         <div className='flex items-center justify-between mb-4'>
+            <div className='flex items-center gap-3'>
+               <div className='p-2 bg-red-100 rounded-lg'>
+                  <HiUserGroup className='w-6 h-6 text-red-600' />
                </div>
-               <div className='flex items-center gap-2'>
-                  <button
-                     type='button'
-                     onClick={() => setShowFilters(!showFilters)}
-                     className='flex items-center gap-2 px-3 py-2 text-sm text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50'
-                  >
-                     <HiFilter />
-                     {showFilters ? "Ocultar" : "Filtros"}
-                     {hasActiveFilters && (
-                        <Badge
-                           color='red'
-                           size='sm'
-                           className='animate-in zoom-in-95 duration-200'
-                        >
-                           {activeFiltersCount}
-                        </Badge>
-                     )}
-                  </button>
-                  <PermBased resource={"trips"} requiredPerm={"create"}>
-                     <SearchUser
-                        uae={uae}
-                        trips={trips}
-                        updateTrips={refetch}
-                     />
-                  </PermBased>
+               <div>
+                  <h1 className='text-xl font-semibold text-gray-900'>
+                     Tripulantes
+                  </h1>
                </div>
             </div>
-         </section>
+         </div>
 
-         {/* Active Filters Tags */}
-         {hasActiveFilters && (
-            <section className='flex-shrink-0 mb-3 px-4'>
-               <div className='flex flex-wrap items-center gap-2'>
-                  <span className='text-xs font-medium text-gray-600'>
-                     Filtros ativos:
-                  </span>
+         {/* Card da Tabela */}
+         <div className='bg-white relative shadow-md sm:rounded-lg overflow-hidden'>
+            {/* Barra de Busca, Filtros e Botão Adicionar */}
+            <div className='flex flex-col md:flex-row gap-3 p-4'>
+               {/* Busca */}
+               <div className='relative flex-1'>
+                  <div className='absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none'>
+                     <HiSearch className='w-5 h-5 text-gray-500' />
+                  </div>
+                  <input
+                     type='text'
+                     className='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-red-500 focus:border-red-500 block w-full pl-10 p-2.5 placeholder:text-gray-400'
+                     placeholder='Buscar por trigrama, nome de guerra ou nome completo...'
+                     value={filterName}
+                     onChange={(e) => setFilterName(e.target.value)}
+                  />
+               </div>
 
-                  {filters.name && (
-                     <Badge color='red'>
-                        <div className='flex items-center gap-1.5'>
-                           <IoSearchSharp className='w-3 h-3' />
-                           <span>Nome: {filters.name}</span>
-                           <button
-                              onClick={() => {
-                                 setFilterName("");
-                                 updateFilter("name", "");
-                              }}
-                              className='ml-1 hover:text-red-600'
-                           >
-                              <HiX className='w-3 h-3' />
-                           </button>
-                        </div>
-                     </Badge>
-                  )}
+               {/* Filtro P/G */}
+               <div className='w-52'>
+                  <MultiSelect
+                     options={postoGradRecords.map((posto) => ({
+                        value: posto.short,
+                        label: posto.short.toUpperCase(),
+                     }))}
+                     selected={filters.p_g}
+                     onChange={(values) => updateFilter("p_g", values)}
+                     placeholder='P/G'
+                  />
+               </div>
 
-                  {filters.p_g.map((pg) => (
-                     <Badge key={pg} color='red'>
-                        <div className='flex items-center gap-1.5'>
-                           <HiShieldCheck className='w-3 h-3' />
-                           <span>
-                              {
-                                 postoGradRecords.find((p) => p.short === pg)
-                                    ?.mid.toUpperCase()
-                              }
-                           </span>
-                           <button
-                              onClick={() => {
-                                 const newPG = filters.p_g.filter(
-                                    (p) => p !== pg
-                                 );
-                                 updateFilter("p_g", newPG);
-                              }}
-                              className='ml-1 hover:text-red-600'
-                           >
-                              <HiX className='w-3 h-3' />
-                           </button>
-                        </div>
-                     </Badge>
-                  ))}
+               {/* Filtro Função */}
+               <div className='w-52'>
+                  <MultiSelect
+                     options={Object.entries(FUNC_LABELS).map(
+                        ([key, value]) => ({
+                           value: key,
+                           label: value,
+                        })
+                     )}
+                     selected={filters.func}
+                     onChange={(values) => updateFilter("func", values as FuncType[])}
+                     placeholder='Função'
+                  />
+               </div>
 
-                  {filters.func.map((func) => (
-                     <Badge key={func} color='red'>
-                        <div className='flex items-center gap-1.5'>
-                           <HiBriefcase className='w-3 h-3' />
-                           <span>{FUNC_LABELS[func]}</span>
-                           <button
-                              onClick={() => {
-                                 const newFunc = filters.func.filter(
-                                    (f) => f !== func
-                                 );
-                                 updateFilter("func", newFunc);
-                              }}
-                              className='ml-1 hover:text-red-600'
-                           >
-                              <HiX className='w-3 h-3' />
-                           </button>
-                        </div>
-                     </Badge>
-                  ))}
+               {/* Filtro Operacionalidade */}
+               <div className='w-52'>
+                  <MultiSelect
+                     options={Object.entries(OPER_LABELS).map(
+                        ([key, value]) => ({
+                           value: key,
+                           label: value,
+                        })
+                     )}
+                     selected={filters.oper}
+                     onChange={(values) => updateFilter("oper", values as OperType[])}
+                     placeholder='Operacionalidade'
+                  />
+               </div>
 
-                  {filters.oper.map((oper) => (
-                     <Badge key={oper} color='red'>
-                        <div className='flex items-center gap-1.5'>
-                           <HiAcademicCap className='w-3 h-3' />
-                           <span>{OPER_LABELS[oper]}</span>
-                           <button
-                              onClick={() => {
-                                 const newOper = filters.oper.filter(
-                                    (o) => o !== oper
-                                 );
-                                 updateFilter("oper", newOper);
-                              }}
-                              className='ml-1 hover:text-red-600'
-                           >
-                              <HiX className='w-3 h-3' />
-                           </button>
-                        </div>
-                     </Badge>
-                  ))}
-
+               {/* Limpar Filtros */}
+               {hasActiveFilters && (
                   <button
                      onClick={() => {
                         clearFilters();
                         setFilterName("");
                      }}
-                     className='text-xs text-gray-500 hover:text-gray-700 underline'
+                     className='flex items-center gap-1 px-3 py-2 text-sm text-red-600 hover:text-red-700 border border-red-300 rounded-lg hover:bg-red-50 transition-colors'
                   >
-                     Limpar todos
+                     <HiX className='w-4 h-4' />
+                     Limpar
                   </button>
+               )}
+
+               {/* Botão Adicionar */}
+               <PermBased resource={"trips"} requiredPerm={"create"}>
+                  <SearchUser
+                     uae={uae}
+                     trips={trips}
+                     updateTrips={refetch}
+                  />
+               </PermBased>
+            </div>
+
+            {/* Conteúdo */}
+            {loading ? (
+               <div className='flex flex-col justify-center items-center h-64'>
+                  <Spinner size='xl' />
+                  <p className='mt-4 text-gray-500'>Carregando tripulantes...</p>
                </div>
-            </section>
-         )}
-
-         {/* Filters Section */}
-         {showFilters && (
-            <section className='flex-shrink-0 mb-4 animate-in fade-in slide-in-from-top-3 duration-300 relative z-40'>
-               <div className='bg-white border border-gray-200 rounded-lg p-4 shadow-sm'>
-                  <div className='flex items-center justify-between mb-4'>
-                     <h6 className='text-sm font-medium text-gray-700'>
-                        Filtros
-                     </h6>
+            ) : filterTrips.length === 0 ? (
+               <div className='flex flex-col justify-center items-center h-64'>
+                  <div className='p-4 bg-gray-100 rounded-full mb-4'>
+                     <HiUserGroup className='w-12 h-12 text-gray-400' />
                   </div>
-
-                  <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3'>
-                     {/* Busca por Nome */}
-                     <div>
-                        <Label className='mb-1.5 text-xs text-gray-600 flex items-center gap-1.5'>
-                           <IoSearchSharp className='text-gray-500' />
-                           Nome/Trigrama
-                        </Label>
-                        <TextInput
-                           type='text'
-                           value={filterName}
-                           onChange={(e) => setFilterName(e.target.value)}
-                           placeholder='Buscar...'
-                           sizing='sm'
-                        />
-                     </div>
-
-                     {/* Posto/Graduação */}
-                     <div>
-                        <Label className='mb-1.5 text-xs text-gray-600 flex items-center gap-1.5'>
-                           <HiShieldCheck className='text-gray-500' />
-                           Posto/Graduação
-                        </Label>
-                        <MultiSelect
-                           options={postoGradRecords.map((posto) => ({
-                              value: posto.short,
-                              label: posto.mid.toUpperCase(),
-                           }))}
-                           selected={filters.p_g}
-                           onChange={(values) => updateFilter("p_g", values)}
-                           placeholder='Selecione...'
-                        />
-                     </div>
-
-                     {/* Função */}
-                     <div>
-                        <Label className='mb-1.5 text-xs text-gray-600 flex items-center gap-1.5'>
-                           <HiBriefcase className='text-gray-500' />
-                           Função
-                        </Label>
-                        <MultiSelect
-                           options={Object.entries(FUNC_LABELS).map(
-                              ([key, value]) => ({
-                                 value: key,
-                                 label: value.toUpperCase(),
-                              })
-                           )}
-                           selected={filters.func}
-                           onChange={(values) => updateFilter("func", values)}
-                           placeholder='Selecione...'
-                        />
-                     </div>
-
-                     {/* Operação */}
-                     <div>
-                        <Label className='mb-1.5 text-xs text-gray-600 flex items-center gap-1.5'>
-                           <HiAcademicCap className='text-gray-500' />
-                           Operacionalidade
-                        </Label>
-                        <MultiSelect
-                           options={Object.entries(OPER_LABELS).map(
-                              ([key, value]) => ({
-                                 value: key,
-                                 label: value,
-                              })
-                           )}
-                           selected={filters.oper}
-                           onChange={(values) => updateFilter("oper", values)}
-                           placeholder='Selecione...'
-                        />
-                     </div>
-                  </div>
+                  <h3 className='text-lg font-semibold text-gray-900 mb-2'>
+                     {hasActiveFilters
+                        ? "Nenhum tripulante encontrado"
+                        : "Nenhum tripulante cadastrado"}
+                  </h3>
+                  <p className='text-gray-500 text-center max-w-md mb-4'>
+                     {hasActiveFilters
+                        ? "Não encontramos resultados com os filtros aplicados. Tente ajustar os filtros."
+                        : "Comece adicionando o primeiro tripulante ao sistema."}
+                  </p>
+                  {hasActiveFilters && (
+                     <button
+                        onClick={() => {
+                           clearFilters();
+                           setFilterName("");
+                        }}
+                        className='text-sm text-red-600 hover:text-red-700'
+                     >
+                        Limpar Filtros
+                     </button>
+                  )}
                </div>
-            </section>
-         )}
-
-         {/* Results Section */}
-         <section className='flex-1 overflow-auto'>
-            <div className='bg-gray-50 rounded-lg shadow-md border border-gray-200 h-full transition-all duration-300'>
-               {loading ? (
-                  <div className='flex flex-col justify-center items-center gap-3 bg-white rounded-lg m-2 py-12 animate-in fade-in duration-300'>
-                     <Spinner size='xl' />
-                     <p className='text-gray-500'>Carregando tripulantes...</p>
-                  </div>
-               ) : filterTrips.length === 0 ? (
-                  <div className='flex flex-col justify-center items-center gap-3 text-gray-400 bg-white rounded-lg m-2 py-12 animate-in fade-in zoom-in-95 duration-300'>
-                     <HiExclamationCircle className='size-16 opacity-30 animate-in zoom-in duration-500' />
-                     <p className='text-center'>
-                        {hasActiveFilters
-                           ? "Nenhum tripulante encontrado com esses filtros"
-                           : "Nenhum tripulante cadastrado"}
-                     </p>
-                     {hasActiveFilters && (
-                        <button
-                           onClick={() => {
-                              clearFilters();
-                              setFilterName("");
-                           }}
-                           className='text-sm text-red-600 hover:text-red-700 transition-all duration-150 hover:scale-105'
-                        >
-                           Limpar Filtros
-                        </button>
-                     )}
-                  </div>
-               ) : (
-                  <div
-                     className={`overflow-auto h-full transition-opacity duration-300 ${
-                        isFiltering ? "opacity-60" : "opacity-100"
-                     }`}
-                  >
-                     <Table hoverable>
-                        <TableHead className='text-center sticky top-0 bg-gray-100 shadow-sm z-10'>
-                           <TableRow>
-                              <TableHeadCell>PG</TableHeadCell>
-                              <TableHeadCell className='hidden lg:table-cell'>
+            ) : (
+               <>
+                  {/* Tabela */}
+                  <div className='overflow-x-auto'>
+                     <table className='w-full text-sm text-left text-gray-500'>
+                        <thead className='text-xs text-gray-700 uppercase bg-gray-50 text-center'>
+                           <tr>
+                              <th scope='col' className='px-4 py-3'>
+                                 P/G
+                              </th>
+                              <th scope='col' className='px-4 py-3 hidden lg:table-cell'>
                                  Especialidade
-                              </TableHeadCell>
-                              <TableHeadCell className='hidden md:table-cell'>
+                              </th>
+                              <th scope='col' className='px-4 py-3 hidden md:table-cell'>
                                  Nome de Guerra
-                              </TableHeadCell>
-                              <TableHeadCell className='hidden md:table-cell'>
+                              </th>
+                              <th scope='col' className='px-4 py-3 hidden md:table-cell'>
                                  Nome Completo
-                              </TableHeadCell>
-                              <TableHeadCell>Trigrama</TableHeadCell>
-                              <TableHeadCell>Funções</TableHeadCell>
-                              <TableHeadCell>
+                              </th>
+                              <th scope='col' className='px-4 py-3'>
+                                 Trigrama
+                              </th>
+                              <th scope='col' className='px-4 py-3'>
+                                 Funções
+                              </th>
+                              <th scope='col' className='px-4 py-3'>
                                  <span className='sr-only'>Ações</span>
-                              </TableHeadCell>
-                           </TableRow>
-                        </TableHead>
-                        <TableBody className='divide-y bg-white'>
+                              </th>
+                           </tr>
+                        </thead>
+                        <tbody>
                            {filterTrips.map((trip) => (
                               <TripRow
                                  key={trip.id}
@@ -384,44 +240,62 @@ export default function TripPage() {
                                  update={refetch}
                               />
                            ))}
-                        </TableBody>
-                     </Table>
-
-                     {/* Results Counter */}
-                     <div className='bg-white border-t border-gray-200 px-4 py-3 sticky bottom-0'>
-                        <p
-                           className={`text-sm text-gray-600 text-center flex items-center justify-center gap-2 transition-all duration-300 ${
-                              isFiltering ? "scale-95" : "scale-100"
-                           }`}
-                        >
-                           {isFiltering && (
-                              <span className='inline-block w-3 h-3 border-2 border-red-600 border-t-transparent rounded-full animate-spin'></span>
-                           )}
-                           <span>
-                              Exibindo{" "}
-                              <strong className='text-red-600'>
-                                 {filterTrips.length}
-                              </strong>{" "}
-                              {filterTrips.length === 1
-                                 ? "tripulante"
-                                 : "tripulantes"}
-                              {hasActiveFilters && (
-                                 <span className='text-gray-500'>
-                                    {" "}
-                                    de{" "}
-                                    <strong className='text-gray-700'>
-                                       {trips.length}
-                                    </strong>{" "}
-                                    total
-                                 </span>
-                              )}
-                           </span>
-                        </p>
-                     </div>
+                        </tbody>
+                     </table>
                   </div>
-               )}
-            </div>
-         </section>
+
+                  {/* Footer com Paginação */}
+                  <nav
+                     className='flex flex-col md:flex-row justify-between items-start md:items-center space-y-3 md:space-y-0 p-4'
+                     aria-label='Navegação da tabela'
+                  >
+                     <div className='flex items-center gap-4'>
+                        <span className='text-sm font-normal text-gray-500'>
+                           Mostrando{" "}
+                           <span className='font-semibold text-gray-900'>
+                              {(currentPage - 1) * perPage + 1}-
+                              {Math.min(currentPage * perPage, totalTrips)}
+                           </span>{" "}
+                           de{" "}
+                           <span className='font-semibold text-gray-900'>
+                              {totalTrips}
+                           </span>
+                        </span>
+                        <div className='flex items-center gap-2'>
+                           <label
+                              htmlFor='perPage'
+                              className='text-sm text-gray-500'
+                           >
+                              Por página:
+                           </label>
+                           <Select
+                              id='perPage'
+                              sizing='sm'
+                              value={perPage}
+                              onChange={(e) =>
+                                 handlePerPageChange(Number(e.target.value))
+                              }
+                              className='w-20'
+                           >
+                              {PER_PAGE_OPTIONS.map((option) => (
+                                 <option key={option} value={option}>
+                                    {option}
+                                 </option>
+                              ))}
+                           </Select>
+                        </div>
+                     </div>
+                     {totalPages > 1 && (
+                        <Pagination
+                           currentPage={currentPage}
+                           totalPages={totalPages}
+                           onPageChange={handlePageChange}
+                        />
+                     )}
+                  </nav>
+               </>
+            )}
+         </div>
       </div>
    );
 }

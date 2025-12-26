@@ -35,10 +35,45 @@ export interface SearchTripsParams {
    uae?: string;
 }
 
-export async function getTrips(params): Promise<CrewMember[]> {
-   const response = await request("GET", tripRoute, null, params);
+export interface GetTripsParams {
+   [key: string]: string | number | boolean | string[] | undefined;
+   uae?: string;
+   active?: boolean;
+   page?: number;
+   per_page?: number;
+   search?: string;
+   p_g?: string[];
+   func?: string[];
+   oper?: string[];
+}
 
-   return (await response.json()) as CrewMember[];
+export interface PaginatedTripsResponse {
+   items: CrewMember[];
+   total: number;
+   page: number;
+   per_page: number;
+   pages: number;
+}
+
+export async function getTrips(
+   params: GetTripsParams,
+   signal?: AbortSignal
+): Promise<PaginatedTripsResponse> {
+   // Converter parâmetros para Record<string, string | number>
+   const queryParams: Record<string, string | number> = {};
+   if (params.uae) queryParams.uae = params.uae;
+   if (params.active !== undefined) queryParams.active = String(params.active);
+   if (params.page) queryParams.page = params.page;
+   if (params.per_page) queryParams.per_page = params.per_page;
+   if (params.search) queryParams.search = params.search;
+   // Filtros de array - converter para string separada por vírgula
+   if (params.p_g && params.p_g.length > 0) queryParams.p_g = params.p_g.join(',');
+   if (params.func && params.func.length > 0) queryParams.func = params.func.join(',');
+   if (params.oper && params.oper.length > 0) queryParams.oper = params.oper.join(',');
+
+   const response = await request("GET", tripRoute, null, queryParams, signal);
+
+   return (await response.json()) as PaginatedTripsResponse;
 }
 
 export async function addTrip(trip) {

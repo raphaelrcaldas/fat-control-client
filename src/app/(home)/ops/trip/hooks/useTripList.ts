@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { getTrips } from "services/routes/trips";
 import type { Trip } from "../types/trip.types";
 import type { FuncType, OperType } from "../types/trip.types";
@@ -15,10 +15,16 @@ type FilterParams = {
    oper: OperType[];
 };
 
+const PER_PAGE_OPTIONS = [10, 15, 25, 50, 100];
+
 export function useTripList({ uae, active }: UseTripListParams) {
    const [trips, setTrips] = useState<Trip[]>([]);
-   const [filterTrips, setFilterTrips] = useState<Trip[]>([]);
    const [loading, setLoading] = useState(false);
+   const [currentPage, setCurrentPage] = useState(1);
+   const [perPage, setPerPage] = useState(10);
+   const [totalPages, setTotalPages] = useState(1);
+   const [totalTrips, setTotalTrips] = useState(0);
+   
    const [filters, setFilters] = useState<FilterParams>({
       name: "",
       p_g: [],
@@ -26,128 +32,111 @@ export function useTripList({ uae, active }: UseTripListParams) {
       oper: [],
    });
 
-   async function fetchTrips() {
-      setLoading(true);
-      try {
-         const data = await getTrips({ uae: uae, active: active });
-         data.sort((a, b) => a.user.posto.ant - b.user.posto.ant);
-         setTrips(data);
+   // Ref para controlar se é a primeira renderização
+   const isFirstRender = useRef(true);
 
-         // Verifica se há filtros ativos
-         const hasActiveFilters =
-            filters.name !== "" ||
-            filters.p_g.length > 0 ||
-            filters.func.length > 0 ||
-            filters.oper.length > 0;
-
-         // Se houver filtros ativos, reaplica os filtros nos novos dados
-         if (hasActiveFilters) {
-            const filtered = applyFiltersToData(data, filters);
-            setFilterTrips(filtered);
-         } else {
-            setFilterTrips(data);
+   const fetchTrips = useCallback(
+      async (
+         page: number,
+         itemsPerPage: number,
+         filterParams: FilterParams,
+         signal?: AbortSignal
+      ) => {
+         setLoading(true);
+         try {
+            const response = await getTrips(
+               {
+                  uae,
+                  active,
+                  page,
+                  per_page: itemsPerPage,
+                  search: filterParams.name || undefined,
+                  p_g: filterParams.p_g.length > 0 ? filterParams.p_g : undefined,
+                  func: filterParams.func.length > 0 ? filterParams.func : undefined,
+                  oper: filterParams.oper.length > 0 ? filterParams.oper : undefined,
+               },
+               signal
+            );
+            setTrips(response.items);
+            setTotalPages(response.pages);
+            setTotalTrips(response.total);
+            setCurrentPage(response.page);
+         } catch (err: any) {
+            if (err?.name === "AbortError") return;
+            console.error("Erro ao buscar tripulações:", err);
+         } finally {
+            setLoading(false);
          }
-      } catch (err: any) {
-         console.error("Erro ao buscar tripulações:", err);
-      } finally {
-         setLoading(false);
+      },
+      [uae, active]
+   );
+
+   // Busca inicial e quando uae/active mudam
+   useEffect(() => {
+      const ac = new AbortController();
+      fetchTrips(1, perPage, filters, ac.signal);
+      return () => ac.abort();
+   }, [uae, active]);
+
+   // Busca quando filtros mudam (exceto na primeira renderização)
+   useEffect(() => {
+      if (isFirstRender.current) {
+         isFirstRender.current = false;
+         return;
       }
-   }
+      
+      const ac = new AbortController();
+      const timeoutId = setTimeout(() => {
+         fetchTrips(1, perPage, filters, ac.signal);
+      }, 50); // Pequeno delay para debounce
+      
+      return () => {
+         clearTimeout(timeoutId);
+         ac.abort();
+      };
+   }, [filters.name, filters.p_g, filters.func, filters.oper, perPage]);
 
-
-
-   // Função auxiliar para aplicar filtros em um array de trips
-   function applyFiltersToData(data: Trip[], filterParams: FilterParams): Trip[] {
-      let filtered = [...data];
-
-      // Filtro por nome/trigrama
-      if (filterParams.name && filterParams.name.length > 0) {
-         const inputFilter = filterParams.name.toLowerCase();
-         filtered = filtered.filter((trip) => {
-            const checkTrig = trip.trig.includes(inputFilter);
-            const checkGuerra = trip.user.nome_guerra
-               .toLowerCase()
-               .includes(inputFilter);
-            return checkTrig || checkGuerra;
-         });
-      }
-
-      // Filtro por posto/graduação (OR logic)
-      if (filterParams.p_g.length > 0) {
-         filtered = filtered.filter((trip) =>
-            filterParams.p_g.includes(trip.user.p_g)
-         );
-      }
-
-      // Filtro por função (OR logic)
-      if (filterParams.func.length > 0) {
-         filtered = filtered.filter((trip) =>
-            trip.funcs?.some((func) => filterParams.func.includes(func.func))
-         );
-      }
-
-      // Filtro por operação (OR logic)
-      if (filterParams.oper.length > 0) {
-         filtered = filtered.filter((trip) =>
-            trip.funcs?.some((func) => filterParams.oper.includes(func.oper))
-         );
-      }
-
-      return filtered;
-   }
-
-   // Aplica todos os filtros
-   function applyFilters(filterParams: FilterParams) {
-      const filtered = applyFiltersToData(trips, filterParams);
-      setFilterTrips(filtered);
-   }
-
-   function updateFilter(key: keyof FilterParams, value: string | string[]) {
-      const newFilters = { ...filters, [key]: value };
-      setFilters(newFilters);
-      applyFilters(newFilters);
-   }
-
-   function toggleFilterValue<K extends keyof FilterParams>(
-      key: K,
-      value: FilterParams[K] extends (infer U)[] ? U : never
+   function updateFilter<K extends keyof FilterParams>(
+      key: K, 
+      value: FilterParams[K]
    ) {
-      const currentArray = filters[key] as any[];
-      const newArray = currentArray.includes(value)
-         ? currentArray.filter((v) => v !== value)
-         : [...currentArray, value];
-
-      updateFilter(key, newArray);
-   }
-
-   function removeFilterValue<K extends keyof FilterParams>(
-      key: K,
-      value: FilterParams[K] extends (infer U)[] ? U : never
-   ) {
-      const currentArray = filters[key] as any[];
-      const newArray = currentArray.filter((v) => v !== value);
-      updateFilter(key, newArray);
+      setFilters((prev) => ({ ...prev, [key]: value }));
    }
 
    function clearFilters() {
-      const emptyFilters: FilterParams = { name: "", p_g: [], func: [], oper: [] };
-      setFilters(emptyFilters);
-      setFilterTrips(trips);
+      setFilters({ name: "", p_g: [], func: [], oper: [] });
    }
 
-   useEffect(() => {
-      fetchTrips();
-   }, [uae, active]);
+   const handlePageChange = (page: number) => {
+      const ac = new AbortController();
+      fetchTrips(page, perPage, filters, ac.signal);
+   };
+
+   const handlePerPageChange = (newPerPage: number) => {
+      setPerPage(newPerPage);
+      // O useEffect vai buscar automaticamente
+   };
+
+   const refetch = () => {
+      const ac = new AbortController();
+      fetchTrips(currentPage, perPage, filters, ac.signal);
+   };
 
    return {
       trips,
-      filterTrips,
+      filterTrips: trips,
       loading,
-      refetch: fetchTrips,
+      refetch,
       filters,
       updateFilter,
-      toggleFilterValue,
-      removeFilterValue,
       clearFilters,
+      // Paginação
+      currentPage,
+      perPage,
+      totalPages,
+      totalTrips,
+      handlePageChange,
+      handlePerPageChange,
+      PER_PAGE_OPTIONS,
    };
 }
