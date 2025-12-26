@@ -113,17 +113,17 @@ export function DetailComiss({
    // Dados computados para visualização
    const data_abertura = comiss
       ? isoStrToDate(comiss.data_ab).toLocaleDateString("pt-br", {
-           day: "2-digit",
-           month: "2-digit",
-           year: "2-digit",
-        })
+         day: "2-digit",
+         month: "2-digit",
+         year: "2-digit",
+      })
       : "";
    const data_fechamento = comiss
       ? isoStrToDate(comiss.data_fc).toLocaleDateString("pt-br", {
-           day: "2-digit",
-           month: "2-digit",
-           year: "2-digit",
-        })
+         day: "2-digit",
+         month: "2-digit",
+         year: "2-digit",
+      })
       : "";
 
    const ajd_ab = comiss?.valor_aj_ab || 0;
@@ -263,7 +263,7 @@ export function DetailComiss({
    // Renderiza modo de edição/criação
    if (isEditMode || !comiss) {
       return (
-         <Modal show={show} size='6xl' onClose={() => setShow(false)}>
+         <Modal show={show} size='6xl' onClose={() => setShow(false)} dismissible>
             <ModalHeader className='border-b border-gray-200'>
                {comiss ? "Editar" : "Adicionar"} Comissionamento
             </ModalHeader>
@@ -567,7 +567,7 @@ export function DetailComiss({
    // Renderiza modo de visualização
    return (
       <>
-         <Modal show={show} size='6xl' onClose={() => setShow(false)}>
+         <Modal show={show} size='6xl' onClose={() => setShow(false)} dismissible>
             <ModalHeader className='border-b border-gray-200'>
                Detalhes do Comissionamento
             </ModalHeader>
@@ -947,11 +947,11 @@ export function DetailComiss({
                      <div className='flex justify-between text-sm'>
                         <span className='text-gray-600'>Progresso</span>
                         <span className='font-semibold text-gray-900'>
-                           {`${comiss.completude * 100}%`}
+                           {`${comiss.completude}%`}
                         </span>
                      </div>
                      <Progress
-                        progress={comiss.completude * 100}
+                        progress={comiss.completude}
                         size='lg'
                         color={comiss.modulo ? "green" : "red"}
                      />

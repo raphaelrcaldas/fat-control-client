@@ -161,9 +161,9 @@ export function ListComiss({
                         {comiss.dias_cumprir
                            ? comiss.dias_cumprir - comiss.dias_comp
                            : `~ ${(
-                                (ajd_ab + ajd_fc - comiss.vals_comp) /
-                                335
-                             ).toFixed(0)}`}
+                              (ajd_ab + ajd_fc - comiss.vals_comp) /
+                              335
+                           ).toFixed(0)}`}
                         <span className='text-xs font-normal text-gray-500 ml-1'>
                            dias
                         </span>
@@ -208,8 +208,7 @@ function ComissProgress({
    let color = modulo ? "green" : "red";
    color = status == "fechado" ? "gray" : color;
 
-   const percent = Number(value) * 100;
-   const labelText = `${percent.toFixed(1)}%`;
+   const labelText = `${value}%`;
 
    return (
       <div className='space-y-2'>
@@ -219,7 +218,7 @@ function ComissProgress({
             </Label>
          </div>
          <Progress
-            progress={value * 100}
+            progress={value}
             color={color}
             size='md'
             className='h-3'

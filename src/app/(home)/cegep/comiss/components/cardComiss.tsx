@@ -73,7 +73,7 @@ export function CardComiss({
       <>
          <Card
             className='uppercase hover:shadow-lg w-[28rem] select-none transition-shadow duration-300 ease-in-out'
-            //
+         //
          >
             <div className='flex flex-row justify-between items-center'>
                <h3 className='font-medium text-center w-full'>
@@ -213,8 +213,8 @@ function ComissProgress({
          className='size-24'
          value={value}
          strokeWidth={11}
-         maxValue={1}
-         text={`${(Number(value) * 100).toFixed(1)}%`}
+         maxValue={100}
+         text={`${value}%`}
          styles={buildStyles({
             pathColor: color,
             textColor: color,
