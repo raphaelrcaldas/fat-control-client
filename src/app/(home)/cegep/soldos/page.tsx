@@ -208,59 +208,6 @@ export default function SoldosPage() {
             )}
          </div>
 
-         {/* Stats Cards */}
-         {stats && (
-            <div className="mb-4 grid grid-cols-1 gap-4 sm:grid-cols-3">
-               <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
-                  <div className="flex items-center gap-3">
-                     <div className="rounded-lg bg-blue-100 p-2">
-                        <HiCurrencyDollar className="h-5 w-5 text-blue-600" />
-                     </div>
-                     <div>
-                        <p className="text-xs font-medium text-gray-500 uppercase">
-                           Total de Registros
-                        </p>
-                        <p className="text-2xl font-bold text-gray-900">
-                           {stats.total}
-                        </p>
-                     </div>
-                  </div>
-               </div>
-
-               <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
-                  <div className="flex items-center gap-3">
-                     <div className="rounded-lg bg-red-100 p-2">
-                        <HiTrendingDown className="h-5 w-5 text-red-600" />
-                     </div>
-                     <div>
-                        <p className="text-xs font-medium text-gray-500 uppercase">
-                           Menor Soldo
-                        </p>
-                        <p className="font-mono text-xl font-bold text-gray-900">
-                           {formatCurrency(stats.min_valor)}
-                        </p>
-                     </div>
-                  </div>
-               </div>
-
-               <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
-                  <div className="flex items-center gap-3">
-                     <div className="rounded-lg bg-green-100 p-2">
-                        <HiTrendingUp className="h-5 w-5 text-green-600" />
-                     </div>
-                     <div>
-                        <p className="text-xs font-medium text-gray-500 uppercase">
-                           Maior Soldo
-                        </p>
-                        <p className="font-mono text-xl font-bold text-gray-900">
-                           {formatCurrency(stats.max_valor)}
-                        </p>
-                     </div>
-                  </div>
-               </div>
-            </div>
-         )}
-
          {/* Filtros */}
          <div className="mb-4 flex flex-wrap items-center gap-4">
             <div className="flex gap-2">

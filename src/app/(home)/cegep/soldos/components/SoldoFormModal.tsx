@@ -117,7 +117,7 @@ export default function SoldoFormModal({
                      type="number"
                      step="0.01"
                      placeholder="0,00"
-                     {...register("valor")}
+                     {...register("valor", { valueAsNumber: true })}
                      color={errors.valor ? "failure" : undefined}
                   />
                   {errors.valor && (

@@ -5,9 +5,7 @@ export const soldoFormSchema = z
       pg: z.string().min(1, "Selecione um posto/graduacao"),
       data_inicio: z.string().min(1, "Data de inicio obrigatoria"),
       data_fim: z.string().nullable().optional(),
-      valor: z
-         .number({ coerce: true })
-         .positive("Valor deve ser maior que zero"),
+      valor: z.number().positive("Valor deve ser maior que zero"),
    })
    .refine(
       (data) => {
