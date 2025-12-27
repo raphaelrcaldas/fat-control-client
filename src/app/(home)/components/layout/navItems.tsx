@@ -92,6 +92,13 @@ export const navItems = [
             roles: [],
          },
          {
+            icon: MdAccountBalance,
+            label: "Dados Bancários",
+            path: "/cegep/dados-bancarios",
+            resource: "dados_bancarios",
+            permission: "view",
+         },
+         {
             icon: MdAttachMoney,
             label: "Soldos",
             path: "/cegep/soldos",
@@ -103,13 +110,6 @@ export const navItems = [
             label: "Diárias",
             path: "/cegep/diarias",
             resource: "diaria",
-            permission: "view",
-         },
-         {
-            icon: MdAccountBalance,
-            label: "Dados Bancários",
-            path: "/cegep/dados-bancarios",
-            resource: "dados_bancarios",
             permission: "view",
          },
       ],
