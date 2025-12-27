@@ -113,17 +113,17 @@ export function DetailComiss({
    // Dados computados para visualização
    const data_abertura = comiss
       ? isoStrToDate(comiss.data_ab).toLocaleDateString("pt-br", {
-           day: "2-digit",
-           month: "2-digit",
-           year: "2-digit",
-        })
+         day: "2-digit",
+         month: "2-digit",
+         year: "2-digit",
+      })
       : "";
    const data_fechamento = comiss
       ? isoStrToDate(comiss.data_fc).toLocaleDateString("pt-br", {
-           day: "2-digit",
-           month: "2-digit",
-           year: "2-digit",
-        })
+         day: "2-digit",
+         month: "2-digit",
+         year: "2-digit",
+      })
       : "";
 
    const ajd_ab = comiss?.valor_aj_ab || 0;

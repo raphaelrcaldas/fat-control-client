@@ -98,6 +98,13 @@ export const navItems = [
             resource: "soldo",
             permission: "view",
          },
+         {
+            icon: MdMoney,
+            label: "Diárias",
+            path: "/cegep/diarias",
+            resource: "diaria",
+            permission: "view",
+         },
          // {
          //    icon: MdAccountBalance,
          //    label: "Dados Bancários",
