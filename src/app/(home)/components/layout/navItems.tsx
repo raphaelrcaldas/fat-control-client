@@ -8,6 +8,7 @@ import {
    MdMoney,
    MdAccountBalance,
    MdAssignment,
+   MdAttachMoney,
 } from "react-icons/md";
 import { FaUsers, FaShield } from "react-icons/fa6";
 import { FaPaperPlane } from "react-icons/fa";
@@ -89,6 +90,13 @@ export const navItems = [
             label: "Comissionamento",
             path: "/cegep/comiss",
             roles: [],
+         },
+         {
+            icon: MdAttachMoney,
+            label: "Soldos",
+            path: "/cegep/soldos",
+            resource: "soldo",
+            permission: "view",
          },
          // {
          //    icon: MdAccountBalance,
