@@ -24,8 +24,8 @@ export interface OrdemMissao {
    camposEspeciais?: CampoEspecial[];
 }
 
-export const PROJETOS = ["kc-390"] as const;
-export type ProjetoType = (typeof PROJETOS)[number];
+// Re-export de constants/tripulantes
+export { PROJETOS, type ProjType as ProjetoType } from "@/constants/tripulantes";
 
 export interface FiltrosOrdem {
    busca: string;
@@ -37,8 +37,12 @@ export interface FiltrosOrdem {
 
 export type StatusType = "Rascunho" | "Elaborada" | "Finalizada" | "Revisada";
 
-// Tipos para seleção de tripulantes
-export type FuncaoTripulante = "pil" | "mc" | "lm" | "tf" | "oe" | "os";
+// Re-export tipos de tripulantes de constants/
+export {
+   type FuncaoTripulante,
+   FUNCOES_PRINCIPAIS as TODAS_FUNCOES,
+   FUNC_LABELS_SHORT as FUNCAO_LABELS,
+} from "@/constants/tripulantes";
 export type OperacionalidadeType = "ba" | "op" | "in" | "al";
 
 export interface TripulanteSearchResult {
@@ -63,23 +67,7 @@ export interface TripulacaoOrdem {
    os: TripulanteSearchResult[];
 }
 
-export const FUNCAO_LABELS: Record<FuncaoTripulante, string> = {
-   pil: "Piloto",
-   mc: "Mecânico",
-   lm: "Loadmaster",
-   tf: "Comissário",
-   oe: "OE-3",
-   os: "Observador SAR",
-};
-
-export const TODAS_FUNCOES: FuncaoTripulante[] = [
-   "pil",
-   "mc",
-   "lm",
-   "tf",
-   "oe",
-   "os",
-];
+// FUNCAO_LABELS e TODAS_FUNCOES agora vêm de @/constants/tripulantes (re-exportados acima)
 
 // Campos Especiais (estrutura livre)
 export interface CampoEspecial {

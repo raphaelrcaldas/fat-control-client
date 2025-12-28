@@ -6,6 +6,7 @@ import { HiSearch, HiUserGroup, HiX } from "react-icons/hi";
 import { Spinner } from "@/components/Spinner";
 import { Pagination } from "@/components/Pagination";
 import { postoGradRecords } from "services/routes/postos";
+import { FUNC_LABELS, OPER_LABELS } from "@/constants/tripulantes";
 import { SearchUser } from "./components/searchUserTrip";
 import { TripRow } from "./components/TripRow";
 import { MultiSelect } from "./components/MultiSelect";
@@ -13,24 +14,6 @@ import { PermBased } from "../../hooks/usePermBased";
 import useDebouncedValue from "@/hooks/useDebouncedValue";
 import { useTripList } from "./hooks/useTripList";
 import type { FuncType, OperType } from "./types/trip.types";
-
-const FUNC_LABELS: Record<string, string> = {
-   pil: "Piloto",
-   mc: "Mecânico de Voo",
-   lm: "Loadmaster",
-   oe: "Operador de Equipamentos",
-   os: "Observador-SAR",
-   tf: "Comissário",
-   ml: "Mestre de Lançamento",
-   md: "Médico",
-};
-
-const OPER_LABELS: Record<string, string> = {
-   ba: "Básico",
-   op: "Operacional",
-   in: "Instrutor",
-   al: "Aluno",
-};
 
 export default function TripPage() {
    const [uae] = useState("11gt");
