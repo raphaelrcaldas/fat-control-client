@@ -14,6 +14,7 @@ import { AppLoadingScreen } from "../../components/appLoadingScreen";
 import { TripSheet } from "services/google-sheets/sheets";
 import { CrewIndispList } from "services/routes/indisps";
 import { datasIguais, isoStrLocalToDate } from "utils/dateHandler";
+import { FUNC_LABELS_SHORT } from "@/constants/tripulantes";
 import {
    HiChevronLeft,
    HiChevronRight,
@@ -181,14 +182,8 @@ export default function IndispPage() {
       })}`;
    };
 
-   const funcLabels = {
-      pil: "Piloto",
-      mc: "Mecânico",
-      lm: "LoadMaster",
-      tf: "Comissário",
-      os: "Observador-SAR",
-      oe: "OE",
-   };
+   // Usar labels curtos de constants/tripulantes
+   const funcLabels = FUNC_LABELS_SHORT;
 
    return (
       <div className="flex h-full flex-col overflow-hidden">

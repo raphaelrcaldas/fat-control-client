@@ -1,31 +1,60 @@
 import request from "../../Api";
 import { cegepRoute } from ".";
 
+// Re-export dados estáticos de constants/
+export {
+   // Grupos Cidade
+   grupoCidadeRecords,
+   GRUPO_CIDADE_LABELS,
+   getGrupoCidadeById,
+   getCidadesByGrupo,
+   getGruposCidadeUnicos,
+   cidadesByGrupoMap,
+   type CidadeSimple,
+   type GrupoCidadePublic,
+   // Grupos P/G
+   grupoPgRecords,
+   GRUPO_PG_LABELS,
+   getGrupoPgById,
+   getGrupoPgByShort,
+   getPgByGrupo,
+   getGruposPgUnicos,
+   pgByGrupoMap,
+   type GrupoPgPublic,
+} from "../../../src/constants/cegep/diarias";
+
+import {
+   grupoCidadeRecords,
+   grupoPgRecords,
+   type GrupoCidadePublic,
+   type GrupoPgPublic,
+} from "../../../src/constants/cegep/diarias";
+
 const diariasRoute = cegepRoute + "diarias/";
 
-// Interfaces
+// ============================================
+// FUNÇÕES SÍNCRONAS (compatibilidade)
+// ============================================
 
-export interface CidadeSimple {
-   codigo: number;
-   nome: string;
-   uf: string;
+/**
+ * Retorna os grupos de cidade de forma síncrona (dados estáticos)
+ * @deprecated Use grupoCidadeRecords diretamente de constants/cegep/diarias
+ */
+export function getGruposCidadeSync(): GrupoCidadePublic[] {
+   return grupoCidadeRecords;
 }
 
-export interface GrupoCidadePublic {
-   id: number;
-   grupo: number;
-   cidade_id: number;
-   cidade: CidadeSimple | null;
+/**
+ * Retorna os grupos de P/G de forma síncrona (dados estáticos)
+ * @deprecated Use grupoPgRecords diretamente de constants/cegep/diarias
+ */
+export function getGruposPgSync(): GrupoPgPublic[] {
+   return grupoPgRecords;
 }
 
-export interface GrupoPgPublic {
-   id: number;
-   grupo: number;
-   pg_short: string;
-   pg_mid: string | null;
-   pg_long: string | null;
-   circulo: string | null;
-}
+// ============================================
+// INTERFACES DE API
+// ============================================
 
 export interface DiariaValorPublic {
    id: number;
@@ -51,7 +80,9 @@ export interface DiariaValorCreate {
    data_fim?: string | null;
 }
 
+// ============================================
 // API Functions
+// ============================================
 
 export async function getDiariaValores(
    grupoCid?: number,
@@ -143,24 +174,18 @@ export async function deleteDiariaValor(valorId: number): Promise<void> {
    }
 }
 
+/**
+ * Retorna grupos de cidade (usa dados estáticos locais)
+ * @deprecated Use grupoCidadeRecords diretamente de constants/cegep/diarias
+ */
 export async function getGruposCidade(): Promise<GrupoCidadePublic[]> {
-   const response = await request("GET", `${diariasRoute}grupos-cidade/`);
-
-   if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.detail || "Erro ao buscar grupos de cidade");
-   }
-
-   return (await response.json()) as GrupoCidadePublic[];
+   return Promise.resolve(grupoCidadeRecords);
 }
 
+/**
+ * Retorna grupos de P/G (usa dados estáticos locais)
+ * @deprecated Use grupoPgRecords diretamente de constants/cegep/diarias
+ */
 export async function getGruposPg(): Promise<GrupoPgPublic[]> {
-   const response = await request("GET", `${diariasRoute}grupos-pg/`);
-
-   if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.detail || "Erro ao buscar grupos de P/G");
-   }
-
-   return (await response.json()) as GrupoPgPublic[];
+   return Promise.resolve(grupoPgRecords);
 }
