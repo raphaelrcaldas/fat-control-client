@@ -2,7 +2,15 @@
  * Tipos de indisponibilidade de tripulantes
  */
 
-export type IndispType = "svc" | "sde" | "rep" | "fer" | "lic" | "mis" | "odm" | "pes";
+export type IndispType =
+   | "svc"
+   | "sde"
+   | "rep"
+   | "fer"
+   | "lic"
+   | "mis"
+   | "odm"
+   | "pes";
 
 export interface IndispOption {
    value: IndispType;

@@ -22,7 +22,6 @@ export type {
    GrupoPgPublic,
    DiariaFormData,
    CidadesByGrupoMap,
-   PgByGrupoMap,
    DiariaActionHandlers,
 } from "./types";
 export { INITIAL_FORM_DATA } from "./types";

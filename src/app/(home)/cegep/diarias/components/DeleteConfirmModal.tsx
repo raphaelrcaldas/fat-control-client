@@ -31,11 +31,7 @@ export function DeleteConfirmModal({
                   Deseja realmente excluir esta diária?
                </h3>
                <div className="flex justify-center gap-4">
-                  <Button
-                     color="red"
-                     onClick={onConfirm}
-                     disabled={isDeleting}
-                  >
+                  <Button color="red" onClick={onConfirm} disabled={isDeleting}>
                      {isDeleting ? (
                         <>
                            <Spinner size="sm" className="mr-2" />
@@ -45,11 +41,7 @@ export function DeleteConfirmModal({
                         "Sim, excluir"
                      )}
                   </Button>
-                  <Button
-                     color="gray"
-                     onClick={onClose}
-                     disabled={isDeleting}
-                  >
+                  <Button color="gray" onClick={onClose} disabled={isDeleting}>
                      Cancelar
                   </Button>
                </div>

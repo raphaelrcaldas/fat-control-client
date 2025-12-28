@@ -2,7 +2,12 @@
 
 import { HiPencil, HiTrash } from "react-icons/hi";
 import type { DiariaValorPublic, GrupoCidadePublic } from "../types";
-import { formatCurrency, formatDate, getStatusBadge, getCidadeDisplayName } from "../utils";
+import {
+   formatCurrency,
+   formatDate,
+   getStatusBadge,
+   getCidadeDisplayName,
+} from "../utils";
 
 interface DiariaTableProps {
    valores: DiariaValorPublic[];
@@ -20,7 +25,7 @@ export function DiariaTable({
    return (
       <div className="hidden overflow-x-auto md:block">
          <table className="w-full text-left text-sm text-gray-600">
-            <thead className="border-b border-gray-200 bg-white text-xs uppercase text-gray-700">
+            <thead className="border-b border-gray-200 bg-white text-xs text-gray-700 uppercase">
                <tr>
                   <th className="px-3 py-2">Grupo Cidade</th>
                   <th className="px-3 py-2">Valor</th>
@@ -33,7 +38,10 @@ export function DiariaTable({
             <tbody>
                {valores.map((valor) => {
                   const cidades = cidadesByGrupo.get(valor.grupo_cid) || [];
-                  const cidadeNome = getCidadeDisplayName(valor.grupo_cid, cidades);
+                  const cidadeNome = getCidadeDisplayName(
+                     valor.grupo_cid,
+                     cidades
+                  );
 
                   return (
                      <tr
@@ -54,7 +62,9 @@ export function DiariaTable({
                         <td className="px-3 py-2 font-mono text-gray-600">
                            {formatDate(valor.data_fim)}
                         </td>
-                        <td className="px-3 py-2">{getStatusBadge(valor.status)}</td>
+                        <td className="px-3 py-2">
+                           {getStatusBadge(valor.status)}
+                        </td>
                         <td className="px-3 py-2">
                            <div className="flex gap-2">
                               <button

@@ -37,13 +37,6 @@ export interface CidadesByGrupoMap {
 }
 
 /**
- * Props for components that need P/G grouping
- */
-export interface PgByGrupoMap {
-   pgByGrupo: Map<number, GrupoPgPublic[]>;
-}
-
-/**
  * Common action handlers for diaria items
  */
 export interface DiariaActionHandlers {

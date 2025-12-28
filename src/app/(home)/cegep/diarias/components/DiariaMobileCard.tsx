@@ -2,7 +2,12 @@
 
 import { HiPencil, HiTrash } from "react-icons/hi";
 import type { DiariaValorPublic, GrupoCidadePublic } from "../types";
-import { formatCurrency, formatDate, getStatusBadge, getCidadeDisplayName } from "../utils";
+import {
+   formatCurrency,
+   formatDate,
+   getStatusBadge,
+   getCidadeDisplayName,
+} from "../utils";
 
 interface DiariaMobileCardProps {
    valor: DiariaValorPublic;
@@ -47,7 +52,8 @@ export function DiariaMobileCard({
          </div>
          <div className="mt-2 flex flex-wrap items-center gap-2 text-sm text-gray-500">
             <span className="font-mono">
-               {formatDate(valor.data_inicio)} &rarr; {formatDate(valor.data_fim)}
+               {formatDate(valor.data_inicio)} &rarr;{" "}
+               {formatDate(valor.data_fim)}
             </span>
             {getStatusBadge(valor.status)}
          </div>

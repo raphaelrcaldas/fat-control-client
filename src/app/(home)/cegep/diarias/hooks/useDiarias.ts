@@ -9,7 +9,6 @@ import {
    getGruposCidadeUnicos,
    getGruposPgUnicos,
    cidadesByGrupoMap,
-   pgByGrupoMap,
    type DiariaValorPublic,
    type GrupoCidadePublic,
    type GrupoPgPublic,
@@ -32,7 +31,6 @@ interface UseDiariasReturn {
 
    // Computed values
    cidadesByGrupo: Map<number, GrupoCidadePublic[]>;
-   pgByGrupo: Map<number, GrupoPgPublic[]>;
    uniqueGruposCidade: number[];
    uniqueGruposPg: number[];
 }
@@ -100,7 +98,6 @@ export function useDiarias(): UseDiariasReturn {
       setOnlyActive,
       loadData,
       cidadesByGrupo: cidadesByGrupoMap,
-      pgByGrupo: pgByGrupoMap,
       uniqueGruposCidade,
       uniqueGruposPg,
    };

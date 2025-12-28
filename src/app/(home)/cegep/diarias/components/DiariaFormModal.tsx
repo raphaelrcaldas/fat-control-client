@@ -12,9 +12,15 @@ import {
    HelperText,
 } from "flowbite-react";
 import clsx from "clsx";
-import type { DiariaFormData, GrupoPgPublic } from "../types";
+import type { DiariaFormData } from "../types";
 import type { DiariaFormErrors } from "../schemas";
 import { formatDate } from "../utils";
+import {
+   GRUPO_CIDADE_LABELS,
+   GRUPO_CIDADE_DESCRICAO,
+   GRUPO_PG_LABELS,
+   GRUPO_PG_DESCRICAO,
+} from "@/constants/cegep/diarias";
 
 interface DiariaFormModalProps {
    show: boolean;
@@ -25,7 +31,6 @@ interface DiariaFormModalProps {
    errors: DiariaFormErrors;
    uniqueGruposCidade: number[];
    uniqueGruposPg: number[];
-   pgByGrupo: Map<number, GrupoPgPublic[]>;
    onClose: () => void;
    onSubmit: (e: React.FormEvent) => Promise<void>;
    onFieldChange: (field: keyof DiariaFormData, value: string | number) => void;
@@ -40,7 +45,6 @@ export function DiariaFormModal({
    errors,
    uniqueGruposCidade,
    uniqueGruposPg,
-   pgByGrupo,
    onClose,
    onSubmit,
    onFieldChange,
@@ -48,14 +52,14 @@ export function DiariaFormModal({
    const isDisabled = isSubmitting;
 
    return (
-      <Modal show={show} onClose={isDisabled ? undefined : onClose} size="md">
+      <Modal show={show} onClose={isDisabled ? undefined : onClose} size="xl">
          <ModalHeader>
-            {isCreating ? "Nova Diária" : "Editar Valor de Diária"}
+            {isCreating ? "Nova Diaria" : "Editar Valor de Diaria"}
          </ModalHeader>
          <ModalBody>
             <form onSubmit={onSubmit} className="space-y-4">
                {isCreating && (
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                      <div>
                         <Label htmlFor="grupo_cid">Grupo Cidade</Label>
                         <Select
@@ -69,13 +73,18 @@ export function DiariaFormModal({
                         >
                            {uniqueGruposCidade.map((g) => (
                               <option key={g} value={g}>
-                                 Grupo {g}
+                                 {GRUPO_CIDADE_LABELS[g] || `Grupo ${g}`}
                               </option>
                            ))}
                         </Select>
-                        {errors.grupo_cid && (
+                        {errors.grupo_cid ? (
                            <HelperText color="failure">
                               {errors.grupo_cid}
+                           </HelperText>
+                        ) : (
+                           <HelperText color="gray">
+                              {GRUPO_CIDADE_DESCRICAO[formData.grupo_cid] ||
+                                 "Selecione um grupo"}
                            </HelperText>
                         )}
                      </div>
@@ -92,23 +101,25 @@ export function DiariaFormModal({
                         >
                            {uniqueGruposPg.map((g) => (
                               <option key={g} value={g}>
-                                 Grupo {g}:{" "}
-                                 {(pgByGrupo.get(g) || [])
-                                    .map((pg) => pg.pg_short.toUpperCase())
-                                    .join(", ") || "-"}
+                                 {GRUPO_PG_LABELS[g] || `Grupo ${g}`}
                               </option>
                            ))}
                         </Select>
-                        {errors.grupo_pg && (
+                        {errors.grupo_pg ? (
                            <HelperText color="failure">
                               {errors.grupo_pg}
+                           </HelperText>
+                        ) : (
+                           <HelperText color="gray">
+                              {GRUPO_PG_DESCRICAO[formData.grupo_pg] ||
+                                 "Selecione um grupo"}
                            </HelperText>
                         )}
                      </div>
                   </div>
                )}
 
-               <div>
+               <div className="grid max-w-60 items-center">
                   <Label htmlFor="valor">Valor (R$)</Label>
                   <TextInput
                      id="valor"
@@ -137,51 +148,57 @@ export function DiariaFormModal({
                   )}
                </div>
 
-               <div>
-                  <Label htmlFor="data_inicio">Data Início</Label>
-                  <TextInput
-                     id="data_inicio"
-                     type="date"
-                     value={formData.data_inicio}
-                     onChange={(e) =>
-                        onFieldChange("data_inicio", e.target.value)
-                     }
-                     disabled={isDisabled}
-                     color={errors.data_inicio ? "failure" : undefined}
-                  />
-                  {errors.data_inicio ? (
-                     <HelperText color="failure">
-                        {errors.data_inicio}
-                     </HelperText>
-                  ) : formData.data_inicio ? (
-                     <HelperText color="gray">
-                        {formatDate(formData.data_inicio)}
-                     </HelperText>
-                  ) : null}
-               </div>
+               <div className="grid grid-cols-2 gap-4">
+                  <div>
+                     <Label htmlFor="data_inicio">Data Início</Label>
+                     <TextInput
+                        id="data_inicio"
+                        type="date"
+                        value={formData.data_inicio}
+                        onChange={(e) =>
+                           onFieldChange("data_inicio", e.target.value)
+                        }
+                        disabled={isDisabled}
+                        color={errors.data_inicio ? "failure" : undefined}
+                     />
+                     {errors.data_inicio ? (
+                        <HelperText color="failure">
+                           {errors.data_inicio}
+                        </HelperText>
+                     ) : formData.data_inicio ? (
+                        <HelperText color="gray">
+                           {formatDate(formData.data_inicio)}
+                        </HelperText>
+                     ) : null}
+                  </div>
 
-               <div>
-                  <Label htmlFor="data_fim">Data Fim (opcional)</Label>
-                  <TextInput
-                     id="data_fim"
-                     type="date"
-                     value={formData.data_fim}
-                     min={formData.data_inicio || undefined}
-                     onChange={(e) => onFieldChange("data_fim", e.target.value)}
-                     disabled={isDisabled}
-                     color={errors.data_fim ? "failure" : undefined}
-                  />
-                  {errors.data_fim ? (
-                     <HelperText color="failure">{errors.data_fim}</HelperText>
-                  ) : formData.data_fim ? (
-                     <HelperText color="gray">
-                        {formatDate(formData.data_fim)}
-                     </HelperText>
-                  ) : (
-                     <HelperText color="gray">
-                        Deixe em branco para vigência indeterminada
-                     </HelperText>
-                  )}
+                  <div>
+                     <Label htmlFor="data_fim">Data Fim (opcional)</Label>
+                     <TextInput
+                        id="data_fim"
+                        type="date"
+                        value={formData.data_fim}
+                        min={formData.data_inicio || undefined}
+                        onChange={(e) =>
+                           onFieldChange("data_fim", e.target.value)
+                        }
+                        disabled={isDisabled}
+                        color={errors.data_fim ? "failure" : undefined}
+                     />
+                     {errors.data_fim ? (
+                        <HelperText color="failure">
+                           {errors.data_fim}
+                        </HelperText>
+                     ) : formData.data_fim ? (
+                        <HelperText color="gray">
+                           {formatDate(formData.data_fim)}
+                        </HelperText>
+                     ) : (
+                        <HelperText color="gray">
+                           Deixe em branco para vigência indeterminada
+                        </HelperText>
+                     )}
+                  </div>
                </div>
 
                <div className="flex justify-end gap-2 pt-4">

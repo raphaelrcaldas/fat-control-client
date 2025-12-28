@@ -25,7 +25,10 @@ export interface OrdemMissao {
 }
 
 // Re-export de constants/tripulantes
-export { PROJETOS, type ProjType as ProjetoType } from "@/constants/tripulantes";
+export {
+   PROJETOS,
+   type ProjType as ProjetoType,
+} from "@/constants/tripulantes";
 
 export interface FiltrosOrdem {
    busca: string;

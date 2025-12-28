@@ -20,7 +20,6 @@ export default function DiariasPage() {
       setOnlyActive,
       loadData,
       cidadesByGrupo,
-      pgByGrupo,
       uniqueGruposCidade,
       uniqueGruposPg,
    } = useDiarias();
@@ -149,7 +148,6 @@ export default function DiariasPage() {
             errors={errors}
             uniqueGruposCidade={uniqueGruposCidade}
             uniqueGruposPg={uniqueGruposPg}
-            pgByGrupo={pgByGrupo}
             onClose={handleCloseModal}
             onSubmit={handleSubmit}
             onFieldChange={updateField}
