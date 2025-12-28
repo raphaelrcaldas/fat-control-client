@@ -364,7 +364,7 @@ export function DetailComiss({
                {/* Datas e Valores */}
                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                   {/* Abertura */}
-                  <div className="rounded-xl border border-emerald-200 bg-gradient-to-br from-emerald-50 to-green-50 p-5 shadow-sm">
+                  <div className="rounded-xl border border-emerald-200 bg-linear-to-br from-emerald-50 to-green-50 p-5 shadow-sm">
                      <h4 className="mb-4 flex items-center gap-2 text-sm font-semibold text-emerald-800">
                         <div className="h-2 w-2 rounded-full bg-emerald-500" />
                         Abertura
@@ -415,7 +415,7 @@ export function DetailComiss({
                   </div>
 
                   {/* Fechamento */}
-                  <div className="rounded-xl border border-orange-200 bg-gradient-to-br from-orange-50 to-amber-50 p-5 shadow-sm">
+                  <div className="rounded-xl border border-orange-200 bg-linear-to-br from-orange-50 to-amber-50 p-5 shadow-sm">
                      <h4 className="mb-4 flex items-center gap-2 text-sm font-semibold text-orange-800">
                         <div className="h-2 w-2 rounded-full bg-orange-500" />
                         Fechamento
@@ -584,7 +584,7 @@ export function DetailComiss({
             <ModalBody className="space-y-3">
                <PermBased resource={"comiss"} requiredPerm={"create"}>
                   {/* Seção de Exportação */}
-                  <div className="-mt-2 rounded-xl border-2 border-blue-200 bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 p-4 shadow-md">
+                  <div className="-mt-2 rounded-xl border-2 border-blue-200 bg-linear-to-r from-blue-50 via-indigo-50 to-purple-50 p-4 shadow-md">
                      <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
                            <div>
@@ -636,7 +636,7 @@ export function DetailComiss({
                   </div>
                </PermBased>
                {/* Informações do Militar */}
-               <div className="space-y-2 rounded-xl border border-blue-100 bg-gradient-to-r from-blue-50 to-indigo-50 p-4 text-center">
+               <div className="space-y-2 rounded-xl border border-blue-100 bg-linear-to-r from-blue-50 to-indigo-50 p-4 text-center">
                   <h3 className="text-lg font-bold tracking-wide text-gray-900 uppercase">
                      {comiss.user.posto.mid} {comiss.user.esp}{" "}
                      {comiss.user.nome_guerra}
@@ -678,7 +678,7 @@ export function DetailComiss({
                   {/* Datas e Valores */}
                   <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
                      {/* Abertura */}
-                     <div className="rounded-xl border border-emerald-200 bg-gradient-to-br from-emerald-50 to-green-50 p-4 shadow-sm">
+                     <div className="rounded-xl border border-emerald-200 bg-linear-to-br from-emerald-50 to-green-50 p-4 shadow-sm">
                         <h4 className="mb-1 flex items-center gap-2 text-sm font-semibold text-emerald-800">
                            <div className="h-2 w-2 rounded-full bg-emerald-500" />
                            Abertura
@@ -712,7 +712,7 @@ export function DetailComiss({
                      </div>
 
                      {/* Fechamento */}
-                     <div className="rounded-xl border border-orange-200 bg-gradient-to-br from-orange-50 to-amber-50 p-4 shadow-sm">
+                     <div className="rounded-xl border border-orange-200 bg-linear-to-br from-orange-50 to-amber-50 p-4 shadow-sm">
                         <h4 className="mb-1 flex items-center gap-2 text-sm font-semibold text-orange-800">
                            <div className="h-2 w-2 rounded-full bg-orange-500" />
                            Fechamento
@@ -771,7 +771,7 @@ export function DetailComiss({
                </PermBased>
 
                {/* Métricas */}
-               <div className="space-y-4 rounded-xl border border-gray-200 bg-gradient-to-r from-gray-50 to-slate-50 p-6">
+               <div className="space-y-4 rounded-xl border border-gray-200 bg-linear-to-r from-gray-50 to-slate-50 p-6">
                   {/* Dica para comissionamento comparativo */}
                   {!comiss.dias_cumprir && (
                      <div className="flex items-center gap-2 rounded-lg border border-blue-200 bg-blue-50 p-2 text-xs text-blue-800">
