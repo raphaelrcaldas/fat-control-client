@@ -122,7 +122,7 @@ export default function SoldoTable({
                                  soldo.posto_grad?.circulo ||
                                     getPostoInfo(soldo.pg)?.circulo
                               )}
-                              className="flex w-32 justify-center"
+                              className="flex w-36 justify-center"
                               size="sm"
                            >
                               {CIRCULO_LABELS[
