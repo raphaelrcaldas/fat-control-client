@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect, useRef, useMemo } from "react";
+import { useState, useEffect, useRef, useMemo, useCallback } from "react";
+import { createPortal } from "react-dom";
 import clsx from "clsx";
 import { Badge, TextInput } from "flowbite-react";
 import { IoSearchSharp, IoClose, IoAdd } from "react-icons/io5";
@@ -20,6 +21,8 @@ interface TripulanteSelectProps {
    onRemove: (tripulanteId: number) => void;
    disabled?: boolean;
    excludeIds?: number[];
+   required?: boolean;
+   hasError?: boolean;
 }
 
 export function TripulanteSelect({
@@ -30,15 +33,49 @@ export function TripulanteSelect({
    onRemove,
    disabled = false,
    excludeIds = [],
+   required = false,
+   hasError = false,
 }: TripulanteSelectProps) {
    const [query, setQuery] = useState("");
    const [results, setResults] = useState<TripulanteSearchResult[]>([]);
    const [isOpen, setIsOpen] = useState(false);
    const [isLoading, setIsLoading] = useState(false);
    const [showSearch, setShowSearch] = useState(false);
+   const [dropdownPosition, setDropdownPosition] = useState<{
+      top: number;
+      left: number;
+      width: number;
+   } | null>(null);
    const containerRef = useRef<HTMLDivElement>(null);
    const inputRef = useRef<HTMLInputElement>(null);
+   const inputWrapperRef = useRef<HTMLDivElement>(null);
+   const dropdownRef = useRef<HTMLDivElement>(null);
    const abortControllerRef = useRef<AbortController | null>(null);
+
+   // Calcula a posicao do dropdown baseado no input
+   const updateDropdownPosition = useCallback(() => {
+      if (inputWrapperRef.current) {
+         const rect = inputWrapperRef.current.getBoundingClientRect();
+         setDropdownPosition({
+            top: rect.bottom + window.scrollY + 4,
+            left: rect.left + window.scrollX,
+            width: rect.width,
+         });
+      }
+   }, []);
+
+   // Atualiza a posicao quando o dropdown abre ou quando ha scroll/resize
+   useEffect(() => {
+      if (isOpen) {
+         updateDropdownPosition();
+         window.addEventListener("scroll", updateDropdownPosition, true);
+         window.addEventListener("resize", updateDropdownPosition);
+         return () => {
+            window.removeEventListener("scroll", updateDropdownPosition, true);
+            window.removeEventListener("resize", updateDropdownPosition);
+         };
+      }
+   }, [isOpen, updateDropdownPosition]);
 
    // Debounced search
    useEffect(() => {
@@ -72,13 +109,16 @@ export function TripulanteSelect({
       return () => clearTimeout(timeoutId);
    }, [query, funcao, projeto]);
 
-   // Close dropdown on click outside
+   // Close dropdown on click outside (considera container e dropdown do portal)
    useEffect(() => {
       const handleClickOutside = (event: MouseEvent) => {
-         if (
-            containerRef.current &&
-            !containerRef.current.contains(event.target as Node)
-         ) {
+         const target = event.target as Node;
+         const isInsideContainer =
+            containerRef.current && containerRef.current.contains(target);
+         const isInsideDropdown =
+            dropdownRef.current && dropdownRef.current.contains(target);
+
+         if (!isInsideContainer && !isInsideDropdown) {
             setIsOpen(false);
             setShowSearch(false);
             setQuery("");
@@ -151,10 +191,14 @@ export function TripulanteSelect({
    return (
       <div
          ref={containerRef}
-         className="rounded-lg border border-gray-200 bg-white p-4"
+         className={clsx(
+            "rounded-lg border bg-white p-4 transition-colors",
+            hasError ? "border-red-300" : "border-gray-200"
+         )}
       >
          <label className="mb-3 flex items-center gap-1.5 text-sm font-semibold text-gray-700">
             {FUNCAO_LABELS[funcao]}
+            {required && <span className="text-red-500">*</span>}
             {tripulantes.length > 0 && (
                <Badge color="gray" size="xs">
                   {tripulantes.length}
@@ -202,7 +246,7 @@ export function TripulanteSelect({
                      Adicionar
                   </button>
                ) : (
-                  <div className="relative">
+                  <div ref={inputWrapperRef} className="relative">
                      <TextInput
                         ref={inputRef}
                         type="text"
@@ -223,52 +267,77 @@ export function TripulanteSelect({
                         </div>
                      )}
 
-                     {isOpen && sortedResults.length > 0 && (
-                        <div className="absolute z-50 mt-1 max-h-48 w-full overflow-auto rounded-lg border border-gray-200 bg-white shadow-lg">
-                           {sortedResults.map((tripulante) => {
-                              const isAdded = excludeIds.includes(
-                                 tripulante.id
-                              );
-                              return (
-                                 <button
-                                    key={tripulante.id}
-                                    type="button"
-                                    onClick={() =>
-                                       !isAdded && handleSelect(tripulante)
-                                    }
-                                    disabled={isAdded}
-                                    className={clsx(
-                                       "flex w-full items-center gap-2 border-b border-gray-100 px-3 py-2 text-left last:border-b-0",
-                                       isAdded
-                                          ? "cursor-not-allowed bg-gray-50 opacity-60"
-                                          : "cursor-pointer hover:bg-gray-50"
-                                    )}
-                                 >
-                                    <span className="font-mono text-sm font-bold text-gray-700 uppercase">
-                                       {tripulante.trig}
-                                    </span>
-                                    <span className="flex-1 truncate text-xs text-gray-600 uppercase">
-                                       {tripulante.p_g} {tripulante.nome_guerra}
-                                    </span>
-                                    {isAdded && (
-                                       <Badge color="gray" size="xs">
-                                          Adicionado
-                                       </Badge>
-                                    )}
-                                    {renderOperBadge(tripulante.oper)}
-                                 </button>
-                              );
-                           })}
-                        </div>
-                     )}
+                     {/* Dropdown renderizado via Portal para evitar corte por overflow do container pai */}
+                     {isOpen &&
+                        sortedResults.length > 0 &&
+                        dropdownPosition &&
+                        createPortal(
+                           <div
+                              ref={dropdownRef}
+                              className="fixed z-[9999] max-h-48 overflow-auto rounded-lg border border-gray-200 bg-white shadow-lg"
+                              style={{
+                                 top: dropdownPosition.top,
+                                 left: dropdownPosition.left,
+                                 width: dropdownPosition.width,
+                              }}
+                           >
+                              {sortedResults.map((tripulante) => {
+                                 const isAdded = excludeIds.includes(
+                                    tripulante.id
+                                 );
+                                 return (
+                                    <button
+                                       key={tripulante.id}
+                                       type="button"
+                                       onClick={() =>
+                                          !isAdded && handleSelect(tripulante)
+                                       }
+                                       disabled={isAdded}
+                                       className={clsx(
+                                          "flex w-full items-center gap-2 border-b border-gray-100 px-3 py-2 text-left last:border-b-0",
+                                          isAdded
+                                             ? "cursor-not-allowed bg-gray-50 opacity-60"
+                                             : "cursor-pointer hover:bg-gray-50"
+                                       )}
+                                    >
+                                       <span className="font-mono text-sm font-bold text-gray-700 uppercase">
+                                          {tripulante.trig}
+                                       </span>
+                                       <span className="flex-1 truncate text-xs text-gray-600 uppercase">
+                                          {tripulante.p_g}{" "}
+                                          {tripulante.nome_guerra}
+                                       </span>
+                                       {isAdded && (
+                                          <Badge color="gray" size="xs">
+                                             Adicionado
+                                          </Badge>
+                                       )}
+                                       {renderOperBadge(tripulante.oper)}
+                                    </button>
+                                 );
+                              })}
+                           </div>,
+                           document.body
+                        )}
 
+                     {/* Mensagem de nenhum resultado via Portal */}
                      {isOpen &&
                         query.length >= 2 &&
                         sortedResults.length === 0 &&
-                        !isLoading && (
-                           <div className="absolute z-50 mt-1 w-full rounded-lg border border-gray-200 bg-white p-3 text-center text-sm text-gray-500 shadow-lg">
+                        !isLoading &&
+                        dropdownPosition &&
+                        createPortal(
+                           <div
+                              className="fixed z-[9999] rounded-lg border border-gray-200 bg-white p-3 text-center text-sm text-gray-500 shadow-lg"
+                              style={{
+                                 top: dropdownPosition.top,
+                                 left: dropdownPosition.left,
+                                 width: dropdownPosition.width,
+                              }}
+                           >
                               Nenhum tripulante encontrado
-                           </div>
+                           </div>,
+                           document.body
                         )}
                   </div>
                )}

@@ -7,6 +7,7 @@ export {
 export {
    STATUS_OPTIONS as statusOptions,
    STATUS_CONFIG as statusConfig,
+   STATUS_LABELS as statusLabels,
    type StatusType,
    getStatusConfig,
 } from "@/constants/ops/ordens-missao/status";

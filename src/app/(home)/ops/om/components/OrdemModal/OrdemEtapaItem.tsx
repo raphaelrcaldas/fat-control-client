@@ -1,8 +1,23 @@
 "use client";
 
+import clsx from "clsx";
 import { Etapa } from "../../types";
-import { DurationInput } from "@/components/DurationInput";
-import { roundToNearestFiveMinutes } from "@/hooks/useDateTimeRound";
+import { calcularTempoVoo } from "../../transformers";
+import { HelperText } from "flowbite-react";
+import { useMemo } from "react";
+
+export interface EtapaFieldErrors {
+   dataDecolagem?: boolean;
+   horaDecolagem?: boolean;
+   origem?: boolean;
+   dataPouso?: boolean;
+   horaPouso?: boolean;
+   destino?: boolean;
+   alternativa?: boolean;
+   tempoVooAlternativa?: boolean;
+   quantidadeCombustivel?: boolean;
+   esforcoAereo?: boolean;
+}
 
 interface OrdemEtapaItemProps {
    etapa: Etapa;
@@ -12,6 +27,7 @@ interface OrdemEtapaItemProps {
    onChange: (field: string, value: string) => void;
    onRemove: () => void;
    onInsertAfter: () => void;
+   fieldErrors?: EtapaFieldErrors;
 }
 
 // Arredonda hora para múltiplo de 5 minutos
@@ -34,161 +50,363 @@ export function OrdemEtapaItem({
    onChange,
    onRemove,
    onInsertAfter,
+   fieldErrors = {},
 }: OrdemEtapaItemProps) {
+   // Garantir valores definidos para evitar erro de controlled/uncontrolled
+   const dataDecolagem = etapa.dataDecolagem ?? "";
+   const horaDecolagem = etapa.horaDecolagem ?? "";
+   const dataPouso = etapa.dataPouso ?? "";
+   const horaPouso = etapa.horaPouso ?? "";
+   const origem = etapa.origem ?? "";
+   const destino = etapa.destino ?? "";
+   const alternativa = etapa.alternativa ?? "";
+   const tempoVooAlternativa = etapa.tempoVooAlternativa ?? "";
+   const quantidadeCombustivel = etapa.quantidadeCombustivel ?? "";
+   const esforcoAereo = etapa.esforcoAereo ?? "";
+
+   const tempoVoo = calcularTempoVoo(
+      dataDecolagem,
+      horaDecolagem,
+      dataPouso,
+      horaPouso
+   );
+
+   // Validacao: decolagem nao pode ser posterior ao pouso
+   const erroDataHora = useMemo(() => {
+      // So valida se todos os campos estiverem preenchidos
+      if (!dataDecolagem || !horaDecolagem || !dataPouso || !horaPouso) {
+         return null;
+      }
+
+      const decolagem = new Date(`${dataDecolagem}T${horaDecolagem}`);
+      const pouso = new Date(`${dataPouso}T${horaPouso}`);
+
+      if (decolagem >= pouso) {
+         return "A data/hora de decolagem deve ser anterior a data/hora de pouso.";
+      }
+
+      return null;
+   }, [dataDecolagem, horaDecolagem, dataPouso, horaPouso]);
+
+   // Validacao: tempo de voo da etapa deve ser >= 5 minutos
+   const erroTempoVooEtapa = useMemo(() => {
+      if (!dataDecolagem || !horaDecolagem || !dataPouso || !horaPouso) {
+         return null;
+      }
+
+      const decolagem = new Date(`${dataDecolagem}T${horaDecolagem}`);
+      const pouso = new Date(`${dataPouso}T${horaPouso}`);
+      const diffMinutes = (pouso.getTime() - decolagem.getTime()) / 60000;
+
+      if (diffMinutes > 0 && diffMinutes < 5) {
+         return `Tempo de voo mínimo é 5 minutos (calculado: ${Math.floor(diffMinutes)} min).`;
+      }
+
+      return null;
+   }, [dataDecolagem, horaDecolagem, dataPouso, horaPouso]);
+
+   // Validacao: tempo de voo alternativa deve ser >= 5 minutos
+   const erroTempoVooAlternativa = useMemo(() => {
+      if (!tempoVooAlternativa) return null;
+
+      const [hours, minutes] = tempoVooAlternativa.split(":").map(Number);
+      const totalMinutes = (hours || 0) * 60 + (minutes || 0);
+
+      if (totalMinutes > 0 && totalMinutes < 5) {
+         return "Tempo de voo alternativa mínimo é 5 minutos.";
+      }
+
+      return null;
+   }, [tempoVooAlternativa]);
+
    return (
-      <div className="group relative rounded-lg border border-gray-200 bg-white p-4">
+      <div className="group relative rounded-lg border border-gray-200 bg-white p-4 text-center">
          <div className="absolute top-1/2 -left-3 flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded-full border-2 border-red-500 bg-white text-xs font-bold text-red-600">
             {index + 1}
          </div>
 
-         <div className="flex gap-2 text-center">
-            <div>
-               <label className="mb-1 block text-xs font-medium text-gray-500">
-                  Data
-               </label>
-               <input
-                  type="date"
-                  value={etapa.dataDecolagem}
-                  onChange={(e) => onChange("dataDecolagem", e.target.value)}
-                  disabled={!isEditable}
-                  className="w-36 rounded border border-gray-300 bg-white px-2 py-2 text-center text-sm text-gray-900 focus:border-transparent focus:ring-2 focus:ring-red-500 disabled:cursor-not-allowed disabled:opacity-50"
-               />
+         <div className="flex items-start gap-3 overflow-x-auto">
+            {/* Grupo Decolagem */}
+            <div className="rounded-lg border border-blue-200 bg-blue-50/50 p-2">
+               <span className="mb-2 block text-xs font-semibold tracking-wide text-blue-700 uppercase">
+                  Decolagem
+               </span>
+               <div className="flex gap-2">
+                  <div>
+                     <label className="mb-1 block text-xs font-medium text-gray-500">
+                        Data
+                     </label>
+                     <input
+                        type="date"
+                        value={dataDecolagem}
+                        onChange={(e) =>
+                           onChange("dataDecolagem", e.target.value)
+                        }
+                        disabled={!isEditable}
+                        className={clsx(
+                           "w-36 rounded border bg-white px-2 py-2 text-sm text-gray-900 focus:border-transparent focus:ring-2 disabled:cursor-not-allowed disabled:opacity-50",
+                           fieldErrors.dataDecolagem
+                              ? "border-red-400 focus:ring-red-500"
+                              : "border-gray-300 focus:ring-blue-500"
+                        )}
+                     />
+                  </div>
+                  <div>
+                     <label className="mb-1 block text-xs font-medium text-gray-500">
+                        Hora (Z)
+                     </label>
+                     <input
+                        type="time"
+                        value={horaDecolagem}
+                        onChange={(e) => {
+                           const rounded = roundTimeToFiveMinutes(
+                              e.target.value
+                           );
+                           onChange("horaDecolagem", rounded);
+                        }}
+                        disabled={!isEditable}
+                        step="300"
+                        className={clsx(
+                           "w-20 rounded border bg-white px-2 py-2 text-center text-sm text-gray-900 focus:border-transparent focus:ring-2 disabled:cursor-not-allowed disabled:opacity-50",
+                           fieldErrors.horaDecolagem
+                              ? "border-red-400 focus:ring-red-500"
+                              : "border-gray-300 focus:ring-blue-500"
+                        )}
+                     />
+                  </div>
+                  <div>
+                     <label className="mb-1 block text-xs font-medium text-gray-500">
+                        Origem
+                     </label>
+                     <input
+                        type="text"
+                        value={origem}
+                        onChange={(e) => {
+                           const value = e.target.value.replace(
+                              /[^a-zA-Z]/g,
+                              ""
+                           );
+                           onChange("origem", value.toUpperCase());
+                        }}
+                        disabled={!isEditable}
+                        placeholder="SBGL"
+                        maxLength={4}
+                        className={clsx(
+                           "w-20 rounded border bg-white px-2 py-2 text-center font-mono text-sm text-gray-900 uppercase placeholder:text-gray-400 focus:border-transparent focus:ring-2 disabled:cursor-not-allowed disabled:opacity-50",
+                           fieldErrors.origem
+                              ? "border-red-400 focus:ring-red-500"
+                              : "border-gray-300 focus:ring-blue-500"
+                        )}
+                     />
+                  </div>
+               </div>
             </div>
-            <div>
-               <label className="mb-1 block text-xs font-medium text-gray-500">
-                  DEP (Z)
-               </label>
-               <input
-                  type="time"
-                  value={etapa.horaDecolagem}
-                  onChange={(e) => {
-                     const rounded = roundTimeToFiveMinutes(e.target.value);
-                     onChange("horaDecolagem", rounded);
-                  }}
-                  disabled={!isEditable}
-                  step="300"
-                  className="w-20 rounded border border-gray-300 bg-white px-2 py-2 text-center text-sm text-gray-900 focus:border-transparent focus:ring-2 focus:ring-red-500 disabled:cursor-not-allowed disabled:opacity-50"
-               />
-            </div>
-            <div>
-               <label className="mb-1 block text-xs font-medium text-gray-500">
-                  Origem
-               </label>
-               <input
-                  type="text"
-                  value={etapa.origem}
-                  onChange={(e) =>
-                     onChange("origem", e.target.value.toUpperCase())
-                  }
-                  disabled={!isEditable}
-                  placeholder="SBGL"
-                  maxLength={4}
-                  className="w-20 rounded border border-gray-300 bg-white px-2 py-2 text-center font-mono text-sm text-gray-900 uppercase placeholder:text-gray-400 focus:border-transparent focus:ring-2 focus:ring-red-500 disabled:cursor-not-allowed disabled:opacity-50"
-               />
-            </div>
-            <div>
-               <label className="mb-1 block text-xs font-medium text-gray-500">
-                  ETA (Z)
-               </label>
-               <input
-                  type="time"
-                  value={etapa.eta}
-                  onChange={(e) => {
-                     const rounded = roundTimeToFiveMinutes(e.target.value);
-                     onChange("eta", rounded);
-                  }}
-                  disabled={!isEditable}
-                  step="300"
-                  className="w-20 rounded border border-gray-300 bg-white px-2 py-2 text-center text-sm text-gray-900 focus:border-transparent focus:ring-2 focus:ring-red-500 disabled:cursor-not-allowed disabled:opacity-50"
-               />
-            </div>
-            <div>
-               <label className="mb-1 block text-xs font-medium text-gray-500">
-                  Destino
-               </label>
-               <input
-                  type="text"
-                  value={etapa.destino}
-                  onChange={(e) =>
-                     onChange("destino", e.target.value.toUpperCase())
-                  }
-                  disabled={!isEditable}
-                  placeholder="SBBR"
-                  maxLength={4}
-                  className="w-20 rounded border border-gray-300 bg-white px-2 py-2 text-center font-mono text-sm text-gray-900 uppercase placeholder:text-gray-400 focus:border-transparent focus:ring-2 focus:ring-red-500 disabled:cursor-not-allowed disabled:opacity-50"
-               />
-            </div>
-            <div>
-               <label className="mb-1 block text-xs font-medium text-gray-500">
+
+            {/* Tempo de Voo (calculado) */}
+            <div className="h-full rounded-lg border border-gray-200 bg-gray-50/50 p-2">
+               <span className="mb-7 block text-xs font-semibold tracking-wide text-gray-700 uppercase">
                   T. Voo
-               </label>
-               <DurationInput
-                  value={etapa.tempoVooEtapa}
-                  onChange={(value) => onChange("tempoVooEtapa", value)}
-                  disabled={!isEditable}
-                  placeholder="02:30"
-                  roundMinutes={true}
-                  className="w-20 rounded border border-gray-300 bg-white px-2 py-2 text-center text-sm text-gray-900 placeholder:text-gray-400 focus:border-transparent focus:ring-2 focus:ring-red-500 disabled:cursor-not-allowed disabled:opacity-50"
-               />
+               </span>
+               <div className="flex h-9.5 w-16 items-center justify-center rounded border border-gray-300 bg-gray-50 font-mono text-sm font-medium text-gray-700 hover:cursor-not-allowed">
+                  {tempoVoo}
+               </div>
             </div>
-            <div>
-               <label className="mb-1 block text-center text-xs font-medium text-gray-500">
+
+            {/* Grupo Destino */}
+            <div className="rounded-lg border border-green-200 bg-green-50/50 p-2">
+               <span className="mb-2 block text-xs font-semibold tracking-wide text-green-700 uppercase">
+                  Pouso
+               </span>
+               <div className="flex gap-2">
+                  <div>
+                     <label className="mb-1 block text-xs font-medium text-gray-500">
+                        Data
+                     </label>
+                     <input
+                        type="date"
+                        value={dataPouso}
+                        onChange={(e) => onChange("dataPouso", e.target.value)}
+                        disabled={!isEditable}
+                        className={clsx(
+                           "w-36 rounded border bg-white px-2 py-2 text-sm text-gray-900 focus:border-transparent focus:ring-2 disabled:cursor-not-allowed disabled:opacity-50",
+                           fieldErrors.dataPouso
+                              ? "border-red-400 focus:ring-red-500"
+                              : "border-gray-300 focus:ring-green-500"
+                        )}
+                     />
+                  </div>
+                  <div>
+                     <label className="mb-1 block text-xs font-medium text-gray-500">
+                        Hora (Z)
+                     </label>
+                     <input
+                        type="time"
+                        value={horaPouso}
+                        onChange={(e) => {
+                           const rounded = roundTimeToFiveMinutes(
+                              e.target.value
+                           );
+                           onChange("horaPouso", rounded);
+                        }}
+                        disabled={!isEditable}
+                        step="300"
+                        className={clsx(
+                           "w-20 rounded border bg-white px-2 py-2 text-center text-sm text-gray-900 focus:border-transparent focus:ring-2 disabled:cursor-not-allowed disabled:opacity-50",
+                           fieldErrors.horaPouso
+                              ? "border-red-400 focus:ring-red-500"
+                              : "border-gray-300 focus:ring-green-500"
+                        )}
+                     />
+                  </div>
+                  <div>
+                     <label className="mb-1 block text-xs font-medium text-gray-500">
+                        Destino
+                     </label>
+                     <input
+                        type="text"
+                        value={destino}
+                        onChange={(e) => {
+                           const value = e.target.value.replace(
+                              /[^a-zA-Z]/g,
+                              ""
+                           );
+                           onChange("destino", value.toUpperCase());
+                        }}
+                        disabled={!isEditable}
+                        placeholder="SBBR"
+                        maxLength={4}
+                        className={clsx(
+                           "w-20 rounded border bg-white px-2 py-2 text-center font-mono text-sm text-gray-900 uppercase placeholder:text-gray-400 focus:border-transparent focus:ring-2 disabled:cursor-not-allowed disabled:opacity-50",
+                           fieldErrors.destino
+                              ? "border-red-400 focus:ring-red-500"
+                              : "border-gray-300 focus:ring-green-500"
+                        )}
+                     />
+                  </div>
+               </div>
+            </div>
+
+            {/* Grupo Alternativa */}
+            <div className="rounded-lg border border-amber-200 bg-amber-50/50 p-2">
+               <span className="mb-2 block text-xs font-semibold tracking-wide text-amber-700 uppercase">
                   Alternativa
-               </label>
-               <input
-                  type="text"
-                  value={etapa.alternativa}
-                  onChange={(e) =>
-                     onChange("alternativa", e.target.value.toUpperCase())
-                  }
-                  disabled={!isEditable}
-                  placeholder="SBSP"
-                  maxLength={4}
-                  className="w-20 rounded border border-gray-300 bg-white px-2 py-2 text-center font-mono text-sm text-gray-900 uppercase placeholder:text-gray-400 focus:border-transparent focus:ring-2 focus:ring-red-500 disabled:cursor-not-allowed disabled:opacity-50"
-               />
+               </span>
+               <div className="flex gap-2">
+                  <div>
+                     <label className="mb-1 block text-xs font-medium text-gray-500">
+                        ICAO<span className="text-red-500">*</span>
+                     </label>
+                     <input
+                        type="text"
+                        value={alternativa}
+                        onChange={(e) => {
+                           const value = e.target.value.replace(
+                              /[^a-zA-Z]/g,
+                              ""
+                           );
+                           onChange("alternativa", value.toUpperCase());
+                        }}
+                        disabled={!isEditable}
+                        placeholder="SBSP"
+                        maxLength={4}
+                        className={clsx(
+                           "w-20 rounded border bg-white px-2 py-2 text-center font-mono text-sm text-gray-900 uppercase placeholder:text-gray-400 focus:border-transparent focus:ring-2 disabled:cursor-not-allowed disabled:opacity-50",
+                           fieldErrors.alternativa
+                              ? "border-red-400 focus:ring-red-500"
+                              : "border-gray-300 focus:ring-amber-500"
+                        )}
+                     />
+                  </div>
+                  <div>
+                     <label className="mb-1 block text-xs font-medium text-gray-500">
+                        T. Alt.<span className="text-red-500">*</span>
+                     </label>
+                     <input
+                        type="time"
+                        value={tempoVooAlternativa}
+                        onChange={(e) => {
+                           const rounded = roundTimeToFiveMinutes(
+                              e.target.value
+                           );
+                           onChange("tempoVooAlternativa", rounded);
+                        }}
+                        disabled={!isEditable}
+                        step="300"
+                        className={clsx(
+                           "w-20 rounded border bg-white px-2 py-2 text-center text-sm text-gray-900 focus:border-transparent focus:ring-2 disabled:cursor-not-allowed disabled:opacity-50",
+                           fieldErrors.tempoVooAlternativa
+                              ? "border-red-400 focus:ring-red-500"
+                              : "border-gray-300 focus:ring-amber-500"
+                        )}
+                     />
+                  </div>
+               </div>
             </div>
-            <div>
-               <label className="mb-1 block text-xs font-medium text-gray-500">
-                  T. Alt.
-               </label>
-               <DurationInput
-                  value={etapa.tempoVooAlternativa}
-                  onChange={(value) => onChange("tempoVooAlternativa", value)}
-                  disabled={!isEditable}
-                  placeholder="00:45"
-                  roundMinutes={true}
-                  className="w-20 rounded border border-gray-300 bg-white px-2 py-2 text-center text-sm text-gray-900 placeholder:text-gray-400 focus:border-transparent focus:ring-2 focus:ring-red-500 disabled:cursor-not-allowed disabled:opacity-50"
-               />
-            </div>
-            <div>
-               <label className="mb-1 block text-xs font-medium text-gray-500">
+
+            {/* Combustível */}
+            <div className="rounded-lg border border-purple-200 bg-purple-50/50 p-2">
+               <span className="mb-7 block text-xs font-semibold tracking-wide text-purple-700 uppercase">
                   Combustível
-               </label>
+               </span>
                <input
-                  type="text"
-                  value={etapa.quantidadeCombustivel}
-                  onChange={(e) =>
-                     onChange("quantidadeCombustivel", e.target.value)
-                  }
+                  type="number"
+                  min="1"
+                  value={quantidadeCombustivel}
+                  onChange={(e) => {
+                     const value = e.target.value.replace(/[^0-9]/g, "");
+                     if (value === "" || parseInt(value, 10) > 0) {
+                        onChange("quantidadeCombustivel", value);
+                     }
+                  }}
                   disabled={!isEditable}
                   placeholder="1500"
-                  className="w-20 rounded border border-gray-300 bg-white px-2 py-2 text-center text-sm text-gray-900 placeholder:text-gray-400 focus:border-transparent focus:ring-2 focus:ring-red-500 disabled:cursor-not-allowed disabled:opacity-50"
+                  className={clsx(
+                     "w-24 rounded border bg-white px-2 py-2 text-center font-mono text-sm text-gray-900 placeholder:text-gray-400 focus:border-transparent focus:ring-2 disabled:cursor-not-allowed disabled:opacity-50",
+                     fieldErrors.quantidadeCombustivel
+                        ? "border-red-400 focus:ring-red-500"
+                        : "border-gray-300 focus:ring-purple-500"
+                  )}
                />
             </div>
-            <div className="flex-1">
-               <label className="mb-1 block text-xs font-medium text-gray-500">
+
+            {/* Esforço Aéreo */}
+            <div className="min-w-40 flex-1 rounded-lg border border-red-200 bg-red-50/50 p-2">
+               <span className="mb-7 block text-xs font-semibold tracking-wide text-red-700 uppercase">
                   Esforço Aéreo
-               </label>
+               </span>
                <input
                   type="text"
-                  value={etapa.esforcoAereo}
-                  onChange={(e) => onChange("esforcoAereo", e.target.value)}
+                  value={esforcoAereo}
+                  onChange={(e) =>
+                     onChange("esforcoAereo", e.target.value.toUpperCase())
+                  }
                   disabled={!isEditable}
-                  placeholder="Esforço Aéreo Alocado"
-                  className="w-full rounded border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:border-transparent focus:ring-2 focus:ring-red-500 disabled:cursor-not-allowed disabled:opacity-50"
+                  placeholder="ESFORÇO AÉREO ALOCADO"
+                  className={clsx(
+                     "w-full rounded border bg-white px-3 py-2 text-center text-sm text-gray-900 uppercase placeholder:text-gray-400 focus:border-transparent focus:ring-2 disabled:cursor-not-allowed disabled:opacity-50",
+                     fieldErrors.esforcoAereo
+                        ? "border-red-400 focus:ring-red-500"
+                        : "border-gray-300 focus:ring-red-500"
+                  )}
                />
             </div>
          </div>
+
+         {(erroDataHora || erroTempoVooEtapa || erroTempoVooAlternativa) && (
+            <div className="mt-2 space-y-1 text-left">
+               {erroDataHora && (
+                  <HelperText color="failure">{erroDataHora}</HelperText>
+               )}
+               {erroTempoVooEtapa && (
+                  <HelperText color="failure">{erroTempoVooEtapa}</HelperText>
+               )}
+               {erroTempoVooAlternativa && (
+                  <HelperText color="failure">
+                     {erroTempoVooAlternativa}
+                  </HelperText>
+               )}
+            </div>
+         )}
 
          {isEditable && (
             <>

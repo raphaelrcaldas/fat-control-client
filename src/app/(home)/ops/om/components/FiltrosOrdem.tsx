@@ -4,11 +4,13 @@ import { useState, useEffect } from "react";
 import { HiChevronDown, HiChevronUp } from "react-icons/hi";
 import clsx from "clsx";
 import { FiltrosOrdem } from "../types";
-import { statusOptions } from "../constants";
+import { statusOptions, statusLabels, StatusType } from "../constants";
 import { MultiSelect } from "./MultiSelect";
+import { listEtiquetas } from "services/routes/etiquetas";
+import { Etiqueta } from "../types";
 
-// Status disponíveis para filtro (sem Rascunho, pois tem tab própria)
-const statusOptionsAprovadas = statusOptions.filter((s) => s !== "Rascunho");
+// Status disponíveis para filtro (sem rascunho, pois tem tab própria)
+const statusOptionsAprovadas = statusOptions.filter((s) => s !== "rascunho");
 
 interface FiltrosOrdemProps {
    filtros: FiltrosOrdem;
@@ -30,6 +32,19 @@ export function FiltrosOrdemComponent({
 }: FiltrosOrdemProps) {
    const [expanded, setExpanded] = useState(false);
    const [allowOverflow, setAllowOverflow] = useState(false);
+   const [allLabels, setAllLabels] = useState<Etiqueta[]>([]);
+
+   useEffect(() => {
+      const fetchLabels = async () => {
+         try {
+            const data = await listEtiquetas();
+            setAllLabels(data);
+         } catch (error) {
+            console.error("Erro ao carregar etiquetas para filtro:", error);
+         }
+      };
+      fetchLabels();
+   }, []);
 
    // Libera o overflow após a animação de expansão terminar
    useEffect(() => {
@@ -50,6 +65,13 @@ export function FiltrosOrdemComponent({
       const inicio = formatDateShort(filtros.dataInicio) || "...";
       const fim = formatDateShort(filtros.dataFim) || "...";
       activeFilters.push(`${inicio} → ${fim}`);
+   }
+   if (filtros.etiquetas_ids?.length > 0) {
+      const names = allLabels
+         .filter((l) => filtros.etiquetas_ids.includes(l.id))
+         .map((l) => l.nome)
+         .join(", ");
+      if (names) activeFilters.push(`Etiquetas: ${names}`);
    }
 
    return (
@@ -107,7 +129,7 @@ export function FiltrosOrdemComponent({
                   allowOverflow ? "overflow-visible" : "overflow-hidden"
                )}
             >
-               <div className="grid grid-cols-1 gap-4 px-5 pb-5 md:grid-cols-2 lg:grid-cols-6">
+               <div className="grid grid-cols-1 gap-4 px-5 pb-5 md:grid-cols-2 lg:grid-cols-7">
                   {/* Campo de Busca - ocupa 2 colunas em lg */}
                   <div className="min-w-0 lg:col-span-2">
                      <label className="mb-1 block text-xs font-medium text-gray-500">
@@ -135,7 +157,7 @@ export function FiltrosOrdemComponent({
                      <MultiSelect
                         options={statusOptionsAprovadas.map((s) => ({
                            value: s,
-                           label: s,
+                           label: statusLabels[s as StatusType],
                         }))}
                         selected={filtros.status}
                         onChange={(values) =>
@@ -194,6 +216,27 @@ export function FiltrosOrdemComponent({
                            })
                         }
                         className="w-full rounded-lg border border-gray-300 bg-gray-50 px-3 py-2.5 text-sm text-gray-900 focus:border-transparent focus:ring-2 focus:ring-red-500"
+                     />
+                  </div>
+
+                  {/* Etiquetas - MultiSelect */}
+                  <div className="min-w-0">
+                     <label className="mb-1 block text-xs font-medium text-gray-500">
+                        Etiquetas
+                     </label>
+                     <MultiSelect
+                        options={allLabels.map((l) => ({
+                           value: String(l.id),
+                           label: l.nome,
+                        }))}
+                        selected={filtros.etiquetas_ids.map(String)}
+                        onChange={(values) =>
+                           onFiltrosChange({
+                              ...filtros,
+                              etiquetas_ids: values.map(Number),
+                           })
+                        }
+                        placeholder="Todas"
                      />
                   </div>
                </div>

@@ -9,17 +9,17 @@ export const generateNumero = (): string => {
       3,
       "0"
    );
-   return `${sequencial}/1GT/${dataFormatada}`;
+   return `${sequencial}/1GT1/${dataFormatada}`;
 };
 
 export const createEmptyEtapa = () => ({
    dataDecolagem: "",
    horaDecolagem: "",
    origem: "",
-   eta: "",
+   dataPouso: "",
+   horaPouso: "",
    destino: "",
    alternativa: "",
-   tempoVooEtapa: "",
    tempoVooAlternativa: "",
    quantidadeCombustivel: "",
    esforcoAereo: "",
@@ -32,10 +32,10 @@ export const createEtapaWithOrigem = (
    dataDecolagem: "",
    horaDecolagem: "",
    origem,
-   eta: "",
+   dataPouso: "",
+   horaPouso: "",
    destino: "",
    alternativa: "",
-   tempoVooEtapa: "",
    tempoVooAlternativa: "",
    quantidadeCombustivel: "",
    esforcoAereo,
@@ -48,6 +48,7 @@ export const createDefaultOrdem = (): OrdemMissao => ({
    matriculaAeronave: 0,
    projeto: "kc-390",
    tipo: "",
-   status: "Rascunho",
+   status: "rascunho",
    etapas: [createEmptyEtapa()],
+   etiquetas: [],
 });

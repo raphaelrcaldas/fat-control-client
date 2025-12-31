@@ -1,14 +1,23 @@
+// --- Tipos de UI (usados nos componentes do frontend) ---
+
 export interface Etapa {
-   dataDecolagem: string;
-   horaDecolagem: string;
+   dataDecolagem: string; // YYYY-MM-DD
+   horaDecolagem: string; // HH:mm
    origem: string;
-   eta: string;
+   dataPouso: string; // YYYY-MM-DD
+   horaPouso: string; // HH:mm
    destino: string;
    alternativa: string;
-   tempoVooEtapa: string;
-   tempoVooAlternativa: string;
+   tempoVooAlternativa: string; // HH:mm
    quantidadeCombustivel: string;
    esforcoAereo: string;
+}
+
+export interface Etiqueta {
+   id: number;
+   nome: string;
+   cor: string;
+   descricao?: string;
 }
 
 export interface OrdemMissao {
@@ -22,6 +31,8 @@ export interface OrdemMissao {
    etapas: Etapa[];
    tripulacao?: TripulacaoOrdem;
    camposEspeciais?: CampoEspecial[];
+   createdAt?: string;
+   etiquetas: Etiqueta[];
 }
 
 // Re-export de constants/tripulantes
@@ -36,9 +47,11 @@ export interface FiltrosOrdem {
    tipo: string;
    dataInicio: string;
    dataFim: string;
+   etiquetas_ids: number[];
 }
 
-export type StatusType = "Rascunho" | "Elaborada" | "Finalizada" | "Revisada";
+// Re-export de constants/ops/ordens-missao
+export { type StatusType } from "@/constants/ops/ordens-missao/status";
 
 // Re-export tipos de tripulantes de constants/
 export {
@@ -53,6 +66,7 @@ export interface TripulanteSearchResult {
    trig: string;
    p_g: string;
    nome_guerra: string;
+   nome_completo?: string;
    oper: OperacionalidadeType;
    posto_ant: number;
    ult_promo: string | null;
@@ -60,7 +74,7 @@ export interface TripulanteSearchResult {
    id_fab: number | null;
 }
 
-// Cada função pode ter múltiplos tripulantes
+// Cada funcao pode ter multiplos tripulantes (formato UI)
 export interface TripulacaoOrdem {
    pil: TripulanteSearchResult[];
    mc: TripulanteSearchResult[];
@@ -70,10 +84,32 @@ export interface TripulacaoOrdem {
    os: TripulanteSearchResult[];
 }
 
-// FUNCAO_LABELS e TODAS_FUNCOES agora vêm de @/constants/tripulantes (re-exportados acima)
-
 // Campos Especiais (estrutura livre)
 export interface CampoEspecial {
    label: string;
    valor: string;
+}
+
+// --- Re-export tipos da API ---
+export type {
+   OrdemMissaoOut,
+   OrdemMissaoList,
+   OrdemMissaoCreate,
+   OrdemMissaoUpdate,
+   EtapaCreate,
+   EtapaOut,
+   EtapaListItem,
+   TripulacaoAgrupada,
+   TripulacaoOrdemOut,
+   TripulanteInfo,
+   OrdemFilters,
+   PaginatedResponse,
+} from "services/routes/om";
+
+// --- Paginacao para UI ---
+export interface PaginationState {
+   page: number;
+   perPage: number;
+   total: number;
+   pages: number;
 }
