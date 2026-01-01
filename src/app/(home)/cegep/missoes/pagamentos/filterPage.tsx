@@ -1,3 +1,5 @@
+"use client";
+
 import { useEffect, useState, useMemo, useCallback } from "react";
 import { Label, TextInput, Select, Checkbox, Badge } from "flowbite-react";
 import { Spinner } from "@/components/Spinner";
