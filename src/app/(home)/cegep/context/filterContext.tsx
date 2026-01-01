@@ -5,23 +5,27 @@ const FilterContext = createContext(null);
 
 export function FilterProvider({ children }) {
    const hoje = new Date();
-   const quinzeDiasAntes = new Date();
-   quinzeDiasAntes.setDate(hoje.getDate() - 15);
+   const defaultIni = new Date();
+   defaultIni.setDate(hoje.getDate() - 60);
 
    const [misRecords, setMisRecords] = useState<Missao[] | null>(null);
-   const [selectedTipo, setSelectedTipo] = useState("");
-   const [selectedSit, setSelectedSit] = useState("");
+   const [selectedTipo, setSelectedTipo] = useState<string[]>([]);
+   const [selectedSit, setSelectedSit] = useState<string[]>([]);
    const [userSearch, setUserSearch] = useState("");
    const [dataInicio, setDataInicio] = useState(
-      quinzeDiasAntes.toISOString().split("T")[0]
-   ); // Default to 15 days ago
+      defaultIni.toISOString().split("T")[0]
+   );
    const [dataFim, setDataFim] = useState(hoje.toISOString().split("T")[0]); // Default to today's date
-   const [tipoDoc, setTipoDoc] = useState("");
+   const [tipoDoc, setTipoDoc] = useState<string[]>([]);
    const [nDoc, setNDoc] = useState(undefined);
    const [selectedAll, setSelectedAll] = useState(false);
    const [valorSoma, setValorSoma] = useState(0);
    const [listKey, setListKey] = useState(Date.now());
    const [selectedIds, setSelectedIds] = useState([]);
+   const [currentPage, setCurrentPage] = useState(1);
+   const [itemsPerPage, setItemsPerPage] = useState(10);
+   const [totalRecords, setTotalRecords] = useState(0);
+   const [totalPages, setTotalPages] = useState(1);
 
    return (
       <FilterContext.Provider
@@ -50,6 +54,14 @@ export function FilterProvider({ children }) {
             setListKey,
             selectedIds,
             setSelectedIds,
+            currentPage,
+            setCurrentPage,
+            itemsPerPage,
+            setItemsPerPage,
+            totalRecords,
+            setTotalRecords,
+            totalPages,
+            setTotalPages,
          }}
       >
          {children}

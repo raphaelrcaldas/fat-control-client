@@ -27,7 +27,7 @@ import {
 } from "services/routes/cegep/comiss";
 import { RiFileExcel2Fill } from "react-icons/ri";
 import { HiDocumentText } from "react-icons/hi";
-import { MisPntsTable } from "../../components/popMisPnts";
+import { UserMissionDetailModal } from "../../components/UserMissionDetailModal";
 import { IoMdInformationCircleOutline, IoMdSearch } from "react-icons/io";
 import { MdOutlineEdit, MdDeleteOutline } from "react-icons/md";
 import { RoleBasedRoute } from "@/app/(home)/hooks/useRoleBased";
@@ -59,6 +59,8 @@ export function DetailComiss({
    const [isLoading, setIsLoading] = useState(false);
    const [detail, setDetail] = useState<ComissWithMiss | null>(null);
    const [loadingDetail, setLoadingDetail] = useState(false);
+   const [showMissionModal, setShowMissionModal] = useState(false);
+   const [selectedMission, setSelectedMission] = useState(null);
    const { push } = useToast();
 
    // Fetch detail with missions when modal opens
@@ -985,6 +987,20 @@ export function DetailComiss({
                                  key={m.id}
                                  mis={m}
                                  diasPrev={comiss?.dias_cumprir}
+                                 onShowDetail={() => {
+                                    setSelectedMission({
+                                       user_mis: {
+                                          id: comiss.user.id,
+                                          p_g: comiss.user.posto.mid,
+                                          sit: "c",
+                                          user: {
+                                             nome_guerra: comiss.user.nome_guerra,
+                                          },
+                                       },
+                                       missao: m,
+                                    });
+                                    setShowMissionModal(true);
+                                 }}
                               />
                            ))}
                         </div>
@@ -1120,11 +1136,17 @@ export function DetailComiss({
                </div>
             </ModalBody>
          </Modal>
+
+         <UserMissionDetailModal
+            show={showMissionModal}
+            onClose={() => setShowMissionModal(false)}
+            record={selectedMission}
+         />
       </>
    );
 }
 
-function MissionRow({ mis, diasPrev }) {
+function MissionRow({ mis, diasPrev, onShowDetail }) {
    const ini = new Date(mis.afast).toLocaleDateString("pt-BR", {
       year: "2-digit",
       month: "2-digit",
@@ -1163,23 +1185,14 @@ function MissionRow({ mis, diasPrev }) {
                   : realCurrency(mis.valor_total)}
             </span>
          </div>
-         <Popover
-            content={
-               <MisPntsTable
-                  pernoites={mis.pernoites}
-                  acDeslocSede={mis.acrec_desloc}
-                  total={mis.valor_total}
-               />
-            }
+         <Button
+            size="sm"
+            color="light"
+            className="shrink-0 transition-colors duration-200 hover:bg-gray-100"
+            onClick={onShowDetail}
          >
-            <Button
-               size="sm"
-               color="light"
-               className="shrink-0 transition-colors duration-200 hover:bg-gray-100"
-            >
-               <IoMdInformationCircleOutline size={18} />
-            </Button>
-         </Popover>
+            <IoMdInformationCircleOutline size={18} />
+         </Button>
       </div>
    );
 }

@@ -22,7 +22,7 @@ export default async function request<T = any>(
    method: HttpMethod,
    endpoint: string,
    body: T | null = null,
-   params: Record<string, string | number> | null = null,
+   params: Record<string, string | number | string[] | number[]> | null = null,
    signal?: AbortSignal
 ): Promise<Response> {
    let fullUrl = `${baseUrl}${endpoint}`;
@@ -30,8 +30,12 @@ export default async function request<T = any>(
    if (params) {
       const searchParams = new URLSearchParams();
       for (const [key, value] of Object.entries(params)) {
-         if (value) {
-            searchParams.append(key, String(value));
+         if (value !== undefined && value !== null && value !== "") {
+            if (Array.isArray(value)) {
+               value.forEach((v) => searchParams.append(key, String(v)));
+            } else {
+               searchParams.append(key, String(value));
+            }
          }
       }
       fullUrl += `?${searchParams.toString()}`;

@@ -1,8 +1,11 @@
 import { useEffect, useState, useMemo, useCallback } from "react";
 import { Label, TextInput, Select, Checkbox, Badge } from "flowbite-react";
 import { Spinner } from "@/components/Spinner";
+import { Pagination } from "@/components/Pagination";
+import { MultiSelect } from "@/components/MultiSelect";
 import { getPgts } from "services/routes/cegep/financeiro";
 import { UserRow } from "./components/userRow";
+import { UserMissionDetailModal } from "../../components/UserMissionDetailModal";
 import { useFilterContext } from "../../context/filterContext";
 import useDebouncedValue from "@/hooks/useDebouncedValue";
 import {
@@ -16,10 +19,13 @@ import {
    HiCalendar,
    HiTag,
 } from "react-icons/hi";
+import { clsx } from "clsx";
 
 export function FilterPage({ active }) {
    const [showFilters, setShowFilters] = useState(false);
    const [loading, setLoading] = useState(true);
+   const [showModal, setShowModal] = useState(false);
+   const [selectedRecord, setSelectedRecord] = useState(null);
    const {
       misRecords,
       setMisRecords,
@@ -45,15 +51,30 @@ export function FilterPage({ active }) {
       setListKey,
       selectedIds,
       setSelectedIds,
+      currentPage,
+      setCurrentPage,
+      itemsPerPage,
+      setItemsPerPage,
+      totalRecords,
+      setTotalRecords,
+      totalPages,
+      setTotalPages,
    } = useFilterContext();
 
+   function handleShowDetail(record) {
+      setSelectedRecord(record);
+      setShowModal(true);
+   }
+
    const memoUsersRowPgto = useMemo(() => {
-      return misRecords?.map((record) => (
+      if (!misRecords) return [];
+      return misRecords.map((record) => (
          <UserRow
             key={record.user_mis.id}
             record={record}
             checked={selectedIds.includes(record.user_mis.id)}
             onSelect={handleSelect}
+            onShowDetail={handleShowDetail}
          />
       ));
    }, [misRecords, selectedIds]);
@@ -82,43 +103,77 @@ export function FilterPage({ active }) {
 
    const debouncedFilters = useDebouncedValue(filters, 500);
 
-   const fetchData = useCallback(async () => {
-      setLoading(true);
+   const fetchData = useCallback(
+      async (resetPage = false) => {
+         setLoading(true);
 
-      let req: { [key: string]: any } = {};
+         const page = resetPage ? 1 : currentPage;
 
-      if (debouncedFilters.userSearch)
-         req.user = debouncedFilters.userSearch.toLowerCase();
-      if (debouncedFilters.tipoDoc) req.tipo_doc = debouncedFilters.tipoDoc;
-      if (debouncedFilters.nDoc) req.n_doc = debouncedFilters.nDoc;
-      if (debouncedFilters.selectedTipo)
-         req.tipo = debouncedFilters.selectedTipo;
-      if (debouncedFilters.selectedSit) req.sit = debouncedFilters.selectedSit;
-      if (debouncedFilters.dataInicio) req.ini = debouncedFilters.dataInicio;
-      if (debouncedFilters.dataFim) req.fim = debouncedFilters.dataFim;
+         let req: { [key: string]: any } = {
+            page,
+            limit: itemsPerPage,
+         };
 
-      const data = await getPgts(req);
+         if (debouncedFilters.userSearch)
+            req.user = debouncedFilters.userSearch.toLowerCase();
+         if (debouncedFilters.tipoDoc?.length)
+            req.tipo_doc = debouncedFilters.tipoDoc;
+         if (debouncedFilters.nDoc) req.n_doc = debouncedFilters.nDoc;
+         if (debouncedFilters.selectedTipo?.length)
+            req.tipo = debouncedFilters.selectedTipo;
+         if (debouncedFilters.selectedSit?.length)
+            req.sit = debouncedFilters.selectedSit;
+         if (debouncedFilters.dataInicio) req.ini = debouncedFilters.dataInicio;
+         if (debouncedFilters.dataFim) req.fim = debouncedFilters.dataFim;
 
-      setMisRecords(data);
-      setListKey(Date.now());
-      setSelectedIds([]);
-      setValorSoma(0);
-      setSelectedAll(false);
-      setLoading(false);
-   }, [debouncedFilters]);
+         const data = await getPgts(req);
+
+         setMisRecords(data.items);
+         setTotalRecords(data.total);
+         setTotalPages(data.total_pages);
+         setListKey(Date.now());
+         if (resetPage) {
+            setSelectedIds([]);
+            setValorSoma(0);
+            setSelectedAll(false);
+            setCurrentPage(1);
+         }
+         setLoading(false);
+      },
+      [debouncedFilters, currentPage, itemsPerPage]
+   );
 
    useEffect(() => {
       if (!active) return;
       if (misRecords == null) {
-         fetchData();
+         fetchData(true);
       }
    }, [active]);
 
-   // Chama fetchData quando os filtros debounced mudarem
+   // Chama fetchData quando os filtros debounced mudarem (reset page)
    useEffect(() => {
       if (!active || misRecords == null) return;
-      fetchData();
-   }, [debouncedFilters, active]);
+      fetchData(true);
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+   }, [debouncedFilters]);
+
+   // Chama fetchData quando a página mudar
+   useEffect(() => {
+      if (!active || misRecords == null) return;
+      fetchData(false);
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+   }, [currentPage]);
+
+   // Quando itemsPerPage mudar, reseta para página 1 (que vai triggerar o effect acima)
+   useEffect(() => {
+      if (!active || misRecords == null) return;
+      if (currentPage !== 1) {
+         setCurrentPage(1);
+      } else {
+         fetchData(false);
+      }
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+   }, [itemsPerPage]);
 
    useEffect(() => {
       if (misRecords && selectedAll) {
@@ -143,20 +198,29 @@ export function FilterPage({ active }) {
    }
 
    const hasActiveFilters = !!(
-      tipoDoc ||
+      tipoDoc?.length ||
       nDoc ||
-      selectedTipo ||
-      selectedSit ||
+      selectedTipo?.length ||
+      selectedSit?.length ||
       userSearch ||
       dataInicio ||
       dataFim
    );
 
+   const activeFiltersCount =
+      (tipoDoc?.length || 0) +
+      (nDoc ? 1 : 0) +
+      (selectedTipo?.length || 0) +
+      (selectedSit?.length || 0) +
+      (userSearch ? 1 : 0) +
+      (dataInicio ? 1 : 0) +
+      (dataFim ? 1 : 0);
+
    const clearFilters = () => {
-      setTipoDoc("");
+      setTipoDoc([]);
       setNDoc(undefined);
-      setSelectedTipo("");
-      setSelectedSit("");
+      setSelectedTipo([]);
+      setSelectedSit([]);
       setUserSearch("");
       const hoje = new Date();
       const quinzeDiasAntes = new Date(hoje.getFullYear(), 0, 1);
@@ -165,254 +229,195 @@ export function FilterPage({ active }) {
    };
 
    return (
-      <div className="space-y-6">
-         {/* Header Section */}
-         <section>
-            <div className="flex flex-wrap items-center justify-between gap-3">
-               <h5 className="text-xl font-semibold text-gray-800">
-                  Pagamentos
-               </h5>
+      <div className="space-y-2">
+         {/* Active Filters Tags */}
+         <section className="flex items-center justify-between gap-3">
+            <div className="flex flex-wrap items-center gap-2">
+               <span className="text-xs font-medium text-gray-600">
+                  Filtros ativos:
+               </span>
 
-               <div className="flex flex-wrap items-center gap-3">
-                  {/* Checkbox Selecionar Todos */}
-                  <div className="flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-1.5">
-                     <Checkbox
-                        className="h-4 w-4"
-                        checked={selectedAll}
-                        color="red"
-                        onChange={() => setSelectedAll(!selectedAll)}
-                     />
-                     <Label className="cursor-pointer text-xs font-medium text-gray-700">
-                        Selecionar Todos
-                     </Label>
-                  </div>
-
-                  {/* Valor Total */}
-                  <div className="flex items-center gap-2 rounded-lg border border-green-200 bg-green-50 px-3 py-1.5">
+               {tipoDoc?.map((td) => (
+                  <Badge key={`tipoDoc-${td}`} color="red">
                      <div className="flex items-center gap-1.5">
-                        <HiCurrencyDollar
-                           className="text-green-600"
-                           size={16}
-                        />
-                        <span className="text-xs text-gray-600">Total:</span>
-                     </div>
-                     <div className="flex flex-col items-end">
-                        <span className="text-sm font-bold text-green-700">
-                           {valorSoma.toLocaleString("pt-BR", {
-                              style: "currency",
-                              currency: "BRL",
-                           })}
+                        <HiDocumentText className="h-3 w-3" />
+                        <span>
+                           Ordem: {td === "om" ? "Missão" : "Serviço"}
                         </span>
-                        <span className="text-[10px] text-gray-500">
-                           {selectedIds.length}{" "}
-                           {selectedIds.length === 1
-                              ? "selecionado"
-                              : "selecionados"}
-                        </span>
-                     </div>
-                  </div>
-
-                  <button
-                     type="button"
-                     onClick={() => setShowFilters(!showFilters)}
-                     className="flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"
-                  >
-                     <HiFilter />
-                     {showFilters ? "Ocultar" : "Filtros"}
-                     {hasActiveFilters && (
-                        <Badge color="gray" size="sm">
-                           {
-                              Object.values({
-                                 tipoDoc,
-                                 nDoc,
-                                 selectedTipo,
-                                 selectedSit,
-                                 userSearch,
-                                 dataInicio,
-                                 dataFim,
-                              }).filter((v) => v).length
+                        <button
+                           onClick={() =>
+                              setTipoDoc(tipoDoc.filter((v) => v !== td))
                            }
-                        </Badge>
-                     )}
-                  </button>
-               </div>
+                           className="ml-1 hover:text-red-600"
+                        >
+                           <HiX className="h-3 w-3" />
+                        </button>
+                     </div>
+                  </Badge>
+               ))}
+
+               {nDoc && (
+                  <Badge color="red">
+                     <div className="flex items-center gap-1.5">
+                        <HiHashtag className="h-3 w-3" />
+                        <span>Nº {nDoc}</span>
+                        <button
+                           onClick={() => setNDoc(undefined)}
+                           className="ml-1 hover:text-red-600"
+                        >
+                           <HiX className="h-3 w-3" />
+                        </button>
+                     </div>
+                  </Badge>
+               )}
+
+               {selectedTipo?.map((tipo) => (
+                  <Badge key={`tipo-${tipo}`} color="red">
+                     <div className="flex items-center gap-1.5">
+                        <HiClipboardList className="h-3 w-3" />
+                        <span>Tipo: {tipo.toUpperCase()}</span>
+                        <button
+                           onClick={() =>
+                              setSelectedTipo(
+                                 selectedTipo.filter((v) => v !== tipo)
+                              )
+                           }
+                           className="ml-1 hover:text-red-600"
+                        >
+                           <HiX className="h-3 w-3" />
+                        </button>
+                     </div>
+                  </Badge>
+               ))}
+
+               {selectedSit?.map((sit) => (
+                  <Badge key={`sit-${sit}`} color="red">
+                     <div className="flex items-center gap-1.5">
+                        <HiTag className="h-3 w-3" />
+                        <span>
+                           Situação:{" "}
+                           {sit === "d"
+                              ? "Diária"
+                              : sit === "c"
+                                 ? "Comissionado"
+                                 : "Grat Rep"}
+                        </span>
+                        <button
+                           onClick={() =>
+                              setSelectedSit(
+                                 selectedSit.filter((v) => v !== sit)
+                              )
+                           }
+                           className="ml-1 hover:text-red-600"
+                        >
+                           <HiX className="h-3 w-3" />
+                        </button>
+                     </div>
+                  </Badge>
+               ))}
+
+               {userSearch && (
+                  <Badge color="red">
+                     <div className="flex items-center gap-1.5">
+                        <HiUser className="h-3 w-3" />
+                        <span>Militar: {userSearch}</span>
+                        <button
+                           onClick={() => setUserSearch("")}
+                           className="ml-1 hover:text-red-600"
+                        >
+                           <HiX className="h-3 w-3" />
+                        </button>
+                     </div>
+                  </Badge>
+               )}
+
+               {dataInicio && (
+                  <Badge color="red">
+                     <div className="flex items-center gap-1.5">
+                        <HiCalendar className="h-3 w-3" />
+                        <span>
+                           Afastamento:{" "}
+                           {new Date(
+                              dataInicio + "T00:00:00"
+                           ).toLocaleDateString("pt-BR")}
+                        </span>
+                        <button
+                           onClick={() => {
+                              const hoje = new Date();
+                              const quinzeDiasAntes = new Date(
+                                 hoje.getFullYear(),
+                                 0,
+                                 1
+                              );
+                              setDataInicio(
+                                 quinzeDiasAntes.toISOString().split("T")[0]
+                              );
+                           }}
+                           className="ml-1 hover:text-red-600"
+                        >
+                           <HiX className="h-3 w-3" />
+                        </button>
+                     </div>
+                  </Badge>
+               )}
+
+               {dataFim && (
+                  <Badge color="red">
+                     <div className="flex items-center gap-1.5">
+                        <HiCalendar className="h-3 w-3" />
+                        <span>
+                           Regresso:{" "}
+                           {new Date(
+                              dataFim + "T00:00:00"
+                           ).toLocaleDateString("pt-BR")}
+                        </span>
+                        <button
+                           onClick={() => {
+                              const hoje = new Date();
+                              setDataFim(hoje.toISOString().split("T")[0]);
+                           }}
+                           className="ml-1 hover:text-red-600"
+                        >
+                           <HiX className="h-3 w-3" />
+                        </button>
+                     </div>
+                  </Badge>
+               )}
+
+               <button
+                  onClick={clearFilters}
+                  className="text-xs text-gray-500 underline hover:text-gray-700"
+               >
+                  Limpar todos
+               </button>
             </div>
+            <button
+               type="button"
+               onClick={() => setShowFilters(!showFilters)}
+               className="flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"
+            >
+               <HiFilter />
+               <span className="w-11">
+                  {showFilters ? "Ocultar" : "Filtros"}
+               </span>
+               {hasActiveFilters && (
+                  <Badge color="gray" size="sm">
+                     {activeFiltersCount}
+                  </Badge>
+               )}
+            </button>
+
          </section>
 
-         {/* Active Filters Tags */}
-         {hasActiveFilters && (
-            <section>
-               <div className="flex flex-wrap items-center gap-2">
-                  <span className="text-xs font-medium text-gray-600">
-                     Filtros ativos:
-                  </span>
-
-                  {tipoDoc && (
-                     <Badge color="red">
-                        <div className="flex items-center gap-1.5">
-                           <HiDocumentText className="h-3 w-3" />
-                           <span>
-                              Ordem: {tipoDoc === "om" ? "Missão" : "Serviço"}
-                           </span>
-                           <button
-                              onClick={() => setTipoDoc("")}
-                              className="ml-1 hover:text-red-600"
-                           >
-                              <HiX className="h-3 w-3" />
-                           </button>
-                        </div>
-                     </Badge>
-                  )}
-
-                  {nDoc && (
-                     <Badge color="red">
-                        <div className="flex items-center gap-1.5">
-                           <HiHashtag className="h-3 w-3" />
-                           <span>Nº {nDoc}</span>
-                           <button
-                              onClick={() => setNDoc(undefined)}
-                              className="ml-1 hover:text-red-600"
-                           >
-                              <HiX className="h-3 w-3" />
-                           </button>
-                        </div>
-                     </Badge>
-                  )}
-
-                  {selectedTipo && (
-                     <Badge color="red">
-                        <div className="flex items-center gap-1.5">
-                           <HiClipboardList className="h-3 w-3" />
-                           <span>Tipo: {selectedTipo.toUpperCase()}</span>
-                           <button
-                              onClick={() => setSelectedTipo("")}
-                              className="ml-1 hover:text-red-600"
-                           >
-                              <HiX className="h-3 w-3" />
-                           </button>
-                        </div>
-                     </Badge>
-                  )}
-
-                  {selectedSit && (
-                     <Badge color="red">
-                        <div className="flex items-center gap-1.5">
-                           <HiTag className="h-3 w-3" />
-                           <span>
-                              Situação:{" "}
-                              {selectedSit === "d"
-                                 ? "Diária"
-                                 : selectedSit === "c"
-                                   ? "Comissionado"
-                                   : "Grat Rep"}
-                           </span>
-                           <button
-                              onClick={() => setSelectedSit("")}
-                              className="ml-1 hover:text-red-600"
-                           >
-                              <HiX className="h-3 w-3" />
-                           </button>
-                        </div>
-                     </Badge>
-                  )}
-
-                  {userSearch && (
-                     <Badge color="red">
-                        <div className="flex items-center gap-1.5">
-                           <HiUser className="h-3 w-3" />
-                           <span>Militar: {userSearch}</span>
-                           <button
-                              onClick={() => setUserSearch("")}
-                              className="ml-1 hover:text-red-600"
-                           >
-                              <HiX className="h-3 w-3" />
-                           </button>
-                        </div>
-                     </Badge>
-                  )}
-
-                  {dataInicio && (
-                     <Badge color="red">
-                        <div className="flex items-center gap-1.5">
-                           <HiCalendar className="h-3 w-3" />
-                           <span>
-                              Afastamento:{" "}
-                              {new Date(
-                                 dataInicio + "T00:00:00"
-                              ).toLocaleDateString("pt-BR")}
-                           </span>
-                           <button
-                              onClick={() => {
-                                 const hoje = new Date();
-                                 const quinzeDiasAntes = new Date(
-                                    hoje.getFullYear(),
-                                    0,
-                                    1
-                                 );
-                                 setDataInicio(
-                                    quinzeDiasAntes.toISOString().split("T")[0]
-                                 );
-                              }}
-                              className="ml-1 hover:text-red-600"
-                           >
-                              <HiX className="h-3 w-3" />
-                           </button>
-                        </div>
-                     </Badge>
-                  )}
-
-                  {dataFim && (
-                     <Badge color="red">
-                        <div className="flex items-center gap-1.5">
-                           <HiCalendar className="h-3 w-3" />
-                           <span>
-                              Regresso:{" "}
-                              {new Date(
-                                 dataFim + "T00:00:00"
-                              ).toLocaleDateString("pt-BR")}
-                           </span>
-                           <button
-                              onClick={() => {
-                                 const hoje = new Date();
-                                 setDataFim(hoje.toISOString().split("T")[0]);
-                              }}
-                              className="ml-1 hover:text-red-600"
-                           >
-                              <HiX className="h-3 w-3" />
-                           </button>
-                        </div>
-                     </Badge>
-                  )}
-
-                  <button
-                     onClick={clearFilters}
-                     className="text-xs text-gray-500 underline hover:text-gray-700"
-                  >
-                     Limpar todos
-                  </button>
-               </div>
-            </section>
-         )}
-
          {/* Filters Section */}
-         {showFilters && (
-            <section>
-               <div className="rounded-lg border border-gray-200 bg-white p-4">
-                  <div className="mb-4 flex items-center justify-between">
-                     <h6 className="text-sm font-medium text-gray-700">
-                        Filtros
-                     </h6>
-                     {hasActiveFilters && (
-                        <button
-                           onClick={clearFilters}
-                           className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs text-gray-600 hover:bg-gray-100 hover:text-gray-800"
-                        >
-                           <HiX />
-                           Limpar
-                        </button>
-                     )}
-                  </div>
-
+         <section
+            className={clsx(
+               "grid transition-[grid-template-rows] duration-300 ease-in-out",
+               showFilters ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
+            )}
+         >
+            <div className="overflow-hidden">
+               <div className="rounded-lg border border-gray-200 bg-white px-4 py-3">
                   <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7">
                      {/* Tipo da Ordem */}
                      <div>
@@ -420,16 +425,15 @@ export function FilterPage({ active }) {
                            <HiDocumentText className="text-gray-500" />
                            Tipo da Ordem
                         </Label>
-                        <Select
-                           value={tipoDoc}
-                           onChange={(e) => setTipoDoc(e.target.value)}
-                           className="text-sm"
-                           sizing="sm"
-                        >
-                           <option value="">Todos</option>
-                           <option value="om">Missão</option>
-                           <option value="os">Serviço</option>
-                        </Select>
+                        <MultiSelect
+                           options={[
+                              { value: "om", label: "Missão" },
+                              { value: "os", label: "Serviço" },
+                           ]}
+                           selected={tipoDoc}
+                           onChange={setTipoDoc}
+                           placeholder="Todos"
+                        />
                      </div>
 
                      {/* Nº da Ordem */}
@@ -475,17 +479,16 @@ export function FilterPage({ active }) {
                            <HiClipboardList className="text-gray-500" />
                            Tipo de Missão
                         </Label>
-                        <Select
-                           value={selectedTipo}
-                           onChange={(e) => setSelectedTipo(e.target.value)}
-                           className="text-sm"
-                           sizing="sm"
-                        >
-                           <option value="">Todos</option>
-                           <option value="tal">TAL</option>
-                           <option value="adm">ADM</option>
-                           <option value="opr">OPR</option>
-                        </Select>
+                        <MultiSelect
+                           options={[
+                              { value: "tal", label: "TAL" },
+                              { value: "adm", label: "ADM" },
+                              { value: "opr", label: "OPR" },
+                           ]}
+                           selected={selectedTipo}
+                           onChange={setSelectedTipo}
+                           placeholder="Todos"
+                        />
                      </div>
 
                      {/* Situação */}
@@ -494,17 +497,16 @@ export function FilterPage({ active }) {
                            <HiTag className="text-gray-500" />
                            Situação
                         </Label>
-                        <Select
-                           value={selectedSit}
-                           onChange={(e) => setSelectedSit(e.target.value)}
-                           className="text-sm"
-                           sizing="sm"
-                        >
-                           <option value="">Todos</option>
-                           <option value="d">Diária</option>
-                           <option value="c">Comissionado</option>
-                           <option value="g">Grat Rep</option>
-                        </Select>
+                        <MultiSelect
+                           options={[
+                              { value: "d", label: "Diária" },
+                              { value: "c", label: "Comissionado" },
+                              { value: "g", label: "Grat Rep" },
+                           ]}
+                           selected={selectedSit}
+                           onChange={setSelectedSit}
+                           placeholder="Todos"
+                        />
                      </div>
 
                      {/* Militar */}
@@ -517,7 +519,7 @@ export function FilterPage({ active }) {
                            type="text"
                            value={userSearch}
                            onChange={(e) => setUserSearch(e.target.value)}
-                           placeholder="Nome de completo ou de guerra"
+                           placeholder="Nome completo ou de guerra"
                            sizing="sm"
                         />
                      </div>
@@ -551,13 +553,14 @@ export function FilterPage({ active }) {
                      </div>
                   </div>
                </div>
-            </section>
-         )}
+            </div>
+         </section>
 
          {/* Results Section */}
          <section className="relative">
             <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-lg">
-               {loading ? (
+               {/* Loading inicial (sem dados) */}
+               {loading && !misRecords ? (
                   <div className="flex flex-col items-center justify-center gap-4 p-16">
                      <Spinner size="xl" />
                      <p className="text-lg font-medium text-gray-600">
@@ -566,19 +569,104 @@ export function FilterPage({ active }) {
                   </div>
                ) : misRecords && misRecords.length > 0 ? (
                   <div>
-                     <div className="border-b border-gray-200 bg-gray-50 px-6 py-4">
-                        <h3 className="text-lg font-bold text-gray-800">
-                           Registros Encontrados ({misRecords.length})
-                        </h3>
+                     <div className="flex flex-wrap items-center justify-between gap-3 border-b border-gray-200 bg-gray-50 px-6 py-2">
+                        <div className="flex items-center gap-4">
+                           <div className="flex items-center gap-2">
+                              <Checkbox
+                                 className="h-4 w-4"
+                                 checked={selectedAll}
+                                 color="red"
+                                 onChange={() => setSelectedAll(!selectedAll)}
+                              />
+                           </div>
+                           <h3 className="text-lg font-bold text-gray-800">
+                              Registros Encontrados ({totalRecords})
+                           </h3>
+
+                           <div
+                              className={clsx(
+                                 " border-t border-green-200 bg-green-50 px-3 py-1 shadow transition-all duration-300",
+                                 selectedIds.length > 0
+                                    ? "translate-y-0 opacity-100"
+                                    : "pointer-events-none translate-y-full opacity-0"
+                              )}
+                           >
+                              <div className="flex items-center gap-3">
+                                 <div className="flex h-10 w-10 items-center justify-center rounded-full bg-green-100">
+                                    <HiCurrencyDollar className="text-xl text-green-600" />
+                                 </div>
+                                 <p className="text-sm font-medium text-gray-700">
+                                    {selectedIds.length}{" "}
+                                    {selectedIds.length === 1
+                                       ? "registro selecionado"
+                                       : "registros selecionados"}
+                                 </p>
+                                 <p className="font-medium text-green-700">
+                                    {valorSoma.toLocaleString("pt-BR", {
+                                       style: "currency",
+                                       currency: "BRL",
+                                    })}
+                                 </p>
+                              </div>
+                           </div>
+
+                        </div>
+                        <div className="flex items-center gap-3">
+                           <span className="text-sm text-gray-600">
+                              Exibindo{" "}
+                              {Math.min(
+                                 (currentPage - 1) * itemsPerPage + 1,
+                                 totalRecords
+                              )}
+                              -
+                              {Math.min(
+                                 currentPage * itemsPerPage,
+                                 totalRecords
+                              )}{" "}
+                              de {totalRecords}
+                           </span>
+                           <Select
+                              sizing="sm"
+                              value={itemsPerPage}
+                              onChange={(e) =>
+                                 setItemsPerPage(Number(e.target.value))
+                              }
+                              className="w-20"
+                           >
+                              <option value={10}>10</option>
+                              <option value={20}>20</option>
+                              <option value={50}>50</option>
+                              <option value={100}>100</option>
+                           </Select>
+                        </div>
                      </div>
-                     <div className="overflow-x-auto">
-                        <ul
-                           className="divide-y divide-gray-200 p-2"
-                           key={listKey}
-                        >
+                     {/* Área dos registros com spinner */}
+                     <div className="relative overflow-x-auto">
+                        {loading && (
+                           <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/70">
+                              <Spinner size="xl" />
+                           </div>
+                        )}
+                        <ul className="px-2" key={listKey}>
                            {memoUsersRowPgto}
                         </ul>
                      </div>
+                     {totalPages > 1 && (
+                        <div className="flex justify-center border-t border-gray-200 bg-gray-50 px-6 py-4">
+                           <Pagination
+                              currentPage={currentPage}
+                              totalPages={totalPages}
+                              onPageChange={setCurrentPage}
+                           />
+                        </div>
+                     )}
+                  </div>
+               ) : loading ? (
+                  <div className="flex flex-col items-center justify-center gap-4 p-16">
+                     <Spinner size="xl" />
+                     <p className="text-lg font-medium text-gray-600">
+                        Carregando registros...
+                     </p>
                   </div>
                ) : (
                   <div className="flex flex-col items-center justify-center gap-4 p-16">
@@ -595,6 +683,12 @@ export function FilterPage({ active }) {
                )}
             </div>
          </section>
+
+         <UserMissionDetailModal
+            show={showModal}
+            onClose={() => setShowModal(false)}
+            record={selectedRecord}
+         />
       </div>
    );
 }
