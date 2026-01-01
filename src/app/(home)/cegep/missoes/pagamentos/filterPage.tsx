@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useMemo, useCallback } from "react";
+import { useEffect, useState, useMemo, useCallback, useRef } from "react";
 import { Label, TextInput, Select, Checkbox, Badge } from "flowbite-react";
 import { Spinner } from "@/components/Spinner";
 import { Pagination } from "@/components/Pagination";
@@ -146,34 +146,58 @@ export function FilterPage({ active }) {
       [debouncedFilters, currentPage, itemsPerPage]
    );
 
+   // Refs para controlar o fluxo e evitar loops
+   const hasFetchedInitial = useRef(false);
+   const prevFiltersRef = useRef<string | null>(null);
+   const prevPageRef = useRef(currentPage);
+   const prevItemsPerPageRef = useRef(itemsPerPage);
+
+   // Fetch inicial - só roda uma vez quando hidratado
    useEffect(() => {
       if (!active || !isHydrated) return;
-      if (misRecords == null) {
+      if (!hasFetchedInitial.current && misRecords == null) {
+         hasFetchedInitial.current = true;
+         // Inicializa o ref dos filtros com o valor atual
+         prevFiltersRef.current = JSON.stringify(debouncedFilters);
          fetchData(true);
       }
+      // eslint-disable-next-line react-hooks/exhaustive-deps
    }, [active, isHydrated]);
 
    // Chama fetchData quando os filtros debounced mudarem (reset page)
    useEffect(() => {
-      if (!active || !isHydrated || misRecords == null) return;
-      fetchData(true);
+      if (!active || !isHydrated || !hasFetchedInitial.current) return;
+
+      const filtersJson = JSON.stringify(debouncedFilters);
+
+      // Só faz fetch se os filtros realmente mudaram
+      if (prevFiltersRef.current !== filtersJson) {
+         prevFiltersRef.current = filtersJson;
+         fetchData(true);
+      }
       // eslint-disable-next-line react-hooks/exhaustive-deps
    }, [debouncedFilters]);
 
    // Chama fetchData quando a página mudar
    useEffect(() => {
-      if (!active || !isHydrated || misRecords == null) return;
-      fetchData(false);
+      if (!active || !isHydrated || !hasFetchedInitial.current) return;
+      if (prevPageRef.current !== currentPage) {
+         prevPageRef.current = currentPage;
+         fetchData(false);
+      }
       // eslint-disable-next-line react-hooks/exhaustive-deps
    }, [currentPage]);
 
-   // Quando itemsPerPage mudar, reseta para página 1 (que vai triggerar o effect acima)
+   // Quando itemsPerPage mudar, reseta para página 1
    useEffect(() => {
-      if (!active || !isHydrated || misRecords == null) return;
-      if (currentPage !== 1) {
-         setCurrentPage(1);
-      } else {
-         fetchData(false);
+      if (!active || !isHydrated || !hasFetchedInitial.current) return;
+      if (prevItemsPerPageRef.current !== itemsPerPage) {
+         prevItemsPerPageRef.current = itemsPerPage;
+         if (currentPage !== 1) {
+            setCurrentPage(1);
+         } else {
+            fetchData(false);
+         }
       }
       // eslint-disable-next-line react-hooks/exhaustive-deps
    }, [itemsPerPage]);
@@ -244,9 +268,7 @@ export function FilterPage({ active }) {
                   <Badge key={`tipoDoc-${td}`} color="red">
                      <div className="flex items-center gap-1.5">
                         <HiDocumentText className="h-3 w-3" />
-                        <span>
-                           Ordem: {td === "om" ? "Missão" : "Serviço"}
-                        </span>
+                        <span>Ordem: {td === "om" ? "Missão" : "Serviço"}</span>
                         <button
                            onClick={() =>
                               setTipoDoc(tipoDoc.filter((v) => v !== td))
@@ -302,8 +324,8 @@ export function FilterPage({ active }) {
                            {sit === "d"
                               ? "Diária"
                               : sit === "c"
-                                 ? "Comissionado"
-                                 : "Grat Rep"}
+                                ? "Comissionado"
+                                : "Grat Rep"}
                         </span>
                         <button
                            onClick={() =>
@@ -370,9 +392,9 @@ export function FilterPage({ active }) {
                         <HiCalendar className="h-3 w-3" />
                         <span>
                            Regresso:{" "}
-                           {new Date(
-                              dataFim + "T00:00:00"
-                           ).toLocaleDateString("pt-BR")}
+                           {new Date(dataFim + "T00:00:00").toLocaleDateString(
+                              "pt-BR"
+                           )}
                         </span>
                         <button
                            onClick={() => {
@@ -409,7 +431,6 @@ export function FilterPage({ active }) {
                   </Badge>
                )}
             </button>
-
          </section>
 
          {/* Filters Section */}
@@ -588,7 +609,7 @@ export function FilterPage({ active }) {
 
                            <div
                               className={clsx(
-                                 " border-t border-green-200 bg-green-50 px-3 py-1 shadow transition-all duration-300",
+                                 "border-t border-green-200 bg-green-50 px-3 py-1 shadow transition-all duration-300",
                                  selectedIds.length > 0
                                     ? "translate-y-0 opacity-100"
                                     : "pointer-events-none translate-y-full opacity-0"
@@ -612,7 +633,6 @@ export function FilterPage({ active }) {
                                  </p>
                               </div>
                            </div>
-
                         </div>
                         <div className="flex items-center gap-3">
                            <span className="text-sm text-gray-600">

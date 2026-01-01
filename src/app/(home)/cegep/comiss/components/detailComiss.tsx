@@ -994,7 +994,8 @@ export function DetailComiss({
                                           p_g: comiss.user.posto.mid,
                                           sit: "c",
                                           user: {
-                                             nome_guerra: comiss.user.nome_guerra,
+                                             nome_guerra:
+                                                comiss.user.nome_guerra,
                                           },
                                        },
                                        missao: m,
