@@ -106,28 +106,52 @@ export function FilterPage({ active }) {
 
    const debouncedFilters = useDebouncedValue(filters, 500);
 
+   // Refs para controlar o fluxo e evitar loops
+   const hasFetchedInitial = useRef(false);
+   const prevFiltersRef = useRef<string | null>(null);
+   const prevPageRef = useRef(currentPage);
+   const prevItemsPerPageRef = useRef(itemsPerPage);
+
+   // Ref para armazenar os valores mais recentes (evita stale closures)
+   const latestValuesRef = useRef({
+      debouncedFilters,
+      currentPage,
+      itemsPerPage,
+   });
+
+   // Atualiza a ref sempre que os valores mudarem
+   useEffect(() => {
+      latestValuesRef.current = {
+         debouncedFilters,
+         currentPage,
+         itemsPerPage,
+      };
+   }, [debouncedFilters, currentPage, itemsPerPage]);
+
    const fetchData = useCallback(
       async (resetPage = false) => {
          setLoading(true);
 
-         const page = resetPage ? 1 : currentPage;
+         // Usa os valores mais recentes da ref
+         const {
+            debouncedFilters: filters,
+            currentPage: page,
+            itemsPerPage: limit,
+         } = latestValuesRef.current;
+         const actualPage = resetPage ? 1 : page;
 
          let req: { [key: string]: any } = {
-            page,
-            limit: itemsPerPage,
+            page: actualPage,
+            limit,
          };
 
-         if (debouncedFilters.userSearch)
-            req.user = debouncedFilters.userSearch.toLowerCase();
-         if (debouncedFilters.tipoDoc?.length)
-            req.tipo_doc = debouncedFilters.tipoDoc;
-         if (debouncedFilters.nDoc) req.n_doc = debouncedFilters.nDoc;
-         if (debouncedFilters.selectedTipo?.length)
-            req.tipo = debouncedFilters.selectedTipo;
-         if (debouncedFilters.selectedSit?.length)
-            req.sit = debouncedFilters.selectedSit;
-         if (debouncedFilters.dataInicio) req.ini = debouncedFilters.dataInicio;
-         if (debouncedFilters.dataFim) req.fim = debouncedFilters.dataFim;
+         if (filters.userSearch) req.user = filters.userSearch.toLowerCase();
+         if (filters.tipoDoc?.length) req.tipo_doc = filters.tipoDoc;
+         if (filters.nDoc) req.n_doc = filters.nDoc;
+         if (filters.selectedTipo?.length) req.tipo = filters.selectedTipo;
+         if (filters.selectedSit?.length) req.sit = filters.selectedSit;
+         if (filters.dataInicio) req.ini = filters.dataInicio;
+         if (filters.dataFim) req.fim = filters.dataFim;
 
          const data = await getPgts(req);
 
@@ -143,14 +167,8 @@ export function FilterPage({ active }) {
          }
          setLoading(false);
       },
-      [debouncedFilters, currentPage, itemsPerPage]
+      [] // Sem dependências - usa ref para valores atualizados
    );
-
-   // Refs para controlar o fluxo e evitar loops
-   const hasFetchedInitial = useRef(false);
-   const prevFiltersRef = useRef<string | null>(null);
-   const prevPageRef = useRef(currentPage);
-   const prevItemsPerPageRef = useRef(itemsPerPage);
 
    // Fetch inicial - só roda uma vez quando hidratado
    useEffect(() => {
