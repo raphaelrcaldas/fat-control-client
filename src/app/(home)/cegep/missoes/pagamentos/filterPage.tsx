@@ -61,6 +61,7 @@ export function FilterPage({ active }) {
       setTotalRecords,
       totalPages,
       setTotalPages,
+      isHydrated,
    } = useFilterContext();
 
    function handleShowDetail(record) {
@@ -146,29 +147,29 @@ export function FilterPage({ active }) {
    );
 
    useEffect(() => {
-      if (!active) return;
+      if (!active || !isHydrated) return;
       if (misRecords == null) {
          fetchData(true);
       }
-   }, [active]);
+   }, [active, isHydrated]);
 
    // Chama fetchData quando os filtros debounced mudarem (reset page)
    useEffect(() => {
-      if (!active || misRecords == null) return;
+      if (!active || !isHydrated || misRecords == null) return;
       fetchData(true);
       // eslint-disable-next-line react-hooks/exhaustive-deps
    }, [debouncedFilters]);
 
    // Chama fetchData quando a página mudar
    useEffect(() => {
-      if (!active || misRecords == null) return;
+      if (!active || !isHydrated || misRecords == null) return;
       fetchData(false);
       // eslint-disable-next-line react-hooks/exhaustive-deps
    }, [currentPage]);
 
    // Quando itemsPerPage mudar, reseta para página 1 (que vai triggerar o effect acima)
    useEffect(() => {
-      if (!active || misRecords == null) return;
+      if (!active || !isHydrated || misRecords == null) return;
       if (currentPage !== 1) {
          setCurrentPage(1);
       } else {
