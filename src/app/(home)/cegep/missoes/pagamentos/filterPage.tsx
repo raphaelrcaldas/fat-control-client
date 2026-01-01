@@ -24,8 +24,6 @@ import {
 import { clsx } from "clsx";
 
 export function FilterPage({ active }) {
-   console.log("[DEBUG] FilterPage render - active:", active);
-
    const [showFilters, setShowFilters] = useState(false);
    const [loading, setLoading] = useState(true);
    const [showModal, setShowModal] = useState(false);
@@ -65,15 +63,6 @@ export function FilterPage({ active }) {
       setTotalPages,
       isHydrated,
    } = useFilterContext();
-
-   console.log(
-      "[DEBUG] Context state - misRecords:",
-      misRecords?.length ?? "null",
-      "loading:",
-      loading,
-      "isHydrated:",
-      isHydrated
-   );
 
    function handleShowDetail(record) {
       setSelectedRecord(record);
@@ -128,7 +117,6 @@ export function FilterPage({ active }) {
 
    const fetchData = useCallback(
       async (resetPage = false) => {
-         console.log("[DEBUG] fetchData chamado, resetPage:", resetPage);
          setLoading(true);
 
          // Usa os valores mais recentes da ref
@@ -138,11 +126,6 @@ export function FilterPage({ active }) {
             itemsPerPage: limit,
          } = latestValuesRef.current;
          const actualPage = resetPage ? 1 : page;
-
-         console.log(
-            "[DEBUG] latestValuesRef.current:",
-            latestValuesRef.current
-         );
 
          let req: { [key: string]: any } = {
             page: actualPage,
@@ -157,16 +140,7 @@ export function FilterPage({ active }) {
          if (filters.dataInicio) req.ini = filters.dataInicio;
          if (filters.dataFim) req.fim = filters.dataFim;
 
-         console.log("[DEBUG] Request params:", req);
-
          const data = await getPgts(req);
-
-         console.log("[DEBUG] API Response:", {
-            itemsLength: data.items?.length,
-            total: data.total,
-            totalPages: data.total_pages,
-            firstItem: data.items?.[0],
-         });
 
          setMisRecords(data.items);
          setTotalRecords(data.total);
@@ -179,28 +153,16 @@ export function FilterPage({ active }) {
             setCurrentPage(1);
          }
          setLoading(false);
-         console.log("[DEBUG] fetchData concluído, misRecords setado");
       },
       [] // Sem dependências - usa ref para valores atualizados
    );
 
    // Fetch inicial - só roda uma vez quando hidratado
    useEffect(() => {
-      console.log(
-         "[DEBUG] Effect inicial - active:",
-         active,
-         "isHydrated:",
-         isHydrated,
-         "hasFetchedInitial:",
-         hasFetchedInitial.current,
-         "misRecords:",
-         misRecords
-      );
       if (!active || !isHydrated) return;
 
       // Sempre faz fetch se misRecords é null/undefined (dados não carregados)
       if (misRecords == null) {
-         console.log("[DEBUG] Executando fetch - misRecords é null/undefined");
          hasFetchedInitial.current = true;
          // Inicializa o ref dos filtros com o valor atual
          prevFiltersRef.current = JSON.stringify(debouncedFilters);
