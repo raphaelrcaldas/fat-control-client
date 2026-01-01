@@ -197,12 +197,18 @@ export function FilterPage({ active }) {
          misRecords
       );
       if (!active || !isHydrated) return;
-      if (!hasFetchedInitial.current && misRecords == null) {
-         console.log("[DEBUG] Executando fetch inicial");
+
+      // Sempre faz fetch se misRecords é null/undefined (dados não carregados)
+      if (misRecords == null) {
+         console.log("[DEBUG] Executando fetch - misRecords é null/undefined");
          hasFetchedInitial.current = true;
          // Inicializa o ref dos filtros com o valor atual
          prevFiltersRef.current = JSON.stringify(debouncedFilters);
          fetchData(true);
+      } else if (!hasFetchedInitial.current) {
+         // Marca como inicializado se já tem dados (ex: veio do cache/context)
+         hasFetchedInitial.current = true;
+         prevFiltersRef.current = JSON.stringify(debouncedFilters);
       }
       // eslint-disable-next-line react-hooks/exhaustive-deps
    }, [active, isHydrated]);
