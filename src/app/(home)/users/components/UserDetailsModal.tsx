@@ -45,8 +45,8 @@ export function UserDetailsModal({
    return (
       <Modal show={show} size="4xl" onClose={onClose} dismissible>
          <div className="relative flex max-h-[90vh] flex-col">
-            {/* Header customizado com gradiente - compacto */}
-            <div className="shrink-0 rounded-t-lg bg-gradient-to-r from-red-500 to-red-700 p-4 text-white">
+            {/* Header customizado com lienare - compacto */}
+            <div className="shrink-0 rounded-t-lg bg-linear-to-r from-red-500 to-red-700 p-4 text-white">
                <button
                   onClick={onClose}
                   className="absolute top-3 right-3 z-10 rounded-lg p-1.5 transition-colors hover:bg-white/20"

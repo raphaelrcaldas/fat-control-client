@@ -374,7 +374,7 @@ export function ConfigPage() {
             onClose={() => setEtiquetaToDelete(null)}
             size="md"
          >
-            <ModalHeader className="border-b border-red-200 bg-gradient-to-r from-red-50 to-orange-50">
+            <ModalHeader className="border-b border-red-200 bg-lienar-to-r from-red-50 to-orange-50">
                <div className="flex items-center gap-3">
                   <div className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-red-300 bg-red-100">
                      <HiExclamation className="text-xl text-red-600" />

@@ -16,7 +16,7 @@ export function ErrorModal({
 }: ErrorModalProps) {
    return (
       <Modal size="lg" show={show} onClose={onClose} dismissible>
-         <ModalHeader className="border-b-2 border-red-100 bg-gradient-to-r from-red-50 to-orange-50">
+         <ModalHeader className="border-b-2 border-red-100 bg-lienar-to-r from-red-50 to-orange-50">
             <div className="flex items-center gap-3">
                <div className="rounded-full bg-red-500 p-2">
                   <MdError className="size-6 text-white" />

@@ -16,7 +16,7 @@ export default function Navbar({
    isSidebarOpen,
 }: NavbarProps) {
    return (
-      <nav className="fixed top-0 right-0 left-0 z-50 flex h-16 items-center justify-between bg-gradient-to-r from-white to-red-100 px-4 shadow-lg">
+      <nav className="fixed top-0 right-0 left-0 z-50 flex h-16 items-center justify-between bg-lienar-to-r from-white to-red-100 px-4 shadow-lg">
          <div className="flex items-center gap-3">
             {/* Botão menu */}
             <button

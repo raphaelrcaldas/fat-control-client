@@ -166,7 +166,7 @@ export function FormPernoite({
          </ModalHeader>
          <ModalBody className="p-6">
             {/* Informação das datas da missão */}
-            <div className="mb-4 rounded-lg border-2 border-amber-200 bg-gradient-to-r from-amber-50 to-orange-50 p-4">
+            <div className="mb-4 rounded-lg border-2 border-amber-200 bg-lienar-to-r from-amber-50 to-orange-50 p-4">
                <h4 className="mb-2 text-xs font-semibold tracking-wide text-amber-800 uppercase">
                   Período da Missão
                </h4>
@@ -222,7 +222,7 @@ export function FormPernoite({
 
             <form onSubmit={handleSubmit} className="flex flex-col gap-6">
                {/* Seção de Datas */}
-               <div className="rounded-xl border border-blue-100 bg-gradient-to-r from-blue-50 to-indigo-50 p-5">
+               <div className="rounded-xl border border-blue-100 bg-lienar-to-r from-blue-50 to-indigo-50 p-5">
                   <h3 className="mb-4 flex items-center gap-2 text-sm font-semibold text-gray-700">
                      <span className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-500 text-xs text-white">
                         1
@@ -266,7 +266,7 @@ export function FormPernoite({
                </div>
 
                {/* Seção de Localidade */}
-               <div className="rounded-xl border border-purple-100 bg-gradient-to-r from-purple-50 to-pink-50 p-5">
+               <div className="rounded-xl border border-purple-100 bg-lienar-to-r from-purple-50 to-pink-50 p-5">
                   <h3 className="mb-4 flex items-center gap-2 text-sm font-semibold text-gray-700">
                      <span className="flex h-6 w-6 items-center justify-center rounded-full bg-purple-500 text-xs text-white">
                         2
@@ -312,7 +312,7 @@ export function FormPernoite({
                </div>
 
                {/* Seção de Opções */}
-               <div className="rounded-xl border border-green-100 bg-gradient-to-r from-green-50 to-emerald-50 p-5">
+               <div className="rounded-xl border border-green-100 bg-lienar-to-r from-green-50 to-emerald-50 p-5">
                   <h3 className="mb-4 flex items-center gap-2 text-sm font-semibold text-gray-700">
                      <span className="flex h-6 w-6 items-center justify-center rounded-full bg-green-500 text-xs text-white">
                         3

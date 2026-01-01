@@ -74,7 +74,7 @@ export function UserMissionDetailModal({
       <Modal show={show} size="5xl" onClose={onClose} dismissible popup>
          <div className="relative flex max-h-[90vh] flex-col">
             {/* Header */}
-            <div className="shrink-0 rounded-t-lg bg-linear-to-r from-blue-600 to-indigo-700 p-4 text-white">
+            <div className="shrink-0 rounded-t-lg bg-linear-to-r from-red-500 to-red-700 p-4 text-white">
                <button
                   onClick={onClose}
                   className="absolute top-3 right-3 z-10 rounded-lg p-1.5 transition-colors hover:bg-white/20"
@@ -108,9 +108,9 @@ export function UserMissionDetailModal({
                            </Badge>
                         </div>
                         {missao.desc && (
-                           <p className="text-sm text-blue-100">
+                           <span className="text-sm font-semibold text-red-100">
                               {missao.desc}
-                           </p>
+                           </span>
                         )}
                      </div>
                   </div>
@@ -120,7 +120,7 @@ export function UserMissionDetailModal({
                      <div className="flex items-center gap-2 rounded bg-white/20 px-3 py-2 text-sm backdrop-blur-sm">
                         <HiCalendar className="h-4 w-4" />
                         <div className="flex flex-col">
-                           <span className="text-[10px] text-blue-100">
+                           <span className="text-[10px] text-red-100">
                               Afastamento
                            </span>
                            <span className="font-medium">{afast}</span>
@@ -129,7 +129,7 @@ export function UserMissionDetailModal({
                      <div className="flex items-center gap-2 rounded bg-white/20 px-3 py-2 text-sm backdrop-blur-sm">
                         <HiCalendar className="h-4 w-4" />
                         <div className="flex flex-col">
-                           <span className="text-[10px] text-blue-100">
+                           <span className="text-[10px] text-red-100">
                               Regresso
                            </span>
                            <span className="font-medium">{regres}</span>

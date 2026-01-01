@@ -126,7 +126,7 @@ export function SearchLocal({ show, setShow, setLocal }: SearchLocalProps) {
                </div>
 
                {/* Results Section */}
-               <div className="flex flex-col overflow-hidden rounded-xl border border-gray-200 bg-gradient-to-br from-slate-50 to-gray-50 shadow-sm">
+               <div className="flex flex-col overflow-hidden rounded-xl border border-gray-200 bg-lienar-to-br from-slate-50 to-gray-50 shadow-sm">
                   {isLoading ? (
                      <div className="flex flex-col items-center justify-center px-4 py-16">
                         <Spinner size="xl" />

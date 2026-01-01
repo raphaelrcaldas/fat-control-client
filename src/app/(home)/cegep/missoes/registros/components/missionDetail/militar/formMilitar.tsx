@@ -124,7 +124,7 @@ export function FormMilitar({
       <Modal size="lg" show={show} onClose={() => setShow(false)} dismissible>
          <ModalHeader className="border-b-2 border-gray-100 pb-4">
             <div className="flex items-center gap-3">
-               <div className="rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 p-2">
+               <div className="rounded-lg bg-lienar-to-br from-blue-500 to-blue-600 p-2">
                   <HiUserCircle className="h-6 w-6 text-white" />
                </div>
                <span className="text-xl font-semibold text-gray-800">
@@ -135,7 +135,7 @@ export function FormMilitar({
          <ModalBody className="p-6">
             <form onSubmit={handleSubmit} className="flex flex-col gap-6">
                {/* Card de Seleção do Militar */}
-               <div className="rounded-2xl border-2 border-slate-200 bg-gradient-to-br from-slate-50 to-slate-100 px-3 py-2 shadow-sm">
+               <div className="rounded-2xl border-2 border-slate-200 bg-lienar-to-br from-slate-50 to-slate-100 px-3 py-2 shadow-sm">
                   <div className="flex flex-col gap-2">
                      <div className="flex items-center justify-between">
                         <Label className="flex items-center gap-2 text-sm font-semibold text-gray-700">
@@ -146,7 +146,7 @@ export function FormMilitar({
                            pill
                            onClick={() => setShowUserSearch(true)}
                            size="sm"
-                           className="bg-gradient-to-r from-blue-500 to-blue-600 shadow-md transition-all duration-300 hover:from-blue-600 hover:to-blue-700 hover:shadow-lg"
+                           className="bg-lienar-to-r from-blue-500 to-blue-600 shadow-md transition-all duration-300 hover:from-blue-600 hover:to-blue-700 hover:shadow-lg"
                         >
                            <IoMdSearch className="mr-2 h-4 w-4" />
                            Buscar
@@ -236,7 +236,7 @@ export function FormMilitar({
                   {userMis && (
                      <Button
                         onClick={handleDeleteClick}
-                        className="min-w-32 bg-gradient-to-r from-red-500 to-red-600 shadow-md transition-all duration-300 hover:from-red-600 hover:to-red-700 hover:shadow-lg"
+                        className="min-w-32 bg-lienar-to-r from-red-500 to-red-600 shadow-md transition-all duration-300 hover:from-red-600 hover:to-red-700 hover:shadow-lg"
                      >
                         <HiTrash className="mr-2 h-4 w-4" />
                         Excluir
@@ -245,7 +245,7 @@ export function FormMilitar({
                   <Button
                      type="submit"
                      disabled={!isChanged}
-                     className="min-w-32 bg-gradient-to-r from-green-500 to-green-600 shadow-md transition-all duration-300 hover:from-green-600 hover:to-green-700 hover:shadow-lg disabled:from-gray-300 disabled:to-gray-400 disabled:shadow-none"
+                     className="min-w-32 bg-lienar-to-r from-green-500 to-green-600 shadow-md transition-all duration-300 hover:from-green-600 hover:to-green-700 hover:shadow-lg disabled:from-gray-300 disabled:to-gray-400 disabled:shadow-none"
                   >
                      <HiCheckCircle className="mr-2 h-4 w-4" />
                      Salvar

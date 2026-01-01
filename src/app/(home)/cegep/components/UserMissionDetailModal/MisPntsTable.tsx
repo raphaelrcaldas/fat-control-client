@@ -27,7 +27,7 @@ export function MisPntsTable({
       <div className="rounded-xl bg-linear-to-br from-gray-50 to-white p-2">
          {/* Header */}
          <div className="mb-2 flex items-center gap-3">
-            <div className="flex h-7 w-7 items-center justify-center rounded-full bg-blue-100 text-blue-600">
+            <div className="flex h-7 w-7 items-center justify-center rounded-full bg-red-100 text-red-600">
                <FaBed className="text-lg" />
             </div>
             <h2 className="text-lg font-bold text-gray-800">Pernoites</h2>
@@ -35,7 +35,7 @@ export function MisPntsTable({
 
          <div className="overflow-x-auto rounded-lg border border-gray-200 shadow-md">
             <Table className="text-center">
-               <TableHead className="bg-linear-to-r from-blue-600 to-indigo-600">
+               <TableHead>
                   <TableRow>
                      <TableHeadCell className="">
                         <div className="flex items-center justify-center gap-2">
@@ -77,7 +77,7 @@ export function MisPntsTable({
                            key={pnt.id}
                            className={`${
                               idx % 2 === 0 ? "bg-white" : "bg-gray-50"
-                           } transition-colors hover:bg-blue-50`}
+                           } transition-colors hover:bg-red-50`}
                         >
                            <TableCell className="font-medium text-gray-700">
                               {ini}
@@ -92,11 +92,7 @@ export function MisPntsTable({
                                  </span>
                               </div>
                            </TableCell>
-                           <TableCell>
-                              <Badge color="info" className="grid items-center">
-                                 {pnt.custo.dias}
-                              </Badge>
-                           </TableCell>
+                           <TableCell>{pnt.custo.dias}</TableCell>
                            <TableCell>
                               <div className="flex flex-col items-center gap-1">
                                  {pnt.custo.vals.map((val, i) => {
@@ -110,7 +106,7 @@ export function MisPntsTable({
 
                                     return (
                                        <div
-                                          className="rounded bg-blue-50 px-2 py-1 text-xs font-medium text-nowrap"
+                                          className="rounded bg-red-50 px-2 py-1 text-sm font-medium text-nowrap"
                                           key={i}
                                        >
                                           {qtd} × {valor}
@@ -152,12 +148,12 @@ export function MisPntsTable({
 
          {/* Footer com totais */}
          <div className="mt-4 grid grid-cols-1 gap-3 md:grid-cols-3">
-            <div className="rounded-lg border border-blue-200 bg-linear-to-r from-blue-50 to-blue-100 p-3 shadow-sm">
+            <div className="rounded-lg border border-red-200 bg-linear-to-r from-red-50 to-red-100 p-3 shadow-sm">
                <div className="flex items-center justify-between">
                   <span className="text-xs font-medium text-gray-600">
                      Total de Dias
                   </span>
-                  <span className="text-base font-bold text-blue-700">
+                  <span className="text-base font-bold text-red-700">
                      {pernoites.reduce(
                         (acc, pnt) => acc + (pnt.custo?.dias || 0),
                         0
@@ -186,7 +182,7 @@ export function MisPntsTable({
                </div>
             </div>
 
-            <div className="rounded-lg bg-linear-to-r from-indigo-500 to-blue-600 p-3 shadow-md">
+            <div className="rounded-lg bg-linear-to-r from-red-400 to-red-600 p-3 shadow-md">
                <div className="flex items-center justify-between">
                   <span className="text-xs font-semibold text-white uppercase">
                      Valor Total

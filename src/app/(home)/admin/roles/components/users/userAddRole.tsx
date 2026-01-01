@@ -127,7 +127,7 @@ export default function UserAddRole({
                         {selectedUser ? (
                            <div className="flex flex-1 items-center justify-between rounded-lg border border-blue-200 bg-blue-50 p-3">
                               <div className="flex items-center gap-3">
-                                 <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-blue-600 font-bold text-white uppercase shadow">
+                                 <div className="flex h-10 w-10 items-center justify-center rounded-full bg-lienar-to-br from-blue-500 to-blue-600 font-bold text-white uppercase shadow">
                                     {selectedUser.posto.short}
                                  </div>
                                  <div>

@@ -51,7 +51,7 @@ export function MissionPernoite({
       <>
          <div
             className={clsx(
-               "group relative flex gap-3 rounded-xl border-2 border-gray-200 bg-gradient-to-br from-white to-gray-50 p-4 shadow-sm",
+               "group relative flex gap-3 rounded-xl border-2 border-gray-200 bg-lienar-to-br from-white to-gray-50 p-4 shadow-sm",
                {
                   "cursor-pointer hover:border-blue-300 hover:shadow-lg": edit,
                }
@@ -86,7 +86,7 @@ export function MissionPernoite({
                <div className="flex gap-2">
                   {pnt.acrec_desloc && (
                      <Tooltip content="Acréscimo Deslocamento">
-                        <span className="flex items-center gap-1 rounded-full bg-gradient-to-r from-green-400 to-green-500 px-3 py-1 text-xs font-semibold text-white shadow-sm">
+                        <span className="flex items-center gap-1 rounded-full bg-lienar-to-r from-green-400 to-green-500 px-3 py-1 text-xs font-semibold text-white shadow-sm">
                            <MdAttachMoney className="text-sm" />
                            AC
                         </span>
@@ -95,7 +95,7 @@ export function MissionPernoite({
 
                   {pnt.meia_diaria && (
                      <Tooltip content="Meia Diária">
-                        <span className="rounded-full bg-gradient-to-r from-amber-400 to-amber-500 px-3 py-1 text-xs font-semibold text-white shadow-sm">
+                        <span className="rounded-full bg-lienar-to-r from-amber-400 to-amber-500 px-3 py-1 text-xs font-semibold text-white shadow-sm">
                            MD
                         </span>
                      </Tooltip>
