@@ -335,8 +335,8 @@ export function FilterPage({ active }) {
                            {sit === "d"
                               ? "Diária"
                               : sit === "c"
-                                ? "Comissionado"
-                                : "Grat Rep"}
+                                 ? "Comissionado"
+                                 : "Grat Rep"}
                         </span>
                         <button
                            onClick={() =>
@@ -568,7 +568,15 @@ export function FilterPage({ active }) {
                         <input
                            type="date"
                            value={dataInicio}
-                           onChange={(e) => setDataInicio(e.target.value)}
+                           max={dataFim || undefined}
+                           onChange={(e) => {
+                              const newValue = e.target.value;
+                              setDataInicio(newValue);
+                              // Se a nova data de afastamento for maior que a de regresso, ajusta a de regresso
+                              if (dataFim && newValue > dataFim) {
+                                 setDataFim(newValue);
+                              }
+                           }}
                            className="block w-full rounded-lg border border-gray-300 bg-white p-2 text-sm text-gray-900 focus:border-red-500 focus:ring-red-500"
                         />
                      </div>
@@ -582,7 +590,15 @@ export function FilterPage({ active }) {
                         <input
                            type="date"
                            value={dataFim}
-                           onChange={(e) => setDataFim(e.target.value)}
+                           min={dataInicio || undefined}
+                           onChange={(e) => {
+                              const newValue = e.target.value;
+                              setDataFim(newValue);
+                              // Se a nova data de regresso for menor que a de afastamento, ajusta a de afastamento
+                              if (dataInicio && newValue < dataInicio) {
+                                 setDataInicio(newValue);
+                              }
+                           }}
                            className="block w-full rounded-lg border border-gray-300 bg-white p-2 text-sm text-gray-900 focus:border-red-500 focus:ring-red-500"
                         />
                      </div>
