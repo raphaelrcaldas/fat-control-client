@@ -40,8 +40,17 @@ export function ChangePassword() {
             });
             route.push("/");
          } else {
+            // Trata erros de validação do Pydantic (array) ou erros simples (string)
+            let errorMessage = "Erro ao alterar senha";
+            if (Array.isArray(responseData.detail)) {
+               // Extrai mensagem do primeiro erro de validação
+               const firstError = responseData.detail[0];
+               errorMessage = firstError?.msg?.replace("Value error, ", "") || errorMessage;
+            } else if (typeof responseData.detail === "string") {
+               errorMessage = responseData.detail;
+            }
             push({
-               message: responseData.detail || "Erro ao alterar senha",
+               message: errorMessage,
                type: "error",
             });
          }
@@ -94,9 +103,9 @@ export function ChangePassword() {
                            message: "A senha deve ter no mínimo 8 caracteres",
                         },
                         pattern: {
-                           value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
+                           value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*(),.?":{}|<>_\-+=\[\]\\\/`~])/,
                            message:
-                              "A senha deve conter letras maiúsculas, minúsculas e números",
+                              "A senha deve conter maiúsculas, minúsculas, números e caractere especial",
                         },
                      })}
                      type="password"
