@@ -57,7 +57,7 @@ export const CardMission = memo(function CardMission({
 
    return (
       <>
-         <div className="relative w-full rounded-2xl border-2 border-gray-100 bg-white p-5 shadow-lg">
+         <div className="relative w-full rounded-2xl border-2 border-gray-100 bg-white p-5 shadow-lg transition-shadow hover:shadow-xl">
             {/* Etiquetas no topo do card (somente exibição) */}
             {etiquetas.length > 0 && (
                <div className="mb-3 flex flex-wrap items-center gap-1.5 border-b border-gray-100 pb-3">
@@ -75,8 +75,12 @@ export const CardMission = memo(function CardMission({
                </div>
             )}
 
-            {/* Header com documento */}
-            <div className="mb-4 flex items-center justify-between">
+            {/* Header com documento - CLICÁVEL */}
+            <div
+               className="mb-4 flex cursor-pointer items-center justify-between rounded-lg p-2 -m-2 transition-colors hover:bg-gray-50"
+               onClick={() => setShowDetail(true)}
+               title="Clique para ver detalhes da missão"
+            >
                <div className="flex items-center gap-3">
                   <div
                      className={clsx("rounded-lg p-2 shadow-md", {
@@ -101,16 +105,13 @@ export const CardMission = memo(function CardMission({
                <button
                   onClick={onClone}
                   title="Clonar missão"
-                  className="rounded-lg p-2 transition-colors hover:bg-gray-100"
+                  className="z-10 rounded-lg p-2 transition-colors hover:bg-gray-100"
                >
                   <FaRegClone className="text-lg text-gray-600" />
                </button>
             </div>
 
-            <div
-               className="flex h-full cursor-pointer flex-col gap-4"
-               onClick={() => setShowDetail(true)}
-            >
+            <div className="flex h-full flex-col gap-4">
                {/* Observações */}
                {missao.obs && (
                   <div
@@ -245,7 +246,7 @@ const PernoiteCardMis = memo(function PernoiteCardMis({ pnt }: { pnt: any }) {
             {pnt.acrec_desloc && (
                <span
                   title="Acréscimo Deslocamento"
-                  className="cursor-help rounded-full bg-green-500 px-2.5 py-1 text-xs font-semibold text-white shadow-sm"
+                  className="rounded-full bg-green-500 px-2.5 py-1 text-xs font-semibold text-white shadow-sm"
                >
                   AC
                </span>
@@ -254,7 +255,7 @@ const PernoiteCardMis = memo(function PernoiteCardMis({ pnt }: { pnt: any }) {
             {pnt.meia_diaria && (
                <span
                   title="Meia Diária"
-                  className="cursor-help rounded-full bg-amber-500 px-2.5 py-1 text-xs font-semibold text-white shadow-sm"
+                  className="rounded-full bg-amber-500 px-2.5 py-1 text-xs font-semibold text-white shadow-sm"
                >
                   MD
                </span>

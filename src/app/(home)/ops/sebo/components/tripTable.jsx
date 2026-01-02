@@ -74,7 +74,7 @@ const TripTable = ({ trips, setRow, activeRow, isLoading }) => {
       <div className="w-full overflow-hidden rounded-xl bg-white shadow-lg">
          <div className="overflow-x-auto">
             <table className="w-full text-center text-sm text-gray-600">
-               <thead className="border-b-2 border-gray-300 bg-lienar-to-r from-gray-100 to-gray-200">
+               <thead className="border-b-2 border-gray-300 bg-linear-to-r from-gray-100 to-gray-200">
                   <tr>
                      <th className="group hidden cursor-pointer px-4 py-3 transition-colors hover:bg-gray-300 2xl:table-cell">
                         <div className="flex items-center justify-center gap-1">
@@ -284,7 +284,7 @@ function TableLoading() {
       <div className="w-full overflow-hidden rounded-xl bg-white shadow-lg">
          <div className="overflow-x-auto">
             <table className="w-full text-center text-sm text-gray-600">
-               <thead className="border-b-2 border-gray-300 bg-lienar-to-r from-gray-100 to-gray-200">
+               <thead className="border-b-2 border-gray-300 bg-linear-to-r from-gray-100 to-gray-200">
                   <tr>
                      <th className="hidden px-4 py-3 lg:table-cell">
                         <div className="mx-auto h-4 w-12 animate-pulse rounded bg-gray-300"></div>

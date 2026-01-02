@@ -402,6 +402,7 @@ export default function MissionDetail({
                </Button>
             </ModalFooter>
          </Modal>
+
          <Modal size="4xl" show={show} onClose={handleClose} dismissible>
             <ModalHeader className="border-b border-slate-200 pb-4">
                <div className="flex items-center gap-3">
@@ -633,14 +634,11 @@ export default function MissionDetail({
                            <div className="inline-block">
                               <span
                                  className={clsx(
-                                    "inline-flex items-center rounded-lg px-4 py-2 text-sm font-bold tracking-wide uppercase shadow-sm transition-all",
+                                    "inline-flex items-center rounded-lg px-3 py-2 text-sm font-bold tracking-wide text-white uppercase shadow-sm transition-all",
                                     {
-                                       "bg-linear-to-r from-amber-400 to-amber-500 text-white":
-                                          tipo === "opr",
-                                       "bg-linear-to-r from-blue-400 to-blue-500 text-white":
-                                          tipo === "adm",
-                                       "bg-linear-to-r from-green-400 to-green-500 text-white":
-                                          tipo === "tal",
+                                       "bg-amber-500": tipo === "opr",
+                                       "bg-blue-500": tipo === "adm",
+                                       "bg-green-500": tipo === "tal",
                                     }
                                  )}
                               >
@@ -669,7 +667,7 @@ export default function MissionDetail({
                                  className={clsx(
                                     "inline-flex items-center rounded-lg px-4 py-2 text-sm font-bold tracking-wide uppercase shadow-sm transition-all",
                                     {
-                                       "bg-linear-to-r from-emerald-400 to-emerald-500 text-white":
+                                       "bg-emerald-500 text-white":
                                           ind == "ind",
                                        "bg-slate-200 text-slate-700":
                                           ind == "n_ind",

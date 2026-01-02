@@ -72,7 +72,7 @@ export function TripEditForm({
    return (
       <form onSubmit={handleSubmit} className="space-y-5">
          {/* Informações do Usuário */}
-         <div className="rounded-lg border border-blue-200 bg-lienar-to-r from-blue-50 to-indigo-50 p-4">
+         <div className="rounded-lg border border-blue-200 bg-linear-to-r from-blue-50 to-indigo-50 p-4">
             <div className="flex items-center justify-between">
                <div>
                   <h3 className="text-lg font-bold text-gray-800 uppercase">

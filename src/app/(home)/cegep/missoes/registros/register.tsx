@@ -2,13 +2,15 @@
 
 import { getFragMissoes } from "services/routes/cegep/missoes";
 import { useEffect, useState, useCallback } from "react";
-import { Label, Select, TextInput, Badge } from "flowbite-react";
+import { Label, TextInput, Badge } from "flowbite-react";
 import { Missao } from "services/routes/cegep/missoes";
 import { CardMission } from "./components/cardMission";
 import MissionDetail from "./components/missionDetail";
 import { useRegisterContext } from "../../context/registerContext";
 import { useEtiquetas } from "../../context/etiquetasContext";
 import { Spinner } from "@/components/Spinner";
+import { Pagination } from "@/components/Pagination";
+import { MultiSelect } from "@/components/MultiSelect";
 import {
    HiX,
    HiFilter,
@@ -28,6 +30,12 @@ export function RegisPage() {
    const [loading, setLoading] = useState(true);
    const [showFilters, setShowFilters] = useState(false);
    const [selectedEtiquetaIds, setSelectedEtiquetaIds] = useState<number[]>([]);
+
+   // Pagination states
+   const [currentPage, setCurrentPage] = useState(1);
+   const [totalPages, setTotalPages] = useState(1);
+   const [perPage, setPerPage] = useState(20);
+   const [total, setTotal] = useState(0);
 
    const { etiquetas: etiquetasDisponiveis } = useEtiquetas();
 
@@ -49,9 +57,9 @@ export function RegisPage() {
    } = useRegisterContext();
 
    const hasActiveFilters = !!(
-      tipoDoc ||
+      tipoDoc.length > 0 ||
       nDoc ||
-      selectedTipo ||
+      selectedTipo.length > 0 ||
       userSearch ||
       citySearch ||
       dataInicio ||
@@ -60,9 +68,9 @@ export function RegisPage() {
    );
 
    const clearFilters = () => {
-      setTipoDoc("");
+      setTipoDoc([]);
       setNDoc(undefined);
-      setSelectedTipo("");
+      setSelectedTipo([]);
       setUserSearch("");
       setCitySearch("");
       setSelectedEtiquetaIds([]);
@@ -70,16 +78,20 @@ export function RegisPage() {
       const quinzeDiasAntes = new Date(hoje.getFullYear(), 0, 1);
       setDataInicio(quinzeDiasAntes.toISOString().split("T")[0]);
       setDataFim(hoje.toISOString().split("T")[0]);
+      setCurrentPage(1); // Reset pagination when clearing filters
    };
 
    const fetchData = useCallback(async () => {
       setLoading(true);
 
-      let req: { [key: string]: any } = {};
+      let req: { [key: string]: any } = {
+         page: currentPage,
+         per_page: perPage,
+      };
 
-      if (tipoDoc) req.tipo_doc = tipoDoc;
+      if (tipoDoc.length > 0) req.tipo_doc = tipoDoc.join(",");
       if (nDoc) req.n_doc = nDoc;
-      if (selectedTipo) req.tipo = selectedTipo;
+      if (selectedTipo.length > 0) req.tipo = selectedTipo.join(",");
       if (dataInicio) req.ini = dataInicio;
       if (dataFim) req.fim = dataFim;
       if (userSearch) req.user_search = userSearch;
@@ -89,7 +101,10 @@ export function RegisPage() {
 
       const data = await getFragMissoes(req);
 
-      setMissoes(data);
+      // Handle paginated response
+      setMissoes(data.items);
+      setTotalPages(data.pages);
+      setTotal(data.total);
       setLoading(false);
    }, [
       tipoDoc,
@@ -100,6 +115,8 @@ export function RegisPage() {
       userSearch,
       citySearch,
       selectedEtiquetaIds,
+      currentPage,
+      perPage,
    ]);
 
    const handleSetClone = useCallback((missao: Missao) => {
@@ -109,6 +126,24 @@ export function RegisPage() {
    const handleSetShowForm = useCallback((show: boolean) => {
       setShowForm(show);
    }, []);
+
+   const handlePageChange = useCallback((page: number) => {
+      setCurrentPage(page);
+   }, []);
+
+   // Reset to page 1 when any filter changes
+   useEffect(() => {
+      setCurrentPage(1);
+   }, [
+      tipoDoc,
+      nDoc,
+      selectedTipo,
+      dataInicio,
+      dataFim,
+      userSearch,
+      citySearch,
+      selectedEtiquetaIds,
+   ]);
 
    useEffect(() => {
       const timer = setTimeout(() => {
@@ -121,73 +156,34 @@ export function RegisPage() {
    return (
       <>
          <div className="flex h-full flex-col overflow-hidden">
-            {/* Header Section */}
-            <section className="mb-2 shrink-0">
-               <div className="flex items-center justify-between">
-                  <h5 className="text-xl font-semibold text-gray-800">
-                     Missões
-                  </h5>
-                  <div className="flex items-center gap-2">
-                     <button
-                        type="button"
-                        onClick={() => setShowFilters(!showFilters)}
-                        className="flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"
-                     >
-                        <HiFilter />
-                        {showFilters ? "Ocultar" : "Filtros"}
-                        {hasActiveFilters && (
-                           <Badge color="red" size="sm">
-                              {
-                                 Object.values({
-                                    tipoDoc,
-                                    nDoc,
-                                    selectedTipo,
-                                    userSearch,
-                                    citySearch,
-                                    dataInicio,
-                                    dataFim,
-                                 }).filter((v) => v).length
-                              }
-                           </Badge>
-                        )}
-                     </button>
-                     <button
-                        type="button"
-                        onClick={() => handleSetShowForm(true)}
-                        className="flex items-center gap-1.5 rounded-lg bg-red-600 px-3 py-2 text-sm font-semibold text-white hover:bg-red-700"
-                     >
-                        <span>+</span>
-                        Nova Missão
-                     </button>
-                  </div>
-               </div>
-            </section>
-
             {/* Active Filters Tags */}
             {hasActiveFilters && (
-               <section className="mb-3 shrink-0">
+               <section className="mb-3 flex shrink-0 justify-between">
                   <div className="flex flex-wrap items-center gap-2">
                      <span className="text-xs font-medium text-gray-600">
                         Filtros ativos:
                      </span>
 
-                     {tipoDoc && (
-                        <Badge color="red" className="">
+                     {tipoDoc.map((tipo) => (
+                        <Badge key={tipo} color="red" className="">
                            <div className="flex items-center gap-1.5">
                               <HiDocumentText className="h-3 w-3" />
                               <span>
-                                 Ordem:{" "}
-                                 {tipoDoc === "om" ? "Missão" : "Serviço"}
+                                 Ordem: {tipo === "om" ? "Missão" : "Serviço"}
                               </span>
                               <button
-                                 onClick={() => setTipoDoc("")}
+                                 onClick={() =>
+                                    setTipoDoc((prev) =>
+                                       prev.filter((t) => t !== tipo)
+                                    )
+                                 }
                                  className="ml-1 hover:text-red-600"
                               >
                                  <HiX className="h-3 w-3" />
                               </button>
                            </div>
                         </Badge>
-                     )}
+                     ))}
 
                      {nDoc && (
                         <Badge color="red">
@@ -204,20 +200,24 @@ export function RegisPage() {
                         </Badge>
                      )}
 
-                     {selectedTipo && (
-                        <Badge color="red">
+                     {selectedTipo.map((tipo) => (
+                        <Badge key={tipo} color="red">
                            <div className="flex items-center gap-1.5">
                               <HiClipboardList className="h-3 w-3" />
-                              <span>Tipo: {selectedTipo.toUpperCase()}</span>
+                              <span>Tipo: {tipo.toUpperCase()}</span>
                               <button
-                                 onClick={() => setSelectedTipo("")}
+                                 onClick={() =>
+                                    setSelectedTipo((prev) =>
+                                       prev.filter((t) => t !== tipo)
+                                    )
+                                 }
                                  className="ml-1 hover:text-red-600"
                               >
                                  <HiX className="h-3 w-3" />
                               </button>
                            </div>
                         </Badge>
-                     )}
+                     ))}
 
                      {userSearch && (
                         <Badge color="red">
@@ -341,12 +341,45 @@ export function RegisPage() {
                         Limpar todos
                      </button>
                   </div>
+                  <div className="flex items-center gap-2">
+                     <button
+                        type="button"
+                        onClick={() => setShowFilters(!showFilters)}
+                        className="flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                     >
+                        <HiFilter />
+                        {showFilters ? "Ocultar" : "Filtros"}
+                        {hasActiveFilters && (
+                           <Badge color="red" size="sm">
+                              {tipoDoc.length +
+                                 selectedTipo.length +
+                                 (nDoc ? 1 : 0) +
+                                 (userSearch ? 1 : 0) +
+                                 (citySearch ? 1 : 0) +
+                                 (dataInicio ? 1 : 0) +
+                                 (dataFim ? 1 : 0)}
+                           </Badge>
+                        )}
+                     </button>
+                     <button
+                        type="button"
+                        onClick={() => handleSetShowForm(true)}
+                        className="flex items-center gap-1.5 rounded-lg bg-red-600 px-3 py-2 text-sm font-semibold text-white hover:bg-red-700"
+                     >
+                        <span>+</span>
+                        Nova Missão
+                     </button>
+                  </div>
                </section>
             )}
 
             {/* Filters Section */}
-            {showFilters && (
-               <section className="mb-4 shrink-0">
+            <div
+               className={`mb-2 shrink-0 overflow-hidden transition-all duration-300 ease-in-out ${
+                  showFilters ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
+               }`}
+            >
+               <section>
                   <div className="rounded-lg border border-gray-200 bg-white p-4">
                      <div className="mb-4 flex items-center justify-between">
                         <h6 className="text-sm font-medium text-gray-700">
@@ -370,16 +403,15 @@ export function RegisPage() {
                               <HiDocumentText className="text-gray-500" />
                               Tipo da Ordem
                            </Label>
-                           <Select
-                              value={tipoDoc}
-                              onChange={(e) => setTipoDoc(e.target.value)}
-                              className="text-sm"
-                              sizing="sm"
-                           >
-                              <option value="">Todos</option>
-                              <option value="om">Missão</option>
-                              <option value="os">Serviço</option>
-                           </Select>
+                           <MultiSelect
+                              options={[
+                                 { value: "om", label: "Missão" },
+                                 { value: "os", label: "Serviço" },
+                              ]}
+                              selected={tipoDoc}
+                              onChange={setTipoDoc}
+                              placeholder="Selecione..."
+                           />
                         </div>
 
                         {/* Nº da Ordem */}
@@ -425,17 +457,16 @@ export function RegisPage() {
                               <HiClipboardList className="text-gray-500" />
                               Tipo de Missão
                            </Label>
-                           <Select
-                              value={selectedTipo}
-                              onChange={(e) => setSelectedTipo(e.target.value)}
-                              className="text-sm"
-                              sizing="sm"
-                           >
-                              <option value="">Todos</option>
-                              <option value="tal">TAL</option>
-                              <option value="adm">ADM</option>
-                              <option value="opr">OPR</option>
-                           </Select>
+                           <MultiSelect
+                              options={[
+                                 { value: "tal", label: "TAL" },
+                                 { value: "adm", label: "ADM" },
+                                 { value: "opr", label: "OPR" },
+                              ]}
+                              selected={selectedTipo}
+                              onChange={setSelectedTipo}
+                              placeholder="Selecione..."
+                           />
                         </div>
 
                         {/* Militar */}
@@ -555,12 +586,12 @@ export function RegisPage() {
                      )}
                   </div>
                </section>
-            )}
+            </div>
 
             {/* Results Section */}
             <section className="flex-1">
                {loading ? (
-                  <div className="flex min-h-[300px] flex-col items-center justify-center gap-2 p-8">
+                  <div className="flex min-h-75 flex-col items-center justify-center gap-2 p-8">
                      <Spinner size="lg" />
                      <p className="text-sm text-gray-500">Carregando...</p>
                   </div>
@@ -582,16 +613,47 @@ export function RegisPage() {
                            )}
                         </div>
                      ) : (
-                        <div className="grid grid-cols-1 gap-3 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
-                           {missoes?.map((m) => (
-                              <CardMission
-                                 key={m.id}
-                                 missao={m}
-                                 update={fetchData}
-                                 setClone={handleSetClone}
-                                 setShowForm={handleSetShowForm}
-                              />
-                           ))}
+                        <div>
+                           <h3 className="mb-4 text-lg font-bold text-gray-800">
+                              Registros Encontrados ({total})
+                           </h3>
+                           <div className="grid grid-cols-1 gap-3 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+                              {missoes?.map((m) => (
+                                 <CardMission
+                                    key={m.id}
+                                    missao={m}
+                                    update={fetchData}
+                                    setClone={handleSetClone}
+                                    setShowForm={handleSetShowForm}
+                                 />
+                              ))}
+                           </div>
+
+                           {/* Pagination Section */}
+                           {missoes && missoes.length > 0 && (
+                              <div className="mt-6 flex flex-col items-center justify-between gap-3 border-t border-gray-200 pt-4 sm:flex-row">
+                                 <p className="text-sm text-gray-600">
+                                    Mostrando{" "}
+                                    <span className="font-medium text-gray-900">
+                                       {(currentPage - 1) * perPage + 1}
+                                    </span>
+                                    -
+                                    <span className="font-medium text-gray-900">
+                                       {Math.min(currentPage * perPage, total)}
+                                    </span>{" "}
+                                    de{" "}
+                                    <span className="font-medium text-gray-900">
+                                       {total}
+                                    </span>{" "}
+                                    missões
+                                 </p>
+                                 <Pagination
+                                    currentPage={currentPage}
+                                    totalPages={totalPages}
+                                    onPageChange={handlePageChange}
+                                 />
+                              </div>
+                           )}
                         </div>
                      )}
                   </div>

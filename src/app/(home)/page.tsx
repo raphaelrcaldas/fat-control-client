@@ -65,14 +65,14 @@ export default function HomeApp() {
    };
 
    return (
-      <div className="min-h-full bg-lienar-to-br from-gray-50 to-gray-100 p-4 md:p-8">
+      <div className="min-h-full bg-linear-to-br from-gray-50 to-gray-100 p-4 md:p-8">
          <div className="mx-auto max-w-6xl space-y-6">
             {/* Welcome Card */}
             <div className="rounded-2xl bg-white p-8 shadow-xl">
                <div className="flex flex-col items-center gap-6 md:flex-row md:items-start">
                   {/* Avatar */}
                   <div className="relative">
-                     <div className="rounded-full bg-lienar-to-br from-red-500 to-red-600 p-1">
+                     <div className="rounded-full bg-linear-to-br from-red-500 to-red-600 p-1">
                         <div className="rounded-full bg-white p-1">
                            <FaUserCircle className="h-20 w-20 text-red-500 md:h-24 md:w-24" />
                         </div>
@@ -131,7 +131,7 @@ export default function HomeApp() {
                      Acesso Rápido
                   </h2>
                   <div className='flex items-center gap-'>
-                     <div className='h-0.5 w-12 bg-lienar-to-r from-blue-600 to-purple-600 rounded-full'></div>
+                     <div className='h-0.5 w-12 bg-linear-to-r from-blue-600 to-purple-600 rounded-full'></div>
                      <p className='text-gray-600 font-medium ml-2'>
                         Navegue rapidamente pelas principais funcionalidades
                      </p>
@@ -141,7 +141,7 @@ export default function HomeApp() {
             </div> */}
 
             {/* Stats or Additional Info Card */}
-            {/* <div className="bg-lienar-to-r from-red-500 to-red-600 rounded-2xl shadow-xl p-8 text-white transform transition-all duration-700 delay-300">
+            {/* <div className="bg-linear-to-r from-red-500 to-red-600 rounded-2xl shadow-xl p-8 text-white transform transition-all duration-700 delay-300">
                <h2 className="text-2xl font-bold mb-4">Dica do Dia</h2>
                <p className="text-red-50 text-lg">
                   Mantenha seus dados sempre atualizados para garantir a precisão dos

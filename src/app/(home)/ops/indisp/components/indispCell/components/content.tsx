@@ -23,7 +23,7 @@ export default function IndispContent({
 
    return (
       <div className="w-72 text-sm">
-         <div className="border-b border-gray-200 bg-lienar-to-r from-gray-50 to-gray-100 px-4 py-3">
+         <div className="border-b border-gray-200 bg-linear-to-r from-gray-50 to-gray-100 px-4 py-3">
             <h3 className="text-center text-base font-bold text-gray-900 uppercase">
                {`${trip.user.posto.short} ${trip.user.nome_guerra}`}
             </h3>

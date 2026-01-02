@@ -72,7 +72,7 @@ export default function ChartSebo({ categories, data, activeRow, trips }) {
          {/* Statistics Cards */}
          {showStats && stats && (
             <div className="mb-4 grid grid-cols-3 gap-3">
-               <div className="rounded-lg bg-lienar-to-br from-orange-50 to-orange-100 p-3">
+               <div className="rounded-lg bg-linear-to-br from-orange-50 to-orange-100 p-3">
                   <div className="text-xs font-medium text-orange-600">
                      Mínimo
                   </div>
@@ -80,7 +80,7 @@ export default function ChartSebo({ categories, data, activeRow, trips }) {
                      {stats.min}
                   </div>
                </div>
-               <div className="rounded-lg bg-lienar-to-br from-green-50 to-green-100 p-3">
+               <div className="rounded-lg bg-linear-to-br from-green-50 to-green-100 p-3">
                   <div className="text-xs font-medium text-green-600">
                      Média
                   </div>
@@ -88,7 +88,7 @@ export default function ChartSebo({ categories, data, activeRow, trips }) {
                      {stats.media}
                   </div>
                </div>
-               <div className="rounded-lg bg-lienar-to-br from-purple-50 to-purple-100 p-3">
+               <div className="rounded-lg bg-linear-to-br from-purple-50 to-purple-100 p-3">
                   <div className="text-xs font-medium text-purple-600">
                      Máximo
                   </div>
