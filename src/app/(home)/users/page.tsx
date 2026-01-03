@@ -1,25 +1,37 @@
 "use client";
 
-import { Button, Select } from "flowbite-react";
+import { Button, Select, TextInput } from "flowbite-react";
 import { HiSearch, HiUserAdd, HiUsers } from "react-icons/hi";
 import { Spinner } from "@/components/Spinner";
 import { Pagination } from "@/components/Pagination";
+import { MultiSelect } from "@/components/MultiSelect";
 import { useState, useEffect, useCallback } from "react";
 import useDebouncedValue from "@/hooks/useDebouncedValue";
 import { getUsers, UserPublic } from "services/routes/users";
 import { postoGradRecords } from "services/routes/postos";
 import { useToast } from "../../context/toast";
-import { UserCreateModal } from "./components/userForm";
+import { UserCreateModal } from "./components/UserDetailsModal/UserCreateModal";
 import { UserRow } from "./components/UserRow";
 import { UserCard } from "./components/UserCard";
 
 const PER_PAGE_OPTIONS = [10, 15, 25, 50, 100];
 
+// Opções para os MultiSelects
+const PG_OPTIONS = postoGradRecords.map((pg) => ({
+   value: pg.short,
+   label: pg.mid,
+}));
+
+const STATUS_OPTIONS = [
+   { value: "true", label: "Ativo" },
+   { value: "false", label: "Inativo" },
+];
+
 export default function UsersPage() {
    const { push } = useToast();
    const [filterName, setFilterName] = useState("");
-   const [filterPG, setFilterPG] = useState("");
-   const [filterActive, setFilterActive] = useState<string>("true");
+   const [filterPG, setFilterPG] = useState<string[]>([]);
+   const [filterActive, setFilterActive] = useState<string[]>(["true"]);
    const [showCreateModal, setShowCreateModal] = useState(false);
    const [usuarios, setUsuarios] = useState<UserPublic[]>([]);
    const [loading, setLoading] = useState(false);
@@ -34,20 +46,24 @@ export default function UsersPage() {
          page: number = 1,
          itemsPerPage: number = 10,
          search?: string,
-         p_g?: string,
-         active?: boolean,
+         p_g?: string[],
+         active?: string[],
          signal?: AbortSignal,
          onError?: (msg: string) => void
       ) => {
          setLoading(true);
          try {
+            // Converte arrays de filtros para valores que a API entende
+            const activeFilter = getActiveFilterFromArray(active);
+            const pgFilter = p_g && p_g.length > 0 ? p_g.join(",") : undefined;
+
             const response = await getUsers(
                {
                   page,
                   per_page: itemsPerPage,
                   search: search || undefined,
-                  p_g: p_g || undefined,
-                  active,
+                  p_g: pgFilter,
+                  active: activeFilter,
                },
                signal
             );
@@ -67,10 +83,14 @@ export default function UsersPage() {
       []
    );
 
-   // Converte filterActive string para boolean | undefined
-   const getActiveFilter = (): boolean | undefined => {
-      if (filterActive === "true") return true;
-      if (filterActive === "false") return false;
+   // Converte filterActive array para boolean | undefined
+   const getActiveFilterFromArray = (
+      active?: string[]
+   ): boolean | undefined => {
+      if (!active || active.length === 0) return undefined;
+      if (active.length === 2) return undefined; // Ambos selecionados = todos
+      if (active.includes("true")) return true;
+      if (active.includes("false")) return false;
       return undefined;
    };
 
@@ -83,7 +103,7 @@ export default function UsersPage() {
          perPage,
          debouncedFilter,
          filterPG,
-         getActiveFilter(),
+         filterActive,
          ac.signal,
          (msg: string) => push({ message: msg, type: "error" })
       );
@@ -96,7 +116,7 @@ export default function UsersPage() {
          perPage,
          debouncedFilter,
          filterPG,
-         getActiveFilter(),
+         filterActive,
          undefined,
          (msg: string) => push({ message: msg, type: "error" })
       );
@@ -112,11 +132,12 @@ export default function UsersPage() {
          perPage,
          debouncedFilter,
          filterPG,
-         getActiveFilter()
+         filterActive
       );
    };
 
-   const hasFilters = debouncedFilter || filterPG || filterActive;
+   const hasFilters =
+      debouncedFilter || filterPG.length > 0 || filterActive.length > 0;
 
    return (
       <div className="h-full w-full overflow-auto p-1">
@@ -139,45 +160,35 @@ export default function UsersPage() {
             {/* Barra de Busca e Filtros */}
             <div className="flex flex-col gap-3 p-4 md:flex-row">
                {/* Busca */}
-               <div className="relative flex-1">
-                  <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                     <HiSearch className="h-5 w-5 text-gray-500" />
-                  </div>
-                  <input
-                     type="text"
-                     className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 pl-10 text-sm text-gray-900 focus:border-red-500 focus:ring-red-500"
-                     placeholder="Buscar por nome de guerra..."
+               <div className="flex-1">
+                  <TextInput
+                     icon={HiSearch}
+                     placeholder="Buscar por nome de guerra ou nome completo..."
                      value={filterName}
                      onChange={(e) => setFilterName(e.target.value)}
+                     sizing="md"
                   />
                </div>
 
                {/* Filtros */}
                <div className="flex flex-wrap gap-2">
                   {/* Filtro P/G */}
-                  <select
-                     value={filterPG}
-                     onChange={(e) => setFilterPG(e.target.value)}
-                     className="w-28 rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-red-500 focus:ring-red-500"
-                  >
-                     <option value="">Todos P/G</option>
-                     {postoGradRecords.map((pg) => (
-                        <option key={pg.short} value={pg.short}>
-                           {pg.short.toUpperCase()}
-                        </option>
-                     ))}
-                  </select>
+                  <MultiSelect
+                     options={PG_OPTIONS}
+                     selected={filterPG}
+                     onChange={setFilterPG}
+                     placeholder="Todos P/G"
+                     className="w-48"
+                  />
 
                   {/* Filtro Status */}
-                  <select
-                     value={filterActive}
-                     onChange={(e) => setFilterActive(e.target.value)}
-                     className="rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-red-500 focus:ring-red-500"
-                  >
-                     <option value="">Todos Status</option>
-                     <option value="true">Ativo</option>
-                     <option value="false">Inativo</option>
-                  </select>
+                  <MultiSelect
+                     options={STATUS_OPTIONS}
+                     selected={filterActive}
+                     onChange={setFilterActive}
+                     placeholder="Todos Status"
+                     className="w-48"
+                  />
 
                   {/* Botão Novo Usuário */}
                   <Button
@@ -192,12 +203,7 @@ export default function UsersPage() {
             </div>
 
             {/* Conteúdo */}
-            {loading ? (
-               <div className="flex h-64 flex-col items-center justify-center">
-                  <Spinner size="xl" />
-                  <p className="mt-4 text-gray-500">Carregando usuários...</p>
-               </div>
-            ) : usuarios.length === 0 ? (
+            {!loading && usuarios.length === 0 ? (
                <div className="flex h-64 flex-col items-center justify-center">
                   <div className="mb-4 rounded-full bg-gray-100 p-4">
                      <HiUsers className="h-12 w-12 text-gray-400" />
@@ -223,14 +229,28 @@ export default function UsersPage() {
                   )}
                </div>
             ) : (
-               <>
+               <div className="relative">
+                  {/* Loading Overlay */}
+                  {loading && (
+                     <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/60 backdrop-blur-[1px]">
+                        <div className="flex flex-col items-center gap-3 rounded-lg bg-white px-6 py-4 shadow-lg">
+                           <Spinner size="lg" />
+                           <p className="text-sm text-gray-600">
+                              Carregando usuários...
+                           </p>
+                        </div>
+                     </div>
+                  )}
+
                   {/* Tabela Desktop */}
-                  <div className="hidden overflow-x-auto md:block">
+                  <div
+                     className={`hidden overflow-x-auto md:block ${loading ? "opacity-50" : "opacity-100"} transition-opacity duration-200`}
+                  >
                      <table className="w-full text-left text-sm text-gray-500">
                         <thead className="bg-gray-50 text-xs text-gray-700 uppercase">
                            <tr>
                               <th scope="col" className="px-4 py-3">
-                                 #
+                                 # ID
                               </th>
                               <th scope="col" className="px-4 py-3">
                                  P/G
@@ -268,7 +288,9 @@ export default function UsersPage() {
                   </div>
 
                   {/* Cards Mobile */}
-                  <div className="space-y-3 p-4 md:hidden">
+                  <div
+                     className={`space-y-3 p-4 md:hidden ${loading ? "opacity-50" : "opacity-100"} transition-opacity duration-200`}
+                  >
                      {usuarios.map((user) => (
                         <UserCard
                            key={user.id}
@@ -280,7 +302,7 @@ export default function UsersPage() {
 
                   {/* Footer com Paginação */}
                   <nav
-                     className="flex flex-col items-start justify-between space-y-3 p-4 md:flex-row md:items-center md:space-y-0"
+                     className={`flex flex-col items-start justify-between space-y-3 p-4 md:flex-row md:items-center md:space-y-0 ${loading ? "pointer-events-none opacity-50" : "opacity-100"} transition-opacity duration-200`}
                      aria-label="Navegação da tabela"
                   >
                      <div className="flex items-center gap-4">
@@ -327,7 +349,7 @@ export default function UsersPage() {
                         />
                      )}
                   </nav>
-               </>
+               </div>
             )}
          </div>
 
@@ -340,7 +362,7 @@ export default function UsersPage() {
                   perPage,
                   debouncedFilter,
                   filterPG,
-                  getActiveFilter()
+                  filterActive
                )
             }
          />

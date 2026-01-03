@@ -1,11 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { Badge } from "flowbite-react";
+import { Badge, Button } from "flowbite-react";
 import { IoMdInformationCircleOutline } from "react-icons/io";
 import { HiCheckCircle, HiXCircle } from "react-icons/hi";
 import { UserPublic } from "services/routes/users";
-import { UserDetailsModal } from "./UserDetailsModal";
+import { UserDetailsModal } from "./UserDetailsModal/index";
 
 interface UserRowProps {
    user: UserPublic;
@@ -19,7 +19,7 @@ export function UserRow({ user, update }: UserRowProps) {
       <>
          <tr className="border-b border-gray-100 transition-colors duration-150 last:border-gray-300 hover:bg-gray-50">
             <td className="px-4 py-3 font-mono text-gray-400">{user.id}</td>
-            <td className="px-4 py-3 uppercase">{user.posto.short}</td>
+            <td className="px-4 py-3">{user.posto.mid}</td>
             <td className="px-4 py-3 text-gray-600 uppercase">{user.esp}</td>
             <td className="px-4 py-3 font-medium text-gray-900 uppercase">
                {user.nome_guerra}
@@ -27,9 +27,9 @@ export function UserRow({ user, update }: UserRowProps) {
             <td className="px-4 py-3 text-gray-600 capitalize">
                {user.nome_completo}
             </td>
-            <td className="px-4 py-3 text-center uppercase">{user.unidade}</td>
+            <td className="px-4 py-3 uppercase">{user.unidade}</td>
             <td className="px-4 py-3">
-               <div className="flex justify-center">
+               <div className="flex justify-start">
                   {user.active ? (
                      <Badge color="success" className="text-xs">
                         <div className="flex items-center gap-1">
@@ -48,14 +48,18 @@ export function UserRow({ user, update }: UserRowProps) {
                </div>
             </td>
             <td className="px-4 py-3 text-right">
-               <button
-                  className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-red-600 transition-all duration-150 hover:bg-red-50 focus:ring-2 focus:ring-red-500 focus:ring-offset-1 focus:outline-none"
+               <Button
+                  color="light"
+                  size="sm"
                   onClick={() => setShowUser(true)}
                   aria-label={`Ver detalhes de ${user.nome_guerra}`}
                   title="Ver detalhes"
                >
-                  <IoMdInformationCircleOutline size={20} />
-               </button>
+                  <IoMdInformationCircleOutline
+                     size={20}
+                     className="text-red-600"
+                  />
+               </Button>
             </td>
          </tr>
          {showUser && (

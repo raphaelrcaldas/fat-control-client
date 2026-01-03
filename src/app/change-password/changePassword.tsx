@@ -45,7 +45,8 @@ export function ChangePassword() {
             if (Array.isArray(responseData.detail)) {
                // Extrai mensagem do primeiro erro de validação
                const firstError = responseData.detail[0];
-               errorMessage = firstError?.msg?.replace("Value error, ", "") || errorMessage;
+               errorMessage =
+                  firstError?.msg?.replace("Value error, ", "") || errorMessage;
             } else if (typeof responseData.detail === "string") {
                errorMessage = responseData.detail;
             }

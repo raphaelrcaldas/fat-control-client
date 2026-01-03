@@ -1,11 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { Badge } from "flowbite-react";
+import { Badge, Button } from "flowbite-react";
 import { IoMdInformationCircleOutline } from "react-icons/io";
 import { HiCheckCircle, HiXCircle } from "react-icons/hi";
 import { UserPublic } from "services/routes/users";
-import { UserDetailsModal } from "./UserDetailsModal";
+import { UserDetailsModal } from "./UserDetailsModal/index";
 
 interface UserCardProps {
    user: UserPublic;
@@ -34,13 +34,15 @@ export function UserCard({ user, update }: UserCardProps) {
                      </p>
                   </div>
                </div>
-               <button
-                  className="rounded-lg p-2 text-red-600 transition-colors hover:bg-red-50"
+               <Button
+                  color="light"
+                  size="sm"
                   onClick={() => setShowUser(true)}
                   aria-label={`Ver detalhes de ${user.nome_guerra}`}
+                  className="p-0"
                >
-                  <IoMdInformationCircleOutline size={22} />
-               </button>
+                  <IoMdInformationCircleOutline className="h-5 w-5 text-red-600" />
+               </Button>
             </div>
 
             <div className="grid grid-cols-4 gap-2 border-t border-gray-100 pt-3">

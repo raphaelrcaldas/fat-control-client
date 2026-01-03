@@ -335,8 +335,8 @@ export function FilterPage({ active }) {
                            {sit === "d"
                               ? "Diária"
                               : sit === "c"
-                                 ? "Comissionado"
-                                 : "Grat Rep"}
+                                ? "Comissionado"
+                                : "Grat Rep"}
                         </span>
                         <button
                            onClick={() =>
