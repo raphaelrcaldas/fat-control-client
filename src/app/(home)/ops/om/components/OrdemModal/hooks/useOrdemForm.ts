@@ -192,6 +192,14 @@ export const useOrdemForm = ({
       setFormData((prev) => ({ ...prev, etiquetas }));
    };
 
+   const clearError = () => {
+      setError(null);
+   };
+
+   const clearValidationErrors = () => {
+      setFormValidationErrors([]);
+   };
+
    // Validacao de campos individuais para feedback visual em tempo real
    const getValidationErrors = () => {
       return {
@@ -215,6 +223,34 @@ export const useOrdemForm = ({
       !validationErrors.mecanico &&
       !validationErrors.loadmaster;
 
+   // Funcao para ordenar etapas por data/hora de decolagem
+   const sortEtapas = (etapas: typeof formData.etapas) => {
+      return [...etapas].sort((a, b) => {
+         const dateTimeA = `${a.dataDecolagem}T${a.horaDecolagem}`;
+         const dateTimeB = `${b.dataDecolagem}T${b.horaDecolagem}`;
+         return dateTimeA.localeCompare(dateTimeB);
+      });
+   };
+
+   // Funcao para verificar se as etapas estao ordenadas
+   const areEtapasOrdered = () => {
+      for (let i = 1; i < formData.etapas.length; i++) {
+         const prevDateTime = `${formData.etapas[i - 1].dataDecolagem}T${formData.etapas[i - 1].horaDecolagem}`;
+         const currDateTime = `${formData.etapas[i].dataDecolagem}T${formData.etapas[i].horaDecolagem}`;
+         if (prevDateTime > currDateTime) {
+            return false;
+         }
+      }
+      return true;
+   };
+
+   // Funcao para ordenar etapas manualmente
+   const handleSortEtapas = () => {
+      if (!isEditable) return;
+      const sorted = sortEtapas(formData.etapas);
+      setFormData({ ...formData, etapas: sorted });
+   };
+
    const validateForm = (): { isValid: boolean; errors: string[] } => {
       const errors: string[] = [];
 
@@ -235,6 +271,63 @@ export const useOrdemForm = ({
       }
       if (validationErrors.loadmaster) {
          errors.push("Pelo menos 1 Loadmaster é obrigatório");
+      }
+
+      // Validar periodos duplicados (mesma data/hora de decolagem)
+      const decolagemPeriodos = new Map<string, number[]>();
+      formData.etapas.forEach((etapa, index) => {
+         if (etapa.dataDecolagem && etapa.horaDecolagem) {
+            const periodo = `${etapa.dataDecolagem}T${etapa.horaDecolagem}`;
+            if (!decolagemPeriodos.has(periodo)) {
+               decolagemPeriodos.set(periodo, []);
+            }
+            decolagemPeriodos.get(periodo)!.push(index + 1);
+         }
+      });
+
+      decolagemPeriodos.forEach((indices, periodo) => {
+         if (indices.length > 1) {
+            const [data, hora] = periodo.split("T");
+            errors.push(
+               `Periodos duplicados: As etapas ${indices.join(", ")} possuem a mesma data/hora de decolagem (${data} ${hora})`
+            );
+         }
+      });
+
+      // Validar sobreposicao de horarios entre todas as etapas
+      for (let i = 0; i < formData.etapas.length; i++) {
+         for (let j = i + 1; j < formData.etapas.length; j++) {
+            const etapa1 = formData.etapas[i];
+            const etapa2 = formData.etapas[j];
+
+            // Verificar se ambas as etapas tem horarios completos
+            if (
+               etapa1.dataDecolagem &&
+               etapa1.horaDecolagem &&
+               etapa1.dataPouso &&
+               etapa1.horaPouso &&
+               etapa2.dataDecolagem &&
+               etapa2.horaDecolagem &&
+               etapa2.dataPouso &&
+               etapa2.horaPouso
+            ) {
+               const dec1 = new Date(
+                  `${etapa1.dataDecolagem}T${etapa1.horaDecolagem}`
+               );
+               const pou1 = new Date(`${etapa1.dataPouso}T${etapa1.horaPouso}`);
+               const dec2 = new Date(
+                  `${etapa2.dataDecolagem}T${etapa2.horaDecolagem}`
+               );
+               const pou2 = new Date(`${etapa2.dataPouso}T${etapa2.horaPouso}`);
+
+               // Dois periodos se sobrepoem se: periodo1.inicio < periodo2.fim E periodo1.fim > periodo2.inicio
+               if (dec1 < pou2 && pou1 > dec2) {
+                  errors.push(
+                     `Sobreposicao de horarios: A Etapa ${i + 1} (${etapa1.dataDecolagem} ${etapa1.horaDecolagem} - ${etapa1.dataPouso} ${etapa1.horaPouso}) sobrepoe a Etapa ${j + 1} (${etapa2.dataDecolagem} ${etapa2.horaDecolagem} - ${etapa2.dataPouso} ${etapa2.horaPouso})`
+                  );
+               }
+            }
+         }
       }
 
       formData.etapas.forEach((etapa, index) => {
@@ -365,6 +458,42 @@ export const useOrdemForm = ({
          }
       });
 
+      // Validar sobreposicao de horarios entre todas as etapas
+      for (let i = 0; i < formData.etapas.length; i++) {
+         for (let j = i + 1; j < formData.etapas.length; j++) {
+            const etapa1 = formData.etapas[i];
+            const etapa2 = formData.etapas[j];
+
+            // Verificar se ambas as etapas tem horarios completos
+            if (
+               etapa1.dataDecolagem &&
+               etapa1.horaDecolagem &&
+               etapa1.dataPouso &&
+               etapa1.horaPouso &&
+               etapa2.dataDecolagem &&
+               etapa2.horaDecolagem &&
+               etapa2.dataPouso &&
+               etapa2.horaPouso
+            ) {
+               const dec1 = new Date(
+                  `${etapa1.dataDecolagem}T${etapa1.horaDecolagem}`
+               );
+               const pou1 = new Date(`${etapa1.dataPouso}T${etapa1.horaPouso}`);
+               const dec2 = new Date(
+                  `${etapa2.dataDecolagem}T${etapa2.horaDecolagem}`
+               );
+               const pou2 = new Date(`${etapa2.dataPouso}T${etapa2.horaPouso}`);
+
+               // Dois periodos se sobrepoem se: periodo1.inicio < periodo2.fim E periodo1.fim > periodo2.inicio
+               if (dec1 < pou2 && pou1 > dec2) {
+                  errors.push(
+                     `Sobreposicao de horarios: A Etapa ${i + 1} (${etapa1.dataDecolagem} ${etapa1.horaDecolagem} - ${etapa1.dataPouso} ${etapa1.horaPouso}) sobrepoe a Etapa ${j + 1} (${etapa2.dataDecolagem} ${etapa2.horaDecolagem} - ${etapa2.dataPouso} ${etapa2.horaPouso})`
+                  );
+               }
+            }
+         }
+      }
+
       return {
          isValid: errors.length === 0,
          errors,
@@ -388,11 +517,13 @@ export const useOrdemForm = ({
 
       try {
          const shouldGenerateNew = isNew || isCloning;
-         const numero = shouldGenerateNew ? generateNumero() : formData.numero;
+
+         // Ordenar etapas automaticamente antes de salvar
+         const etapasOrdenadas = sortEtapas(formData.etapas);
 
          const ordemCompleta: OrdemMissao = {
             ...formData,
-            numero,
+            etapas: etapasOrdenadas,
             status: "rascunho",
             tripulacao,
             camposEspeciais,
@@ -438,8 +569,12 @@ export const useOrdemForm = ({
          const shouldGenerateNew = isNew || isCloning;
          const numero = shouldGenerateNew ? generateNumero() : formData.numero;
 
+         // Ordenar etapas automaticamente antes de aprovar
+         const etapasOrdenadas = sortEtapas(formData.etapas);
+
          const ordemCompleta: OrdemMissao = {
             ...formData,
+            etapas: etapasOrdenadas,
             numero,
             status: "aprovada",
             tripulacao,
@@ -488,5 +623,9 @@ export const useOrdemForm = ({
       resetForm,
       handleSubmit,
       handleElaborar,
+      areEtapasOrdered,
+      handleSortEtapas,
+      clearError,
+      clearValidationErrors,
    };
 };

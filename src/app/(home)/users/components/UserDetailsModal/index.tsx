@@ -55,7 +55,13 @@ export function UserDetailsModal({
    }
 
    return (
-      <Modal show={show} size="4xl" theme={{ body: { base: "p-0" } }} onClose={onClose} dismissible>
+      <Modal
+         show={show}
+         size="4xl"
+         theme={{ body: { base: "p-0" } }}
+         onClose={onClose}
+         dismissible
+      >
          {/* Header customizado com gradiente */}
          <ModalHeader className="rounded-t-lg bg-linear-to-r from-red-500 to-red-700 p-4 text-white">
             <div className="flex items-center gap-3 text-red-100">
@@ -93,10 +99,11 @@ export function UserDetailsModal({
                      </div>
                      {user?.active !== undefined && (
                         <div
-                           className={`flex items-center gap-1 rounded px-2 py-1 text-xs font-medium ${user.active
-                              ? "bg-green-500/90 text-white"
-                              : "bg-gray-500/90 text-white"
-                              }`}
+                           className={`flex items-center gap-1 rounded px-2 py-1 text-xs font-medium ${
+                              user.active
+                                 ? "bg-green-500/90 text-white"
+                                 : "bg-gray-500/90 text-white"
+                           }`}
                         >
                            {user.active ? (
                               <>
@@ -117,7 +124,11 @@ export function UserDetailsModal({
          </ModalHeader>
 
          <ModalBody>
-            <Tabs theme={{ base: "px-4", tabpanel: "h-120 overflow-y-auto p-0" }} aria-label="Abas do usuário" variant="underline">
+            <Tabs
+               theme={{ base: "px-4", tabpanel: "h-120 overflow-y-auto p-0" }}
+               aria-label="Abas do usuário"
+               variant="underline"
+            >
                <TabItem active title="Dados Cadastrais" icon={HiUser}>
                   <div>
                      {userId && (
@@ -131,9 +142,7 @@ export function UserDetailsModal({
                   </div>
                </TabItem>
                <TabItem title="Redefinir Senha" icon={HiKey}>
-                  <div>
-                     {userId && <ResetPassword userId={userId} />}
-                  </div>
+                  <div>{userId && <ResetPassword userId={userId} />}</div>
                </TabItem>
             </Tabs>
          </ModalBody>

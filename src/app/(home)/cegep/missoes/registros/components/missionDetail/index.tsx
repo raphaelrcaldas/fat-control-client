@@ -132,7 +132,7 @@ export default function MissionDetail({
       JSON.stringify(pnts) !== JSON.stringify(defaultValues.pnts) ||
       JSON.stringify(mils) !== JSON.stringify(defaultValues.mils) ||
       JSON.stringify(etiquetasMissao) !==
-      JSON.stringify(defaultValues.etiquetas);
+         JSON.stringify(defaultValues.etiquetas);
 
    function handleFragMis() {
       const checkNDoc = nDoc != 0;

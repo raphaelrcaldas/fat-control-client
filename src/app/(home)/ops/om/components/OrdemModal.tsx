@@ -1,8 +1,15 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { Button, Spinner } from "flowbite-react";
-import { HiChevronDown, HiChevronUp, HiX, HiArrowLeft } from "react-icons/hi";
+import { useState, useEffect, useRef } from "react";
+import { Button, Spinner, Alert } from "flowbite-react";
+import {
+   HiChevronDown,
+   HiChevronUp,
+   HiX,
+   HiArrowLeft,
+   HiExclamationCircle,
+   HiSortAscending,
+} from "react-icons/hi";
 import clsx from "clsx";
 import { OrdemMissao } from "../types";
 import {
@@ -55,10 +62,15 @@ export function OrdemModal({
       handleSubmit,
       handleElaborar,
       updateEtiquetas,
+      areEtapasOrdered,
+      handleSortEtapas,
+      clearError,
+      clearValidationErrors,
    } = useOrdemForm({ ordem, isNew, isCloning, onSave });
 
    const [allLabels, setAllLabels] = useState<Etiqueta[]>([]);
    const [isLabelManagerOpen, setIsLabelManagerOpen] = useState(false);
+   const errorContainerRef = useRef<HTMLDivElement>(null);
 
    const refreshLabels = async () => {
       try {
@@ -112,6 +124,30 @@ export function OrdemModal({
          setIsVisible(false);
       }
    }, [isOpen]);
+
+   // Scroll automatico para erros quando aparecem
+   useEffect(() => {
+      if (
+         (error || formValidationErrors.length > 0) &&
+         errorContainerRef.current
+      ) {
+         const scrollContainer = errorContainerRef.current.closest(
+            ".overflow-y-auto"
+         ) as HTMLElement;
+
+         if (scrollContainer) {
+            setTimeout(() => {
+               scrollContainer.scrollTo({
+                  top: 0,
+                  behavior: "smooth",
+               });
+            }, 100);
+         }
+
+         // Focus na area de erro para acessibilidade
+         errorContainerRef.current.focus();
+      }
+   }, [error, formValidationErrors]);
 
    // Bloquear scroll do body e do layout main quando o painel estiver aberto
    useEffect(() => {
@@ -173,8 +209,8 @@ export function OrdemModal({
    const title = isCloning
       ? "Clonar Ordem de Missao"
       : isNew
-         ? "Nova Ordem de Missao"
-         : "Editar Ordem de Missao";
+        ? "Nova Ordem de Missao"
+        : "Editar Ordem de Missao";
 
    return (
       <div
@@ -269,24 +305,67 @@ export function OrdemModal({
                   id="ordem-form"
                   className="space-y-6"
                >
-                  {/* Erro da API */}
-                  {error && (
-                     <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-red-700">
-                        {error}
-                     </div>
-                  )}
+                  {/* Container de Erros com scroll automatico */}
+                  {(error || formValidationErrors.length > 0) && (
+                     <div
+                        ref={errorContainerRef}
+                        tabIndex={-1}
+                        className="space-y-4 outline-none"
+                        role="alert"
+                        aria-live="assertive"
+                     >
+                        {/* Erro da API */}
+                        {error && (
+                           <Alert
+                              color="red"
+                              icon={HiExclamationCircle}
+                              withBorderAccent
+                              onDismiss={clearError}
+                              className={clsx(
+                                 "animate-shake",
+                                 "shadow-lg shadow-red-100"
+                              )}
+                           >
+                              <div className="flex flex-col gap-2">
+                                 <span className="text-sm font-semibold md:text-base">
+                                    Erro ao processar a operacao
+                                 </span>
+                                 <span className="text-sm">{error}</span>
+                              </div>
+                           </Alert>
+                        )}
 
-                  {/* Erros de validacao */}
-                  {formValidationErrors.length > 0 && (
-                     <div className="rounded-lg border border-amber-200 bg-amber-50 p-4">
-                        <p className="mb-2 text-sm font-semibold text-amber-800">
-                           Corrija os seguintes campos obrigatorios:
-                        </p>
-                        <ul className="list-inside list-disc space-y-1 text-sm text-amber-700">
-                           {formValidationErrors.map((err, idx) => (
-                              <li key={idx}>{err}</li>
-                           ))}
-                        </ul>
+                        {/* Erros de validacao */}
+                        {formValidationErrors.length > 0 && (
+                           <Alert
+                              color="yellow"
+                              icon={HiExclamationCircle}
+                              withBorderAccent
+                              onDismiss={clearValidationErrors}
+                              className={clsx(
+                                 "animate-shake",
+                                 "shadow-lg shadow-yellow-100"
+                              )}
+                           >
+                              <div className="flex flex-col gap-3">
+                                 <span className="text-sm font-semibold md:text-base">
+                                    Corrija os seguintes campos obrigatorios:
+                                 </span>
+                                 <ul
+                                    className={clsx(
+                                       "ml-4 space-y-1.5 text-sm",
+                                       "list-disc marker:text-yellow-600"
+                                    )}
+                                 >
+                                    {formValidationErrors.map((err, idx) => (
+                                       <li key={idx} className="pl-1">
+                                          {err}
+                                       </li>
+                                    ))}
+                                 </ul>
+                              </div>
+                           </Alert>
+                        )}
                      </div>
                   )}
 
@@ -372,11 +451,28 @@ export function OrdemModal({
                         className="flex cursor-pointer items-center justify-between border-b border-slate-200 p-4"
                         onClick={(e) => toggleSection("etapas", e)}
                      >
-                        <h3 className="flex items-center gap-2 text-sm font-semibold tracking-wide text-slate-700 uppercase">
-                           <div className="h-4 w-1 rounded-full bg-amber-500"></div>
-                           Etapas
-                           <span className="text-red-500">*</span>
-                        </h3>
+                        <div className="flex items-center gap-4">
+                           <h3 className="flex items-center gap-2 text-sm font-semibold tracking-wide text-slate-700 uppercase">
+                              <div className="h-4 w-1 rounded-full bg-amber-500"></div>
+                              Etapas
+                              <span className="text-red-500">*</span>
+                           </h3>
+                           {isEditable &&
+                              !areEtapasOrdered() &&
+                              formData.etapas.length > 1 && (
+                                 <button
+                                    type="button"
+                                    onClick={(e) => {
+                                       e.stopPropagation();
+                                       handleSortEtapas();
+                                    }}
+                                    className="group flex items-center gap-1.5 text-xs font-bold tracking-wider text-amber-600 uppercase transition-all hover:text-amber-700"
+                                 >
+                                    <HiSortAscending className="h-4 w-4 transition-transform group-hover:scale-110" />
+                                    Ordenar
+                                 </button>
+                              )}
+                        </div>
                         {sections.etapas ? (
                            <HiChevronUp size={20} />
                         ) : (

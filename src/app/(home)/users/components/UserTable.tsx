@@ -49,26 +49,33 @@ export function UserTable({ usuarios, loading, onUpdate }: UserTableProps) {
                   {usuarios.map((user) => (
                      <TableRow
                         key={user.id}
-                        className="bg-white border-gray-200"
+                        className="border-gray-200 bg-white"
                      >
                         <TableCell className="font-mono text-gray-400">
                            {user.id}
                         </TableCell>
                         <TableCell>{user.posto.mid}</TableCell>
-                        <TableCell className="uppercase text-gray-600">
+                        <TableCell className="text-gray-600 uppercase">
                            {user.esp}
                         </TableCell>
-                        <TableCell className="whitespace-nowrap font-medium text-gray-900 uppercase dark:text-white">
+                        <TableCell className="font-medium whitespace-nowrap text-gray-900 uppercase dark:text-white">
                            {user.nome_guerra}
                         </TableCell>
-                        <TableCell className="capitalize text-gray-600">
+                        <TableCell className="text-gray-600 capitalize">
                            {user.nome_completo}
                         </TableCell>
                         <TableCell className="uppercase">
                            {user.unidade}
                         </TableCell>
                         <TableCell>
-                           <div className={clsx("flex items-center gap-1 font-medium", user.active ? "text-green-600" : "text-gray-600")}>
+                           <div
+                              className={clsx(
+                                 "flex items-center gap-1 font-medium",
+                                 user.active
+                                    ? "text-green-600"
+                                    : "text-gray-600"
+                              )}
+                           >
                               <HiCheckCircle className="size-4" />
                               <span className="text-sm">
                                  {user.active ? "Ativo" : "Inativo"}

@@ -4,7 +4,7 @@ import clsx from "clsx";
 import { Etapa } from "../../types";
 import { calcularTempoVoo } from "../../transformers";
 import { HelperText } from "flowbite-react";
-import { useMemo } from "react";
+import { useMemo, useEffect, useRef } from "react";
 
 export interface EtapaFieldErrors {
    dataDecolagem?: boolean;
@@ -70,6 +70,61 @@ export function OrdemEtapaItem({
       dataPouso,
       horaPouso
    );
+
+   // Ref para rastrear o último ajuste e evitar loop infinito
+   const lastAdjustmentRef = useRef<string>("");
+
+   // Auto-ajuste reativo: quando data decolagem > data pouso, ajustar data pouso
+   useEffect(() => {
+      // Só validar se campos necessários estiverem preenchidos e componente editável
+      if (!isEditable || !dataDecolagem || !dataPouso) {
+         return;
+      }
+
+      // Se data de decolagem for maior que data de pouso, ajustar data de pouso
+      if (dataDecolagem > dataPouso) {
+         const adjustmentKey = `data-${dataDecolagem}`;
+
+         if (lastAdjustmentRef.current !== adjustmentKey) {
+            lastAdjustmentRef.current = adjustmentKey;
+            onChange("dataPouso", dataDecolagem);
+         }
+      } else {
+         lastAdjustmentRef.current = "";
+      }
+   }, [dataDecolagem, dataPouso, isEditable]);
+
+   // Auto-ajuste reativo: se mesma data mas hora decolagem >= hora pouso, ajustar hora
+   useEffect(() => {
+      // Só validar se todos os campos estiverem preenchidos e componente editável
+      if (
+         !isEditable ||
+         !dataDecolagem ||
+         !horaDecolagem ||
+         !dataPouso ||
+         !horaPouso
+      ) {
+         return;
+      }
+
+      // Se mesma data mas hora inválida, ajustar hora de pouso
+      if (dataDecolagem === dataPouso && horaDecolagem >= horaPouso) {
+         const [hours, minutes] = horaDecolagem.split(":").map(Number);
+         const totalMinutes = hours * 60 + minutes + 5; // +5 minutos
+         const newHours = Math.floor(totalMinutes / 60) % 24;
+         const newMinutes = totalMinutes % 60;
+         const newHoraPouso = `${String(newHours).padStart(2, "0")}:${String(newMinutes).padStart(2, "0")}`;
+
+         const adjustmentKey = `hora-${newHoraPouso}`;
+
+         if (lastAdjustmentRef.current !== adjustmentKey) {
+            lastAdjustmentRef.current = adjustmentKey;
+            onChange("horaPouso", newHoraPouso);
+         }
+      } else {
+         lastAdjustmentRef.current = "";
+      }
+   }, [dataDecolagem, horaDecolagem, dataPouso, horaPouso, isEditable]);
 
    // Validacao: decolagem nao pode ser posterior ao pouso
    const erroDataHora = useMemo(() => {
@@ -225,6 +280,7 @@ export function OrdemEtapaItem({
                      <input
                         type="date"
                         value={dataPouso}
+                        min={dataDecolagem}
                         onChange={(e) => onChange("dataPouso", e.target.value)}
                         disabled={!isEditable}
                         className={clsx(

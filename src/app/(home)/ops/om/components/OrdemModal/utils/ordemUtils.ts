@@ -43,7 +43,6 @@ export const createEtapaWithOrigem = (
 
 export const createDefaultOrdem = (): OrdemMissao => ({
    id: 0,
-   numero: "",
    documentoReferencia: "",
    matriculaAeronave: 0,
    projeto: "kc-390",

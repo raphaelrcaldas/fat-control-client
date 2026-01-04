@@ -145,7 +145,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
          {/* Toast container */}
          <div
             aria-live="assertive"
-            className="pointer-events-none fixed top-0 left-1/2 z-[9999] flex -translate-x-1/2 flex-col items-center gap-4 px-4 py-6"
+            className="pointer-events-none fixed top-0 left-1/2 z-9999 flex -translate-x-1/2 flex-col items-center gap-4 px-4 py-6"
          >
             {toasts.map((toast) => (
                <ToastItem key={toast.id} toast={toast} onRemove={remove} />

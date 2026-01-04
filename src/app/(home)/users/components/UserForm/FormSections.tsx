@@ -48,11 +48,17 @@ export function IdentificationSection({ register, errors }: FormSectionProps) {
                id="p_g"
                defaultValue=""
                {...register("p_g")}
-               className={clsx({ "focus:border-red-500 focus:ring-red-500": errors.p_g })}
+               className={clsx({
+                  "focus:border-red-500 focus:ring-red-500": errors.p_g,
+               })}
             >
-               <option value="" disabled>Selecione...</option>
+               <option value="" disabled>
+                  Selecione...
+               </option>
                {pgOptions.map((opt) => (
-                  <option key={opt.value} value={opt.value}>{opt.label}</option>
+                  <option key={opt.value} value={opt.value}>
+                     {opt.label}
+                  </option>
                ))}
             </Select>
             <FieldError error={errors.p_g} />
@@ -67,7 +73,9 @@ export function IdentificationSection({ register, errors }: FormSectionProps) {
                autoComplete="off"
                maxLength={6}
                onKeyDown={onlyLettersKeyDown}
-               className={clsx({ "focus:border-red-500 focus:ring-red-500": errors.esp })}
+               className={clsx({
+                  "focus:border-red-500 focus:ring-red-500": errors.esp,
+               })}
             />
             <FieldError error={errors.esp} />
          </div>
@@ -80,7 +88,9 @@ export function IdentificationSection({ register, errors }: FormSectionProps) {
                {...register("nome_guerra")}
                autoComplete="off"
                onKeyDown={onlyLettersKeyDown}
-               className={clsx({ "focus:border-red-500 focus:ring-red-500": errors.nome_guerra })}
+               className={clsx({
+                  "focus:border-red-500 focus:ring-red-500": errors.nome_guerra,
+               })}
             />
             <FieldError error={errors.nome_guerra} />
          </div>
@@ -93,7 +103,10 @@ export function IdentificationSection({ register, errors }: FormSectionProps) {
                {...register("nome_completo")}
                autoComplete="off"
                onKeyDown={onlyLettersKeyDown}
-               className={clsx({ "focus:border-red-500 focus:ring-red-500": errors.nome_completo })}
+               className={clsx({
+                  "focus:border-red-500 focus:ring-red-500":
+                     errors.nome_completo,
+               })}
             />
             <FieldError error={errors.nome_completo} />
          </div>
@@ -115,11 +128,17 @@ export function DocumentationSection({ register, errors }: FormSectionProps) {
                id="unidade"
                defaultValue=""
                {...register("unidade")}
-               className={clsx({ "focus:border-red-500 focus:ring-red-500": errors.unidade })}
+               className={clsx({
+                  "focus:border-red-500 focus:ring-red-500": errors.unidade,
+               })}
             >
-               <option value="" disabled>Selecione...</option>
+               <option value="" disabled>
+                  Selecione...
+               </option>
                {unidadeOptions.map((opt) => (
-                  <option key={opt.value} value={opt.value}>{opt.label}</option>
+                  <option key={opt.value} value={opt.value}>
+                     {opt.label}
+                  </option>
                ))}
             </Select>
             <FieldError error={errors.unidade} />
@@ -135,7 +154,9 @@ export function DocumentationSection({ register, errors }: FormSectionProps) {
                maxLength={7}
                minLength={7}
                onKeyDown={onlyNumbersKeyDown}
-               className={clsx({ "focus:border-red-500 focus:ring-red-500": errors.saram })}
+               className={clsx({
+                  "focus:border-red-500 focus:ring-red-500": errors.saram,
+               })}
             />
             <FieldError error={errors.saram} />
          </div>
@@ -149,7 +170,9 @@ export function DocumentationSection({ register, errors }: FormSectionProps) {
                autoComplete="off"
                minLength={6}
                onKeyDown={onlyNumbersKeyDown}
-               className={clsx({ "focus:border-red-500 focus:ring-red-500": errors.id_fab })}
+               className={clsx({
+                  "focus:border-red-500 focus:ring-red-500": errors.id_fab,
+               })}
             />
             <FieldError error={errors.id_fab} />
          </div>
@@ -164,7 +187,9 @@ export function DocumentationSection({ register, errors }: FormSectionProps) {
                maxLength={11}
                minLength={11}
                onKeyDown={onlyNumbersKeyDown}
-               className={clsx({ "focus:border-red-500 focus:ring-red-500": errors.cpf })}
+               className={clsx({
+                  "focus:border-red-500 focus:ring-red-500": errors.cpf,
+               })}
             />
             <FieldError error={errors.cpf} />
          </div>
@@ -188,7 +213,9 @@ export function ContactAndDatesSection({ register, errors }: FormSectionProps) {
                {...register("email_fab")}
                autoComplete="off"
                icon={HiMail}
-               className={clsx({ "focus:border-red-500 focus:ring-red-500": errors.email_fab })}
+               className={clsx({
+                  "focus:border-red-500 focus:ring-red-500": errors.email_fab,
+               })}
             />
             <FieldError error={errors.email_fab} />
          </div>
@@ -202,7 +229,9 @@ export function ContactAndDatesSection({ register, errors }: FormSectionProps) {
                {...register("email_pess")}
                autoComplete="off"
                icon={HiMail}
-               className={clsx({ "focus:border-red-500 focus:ring-red-500": errors.email_pess })}
+               className={clsx({
+                  "focus:border-red-500 focus:ring-red-500": errors.email_pess,
+               })}
             />
             <FieldError error={errors.email_pess} />
          </div>
@@ -215,7 +244,9 @@ export function ContactAndDatesSection({ register, errors }: FormSectionProps) {
                type="date"
                {...register("nasc")}
                autoComplete="off"
-               className={clsx({ "focus:border-red-500 focus:ring-red-500": errors.nasc })}
+               className={clsx({
+                  "focus:border-red-500 focus:ring-red-500": errors.nasc,
+               })}
             />
             <FieldError error={errors.nasc} />
          </div>
@@ -238,7 +269,9 @@ export function CareerSection({ register, errors }: FormSectionProps) {
                type="date"
                {...register("ult_promo")}
                autoComplete="off"
-               className={clsx({ "focus:border-red-500 focus:ring-red-500": errors.ult_promo })}
+               className={clsx({
+                  "focus:border-red-500 focus:ring-red-500": errors.ult_promo,
+               })}
             />
             <FieldError error={errors.ult_promo} />
          </div>
@@ -252,7 +285,9 @@ export function CareerSection({ register, errors }: FormSectionProps) {
                min={1}
                {...register("ant_rel")}
                autoComplete="off"
-               className={clsx({ "focus:border-red-500 focus:ring-red-500": errors.ant_rel })}
+               className={clsx({
+                  "focus:border-red-500 focus:ring-red-500": errors.ant_rel,
+               })}
             />
             <FieldError error={errors.ant_rel} />
          </div>

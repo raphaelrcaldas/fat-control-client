@@ -149,7 +149,7 @@ export function FiltrosOrdemComponent({
                      />
                   </div>
 
-                  {/* Status - MultiSelect */}
+                  {/* Status - MultiSelect
                   <div className="min-w-0">
                      <label className="mb-1 block text-xs font-medium text-gray-500">
                         Status
@@ -165,7 +165,7 @@ export function FiltrosOrdemComponent({
                         }
                         placeholder="Todos"
                      />
-                  </div>
+                  </div> */}
 
                   {/* Tipo/Descrição - Text Input */}
                   <div className="min-w-0">

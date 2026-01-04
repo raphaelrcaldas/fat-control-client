@@ -5,8 +5,8 @@
 export const STATUS_OPTIONS = [
    "rascunho",
    "aprovada",
-   "finalizada",
-   "revisada",
+   // "finalizada",
+   // "revisada",
 ] as const;
 
 export type StatusType = (typeof STATUS_OPTIONS)[number];
@@ -17,8 +17,8 @@ export type StatusType = (typeof STATUS_OPTIONS)[number];
 export const STATUS_LABELS: Record<StatusType, string> = {
    rascunho: "Rascunho",
    aprovada: "Aprovada",
-   finalizada: "Finalizada",
-   revisada: "Revisada",
+   // finalizada: "Finalizada",
+   // revisada: "Revisada",
 };
 
 /**
@@ -40,18 +40,18 @@ export const STATUS_CONFIG: Record<
       border: "border-blue-300",
       label: "Aprovada",
    },
-   finalizada: {
-      bg: "bg-emerald-100",
-      text: "text-emerald-700",
-      border: "border-emerald-300",
-      label: "Finalizada",
-   },
-   revisada: {
-      bg: "bg-violet-100",
-      text: "text-violet-700",
-      border: "border-violet-300",
-      label: "Revisada",
-   },
+   // finalizada: {
+   //    bg: "bg-emerald-100",
+   //    text: "text-emerald-700",
+   //    border: "border-emerald-300",
+   //    label: "Finalizada",
+   // },
+   // revisada: {
+   //    bg: "bg-violet-100",
+   //    text: "text-violet-700",
+   //    border: "border-violet-300",
+   //    label: "Revisada",
+   // },
 };
 
 /**

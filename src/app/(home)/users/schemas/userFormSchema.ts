@@ -16,10 +16,7 @@ export const createUserFormSchema = z.object({
          .string()
          .refine((userCPF) => cpf.isValid(userCPF), "Digite um CPF válido"),
    ]),
-   email_fab: z.union([
-      z.literal(""),
-      z.email().endsWith("fab.mil.br"),
-   ]),
+   email_fab: z.union([z.literal(""), z.email().endsWith("fab.mil.br")]),
    email_pess: z.union([z.literal(""), z.email()]),
    nasc: z.nullable(z.string()),
    ult_promo: z.nullable(z.string()),

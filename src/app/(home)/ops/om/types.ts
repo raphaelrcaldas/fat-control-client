@@ -22,7 +22,7 @@ export interface Etiqueta {
 
 export interface OrdemMissao {
    id: number;
-   numero: string;
+   numero?: string;
    documentoReferencia: string;
    matriculaAeronave: number;
    projeto: string;

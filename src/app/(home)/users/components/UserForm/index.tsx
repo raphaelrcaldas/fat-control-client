@@ -197,8 +197,8 @@ export function UserForm({ userId, updateUsers, onSuccess }: UserFormProps) {
                {isSubmitting
                   ? "Salvando..."
                   : isEditMode
-                     ? "Salvar Alterações"
-                     : "Cadastrar"}
+                    ? "Salvar Alterações"
+                    : "Cadastrar"}
             </Button>
          </div>
       </form>
