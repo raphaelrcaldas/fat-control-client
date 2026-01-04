@@ -18,9 +18,9 @@ export const createUserFormSchema = z.object({
    ]),
    email_fab: z.union([
       z.literal(""),
-      z.string().email().endsWith("fab.mil.br"),
+      z.email().endsWith("fab.mil.br"),
    ]),
-   email_pess: z.union([z.literal(""), z.string().email()]),
+   email_pess: z.union([z.literal(""), z.email()]),
    nasc: z.nullable(z.string()),
    ult_promo: z.nullable(z.string()),
    ant_rel: z.nullable(z.coerce.number().gt(0)),

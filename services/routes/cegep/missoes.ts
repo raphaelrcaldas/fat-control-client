@@ -4,8 +4,23 @@ import request from "../../Api";
 import { cegepRoute } from ".";
 import { UserPublic } from "../users";
 import { Cidade } from "../cities";
-import { Etiqueta } from "../cegep/etiquetas";
+
+// Re-export de constants de etiquetas
+export {
+   CORES_PREDEFINIDAS as coresPredefinidas,
+   type CorPredefinida,
+   isCorPredefinida,
+} from "../../../src/constants/cegep/etiquetas";
+
 const missoesRoute = cegepRoute + "missoes/";
+const etiquetasRoute = missoesRoute + "etiquetas/";
+
+export interface Etiqueta {
+   id?: number;
+   nome: string;
+   cor: string;
+   descricao?: string;
+}
 
 export interface UserMission {
    id?: number;
@@ -205,4 +220,22 @@ export async function createUpdateFragMis(missao: Missao) {
 
 export async function deleteFragMis(fragId: number) {
    return await request("DELETE", missoesRoute + fragId);
+}
+
+// ============ ETIQUETAS API FUNCTIONS ============
+
+export async function getEtiquetas(): Promise<Etiqueta[]> {
+   const response = await request("GET", etiquetasRoute);
+   return (await response.json()) as Etiqueta[];
+}
+
+export async function createUpdateEtiqueta(
+   etiqueta: Etiqueta
+): Promise<Etiqueta> {
+   const response = await request("POST", etiquetasRoute, etiqueta);
+   return (await response.json()) as Etiqueta;
+}
+
+export async function deleteEtiquetaApi(etiquetaId: number): Promise<void> {
+   await request("DELETE", etiquetasRoute + etiquetaId);
 }

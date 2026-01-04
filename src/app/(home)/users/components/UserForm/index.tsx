@@ -8,7 +8,7 @@ import { useEffect, useState } from "react";
 import { Button } from "flowbite-react";
 import { Spinner } from "@/components/Spinner";
 import { getUserById, updateUser, addUser } from "services/routes/users";
-import { useToast } from "../../../../context/toast";
+import { useToast } from "@/app/context/toast";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -121,7 +121,7 @@ export function UserForm({ userId, updateUsers, onSuccess }: UserFormProps) {
 
    async function onSubmit(data: CreateUserFormData) {
       try {
-         let response;
+         let response: Response;
 
          if (isEditMode) {
             // Modo edição: enviar apenas campos modificados
@@ -197,8 +197,8 @@ export function UserForm({ userId, updateUsers, onSuccess }: UserFormProps) {
                {isSubmitting
                   ? "Salvando..."
                   : isEditMode
-                    ? "Salvar Alterações"
-                    : "Cadastrar"}
+                     ? "Salvar Alterações"
+                     : "Cadastrar"}
             </Button>
          </div>
       </form>

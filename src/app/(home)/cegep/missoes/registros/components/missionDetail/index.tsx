@@ -18,7 +18,7 @@ import { MissionMilitar } from "./militar/missionMilitar";
 import { ErrorModal } from "./errorModal";
 import { DeleteMissionModal } from "./deleteMissionModal";
 import { Missao } from "services/routes/cegep/missoes";
-import { Etiqueta } from "services/routes/cegep/etiquetas";
+import { Etiqueta } from "services/routes/cegep/missoes";
 import { DateTimePicker } from "src/app/(home)/components/dateTimePicker";
 import { useState, useMemo, useEffect } from "react";
 import {
@@ -132,7 +132,7 @@ export default function MissionDetail({
       JSON.stringify(pnts) !== JSON.stringify(defaultValues.pnts) ||
       JSON.stringify(mils) !== JSON.stringify(defaultValues.mils) ||
       JSON.stringify(etiquetasMissao) !==
-         JSON.stringify(defaultValues.etiquetas);
+      JSON.stringify(defaultValues.etiquetas);
 
    function handleFragMis() {
       const checkNDoc = nDoc != 0;

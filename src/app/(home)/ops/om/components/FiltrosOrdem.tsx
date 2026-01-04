@@ -6,7 +6,7 @@ import clsx from "clsx";
 import { FiltrosOrdem } from "../types";
 import { statusOptions, statusLabels, StatusType } from "../constants";
 import { MultiSelect } from "./MultiSelect";
-import { listEtiquetas } from "services/routes/etiquetas";
+import { listEtiquetas } from "services/routes/om/etiquetas";
 import { Etiqueta } from "../types";
 
 // Status disponíveis para filtro (sem rascunho, pois tem tab própria)

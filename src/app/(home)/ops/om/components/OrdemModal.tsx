@@ -14,7 +14,7 @@ import {
 } from "./OrdemModal/";
 import { LabelPicker } from "./LabelPicker";
 import { LabelManager } from "./LabelManager";
-import { listEtiquetas } from "services/routes/etiquetas";
+import { listEtiquetas } from "services/routes/om/etiquetas";
 import { Etiqueta } from "../types";
 import { HiTag } from "react-icons/hi";
 
@@ -173,8 +173,8 @@ export function OrdemModal({
    const title = isCloning
       ? "Clonar Ordem de Missao"
       : isNew
-        ? "Nova Ordem de Missao"
-        : "Editar Ordem de Missao";
+         ? "Nova Ordem de Missao"
+         : "Editar Ordem de Missao";
 
    return (
       <div

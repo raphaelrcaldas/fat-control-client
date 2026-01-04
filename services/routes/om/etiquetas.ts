@@ -1,6 +1,6 @@
-import request from "../Api";
+import request from "../../Api";
 
-const etiquetasRoute = "ops/etiquetas/";
+const etiquetasRoute = "ops/om/etiquetas/";
 
 export interface Etiqueta {
    id: number;

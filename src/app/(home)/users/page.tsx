@@ -10,8 +10,8 @@ import useDebouncedValue from "@/hooks/useDebouncedValue";
 import { getUsers, UserPublic } from "services/routes/users";
 import { postoGradRecords } from "services/routes/postos";
 import { useToast } from "../../context/toast";
-import { UserCreateModal } from "./components/UserDetailsModal/UserCreateModal";
-import { UserRow } from "./components/UserRow";
+import { UserCreateModal } from "./components/UserCreateModal";
+import { UserTable } from "./components/UserTable";
 import { UserCard } from "./components/UserCard";
 
 const PER_PAGE_OPTIONS = [10, 15, 25, 50, 100];
@@ -155,7 +155,6 @@ export default function UsersPage() {
             </div>
          </div>
 
-         {/* Card da Tabela */}
          <div className="relative overflow-hidden bg-white shadow-md sm:rounded-lg">
             {/* Barra de Busca e Filtros */}
             <div className="flex flex-col gap-3 p-4 md:flex-row">
@@ -243,49 +242,11 @@ export default function UsersPage() {
                   )}
 
                   {/* Tabela Desktop */}
-                  <div
-                     className={`hidden overflow-x-auto md:block ${loading ? "opacity-50" : "opacity-100"} transition-opacity duration-200`}
-                  >
-                     <table className="w-full text-left text-sm text-gray-500">
-                        <thead className="bg-gray-50 text-xs text-gray-700 uppercase">
-                           <tr>
-                              <th scope="col" className="px-4 py-3">
-                                 # ID
-                              </th>
-                              <th scope="col" className="px-4 py-3">
-                                 P/G
-                              </th>
-                              <th scope="col" className="px-4 py-3">
-                                 Especialidade
-                              </th>
-                              <th scope="col" className="px-4 py-3">
-                                 Nome de Guerra
-                              </th>
-                              <th scope="col" className="px-4 py-3">
-                                 Nome Completo
-                              </th>
-                              <th scope="col" className="px-4 py-3">
-                                 Unidade
-                              </th>
-                              <th scope="col" className="px-4 py-3">
-                                 Status
-                              </th>
-                              <th scope="col" className="px-4 py-3">
-                                 <span className="sr-only">Ações</span>
-                              </th>
-                           </tr>
-                        </thead>
-                        <tbody>
-                           {usuarios.map((user) => (
-                              <UserRow
-                                 key={user.id}
-                                 user={user}
-                                 update={refreshList}
-                              />
-                           ))}
-                        </tbody>
-                     </table>
-                  </div>
+                  <UserTable
+                     usuarios={usuarios}
+                     loading={loading}
+                     onUpdate={refreshList}
+                  />
 
                   {/* Cards Mobile */}
                   <div

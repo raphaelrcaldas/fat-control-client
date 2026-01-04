@@ -70,7 +70,7 @@ export function ResetPassword({ userId }) {
 
    if (showConfirm) {
       return (
-         <div className="flex flex-col items-center justify-center p-12">
+         <div className="flex flex-col items-center justify-center p-16">
             <div className="mb-4 rounded-full bg-yellow-100 p-4">
                <HiExclamation className="h-16 w-16 text-yellow-600" />
             </div>
@@ -109,7 +109,7 @@ export function ResetPassword({ userId }) {
    }
 
    return (
-      <div className="flex flex-col items-center justify-center p-12">
+      <div className="flex flex-col items-center justify-center p-2">
          <div className="w-full max-w-lg">
             {/* Card informativo */}
             <div className="mb-6 border-l-4 border-blue-500 bg-blue-50 p-4">

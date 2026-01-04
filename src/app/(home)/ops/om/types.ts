@@ -106,7 +106,7 @@ export type {
    TripulanteInfo,
    OrdemFilters,
    PaginatedResponse,
-} from "services/routes/om";
+} from "services/routes/om/ordens";
 
 // --- Paginacao para UI ---
 export interface PaginationState {

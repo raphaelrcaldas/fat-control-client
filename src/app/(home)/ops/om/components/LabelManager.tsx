@@ -17,7 +17,7 @@ import {
    createEtiqueta,
    updateEtiqueta,
    deleteEtiqueta,
-} from "services/routes/etiquetas";
+} from "services/routes/om/etiquetas";
 
 type LabelManagerProps = {
    isOpen: boolean;

@@ -14,7 +14,7 @@ import {
    getEtiquetas,
    createUpdateEtiqueta,
    deleteEtiquetaApi,
-} from "services/routes/cegep/etiquetas";
+} from "services/routes/cegep/missoes";
 
 // Re-exportar para componentes que usam o context
 export { coresPredefinidas };

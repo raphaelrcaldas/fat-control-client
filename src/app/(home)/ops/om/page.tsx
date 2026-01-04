@@ -12,7 +12,7 @@ import {
    getOrdem,
    deleteOrdem,
    type OrdemFilters,
-} from "services/routes/om";
+} from "services/routes/om/ordens";
 import { ordemFromApi, ordemListFromApi } from "./transformers";
 
 // Helpers para datas padrao

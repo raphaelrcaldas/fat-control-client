@@ -19,7 +19,7 @@ import type {
    TripulacaoAgrupada,
    TripulacaoOrdemOut,
    OrdemMissaoList,
-} from "services/routes/om";
+} from "services/routes/om/ordens";
 
 // --- Helpers de datetime ---
 

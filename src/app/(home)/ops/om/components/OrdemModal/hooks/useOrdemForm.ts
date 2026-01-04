@@ -12,7 +12,7 @@ import {
    generateNumero,
    createEtapaWithOrigem,
 } from "../utils/ordemUtils";
-import { createOrdem, updateOrdem } from "services/routes/om";
+import { createOrdem, updateOrdem } from "services/routes/om/ordens";
 import { ordemToApiCreate, ordemToApiUpdate } from "../../../transformers";
 
 interface UseOrdemFormProps {

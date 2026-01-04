@@ -51,4 +51,5 @@ export const createDefaultOrdem = (): OrdemMissao => ({
    status: "rascunho",
    etapas: [createEmptyEtapa()],
    etiquetas: [],
+   uae: "11gt",
 });
