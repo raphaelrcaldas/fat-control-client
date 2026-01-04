@@ -297,7 +297,7 @@ export default function OrdensMissao() {
             <header className="mb-3 flex items-center justify-between">
                <div>
                   <h1 className="text-xl font-semibold text-gray-900">
-                     Ordens de Missao
+                     Ordens de Missão
                   </h1>
                   <p className="text-sm text-gray-500">
                      Gerenciamento de Ordens
@@ -312,7 +312,7 @@ export default function OrdensMissao() {
                   className="flex items-center gap-2 rounded-lg bg-red-500 px-5 py-2.5 font-bold text-white shadow hover:bg-red-700"
                >
                   <span className="text-lg">+</span>
-                  Nova Ordem de Missao
+                  Nova Ordem de Missão
                </button>
             </header>
 

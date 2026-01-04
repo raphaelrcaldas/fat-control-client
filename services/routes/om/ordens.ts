@@ -88,7 +88,6 @@ export interface OrdemMissaoUpdate {
    etapas?: EtapaCreate[] | null;
    tripulacao?: TripulacaoAgrupada | null;
    etiquetas_ids?: number[] | null;
-   uae?: string | null;
 }
 
 export interface OrdemMissaoOut {

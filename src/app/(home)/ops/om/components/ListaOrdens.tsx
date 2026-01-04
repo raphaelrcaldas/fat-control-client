@@ -64,53 +64,69 @@ export function ListaOrdens({
                   <div className="flex items-center justify-between">
                      <div className="flex items-center gap-3">
                         <div className="flex flex-col gap-1.5">
-                           <Label className="text-start text-xs text-gray-500">
+                           <Label className="pointer-events-none text-start text-xs text-gray-500">
                               Número
                            </Label>
-                           <div className="font-mono text-lg font-semibold text-gray-900">
+                           <div className="pointer-events-none font-mono text-lg font-semibold text-gray-900">
                               {ordem.numero}
                            </div>
                         </div>
                         <div className="h-10 w-px bg-gray-200" />
-                        <div className="flex w-32 flex-col gap-1.5">
-                           <Label className="text-xs text-gray-500">
+                        {/* <div className="flex w-32 flex-col gap-1.5">
+                           <Label className="pointer-events-none text-xs text-gray-500">
                               Status
                            </Label>
                            <StatusBadge status={ordem.status as any} />
                         </div>
-                        <div className="hidden h-10 w-px bg-gray-200 sm:block" />
+                        <div className="hidden h-10 w-px bg-gray-200 sm:block" /> */}
                         <div className="flex w-32 flex-col gap-1.5">
-                           <Label className="text-xs text-gray-500">
+                           <Label className="pointer-events-none text-xs text-gray-500">
                               Etiquetas
                            </Label>
-                           {ordem.etiquetas?.map((et) => (
-                              <span
-                                 key={et.id}
-                                 className="inline-flex items-center justify-center rounded-full border px-1.5 py-0.5 text-[10px] font-bold tracking-tight uppercase shadow-xs"
-                                 style={{
-                                    backgroundColor: `${et.cor}20`,
-                                    color: et.cor,
-                                    borderColor: et.cor,
-                                 }}
-                              >
-                                 {et.nome}
+                           {ordem.etiquetas && ordem.etiquetas.length > 0 ? (
+                              ordem.etiquetas.map((et) => (
+                                 <span
+                                    key={et.id}
+                                    className="pointer-events-none inline-flex items-center justify-center rounded-full border px-1.5 py-0.5 text-[10px] font-bold tracking-tight uppercase shadow-xs"
+                                    style={{
+                                       backgroundColor: `${et.cor}20`,
+                                       color: et.cor,
+                                       borderColor: et.cor,
+                                    }}
+                                 >
+                                    {et.nome}
+                                 </span>
+                              ))
+                           ) : (
+                              <span className="pointer-events-none text-xs text-gray-400">
+                                 Nenhuma etiqueta
                               </span>
-                           ))}
+                           )}
                         </div>
                         <div className="hidden h-10 w-px bg-gray-200 sm:block" />
 
                         <div className="flex flex-col gap-1.5">
-                           <Label className="text-xs text-gray-500">
+                           <Label className="pointer-events-none text-xs text-gray-500">
                               Descrição
                            </Label>
-                           <p className="hidden w-48 text-sm text-gray-600 sm:block">
-                              {ordem.tipo}
+                           <p className="pointer-events-none hidden w-48 text-sm sm:block">
+                              <span
+                                 className={
+                                    ordem.tipo
+                                       ? "text-gray-600"
+                                       : "text-gray-400"
+                                 }
+                              >
+                                 {ordem.tipo || "Sem descrição"}
+                              </span>
                            </p>
                         </div>
                         <div className="hidden h-10 w-px bg-gray-200 md:block" />
 
                         <div className="flex flex-col gap-1.5">
-                           <Label className="text-xs text-gray-500">Rota</Label>
+                           <Label className="pointer-events-none text-xs text-gray-500">
+                              Rota
+                           </Label>
                            {Object.keys(resumoRota).length > 0 && (
                               <div className="hidden flex-col gap-2 md:flex">
                                  {Object.entries(resumoRota).map(

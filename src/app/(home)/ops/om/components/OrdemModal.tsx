@@ -207,10 +207,27 @@ export function OrdemModal({
    if (!shouldRender) return null;
 
    const title = isCloning
-      ? "Clonar Ordem de Missao"
+      ? "Clonar"
       : isNew
-        ? "Nova Ordem de Missao"
-        : "Editar Ordem de Missao";
+        ? "Nova"
+        : !isEditable
+          ? "Detalhes"
+          : "Editar";
+
+   // Formata data de yyyy-MM-dd para ddMMyyyy
+   const formatDateForDisplay = (dateStr: string) => {
+      if (!dateStr) return "";
+      const [year, month, day] = dateStr.split("-");
+      return `${day}${month}${year}`;
+   };
+
+   const ordemIdentificacao = formData.numero
+      ? `${formData.numero}/${formData.uae}/${formatDateForDisplay(formData.dataSaida)}`
+      : "";
+
+   const ordemBasedIdentificacao = ordem
+      ? `${ordem.numero}/${ordem.uae}/${formatDateForDisplay(ordem.dataSaida)}`
+      : "";
 
    return (
       <div
@@ -232,17 +249,19 @@ export function OrdemModal({
                </button>
                <div>
                   <h1 className="text-xl font-semibold text-gray-900">
-                     {title}
+                     {title} Ordem de Missão
                   </h1>
-                  {!isNew && !isCloning && formData.numero && (
-                     <p className="font-mono text-sm text-gray-500">
-                        {formData.numero}
+                  {!isNew && !isCloning && ordemIdentificacao && (
+                     <p className="font-mono text-sm text-gray-500 uppercase">
+                        {ordemIdentificacao}
                      </p>
                   )}
-                  {isCloning && ordem && (
+                  {isCloning && ordemBasedIdentificacao && (
                      <p className="text-sm text-gray-500">
                         Baseado em:{" "}
-                        <span className="font-mono">{ordem.numero}</span>
+                        <span className="font-mono uppercase">
+                           {ordemBasedIdentificacao}
+                        </span>
                      </p>
                   )}
                </div>

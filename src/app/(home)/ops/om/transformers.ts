@@ -258,7 +258,6 @@ export function ordemToApiUpdate(
       update.tripulacao = tripulacaoToApi(ordem.tripulacao);
    if (ordem.etiquetas !== undefined)
       update.etiquetas_ids = ordem.etiquetas.map((et) => et.id);
-   if (ordem.uae !== undefined) update.uae = ordem.uae || null;
 
    return update;
 }

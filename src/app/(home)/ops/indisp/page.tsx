@@ -377,7 +377,7 @@ function ColorLegend() {
    return (
       <div className="hidden shrink-0 flex-wrap justify-center gap-2 rounded-lg bg-white px-2 py-2 text-xs shadow md:flex md:text-sm">
          {indispsOptions.map((option) => {
-            const label = option.label.split(" ")[1];
+            const label = option.label;
             return (
                <div key={option.value} className="flex items-center gap-1">
                   <div className={`h-4 w-4 rounded ${option.color.button}`} />

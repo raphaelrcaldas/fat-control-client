@@ -159,7 +159,7 @@ export const TripIndisp = ({
                <ModalHeader>
                   <h3 className="text-lg font-bold">Indisponibilidades</h3>
                </ModalHeader>
-               <ModalBody>
+               <ModalBody className="max-h-[450px] min-h-[450px] overflow-y-auto">
                   <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-4">
                      <h3 className="text-center text-lg font-bold text-gray-900 uppercase">
                         {user.posto.short} {user.esp} {user.nome_guerra}
@@ -200,100 +200,114 @@ export const TripIndisp = ({
                      </button>
 
                      {/* Painel de filtros expansível */}
-                     {showFilters && (
-                        <div className="space-y-4 rounded-b-lg border border-t-0 border-gray-200 bg-gray-50 p-4">
-                           {/* Linha 1: Datas lado a lado */}
-                           <div className="grid grid-cols-2 gap-3">
+                     <div
+                        className={clsx(
+                           "grid transition-all duration-300 ease-in-out",
+                           showFilters ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
+                        )}
+                     >
+                        <div className="overflow-hidden">
+                           <div className="space-y-4 rounded-b-lg border border-t-0 border-gray-200 bg-gray-50 p-4">
+                              {/* Linha 1: Datas lado a lado */}
+                              <div className="grid grid-cols-2 gap-3">
+                                 <div>
+                                    <label className="mb-1.5 block text-xs font-medium text-gray-500">
+                                       Data início
+                                    </label>
+                                    <input
+                                       type="date"
+                                       value={dateFrom}
+                                       max={showFuture ? undefined : dateTo}
+                                       onChange={(e) =>
+                                          handleDateFromChange(e.target.value)
+                                       }
+                                       className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm focus:border-blue-400 focus:ring-2 focus:ring-blue-500/20"
+                                    />
+                                 </div>
+                                 <div>
+                                    <label className="mb-1.5 block text-xs font-medium text-gray-500">
+                                       Data fim
+                                    </label>
+                                    <input
+                                       type="date"
+                                       value={dateTo}
+                                       min={dateFrom}
+                                       disabled={showFuture}
+                                       onChange={(e) =>
+                                          setDateTo(e.target.value)
+                                       }
+                                       className={clsx(
+                                          "w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-blue-400 focus:ring-2 focus:ring-blue-500/20",
+                                          showFuture
+                                             ? "cursor-not-allowed bg-gray-100 text-gray-400"
+                                             : "bg-white text-gray-700"
+                                       )}
+                                    />
+                                 </div>
+                              </div>
+
+                              {/* Checkbox exibir futuras */}
+                              <label className="flex cursor-pointer items-center gap-3 select-none">
+                                 <input
+                                    type="checkbox"
+                                    checked={showFuture}
+                                    onChange={(e) =>
+                                       setShowFuture(e.target.checked)
+                                    }
+                                    className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                                 />
+                                 <span className="text-sm text-gray-600">
+                                    Exibir futuras
+                                 </span>
+                              </label>
+
+                              {/* Tipo */}
                               <div>
                                  <label className="mb-1.5 block text-xs font-medium text-gray-500">
-                                    Data início
+                                    Tipo de indisponibilidade
                                  </label>
-                                 <input
-                                    type="date"
-                                    value={dateFrom}
-                                    max={showFuture ? undefined : dateTo}
+                                 <select
+                                    value={mtvFilter}
                                     onChange={(e) =>
-                                       handleDateFromChange(e.target.value)
+                                       setMtvFilter(e.target.value)
                                     }
                                     className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm focus:border-blue-400 focus:ring-2 focus:ring-blue-500/20"
-                                 />
-                              </div>
-                              <div>
-                                 <label className="mb-1.5 block text-xs font-medium text-gray-500">
-                                    Data fim
-                                 </label>
-                                 <input
-                                    type="date"
-                                    value={dateTo}
-                                    min={dateFrom}
-                                    disabled={showFuture}
-                                    onChange={(e) => setDateTo(e.target.value)}
-                                    className={clsx(
-                                       "w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-blue-400 focus:ring-2 focus:ring-blue-500/20",
-                                       showFuture
-                                          ? "cursor-not-allowed bg-gray-100 text-gray-400"
-                                          : "bg-white text-gray-700"
-                                    )}
-                                 />
-                              </div>
-                           </div>
-
-                           {/* Checkbox exibir futuras */}
-                           <label className="flex cursor-pointer items-center gap-3 select-none">
-                              <input
-                                 type="checkbox"
-                                 checked={showFuture}
-                                 onChange={(e) =>
-                                    setShowFuture(e.target.checked)
-                                 }
-                                 className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                              />
-                              <span className="text-sm text-gray-600">
-                                 Exibir futuras
-                              </span>
-                           </label>
-
-                           {/* Tipo */}
-                           <div>
-                              <label className="mb-1.5 block text-xs font-medium text-gray-500">
-                                 Tipo de indisponibilidade
-                              </label>
-                              <select
-                                 value={mtvFilter}
-                                 onChange={(e) => setMtvFilter(e.target.value)}
-                                 className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm focus:border-blue-400 focus:ring-2 focus:ring-blue-500/20"
-                              >
-                                 <option value="">Todos os tipos</option>
-                                 {indispsOptions.map((opt) => (
-                                    <option key={opt.value} value={opt.value}>
-                                       {opt.label}
-                                    </option>
-                                 ))}
-                              </select>
-                           </div>
-
-                           {/* Botão restaurar padrão */}
-                           {hasCustomFilters && (
-                              <div className="flex justify-end">
-                                 <button
-                                    onClick={clearAndRefetch}
-                                    className="flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-50"
                                  >
-                                    <FaTimes className="h-3 w-3" />
-                                    Restaurar padrão
-                                 </button>
+                                    <option value="">Todos os tipos</option>
+                                    {indispsOptions.map((opt) => (
+                                       <option
+                                          key={opt.value}
+                                          value={opt.value}
+                                       >
+                                          {opt.label}
+                                       </option>
+                                    ))}
+                                 </select>
                               </div>
-                           )}
 
-                           {/* Indicador de loading */}
-                           {isFiltering && (
-                              <div className="flex items-center justify-center gap-2 py-2 text-sm text-gray-500">
-                                 <div className="h-4 w-4 animate-spin rounded-full border-2 border-blue-500 border-t-transparent" />
-                                 Atualizando...
-                              </div>
-                           )}
+                              {/* Botão restaurar padrão */}
+                              {hasCustomFilters && (
+                                 <div className="flex justify-end">
+                                    <button
+                                       onClick={clearAndRefetch}
+                                       className="flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-50"
+                                    >
+                                       <FaTimes className="h-3 w-3" />
+                                       Restaurar padrão
+                                    </button>
+                                 </div>
+                              )}
+
+                              {/* Indicador de loading */}
+                              {isFiltering && (
+                                 <div className="flex items-center justify-center gap-2 py-2 text-sm text-gray-500">
+                                    <div className="h-4 w-4 animate-spin rounded-full border-2 border-blue-500 border-t-transparent" />
+                                    Atualizando...
+                                 </div>
+                              )}
+                           </div>
                         </div>
-                     )}
+                     </div>
 
                      {/* Chips de filtros (quando fechado) */}
                      {!showFilters && (
