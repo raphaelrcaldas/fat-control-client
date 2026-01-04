@@ -223,7 +223,6 @@ export function tripulacaoFromApi(
  */
 export function ordemToApiCreate(ordem: OrdemMissao): OrdemMissaoCreate {
    return {
-      numero: ordem.numero,
       matricula_anv: ordem.matriculaAeronave,
       tipo: ordem.tipo,
       projeto: ordem.projeto,
@@ -245,7 +244,6 @@ export function ordemToApiUpdate(
 ): OrdemMissaoUpdate {
    const update: OrdemMissaoUpdate = {};
 
-   if (ordem.numero !== undefined) update.numero = ordem.numero;
    if (ordem.matriculaAeronave !== undefined)
       update.matricula_anv = ordem.matriculaAeronave;
    if (ordem.tipo !== undefined) update.tipo = ordem.tipo;

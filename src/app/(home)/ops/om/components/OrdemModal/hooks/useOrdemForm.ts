@@ -7,11 +7,7 @@ import {
    CampoEspecial,
    Etiqueta,
 } from "../../../types";
-import {
-   createDefaultOrdem,
-   generateNumero,
-   createEtapaWithOrigem,
-} from "../utils/ordemUtils";
+import { createDefaultOrdem, createEtapaWithOrigem } from "../utils/ordemUtils";
 import { createOrdem, updateOrdem } from "services/routes/om/ordens";
 import { ordemToApiCreate, ordemToApiUpdate } from "../../../transformers";
 
@@ -43,7 +39,6 @@ export const useOrdemForm = ({
          return {
             ...ordem,
             id: 0,
-            numero: "",
             status: "rascunho",
          };
       }
@@ -80,7 +75,6 @@ export const useOrdemForm = ({
          setFormData({
             ...ordem,
             id: 0,
-            numero: "",
             status: "rascunho",
          });
       } else {
@@ -567,7 +561,6 @@ export const useOrdemForm = ({
 
       try {
          const shouldGenerateNew = isNew || isCloning;
-         const numero = shouldGenerateNew ? generateNumero() : formData.numero;
 
          // Ordenar etapas automaticamente antes de aprovar
          const etapasOrdenadas = sortEtapas(formData.etapas);
@@ -575,7 +568,6 @@ export const useOrdemForm = ({
          const ordemCompleta: OrdemMissao = {
             ...formData,
             etapas: etapasOrdenadas,
-            numero,
             status: "aprovada",
             tripulacao,
             camposEspeciais,
