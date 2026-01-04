@@ -73,6 +73,7 @@ export interface OrdemMissaoCreate {
    status: string;
    campos_especiais: CampoEspecial[];
    doc_ref?: string | null;
+   uae: string;
    etapas: EtapaCreate[];
    tripulacao?: TripulacaoAgrupada | null;
    etiquetas_ids: number[];
@@ -89,6 +90,7 @@ export interface OrdemMissaoUpdate {
    etapas?: EtapaCreate[] | null;
    tripulacao?: TripulacaoAgrupada | null;
    etiquetas_ids?: number[] | null;
+   uae?: string | null;
 }
 
 export interface OrdemMissaoOut {
@@ -100,6 +102,8 @@ export interface OrdemMissaoOut {
    status: string;
    campos_especiais: CampoEspecial[];
    doc_ref: string | null;
+   data_saida: string | null;
+   uae: string;
    created_by: number;
    created_at: string;
    updated_at: string | null;
@@ -118,6 +122,8 @@ export interface OrdemMissaoList {
    status: string;
    created_at: string;
    doc_ref: string | null;
+   data_saida: string | null;
+   uae: string;
    etapas: EtapaListItem[];
    etiquetas: Etiqueta[];
 }

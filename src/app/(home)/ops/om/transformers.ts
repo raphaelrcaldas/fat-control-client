@@ -230,6 +230,7 @@ export function ordemToApiCreate(ordem: OrdemMissao): OrdemMissaoCreate {
       status: ordem.status,
       campos_especiais: ordem.camposEspeciais || [],
       doc_ref: ordem.documentoReferencia || null,
+      uae: ordem.uae,
       etapas: ordem.etapas.map(etapaToApi),
       tripulacao: tripulacaoToApi(ordem.tripulacao),
       etiquetas_ids: (ordem.etiquetas || []).map((et) => et.id),
@@ -259,6 +260,7 @@ export function ordemToApiUpdate(
       update.tripulacao = tripulacaoToApi(ordem.tripulacao);
    if (ordem.etiquetas !== undefined)
       update.etiquetas_ids = ordem.etiquetas.map((et) => et.id);
+   if (ordem.uae !== undefined) update.uae = ordem.uae || null;
 
    return update;
 }
@@ -279,6 +281,8 @@ export function ordemFromApi(ordem: OrdemMissaoOut): OrdemMissao {
       tripulacao: tripulacaoFromApi(ordem.tripulacao),
       camposEspeciais: ordem.campos_especiais,
       createdAt: ordem.created_at,
+      dataSaida: ordem.data_saida || undefined,
+      uae: ordem.uae,
       etiquetas: ordem.etiquetas || [],
    };
 }
@@ -298,6 +302,8 @@ export function ordemListFromApi(ordem: OrdemMissaoList): OrdemMissao {
       status: ordem.status,
       etapas: ordem.etapas.map(etapaListItemFromApi),
       createdAt: ordem.created_at,
+      dataSaida: ordem.data_saida || undefined,
+      uae: ordem.uae,
       etiquetas: ordem.etiquetas || [],
    };
 }

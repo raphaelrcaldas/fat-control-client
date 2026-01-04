@@ -32,6 +32,8 @@ export interface OrdemMissao {
    tripulacao?: TripulacaoOrdem;
    camposEspeciais?: CampoEspecial[];
    createdAt?: string;
+   dataSaida?: string;
+   uae: string;
    etiquetas: Etiqueta[];
 }
 
