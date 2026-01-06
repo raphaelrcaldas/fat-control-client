@@ -7,6 +7,7 @@ import { FiltrosOrdemComponent } from "./components/FiltrosOrdem";
 import { ListaOrdens } from "./components/ListaOrdens";
 import { OrdemModal } from "./components/OrdemModal";
 import { DeleteOrdemModal } from "./components/DeleteOrdemModal";
+import { formatDateForDisplay } from "./components/OrdemModal/utils/ordemUtils";
 import {
    listOrdens,
    getOrdem,
@@ -14,6 +15,33 @@ import {
    type OrdemFilters,
 } from "services/routes/om/ordens";
 import { ordemFromApi, ordemListFromApi } from "./transformers";
+
+// Tema do Tabs extraído para fora do componente (evita recriação a cada render)
+const tabsTheme = {
+   tablist: {
+      tabitem: {
+         base: "flex items-center justify-center rounded-t-lg p-4 text-sm font-medium first:ml-0 focus:outline-none focus:ring-0 disabled:cursor-not-allowed disabled:text-gray-400",
+         variant: {
+            underline: {
+               base: "rounded-t-lg",
+               active: {
+                  on: "active rounded-t-lg border-b-2 border-red-500 text-red-500",
+                  off: "border-b-2 border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-600",
+               },
+            },
+         },
+      },
+   },
+};
+
+// Tema do Pagination extraído para fora
+const paginationTheme = {
+   pages: {
+      selector: {
+         active: "bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700",
+      },
+   },
+};
 
 // Helpers para datas padrao
 const getDefaultDates = () => {
@@ -63,13 +91,11 @@ export default function OrdensMissao() {
    const [filtros, setFiltros] = useState<FiltrosOrdem>({
       busca: "",
       status: [],
-      tipo: "",
       dataInicio: defaultDates.dataInicio,
       dataFim: defaultDates.dataFim,
       etiquetas_ids: [],
    });
    const [debouncedBusca, setDebouncedBusca] = useState(filtros.busca);
-   const [debouncedTipo, setDebouncedTipo] = useState(filtros.tipo);
 
    // Modal de edicao/criacao
    const [modalOpen, setModalOpen] = useState(false);
@@ -82,14 +108,22 @@ export default function OrdensMissao() {
    const [ordemToDelete, setOrdemToDelete] = useState<OrdemMissao | null>(null);
    const [isDeleting, setIsDeleting] = useState(false);
 
+   // Estado de carregamento ao abrir ordem
+   const [isLoadingOrdem, setIsLoadingOrdem] = useState(false);
+   const [loadingOrdemData, setLoadingOrdemData] = useState<OrdemMissao | null>(
+      null
+   );
+
+   // Key para forçar reload das etiquetas no filtro
+   const [etiquetasRefreshKey, setEtiquetasRefreshKey] = useState(0);
+
    // Debounce para campos de texto
    useEffect(() => {
       const timer = setTimeout(() => {
          setDebouncedBusca(filtros.busca);
-         setDebouncedTipo(filtros.tipo);
       }, 300);
       return () => clearTimeout(timer);
-   }, [filtros.busca, filtros.tipo]);
+   }, [filtros.busca]);
 
    // Reset para pagina 1 quando filtros mudam
    useEffect(() => {
@@ -99,7 +133,6 @@ export default function OrdensMissao() {
       filtros.dataInicio,
       filtros.dataFim,
       debouncedBusca,
-      debouncedTipo,
       filtros.etiquetas_ids,
    ]);
 
@@ -121,7 +154,6 @@ export default function OrdensMissao() {
             // Por padrao, busca todos exceto rascunho
             filters.status_ne = "rascunho";
          }
-         if (debouncedTipo) filters.tipo = debouncedTipo;
          if (debouncedBusca) filters.busca = debouncedBusca;
          if (filtros.dataInicio) filters.data_inicio = filtros.dataInicio;
          if (filtros.dataFim) filters.data_fim = filtros.dataFim;
@@ -154,7 +186,6 @@ export default function OrdensMissao() {
       filtros.dataInicio,
       filtros.dataFim,
       debouncedBusca,
-      debouncedTipo,
       filtros.etiquetas_ids,
    ]);
 
@@ -204,9 +235,13 @@ export default function OrdensMissao() {
       // Recarrega ambas as listas
       fetchOrdensAprovadas();
       fetchRascunhos();
+      // Força reload das etiquetas no filtro
+      setEtiquetasRefreshKey((prev) => prev + 1);
    }, [fetchOrdensAprovadas, fetchRascunhos]);
 
-   const handleOpenOrdem = async (ordem: OrdemMissao) => {
+   const handleOpenOrdem = useCallback(async (ordem: OrdemMissao) => {
+      setLoadingOrdemData(ordem);
+      setIsLoadingOrdem(true);
       try {
          // Busca dados completos da ordem
          const ordemCompleta = await getOrdem(ordem.id);
@@ -216,10 +251,15 @@ export default function OrdensMissao() {
       } catch (err) {
          console.error("Erro ao abrir ordem:", err);
          setError("Erro ao carregar detalhes da ordem");
+      } finally {
+         setIsLoadingOrdem(false);
+         setLoadingOrdemData(null);
       }
-   };
+   }, []);
 
-   const handleCloneOrdem = async (ordem: OrdemMissao) => {
+   const handleCloneOrdem = useCallback(async (ordem: OrdemMissao) => {
+      setLoadingOrdemData(ordem);
+      setIsLoadingOrdem(true);
       try {
          const ordemCompleta = await getOrdem(ordem.id);
          setSelectedOrdem(ordemFromApi(ordemCompleta));
@@ -228,14 +268,17 @@ export default function OrdensMissao() {
       } catch (err) {
          console.error("Erro ao clonar ordem:", err);
          setError("Erro ao carregar ordem para clonagem");
+      } finally {
+         setIsLoadingOrdem(false);
+         setLoadingOrdemData(null);
       }
-   };
+   }, []);
 
    // Abre modal de confirmacao de exclusao
-   const handleDeleteOrdem = (ordem: OrdemMissao) => {
+   const handleDeleteOrdem = useCallback((ordem: OrdemMissao) => {
       setOrdemToDelete(ordem);
       setDeleteModalOpen(true);
-   };
+   }, []);
 
    // Confirma exclusao
    const confirmDeleteOrdem = async () => {
@@ -267,7 +310,6 @@ export default function OrdensMissao() {
       setFiltros({
          busca: "",
          status: [],
-         tipo: "",
          dataInicio: defaultDates.dataInicio,
          dataFim: defaultDates.dataFim,
          etiquetas_ids: [],
@@ -333,22 +375,7 @@ export default function OrdensMissao() {
             <Tabs
                onActiveTabChange={handleTabChange}
                variant="underline"
-               theme={{
-                  tablist: {
-                     tabitem: {
-                        base: "flex items-center justify-center rounded-t-lg p-4 text-sm font-medium first:ml-0 focus:outline-none focus:ring-0 disabled:cursor-not-allowed disabled:text-gray-400",
-                        variant: {
-                           underline: {
-                              base: "rounded-t-lg",
-                              active: {
-                                 on: "active rounded-t-lg border-b-2 border-red-500 text-red-500",
-                                 off: "border-b-2 border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-600",
-                              },
-                           },
-                        },
-                     },
-                  },
-               }}
+               theme={tabsTheme}
             >
                <TabItem
                   active={activeTab === 0}
@@ -365,6 +392,7 @@ export default function OrdensMissao() {
                      filtros={filtros}
                      onFiltrosChange={setFiltros}
                      onClearFiltros={clearFiltros}
+                     refreshKey={etiquetasRefreshKey}
                   />
                   <p className="mb-3 text-sm text-gray-500">
                      {paginationAprovadas.total}{" "}
@@ -374,7 +402,7 @@ export default function OrdensMissao() {
                   </p>
                   {isLoadingAprovadas ? (
                      <div className="flex items-center justify-center py-12">
-                        <Spinner size="lg" />
+                        <Spinner size="lg" color="failure" />
                      </div>
                   ) : (
                      <>
@@ -393,14 +421,7 @@ export default function OrdensMissao() {
                                  showIcons
                                  previousLabel="Anterior"
                                  nextLabel="Proxima"
-                                 theme={{
-                                    pages: {
-                                       selector: {
-                                          active:
-                                             "bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700",
-                                       },
-                                    },
-                                 }}
+                                 theme={paginationTheme}
                               />
                            </div>
                         )}
@@ -445,14 +466,7 @@ export default function OrdensMissao() {
                                  showIcons
                                  previousLabel="Anterior"
                                  nextLabel="Proxima"
-                                 theme={{
-                                    pages: {
-                                       selector: {
-                                          active:
-                                             "bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700",
-                                       },
-                                    },
-                                 }}
+                                 theme={paginationTheme}
                               />
                            </div>
                         )}
@@ -480,10 +494,28 @@ export default function OrdensMissao() {
          <DeleteOrdemModal
             isOpen={deleteModalOpen}
             ordemNumero={ordemToDelete?.numero || ""}
+            ordemUae={ordemToDelete?.uae || ""}
+            ordemDataSaida={ordemToDelete?.dataSaida || ""}
+            ordemStatus={ordemToDelete?.status}
             onConfirm={confirmDeleteOrdem}
             onCancel={cancelDeleteOrdem}
             isDeleting={isDeleting}
          />
+
+         {/* Overlay de carregamento ao abrir ordem */}
+         {isLoadingOrdem && loadingOrdemData && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-xs">
+               <div className="flex flex-col items-center gap-4 rounded-lg bg-white p-8 shadow-xl">
+                  <Spinner size="xl" color="failure" />
+                  <p className="text-lg font-medium text-gray-700">
+                     Carregando detalhes da ordem
+                  </p>
+                  <p className="font-mono text-xl font-bold text-gray-900 uppercase">
+                     {`${loadingOrdemData.numero}/${loadingOrdemData.uae}/${formatDateForDisplay(loadingOrdemData.dataSaida)}`}
+                  </p>
+               </div>
+            </div>
+         )}
       </div>
    );
 }

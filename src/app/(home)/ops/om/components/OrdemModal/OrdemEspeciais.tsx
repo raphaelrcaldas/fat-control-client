@@ -1,7 +1,7 @@
 "use client";
 
+import { memo, useState, useEffect } from "react";
 import clsx from "clsx";
-import { useState, useEffect } from "react";
 import { CampoEspecial } from "../../types";
 
 interface OrdemEspeciaisProps {
@@ -121,7 +121,7 @@ function NovoCampoForm({
    );
 }
 
-export function OrdemEspeciais({
+export const OrdemEspeciais = memo(function OrdemEspeciais({
    campos,
    isEditable,
    onUpdate,
@@ -471,4 +471,4 @@ export function OrdemEspeciais({
          )}
       </div>
    );
-}
+});

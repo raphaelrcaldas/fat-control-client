@@ -146,19 +146,20 @@ export function LabelManager({
                               />
                            </div>
                         </div>
-                        <div className="flex items-end">
+                        <div className="flex min-w-0 items-end gap-2">
                            <Button
                               onClick={handleSave}
-                              color={editingId ? "warning" : "failure"}
-                              className="w-full"
+                              color={"light"}
+                              size="sm"
+                              className="grow"
                               disabled={isLoading || !formData.nome}
                            >
                               {isLoading ? (
                                  <Spinner size="sm" />
                               ) : editingId ? (
-                                 <HiCheck className="h-5 w-5" />
+                                 <HiCheck className="h-4 w-4" />
                               ) : (
-                                 <HiPlus className="mr-2 h-5 w-5" />
+                                 <HiPlus className="mr-1 h-4 w-4" />
                               )}
                               {editingId ? "Salvar" : "Adicionar"}
                            </Button>
@@ -166,10 +167,10 @@ export function LabelManager({
                               <Button
                                  onClick={resetForm}
                                  color="gray"
-                                 className="ml-2"
+                                 size="sm"
                                  disabled={isLoading}
                               >
-                                 <HiX className="h-5 w-5" />
+                                 <HiX className="h-4 w-4" />
                               </Button>
                            )}
                         </div>

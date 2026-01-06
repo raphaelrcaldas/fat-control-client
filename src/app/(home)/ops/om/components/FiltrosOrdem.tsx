@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { HiChevronDown, HiChevronUp } from "react-icons/hi";
+import { HiChevronDown, HiChevronUp, HiTag, HiX } from "react-icons/hi";
 import clsx from "clsx";
 import { FiltrosOrdem } from "../types";
 import { statusOptions, statusLabels, StatusType } from "../constants";
@@ -16,6 +16,7 @@ interface FiltrosOrdemProps {
    filtros: FiltrosOrdem;
    onFiltrosChange: (filtros: FiltrosOrdem) => void;
    onClearFiltros: () => void;
+   refreshKey?: number; // Incrementar para forçar reload das etiquetas
 }
 
 // Formata data para exibição (DD/MM)
@@ -29,6 +30,7 @@ export function FiltrosOrdemComponent({
    filtros,
    onFiltrosChange,
    onClearFiltros,
+   refreshKey = 0,
 }: FiltrosOrdemProps) {
    const [expanded, setExpanded] = useState(false);
    const [allowOverflow, setAllowOverflow] = useState(false);
@@ -44,7 +46,7 @@ export function FiltrosOrdemComponent({
          }
       };
       fetchLabels();
-   }, []);
+   }, [refreshKey]); // Recarrega quando refreshKey muda
 
    // Libera o overflow após a animação de expansão terminar
    useEffect(() => {
@@ -56,23 +58,14 @@ export function FiltrosOrdemComponent({
       }
    }, [expanded]);
 
-   // Lista de filtros ativos para exibição
-   const activeFilters: string[] = [];
-   if (filtros.busca) activeFilters.push(`"${filtros.busca}"`);
-   if (filtros.status.length > 0) activeFilters.push(filtros.status.join(", "));
-   if (filtros.tipo) activeFilters.push(`Desc: ${filtros.tipo}`);
-   if (filtros.dataInicio || filtros.dataFim) {
-      const inicio = formatDateShort(filtros.dataInicio) || "...";
-      const fim = formatDateShort(filtros.dataFim) || "...";
-      activeFilters.push(`${inicio} → ${fim}`);
-   }
-   if (filtros.etiquetas_ids?.length > 0) {
-      const names = allLabels
-         .filter((l) => filtros.etiquetas_ids.includes(l.id))
-         .map((l) => l.nome)
-         .join(", ");
-      if (names) activeFilters.push(`Etiquetas: ${names}`);
-   }
+   // Lista de filtros ativos para badges
+   const hasActiveFilters = !!(
+      filtros.busca ||
+      filtros.status.length > 0 ||
+      filtros.dataInicio ||
+      filtros.dataFim ||
+      filtros.etiquetas_ids.length > 0
+   );
 
    return (
       <div
@@ -89,14 +82,50 @@ export function FiltrosOrdemComponent({
                <span className="text-sm font-bold tracking-wider text-gray-500 uppercase">
                   Filtros
                </span>
-               {activeFilters.map((filter, idx) => (
-                  <span
-                     key={idx}
-                     className="rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-600"
-                  >
-                     {filter}
-                  </span>
-               ))}
+
+               {/* Active Filters Badges */}
+               {hasActiveFilters && (
+                  <>
+                     {filtros.busca && (
+                        <span className="rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-600">
+                           Busca: {filtros.busca}
+                        </span>
+                     )}
+
+                     {filtros.dataInicio && (
+                        <span className="rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-600">
+                           Início:{" "}
+                           {new Date(
+                              filtros.dataInicio + "T00:00:00"
+                           ).toLocaleDateString("pt-BR")}
+                        </span>
+                     )}
+
+                     {filtros.dataFim && (
+                        <span className="rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-600">
+                           Fim:{" "}
+                           {new Date(
+                              filtros.dataFim + "T00:00:00"
+                           ).toLocaleDateString("pt-BR")}
+                        </span>
+                     )}
+
+                     {/* Etiquetas selecionadas */}
+                     {filtros.etiquetas_ids.map((id) => {
+                        const etiqueta = allLabels.find((e) => e.id === id);
+                        if (!etiqueta) return null;
+                        return (
+                           <span
+                              key={id}
+                              className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium text-white"
+                              style={{ backgroundColor: etiqueta.cor }}
+                           >
+                              {etiqueta.nome}
+                           </span>
+                        );
+                     })}
+                  </>
+               )}
             </div>
             <div className="flex items-center gap-3">
                <span
@@ -129,55 +158,21 @@ export function FiltrosOrdemComponent({
                   allowOverflow ? "overflow-visible" : "overflow-hidden"
                )}
             >
-               <div className="grid grid-cols-1 gap-4 px-5 pb-5 md:grid-cols-2 lg:grid-cols-7">
+               <div className="grid grid-cols-1 gap-4 px-5 pb-5 md:grid-cols-2 lg:grid-cols-5">
                   {/* Campo de Busca - ocupa 2 colunas em lg */}
-                  <div className="min-w-0 lg:col-span-2">
+                  <div className="min-w-0 md:col-span-2 lg:col-span-3">
                      <label className="mb-1 block text-xs font-medium text-gray-500">
                         Busca
                      </label>
                      <input
                         type="text"
-                        placeholder="Número ou código ICAO..."
+                        placeholder="Número, ICAO, descrição ou nome de guerra..."
                         value={filtros.busca}
                         onChange={(e) =>
                            onFiltrosChange({
                               ...filtros,
                               busca: e.target.value,
                            })
-                        }
-                        className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-2.5 text-gray-900 placeholder-gray-400 focus:border-transparent focus:ring-2 focus:ring-red-500"
-                     />
-                  </div>
-
-                  {/* Status - MultiSelect
-                  <div className="min-w-0">
-                     <label className="mb-1 block text-xs font-medium text-gray-500">
-                        Status
-                     </label>
-                     <MultiSelect
-                        options={statusOptionsAprovadas.map((s) => ({
-                           value: s,
-                           label: statusLabels[s as StatusType],
-                        }))}
-                        selected={filtros.status}
-                        onChange={(values) =>
-                           onFiltrosChange({ ...filtros, status: values })
-                        }
-                        placeholder="Todos"
-                     />
-                  </div> */}
-
-                  {/* Tipo/Descrição - Text Input */}
-                  <div className="min-w-0">
-                     <label className="mb-1 block text-xs font-medium text-gray-500">
-                        Descrição
-                     </label>
-                     <input
-                        type="text"
-                        placeholder="Filtrar..."
-                        value={filtros.tipo}
-                        onChange={(e) =>
-                           onFiltrosChange({ ...filtros, tipo: e.target.value })
                         }
                         className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-2.5 text-gray-900 placeholder-gray-400 focus:border-transparent focus:ring-2 focus:ring-red-500"
                      />
@@ -219,26 +214,66 @@ export function FiltrosOrdemComponent({
                      />
                   </div>
 
-                  {/* Etiquetas - MultiSelect */}
-                  <div className="min-w-0">
-                     <label className="mb-1 block text-xs font-medium text-gray-500">
-                        Etiquetas
-                     </label>
-                     <MultiSelect
-                        options={allLabels.map((l) => ({
-                           value: String(l.id),
-                           label: l.nome,
-                        }))}
-                        selected={filtros.etiquetas_ids.map(String)}
-                        onChange={(values) =>
-                           onFiltrosChange({
-                              ...filtros,
-                              etiquetas_ids: values.map(Number),
-                           })
-                        }
-                        placeholder="Todas"
-                     />
-                  </div>
+                  {/* Etiquetas - Button-based selector */}
+                  {allLabels.length > 0 && (
+                     <div className="min-w-0 lg:col-span-5">
+                        <label className="mb-1 block text-xs font-medium text-gray-500">
+                           Etiquetas
+                        </label>
+                        <div className="flex flex-wrap gap-2">
+                           {allLabels.map((etiqueta) => {
+                              const isSelected = filtros.etiquetas_ids.includes(
+                                 etiqueta.id
+                              );
+                              return (
+                                 <button
+                                    key={etiqueta.id}
+                                    type="button"
+                                    onClick={() => {
+                                       if (isSelected) {
+                                          onFiltrosChange({
+                                             ...filtros,
+                                             etiquetas_ids:
+                                                filtros.etiquetas_ids.filter(
+                                                   (id) => id !== etiqueta.id
+                                                ),
+                                          });
+                                       } else {
+                                          onFiltrosChange({
+                                             ...filtros,
+                                             etiquetas_ids: [
+                                                ...filtros.etiquetas_ids,
+                                                etiqueta.id,
+                                             ],
+                                          });
+                                       }
+                                    }}
+                                    className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium transition-all ${
+                                       isSelected
+                                          ? "text-white shadow-sm"
+                                          : "border border-dashed"
+                                    }`}
+                                    style={
+                                       isSelected
+                                          ? {
+                                               backgroundColor: etiqueta.cor,
+                                            }
+                                          : {
+                                               borderColor: etiqueta.cor,
+                                               color: etiqueta.cor,
+                                               backgroundColor: `${etiqueta.cor}10`,
+                                            }
+                                    }
+                                 >
+                                    <HiTag className="h-3 w-3" />
+                                    {etiqueta.nome}
+                                    {isSelected && <HiX className="h-3 w-3" />}
+                                 </button>
+                              );
+                           })}
+                        </div>
+                     </div>
+                  )}
                </div>
             </div>
          </div>

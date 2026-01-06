@@ -7,7 +7,7 @@ import {
    CampoEspecial,
    Etiqueta,
 } from "../../../types";
-import { createDefaultOrdem, createEtapaWithOrigem } from "../utils/ordemUtils";
+import { createDefaultOrdem, createNextEtapa } from "../utils/ordemUtils";
 import { createOrdem, updateOrdem } from "services/routes/om/ordens";
 import { ordemToApiCreate, ordemToApiUpdate } from "../../../transformers";
 
@@ -55,45 +55,80 @@ export const useOrdemForm = ({
       ordem?.camposEspeciais || []
    );
 
+   // Estado para valores originais (detecção de mudanças)
+   const [originalData, setOriginalData] = useState<{
+      formData: OrdemMissao;
+      tripulacao: TripulacaoOrdem;
+      camposEspeciais: CampoEspecial[];
+   }>({
+      formData: createInitialFormData(),
+      tripulacao: ordem?.tripulacao || createDefaultTripulacao(),
+      camposEspeciais: ordem?.camposEspeciais || [],
+   });
+
    // Estados de loading e erro
    const [isSaving, setIsSaving] = useState(false);
+   const [isApproving, setIsApproving] = useState(false);
    const [error, setError] = useState<string | null>(null);
    const [formValidationErrors, setFormValidationErrors] = useState<string[]>(
       []
    );
 
+   // Estado de modo somente leitura (separado da editabilidade)
+   const [isReadOnlyMode, setIsReadOnlyMode] = useState(false);
+
    // Sincronizar o formData quando a ordem ou isCloning mudar
    useEffect(() => {
-      if (!ordem) {
-         setFormData(createDefaultOrdem());
-         setTripulacao(createDefaultTripulacao());
-         setCamposEspeciais([]);
-         return;
-      }
+      const initialForm = !ordem
+         ? createDefaultOrdem()
+         : isCloning
+           ? { ...ordem, id: 0, status: "rascunho" }
+           : ordem;
+      const initialTrip = ordem?.tripulacao || createDefaultTripulacao();
+      const initialCampos = ordem?.camposEspeciais || [];
 
-      if (isCloning) {
-         setFormData({
-            ...ordem,
-            id: 0,
-            status: "rascunho",
-         });
+      setFormData(initialForm);
+      setTripulacao(initialTrip);
+      setCamposEspeciais(initialCampos);
+
+      // Atualizar dados originais para detecção de mudanças
+      setOriginalData({
+         formData: initialForm,
+         tripulacao: initialTrip,
+         camposEspeciais: initialCampos,
+      });
+
+      if (!ordem) {
+         setIsReadOnlyMode(false);
+      } else if (isCloning) {
+         setIsReadOnlyMode(false);
       } else {
-         setFormData(ordem);
+         setIsReadOnlyMode(ordem.status !== "rascunho");
       }
-      setTripulacao(ordem.tripulacao || createDefaultTripulacao());
-      setCamposEspeciais(ordem.camposEspeciais || []);
    }, [ordem, isCloning]);
 
-   const isEditable = formData.status === "rascunho";
+   const isEditable = !isReadOnlyMode;
+
+   // Função de comparação para habilitar o botão salvar
+   const hasChanges = () => {
+      return (
+         JSON.stringify(formData) !== JSON.stringify(originalData.formData) ||
+         JSON.stringify(tripulacao) !==
+            JSON.stringify(originalData.tripulacao) ||
+         JSON.stringify(camposEspeciais) !==
+            JSON.stringify(originalData.camposEspeciais)
+      );
+   };
+
+   const toggleReadOnlyMode = () => {
+      setIsReadOnlyMode((prev) => !prev);
+   };
 
    const handleInsertEtapa = (afterIndex: number) => {
       if (!isEditable) return;
       const newEtapas = [...formData.etapas];
       const currentEtapa = newEtapas[afterIndex];
-      const newEtapa = createEtapaWithOrigem(
-         currentEtapa.destino,
-         currentEtapa.esforcoAereo
-      );
+      const newEtapa = createNextEtapa(currentEtapa);
       newEtapas.splice(afterIndex + 1, 0, newEtapa);
       setFormData({
          ...formData,
@@ -518,7 +553,8 @@ export const useOrdemForm = ({
          const ordemCompleta: OrdemMissao = {
             ...formData,
             etapas: etapasOrdenadas,
-            status: "rascunho",
+            // CRITICAL: Preserve status when editing existing orders
+            status: shouldGenerateNew ? "rascunho" : formData.status,
             tripulacao,
             camposEspeciais,
          };
@@ -556,7 +592,7 @@ export const useOrdemForm = ({
       }
 
       setFormValidationErrors([]);
-      setIsSaving(true);
+      setIsApproving(true);
       setError(null);
 
       try {
@@ -568,6 +604,7 @@ export const useOrdemForm = ({
          const ordemCompleta: OrdemMissao = {
             ...formData,
             etapas: etapasOrdenadas,
+            // Aprovar sempre muda status para "aprovada"
             status: "aprovada",
             tripulacao,
             camposEspeciais,
@@ -590,7 +627,7 @@ export const useOrdemForm = ({
                : "Erro ao elaborar ordem de missão"
          );
       } finally {
-         setIsSaving(false);
+         setIsApproving(false);
       }
    };
 
@@ -599,11 +636,15 @@ export const useOrdemForm = ({
       tripulacao,
       camposEspeciais,
       isEditable,
+      isReadOnlyMode,
+      toggleReadOnlyMode,
       isSaving,
+      isApproving,
       error,
       validationErrors,
       formValidationErrors,
       hasRequiredFields,
+      hasChanges: hasChanges(),
       handleInsertEtapa,
       handleRemoveEtapa,
       handleEtapaChange,

@@ -192,8 +192,8 @@ export function TripulanteSelect({
       <div
          ref={containerRef}
          className={clsx(
-            "rounded-lg border bg-white p-4 transition-colors",
-            hasError ? "border-red-300" : "border-gray-200"
+            "rounded-lg border bg-white p-3 transition-colors",
+            hasError ? "border-red-300" : "border-gray-300"
          )}
       >
          <label className="mb-3 flex items-center gap-1.5 text-sm font-semibold text-gray-700">
@@ -213,10 +213,10 @@ export function TripulanteSelect({
                      key={trip.id}
                      className="flex items-center gap-2 rounded-lg border border-green-200 bg-green-50 px-3 py-1.5"
                   >
-                     <span className="font-mono text-sm font-bold text-green-700 uppercase">
+                     <span className="hidden items-center font-mono text-xs leading-none font-bold text-green-700 uppercase lg:flex">
                         {trip.trig}
                      </span>
-                     <span className="text-xs text-gray-700 uppercase">
+                     <span className="flex items-center text-xs leading-none text-gray-700 uppercase">
                         {trip.p_g} {trip.nome_guerra}
                      </span>
                      {!disabled && (
@@ -274,7 +274,7 @@ export function TripulanteSelect({
                         createPortal(
                            <div
                               ref={dropdownRef}
-                              className="fixed z-[9999] max-h-48 overflow-auto rounded-lg border border-gray-200 bg-white shadow-lg"
+                              className="fixed z-9999 max-h-48 overflow-auto rounded-lg border border-gray-200 bg-white shadow-lg"
                               style={{
                                  top: dropdownPosition.top,
                                  left: dropdownPosition.left,
@@ -300,9 +300,6 @@ export function TripulanteSelect({
                                              : "cursor-pointer hover:bg-gray-50"
                                        )}
                                     >
-                                       <span className="font-mono text-sm font-bold text-gray-700 uppercase">
-                                          {tripulante.trig}
-                                       </span>
                                        <span className="flex-1 truncate text-xs text-gray-600 uppercase">
                                           {tripulante.p_g}{" "}
                                           {tripulante.nome_guerra}
@@ -328,7 +325,7 @@ export function TripulanteSelect({
                         dropdownPosition &&
                         createPortal(
                            <div
-                              className="fixed z-[9999] rounded-lg border border-gray-200 bg-white p-3 text-center text-sm text-gray-500 shadow-lg"
+                              className="fixed z-9999 rounded-lg border border-gray-200 bg-white p-3 text-center text-sm text-gray-500 shadow-lg"
                               style={{
                                  top: dropdownPosition.top,
                                  left: dropdownPosition.left,

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { Button, Spinner, Alert } from "flowbite-react";
 import {
    HiChevronDown,
@@ -9,6 +9,7 @@ import {
    HiArrowLeft,
    HiExclamationCircle,
    HiSortAscending,
+   HiPencil,
 } from "react-icons/hi";
 import clsx from "clsx";
 import { OrdemMissao } from "../types";
@@ -24,6 +25,7 @@ import { LabelManager } from "./LabelManager";
 import { listEtiquetas } from "services/routes/om/etiquetas";
 import { Etiqueta } from "../types";
 import { HiTag } from "react-icons/hi";
+import { formatDateForDisplay } from "./OrdemModal/utils/ordemUtils";
 
 interface OrdemModalProps {
    ordem: OrdemMissao | null;
@@ -47,7 +49,10 @@ export function OrdemModal({
       tripulacao,
       camposEspeciais,
       isEditable,
+      isReadOnlyMode,
+      toggleReadOnlyMode,
       isSaving,
+      isApproving,
       error,
       validationErrors,
       formValidationErrors,
@@ -66,28 +71,29 @@ export function OrdemModal({
       handleSortEtapas,
       clearError,
       clearValidationErrors,
+      hasChanges,
    } = useOrdemForm({ ordem, isNew, isCloning, onSave });
 
    const [allLabels, setAllLabels] = useState<Etiqueta[]>([]);
    const [isLabelManagerOpen, setIsLabelManagerOpen] = useState(false);
    const errorContainerRef = useRef<HTMLDivElement>(null);
 
-   const refreshLabels = async () => {
+   const refreshLabels = useCallback(async () => {
       try {
          const data = await listEtiquetas();
          setAllLabels(data);
       } catch (err) {
          console.error("Erro ao carregar etiquetas:", err);
       }
-   };
+   }, []);
 
    useEffect(() => {
       if (isOpen) {
          refreshLabels();
       }
-   }, [isOpen]);
+   }, [isOpen, refreshLabels]);
 
-   const handleClose = () => {
+   const handleClose = useCallback(() => {
       resetForm();
       setSections({
          basicInfo: true,
@@ -97,10 +103,11 @@ export function OrdemModal({
          classificacao: true,
       });
       onClose();
-   };
+   }, [resetForm, onClose]);
 
-   const hasCamposEspeciaisVazios = camposEspeciais.some(
-      (c) => !c.valor.trim()
+   const hasCamposEspeciaisVazios = useMemo(
+      () => camposEspeciais.some((c) => !c.valor.trim()),
+      [camposEspeciais]
    );
 
    const [sections, setSections] = useState({
@@ -118,8 +125,9 @@ export function OrdemModal({
    useEffect(() => {
       if (isOpen) {
          setShouldRender(true);
-         // Pequeno delay para a animacao de entrada
-         requestAnimationFrame(() => setIsVisible(true));
+         // setTimeout garante que o browser pintou o estado inicial antes da transicao
+         const timer = setTimeout(() => setIsVisible(true), 20);
+         return () => clearTimeout(timer);
       } else {
          setIsVisible(false);
       }
@@ -178,61 +186,61 @@ export function OrdemModal({
       }
    };
 
-   const toggleSection = (
-      key: keyof typeof sections,
-      event: React.MouseEvent
-   ) => {
-      const isOpening = !sections[key];
-      setSections((prev) => ({ ...prev, [key]: !prev[key] }));
+   const toggleSection = useCallback(
+      (key: keyof typeof sections, event: React.MouseEvent) => {
+         const isOpening = !sections[key];
+         setSections((prev) => ({ ...prev, [key]: !prev[key] }));
 
-      if (isOpening) {
-         const section = event.currentTarget.closest(
-            ".rounded-xl"
-         ) as HTMLElement;
-         const scrollContainer = section?.closest(
-            ".overflow-y-auto"
-         ) as HTMLElement;
+         if (isOpening) {
+            const section = event.currentTarget.closest(
+               ".rounded-xl"
+            ) as HTMLElement;
+            const scrollContainer = section?.closest(
+               ".overflow-y-auto"
+            ) as HTMLElement;
 
-         if (section && scrollContainer) {
-            setTimeout(() => {
-               scrollContainer.scrollTo({
-                  top: section.offsetTop - 16,
-                  behavior: "smooth",
-               });
-            }, 50);
+            if (section && scrollContainer) {
+               setTimeout(() => {
+                  scrollContainer.scrollTo({
+                     top: section.offsetTop - 16,
+                     behavior: "smooth",
+                  });
+               }, 50);
+            }
          }
-      }
-   };
+      },
+      [sections]
+   );
+
+   const title = useMemo(() => {
+      if (isCloning) return "Clonar";
+      if (isNew) return "Nova";
+      if (!isEditable) return "Detalhes";
+      return "Editar";
+   }, [isCloning, isNew, isEditable]);
+
+   const ordemIdentificacao = useMemo(
+      () =>
+         formData.numero
+            ? `${formData.numero}/${formData.uae}/${formatDateForDisplay(formData.dataSaida)}`
+            : "",
+      [formData.numero, formData.uae, formData.dataSaida]
+   );
+
+   const ordemBasedIdentificacao = useMemo(
+      () =>
+         ordem
+            ? `${ordem.numero}/${ordem.uae}/${formatDateForDisplay(ordem.dataSaida)}`
+            : "",
+      [ordem]
+   );
 
    if (!shouldRender) return null;
-
-   const title = isCloning
-      ? "Clonar"
-      : isNew
-        ? "Nova"
-        : !isEditable
-          ? "Detalhes"
-          : "Editar";
-
-   // Formata data de yyyy-MM-dd para ddMMyyyy
-   const formatDateForDisplay = (dateStr: string) => {
-      if (!dateStr) return "";
-      const [year, month, day] = dateStr.split("-");
-      return `${day}${month}${year}`;
-   };
-
-   const ordemIdentificacao = formData.numero
-      ? `${formData.numero}/${formData.uae}/${formatDateForDisplay(formData.dataSaida)}`
-      : "";
-
-   const ordemBasedIdentificacao = ordem
-      ? `${ordem.numero}/${ordem.uae}/${formatDateForDisplay(ordem.dataSaida)}`
-      : "";
 
    return (
       <div
          className={clsx(
-            "fixed inset-0 z-50 flex flex-col overflow-hidden rounded-2xl border border-gray-200 bg-gray-50 shadow-xl transition-transform duration-300 ease-out",
+            "fixed inset-0 z-50 flex flex-col overflow-hidden rounded-2xl border border-gray-200 bg-gray-50 shadow-xl transition-transform duration-150 ease-out",
             isVisible ? "translate-x-0" : "translate-x-full"
          )}
          onTransitionEnd={handleTransitionEnd}
@@ -268,12 +276,22 @@ export function OrdemModal({
             </div>
 
             <div className="flex items-center gap-3">
-               {!isEditable && (
-                  <span className="rounded-lg border border-gray-300 bg-gray-100 px-3 py-1.5 text-xs font-bold tracking-wider text-gray-700 uppercase">
-                     Somente Leitura
-                  </span>
+               {isReadOnlyMode && (
+                  <>
+                     <span className="rounded-lg border border-gray-300 bg-gray-100 px-3 py-1.5 text-xs font-bold tracking-wider text-gray-700 uppercase">
+                        Somente Leitura
+                     </span>
+                     <Button color="red" onClick={toggleReadOnlyMode}>
+                        <HiPencil className="mr-2" size={16} />
+                        Editar
+                     </Button>
+                  </>
                )}
-               <Button color="gray" onClick={handleClose} disabled={isSaving}>
+               <Button
+                  color="gray"
+                  onClick={handleClose}
+                  disabled={isSaving || isApproving}
+               >
                   <HiX className="mr-2" size={16} />
                   Cancelar
                </Button>
@@ -283,7 +301,12 @@ export function OrdemModal({
                         color="light"
                         type="submit"
                         form="ordem-form"
-                        disabled={hasCamposEspeciaisVazios || isSaving}
+                        disabled={
+                           !hasChanges ||
+                           hasCamposEspeciaisVazios ||
+                           isSaving ||
+                           isApproving
+                        }
                      >
                         {isSaving ? (
                            <>
@@ -294,23 +317,28 @@ export function OrdemModal({
                            "Salvar"
                         )}
                      </Button>
-                     {!isNew && !isCloning && (
-                        <Button
-                           color="red"
-                           type="button"
-                           onClick={handleElaborar}
-                           disabled={hasCamposEspeciaisVazios || isSaving}
-                        >
-                           {isSaving ? (
-                              <>
-                                 <Spinner size="sm" className="mr-2" />
-                                 Aprovando...
-                              </>
-                           ) : (
-                              "Aprovar"
-                           )}
-                        </Button>
-                     )}
+                     {!isCloning &&
+                        (isNew || formData.status === "rascunho") && (
+                           <Button
+                              color="red"
+                              type="button"
+                              onClick={handleElaborar}
+                              disabled={
+                                 hasCamposEspeciaisVazios ||
+                                 isSaving ||
+                                 isApproving
+                              }
+                           >
+                              {isApproving ? (
+                                 <>
+                                    <Spinner size="sm" className="mr-2" />
+                                    Aprovando...
+                                 </>
+                              ) : (
+                                 "Aprovar"
+                              )}
+                           </Button>
+                        )}
                   </>
                )}
             </div>

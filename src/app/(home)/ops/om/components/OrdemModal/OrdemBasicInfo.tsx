@@ -1,5 +1,6 @@
 "use client";
 
+import { memo } from "react";
 import clsx from "clsx";
 import { OrdemMissao } from "../../types";
 import { matriculasAeronaves } from "../../constants";
@@ -20,7 +21,7 @@ interface OrdemBasicInfoProps {
    validationErrors?: ValidationErrors;
 }
 
-export function OrdemBasicInfo({
+export const OrdemBasicInfo = memo(function OrdemBasicInfo({
    formData,
    isEditable,
    onUpdate,
@@ -98,4 +99,4 @@ export function OrdemBasicInfo({
          </div>
       </div>
    );
-}
+});

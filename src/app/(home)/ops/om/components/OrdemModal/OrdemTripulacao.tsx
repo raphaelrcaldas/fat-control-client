@@ -1,5 +1,6 @@
 "use client";
 
+import { memo, useMemo } from "react";
 import {
    TripulacaoOrdem,
    TripulanteSearchResult,
@@ -42,7 +43,7 @@ const REQUIRED_FUNCOES: Record<
    os: null,
 };
 
-export function OrdemTripulacao({
+export const OrdemTripulacao = memo(function OrdemTripulacao({
    tripulacao,
    projeto,
    onAdd,
@@ -51,12 +52,14 @@ export function OrdemTripulacao({
    validationErrors,
 }: OrdemTripulacaoProps) {
    // Coletar IDs de tripulantes já selecionados (em qualquer função) para evitar duplicatas
-   const selectedIds = TODAS_FUNCOES.flatMap((funcao) =>
-      tripulacao[funcao].map((t) => t.id)
+   const selectedIds = useMemo(
+      () =>
+         TODAS_FUNCOES.flatMap((funcao) => tripulacao[funcao].map((t) => t.id)),
+      [tripulacao]
    );
 
    return (
-      <div className="grid grid-cols-6 gap-4">
+      <div className="grid grid-cols-6 gap-2">
          {TODAS_FUNCOES.map((funcao) => {
             const errorKey = REQUIRED_FUNCOES[funcao];
             const isRequired = errorKey !== null;
@@ -79,4 +82,4 @@ export function OrdemTripulacao({
          })}
       </div>
    );
-}
+});

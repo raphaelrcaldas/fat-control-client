@@ -1,10 +1,10 @@
 "use client";
 
+import { memo, useMemo, useEffect, useRef } from "react";
 import clsx from "clsx";
 import { Etapa } from "../../types";
 import { calcularTempoVoo } from "../../transformers";
 import { HelperText } from "flowbite-react";
-import { useMemo, useEffect, useRef } from "react";
 
 export interface EtapaFieldErrors {
    dataDecolagem?: boolean;
@@ -42,7 +42,7 @@ const roundTimeToFiveMinutes = (time: string): string => {
    ).padStart(2, "0")}`;
 };
 
-export function OrdemEtapaItem({
+export const OrdemEtapaItem = memo(function OrdemEtapaItem({
    etapa,
    index,
    isEditable,
@@ -487,4 +487,4 @@ export function OrdemEtapaItem({
          )}
       </div>
    );
-}
+});

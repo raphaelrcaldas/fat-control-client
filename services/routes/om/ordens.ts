@@ -118,6 +118,7 @@ export interface OrdemMissaoList {
    projeto: string;
    status: string;
    created_at: string;
+   updated_at: string | null;
    doc_ref: string | null;
    data_saida: string | null;
    uae: string;

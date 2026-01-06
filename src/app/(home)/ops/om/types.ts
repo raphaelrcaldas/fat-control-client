@@ -32,6 +32,7 @@ export interface OrdemMissao {
    tripulacao?: TripulacaoOrdem;
    camposEspeciais?: CampoEspecial[];
    createdAt?: string;
+   updatedAt?: string | null;
    dataSaida?: string;
    uae: string;
    etiquetas: Etiqueta[];
@@ -46,7 +47,6 @@ export {
 export interface FiltrosOrdem {
    busca: string;
    status: string[];
-   tipo: string;
    dataInicio: string;
    dataFim: string;
    etiquetas_ids: number[];
