@@ -9,7 +9,7 @@ import { postoGradRecords } from "services/routes/postos";
 import { FUNC_LABELS, OPER_LABELS } from "@/constants/tripulantes";
 import { SearchUser } from "./components/searchUserTrip";
 import { TripRow } from "./components/TripRow";
-import { MultiSelect } from "./components/MultiSelect";
+import { MultiSelect } from "@/components/MultiSelect";
 import { PermBased } from "../../hooks/usePermBased";
 import useDebouncedValue from "@/hooks/useDebouncedValue";
 import { useTripList } from "./hooks/useTripList";
@@ -90,7 +90,7 @@ export default function TripPage() {
                   <MultiSelect
                      options={postoGradRecords.map((posto) => ({
                         value: posto.short,
-                        label: posto.short.toUpperCase(),
+                        label: posto.mid,
                      }))}
                      selected={filters.p_g}
                      onChange={(values) => updateFilter("p_g", values)}
@@ -153,14 +153,7 @@ export default function TripPage() {
             </div>
 
             {/* Conteúdo */}
-            {loading ? (
-               <div className="flex h-64 flex-col items-center justify-center">
-                  <Spinner size="xl" />
-                  <p className="mt-4 text-gray-500">
-                     Carregando tripulantes...
-                  </p>
-               </div>
-            ) : filterTrips.length === 0 ? (
+            {!loading && filterTrips.length === 0 ? (
                <div className="flex h-64 flex-col items-center justify-center">
                   <div className="mb-4 rounded-full bg-gray-100 p-4">
                      <HiUserGroup className="h-12 w-12 text-gray-400" />
@@ -188,7 +181,19 @@ export default function TripPage() {
                   )}
                </div>
             ) : (
-               <>
+               <div className="relative">
+                  {/* Loading Overlay */}
+                  {loading && (
+                     <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/60 backdrop-blur-[1px]">
+                        <div className="flex flex-col items-center gap-3 rounded-lg bg-white px-6 py-4 shadow-lg">
+                           <Spinner size="lg" />
+                           <p className="text-sm text-gray-600">
+                              Carregando tripulantes...
+                           </p>
+                        </div>
+                     </div>
+                  )}
+
                   {/* Tabela */}
                   <div className="overflow-x-auto">
                      <table className="w-full text-left text-sm text-gray-500">
@@ -240,7 +245,7 @@ export default function TripPage() {
 
                   {/* Footer com Paginação */}
                   <nav
-                     className="flex flex-col items-start justify-between space-y-3 p-4 md:flex-row md:items-center md:space-y-0"
+                     className={`flex flex-col items-start justify-between space-y-3 p-4 md:flex-row md:items-center md:space-y-0 ${loading ? "pointer-events-none opacity-50" : "opacity-100"} transition-opacity duration-200`}
                      aria-label="Navegação da tabela"
                   >
                      <div className="flex items-center gap-4">
@@ -287,7 +292,7 @@ export default function TripPage() {
                         />
                      )}
                   </nav>
-               </>
+               </div>
             )}
          </div>
       </div>
