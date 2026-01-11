@@ -1,12 +1,4 @@
-import {
-   useState,
-   Dispatch,
-   SetStateAction,
-   memo,
-   useMemo,
-   useCallback,
-} from "react";
-import { FaRegClone } from "react-icons/fa";
+import { useState, Dispatch, SetStateAction, memo, useMemo } from "react";
 import MissionDetail from "./missionDetail";
 import { Missao } from "services/routes/cegep/missoes";
 import clsx from "clsx";
@@ -45,19 +37,9 @@ export const CardMission = memo(function CardMission({
       [missao.afast, missao.regres]
    );
 
-   const onClone = useCallback(
-      (e: React.MouseEvent) => {
-         e.stopPropagation();
-         const clone = { ...missao, users: [], id: null };
-         setClone(clone);
-         setShowForm(true);
-      },
-      [missao, setClone, setShowForm]
-   );
-
    return (
       <>
-         <div className="relative w-full rounded-2xl border-2 border-gray-100 bg-white p-5 shadow-lg transition-shadow hover:shadow-xl">
+         <div className="relative w-full rounded-2xl border-2 border-gray-100 bg-white p-4 shadow-lg transition-shadow hover:shadow-xl">
             {/* Etiquetas no topo do card (somente exibição) */}
             {etiquetas.length > 0 && (
                <div className="mb-3 flex flex-wrap items-center gap-1.5 border-b border-gray-100 pb-3">
@@ -77,38 +59,28 @@ export const CardMission = memo(function CardMission({
 
             {/* Header com documento - CLICÁVEL */}
             <div
-               className="-m-2 mb-4 flex cursor-pointer items-center justify-between rounded-lg p-2 transition-colors hover:bg-gray-50"
+               className="-m-2 mb-4 flex cursor-pointer items-center gap-3 rounded-lg p-2 transition-colors hover:bg-gray-50"
                onClick={() => setShowDetail(true)}
                title="Clique para ver detalhes da missão"
             >
-               <div className="flex items-center gap-3">
-                  <div
-                     className={clsx("rounded-lg p-2 shadow-md", {
-                        "bg-blue-600": missao.tipo_doc == "om",
-                        "bg-orange-600": missao.tipo_doc == "os",
-                     })}
-                  >
-                     <HiDocumentText className="text-xl text-white" />
-                  </div>
-                  <div>
-                     <h3 className="text-lg font-bold text-gray-800 uppercase">
-                        {missao.tipo_doc} {missao.n_doc}
-                     </h3>
-                     {missao.desc && (
-                        <p className="text-sm font-medium text-gray-600 uppercase">
-                           {missao.desc}
-                        </p>
-                     )}
-                  </div>
-               </div>
-
-               <button
-                  onClick={onClone}
-                  title="Clonar missão"
-                  className="z-10 rounded-lg p-2 transition-colors hover:bg-gray-100"
+               <div
+                  className={clsx("rounded-lg p-2 shadow-md", {
+                     "bg-blue-600": missao.tipo_doc == "om",
+                     "bg-orange-600": missao.tipo_doc == "os",
+                  })}
                >
-                  <FaRegClone className="text-lg text-gray-600" />
-               </button>
+                  <HiDocumentText className="text-xl text-white" />
+               </div>
+               <div>
+                  <h3 className="text-lg font-bold text-gray-800 uppercase">
+                     {missao.tipo_doc} {missao.n_doc}
+                  </h3>
+                  {missao.desc && (
+                     <p className="text-xs font-medium text-gray-600 uppercase">
+                        {missao.desc}
+                     </p>
+                  )}
+               </div>
             </div>
 
             <div className="flex h-full flex-col gap-4">
@@ -182,7 +154,11 @@ export const CardMission = memo(function CardMission({
                   <div className="space-y-2">
                      <div className="grid grid-cols-2 gap-2">
                         {missao.users.map((user) => (
-                           <MissionMilitar key={user.id} userMis={user} />
+                           <MissionMilitar
+                              key={user.id}
+                              userMis={user}
+                              simple={true}
+                           />
                         ))}
                      </div>
                   </div>
@@ -196,6 +172,7 @@ export const CardMission = memo(function CardMission({
                show={showDetail}
                setShow={setShowDetail}
                setClone={setClone}
+               setShowForm={setShowForm}
                update={update}
                edit={false}
             />
@@ -239,27 +216,6 @@ const PernoiteCardMis = memo(function PernoiteCardMis({ pnt }: { pnt: any }) {
             <span className="text-xs font-medium text-gray-800 uppercase">
                {pnt.cidade.nome}-{pnt.cidade.uf}
             </span>
-         </div>
-
-         {/* Tags */}
-         <div className="flex items-center gap-2">
-            {pnt.acrec_desloc && (
-               <span
-                  title="Acréscimo Deslocamento"
-                  className="rounded-full bg-green-500 px-2.5 py-1 text-xs font-semibold text-white shadow-sm"
-               >
-                  AC
-               </span>
-            )}
-
-            {pnt.meia_diaria && (
-               <span
-                  title="Meia Diária"
-                  className="rounded-full bg-amber-500 px-2.5 py-1 text-xs font-semibold text-white shadow-sm"
-               >
-                  MD
-               </span>
-            )}
          </div>
       </div>
    );

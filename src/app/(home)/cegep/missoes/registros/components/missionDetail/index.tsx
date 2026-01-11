@@ -27,6 +27,7 @@ import {
    FaExclamationTriangle,
 } from "react-icons/fa";
 import { HiTag, HiX } from "react-icons/hi";
+import { FaRegClone } from "react-icons/fa";
 import { createUpdateFragMis } from "services/routes/cegep/missoes";
 import { deleteFragMis } from "services/routes/cegep/missoes";
 import { useToast } from "@/app/context/toast";
@@ -40,6 +41,7 @@ export default function MissionDetail({
    edit,
    update,
    setClone,
+   setShowForm,
 }: {
    missao?: Missao;
    show: boolean;
@@ -47,6 +49,7 @@ export default function MissionDetail({
    setShow: React.Dispatch<React.SetStateAction<boolean>>;
    setClone: React.Dispatch<React.SetStateAction<Missao | null>>;
    update: () => void;
+   setShowForm: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
    // Valores padrões
    const defaultValues = useMemo(
@@ -327,6 +330,14 @@ export default function MissionDetail({
          setEditMode(edit);
       }
    }, [show, defaultValues, edit]);
+
+   function handleClone() {
+      if (!missao) return;
+      const clone = { ...missao, users: [], id: null };
+      setClone(clone);
+      setShow(false);
+      setShowForm(true);
+   }
 
    return (
       <>
@@ -930,6 +941,14 @@ export default function MissionDetail({
                            className="px-6 py-2.5 font-semibold shadow-md transition-all hover:shadow-lg"
                         >
                            Editar
+                        </Button>
+                        <Button
+                           color="gray"
+                           onClick={handleClone}
+                           className="px-6 py-2.5 font-semibold shadow-md transition-all hover:shadow-lg"
+                        >
+                           <FaRegClone className="mr-2" />
+                           Clonar
                         </Button>
                         <Button
                            color="red"

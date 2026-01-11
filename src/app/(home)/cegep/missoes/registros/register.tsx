@@ -667,6 +667,7 @@ export function RegisPage() {
                edit={true}
                missao={cloneMis}
                setShow={handleSetShowForm}
+               setShowForm={handleSetShowForm}
                update={fetchData}
                setClone={handleSetClone}
             />

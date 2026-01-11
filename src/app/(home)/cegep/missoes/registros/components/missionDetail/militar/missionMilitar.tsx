@@ -9,10 +9,12 @@ export function MissionMilitar({
    edit = false,
    mils,
    setMils,
+   simple = false,
 }: {
    userMis: UserMission;
    edit?: boolean;
    mils?: UserMission[];
+   simple?: boolean;
    setMils?: (mils: UserMission[]) => void;
 }) {
    const [showUserForm, setShowUserForm] = useState(false);
@@ -42,7 +44,7 @@ export function MissionMilitar({
          >
             {/* Informações do militar */}
             <div className="flex flex-1 gap-1">
-               <div className="flex items-center gap-2">
+               {!simple && (
                   <span
                      className={clsx(
                         "rounded-md px-2 py-0.5 text-xs font-semibold uppercase",
@@ -52,7 +54,7 @@ export function MissionMilitar({
                   >
                      {userMis.sit}
                   </span>
-               </div>
+               )}
                <div
                   className={clsx(
                      "flex items-center gap-1 text-xs font-medium uppercase",
