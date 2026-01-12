@@ -12,6 +12,14 @@ const customTheme = createTheme({
       root: { show: { on: "backdrop-blur-xs" } },
       header: { base: "border-gray-300" },
    },
+   pagination: {
+      pages: {
+         selector: {
+            active:
+               "bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700",
+         },
+      },
+   },
 });
 
 interface FlowbiteThemeProviderProps {

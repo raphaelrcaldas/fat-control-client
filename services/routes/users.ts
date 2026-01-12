@@ -8,6 +8,7 @@ export interface UserPublic {
    p_g: string
    posto: PostoGrad;
    esp: string;
+   id_fab: number | null
    nome_guerra: string;
    saram?: number;
    nome_completo: string;

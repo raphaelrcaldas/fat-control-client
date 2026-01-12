@@ -152,7 +152,9 @@ export function UserForm({ userId, updateUsers, onSuccess }: UserFormProps) {
          });
 
          if (response.ok) {
-            reset();
+            // Atualiza o estado base para refletir os dados salvos
+            setInitialValues(data);
+            reset(data);
             updateUsers();
             onSuccess?.();
          }
