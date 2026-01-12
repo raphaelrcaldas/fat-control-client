@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import clsx from "clsx";
 import {
    Button,
@@ -49,7 +49,7 @@ export const TripIndisp = ({
 }: {
    trip: CrewIndisp;
    indisps: IndispType[];
-   update: () => void;
+   update: () => void | Promise<void>;
 }) => {
    const [isOpen, setIsOpen] = useState(false);
    const [isOpenNewInd, setIsOpenNewInd] = useState(false);
@@ -80,44 +80,56 @@ export const TripIndisp = ({
       mtvFilter !== "" || dateFrom !== defaultDates.dateFrom || !showFuture;
 
    // Busca indisponibilidades do servidor
-   async function fetchIndisps(showLoadingState = true) {
-      if (!trip.user.id) return;
+   const fetchIndisps = useCallback(
+      async (showLoadingState = true) => {
+         if (!trip.user.id) return;
 
-      if (showLoadingState) setIsLoading(true);
-      setIsFiltering(true);
+         if (showLoadingState) setIsLoading(true);
+         setIsFiltering(true);
 
-      try {
-         const filters: IndispFilters = {
-            date_from: dateFrom,
-         };
-         // Só envia date_to se não estiver exibindo futuras
-         if (!showFuture) {
-            filters.date_to = dateTo;
+         try {
+            const filters: IndispFilters = {
+               date_from: dateFrom,
+            };
+            // Só envia date_to se não estiver exibindo futuras
+            if (!showFuture) {
+               filters.date_to = dateTo;
+            }
+            if (mtvFilter) filters.mtv = mtvFilter;
+
+            const data = await getIndispByUser(trip.user.id, filters);
+            setIndisps(data);
+         } catch (error) {
+            console.error("Erro ao buscar indisponibilidades:", error);
+         } finally {
+            setIsLoading(false);
+            setIsFiltering(false);
          }
-         if (mtvFilter) filters.mtv = mtvFilter;
+      },
+      [trip.user.id, dateFrom, dateTo, showFuture, mtvFilter]
+   );
 
-         const data = await getIndispByUser(trip.user.id, filters);
-         setIndisps(data);
-      } catch (error) {
-         console.error("Erro ao buscar indisponibilidades:", error);
-      } finally {
-         setIsLoading(false);
-         setIsFiltering(false);
-      }
-   }
+   // Função estável para atualização (passada para componentes filhos)
+   // Atualiza tanto a lista local quanto a tabela principal
+   const handleUpdate = useCallback(async () => {
+      await fetchIndisps(false);
+      // Também atualiza a tabela principal (prop do pai)
+      await update();
+   }, [fetchIndisps, update]);
 
    // Busca quando modal abre
    useEffect(() => {
       if (isOpen && trip.user.id) {
          fetchIndisps();
       }
-   }, [isOpen]);
+   }, [isOpen, trip.user.id, fetchIndisps]);
 
    // Busca automática quando filtros mudam
    useEffect(() => {
       if (isOpen && trip.user.id && !isLoading) {
          fetchIndisps(false);
       }
+      // eslint-disable-next-line react-hooks/exhaustive-deps
    }, [dateFrom, dateTo, mtvFilter, showFuture]);
 
    // Handler para dateFrom com validação
@@ -157,7 +169,7 @@ export const TripIndisp = ({
          {isOpen && (
             <Modal show={isOpen} size="3xl" onClose={closeModal} dismissible>
                <ModalHeader>
-                  <h3 className="text-lg font-bold">Indisponibilidades</h3>
+                  <span className="text-lg font-bold">Indisponibilidades</span>
                </ModalHeader>
                <ModalBody className="max-h-[450px] min-h-[450px] overflow-y-auto">
                   <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-4">
@@ -381,7 +393,7 @@ export const TripIndisp = ({
                                     key={indisp.id}
                                     indisp={indisp}
                                     trip={trip}
-                                    update={() => fetchIndisps(false)}
+                                    update={handleUpdate}
                                  />
                               ))}
                            </TableBody>
@@ -418,7 +430,7 @@ export const TripIndisp = ({
                         open={isOpenNewInd}
                         setOpen={setIsOpenNewInd}
                         trip={trip}
-                        update={() => fetchIndisps(false)}
+                        update={handleUpdate}
                         indisp={null}
                      />
                   </PermBased>

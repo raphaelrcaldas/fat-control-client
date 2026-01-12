@@ -9,12 +9,12 @@ import {
    ModalFooter,
    ModalHeader,
    Select,
+   Spinner,
    Textarea,
    TextInput,
 } from "flowbite-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { HiOutlineExclamationCircle } from "react-icons/hi";
 
 import { indispsOptions, getIndisp } from "./options";
 import {
@@ -43,7 +43,8 @@ export function IndispForm({
    readOnly = false,
 }) {
    const { push } = useToast();
-   const [showConfirmModal, setShowConfirmModal] = useState(false);
+   const [confirmingDelete, setConfirmingDelete] = useState(false);
+   const [isDeleting, setIsDeleting] = useState(false);
    const [logs, setLogs] = useState<UserActionLog[]>([]);
 
    // 1. Gerenciamento de estado com useState
@@ -167,7 +168,9 @@ export function IndispForm({
                   message: rdata.detail || "Operação realizada com sucesso",
                   type: "success",
                });
-               update();
+               // Chama update ANTES de fechar para garantir atualização
+               // (evita que o componente seja desmontado antes da atualização)
+               await update();
                clearModal();
                closeModal();
             } else {
@@ -185,10 +188,10 @@ export function IndispForm({
       }
    };
 
-   // 4. Lógica de exclusão com modal de confirmação
+   // 4. Lógica de exclusão
    const confirmDelete = async () => {
       if (!indisp?.id) return;
-      setShowConfirmModal(false); // Fecha o modal de confirmação
+      setIsDeleting(true);
 
       try {
          const response = await deleteIndisp(indisp.id);
@@ -200,7 +203,8 @@ export function IndispForm({
                   rData.detail || "Indisponibilidade excluída com sucesso",
                type: "success",
             });
-            update();
+            // Chama update ANTES de fechar para garantir atualização
+            await update();
             closeModal();
          } else {
             push({
@@ -213,6 +217,9 @@ export function IndispForm({
             message: err?.message || "Falha ao excluir indisponibilidade.",
             type: "error",
          });
+      } finally {
+         setIsDeleting(false);
+         setConfirmingDelete(false);
       }
    };
 
@@ -429,7 +436,7 @@ export function IndispForm({
                </div>
             </ModalBody>
             <ModalFooter className="flex justify-center gap-3 bg-gray-50">
-               {!readOnly && (
+               {!readOnly && !confirmingDelete && (
                   <Button
                      color="blue"
                      onClick={handleIndisp}
@@ -439,55 +446,56 @@ export function IndispForm({
                      {indisp ? "Atualizar" : "Adicionar"}
                   </Button>
                )}
-               {indisp && !readOnly && (
+               {indisp && !readOnly && !confirmingDelete && (
                   <Button
                      type="button"
-                     onClick={() => setShowConfirmModal(true)}
+                     onClick={() => setConfirmingDelete(true)}
                      color="red"
                      size="md"
                   >
                      Excluir
                   </Button>
                )}
-               <Button
-                  color="gray"
-                  onClick={() => {
-                     clearModal();
-                     closeModal();
-                  }}
-                  size="md"
-               >
-                  Cancelar
-               </Button>
-            </ModalFooter>
-         </Modal>
-
-         <Modal
-            show={showConfirmModal}
-            size="md"
-            onClose={() => setShowConfirmModal(false)}
-            popup
-         >
-            <ModalHeader />
-            <ModalBody>
-               <div className="text-center">
-                  <HiOutlineExclamationCircle className="mx-auto mb-4 h-14 w-14 text-gray-400 dark:text-gray-200" />
-                  <h3 className="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
-                     Tem certeza que deseja excluir esta indisponibilidade?
-                  </h3>
-                  <div className="flex justify-center gap-4">
-                     <Button color="red" onClick={confirmDelete}>
-                        Sim, excluir
+               {confirmingDelete && (
+                  <>
+                     <span className="text-sm font-medium text-gray-700">
+                        {isDeleting ? "Excluindo..." : "Confirmar exclusão?"}
+                     </span>
+                     <Button
+                        color="red"
+                        size="md"
+                        onClick={confirmDelete}
+                        disabled={isDeleting}
+                     >
+                        {isDeleting ? (
+                           <Spinner color="failure" size="sm" />
+                        ) : (
+                           "Sim"
+                        )}
                      </Button>
                      <Button
-                        color="light"
-                        onClick={() => setShowConfirmModal(false)}
+                        color="gray"
+                        size="md"
+                        onClick={() => setConfirmingDelete(false)}
+                        disabled={isDeleting}
                      >
-                        Não, cancelar
+                        Não
                      </Button>
-                  </div>
-               </div>
-            </ModalBody>
+                  </>
+               )}
+               {!confirmingDelete && (
+                  <Button
+                     color="gray"
+                     onClick={() => {
+                        clearModal();
+                        closeModal();
+                     }}
+                     size="md"
+                  >
+                     Cancelar
+                  </Button>
+               )}
+            </ModalFooter>
          </Modal>
       </>
    );
