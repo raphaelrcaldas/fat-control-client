@@ -254,7 +254,7 @@ const TripTable = ({ trips, setRow, activeRow, isLoading }) => {
                                  </Tooltip>
                               </td>
                               <td className="px-4 py-2 font-medium text-gray-700">
-                                 {trip.hTotal}
+                                 {/* {trip.hTotal} */}NULL
                               </td>
                               <td className="px-4 py-2 font-bold text-blue-600">
                                  {trip.hAno}
