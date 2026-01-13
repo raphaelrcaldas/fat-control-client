@@ -1,26 +1,32 @@
-import { useUserAudit } from "../../../hooks/useUserAudit";
+import { useUserLogs } from "@/hooks/queries";
 import { Badge } from "flowbite-react";
 import { Spinner } from "@/components/Spinner";
-import { HiClock, HiUser, HiPencil, HiDocumentText } from "react-icons/hi";
+import { HiClock, HiPencil, HiDocumentText } from "react-icons/hi";
 
 export function UserAudit({ userId }: { userId?: number }) {
-   const { logs, loading, error } = useUserAudit(userId);
+   const { data: logs = [], isLoading, error } = useUserLogs(userId);
 
    if (!userId) return null;
-   if (loading)
+
+   if (isLoading)
       return (
          <div className="flex flex-col items-center justify-center p-8">
             <Spinner size="xl" />
             <p className="mt-4 text-gray-500">Carregando histórico...</p>
          </div>
       );
+
    if (error)
       return (
          <div className="flex flex-col items-center justify-center p-8">
             <div className="mb-4 rounded-full bg-red-50 p-4">
                <HiDocumentText className="h-12 w-12 text-red-400" />
             </div>
-            <p className="font-medium text-red-600">{error}</p>
+            <p className="font-medium text-red-600">
+               {error instanceof Error
+                  ? error.message
+                  : "Erro ao carregar auditoria"}
+            </p>
          </div>
       );
 
@@ -40,8 +46,7 @@ export function UserAudit({ userId }: { userId?: number }) {
             </div>
          ) : (
             <div className="space-y-4">
-               {/* Timeline style */}
-               {logs.map((log, index) => (
+               {logs.map((log) => (
                   <div
                      key={log.id}
                      className="relative border-l-2 border-gray-200 pb-4 pl-8 last:border-l-0"

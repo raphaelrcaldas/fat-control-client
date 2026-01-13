@@ -11,7 +11,7 @@ import {
    TableHeadCell,
 } from "flowbite-react";
 import { IoMdInformationCircleOutline } from "react-icons/io";
-import { HiCheckCircle, HiXCircle } from "react-icons/hi";
+import { HiCheckCircle } from "react-icons/hi";
 import { UserPublic } from "services/routes/users";
 import { UserDetailsModal } from "./UserDetailsModal/index";
 import clsx from "clsx";
@@ -19,10 +19,9 @@ import clsx from "clsx";
 interface UserTableProps {
    usuarios: UserPublic[];
    loading: boolean;
-   onUpdate: () => void;
 }
 
-export function UserTable({ usuarios, loading, onUpdate }: UserTableProps) {
+export function UserTable({ usuarios, loading }: UserTableProps) {
    const [selectedUser, setSelectedUser] = useState<UserPublic | null>(null);
 
    return (
@@ -47,10 +46,7 @@ export function UserTable({ usuarios, loading, onUpdate }: UserTableProps) {
                </TableHead>
                <TableBody className="divide-y">
                   {usuarios.map((user) => (
-                     <TableRow
-                        key={user.id}
-                        className="border-gray-200 bg-white"
-                     >
+                     <TableRow key={user.id}>
                         <TableCell className="font-mono text-gray-400">
                            {user.id}
                         </TableCell>
@@ -106,7 +102,6 @@ export function UserTable({ usuarios, loading, onUpdate }: UserTableProps) {
             <UserDetailsModal
                show={!!selectedUser}
                setShow={(show) => !show && setSelectedUser(null)}
-               updateUsers={onUpdate}
                user={selectedUser}
             />
          )}

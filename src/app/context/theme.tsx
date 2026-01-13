@@ -20,6 +20,10 @@ const customTheme = createTheme({
          },
       },
    },
+   table: {
+      body: { cell: { base: "py-2.5" } },
+      row: { base: "border-gray-200 bg-white" },
+   },
 });
 
 interface FlowbiteThemeProviderProps {

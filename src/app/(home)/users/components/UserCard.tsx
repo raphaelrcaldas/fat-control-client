@@ -9,10 +9,9 @@ import { UserDetailsModal } from "./UserDetailsModal/index";
 
 interface UserCardProps {
    user: UserPublic;
-   update: () => void;
 }
 
-export function UserCard({ user, update }: UserCardProps) {
+export function UserCard({ user }: UserCardProps) {
    const [showUser, setShowUser] = useState(false);
 
    return (
@@ -88,7 +87,6 @@ export function UserCard({ user, update }: UserCardProps) {
             <UserDetailsModal
                show={showUser}
                setShow={setShowUser}
-               updateUsers={update}
                user={user}
             />
          )}

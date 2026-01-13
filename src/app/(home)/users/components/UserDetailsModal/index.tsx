@@ -33,7 +33,6 @@ import {
 interface UserDetailsModalProps {
    show: boolean;
    setShow: (v: boolean) => void;
-   updateUsers: () => void;
    user: UserPublic | UserFull | null;
 }
 
@@ -44,7 +43,6 @@ interface UserDetailsModalProps {
 export function UserDetailsModal({
    show,
    setShow,
-   updateUsers,
    user,
 }: UserDetailsModalProps) {
    // Type guards e helpers
@@ -130,11 +128,7 @@ export function UserDetailsModal({
                variant="underline"
             >
                <TabItem active title="Dados Cadastrais" icon={HiUser}>
-                  <div>
-                     {userId && (
-                        <UserForm userId={userId} updateUsers={updateUsers} />
-                     )}
-                  </div>
+                  <div>{userId && <UserForm userId={userId} />}</div>
                </TabItem>
                <TabItem title="Histórico de Alterações" icon={HiClipboardList}>
                   <div>

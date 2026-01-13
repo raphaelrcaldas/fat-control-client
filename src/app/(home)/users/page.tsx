@@ -5,14 +5,13 @@ import { HiSearch, HiUserAdd, HiUsers } from "react-icons/hi";
 import { Spinner } from "@/components/Spinner";
 import { Pagination } from "@/components/Pagination";
 import { MultiSelect } from "@/components/MultiSelect";
-import { useState, useEffect, useCallback } from "react";
+import { useState } from "react";
 import useDebouncedValue from "@/hooks/useDebouncedValue";
-import { getUsers, UserPublic } from "services/routes/users";
 import { postoGradRecords } from "services/routes/postos";
-import { useToast } from "../../context/toast";
 import { UserCreateModal } from "./components/UserCreateModal";
 import { UserTable } from "./components/UserTable";
 import { UserCard } from "./components/UserCard";
+import { useUsers } from "@/hooks/queries";
 
 const PER_PAGE_OPTIONS = [10, 15, 25, 50, 100];
 
@@ -27,117 +26,55 @@ const STATUS_OPTIONS = [
    { value: "false", label: "Inativo" },
 ];
 
+// Helper: Converte filterActive array para boolean | undefined
+function getActiveFilter(active: string[]): boolean | undefined {
+   if (active.length === 0 || active.length === 2) return undefined;
+   if (active.includes("true")) return true;
+   if (active.includes("false")) return false;
+   return undefined;
+}
+
 export default function UsersPage() {
-   const { push } = useToast();
+   // Filtros (client state)
    const [filterName, setFilterName] = useState("");
    const [filterPG, setFilterPG] = useState<string[]>([]);
    const [filterActive, setFilterActive] = useState<string[]>(["true"]);
    const [showCreateModal, setShowCreateModal] = useState(false);
-   const [usuarios, setUsuarios] = useState<UserPublic[]>([]);
-   const [loading, setLoading] = useState(false);
    const [currentPage, setCurrentPage] = useState(1);
    const [perPage, setPerPage] = useState(10);
-   const [totalPages, setTotalPages] = useState(1);
-   const [totalUsers, setTotalUsers] = useState(0);
+
    const debouncedFilter = useDebouncedValue(filterName, 350);
 
-   const updateListUsers = useCallback(
-      async (
-         page: number = 1,
-         itemsPerPage: number = 10,
-         search?: string,
-         p_g?: string[],
-         active?: string[],
-         signal?: AbortSignal,
-         onError?: (msg: string) => void
-      ) => {
-         setLoading(true);
-         try {
-            // Converte arrays de filtros para valores que a API entende
-            const activeFilter = getActiveFilterFromArray(active);
-            const pgFilter = p_g && p_g.length > 0 ? p_g.join(",") : undefined;
+   // React Query - busca usuários com filtros
+   const {
+      data,
+      isLoading: loading,
+      isFetching,
+   } = useUsers({
+      page: currentPage,
+      per_page: perPage,
+      search: debouncedFilter || undefined,
+      p_g: filterPG.length > 0 ? filterPG.join(",") : undefined,
+      active: getActiveFilter(filterActive),
+   });
 
-            const response = await getUsers(
-               {
-                  page,
-                  per_page: itemsPerPage,
-                  search: search || undefined,
-                  p_g: pgFilter,
-                  active: activeFilter,
-               },
-               signal
-            );
-            setUsuarios(response.items);
-            setTotalPages(response.pages);
-            setTotalUsers(response.total);
-            setCurrentPage(response.page);
-         } catch (err: any) {
-            if (err?.name === "AbortError") return;
-            const message =
-               err?.message || String(err) || "Erro ao buscar usuários";
-            if (onError) onError(message);
-         } finally {
-            setLoading(false);
-         }
-      },
-      []
-   );
+   const usuarios = data?.items ?? [];
+   const totalPages = data?.pages ?? 1;
+   const totalUsers = data?.total ?? 0;
 
-   // Converte filterActive array para boolean | undefined
-   const getActiveFilterFromArray = (
-      active?: string[]
-   ): boolean | undefined => {
-      if (!active || active.length === 0) return undefined;
-      if (active.length === 2) return undefined; // Ambos selecionados = todos
-      if (active.includes("true")) return true;
-      if (active.includes("false")) return false;
-      return undefined;
-   };
-
-   // Busca quando filtros mudam
-   useEffect(() => {
-      const ac = new AbortController();
+   // Reset page quando filtros mudam
+   const handleFilterChange = <T,>(
+      setter: React.Dispatch<React.SetStateAction<T>>,
+      value: T
+   ) => {
+      setter(value);
       setCurrentPage(1);
-      updateListUsers(
-         1,
-         perPage,
-         debouncedFilter,
-         filterPG,
-         filterActive,
-         ac.signal,
-         (msg: string) => push({ message: msg, type: "error" })
-      );
-      return () => ac.abort();
-   }, [debouncedFilter, perPage, filterPG, filterActive]);
-
-   const handlePageChange = (page: number) => {
-      updateListUsers(
-         page,
-         perPage,
-         debouncedFilter,
-         filterPG,
-         filterActive,
-         undefined,
-         (msg: string) => push({ message: msg, type: "error" })
-      );
-   };
-
-   const handlePerPageChange = (newPerPage: number) => {
-      setPerPage(newPerPage);
-   };
-
-   const refreshList = () => {
-      updateListUsers(
-         currentPage,
-         perPage,
-         debouncedFilter,
-         filterPG,
-         filterActive
-      );
    };
 
    const hasFilters =
       debouncedFilter || filterPG.length > 0 || filterActive.length > 0;
+
+   const showLoadingOverlay = loading || isFetching;
 
    return (
       <div className="h-full w-full overflow-auto p-1">
@@ -164,7 +101,9 @@ export default function UsersPage() {
                      icon={HiSearch}
                      placeholder="Buscar por nome de guerra ou nome completo..."
                      value={filterName}
-                     onChange={(e) => setFilterName(e.target.value)}
+                     onChange={(e) =>
+                        handleFilterChange(setFilterName, e.target.value)
+                     }
                      sizing="md"
                   />
                </div>
@@ -175,7 +114,7 @@ export default function UsersPage() {
                   <MultiSelect
                      options={PG_OPTIONS}
                      selected={filterPG}
-                     onChange={setFilterPG}
+                     onChange={(v) => handleFilterChange(setFilterPG, v)}
                      placeholder="Todos P/G"
                      className="w-48"
                   />
@@ -184,7 +123,7 @@ export default function UsersPage() {
                   <MultiSelect
                      options={STATUS_OPTIONS}
                      selected={filterActive}
-                     onChange={setFilterActive}
+                     onChange={(v) => handleFilterChange(setFilterActive, v)}
                      placeholder="Todos Status"
                      className="w-48"
                   />
@@ -230,7 +169,7 @@ export default function UsersPage() {
             ) : (
                <div className="relative">
                   {/* Loading Overlay */}
-                  {loading && (
+                  {showLoadingOverlay && (
                      <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/60 backdrop-blur-[1px]">
                         <div className="flex flex-col items-center gap-3 rounded-lg bg-white px-6 py-4 shadow-lg">
                            <Spinner size="lg" />
@@ -242,28 +181,20 @@ export default function UsersPage() {
                   )}
 
                   {/* Tabela Desktop */}
-                  <UserTable
-                     usuarios={usuarios}
-                     loading={loading}
-                     onUpdate={refreshList}
-                  />
+                  <UserTable usuarios={usuarios} loading={showLoadingOverlay} />
 
                   {/* Cards Mobile */}
                   <div
-                     className={`space-y-3 p-4 md:hidden ${loading ? "opacity-50" : "opacity-100"} transition-opacity duration-200`}
+                     className={`space-y-3 p-4 md:hidden ${showLoadingOverlay ? "opacity-50" : "opacity-100"} transition-opacity duration-200`}
                   >
                      {usuarios.map((user) => (
-                        <UserCard
-                           key={user.id}
-                           user={user}
-                           update={refreshList}
-                        />
+                        <UserCard key={user.id} user={user} />
                      ))}
                   </div>
 
                   {/* Footer com Paginação */}
                   <nav
-                     className={`flex flex-col items-start justify-between space-y-3 p-4 md:flex-row md:items-center md:space-y-0 ${loading ? "pointer-events-none opacity-50" : "opacity-100"} transition-opacity duration-200`}
+                     className={`flex flex-col items-start justify-between space-y-3 p-4 md:flex-row md:items-center md:space-y-0 ${showLoadingOverlay ? "pointer-events-none opacity-50" : "opacity-100"} transition-opacity duration-200`}
                      aria-label="Navegação da tabela"
                   >
                      <div className="flex items-center gap-4">
@@ -289,9 +220,10 @@ export default function UsersPage() {
                               id="perPage"
                               sizing="sm"
                               value={perPage}
-                              onChange={(e) =>
-                                 handlePerPageChange(Number(e.target.value))
-                              }
+                              onChange={(e) => {
+                                 setPerPage(Number(e.target.value));
+                                 setCurrentPage(1);
+                              }}
                               className="w-20"
                            >
                               {PER_PAGE_OPTIONS.map((option) => (
@@ -306,7 +238,7 @@ export default function UsersPage() {
                         <Pagination
                            currentPage={currentPage}
                            totalPages={totalPages}
-                           onPageChange={handlePageChange}
+                           onPageChange={setCurrentPage}
                         />
                      )}
                   </nav>
@@ -314,19 +246,7 @@ export default function UsersPage() {
             )}
          </div>
 
-         <UserCreateModal
-            show={showCreateModal}
-            setShow={setShowCreateModal}
-            updateUsers={() =>
-               updateListUsers(
-                  1,
-                  perPage,
-                  debouncedFilter,
-                  filterPG,
-                  filterActive
-               )
-            }
-         />
+         <UserCreateModal show={showCreateModal} setShow={setShowCreateModal} />
       </div>
    );
 }
