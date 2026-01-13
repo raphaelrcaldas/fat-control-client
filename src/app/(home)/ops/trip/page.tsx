@@ -1,9 +1,18 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Select } from "flowbite-react";
+import {
+   Select,
+   TextInput,
+   Button,
+   Table,
+   TableHead,
+   TableBody,
+   TableRow,
+   TableHeadCell,
+   Spinner as FlowbiteSpinner,
+} from "flowbite-react";
 import { HiSearch, HiUserGroup, HiX } from "react-icons/hi";
-import { Spinner } from "@/components/Spinner";
 import { Pagination } from "@/components/Pagination";
 import { postoGradRecords } from "services/routes/postos";
 import { FUNC_LABELS, OPER_LABELS } from "@/constants/tripulantes";
@@ -72,13 +81,9 @@ export default function TripPage() {
             {/* Barra de Busca, Filtros e Botão Adicionar */}
             <div className="flex flex-col gap-3 p-4 md:flex-row">
                {/* Busca */}
-               <div className="relative flex-1">
-                  <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                     <HiSearch className="h-5 w-5 text-gray-500" />
-                  </div>
-                  <input
-                     type="text"
-                     className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 pl-10 text-sm text-gray-900 placeholder:text-gray-400 focus:border-red-500 focus:ring-red-500"
+               <div className="flex-1">
+                  <TextInput
+                     icon={HiSearch}
                      placeholder="Buscar por trigrama, nome de guerra ou nome completo..."
                      value={filterName}
                      onChange={(e) => setFilterName(e.target.value)}
@@ -134,16 +139,17 @@ export default function TripPage() {
 
                {/* Limpar Filtros */}
                {hasActiveFilters && (
-                  <button
+                  <Button
+                     color="red"
+                     outline
                      onClick={() => {
                         clearFilters();
                         setFilterName("");
                      }}
-                     className="flex items-center gap-1 rounded-lg border border-red-300 px-3 py-2 text-sm text-red-600 transition-colors hover:bg-red-50 hover:text-red-700"
                   >
-                     <HiX className="h-4 w-4" />
+                     <HiX className="mr-1 h-4 w-4" />
                      Limpar
-                  </button>
+                  </Button>
                )}
 
                {/* Botão Adicionar */}
@@ -169,15 +175,17 @@ export default function TripPage() {
                         : "Comece adicionando o primeiro tripulante ao sistema."}
                   </p>
                   {hasActiveFilters && (
-                     <button
+                     <Button
+                        color="red"
+                        size="xs"
+                        outline
                         onClick={() => {
                            clearFilters();
                            setFilterName("");
                         }}
-                        className="text-sm text-red-600 hover:text-red-700"
                      >
                         Limpar Filtros
-                     </button>
+                     </Button>
                   )}
                </div>
             ) : (
@@ -186,7 +194,7 @@ export default function TripPage() {
                   {loading && (
                      <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/60 backdrop-blur-[1px]">
                         <div className="flex flex-col items-center gap-3 rounded-lg bg-white px-6 py-4 shadow-lg">
-                           <Spinner size="lg" />
+                           <FlowbiteSpinner color="failure" size="lg" />
                            <p className="text-sm text-gray-600">
                               Carregando tripulantes...
                            </p>
@@ -196,42 +204,33 @@ export default function TripPage() {
 
                   {/* Tabela */}
                   <div className="overflow-x-auto">
-                     <table className="w-full text-left text-sm text-gray-500">
-                        <thead className="bg-gray-50 text-center text-xs text-gray-700 uppercase">
-                           <tr>
-                              <th scope="col" className="px-4 py-3">
+                     <Table hoverable className="text-center uppercase">
+                        <TableHead>
+                           <TableRow>
+                              <TableHeadCell>
                                  P/G
-                              </th>
-                              <th
-                                 scope="col"
-                                 className="hidden px-4 py-3 lg:table-cell"
-                              >
+                              </TableHeadCell>
+                              <TableHeadCell className="hidden lg:table-cell">
                                  Especialidade
-                              </th>
-                              <th
-                                 scope="col"
-                                 className="hidden px-4 py-3 md:table-cell"
-                              >
+                              </TableHeadCell>
+                              <TableHeadCell className="hidden md:table-cell">
                                  Nome de Guerra
-                              </th>
-                              <th
-                                 scope="col"
-                                 className="hidden px-4 py-3 md:table-cell"
-                              >
+                              </TableHeadCell>
+                              <TableHeadCell className="hidden md:table-cell">
                                  Nome Completo
-                              </th>
-                              <th scope="col" className="px-4 py-3">
+                              </TableHeadCell>
+                              <TableHeadCell>
                                  Trigrama
-                              </th>
-                              <th scope="col" className="px-4 py-3">
+                              </TableHeadCell>
+                              <TableHeadCell>
                                  Funções
-                              </th>
-                              <th scope="col" className="px-4 py-3">
+                              </TableHeadCell>
+                              <TableHeadCell>
                                  <span className="sr-only">Ações</span>
-                              </th>
-                           </tr>
-                        </thead>
-                        <tbody>
+                              </TableHeadCell>
+                           </TableRow>
+                        </TableHead>
+                        <TableBody className="divide-y">
                            {filterTrips.map((trip) => (
                               <TripRow
                                  key={trip.id}
@@ -239,8 +238,8 @@ export default function TripPage() {
                                  update={refetch}
                               />
                            ))}
-                        </tbody>
-                     </table>
+                        </TableBody>
+                     </Table>
                   </div>
 
                   {/* Footer com Paginação */}
