@@ -1,41 +1,43 @@
 import { memo, useMemo, useCallback } from "react";
 import { HiDocumentDuplicate, HiTrash, HiClock } from "react-icons/hi";
-import { OrdemMissao } from "../types";
+import type { OrdemMissaoList, EtapaListItem } from "services/routes/om/ordens";
 import { Label } from "flowbite-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { extractDate } from "utils/dateHandler";
 
 interface ListaOrdensProps {
-   ordens: OrdemMissao[];
-   onOrdemClick: (ordem: OrdemMissao) => void;
-   onCloneOrdem: (ordem: OrdemMissao) => void;
-   onDeleteOrdem?: (ordem: OrdemMissao) => void;
+   ordens: OrdemMissaoList[];
+   onOrdemClick: (ordem: OrdemMissaoList) => void;
+   onCloneOrdem: (ordem: OrdemMissaoList) => void;
+   onDeleteOrdem?: (ordem: OrdemMissaoList) => void;
 }
 
 interface OrdemItemProps {
-   ordem: OrdemMissao;
-   onOrdemClick: (ordem: OrdemMissao) => void;
-   onCloneOrdem: (ordem: OrdemMissao) => void;
-   onDeleteOrdem?: (ordem: OrdemMissao) => void;
+   ordem: OrdemMissaoList;
+   onOrdemClick: (ordem: OrdemMissaoList) => void;
+   onCloneOrdem: (ordem: OrdemMissaoList) => void;
+   onDeleteOrdem?: (ordem: OrdemMissaoList) => void;
 }
 
 function gerarResumoRota(
-   ordem: OrdemMissao
-): Record<string, typeof ordem.etapas> {
+   ordem: OrdemMissaoList
+): Record<string, EtapaListItem[]> {
    if (!ordem.etapas || ordem.etapas.length === 0) return {};
 
    // Agrupar etapas por data
    const etapasPorData = ordem.etapas.reduce(
       (acc, etapa) => {
-         if (!etapa.dataDecolagem) return acc;
-         const [year, month, day] = etapa.dataDecolagem.split("-");
+         if (!etapa.dt_dep) return acc;
+         const dateStr = extractDate(etapa.dt_dep);
+         const [year, month, day] = dateStr.split("-");
          const data = `${day}/${month}`;
          if (!acc[data]) acc[data] = [];
          acc[data].push(etapa);
 
          return acc;
       },
-      {} as Record<string, typeof ordem.etapas>
+      {} as Record<string, EtapaListItem[]>
    );
 
    return etapasPorData;
@@ -72,7 +74,7 @@ const OrdemItem = memo(function OrdemItem({
 
    // Formata o último momento (atualização ou criação)
    const ultimoMomento = useMemo(() => {
-      const dataStr = ordem.updatedAt || ordem.createdAt;
+      const dataStr = ordem.updated_at || ordem.created_at;
       if (!dataStr) return null;
       try {
          const date = new Date(dataStr);
@@ -80,9 +82,9 @@ const OrdemItem = memo(function OrdemItem({
       } catch (e) {
          return null;
       }
-   }, [ordem.updatedAt, ordem.createdAt]);
+   }, [ordem.updated_at, ordem.created_at]);
 
-   const isEditado = !!ordem.updatedAt;
+   const isEditado = !!ordem.updated_at;
 
    return (
       <div
@@ -135,12 +137,10 @@ const OrdemItem = memo(function OrdemItem({
                   <p className="pointer-events-none hidden w-48 text-sm sm:block">
                      <span
                         className={
-                           ordem.documentoReferencia
-                              ? "text-gray-600"
-                              : "text-gray-400"
+                           ordem.doc_ref ? "text-gray-600" : "text-gray-400"
                         }
                      >
-                        {ordem.documentoReferencia || "Sem documento"}
+                        {ordem.doc_ref || "Sem documento"}
                      </span>
                   </p>
                </div>
@@ -175,7 +175,7 @@ const OrdemItem = memo(function OrdemItem({
                               </span>
                               <span className="font-mono">
                                  {etapas.map((e) => e.origem).join(" - ")} -{" "}
-                                 {etapas[etapas.length - 1].destino}
+                                 {etapas[etapas.length - 1].dest}
                               </span>
                            </div>
                         ))}
@@ -184,17 +184,6 @@ const OrdemItem = memo(function OrdemItem({
                </div>
             </div>
             <div className="flex items-center gap-4">
-               {ultimoMomento && (
-                  <div className="flex flex-col items-end gap-1 text-right">
-                     <span className="flex items-center gap-1 text-[10px] text-gray-400">
-                        <HiClock size={12} />
-                        {isEditado ? "Editado em" : "Criado em"}
-                     </span>
-                     <span className="text-xs font-medium text-gray-500">
-                        {ultimoMomento}
-                     </span>
-                  </div>
-               )}
                <div className="flex items-center gap-1">
                   <button
                      onClick={handleClone}
@@ -231,9 +220,9 @@ export const ListaOrdens = memo(function ListaOrdens({
 }: ListaOrdensProps) {
    const sortedOrdens = useMemo(() => {
       return [...ordens].sort((a, b) => {
-         // 1. Ano da dataSaida (descendente)
-         const anoA = a.dataSaida ? new Date(a.dataSaida).getFullYear() : 0;
-         const anoB = b.dataSaida ? new Date(b.dataSaida).getFullYear() : 0;
+         // 1. Ano da data_saida (descendente)
+         const anoA = a.data_saida ? new Date(a.data_saida).getFullYear() : 0;
+         const anoB = b.data_saida ? new Date(b.data_saida).getFullYear() : 0;
 
          if (anoA !== anoB) return anoB - anoA;
 
@@ -247,8 +236,8 @@ export const ListaOrdens = memo(function ListaOrdens({
          if (numA !== numB) return numB - numA;
 
          // 3. Data/hora de última modificação ou criação (descendente)
-         const momentA = new Date(a.updatedAt || a.createdAt || 0).getTime();
-         const momentB = new Date(b.updatedAt || b.createdAt || 0).getTime();
+         const momentA = new Date(a.updated_at || a.created_at || 0).getTime();
+         const momentB = new Date(b.updated_at || b.created_at || 0).getTime();
 
          return momentB - momentA;
       });

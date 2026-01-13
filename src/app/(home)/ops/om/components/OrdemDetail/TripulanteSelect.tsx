@@ -5,13 +5,15 @@ import { createPortal } from "react-dom";
 import clsx from "clsx";
 import { Badge, TextInput } from "flowbite-react";
 import { IoSearchSharp, IoClose, IoAdd } from "react-icons/io5";
-import { HiAcademicCap } from "react-icons/hi";
+import { getTrips, type CrewMember } from "services/routes/trips";
 import {
-   TripulanteSearchResult,
-   FuncaoTripulante,
-   FUNCAO_LABELS,
-} from "../../types";
-import { searchTrips } from "services/routes/trips";
+   FUNCOES_PRINCIPAIS as TODAS_FUNCOES,
+   FUNC_LABELS_SHORT as FUNCAO_LABELS,
+   type FuncaoTripulante,
+} from "@/constants/tripulantes";
+
+// Re-export CrewMember as TripulanteSearchResult for compatibility
+type TripulanteSearchResult = CrewMember;
 
 interface TripulanteSelectProps {
    funcao: FuncaoTripulante;
@@ -92,11 +94,11 @@ export function TripulanteSelect({
 
          setIsLoading(true);
          try {
-            const data = await searchTrips(
-               { func: funcao, q: query, proj: projeto },
+            const data = await getTrips(
+               { func: [funcao], search: query, proj: projeto },
                abortControllerRef.current.signal
             );
-            setResults(data);
+            setResults(data.items);
          } catch (error) {
             if ((error as Error).name !== "AbortError") {
                console.error("Erro ao buscar tripulantes:", error);
@@ -147,8 +149,8 @@ export function TripulanteSelect({
    // Ordena resultados: já adicionados primeiro (na ordem do excludeIds), depois os demais
    const sortedResults = useMemo(() => {
       return [...results].sort((a, b) => {
-         const aIndex = excludeIds.indexOf(a.id);
-         const bIndex = excludeIds.indexOf(b.id);
+         const aIndex = excludeIds.indexOf(a.id!);
+         const bIndex = excludeIds.indexOf(b.id!);
          const aIsAdded = aIndex !== -1;
          const bIsAdded = bIndex !== -1;
 
@@ -158,30 +160,6 @@ export function TripulanteSelect({
          return 0;
       });
    }, [results, excludeIds]);
-
-   const renderOperBadge = (oper: string) => {
-      if (oper === "in") {
-         return (
-            <Badge color="purple" size="xs">
-               <span className="flex items-center gap-1">
-                  <HiAcademicCap className="h-3 w-3" />
-                  IN
-               </span>
-            </Badge>
-         );
-      }
-      if (oper === "al") {
-         return (
-            <Badge color="warning" size="xs">
-               <span className="flex items-center gap-1">
-                  <HiAcademicCap className="h-3 w-3" />
-                  AL
-               </span>
-            </Badge>
-         );
-      }
-      return null;
-   };
 
    // Se não está em modo de edição e não há tripulantes, não renderiza nada
    if (disabled && tripulantes.length === 0) {
@@ -217,12 +195,12 @@ export function TripulanteSelect({
                         {trip.trig}
                      </span>
                      <span className="flex items-center text-xs leading-none text-gray-700 uppercase">
-                        {trip.p_g} {trip.nome_guerra}
+                        {trip.user.p_g} {trip.user.nome_guerra}
                      </span>
                      {!disabled && (
                         <button
                            type="button"
-                           onClick={() => onRemove(trip.id)}
+                           onClick={() => onRemove(trip.id!)}
                            className="ml-1 text-gray-400 transition-colors hover:text-red-500"
                         >
                            <IoClose className="h-4 w-4" />
@@ -283,11 +261,11 @@ export function TripulanteSelect({
                            >
                               {sortedResults.map((tripulante) => {
                                  const isAdded = excludeIds.includes(
-                                    tripulante.id
+                                    tripulante.id!
                                  );
                                  return (
                                     <button
-                                       key={tripulante.id}
+                                       key={tripulante.id!}
                                        type="button"
                                        onClick={() =>
                                           !isAdded && handleSelect(tripulante)
@@ -301,15 +279,14 @@ export function TripulanteSelect({
                                        )}
                                     >
                                        <span className="flex-1 truncate text-xs text-gray-600 uppercase">
-                                          {tripulante.p_g}{" "}
-                                          {tripulante.nome_guerra}
+                                          {tripulante.user.p_g}{" "}
+                                          {tripulante.user.nome_guerra}
                                        </span>
                                        {isAdded && (
                                           <Badge color="gray" size="xs">
                                              Adicionado
                                           </Badge>
                                        )}
-                                       {renderOperBadge(tripulante.oper)}
                                     </button>
                                  );
                               })}

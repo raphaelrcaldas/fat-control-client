@@ -2,7 +2,7 @@
 
 import { Modal, ModalHeader, ModalBody, Button, Spinner } from "flowbite-react";
 import { HiOutlineExclamationCircle } from "react-icons/hi";
-import { formatDateForDisplay } from "./OrdemModal/utils/ordemUtils";
+import { formatDateForDisplay } from "./OrdemDetail/utils/ordemUtils";
 
 interface DeleteOrdemModalProps {
    isOpen: boolean;

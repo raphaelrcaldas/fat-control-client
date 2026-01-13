@@ -1,6 +1,8 @@
 import clsx from "clsx";
-import { statusConfig } from "../constants";
-import { StatusType } from "../types";
+import {
+   STATUS_CONFIG as statusConfig,
+   type StatusType,
+} from "@/constants/ops/ordens-missao/status";
 
 interface StatusBadgeProps {
    status: StatusType;

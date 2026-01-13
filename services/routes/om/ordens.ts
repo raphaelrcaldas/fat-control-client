@@ -1,4 +1,5 @@
 import request from "../../Api";
+import type { CrewMember } from "../trips";
 
 const omRoute = "ops/om/";
 
@@ -39,20 +40,13 @@ export interface EtapaListItem {
    dest: string;
 }
 
-export interface TripulanteInfo {
-   id: number;
-   trig: string;
-   p_g: string;
-   nome_guerra: string;
-   nome_completo: string;
-}
-
+// TripBasicInfo retornado pelo backend (vem do endpoint de tripulantes)
 export interface TripulacaoOrdemOut {
    id: number;
    tripulante_id: number;
    funcao: string;
    p_g: string; // snapshot do posto/graduacao no momento da criacao da OM
-   tripulante: TripulanteInfo | null;
+   tripulante: CrewMember | null; // Agora usa CrewMember (TripBasicInfo) ao invés de estrutura achatada
 }
 
 // Tripulacao agrupada por funcao (formato do frontend para envio)
@@ -73,6 +67,7 @@ export interface OrdemMissaoCreate {
    campos_especiais: CampoEspecial[];
    doc_ref?: string | null;
    uae: string;
+   esf_aer: number;
    etapas: EtapaCreate[];
    tripulacao?: TripulacaoAgrupada | null;
    etiquetas_ids: number[];
@@ -85,6 +80,7 @@ export interface OrdemMissaoUpdate {
    projeto?: string | null;
    status?: string | null;
    campos_especiais?: CampoEspecial[] | null;
+   esf_aer?: number | null;
    etapas?: EtapaCreate[] | null;
    tripulacao?: TripulacaoAgrupada | null;
    etiquetas_ids?: number[] | null;
@@ -101,6 +97,7 @@ export interface OrdemMissaoOut {
    doc_ref: string | null;
    data_saida: string | null;
    uae: string;
+   esf_aer: number;
    created_by: number;
    created_at: string;
    updated_at: string | null;
@@ -122,6 +119,7 @@ export interface OrdemMissaoList {
    doc_ref: string | null;
    data_saida: string | null;
    uae: string;
+   esf_aer: number;
    etapas: EtapaListItem[];
    etiquetas: Etiqueta[];
 }
@@ -183,7 +181,8 @@ function formatApiError(error: ApiError): string {
 // --- Funcoes de API ---
 
 export async function listOrdens(
-   filters?: OrdemFilters
+   filters?: OrdemFilters,
+   signal?: AbortSignal
 ): Promise<PaginatedResponse<OrdemMissaoList>> {
    const params: Record<string, string | number> = {};
 
@@ -222,7 +221,7 @@ export async function listOrdens(
       ? `${url}?${queryParams.toString()}`
       : url;
 
-   const response = await request("GET", fullUrl);
+   const response = await request("GET", fullUrl, null, null, signal);
    return (await response.json()) as PaginatedResponse<OrdemMissaoList>;
 }
 

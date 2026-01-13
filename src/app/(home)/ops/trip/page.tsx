@@ -207,9 +207,7 @@ export default function TripPage() {
                      <Table hoverable className="text-center uppercase">
                         <TableHead>
                            <TableRow>
-                              <TableHeadCell>
-                                 P/G
-                              </TableHeadCell>
+                              <TableHeadCell>P/G</TableHeadCell>
                               <TableHeadCell className="hidden lg:table-cell">
                                  Especialidade
                               </TableHeadCell>
@@ -219,12 +217,8 @@ export default function TripPage() {
                               <TableHeadCell className="hidden md:table-cell">
                                  Nome Completo
                               </TableHeadCell>
-                              <TableHeadCell>
-                                 Trigrama
-                              </TableHeadCell>
-                              <TableHeadCell>
-                                 Funções
-                              </TableHeadCell>
+                              <TableHeadCell>Trigrama</TableHeadCell>
+                              <TableHeadCell>Funções</TableHeadCell>
                               <TableHeadCell>
                                  <span className="sr-only">Ações</span>
                               </TableHeadCell>

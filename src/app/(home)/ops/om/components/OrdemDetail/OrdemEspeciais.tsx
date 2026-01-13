@@ -2,7 +2,7 @@
 
 import { memo, useState, useEffect } from "react";
 import clsx from "clsx";
-import { CampoEspecial } from "../../types";
+import type { CampoEspecial } from "services/routes/om/ordens";
 
 interface OrdemEspeciaisProps {
    campos: CampoEspecial[];

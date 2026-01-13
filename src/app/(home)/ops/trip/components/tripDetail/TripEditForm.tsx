@@ -126,7 +126,7 @@ export function TripEditForm({
                <Label htmlFor="active" className="text-sm font-semibold">
                   Status
                </Label>
-               <div className="flex h-[42px] items-center gap-2">
+               <div className="flex h-10.5 items-center gap-2">
                   <Checkbox
                      id="active"
                      className="size-5"

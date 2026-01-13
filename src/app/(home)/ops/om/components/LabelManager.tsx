@@ -12,7 +12,7 @@ import {
    Spinner,
 } from "flowbite-react";
 import { HiPlus, HiTrash, HiPencil, HiCheck, HiX } from "react-icons/hi";
-import { Etiqueta } from "../types";
+import type { Etiqueta } from "services/routes/om/ordens";
 import {
    createEtiqueta,
    updateEtiqueta,

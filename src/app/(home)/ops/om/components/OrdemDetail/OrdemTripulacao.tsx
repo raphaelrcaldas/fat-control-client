@@ -1,13 +1,25 @@
 "use client";
 
 import { memo, useMemo } from "react";
+import { type CrewMember } from "services/routes/trips";
 import {
-   TripulacaoOrdem,
-   TripulanteSearchResult,
-   FuncaoTripulante,
-   TODAS_FUNCOES,
-} from "../../types";
+   FUNCOES_PRINCIPAIS as TODAS_FUNCOES,
+   type FuncaoTripulante,
+} from "@/constants/tripulantes";
 import { TripulanteSelect } from "./TripulanteSelect";
+
+// Re-export CrewMember as TripulanteSearchResult for compatibility
+type TripulanteSearchResult = CrewMember;
+
+// TripulacaoOrdem usando tipos da API diretamente
+interface TripulacaoOrdem {
+   pil: CrewMember[];
+   mc: CrewMember[];
+   lm: CrewMember[];
+   tf: CrewMember[];
+   oe: CrewMember[];
+   os: CrewMember[];
+}
 
 interface ValidationErrors {
    tipo: boolean;

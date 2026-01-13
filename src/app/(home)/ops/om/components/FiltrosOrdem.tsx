@@ -4,10 +4,12 @@ import { useState, useEffect } from "react";
 import { HiChevronDown, HiChevronUp, HiTag, HiX } from "react-icons/hi";
 import clsx from "clsx";
 import { FiltrosOrdem } from "../types";
-import { statusOptions, statusLabels, StatusType } from "../constants";
-import { MultiSelect } from "./MultiSelect";
-import { listEtiquetas } from "services/routes/om/etiquetas";
-import { Etiqueta } from "../types";
+import {
+   STATUS_OPTIONS as statusOptions,
+   STATUS_LABELS as statusLabels,
+   type StatusType,
+} from "@/constants/ops/ordens-missao/status";
+import { useEtiquetas } from "@/hooks/queries";
 
 // Status disponíveis para filtro (sem rascunho, pois tem tab própria)
 const statusOptionsAprovadas = statusOptions.filter((s) => s !== "rascunho");
@@ -16,37 +18,19 @@ interface FiltrosOrdemProps {
    filtros: FiltrosOrdem;
    onFiltrosChange: (filtros: FiltrosOrdem) => void;
    onClearFiltros: () => void;
-   refreshKey?: number; // Incrementar para forçar reload das etiquetas
 }
-
-// Formata data para exibição (DD/MM)
-const formatDateShort = (dateStr: string) => {
-   if (!dateStr) return "";
-   const [year, month, day] = dateStr.split("-");
-   return `${day}/${month}/${year}`;
-};
 
 export function FiltrosOrdemComponent({
    filtros,
    onFiltrosChange,
    onClearFiltros,
-   refreshKey = 0,
 }: FiltrosOrdemProps) {
    const [expanded, setExpanded] = useState(false);
    const [allowOverflow, setAllowOverflow] = useState(false);
-   const [allLabels, setAllLabels] = useState<Etiqueta[]>([]);
 
-   useEffect(() => {
-      const fetchLabels = async () => {
-         try {
-            const data = await listEtiquetas();
-            setAllLabels(data);
-         } catch (error) {
-            console.error("Erro ao carregar etiquetas para filtro:", error);
-         }
-      };
-      fetchLabels();
-   }, [refreshKey]); // Recarrega quando refreshKey muda
+   // TanStack Query - cache automatico, staleTime de 5 min
+   const etiquetasQuery = useEtiquetas();
+   const allLabels = etiquetasQuery.data ?? [];
 
    // Libera o overflow após a animação de expansão terminar
    useEffect(() => {

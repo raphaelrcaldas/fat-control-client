@@ -75,3 +75,110 @@ export function datasIguais(data1: Date, data2: Date) {
       data1.getFullYear() === data2.getFullYear()
    );
 }
+
+// --- Helpers para datetime ISO (usados em OM) ---
+
+/**
+ * Converte data (YYYY-MM-DD) + hora (HH:mm) para ISO datetime string em UTC
+ */
+export function toIsoDatetime(date: string, time: string): string {
+   if (!date || !time) return "";
+   const [hours, minutes] = time.split(":");
+   return `${date}T${hours.padStart(2, "0")}:${minutes.padStart(2, "0")}:00Z`;
+}
+
+/**
+ * Extrai data (YYYY-MM-DD) de ISO datetime
+ */
+export function extractDate(isoDatetime: string): string {
+   if (!isoDatetime) return "";
+   return isoDatetime.split("T")[0];
+}
+
+/**
+ * Extrai hora (HH:mm) de ISO datetime
+ */
+export function extractTime(isoDatetime: string): string {
+   if (!isoDatetime) return "";
+   const timePart = isoDatetime.split("T")[1];
+   if (!timePart) return "";
+   return timePart.substring(0, 5); // HH:mm
+}
+
+/**
+ * Converte string HH:mm para minutos (int)
+ */
+export function timeToMinutes(time: string): number {
+   if (!time) return 0;
+   const [hours, minutes] = time.split(":").map(Number);
+   return (hours || 0) * 60 + (minutes || 0);
+}
+
+/**
+ * Converte minutos (int) para string HH:mm
+ */
+export function minutesToTime(minutes: number): string {
+   if (!minutes || minutes < 0) return "00:00";
+   const h = Math.floor(minutes / 60);
+   const m = minutes % 60;
+   return `${h.toString().padStart(2, "0")}:${m.toString().padStart(2, "0")}`;
+}
+
+/**
+ * Calcula tempo de voo entre dois datetimes ISO
+ * Retorna minutos
+ */
+export function calcularTempoVooMinutos(dtDep: string, dtArr: string): number {
+   if (!dtDep || !dtArr) return 0;
+   const dep = new Date(dtDep).getTime();
+   const arr = new Date(dtArr).getTime();
+   const diffMs = arr - dep;
+   return Math.max(0, Math.round(diffMs / 60000));
+}
+
+/**
+ * Formata data ISO para DD/MM/YYYY (ano completo com 4 dígitos)
+ */
+export function formatDateFull(isoDateTime: string | null): string {
+   if (!isoDateTime) return "";
+   const date = new Date(isoDateTime);
+   const day = String(date.getUTCDate()).padStart(2, "0");
+   const month = String(date.getUTCMonth() + 1).padStart(2, "0");
+   const year = date.getUTCFullYear();
+   return `${day}/${month}/${year}`;
+}
+
+/**
+ * Extrai hora no formato HH:MM de um datetime ISO (em UTC)
+ * Alternativa usando Date para casos que precisam de manipulação de timezone
+ */
+export function formatTimeUTC(isoDateTime: string): string {
+   if (!isoDateTime) return "";
+   const date = new Date(isoDateTime);
+   const hours = String(date.getUTCHours()).padStart(2, "0");
+   const minutes = String(date.getUTCMinutes()).padStart(2, "0");
+   return `${hours}:${minutes}`;
+}
+
+/**
+ * Formata data ISO para YYMMDD (usado em nomes de arquivo e número de OM)
+ */
+export function formatDateForFileName(isoDate: string): string {
+   if (!isoDate) return "";
+   const date = new Date(isoDate);
+   const year = String(date.getUTCFullYear()).slice(-2);
+   const month = String(date.getUTCMonth() + 1).padStart(2, "0");
+   const day = String(date.getUTCDate()).padStart(2, "0");
+   return `${year}${month}${day}`;
+}
+
+/**
+ * Formata data ISO para DDMMYYYY (sem separadores, usado para identificação de OM)
+ */
+export function formatDateForDisplay(dateStr: string): string {
+   if (!dateStr) return "";
+   const datePart = dateStr.split("T")[0];
+   const [year, month, day] = datePart.split("-");
+   if (!year || !month || !day) return "";
+   return `${day}${month}${year}`;
+}

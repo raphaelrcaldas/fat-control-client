@@ -1,22 +1,16 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { Tabs, TabItem, Spinner, Pagination } from "flowbite-react";
-import { OrdemMissao, FiltrosOrdem, PaginationState } from "./types";
+import { FiltrosOrdem } from "./types";
 import { FiltrosOrdemComponent } from "./components/FiltrosOrdem";
 import { ListaOrdens } from "./components/ListaOrdens";
-import { OrdemModal } from "./components/OrdemModal";
+import { OrdemDetail } from "./components/OrdemDetail";
 import { DeleteOrdemModal } from "./components/DeleteOrdemModal";
-import { formatDateForDisplay } from "./components/OrdemModal/utils/ordemUtils";
-import {
-   listOrdens,
-   getOrdem,
-   deleteOrdem,
-   type OrdemFilters,
-} from "services/routes/om/ordens";
-import { ordemFromApi, ordemListFromApi } from "./transformers";
+import { formatDateForDisplay } from "./components/OrdemDetail/utils/ordemUtils";
+import { useOrdens, useOrdem, useDeleteOrdem } from "@/hooks/queries";
+import { type OrdemMissaoList } from "services/routes/om/ordens";
 
-// Tema do Tabs extraído para fora do componente (evita recriação a cada render)
 const tabsTheme = {
    tablist: {
       tabitem: {
@@ -34,16 +28,6 @@ const tabsTheme = {
    },
 };
 
-// Tema do Pagination extraído para fora
-const paginationTheme = {
-   pages: {
-      selector: {
-         active: "bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700",
-      },
-   },
-};
-
-// Helpers para datas padrao
 const getDefaultDates = () => {
    const hoje = new Date();
    const trintaDiasAtras = new Date();
@@ -62,30 +46,9 @@ const getDefaultDates = () => {
 const defaultDates = getDefaultDates();
 
 export default function OrdensMissao() {
-   // Estado de dados
-   const [ordensAprovadas, setOrdensAprovadas] = useState<OrdemMissao[]>([]);
-   const [ordensRascunho, setOrdensRascunho] = useState<OrdemMissao[]>([]);
-
-   // Paginacao (perPage: 2 para teste, voltar para 20 em producao)
-   const [paginationAprovadas, setPaginationAprovadas] =
-      useState<PaginationState>({
-         page: 1,
-         perPage: 20,
-         total: 0,
-         pages: 1,
-      });
-   const [paginationRascunho, setPaginationRascunho] =
-      useState<PaginationState>({
-         page: 1,
-         perPage: 20,
-         total: 0,
-         pages: 1,
-      });
-
-   // Estados de loading/error
-   const [isLoadingAprovadas, setIsLoadingAprovadas] = useState(true);
-   const [isLoadingRascunho, setIsLoadingRascunho] = useState(true);
-   const [error, setError] = useState<string | null>(null);
+   // Paginacao
+   const [pageAprovadas, setPageAprovadas] = useState(1);
+   const [pageRascunho, setPageRascunho] = useState(1);
 
    // Filtros
    const [filtros, setFiltros] = useState<FiltrosOrdem>({
@@ -99,23 +62,63 @@ export default function OrdensMissao() {
 
    // Modal de edicao/criacao
    const [modalOpen, setModalOpen] = useState(false);
-   const [selectedOrdem, setSelectedOrdem] = useState<OrdemMissao | null>(null);
+   const [selectedOrdemId, setSelectedOrdemId] = useState<number | null>(null);
    const [isCloning, setIsCloning] = useState(false);
    const [activeTab, setActiveTab] = useState(0);
 
    // Modal de exclusao
    const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-   const [ordemToDelete, setOrdemToDelete] = useState<OrdemMissao | null>(null);
-   const [isDeleting, setIsDeleting] = useState(false);
-
-   // Estado de carregamento ao abrir ordem
-   const [isLoadingOrdem, setIsLoadingOrdem] = useState(false);
-   const [loadingOrdemData, setLoadingOrdemData] = useState<OrdemMissao | null>(
+   const [ordemToDelete, setOrdemToDelete] = useState<OrdemMissaoList | null>(
       null
    );
 
-   // Key para forçar reload das etiquetas no filtro
-   const [etiquetasRefreshKey, setEtiquetasRefreshKey] = useState(0);
+   // Estado de carregamento ao abrir ordem (para overlay)
+   const [loadingOrdemData, setLoadingOrdemData] =
+      useState<OrdemMissaoList | null>(null);
+
+   // ========================================
+   // TanStack Query - Queries
+   // ========================================
+
+   // Query: Ordens aprovadas (nao-rascunho) com filtros
+   const ordensAprovadasQuery = useOrdens({
+      page: pageAprovadas,
+      per_page: 20,
+      ...(filtros.status.length > 0
+         ? { status: filtros.status }
+         : { status_ne: "rascunho" }),
+      ...(debouncedBusca && { busca: debouncedBusca }),
+      ...(filtros.dataInicio && { data_inicio: filtros.dataInicio }),
+      ...(filtros.dataFim && { data_fim: filtros.dataFim }),
+      ...(filtros.etiquetas_ids.length > 0 && {
+         etiquetas_ids: filtros.etiquetas_ids,
+      }),
+   });
+
+   // Query: Rascunhos
+   const ordensRascunhoQuery = useOrdens({
+      page: pageRascunho,
+      per_page: 20,
+      status: ["rascunho"],
+   });
+
+   // Query: Detalhe da ordem selecionada
+   const selectedOrdemQuery = useOrdem(selectedOrdemId);
+
+   // Mutation: Excluir ordem
+   const deleteOrdemMutation = useDeleteOrdem();
+
+   // Dados derivados das queries
+   const ordensAprovadas = ordensAprovadasQuery.data?.items ?? [];
+   const ordensRascunho = ordensRascunhoQuery.data?.items ?? [];
+   const paginationAprovadas = {
+      total: ordensAprovadasQuery.data?.total ?? 0,
+      pages: ordensAprovadasQuery.data?.pages ?? 1,
+   };
+   const paginationRascunho = {
+      total: ordensRascunhoQuery.data?.total ?? 0,
+      pages: ordensRascunhoQuery.data?.pages ?? 1,
+   };
 
    // Debounce para campos de texto
    useEffect(() => {
@@ -127,7 +130,7 @@ export default function OrdensMissao() {
 
    // Reset para pagina 1 quando filtros mudam
    useEffect(() => {
-      setPaginationAprovadas((prev) => ({ ...prev, page: 1 }));
+      setPageAprovadas(1);
    }, [
       filtros.status,
       filtros.dataInicio,
@@ -136,168 +139,50 @@ export default function OrdensMissao() {
       filtros.etiquetas_ids,
    ]);
 
-   // Buscar ordens aprovadas (nao-Rascunho)
-   const fetchOrdensAprovadas = useCallback(async () => {
-      setIsLoadingAprovadas(true);
-      setError(null);
+   // ========================================
+   // Handlers
+   // ========================================
 
-      try {
-         const filters: OrdemFilters = {
-            page: paginationAprovadas.page,
-            per_page: paginationAprovadas.perPage,
-         };
-
-         // Aplica filtros de status
-         if (filtros.status.length > 0) {
-            filters.status = filtros.status;
-         } else {
-            // Por padrao, busca todos exceto rascunho
-            filters.status_ne = "rascunho";
-         }
-         if (debouncedBusca) filters.busca = debouncedBusca;
-         if (filtros.dataInicio) filters.data_inicio = filtros.dataInicio;
-         if (filtros.dataFim) filters.data_fim = filtros.dataFim;
-         if (filtros.etiquetas_ids?.length > 0)
-            filters.etiquetas_ids = filtros.etiquetas_ids;
-
-         const response = await listOrdens(filters);
-
-         // Transforma diretamente para o formato UI (etapas já vêm na listagem)
-         const ordens = response.items.map(ordemListFromApi);
-
-         setOrdensAprovadas(ordens);
-         setPaginationAprovadas((prev) => ({
-            ...prev,
-            total: response.total,
-            pages: response.pages,
-         }));
-      } catch (err) {
-         console.error("Erro ao buscar ordens aprovadas:", err);
-         setError(
-            err instanceof Error ? err.message : "Erro ao carregar ordens"
-         );
-      } finally {
-         setIsLoadingAprovadas(false);
-      }
-   }, [
-      paginationAprovadas.page,
-      paginationAprovadas.perPage,
-      filtros.status,
-      filtros.dataInicio,
-      filtros.dataFim,
-      debouncedBusca,
-      filtros.etiquetas_ids,
-   ]);
-
-   // Buscar rascunhos
-   const fetchRascunhos = useCallback(async () => {
-      setIsLoadingRascunho(true);
-
-      try {
-         const filters: OrdemFilters = {
-            page: paginationRascunho.page,
-            per_page: paginationRascunho.perPage,
-            status: ["rascunho"],
-         };
-
-         const response = await listOrdens(filters);
-
-         // Transforma diretamente para o formato UI (etapas já vêm na listagem)
-         const ordens = response.items.map(ordemListFromApi);
-
-         setOrdensRascunho(ordens);
-         setPaginationRascunho((prev) => ({
-            ...prev,
-            total: response.total,
-            pages: response.pages,
-         }));
-      } catch (err) {
-         console.error("Erro ao buscar rascunhos:", err);
-      } finally {
-         setIsLoadingRascunho(false);
-      }
-   }, [paginationRascunho.page, paginationRascunho.perPage]);
-
-   // Efeitos para buscar dados
-   useEffect(() => {
-      fetchOrdensAprovadas();
-   }, [fetchOrdensAprovadas]);
-
-   useEffect(() => {
-      fetchRascunhos();
-   }, [fetchRascunhos]);
-
-   // Refresh apos salvar ordem
-   const handleSaveOrdem = useCallback(() => {
+   // Refresh apos salvar ordem (mutations invalidam automaticamente)
+   const handleSaveOrdem = () => {
       setModalOpen(false);
-      setSelectedOrdem(null);
+      setSelectedOrdemId(null);
       setIsCloning(false);
-      // Recarrega ambas as listas
-      fetchOrdensAprovadas();
-      fetchRascunhos();
-      // Força reload das etiquetas no filtro
-      setEtiquetasRefreshKey((prev) => prev + 1);
-   }, [fetchOrdensAprovadas, fetchRascunhos]);
+   };
 
-   const handleOpenOrdem = useCallback(async (ordem: OrdemMissao) => {
+   const handleOpenOrdem = (ordem: OrdemMissaoList) => {
       setLoadingOrdemData(ordem);
-      setIsLoadingOrdem(true);
-      try {
-         // Busca dados completos da ordem
-         const ordemCompleta = await getOrdem(ordem.id);
-         setSelectedOrdem(ordemFromApi(ordemCompleta));
-         setIsCloning(false);
-         setModalOpen(true);
-      } catch (err) {
-         console.error("Erro ao abrir ordem:", err);
-         setError("Erro ao carregar detalhes da ordem");
-      } finally {
-         setIsLoadingOrdem(false);
-         setLoadingOrdemData(null);
-      }
-   }, []);
+      setSelectedOrdemId(ordem.id);
+      setIsCloning(false);
+      setModalOpen(true);
+   };
 
-   const handleCloneOrdem = useCallback(async (ordem: OrdemMissao) => {
+   const handleCloneOrdem = (ordem: OrdemMissaoList) => {
       setLoadingOrdemData(ordem);
-      setIsLoadingOrdem(true);
-      try {
-         const ordemCompleta = await getOrdem(ordem.id);
-         setSelectedOrdem(ordemFromApi(ordemCompleta));
-         setIsCloning(true);
-         setModalOpen(true);
-      } catch (err) {
-         console.error("Erro ao clonar ordem:", err);
-         setError("Erro ao carregar ordem para clonagem");
-      } finally {
-         setIsLoadingOrdem(false);
-         setLoadingOrdemData(null);
-      }
-   }, []);
+      setSelectedOrdemId(ordem.id);
+      setIsCloning(true);
+      setModalOpen(true);
+   };
 
    // Abre modal de confirmacao de exclusao
-   const handleDeleteOrdem = useCallback((ordem: OrdemMissao) => {
+   const handleDeleteOrdem = (ordem: OrdemMissaoList) => {
       setOrdemToDelete(ordem);
       setDeleteModalOpen(true);
-   }, []);
+   };
 
-   // Confirma exclusao
-   const confirmDeleteOrdem = async () => {
+   // Confirma exclusao (usa mutation)
+   const confirmDeleteOrdem = () => {
       if (!ordemToDelete) return;
 
-      setIsDeleting(true);
-      try {
-         await deleteOrdem(ordemToDelete.id);
-         setDeleteModalOpen(false);
-         setOrdemToDelete(null);
-         // Recarrega listas
-         fetchOrdensAprovadas();
-         fetchRascunhos();
-      } catch (err) {
-         console.error("Erro ao excluir ordem:", err);
-         setError("Erro ao excluir ordem");
-      } finally {
-         setIsDeleting(false);
-      }
+      deleteOrdemMutation.mutate(ordemToDelete.id, {
+         onSuccess: () => {
+            setDeleteModalOpen(false);
+            setOrdemToDelete(null);
+         },
+         onError: (err) => {
+            console.error("Erro ao excluir ordem:", err);
+         },
+      });
    };
 
    // Cancela exclusao
@@ -325,11 +210,11 @@ export default function OrdensMissao() {
 
    // Handlers de paginacao
    const handlePageChangeAprovadas = (page: number) => {
-      setPaginationAprovadas((prev) => ({ ...prev, page }));
+      setPageAprovadas(page);
    };
 
    const handlePageChangeRascunho = (page: number) => {
-      setPaginationRascunho((prev) => ({ ...prev, page }));
+      setPageRascunho(page);
    };
 
    return (
@@ -347,7 +232,7 @@ export default function OrdensMissao() {
                </div>
                <button
                   onClick={() => {
-                     setSelectedOrdem(null);
+                     setSelectedOrdemId(null);
                      setIsCloning(false);
                      setModalOpen(true);
                   }}
@@ -359,15 +244,10 @@ export default function OrdensMissao() {
             </header>
 
             {/* Erro global */}
-            {error && (
+            {ordensAprovadasQuery.isError && (
                <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-4 text-red-700">
-                  {error}
-                  <button
-                     onClick={() => setError(null)}
-                     className="ml-4 text-sm underline"
-                  >
-                     Fechar
-                  </button>
+                  {ordensAprovadasQuery.error?.message ||
+                     "Erro ao carregar ordens"}
                </div>
             )}
 
@@ -392,15 +272,14 @@ export default function OrdensMissao() {
                      filtros={filtros}
                      onFiltrosChange={setFiltros}
                      onClearFiltros={clearFiltros}
-                     refreshKey={etiquetasRefreshKey}
                   />
                   <p className="mb-3 text-sm text-gray-500">
                      {paginationAprovadas.total}{" "}
                      {paginationAprovadas.total === 1
-                        ? "missao encontrada"
-                        : "missoes encontradas"}
+                        ? "missão encontrada"
+                        : "missões encontradas"}
                   </p>
-                  {isLoadingAprovadas ? (
+                  {ordensAprovadasQuery.isLoading ? (
                      <div className="flex items-center justify-center py-12">
                         <Spinner size="lg" color="failure" />
                      </div>
@@ -415,13 +294,12 @@ export default function OrdensMissao() {
                         {paginationAprovadas.pages > 1 && (
                            <div className="mt-4 flex justify-center">
                               <Pagination
-                                 currentPage={paginationAprovadas.page}
+                                 currentPage={pageAprovadas}
                                  totalPages={paginationAprovadas.pages}
                                  onPageChange={handlePageChangeAprovadas}
                                  showIcons
                                  previousLabel="Anterior"
                                  nextLabel="Proxima"
-                                 theme={paginationTheme}
                               />
                            </div>
                         )}
@@ -445,9 +323,9 @@ export default function OrdensMissao() {
                         ? "rascunho encontrado"
                         : "rascunhos encontrados"}
                   </p>
-                  {isLoadingRascunho ? (
+                  {ordensRascunhoQuery.isLoading ? (
                      <div className="flex items-center justify-center py-12">
-                        <Spinner size="lg" />
+                        <Spinner size="lg" color="failure" />
                      </div>
                   ) : (
                      <>
@@ -460,13 +338,12 @@ export default function OrdensMissao() {
                         {paginationRascunho.pages > 1 && (
                            <div className="mt-4 flex justify-center">
                               <Pagination
-                                 currentPage={paginationRascunho.page}
+                                 currentPage={pageRascunho}
                                  totalPages={paginationRascunho.pages}
                                  onPageChange={handlePageChangeRascunho}
                                  showIcons
                                  previousLabel="Anterior"
                                  nextLabel="Proxima"
-                                 theme={paginationTheme}
                               />
                            </div>
                         )}
@@ -477,15 +354,15 @@ export default function OrdensMissao() {
          </div>
 
          {/* Modal de edicao/criacao */}
-         <OrdemModal
-            ordem={selectedOrdem}
+         <OrdemDetail
+            ordem={selectedOrdemQuery.data ?? null}
             onSave={handleSaveOrdem}
             onClose={() => {
                setModalOpen(false);
-               setSelectedOrdem(null);
+               setSelectedOrdemId(null);
                setIsCloning(false);
             }}
-            isNew={!selectedOrdem || isCloning}
+            isNew={!selectedOrdemQuery.data || isCloning}
             isCloning={isCloning}
             isOpen={modalOpen}
          />
@@ -495,15 +372,15 @@ export default function OrdensMissao() {
             isOpen={deleteModalOpen}
             ordemNumero={ordemToDelete?.numero || ""}
             ordemUae={ordemToDelete?.uae || ""}
-            ordemDataSaida={ordemToDelete?.dataSaida || ""}
+            ordemDataSaida={ordemToDelete?.data_saida || ""}
             ordemStatus={ordemToDelete?.status}
             onConfirm={confirmDeleteOrdem}
             onCancel={cancelDeleteOrdem}
-            isDeleting={isDeleting}
+            isDeleting={deleteOrdemMutation.isPending}
          />
 
          {/* Overlay de carregamento ao abrir ordem */}
-         {isLoadingOrdem && loadingOrdemData && (
+         {selectedOrdemQuery.isLoading && loadingOrdemData && (
             <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-xs">
                <div className="flex flex-col items-center gap-4 rounded-lg bg-white p-8 shadow-xl">
                   <Spinner size="xl" color="failure" />
@@ -511,7 +388,7 @@ export default function OrdensMissao() {
                      Carregando detalhes da ordem
                   </p>
                   <p className="font-mono text-xl font-bold text-gray-900 uppercase">
-                     {`${loadingOrdemData.numero}/${loadingOrdemData.uae}/${formatDateForDisplay(loadingOrdemData.dataSaida)}`}
+                     {`${loadingOrdemData.numero}/${loadingOrdemData.uae}/${formatDateForDisplay(loadingOrdemData.data_saida)}`}
                   </p>
                </div>
             </div>

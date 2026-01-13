@@ -1,7 +1,7 @@
 "use client";
 
 import { HiTag, HiX } from "react-icons/hi";
-import { Etiqueta } from "../types";
+import type { Etiqueta } from "services/routes/om/ordens";
 
 type LabelPickerProps = {
    allLabels: Etiqueta[];
