@@ -1,5 +1,5 @@
 import { memo, useMemo } from "react";
-import { Spinner } from "@/components/Spinner";
+import { Spinner } from "flowbite-react";
 import { PermissionMatrix } from "./PermissionMatrix";
 import type {
    Resource,
@@ -56,7 +56,7 @@ export const PermissionsMatrixTab = memo(function PermissionsMatrixTab({
       return (
          <div className="flex h-96 items-center justify-center">
             <div className="flex flex-col items-center gap-3">
-               <Spinner size="xl" />
+               <Spinner color="failure" size="xl" />
                <span className="text-gray-600">Carregando permissões...</span>
             </div>
          </div>

@@ -27,7 +27,7 @@ export function UserTable({ usuarios, loading }: UserTableProps) {
    return (
       <>
          <div
-            className={`hidden overflow-x-auto md:block ${loading ? "opacity-50" : "opacity-100"} transition-opacity duration-200`}
+            className={`hidden min-h-100 overflow-x-auto md:block ${loading ? "opacity-50" : "opacity-100"} transition-opacity duration-200`}
          >
             <Table hoverable>
                <TableHead>

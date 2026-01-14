@@ -4,8 +4,8 @@ import {
    ModalBody,
    TextInput,
    Button,
+   Spinner,
 } from "flowbite-react";
-import { Spinner } from "@/components/Spinner";
 import { useState, useEffect } from "react";
 import { FaCheckCircle, FaMapMarkerAlt } from "react-icons/fa";
 import { IoMdSearch } from "react-icons/io";
@@ -113,7 +113,7 @@ export function SearchLocal({ show, setShow, setLocal }: SearchLocalProps) {
                   >
                      {isLoading ? (
                         <div className="flex items-center gap-2">
-                           <Spinner size="sm" color="white" />
+                           <Spinner size="sm" color="default" />
                            <span>Buscando...</span>
                         </div>
                      ) : (
@@ -129,7 +129,7 @@ export function SearchLocal({ show, setShow, setLocal }: SearchLocalProps) {
                <div className="flex flex-col overflow-hidden rounded-xl border border-gray-200 bg-linear-to-br from-slate-50 to-gray-50 shadow-sm">
                   {isLoading ? (
                      <div className="flex flex-col items-center justify-center px-4 py-16">
-                        <Spinner size="xl" />
+                        <Spinner size="xl" color="failure" />
                         <p className="font-medium text-gray-600">
                            Procurando cidades...
                         </p>

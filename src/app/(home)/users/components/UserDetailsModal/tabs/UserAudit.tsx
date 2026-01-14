@@ -1,6 +1,5 @@
 import { useUserLogs } from "@/hooks/queries";
-import { Badge } from "flowbite-react";
-import { Spinner } from "@/components/Spinner";
+import { Badge, Spinner } from "flowbite-react";
 import { HiClock, HiPencil, HiDocumentText } from "react-icons/hi";
 
 export function UserAudit({ userId }: { userId?: number }) {

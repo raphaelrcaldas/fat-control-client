@@ -212,7 +212,11 @@ export function DiariaFormModal({
                   >
                      {isSubmitting ? (
                         <>
-                           <Spinner size="sm" className="mr-2" />
+                           <Spinner
+                              size="sm"
+                              className="mr-2"
+                              color="failure"
+                           />
                            Salvando...
                         </>
                      ) : isCreating ? (

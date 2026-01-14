@@ -12,8 +12,8 @@ import {
    TextInput,
    Select,
    Badge,
+   Spinner,
 } from "flowbite-react";
-import { Spinner } from "@/components/Spinner";
 import { HiSearch, HiRefresh, HiFilter } from "react-icons/hi";
 import clsx from "clsx";
 
@@ -137,7 +137,11 @@ export default function LogDashboard() {
                      <TableRow className="bg-white">
                         <TableCell colSpan={4} className="py-12 text-center">
                            <div className="flex flex-col items-center justify-center gap-3">
-                              <Spinner size="xl" aria-label="loading" />
+                              <Spinner
+                                 size="xl"
+                                 aria-label="loading"
+                                 color="failure"
+                              />
                               <span className="text-base font-medium text-gray-600">
                                  Carregando logs...
                               </span>

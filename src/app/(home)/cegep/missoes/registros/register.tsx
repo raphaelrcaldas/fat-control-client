@@ -2,13 +2,12 @@
 
 import { getFragMissoes } from "services/routes/cegep/missoes";
 import { useEffect, useState, useCallback } from "react";
-import { Label, TextInput, Badge } from "flowbite-react";
+import { Label, TextInput, Badge, Spinner } from "flowbite-react";
 import { Missao } from "services/routes/cegep/missoes";
 import { CardMission } from "./components/cardMission";
 import MissionDetail from "./components/missionDetail";
 import { useRegisterContext } from "../../context/registerContext";
 import { useEtiquetas } from "../../context/etiquetasContext";
-import { Spinner } from "@/components/Spinner";
 import { Pagination } from "@/components/Pagination";
 import { MultiSelect } from "@/components/MultiSelect";
 import {
@@ -592,7 +591,7 @@ export function RegisPage() {
             <section className="flex-1">
                {loading ? (
                   <div className="flex min-h-75 flex-col items-center justify-center gap-2 p-8">
-                     <Spinner size="lg" />
+                     <Spinner size="lg" color="failure" />
                      <p className="text-sm text-gray-500">Carregando...</p>
                   </div>
                ) : (

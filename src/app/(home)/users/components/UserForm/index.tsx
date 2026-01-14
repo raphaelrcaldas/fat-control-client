@@ -6,8 +6,7 @@
  */
 
 import { useEffect, useState } from "react";
-import { Button } from "flowbite-react";
-import { Spinner } from "@/components/Spinner";
+import { Button, Spinner } from "flowbite-react";
 import { useToast } from "@/app/context/toast";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";

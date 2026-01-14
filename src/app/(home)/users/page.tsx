@@ -1,8 +1,7 @@
 "use client";
 
-import { Button, Select, TextInput } from "flowbite-react";
+import { Button, Select, TextInput, Spinner } from "flowbite-react";
 import { HiSearch, HiUserAdd, HiUsers } from "react-icons/hi";
-import { Spinner } from "@/components/Spinner";
 import { Pagination } from "@/components/Pagination";
 import { MultiSelect } from "@/components/MultiSelect";
 import { useState } from "react";

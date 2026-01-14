@@ -1,6 +1,5 @@
 import { resetPassword } from "services/routes/users";
-import { Button } from "flowbite-react";
-import { Spinner } from "@/components/Spinner";
+import { Button, Spinner } from "flowbite-react";
 import { useState } from "react";
 import { useToast } from "@/app/context/toast";
 import {

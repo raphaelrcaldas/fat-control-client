@@ -1,6 +1,12 @@
 import { useState, useCallback } from "react";
-import { Label, TextInput, Checkbox, Button, Badge } from "flowbite-react";
-import { Spinner } from "@/components/Spinner";
+import {
+   Label,
+   TextInput,
+   Checkbox,
+   Button,
+   Badge,
+   Spinner,
+} from "flowbite-react";
 import { FaSave } from "react-icons/fa";
 import { HiCheckCircle, HiXCircle } from "react-icons/hi";
 import { useTripForm } from "../../hooks/useTripForm";
@@ -162,7 +168,7 @@ export function TripEditForm({
             >
                {submitting ? (
                   <div className="flex items-center gap-2">
-                     <Spinner size="sm" color="white" />
+                     <Spinner size="sm" color="default" />
                      <span>Salvando...</span>
                   </div>
                ) : (

@@ -5,9 +5,8 @@ import {
    getDadosBancarios,
    DadosBancariosWithUser,
 } from "services/routes/cegep/dadosBancarios";
-import { TextInput, Badge } from "flowbite-react";
+import { TextInput, Badge, Spinner } from "flowbite-react";
 import { HiSearch, HiX, HiPlus, HiOfficeBuilding } from "react-icons/hi";
-import { Spinner } from "@/components/Spinner";
 import { sortByAntiguidade } from "utils/sortByAntiguidade";
 import ListDadosBancarios from "./components/listDadosBancarios";
 import DetailDadosBancarios from "./components/detailDadosBancarios";
@@ -155,7 +154,7 @@ export default function DadosBancariosPage() {
          <section className="flex-1 overflow-auto">
             {loading ? (
                <div className="flex h-64 items-center justify-center">
-                  <Spinner size="xl" />
+                  <Spinner color="failure" size="xl" />
                </div>
             ) : dadosBancarios.length === 0 ? (
                <div className="flex h-64 flex-col items-center justify-center rounded-xl border-2 border-dashed border-gray-300 bg-white dark:border-gray-700 dark:bg-gray-800">

@@ -9,8 +9,8 @@ import {
    Label,
    TextInput,
    Checkbox,
+   Spinner,
 } from "flowbite-react";
-import { Spinner } from "@/components/Spinner";
 import { MissionPernoite } from "./pernoite/missionPernoite";
 import { FormPernoite } from "./pernoite/formPernoite";
 import { FormMilitar } from "./militar/formMilitar";
@@ -474,7 +474,7 @@ export default function MissionDetail({
                      <div>
                         {loadingEtiquetas ? (
                            <div className="flex items-center gap-2 text-sm text-slate-500">
-                              <Spinner className="h-4 w-4" />
+                              <Spinner className="h-4 w-4" color="failure" />
                               Carregando etiquetas...
                            </div>
                         ) : etiquetasDisponiveis.length === 0 ? (
@@ -980,7 +980,7 @@ export default function MissionDetail({
                         >
                            {isLoading ? (
                               <div className="flex items-center gap-2">
-                                 <Spinner size="sm" color="white" />
+                                 <Spinner size="sm" color="failure" />
                                  <span>Salvando...</span>
                               </div>
                            ) : missao ? (

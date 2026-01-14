@@ -16,8 +16,7 @@ import {
 import { useToast } from "@/app/context/toast";
 import { sortByAntiguidadeInPlace } from "utils/sortByAntiguidade";
 import { FaUsers, FaShield } from "react-icons/fa6";
-import { Tabs, TabItem } from "flowbite-react";
-import { Spinner } from "@/components/Spinner";
+import { Tabs, TabItem, Spinner } from "flowbite-react";
 import { UsersTab, PermissionsMatrixTab } from "./components";
 
 export default function RolePage() {
@@ -83,7 +82,7 @@ export default function RolePage() {
       return (
          <div className="flex h-screen items-center justify-center">
             <div className="flex flex-col items-center gap-3">
-               <Spinner size="xl" />
+               <Spinner color="failure" size="xl" />
                <span className="text-gray-600">Carregando perfis...</span>
             </div>
          </div>

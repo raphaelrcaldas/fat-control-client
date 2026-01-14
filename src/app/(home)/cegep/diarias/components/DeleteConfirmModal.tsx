@@ -34,7 +34,11 @@ export function DeleteConfirmModal({
                   <Button color="red" onClick={onConfirm} disabled={isDeleting}>
                      {isDeleting ? (
                         <>
-                           <Spinner size="sm" className="mr-2" />
+                           <Spinner
+                              size="sm"
+                              className="mr-2"
+                              color="failure"
+                           />
                            Excluindo...
                         </>
                      ) : (

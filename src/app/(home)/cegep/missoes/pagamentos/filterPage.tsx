@@ -1,8 +1,14 @@
 "use client";
 
 import { useEffect, useState, useMemo, useCallback, useRef } from "react";
-import { Label, TextInput, Select, Checkbox, Badge } from "flowbite-react";
-import { Spinner } from "@/components/Spinner";
+import {
+   Label,
+   TextInput,
+   Select,
+   Checkbox,
+   Badge,
+   Spinner,
+} from "flowbite-react";
 import { Pagination } from "@/components/Pagination";
 import { MultiSelect } from "@/components/MultiSelect";
 import { getPgts } from "services/routes/cegep/financeiro";
@@ -613,7 +619,7 @@ export function FilterPage({ active }) {
                {/* Loading inicial (sem dados) */}
                {loading && !misRecords ? (
                   <div className="flex flex-col items-center justify-center gap-4 p-16">
-                     <Spinner size="xl" />
+                     <Spinner size="xl" color="failure"/>
                      <p className="text-lg font-medium text-gray-600">
                         Carregando registros...
                      </p>
@@ -694,7 +700,7 @@ export function FilterPage({ active }) {
                      <div className="relative overflow-x-auto">
                         {loading && (
                            <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/70">
-                              <Spinner size="xl" />
+                              <Spinner size="xl" color="failure"/>
                            </div>
                         )}
                         <ul className="px-2" key={listKey}>
@@ -723,7 +729,7 @@ export function FilterPage({ active }) {
                   </div>
                ) : loading ? (
                   <div className="flex flex-col items-center justify-center gap-4 p-16">
-                     <Spinner size="xl" />
+                     <Spinner size="xl" color="failure"/>
                      <p className="text-lg font-medium text-gray-600">
                         Carregando registros...
                      </p>

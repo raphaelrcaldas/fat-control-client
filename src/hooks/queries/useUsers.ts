@@ -1,4 +1,9 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+   useQuery,
+   useMutation,
+   useQueryClient,
+   keepPreviousData,
+} from "@tanstack/react-query";
 import {
    getUsers,
    getUserById,
@@ -34,6 +39,7 @@ export function useUsers(params?: GetUsersParams) {
    return useQuery({
       queryKey: userKeys.list(params),
       queryFn: ({ signal }) => getUsers(params, signal),
+      placeholderData: keepPreviousData,
    });
 }
 

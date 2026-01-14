@@ -1,8 +1,7 @@
 "use client";
 
 import { useEffect, useState, useMemo, useCallback } from "react";
-import { Label, Select, TextInput, Badge } from "flowbite-react";
-import { Spinner } from "@/components/Spinner";
+import { Label, Select, TextInput, Badge, Spinner } from "flowbite-react";
 import { ListComiss } from "./components/listComiss";
 import { DetailComiss } from "./components/detailComiss";
 import { getCmtos, ComissList } from "services/routes/cegep/comiss";
@@ -348,10 +347,10 @@ export default function ComissPage() {
             )}
 
             {/* Content Section */}
-            <div className="min-h-[200px] flex-1">
+            <div className="min-h-50 flex-1">
                {loading ? (
                   <div className="flex flex-col items-center justify-center gap-4 py-16">
-                     <Spinner size="xl" />
+                     <Spinner color="failure" size="xl" />
                      <p className="text-sm font-medium text-gray-600">
                         Carregando comissionamentos...
                      </p>

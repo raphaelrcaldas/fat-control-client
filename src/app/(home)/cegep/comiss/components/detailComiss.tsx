@@ -13,8 +13,8 @@ import {
    Checkbox,
    Select,
    Progress,
+   Spinner,
 } from "flowbite-react";
-import { Spinner } from "@/components/Spinner";
 import { isoStrToDate } from "utils/dateHandler";
 import { gerarRelatorio } from "utils/planilhaComiss";
 import { gerarRelatorioDocx } from "utils/apostilaComiss";
@@ -557,7 +557,7 @@ export function DetailComiss({
                >
                   {isLoading ? (
                      <div className="flex items-center gap-2">
-                        <Spinner size="sm" color="white" />
+                        <Spinner size="sm" color="failure" />
                         <span>Salvando...</span>
                      </div>
                   ) : comiss ? (
@@ -978,7 +978,7 @@ export function DetailComiss({
                   <div className="overflow-hidden rounded-xl border border-gray-200 bg-white">
                      {loadingDetail ? (
                         <div className="flex justify-center p-8">
-                           <Spinner size="md" />
+                           <Spinner color="failure" size="md" />
                         </div>
                      ) : detail?.missoes && detail.missoes.length > 0 ? (
                         <div className="divide-y divide-gray-100">

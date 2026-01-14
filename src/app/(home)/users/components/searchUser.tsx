@@ -4,8 +4,8 @@ import {
    ModalBody,
    TextInput,
    Button,
+   Spinner,
 } from "flowbite-react";
-import { Spinner } from "@/components/Spinner";
 import { useState } from "react";
 import { FaCheckCircle, FaSearch } from "react-icons/fa";
 import { IoMdSearch } from "react-icons/io";

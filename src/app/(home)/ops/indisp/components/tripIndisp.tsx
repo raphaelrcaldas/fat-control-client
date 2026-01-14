@@ -171,7 +171,7 @@ export const TripIndisp = ({
                <ModalHeader>
                   <span className="text-lg font-bold">Indisponibilidades</span>
                </ModalHeader>
-               <ModalBody className="max-h-[450px] min-h-[450px] overflow-y-auto">
+               <ModalBody className="max-h-112.5 min-h-112.5 overflow-y-auto">
                   <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-4">
                      <h3 className="text-center text-lg font-bold text-gray-900 uppercase">
                         {user.posto.short} {user.esp} {user.nome_guerra}

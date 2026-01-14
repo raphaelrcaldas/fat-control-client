@@ -1,6 +1,5 @@
 import { useState, useCallback } from "react";
-import { Modal, ModalHeader, ModalBody, Button } from "flowbite-react";
-import { Spinner } from "@/components/Spinner";
+import { Modal, ModalHeader, ModalBody, Button, Spinner } from "flowbite-react";
 import { FaTrash } from "react-icons/fa";
 import { deleteCrewFunc } from "services/routes/trips";
 import { useToast } from "@/app/context/toast";
@@ -92,7 +91,7 @@ export function FuncDeleteModal({
                   <Button color="red" onClick={handleDelete} disabled={loading}>
                      {loading ? (
                         <div className="flex items-center gap-2">
-                           <Spinner size="sm" color="white" />
+                           <Spinner size="sm" color="failure" />
                            <span>Excluindo...</span>
                         </div>
                      ) : (

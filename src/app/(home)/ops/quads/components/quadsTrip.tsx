@@ -11,8 +11,8 @@ import {
    TableHead,
    TableHeadCell,
    TableRow,
+   Spinner,
 } from "flowbite-react";
-import { Spinner } from "@/components/Spinner";
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { getQuadById, deleteQuad } from "services/routes/quads";
 import { isoDateToString } from "utils/dateHandler";
@@ -126,7 +126,7 @@ export function QuadsTrip({
          <Button
             color="light"
             onClick={() => setOpenModal(true)}
-            className="inline-flex w-[4rem] items-center overflow-visible px-0 text-sm font-medium uppercase transition-colors hover:bg-gray-100"
+            className="inline-flex w-16 items-center overflow-visible px-0 text-sm font-medium uppercase transition-colors hover:bg-gray-100"
             size="sm"
             aria-label={`Ver quadrinhos de ${userName}`}
          >
@@ -289,7 +289,7 @@ function QuadRow({ quad, trip, onUpdate, onDelete }: QuadRowProps) {
 
                      {deleting ? (
                         <div className="p-2">
-                           <Spinner size="sm" />
+                           <Spinner size="sm" color="failure"/>
                         </div>
                      ) : (
                         <button
@@ -327,7 +327,7 @@ function QuadRow({ quad, trip, onUpdate, onDelete }: QuadRowProps) {
 function LoadingState() {
    return (
       <div className="flex h-full flex-col items-center justify-center gap-3 p-4">
-         <Spinner size="lg" />
+         <Spinner size="lg" color="failure"/>
          <p className="text-sm text-gray-600 dark:text-gray-400">
             Carregando quadrinhos...
          </p>

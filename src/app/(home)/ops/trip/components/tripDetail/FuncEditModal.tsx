@@ -6,8 +6,8 @@ import {
    Select,
    TextInput,
    Button,
+   Spinner,
 } from "flowbite-react";
-import { Spinner } from "@/components/Spinner";
 import { FaSave } from "react-icons/fa";
 import { useFuncForm } from "../../hooks/useFuncForm";
 import { isFuncAvailable } from "../../utils/checkFuncAvailability";
@@ -197,7 +197,7 @@ export function FuncEditModal({
                   <Button type="submit" disabled={submitting} color="blue">
                      {submitting ? (
                         <div className="flex items-center gap-2">
-                           <Spinner size="sm" color="white" />
+                           <Spinner size="sm" color="failure" />
                            <span>Salvando...</span>
                         </div>
                      ) : (
