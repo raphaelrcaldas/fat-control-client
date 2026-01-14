@@ -107,7 +107,7 @@ export function SearchUser({
                         className="px-4"
                      >
                         {isLoading ? (
-                           <Spinner size="sm" color="white" />
+                           <Spinner size="sm" color="gray" />
                         ) : (
                            <IoMdSearch className="size-5" />
                         )}
@@ -124,7 +124,7 @@ export function SearchUser({
                <div className="relative flex h-80 flex-col overflow-y-auto rounded-lg border border-gray-200 bg-gray-50 px-4 transition-all duration-300">
                   {isLoading ? (
                      <div className="animate-in fade-in absolute inset-0 flex flex-col items-center justify-center gap-3 bg-gray-50 duration-200">
-                        <Spinner size="lg" />
+                        <Spinner size="lg" color="failure" />
                         <span className="text-sm text-gray-500">
                            Buscando militares...
                         </span>

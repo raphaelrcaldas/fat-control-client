@@ -183,7 +183,7 @@ export function UserForm({ userId, onSuccess }: UserFormProps) {
    if (loadingUser) {
       return (
          <div className="flex h-40 items-center justify-center">
-            <Spinner size="xl" />
+            <Spinner size="xl" color="failure" />
          </div>
       );
    }

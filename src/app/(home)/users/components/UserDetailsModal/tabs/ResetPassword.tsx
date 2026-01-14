@@ -95,7 +95,7 @@ export function ResetPassword({ userId }) {
                >
                   {isLoading ? (
                      <>
-                        <Spinner size="sm" color="white" />
+                        <Spinner size="sm" color="gray" />
                         Redefinindo...
                      </>
                   ) : (

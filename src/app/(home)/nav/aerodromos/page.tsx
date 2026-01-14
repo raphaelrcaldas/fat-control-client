@@ -519,7 +519,7 @@ export default function AerodromoCadastro() {
                               setSelectedAero(null);
                               setMapResetKey((prev) => prev + 1);
                            }}
-                           className="group absolute top-4 right-4 z-[500] rounded-lg border border-gray-200 bg-white/95 p-2.5 shadow-lg backdrop-blur transition-colors hover:bg-gray-50"
+                           className="group absolute top-4 right-4 z-500 rounded-lg border border-gray-200 bg-white/95 p-2.5 shadow-lg backdrop-blur transition-colors hover:bg-gray-50"
                            title="Resetar visualização do mapa"
                         >
                            <HiHome className="h-5 w-5 text-gray-600 transition-colors group-hover:text-red-600" />
@@ -527,7 +527,7 @@ export default function AerodromoCadastro() {
 
                         {/* Overlay de Informação */}
                         {selectedAero && (
-                           <div className="absolute right-4 bottom-4 left-4 z-[500] flex items-center justify-between rounded-lg border border-gray-200 bg-white/95 p-4 shadow-lg backdrop-blur">
+                           <div className="absolute right-4 bottom-4 left-4 z-500 flex items-center justify-between rounded-lg border border-gray-200 bg-white/95 p-4 shadow-lg backdrop-blur">
                               <div>
                                  <h4 className="font-bold text-gray-900">
                                     {selectedAero.base_aerea?.nome ||

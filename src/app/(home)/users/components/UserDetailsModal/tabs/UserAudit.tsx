@@ -10,7 +10,7 @@ export function UserAudit({ userId }: { userId?: number }) {
    if (isLoading)
       return (
          <div className="flex flex-col items-center justify-center p-8">
-            <Spinner size="xl" />
+            <Spinner size="xl" color="failure" />
             <p className="mt-4 text-gray-500">Carregando histórico...</p>
          </div>
       );
