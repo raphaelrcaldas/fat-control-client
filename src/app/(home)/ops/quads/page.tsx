@@ -5,6 +5,7 @@ import { Spinner } from "@/components/Spinner";
 import { getQuads, getQuadsType } from "services/routes/quads";
 import { useQuadsContext } from "../../context/quads";
 import { CrewQuadRes } from "services/routes/quads";
+import { compareByAntiguidade } from "utils/sortByAntiguidade";
 import CrewRow from "./components/crewRow";
 
 // Constantes para valores configuráveis
@@ -145,15 +146,7 @@ export default function QuadPage() {
 
             return tripOprA.getTime() - tripOprB.getTime();
          } else {
-            const antA = tripA.user.posto.ant;
-            const antB = tripB.user.posto.ant;
-            if (antA !== antB) return antA - antB;
-
-            const promoA = tripA.user.ult_promo || "";
-            const promoB = tripB.user.ult_promo || "";
-            if (promoA !== promoB) return promoA.localeCompare(promoB);
-
-            return (tripA.user.ant_rel ?? 0) - (tripB.user.ant_rel ?? 0);
+            return compareByAntiguidade(tripA.user, tripB.user);
          }
       });
 

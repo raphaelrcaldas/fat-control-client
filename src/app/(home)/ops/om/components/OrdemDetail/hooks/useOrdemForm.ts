@@ -22,6 +22,7 @@ import {
    extractTime,
    calcularTempoVooMinutos,
 } from "utils/dateHandler";
+import { compareByAntiguidade } from "utils/sortByAntiguidade";
 
 // Calcula o esforço aéreo total (soma dos tempos de voo das etapas)
 const calcularEsfAer = (etapas: EtapaOut[]): number => {
@@ -293,28 +294,12 @@ export const useOrdemForm = ({
       setFormData({ ...formData, ...updates });
    };
 
-   // Funcao de comparacao para ordenacao por antiguidade
-   const sortByAntiguidade = (a: CrewMember, b: CrewMember) => {
-      // Ordena por antiguidade relativa (ant_rel) - menor é mais antigo
-      const antRelA = a.user?.ant_rel ?? Number.MAX_SAFE_INTEGER;
-      const antRelB = b.user?.ant_rel ?? Number.MAX_SAFE_INTEGER;
-
-      if (antRelA !== antRelB) {
-         return antRelA - antRelB;
-      }
-
-      // Se ant_rel for igual, ordena por data de última promoção
-      const promoA = a.user?.ult_promo || "";
-      const promoB = b.user?.ult_promo || "";
-      return promoA.localeCompare(promoB);
-   };
-
    const addTripulante = (funcao: FuncaoTripulante, tripulante: CrewMember) => {
       if (!isEditable) return;
       if (tripulacao[funcao].some((t) => t.id === tripulante.id)) return;
 
-      const updatedList = [...tripulacao[funcao], tripulante].sort(
-         sortByAntiguidade
+      const updatedList = [...tripulacao[funcao], tripulante].sort((a, b) =>
+         compareByAntiguidade(a.user, b.user)
       );
 
       setTripulacao({

@@ -8,6 +8,7 @@ import {
 import { TextInput, Badge } from "flowbite-react";
 import { HiSearch, HiX, HiPlus, HiOfficeBuilding } from "react-icons/hi";
 import { Spinner } from "@/components/Spinner";
+import { sortByAntiguidade } from "utils/sortByAntiguidade";
 import ListDadosBancarios from "./components/listDadosBancarios";
 import DetailDadosBancarios from "./components/detailDadosBancarios";
 import { RoleBasedRoute } from "../../hooks/useRoleBased";
@@ -32,14 +33,7 @@ export default function DadosBancariosPage() {
          const data = await getDadosBancarios(undefined, searchUser);
 
          // Ordenar por posto e antiguidade
-         const sorted = data.sort((a, b) => {
-            const antA = a.user.posto.ant;
-            const antB = b.user.posto.ant;
-            if (antA !== antB) return antA - antB;
-            return (a.user.ant_rel ?? 0) - (b.user.ant_rel ?? 0);
-         });
-
-         setDadosBancarios(sorted);
+         setDadosBancarios(sortByAntiguidade(data));
       } catch (error) {
          console.error("Erro ao carregar dados bancários", error);
       } finally {

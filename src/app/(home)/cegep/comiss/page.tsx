@@ -7,6 +7,7 @@ import { ListComiss } from "./components/listComiss";
 import { DetailComiss } from "./components/detailComiss";
 import { getCmtos, ComissList } from "services/routes/cegep/comiss";
 import { RoleBasedRoute } from "../../hooks/useRoleBased";
+import { sortByAntiguidade } from "utils/sortByAntiguidade";
 import { HiFilter, HiX } from "react-icons/hi";
 
 export default function ComissPage() {
@@ -29,19 +30,7 @@ export default function ComissPage() {
       try {
          const data = await getCmtos(statusComis, searchUser);
 
-         const sorted = data.sort((a, b) => {
-            const antA = a.user.posto.ant;
-            const antB = b.user.posto.ant;
-            if (antA !== antB) return antA - antB;
-
-            const promoA = a.user.ult_promo || "";
-            const promoB = b.user.ult_promo || "";
-            if (promoA !== promoB) return promoA.localeCompare(promoB);
-
-            return (a.user.ant_rel ?? 0) - (b.user.ant_rel ?? 0);
-         });
-
-         setCmtos(sorted);
+         setCmtos(sortByAntiguidade(data));
       } catch (error) {
          console.error("Erro ao carregar comissionamentos", error);
       } finally {

@@ -14,6 +14,7 @@ import {
    type PermissionDetail,
 } from "services/routes/security/resources";
 import { useToast } from "@/app/context/toast";
+import { sortByAntiguidadeInPlace } from "utils/sortByAntiguidade";
 import { FaUsers, FaShield } from "react-icons/fa6";
 import { Tabs, TabItem } from "flowbite-react";
 import { Spinner } from "@/components/Spinner";
@@ -32,17 +33,7 @@ export default function RolePage() {
    const refreshUserRoles = useCallback(async () => {
       try {
          const data = await getUsersRoles();
-         data.sort((a, b) => {
-            const antA = a.user.posto.ant;
-            const antB = b.user.posto.ant;
-            if (antA !== antB) return antA - antB;
-
-            const promoA = a.user.ult_promo || "";
-            const promoB = b.user.ult_promo || "";
-            if (promoA !== promoB) return promoA.localeCompare(promoB);
-
-            return (a.user.ant_rel ?? 0) - (b.user.ant_rel ?? 0);
-         });
+         sortByAntiguidadeInPlace(data);
          setUserRoles(data);
       } catch (error) {
          push({
@@ -63,17 +54,7 @@ export default function RolePage() {
                   getPermissions(),
                ]);
 
-            usersRolesData.sort((a, b) => {
-               const antA = a.user.posto.ant;
-               const antB = b.user.posto.ant;
-               if (antA !== antB) return antA - antB;
-
-               const promoA = a.user.ult_promo || "";
-               const promoB = b.user.ult_promo || "";
-               if (promoA !== promoB) return promoA.localeCompare(promoB);
-
-               return (a.user.ant_rel ?? 0) - (b.user.ant_rel ?? 0);
-            });
+            sortByAntiguidadeInPlace(usersRolesData);
 
             resourcesData.sort((a, b) => a.name.localeCompare(b.name));
             permissionsData.sort((a, b) => {
