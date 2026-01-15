@@ -289,7 +289,7 @@ function QuadRow({ quad, trip, onUpdate, onDelete }: QuadRowProps) {
 
                      {deleting ? (
                         <div className="p-2">
-                           <Spinner size="sm" color="failure"/>
+                           <Spinner size="sm" color="failure" />
                         </div>
                      ) : (
                         <button
@@ -327,7 +327,7 @@ function QuadRow({ quad, trip, onUpdate, onDelete }: QuadRowProps) {
 function LoadingState() {
    return (
       <div className="flex h-full flex-col items-center justify-center gap-3 p-4">
-         <Spinner size="lg" color="failure"/>
+         <Spinner size="lg" color="failure" />
          <p className="text-sm text-gray-600 dark:text-gray-400">
             Carregando quadrinhos...
          </p>

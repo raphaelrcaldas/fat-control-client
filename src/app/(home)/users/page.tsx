@@ -171,7 +171,7 @@ export default function UsersPage() {
                   {showLoadingOverlay && (
                      <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/60 backdrop-blur-[1px]">
                         <div className="flex flex-col items-center gap-3 rounded-lg bg-white px-6 py-4 shadow-lg">
-                           <Spinner size="lg" color="failure"/>
+                           <Spinner size="lg" color="failure" />
                            <p className="text-sm text-gray-600">
                               Carregando usuários...
                            </p>

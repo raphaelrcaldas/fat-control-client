@@ -42,6 +42,18 @@ export interface PaginatedTripsResponse {
    pages: number;
 }
 
+export interface CreateTripData {
+   user_id: number;
+   active: boolean;
+   uae: string;
+   trig: string;
+}
+
+export interface UpdateTripData {
+   trig?: string;
+   active?: boolean;
+}
+
 export async function getTrips(
    params: GetTripsParams,
    signal?: AbortSignal
@@ -66,11 +78,14 @@ export async function getTrips(
    return (await response.json()) as PaginatedTripsResponse;
 }
 
-export async function addTrip(trip) {
+export async function addTrip(trip: CreateTripData): Promise<Response> {
    return await request("POST", tripRoute, trip);
 }
 
-export async function updateTrip(tripId, trip) {
+export async function updateTrip(
+   tripId: number,
+   trip: UpdateTripData
+): Promise<Response> {
    return await request("PUT", tripRoute + tripId, trip);
 }
 

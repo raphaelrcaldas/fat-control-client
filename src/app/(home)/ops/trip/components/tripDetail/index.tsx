@@ -6,10 +6,9 @@ import type { Trip } from "../../types/trip.types";
 
 type TripDetailProps = {
    trip: Trip;
-   update: () => void;
 };
 
-export function TripDetail({ trip, update }: TripDetailProps) {
+export function TripDetail({ trip }: TripDetailProps) {
    const [show, setShow] = useState(false);
 
    const handleShow = useCallback(() => setShow(true), []);
@@ -30,7 +29,6 @@ export function TripDetail({ trip, update }: TripDetailProps) {
             <ModalBody>
                <TripEditForm
                   trip={trip}
-                  onSuccess={update}
                   onClose={handleClose}
                   onCancel={handleClose}
                />

@@ -6,8 +6,14 @@ import { useState } from "react";
 import { SearchUser as UserSearchModal } from "@/app/(home)/users/components/searchUser";
 import { TripRegister } from "./tripRegister";
 import { UserPublic } from "services/routes/users";
+import type { Trip } from "../types/trip.types";
 
-export function SearchUser({ uae, trips, updateTrips }) {
+type SearchUserProps = {
+   uae: string;
+   trips: Trip[];
+};
+
+export function SearchUser({ uae, trips }: SearchUserProps) {
    const [showSearch, setShowSearch] = useState(false);
    const [selectedUser, setSelectedUser] = useState<UserPublic | null>(null);
    const [showRegister, setShowRegister] = useState(false);
@@ -46,7 +52,6 @@ export function SearchUser({ uae, trips, updateTrips }) {
             <TripRegister
                user={selectedUser}
                uae={uae}
-               update={updateTrips}
                show={showRegister}
                onClose={handleRegisterClose}
             />

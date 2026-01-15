@@ -18,7 +18,6 @@ type FuncEditModalProps = {
    onClose: () => void;
    trip: Trip;
    editingFunc: CrewFunc;
-   onSuccess: () => void;
 };
 
 export function FuncEditModal({
@@ -26,13 +25,11 @@ export function FuncEditModal({
    onClose,
    trip,
    editingFunc,
-   onSuccess,
 }: FuncEditModalProps) {
    const { register, handleSubmit, errors, submitting, currentOper } =
       useFuncForm({
          tripId: trip.id!,
          editingFunc,
-         onSuccess,
          onClose,
       });
 

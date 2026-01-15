@@ -1,6 +1,5 @@
-import { useState, useEffect, useCallback, useRef } from "react";
-import { getTrips } from "services/routes/trips";
-import type { Trip } from "../types/trip.types";
+import { useState, useRef, useEffect, useMemo } from "react";
+import { useTrips } from "@/hooks/queries";
 import type { FuncType, OperType } from "../types/trip.types";
 
 type UseTripListParams = {
@@ -18,12 +17,8 @@ type FilterParams = {
 const PER_PAGE_OPTIONS = [10, 15, 25, 50, 100];
 
 export function useTripList({ uae, active }: UseTripListParams) {
-   const [trips, setTrips] = useState<Trip[]>([]);
-   const [loading, setLoading] = useState(false);
    const [currentPage, setCurrentPage] = useState(1);
    const [perPage, setPerPage] = useState(10);
-   const [totalPages, setTotalPages] = useState(1);
-   const [totalTrips, setTotalTrips] = useState(0);
 
    const [filters, setFilters] = useState<FilterParams>({
       name: "",
@@ -32,76 +27,39 @@ export function useTripList({ uae, active }: UseTripListParams) {
       oper: [],
    });
 
-   // Ref para controlar se é a primeira renderização
+   // Ref para controlar se e a primeira renderizacao
    const isFirstRender = useRef(true);
 
-   const fetchTrips = useCallback(
-      async (
-         page: number,
-         itemsPerPage: number,
-         filterParams: FilterParams,
-         signal?: AbortSignal
-      ) => {
-         setLoading(true);
-         try {
-            const response = await getTrips(
-               {
-                  uae,
-                  active,
-                  page,
-                  per_page: itemsPerPage,
-                  search: filterParams.name || undefined,
-                  p_g:
-                     filterParams.p_g.length > 0 ? filterParams.p_g : undefined,
-                  func:
-                     filterParams.func.length > 0
-                        ? filterParams.func
-                        : undefined,
-                  oper:
-                     filterParams.oper.length > 0
-                        ? filterParams.oper
-                        : undefined,
-               },
-               signal
-            );
-            setTrips(response.items);
-            setTotalPages(response.pages);
-            setTotalTrips(response.total);
-            setCurrentPage(response.page);
-         } catch (err: any) {
-            if (err?.name === "AbortError") return;
-            console.error("Erro ao buscar tripulações:", err);
-         } finally {
-            setLoading(false);
-         }
-      },
-      [uae, active]
-   );
-
-   // Busca inicial e quando uae/active mudam
-   useEffect(() => {
-      const ac = new AbortController();
-      fetchTrips(1, perPage, filters, ac.signal);
-      return () => ac.abort();
-   }, [uae, active]);
-
-   // Busca quando filtros mudam (exceto na primeira renderização)
+   // Resetar pagina quando filtros mudam (exceto primeira renderizacao)
    useEffect(() => {
       if (isFirstRender.current) {
          isFirstRender.current = false;
          return;
       }
-
-      const ac = new AbortController();
-      const timeoutId = setTimeout(() => {
-         fetchTrips(1, perPage, filters, ac.signal);
-      }, 50); // Pequeno delay para debounce
-
-      return () => {
-         clearTimeout(timeoutId);
-         ac.abort();
-      };
+      setCurrentPage(1);
    }, [filters.name, filters.p_g, filters.func, filters.oper, perPage]);
+
+   // Resetar pagina quando uae/active mudam
+   useEffect(() => {
+      setCurrentPage(1);
+   }, [uae, active]);
+
+   // Montar parametros da query
+   const queryParams = useMemo(
+      () => ({
+         uae,
+         active,
+         page: currentPage,
+         per_page: perPage,
+         search: filters.name || undefined,
+         p_g: filters.p_g.length > 0 ? filters.p_g : undefined,
+         func: filters.func.length > 0 ? filters.func : undefined,
+         oper: filters.oper.length > 0 ? filters.oper : undefined,
+      }),
+      [uae, active, currentPage, perPage, filters]
+   );
+
+   const { data, isLoading, isFetching, refetch } = useTrips(queryParams);
 
    function updateFilter<K extends keyof FilterParams>(
       key: K,
@@ -115,33 +73,26 @@ export function useTripList({ uae, active }: UseTripListParams) {
    }
 
    const handlePageChange = (page: number) => {
-      const ac = new AbortController();
-      fetchTrips(page, perPage, filters, ac.signal);
+      setCurrentPage(page);
    };
 
    const handlePerPageChange = (newPerPage: number) => {
       setPerPage(newPerPage);
-      // O useEffect vai buscar automaticamente
-   };
-
-   const refetch = () => {
-      const ac = new AbortController();
-      fetchTrips(currentPage, perPage, filters, ac.signal);
    };
 
    return {
-      trips,
-      filterTrips: trips,
-      loading,
+      trips: data?.items ?? [],
+      loading: isLoading,
+      isFetching,
       refetch,
       filters,
       updateFilter,
       clearFilters,
-      // Paginação
-      currentPage,
+      // Paginacao
+      currentPage: data?.page ?? currentPage,
       perPage,
-      totalPages,
-      totalTrips,
+      totalPages: data?.pages ?? 1,
+      totalTrips: data?.total ?? 0,
       handlePageChange,
       handlePerPageChange,
       PER_PAGE_OPTIONS,

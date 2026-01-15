@@ -1,6 +1,6 @@
-import { useState, useCallback } from "react";
+import { useCallback } from "react";
 import { useForm } from "react-hook-form";
-import { addCrewFunc, updateCrewFunc } from "services/routes/trips";
+import { useAddCrewFunc, useUpdateCrewFunc } from "@/hooks/queries";
 import { useToast } from "@/app/context/toast";
 import type {
    FuncFormFields,
@@ -11,18 +11,17 @@ import type {
 type UseFuncFormParams = {
    tripId: number;
    editingFunc?: CrewFunc | null;
-   onSuccess: () => void;
    onClose: () => void;
 };
 
 export function useFuncForm({
    tripId,
    editingFunc,
-   onSuccess,
    onClose,
 }: UseFuncFormParams) {
-   const [submitting, setSubmitting] = useState(false);
    const { push } = useToast();
+   const addFuncMutation = useAddCrewFunc();
+   const updateFuncMutation = useUpdateCrewFunc();
 
    const {
       register,
@@ -45,17 +44,15 @@ export function useFuncForm({
 
    const onSubmit = useCallback(
       async (data: FuncFormFields) => {
-         // Validação adicional no submit
+         // Validacao adicional no submit
          const dataOpValue = data.data_op?.trim();
          if (data.oper !== "al" && !dataOpValue) {
             push({
                type: "error",
-               message: "Data operacional é obrigatória para operacionais.",
+               message: "Data operacional e obrigatoria para operacionais.",
             });
             return;
          }
-
-         setSubmitting(true);
 
          const funcData: CreateCrewFunc = {
             func: data.func,
@@ -64,44 +61,49 @@ export function useFuncForm({
             data_op: data.data_op || null,
          };
 
-         const action = editingFunc
-            ? updateCrewFunc(editingFunc.id, funcData)
-            : addCrewFunc(tripId, funcData);
-
          const successMessage = editingFunc
-            ? "Função atualizada com sucesso."
-            : "Função adicionada com sucesso.";
+            ? "Funcao atualizada com sucesso."
+            : "Funcao adicionada com sucesso.";
 
          const errorMessage = editingFunc
-            ? "Erro ao atualizar função."
-            : "Erro ao adicionar função.";
+            ? "Erro ao atualizar funcao."
+            : "Erro ao adicionar funcao.";
 
-         try {
-            const response = await action;
-            const responseData = await response.json();
-            if (response.ok) {
-               onSuccess();
-               onClose();
-               push({
-                  type: "success",
-                  message: responseData.detail || successMessage,
-               });
-            } else {
+         const mutationOptions = {
+            onSuccess: async (response: Response) => {
+               const responseData = await response.json();
+               if (response.ok) {
+                  onClose();
+                  push({
+                     type: "success",
+                     message: responseData.detail || successMessage,
+                  });
+               } else {
+                  push({
+                     type: "error",
+                     message: responseData.detail || errorMessage,
+                  });
+               }
+            },
+            onError: (err: any) => {
                push({
                   type: "error",
-                  message: responseData.detail || errorMessage,
+                  message: err?.message || errorMessage,
                });
-            }
-         } catch (err: any) {
-            push({
-               type: "error",
-               message: err?.message || errorMessage,
-            });
-         } finally {
-            setSubmitting(false);
+            },
+         };
+
+         if (editingFunc) {
+            updateFuncMutation.mutate(
+               { funcId: editingFunc.id, data: funcData },
+               mutationOptions
+            );
+         } else {
+            addFuncMutation.mutate({ tripId, data: funcData }, mutationOptions);
          }
       },
-      [tripId, editingFunc, onSuccess, onClose, push]
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      [tripId, editingFunc, onClose, push]
    );
 
    const resetForm = useCallback(
@@ -116,18 +118,11 @@ export function useFuncForm({
       [reset]
    );
 
-   const wrappedHandleSubmit = useCallback(
-      (e?: React.BaseSyntheticEvent) => {
-         return handleSubmit(onSubmit)(e);
-      },
-      [handleSubmit, onSubmit]
-   );
-
    return {
       register,
-      handleSubmit: wrappedHandleSubmit,
+      handleSubmit: handleSubmit(onSubmit),
       errors,
-      submitting,
+      submitting: addFuncMutation.isPending || updateFuncMutation.isPending,
       currentOper,
       reset: resetForm,
    };

@@ -17,20 +17,13 @@ type FuncAddModalProps = {
    show: boolean;
    onClose: () => void;
    trip: Trip;
-   onSuccess: () => void;
 };
 
-export function FuncAddModal({
-   show,
-   onClose,
-   trip,
-   onSuccess,
-}: FuncAddModalProps) {
+export function FuncAddModal({ show, onClose, trip }: FuncAddModalProps) {
    const { register, handleSubmit, errors, submitting, currentOper } =
       useFuncForm({
          tripId: trip.id!,
          editingFunc: null,
-         onSuccess,
          onClose,
       });
 

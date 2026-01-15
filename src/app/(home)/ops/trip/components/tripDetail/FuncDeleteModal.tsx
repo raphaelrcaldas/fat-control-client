@@ -1,7 +1,7 @@
-import { useState, useCallback } from "react";
+import { useCallback } from "react";
 import { Modal, ModalHeader, ModalBody, Button, Spinner } from "flowbite-react";
 import { FaTrash } from "react-icons/fa";
-import { deleteCrewFunc } from "services/routes/trips";
+import { useDeleteCrewFunc } from "@/hooks/queries";
 import { useToast } from "@/app/context/toast";
 import type { CrewFunc } from "../../types/trip.types";
 
@@ -9,48 +9,43 @@ type FuncDeleteModalProps = {
    show: boolean;
    onClose: () => void;
    deletingFunc: CrewFunc | null;
-   onSuccess: () => void;
 };
 
 export function FuncDeleteModal({
    show,
    onClose,
    deletingFunc,
-   onSuccess,
 }: FuncDeleteModalProps) {
-   const [loading, setLoading] = useState(false);
    const { push } = useToast();
+   const deleteFuncMutation = useDeleteCrewFunc();
 
    const handleDelete = useCallback(async () => {
       if (!deletingFunc) return;
 
-      setLoading(true);
-
-      try {
-         const response = await deleteCrewFunc(deletingFunc.id);
-         const data = await response.json();
-         if (response.ok) {
-            onSuccess();
-            onClose();
-            push({
-               type: "success",
-               message: data.detail || "Função excluída com sucesso.",
-            });
-         } else {
+      deleteFuncMutation.mutate(deletingFunc.id, {
+         onSuccess: async (response) => {
+            const data = await response.json();
+            if (response.ok) {
+               onClose();
+               push({
+                  type: "success",
+                  message: data.detail || "Funcao excluida com sucesso.",
+               });
+            } else {
+               push({
+                  type: "error",
+                  message: data.detail || "Erro ao excluir funcao.",
+               });
+            }
+         },
+         onError: (err: any) => {
             push({
                type: "error",
-               message: data.detail || "Erro ao excluir função.",
+               message: err?.message || "Erro ao excluir funcao.",
             });
-         }
-      } catch (err: any) {
-         push({
-            type: "error",
-            message: err?.message || "Erro ao excluir função.",
-         });
-      } finally {
-         setLoading(false);
-      }
-   }, [deletingFunc, onSuccess, onClose, push]);
+         },
+      });
+   }, [deletingFunc, onClose, push, deleteFuncMutation]);
 
    return (
       <Modal show={show} onClose={onClose} size="md" popup>
@@ -61,12 +56,12 @@ export function FuncDeleteModal({
                   <FaTrash className="h-7 w-7 text-red-600" />
                </div>
                <h3 className="mb-3 text-lg font-semibold text-gray-800">
-                  Excluir Função
+                  Excluir Funcao
                </h3>
                {deletingFunc && (
                   <div className="mb-5 space-y-2">
                      <p className="text-sm text-gray-600">
-                        Tem certeza que deseja excluir a função:
+                        Tem certeza que deseja excluir a funcao:
                      </p>
                      <div className="rounded-lg border border-gray-200 bg-gray-50 p-3">
                         <p className="text-base font-bold text-gray-800 uppercase">
@@ -80,16 +75,24 @@ export function FuncDeleteModal({
                         </p>
                      </div>
                      <p className="mt-3 text-sm font-medium text-red-600">
-                        Esta ação não pode ser desfeita.
+                        Esta acao nao pode ser desfeita.
                      </p>
                   </div>
                )}
                <div className="flex justify-center gap-3">
-                  <Button color="gray" onClick={onClose} disabled={loading}>
+                  <Button
+                     color="gray"
+                     onClick={onClose}
+                     disabled={deleteFuncMutation.isPending}
+                  >
                      Cancelar
                   </Button>
-                  <Button color="red" onClick={handleDelete} disabled={loading}>
-                     {loading ? (
+                  <Button
+                     color="red"
+                     onClick={handleDelete}
+                     disabled={deleteFuncMutation.isPending}
+                  >
+                     {deleteFuncMutation.isPending ? (
                         <div className="flex items-center gap-2">
                            <Spinner size="sm" color="failure" />
                            <span>Excluindo...</span>

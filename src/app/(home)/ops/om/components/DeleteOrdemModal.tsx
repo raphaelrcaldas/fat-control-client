@@ -52,7 +52,11 @@ export function DeleteOrdemModal({
                   <Button color="red" onClick={onConfirm} disabled={isDeleting}>
                      {isDeleting ? (
                         <>
-                           <Spinner size="sm" className="mr-2" color="failure"/>
+                           <Spinner
+                              size="sm"
+                              className="mr-2"
+                              color="failure"
+                           />
                            Excluindo...
                         </>
                      ) : (

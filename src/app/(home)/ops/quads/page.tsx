@@ -284,7 +284,7 @@ export default function QuadPage() {
          >
             {loadingQuads ? (
                <div className="flex flex-col items-center justify-center gap-2 p-2 font-semibold">
-                  Carregando <Spinner size="lg" color="failure"/>
+                  Carregando <Spinner size="lg" color="failure" />
                </div>
             ) : quads.length === 0 ? (
                <div className="flex flex-col items-center justify-center gap-2 p-2 font-semibold">

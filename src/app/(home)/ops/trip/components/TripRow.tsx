@@ -6,17 +6,16 @@ import type { Trip } from "../types/trip.types";
 
 type TripRowProps = {
    trip: Trip;
-   update: () => void;
 };
 
-export function TripRow({ trip, update }: TripRowProps) {
+export function TripRow({ trip }: TripRowProps) {
    const user = trip.user;
    const tripFuncs = trip.funcs || [];
 
    return (
       <TableRow className="text-center uppercase">
-         <TableCell className="font-bold text-gray-700">
-            {user.posto.short}
+         <TableCell className="text-gray-700 capitalize">
+            {user.posto.mid}
          </TableCell>
          <TableCell className="hidden text-gray-600 lg:table-cell">
             {user.esp}
@@ -45,7 +44,7 @@ export function TripRow({ trip, update }: TripRowProps) {
          </TableCell>
          <TableCell className="text-center">
             <PermBased resource={"trips"} requiredPerm={"update"}>
-               <TripDetail trip={trip} update={update} />
+               <TripDetail trip={trip} />
             </PermBased>
          </TableCell>
       </TableRow>

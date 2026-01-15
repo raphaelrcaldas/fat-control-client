@@ -1,18 +1,17 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { updateTrip } from "services/routes/trips";
+import { useUpdateTrip } from "@/hooks/queries";
 import { useToast } from "@/app/context/toast";
 import type { TripFormFields, Trip } from "../types/trip.types";
 
 type UseTripFormParams = {
    trip: Trip;
-   onSuccess: () => void;
    onClose: () => void;
 };
 
-export function useTripForm({ trip, onSuccess, onClose }: UseTripFormParams) {
-   const [submitting, setSubmitting] = useState(false);
+export function useTripForm({ trip, onClose }: UseTripFormParams) {
    const { push } = useToast();
+   const updateTripMutation = useUpdateTrip();
 
    const {
       register,
@@ -33,48 +32,54 @@ export function useTripForm({ trip, onSuccess, onClose }: UseTripFormParams) {
       });
    }, [trip, reset]);
 
-   const onSubmit = useCallback(
-      async (data: TripFormFields) => {
-         data.trig = data.trig.toLowerCase();
-         setSubmitting(true);
+   const onSubmit = async (data: TripFormFields) => {
+      if (!trip.id) {
+         push({
+            type: "error",
+            message: "ID do tripulante nao encontrado.",
+         });
+         return;
+      }
 
-         try {
-            const response = await updateTrip(trip.id!, data);
-            const responseData = await response.json();
-            if (response.ok) {
-               onSuccess();
-               onClose();
-               push({
-                  type: "success",
-                  message:
-                     responseData.detail ||
-                     "Tripulante atualizado com sucesso.",
-               });
-            } else {
+      data.trig = data.trig.toLowerCase();
+
+      updateTripMutation.mutate(
+         { id: trip.id, data },
+         {
+            onSuccess: async (response) => {
+               const responseData = await response.json();
+               if (response.ok) {
+                  onClose();
+                  push({
+                     type: "success",
+                     message:
+                        responseData.detail ||
+                        "Tripulante atualizado com sucesso.",
+                  });
+               } else {
+                  push({
+                     type: "error",
+                     message:
+                        responseData.detail || "Erro ao atualizar tripulante.",
+                  });
+               }
+            },
+            onError: (err: any) => {
                push({
                   type: "error",
-                  message:
-                     responseData.detail || "Erro ao atualizar tripulante.",
+                  message: err?.message || "Erro ao atualizar tripulante.",
                });
-            }
-         } catch (err: any) {
-            push({
-               type: "error",
-               message: err?.message || "Erro ao atualizar tripulante.",
-            });
-         } finally {
-            setSubmitting(false);
+            },
          }
-      },
-      [trip.id, onSuccess, onClose, push]
-   );
+      );
+   };
 
    return {
       register,
       handleSubmit: handleSubmit(onSubmit),
       errors,
       isDirty,
-      submitting,
+      submitting: updateTripMutation.isPending,
       reset,
    };
 }

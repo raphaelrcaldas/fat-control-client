@@ -32,9 +32,8 @@ export default function TripPage() {
 
    const {
       trips,
-      filterTrips,
       loading,
-      refetch,
+      isFetching,
       filters,
       updateFilter,
       clearFilters,
@@ -154,12 +153,12 @@ export default function TripPage() {
 
                {/* Botão Adicionar */}
                <PermBased resource={"trips"} requiredPerm={"create"}>
-                  <SearchUser uae={uae} trips={trips} updateTrips={refetch} />
+                  <SearchUser uae={uae} trips={trips} />
                </PermBased>
             </div>
 
             {/* Conteúdo */}
-            {!loading && filterTrips.length === 0 ? (
+            {!loading && trips.length === 0 ? (
                <div className="flex h-64 flex-col items-center justify-center">
                   <div className="mb-4 rounded-full bg-gray-100 p-4">
                      <HiUserGroup className="h-12 w-12 text-gray-400" />
@@ -190,8 +189,8 @@ export default function TripPage() {
                </div>
             ) : (
                <div className="relative">
-                  {/* Loading Overlay */}
-                  {loading && (
+                  {/* Loading Overlay - isFetching inclui paginacao e refetch */}
+                  {isFetching && (
                      <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/60 backdrop-blur-[1px]">
                         <div className="flex flex-col items-center gap-3 rounded-lg bg-white px-6 py-4 shadow-lg">
                            <FlowbiteSpinner color="failure" size="lg" />
@@ -203,7 +202,7 @@ export default function TripPage() {
                   )}
 
                   {/* Tabela */}
-                  <div className="overflow-x-auto">
+                  <div className="min-h-96 overflow-x-auto">
                      <Table hoverable className="text-center uppercase">
                         <TableHead>
                            <TableRow>
@@ -225,12 +224,8 @@ export default function TripPage() {
                            </TableRow>
                         </TableHead>
                         <TableBody className="divide-y">
-                           {filterTrips.map((trip) => (
-                              <TripRow
-                                 key={trip.id}
-                                 trip={trip}
-                                 update={refetch}
-                              />
+                           {trips.map((trip) => (
+                              <TripRow key={trip.id} trip={trip} />
                            ))}
                         </TableBody>
                      </Table>
@@ -238,7 +233,7 @@ export default function TripPage() {
 
                   {/* Footer com Paginação */}
                   <nav
-                     className={`flex flex-col items-start justify-between space-y-3 p-4 md:flex-row md:items-center md:space-y-0 ${loading ? "pointer-events-none opacity-50" : "opacity-100"} transition-opacity duration-200`}
+                     className={`flex flex-col items-start justify-between space-y-3 p-4 md:flex-row md:items-center md:space-y-0 ${isFetching ? "pointer-events-none opacity-50" : "opacity-100"} transition-opacity duration-200`}
                      aria-label="Navegação da tabela"
                   >
                      <div className="flex items-center gap-4">

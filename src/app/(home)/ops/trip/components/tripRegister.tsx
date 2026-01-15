@@ -10,7 +10,7 @@ import {
 } from "flowbite-react";
 import { useForm } from "react-hook-form";
 import { HiUserAdd } from "react-icons/hi";
-import { addTrip } from "services/routes/trips";
+import { useCreateTrip } from "@/hooks/queries";
 import { useToast } from "@/app/context/toast";
 import { UserPublic } from "services/routes/users";
 import {
@@ -22,7 +22,6 @@ import type { TripRegisterFormFields } from "../types/trip.types";
 type TripRegisterProps = {
    uae: string;
    user: UserPublic;
-   update: () => void;
    show?: boolean;
    onClose?: () => void;
 };
@@ -30,13 +29,12 @@ type TripRegisterProps = {
 export function TripRegister({
    uae,
    user,
-   update,
    show: externalShow,
    onClose: externalOnClose,
 }: TripRegisterProps) {
    const [internalShow, setInternalShow] = useState(false);
-   const [submitting, setSubmitting] = useState(false);
    const { push } = useToast();
+   const createTripMutation = useCreateTrip();
 
    const show = externalShow !== undefined ? externalShow : internalShow;
 
@@ -75,33 +73,30 @@ export function TripRegister({
    }
 
    async function registerTrip(data: TripRegisterFormFields) {
-      setSubmitting(true);
+      createTripMutation.mutate(data, {
+         onSuccess: async (response) => {
+            const dataRes = await response.json();
 
-      try {
-         const response = await addTrip(data);
-         const dataRes = await response.json();
-
-         if (response.ok) {
-            push({
-               type: "success",
-               message: "Tripulante adicionado com sucesso!",
-            });
-            update();
-            closeModal();
-         } else {
+            if (response.ok) {
+               push({
+                  type: "success",
+                  message: "Tripulante adicionado com sucesso!",
+               });
+               closeModal();
+            } else {
+               push({
+                  type: "error",
+                  message: dataRes.detail || "Erro ao adicionar tripulante.",
+               });
+            }
+         },
+         onError: () => {
             push({
                type: "error",
-               message: dataRes.detail || "Erro ao adicionar tripulante.",
+               message: "Erro ao adicionar tripulante. Tente novamente.",
             });
-         }
-      } catch (error) {
-         push({
-            type: "error",
-            message: "Erro ao adicionar tripulante. Tente novamente.",
-         });
-      } finally {
-         setSubmitting(false);
-      }
+         },
+      });
    }
 
    return (
@@ -169,14 +164,18 @@ export function TripRegister({
                      <Button
                         color="gray"
                         onClick={closeModal}
-                        disabled={submitting}
+                        disabled={createTripMutation.isPending}
                      >
                         Cancelar
                      </Button>
-                     <Button color="red" type="submit" disabled={submitting}>
-                        {submitting ? (
+                     <Button
+                        color="red"
+                        type="submit"
+                        disabled={createTripMutation.isPending}
+                     >
+                        {createTripMutation.isPending ? (
                            <div className="flex items-center gap-2">
-                              <Spinner size="sm" color="failure"/>
+                              <Spinner size="sm" color="failure" />
                               <span>Salvando...</span>
                            </div>
                         ) : (

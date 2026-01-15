@@ -361,7 +361,7 @@ export default function IndispPage() {
          ) : (
             <div className="flex flex-1 flex-col items-center justify-center gap-4">
                <div className="grid justify-items-center">
-                  <Spinner size="xl" color="failure"/>
+                  <Spinner size="xl" color="failure" />
                   <p className="mt-4 font-medium text-gray-600">
                      Carregando indisponibilidades...
                   </p>

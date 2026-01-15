@@ -22,20 +22,13 @@ import type { Trip, CrewFunc } from "../../types/trip.types";
 
 type TripEditFormProps = {
    trip: Trip;
-   onSuccess: () => void;
    onClose: () => void;
    onCancel: () => void;
 };
 
-export function TripEditForm({
-   trip,
-   onSuccess,
-   onClose,
-   onCancel,
-}: TripEditFormProps) {
+export function TripEditForm({ trip, onClose, onCancel }: TripEditFormProps) {
    const { register, handleSubmit, errors, isDirty, submitting } = useTripForm({
       trip,
-      onSuccess,
       onClose,
    });
 
@@ -185,7 +178,6 @@ export function TripEditForm({
             show={showAddFunc}
             onClose={handleCloseAddFunc}
             trip={trip}
-            onSuccess={onSuccess}
          />
 
          {editingFunc && (
@@ -194,7 +186,6 @@ export function TripEditForm({
                onClose={handleCloseEditFunc}
                trip={trip}
                editingFunc={editingFunc}
-               onSuccess={onSuccess}
             />
          )}
 
@@ -202,7 +193,6 @@ export function TripEditForm({
             show={showDeleteFunc}
             onClose={handleCloseDeleteFunc}
             deletingFunc={deletingFunc}
-            onSuccess={onSuccess}
          />
       </form>
    );
