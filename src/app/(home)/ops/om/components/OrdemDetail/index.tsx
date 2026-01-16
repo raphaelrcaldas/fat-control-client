@@ -144,9 +144,12 @@ export function OrdemDetail({
          !Array.isArray(ordem.etapas) ||
          ordem.etapas.length === 0
       ) {
-         alert(
-            "Ordem de Missão incompleta. Adicione pelo menos uma etapa antes de exportar."
-         );
+         pushToast({
+            type: "warning",
+            title: "Atenção",
+            message:
+               "Ordem de Missão incompleta. Adicione pelo menos uma etapa antes de exportar.",
+         });
          return;
       }
 
@@ -164,21 +167,30 @@ export function OrdemDetail({
          a.click();
       } catch (error) {
          console.error("Erro ao exportar Ordem de Missão:", error);
-         alert("Erro ao gerar documento DOCX. Por favor, tente novamente.");
+         pushToast({
+            type: "error",
+            title: "Erro",
+            message:
+               "Erro ao gerar documento DOCX. Por favor, tente novamente.",
+         });
       } finally {
          if (blobUrl) {
             URL.revokeObjectURL(blobUrl);
          }
          setIsExporting(false);
       }
-   }, [ordem]);
+   }, [ordem, pushToast]);
 
    const handlePedidoLanche = useCallback(async () => {
       if (!ordem) return;
 
       // Validação básica
       if (!ordem.id) {
-         alert("Salve a ordem antes de gerar o pedido de lanche.");
+         pushToast({
+            type: "warning",
+            title: "Atenção",
+            message: "Salve a ordem antes de gerar o pedido de lanche.",
+         });
          return;
       }
 
@@ -186,7 +198,6 @@ export function OrdemDetail({
       let blobUrl: string | null = null;
 
       try {
-         // TODO: Implementar lógica de geração do pedido de lanche
          const blob = await gerarPedidoLanche(ordem);
          blobUrl = URL.createObjectURL(blob);
 
@@ -197,11 +208,16 @@ export function OrdemDetail({
          a.click();
       } catch (error) {
          console.error("Erro ao gerar pedido de lanche:", error);
-         alert("Erro ao gerar pedido de lanche. Por favor, tente novamente.");
+         pushToast({
+            type: "error",
+            title: "Erro",
+            message:
+               "Erro ao gerar pedido de lanche. Por favor, tente novamente.",
+         });
       } finally {
          setIsGeneratingLanche(false);
       }
-   }, [ordem]);
+   }, [ordem, pushToast]);
 
    const hasCamposEspeciaisVazios = useMemo(
       () => camposEspeciais.some((c) => !c.valor.trim()),

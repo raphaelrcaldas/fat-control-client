@@ -140,8 +140,41 @@ export const OrdemBasicInfo = memo(function OrdemBasicInfo({
       return null;
    }, [formData.esf_aer, somaTempoVooEtapas]);
 
+   /**
+    * Regra de negócio: O número da OM só pode ser editado em ordens aprovadas.
+    * Em rascunhos, o número é "auto" e será gerado automaticamente na aprovação.
+    * Após aprovada, o usuário pode corrigir o número se necessário.
+    */
+   const isNumeroEditable = isEditable && formData.status === "aprovada";
+
    return (
       <div className="flex gap-4">
+         <div className="w-24">
+            <label
+               htmlFor="numero-om"
+               className="mb-2 flex items-center gap-1.5 text-xs font-semibold tracking-wide text-gray-600 uppercase"
+            >
+               Nº OM
+            </label>
+            <input
+               id="numero-om"
+               type="text"
+               value={formData.numero === "auto" ? "" : formData.numero || ""}
+               onChange={(e) =>
+                  onUpdate({
+                     // Sanitiza: apenas alfanuméricos e hífen
+                     numero: e.target.value
+                        .replace(/[^a-zA-Z0-9-]/g, "")
+                        .toUpperCase(),
+                  })
+               }
+               disabled={!isNumeroEditable}
+               placeholder="AUTO"
+               maxLength={10}
+               aria-label="Número da Ordem de Missão"
+               className="w-full rounded-lg border-2 border-gray-200 bg-white px-3 py-2.5 text-center font-mono text-gray-900 uppercase transition-all placeholder:text-gray-400 focus:border-red-400 focus:ring-2 focus:ring-red-400 disabled:cursor-not-allowed disabled:opacity-50"
+            />
+         </div>
          <div className="flex-1">
             <label className="mb-2 flex items-center gap-1.5 text-xs font-semibold tracking-wide text-gray-600 uppercase">
                Documento Referência

@@ -56,6 +56,16 @@ const OrdemItem = memo(function OrdemItem({
       onOrdemClick(ordem);
    }, [onOrdemClick, ordem]);
 
+   const handleKeyDown = useCallback(
+      (e: React.KeyboardEvent) => {
+         if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            onOrdemClick(ordem);
+         }
+      },
+      [onOrdemClick, ordem]
+   );
+
    const handleClone = useCallback(
       (e: React.MouseEvent) => {
          e.stopPropagation();
@@ -88,8 +98,12 @@ const OrdemItem = memo(function OrdemItem({
 
    return (
       <div
-         className="cursor-pointer rounded-xl border border-gray-200 bg-white p-4 shadow-sm transition-all hover:border-red-300 hover:shadow-md"
+         role="button"
+         tabIndex={0}
+         aria-label={`Abrir ordem de missão ${ordem.numero}`}
+         className="cursor-pointer rounded-xl border border-gray-200 bg-white p-4 shadow-sm transition-all hover:border-red-300 hover:shadow-md focus:border-red-400 focus:ring-2 focus:ring-red-400 focus:outline-none"
          onClick={handleClick}
+         onKeyDown={handleKeyDown}
       >
          <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">

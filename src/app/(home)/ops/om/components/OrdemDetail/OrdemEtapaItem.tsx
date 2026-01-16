@@ -473,6 +473,8 @@ export const OrdemEtapaItem = memo(function OrdemEtapaItem({
                   <button
                      type="button"
                      onClick={onRemove}
+                     aria-label={`Remover etapa ${index + 1}`}
+                     title="Remover etapa"
                      className="absolute -top-2 -right-2 h-6 w-6 rounded-full bg-red-500 text-white opacity-0 transition-opacity group-hover:opacity-100 hover:bg-red-600"
                   >
                      ×
@@ -481,6 +483,7 @@ export const OrdemEtapaItem = memo(function OrdemEtapaItem({
                <button
                   type="button"
                   onClick={onInsertAfter}
+                  aria-label={`Inserir etapa após etapa ${index + 1}`}
                   title="Inserir etapa após esta"
                   className="absolute -bottom-4 left-1/2 flex h-7 w-7 -translate-x-1/2 items-center justify-center rounded-full bg-blue-500 text-lg font-bold text-white opacity-0 transition-opacity group-hover:opacity-100 hover:bg-blue-600"
                >

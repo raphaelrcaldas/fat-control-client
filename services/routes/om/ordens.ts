@@ -74,6 +74,7 @@ export interface OrdemMissaoCreate {
 }
 
 export interface OrdemMissaoUpdate {
+   numero?: string | null;
    matricula_anv?: number | null;
    tipo?: string | null;
    doc_ref?: string | null;

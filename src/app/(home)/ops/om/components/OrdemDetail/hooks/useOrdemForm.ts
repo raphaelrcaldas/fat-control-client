@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import type {
    OrdemMissaoOut,
    OrdemMissaoCreate,
@@ -189,8 +189,8 @@ export const useOrdemForm = ({
 
    const isEditable = !isReadOnlyMode;
 
-   // Função de comparação para habilitar o botão salvar
-   const hasChanges = () => {
+   // Memoiza a comparação para evitar JSON.stringify em cada render
+   const hasChanges = useMemo(() => {
       return (
          JSON.stringify(formData) !== JSON.stringify(originalData.formData) ||
          JSON.stringify(tripulacao) !==
@@ -198,7 +198,7 @@ export const useOrdemForm = ({
          JSON.stringify(camposEspeciais) !==
             JSON.stringify(originalData.camposEspeciais)
       );
-   };
+   }, [formData, tripulacao, camposEspeciais, originalData]);
 
    const toggleReadOnlyMode = () => {
       setIsReadOnlyMode((prev) => !prev);
@@ -649,6 +649,7 @@ export const useOrdemForm = ({
       };
 
       return {
+         numero: formData.numero,
          doc_ref: formData.doc_ref || "",
          matricula_anv: formData.matricula_anv,
          projeto: formData.projeto,
@@ -778,7 +779,7 @@ export const useOrdemForm = ({
       validationErrors,
       formValidationErrors,
       hasRequiredFields,
-      hasChanges: hasChanges(),
+      hasChanges,
       handleInsertEtapa,
       handleRemoveEtapa,
       handleEtapaChange,
