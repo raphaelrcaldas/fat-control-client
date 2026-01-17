@@ -93,7 +93,7 @@ export function UserRow({ record, checked, onSelect, onShowDetail }) {
                {record.missao.tipo_doc}
             </span>
             <span className="text-base font-medium text-gray-900">
-               {record.missao.n_doc}
+               {String(record.missao.n_doc).padStart(3, "0")}
             </span>
          </div>
 

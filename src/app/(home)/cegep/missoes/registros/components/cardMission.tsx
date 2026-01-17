@@ -73,7 +73,7 @@ export const CardMission = memo(function CardMission({
                </div>
                <div>
                   <h3 className="text-lg font-bold text-gray-800 uppercase">
-                     {missao.tipo_doc} {missao.n_doc}
+                     {missao.tipo_doc} {String(missao.n_doc).padStart(3, "0")}
                   </h3>
                   {missao.desc && (
                      <p className="text-xs font-medium text-gray-600 uppercase">

@@ -71,7 +71,7 @@ export function UserMissionDetailModal({
    const statusConfig = getStatusConfig(user_mis.sit);
 
    return (
-      <Modal show={show} size="5xl" onClose={onClose} dismissible popup>
+      <Modal show={show} size="6xl" onClose={onClose} dismissible popup>
          <div className="relative flex max-h-[90vh] flex-col">
             {/* Header */}
             <div className="shrink-0 rounded-t-lg bg-linear-to-r from-red-500 to-red-700 p-4 text-white">
@@ -91,7 +91,7 @@ export function UserMissionDetailModal({
                            {missao.tipo_doc}
                         </span>
                         <span className="text-lg font-bold">
-                           {missao.n_doc}
+                           {String(missao.n_doc).padStart(3, "0")}
                         </span>
                      </div>
 

@@ -5,6 +5,7 @@ import {
    createOrdem,
    updateOrdem,
    deleteOrdem,
+   getRouteSuggestion,
    OrdemFilters,
    OrdemMissaoCreate,
    OrdemMissaoUpdate,
@@ -28,6 +29,8 @@ export const ordemKeys = {
    list: (filters?: OrdemFilters) => [...ordemKeys.lists(), filters] as const,
    details: () => [...ordemKeys.all, "detail"] as const,
    detail: (id: number) => [...ordemKeys.details(), id] as const,
+   routeSuggestion: (origem: string, dest: string) =>
+      [...ordemKeys.all, "route-suggestion", origem, dest] as const,
 };
 
 // ========================================
@@ -55,6 +58,22 @@ export function useOrdem(id: number | null | undefined) {
       queryFn: () => getOrdem(id!),
       enabled: !!id,
       gcTime: 0,
+   });
+}
+
+/**
+ * Busca sugestao de rota baseada em missoes anteriores
+ * Ativado apenas quando origem e destino tem 4 caracteres
+ */
+export function useRouteSuggestion(origem: string, dest: string) {
+   const isValid = origem.length === 4 && dest.length === 4;
+
+   return useQuery({
+      queryKey: ordemKeys.routeSuggestion(origem, dest),
+      queryFn: ({ signal }) => getRouteSuggestion(origem, dest, signal),
+      enabled: isValid,
+      staleTime: 5 * 60 * 1000, // 5 minutos - rotas nao mudam frequentemente
+      gcTime: 10 * 60 * 1000, // 10 minutos
    });
 }
 

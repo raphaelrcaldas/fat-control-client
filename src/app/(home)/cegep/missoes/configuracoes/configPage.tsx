@@ -220,9 +220,9 @@ export function ConfigPage() {
 
                   {/* Lista de Etiquetas */}
                   <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                     {etiquetas.map((etiqueta) => (
+                     {etiquetas.map((etiqueta, index) => (
                         <div
-                           key={etiqueta.id}
+                           key={etiqueta.id ?? `etiqueta-${index}`}
                            className={`flex items-center justify-between rounded-lg border p-2.5 transition-all ${editingEtiqueta?.id === etiqueta.id ? "border-purple-400 bg-purple-50" : "border-gray-200 bg-white hover:border-gray-300"}`}
                         >
                            {editingEtiqueta?.id === etiqueta.id ? (
@@ -234,8 +234,9 @@ export function ConfigPage() {
                                     <div className="flex items-center gap-2">
                                        <input
                                           type="text"
-                                          value={editingEtiqueta.nome}
+                                          value={editingEtiqueta?.nome ?? ""}
                                           onChange={(e) =>
+                                             editingEtiqueta &&
                                              setEditingEtiqueta({
                                                 ...editingEtiqueta,
                                                 nome: e.target.value,
@@ -278,12 +279,13 @@ export function ConfigPage() {
                                              <button
                                                 key={cor}
                                                 onClick={() =>
+                                                   editingEtiqueta &&
                                                    setEditingEtiqueta({
                                                       ...editingEtiqueta,
                                                       cor,
                                                    })
                                                 }
-                                                className={`h-5 w-5 rounded-full border-2 transition-all ${editingEtiqueta.cor === cor ? "scale-110 border-gray-800" : "border-transparent hover:border-gray-400"}`}
+                                                className={`h-5 w-5 rounded-full border-2 transition-all ${editingEtiqueta?.cor === cor ? "scale-110 border-gray-800" : "border-transparent hover:border-gray-400"}`}
                                                 style={{ backgroundColor: cor }}
                                              />
                                           ))}
@@ -295,8 +297,9 @@ export function ConfigPage() {
                                     </label>
                                     <input
                                        type="text"
-                                       value={editingEtiqueta.descricao || ""}
+                                       value={editingEtiqueta?.descricao ?? ""}
                                        onChange={(e) =>
+                                          editingEtiqueta &&
                                           setEditingEtiqueta({
                                              ...editingEtiqueta,
                                              descricao: e.target.value,
@@ -319,7 +322,7 @@ export function ConfigPage() {
                                           {etiqueta.nome}
                                        </span>
                                        {etiqueta.descricao && (
-                                          <p className="max-w-[150px] truncate text-xs text-gray-500">
+                                          <p className="max-w-37.5 truncate text-xs text-gray-500">
                                              {etiqueta.descricao}
                                           </p>
                                        )}

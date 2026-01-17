@@ -10,8 +10,9 @@ import {
    Label,
    TextInput,
    HelperText,
+   Spinner,
 } from "flowbite-react";
-import { HiLocationMarker, HiClock } from "react-icons/hi";
+import { HiLocationMarker, HiClock, HiLightningBolt } from "react-icons/hi";
 import { HiPaperAirplane } from "react-icons/hi2";
 import clsx from "clsx";
 import type { EtapaOut } from "services/routes/om/ordens";
@@ -23,6 +24,7 @@ import {
    calcularTempoVooMinutos,
 } from "utils/dateHandler";
 import { createNextEtapa } from "./utils/ordemUtils";
+import { useRouteSuggestion } from "@/hooks/queries";
 
 interface EtapaModalProps {
    isOpen: boolean;
@@ -97,6 +99,67 @@ export function EtapaModal({
       const minutes = calcularTempoVooMinutos(formData.dt_dep, formData.dt_arr);
       return minutesToTime(minutes);
    }, [formData.dt_dep, formData.dt_arr]);
+
+   // Busca sugestão de rota baseada em missões anteriores
+   const origem = formData.origem || "";
+   const dest = formData.dest || "";
+   const { data: routeSuggestion, isFetching: isLoadingRoute } =
+      useRouteSuggestion(origem, dest);
+
+   // Flag para indicar que sugestão foi aplicada (para exibir mensagem)
+   const [suggestionApplied, setSuggestionApplied] = useState(false);
+
+   // Resetar estado quando origem ou dest mudam
+   const prevRouteRef = useRef<string>("");
+   useEffect(() => {
+      const routeKey = `${origem}-${dest}`;
+      if (prevRouteRef.current !== routeKey) {
+         prevRouteRef.current = routeKey;
+         setSuggestionApplied(false);
+      }
+   }, [origem, dest]);
+
+   // Auto-preencher quando encontrar sugestão de rota
+   useEffect(() => {
+      if (isEditing) return;
+      if (origem.length !== 4 || dest.length !== 4) return;
+
+      // Se não há sugestão, manter suggestionApplied como false
+      if (!routeSuggestion) {
+         return;
+      }
+
+      // Aplicar sugestão
+      setSuggestionApplied(true);
+
+      // Calcular dt_arr baseado no tempo de voo sugerido
+      setFormData((prev) => {
+         let newDtArr = prev.dt_arr;
+         if (prev.dt_dep && routeSuggestion.tvoo_etp > 0) {
+            const depDate = new Date(prev.dt_dep);
+            const arrDate = new Date(
+               depDate.getTime() + routeSuggestion.tvoo_etp * 60 * 1000
+            );
+            newDtArr = arrDate.toISOString();
+         }
+
+         return {
+            ...prev,
+            alternativa: routeSuggestion.alternativa,
+            tvoo_alt: routeSuggestion.tvoo_alt,
+            qtd_comb: routeSuggestion.qtd_comb,
+            dt_arr: newDtArr,
+         };
+      });
+   }, [routeSuggestion, isEditing, origem, dest]);
+
+   // Resetar refs e flags quando modal fecha
+   useEffect(() => {
+      if (!isOpen) {
+         prevRouteRef.current = "";
+         setSuggestionApplied(false);
+      }
+   }, [isOpen]);
 
    // Ref para rastrear o último ajuste e evitar loop infinito
    const lastAdjustmentRef = useRef<string>("");
@@ -434,8 +497,8 @@ export function EtapaModal({
                   </div>
                </div>
 
-               {/* Tempo de Voo Calculado */}
-               <div className="flex items-center justify-center">
+               {/* Tempo de Voo Calculado + Status da Busca de Rota */}
+               <div className="flex items-center justify-center gap-4">
                   <div className="flex items-center gap-3 rounded-full border border-gray-200 bg-gray-50 px-6 py-2">
                      <HiClock className="h-5 w-5 text-gray-500" />
                      <span className="text-sm font-medium text-gray-600">
@@ -445,6 +508,39 @@ export function EtapaModal({
                         {tempoVoo}
                      </span>
                   </div>
+
+                  {/* Indicador de busca de rota */}
+                  {isLoadingRoute && (
+                     <div className="flex items-center gap-2 rounded-full border border-blue-200 bg-blue-50 px-4 py-2">
+                        <Spinner size="sm" color="info" />
+                        <span className="text-sm text-blue-600">
+                           Buscando dados da rota...
+                        </span>
+                     </div>
+                  )}
+
+                  {/* Indicador de sugestão aplicada */}
+                  {!isLoadingRoute && suggestionApplied && !isEditing && (
+                     <div className="flex items-center gap-2 rounded-full border border-green-200 bg-green-50 px-4 py-2">
+                        <HiLightningBolt className="h-4 w-4 text-green-500" />
+                        <span className="text-sm text-green-600">
+                           Sugestão baseada em rota anterior
+                        </span>
+                     </div>
+                  )}
+
+                  {/* Indicador de rota não encontrada */}
+                  {!isLoadingRoute &&
+                     !suggestionApplied &&
+                     !isEditing &&
+                     origem.length === 4 &&
+                     dest.length === 4 && (
+                        <div className="flex items-center gap-2 rounded-full border border-gray-200 bg-gray-50 px-4 py-2">
+                           <span className="text-sm text-gray-500">
+                              Nenhuma sugestão encontrada para esta rota
+                           </span>
+                        </div>
+                     )}
                </div>
 
                {/* Linha 2: Alternativa, Combustível, Esforço Aéreo */}

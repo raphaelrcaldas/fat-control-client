@@ -13,7 +13,7 @@ export {
 } from "../../../src/constants/cegep/etiquetas";
 
 const missoesRoute = cegepRoute + "missoes/";
-const etiquetasRoute = missoesRoute + "etiquetas/";
+const etiquetasRoute = missoesRoute + "etiquetas";
 
 export interface Etiqueta {
    id?: number;
@@ -130,7 +130,10 @@ export const MissoesRequestSchema = z.object({
 
    etiqueta_ids: z
       .string()
-      .regex(/^[\d,\s]+$/, "IDs de etiquetas devem ser números separados por vírgula")
+      .regex(
+         /^[\d,\s]+$/,
+         "IDs de etiquetas devem ser números separados por vírgula"
+      )
       .max(200, "IDs de etiquetas devem ter no máximo 200 caracteres")
       .optional(),
 
@@ -198,7 +201,9 @@ export async function getFragMissoes(
       const response = await request("GET", missoesRoute, null, stringParams);
 
       if (!response.ok) {
-         throw new Error(`API error: ${response.status} ${response.statusText}`);
+         throw new Error(
+            `API error: ${response.status} ${response.statusText}`
+         );
       }
 
       return (await response.json()) as MissoesPaginatedResponse;
@@ -206,7 +211,9 @@ export async function getFragMissoes(
       // Tratamento específico para erros de validação Zod
       if (error instanceof z.ZodError) {
          console.error("Validation error:", error.issues);
-         const messages = error.issues.map((err) => `${err.path.join(".")}: ${err.message}`).join(", ");
+         const messages = error.issues
+            .map((err) => `${err.path.join(".")}: ${err.message}`)
+            .join(", ");
          throw new Error(`Invalid request parameters: ${messages}`);
       }
       // Re-throw outros erros
@@ -237,5 +244,5 @@ export async function createUpdateEtiqueta(
 }
 
 export async function deleteEtiquetaApi(etiquetaId: number): Promise<void> {
-   await request("DELETE", etiquetasRoute + etiquetaId);
+   await request("DELETE", `${etiquetasRoute}/${etiquetaId}`);
 }

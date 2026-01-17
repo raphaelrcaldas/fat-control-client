@@ -46,9 +46,9 @@ export async function gerarOrdemMissaoDocx(
                : "",
          doc_acionador: ordem.doc_ref || "N/D",
          comandante: formatComandante(ordem.tripulacao),
-         esforco_aereo: calcularEsforcoAereo(ordem.etapas),
-         aeronave: formatAeronave(ordem.matricula_anv, ordem.projeto),
-         tripulacao: formatTripulacaoComLinhas(ordem.tripulacao),
+         esforco_aereo: minutesToTime(ordem.esf_aer),
+         aeronave: ordem.matricula_anv,
+         grupos: getCrewGroups(ordem.tripulacao),
          etapas: ordem.etapas.map((etapa: EtapaOut) => ({
             data_etapa: formatDateFull(etapa.dt_dep),
             hora_dep: formatTimeUTC(etapa.dt_dep),
@@ -102,19 +102,6 @@ function formatNumeroOM(ordem: OrdemMissaoOut): string {
 }
 
 /**
- * Calcula o esforço aéreo total (soma do tempo de voo de todas as etapas)
- * Usa tvoo_etp diretamente quando disponível
- */
-function calcularEsforcoAereo(etapas: EtapaOut[]): string {
-   if (!etapas || etapas.length === 0) return "00:00";
-   const totalMinutos = etapas.reduce(
-      (acc, etapa) => acc + (etapa.tvoo_etp || 0),
-      0
-   );
-   return minutesToTime(totalMinutos);
-}
-
-/**
  * Formata o nome do comandante (primeiro piloto da lista)
  */
 function formatComandante(tripulacao: TripulacaoOrdemOut[]): string {
@@ -124,26 +111,7 @@ function formatComandante(tripulacao: TripulacaoOrdemOut[]): string {
    return `${piloto.p_g} ${piloto.tripulante.user?.nome_guerra || ""}`.toUpperCase();
 }
 
-/**
- * Formata a identificação da aeronave
- * Ex: "KC-390 2860"
- */
-function formatAeronave(matricula: number, projeto: string): string {
-   const modeloMap: Record<string, string> = {
-      kc390: "KC-390",
-      "kc-390": "KC-390",
-      c130: "C-130",
-      c99: "C-99",
-      c95: "C-95",
-   };
-   const modelo = modeloMap[projeto.toLowerCase()] || projeto.toUpperCase();
-   return `${modelo} ${matricula}`;
-}
-
-/**
- * Formata tripulação com linhas separadas visualmente
- */
-function formatTripulacaoComLinhas(tripulacao: TripulacaoOrdemOut[]): string {
+function getCrewGroups(tripulacao: TripulacaoOrdemOut[]) {
    if (!tripulacao || tripulacao.length === 0) return "Nenhum tripulante";
 
    const funcaoLabels: Record<string, string> = {
@@ -156,7 +124,7 @@ function formatTripulacaoComLinhas(tripulacao: TripulacaoOrdemOut[]): string {
    };
 
    const ordemFuncoes = ["pil", "mc", "lm", "tf", "oe", "os"];
-   const grupos: string[] = [];
+   const grupos = [];
 
    // Agrupar tripulantes por função
    const agrupados: Record<string, TripulacaoOrdemOut[]> = {};
@@ -171,24 +139,26 @@ function formatTripulacaoComLinhas(tripulacao: TripulacaoOrdemOut[]): string {
    ordemFuncoes.forEach((funcao) => {
       if (agrupados[funcao] && agrupados[funcao].length > 0) {
          const label = funcaoLabels[funcao] || funcao;
-         grupos.push(`\n${label}`);
 
-         agrupados[funcao].forEach((trip) => {
+         const gg_crew = agrupados[funcao].map((trip) => {
             if (trip.tripulante) {
                const nomeCompleto =
                   trip.tripulante.user?.nome_completo ||
                   trip.tripulante.user?.nome_guerra ||
                   "";
                const identificacao = trip.tripulante.user?.id_fab || "N/A";
-               grupos.push(
-                  `${trip.p_g} ${nomeCompleto} - ${identificacao}`.toUpperCase()
-               );
+               return `${trip.p_g} ${nomeCompleto} - ${identificacao}`.toUpperCase();
             }
+         });
+
+         grupos.push({
+            grupo: label,
+            crew_member: gg_crew.join("\n"),
          });
       }
    });
 
-   return grupos.length > 0 ? grupos.join("\n").trim() : "Nenhum tripulante";
+   return grupos;
 }
 
 /**

@@ -535,12 +535,12 @@ export function RegisPage() {
                               Filtrar por Etiquetas
                            </Label>
                            <div className="flex flex-wrap gap-2">
-                              {etiquetasDisponiveis.map((etiqueta) => {
+                              {etiquetasDisponiveis.map((etiqueta, index) => {
                                  const isSelected =
                                     selectedEtiquetaIds.includes(etiqueta.id!);
                                  return (
                                     <button
-                                       key={etiqueta.id}
+                                       key={etiqueta.id ?? `etiqueta-${index}`}
                                        onClick={() => {
                                           if (isSelected) {
                                              setSelectedEtiquetaIds((prev) =>

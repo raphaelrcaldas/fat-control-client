@@ -51,6 +51,13 @@ export const navItems = [
             permission: "view",
          },
          {
+            icon: MdAssignment,
+            label: "Ordens de Missão",
+            path: "/ops/om",
+            resource: "ordens_missao",
+            permission: "view",
+         },
+         {
             icon: MdAirplanemodeInactive,
             label: "Indisponibilidades",
             path: "/ops/indisp",
@@ -62,13 +69,6 @@ export const navItems = [
             label: "Tripulantes",
             path: "/ops/trip",
             resource: "trips",
-            permission: "view",
-         },
-         {
-            icon: MdAssignment,
-            label: "Ordens de Missão",
-            path: "/ops/om",
-            resource: "ordens_missao",
             permission: "view",
          },
       ],

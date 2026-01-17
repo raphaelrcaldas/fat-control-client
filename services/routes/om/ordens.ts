@@ -40,13 +40,22 @@ export interface EtapaListItem {
    dest: string;
 }
 
+export interface RouteSuggestion {
+   origem: string;
+   dest: string;
+   tvoo_etp: number; // tempo de voo em minutos
+   alternativa: string;
+   tvoo_alt: number;
+   qtd_comb: number;
+}
+
 // TripBasicInfo retornado pelo backend (vem do endpoint de tripulantes)
 export interface TripulacaoOrdemOut {
    id: number;
    tripulante_id: number;
    funcao: string;
    p_g: string; // snapshot do posto/graduacao no momento da criacao da OM
-   tripulante: CrewMember | null; // Agora usa CrewMember (TripBasicInfo) ao invés de estrutura achatada
+   tripulante: CrewMember | null;
 }
 
 // Tripulacao agrupada por funcao (formato do frontend para envio)
@@ -266,4 +275,24 @@ export async function deleteOrdem(id: number): Promise<{ detail: string }> {
       throw new Error(error.detail || "Erro ao excluir ordem de missão");
    }
    return (await response.json()) as { detail: string };
+}
+
+export async function getRouteSuggestion(
+   origem: string,
+   dest: string,
+   signal?: AbortSignal
+): Promise<RouteSuggestion | null> {
+   const response = await request(
+      "GET",
+      `${omRoute}route-suggestions`,
+      null,
+      { origem, dest },
+      signal
+   );
+   if (!response.ok) {
+      return null;
+   }
+   const data = await response.json();
+   // Backend retorna null quando não encontra
+   return data as RouteSuggestion | null;
 }
