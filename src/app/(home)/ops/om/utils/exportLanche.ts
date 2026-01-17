@@ -98,11 +98,8 @@ export async function gerarPedidoLanche(ordem: OrdemMissaoOut): Promise<Blob> {
          grupo_3: grupos[2]?.join("\n") || "",
       };
 
-      // Preencher o template com os dados
-      doc.setData(dados);
-
-      // Renderizar o documento
-      doc.render();
+      // Renderizar o documento com os dados
+      doc.render(dados);
 
       // Gerar o buffer
       const buffer = doc.getZip().generate({

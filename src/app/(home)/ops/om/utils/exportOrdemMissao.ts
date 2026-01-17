@@ -64,11 +64,8 @@ export async function gerarOrdemMissaoDocx(
          ordens_especiais: formatOrdensEspeciais(ordem.campos_especiais),
       };
 
-      // Preencher o template com os dados
-      doc.setData(dados);
-
-      // Renderizar o documento
-      doc.render();
+      // Renderizar o documento com os dados
+      doc.render(dados);
 
       // Gerar o buffer
       const buffer = doc.getZip().generate({

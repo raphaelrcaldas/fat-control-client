@@ -47,15 +47,12 @@ export async function gerarRelatorioDocx(
          return `\t${romano} - ${om_os}, ${tipo}, ${localidades}, de ${afast} a ${regres} (${mis.dias} ${d});`;
       });
 
-      // Preencher o template com os dados
-      doc.setData({
+      // Renderizar o documento com os dados
+      doc.render({
          name: nameLabel,
          total_dias: comiss.dias_comp,
          modulos: modulos.join("\n"),
       });
-
-      // Renderizar o documento
-      doc.render();
 
       // Gerar o buffer
       const buffer = doc.getZip().generate({
