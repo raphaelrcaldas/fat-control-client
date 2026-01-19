@@ -14,17 +14,17 @@ import {
    TextInput,
 } from "flowbite-react";
 import { format } from "date-fns";
-import { ptBR } from "date-fns/locale";
 
 import { indispsOptions, getIndisp } from "./options";
-import {
-   addIndisp,
-   updateIndisp,
-   deleteIndisp,
-   IndispType,
-} from "services/routes/indisps";
+import { IndispType } from "services/routes/indisps";
 import { getUserActionLogs, UserActionLog } from "services/routes/logs";
 import { useToast } from "@/app/context/toast";
+import { Historico } from "./Historico";
+import {
+   useCreateIndisp,
+   useUpdateIndisp,
+   useDeleteIndisp,
+} from "@/hooks/queries";
 
 // Labels amigáveis para os campos do log
 const fieldLabels: Record<string, string> = {
@@ -34,18 +34,28 @@ const fieldLabels: Record<string, string> = {
    obs: "Observações",
 };
 
-export function IndispForm({
-   open,
-   setOpen,
-   trip,
-   update,
-   indisp,
-   readOnly = false,
-}) {
+// Formata valor de campo para exibição no histórico
+function formatFieldValue(field: string, value: string): string {
+   if (field === "mtv") {
+      return getIndisp(value)?.label || value;
+   }
+   return value;
+}
+
+export function IndispForm({ open, setOpen, trip, indisp, readOnly = false }) {
    const { push } = useToast();
    const [confirmingDelete, setConfirmingDelete] = useState(false);
-   const [isDeleting, setIsDeleting] = useState(false);
    const [logs, setLogs] = useState<UserActionLog[]>([]);
+
+   // Mutations do React Query
+   const createMutation = useCreateIndisp();
+   const updateMutation = useUpdateIndisp();
+   const deleteMutation = useDeleteIndisp();
+
+   const isMutating =
+      createMutation.isPending ||
+      updateMutation.isPending ||
+      deleteMutation.isPending;
 
    // 1. Gerenciamento de estado com useState
    const defaultValues = useMemo(() => {
@@ -129,98 +139,72 @@ export function IndispForm({
       return true;
    };
 
-   // 3. Submissão manual
-   const handleIndisp = async () => {
-      if (validateForm()) {
-         let data: IndispType;
+   // 3. Submissão com React Query mutations
+   const handleIndisp = () => {
+      if (!validateForm()) return;
 
-         if (indisp) {
-            // Para atualização, envia apenas os campos que mudaram
-            data = { id: indisp.id } as IndispType;
-            if (mtv !== defaultValues.mtv) data.mtv = mtv;
-            if (dateStart !== defaultValues.dateStart)
-               data.date_start = dateStart;
-            if (dateEnd !== defaultValues.dateEnd) data.date_end = dateEnd;
-            if (obs !== defaultValues.obs) data.obs = obs;
-         } else {
-            // Para criação, envia todos os campos
-            data = {
-               mtv,
-               date_start: dateStart,
-               date_end: dateEnd,
-               obs,
-               user_id: trip.user.id,
-            };
-         }
+      let data: IndispType;
 
-         try {
-            let response: Response;
-            if (indisp) {
-               response = await updateIndisp(data);
-            } else {
-               response = await addIndisp(data);
-            }
-
-            const rdata = await response.json();
-
-            if (response.ok) {
-               push({
-                  message: rdata.detail || "Operação realizada com sucesso",
-                  type: "success",
-               });
-               // Chama update ANTES de fechar para garantir atualização
-               // (evita que o componente seja desmontado antes da atualização)
-               await update();
-               clearModal();
-               closeModal();
-            } else {
-               push({
-                  message: rdata.detail || "Erro na operação",
-                  type: "error",
-               });
-            }
-         } catch (err: any) {
-            push({
-               message: err?.message || "Falha na comunicação com o servidor.",
-               type: "error",
-            });
-         }
+      if (indisp) {
+         // Para atualização, envia apenas os campos que mudaram
+         data = { id: indisp.id } as IndispType;
+         if (mtv !== defaultValues.mtv) data.mtv = mtv;
+         if (dateStart !== defaultValues.dateStart) data.date_start = dateStart;
+         if (dateEnd !== defaultValues.dateEnd) data.date_end = dateEnd;
+         if (obs !== defaultValues.obs) data.obs = obs;
+      } else {
+         // Para criação, envia todos os campos
+         data = {
+            mtv,
+            date_start: dateStart,
+            date_end: dateEnd,
+            obs,
+            user_id: trip.user.id,
+         };
       }
-   };
 
-   // 4. Lógica de exclusão
-   const confirmDelete = async () => {
-      if (!indisp?.id) return;
-      setIsDeleting(true);
+      const mutation = indisp ? updateMutation : createMutation;
 
-      try {
-         const response = await deleteIndisp(indisp.id);
-         const rData = await response.json();
-
-         if (response.ok) {
+      mutation.mutate(data, {
+         onSuccess: (response) => {
             push({
-               message:
-                  rData.detail || "Indisponibilidade excluída com sucesso",
+               message: response.detail || "Operação realizada com sucesso",
                type: "success",
             });
-            // Chama update ANTES de fechar para garantir atualização
-            await update();
+            clearModal();
             closeModal();
-         } else {
+         },
+         onError: (err: Error) => {
             push({
-               message: rData.detail || "Erro ao excluir indisponibilidade",
+               message: err.message || "Falha na comunicação com o servidor.",
                type: "error",
             });
-         }
-      } catch (err: any) {
-         push({
-            message: err?.message || "Falha ao excluir indisponibilidade.",
-            type: "error",
-         });
-      } finally {
-         setIsDeleting(false);
-         setConfirmingDelete(false);
-      }
+         },
+      });
+   };
+
+   // 4. Lógica de exclusão com React Query mutation
+   const confirmDelete = () => {
+      if (!indisp?.id) return;
+
+      deleteMutation.mutate(indisp.id, {
+         onSuccess: (response) => {
+            push({
+               message:
+                  response.detail || "Indisponibilidade excluída com sucesso",
+               type: "success",
+            });
+            setConfirmingDelete(false);
+            closeModal();
+         },
+         onError: (err: Error) => {
+            push({
+               message: err.message || "Falha ao excluir indisponibilidade.",
+               type: "error",
+            });
+            setConfirmingDelete(false);
+         },
+      });
    };
 
    return (
@@ -254,11 +238,6 @@ export function IndispForm({
                </div>
             </ModalHeader>
             <ModalBody>
-               {readOnly && (
-                  <div className="mb-4 rounded-lg border border-red-300 bg-red-100 px-4 py-2 text-center font-medium text-red-700">
-                     🗑️ Esta indisponibilidade foi deletada
-                  </div>
-               )}
                <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-4">
                   <h3 className="text-center font-bold text-gray-900 uppercase">
                      {trip.user.posto.short} {trip.user.esp}{" "}
@@ -347,91 +326,15 @@ export function IndispForm({
                      />
                   </div>
 
-                  {/* Histórico de Alterações */}
-                  {indisp && logs.length > 0 && (
-                     <div className="mt-6 border-t border-gray-200 pt-4">
-                        <h4 className="mb-3 flex items-center gap-2 font-semibold text-gray-700">
-                           <span>📝</span> Histórico de Alterações
-                        </h4>
-                        <div className="max-h-48 space-y-3 overflow-y-auto">
-                           {logs.map((log) => {
-                              const before = log.before
-                                 ? JSON.parse(log.before)
-                                 : {};
-                              const after = log.after
-                                 ? JSON.parse(log.after)
-                                 : {};
-                              const changedFields = Object.keys(after);
-                              const isDeleteAction = log.action === "delete";
-
-                              return (
-                                 <div
-                                    key={log.id}
-                                    className={`rounded-lg border p-3 text-sm ${
-                                       isDeleteAction
-                                          ? "border-red-200 bg-red-50"
-                                          : "border-gray-100 bg-gray-50"
-                                    }`}
-                                 >
-                                    <div className="mb-2 flex items-center justify-between">
-                                       <span className="font-medium text-gray-900 uppercase">
-                                          {log.user.p_g} {log.user.nome_guerra}
-                                       </span>
-                                       <span className="text-xs text-gray-500">
-                                          {format(
-                                             new Date(log.timestamp + "Z"),
-                                             "dd/MM/yyyy HH:mm",
-                                             { locale: ptBR }
-                                          )}
-                                       </span>
-                                    </div>
-                                    {isDeleteAction ? (
-                                       <div className="font-medium text-red-600">
-                                          🗑️ Indisponibilidade deletada
-                                       </div>
-                                    ) : (
-                                       <ul className="space-y-1">
-                                          {changedFields.map((field) => {
-                                             const label =
-                                                fieldLabels[field] || field;
-                                             let oldVal = before[field] ?? "";
-                                             let newVal = after[field] ?? "";
-
-                                             // Traduzir valores de motivo
-                                             if (field === "mtv") {
-                                                oldVal =
-                                                   getIndisp(oldVal)?.label ||
-                                                   oldVal;
-                                                newVal =
-                                                   getIndisp(newVal)?.label ||
-                                                   newVal;
-                                             }
-
-                                             return (
-                                                <li
-                                                   key={field}
-                                                   className="text-gray-600"
-                                                >
-                                                   <span className="font-medium">
-                                                      {label}:
-                                                   </span>{" "}
-                                                   <span className="text-red-600 line-through">
-                                                      {oldVal || "(vazio)"}
-                                                   </span>
-                                                   {" → "}
-                                                   <span className="text-green-600">
-                                                      {newVal || "(vazio)"}
-                                                   </span>
-                                                </li>
-                                             );
-                                          })}
-                                       </ul>
-                                    )}
-                                 </div>
-                              );
-                           })}
-                        </div>
-                     </div>
+                  {/* Histórico */}
+                  {indisp && (
+                     <Historico
+                        logs={logs}
+                        createdAt={indisp.created_at}
+                        createdBy={indisp.user_created}
+                        fieldLabels={fieldLabels}
+                        formatFieldValue={formatFieldValue}
+                     />
                   )}
                </div>
             </ModalBody>
@@ -440,10 +343,16 @@ export function IndispForm({
                   <Button
                      color="blue"
                      onClick={handleIndisp}
-                     disabled={indisp ? !isChanged : false}
+                     disabled={isMutating || (indisp ? !isChanged : false)}
                      size="md"
                   >
-                     {indisp ? "Atualizar" : "Adicionar"}
+                     {isMutating && !deleteMutation.isPending ? (
+                        <Spinner color="info" size="sm" />
+                     ) : indisp ? (
+                        "Atualizar"
+                     ) : (
+                        "Adicionar"
+                     )}
                   </Button>
                )}
                {indisp && !readOnly && !confirmingDelete && (
@@ -452,6 +361,7 @@ export function IndispForm({
                      onClick={() => setConfirmingDelete(true)}
                      color="red"
                      size="md"
+                     disabled={isMutating}
                   >
                      Excluir
                   </Button>
@@ -459,15 +369,17 @@ export function IndispForm({
                {confirmingDelete && (
                   <>
                      <span className="text-sm font-medium text-gray-700">
-                        {isDeleting ? "Excluindo..." : "Confirmar exclusão?"}
+                        {deleteMutation.isPending
+                           ? "Excluindo..."
+                           : "Confirmar exclusão?"}
                      </span>
                      <Button
                         color="red"
                         size="md"
                         onClick={confirmDelete}
-                        disabled={isDeleting}
+                        disabled={deleteMutation.isPending}
                      >
-                        {isDeleting ? (
+                        {deleteMutation.isPending ? (
                            <Spinner color="failure" size="sm" />
                         ) : (
                            "Sim"
@@ -477,7 +389,7 @@ export function IndispForm({
                         color="gray"
                         size="md"
                         onClick={() => setConfirmingDelete(false)}
-                        disabled={isDeleting}
+                        disabled={deleteMutation.isPending}
                      >
                         Não
                      </Button>
@@ -491,6 +403,7 @@ export function IndispForm({
                         closeModal();
                      }}
                      size="md"
+                     disabled={isMutating}
                   >
                      Cancelar
                   </Button>

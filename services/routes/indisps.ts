@@ -29,22 +29,6 @@ export interface CrewIndispList {
    indisps: IndispType[];
 }
 
-export async function getCrewIndisps(func: string, uae: string) {
-   return await request("GET", indispRoute, null, { funcao: func, uae: uae });
-}
-
-export async function addIndisp(indisp: IndispType) {
-   return await request("POST", indispRoute, indisp);
-}
-
-export async function updateIndisp(indisp: IndispType) {
-   return await request("PUT", indispRoute + indisp.id, indisp);
-}
-
-export async function deleteIndisp(indispId: number) {
-   return await request("DELETE", indispRoute + indispId);
-}
-
 // Interface para filtros de indisponibilidade
 export interface IndispFilters {
    [key: string]: string | undefined;
@@ -53,16 +37,88 @@ export interface IndispFilters {
    mtv?: string;
 }
 
-// Busca indisponibilidades de um usuário específico com filtros
+// Resposta padrão de mutações
+export interface IndispMutationResponse {
+   detail: string;
+}
+
+// ========================================
+// Queries
+// ========================================
+
+export async function getCrewIndisps(
+   func: string,
+   uae: string,
+   signal?: AbortSignal
+): Promise<CrewIndispList[]> {
+   const response = await request(
+      "GET",
+      indispRoute,
+      null,
+      { funcao: func, uae },
+      signal
+   );
+   if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.detail || "Erro ao buscar indisponibilidades");
+   }
+   return (await response.json()) as CrewIndispList[];
+}
+
 export async function getIndispByUser(
    userId: number,
-   filters?: IndispFilters
+   filters?: IndispFilters,
+   signal?: AbortSignal
 ): Promise<IndispType[]> {
    const response = await request(
       "GET",
       `${indispRoute}user/${userId}`,
       null,
-      filters
+      filters,
+      signal
    );
+   if (!response.ok) {
+      const error = await response.json();
+      throw new Error(
+         error.detail || "Erro ao buscar indisponibilidades do usuário"
+      );
+   }
    return (await response.json()) as IndispType[];
+}
+
+// ========================================
+// Mutations
+// ========================================
+
+export async function addIndisp(
+   indisp: IndispType
+): Promise<IndispMutationResponse> {
+   const response = await request("POST", indispRoute, indisp);
+   const data = await response.json();
+   if (!response.ok) {
+      throw new Error(data.detail || "Erro ao criar indisponibilidade");
+   }
+   return data as IndispMutationResponse;
+}
+
+export async function updateIndisp(
+   indisp: IndispType
+): Promise<IndispMutationResponse> {
+   const response = await request("PUT", indispRoute + indisp.id, indisp);
+   const data = await response.json();
+   if (!response.ok) {
+      throw new Error(data.detail || "Erro ao atualizar indisponibilidade");
+   }
+   return data as IndispMutationResponse;
+}
+
+export async function deleteIndisp(
+   indispId: number
+): Promise<IndispMutationResponse> {
+   const response = await request("DELETE", indispRoute + indispId);
+   const data = await response.json();
+   if (!response.ok) {
+      throw new Error(data.detail || "Erro ao excluir indisponibilidade");
+   }
+   return data as IndispMutationResponse;
 }

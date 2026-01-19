@@ -10,13 +10,11 @@ export default function IndispCell({
    tripData,
    cemal,
    ultVoo,
-   update,
 }: {
    dateRef: Date;
    tripData: CrewIndispList;
    cemal: Date | null;
    ultVoo: Date | null;
-   update: () => void;
 }) {
    const indisps = tripData.indisps;
    const trip = tripData.trip;
@@ -73,7 +71,6 @@ export default function IndispCell({
                dateRef={dateRef}
                isValidCEMAL={isValidCEMAL}
                isDesadaptado={isDesadaptado}
-               update={update}
             />
          }
       >

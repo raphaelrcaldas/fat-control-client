@@ -9,7 +9,6 @@ export default function IndispContent({
    filterIndisp,
    isDesadaptado,
    isValidCEMAL,
-   update,
 }) {
    const [selectedIndisp, setSelectedIndisp] = useState(null);
    const [openIndispForm, setOpenIndispForm] = useState(false);
@@ -77,7 +76,6 @@ export default function IndispContent({
                open={openIndispForm}
                setOpen={setOpenIndispForm}
                trip={trip}
-               update={update}
                indisp={selectedIndisp}
             />
          )}

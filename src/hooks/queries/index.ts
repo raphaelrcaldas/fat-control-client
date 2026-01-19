@@ -2,3 +2,4 @@
 export * from "./useUsers";
 export * from "./useOrdens";
 export * from "./useTrips";
+export * from "./useIndisps";

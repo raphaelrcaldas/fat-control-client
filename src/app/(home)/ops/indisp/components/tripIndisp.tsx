@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useMemo } from "react";
 import clsx from "clsx";
 import {
    Button,
@@ -17,13 +17,9 @@ import { IndispForm } from "./indispForm";
 import { isoDateToString } from "utils/dateHandler";
 import { getIndisp, indispsOptions } from "./options";
 import { PermBased } from "@/app/(home)/hooks/usePermBased";
-import {
-   CrewIndisp,
-   IndispType,
-   IndispFilters,
-   getIndispByUser,
-} from "services/routes/indisps";
+import { CrewIndisp, IndispType } from "services/routes/indisps";
 import { FaChevronDown, FaTimes } from "react-icons/fa";
+import { useUserIndisps } from "@/hooks/queries";
 
 // Função para formatar data no padrão YYYY-MM-DD
 function formatDate(date: Date): string {
@@ -45,11 +41,9 @@ function getDefaultDates() {
 export const TripIndisp = ({
    trip,
    indisps: initialIndisps,
-   update,
 }: {
    trip: CrewIndisp;
    indisps: IndispType[];
-   update: () => void | Promise<void>;
 }) => {
    const [isOpen, setIsOpen] = useState(false);
    const [isOpenNewInd, setIsOpenNewInd] = useState(false);
@@ -62,15 +56,27 @@ export const TripIndisp = ({
    const [mtvFilter, setMtvFilter] = useState("");
    const [showFuture, setShowFuture] = useState(true); // Padrão: exibir futuras
 
-   // Estado para indisps (gerenciado localmente com filtros)
-   const [indisps, setIndisps] = useState<IndispType[]>(initialIndisps);
-   const [isLoading, setIsLoading] = useState(false);
-   const [isFiltering, setIsFiltering] = useState(false);
-
    const openModal = () => setIsOpen(true);
    const closeModal = () => setIsOpen(false);
 
    const user = trip.user;
+
+   // Filtros para o React Query
+   const filters = useMemo(
+      () => ({
+         date_from: dateFrom,
+         date_to: showFuture ? undefined : dateTo,
+         mtv: mtvFilter || undefined,
+      }),
+      [dateFrom, dateTo, showFuture, mtvFilter]
+   );
+
+   // Query de indisponibilidades do usuário (só busca quando modal está aberto)
+   const {
+      data: indisps = initialIndisps,
+      isLoading,
+      isFetching,
+   } = useUserIndisps(trip.user.id, filters, isOpen);
 
    // Filtra indisps deletadas para a tabela principal
    const activeIndisps = indisps.filter((i) => !i.deleted_at);
@@ -78,59 +84,6 @@ export const TripIndisp = ({
    // Verifica se há filtros customizados (diferentes do padrão)
    const hasCustomFilters =
       mtvFilter !== "" || dateFrom !== defaultDates.dateFrom || !showFuture;
-
-   // Busca indisponibilidades do servidor
-   const fetchIndisps = useCallback(
-      async (showLoadingState = true) => {
-         if (!trip.user.id) return;
-
-         if (showLoadingState) setIsLoading(true);
-         setIsFiltering(true);
-
-         try {
-            const filters: IndispFilters = {
-               date_from: dateFrom,
-            };
-            // Só envia date_to se não estiver exibindo futuras
-            if (!showFuture) {
-               filters.date_to = dateTo;
-            }
-            if (mtvFilter) filters.mtv = mtvFilter;
-
-            const data = await getIndispByUser(trip.user.id, filters);
-            setIndisps(data);
-         } catch (error) {
-            console.error("Erro ao buscar indisponibilidades:", error);
-         } finally {
-            setIsLoading(false);
-            setIsFiltering(false);
-         }
-      },
-      [trip.user.id, dateFrom, dateTo, showFuture, mtvFilter]
-   );
-
-   // Função estável para atualização (passada para componentes filhos)
-   // Atualiza tanto a lista local quanto a tabela principal
-   const handleUpdate = useCallback(async () => {
-      await fetchIndisps(false);
-      // Também atualiza a tabela principal (prop do pai)
-      await update();
-   }, [fetchIndisps, update]);
-
-   // Busca quando modal abre
-   useEffect(() => {
-      if (isOpen && trip.user.id) {
-         fetchIndisps();
-      }
-   }, [isOpen, trip.user.id, fetchIndisps]);
-
-   // Busca automática quando filtros mudam
-   useEffect(() => {
-      if (isOpen && trip.user.id && !isLoading) {
-         fetchIndisps(false);
-      }
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-   }, [dateFrom, dateTo, mtvFilter, showFuture]);
 
    // Handler para dateFrom com validação
    function handleDateFromChange(newDateFrom: string) {
@@ -311,7 +264,7 @@ export const TripIndisp = ({
                               )}
 
                               {/* Indicador de loading */}
-                              {isFiltering && (
+                              {isFetching && !isLoading && (
                                  <div className="flex items-center justify-center gap-2 py-2 text-sm text-gray-500">
                                     <div className="h-4 w-4 animate-spin rounded-full border-2 border-blue-500 border-t-transparent" />
                                     Atualizando...
@@ -393,7 +346,6 @@ export const TripIndisp = ({
                                     key={indisp.id}
                                     indisp={indisp}
                                     trip={trip}
-                                    update={handleUpdate}
                                  />
                               ))}
                            </TableBody>
@@ -430,7 +382,6 @@ export const TripIndisp = ({
                         open={isOpenNewInd}
                         setOpen={setIsOpenNewInd}
                         trip={trip}
-                        update={handleUpdate}
                         indisp={null}
                      />
                   </PermBased>
@@ -444,7 +395,7 @@ export const TripIndisp = ({
    );
 };
 
-function TripIndispRow({ indisp, trip, update }) {
+function TripIndispRow({ indisp, trip }) {
    const [openInd, setOpenInd] = useState(false);
    const dateStart = isoDateToString(indisp.date_start);
    const dateEnd = isoDateToString(indisp.date_end);
@@ -478,7 +429,6 @@ function TripIndispRow({ indisp, trip, update }) {
                      open={openInd}
                      setOpen={setOpenInd}
                      trip={trip}
-                     update={update}
                      indisp={indisp}
                   />
                )}

@@ -3,7 +3,7 @@ import { isoStrToDate } from "utils/dateHandler";
 import { getIndisp } from "./options";
 import { IndispForm } from "./indispForm";
 
-export function LastIndisps({ indisps, update }) {
+export function LastIndisps({ indisps }) {
    const [lastIndisps, setLastIndisp] = useState([]);
    const [selectedIndisp, setSelectedIndisp] = useState(null);
    const [openIndispForm, setOpenIndispForm] = useState(false);
@@ -123,7 +123,6 @@ export function LastIndisps({ indisps, update }) {
                open={openIndispForm}
                setOpen={setOpenIndispForm}
                trip={selectedIndisp.trip}
-               update={update}
                indisp={selectedIndisp}
                readOnly={selectedIndisp.isDeleted}
             />

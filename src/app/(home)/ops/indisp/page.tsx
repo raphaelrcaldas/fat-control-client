@@ -1,10 +1,9 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
-import { Tooltip, Spinner } from "flowbite-react";
+import { Tooltip, Spinner, Select } from "flowbite-react";
 import IndispCell from "./components/indispCell";
 import { TripIndisp } from "./components/tripIndisp";
-import { getCrewIndisps } from "services/routes/indisps";
 import { getTripData } from "services/google-sheets/sheets";
 import clsx from "clsx";
 import { useIndispContext } from "../../context/indisp";
@@ -13,7 +12,7 @@ import { AppLoadingScreen } from "../../components/appLoadingScreen";
 import { TripSheet } from "services/google-sheets/sheets";
 import { CrewIndispList } from "services/routes/indisps";
 import { datasIguais, isoStrLocalToDate } from "utils/dateHandler";
-import { FUNC_LABELS_SHORT } from "@/constants/tripulantes";
+import { FUNC_LABELS_SHORT, FUNCOES_PRINCIPAIS } from "@/constants/tripulantes";
 import {
    HiChevronLeft,
    HiChevronRight,
@@ -22,8 +21,9 @@ import {
    HiUserGroup,
 } from "react-icons/hi";
 import { indispsOptions } from "./components/options";
+import { useCrewIndisps } from "@/hooks/queries";
 
-function genDates(dateRefer, daysToGenerate) {
+function genDates(dateRefer: Date, daysToGenerate: number) {
    const offset = -1;
    const days = Array(daysToGenerate)
       .fill(null)
@@ -43,10 +43,20 @@ export default function IndispPage() {
    const [daysToGenerate, setDaysToGenerate] = useState<number>(7);
    const [datesArray, setDatesArray] = useState<Date[]>([]);
    const [dataTrip, setDataTrip] = useState<TripSheet[] | null>(null);
-   const [indisps, setIndisps] = useState<CrewIndispList[] | null>(null);
 
    const { indispFunc, setIndispFunc } = useIndispContext();
    const tableContainerRef = useRef<HTMLDivElement>(null);
+
+   // Query de indisponibilidades com React Query
+   const {
+      data: indisps,
+      isLoading: isLoadingIndisps,
+      isFetching,
+   } = useCrewIndisps(indispFunc, "11gt");
+
+   // Loading inicial (primeira carga) vs refetch (mudança de função)
+   const isInitialLoading = isLoadingIndisps || !dataTrip;
+   const showLoadingOverlay = isFetching && !isLoadingIndisps;
 
    const changeDateRef = (day, month) => {
       const dateCopy = new Date(dateRef.getTime());
@@ -63,25 +73,6 @@ export default function IndispPage() {
 
       setDateRef(dateCopy);
    };
-
-   const updateCrewIndisps = async () => {
-      setIndisps([]);
-      try {
-         const response = await getCrewIndisps(indispFunc, "11gt");
-         const data = await response.json();
-         if (response.ok) {
-            setIndisps(data);
-         } else {
-            console.error("Erro ao buscar indisponibilidades:", data);
-         }
-      } catch (err: any) {
-         console.error("Erro ao buscar indisponibilidades:", err);
-      }
-   };
-
-   useEffect(() => {
-      updateCrewIndisps();
-   }, [indispFunc]);
 
    useEffect(() => {
       getTripData().then((data) => {
@@ -165,7 +156,8 @@ export default function IndispPage() {
       setDatesArray(genDates(dateRef, daysToGenerate));
    }, [dateRef, daysToGenerate]);
 
-   if (!indisps || !dataTrip) return <AppLoadingScreen />;
+   // Loading inicial - apenas na primeira carga
+   if (isInitialLoading) return <AppLoadingScreen />;
 
    const getCurrentPeriod = () => {
       if (datesArray.length === 0) return "";
@@ -191,25 +183,17 @@ export default function IndispPage() {
             <div className="flex items-center gap-2">
                <HiUserGroup className="shrink-0 text-lg text-gray-500" />
                Função
-               <select
+               <Select
+                  className="w-36"
                   value={indispFunc}
                   onChange={(e) => setIndispFunc(e.target.value)}
-                  className="cursor-pointer appearance-none rounded-lg border border-gray-300 bg-white px-3 py-2 pr-8 text-sm font-medium text-gray-700 shadow-sm transition-all hover:border-blue-400 hover:shadow focus:border-transparent focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                  aria-label="Selecionar função"
-                  style={{
-                     backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`,
-                     backgroundPosition: "right 0.5rem center",
-                     backgroundRepeat: "no-repeat",
-                     backgroundSize: "1.5em 1.5em",
-                  }}
                >
-                  <option value="pil">Piloto</option>
-                  <option value="mc">Mecânico</option>
-                  <option value="lm">LoadMaster</option>
-                  <option value="tf">Comissário</option>
-                  <option value="os">Observador-SAR</option>
-                  <option value="oe">OE</option>
-               </select>
+                  {FUNCOES_PRINCIPAIS.map((f) => (
+                     <option key={f} value={f}>
+                        {funcLabels[f]}
+                     </option>
+                  ))}
+               </Select>
             </div>
 
             {/* Navegação de Datas */}
@@ -277,10 +261,27 @@ export default function IndispPage() {
             </div>
          </div>
 
-         {indisps.length > 0 && dataTrip.length > 0 ? (
-            <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-hidden">
+         {indisps && indisps.length > 0 && dataTrip.length > 0 ? (
+            <div className="relative flex min-h-0 flex-1 flex-col gap-2 overflow-hidden">
+               {/* Loading Overlay - quando refetching */}
+               {showLoadingOverlay && (
+                  <div className="absolute inset-0 z-20 flex items-center justify-center bg-white/60 backdrop-blur-[1px]">
+                     <div className="flex flex-col items-center gap-3 rounded-lg bg-white px-6 py-4 shadow-lg">
+                        <Spinner size="lg" color="failure" />
+                        <p className="text-sm text-gray-600">
+                           Carregando {funcLabels[indispFunc]}...
+                        </p>
+                     </div>
+                  </div>
+               )}
+
                <ColorLegend />
-               <div className="flex min-h-0 flex-1 flex-col gap-2 md:flex-row">
+               <div
+                  className={clsx(
+                     "flex min-h-0 flex-1 flex-col gap-2 transition-opacity duration-200 md:flex-row",
+                     showLoadingOverlay ? "pointer-events-none" : ""
+                  )}
+               >
                   <div
                      ref={tableContainerRef}
                      className="min-w-0 flex-1 overflow-x-auto overflow-y-auto rounded-lg border border-gray-200 bg-white shadow-lg"
@@ -310,7 +311,6 @@ export default function IndispPage() {
                                        dates={datesArray}
                                        tripData={item}
                                        gSheetData={dataTrip}
-                                       update={updateCrewIndisps}
                                     />
                                  ))}
                               {indisps.filter(
@@ -341,7 +341,6 @@ export default function IndispPage() {
                                              dates={datesArray}
                                              tripData={item}
                                              gSheetData={dataTrip}
-                                             update={updateCrewIndisps}
                                           />
                                        ))}
                                  </>
@@ -351,10 +350,7 @@ export default function IndispPage() {
                      </div>
                   </div>
                   <div className="hidden w-auto max-w-sm shrink-0 md:block">
-                     <LastIndisps
-                        indisps={indisps}
-                        update={updateCrewIndisps}
-                     />
+                     <LastIndisps indisps={indisps} />
                   </div>
                </div>
             </div>
@@ -463,12 +459,10 @@ function TripRow({
    dates,
    gSheetData,
    tripData,
-   update,
 }: {
    dates: Date[];
    gSheetData: TripSheet[];
    tripData: CrewIndispList;
-   update: () => void;
 }) {
    const tripSheet = gSheetData?.find(
       (trips) =>
@@ -485,11 +479,7 @@ function TripRow({
    return (
       <tr>
          <th scope="row" className="grid justify-items-center p-px">
-            <TripIndisp
-               trip={tripData.trip}
-               indisps={tripData.indisps}
-               update={update}
-            />
+            <TripIndisp trip={tripData.trip} indisps={tripData.indisps} />
          </th>
          {dates.map((day, index) => {
             const checkToday = datasIguais(day, new Date());
@@ -507,7 +497,6 @@ function TripRow({
                         tripData={tripData}
                         cemal={dataCemal}
                         ultVoo={dataUltVoo}
-                        update={update}
                      />
                   </div>
                </td>
