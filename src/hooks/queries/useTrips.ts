@@ -41,6 +41,7 @@ export function useTrips(params?: GetTripsParams) {
       queryKey: tripKeys.list(params),
       queryFn: ({ signal }) => getTrips(params ?? {}, signal),
       placeholderData: keepPreviousData,
+      staleTime: 0,
    });
 }
 

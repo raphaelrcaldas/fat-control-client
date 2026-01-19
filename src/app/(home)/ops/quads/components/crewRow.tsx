@@ -11,14 +11,12 @@ interface CrewRowProps {
    tripQuadRes: CrewQuadRes;
    groupName: string;
    typeName: string;
-   update: () => void;
 }
 
 export default function CrewRow({
    tripQuadRes,
    groupName,
    typeName,
-   update,
 }: CrewRowProps) {
    const [showForm, setShowForm] = useState(false);
 
@@ -30,7 +28,6 @@ export default function CrewRow({
                totalQuads={tripQuadRes.quads_len}
                groupName={groupName}
                typeName={typeName}
-               update={update}
             />
          </div>
          {tripQuadRes.quads.map((quad) => {
@@ -47,7 +44,6 @@ export default function CrewRow({
             show={showForm}
             setShow={setShowForm}
             trip={tripQuadRes.trip}
-            onSuccess={update}
          />
       </div>
    );

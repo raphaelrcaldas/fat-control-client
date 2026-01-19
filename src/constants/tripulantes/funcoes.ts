@@ -28,7 +28,7 @@ export const FUNC_LABELS_SHORT: Record<FuncType, string> = {
    pil: "Piloto",
    mc: "Mecânico",
    lm: "Loadmaster",
-   oe: "OE",
+   oe: "OE-3",
    os: "Obs-SAR",
    tf: "Comissário",
    ml: "ML",

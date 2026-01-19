@@ -1,10 +1,10 @@
 "use client";
 import { useEffect, useState, useMemo, useCallback, useRef } from "react";
 import { Select, Radio, Label, Spinner } from "flowbite-react";
-import { getQuads, getQuadsType } from "services/routes/quads";
 import { useQuadsContext } from "../../context/quads";
-import { CrewQuadRes } from "services/routes/quads";
 import { compareByAntiguidade } from "utils/sortByAntiguidade";
+import { useQuads, useQuadsTypes } from "@/hooks/queries";
+import { FUNCOES_PRINCIPAIS, getFuncLabel } from "@/constants";
 import CrewRow from "./components/crewRow";
 
 // Constantes para valores configuráveis
@@ -12,16 +12,34 @@ const DEFAULT_UAE = "11gt";
 const DEFAULT_PROJ = "kc-390";
 
 export default function QuadPage() {
-   const [quadsType, setQuadsType] = useState([]);
-   const [quads, setQuads] = useState<CrewQuadRes[]>([]);
    const [ordem, setOrdem] = useState("opr");
-   const [loadingQuads, setLoadingQuads] = useState(true);
-
    const [groupName, setGroupName] = useState("");
    const [typeName, setTypeName] = useState("");
 
    const { quadFunc, setQuadFunc, quadType, setQuadType, visual, setVisual } =
       useQuadsContext();
+
+   // React Query hooks
+   const { data: quadsType = [], isLoading: loadingTypes } =
+      useQuadsTypes(DEFAULT_UAE);
+
+   const params = useMemo(
+      () => ({
+         funcao: quadFunc,
+         tipo_quad: quadType,
+         uae: DEFAULT_UAE,
+         proj: DEFAULT_PROJ,
+      }),
+      [quadFunc, quadType]
+   );
+
+   const {
+      data: quadsData,
+      isLoading: loadingQuads,
+      isFetching,
+   } = useQuads(params);
+
+   const quads = quadsData ?? [];
 
    // Drag scroll
    const scrollRef = useRef<HTMLDivElement>(null);
@@ -81,29 +99,6 @@ export default function QuadPage() {
       setTypeName("");
    }, [quadsType, quadType]);
 
-   async function getQuadsParams() {
-      if (!quadFunc || !quadType) return;
-
-      setLoadingQuads(true);
-
-      const params = {
-         funcao: quadFunc,
-         tipo_quad: quadType,
-         uae: DEFAULT_UAE,
-         proj: DEFAULT_PROJ,
-      };
-
-      try {
-         const data = await getQuads(params);
-         setQuads(data);
-         getQuadsName();
-      } catch (err: any) {
-         console.error("Erro ao buscar quadrinhos:", err);
-      } finally {
-         setLoadingQuads(false);
-      }
-   }
-
    useEffect(() => {
       if (quadsType.length === 0) return;
 
@@ -126,13 +121,9 @@ export default function QuadPage() {
             }
          }
       }
-      setQuads([]);
-      getQuadsParams();
-   }, [quadsType, quadFunc, quadType]);
 
-   useEffect(() => {
-      getQuadsType(DEFAULT_UAE).then((data) => setQuadsType(data));
-   }, []);
+      getQuadsName();
+   }, [quadsType, quadFunc, quadType, setQuadType, getQuadsName]);
 
    const quadsList = useMemo(() => {
       const quadsOrdenados = [...quads].sort((a, b) => {
@@ -155,33 +146,35 @@ export default function QuadPage() {
             tripQuadRes={item}
             groupName={groupName}
             typeName={typeName}
-            update={getQuadsParams}
          />
       ));
-   }, [quads, quadType, ordem, visual]);
+   }, [quads, ordem, groupName, typeName]);
 
    return (
       <div className="p-2">
          <div className="mb-3 flex gap-4 rounded-lg bg-white p-2 py-3 shadow-md">
             <div className="grid text-center">
-               <Label className="self-start">Função</Label>
+               <Label>Função</Label>
                <Select
                   value={quadFunc}
+                  className="w-32"
                   onChange={(e) => setQuadFunc(e.target.value)}
                >
-                  <option value="pil">Piloto</option>
-                  <option value="mc">Mecânico</option>
-                  <option value="lm">LoadMaster</option>
-                  <option value="tf">Comissário</option>
-                  <option value="os">Observador-SAR</option>
-                  <option value="oe">OE</option>
+                  {FUNCOES_PRINCIPAIS.map((f) => {
+                     return (
+                        <option key={f} value={f}>
+                           {getFuncLabel(f, true)}
+                        </option>
+                     );
+                  })}
                </Select>
             </div>
             <div className="grid text-center">
-               <Label className="self-start">Quadrinho</Label>
+               <Label>Quadrinho</Label>
                <Select
                   value={quadType}
                   onChange={(e) => setQuadType(parseInt(e.target.value))}
+                  disabled={loadingTypes}
                >
                   {quadsType
                      .filter((group) =>
@@ -282,6 +275,11 @@ export default function QuadPage() {
             onTouchMove={handleTouchMove}
             onTouchEnd={handleMouseUp}
          >
+            {isFetching && !loadingQuads && (
+               <div className="absolute inset-0 z-20 flex items-center justify-center bg-white/60">
+                  <Spinner size="xl" color="failure" />
+               </div>
+            )}
             {loadingQuads ? (
                <div className="flex flex-col items-center justify-center gap-2 p-2 font-semibold">
                   Carregando <Spinner size="lg" color="failure" />

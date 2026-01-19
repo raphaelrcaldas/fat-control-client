@@ -10,7 +10,7 @@ import {
    TableBody,
    TableRow,
    TableHeadCell,
-   Spinner as FlowbiteSpinner,
+   Spinner,
 } from "flowbite-react";
 import { HiSearch, HiUserGroup, HiX } from "react-icons/hi";
 import { Pagination } from "@/components/Pagination";
@@ -193,7 +193,7 @@ export default function TripPage() {
                   {isFetching && (
                      <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/60 backdrop-blur-[1px]">
                         <div className="flex flex-col items-center gap-3 rounded-lg bg-white px-6 py-4 shadow-lg">
-                           <FlowbiteSpinner color="failure" size="lg" />
+                           <Spinner color="failure" size="lg" />
                            <p className="text-sm text-gray-600">
                               Carregando tripulantes...
                            </p>
@@ -203,7 +203,7 @@ export default function TripPage() {
 
                   {/* Tabela */}
                   <div className="min-h-96 overflow-x-auto">
-                     <Table hoverable className="text-center uppercase">
+                     <Table hoverable>
                         <TableHead>
                            <TableRow>
                               <TableHeadCell>P/G</TableHeadCell>
@@ -218,6 +218,7 @@ export default function TripPage() {
                               </TableHeadCell>
                               <TableHeadCell>Trigrama</TableHeadCell>
                               <TableHeadCell>Funções</TableHeadCell>
+                              <TableHeadCell>Status</TableHeadCell>
                               <TableHeadCell>
                                  <span className="sr-only">Ações</span>
                               </TableHeadCell>

@@ -11,27 +11,20 @@ import {
    TextInput,
    Spinner,
 } from "flowbite-react";
-import { addQuad, updateQuad } from "services/routes/quads";
 import { useToast } from "@/app/context/toast";
 import { Quad } from "services/routes/quads";
 import { CrewMember } from "services/routes/trips";
 import { useQuadsContext } from "@/app/(home)/context/quads";
+import { useCreateQuad, useUpdateQuad } from "@/hooks/queries";
 
 interface QuadFormProps {
    trip: CrewMember;
    quad?: Quad;
    show: boolean;
    setShow: (show: boolean) => void;
-   onSuccess?: () => void;
 }
 
-export default function QuadForm({
-   trip,
-   quad,
-   show,
-   setShow,
-   onSuccess,
-}: QuadFormProps) {
+export default function QuadForm({ trip, quad, show, setShow }: QuadFormProps) {
    const defaultValues = useMemo(
       () => ({
          value: quad?.value ?? "",
@@ -46,10 +39,15 @@ export default function QuadForm({
    );
    const [lastro, setLastro] = useState<number>(0);
    const [inputType, setInputType] = useState<string>("data");
-   const [loading, setLoading] = useState<boolean>(false);
 
    const { push } = useToast();
    const { quadType } = useQuadsContext();
+
+   // React Query mutations
+   const createQuadMutation = useCreateQuad();
+   const updateQuadMutation = useUpdateQuad();
+
+   const loading = createQuadMutation.isPending || updateQuadMutation.isPending;
 
    // Reseta o formulário quando abre um novo quad
    useEffect(() => {
@@ -84,8 +82,7 @@ export default function QuadForm({
          return;
       }
 
-      setLoading(true);
-      let payload: Quad = {
+      const payload: Quad = {
          id: quad?.id,
          trip_id: trip.id,
          value: inputType === "data" ? date || null : null,
@@ -93,20 +90,20 @@ export default function QuadForm({
          type_id: quadType,
       };
 
-      let response: Response;
       try {
+         let response: Response;
+
          if (quad) {
-            response = await updateQuad(payload);
+            response = await updateQuadMutation.mutateAsync(payload);
          } else {
             const quadsToHandle =
                lastro > 0 ? Array(lastro).fill(payload) : [payload];
-            response = await addQuad(quadsToHandle);
+            response = await createQuadMutation.mutateAsync(quadsToHandle);
          }
 
          const data = await response.json();
          if (response.ok) {
             push({ message: data.detail, type: "success" });
-            onSuccess?.();
             cleanAndClose();
          } else {
             push({
@@ -117,8 +114,6 @@ export default function QuadForm({
       } catch (err) {
          console.error(err);
          push({ message: (err as Error).message || "Erro", type: "error" });
-      } finally {
-         setLoading(false);
       }
    };
 

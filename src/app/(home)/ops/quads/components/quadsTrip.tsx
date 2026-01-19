@@ -13,8 +13,7 @@ import {
    TableRow,
    Spinner,
 } from "flowbite-react";
-import { useState, useEffect, useCallback, useMemo } from "react";
-import { getQuadById, deleteQuad } from "services/routes/quads";
+import { useState, useCallback, useMemo } from "react";
 import { isoDateToString } from "utils/dateHandler";
 import { useQuadsContext } from "@/app/(home)/context/quads";
 import { CrewMember } from "services/routes/trips";
@@ -24,19 +23,18 @@ import { FaRegTrashCan } from "react-icons/fa6";
 import { FaEdit, FaPlus } from "react-icons/fa";
 import { useToast } from "@/app/context/toast";
 import { PermBased } from "@/app/(home)/hooks/usePermBased";
+import { useQuadsByTrip, useDeleteQuad } from "@/hooks/queries";
 
 interface QuadsTripProps {
    trip: CrewMember;
    totalQuads: number;
    groupName: string;
    typeName: string;
-   update: () => void;
 }
 
 interface QuadRowProps {
    quad: Quad;
    trip: CrewMember;
-   onUpdate: () => void;
    onDelete: (id: number) => Promise<void>;
 }
 
@@ -45,47 +43,35 @@ export function QuadsTrip({
    totalQuads,
    groupName,
    typeName,
-   update,
 }: QuadsTripProps) {
    const [openModal, setOpenModal] = useState(false);
-   const [quads, setQuads] = useState<Quad[]>([]);
-   const [loading, setLoading] = useState(false);
    const [showForm, setShowForm] = useState(false);
    const { quadType } = useQuadsContext();
    const { push } = useToast();
+
+   // React Query hooks
+   const { data: quads = [], isLoading: loading } = useQuadsByTrip(
+      trip.id,
+      quadType,
+      openModal
+   );
+
+   const deleteQuadMutation = useDeleteQuad();
 
    const userName = useMemo(
       () => `${trip.user.posto.short} ${trip.user.nome_guerra}`,
       [trip.user.posto.short, trip.user.nome_guerra]
    );
 
-   const fetchQuads = useCallback(async () => {
-      setLoading(true);
-      try {
-         const data = await getQuadById(trip.id, quadType);
-         setQuads(data);
-      } catch (err) {
-         console.error(err);
-         push({
-            message: "Erro ao carregar quadrinhos",
-            type: "error",
-         });
-      } finally {
-         setLoading(false);
-      }
-   }, [trip.id, quadType, push]);
-
    const handleDelete = useCallback(
       async (quadId: number) => {
          try {
-            const res = await deleteQuad(quadId);
+            const res = await deleteQuadMutation.mutateAsync(quadId);
             if (res.ok) {
                push({
                   message: "Quadrinho deletado com sucesso!",
                   type: "success",
                });
-               setQuads((prev) => prev.filter((q) => q.id !== quadId));
-               update();
             } else {
                const data = await res.json();
                push({
@@ -101,25 +87,13 @@ export function QuadsTrip({
             });
          }
       },
-      [push, update]
+      [push, deleteQuadMutation]
    );
-
-   const handleSuccess = useCallback(() => {
-      fetchQuads();
-      update();
-      setShowForm(false);
-   }, [fetchQuads, update]);
 
    const handleCloseModal = useCallback(() => {
       setOpenModal(false);
       setShowForm(false);
    }, []);
-
-   useEffect(() => {
-      if (openModal) {
-         fetchQuads();
-      }
-   }, [openModal, fetchQuads]);
 
    return (
       <>
@@ -208,7 +182,6 @@ export function QuadsTrip({
                                  key={index}
                                  quad={quad}
                                  trip={trip}
-                                 onUpdate={handleSuccess}
                                  onDelete={handleDelete}
                               />
                            ))}
@@ -232,19 +205,14 @@ export function QuadsTrip({
                   </div>
                </PermBased>
 
-               <QuadForm
-                  trip={trip}
-                  show={showForm}
-                  setShow={setShowForm}
-                  onSuccess={handleSuccess}
-               />
+               <QuadForm trip={trip} show={showForm} setShow={setShowForm} />
             </ModalBody>
          </Modal>
       </>
    );
 }
 
-function QuadRow({ quad, trip, onUpdate, onDelete }: QuadRowProps) {
+function QuadRow({ quad, trip, onDelete }: QuadRowProps) {
    const [showForm, setShowForm] = useState(false);
    const [deleting, setDeleting] = useState(false);
    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -253,16 +221,11 @@ function QuadRow({ quad, trip, onUpdate, onDelete }: QuadRowProps) {
       setShowDeleteConfirm(false);
       setDeleting(true);
       try {
-         await onDelete(quad.id);
+         await onDelete(quad.id!);
       } finally {
          setDeleting(false);
       }
    }, [quad.id, onDelete]);
-
-   const handleEditSuccess = useCallback(() => {
-      setShowForm(false);
-      onUpdate();
-   }, [onUpdate]);
 
    const displayValue = quad.value ? isoDateToString(quad.value) : "LASTRO";
    const canEdit = Boolean(quad.value);
@@ -311,7 +274,6 @@ function QuadRow({ quad, trip, onUpdate, onDelete }: QuadRowProps) {
                setShow={setShowForm}
                trip={trip}
                quad={quad}
-               onSuccess={handleEditSuccess}
             />
          )}
 

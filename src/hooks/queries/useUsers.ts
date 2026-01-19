@@ -40,6 +40,7 @@ export function useUsers(params?: GetUsersParams) {
       queryKey: userKeys.list(params),
       queryFn: ({ signal }) => getUsers(params, signal),
       placeholderData: keepPreviousData,
+      staleTime: 0,
    });
 }
 
