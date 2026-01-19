@@ -47,20 +47,36 @@ export interface ComissWithMiss extends Comiss {
    completude: number;
 }
 
+export interface ComissFilters {
+   status?: string;
+   search?: string;
+}
+
 export async function getCmtos(
-   status: string,
-   search: string
+   filters?: ComissFilters,
+   signal?: AbortSignal
 ): Promise<ComissList[]> {
    return (
-      await request("GET", comissRoute, null, {
-         status: status,
-         search: search,
-      })
+      await request(
+         "GET",
+         comissRoute,
+         null,
+         {
+            status: filters?.status ?? "aberto",
+            search: filters?.search ?? "",
+         },
+         signal
+      )
    ).json();
 }
 
-export async function getCmtoById(comissId: number): Promise<ComissWithMiss> {
-   return (await request("GET", `${comissRoute}${comissId}`)).json();
+export async function getCmtoById(
+   comissId: number,
+   signal?: AbortSignal
+): Promise<ComissWithMiss> {
+   return (
+      await request("GET", `${comissRoute}${comissId}`, null, null, signal)
+   ).json();
 }
 
 export async function createCmto(comiss: Comiss) {

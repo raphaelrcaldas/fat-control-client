@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo } from "react";
 import {
    Button,
    Modal,
@@ -21,9 +21,7 @@ import { gerarRelatorioDocx } from "utils/apostilaComiss";
 import { realCurrency } from "utils/financeiro";
 import {
    ComissList,
-   ComissWithMiss,
    Comiss as ComissSchema,
-   getCmtoById,
 } from "services/routes/cegep/comiss";
 import { RiFileExcel2Fill } from "react-icons/ri";
 import { HiDocumentText } from "react-icons/hi";
@@ -31,47 +29,45 @@ import { UserMissionDetailModal } from "../../components/UserMissionDetailModal"
 import { IoMdInformationCircleOutline, IoMdSearch } from "react-icons/io";
 import { MdOutlineEdit, MdDeleteOutline } from "react-icons/md";
 import { RoleBasedRoute } from "@/app/(home)/hooks/useRoleBased";
-import {
-   deleteCmto,
-   createCmto,
-   updateCmto,
-} from "services/routes/cegep/comiss";
 import { useToast } from "@/app/context/toast";
 import { UserPublic } from "services/routes/users";
 import { SearchUser } from "src/app/(home)/users/components/searchUser";
 import { PermBased } from "@/app/(home)/hooks/usePermBased";
+import {
+   useComissDetail,
+   useCreateComiss,
+   useUpdateComiss,
+   useDeleteComiss,
+} from "@/hooks/queries";
 
 export function DetailComiss({
    show,
    setShow,
    comiss,
-   update,
 }: {
    show: boolean;
    setShow: (show: boolean) => void;
    comiss?: ComissList;
-   update?: () => void;
 }) {
    const [isEditMode, setIsEditMode] = useState(false);
    const [showDeleteModal, setShowDeleteModal] = useState(false);
-   const [isDeleting, setIsDeleting] = useState(false);
    const [showUserSearch, setShowUserSearch] = useState(false);
-   const [isLoading, setIsLoading] = useState(false);
-   const [detail, setDetail] = useState<ComissWithMiss | null>(null);
-   const [loadingDetail, setLoadingDetail] = useState(false);
    const [showMissionModal, setShowMissionModal] = useState(false);
    const [selectedMission, setSelectedMission] = useState(null);
    const { push } = useToast();
 
-   // Fetch detail with missions when modal opens
-   useEffect(() => {
-      if (show && comiss?.id && !detail) {
-         setLoadingDetail(true);
-         getCmtoById(comiss.id)
-            .then((data) => setDetail(data))
-            .finally(() => setLoadingDetail(false));
-      }
-   }, [show, comiss?.id, detail]);
+   // React Query - Fetch detail with missions
+   const { data: detail, isLoading: loadingDetail } = useComissDetail(
+      show && comiss?.id ? comiss.id : null
+   );
+
+   // React Query - Mutations
+   const createMutation = useCreateComiss();
+   const updateMutation = useUpdateComiss();
+   const deleteMutation = useDeleteComiss();
+
+   const isLoading = createMutation.isPending || updateMutation.isPending;
+   const isDeleting = deleteMutation.isPending;
 
    // Valores padrões do formulário
    const defaultValues = useMemo(
@@ -146,13 +142,11 @@ export function DetailComiss({
    }
 
    async function handleSaveComiss() {
-      let errors = [];
+      const errors: string[] = [];
       verificarCampos(errors);
       if (errors.length > 0) {
-         setIsLoading(false);
          return;
       }
-      setIsLoading(true);
 
       const comisObj: ComissSchema = {
          user_id: user!.id,
@@ -171,38 +165,34 @@ export function DetailComiss({
          ...(comiss?.id && { id: comiss.id }),
       };
 
-      try {
-         const res = comiss
-            ? await updateCmto(comisObj)
-            : await createCmto(comisObj);
+      const mutation = comiss ? updateMutation : createMutation;
 
-         const data = await res.json();
-
-         if (res.ok) {
-            push({
-               message: data.detail || "Salvo com sucesso",
-               type: "success",
-            });
-
-            if (update) update();
-            setIsEditMode(false);
-            if (!comiss) setShow(false); // Se for criação, fecha o modal
-         } else {
+      mutation.mutate(comisObj, {
+         onSuccess: async (res) => {
+            const data = await res.json();
+            if (res.ok) {
+               push({
+                  message: data.detail || "Salvo com sucesso",
+                  type: "success",
+               });
+               setIsEditMode(false);
+               if (!comiss) setShow(false);
+            } else {
+               push({
+                  title: "Erro",
+                  message: data.detail || "Erro ao salvar o comissionamento",
+                  type: "error",
+               });
+            }
+         },
+         onError: (err: Error) => {
             push({
                title: "Erro",
-               message: data.detail || "Erro ao salvar o comissionamento",
+               message: err?.message || "Erro ao salvar o comissionamento",
                type: "error",
             });
-         }
-      } catch (err: any) {
-         push({
-            title: "Erro",
-            message: err?.message || "Erro ao salvar o comissionamento",
-            type: "error",
-         });
-      } finally {
-         setIsLoading(false);
-      }
+         },
+      });
    }
 
    async function handleExportSheet() {
@@ -229,37 +219,36 @@ export function DetailComiss({
       URL.revokeObjectURL(url);
    }
 
-   const handleDelete = async () => {
-      setIsDeleting(true);
-      try {
-         const response = await deleteCmto(comiss.id);
-         const data = await response.json();
+   const handleDelete = () => {
+      if (!comiss?.id) return;
 
-         if (response.ok) {
-            push({
-               message: data.detail || "Comissionamento excluído com sucesso",
-               type: "success",
-            });
-
-            setShowDeleteModal(false);
-            setShow(false);
-            if (update) update();
-         } else {
+      deleteMutation.mutate(comiss.id, {
+         onSuccess: async (response) => {
+            const data = await response.json();
+            if (response.ok) {
+               push({
+                  message:
+                     data.detail || "Comissionamento excluído com sucesso",
+                  type: "success",
+               });
+               setShowDeleteModal(false);
+               setShow(false);
+            } else {
+               push({
+                  title: "Erro",
+                  message: data.detail || "Erro ao excluir comissionamento",
+                  type: "error",
+               });
+            }
+         },
+         onError: (err: Error) => {
             push({
                title: "Erro",
-               message: data.detail || "Erro ao excluir comissionamento",
+               message: err?.message || "Erro ao excluir comissionamento",
                type: "error",
             });
-         }
-      } catch (err: any) {
-         push({
-            title: "Erro",
-            message: err?.message || "Erro ao excluir comissionamento",
-            type: "error",
-         });
-      } finally {
-         setIsDeleting(false);
-      }
+         },
+      });
    };
 
    // Renderiza modo de edição/criação

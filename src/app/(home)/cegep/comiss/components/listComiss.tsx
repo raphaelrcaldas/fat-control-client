@@ -11,13 +11,7 @@ import { DetailComiss } from "./detailComiss";
 import clsx from "clsx";
 import { ComissList } from "services/routes/cegep/comiss";
 
-export function ListComiss({
-   comiss,
-   update,
-}: {
-   comiss: ComissList;
-   update: () => void;
-}) {
+export function ListComiss({ comiss }: { comiss: ComissList }) {
    const [showDetail, setShowDetail] = useState(false);
    const user = comiss.user;
    const data_abertura = isoStrToDate(comiss.data_ab).toLocaleDateString(
@@ -189,7 +183,6 @@ export function ListComiss({
                show={showDetail}
                setShow={setShowDetail}
                comiss={comiss}
-               update={update}
             />
          )}
       </>

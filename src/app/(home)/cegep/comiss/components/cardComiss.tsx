@@ -12,17 +12,12 @@ import { FaRegTrashAlt } from "react-icons/fa";
 import { DetailComiss } from "./detailComiss";
 import clsx from "clsx";
 import { realCurrency } from "utils/financeiro";
-import { deleteCmto } from "services/routes/cegep/comiss";
 import { ComissList } from "services/routes/cegep/comiss";
 import "react-circular-progressbar/dist/styles.css";
+import { useDeleteComiss } from "@/hooks/queries";
 
-export function CardComiss({
-   comiss,
-   update,
-}: {
-   comiss: ComissList;
-   update: () => void;
-}) {
+export function CardComiss({ comiss }: { comiss: ComissList }) {
+   const deleteMutation = useDeleteComiss();
    const [showDetail, setShowDetail] = useState(false);
    const user = comiss.user;
    const data_abertura = isoStrToDate(comiss.data_ab).toLocaleDateString(
@@ -45,29 +40,27 @@ export function CardComiss({
    const ajd_ab = comiss.valor_aj_ab;
    const ajd_fc = comiss.valor_aj_fc;
 
-   async function deleteComiss() {
+   function deleteComiss() {
       const confirmed = window.confirm("Deseja deletar esse comissionamento?");
-      if (!confirmed) return;
+      if (!confirmed || !comiss.id) return;
 
-      try {
-         const response = await deleteCmto(comiss.id);
-
-         if (!response.ok) {
-            const errorData = await response.json();
-            alert(
-               `Erro ao deletar: ${errorData.detail || "Erro desconhecido."}`
-            );
-            return;
-         }
-
-         const data = await response.json();
-         alert(data.detail || "Comissionamento deletado com sucesso.");
-         update(); // Só atualiza se deu tudo certo
-      } catch (error) {
-         // Erros de rede ou falhas inesperadas
-         console.error("Erro ao deletar comissionamento:", error);
-         alert("Erro inesperado. Verifique sua conexão ou tente novamente.");
-      }
+      deleteMutation.mutate(comiss.id, {
+         onSuccess: async (response) => {
+            if (!response.ok) {
+               const errorData = await response.json();
+               alert(
+                  `Erro ao deletar: ${errorData.detail || "Erro desconhecido."}`
+               );
+               return;
+            }
+            const data = await response.json();
+            alert(data.detail || "Comissionamento deletado com sucesso.");
+         },
+         onError: (error) => {
+            console.error("Erro ao deletar comissionamento:", error);
+            alert("Erro inesperado. Verifique sua conexão ou tente novamente.");
+         },
+      });
    }
    return (
       <>
@@ -189,7 +182,6 @@ export function CardComiss({
                show={showDetail}
                setShow={setShowDetail}
                comiss={comiss}
-               update={update}
             />
          )}
       </>

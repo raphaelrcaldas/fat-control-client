@@ -1,59 +1,47 @@
 "use client";
 
-import { useEffect, useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useDeferredValue } from "react";
 import { Label, Select, TextInput, Badge, Spinner } from "flowbite-react";
 import { ListComiss } from "./components/listComiss";
 import { DetailComiss } from "./components/detailComiss";
-import { getCmtos, ComissList } from "services/routes/cegep/comiss";
 import { RoleBasedRoute } from "../../hooks/useRoleBased";
 import { sortByAntiguidade } from "utils/sortByAntiguidade";
 import { HiFilter, HiX } from "react-icons/hi";
+import { useComissList } from "@/hooks/queries";
+import clsx from "clsx";
 
 export default function ComissPage() {
-   const [cmtos, setCmtos] = useState<ComissList[]>([]);
-   const [loading, setLoading] = useState(true);
    const [showFormComiss, setShowFormComiss] = useState(false);
    const [statusComis, setStatusComis] = useState("aberto");
    const [searchUser, setSearchUser] = useState("");
    const [filtersExpanded, setFiltersExpanded] = useState(false);
 
+   // Debounce do search usando useDeferredValue
+   const deferredSearch = useDeferredValue(searchUser);
+
+   // React Query
+   const {
+      data: cmtosRaw,
+      isLoading,
+      isFetching,
+   } = useComissList({
+      status: statusComis,
+      search: deferredSearch,
+   });
+
+   // Ordenar por antiguidade
+   const cmtos = useMemo(() => {
+      if (!cmtosRaw) return [];
+      return sortByAntiguidade(cmtosRaw);
+   }, [cmtosRaw]);
+
+   const loading = isLoading;
    const hasActiveFilters = !!(searchUser || statusComis !== "aberto");
 
    const clearFilters = () => {
       setSearchUser("");
       setStatusComis("aberto");
    };
-
-   const updateCmtos = useCallback(async () => {
-      setLoading(true);
-      try {
-         const data = await getCmtos(statusComis, searchUser);
-
-         setCmtos(sortByAntiguidade(data));
-      } catch (error) {
-         console.error("Erro ao carregar comissionamentos", error);
-      } finally {
-         setLoading(false);
-      }
-   }, [statusComis, searchUser]);
-
-   useEffect(() => {
-      const timer = setTimeout(() => {
-         updateCmtos();
-      }, 500);
-
-      return () => clearTimeout(timer);
-   }, [updateCmtos]);
-
-   const memoComiss = useMemo(() => {
-      return (
-         <>
-            {cmtos.map((c) => (
-               <ListComiss key={c.id} comiss={c} update={updateCmtos} />
-            ))}
-         </>
-      );
-   }, [cmtos]);
 
    return (
       <>
@@ -154,7 +142,7 @@ export default function ComissPage() {
                      </span>
 
                      {searchUser && (
-                        <Badge color="red">
+                        <Badge color="failure">
                            <div className="flex items-center gap-1.5">
                               <svg
                                  className="h-3 w-3"
@@ -193,7 +181,7 @@ export default function ComissPage() {
                      )}
 
                      {statusComis !== "aberto" && (
-                        <Badge color="info">
+                        <Badge color="failure">
                            <div className="flex items-center gap-1.5">
                               <svg
                                  className="h-3 w-3"
@@ -381,17 +369,22 @@ export default function ComissPage() {
                      </p>
                   </div>
                ) : (
-                  <div className="space-y-1 pb-3">{memoComiss}</div>
+                  <div
+                     className={clsx(
+                        "space-y-1 pb-3 transition-opacity",
+                        isFetching && "opacity-50"
+                     )}
+                  >
+                     {cmtos.map((c) => (
+                        <ListComiss key={c.id} comiss={c} />
+                     ))}
+                  </div>
                )}
             </div>
          </div>
 
          {showFormComiss && (
-            <DetailComiss
-               show={showFormComiss}
-               setShow={setShowFormComiss}
-               update={updateCmtos}
-            />
+            <DetailComiss show={showFormComiss} setShow={setShowFormComiss} />
          )}
       </>
    );
