@@ -186,9 +186,9 @@ export function useUpdateEtiqueta() {
 }
 
 /**
- * Excluir etiqueta
+ * Excluir etiqueta de ordem de missão
  */
-export function useDeleteEtiqueta() {
+export function useDeleteEtiquetaOrdem() {
    const queryClient = useQueryClient();
 
    return useMutation({

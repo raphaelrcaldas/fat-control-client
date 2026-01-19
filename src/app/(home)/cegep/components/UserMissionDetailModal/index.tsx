@@ -2,35 +2,12 @@
 import { Modal, ModalBody, Badge } from "flowbite-react";
 import { HiX, HiCalendar } from "react-icons/hi";
 import { MisPntsTable } from "./MisPntsTable";
-
-interface MissionRecord {
-   user_mis: {
-      id: number;
-      p_g: string;
-      sit: string;
-      user: {
-         nome_guerra: string;
-      };
-   };
-   missao: {
-      id: number;
-      tipo_doc: string;
-      n_doc: number;
-      desc: string;
-      afast: string;
-      regres: string;
-      dias: number;
-      diarias: number;
-      valor_total: number;
-      acrec_desloc: boolean;
-      pernoites: any[];
-   };
-}
+import { PagamentoRecord } from "services/routes/cegep/financeiro";
 
 interface UserMissionDetailModalProps {
    show: boolean;
    onClose: () => void;
-   record: MissionRecord | null;
+   record: PagamentoRecord | null;
 }
 
 export function UserMissionDetailModal({

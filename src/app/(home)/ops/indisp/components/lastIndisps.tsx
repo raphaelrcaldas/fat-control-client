@@ -1,3 +1,4 @@
+import clsx from "clsx";
 import { useEffect, useState } from "react";
 import { isoStrToDate } from "utils/dateHandler";
 import { getIndisp } from "./options";
@@ -69,11 +70,14 @@ export function LastIndisps({ indisps }) {
 
                return (
                   <div
-                     className={`flex cursor-pointer items-center gap-2 rounded border-b border-gray-100 px-2 py-1 text-xs uppercase transition-colors select-none last:border-b-0 ${
-                        idp.isDeleted
-                           ? "bg-red-100 opacity-70"
-                           : "hover:bg-blue-50"
-                     }`}
+                     className={clsx(
+                        "flex cursor-pointer items-center gap-2 rounded border-b border-gray-100 px-2 py-1 text-xs uppercase transition-colors select-none last:border-b-0",
+                        idp.isDeleted && "bg-red-100 hover:bg-red-200",
+                        !idp.isDeleted &&
+                           idp.wasModified &&
+                           "bg-yellow-100 hover:bg-yellow-200",
+                        !idp.isDeleted && !idp.wasModified && "hover:bg-blue-50"
+                     )}
                      key={idp.id || `${idp.trig}-${idp.created_at}-${idx}`}
                      onClick={() => handleIndispClick(idp)}
                   >
@@ -106,12 +110,16 @@ export function LastIndisps({ indisps }) {
                         <span className="text-gray-500 lowercase">a</span>{" "}
                         {dateEnd}
                      </span>
-                     <span className="w-24 shrink-0 text-center text-xs whitespace-nowrap text-gray-500">
+
+                     <span className="w-24 shrink-0 text-center font-mono text-xs whitespace-nowrap text-gray-500">
+                        {lastChangeDate}
+                     </span>
+
+                     <span className="w-6 text-center">
                         {idp.isDeleted && <span title="Deletado">🗑️</span>}
                         {!idp.isDeleted && idp.wasModified && (
                            <span title="Modificado">✏️</span>
                         )}{" "}
-                        {lastChangeDate}
                      </span>
                   </div>
                );

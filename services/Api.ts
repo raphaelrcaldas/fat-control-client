@@ -22,7 +22,10 @@ export default async function request<T = any>(
    method: HttpMethod,
    endpoint: string,
    body: T | null = null,
-   params: Record<string, string | number | string[] | number[]> | null = null,
+   params: Record<
+      string,
+      string | number | string[] | number[] | undefined
+   > | null = null,
    signal?: AbortSignal
 ): Promise<Response> {
    let fullUrl = `${baseUrl}${endpoint}`;

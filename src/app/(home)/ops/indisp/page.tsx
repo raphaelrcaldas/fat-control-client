@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { Tooltip, Spinner, Select } from "flowbite-react";
 import IndispCell from "./components/indispCell";
 import { TripIndisp } from "./components/tripIndisp";
@@ -22,6 +22,10 @@ import {
 } from "react-icons/hi";
 import { indispsOptions } from "./components/options";
 import { useCrewIndisps } from "@/hooks/queries";
+import { getColumnVisibilityClass } from "./utils/columnVisibility";
+
+// Número fixo de dias - visibilidade controlada via CSS (Tailwind breakpoints)
+const DAYS_TO_GENERATE = 21;
 
 function genDates(dateRefer: Date, daysToGenerate: number) {
    const offset = -1;
@@ -40,12 +44,15 @@ function genDates(dateRefer: Date, daysToGenerate: number) {
 
 export default function IndispPage() {
    const [dateRef, setDateRef] = useState<Date>(new Date());
-   const [daysToGenerate, setDaysToGenerate] = useState<number>(7);
-   const [datesArray, setDatesArray] = useState<Date[]>([]);
    const [dataTrip, setDataTrip] = useState<TripSheet[] | null>(null);
 
    const { indispFunc, setIndispFunc } = useIndispContext();
-   const tableContainerRef = useRef<HTMLDivElement>(null);
+
+   // Array de datas derivado - sem useState/useEffect
+   const datesArray = useMemo(
+      () => genDates(dateRef, DAYS_TO_GENERATE),
+      [dateRef]
+   );
 
    // Query de indisponibilidades com React Query
    const {
@@ -79,82 +86,6 @@ export default function IndispPage() {
          setDataTrip(data);
       });
    }, []);
-
-   useEffect(() => {
-      const calculateDaysToShow = () => {
-         if (tableContainerRef.current) {
-            const containerWidth = tableContainerRef.current.offsetWidth;
-            // Largura aproximada de cada coluna de dia (40px) + coluna da tripulação (65px)
-            const cellWidth = 44;
-            const firstColumnWidth = 65;
-            const availableWidth = containerWidth - firstColumnWidth - 24; // 24px de padding interno
-            const days = Math.floor(availableWidth / cellWidth);
-            return Math.max(5, Math.min(days, 30)); // Min 5 dias, max 30 dias
-         }
-         // Fallback baseado na largura da janela
-         const windowWidth = window.innerWidth;
-         if (windowWidth < 768) return 5; // mobile
-         if (windowWidth < 1024) return 7; // tablet
-         if (windowWidth < 1440) return 12; // desktop pequeno
-         return 16; // desktop grande
-      };
-
-      const updateDays = () => {
-         const newDays = calculateDaysToShow();
-         setDaysToGenerate(newDays);
-      };
-
-      const handleResize = () => {
-         updateDays();
-      };
-
-      window.addEventListener("resize", handleResize);
-
-      // Observer para detectar mudanças no tamanho do container
-      const resizeObserver = new ResizeObserver(() => {
-         // Usa requestAnimationFrame para garantir que o layout foi aplicado
-         requestAnimationFrame(() => {
-            updateDays();
-         });
-      });
-
-      if (tableContainerRef.current) {
-         resizeObserver.observe(tableContainerRef.current);
-         // Força atualização inicial após o container estar montado
-         requestAnimationFrame(() => {
-            updateDays();
-         });
-      }
-
-      return () => {
-         window.removeEventListener("resize", handleResize);
-         resizeObserver.disconnect();
-      };
-   }, []);
-
-   // Recalcula quando os dados forem carregados e o container aparecer no DOM
-   useEffect(() => {
-      if (indisps && dataTrip && tableContainerRef.current) {
-         const calculateDaysToShow = () => {
-            const containerWidth = tableContainerRef.current.offsetWidth;
-            const cellWidth = 40;
-            const firstColumnWidth = 65;
-            const availableWidth = containerWidth - firstColumnWidth - 24;
-            const days = Math.floor(availableWidth / cellWidth);
-            return Math.max(5, Math.min(days, 30));
-         };
-
-         // Usa requestAnimationFrame para garantir que o layout está aplicado
-         requestAnimationFrame(() => {
-            const newDays = calculateDaysToShow();
-            setDaysToGenerate(newDays);
-         });
-      }
-   }, [indisps, dataTrip]);
-
-   useEffect(() => {
-      setDatesArray(genDates(dateRef, daysToGenerate));
-   }, [dateRef, daysToGenerate]);
 
    // Loading inicial - apenas na primeira carga
    if (isInitialLoading) return <AppLoadingScreen />;
@@ -278,27 +209,36 @@ export default function IndispPage() {
                <ColorLegend />
                <div
                   className={clsx(
-                     "flex min-h-0 flex-1 flex-col gap-2 transition-opacity duration-200 md:flex-row",
+                     "flex min-h-0 flex-1 justify-between gap-2 transition-opacity duration-200",
                      showLoadingOverlay ? "pointer-events-none" : ""
                   )}
                >
-                  <div
-                     ref={tableContainerRef}
-                     className="min-w-0 flex-1 overflow-x-auto overflow-y-auto rounded-lg border border-gray-200 bg-white shadow-lg"
-                  >
-                     <div className="h-fit min-w-max px-2 pb-2">
+                  <div className="max-h-full min-h-0 w-fit overflow-x-auto overflow-y-auto rounded-lg border border-gray-200 bg-white shadow-lg">
+                     <div className="min-w-max px-2 pb-2">
                         <table className="relative w-full overflow-visible">
                            <thead className="sticky top-0 z-10 bg-white">
                               <tr>
                                  <th scope="col" />
                                  {datesArray.map((dayR, index) => (
-                                    <ThWeek key={index} dayRef={dayR} />
+                                    <ThWeek
+                                       key={index}
+                                       dayRef={dayR}
+                                       className={getColumnVisibilityClass(
+                                          index
+                                       )}
+                                    />
                                  ))}
                               </tr>
                               <tr>
                                  <th scope="col" />
                                  {datesArray.map((dayR, index) => (
-                                    <ThMonth key={index} dayRef={dayR} />
+                                    <ThMonth
+                                       key={index}
+                                       dayRef={dayR}
+                                       className={getColumnVisibilityClass(
+                                          index
+                                       )}
+                                    />
                                  ))}
                               </tr>
                            </thead>
@@ -349,7 +289,7 @@ export default function IndispPage() {
                         </table>
                      </div>
                   </div>
-                  <div className="hidden w-auto max-w-sm shrink-0 md:block">
+                  <div className="hidden flex-1 justify-center lg:grid">
                      <LastIndisps indisps={indisps} />
                   </div>
                </div>
@@ -370,7 +310,7 @@ export default function IndispPage() {
 
 function ColorLegend() {
    return (
-      <div className="hidden shrink-0 flex-wrap justify-center gap-2 rounded-lg bg-white px-2 py-2 text-xs shadow md:flex md:text-sm">
+      <div className="hidden shrink-0 flex-wrap justify-center gap-2 rounded-lg bg-white px-2 py-2 text-xs shadow md:text-sm 2xl:flex">
          {indispsOptions.map((option) => {
             const label = option.label;
             return (
@@ -396,17 +336,21 @@ function ColorLegend() {
    );
 }
 
-function ThWeek({ dayRef }: { dayRef: Date }) {
+function ThWeek({ dayRef, className }: { dayRef: Date; className?: string }) {
    const diaSemana = dayRef.getDay();
    const isWeekend = diaSemana === 0 || diaSemana === 6;
 
    return (
       <th
          scope="col"
-         className={clsx("px-1 py-2 text-center text-xs uppercase", {
-            "font-bold text-red-700": isWeekend,
-            "font-medium text-gray-600": !isWeekend,
-         })}
+         className={clsx(
+            "px-1 py-2 text-center text-xs uppercase",
+            {
+               "font-bold text-red-700": isWeekend,
+               "font-medium text-gray-600": !isWeekend,
+            },
+            className
+         )}
       >
          {dayRef.toLocaleDateString("pt-BR", {
             weekday: "short",
@@ -415,7 +359,7 @@ function ThWeek({ dayRef }: { dayRef: Date }) {
    );
 }
 
-function ThMonth({ dayRef }: { dayRef: Date }) {
+function ThMonth({ dayRef, className }: { dayRef: Date; className?: string }) {
    if (!dayRef || !(dayRef instanceof Date)) return null;
 
    const dateStr = dayRef.toLocaleDateString("pt-BR", {
@@ -445,7 +389,8 @@ function ThMonth({ dayRef }: { dayRef: Date }) {
                "bg-yellow-400 text-gray-900 shadow-md": isToday,
                "bg-gray-300 text-gray-600": isPast && !isToday && !isWeekend,
                "bg-white text-gray-900": !isPast && !isToday && !isWeekend,
-            }
+            },
+            className
          )}
          aria-current={isToday ? "date" : undefined}
          aria-label={`Data: ${dateStr}${isToday ? " (hoje)" : ""}`}
@@ -487,7 +432,7 @@ function TripRow({
             return (
                <td
                   key={index}
-                  className={clsx("px-1", {
+                  className={clsx("px-1", getColumnVisibilityClass(index), {
                      "border-x-2 border-blue-500 bg-blue-300": checkToday,
                   })}
                >

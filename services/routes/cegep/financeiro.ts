@@ -18,6 +18,7 @@ export interface PagamentoRecord {
 }
 
 export interface PagamentosFilters {
+   [key: string]: string | number | string[] | undefined;
    page?: number;
    limit?: number;
    tipo_doc?: string[];
