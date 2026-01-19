@@ -11,6 +11,7 @@ import {
 import { FaSave } from "react-icons/fa";
 import { useFuncForm } from "../../hooks/useFuncForm";
 import { isFuncAvailable } from "../../utils/checkFuncAvailability";
+import { OPER_LABELS } from "@/constants/tripulantes";
 import type { Trip, CrewFunc } from "../../types/trip.types";
 
 type FuncEditModalProps = {
@@ -117,10 +118,11 @@ export function FuncEditModal({
                         })}
                         color={errors.oper ? "failure" : "gray"}
                      >
-                        <option value="ba">⭐ BA - Básico</option>
-                        <option value="op">✓ OP - Operacional</option>
-                        <option value="in">🎓 IN - Instrutor</option>
-                        <option value="al">📚 AL - Aluno</option>
+                        {Object.entries(OPER_LABELS).map(([key, label]) => (
+                           <option key={key} value={key}>
+                              {key.toUpperCase()} - {label}
+                           </option>
+                        ))}
                      </Select>
                      {errors.oper && (
                         <p className="text-sm text-red-600">

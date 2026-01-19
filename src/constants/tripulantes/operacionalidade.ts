@@ -8,9 +8,9 @@ export type OperType = "ba" | "op" | "in" | "al";
  * Labels para níveis de operacionalidade
  */
 export const OPER_LABELS: Record<OperType, string> = {
-   ba: "Básico",
-   op: "Operacional",
    in: "Instrutor",
+   op: "Operacional",
+   ba: "Básico",
    al: "Aluno",
 };
 

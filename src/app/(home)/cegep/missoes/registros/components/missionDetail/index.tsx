@@ -896,13 +896,7 @@ export default function MissionDetail({
                      </div>
                   )}
 
-                  <div
-                     className="grid gap-2 font-medium uppercase"
-                     style={{
-                        gridTemplateColumns:
-                           "repeat(auto-fit, minmax(150px, 1fr))",
-                     }}
-                  >
+                  <div className="grid gap-2 font-medium uppercase grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
                      {mils.map((userMis) => {
                         return (
                            <MissionMilitar

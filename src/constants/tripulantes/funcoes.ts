@@ -12,7 +12,7 @@ export type FuncType = "pil" | "mc" | "lm" | "oe" | "os" | "tf" | "ml" | "md";
  */
 export const FUNC_LABELS: Record<FuncType, string> = {
    pil: "Piloto",
-   mc: "Mecânico de Voo",
+   mc: "Mecânico",
    lm: "Loadmaster",
    oe: "Operador de Equipamentos",
    os: "Observador-SAR",

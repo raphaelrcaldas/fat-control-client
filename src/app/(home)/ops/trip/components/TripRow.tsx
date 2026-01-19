@@ -4,7 +4,6 @@ import { FuncTripRow } from "./FuncTripRow";
 import { PermBased } from "@/app/(home)/hooks/usePermBased";
 import type { Trip } from "../types/trip.types";
 import clsx from "clsx";
-import { HiCheckCircle } from "react-icons/hi2";
 
 type TripRowProps = {
    trip: Trip;
@@ -28,40 +27,40 @@ export function TripRow({ trip }: TripRowProps) {
          <TableCell className="hidden text-gray-800 capitalize md:table-cell">
             {user.nome_completo}
          </TableCell>
-         <TableCell className="font-medium text-red-600 uppercase">
+         <TableCell className="text-center font-medium text-red-600 uppercase">
             {trip.trig}
          </TableCell>
-         <TableCell className="uppercase">
+         <TableCell className="text-center uppercase">
             {tripFuncs.length < 1 ? (
-               <div className="flex">
+               <div className="flex justify-center">
                   <Badge color="failure" size="sm">
                      Sem Função Cadastrada
                   </Badge>
                </div>
             ) : (
-               <div className="flex flex-wrap gap-1">
+               <div className="flex flex-wrap justify-center gap-1">
                   {tripFuncs.map((f) => (
                      <FuncTripRow key={f.id} func={f} />
                   ))}
                </div>
             )}
          </TableCell>
-         <TableCell className="hidden md:table-cell">
-            <span className="inline-flex items-center gap-1.5 text-sm">
+         <TableCell className="hidden text-center md:table-cell">
+            <div className="inline-flex items-center gap-1.5 text-sm">
                <span
                   className={clsx(
                      "size-3 rounded-full",
-                     trip.active ? "bg-green-600" : "bg-gray-600"
+                     trip.active ? "bg-green-600" : "bg-gray-400"
                   )}
                ></span>
                <span
                   className={clsx(
-                     trip.active ? "text-green-600" : "text-gray-600"
+                     trip.active ? "text-green-600" : "text-gray-500"
                   )}
                >
                   {trip.active ? "Ativo" : "Inativo"}
                </span>
-            </span>
+            </div>
          </TableCell>
          <TableCell className="text-center">
             <PermBased resource={"trips"} requiredPerm={"update"}>

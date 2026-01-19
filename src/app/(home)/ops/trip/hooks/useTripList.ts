@@ -4,7 +4,6 @@ import type { FuncType, OperType } from "../types/trip.types";
 
 type UseTripListParams = {
    uae: string;
-   active: boolean;
 };
 
 type FilterParams = {
@@ -12,11 +11,12 @@ type FilterParams = {
    p_g: string[];
    func: FuncType[];
    oper: OperType[];
+   active: boolean | null;
 };
 
 const PER_PAGE_OPTIONS = [10, 15, 25, 50, 100];
 
-export function useTripList({ uae, active }: UseTripListParams) {
+export function useTripList({ uae }: UseTripListParams) {
    const [currentPage, setCurrentPage] = useState(1);
    const [perPage, setPerPage] = useState(10);
 
@@ -25,6 +25,7 @@ export function useTripList({ uae, active }: UseTripListParams) {
       p_g: [],
       func: [],
       oper: [],
+      active: true,
    });
 
    // Ref para controlar se e a primeira renderizacao
@@ -37,18 +38,25 @@ export function useTripList({ uae, active }: UseTripListParams) {
          return;
       }
       setCurrentPage(1);
-   }, [filters.name, filters.p_g, filters.func, filters.oper, perPage]);
+   }, [
+      filters.name,
+      filters.p_g,
+      filters.func,
+      filters.oper,
+      filters.active,
+      perPage,
+   ]);
 
-   // Resetar pagina quando uae/active mudam
+   // Resetar pagina quando uae muda
    useEffect(() => {
       setCurrentPage(1);
-   }, [uae, active]);
+   }, [uae]);
 
    // Montar parametros da query
    const queryParams = useMemo(
       () => ({
          uae,
-         active,
+         active: filters.active,
          page: currentPage,
          per_page: perPage,
          search: filters.name || undefined,
@@ -56,7 +64,7 @@ export function useTripList({ uae, active }: UseTripListParams) {
          func: filters.func.length > 0 ? filters.func : undefined,
          oper: filters.oper.length > 0 ? filters.oper : undefined,
       }),
-      [uae, active, currentPage, perPage, filters]
+      [uae, currentPage, perPage, filters]
    );
 
    const { data, isLoading, isFetching, refetch } = useTrips(queryParams);
@@ -69,7 +77,7 @@ export function useTripList({ uae, active }: UseTripListParams) {
    }
 
    function clearFilters() {
-      setFilters({ name: "", p_g: [], func: [], oper: [] });
+      setFilters({ name: "", p_g: [], func: [], oper: [], active: true });
    }
 
    const handlePageChange = (page: number) => {

@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import {
-   Button,
    Table,
    TableHead,
    TableBody,
@@ -10,7 +9,6 @@ import {
    TableCell,
    TableHeadCell,
 } from "flowbite-react";
-import { IoMdInformationCircleOutline } from "react-icons/io";
 import { HiCheckCircle } from "react-icons/hi";
 import { UserPublic } from "services/routes/users";
 import { UserDetailsModal } from "./UserDetailsModal/index";
@@ -37,8 +35,12 @@ export function UserTable({ usuarios, loading }: UserTableProps) {
                      <TableHeadCell>Especialidade</TableHeadCell>
                      <TableHeadCell>Nome de Guerra</TableHeadCell>
                      <TableHeadCell>Nome Completo</TableHeadCell>
-                     <TableHeadCell>Unidade</TableHeadCell>
-                     <TableHeadCell>Status</TableHeadCell>
+                     <TableHeadCell className="text-center">
+                        Unidade
+                     </TableHeadCell>
+                     <TableHeadCell className="text-center">
+                        Status
+                     </TableHeadCell>
                      <TableHeadCell>
                         <span className="sr-only">Ações</span>
                      </TableHeadCell>
@@ -60,13 +62,13 @@ export function UserTable({ usuarios, loading }: UserTableProps) {
                         <TableCell className="text-gray-600 capitalize">
                            {user.nome_completo}
                         </TableCell>
-                        <TableCell className="uppercase">
+                        <TableCell className="text-center uppercase">
                            {user.unidade}
                         </TableCell>
-                        <TableCell>
+                        <TableCell className="text-center">
                            <div
                               className={clsx(
-                                 "flex items-center gap-1 font-medium",
+                                 "flex items-center justify-center gap-1 py-1 font-medium",
                                  user.active
                                     ? "text-green-600"
                                     : "text-gray-600"
@@ -78,19 +80,13 @@ export function UserTable({ usuarios, loading }: UserTableProps) {
                               </span>
                            </div>
                         </TableCell>
-                        <TableCell className="text-right">
-                           <Button
-                              color="light"
-                              size="sm"
+                        <TableCell className="text-center">
+                           <button
+                              className="text-sm font-medium text-cyan-600 hover:underline"
                               onClick={() => setSelectedUser(user)}
-                              aria-label={`Ver detalhes de ${user.nome_guerra}`}
-                              title="Ver detalhes"
                            >
-                              <IoMdInformationCircleOutline
-                                 size={20}
-                                 className="text-red-600"
-                              />
-                           </Button>
+                              Detalhes
+                           </button>
                         </TableCell>
                      </TableRow>
                   ))}

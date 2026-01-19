@@ -75,7 +75,6 @@ export function MissionPernoite({
                {pnt.acrec_desloc && (
                   <Tooltip content="Acréscimo Deslocamento">
                      <span className="flex items-center gap-1 rounded-full bg-green-500 px-3 py-1 text-xs font-semibold text-white shadow-sm">
-                        <MdAttachMoney className="text-sm" />
                         AC
                      </span>
                   </Tooltip>
