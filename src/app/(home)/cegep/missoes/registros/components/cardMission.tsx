@@ -9,13 +9,11 @@ import { MissionMilitar } from "./missionDetail/militar/missionMilitar";
 
 export const CardMission = memo(function CardMission({
    missao,
-   update,
    setClone,
    setShowForm,
 }: {
    missao: Missao;
-   update: () => void;
-   setClone: Dispatch<SetStateAction<Missao>>;
+   setClone: Dispatch<SetStateAction<Missao | null>>;
    setShowForm: Dispatch<SetStateAction<boolean>>;
 }) {
    const [showDetail, setShowDetail] = useState(false);
@@ -173,7 +171,6 @@ export const CardMission = memo(function CardMission({
                setShow={setShowDetail}
                setClone={setClone}
                setShowForm={setShowForm}
-               update={update}
                edit={false}
             />
          )}

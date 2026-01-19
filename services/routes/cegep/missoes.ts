@@ -88,7 +88,7 @@ export const MissoesRequestSchema = z.object({
    // Filtros
    tipo_doc: z
       .string()
-      .max(10, "Tipo de documento deve ter no máximo 10 caracteres")
+      .max(20, "Tipo de documento deve ter no máximo 20 caracteres")
       .optional(),
 
    n_doc: z
@@ -99,7 +99,7 @@ export const MissoesRequestSchema = z.object({
 
    tipo: z
       .string()
-      .max(10, "Tipo da missão deve ter no máximo 10 caracteres")
+      .max(20, "Tipo da missão deve ter no máximo 20 caracteres")
       .optional(),
 
    user_search: z
@@ -177,7 +177,8 @@ export type MissoesRequest = z.infer<typeof MissoesRequestSchema>;
  * ```
  */
 export async function getFragMissoes(
-   reqs?: Partial<MissoesRequest>
+   reqs?: Partial<MissoesRequest>,
+   signal?: AbortSignal
 ): Promise<MissoesPaginatedResponse> {
    try {
       // Validar e sanitizar parâmetros usando schema Zod
@@ -198,7 +199,13 @@ export async function getFragMissoes(
          }
       }
 
-      const response = await request("GET", missoesRoute, null, stringParams);
+      const response = await request(
+         "GET",
+         missoesRoute,
+         null,
+         stringParams,
+         signal
+      );
 
       if (!response.ok) {
          throw new Error(
@@ -231,8 +238,10 @@ export async function deleteFragMis(fragId: number) {
 
 // ============ ETIQUETAS API FUNCTIONS ============
 
-export async function getEtiquetas(): Promise<Etiqueta[]> {
-   const response = await request("GET", etiquetasRoute);
+export async function getEtiquetas(
+   signal?: AbortSignal
+): Promise<Etiqueta[]> {
+   const response = await request("GET", etiquetasRoute, null, undefined, signal);
    return (await response.json()) as Etiqueta[];
 }
 

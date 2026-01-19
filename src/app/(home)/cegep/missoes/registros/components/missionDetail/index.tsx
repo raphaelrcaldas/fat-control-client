@@ -28,10 +28,12 @@ import {
 } from "react-icons/fa";
 import { HiTag, HiX } from "react-icons/hi";
 import { FaRegClone } from "react-icons/fa";
-import { createUpdateFragMis } from "services/routes/cegep/missoes";
-import { deleteFragMis } from "services/routes/cegep/missoes";
 import { useToast } from "@/app/context/toast";
-import { useEtiquetas } from "../../../../context/etiquetasContext";
+import {
+   useCreateUpdateMissao,
+   useDeleteMissao,
+} from "@/hooks/queries/useMissoes";
+import { useEtiquetasMissoes } from "@/hooks/queries/useEtiquetasMissoes";
 import clsx from "clsx";
 
 export default function MissionDetail({
@@ -39,18 +41,19 @@ export default function MissionDetail({
    show,
    setShow,
    edit,
-   update,
    setClone,
    setShowForm,
 }: {
-   missao?: Missao;
+   missao?: Missao | null;
    show: boolean;
    edit: boolean;
    setShow: React.Dispatch<React.SetStateAction<boolean>>;
    setClone: React.Dispatch<React.SetStateAction<Missao | null>>;
-   update: () => void;
    setShowForm: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
+   // React Query mutations
+   const createUpdateMutation = useCreateUpdateMissao();
+   const deleteMutation = useDeleteMissao();
    // Valores padrões
    const defaultValues = useMemo(
       () => ({
@@ -90,7 +93,6 @@ export default function MissionDetail({
 
    const [checkAfastRegres, setCheckAfastRegres] = useState(false);
 
-   const [isLoading, setIsloading] = useState(false);
    const [showErrorModal, setShowErrorModal] = useState(false);
    const [errorMessage, setErrorMessage] = useState("");
    const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -98,9 +100,12 @@ export default function MissionDetail({
    const [validationErrors, setValidationErrors] = useState<string[]>([]);
    const { push } = useToast();
 
-   // Etiquetas disponíveis do context
-   const { etiquetas: etiquetasDisponiveis, loading: loadingEtiquetas } =
-      useEtiquetas();
+   // Etiquetas disponíveis do React Query
+   const { data: etiquetasDisponiveis = [], isLoading: loadingEtiquetas } =
+      useEtiquetasMissoes();
+
+   // Loading state combinando ambas mutations
+   const isLoading = createUpdateMutation.isPending || deleteMutation.isPending;
 
    // Toggle para adicionar/remover etiqueta da missão
    const toggleEtiqueta = (etiqueta: Etiqueta) => {
@@ -223,8 +228,6 @@ export default function MissionDetail({
    }
 
    async function onSave() {
-      setIsloading(true);
-
       const pntsWithFragId = missao
          ? pnts.map((p) => ({ ...p, frag_id: missao.id }))
          : pnts;
@@ -234,7 +237,7 @@ export default function MissionDetail({
          : mils;
 
       const fragMis: Missao = {
-         id: missao ? missao.id : null,
+         id: missao ? missao.id : undefined,
          tipo_doc: tipoDoc,
          n_doc: nDoc,
          desc: desc,
@@ -249,51 +252,54 @@ export default function MissionDetail({
          etiquetas: etiquetasMissao,
       };
 
-      try {
-         const response = await createUpdateFragMis(fragMis);
-         const data = await response.json();
-         if (response.ok) {
-            push({
-               message: data.detail || "Missão salva com sucesso",
-               type: "success",
-            });
-            setEditMode(false);
-            update();
-         } else {
-            setErrorMessage(
-               data.detail || "Erro desconhecido ao salvar missão"
-            );
+      createUpdateMutation.mutate(fragMis, {
+         onSuccess: async (response) => {
+            const data = await response.json();
+            if (response.ok) {
+               push({
+                  message: data.detail || "Missão salva com sucesso",
+                  type: "success",
+               });
+               setEditMode(false);
+               setShow(false);
+            } else {
+               setErrorMessage(
+                  data.detail || "Erro desconhecido ao salvar missão"
+               );
+               setShowErrorModal(true);
+            }
+         },
+         onError: (err: any) => {
+            setErrorMessage(err?.message || "Erro ao salvar missão");
             setShowErrorModal(true);
-         }
-      } catch (err: any) {
-         setErrorMessage(err?.message || "Erro ao salvar missão");
-         setShowErrorModal(true);
-      } finally {
-         setIsloading(false);
-      }
+         },
+      });
    }
 
-   async function onDelete() {
-      try {
-         const response = await deleteFragMis(missao.id);
-         const data = await response.json();
-         if (response.ok) {
-            push({
-               message: data.detail || "Missão excluída com sucesso",
-               type: "success",
-            });
-            setShow(false);
-            update();
-         } else {
-            setErrorMessage(
-               data.detail || "Erro desconhecido ao deletar missão"
-            );
+   function onDelete() {
+      if (!missao?.id) return;
+
+      deleteMutation.mutate(missao.id, {
+         onSuccess: async (response) => {
+            const data = await response.json();
+            if (response.ok) {
+               push({
+                  message: data.detail || "Missão excluída com sucesso",
+                  type: "success",
+               });
+               setShow(false);
+            } else {
+               setErrorMessage(
+                  data.detail || "Erro desconhecido ao deletar missão"
+               );
+               setShowErrorModal(true);
+            }
+         },
+         onError: (err: any) => {
+            setErrorMessage(err?.message || "Erro ao deletar missão");
             setShowErrorModal(true);
-         }
-      } catch (err: any) {
-         setErrorMessage(err?.message || "Erro ao deletar missão");
-         setShowErrorModal(true);
-      }
+         },
+      });
    }
 
    function handleClose() {

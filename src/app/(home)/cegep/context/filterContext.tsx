@@ -1,7 +1,6 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { Missao } from "services/routes/cegep/missoes";
 
 const FilterContext = createContext(null);
 
@@ -17,23 +16,25 @@ function getDefaultDates() {
 }
 
 export function FilterProvider({ children }) {
-   // Usar valores iniciais vazios para evitar mismatch de hidratação
-   const [misRecords, setMisRecords] = useState<Missao[] | null>(null);
+   // Estados de filtros (UI)
    const [selectedTipo, setSelectedTipo] = useState<string[]>([]);
    const [selectedSit, setSelectedSit] = useState<string[]>([]);
    const [userSearch, setUserSearch] = useState("");
    const [dataInicio, setDataInicio] = useState("");
    const [dataFim, setDataFim] = useState("");
    const [tipoDoc, setTipoDoc] = useState<string[]>([]);
-   const [nDoc, setNDoc] = useState(undefined);
+   const [nDoc, setNDoc] = useState<number | undefined>(undefined);
+
+   // Estados de seleção (UI)
    const [selectedAll, setSelectedAll] = useState(false);
    const [valorSoma, setValorSoma] = useState(0);
-   const [listKey, setListKey] = useState(0);
-   const [selectedIds, setSelectedIds] = useState([]);
+   const [selectedIds, setSelectedIds] = useState<number[]>([]);
+
+   // Estados de paginação (UI)
    const [currentPage, setCurrentPage] = useState(1);
    const [itemsPerPage, setItemsPerPage] = useState(10);
-   const [totalRecords, setTotalRecords] = useState(0);
-   const [totalPages, setTotalPages] = useState(1);
+
+   // Hydration state
    const [isHydrated, setIsHydrated] = useState(false);
 
    // Inicializar valores dependentes de Date apenas no cliente
@@ -41,15 +42,12 @@ export function FilterProvider({ children }) {
       const dates = getDefaultDates();
       setDataInicio(dates.ini);
       setDataFim(dates.fim);
-      setListKey(Date.now());
       setIsHydrated(true);
    }, []);
 
    return (
       <FilterContext.Provider
          value={{
-            misRecords,
-            setMisRecords,
             nDoc,
             setNDoc,
             tipoDoc,
@@ -68,18 +66,12 @@ export function FilterProvider({ children }) {
             setSelectedAll,
             valorSoma,
             setValorSoma,
-            listKey,
-            setListKey,
             selectedIds,
             setSelectedIds,
             currentPage,
             setCurrentPage,
             itemsPerPage,
             setItemsPerPage,
-            totalRecords,
-            setTotalRecords,
-            totalPages,
-            setTotalPages,
             isHydrated,
          }}
       >

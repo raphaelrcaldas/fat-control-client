@@ -1,5 +1,5 @@
 import request from "../../Api";
-import { Missao } from "./missoes";
+import { Missao, UserMission } from "./missoes";
 import { cegepRoute } from ".";
 
 const financeiroRoute = cegepRoute + "financeiro/pgts";
@@ -12,6 +12,26 @@ export interface PaginatedResponse<T> {
    total_pages: number;
 }
 
-export async function getPgts(search): Promise<PaginatedResponse<Missao>> {
-   return (await request("GET", financeiroRoute, null, search)).json();
+export interface PagamentoRecord {
+   user_mis: UserMission;
+   missao: Missao;
+}
+
+export interface PagamentosFilters {
+   page?: number;
+   limit?: number;
+   tipo_doc?: string[];
+   n_doc?: number;
+   tipo?: string[];
+   sit?: string[];
+   user?: string;
+   ini?: string;
+   fim?: string;
+}
+
+export async function getPgts(
+   search?: PagamentosFilters,
+   signal?: AbortSignal
+): Promise<PaginatedResponse<PagamentoRecord>> {
+   return (await request("GET", financeiroRoute, null, search, signal)).json();
 }

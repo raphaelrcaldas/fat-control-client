@@ -15,7 +15,7 @@ export function RegisterProvider({ children }) {
    const [tipoDoc, setTipoDoc] = useState<string[]>([]);
    const [userSearch, setUserSearch] = useState("");
    const [citySearch, setCitySearch] = useState("");
-   const [nDoc, setNDoc] = useState("");
+   const [nDoc, setNDoc] = useState<number | undefined>(undefined);
    const [selectedTipo, setSelectedTipo] = useState<string[]>([]);
 
    return (

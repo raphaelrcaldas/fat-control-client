@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useMemo, useCallback, useRef } from "react";
+import { useEffect, useState } from "react";
 import {
    Label,
    TextInput,
@@ -11,11 +11,11 @@ import {
 } from "flowbite-react";
 import { Pagination } from "@/components/Pagination";
 import { MultiSelect } from "@/components/MultiSelect";
-import { getPgts } from "services/routes/cegep/financeiro";
 import { UserRow } from "./components/userRow";
 import { UserMissionDetailModal } from "../../components/UserMissionDetailModal";
 import { useFilterContext } from "../../context/filterContext";
-import useDebouncedValue from "@/hooks/useDebouncedValue";
+import { usePagamentos } from "@/hooks/queries/usePagamentos";
+import { PagamentoRecord } from "services/routes/cegep/financeiro";
 import {
    HiDocumentText,
    HiCurrencyDollar,
@@ -29,14 +29,14 @@ import {
 } from "react-icons/hi";
 import { clsx } from "clsx";
 
-export function FilterPage({ active }) {
+export function FilterPage({ active }: { active: boolean }) {
    const [showFilters, setShowFilters] = useState(false);
-   const [loading, setLoading] = useState(true);
    const [showModal, setShowModal] = useState(false);
-   const [selectedRecord, setSelectedRecord] = useState(null);
+   const [selectedRecord, setSelectedRecord] = useState<PagamentoRecord | null>(
+      null
+   );
+
    const {
-      misRecords,
-      setMisRecords,
       nDoc,
       setNDoc,
       tipoDoc,
@@ -55,170 +55,63 @@ export function FilterPage({ active }) {
       setSelectedAll,
       valorSoma,
       setValorSoma,
-      listKey,
-      setListKey,
       selectedIds,
       setSelectedIds,
       currentPage,
       setCurrentPage,
       itemsPerPage,
       setItemsPerPage,
-      totalRecords,
-      setTotalRecords,
-      totalPages,
-      setTotalPages,
       isHydrated,
    } = useFilterContext();
 
-   function handleShowDetail(record) {
+   // React Query para buscar pagamentos
+   const { data, isLoading, isFetching } = usePagamentos(
+      {
+         page: currentPage,
+         limit: itemsPerPage,
+         tipo_doc: tipoDoc?.length ? tipoDoc : undefined,
+         n_doc: nDoc,
+         tipo: selectedTipo?.length ? selectedTipo : undefined,
+         sit: selectedSit?.length ? selectedSit : undefined,
+         user: userSearch?.toLowerCase() || undefined,
+         ini: dataInicio || undefined,
+         fim: dataFim || undefined,
+      },
+      { enabled: active && isHydrated }
+   );
+
+   const misRecords = data?.items ?? null;
+   const totalRecords = data?.total ?? 0;
+   const totalPages = data?.total_pages ?? 1;
+
+   function handleShowDetail(record: PagamentoRecord) {
       setSelectedRecord(record);
       setShowModal(true);
    }
 
-   // Agrupa os filtros em um objeto para debounce
-   const filters = useMemo(
-      () => ({
-         userSearch,
-         tipoDoc,
-         nDoc,
-         selectedTipo,
-         selectedSit,
-         dataInicio,
-         dataFim,
-      }),
-      [
-         userSearch,
-         tipoDoc,
-         nDoc,
-         selectedTipo,
-         selectedSit,
-         dataInicio,
-         dataFim,
-      ]
-   );
-
-   const debouncedFilters = useDebouncedValue(filters, 500);
-
-   // Refs para controlar o fluxo e evitar loops
-   const hasFetchedInitial = useRef(false);
-   const prevFiltersRef = useRef<string | null>(null);
-   const prevPageRef = useRef(currentPage);
-   const prevItemsPerPageRef = useRef(itemsPerPage);
-
-   // Ref para armazenar os valores mais recentes (evita stale closures)
-   const latestValuesRef = useRef({
-      debouncedFilters,
-      currentPage,
-      itemsPerPage,
-   });
-
-   // Atualiza a ref sempre que os valores mudarem
+   // Reset page when filters change
    useEffect(() => {
-      latestValuesRef.current = {
-         debouncedFilters,
-         currentPage,
-         itemsPerPage,
-      };
-   }, [debouncedFilters, currentPage, itemsPerPage]);
+      setCurrentPage(1);
+   }, [
+      tipoDoc,
+      nDoc,
+      selectedTipo,
+      selectedSit,
+      userSearch,
+      dataInicio,
+      dataFim,
+      setCurrentPage,
+   ]);
 
-   const fetchData = useCallback(
-      async (resetPage = false) => {
-         setLoading(true);
-
-         // Usa os valores mais recentes da ref
-         const {
-            debouncedFilters: filters,
-            currentPage: page,
-            itemsPerPage: limit,
-         } = latestValuesRef.current;
-         const actualPage = resetPage ? 1 : page;
-
-         let req: { [key: string]: any } = {
-            page: actualPage,
-            limit,
-         };
-
-         if (filters.userSearch) req.user = filters.userSearch.toLowerCase();
-         if (filters.tipoDoc?.length) req.tipo_doc = filters.tipoDoc;
-         if (filters.nDoc) req.n_doc = filters.nDoc;
-         if (filters.selectedTipo?.length) req.tipo = filters.selectedTipo;
-         if (filters.selectedSit?.length) req.sit = filters.selectedSit;
-         if (filters.dataInicio) req.ini = filters.dataInicio;
-         if (filters.dataFim) req.fim = filters.dataFim;
-
-         const data = await getPgts(req);
-
-         setMisRecords(data.items);
-         setTotalRecords(data.total);
-         setTotalPages(data.total_pages);
-         setListKey(Date.now());
-         if (resetPage) {
-            setSelectedIds([]);
-            setValorSoma(0);
-            setSelectedAll(false);
-            setCurrentPage(1);
-         }
-         setLoading(false);
-      },
-      [] // Sem dependências - usa ref para valores atualizados
-   );
-
-   // Fetch inicial - só roda uma vez quando hidratado
+   // Reset itemsPerPage change
    useEffect(() => {
-      if (!active || !isHydrated) return;
-
-      // Sempre faz fetch se misRecords é null/undefined (dados não carregados)
-      if (misRecords == null) {
-         hasFetchedInitial.current = true;
-         // Inicializa o ref dos filtros com o valor atual
-         prevFiltersRef.current = JSON.stringify(debouncedFilters);
-         fetchData(true);
-      } else if (!hasFetchedInitial.current) {
-         // Marca como inicializado se já tem dados (ex: veio do cache/context)
-         hasFetchedInitial.current = true;
-         prevFiltersRef.current = JSON.stringify(debouncedFilters);
-      }
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-   }, [active, isHydrated]);
-
-   // Chama fetchData quando os filtros debounced mudarem (reset page)
-   useEffect(() => {
-      if (!active || !isHydrated || !hasFetchedInitial.current) return;
-
-      const filtersJson = JSON.stringify(debouncedFilters);
-
-      // Só faz fetch se os filtros realmente mudaram
-      if (prevFiltersRef.current !== filtersJson) {
-         prevFiltersRef.current = filtersJson;
-         fetchData(true);
-      }
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-   }, [debouncedFilters]);
-
-   // Chama fetchData quando a página mudar
-   useEffect(() => {
-      if (!active || !isHydrated || !hasFetchedInitial.current) return;
-      if (prevPageRef.current !== currentPage) {
-         prevPageRef.current = currentPage;
-         fetchData(false);
-      }
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-   }, [currentPage]);
-
-   // Quando itemsPerPage mudar, reseta para página 1
-   useEffect(() => {
-      if (!active || !isHydrated || !hasFetchedInitial.current) return;
-      if (prevItemsPerPageRef.current !== itemsPerPage) {
-         prevItemsPerPageRef.current = itemsPerPage;
-         if (currentPage !== 1) {
-            setCurrentPage(1);
-         } else {
-            fetchData(false);
-         }
+      if (currentPage !== 1) {
+         setCurrentPage(1);
       }
       // eslint-disable-next-line react-hooks/exhaustive-deps
    }, [itemsPerPage]);
 
+   // Handle select all
    useEffect(() => {
       if (misRecords && selectedAll) {
          setSelectedIds(misRecords.map((r) => r.user_mis.id));
@@ -229,7 +122,7 @@ export function FilterPage({ active }) {
          setSelectedIds([]);
          setValorSoma(0);
       }
-   }, [selectedAll, misRecords]);
+   }, [selectedAll, misRecords, setSelectedIds, setValorSoma]);
 
    function handleSelect(id, valor, checked) {
       if (checked) {
@@ -617,7 +510,7 @@ export function FilterPage({ active }) {
          <section className="relative">
             <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-lg">
                {/* Loading inicial (sem dados) */}
-               {loading && !misRecords ? (
+               {isLoading && !misRecords ? (
                   <div className="flex flex-col items-center justify-center gap-4 p-16">
                      <Spinner size="xl" color="failure" />
                      <p className="text-lg font-medium text-gray-600">
@@ -697,13 +590,18 @@ export function FilterPage({ active }) {
                         </div>
                      </div>
                      {/* Área dos registros com spinner */}
-                     <div className="relative overflow-x-auto">
-                        {loading && (
-                           <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/70">
+                     <div
+                        className={clsx(
+                           "relative overflow-x-auto transition-opacity duration-200",
+                           isFetching && "opacity-50"
+                        )}
+                     >
+                        {isFetching && (
+                           <div className="absolute inset-0 z-10 flex items-center justify-center">
                               <Spinner size="xl" color="failure" />
                            </div>
                         )}
-                        <ul className="px-2" key={listKey}>
+                        <ul className="px-2">
                            {misRecords?.map((record) => (
                               <UserRow
                                  key={record.user_mis.id}
@@ -727,7 +625,7 @@ export function FilterPage({ active }) {
                         </div>
                      )}
                   </div>
-               ) : loading ? (
+               ) : isLoading ? (
                   <div className="flex flex-col items-center justify-center gap-4 p-16">
                      <Spinner size="xl" color="failure" />
                      <p className="text-lg font-medium text-gray-600">

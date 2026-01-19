@@ -1,13 +1,13 @@
 "use client";
 
-import { getFragMissoes } from "services/routes/cegep/missoes";
-import { useEffect, useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { Label, TextInput, Badge, Spinner } from "flowbite-react";
 import { Missao } from "services/routes/cegep/missoes";
 import { CardMission } from "./components/cardMission";
 import MissionDetail from "./components/missionDetail";
 import { useRegisterContext } from "../../context/registerContext";
-import { useEtiquetas } from "../../context/etiquetasContext";
+import { useMissoes } from "@/hooks/queries/useMissoes";
+import { useEtiquetasMissoes } from "@/hooks/queries/useEtiquetasMissoes";
 import { Pagination } from "@/components/Pagination";
 import { MultiSelect } from "@/components/MultiSelect";
 import {
@@ -21,22 +21,19 @@ import {
    HiCalendar,
    HiTag,
 } from "react-icons/hi";
+import clsx from "clsx";
 
 export function RegisPage() {
-   const [missoes, setMissoes] = useState<Missao[] | null>(null);
    const [cloneMis, setCloneMis] = useState<Missao | null>(null);
    const [showForm, setShowForm] = useState(false);
-   const [loading, setLoading] = useState(true);
    const [showFilters, setShowFilters] = useState(false);
    const [selectedEtiquetaIds, setSelectedEtiquetaIds] = useState<number[]>([]);
 
    // Pagination states
    const [currentPage, setCurrentPage] = useState(1);
-   const [totalPages, setTotalPages] = useState(1);
-   const [perPage, setPerPage] = useState(20);
-   const [total, setTotal] = useState(0);
+   const [perPage] = useState(20);
 
-   const { etiquetas: etiquetasDisponiveis } = useEtiquetas();
+   const { data: etiquetasDisponiveis = [] } = useEtiquetasMissoes();
 
    const {
       dataInicio,
@@ -54,6 +51,27 @@ export function RegisPage() {
       citySearch,
       setCitySearch,
    } = useRegisterContext();
+
+   // React Query para buscar missoes
+   const { data, isLoading, isFetching } = useMissoes({
+      page: currentPage,
+      per_page: perPage,
+      tipo_doc: tipoDoc.length > 0 ? tipoDoc.join(",") : undefined,
+      n_doc: nDoc,
+      tipo: selectedTipo.length > 0 ? selectedTipo.join(",") : undefined,
+      ini: dataInicio || undefined,
+      fim: dataFim || undefined,
+      user_search: userSearch || undefined,
+      city: citySearch || undefined,
+      etiqueta_ids:
+         selectedEtiquetaIds.length > 0
+            ? selectedEtiquetaIds.join(",")
+            : undefined,
+   });
+
+   const missoes = data?.items ?? null;
+   const totalPages = data?.pages ?? 1;
+   const total = data?.total ?? 0;
 
    const hasActiveFilters = !!(
       tipoDoc.length > 0 ||
@@ -77,46 +95,8 @@ export function RegisPage() {
       const quinzeDiasAntes = new Date(hoje.getFullYear(), 0, 1);
       setDataInicio(quinzeDiasAntes.toISOString().split("T")[0]);
       setDataFim(hoje.toISOString().split("T")[0]);
-      setCurrentPage(1); // Reset pagination when clearing filters
+      setCurrentPage(1);
    };
-
-   const fetchData = useCallback(async () => {
-      setLoading(true);
-
-      let req: { [key: string]: any } = {
-         page: currentPage,
-         per_page: perPage,
-      };
-
-      if (tipoDoc.length > 0) req.tipo_doc = tipoDoc.join(",");
-      if (nDoc) req.n_doc = nDoc;
-      if (selectedTipo.length > 0) req.tipo = selectedTipo.join(",");
-      if (dataInicio) req.ini = dataInicio;
-      if (dataFim) req.fim = dataFim;
-      if (userSearch) req.user_search = userSearch;
-      if (citySearch) req.city = citySearch;
-      if (selectedEtiquetaIds.length > 0)
-         req.etiqueta_ids = selectedEtiquetaIds.join(",");
-
-      const data = await getFragMissoes(req);
-
-      // Handle paginated response
-      setMissoes(data.items);
-      setTotalPages(data.pages);
-      setTotal(data.total);
-      setLoading(false);
-   }, [
-      tipoDoc,
-      nDoc,
-      selectedTipo,
-      dataInicio,
-      dataFim,
-      userSearch,
-      citySearch,
-      selectedEtiquetaIds,
-      currentPage,
-      perPage,
-   ]);
 
    const handleSetClone = useCallback((missao: Missao) => {
       setCloneMis(missao);
@@ -143,14 +123,6 @@ export function RegisPage() {
       citySearch,
       selectedEtiquetaIds,
    ]);
-
-   useEffect(() => {
-      const timer = setTimeout(() => {
-         fetchData();
-      }, 500);
-
-      return () => clearTimeout(timer);
-   }, [fetchData]);
 
    return (
       <>
@@ -589,13 +561,18 @@ export function RegisPage() {
 
             {/* Results Section */}
             <section className="flex-1">
-               {loading ? (
+               {isLoading && !missoes ? (
                   <div className="flex min-h-75 flex-col items-center justify-center gap-2 p-8">
                      <Spinner size="lg" color="failure" />
                      <p className="text-sm text-gray-500">Carregando...</p>
                   </div>
                ) : (
-                  <div>
+                  <div
+                     className={clsx(
+                        "transition-opacity duration-200",
+                        isFetching && "opacity-50"
+                     )}
+                  >
                      {/* Results Grid */}
                      {missoes?.length === 0 ? (
                         <div className="flex flex-col items-center justify-center rounded-lg border border-gray-200 bg-gray-50 p-8">
@@ -621,7 +598,6 @@ export function RegisPage() {
                                  <CardMission
                                     key={m.id}
                                     missao={m}
-                                    update={fetchData}
                                     setClone={handleSetClone}
                                     setShowForm={handleSetShowForm}
                                  />
@@ -667,7 +643,6 @@ export function RegisPage() {
                missao={cloneMis}
                setShow={handleSetShowForm}
                setShowForm={handleSetShowForm}
-               update={fetchData}
                setClone={handleSetClone}
             />
          )}

@@ -12,10 +12,11 @@ import {
    Button,
 } from "flowbite-react";
 import {
-   useEtiquetas,
-   coresPredefinidas,
-   Etiqueta,
-} from "../../context/etiquetasContext";
+   useEtiquetasMissoes,
+   useCreateUpdateEtiqueta,
+   useDeleteEtiqueta,
+} from "@/hooks/queries/useEtiquetasMissoes";
+import { Etiqueta, coresPredefinidas } from "services/routes/cegep/missoes";
 import {
    HiX,
    HiTag,
@@ -27,8 +28,10 @@ import {
 } from "react-icons/hi";
 
 export function ConfigPage() {
-   const { etiquetas, loading, addEtiqueta, updateEtiqueta, deleteEtiqueta } =
-      useEtiquetas();
+   // React Query hooks
+   const { data: etiquetas = [], isLoading: loading } = useEtiquetasMissoes();
+   const createUpdateMutation = useCreateUpdateEtiqueta();
+   const deleteMutation = useDeleteEtiqueta();
 
    const [editingEtiqueta, setEditingEtiqueta] = useState<Etiqueta | null>(
       null
@@ -39,25 +42,32 @@ export function ConfigPage() {
       descricao: "",
    });
    const [showNovaEtiquetaForm, setShowNovaEtiquetaForm] = useState(false);
-   const [saving, setSaving] = useState(false);
    const [etiquetaToDelete, setEtiquetaToDelete] = useState<Etiqueta | null>(
       null
    );
 
-   const handleAddEtiqueta = async () => {
+   // Combined saving state from mutations
+   const saving = createUpdateMutation.isPending || deleteMutation.isPending;
+
+   const handleAddEtiqueta = () => {
       if (!novaEtiqueta.nome) return;
-      setSaving(true);
-      await addEtiqueta({
-         nome: novaEtiqueta.nome,
-         cor: novaEtiqueta.cor || "#3B82F6",
-         descricao: novaEtiqueta.descricao,
-      });
-      setNovaEtiqueta({ nome: "", cor: "#3B82F6", descricao: "" });
-      setShowNovaEtiquetaForm(false);
-      setSaving(false);
+
+      createUpdateMutation.mutate(
+         {
+            nome: novaEtiqueta.nome,
+            cor: novaEtiqueta.cor || "#3B82F6",
+            descricao: novaEtiqueta.descricao,
+         },
+         {
+            onSuccess: () => {
+               setNovaEtiqueta({ nome: "", cor: "#3B82F6", descricao: "" });
+               setShowNovaEtiquetaForm(false);
+            },
+         }
+      );
    };
 
-   const handleUpdateEtiqueta = async (updated: Etiqueta) => {
+   const handleUpdateEtiqueta = (updated: Etiqueta) => {
       // Encontrar etiqueta original para comparar
       const original = etiquetas.find((e) => e.id === updated.id);
       if (!original) return;
@@ -73,18 +83,21 @@ export function ConfigPage() {
          return;
       }
 
-      setSaving(true);
-      await updateEtiqueta(updated);
-      setEditingEtiqueta(null);
-      setSaving(false);
+      createUpdateMutation.mutate(updated, {
+         onSuccess: () => {
+            setEditingEtiqueta(null);
+         },
+      });
    };
 
-   const handleConfirmDelete = async () => {
+   const handleConfirmDelete = () => {
       if (!etiquetaToDelete?.id) return;
-      setSaving(true);
-      await deleteEtiqueta(etiquetaToDelete.id);
-      setEtiquetaToDelete(null);
-      setSaving(false);
+
+      deleteMutation.mutate(etiquetaToDelete.id, {
+         onSuccess: () => {
+            setEtiquetaToDelete(null);
+         },
+      });
    };
 
    return (
