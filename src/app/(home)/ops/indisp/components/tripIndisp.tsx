@@ -414,25 +414,27 @@ function TripIndispRow({ indisp, trip }) {
          <TableCell className="p-1 font-semibold">{dateStart}</TableCell>
          <TableCell className="p-1 font-semibold">{dateEnd}</TableCell>
          <TableCell className="p-1">
-            <PermBased requiredPerm={"create"} resource={"indisp_trips"}>
-               <Button
-                  pill
-                  color="light"
-                  size="sm"
-                  onClick={() => setOpenInd(true)}
-               >
-                  Editar
-               </Button>
+            <div className="flex items-center justify-center">
+               <PermBased requiredPerm={"create"} resource={"indisp_trips"}>
+                  <Button
+                     pill
+                     color="light"
+                     size="sm"
+                     onClick={() => setOpenInd(true)}
+                  >
+                     Editar
+                  </Button>
 
-               {openInd && (
-                  <IndispForm
-                     open={openInd}
-                     setOpen={setOpenInd}
-                     trip={trip}
-                     indisp={indisp}
-                  />
-               )}
-            </PermBased>
+                  {openInd && (
+                     <IndispForm
+                        open={openInd}
+                        setOpen={setOpenInd}
+                        trip={trip}
+                        indisp={indisp}
+                     />
+                  )}
+               </PermBased>
+            </div>
          </TableCell>
       </TableRow>
    );
