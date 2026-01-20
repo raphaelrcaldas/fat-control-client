@@ -1,24 +1,20 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { Button, Spinner, Alert } from "flowbite-react";
 import {
    HiPlus,
    HiCurrencyDollar,
    HiExclamation,
-   HiTrendingUp,
-   HiTrendingDown,
 } from "react-icons/hi";
 import { useToast } from "../../../context/toast";
 import {
-   getSoldos,
-   getSoldoStats,
-   createSoldo,
-   updateSoldo,
-   deleteSoldo,
-   SoldoPublic,
-   SoldoStats,
-} from "services/routes/cegep/soldos";
+   useSoldos,
+   useCreateSoldo,
+   useUpdateSoldo,
+   useDeleteSoldo,
+} from "@/hooks/queries";
+import { SoldoPublic } from "services/routes/cegep/soldos";
 import SoldoFormModal from "./components/SoldoFormModal";
 import SoldoTable from "./components/SoldoTable";
 import { SoldoFormData } from "./schemas/soldoSchema";
@@ -34,53 +30,27 @@ const CIRCULO_OPTIONS = [
    ),
 ];
 
-const formatCurrency = (value: number | null) => {
-   if (value === null) return "-";
-   return new Intl.NumberFormat("pt-BR", {
-      style: "currency",
-      currency: "BRL",
-   }).format(value);
-};
-
 export default function SoldosPage() {
-   const [soldos, setSoldos] = useState<SoldoPublic[]>([]);
-   const [stats, setStats] = useState<SoldoStats | null>(null);
-   const [loading, setLoading] = useState(true);
-   const [error, setError] = useState<string | null>(null);
    const [circuloFilter, setCirculoFilter] = useState("");
    const [onlyActive, setOnlyActive] = useState(true);
    const [showModal, setShowModal] = useState(false);
    const [editingSoldo, setEditingSoldo] = useState<SoldoPublic | null>(null);
    const { push } = useToast();
 
-   const loadData = useCallback(async () => {
-      try {
-         setLoading(true);
-         setError(null);
+   // React Query hooks
+   const {
+      data: soldos = [],
+      isLoading,
+      error,
+      isFetching,
+   } = useSoldos({
+      circulo: circuloFilter || undefined,
+      activeOnly: onlyActive,
+   });
 
-         const [soldosData, statsData] = await Promise.all([
-            getSoldos(circuloFilter || undefined, onlyActive),
-            getSoldoStats(circuloFilter || undefined),
-         ]);
-
-         setSoldos(soldosData);
-         setStats(statsData);
-      } catch (err: any) {
-         const errorMessage = err?.message || "Erro ao carregar soldos";
-         setError(errorMessage);
-         push({
-            title: "Erro",
-            message: errorMessage,
-            type: "error",
-         });
-      } finally {
-         setLoading(false);
-      }
-   }, [circuloFilter, onlyActive, push]);
-
-   useEffect(() => {
-      loadData();
-   }, [loadData]);
+   const createMutation = useCreateSoldo();
+   const updateMutation = useUpdateSoldo();
+   const deleteMutation = useDeleteSoldo();
 
    const sortedSoldos = useMemo(() => {
       return [...soldos].sort((a, b) => {
@@ -101,40 +71,36 @@ export default function SoldosPage() {
    };
 
    const handleSubmit = async (formData: SoldoFormData) => {
+      const dataToSend = {
+         pg: formData.pg,
+         data_inicio: formData.data_inicio,
+         data_fim: formData.data_fim || null,
+         valor: formData.valor,
+      };
+
       try {
-         setError(null);
-
-         const dataToSend = {
-            pg: formData.pg,
-            data_inicio: formData.data_inicio,
-            data_fim: formData.data_fim || null,
-            valor: formData.valor,
-         };
-
          if (editingSoldo) {
-            const updated = await updateSoldo(editingSoldo.id, dataToSend);
-            setSoldos(
-               soldos.map((s) => (s.id === editingSoldo.id ? updated : s))
-            );
+            await updateMutation.mutateAsync({
+               id: editingSoldo.id,
+               data: dataToSend,
+            });
             push({
                title: "Sucesso!",
                message: "Soldo atualizado com sucesso",
                type: "success",
             });
          } else {
-            const created = await createSoldo(dataToSend);
-            setSoldos([...soldos, created]);
+            await createMutation.mutateAsync(dataToSend);
             push({
                title: "Sucesso!",
                message: "Soldo cadastrado com sucesso",
                type: "success",
             });
          }
-
          handleCloseModal();
-         loadData();
-      } catch (err: any) {
-         const errorMessage = err?.message || "Erro ao salvar soldo";
+      } catch (err: unknown) {
+         const errorMessage =
+            err instanceof Error ? err.message : "Erro ao salvar soldo";
          push({
             title: "Erro",
             message: errorMessage,
@@ -150,17 +116,15 @@ export default function SoldosPage() {
          )
       ) {
          try {
-            setError(null);
-            await deleteSoldo(soldo.id);
-            setSoldos(soldos.filter((s) => s.id !== soldo.id));
+            await deleteMutation.mutateAsync(soldo.id);
             push({
                title: "Sucesso!",
                message: "Soldo excluido com sucesso",
                type: "success",
             });
-            loadData();
-         } catch (err: any) {
-            const errorMessage = err?.message || "Erro ao excluir soldo";
+         } catch (err: unknown) {
+            const errorMessage =
+               err instanceof Error ? err.message : "Erro ao excluir soldo";
             push({
                title: "Erro",
                message: errorMessage,
@@ -169,6 +133,9 @@ export default function SoldosPage() {
          }
       }
    };
+
+   const errorMessage = error instanceof Error ? error.message : null;
+   const loading = isLoading;
 
    return (
       <div className="flex h-full w-full flex-col overflow-hidden bg-gray-50">
@@ -201,9 +168,9 @@ export default function SoldosPage() {
             </div>
 
             {/* Erro */}
-            {error && (
+            {errorMessage && (
                <Alert color="failure" icon={HiExclamation} className="mt-4">
-                  <span className="font-medium">Erro!</span> {error}
+                  <span className="font-medium">Erro!</span> {errorMessage}
                </Alert>
             )}
          </div>
@@ -245,7 +212,11 @@ export default function SoldosPage() {
          </div>
 
          {/* Content */}
-         <div className="min-h-0 flex-1 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
+         <div
+            className={`min-h-0 flex-1 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm ${
+               isFetching && !loading ? "opacity-50" : ""
+            }`}
+         >
             {loading ? (
                <div className="flex h-64 flex-col items-center justify-center">
                   <Spinner size="xl" color="failure" />

@@ -3,11 +3,11 @@
 import { useState, useMemo, useCallback } from "react";
 import { useToast } from "../../../../context/toast";
 import {
-   createDiariaValor,
-   updateDiariaValor,
-   deleteDiariaValor,
-   type DiariaValorPublic,
-} from "services/routes/cegep/diarias";
+   useCreateDiariaValor,
+   useUpdateDiariaValor,
+   useDeleteDiariaValor,
+} from "@/hooks/queries";
+import { type DiariaValorPublic } from "services/routes/cegep/diarias";
 import { type DiariaFormData, INITIAL_FORM_DATA } from "../types";
 import { diariaFormSchema, type DiariaFormErrors } from "../schemas";
 
@@ -39,27 +39,24 @@ interface UseDiariaFormReturn {
    updateField: (field: keyof DiariaFormData, value: string | number) => void;
 }
 
-interface UseDiariaFormOptions {
-   onSuccess: () => void;
-}
-
-export function useDiariaForm({
-   onSuccess,
-}: UseDiariaFormOptions): UseDiariaFormReturn {
+export function useDiariaForm(): UseDiariaFormReturn {
    const [showModal, setShowModal] = useState(false);
    const [editingValor, setEditingValor] = useState<DiariaValorPublic | null>(
       null
    );
    const [isCreating, setIsCreating] = useState(false);
    const [formData, setFormData] = useState<DiariaFormData>(INITIAL_FORM_DATA);
-   const [isSubmitting, setIsSubmitting] = useState(false);
    const [errors, setErrors] = useState<DiariaFormErrors>({});
 
    const [showDeleteModal, setShowDeleteModal] = useState(false);
    const [deletingId, setDeletingId] = useState<number | null>(null);
-   const [isDeleting, setIsDeleting] = useState(false);
 
    const { push } = useToast();
+
+   // React Query mutations
+   const createMutation = useCreateDiariaValor();
+   const updateMutation = useUpdateDiariaValor();
+   const deleteMutation = useDeleteDiariaValor();
 
    const clearFieldError = useCallback((field: keyof DiariaFormErrors) => {
       setErrors((prev) => {
@@ -122,7 +119,7 @@ export function useDiariaForm({
 
       if (!result.success) {
          const fieldErrors: DiariaFormErrors = {};
-         // Zod v4 usa 'issues' ao invés de 'errors'
+         // Zod v4 usa 'issues' ao inves de 'errors'
          result.error.issues.forEach((issue) => {
             const field = issue.path[0] as keyof DiariaFormErrors;
             if (!fieldErrors[field]) {
@@ -145,13 +142,11 @@ export function useDiariaForm({
             return;
          }
 
-         setIsSubmitting(true);
+         const valorNumerico = parseFloat(formData.valor.replace(",", "."));
 
          try {
-            const valorNumerico = parseFloat(formData.valor.replace(",", "."));
-
             if (isCreating) {
-               await createDiariaValor({
+               await createMutation.mutateAsync({
                   valor: valorNumerico,
                   data_inicio: formData.data_inicio,
                   data_fim: formData.data_fim || null,
@@ -160,15 +155,18 @@ export function useDiariaForm({
                });
                push({
                   title: "Sucesso!",
-                  message: "Diária criada com sucesso",
+                  message: "Diaria criada com sucesso",
                   type: "success",
                });
             } else {
                if (!editingValor) return;
-               await updateDiariaValor(editingValor.id, {
-                  valor: valorNumerico,
-                  data_inicio: formData.data_inicio,
-                  data_fim: formData.data_fim || null,
+               await updateMutation.mutateAsync({
+                  id: editingValor.id,
+                  data: {
+                     valor: valorNumerico,
+                     data_inicio: formData.data_inicio,
+                     data_fim: formData.data_fim || null,
+                  },
                });
                push({
                   title: "Sucesso!",
@@ -178,15 +176,12 @@ export function useDiariaForm({
             }
 
             handleCloseModal();
-            onSuccess();
          } catch (err: unknown) {
             push({
                title: "Erro",
                message: err instanceof Error ? err.message : "Erro ao salvar",
                type: "error",
             });
-         } finally {
-            setIsSubmitting(false);
          }
       },
       [
@@ -194,9 +189,10 @@ export function useDiariaForm({
          isCreating,
          formData,
          editingValor,
+         createMutation,
+         updateMutation,
          push,
          handleCloseModal,
-         onSuccess,
       ]
    );
 
@@ -213,27 +209,22 @@ export function useDiariaForm({
    const handleConfirmDelete = useCallback(async () => {
       if (!deletingId) return;
 
-      setIsDeleting(true);
-
       try {
-         await deleteDiariaValor(deletingId);
+         await deleteMutation.mutateAsync(deletingId);
          push({
             title: "Sucesso!",
-            message: "Diária excluída com sucesso",
+            message: "Diaria excluida com sucesso",
             type: "success",
          });
          handleCloseDeleteModal();
-         onSuccess();
       } catch (err: unknown) {
          push({
             title: "Erro",
             message: err instanceof Error ? err.message : "Erro ao excluir",
             type: "error",
          });
-      } finally {
-         setIsDeleting(false);
       }
-   }, [deletingId, push, handleCloseDeleteModal, onSuccess]);
+   }, [deletingId, deleteMutation, push, handleCloseDeleteModal]);
 
    return {
       showModal,
@@ -244,8 +235,8 @@ export function useDiariaForm({
       formData,
       setFormData,
       hasChanges,
-      isSubmitting,
-      isDeleting,
+      isSubmitting: createMutation.isPending || updateMutation.isPending,
+      isDeleting: deleteMutation.isPending,
       errors,
       handleOpenModal,
       handleOpenCreateModal,

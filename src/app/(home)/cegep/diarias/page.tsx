@@ -14,11 +14,11 @@ import {
 export default function DiariasPage() {
    const {
       valores,
-      loading,
+      isLoading,
+      isFetching,
       error,
       onlyActive,
       setOnlyActive,
-      loadData,
       cidadesByGrupo,
       uniqueGruposCidade,
       uniqueGruposPg,
@@ -41,21 +41,28 @@ export default function DiariasPage() {
       handleSubmit,
       handleConfirmDelete,
       updateField,
-   } = useDiariaForm({ onSuccess: loadData });
+   } = useDiariaForm();
+
+   const loading = isLoading;
+   const errorMessage = error?.message || null;
 
    return (
       <div className="flex h-full w-full flex-col overflow-hidden bg-gray-50">
          {/* Header */}
          <DiariaHeader
             loading={loading}
-            error={error}
-            valoresCount={valores.length}
+            error={errorMessage}
+            valoresCount={valores?.length || 0}
             gruposCount={uniqueGruposCidade.length}
             onCreateClick={handleOpenCreateModal}
          />
 
          {/* Content */}
-         <div className="h-full rounded-lg border border-gray-200 bg-white shadow-sm">
+         <div
+            className={`h-full rounded-lg border border-gray-200 bg-white shadow-sm ${
+               isFetching && !loading ? "opacity-50" : ""
+            }`}
+         >
             {loading ? (
                <div className="flex h-64 flex-col items-center justify-center">
                   <Spinner size="xl" color="failure" />
@@ -82,7 +89,7 @@ export default function DiariasPage() {
                   {/* Cards por grupo de P/G */}
                   <div className="space-y-3">
                      {uniqueGruposPg.map((grupoNum) => {
-                        const valoresGrupo = valores.filter(
+                        const valoresGrupo = (valores || []).filter(
                            (v) => v.grupo_pg === grupoNum
                         );
 

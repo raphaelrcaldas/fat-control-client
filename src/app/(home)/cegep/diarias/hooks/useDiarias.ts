@@ -1,33 +1,31 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo } from "react";
-import { useToast } from "../../../../context/toast";
+import { useState, useMemo } from "react";
+import { useDiariaValores, type GetDiariaValoresParams } from "@/hooks/queries";
 import {
-   getDiariaValores,
    grupoCidadeRecords,
    grupoPgRecords,
    getGruposCidadeUnicos,
    getGruposPgUnicos,
    cidadesByGrupoMap,
-   type DiariaValorPublic,
    type GrupoCidadePublic,
    type GrupoPgPublic,
 } from "services/routes/cegep/diarias";
 
 interface UseDiariasReturn {
    // Data
-   valores: DiariaValorPublic[];
+   valores: ReturnType<typeof useDiariaValores>["data"];
    gruposCidade: GrupoCidadePublic[];
    gruposPg: GrupoPgPublic[];
 
    // State
-   loading: boolean;
-   error: string | null;
+   isLoading: boolean;
+   isFetching: boolean;
+   error: Error | null;
    onlyActive: boolean;
 
    // Actions
    setOnlyActive: (value: boolean) => void;
-   loadData: () => Promise<void>;
 
    // Computed values
    cidadesByGrupo: Map<number, GrupoCidadePublic[]>;
@@ -36,44 +34,23 @@ interface UseDiariasReturn {
 }
 
 export function useDiarias(): UseDiariasReturn {
-   const [valores, setValores] = useState<DiariaValorPublic[]>([]);
-   const [loading, setLoading] = useState(true);
-   const [error, setError] = useState<string | null>(null);
    const [onlyActive, setOnlyActive] = useState(true);
 
-   const { push } = useToast();
+   const params: GetDiariaValoresParams = useMemo(
+      () => ({
+         activeOnly: onlyActive,
+      }),
+      [onlyActive]
+   );
 
-   const loadData = useCallback(async () => {
-      try {
-         setLoading(true);
-         setError(null);
+   const {
+      data: valores = [],
+      isLoading,
+      isFetching,
+      error,
+   } = useDiariaValores(params);
 
-         // Apenas busca valores do servidor - grupos são estáticos
-         const valoresData = await getDiariaValores(
-            undefined,
-            undefined,
-            onlyActive
-         );
-         setValores(valoresData);
-      } catch (err: unknown) {
-         const errorMessage =
-            err instanceof Error ? err.message : "Erro ao carregar dados";
-         setError(errorMessage);
-         push({
-            title: "Erro",
-            message: errorMessage,
-            type: "error",
-         });
-      } finally {
-         setLoading(false);
-      }
-   }, [onlyActive, push]);
-
-   useEffect(() => {
-      loadData();
-   }, [loadData]);
-
-   // Lista de grupos únicos (combinando estáticos com valores dinâmicos)
+   // Lista de grupos unicos (combinando estaticos com valores dinamicos)
    const uniqueGruposCidade = useMemo(() => {
       const gruposFromValores = valores.map((v) => v.grupo_cid);
       return Array.from(
@@ -92,11 +69,11 @@ export function useDiarias(): UseDiariasReturn {
       valores,
       gruposCidade: grupoCidadeRecords,
       gruposPg: grupoPgRecords,
-      loading,
-      error,
+      isLoading,
+      isFetching,
+      error: error instanceof Error ? error : null,
       onlyActive,
       setOnlyActive,
-      loadData,
       cidadesByGrupo: cidadesByGrupoMap,
       uniqueGruposCidade,
       uniqueGruposPg,
