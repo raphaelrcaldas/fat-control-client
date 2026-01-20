@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { cpf } from "cpf-cnpj-validator";
 import { sanitizeText } from "utils/textFormat";
+import { validarSaram } from "utils/validators";
 
 export const createUserFormSchema = z.object({
    p_g: z.string().nonempty("Obrigatório").length(2),
@@ -8,7 +9,11 @@ export const createUserFormSchema = z.object({
    nome_guerra: z.string().nonempty("Obrigatório").transform(sanitizeText),
    nome_completo: z.string().transform(sanitizeText),
    unidade: z.string().nonempty("Obrigatório"),
-   saram: z.coerce.number().gt(1000000).lt(9999999),
+   saram: z.coerce
+      .number()
+      .gt(1000000)
+      .lt(9999999)
+      .refine(validarSaram, "SARAM inválido"),
    id_fab: z.nullable(z.coerce.number()),
    cpf: z.union([
       z.literal(""),
