@@ -28,7 +28,8 @@ export interface GetSoldosParams {
 export const soldoKeys = {
    all: ["soldos"] as const,
    lists: () => [...soldoKeys.all, "list"] as const,
-   list: (filters?: GetSoldosParams) => [...soldoKeys.lists(), filters] as const,
+   list: (filters?: GetSoldosParams) =>
+      [...soldoKeys.lists(), filters] as const,
    details: () => [...soldoKeys.all, "detail"] as const,
    detail: (id: number) => [...soldoKeys.details(), id] as const,
    stats: (circulo?: string) => [...soldoKeys.all, "stats", circulo] as const,

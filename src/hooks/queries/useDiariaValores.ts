@@ -45,7 +45,11 @@ export function useDiariaValores(params?: GetDiariaValoresParams) {
    return useQuery({
       queryKey: diariaValorKeys.list(params),
       queryFn: () =>
-         getDiariaValores(params?.grupoCid, params?.grupoPg, params?.activeOnly),
+         getDiariaValores(
+            params?.grupoCid,
+            params?.grupoPg,
+            params?.activeOnly
+         ),
       placeholderData: keepPreviousData,
    });
 }
@@ -89,7 +93,9 @@ export function useUpdateDiariaValor() {
       mutationFn: ({ id, data }: { id: number; data: DiariaValorUpdate }) =>
          updateDiariaValor(id, data),
       onSuccess: (_, { id }) => {
-         queryClient.invalidateQueries({ queryKey: diariaValorKeys.detail(id) });
+         queryClient.invalidateQueries({
+            queryKey: diariaValorKeys.detail(id),
+         });
          queryClient.invalidateQueries({ queryKey: diariaValorKeys.lists() });
       },
    });

@@ -2,11 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { Button, Spinner, Alert } from "flowbite-react";
-import {
-   HiPlus,
-   HiCurrencyDollar,
-   HiExclamation,
-} from "react-icons/hi";
+import { HiPlus, HiCurrencyDollar, HiExclamation } from "react-icons/hi";
 import { useToast } from "../../../context/toast";
 import {
    useSoldos,
