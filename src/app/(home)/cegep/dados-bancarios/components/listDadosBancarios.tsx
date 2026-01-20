@@ -4,13 +4,9 @@ import DetailDadosBancarios from "./detailDadosBancarios";
 
 interface ListDadosBancariosProps {
    dados: DadosBancariosWithUser[];
-   update?: () => void;
 }
 
-export default function ListDadosBancarios({
-   dados,
-   update,
-}: ListDadosBancariosProps) {
+export default function ListDadosBancarios({ dados }: ListDadosBancariosProps) {
    const [selectedDados, setSelectedDados] =
       useState<DadosBancariosWithUser | null>(null);
    const [showDetail, setShowDetail] = useState(false);
@@ -94,7 +90,6 @@ export default function ListDadosBancarios({
                show={showDetail}
                onClose={handleClose}
                dados={selectedDados}
-               update={update}
             />
          )}
       </>

@@ -33,26 +33,33 @@ export interface DadosBancariosWithUser extends DadosBancariosPublic {
    user: UserPublic;
 }
 
+// Parâmetros para busca de dados bancários
+export interface GetDadosBancariosParams {
+   user_id?: number;
+   search?: string;
+}
+
 // GET - Lista todos os dados bancários ou filtra por usuário/busca
 export async function getDadosBancarios(
-   user_id?: number,
-   search?: string
+   params?: GetDadosBancariosParams,
+   signal?: AbortSignal
 ): Promise<DadosBancariosWithUser[]> {
-   const params: Record<string, string | number> = {};
+   const queryParams: Record<string, string | number> = {};
 
-   if (user_id !== undefined) {
-      params.user_id = user_id;
+   if (params?.user_id !== undefined) {
+      queryParams.user_id = params.user_id;
    }
 
-   if (search && search.trim() !== "") {
-      params.search = search;
+   if (params?.search && params.search.trim() !== "") {
+      queryParams.search = params.search;
    }
 
    const response = await request(
       "GET",
       dadosBancariosRoute,
       null,
-      Object.keys(params).length > 0 ? params : null
+      Object.keys(queryParams).length > 0 ? queryParams : null,
+      signal
    );
 
    return (await response.json()) as DadosBancariosWithUser[];

@@ -8,3 +8,4 @@ export * from "./useMissoes";
 export * from "./usePagamentos";
 export * from "./useEtiquetasMissoes";
 export * from "./useComiss";
+export * from "./useDadosBancarios";

@@ -1,52 +1,34 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
-import {
-   getDadosBancarios,
-   DadosBancariosWithUser,
-} from "services/routes/cegep/dadosBancarios";
+import { useState } from "react";
 import { TextInput, Badge, Spinner } from "flowbite-react";
 import { HiSearch, HiX, HiPlus, HiOfficeBuilding } from "react-icons/hi";
-import { sortByAntiguidade } from "utils/sortByAntiguidade";
+import useDebouncedValue from "@/hooks/useDebouncedValue";
+import { useDadosBancarios } from "@/hooks/queries";
+import clsx from "clsx";
 import ListDadosBancarios from "./components/listDadosBancarios";
 import DetailDadosBancarios from "./components/detailDadosBancarios";
 import { RoleBasedRoute } from "../../hooks/useRoleBased";
 
 export default function DadosBancariosPage() {
-   const [dadosBancarios, setDadosBancarios] = useState<
-      DadosBancariosWithUser[]
-   >([]);
-   const [loading, setLoading] = useState(true);
    const [searchUser, setSearchUser] = useState("");
    const [showCreate, setShowCreate] = useState(false);
+
+   const debouncedSearch = useDebouncedValue(searchUser, 500);
+
+   const {
+      data: dadosBancarios = [],
+      isLoading,
+      isFetching,
+   } = useDadosBancarios({
+      search: debouncedSearch || undefined,
+   });
 
    const hasActiveFilters = !!searchUser;
 
    const clearFilters = () => {
       setSearchUser("");
    };
-
-   const updateDadosBancarios = useCallback(async () => {
-      setLoading(true);
-      try {
-         const data = await getDadosBancarios(undefined, searchUser);
-
-         // Ordenar por posto e antiguidade
-         setDadosBancarios(sortByAntiguidade(data));
-      } catch (error) {
-         console.error("Erro ao carregar dados bancários", error);
-      } finally {
-         setLoading(false);
-      }
-   }, [searchUser]);
-
-   useEffect(() => {
-      const timer = setTimeout(() => {
-         updateDadosBancarios();
-      }, 500);
-
-      return () => clearTimeout(timer);
-   }, [updateDadosBancarios]);
 
    return (
       <div className="flex flex-col gap-3">
@@ -100,7 +82,7 @@ export default function DadosBancariosPage() {
                </div>
 
                {/* Stats Bar */}
-               {!loading && (
+               {!isLoading && (
                   <div className="border-t border-gray-200 bg-gray-50 px-6 py-3 dark:border-gray-700 dark:bg-gray-900">
                      <div className="flex items-center justify-between text-sm">
                         <div className="flex items-center gap-4">
@@ -110,6 +92,7 @@ export default function DadosBancariosPage() {
                                  {dadosBancarios.length}
                               </strong>
                            </span>
+                           {isFetching && <Spinner color="failure" size="sm" />}
                         </div>
                         {hasActiveFilters && (
                            <button
@@ -151,8 +134,13 @@ export default function DadosBancariosPage() {
          )}
 
          {/* Content Section */}
-         <section className="flex-1 overflow-auto">
-            {loading ? (
+         <section
+            className={clsx(
+               "flex-1 overflow-auto transition-opacity",
+               isFetching && !isLoading && "opacity-50"
+            )}
+         >
+            {isLoading ? (
                <div className="flex h-64 items-center justify-center">
                   <Spinner color="failure" size="xl" />
                </div>
@@ -174,10 +162,7 @@ export default function DadosBancariosPage() {
                   )}
                </div>
             ) : (
-               <ListDadosBancarios
-                  dados={dadosBancarios}
-                  update={updateDadosBancarios}
-               />
+               <ListDadosBancarios dados={dadosBancarios} />
             )}
          </section>
 
@@ -186,7 +171,6 @@ export default function DadosBancariosPage() {
             <DetailDadosBancarios
                show={showCreate}
                onClose={() => setShowCreate(false)}
-               update={updateDadosBancarios}
             />
          )}
       </div>

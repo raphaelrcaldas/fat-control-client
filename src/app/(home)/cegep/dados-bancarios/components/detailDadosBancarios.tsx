@@ -9,18 +9,16 @@ import {
    TextInput,
    Select,
 } from "flowbite-react";
-import {
-   DadosBancariosWithUser,
-   DadosBancariosCreate,
-   DadosBancariosUpdate,
-   createDadosBancarios,
-   updateDadosBancarios,
-   deleteDadosBancarios,
-} from "services/routes/cegep/dadosBancarios";
+import { DadosBancariosWithUser } from "services/routes/cegep/dadosBancarios";
 import { UserPublic } from "services/routes/users";
 import { SearchUser } from "@/app/(home)/users/components/searchUser";
 import { useToast } from "@/app/context/toast";
 import { HiTrash, HiUser } from "react-icons/hi";
+import {
+   useCreateDadosBancarios,
+   useUpdateDadosBancarios,
+   useDeleteDadosBancarios,
+} from "@/hooks/queries";
 
 // Lista dos principais bancos brasileiros
 const BANCOS_BRASILEIROS = [
@@ -40,17 +38,23 @@ interface DetailDadosBancariosProps {
    show: boolean;
    onClose: () => void;
    dados?: DadosBancariosWithUser;
-   update?: () => void;
 }
 
 export default function DetailDadosBancarios({
    show,
    onClose,
    dados,
-   update,
 }: DetailDadosBancariosProps) {
    const { push } = useToast();
    const isEdit = !!dados;
+
+   // Mutations
+   const createMutation = useCreateDadosBancarios();
+   const updateMutation = useUpdateDadosBancarios();
+   const deleteMutation = useDeleteDadosBancarios();
+
+   const isLoading = createMutation.isPending || updateMutation.isPending;
+   const isDeleting = deleteMutation.isPending;
 
    // Estado do formulário
    const [selectedUser, setSelectedUser] = useState<UserPublic | null>(
@@ -58,8 +62,6 @@ export default function DetailDadosBancarios({
    );
    const [showUserSearch, setShowUserSearch] = useState(false);
    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-   const [isLoading, setIsLoading] = useState(false);
-   const [isDeleting, setIsDeleting] = useState(false);
 
    const [formData, setFormData] = useState({
       banco: dados?.banco || "",
@@ -158,82 +160,55 @@ export default function DetailDadosBancarios({
    const handleSave = async () => {
       if (!validateForm()) return;
 
-      setIsLoading(true);
       try {
-         let response: Response;
-
          if (isEdit) {
-            // Atualizar
-            const updateData: DadosBancariosUpdate = {
-               banco: formData.banco,
-               codigo_banco: formData.codigo_banco,
-               agencia: formData.agencia,
-               conta: formData.conta,
-            };
-            response = await updateDadosBancarios(dados.id, updateData);
+            await updateMutation.mutateAsync({
+               id: dados.id,
+               data: {
+                  banco: formData.banco,
+                  codigo_banco: formData.codigo_banco,
+                  agencia: formData.agencia,
+                  conta: formData.conta,
+               },
+            });
          } else {
-            // Criar
             if (!selectedUser) return;
 
-            const createData: DadosBancariosCreate = {
+            await createMutation.mutateAsync({
                user_id: selectedUser.id,
                banco: formData.banco,
                codigo_banco: formData.codigo_banco,
                agencia: formData.agencia,
                conta: formData.conta,
-            };
-            response = await createDadosBancarios(createData);
-         }
-
-         const data = await response.json();
-
-         if (response.ok) {
-            push({
-               message: data.detail || "Salvo com sucesso",
-               type: "success",
-            });
-            update?.();
-            onClose();
-         } else {
-            push({
-               title: "Erro",
-               message: data.detail || "Erro ao salvar dados bancários",
-               type: "error",
             });
          }
+
+         push({
+            message: isEdit
+               ? "Dados bancários atualizados com sucesso"
+               : "Dados bancários cadastrados com sucesso",
+            type: "success",
+         });
+         onClose();
       } catch (err: any) {
          push({
             title: "Erro",
             message: err?.message || "Erro ao salvar dados bancários",
             type: "error",
          });
-      } finally {
-         setIsLoading(false);
       }
    };
 
    const handleDelete = async () => {
       if (!dados?.id) return;
 
-      setIsDeleting(true);
       try {
-         const response = await deleteDadosBancarios(dados.id);
-         const data = await response.json();
-
-         if (response.ok) {
-            push({
-               message: data.detail || "Dados bancários deletados com sucesso",
-               type: "success",
-            });
-            update?.();
-            onClose();
-         } else {
-            push({
-               title: "Erro",
-               message: data.detail || "Erro ao deletar dados bancários",
-               type: "error",
-            });
-         }
+         await deleteMutation.mutateAsync(dados.id);
+         push({
+            message: "Dados bancários deletados com sucesso",
+            type: "success",
+         });
+         onClose();
       } catch (err: any) {
          push({
             title: "Erro",
@@ -241,7 +216,6 @@ export default function DetailDadosBancarios({
             type: "error",
          });
       } finally {
-         setIsDeleting(false);
          setShowDeleteConfirm(false);
       }
    };
