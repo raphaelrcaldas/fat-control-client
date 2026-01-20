@@ -1,5 +1,6 @@
 "use client";
 
+import { Spinner } from "flowbite-react";
 import { UserActionLog, LogUser } from "services/routes/logs";
 import {
    HistoricoItem,
@@ -22,6 +23,8 @@ export interface HistoricoProps {
    title?: string;
    /** Altura máxima do container (padrão: "max-h-48") */
    maxHeight?: string;
+   /** Indica se os logs estão carregando */
+   isLoading?: boolean;
 }
 
 export function Historico({
@@ -32,67 +35,79 @@ export function Historico({
    formatFieldValue,
    title = "Histórico",
    maxHeight = "max-h-48",
+   isLoading = false,
 }: HistoricoProps) {
    const formattedCreatedAt = formatDateTimeSafe(createdAt);
    const hasContent = formattedCreatedAt || logs.length > 0;
 
-   if (!hasContent) return null;
+   if (!hasContent && !isLoading) return null;
 
    return (
       <div className="mt-6 border-t border-gray-200 pt-4">
          <h4 className="mb-3 flex items-center gap-2 font-semibold text-gray-700">
             <span>📝</span> {title}
          </h4>
-         <div className={`${maxHeight} space-y-3 overflow-y-auto`}>
-            {/* Item de criação */}
-            {formattedCreatedAt && (
-               <HistoricoItem
-                  type="create"
-                  timestamp={createdAt}
-                  user={createdBy}
-               />
+         <div className={`${maxHeight} min-h-20 space-y-3 overflow-y-auto`}>
+            {isLoading ? (
+               <div className="flex h-full items-center justify-center">
+                  <Spinner color="failure" size="md" />
+                  <span className="ml-2 text-sm text-gray-500">
+                     Carregando histórico...
+                  </span>
+               </div>
+            ) : (
+               <>
+                  {/* Item de criação */}
+                  {formattedCreatedAt && (
+                     <HistoricoItem
+                        type="create"
+                        timestamp={createdAt}
+                        user={createdBy}
+                     />
+                  )}
+
+                  {/* Logs de alteração */}
+                  {logs.map((log) => {
+                     const before = log.before ? JSON.parse(log.before) : {};
+                     const after = log.after ? JSON.parse(log.after) : {};
+                     const changedFields = Object.keys(after);
+                     const isDeleteAction = log.action === "delete";
+
+                     const type: HistoricoItemType = isDeleteAction
+                        ? "delete"
+                        : "update";
+
+                     const changes = !isDeleteAction
+                        ? changedFields.map((field) => {
+                             let oldVal = before[field] ?? "";
+                             let newVal = after[field] ?? "";
+
+                             if (formatFieldValue) {
+                                oldVal = formatFieldValue(field, oldVal);
+                                newVal = formatFieldValue(field, newVal);
+                             }
+
+                             return {
+                                field,
+                                label: fieldLabels[field] || field,
+                                oldValue: oldVal,
+                                newValue: newVal,
+                             };
+                          })
+                        : undefined;
+
+                     return (
+                        <HistoricoItem
+                           key={log.id}
+                           type={type}
+                           timestamp={log.timestamp}
+                           user={log.user}
+                           changes={changes}
+                        />
+                     );
+                  })}
+               </>
             )}
-
-            {/* Logs de alteração */}
-            {logs.map((log) => {
-               const before = log.before ? JSON.parse(log.before) : {};
-               const after = log.after ? JSON.parse(log.after) : {};
-               const changedFields = Object.keys(after);
-               const isDeleteAction = log.action === "delete";
-
-               const type: HistoricoItemType = isDeleteAction
-                  ? "delete"
-                  : "update";
-
-               const changes = !isDeleteAction
-                  ? changedFields.map((field) => {
-                       let oldVal = before[field] ?? "";
-                       let newVal = after[field] ?? "";
-
-                       if (formatFieldValue) {
-                          oldVal = formatFieldValue(field, oldVal);
-                          newVal = formatFieldValue(field, newVal);
-                       }
-
-                       return {
-                          field,
-                          label: fieldLabels[field] || field,
-                          oldValue: oldVal,
-                          newValue: newVal,
-                       };
-                    })
-                  : undefined;
-
-               return (
-                  <HistoricoItem
-                     key={log.id}
-                     type={type}
-                     timestamp={log.timestamp}
-                     user={log.user}
-                     changes={changes}
-                  />
-               );
-            })}
          </div>
       </div>
    );

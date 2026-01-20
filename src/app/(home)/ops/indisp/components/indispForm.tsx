@@ -46,6 +46,7 @@ export function IndispForm({ open, setOpen, trip, indisp, readOnly = false }) {
    const { push } = useToast();
    const [confirmingDelete, setConfirmingDelete] = useState(false);
    const [logs, setLogs] = useState<UserActionLog[]>([]);
+   const [isLoadingLogs, setIsLoadingLogs] = useState(false);
 
    // Mutations do React Query
    const createMutation = useCreateIndisp();
@@ -84,11 +85,14 @@ export function IndispForm({ open, setOpen, trip, indisp, readOnly = false }) {
    // Buscar logs de alteração quando estiver editando
    useEffect(() => {
       if (open && indisp?.id) {
+         setIsLoadingLogs(true);
          getUserActionLogs({ resource: "indisp", resource_id: indisp.id })
             .then(setLogs)
-            .catch(() => setLogs([]));
+            .catch(() => setLogs([]))
+            .finally(() => setIsLoadingLogs(false));
       } else {
          setLogs([]);
+         setIsLoadingLogs(false);
       }
    }, [open, indisp?.id]);
 
@@ -334,6 +338,7 @@ export function IndispForm({ open, setOpen, trip, indisp, readOnly = false }) {
                         createdBy={indisp.user_created}
                         fieldLabels={fieldLabels}
                         formatFieldValue={formatFieldValue}
+                        isLoading={isLoadingLogs}
                      />
                   )}
                </div>

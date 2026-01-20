@@ -14,6 +14,36 @@ export function formatDateTimeSafe(
    return format(date, "dd/MM/yyyy HH:mm", { locale: ptBR });
 }
 
+// Regex para detectar data ISO (YYYY-MM-DD ou YYYY-MM-DDTHH:mm:ss)
+const ISO_DATE_REGEX =
+   /^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}(:\d{2})?(\.\d+)?(Z|[+-]\d{2}:\d{2})?)?$/;
+
+// Formata valor se for uma data ISO, senão retorna o valor original
+// Usa valores UTC para evitar conversão de timezone
+function formatValueIfDate(value: string): string {
+   if (!value || !ISO_DATE_REGEX.test(value)) return value;
+
+   const date = new Date(value.endsWith("Z") ? value : value + "Z");
+   if (isNaN(date.getTime())) return value;
+
+   const day = String(date.getUTCDate()).padStart(2, "0");
+   const month = String(date.getUTCMonth() + 1).padStart(2, "0");
+   const year = date.getUTCFullYear();
+
+   // Se tem componente de hora (não é meia-noite UTC), mostra data e hora
+   const hasTime =
+      date.getUTCHours() !== 0 ||
+      date.getUTCMinutes() !== 0 ||
+      date.getUTCSeconds() !== 0;
+
+   if (hasTime) {
+      const hours = String(date.getUTCHours()).padStart(2, "0");
+      const minutes = String(date.getUTCMinutes()).padStart(2, "0");
+      return `${day}/${month}/${year} ${hours}:${minutes}`;
+   }
+   return `${day}/${month}/${year}`;
+}
+
 export type HistoricoItemType = "create" | "update" | "delete";
 
 export interface HistoricoItemProps {
@@ -90,11 +120,15 @@ export function HistoricoItem({
                   <li key={change.field} className="text-gray-600">
                      <span className="font-medium">{change.label}:</span>{" "}
                      <span className="text-red-600 line-through">
-                        {change.oldValue || "(vazio)"}
+                        {change.oldValue
+                           ? formatValueIfDate(change.oldValue)
+                           : "(vazio)"}
                      </span>
                      {" → "}
                      <span className="text-green-600">
-                        {change.newValue || "(vazio)"}
+                        {change.newValue
+                           ? formatValueIfDate(change.newValue)
+                           : "(vazio)"}
                      </span>
                   </li>
                ))}
