@@ -6,11 +6,9 @@ import {
    HiX,
    HiArrowLeft,
    HiExclamationCircle,
-   HiSortAscending,
    HiPencil,
    HiDocumentText,
    HiShoppingBag,
-   HiPlus,
 } from "react-icons/hi";
 import clsx from "clsx";
 import type { OrdemMissaoOut, EtapaOut } from "services/routes/om/ordens";
@@ -29,6 +27,7 @@ import { formatDateForDisplay } from "./utils/ordemUtils";
 import { gerarOrdemMissaoDocx } from "../../utils/exportOrdemMissao";
 import { gerarPedidoLanche } from "../../utils/exportLanche";
 import { useToast } from "../../../../../context/toast";
+import { PermBased } from "@/app/(home)/hooks/usePermBased";
 
 interface OrdemDetailProps {
    ordem: OrdemMissaoOut | null;
@@ -418,29 +417,34 @@ export function OrdemDetail({
                      </Button>
                      {!isCloning &&
                         (isNew || formData.status === "rascunho") && (
-                           <Button
-                              color="red"
-                              type="button"
-                              onClick={handleApproveSubmit}
-                              disabled={
-                                 hasCamposEspeciaisVazios ||
-                                 isSaving ||
-                                 isApproving
-                              }
+                           <PermBased
+                              resource={"ordem_missao"}
+                              requiredPerm={"aprove"}
                            >
-                              {isApproving ? (
-                                 <>
-                                    <Spinner
-                                       color="failure"
-                                       size="sm"
-                                       className="mr-2"
-                                    />
-                                    Aprovando...
-                                 </>
-                              ) : (
-                                 "Aprovar"
-                              )}
-                           </Button>
+                              <Button
+                                 color="red"
+                                 type="button"
+                                 onClick={handleApproveSubmit}
+                                 disabled={
+                                    hasCamposEspeciaisVazios ||
+                                    isSaving ||
+                                    isApproving
+                                 }
+                              >
+                                 {isApproving ? (
+                                    <>
+                                       <Spinner
+                                          color="failure"
+                                          size="sm"
+                                          className="mr-2"
+                                       />
+                                       Aprovando...
+                                    </>
+                                 ) : (
+                                    "Aprovar"
+                                 )}
+                              </Button>
+                           </PermBased>
                         )}
                   </>
                )}

@@ -54,7 +54,7 @@ export const navItems = [
             icon: MdAssignment,
             label: "Ordens de Missão",
             path: "/ops/om",
-            resource: "ordens_missao",
+            resource: "ordem_missao",
             permission: "view",
          },
          {

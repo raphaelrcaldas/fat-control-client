@@ -10,6 +10,7 @@ import { DeleteOrdemModal } from "./components/DeleteOrdemModal";
 import { formatDateForDisplay } from "./components/OrdemDetail/utils/ordemUtils";
 import { useOrdens, useOrdem, useDeleteOrdem } from "@/hooks/queries";
 import { type OrdemMissaoList } from "services/routes/om/ordens";
+import { PermBased } from "../../hooks/usePermBased";
 
 const tabsTheme = {
    tablist: {
@@ -230,17 +231,19 @@ export default function OrdensMissao() {
                      Gerenciamento de Ordens
                   </p>
                </div>
-               <button
-                  onClick={() => {
-                     setSelectedOrdemId(null);
-                     setIsCloning(false);
-                     setModalOpen(true);
-                  }}
-                  className="flex items-center gap-2 rounded-lg bg-red-500 px-5 py-2.5 font-bold text-white shadow hover:bg-red-700"
-               >
-                  <span className="text-lg">+</span>
-                  Nova Ordem de Missão
-               </button>
+               <PermBased resource={"ordem_missao"} requiredPerm={"create"}>
+                  <button
+                     onClick={() => {
+                        setSelectedOrdemId(null);
+                        setIsCloning(false);
+                        setModalOpen(true);
+                     }}
+                     className="flex items-center gap-2 rounded-lg bg-red-500 px-5 py-2.5 font-bold text-white shadow hover:bg-red-700"
+                  >
+                     <span className="text-lg">+</span>
+                     Nova Ordem de Missão
+                  </button>
+               </PermBased>
             </header>
 
             {/* Erro global */}
