@@ -2,8 +2,6 @@ import { memo, useMemo, useCallback } from "react";
 import { HiDocumentDuplicate, HiTrash, HiClock } from "react-icons/hi";
 import type { OrdemMissaoList, EtapaListItem } from "services/routes/om/ordens";
 import { Label } from "flowbite-react";
-import { format } from "date-fns";
-import { ptBR } from "date-fns/locale";
 import { extractDate } from "utils/dateHandler";
 
 interface ListaOrdensProps {
@@ -82,20 +80,6 @@ const OrdemItem = memo(function OrdemItem({
       [onDeleteOrdem, ordem]
    );
 
-   // Formata o último momento (atualização ou criação)
-   const ultimoMomento = useMemo(() => {
-      const dataStr = ordem.updated_at || ordem.created_at;
-      if (!dataStr) return null;
-      try {
-         const date = new Date(dataStr);
-         return format(date, "dd/MM/yy 'às' HH:mm", { locale: ptBR });
-      } catch (e) {
-         return null;
-      }
-   }, [ordem.updated_at, ordem.created_at]);
-
-   const isEditado = !!ordem.updated_at;
-
    return (
       <div
          role="button"
@@ -107,7 +91,7 @@ const OrdemItem = memo(function OrdemItem({
       >
          <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-               <div className="flex flex-col gap-1.5">
+               <div className="flex flex-col gap-1.5 text-center">
                   <Label className="pointer-events-none text-start text-xs text-gray-500">
                      Número
                   </Label>
@@ -116,7 +100,7 @@ const OrdemItem = memo(function OrdemItem({
                   </div>
                </div>
                <div className="h-10 w-px bg-gray-200" />
-               <div className="flex w-32 flex-col gap-1.5">
+               <div className="flex w-32 flex-col gap-1.5 text-center">
                   <Label className="pointer-events-none text-xs text-gray-500">
                      Etiquetas
                   </Label>
@@ -184,11 +168,11 @@ const OrdemItem = memo(function OrdemItem({
                      <div className="hidden flex-col gap-2 md:flex">
                         {Object.entries(resumoRota).map(([data, etapas]) => (
                            <div key={data} className="text-sm font-medium">
-                              <span className="mr-2 rounded bg-gray-200 px-2 py-1 text-gray-600">
+                              <span className="mr-2 rounded bg-gray-200 px-2 py-1 font-mono text-gray-600">
                                  {data}
                               </span>
                               <span className="font-mono">
-                                 {etapas.map((e) => e.origem).join(" - ")} -{" "}
+                                 {etapas.map((e) => e.origem).join(" ")}{" "}
                                  {etapas[etapas.length - 1].dest}
                               </span>
                            </div>

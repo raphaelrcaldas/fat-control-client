@@ -99,28 +99,22 @@ export const EtapasTable = memo(function EtapasTable({
             </div>
 
             <div className="overflow-x-auto rounded-lg border border-gray-200">
-               <Table hoverable>
+               <Table hoverable className="text-center">
                   <TableHead>
                      <TableRow>
-                        <TableHeadCell className="w-10 text-center">
-                           #
-                        </TableHeadCell>
+                        <TableHeadCell className="w-10">#</TableHeadCell>
                         <TableHeadCell>Data Dep</TableHeadCell>
                         <TableHeadCell>Hora (Z)</TableHeadCell>
                         <TableHeadCell>Origem</TableHeadCell>
-                        <TableHeadCell className="text-center">
-                           T. Voo
-                        </TableHeadCell>
+                        <TableHeadCell className="">T. Voo</TableHeadCell>
                         <TableHeadCell>Data Arr</TableHeadCell>
                         <TableHeadCell>Hora (Z)</TableHeadCell>
                         <TableHeadCell>Destino</TableHeadCell>
                         <TableHeadCell>Alt</TableHeadCell>
                         <TableHeadCell>T. Alt</TableHeadCell>
-                        <TableHeadCell className="text-center">
-                           Comb (T)
-                        </TableHeadCell>
-                        <TableHeadCell>Esf. Aéreo</TableHeadCell>
-                        <TableHeadCell className="w-20 text-center">
+                        <TableHeadCell className="">Comb (T)</TableHeadCell>
+                        <TableHeadCell>Esforço Aéreo</TableHeadCell>
+                        <TableHeadCell className="w-20">
                            {isEditable && (
                               <span className="sr-only">Ações</span>
                            )}
@@ -182,10 +176,10 @@ export const EtapasTable = memo(function EtapasTable({
                                  <TableCell className="font-bold text-green-600 uppercase">
                                     {etapa.dest || "—"}
                                  </TableCell>
-                                 <TableCell className="font-bold text-amber-600 uppercase">
+                                 <TableCell className="text-amber-500 uppercase">
                                     {etapa.alternativa || "—"}
                                  </TableCell>
-                                 <TableCell className="text-amber-600">
+                                 <TableCell className="text-amber-500">
                                     {tempoAlt}
                                  </TableCell>
                                  <TableCell className="text-center font-mono text-purple-700">

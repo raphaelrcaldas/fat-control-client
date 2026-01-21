@@ -31,15 +31,14 @@ const tabsTheme = {
 
 const getDefaultDates = () => {
    const hoje = new Date();
-   const trintaDiasAtras = new Date();
+   const primeiroDiaAno = new Date(hoje.getFullYear(), 0, 1);
    const trintaDiasAFrente = new Date();
-   trintaDiasAtras.setDate(hoje.getDate() - 30);
    trintaDiasAFrente.setDate(hoje.getDate() + 30);
 
    const formatDate = (date: Date) => date.toISOString().split("T")[0];
 
    return {
-      dataInicio: formatDate(trintaDiasAtras),
+      dataInicio: formatDate(primeiroDiaAno),
       dataFim: formatDate(trintaDiasAFrente),
    };
 };

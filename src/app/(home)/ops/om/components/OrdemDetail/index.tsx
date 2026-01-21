@@ -298,19 +298,20 @@ export function OrdemDetail({
       return "Editar";
    }, [isCloning, isNew, isEditable]);
 
+   const buildOrdemIdentificacao = (
+      numero: string | null | undefined,
+      data_saida: string | null | undefined
+   ): string => {
+      return numero ? `${numero}/1GT1/${formatDateForDisplay(data_saida)}` : "";
+   };
+
    const ordemIdentificacao = useMemo(
-      () =>
-         formData.numero
-            ? `${formData.numero}/${formData.uae}/${formatDateForDisplay(formData.data_saida)}`
-            : "",
-      [formData.numero, formData.uae, formData.data_saida]
+      () => buildOrdemIdentificacao(formData.numero, formData.data_saida),
+      [formData.numero, formData.data_saida]
    );
 
    const ordemBasedIdentificacao = useMemo(
-      () =>
-         ordem
-            ? `${ordem.numero}/${ordem.uae}/${formatDateForDisplay(ordem.data_saida)}`
-            : "",
+      () => buildOrdemIdentificacao(ordem?.numero, ordem?.data_saida),
       [ordem]
    );
 

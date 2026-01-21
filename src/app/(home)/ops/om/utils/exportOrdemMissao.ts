@@ -12,7 +12,7 @@ import {
    formatDateFull,
    formatTimeUTC,
    minutesToTime,
-   formatDateForFileName,
+   formatDateForDisplay,
 } from "utils/dateHandler";
 
 /**
@@ -93,9 +93,9 @@ export async function gerarOrdemMissaoDocx(
  */
 function formatNumeroOM(ordem: OrdemMissaoOut): string {
    const dataSaida = ordem.data_saida
-      ? formatDateForFileName(ordem.data_saida)
-      : "YYMMDD";
-   return `${ordem.numero}/${ordem.uae}/${dataSaida}`;
+      ? formatDateForDisplay(ordem.data_saida)
+      : "DDMMYY";
+   return `${ordem.numero}/1GT1/${dataSaida}`;
 }
 
 /**

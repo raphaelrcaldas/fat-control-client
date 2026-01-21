@@ -4,24 +4,16 @@ import type {
    OrdemMissaoCreate,
    OrdemMissaoUpdate,
    EtapaOut,
-   EtapaCreate,
    CampoEspecial,
    Etiqueta,
    TripulacaoAgrupada,
    TripulacaoOrdemOut,
 } from "services/routes/om/ordens";
 import { type CrewMember } from "services/routes/trips";
-import {
-   type FuncaoTripulante,
-   FUNCOES_PRINCIPAIS as TODAS_FUNCOES,
-} from "@/constants/tripulantes";
+import { type FuncaoTripulante } from "@/constants/tripulantes";
 import { createDefaultOrdem, createNextEtapa } from "../utils/ordemUtils";
 import { useCreateOrdem, useUpdateOrdem } from "@/hooks/queries";
-import {
-   extractDate,
-   extractTime,
-   calcularTempoVooMinutos,
-} from "utils/dateHandler";
+import { calcularTempoVooMinutos } from "utils/dateHandler";
 import { compareByAntiguidade } from "utils/sortByAntiguidade";
 
 // Calcula o esforço aéreo total (soma dos tempos de voo das etapas)

@@ -161,18 +161,6 @@ export function formatTimeUTC(isoDateTime: string): string {
 }
 
 /**
- * Formata data ISO para YYMMDD (usado em nomes de arquivo e número de OM)
- */
-export function formatDateForFileName(isoDate: string): string {
-   if (!isoDate) return "";
-   const date = new Date(isoDate);
-   const year = String(date.getUTCFullYear()).slice(-2);
-   const month = String(date.getUTCMonth() + 1).padStart(2, "0");
-   const day = String(date.getUTCDate()).padStart(2, "0");
-   return `${year}${month}${day}`;
-}
-
-/**
  * Formata data ISO para DDMMYYYY (sem separadores, usado para identificação de OM)
  */
 export function formatDateForDisplay(dateStr: string): string {
@@ -180,5 +168,5 @@ export function formatDateForDisplay(dateStr: string): string {
    const datePart = dateStr.split("T")[0];
    const [year, month, day] = datePart.split("-");
    if (!year || !month || !day) return "";
-   return `${day}${month}${year}`;
+   return `${day}${month}${year.slice(-2)}`;
 }

@@ -105,7 +105,9 @@ export function HistoricoItem({
             <span className={`font-medium ${config.textColor}`}>
                {config.label}
             </span>
-            <span className="text-xs text-gray-500">{formattedTime}</span>
+            <span className="font-mono text-xs text-gray-500">
+               {formattedTime}
+            </span>
          </div>
 
          {user && (
