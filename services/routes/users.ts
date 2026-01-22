@@ -8,9 +8,9 @@ export interface UserPublic {
    p_g: string
    posto: PostoGrad;
    esp: string;
-   id_fab: number | null
+   id_fab: string | null
    nome_guerra: string;
-   saram?: number;
+   saram?: string;
    nome_completo: string;
    unidade: string;
    active: boolean;
@@ -39,8 +39,8 @@ export interface UserSchema {
    esp: string
    nome_guerra: string
    nome_completo: string
-   id_fab: number | null
-   saram: number
+   id_fab: string | null
+   saram: string
    cpf: string
    ult_promo: string | null
    active: boolean;

@@ -124,7 +124,7 @@ export default function OrdensMissao() {
    useEffect(() => {
       const timer = setTimeout(() => {
          setDebouncedBusca(filtros.busca);
-      }, 300);
+      }, 500);
       return () => clearTimeout(timer);
    }, [filtros.busca]);
 
