@@ -116,12 +116,21 @@ export function UserForm({ userId, onSuccess }: UserFormProps) {
    // ========================================
 
    async function onSubmit(data: CreateUserFormData) {
+      // Normaliza campos vazios para null (backend não aceita "")
+      const normalizedData = {
+         ...data,
+         email_fab: data.email_fab || null,
+         email_pess: data.email_pess || null,
+         id_fab: data.id_fab || null,
+         cpf: data.cpf || null,
+      };
+
       try {
          if (isEditMode) {
             // Modo edição: enviar apenas campos modificados
             const diff = initialValues
-               ? getChangedFields(initialValues, data)
-               : data;
+               ? getChangedFields(initialValues, normalizedData)
+               : normalizedData;
 
             if (Object.keys(diff).length === 0) {
                push({
@@ -151,7 +160,7 @@ export function UserForm({ userId, onSuccess }: UserFormProps) {
             }
          } else {
             // Modo criação: enviar todos os dados
-            const response = await createMutation.mutateAsync(data as any);
+            const response = await createMutation.mutateAsync(normalizedData as any);
 
             const dataRes = await response.json();
             push({
