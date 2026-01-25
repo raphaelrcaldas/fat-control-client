@@ -185,18 +185,20 @@ export function TripulanteSelect({
          </label>
 
          {tripulantes.length > 0 && (
-            <div className="mb-3 flex flex-wrap gap-2">
+            <div className="mb-3 flex flex-col gap-2">
                {tripulantes.map((trip) => (
                   <div
                      key={trip.id}
-                     className="flex items-center gap-2 rounded-lg border border-green-200 bg-green-50 px-3 py-1.5"
+                     className="flex justify-between rounded-lg border border-red-200 bg-red-50 px-3 py-1.5"
                   >
-                     <span className="hidden items-center font-mono text-xs leading-none font-bold text-green-700 uppercase lg:flex">
-                        {trip.trig}
-                     </span>
-                     <span className="flex items-center text-xs leading-none text-gray-700 uppercase">
-                        {trip.user.p_g} {trip.user.nome_guerra}
-                     </span>
+                     <div className="flex flex-row gap-2">
+                        <span className="hidden items-center font-mono text-sm leading-none font-bold text-red-700 uppercase lg:flex">
+                           {trip.trig}
+                        </span>
+                        <span className="flex items-center text-xs leading-none font-medium text-gray-700 uppercase">
+                           {trip.user.p_g} {trip.user.nome_guerra}
+                        </span>
+                     </div>
                      {!disabled && (
                         <button
                            type="button"

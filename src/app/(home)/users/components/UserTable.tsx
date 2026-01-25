@@ -56,7 +56,7 @@ export function UserTable({ usuarios, loading }: UserTableProps) {
                         <TableCell className="text-gray-600 uppercase">
                            {user.esp}
                         </TableCell>
-                        <TableCell className="font-medium whitespace-nowrap text-gray-900 uppercase dark:text-white">
+                        <TableCell className="font-medium text-gray-800 capitalize dark:text-white">
                            {user.nome_guerra}
                         </TableCell>
                         <TableCell className="text-gray-600 capitalize">

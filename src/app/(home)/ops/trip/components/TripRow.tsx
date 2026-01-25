@@ -21,7 +21,7 @@ export function TripRow({ trip }: TripRowProps) {
          <TableCell className="hidden text-gray-600 uppercase lg:table-cell">
             {user.esp}
          </TableCell>
-         <TableCell className="hidden text-gray-800 capitalize md:table-cell">
+         <TableCell className="hidden font-medium text-gray-800 capitalize md:table-cell">
             {user.nome_guerra}
          </TableCell>
          <TableCell className="hidden text-gray-800 capitalize md:table-cell">
