@@ -1,60 +1,151 @@
 /**
  * Funções de tripulantes da FAB
  *
- * Fonte única de verdade para labels e tipos de funções.
- * Consolidado de: trip/page.tsx, indisp/page.tsx, om/types.ts
+ * Fonte única de verdade para funções, labels, temas e posições a bordo.
+ * Estrutura centralizada - todos os outros exports derivam de FUNCOES_CONFIG.
  */
 
-export type FuncType = "pil" | "mc" | "lm" | "oe" | "os" | "tf" | "ml" | "md";
+import type {
+   FuncConfig,
+   FuncType,
+   FuncaoTripulante,
+   PosicaoABordo,
+} from "./types";
+
+// Re-export dos tipos
+export type { FuncType, FuncaoTripulante, FuncConfig, PosicaoABordo };
+
+// =============================================================================
+// CONFIGURAÇÃO CENTRALIZADA
+// =============================================================================
 
 /**
- * Labels completos para todas as funções
+ * Configuração completa de todas as funções.
+ * Fonte única de verdade - todos os outros exports derivam daqui.
  */
-export const FUNC_LABELS: Record<FuncType, string> = {
-   pil: "Piloto",
-   mc: "Mecânico",
-   lm: "Loadmaster",
-   oe: "Operador de Equipamentos",
-   os: "Observador-SAR",
-   tf: "Comissário",
-   ml: "Mestre de Lançamento",
-   md: "Médico",
+export const FUNCOES_CONFIG: Record<FuncType, FuncConfig> = {
+   pil: {
+      label: "Piloto",
+      labelShort: "Piloto",
+      theme: { color: "blue", badge: "info" },
+      posicoes: [
+         { codigo: "1P", label: "1º Piloto", descricao: "Piloto em comando" },
+         { codigo: "2P", label: "2º Piloto", descricao: "Copiloto" },
+         { codigo: "IN", label: "Instrutor", descricao: "Piloto instrutor" },
+         { codigo: "AL", label: "Aluno", descricao: "Piloto em instrução" },
+      ],
+   },
+   mc: {
+      label: "Mecânico",
+      labelShort: "Mecânico",
+      theme: { color: "amber", badge: "warning" },
+      posicoes: [
+         { codigo: "MC", label: "Mecânico", descricao: "Mecânico" },
+         { codigo: "IC", label: "Instrutor", descricao: "Mecânico instrutor" },
+         { codigo: "AC", label: "Aluno", descricao: "Mecânico em instrução" },
+      ],
+   },
+   lm: {
+      label: "Loadmaster",
+      labelShort: "Loadmaster",
+      theme: { color: "emerald", badge: "success" },
+      posicoes: [
+         { codigo: "LM", label: "Loadmaster", descricao: "Loadmaster titular" },
+         {
+            codigo: "IG",
+            label: "Instrutor",
+            descricao: "Loadmaster instrutor",
+         },
+         { codigo: "AG", label: "Aluno", descricao: "Loadmaster em instrução" },
+      ],
+   },
+   oe: {
+      label: "Operador de Equipamentos",
+      labelShort: "OE-3",
+      theme: { color: "cyan", badge: "cyan" },
+      posicoes: [
+         {
+            codigo: "O3",
+            label: "Operador",
+            descricao: "Operador de equipamentos",
+         },
+         { codigo: "I3", label: "Instrutor", descricao: "OE instrutor" },
+         { codigo: "A3", label: "Aluno", descricao: "OE em instrução" },
+      ],
+   },
+   os: {
+      label: "Observador-SAR",
+      labelShort: "Obs-SAR",
+      theme: { color: "red", badge: "failure" },
+      posicoes: [
+         {
+            codigo: "OS",
+            label: "Observador-SAR",
+            descricao: "Observador SAR",
+         },
+         {
+            codigo: "IS",
+            label: "Instrutor",
+            descricao: "Observador-SAR instrutor",
+         },
+         {
+            codigo: "AS",
+            label: "Aluno",
+            descricao: "Observador-SAR em instrução",
+         },
+      ],
+   },
+   tf: {
+      label: "Comissário",
+      labelShort: "Comissário",
+      theme: { color: "purple", badge: "purple" },
+      posicoes: [
+         { codigo: "TF", label: "Comissário", descricao: "Comissário titular" },
+         {
+            codigo: "IF",
+            label: "Instrutor",
+            descricao: "Comissário instrutor",
+         },
+         { codigo: "AF", label: "Aluno", descricao: "Comissário em instrução" },
+      ],
+   },
+   ml: {
+      label: "Mestre de Lançamento",
+      labelShort: "ML",
+      theme: { color: "pink", badge: "pink" },
+      posicoes: [], // Função esporádica, sem controle de posições
+   },
+   md: {
+      label: "Médico",
+      labelShort: "Médico",
+      theme: { color: "gray", badge: "gray" },
+      posicoes: [], // Função esporádica, sem controle de posições
+   },
 };
 
-/**
- * Labels abreviados (para uso em espaços reduzidos)
- */
-export const FUNC_LABELS_SHORT: Record<FuncType, string> = {
-   pil: "Piloto",
-   mc: "Mecânico",
-   lm: "Loadmaster",
-   oe: "OE-3",
-   os: "Obs-SAR",
-   tf: "Comissário",
-   ml: "ML",
-   md: "Médico",
-};
+// =============================================================================
+// DERIVADOS (para compatibilidade)
+// =============================================================================
 
-/**
- * Todas as funções disponíveis (array)
- */
-export const TODAS_FUNCOES: FuncType[] = [
-   "pil",
-   "mc",
-   "lm",
-   "tf",
-   "oe",
-   "os",
-   "ml",
-   "md",
-];
+/** Labels completos para todas as funções */
+export const FUNC_LABELS: Record<FuncType, string> = Object.fromEntries(
+   Object.entries(FUNCOES_CONFIG).map(([key, config]) => [key, config.label])
+) as Record<FuncType, string>;
 
-/**
- * Funções principais (sem ml e md)
- * Usado em ordens de missão e contextos específicos
- */
-export type FuncaoTripulante = "pil" | "mc" | "lm" | "tf" | "oe" | "os";
+/** Labels abreviados (para uso em espaços reduzidos) */
+export const FUNC_LABELS_SHORT: Record<FuncType, string> = Object.fromEntries(
+   Object.entries(FUNCOES_CONFIG).map(([key, config]) => [
+      key,
+      config.labelShort,
+   ])
+) as Record<FuncType, string>;
 
+/** Todas as funções disponíveis (array) */
+export const TODAS_FUNCOES: FuncType[] = Object.keys(
+   FUNCOES_CONFIG
+) as FuncType[];
+
+/** Funções principais (sem ml e md que são esporádicas) */
 export const FUNCOES_PRINCIPAIS: FuncaoTripulante[] = [
    "pil",
    "mc",
@@ -64,9 +155,59 @@ export const FUNCOES_PRINCIPAIS: FuncaoTripulante[] = [
    "os",
 ];
 
+// =============================================================================
+// HELPERS
+// =============================================================================
+
 /**
  * Retorna o label de uma função
  */
 export function getFuncLabel(func: FuncType, short = false): string {
-   return short ? FUNC_LABELS_SHORT[func] : FUNC_LABELS[func];
+   return short ? FUNCOES_CONFIG[func].labelShort : FUNCOES_CONFIG[func].label;
+}
+
+/**
+ * Retorna o tema de uma função
+ */
+export function getFuncTheme(func: FuncType) {
+   return FUNCOES_CONFIG[func].theme;
+}
+
+/**
+ * Retorna as posições a bordo disponíveis para uma função
+ */
+export function getPosicoesByFunc(func: FuncType): PosicaoABordo[] {
+   return FUNCOES_CONFIG[func].posicoes;
+}
+
+/**
+ * Retorna o label de uma posição a bordo
+ */
+export function getPosicaoLabel(
+   func: FuncType,
+   codigo: string
+): string | undefined {
+   const posicao = FUNCOES_CONFIG[func].posicoes.find(
+      (p) => p.codigo === codigo
+   );
+   return posicao?.label;
+}
+
+/**
+ * Verifica se uma posição é válida para uma função
+ */
+export function isPosicaoValidaParaFunc(
+   func: FuncType,
+   codigo: string
+): boolean {
+   return FUNCOES_CONFIG[func].posicoes.some((p) => p.codigo === codigo);
+}
+
+/**
+ * Retorna todas as posições a bordo (flat array de códigos)
+ */
+export function getTodasPosicoes(): string[] {
+   return Object.values(FUNCOES_CONFIG).flatMap((config) =>
+      config.posicoes.map((p) => p.codigo)
+   );
 }
