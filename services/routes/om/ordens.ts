@@ -41,12 +41,17 @@ export interface EtapaListItem {
 }
 
 export interface RouteSuggestion {
-   origem: string;
    dest: string;
-   tvoo_etp: number; // tempo de voo em minutos
-   alternativa: string;
-   tvoo_alt: number;
-   qtd_comb: number;
+   // Dados do destino (podem vir de qualquer rota para esse destino)
+   alternativa: string | null;
+   tvoo_alt: number | null;
+   // Dados da rota completa (origem + dest específicos)
+   origem: string | null;
+   tvoo_etp: number | null; // tempo de voo em minutos
+   qtd_comb: number | null;
+   // Flags de proveniência
+   has_route_data: boolean;
+   has_destination_data: boolean;
 }
 
 // TripBasicInfo retornado pelo backend (vem do endpoint de tripulantes)

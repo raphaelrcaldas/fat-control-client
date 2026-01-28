@@ -106,8 +106,10 @@ export function EtapaModal({
    const { data: routeSuggestion, isFetching: isLoadingRoute } =
       useRouteSuggestion(origem, dest);
 
-   // Flag para indicar que sugestão foi aplicada (para exibir mensagem)
-   const [suggestionApplied, setSuggestionApplied] = useState(false);
+   // Tipo de sugestão aplicada: 'none', 'full' (rota completa) ou 'partial' (apenas destino)
+   const [suggestionType, setSuggestionType] = useState<
+      "none" | "full" | "partial"
+   >("none");
 
    // Resetar estado quando origem ou dest mudam
    const prevRouteRef = useRef<string>("");
@@ -115,7 +117,7 @@ export function EtapaModal({
       const routeKey = `${origem}-${dest}`;
       if (prevRouteRef.current !== routeKey) {
          prevRouteRef.current = routeKey;
-         setSuggestionApplied(false);
+         setSuggestionType("none");
       }
    }, [origem, dest]);
 
@@ -124,18 +126,31 @@ export function EtapaModal({
       if (isEditing) return;
       if (origem.length !== 4 || dest.length !== 4) return;
 
-      // Se não há sugestão, manter suggestionApplied como false
+      // Se não há sugestão, manter suggestionType como 'none'
       if (!routeSuggestion) {
          return;
       }
 
-      // Aplicar sugestão
-      setSuggestionApplied(true);
+      // Determinar tipo de sugestão baseado nas flags
+      if (routeSuggestion.has_route_data && routeSuggestion.has_destination_data) {
+         setSuggestionType("full");
+      } else if (routeSuggestion.has_destination_data) {
+         setSuggestionType("partial");
+      } else {
+         setSuggestionType("none");
+         return;
+      }
 
-      // Calcular dt_arr baseado no tempo de voo sugerido
+      // Aplicar sugestão
       setFormData((prev) => {
          let newDtArr = prev.dt_arr;
-         if (prev.dt_dep && routeSuggestion.tvoo_etp > 0) {
+
+         // Calcular dt_arr apenas se temos dados da rota completa
+         if (
+            prev.dt_dep &&
+            routeSuggestion.tvoo_etp &&
+            routeSuggestion.tvoo_etp > 0
+         ) {
             const depDate = new Date(prev.dt_dep);
             const arrDate = new Date(
                depDate.getTime() + routeSuggestion.tvoo_etp * 60 * 1000
@@ -145,9 +160,11 @@ export function EtapaModal({
 
          return {
             ...prev,
-            alternativa: routeSuggestion.alternativa,
-            tvoo_alt: routeSuggestion.tvoo_alt,
-            qtd_comb: routeSuggestion.qtd_comb,
+            // Sempre aplicar dados do destino se disponíveis
+            alternativa: routeSuggestion.alternativa ?? prev.alternativa,
+            tvoo_alt: routeSuggestion.tvoo_alt ?? prev.tvoo_alt,
+            // Apenas aplicar dados da rota se disponíveis
+            qtd_comb: routeSuggestion.qtd_comb ?? prev.qtd_comb,
             dt_arr: newDtArr,
          };
       });
@@ -157,7 +174,7 @@ export function EtapaModal({
    useEffect(() => {
       if (!isOpen) {
          prevRouteRef.current = "";
-         setSuggestionApplied(false);
+         setSuggestionType("none");
       }
    }, [isOpen]);
 
@@ -519,25 +536,37 @@ export function EtapaModal({
                      </div>
                   )}
 
-                  {/* Indicador de sugestão aplicada */}
-                  {!isLoadingRoute && suggestionApplied && !isEditing && (
+                  {/* Indicador de sugestão completa (rota + destino) */}
+                  {!isLoadingRoute && suggestionType === "full" && !isEditing && (
                      <div className="flex items-center gap-2 rounded-full border border-green-200 bg-green-50 px-4 py-2">
                         <HiLightningBolt className="h-4 w-4 text-green-500" />
                         <span className="text-sm text-green-600">
-                           Sugestão baseada em rota anterior
+                           Sugestão completa baseada em rota anterior
                         </span>
                      </div>
                   )}
 
-                  {/* Indicador de rota não encontrada */}
+                  {/* Indicador de sugestão parcial (apenas destino) */}
                   {!isLoadingRoute &&
-                     !suggestionApplied &&
+                     suggestionType === "partial" &&
+                     !isEditing && (
+                        <div className="flex items-center gap-2 rounded-full border border-amber-200 bg-amber-50 px-4 py-2">
+                           <HiLightningBolt className="h-4 w-4 text-amber-500" />
+                           <span className="text-sm text-amber-600">
+                              Sugestão parcial (alternativa baseada no destino)
+                           </span>
+                        </div>
+                     )}
+
+                  {/* Indicador de nenhuma sugestão encontrada */}
+                  {!isLoadingRoute &&
+                     suggestionType === "none" &&
                      !isEditing &&
                      origem.length === 4 &&
                      dest.length === 4 && (
                         <div className="flex items-center gap-2 rounded-full border border-gray-200 bg-gray-50 px-4 py-2">
                            <span className="text-sm text-gray-500">
-                              Nenhuma sugestão encontrada para esta rota
+                              Nenhuma sugestão encontrada
                            </span>
                         </div>
                      )}
