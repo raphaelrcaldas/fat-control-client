@@ -8,8 +8,6 @@ import {
    ModalFooter,
    Button,
    Label,
-   TextInput,
-   HelperText,
    Spinner,
 } from "flowbite-react";
 import { HiLocationMarker, HiClock, HiLightningBolt } from "react-icons/hi";
@@ -111,6 +109,9 @@ export function EtapaModal({
       "none" | "full" | "partial"
    >("none");
 
+   // Flag para rastrear se o usuário mudou a rota manualmente (evita sobrescrever dados ao abrir modal)
+   const userChangedRouteRef = useRef(false);
+
    // Resetar estado quando origem ou dest mudam
    const prevRouteRef = useRef<string>("");
    useEffect(() => {
@@ -123,8 +124,12 @@ export function EtapaModal({
 
    // Auto-preencher quando encontrar sugestão de rota
    useEffect(() => {
-      if (isEditing) return;
       if (origem.length !== 4 || dest.length !== 4) return;
+
+      // Em modo edição, só aplicar sugestão se usuário mudou a rota manualmente
+      if (isEditing && !userChangedRouteRef.current) {
+         return;
+      }
 
       // Se não há sugestão, manter suggestionType como 'none'
       if (!routeSuggestion) {
@@ -132,7 +137,10 @@ export function EtapaModal({
       }
 
       // Determinar tipo de sugestão baseado nas flags
-      if (routeSuggestion.has_route_data && routeSuggestion.has_destination_data) {
+      if (
+         routeSuggestion.has_route_data &&
+         routeSuggestion.has_destination_data
+      ) {
          setSuggestionType("full");
       } else if (routeSuggestion.has_destination_data) {
          setSuggestionType("partial");
@@ -175,6 +183,7 @@ export function EtapaModal({
       if (!isOpen) {
          prevRouteRef.current = "";
          setSuggestionType("none");
+         userChangedRouteRef.current = false;
       }
    }, [isOpen]);
 
@@ -391,6 +400,7 @@ export function EtapaModal({
                                     /[^a-zA-Z]/g,
                                     ""
                                  );
+                                 userChangedRouteRef.current = true;
                                  setFormData((prev) => ({
                                     ...prev,
                                     origem: value.toUpperCase(),
@@ -490,6 +500,7 @@ export function EtapaModal({
                                     /[^a-zA-Z]/g,
                                     ""
                                  );
+                                 userChangedRouteRef.current = true;
                                  setFormData((prev) => ({
                                     ...prev,
                                     dest: value.toUpperCase(),
@@ -537,7 +548,7 @@ export function EtapaModal({
                   )}
 
                   {/* Indicador de sugestão completa (rota + destino) */}
-                  {!isLoadingRoute && suggestionType === "full" && !isEditing && (
+                  {!isLoadingRoute && suggestionType === "full" && (
                      <div className="flex items-center gap-2 rounded-full border border-green-200 bg-green-50 px-4 py-2">
                         <HiLightningBolt className="h-4 w-4 text-green-500" />
                         <span className="text-sm text-green-600">
@@ -547,21 +558,18 @@ export function EtapaModal({
                   )}
 
                   {/* Indicador de sugestão parcial (apenas destino) */}
-                  {!isLoadingRoute &&
-                     suggestionType === "partial" &&
-                     !isEditing && (
-                        <div className="flex items-center gap-2 rounded-full border border-amber-200 bg-amber-50 px-4 py-2">
-                           <HiLightningBolt className="h-4 w-4 text-amber-500" />
-                           <span className="text-sm text-amber-600">
-                              Sugestão parcial (alternativa baseada no destino)
-                           </span>
-                        </div>
-                     )}
+                  {!isLoadingRoute && suggestionType === "partial" && (
+                     <div className="flex items-center gap-2 rounded-full border border-amber-200 bg-amber-50 px-4 py-2">
+                        <HiLightningBolt className="h-4 w-4 text-amber-500" />
+                        <span className="text-sm text-amber-600">
+                           Sugestão parcial (alternativa baseada no destino)
+                        </span>
+                     </div>
+                  )}
 
                   {/* Indicador de nenhuma sugestão encontrada */}
                   {!isLoadingRoute &&
                      suggestionType === "none" &&
-                     !isEditing &&
                      origem.length === 4 &&
                      dest.length === 4 && (
                         <div className="flex items-center gap-2 rounded-full border border-gray-200 bg-gray-50 px-4 py-2">

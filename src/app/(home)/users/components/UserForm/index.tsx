@@ -160,7 +160,9 @@ export function UserForm({ userId, onSuccess }: UserFormProps) {
             }
          } else {
             // Modo criação: enviar todos os dados
-            const response = await createMutation.mutateAsync(normalizedData as any);
+            const response = await createMutation.mutateAsync(
+               normalizedData as any
+            );
 
             const dataRes = await response.json();
             push({
