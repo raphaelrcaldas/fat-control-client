@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useDeferredValue } from "react";
+import { useState, useMemo } from "react";
 import { Label, Select, TextInput, Badge, Spinner } from "flowbite-react";
 import { ListComiss } from "./components/listComiss";
 import { DetailComiss } from "./components/detailComiss";
@@ -8,6 +8,7 @@ import { RoleBasedRoute } from "../../hooks/useRoleBased";
 import { sortByAntiguidade } from "utils/sortByAntiguidade";
 import { HiFilter, HiX } from "react-icons/hi";
 import { useComissList } from "@/hooks/queries";
+import useDebouncedValue from "@/hooks/useDebouncedValue";
 import clsx from "clsx";
 
 export default function ComissPage() {
@@ -16,8 +17,7 @@ export default function ComissPage() {
    const [searchUser, setSearchUser] = useState("");
    const [filtersExpanded, setFiltersExpanded] = useState(false);
 
-   // Debounce do search usando useDeferredValue
-   const deferredSearch = useDeferredValue(searchUser);
+   const deferredSearch = useDebouncedValue(searchUser);
 
    // React Query
    const {
