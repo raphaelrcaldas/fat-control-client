@@ -9,6 +9,7 @@ import {
    HiPencil,
    HiDocumentText,
    HiShoppingBag,
+   HiBan,
 } from "react-icons/hi";
 import clsx from "clsx";
 import type { OrdemMissaoOut, EtapaOut } from "services/routes/om/ordens";
@@ -71,6 +72,8 @@ export function OrdemDetail({
       resetForm,
       handleSubmit,
       handleElaborar,
+      handleCancelar,
+      isCancelling,
       updateEtiquetas,
       areEtapasOrdered,
       handleSortEtapas,
@@ -133,6 +136,24 @@ export function OrdemDetail({
          });
       }
    }, [handleElaborar, pushToast]);
+
+   const handleCancelSubmit = useCallback(async () => {
+      if (
+         !window.confirm(
+            "Tem certeza que deseja cancelar esta Ordem de Missão?"
+         )
+      ) {
+         return;
+      }
+      const result = await handleCancelar();
+      if (result.success) {
+         pushToast({
+            type: "success",
+            title: "Sucesso",
+            message: "Ordem de Missão cancelada com sucesso",
+         });
+      }
+   }, [handleCancelar, pushToast]);
 
    const handleExportDocx = useCallback(async () => {
       if (!ordem) return;
@@ -320,7 +341,7 @@ export function OrdemDetail({
    return (
       <div
          className={clsx(
-            "fixed inset-0 z-50 flex flex-col overflow-hidden rounded-2xl border border-gray-200 bg-gray-50 shadow-xl transition-transform duration-150 ease-out",
+            "absolute inset-0 z-50 flex flex-col overflow-hidden rounded-2xl border border-gray-200 bg-gray-50 shadow-xl transition-transform duration-150 ease-out",
             isVisible ? "translate-x-0" : "translate-x-full"
          )}
          onTransitionEnd={handleTransitionEnd}
@@ -367,14 +388,47 @@ export function OrdemDetail({
             <div className="flex flex-1 items-center justify-end gap-3">
                {isReadOnlyMode && (
                   <>
-                     <Button color="red" onClick={toggleReadOnlyMode}>
-                        <HiPencil className="mr-2" size={16} />
-                        Editar
-                     </Button>
+                     {formData.status !== "cancelada" && (
+                        <Button color="red" onClick={toggleReadOnlyMode}>
+                           <HiPencil className="mr-2" size={16} />
+                           Editar
+                        </Button>
+                     )}
+                     {formData.status === "aprovada" && (
+                        <PermBased
+                           resource={"ordem_missao"}
+                           requiredPerm={"aprove"}
+                        >
+                           <Button
+                              color="light"
+                              onClick={handleCancelSubmit}
+                              disabled={isCancelling}
+                           >
+                              {isCancelling ? (
+                                 <>
+                                    <Spinner
+                                       color="failure"
+                                       size="sm"
+                                       className="mr-2"
+                                    />
+                                    Cancelando...
+                                 </>
+                              ) : (
+                                 <>
+                                    <HiBan
+                                       className="mr-2 text-red-500"
+                                       size={16}
+                                    />
+                                    Cancelar OM
+                                 </>
+                              )}
+                           </Button>
+                        </PermBased>
+                     )}
                      <Button
                         color="gray"
                         onClick={handleClose}
-                        disabled={isSaving || isApproving}
+                        disabled={isSaving || isApproving || isCancelling}
                      >
                         <HiX className="mr-2" size={16} />
                         Fechar

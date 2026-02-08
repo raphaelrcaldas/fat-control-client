@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import clsx from "clsx";
 import { Tabs, TabItem, Spinner, Pagination } from "flowbite-react";
 import { FiltrosOrdem } from "./types";
 import { FiltrosOrdemComponent } from "./components/FiltrosOrdem";
@@ -218,7 +219,12 @@ export default function OrdensMissao() {
    };
 
    return (
-      <div className="p-2 text-gray-900">
+      <div
+         className={clsx(
+            "p-2 text-gray-900",
+            modalOpen && "relative h-full overflow-hidden"
+         )}
+      >
          <div className="mx-auto">
             {/* Header */}
             <header className="mb-3 flex items-center justify-between">

@@ -136,6 +136,7 @@ export const useOrdemForm = ({
    // Estados de loading e erro
    const [isSaving, setIsSaving] = useState(false);
    const [isApproving, setIsApproving] = useState(false);
+   const [isCancelling, setIsCancelling] = useState(false);
    const [error, setError] = useState<string | null>(null);
    const [formValidationErrors, setFormValidationErrors] = useState<string[]>(
       []
@@ -758,6 +759,34 @@ export const useOrdemForm = ({
       }
    };
 
+   // Cancelar ordem aprovada
+   const handleCancelar = async (): Promise<{ success: boolean }> => {
+      if (formData.status !== "aprovada") return { success: false };
+
+      setIsCancelling(true);
+      setError(null);
+
+      try {
+         await updateOrdemMutation.mutateAsync({
+            id: formData.id,
+            data: { status: "cancelada" } as OrdemMissaoUpdate,
+         });
+
+         onSave();
+         return { success: true };
+      } catch (err) {
+         console.error("Erro ao cancelar ordem:", err);
+         setError(
+            err instanceof Error
+               ? err.message
+               : "Erro ao cancelar ordem de missão"
+         );
+         return { success: false };
+      } finally {
+         setIsCancelling(false);
+      }
+   };
+
    return {
       formData,
       tripulacao,
@@ -785,6 +814,8 @@ export const useOrdemForm = ({
       resetForm,
       handleSubmit,
       handleElaborar,
+      handleCancelar,
+      isCancelling,
       areEtapasOrdered,
       handleSortEtapas,
       clearError,

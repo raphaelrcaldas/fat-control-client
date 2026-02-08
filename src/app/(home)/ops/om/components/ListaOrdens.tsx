@@ -3,6 +3,8 @@ import { HiDocumentDuplicate, HiTrash, HiClock } from "react-icons/hi";
 import type { OrdemMissaoList, EtapaListItem } from "services/routes/om/ordens";
 import { Label } from "flowbite-react";
 import { extractDate } from "utils/dateHandler";
+import { StatusBadge } from "./StatusBadge";
+import type { StatusType } from "@/constants/ops/ordens-missao/status";
 
 interface ListaOrdensProps {
    ordens: OrdemMissaoList[];
@@ -100,6 +102,13 @@ const OrdemItem = memo(function OrdemItem({
                   </div>
                </div>
                <div className="h-10 w-px bg-gray-200" />
+               <div className="flex w-24 flex-col gap-1.5 text-center">
+                  <Label className="pointer-events-none text-xs text-gray-500">
+                     Status
+                  </Label>
+                  <StatusBadge status={ordem.status as StatusType} />
+               </div>
+               <div className="h-10 w-px bg-gray-200" />
                <div className="flex w-32 flex-col gap-1.5 text-center">
                   <Label className="pointer-events-none text-xs text-gray-500">
                      Etiquetas
@@ -108,7 +117,7 @@ const OrdemItem = memo(function OrdemItem({
                      ordem.etiquetas.map((et) => (
                         <span
                            key={et.id}
-                           className="pointer-events-none inline-flex items-center justify-center rounded-full border px-1.5 py-0.5 text-[10px] font-bold tracking-tight uppercase shadow-xs"
+                           className="pointer-events-none inline-flex items-center justify-center border px-1.5 py-0.5 text-[10px] font-bold tracking-tight uppercase shadow-xs"
                            style={
                               {
                                  "--tag-color": et.cor,

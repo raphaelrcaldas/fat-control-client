@@ -10,6 +10,7 @@ import {
    type StatusType,
 } from "@/constants/ops/ordens-missao/status";
 import { useEtiquetas } from "@/hooks/queries";
+import { MultiSelect } from "@/components/MultiSelect";
 
 // Status disponíveis para filtro (sem rascunho, pois tem tab própria)
 const statusOptionsAprovadas = statusOptions.filter((s) => s !== "rascunho");
@@ -94,6 +95,16 @@ export function FiltrosOrdemComponent({
                         </span>
                      )}
 
+                     {/* Status selecionados */}
+                     {filtros.status.map((s) => (
+                        <span
+                           key={s}
+                           className="rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-600"
+                        >
+                           {statusLabels[s as StatusType] || s}
+                        </span>
+                     ))}
+
                      {/* Etiquetas selecionadas */}
                      {filtros.etiquetas_ids.map((id) => {
                         const etiqueta = allLabels.find((e) => e.id === id);
@@ -144,7 +155,7 @@ export function FiltrosOrdemComponent({
             >
                <div className="grid grid-cols-1 gap-4 px-5 pb-5 md:grid-cols-2 lg:grid-cols-5">
                   {/* Campo de Busca - ocupa 2 colunas em lg */}
-                  <div className="min-w-0 md:col-span-2 lg:col-span-3">
+                  <div className="min-w-0 md:col-span-2 lg:col-span-2">
                      <label className="mb-1 block text-xs font-medium text-gray-500">
                         Busca
                      </label>
@@ -159,6 +170,27 @@ export function FiltrosOrdemComponent({
                            })
                         }
                         className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-2.5 text-gray-900 placeholder-gray-400 focus:border-transparent focus:ring-2 focus:ring-red-500"
+                     />
+                  </div>
+
+                  {/* Status */}
+                  <div className="min-w-0">
+                     <label className="mb-1 block text-xs font-medium text-gray-500">
+                        Status
+                     </label>
+                     <MultiSelect
+                        options={statusOptionsAprovadas.map((s) => ({
+                           value: s,
+                           label: statusLabels[s],
+                        }))}
+                        selected={filtros.status}
+                        onChange={(values) =>
+                           onFiltrosChange({
+                              ...filtros,
+                              status: values,
+                           })
+                        }
+                        placeholder="Todos"
                      />
                   </div>
 
