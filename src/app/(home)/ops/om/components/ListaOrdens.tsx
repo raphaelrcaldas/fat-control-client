@@ -3,8 +3,10 @@ import { HiDocumentDuplicate, HiTrash, HiClock } from "react-icons/hi";
 import type { OrdemMissaoList, EtapaListItem } from "services/routes/om/ordens";
 import { Label } from "flowbite-react";
 import { extractDate } from "utils/dateHandler";
-import { StatusBadge } from "./StatusBadge";
-import type { StatusType } from "@/constants/ops/ordens-missao/status";
+import {
+   STATUS_CONFIG as statusConfig,
+   type StatusType,
+} from "@/constants/ops/ordens-missao/status";
 
 interface ListaOrdensProps {
    ordens: OrdemMissaoList[];
@@ -106,7 +108,11 @@ const OrdemItem = memo(function OrdemItem({
                   <Label className="pointer-events-none text-xs text-gray-500">
                      Status
                   </Label>
-                  <StatusBadge status={ordem.status as StatusType} />
+                  <span
+                     className={`pointer-events-none text-xs font-bold uppercase ${statusConfig[ordem.status as StatusType]?.text ?? "text-gray-500"}`}
+                  >
+                     {ordem.status}
+                  </span>
                </div>
                <div className="h-10 w-px bg-gray-200" />
                <div className="flex w-32 flex-col gap-1.5 text-center">
@@ -199,7 +205,7 @@ const OrdemItem = memo(function OrdemItem({
                   >
                      <HiDocumentDuplicate size={20} />
                   </button>
-                  {onDeleteOrdem && (
+                  {/* {onDeleteOrdem && (
                      <button
                         onClick={handleDelete}
                         className="rounded-lg p-2 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-500"
@@ -211,7 +217,7 @@ const OrdemItem = memo(function OrdemItem({
                      >
                         <HiTrash size={20} />
                      </button>
-                  )}
+                  )} */}
                </div>
             </div>
          </div>
