@@ -69,15 +69,14 @@ export default function UserAddRole({
 
       setIsSaving(true);
       try {
-         const res = await addUserRole(selectedRole!, selectedUser!.id);
-         const data = await res.json();
-         if (res.ok) {
-            push({ type: "success", message: data.detail });
+         const result = await addUserRole(selectedRole!, selectedUser!.id);
+         if (result.ok) {
+            push({ type: "success", message: result.message });
             update?.();
             onClose();
          } else {
-            push({ type: "error", message: data.detail });
-            setValidationError(data.detail);
+            push({ type: "error", message: result.message });
+            setValidationError(result.message || "Erro ao adicionar perfil");
          }
       } catch (err) {
          const errorMsg = "Erro ao adicionar perfil. Tente novamente.";

@@ -1,4 +1,5 @@
-import request from "../Api";
+import request, { parseApiResponse } from "../Api";
+import type { ApiResponse, ApiResult } from "@/types/api";
 import { CrewMember } from "./trips";
 
 const quadsRoute = "ops/quads/";
@@ -36,13 +37,14 @@ export interface CrewQuadRes {
    quads_len: number;
 }
 
-export async function addQuad(quads: Quad[]): Promise<Response> {
-   return await request("POST", quadsRoute, quads);
+export async function addQuad(quads: Quad[]): Promise<ApiResult<null>> {
+   return parseApiResponse<null>(await request("POST", quadsRoute, quads));
 }
 
 export async function getQuads(params: QuadParams): Promise<CrewQuadRes[]> {
    const res = await request("GET", quadsRoute, null, params);
-   return (await res.json()) as CrewQuadRes[];
+   const json = await res.json() as ApiResponse<CrewQuadRes[]>;
+   return json.data || [];
 }
 
 export async function getQuadById(
@@ -52,22 +54,26 @@ export async function getQuadById(
    const res = await request("GET", `${quadsRoute}trip/${tripId}`, null, {
       type_id: quadId,
    });
-
-   return res.json();
+   const json = await res.json() as ApiResponse<Quad[]>;
+   return json.data || [];
 }
 
-export async function updateQuad(quad: Quad): Promise<Response> {
-   return await request("PUT", `${quadsRoute}${quad.id}`, quad);
+export async function updateQuad(quad: Quad): Promise<ApiResult<null>> {
+   return parseApiResponse<null>(
+      await request("PUT", `${quadsRoute}${quad.id}`, quad)
+   );
 }
 
-export async function deleteQuad(quadId: number): Promise<Response> {
-   return await request("DELETE", quadsRoute + quadId);
+export async function deleteQuad(quadId: number): Promise<ApiResult<null>> {
+   return parseApiResponse<null>(
+      await request("DELETE", quadsRoute + quadId)
+   );
 }
 
 export async function getQuadsType(uae: string): Promise<QuadTypeGroup[]> {
    const response = await request("GET", quadsRoute + "types", null, {
       uae: uae,
    });
-
-   return (await response.json()) as QuadTypeGroup[];
+   const json = await response.json() as ApiResponse<QuadTypeGroup[]>;
+   return json.data || [];
 }

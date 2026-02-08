@@ -1,4 +1,5 @@
 import request from "../Api";
+import type { ApiResponse } from "@/types/api";
 import { UserPublic } from "./users";
 
 const indispRoute = "indisp/";
@@ -37,10 +38,6 @@ export interface IndispFilters {
    mtv?: string;
 }
 
-// Resposta padrão de mutações
-export interface IndispMutationResponse {
-   detail: string;
-}
 
 // ========================================
 // Queries
@@ -58,11 +55,11 @@ export async function getCrewIndisps(
       { funcao: func, uae },
       signal
    );
+   const json = (await response.json()) as ApiResponse<CrewIndispList[]>;
    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.detail || "Erro ao buscar indisponibilidades");
+      throw new Error(json.message || "Erro ao buscar indisponibilidades");
    }
-   return (await response.json()) as CrewIndispList[];
+   return json.data || [];
 }
 
 export async function getIndispByUser(
@@ -77,48 +74,42 @@ export async function getIndispByUser(
       filters,
       signal
    );
+   const json = (await response.json()) as ApiResponse<IndispType[]>;
    if (!response.ok) {
-      const error = await response.json();
       throw new Error(
-         error.detail || "Erro ao buscar indisponibilidades do usuário"
+         json.message || "Erro ao buscar indisponibilidades do usuário"
       );
    }
-   return (await response.json()) as IndispType[];
+   return json.data || [];
 }
 
 // ========================================
 // Mutations
 // ========================================
 
-export async function addIndisp(
-   indisp: IndispType
-): Promise<IndispMutationResponse> {
+export async function addIndisp(indisp: IndispType): Promise<string> {
    const response = await request("POST", indispRoute, indisp);
-   const data = await response.json();
+   const json: ApiResponse<null> = await response.json();
    if (!response.ok) {
-      throw new Error(data.detail || "Erro ao criar indisponibilidade");
+      throw new Error(json.message || "Erro ao criar indisponibilidade");
    }
-   return data as IndispMutationResponse;
+   return json.message || "Sucesso";
 }
 
-export async function updateIndisp(
-   indisp: IndispType
-): Promise<IndispMutationResponse> {
+export async function updateIndisp(indisp: IndispType): Promise<string> {
    const response = await request("PUT", indispRoute + indisp.id, indisp);
-   const data = await response.json();
+   const json: ApiResponse<null> = await response.json();
    if (!response.ok) {
-      throw new Error(data.detail || "Erro ao atualizar indisponibilidade");
+      throw new Error(json.message || "Erro ao atualizar indisponibilidade");
    }
-   return data as IndispMutationResponse;
+   return json.message || "Sucesso";
 }
 
-export async function deleteIndisp(
-   indispId: number
-): Promise<IndispMutationResponse> {
+export async function deleteIndisp(indispId: number): Promise<string> {
    const response = await request("DELETE", indispRoute + indispId);
-   const data = await response.json();
+   const json: ApiResponse<null> = await response.json();
    if (!response.ok) {
-      throw new Error(data.detail || "Erro ao excluir indisponibilidade");
+      throw new Error(json.message || "Erro ao excluir indisponibilidade");
    }
-   return data as IndispMutationResponse;
+   return json.message || "Sucesso";
 }

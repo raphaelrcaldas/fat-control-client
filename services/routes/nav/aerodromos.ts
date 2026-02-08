@@ -1,4 +1,5 @@
 import request from "../../Api";
+import type { ApiResponse } from "@/types/api";
 import { Cidade } from "../cities";
 import { navRoute } from "./index";
 
@@ -57,13 +58,12 @@ export async function getAerodromos(
    signal?: AbortSignal
 ): Promise<AerodromoPublic[]> {
    const response = await request("GET", aerodromosRoute, null, null, signal);
+   const json = (await response.json()) as ApiResponse<AerodromoPublic[]>;
+
    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(
-         errorData.detail || errorData.message || "Erro ao buscar aeródromos"
-      );
+      throw new Error(json.message || "Erro ao buscar aeródromos");
    }
-   return (await response.json()) as AerodromoPublic[];
+   return json.data!;
 }
 
 export async function getAerodromoById(
@@ -77,26 +77,23 @@ export async function getAerodromoById(
       null,
       signal
    );
+   const json = (await response.json()) as ApiResponse<AerodromoPublic>;
+
    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(
-         errorData.detail || errorData.message || "Erro ao buscar aeródromo"
-      );
+      throw new Error(json.message || "Erro ao buscar aeródromo");
    }
-   return (await response.json()) as AerodromoPublic;
+   return json.data!;
 }
 
 export async function createAerodromo(
    data: AerodromoCreate
 ): Promise<AerodromoPublic> {
    const response = await request("POST", aerodromosRoute, data);
+   const json: ApiResponse<AerodromoPublic> = await response.json();
    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(
-         errorData.detail || errorData.message || "Erro ao criar aeródromo"
-      );
+      throw new Error(json.message || "Erro ao criar aeródromo");
    }
-   return (await response.json()) as AerodromoPublic;
+   return json.data as AerodromoPublic;
 }
 
 export async function updateAerodromo(
@@ -104,21 +101,17 @@ export async function updateAerodromo(
    data: AerodromoUpdate
 ): Promise<AerodromoPublic> {
    const response = await request("PUT", aerodromosRoute + id, data);
+   const json: ApiResponse<AerodromoPublic> = await response.json();
    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(
-         errorData.detail || errorData.message || "Erro ao atualizar aeródromo"
-      );
+      throw new Error(json.message || "Erro ao atualizar aeródromo");
    }
-   return (await response.json()) as AerodromoPublic;
+   return json.data as AerodromoPublic;
 }
 
 export async function deleteAerodromo(id: number): Promise<void> {
    const response = await request("DELETE", aerodromosRoute + id);
+   const json: ApiResponse<null> = await response.json();
    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(
-         errorData.detail || errorData.message || "Erro ao excluir aeródromo"
-      );
+      throw new Error(json.message || "Erro ao excluir aeródromo");
    }
 }

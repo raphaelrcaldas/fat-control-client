@@ -1,4 +1,5 @@
 import request from "../../Api";
+import type { ApiResponse } from "@/types/api";
 import { cegepRoute } from ".";
 
 const soldosRoute = cegepRoute + "soldos/";
@@ -57,12 +58,13 @@ export async function getSoldoStats(
       Object.keys(params).length > 0 ? params : null
    );
 
+   const json = (await response.json().catch(() => ({}))) as ApiResponse<SoldoStats>;
+
    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.detail || "Erro ao buscar estatisticas");
+      throw new Error(json.message || "Erro ao buscar estatisticas");
    }
 
-   return (await response.json()) as SoldoStats;
+   return json.data as SoldoStats;
 }
 
 // GET - Lista todos os soldos
@@ -87,36 +89,38 @@ export async function getSoldos(
       Object.keys(params).length > 0 ? params : null
    );
 
+   const json = (await response.json().catch(() => ({}))) as ApiResponse<SoldoPublic[]>;
+
    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.detail || "Erro ao buscar soldos");
+      throw new Error(json.message || "Erro ao buscar soldos");
    }
 
-   return (await response.json()) as SoldoPublic[];
+   return json.data || [];
 }
 
 // GET - Busca soldo por ID
 export async function getSoldoById(soldo_id: number): Promise<SoldoPublic> {
    const response = await request("GET", `${soldosRoute}${soldo_id}`);
 
+   const json = (await response.json().catch(() => ({}))) as ApiResponse<SoldoPublic>;
+
    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.detail || "Soldo nao encontrado");
+      throw new Error(json.message || "Soldo nao encontrado");
    }
 
-   return (await response.json()) as SoldoPublic;
+   return json.data as SoldoPublic;
 }
 
 // POST - Cria novo soldo
 export async function createSoldo(data: SoldoCreate): Promise<SoldoPublic> {
    const response = await request("POST", soldosRoute, data);
 
+   const json: ApiResponse<SoldoPublic> = await response.json();
    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.detail || "Erro ao criar soldo");
+      throw new Error(json.message || "Erro ao criar soldo");
    }
 
-   return (await response.json()) as SoldoPublic;
+   return json.data as SoldoPublic;
 }
 
 // PUT - Atualiza soldo existente
@@ -126,20 +130,20 @@ export async function updateSoldo(
 ): Promise<SoldoPublic> {
    const response = await request("PUT", `${soldosRoute}${soldo_id}`, data);
 
+   const json: ApiResponse<SoldoPublic> = await response.json();
    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.detail || "Erro ao atualizar soldo");
+      throw new Error(json.message || "Erro ao atualizar soldo");
    }
 
-   return (await response.json()) as SoldoPublic;
+   return json.data as SoldoPublic;
 }
 
 // DELETE - Deleta soldo
 export async function deleteSoldo(soldo_id: number): Promise<void> {
    const response = await request("DELETE", `${soldosRoute}${soldo_id}`);
 
+   const json: ApiResponse<null> = await response.json();
    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.detail || "Erro ao deletar soldo");
+      throw new Error(json.message || "Erro ao deletar soldo");
    }
 }

@@ -140,39 +140,37 @@ export function UserForm({ userId, onSuccess }: UserFormProps) {
                return;
             }
 
-            const response = await updateMutation.mutateAsync({
+            const result = await updateMutation.mutateAsync({
                id: numericUserId!,
                data: diff,
             });
 
-            const dataRes = await response.json();
             push({
                message:
-                  dataRes.detail ||
-                  (response.ok ? "Usuário atualizado com sucesso" : "Erro"),
-               type: response.ok ? "success" : "error",
+                  result.message ||
+                  (result.ok ? "Usuário atualizado com sucesso" : "Erro"),
+               type: result.ok ? "success" : "error",
             });
 
-            if (response.ok) {
+            if (result.ok) {
                setInitialValues(data);
                reset(data);
                onSuccess?.();
             }
          } else {
             // Modo criação: enviar todos os dados
-            const response = await createMutation.mutateAsync(
+            const result = await createMutation.mutateAsync(
                normalizedData as any
             );
 
-            const dataRes = await response.json();
             push({
                message:
-                  dataRes.detail ||
-                  (response.ok ? "Usuário cadastrado com sucesso" : "Erro"),
-               type: response.ok ? "success" : "error",
+                  result.message ||
+                  (result.ok ? "Usuário cadastrado com sucesso" : "Erro"),
+               type: result.ok ? "success" : "error",
             });
 
-            if (response.ok) {
+            if (result.ok) {
                reset(defaultUserValues);
                setInitialValues(null);
                onSuccess?.();

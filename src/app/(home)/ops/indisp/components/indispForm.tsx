@@ -170,9 +170,9 @@ export function IndispForm({ open, setOpen, trip, indisp, readOnly = false }) {
       const mutation = indisp ? updateMutation : createMutation;
 
       mutation.mutate(data, {
-         onSuccess: (response) => {
+         onSuccess: (message) => {
             push({
-               message: response.detail || "Operação realizada com sucesso",
+               message: message || "Operação realizada com sucesso",
                type: "success",
             });
             clearModal();
@@ -192,10 +192,9 @@ export function IndispForm({ open, setOpen, trip, indisp, readOnly = false }) {
       if (!indisp?.id) return;
 
       deleteMutation.mutate(indisp.id, {
-         onSuccess: (response) => {
+         onSuccess: (message) => {
             push({
-               message:
-                  response.detail || "Indisponibilidade excluída com sucesso",
+               message: message || "Indisponibilidade excluída com sucesso",
                type: "success",
             });
             setConfirmingDelete(false);

@@ -1,4 +1,5 @@
 import request from "../../Api";
+import type { ApiPaginatedResponse, ApiResponse } from "@/types/api";
 import type { CrewMember } from "../trips";
 
 const omRoute = "ops/om/";
@@ -237,26 +238,37 @@ export async function listOrdens(
       : url;
 
    const response = await request("GET", fullUrl, null, null, signal);
-   return (await response.json()) as PaginatedResponse<OrdemMissaoList>;
+   const json =
+      (await response.json()) as ApiPaginatedResponse<OrdemMissaoList>;
+
+   return {
+      items: json.data!,
+      total: json.total,
+      page: json.page,
+      per_page: json.per_page,
+      pages: json.pages,
+   };
 }
 
 export async function getOrdem(id: number): Promise<OrdemMissaoOut> {
    const response = await request("GET", `${omRoute}${id}`);
+   const json = (await response.json()) as ApiResponse<OrdemMissaoOut>;
+
    if (!response.ok) {
-      throw new Error("Ordem de missão não encontrada");
+      throw new Error(json.message || "Ordem de missão não encontrada");
    }
-   return (await response.json()) as OrdemMissaoOut;
+   return json.data!;
 }
 
 export async function createOrdem(
    ordem: OrdemMissaoCreate
 ): Promise<OrdemMissaoOut> {
    const response = await request("POST", omRoute, ordem);
+   const json: ApiResponse<OrdemMissaoOut> = await response.json();
    if (!response.ok) {
-      const error = (await response.json()) as ApiError;
-      throw new Error(formatApiError(error) || "Erro ao criar ordem de missão");
+      throw new Error(json.message || "Erro ao criar ordem de missão");
    }
-   return (await response.json()) as OrdemMissaoOut;
+   return json.data as OrdemMissaoOut;
 }
 
 export async function updateOrdem(
@@ -264,22 +276,20 @@ export async function updateOrdem(
    ordem: OrdemMissaoUpdate
 ): Promise<OrdemMissaoOut> {
    const response = await request("PUT", `${omRoute}${id}`, ordem);
+   const json: ApiResponse<OrdemMissaoOut> = await response.json();
    if (!response.ok) {
-      const error = (await response.json()) as ApiError;
-      throw new Error(
-         formatApiError(error) || "Erro ao atualizar ordem de missão"
-      );
+      throw new Error(json.message || "Erro ao atualizar ordem de missão");
    }
-   return (await response.json()) as OrdemMissaoOut;
+   return json.data as OrdemMissaoOut;
 }
 
-export async function deleteOrdem(id: number): Promise<{ detail: string }> {
+export async function deleteOrdem(id: number): Promise<string> {
    const response = await request("DELETE", `${omRoute}${id}`);
+   const json: ApiResponse<null> = await response.json();
    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.detail || "Erro ao excluir ordem de missão");
+      throw new Error(json.message || "Erro ao excluir ordem de missão");
    }
-   return (await response.json()) as { detail: string };
+   return json.message;
 }
 
 export async function getRouteSuggestion(
@@ -297,7 +307,7 @@ export async function getRouteSuggestion(
    if (!response.ok) {
       return null;
    }
-   const data = await response.json();
+   const json = (await response.json()) as ApiResponse<RouteSuggestion | null>;
    // Backend retorna null quando não encontra
-   return data as RouteSuggestion | null;
+   return json.data;
 }

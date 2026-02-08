@@ -74,10 +74,8 @@ export function TripRegister({
 
    async function registerTrip(data: TripRegisterFormFields) {
       createTripMutation.mutate(data, {
-         onSuccess: async (response) => {
-            const dataRes = await response.json();
-
-            if (response.ok) {
+         onSuccess: (result) => {
+            if (result.ok) {
                push({
                   type: "success",
                   message: "Tripulante adicionado com sucesso!",
@@ -86,7 +84,7 @@ export function TripRegister({
             } else {
                push({
                   type: "error",
-                  message: dataRes.detail || "Erro ao adicionar tripulante.",
+                  message: result.message || "Erro ao adicionar tripulante.",
                });
             }
          },

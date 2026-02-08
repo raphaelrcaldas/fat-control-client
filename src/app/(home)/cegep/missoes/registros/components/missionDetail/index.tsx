@@ -253,18 +253,17 @@ export default function MissionDetail({
       };
 
       createUpdateMutation.mutate(fragMis, {
-         onSuccess: async (response) => {
-            const data = await response.json();
-            if (response.ok) {
+         onSuccess: (result) => {
+            if (result.ok) {
                push({
-                  message: data.detail || "Missão salva com sucesso",
+                  message: result.message || "Missão salva com sucesso",
                   type: "success",
                });
                setEditMode(false);
                setShow(false);
             } else {
                setErrorMessage(
-                  data.detail || "Erro desconhecido ao salvar missão"
+                  result.message || "Erro desconhecido ao salvar missão"
                );
                setShowErrorModal(true);
             }
@@ -280,17 +279,16 @@ export default function MissionDetail({
       if (!missao?.id) return;
 
       deleteMutation.mutate(missao.id, {
-         onSuccess: async (response) => {
-            const data = await response.json();
-            if (response.ok) {
+         onSuccess: (result) => {
+            if (result.ok) {
                push({
-                  message: data.detail || "Missão excluída com sucesso",
+                  message: result.message || "Missão excluída com sucesso",
                   type: "success",
                });
                setShow(false);
             } else {
                setErrorMessage(
-                  data.detail || "Erro desconhecido ao deletar missão"
+                  result.message || "Erro desconhecido ao deletar missão"
                );
                setShowErrorModal(true);
             }

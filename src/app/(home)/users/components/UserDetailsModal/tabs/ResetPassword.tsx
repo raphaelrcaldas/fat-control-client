@@ -20,18 +20,17 @@ export function ResetPassword({ userId }) {
       setIsLoading(true);
 
       try {
-         const response = await resetPassword(userId);
-         const data = await response.json();
-         if (response.ok) {
+         const result = await resetPassword(userId);
+         if (result.ok) {
             push({
-               message: data.detail || "Senha resetada com sucesso",
+               message: result.message || "Senha resetada com sucesso",
                type: "success",
             });
             setResetSuccess(true);
             setShowConfirm(false);
          } else {
             push({
-               message: data.detail || "Erro ao resetar senha",
+               message: result.message || "Erro ao resetar senha",
                type: "error",
             });
             setShowConfirm(false);

@@ -91,23 +91,25 @@ export default function QuadForm({ trip, quad, show, setShow }: QuadFormProps) {
       };
 
       try {
-         let response: Response;
+         let result;
 
          if (quad) {
-            response = await updateQuadMutation.mutateAsync(payload);
+            result = await updateQuadMutation.mutateAsync(payload);
          } else {
             const quadsToHandle =
                lastro > 0 ? Array(lastro).fill(payload) : [payload];
-            response = await createQuadMutation.mutateAsync(quadsToHandle);
+            result = await createQuadMutation.mutateAsync(quadsToHandle);
          }
 
-         const data = await response.json();
-         if (response.ok) {
-            push({ message: data.detail, type: "success" });
+         if (result.ok) {
+            push({
+               message: result.message || "Salvo com sucesso",
+               type: "success",
+            });
             cleanAndClose();
          } else {
             push({
-               message: data.detail || "Erro ao inserir",
+               message: result.message || "Erro ao inserir",
                type: "error",
             });
          }

@@ -1,4 +1,5 @@
 import request from "../Api";
+import type { ApiResponse } from "@/types/api";
 
 const logsRoute = "logs/";
 
@@ -40,9 +41,11 @@ export async function getUserActionLogs(
    });
 
    const res = await request("GET", `${logsRoute}user-actions`, null, params);
+   const json = await res.json() as ApiResponse<UserActionLog[]>;
+
    if (!res.ok) {
-      throw new Error("Erro ao buscar logs de usuário");
+      throw new Error(json.message || "Erro ao buscar logs de usuário");
    }
 
-   return res.json();
+   return json.data || [];
 }

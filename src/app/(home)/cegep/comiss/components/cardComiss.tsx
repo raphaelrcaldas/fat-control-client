@@ -45,16 +45,14 @@ export function CardComiss({ comiss }: { comiss: ComissList }) {
       if (!confirmed || !comiss.id) return;
 
       deleteMutation.mutate(comiss.id, {
-         onSuccess: async (response) => {
-            if (!response.ok) {
-               const errorData = await response.json();
+         onSuccess: (result) => {
+            if (!result.ok) {
                alert(
-                  `Erro ao deletar: ${errorData.detail || "Erro desconhecido."}`
+                  `Erro ao deletar: ${result.message || "Erro desconhecido."}`
                );
                return;
             }
-            const data = await response.json();
-            alert(data.detail || "Comissionamento deletado com sucesso.");
+            alert(result.message || "Comissionamento deletado com sucesso.");
          },
          onError: (error) => {
             console.error("Erro ao deletar comissionamento:", error);

@@ -1,5 +1,6 @@
 import { z } from "zod";
 import request from "../../Api";
+import type { ApiResponse } from "@/types/api";
 import { secRoute } from ".";
 
 const resourcesPath = secRoute + "resources/";
@@ -32,15 +33,14 @@ export type PermissionDetail = z.infer<typeof PermissionDetailSchema>;
  */
 export async function getResources(): Promise<Resource[]> {
   const response = await request("GET", resourcesPath);
+  const json = (await response.json()) as ApiResponse<Resource[]>;
 
   if (!response.ok) {
-    throw new Error(`Failed to fetch resources: ${response.statusText}`);
+    throw new Error(json.message || `Failed to fetch resources: ${response.statusText}`);
   }
 
-  const data = await response.json();
-
   // Valida resposta com Zod
-  return z.array(ResourceSchema).parse(data);
+  return z.array(ResourceSchema).parse(json.data);
 }
 
 /**
@@ -53,13 +53,12 @@ export async function getPermissions(
 ): Promise<PermissionDetail[]> {
   const params = resourceName ? { resource_name: resourceName } : null;
   const response = await request("GET", permissionsPath, null, params);
+  const json = (await response.json()) as ApiResponse<PermissionDetail[]>;
 
   if (!response.ok) {
-    throw new Error(`Failed to fetch permissions: ${response.statusText}`);
+    throw new Error(json.message || `Failed to fetch permissions: ${response.statusText}`);
   }
 
-  const data = await response.json();
-
   // Valida resposta com Zod
-  return z.array(PermissionDetailSchema).parse(data);
+  return z.array(PermissionDetailSchema).parse(json.data);
 }

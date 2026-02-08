@@ -1,4 +1,5 @@
 import { deleteCookie } from "cookies-next";
+import type { ApiResult } from "@/types/api";
 
 export const baseUrl = process.env.NEXT_PUBLIC_API_URL || "";
 
@@ -79,4 +80,15 @@ export default async function request<T = any>(
    }
 
    return response;
+}
+
+export async function parseApiResponse<T = unknown>(
+   response: Response
+): Promise<ApiResult<T>> {
+   const json = await response.json();
+   return {
+      ok: response.ok,
+      data: json.data ?? null,
+      message: json.message ?? null,
+   };
 }

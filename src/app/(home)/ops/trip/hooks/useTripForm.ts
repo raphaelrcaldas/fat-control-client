@@ -46,21 +46,18 @@ export function useTripForm({ trip, onClose }: UseTripFormParams) {
       updateTripMutation.mutate(
          { id: trip.id, data },
          {
-            onSuccess: async (response) => {
-               const responseData = await response.json();
-               if (response.ok) {
+            onSuccess: (result) => {
+               if (result.ok) {
                   onClose();
                   push({
                      type: "success",
                      message:
-                        responseData.detail ||
-                        "Tripulante atualizado com sucesso.",
+                        result.message || "Tripulante atualizado com sucesso.",
                   });
                } else {
                   push({
                      type: "error",
-                     message:
-                        responseData.detail || "Erro ao atualizar tripulante.",
+                     message: result.message || "Erro ao atualizar tripulante.",
                   });
                }
             },

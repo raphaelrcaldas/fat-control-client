@@ -1,5 +1,10 @@
 import { z } from "zod";
-import request from "../../Api";
+import request, { parseApiResponse } from "../../Api";
+import type {
+   ApiResponse,
+   ApiPaginatedResponse,
+   ApiResult,
+} from "@/types/api";
 
 import { cegepRoute } from ".";
 import { UserPublic } from "../users";
@@ -207,13 +212,21 @@ export async function getFragMissoes(
          signal
       );
 
+      const json = (await response.json()) as ApiPaginatedResponse<Missao>;
+
       if (!response.ok) {
          throw new Error(
-            `API error: ${response.status} ${response.statusText}`
+            json.message || `API error: ${response.status} ${response.statusText}`
          );
       }
 
-      return (await response.json()) as MissoesPaginatedResponse;
+      return {
+         items: json.data || [],
+         total: json.total,
+         page: json.page,
+         per_page: json.per_page,
+         pages: json.pages,
+      };
    } catch (error) {
       // Tratamento específico para erros de validação Zod
       if (error instanceof z.ZodError) {
@@ -228,12 +241,18 @@ export async function getFragMissoes(
    }
 }
 
-export async function createUpdateFragMis(missao: Missao) {
-   return await request("POST", missoesRoute, missao);
+export async function createUpdateFragMis(
+   missao: Missao
+): Promise<ApiResult<null>> {
+   return parseApiResponse<null>(await request("POST", missoesRoute, missao));
 }
 
-export async function deleteFragMis(fragId: number) {
-   return await request("DELETE", missoesRoute + fragId);
+export async function deleteFragMis(
+   fragId: number
+): Promise<ApiResult<null>> {
+   return parseApiResponse<null>(
+      await request("DELETE", missoesRoute + fragId)
+   );
 }
 
 // ============ ETIQUETAS API FUNCTIONS ============
@@ -242,16 +261,28 @@ export async function getEtiquetas(
    signal?: AbortSignal
 ): Promise<Etiqueta[]> {
    const response = await request("GET", etiquetasRoute, null, undefined, signal);
-   return (await response.json()) as Etiqueta[];
+   const json = (await response.json()) as ApiResponse<Etiqueta[]>;
+   return json.data || [];
 }
 
 export async function createUpdateEtiqueta(
    etiqueta: Etiqueta
 ): Promise<Etiqueta> {
    const response = await request("POST", etiquetasRoute, etiqueta);
-   return (await response.json()) as Etiqueta;
+   const json: ApiResponse<Etiqueta> = await response.json();
+   if (!response.ok) {
+      throw new Error(json.message || "Erro ao criar/atualizar etiqueta");
+   }
+   return json.data as Etiqueta;
 }
 
 export async function deleteEtiquetaApi(etiquetaId: number): Promise<void> {
-   await request("DELETE", `${etiquetasRoute}/${etiquetaId}`);
+   const response = await request(
+      "DELETE",
+      `${etiquetasRoute}/${etiquetaId}`
+   );
+   const json: ApiResponse<null> = await response.json();
+   if (!response.ok) {
+      throw new Error(json.message || "Erro ao deletar etiqueta");
+   }
 }

@@ -23,18 +23,17 @@ export function FuncDeleteModal({
       if (!deletingFunc) return;
 
       deleteFuncMutation.mutate(deletingFunc.id, {
-         onSuccess: async (response) => {
-            const data = await response.json();
-            if (response.ok) {
+         onSuccess: (result) => {
+            if (result.ok) {
                onClose();
                push({
                   type: "success",
-                  message: data.detail || "Funcao excluida com sucesso.",
+                  message: result.message || "Funcao excluida com sucesso.",
                });
             } else {
                push({
                   type: "error",
-                  message: data.detail || "Erro ao excluir funcao.",
+                  message: result.message || "Erro ao excluir funcao.",
                });
             }
          },

@@ -1,4 +1,5 @@
-import request from "../../Api";
+import request, { parseApiResponse } from "../../Api";
+import type { ApiResponse, ApiResult } from "@/types/api";
 import { cegepRoute } from ".";
 import { Missao } from "./missoes";
 import { UserPublic } from "../users";
@@ -56,37 +57,43 @@ export async function getCmtos(
    filters?: ComissFilters,
    signal?: AbortSignal
 ): Promise<ComissList[]> {
-   return (
-      await request(
-         "GET",
-         comissRoute,
-         null,
-         {
-            status: filters?.status ?? "aberto",
-            search: filters?.search ?? "",
-         },
-         signal
-      )
-   ).json();
+   const response = await request(
+      "GET",
+      comissRoute,
+      null,
+      {
+         status: filters?.status ?? "aberto",
+         search: filters?.search ?? "",
+      },
+      signal
+   );
+   const json = (await response.json()) as ApiResponse<ComissList[]>;
+   return json.data || [];
 }
 
 export async function getCmtoById(
    comissId: number,
    signal?: AbortSignal
 ): Promise<ComissWithMiss> {
-   return (
-      await request("GET", `${comissRoute}${comissId}`, null, null, signal)
-   ).json();
+   const response = await request("GET", `${comissRoute}${comissId}`, null, null, signal);
+   const json = (await response.json()) as ApiResponse<ComissWithMiss>;
+   return json.data as ComissWithMiss;
 }
 
-export async function createCmto(comiss: Comiss) {
-   return await request("POST", comissRoute, comiss);
+export async function createCmto(comiss: Comiss): Promise<ApiResult<null>> {
+   return parseApiResponse<null>(await request("POST", comissRoute, comiss));
 }
 
-export async function updateCmto(comiss: Comiss) {
-   return await request("PUT", `${comissRoute}${comiss.id}`, comiss);
+export async function updateCmto(comiss: Comiss): Promise<ApiResult<null>> {
+   return parseApiResponse<null>(
+      await request("PUT", `${comissRoute}${comiss.id}`, comiss)
+   );
 }
 
-export async function deleteCmto(comissId: number) {
-   return await request("DELETE", `${comissRoute}${comissId}`);
+export async function deleteCmto(
+   comissId: number
+): Promise<ApiResult<null>> {
+   return parseApiResponse<null>(
+      await request("DELETE", `${comissRoute}${comissId}`)
+   );
 }

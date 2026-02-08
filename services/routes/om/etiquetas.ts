@@ -1,4 +1,5 @@
 import request from "../../Api";
+import type { ApiResponse } from "@/types/api";
 
 const etiquetasRoute = "ops/om/etiquetas/";
 
@@ -23,15 +24,17 @@ export interface EtiquetaUpdate {
 
 export async function listEtiquetas(): Promise<Etiqueta[]> {
    const response = await request("GET", etiquetasRoute);
-   return (await response.json()) as Etiqueta[];
+   const json = (await response.json()) as ApiResponse<Etiqueta[]>;
+   return json.data!;
 }
 
 export async function createEtiqueta(data: EtiquetaCreate): Promise<Etiqueta> {
    const response = await request("POST", etiquetasRoute, data);
+   const json: ApiResponse<Etiqueta> = await response.json();
    if (!response.ok) {
-      throw new Error("Erro ao criar etiqueta");
+      throw new Error(json.message || "Erro ao criar etiqueta");
    }
-   return (await response.json()) as Etiqueta;
+   return json.data as Etiqueta;
 }
 
 export async function updateEtiqueta(
@@ -39,15 +42,17 @@ export async function updateEtiqueta(
    data: EtiquetaUpdate
 ): Promise<Etiqueta> {
    const response = await request("PUT", `${etiquetasRoute}${id}`, data);
+   const json: ApiResponse<Etiqueta> = await response.json();
    if (!response.ok) {
-      throw new Error("Erro ao atualizar etiqueta");
+      throw new Error(json.message || "Erro ao atualizar etiqueta");
    }
-   return (await response.json()) as Etiqueta;
+   return json.data as Etiqueta;
 }
 
 export async function deleteEtiqueta(id: number): Promise<void> {
    const response = await request("DELETE", `${etiquetasRoute}${id}`);
+   const json: ApiResponse<null> = await response.json();
    if (!response.ok) {
-      throw new Error("Erro ao excluir etiqueta");
+      throw new Error(json.message || "Erro ao excluir etiqueta");
    }
 }

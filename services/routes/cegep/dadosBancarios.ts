@@ -1,4 +1,5 @@
-import request from "../../Api";
+import request, { parseApiResponse } from "../../Api";
+import type { ApiResponse, ApiResult } from "@/types/api";
 import { UserPublic } from "../users";
 import { cegepRoute } from ".";
 
@@ -62,7 +63,8 @@ export async function getDadosBancarios(
       signal
    );
 
-   return (await response.json()) as DadosBancariosWithUser[];
+   const json = (await response.json()) as ApiResponse<DadosBancariosWithUser[]>;
+   return json.data || [];
 }
 
 // GET - Busca dados bancários por ID
@@ -70,7 +72,8 @@ export async function getDadosBancariosById(
    dados_id: number
 ): Promise<DadosBancariosWithUser> {
    const response = await request("GET", `${dadosBancariosRoute}${dados_id}`);
-   return (await response.json()) as DadosBancariosWithUser;
+   const json = (await response.json()) as ApiResponse<DadosBancariosWithUser>;
+   return json.data as DadosBancariosWithUser;
 }
 
 // GET - Busca dados bancários por ID do usuário
@@ -81,27 +84,34 @@ export async function getDadosBancariosByUser(
       "GET",
       `${dadosBancariosRoute}user/${user_id}`
    );
-   return (await response.json()) as DadosBancariosPublic;
+   const json = (await response.json()) as ApiResponse<DadosBancariosPublic>;
+   return json.data as DadosBancariosPublic;
 }
 
 // POST - Cria novos dados bancários
 export async function createDadosBancarios(
    dados: DadosBancariosCreate
-): Promise<Response> {
-   return await request("POST", dadosBancariosRoute, dados);
+): Promise<ApiResult<null>> {
+   return parseApiResponse<null>(
+      await request("POST", dadosBancariosRoute, dados)
+   );
 }
 
 // PUT - Atualiza dados bancários existentes
 export async function updateDadosBancarios(
    dados_id: number,
    dados: DadosBancariosUpdate
-): Promise<Response> {
-   return await request("PUT", `${dadosBancariosRoute}${dados_id}`, dados);
+): Promise<ApiResult<null>> {
+   return parseApiResponse<null>(
+      await request("PUT", `${dadosBancariosRoute}${dados_id}`, dados)
+   );
 }
 
 // DELETE - Deleta dados bancários
 export async function deleteDadosBancarios(
    dados_id: number
-): Promise<Response> {
-   return await request("DELETE", `${dadosBancariosRoute}${dados_id}`);
+): Promise<ApiResult<null>> {
+   return parseApiResponse<null>(
+      await request("DELETE", `${dadosBancariosRoute}${dados_id}`)
+   );
 }

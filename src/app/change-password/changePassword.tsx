@@ -29,28 +29,17 @@ export function ChangePassword() {
       setIsLoading(true);
 
       try {
-         const res = await changePassword({ new_pwd: data.newPassword });
-         const responseData = await res.json();
+         const result = await changePassword({ new_pwd: data.newPassword });
 
-         if (res.ok) {
+         if (result.ok) {
             push({
-               message: responseData.detail || "Senha alterada com sucesso!",
+               message: result.message || "Senha alterada com sucesso!",
                type: "success",
             });
             route.push("/");
          } else {
-            // Trata erros de validação do Pydantic (array) ou erros simples (string)
-            let errorMessage = "Erro ao alterar senha";
-            if (Array.isArray(responseData.detail)) {
-               // Extrai mensagem do primeiro erro de validação
-               const firstError = responseData.detail[0];
-               errorMessage =
-                  firstError?.msg?.replace("Value error, ", "") || errorMessage;
-            } else if (typeof responseData.detail === "string") {
-               errorMessage = responseData.detail;
-            }
             push({
-               message: errorMessage,
+               message: result.message || "Erro ao alterar senha",
                type: "error",
             });
          }

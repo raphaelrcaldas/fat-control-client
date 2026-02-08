@@ -66,16 +66,15 @@ export function QuadsTrip({
    const handleDelete = useCallback(
       async (quadId: number) => {
          try {
-            const res = await deleteQuadMutation.mutateAsync(quadId);
-            if (res.ok) {
+            const result = await deleteQuadMutation.mutateAsync(quadId);
+            if (result.ok) {
                push({
-                  message: "Quadrinho deletado com sucesso!",
+                  message: result.message || "Quadrinho deletado com sucesso!",
                   type: "success",
                });
             } else {
-               const data = await res.json();
                push({
-                  message: data.detail || "Erro ao deletar",
+                  message: result.message || "Erro ao deletar",
                   type: "error",
                });
             }

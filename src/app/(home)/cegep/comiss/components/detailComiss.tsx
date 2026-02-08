@@ -168,11 +168,10 @@ export function DetailComiss({
       const mutation = comiss ? updateMutation : createMutation;
 
       mutation.mutate(comisObj, {
-         onSuccess: async (res) => {
-            const data = await res.json();
-            if (res.ok) {
+         onSuccess: (result) => {
+            if (result.ok) {
                push({
-                  message: data.detail || "Salvo com sucesso",
+                  message: result.message || "Salvo com sucesso",
                   type: "success",
                });
                setIsEditMode(false);
@@ -180,7 +179,7 @@ export function DetailComiss({
             } else {
                push({
                   title: "Erro",
-                  message: data.detail || "Erro ao salvar o comissionamento",
+                  message: result.message || "Erro ao salvar o comissionamento",
                   type: "error",
                });
             }
@@ -223,12 +222,11 @@ export function DetailComiss({
       if (!comiss?.id) return;
 
       deleteMutation.mutate(comiss.id, {
-         onSuccess: async (response) => {
-            const data = await response.json();
-            if (response.ok) {
+         onSuccess: (result) => {
+            if (result.ok) {
                push({
                   message:
-                     data.detail || "Comissionamento excluído com sucesso",
+                     result.message || "Comissionamento excluído com sucesso",
                   type: "success",
                });
                setShowDeleteModal(false);
@@ -236,7 +234,7 @@ export function DetailComiss({
             } else {
                push({
                   title: "Erro",
-                  message: data.detail || "Erro ao excluir comissionamento",
+                  message: result.message || "Erro ao excluir comissionamento",
                   type: "error",
                });
             }

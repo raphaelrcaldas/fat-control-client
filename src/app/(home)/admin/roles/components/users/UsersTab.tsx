@@ -55,13 +55,12 @@ export const UsersTab = memo(function UsersTab({
    const pathUserRole = useCallback(
       async (userId: number, roleId: string) => {
          try {
-            const res = await updateUserRole(roleId, userId);
-            const data = await res.json();
-            if (res.ok) {
-               push({ type: "success", message: data.detail });
+            const result = await updateUserRole(roleId, userId);
+            if (result.ok) {
+               push({ type: "success", message: result.message });
                updateUserRoles();
             } else {
-               push({ type: "error", message: data.detail });
+               push({ type: "error", message: result.message });
             }
          } catch (error) {
             push({ type: "error", message: "Erro ao atualizar perfil" });
@@ -78,13 +77,12 @@ export const UsersTab = memo(function UsersTab({
 
          if (confirmDel) {
             try {
-               const res = await deleteUserRole(roleId, userId);
-               const data = await res.json();
-               if (res.ok) {
-                  push({ type: "success", message: data.detail });
+               const result = await deleteUserRole(roleId, userId);
+               if (result.ok) {
+                  push({ type: "success", message: result.message });
                   updateUserRoles();
                } else {
-                  push({ type: "error", message: data.detail });
+                  push({ type: "error", message: result.message });
                }
             } catch (error) {
                push({ type: "error", message: "Erro ao deletar perfil" });
@@ -101,21 +99,18 @@ export const UsersTab = memo(function UsersTab({
          if (!confirmLogin) return;
 
          try {
-            const response = await devLoginApi(userId);
+            const result = await devLoginApi(userId);
 
-            if (!response.ok) {
-               const error = await response.json();
+            if (!result.ok) {
                push({
                   type: "error",
-                  message: error.detail || "Erro ao fazer login",
+                  message: result.message || "Erro ao fazer login",
                });
                return;
             }
 
-            const data = await response.json();
-
-            if (data.access_token) {
-               setCookie("token", data.access_token, {
+            if (result.data?.access_token) {
+               setCookie("token", result.data.access_token, {
                   maxAge: 24 * 60 * 60,
                });
 

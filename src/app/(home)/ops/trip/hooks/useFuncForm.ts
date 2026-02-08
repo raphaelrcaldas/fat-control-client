@@ -70,18 +70,17 @@ export function useFuncForm({
             : "Erro ao adicionar funcao.";
 
          const mutationOptions = {
-            onSuccess: async (response: Response) => {
-               const responseData = await response.json();
-               if (response.ok) {
+            onSuccess: (result: { ok: boolean; message: string | null }) => {
+               if (result.ok) {
                   onClose();
                   push({
                      type: "success",
-                     message: responseData.detail || successMessage,
+                     message: result.message || successMessage,
                   });
                } else {
                   push({
                      type: "error",
-                     message: responseData.detail || errorMessage,
+                     message: result.message || errorMessage,
                   });
                }
             },

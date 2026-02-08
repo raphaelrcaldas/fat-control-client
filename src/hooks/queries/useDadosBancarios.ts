@@ -59,12 +59,11 @@ export function useCreateDadosBancarios() {
 
    return useMutation({
       mutationFn: async (data: DadosBancariosCreate) => {
-         const response = await createDadosBancarios(data);
-         const json = await response.json();
-         if (!response.ok) {
-            throw new Error(json.detail || "Erro ao criar dados bancários");
+         const result = await createDadosBancarios(data);
+         if (!result.ok) {
+            throw new Error(result.message || "Erro ao criar dados bancários");
          }
-         return json;
+         return result;
       },
       onSuccess: () => {
          queryClient.invalidateQueries({
@@ -88,12 +87,13 @@ export function useUpdateDadosBancarios() {
          id: number;
          data: DadosBancariosUpdate;
       }) => {
-         const response = await updateDadosBancarios(id, data);
-         const json = await response.json();
-         if (!response.ok) {
-            throw new Error(json.detail || "Erro ao atualizar dados bancários");
+         const result = await updateDadosBancarios(id, data);
+         if (!result.ok) {
+            throw new Error(
+               result.message || "Erro ao atualizar dados bancários"
+            );
          }
-         return json;
+         return result;
       },
       onSuccess: (_, { id }) => {
          queryClient.invalidateQueries({
@@ -114,12 +114,13 @@ export function useDeleteDadosBancarios() {
 
    return useMutation({
       mutationFn: async (id: number) => {
-         const response = await deleteDadosBancarios(id);
-         const json = await response.json();
-         if (!response.ok) {
-            throw new Error(json.detail || "Erro ao deletar dados bancários");
+         const result = await deleteDadosBancarios(id);
+         if (!result.ok) {
+            throw new Error(
+               result.message || "Erro ao deletar dados bancários"
+            );
          }
-         return json;
+         return result;
       },
       onSuccess: () => {
          queryClient.invalidateQueries({

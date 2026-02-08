@@ -1,4 +1,5 @@
-import request from "../Api";
+import request, { parseApiResponse } from "../Api";
+import type { ApiPaginatedResponse, ApiResult } from "@/types/api";
 
 const tripRoute = "ops/trips/";
 
@@ -74,33 +75,52 @@ export async function getTrips(
       queryParams.oper = params.oper.join(",");
 
    const response = await request("GET", tripRoute, null, queryParams, signal);
+   const json = await response.json() as ApiPaginatedResponse<CrewMember>;
 
-   return (await response.json()) as PaginatedTripsResponse;
+   return {
+      items: json.data || [],
+      total: json.total,
+      page: json.page,
+      per_page: json.per_page,
+      pages: json.pages,
+   };
 }
 
-export async function addTrip(trip: CreateTripData): Promise<Response> {
-   return await request("POST", tripRoute, trip);
+export async function addTrip(trip: CreateTripData): Promise<ApiResult<null>> {
+   return parseApiResponse<null>(await request("POST", tripRoute, trip));
 }
 
 export async function updateTrip(
    tripId: number,
    trip: UpdateTripData
-): Promise<Response> {
-   return await request("PUT", tripRoute + tripId, trip);
-}
-
-export async function addCrewFunc(tripId: number, funcData: CreateCrewFunc) {
-   return await request(
-      "POST",
-      `${tripRoute}func/?trip_id=${tripId}`,
-      funcData
+): Promise<ApiResult<null>> {
+   return parseApiResponse<null>(
+      await request("PUT", tripRoute + tripId, trip)
    );
 }
 
-export async function updateCrewFunc(funcId: number, funcData: CreateCrewFunc) {
-   return await request("PUT", `${tripRoute}func/${funcId}`, funcData);
+export async function addCrewFunc(
+   tripId: number,
+   funcData: CreateCrewFunc
+): Promise<ApiResult<null>> {
+   return parseApiResponse<null>(
+      await request("POST", `${tripRoute}func/?trip_id=${tripId}`, funcData)
+   );
 }
 
-export async function deleteCrewFunc(funcId: number) {
-   return await request("DELETE", `${tripRoute}func/${funcId}`);
+export async function updateCrewFunc(
+   funcId: number,
+   funcData: CreateCrewFunc
+): Promise<ApiResult<null>> {
+   return parseApiResponse<null>(
+      await request("PUT", `${tripRoute}func/${funcId}`, funcData)
+   );
+}
+
+export async function deleteCrewFunc(
+   funcId: number
+): Promise<ApiResult<null>> {
+   return parseApiResponse<null>(
+      await request("DELETE", `${tripRoute}func/${funcId}`)
+   );
 }

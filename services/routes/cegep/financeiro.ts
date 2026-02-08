@@ -1,4 +1,5 @@
 import request from "../../Api";
+import type { ApiPaginatedResponse } from "@/types/api";
 import { Missao, UserMission } from "./missoes";
 import { cegepRoute } from ".";
 
@@ -34,5 +35,13 @@ export async function getPgts(
    search?: PagamentosFilters,
    signal?: AbortSignal
 ): Promise<PaginatedResponse<PagamentoRecord>> {
-   return (await request("GET", financeiroRoute, null, search, signal)).json();
+   const response = await request("GET", financeiroRoute, null, search, signal);
+   const json = (await response.json()) as ApiPaginatedResponse<PagamentoRecord>;
+   return {
+      items: json.data || [],
+      total: json.total,
+      page: json.page,
+      limit: json.per_page,
+      total_pages: json.pages,
+   };
 }

@@ -1,5 +1,6 @@
 import { baseUrl } from "../Api";
-import request from "../Api";
+import request, { parseApiResponse } from "../Api";
+import type { ApiResult } from "@/types/api";
 
 const authRoute = `${baseUrl}auth/`;
 
@@ -35,6 +36,6 @@ export async function refreshToken(token: string) {
    return response;
 }
 
-export async function devLogin(userId: number) {
-   return await request("POST", `auth/dev_login?user_id=${userId}`);
+export async function devLogin(userId: number): Promise<ApiResult<{ access_token: string }>> {
+   return parseApiResponse<{ access_token: string }>(await request("POST", `auth/dev_login?user_id=${userId}`));
 }

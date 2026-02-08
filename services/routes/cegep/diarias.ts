@@ -1,4 +1,5 @@
 import request from "../../Api";
+import type { ApiResponse } from "@/types/api";
 import { cegepRoute } from ".";
 
 // Re-export dados estáticos de constants/
@@ -110,12 +111,13 @@ export async function getDiariaValores(
       Object.keys(params).length > 0 ? params : null
    );
 
+   const json = (await response.json().catch(() => ({}))) as ApiResponse<DiariaValorPublic[]>;
+
    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.detail || "Erro ao buscar valores de diárias");
+      throw new Error(json.message || "Erro ao buscar valores de diárias");
    }
 
-   return (await response.json()) as DiariaValorPublic[];
+   return json.data || [];
 }
 
 export async function getDiariaValorById(
@@ -123,12 +125,13 @@ export async function getDiariaValorById(
 ): Promise<DiariaValorPublic> {
    const response = await request("GET", `${diariasRoute}valores/${valorId}`);
 
+   const json = (await response.json().catch(() => ({}))) as ApiResponse<DiariaValorPublic>;
+
    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.detail || "Valor de diária não encontrado");
+      throw new Error(json.message || "Valor de diária não encontrado");
    }
 
-   return (await response.json()) as DiariaValorPublic;
+   return json.data as DiariaValorPublic;
 }
 
 export async function createDiariaValor(
@@ -136,12 +139,12 @@ export async function createDiariaValor(
 ): Promise<DiariaValorPublic> {
    const response = await request("POST", `${diariasRoute}valores/`, data);
 
+   const json: ApiResponse<DiariaValorPublic> = await response.json();
    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.detail || "Erro ao criar valor de diária");
+      throw new Error(json.message || "Erro ao criar valor de diária");
    }
 
-   return (await response.json()) as DiariaValorPublic;
+   return json.data as DiariaValorPublic;
 }
 
 export async function updateDiariaValor(
@@ -154,12 +157,12 @@ export async function updateDiariaValor(
       data
    );
 
+   const json: ApiResponse<DiariaValorPublic> = await response.json();
    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.detail || "Erro ao atualizar valor de diária");
+      throw new Error(json.message || "Erro ao atualizar valor de diária");
    }
 
-   return (await response.json()) as DiariaValorPublic;
+   return json.data as DiariaValorPublic;
 }
 
 export async function deleteDiariaValor(valorId: number): Promise<void> {
@@ -168,9 +171,9 @@ export async function deleteDiariaValor(valorId: number): Promise<void> {
       `${diariasRoute}valores/${valorId}`
    );
 
+   const json: ApiResponse<null> = await response.json();
    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.detail || "Erro ao deletar valor de diária");
+      throw new Error(json.message || "Erro ao deletar valor de diária");
    }
 }
 

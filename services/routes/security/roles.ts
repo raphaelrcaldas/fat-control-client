@@ -1,4 +1,5 @@
-import request from "../../Api";
+import request, { parseApiResponse } from "../../Api";
+import type { ApiResponse, ApiResult } from "@/types/api";
 import { secRoute } from ".";
 import { UserPublic } from "../users";
 
@@ -28,42 +29,54 @@ export interface UserWithRole {
 
 export async function getUsersRoles(): Promise<UserWithRole[]> {
    const response = await request("GET", rolesPath + "users/");
+   const json = (await response.json()) as ApiResponse<UserWithRole[]>;
 
-   return (await response.json()) as UserWithRole[];
+   return json.data!;
 }
 
-export async function addUserRole(roleId, userId) {
+export async function addUserRole(
+   roleId,
+   userId
+): Promise<ApiResult<null>> {
    const payload = { role_id: roleId, user_id: userId };
 
-   const response = await request("POST", rolesPath + "users/", payload);
-
-   return response;
+   return parseApiResponse<null>(
+      await request("POST", rolesPath + "users/", payload)
+   );
 }
 
-export async function updateUserRole(roleId, userId) {
+export async function updateUserRole(
+   roleId,
+   userId
+): Promise<ApiResult<null>> {
    const payload = { role_id: roleId, user_id: userId };
 
-   const response = await request("PUT", rolesPath + "users/", payload);
-
-   return response;
+   return parseApiResponse<null>(
+      await request("PUT", rolesPath + "users/", payload)
+   );
 }
 
-export async function deleteUserRole(roleId, userId) {
+export async function deleteUserRole(
+   roleId,
+   userId
+): Promise<ApiResult<null>> {
    const payload = { role_id: roleId, user_id: userId };
 
-   const response = await request("DELETE", rolesPath + "users/", payload);
-
-   return response;
+   return parseApiResponse<null>(
+      await request("DELETE", rolesPath + "users/", payload)
+   );
 }
 
 export async function getRoles(): Promise<RoleDetail[]> {
    const response = await request("GET", rolesPath);
+   const json = (await response.json()) as ApiResponse<RoleDetail[]>;
 
-   return (await response.json()) as RoleDetail[];
+   return json.data!;
 }
 
 export async function getRoleDetail(roleId: number): Promise<RoleDetail> {
    const response = await request("GET", `${rolesPath}/${roleId}`);
+   const json = (await response.json()) as ApiResponse<RoleDetail>;
 
-   return (await response.json()) as RoleDetail;
+   return json.data!;
 }

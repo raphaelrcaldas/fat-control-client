@@ -12,7 +12,7 @@ interface PermType {
 interface AuthContextType {
    userPg: string | null;
    user: string | null;
-   userId: string | null;
+   userId: number | null;
    role: string | null;
    perms: PermType[];
 }
@@ -26,7 +26,7 @@ interface AuthProviderProps {
 export const AuthProvider = ({ children }: AuthProviderProps) => {
    const [user, setUser] = useState<string | null>(null);
    const [userPg, setUserPg] = useState<string | null>(null);
-   const [userId, setUserId] = useState<string | null>(null);
+   const [userId, setUserId] = useState<number | null>(null);
    const [role, setRole] = useState<string | null>(null);
    const [perms, setPerms] = useState<PermType[]>([]);
    const [loading, setLoading] = useState(true);

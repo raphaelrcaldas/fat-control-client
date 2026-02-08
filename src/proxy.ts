@@ -34,7 +34,8 @@ export async function proxy(request: NextRequest) {
                )
             );
          }
-         const { first_login, access_token } = await tokenResponse.json();
+         const tokenApiRes = await tokenResponse.json();
+         const { first_login, access_token } = tokenApiRes.data;
 
          const response = NextResponse.redirect(
             new URL(first_login ? "/change-password" : "/", request.url)

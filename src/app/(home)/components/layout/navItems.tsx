@@ -10,7 +10,7 @@ import {
    MdAssignment,
    MdAttachMoney,
 } from "react-icons/md";
-import { FaUsers, FaShield } from "react-icons/fa6";
+import { FaUsers } from "react-icons/fa6";
 import { FaPaperPlane } from "react-icons/fa";
 import { RiAdminLine } from "react-icons/ri";
 import { GiSecurityGate } from "react-icons/gi";
