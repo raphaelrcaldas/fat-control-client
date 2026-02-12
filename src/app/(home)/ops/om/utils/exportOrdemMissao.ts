@@ -169,7 +169,8 @@ function formatOrdensEspeciais(campos: CampoEspecial[]): string {
    return campos
       .map((campo, index) => {
          const numero = index + 1;
-         return `${numero} – ${campo.label}: ${campo.valor};`;
+         const prefixo = campo.label ? `${campo.label}: ` : "";
+         return `${numero} – ${prefixo}${campo.valor};`;
       })
       .join("\n");
 }

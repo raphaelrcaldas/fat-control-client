@@ -51,9 +51,8 @@ export function OrdemEspecialModal({
    }, [isOpen, isEditing, campo]);
 
    // Validação
-   const isLabelEmpty = !formData.label.trim();
    const isValorEmpty = !formData.valor.trim();
-   const cannotSave = isLabelEmpty || isValorEmpty;
+   const cannotSave = isValorEmpty;
 
    const handleSave = () => {
       if (cannotSave) return;
@@ -84,7 +83,7 @@ export function OrdemEspecialModal({
                      htmlFor="campo_label"
                      className="mb-2 block text-sm font-medium text-gray-700"
                   >
-                     Nome do Campo <span className="text-red-500">*</span>
+                     Nome do Campo
                   </Label>
                   <input
                      type="text"
@@ -100,16 +99,9 @@ export function OrdemEspecialModal({
                      autoFocus
                      className={clsx(
                         inputBaseClass,
-                        isLabelEmpty
-                           ? "border-red-300 focus:ring-red-500"
-                           : "border-gray-300 focus:ring-purple-500"
+                        "border-gray-300 focus:ring-purple-500"
                      )}
                   />
-                  {isLabelEmpty && (
-                     <span className="mt-1 text-xs text-red-500">
-                        Obrigatório
-                     </span>
-                  )}
                </div>
 
                {/* Campo: Valor */}
