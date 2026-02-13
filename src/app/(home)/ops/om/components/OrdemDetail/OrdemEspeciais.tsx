@@ -1,6 +1,6 @@
 "use client";
 
-import { memo, useState, useEffect } from "react";
+import { memo, useState, useEffect, useRef, useCallback } from "react";
 import clsx from "clsx";
 import type { CampoEspecial } from "services/routes/om/ordens";
 
@@ -121,6 +121,25 @@ function NovoCampoForm({
    );
 }
 
+// Ícone de grip (arrastar) — 6 pontos em grade 2x3
+function GripIcon({ className }: { className?: string }) {
+   return (
+      <svg
+         className={className}
+         fill="currentColor"
+         viewBox="0 0 16 24"
+         aria-hidden="true"
+      >
+         <circle cx="4" cy="4" r="2" />
+         <circle cx="12" cy="4" r="2" />
+         <circle cx="4" cy="12" r="2" />
+         <circle cx="12" cy="12" r="2" />
+         <circle cx="4" cy="20" r="2" />
+         <circle cx="12" cy="20" r="2" />
+      </svg>
+   );
+}
+
 export const OrdemEspeciais = memo(function OrdemEspeciais({
    campos,
    isEditable,
@@ -134,6 +153,11 @@ export const OrdemEspeciais = memo(function OrdemEspeciais({
       label: "",
       valor: "",
    });
+
+   // Drag and drop state
+   const dragIndexRef = useRef<number | null>(null);
+   const [dragIndex, setDragIndex] = useState<number | null>(null);
+   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
 
    // Quando um novo campo é adicionado, coloca em modo de edição
    useEffect(() => {
@@ -220,6 +244,85 @@ export const OrdemEspeciais = memo(function OrdemEspeciais({
       }
    };
 
+   // --- Drag and drop handlers ---
+   const handleDragStart = useCallback(
+      (e: React.DragEvent<HTMLDivElement>, index: number) => {
+         dragIndexRef.current = index;
+         setDragIndex(index);
+         e.dataTransfer.effectAllowed = "move";
+         // Use a transparent image so the browser default ghost is minimal
+         // and our opacity styling provides the visual cue
+         e.dataTransfer.setData("text/plain", String(index));
+      },
+      []
+   );
+
+   const handleDragOver = useCallback(
+      (e: React.DragEvent<HTMLDivElement>, index: number) => {
+         e.preventDefault();
+         e.dataTransfer.dropEffect = "move";
+         setDragOverIndex(index);
+      },
+      []
+   );
+
+   const handleDragLeave = useCallback(() => {
+      setDragOverIndex(null);
+   }, []);
+
+   const handleDrop = useCallback(
+      (e: React.DragEvent<HTMLDivElement>, dropIndex: number) => {
+         e.preventDefault();
+         const fromIndex = dragIndexRef.current;
+         if (fromIndex === null || fromIndex === dropIndex) {
+            setDragIndex(null);
+            setDragOverIndex(null);
+            dragIndexRef.current = null;
+            return;
+         }
+
+         const reordered = [...campos];
+         const [moved] = reordered.splice(fromIndex, 1);
+         reordered.splice(dropIndex, 0, moved);
+         onUpdate(reordered);
+
+         // Update editing indexes to follow moved items
+         setEditingIndexes((prev) => {
+            if (prev.size === 0) return prev;
+            const newSet = new Set<number>();
+            prev.forEach((editIdx) => {
+               let newIdx = editIdx;
+               if (editIdx === fromIndex) {
+                  newIdx = dropIndex;
+               } else if (fromIndex < dropIndex) {
+                  // Item moved down: items between shift up by 1
+                  if (editIdx > fromIndex && editIdx <= dropIndex) {
+                     newIdx = editIdx - 1;
+                  }
+               } else {
+                  // Item moved up: items between shift down by 1
+                  if (editIdx >= dropIndex && editIdx < fromIndex) {
+                     newIdx = editIdx + 1;
+                  }
+               }
+               newSet.add(newIdx);
+            });
+            return newSet;
+         });
+
+         setDragIndex(null);
+         setDragOverIndex(null);
+         dragIndexRef.current = null;
+      },
+      [campos, onUpdate]
+   );
+
+   const handleDragEnd = useCallback(() => {
+      setDragIndex(null);
+      setDragOverIndex(null);
+      dragIndexRef.current = null;
+   }, []);
+
    return (
       <div>
          {campos.length === 0 ? (
@@ -257,15 +360,45 @@ export const OrdemEspeciais = memo(function OrdemEspeciais({
                   const isLabelEmpty = !campo.label.trim();
                   const isValorEmpty = !campo.valor.trim();
                   const isAddingAfter = addingAfterIndex === index;
+                  const isDragging = dragIndex === index;
+                  const isDragOver =
+                     dragOverIndex === index && dragIndex !== index;
 
                   return (
-                     <div key={index} className="group relative">
+                     <div
+                        key={index}
+                        className={clsx(
+                           "group relative transition-opacity",
+                           isDragging && "opacity-40"
+                        )}
+                        draggable={isEditable && !isEditing}
+                        onDragStart={(e) =>
+                           isEditable && !isEditing
+                              ? handleDragStart(e, index)
+                              : e.preventDefault()
+                        }
+                        onDragOver={(e) =>
+                           isEditable ? handleDragOver(e, index) : undefined
+                        }
+                        onDragLeave={isEditable ? handleDragLeave : undefined}
+                        onDrop={(e) =>
+                           isEditable ? handleDrop(e, index) : undefined
+                        }
+                        onDragEnd={isEditable ? handleDragEnd : undefined}
+                     >
+                        {/* Drop indicator line above */}
+                        {isDragOver && (
+                           <div className="absolute -top-1.5 right-0 left-0 z-20 h-0.5 rounded-full bg-blue-500" />
+                        )}
+
                         <div
                            className={clsx(
                               "rounded-lg border bg-white p-3",
                               isEditing
                                  ? "border-2 border-blue-300"
-                                 : "border-gray-200"
+                                 : isDragOver
+                                   ? "border-blue-400"
+                                   : "border-gray-200"
                            )}
                         >
                            {isEditing && isEditable ? (
@@ -378,6 +511,15 @@ export const OrdemEspeciais = memo(function OrdemEspeciais({
                            ) : (
                               // Modo visualização
                               <div className="flex items-center gap-3">
+                                 {/* Grip handle para drag and drop */}
+                                 {isEditable && (
+                                    <div
+                                       className="flex shrink-0 cursor-grab items-center text-gray-400 transition-colors hover:text-gray-600 active:cursor-grabbing"
+                                       title="Arrastar para reordenar"
+                                    >
+                                       <GripIcon className="h-5 w-5" />
+                                    </div>
+                                 )}
                                  <div className="min-w-0 flex-1">
                                     <label className="mb-1 block text-xs font-semibold tracking-wide text-gray-600 uppercase">
                                        {campo.label}

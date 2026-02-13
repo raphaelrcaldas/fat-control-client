@@ -9,6 +9,7 @@ import {
    MdAccountBalance,
    MdAssignment,
    MdAttachMoney,
+   MdCalendarViewWeek,
 } from "react-icons/md";
 import { FaUsers } from "react-icons/fa6";
 import { FaPaperPlane } from "react-icons/fa";
@@ -70,6 +71,11 @@ export const navItems = [
             path: "/ops/trip",
             resource: "trips",
             permission: "view",
+         },
+         {
+            icon: MdCalendarViewWeek,
+            label: "Quadro Operacional",
+            path: "/ops/quadro",
          },
       ],
    },

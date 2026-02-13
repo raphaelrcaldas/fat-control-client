@@ -692,6 +692,7 @@ export function OrdemDetail({
                                  camposEspeciais.filter((_, i) => i !== index)
                               );
                            }}
+                           onReorder={updateCamposEspeciais}
                         />
                      </div>
                   </div>
