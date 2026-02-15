@@ -13,14 +13,3 @@ export interface FunctionColors {
    tf: FunctionColor;
    pil: FunctionColor;
 }
-
-export interface Aeronave {
-   id: number;
-   matricula: string;
-}
-
-export interface MissionGroup {
-   id: number;
-   short: string;
-   long: string;
-}

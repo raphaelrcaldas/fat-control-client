@@ -89,7 +89,7 @@ export const createNextEtapa = (
 export const createDefaultOrdem = (): Partial<OrdemMissaoOut> => ({
    id: 0,
    doc_ref: "",
-   matricula_anv: 0,
+   matricula_anv: "",
    projeto: "kc-390",
    tipo: "",
    status: "rascunho",

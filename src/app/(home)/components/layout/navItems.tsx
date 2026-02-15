@@ -10,6 +10,7 @@ import {
    MdAssignment,
    MdAttachMoney,
    MdCalendarViewWeek,
+   MdFlightTakeoff,
 } from "react-icons/md";
 import { FaUsers } from "react-icons/fa6";
 import { FaPaperPlane } from "react-icons/fa";
@@ -37,6 +38,11 @@ export const navItems = [
          "apoio_avancado",
       ],
       children: [
+         {
+            icon: MdCalendarViewWeek,
+            label: "Quadro Operacional",
+            path: "/ops/quadro",
+         },
          {
             icon: MdSort,
             label: "Pau de Sebo",
@@ -73,9 +79,9 @@ export const navItems = [
             permission: "view",
          },
          {
-            icon: MdCalendarViewWeek,
-            label: "Quadro Operacional",
-            path: "/ops/quadro",
+            icon: MdFlightTakeoff,
+            label: "Aeronaves",
+            path: "/ops/aeronaves",
          },
       ],
    },

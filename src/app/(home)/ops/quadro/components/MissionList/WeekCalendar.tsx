@@ -5,9 +5,17 @@ import {
    STATUS_CONFIG,
    type StatusType,
 } from "@/constants/ops/ordens-missao/status";
-import { AERONAVES } from "../../constants";
 import { Spinner } from "flowbite-react";
 import { extractDate, extractTime } from "utils/dateHandler";
+import type { AeronavePublic } from "services/routes/aeronaves";
+import clsx from "clsx";
+
+const SIT_COLORS: Record<string, string> = {
+   DI: "bg-emerald-400",
+   DO: "bg-orange-400",
+   IN: "bg-red-400",
+   IS: "bg-gray-400",
+};
 
 function toLocalDateStr(date: Date): string {
    const y = date.getFullYear();
@@ -18,6 +26,7 @@ function toLocalDateStr(date: Date): string {
 
 interface WeekCalendarProps {
    ordens: OrdemMissaoList[];
+   aeronaves: AeronavePublic[];
    isLoading: boolean;
    isFetching: boolean;
    currentWeekStart: Date;
@@ -36,7 +45,7 @@ interface EtapaDoDia {
 
 function getEtapasDoDia(
    ordens: OrdemMissaoList[],
-   matricula: number,
+   matricula: string,
    dateStr: string
 ): EtapaDoDia[] {
    const etapas: EtapaDoDia[] = [];
@@ -65,7 +74,7 @@ function AeronaveCell({
    date,
    ordens,
 }: {
-   matricula: number;
+   matricula: string;
    date: Date;
    ordens: OrdemMissaoList[];
 }) {
@@ -106,6 +115,7 @@ function AeronaveCell({
 
 export default function WeekCalendar({
    ordens,
+   aeronaves,
    isLoading,
    isFetching,
    currentWeekStart,
@@ -195,7 +205,7 @@ export default function WeekCalendar({
             <table className="w-full table-fixed border-collapse">
                <thead>
                   <tr className="bg-gray-50">
-                     <th className="w-28 border-r border-b border-gray-200 p-1 text-left text-[10px] font-bold text-gray-600 uppercase"></th>
+                     <th className="w-28 border-r border-b border-gray-200 bg-white p-1 text-left text-[10px] font-bold text-gray-600 uppercase"></th>
                      {weekDays.map((day, idx) => {
                         const dateStr = toLocalDateStr(day);
                         const isToday = dateStr === today;
@@ -205,11 +215,9 @@ export default function WeekCalendar({
                            <th
                               key={idx}
                               className={`border-r border-b border-gray-200 p-1 text-center ${
-                                 isToday
-                                    ? "bg-blue-50"
-                                    : isWeekend
-                                      ? "bg-gray-100"
-                                      : ""
+                                 isToday ? "bg-blue-50" : "bg-white"
+                                 //   ? "bg-gray-100"
+                                 //   : ""
                               }`}
                            >
                               <div
@@ -234,11 +242,21 @@ export default function WeekCalendar({
                   </tr>
                </thead>
                <tbody>
-                  {AERONAVES.map((anv) => (
-                     <tr key={anv.id} className="hover:bg-gray-50/50">
-                        <td className="border-r border-b border-gray-200 bg-gray-50 p-1">
-                           <div className="text-center text-sm font-bold text-gray-700">
-                              {anv.matricula}
+                  {aeronaves.map((anv) => (
+                     <tr key={anv.matricula} className="hover:bg-gray-50/50">
+                        <td className="border-r border-b border-gray-200 p-1 text-center">
+                           <div className="flex flex-col items-center justify-center gap-1.5">
+                              <span className="text-sm font-bold text-gray-700">
+                                 {anv.matricula}
+                              </span>
+                              <span
+                                 className={clsx(
+                                    "rounded px-2 py-0.5 text-center text-sm font-bold text-white",
+                                    SIT_COLORS[anv.sit] ?? "bg-gray-300"
+                                 )}
+                              >
+                                 {anv.sit}
+                              </span>
                            </div>
                         </td>
                         {weekDays.map((day, idx) => {
@@ -252,7 +270,7 @@ export default function WeekCalendar({
                                  }`}
                               >
                                  <AeronaveCell
-                                    matricula={anv.id}
+                                    matricula={anv.matricula}
                                     date={day}
                                     ordens={ordens}
                                  />

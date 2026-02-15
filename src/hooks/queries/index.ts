@@ -11,3 +11,4 @@ export * from "./useComiss";
 export * from "./useDadosBancarios";
 export * from "./useSoldos";
 export * from "./useDiariaValores";
+export * from "./useAeronaves";

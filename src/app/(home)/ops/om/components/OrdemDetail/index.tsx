@@ -23,6 +23,7 @@ import { useOrdemForm } from "./hooks/useOrdemForm";
 import { LabelPicker } from "../LabelPicker";
 import { LabelManager } from "../LabelManager";
 import { useEtiquetas } from "@/hooks/queries";
+import { useAeronaves } from "@/hooks/queries/useAeronaves";
 import { HiTag } from "react-icons/hi";
 import { formatDateForDisplay } from "./utils/ordemUtils";
 import { gerarOrdemMissaoDocx } from "../../utils/exportOrdemMissao";
@@ -82,9 +83,11 @@ export function OrdemDetail({
       hasChanges,
    } = useOrdemForm({ ordem, isNew, isCloning, onSave });
 
-   // TanStack Query - etiquetas com cache automatico
+   // TanStack Query - etiquetas e aeronaves com cache automatico
    const etiquetasQuery = useEtiquetas();
    const allLabels = etiquetasQuery.data ?? [];
+   const { data: aeronaveData } = useAeronaves({ per_page: 100, active: true });
+   const aeronaves = aeronaveData?.items ?? [];
 
    const [isLabelManagerOpen, setIsLabelManagerOpen] = useState(false);
    const [isExporting, setIsExporting] = useState(false);
@@ -629,6 +632,7 @@ export function OrdemDetail({
                            isEditable={isEditable}
                            onUpdate={updateFormData}
                            validationErrors={validationErrors}
+                           aeronaves={aeronaves}
                         />
                      </div>
                   </div>

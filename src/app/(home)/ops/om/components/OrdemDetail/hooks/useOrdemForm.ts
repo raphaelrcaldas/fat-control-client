@@ -349,8 +349,7 @@ export const useOrdemForm = ({
    const getValidationErrors = () => {
       return {
          tipo: !formData.tipo?.trim(),
-         matriculaAeronave:
-            !formData.matricula_anv || formData.matricula_anv === 0,
+         matriculaAeronave: !formData.matricula_anv,
          etapas: formData.etapas.length === 0,
          piloto: tripulacao.pil.length === 0,
          mecanico: tripulacao.mc.length === 0,

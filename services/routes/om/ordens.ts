@@ -75,7 +75,7 @@ export interface TripulacaoAgrupada {
 }
 
 export interface OrdemMissaoCreate {
-   matricula_anv: number;
+   matricula_anv: string;
    tipo: string;
    projeto: string;
    status: string;
@@ -90,7 +90,7 @@ export interface OrdemMissaoCreate {
 
 export interface OrdemMissaoUpdate {
    numero?: string | null;
-   matricula_anv?: number | null;
+   matricula_anv?: string | null;
    tipo?: string | null;
    doc_ref?: string | null;
    projeto?: string | null;
@@ -105,7 +105,7 @@ export interface OrdemMissaoUpdate {
 export interface OrdemMissaoOut {
    id: number;
    numero: string;
-   matricula_anv: number;
+   matricula_anv: string;
    tipo: string;
    projeto: string;
    status: string;
@@ -126,7 +126,7 @@ export interface OrdemMissaoOut {
 export interface OrdemMissaoList {
    id: number;
    numero: string;
-   matricula_anv: number;
+   matricula_anv: string;
    tipo: string;
    projeto: string;
    status: string;

@@ -3,7 +3,7 @@
 import { memo, useState, useEffect, useCallback, useMemo } from "react";
 import clsx from "clsx";
 import type { OrdemMissaoOut } from "services/routes/om/ordens";
-import { MATRICULAS_AERONAVES as matriculasAeronaves } from "@/constants/ops/ordens-missao/aeronaves";
+import type { AeronavePublic } from "services/routes/aeronaves";
 import { minutesToTime, timeToMinutes } from "utils/dateHandler";
 
 /**
@@ -114,6 +114,7 @@ interface OrdemBasicInfoProps {
    isEditable: boolean;
    onUpdate: (updates: Partial<OrdemMissaoOut>) => void;
    validationErrors?: ValidationErrors;
+   aeronaves: AeronavePublic[];
 }
 
 export const OrdemBasicInfo = memo(function OrdemBasicInfo({
@@ -121,6 +122,7 @@ export const OrdemBasicInfo = memo(function OrdemBasicInfo({
    isEditable,
    onUpdate,
    validationErrors,
+   aeronaves,
 }: OrdemBasicInfoProps) {
    // Calcular o somatório de tempo de voo das etapas
    const somaTempoVooEtapas = useMemo(() => {
@@ -222,7 +224,7 @@ export const OrdemBasicInfo = memo(function OrdemBasicInfo({
                value={formData.matricula_anv || ""}
                onChange={(e) =>
                   onUpdate({
-                     matricula_anv: parseInt(e.target.value) || 0,
+                     matricula_anv: e.target.value || "",
                   })
                }
                disabled={!isEditable}
@@ -236,9 +238,9 @@ export const OrdemBasicInfo = memo(function OrdemBasicInfo({
                <option value="" disabled>
                   Selecione...
                </option>
-               {matriculasAeronaves.map((matricula) => (
-                  <option key={matricula} value={matricula}>
-                     {matricula}
+               {aeronaves.map((anv) => (
+                  <option key={anv.matricula} value={anv.matricula}>
+                     {anv.matricula}
                   </option>
                ))}
             </select>

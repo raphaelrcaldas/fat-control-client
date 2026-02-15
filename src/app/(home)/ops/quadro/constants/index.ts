@@ -1,4 +1,4 @@
-import type { FunctionColors, Aeronave, MissionGroup } from "../types";
+import type { FunctionColors } from "../types";
 
 export const FUNCTION_COLORS: FunctionColors = {
    mc: {
@@ -38,18 +38,3 @@ export const FUNCTION_COLORS: FunctionColors = {
       label: "Piloto",
    },
 };
-
-export const AERONAVES: Aeronave[] = [
-   // { id: 2853, matricula: "2853" },
-   { id: 2857, matricula: "2857" },
-   { id: 2859, matricula: "2859" },
-   { id: 2860, matricula: "2860" },
-];
-
-export const MISSION_GROUPS: MissionGroup[] = [
-   { id: 1, short: "sobr", long: "sobreaviso" },
-   { id: 2, short: "nasc", long: "nacional" },
-   { id: 3, short: "local", long: "local" },
-   { id: 4, short: "desloc", long: "deslocamento" },
-   { id: 5, short: "inter", long: "internacional" },
-];

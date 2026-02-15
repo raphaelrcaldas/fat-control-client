@@ -3,6 +3,7 @@ import { useState, useMemo } from "react";
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import { listOrdens } from "services/routes/om/ordens";
 import { ordemKeys } from "@/hooks/queries/useOrdens";
+import { useAeronaves } from "@/hooks/queries/useAeronaves";
 import WeekCalendar from "./components/MissionList/WeekCalendar";
 
 function getWeekStart(date: Date): Date {
@@ -42,7 +43,17 @@ export default function QuadroOperacoes() {
       placeholderData: keepPreviousData,
    });
 
+   const { data: aeronaveData } = useAeronaves({ per_page: 100 });
+
    const ordens = data?.items ?? [];
+   const todasAeronaves = aeronaveData?.items ?? [];
+
+   const aeronavesFiltradas = useMemo(() => {
+      const matriculasComMissao = new Set(ordens.map((om) => om.matricula_anv));
+      return todasAeronaves.filter(
+         (anv) => anv.active || matriculasComMissao.has(anv.matricula)
+      );
+   }, [todasAeronaves, ordens]);
 
    const navigateWeek = (direction: number) => {
       setCurrentWeekStart((prev) => {
@@ -55,6 +66,7 @@ export default function QuadroOperacoes() {
    return (
       <WeekCalendar
          ordens={ordens}
+         aeronaves={aeronavesFiltradas}
          isLoading={isLoading}
          isFetching={isFetching}
          currentWeekStart={currentWeekStart}
