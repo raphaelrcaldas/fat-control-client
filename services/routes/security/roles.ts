@@ -80,3 +80,30 @@ export async function getRoleDetail(roleId: number): Promise<RoleDetail> {
 
    return json.data!;
 }
+
+// ========================================
+// Role-Permission Management
+// ========================================
+
+export async function addRolePermission(
+   roleId: number,
+   permissionId: number,
+): Promise<ApiResult<null>> {
+   return parseApiResponse<null>(
+      await request("POST", `${rolesPath}${roleId}/permissions/`, {
+         permission_id: permissionId,
+      }),
+   );
+}
+
+export async function removeRolePermission(
+   roleId: number,
+   permissionId: number,
+): Promise<ApiResult<null>> {
+   return parseApiResponse<null>(
+      await request(
+         "DELETE",
+         `${rolesPath}${roleId}/permissions/${permissionId}`,
+      ),
+   );
+}

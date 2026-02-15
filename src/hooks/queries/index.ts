@@ -12,3 +12,4 @@ export * from "./useDadosBancarios";
 export * from "./useSoldos";
 export * from "./useDiariaValores";
 export * from "./useAeronaves";
+export * from "./useSecurity";

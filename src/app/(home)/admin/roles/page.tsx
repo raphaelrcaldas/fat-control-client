@@ -7,25 +7,15 @@ import {
    type UserWithRole,
    type RoleDetail,
 } from "services/routes/security/roles";
-import {
-   getResources,
-   getPermissions,
-   type Resource,
-   type PermissionDetail,
-} from "services/routes/security/resources";
 import { useToast } from "@/app/context/toast";
 import { sortByAntiguidadeInPlace } from "utils/sortByAntiguidade";
-import { FaUsers, FaShield } from "react-icons/fa6";
+import { FaUsers, FaShieldHalved, FaCubes, FaKey } from "react-icons/fa6";
 import { Tabs, TabItem, Spinner } from "flowbite-react";
-import { UsersTab, PermissionsMatrixTab } from "./components";
+import { UsersTab, RolesTab, ResourcesTab, PermissionsTab } from "./components";
 
 export default function RolePage() {
    const [userRoles, setUserRoles] = useState<UserWithRole[] | null>(null);
    const [roles, setRoles] = useState<RoleDetail[]>([]);
-   const [resources, setResources] = useState<Resource[] | null>(null);
-   const [permissions, setPermissions] = useState<PermissionDetail[] | null>(
-      null
-   );
 
    const { push } = useToast();
 
@@ -34,7 +24,7 @@ export default function RolePage() {
          const data = await getUsersRoles();
          sortByAntiguidadeInPlace(data);
          setUserRoles(data);
-      } catch (error) {
+      } catch {
          push({
             type: "error",
             message: "Erro ao carregar perfis de usuários",
@@ -43,30 +33,17 @@ export default function RolePage() {
    }, [push]);
 
    useEffect(() => {
-      const loadAllData = async () => {
+      const loadData = async () => {
          try {
-            const [usersRolesData, rolesData, resourcesData, permissionsData] =
-               await Promise.all([
-                  getUsersRoles(),
-                  getRoles(),
-                  getResources(),
-                  getPermissions(),
-               ]);
+            const [usersRolesData, rolesData] = await Promise.all([
+               getUsersRoles(),
+               getRoles(),
+            ]);
 
             sortByAntiguidadeInPlace(usersRolesData);
-
-            resourcesData.sort((a, b) => a.name.localeCompare(b.name));
-            permissionsData.sort((a, b) => {
-               const resourceCompare = a.resource.localeCompare(b.resource);
-               if (resourceCompare !== 0) return resourceCompare;
-               return a.action.localeCompare(b.action);
-            });
-
             setUserRoles(usersRolesData);
             setRoles(rolesData);
-            setResources(resourcesData);
-            setPermissions(permissionsData);
-         } catch (error) {
+         } catch {
             push({
                type: "error",
                message: "Erro ao carregar dados",
@@ -74,7 +51,7 @@ export default function RolePage() {
          }
       };
 
-      loadAllData();
+      loadData();
       // eslint-disable-next-line react-hooks/exhaustive-deps
    }, []);
 
@@ -100,12 +77,16 @@ export default function RolePage() {
                />
             </TabItem>
 
-            <TabItem title="Permissões" icon={FaShield}>
-               <PermissionsMatrixTab
-                  resources={resources}
-                  permissions={permissions}
-                  roles={roles}
-               />
+            <TabItem title="Roles" icon={FaShieldHalved}>
+               <RolesTab />
+            </TabItem>
+
+            <TabItem title="Recursos" icon={FaCubes}>
+               <ResourcesTab />
+            </TabItem>
+
+            <TabItem title="Permissões" icon={FaKey}>
+               <PermissionsTab />
             </TabItem>
          </Tabs>
       </div>

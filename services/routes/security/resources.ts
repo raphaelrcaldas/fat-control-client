@@ -1,6 +1,6 @@
 import { z } from "zod";
-import request from "../../Api";
-import type { ApiResponse } from "@/types/api";
+import request, { parseApiResponse } from "../../Api";
+import type { ApiResponse, ApiResult } from "@/types/api";
 import { secRoute } from ".";
 
 const resourcesPath = secRoute + "resources/";
@@ -49,16 +49,96 @@ export async function getResources(): Promise<Resource[]> {
  * @returns Promise com array de permissões
  */
 export async function getPermissions(
-  resourceName?: string
+  resourceName?: string,
 ): Promise<PermissionDetail[]> {
   const params = resourceName ? { resource_name: resourceName } : null;
   const response = await request("GET", permissionsPath, null, params);
   const json = (await response.json()) as ApiResponse<PermissionDetail[]>;
 
   if (!response.ok) {
-    throw new Error(json.message || `Failed to fetch permissions: ${response.statusText}`);
+    throw new Error(
+      json.message || `Failed to fetch permissions: ${response.statusText}`,
+    );
   }
 
-  // Valida resposta com Zod
   return z.array(PermissionDetailSchema).parse(json.data);
+}
+
+// ========================================
+// Resource CRUD
+// ========================================
+
+export interface ResourceCreate {
+  name: string;
+  description: string;
+}
+
+export interface ResourceUpdate {
+  name?: string;
+  description?: string;
+}
+
+export async function createResource(
+  data: ResourceCreate,
+): Promise<ApiResult<Resource>> {
+  return parseApiResponse<Resource>(
+    await request("POST", resourcesPath, data),
+  );
+}
+
+export async function updateResource(
+  id: number,
+  data: ResourceUpdate,
+): Promise<ApiResult<Resource>> {
+  return parseApiResponse<Resource>(
+    await request("PUT", `${resourcesPath}${id}`, data),
+  );
+}
+
+export async function deleteResource(
+  id: number,
+): Promise<ApiResult<null>> {
+  return parseApiResponse<null>(
+    await request("DELETE", `${resourcesPath}${id}`),
+  );
+}
+
+// ========================================
+// Permission CRUD
+// ========================================
+
+export interface PermissionCreate {
+  resource_id: number;
+  name: string;
+  description: string;
+}
+
+export interface PermissionUpdate {
+  name?: string;
+  description?: string;
+}
+
+export async function createPermission(
+  data: PermissionCreate,
+): Promise<ApiResult<PermissionDetail>> {
+  return parseApiResponse<PermissionDetail>(
+    await request("POST", permissionsPath, data),
+  );
+}
+
+export async function updatePermission(
+  id: number,
+  data: PermissionUpdate,
+): Promise<ApiResult<PermissionDetail>> {
+  return parseApiResponse<PermissionDetail>(
+    await request("PUT", `${permissionsPath}${id}`, data),
+  );
+}
+
+export async function deletePermission(
+  id: number,
+): Promise<ApiResult<null>> {
+  return parseApiResponse<null>(
+    await request("DELETE", `${permissionsPath}${id}`),
+  );
 }

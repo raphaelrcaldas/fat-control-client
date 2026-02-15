@@ -4,9 +4,11 @@ export { UsersTable } from "./users/UsersTable";
 export { RolesTable } from "./users/RolesTable";
 export { RoleBadgeDropdown } from "./users/RoleBadgeDropdown";
 
-// Permissions components
-export { PermissionsMatrixTab } from "./permissions/PermissionsMatrixTab";
-export { PermissionMatrix } from "./permissions/PermissionMatrix";
+// Roles components
+export { default as RolesTab } from "./roles/RolesTab";
 
-// Config exports
-export type { PermissionMatrix as PermissionMatrixType } from "../config/types";
+// Resources components
+export { default as ResourcesTab } from "./resources/ResourcesTab";
+
+// Permissions components
+export { default as PermissionsTab } from "./permissions/PermissionsTab";
