@@ -255,12 +255,14 @@ export default function ResourcesTab() {
          <div className="overflow-x-auto">
             <Table>
                <TableHead>
-                  <TableHeadCell>ID</TableHeadCell>
-                  <TableHeadCell>Nome</TableHeadCell>
-                  <TableHeadCell>Descrição</TableHeadCell>
-                  <TableHeadCell>
-                     <span className="sr-only">Ações</span>
-                  </TableHeadCell>
+                  <TableRow>
+                     <TableHeadCell>ID</TableHeadCell>
+                     <TableHeadCell>Nome</TableHeadCell>
+                     <TableHeadCell>Descrição</TableHeadCell>
+                     <TableHeadCell>
+                        <span className="sr-only">Ações</span>
+                     </TableHeadCell>
+                  </TableRow>
                </TableHead>
                <TableBody className="divide-y">
                   {resources.length === 0 ? (

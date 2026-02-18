@@ -15,13 +15,7 @@ import {
    defaultUserValues,
    CreateUserFormData,
 } from "../../schemas/userFormSchema";
-import {
-   IdentificationSection,
-   DocumentationSection,
-   ContactAndDatesSection,
-   CareerSection,
-   StatusSection,
-} from "./FormSections";
+import { PersonalDataSection, MilitaryDataSection } from "./FormSections";
 import { getChangedFields } from "./utils";
 import { useUser, useUpdateUser, useCreateUser } from "@/hooks/queries";
 
@@ -198,16 +192,11 @@ export function UserForm({ userId, onSuccess }: UserFormProps) {
    }
 
    return (
-      <form onSubmit={handleSubmit(onSubmit)} className="flex h-full flex-col">
-         <div className="flex-1 space-y-4">
-            <IdentificationSection register={register} errors={errors} />
-            <DocumentationSection register={register} errors={errors} />
-            <ContactAndDatesSection register={register} errors={errors} />
-            <CareerSection register={register} errors={errors} />
-            <StatusSection register={register} errors={errors} />
-         </div>
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+         <PersonalDataSection register={register} errors={errors} />
+         <MilitaryDataSection register={register} errors={errors} />
 
-         <div className="sticky bottom-0 mt-4 flex justify-center gap-3 border-t border-gray-200 bg-white pt-4">
+         <div className="flex justify-end border-t border-gray-200 pt-5">
             <Button
                color="red"
                type="submit"

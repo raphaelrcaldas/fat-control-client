@@ -14,6 +14,7 @@ import { MdWarning } from "react-icons/md";
 import { formatDateFull, isoStrToDate } from "utils/dateHandler";
 import type { AeronavePublic } from "services/routes/aeronaves";
 import clsx from "clsx";
+import { PermBased } from "@/app/(home)/hooks/usePermBased";
 
 interface AeronaveTableProps {
    aeronaves: AeronavePublic[];
@@ -113,13 +114,18 @@ export function AeronaveTable({ aeronaves, onEdit }: AeronaveTableProps) {
                            </span>
                         </TableCell>
                         <TableCell>
-                           <button
-                              onClick={() => onEdit(aeronave)}
-                              className="rounded-lg p-1.5 text-gray-500 transition-colors hover:bg-blue-50 hover:text-blue-600"
-                              title="Editar"
+                           <PermBased
+                              resource={"aeronaves"}
+                              requiredPerm={"update"}
                            >
-                              <HiPencil className="h-4.5 w-4.5" />
-                           </button>
+                              <button
+                                 onClick={() => onEdit(aeronave)}
+                                 className="rounded-lg p-1.5 text-gray-500 transition-colors hover:bg-blue-50 hover:text-blue-600"
+                                 title="Editar"
+                              >
+                                 <HiPencil className="h-4.5 w-4.5" />
+                              </button>
+                           </PermBased>
                         </TableCell>
                      </TableRow>
                   );

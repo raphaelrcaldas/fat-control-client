@@ -1,25 +1,21 @@
 /**
  * Seções do formulário de usuário
- * Usando componentes Flowbite diretamente para controle granular
+ * Layout em coluna única espelhando o UserReadView
  */
 
 import { Label, TextInput, Select, Checkbox } from "flowbite-react";
 import { HiMail } from "react-icons/hi";
+import { FaUser, FaShieldAlt } from "react-icons/fa";
 import clsx from "clsx";
 import { postoGradRecords } from "@/constants/militar/postos";
 import { unidadeOptions } from "@/constants/militar/unidades";
 import { onlyLettersKeyDown, onlyNumbersKeyDown } from "./utils";
-
-// ========================================
-// Tipos
-// ========================================
 
 interface FormSectionProps {
    register: any;
    errors: any;
 }
 
-// Helper para exibir erro
 function FieldError({ error }: { error?: any }) {
    if (!error) return null;
    return (
@@ -29,21 +25,112 @@ function FieldError({ error }: { error?: any }) {
    );
 }
 
+function SectionCard({
+   title,
+   icon: Icon,
+   children,
+}: {
+   title: string;
+   icon: React.ComponentType<{ className?: string }>;
+   children: React.ReactNode;
+}) {
+   return (
+      <div className="rounded-lg border border-gray-200 bg-white">
+         <div className="border-b border-gray-100 px-5 py-3">
+            <h2 className="flex items-center gap-2 text-sm font-bold text-gray-900">
+               <Icon className="h-4 w-4 text-red-600" />
+               {title}
+            </h2>
+         </div>
+         <div className="space-y-3 p-5">{children}</div>
+      </div>
+   );
+}
+
 // ========================================
-// Seção: Identificação
+// Dados Pessoais
 // ========================================
 
-export function IdentificationSection({ register, errors }: FormSectionProps) {
+export function PersonalDataSection({ register, errors }: FormSectionProps) {
+   return (
+      <SectionCard title="Dados Pessoais" icon={FaUser}>
+         <div className="max-w-md">
+            <Label htmlFor="nome_completo">Nome Completo</Label>
+            <TextInput
+               id="nome_completo"
+               {...register("nome_completo")}
+               autoComplete="off"
+               onKeyDown={onlyLettersKeyDown}
+               className={clsx({
+                  "focus:border-red-500 focus:ring-red-500":
+                     errors.nome_completo,
+               })}
+            />
+            <FieldError error={errors.nome_completo} />
+         </div>
+
+         <div className="max-w-2xs">
+            <Label htmlFor="cpf">CPF</Label>
+            <TextInput
+               id="cpf"
+               {...register("cpf")}
+               autoComplete="off"
+               maxLength={11}
+               minLength={11}
+               onKeyDown={onlyNumbersKeyDown}
+               className={clsx({
+                  "focus:border-red-500 focus:ring-red-500": errors.cpf,
+               })}
+            />
+            <FieldError error={errors.cpf} />
+         </div>
+
+         <div className="max-w-2xs">
+            <Label htmlFor="nasc">Data de Nascimento</Label>
+            <TextInput
+               id="nasc"
+               type="date"
+               {...register("nasc")}
+               autoComplete="off"
+               className={clsx({
+                  "focus:border-red-500 focus:ring-red-500": errors.nasc,
+               })}
+            />
+            <FieldError error={errors.nasc} />
+         </div>
+
+         <div className="max-w-sm">
+            <Label htmlFor="email_pess">Email Pessoal</Label>
+            <TextInput
+               id="email_pess"
+               type="email"
+               {...register("email_pess")}
+               autoComplete="off"
+               icon={HiMail}
+               className={clsx({
+                  "focus:border-red-500 focus:ring-red-500": errors.email_pess,
+               })}
+            />
+            <FieldError error={errors.email_pess} />
+         </div>
+      </SectionCard>
+   );
+}
+
+// ========================================
+// Dados Militares
+// ========================================
+
+export function MilitaryDataSection({ register, errors }: FormSectionProps) {
    const pgOptions = postoGradRecords.map((pg) => ({
       value: pg.short,
       label: pg.mid,
    }));
 
    return (
-      <div className="grid grid-cols-12 gap-3">
-         {/* P/G */}
-         <div className="col-span-2">
-            <Label htmlFor="p_g">P/G</Label>
+      <SectionCard title="Dados Militares" icon={FaShieldAlt}>
+         <div className="max-w-2xs">
+            <Label htmlFor="p_g">Posto/Graduação</Label>
             <Select
                id="p_g"
                defaultValue=""
@@ -64,8 +151,7 @@ export function IdentificationSection({ register, errors }: FormSectionProps) {
             <FieldError error={errors.p_g} />
          </div>
 
-         {/* Especialidade */}
-         <div className="col-span-2">
+         <div className="max-w-2xs">
             <Label htmlFor="esp">Especialidade</Label>
             <TextInput
                id="esp"
@@ -80,8 +166,7 @@ export function IdentificationSection({ register, errors }: FormSectionProps) {
             <FieldError error={errors.esp} />
          </div>
 
-         {/* Nome de Guerra */}
-         <div className="col-span-3">
+         <div className="max-w-xs">
             <Label htmlFor="nome_guerra">Nome de Guerra</Label>
             <TextInput
                id="nome_guerra"
@@ -95,34 +180,7 @@ export function IdentificationSection({ register, errors }: FormSectionProps) {
             <FieldError error={errors.nome_guerra} />
          </div>
 
-         {/* Nome Completo */}
-         <div className="col-span-5">
-            <Label htmlFor="nome_completo">Nome Completo</Label>
-            <TextInput
-               id="nome_completo"
-               {...register("nome_completo")}
-               autoComplete="off"
-               onKeyDown={onlyLettersKeyDown}
-               className={clsx({
-                  "focus:border-red-500 focus:ring-red-500":
-                     errors.nome_completo,
-               })}
-            />
-            <FieldError error={errors.nome_completo} />
-         </div>
-      </div>
-   );
-}
-
-// ========================================
-// Seção: Documentação
-// ========================================
-
-export function DocumentationSection({ register, errors }: FormSectionProps) {
-   return (
-      <div className="grid grid-cols-12 gap-3">
-         {/* Unidade */}
-         <div className="col-span-3">
+         <div className="max-w-2xs">
             <Label htmlFor="unidade">Unidade</Label>
             <Select
                id="unidade"
@@ -144,8 +202,7 @@ export function DocumentationSection({ register, errors }: FormSectionProps) {
             <FieldError error={errors.unidade} />
          </div>
 
-         {/* SARAM */}
-         <div className="col-span-3">
+         <div className="max-w-2xs">
             <Label htmlFor="saram">SARAM</Label>
             <TextInput
                id="saram"
@@ -161,8 +218,7 @@ export function DocumentationSection({ register, errors }: FormSectionProps) {
             <FieldError error={errors.saram} />
          </div>
 
-         {/* ID FAB */}
-         <div className="col-span-3">
+         <div className="max-w-2xs">
             <Label htmlFor="id_fab">ID FAB</Label>
             <TextInput
                id="id_fab"
@@ -177,35 +233,7 @@ export function DocumentationSection({ register, errors }: FormSectionProps) {
             <FieldError error={errors.id_fab} />
          </div>
 
-         {/* CPF */}
-         <div className="col-span-3">
-            <Label htmlFor="cpf">CPF</Label>
-            <TextInput
-               id="cpf"
-               {...register("cpf")}
-               autoComplete="off"
-               maxLength={11}
-               minLength={11}
-               onKeyDown={onlyNumbersKeyDown}
-               className={clsx({
-                  "focus:border-red-500 focus:ring-red-500": errors.cpf,
-               })}
-            />
-            <FieldError error={errors.cpf} />
-         </div>
-      </div>
-   );
-}
-
-// ========================================
-// Seção: Contato e Datas
-// ========================================
-
-export function ContactAndDatesSection({ register, errors }: FormSectionProps) {
-   return (
-      <div className="grid grid-cols-12 gap-3">
-         {/* Email Zimbra */}
-         <div className="col-span-4">
+         <div className="max-w-sm">
             <Label htmlFor="email_fab">Email Zimbra</Label>
             <TextInput
                id="email_fab"
@@ -220,49 +248,7 @@ export function ContactAndDatesSection({ register, errors }: FormSectionProps) {
             <FieldError error={errors.email_fab} />
          </div>
 
-         {/* Email Particular */}
-         <div className="col-span-4">
-            <Label htmlFor="email_pess">Email Particular</Label>
-            <TextInput
-               id="email_pess"
-               type="email"
-               {...register("email_pess")}
-               autoComplete="off"
-               icon={HiMail}
-               className={clsx({
-                  "focus:border-red-500 focus:ring-red-500": errors.email_pess,
-               })}
-            />
-            <FieldError error={errors.email_pess} />
-         </div>
-
-         {/* Data de Nascimento */}
-         <div className="col-span-4">
-            <Label htmlFor="nasc">Data de Nascimento</Label>
-            <TextInput
-               id="nasc"
-               type="date"
-               {...register("nasc")}
-               autoComplete="off"
-               className={clsx({
-                  "focus:border-red-500 focus:ring-red-500": errors.nasc,
-               })}
-            />
-            <FieldError error={errors.nasc} />
-         </div>
-      </div>
-   );
-}
-
-// ========================================
-// Seção: Carreira
-// ========================================
-
-export function CareerSection({ register, errors }: FormSectionProps) {
-   return (
-      <div className="grid grid-cols-12 gap-3">
-         {/* Última Promoção */}
-         <div className="col-span-6">
+         <div className="max-w-2xs">
             <Label htmlFor="ult_promo">Última Promoção</Label>
             <TextInput
                id="ult_promo"
@@ -276,8 +262,7 @@ export function CareerSection({ register, errors }: FormSectionProps) {
             <FieldError error={errors.ult_promo} />
          </div>
 
-         {/* Antiguidade Relativa */}
-         <div className="col-span-6">
+         <div className="max-w-2xs">
             <Label htmlFor="ant_rel">Antiguidade Relativa</Label>
             <TextInput
                id="ant_rel"
@@ -291,26 +276,18 @@ export function CareerSection({ register, errors }: FormSectionProps) {
             />
             <FieldError error={errors.ant_rel} />
          </div>
-      </div>
-   );
-}
 
-// ========================================
-// Seção: Status
-// ========================================
-
-export function StatusSection({ register }: FormSectionProps) {
-   return (
-      <div className="flex items-center gap-2 rounded-lg bg-gray-50 p-3">
-         <Checkbox
-            id="active"
-            className="size-5"
-            color="red"
-            {...register("active")}
-         />
-         <Label htmlFor="active" className="cursor-pointer">
-            Usuário ativo
-         </Label>
-      </div>
+         <div className="flex items-center gap-2 rounded-lg bg-gray-50 p-3">
+            <Checkbox
+               id="active"
+               className="size-5"
+               color="red"
+               {...register("active")}
+            />
+            <Label htmlFor="active" className="cursor-pointer">
+               Usuário ativo
+            </Label>
+         </div>
+      </SectionCard>
    );
 }

@@ -82,6 +82,8 @@ export const navItems = [
             icon: MdFlightTakeoff,
             label: "Aeronaves",
             path: "/ops/aeronaves",
+            resource: "aeronaves",
+            permission: "view",
          },
       ],
    },

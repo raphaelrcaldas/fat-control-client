@@ -4,6 +4,8 @@ import { HiPencil } from "react-icons/hi";
 import { MdWarning } from "react-icons/md";
 import { formatDateFull, isoStrToDate } from "utils/dateHandler";
 import type { AeronavePublic } from "services/routes/aeronaves";
+import { PermBased } from "@/app/(home)/hooks/usePermBased";
+import clsx from "clsx";
 
 interface AeronaveCardProps {
    aeronave: AeronavePublic;
@@ -30,14 +32,29 @@ export function AeronaveCard({ aeronave, onEdit }: AeronaveCardProps) {
                <span className="text-lg font-bold text-gray-900">
                   {aeronave.matricula}
                </span>
-               {aeronave.sit}
+
+               <span
+                  className={clsx(
+                     "grid w-10 justify-items-center rounded p-2 font-bold text-white",
+                     {
+                        "bg-emerald-400": aeronave.sit == "DI",
+                        "bg-red-400": aeronave.sit == "IN",
+                        "bg-gray-400": aeronave.sit == "IS",
+                        "bg-orange-400": aeronave.sit == "DO",
+                     }
+                  )}
+               >
+                  {aeronave.sit}
+               </span>
             </div>
-            <button
-               onClick={() => onEdit(aeronave)}
-               className="rounded-lg p-1.5 text-gray-400 transition-colors hover:bg-blue-50 hover:text-blue-600"
-            >
-               <HiPencil className="h-4 w-4" />
-            </button>
+            <PermBased resource={"aeronaves"} requiredPerm={"update"}>
+               <button
+                  onClick={() => onEdit(aeronave)}
+                  className="rounded-lg p-1.5 text-gray-400 transition-colors hover:bg-blue-50 hover:text-blue-600"
+               >
+                  <HiPencil className="h-4 w-4" />
+               </button>
+            </PermBased>
          </div>
 
          {/* Body */}

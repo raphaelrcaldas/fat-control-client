@@ -121,12 +121,14 @@ export function HistoricoItem({
                {changes.map((change) => (
                   <li key={change.field} className="text-gray-600">
                      <span className="font-medium">{change.label}:</span>{" "}
-                     <span className="text-red-600 line-through">
-                        {change.oldValue
-                           ? formatValueIfDate(change.oldValue)
-                           : "(vazio)"}
-                     </span>
-                     {" → "}
+                     {change.oldValue ? (
+                        <>
+                           <span className="text-red-600 line-through">
+                              {formatValueIfDate(change.oldValue)}
+                           </span>
+                           {" → "}
+                        </>
+                     ) : null}
                      <span className="text-green-600">
                         {change.newValue
                            ? formatValueIfDate(change.newValue)

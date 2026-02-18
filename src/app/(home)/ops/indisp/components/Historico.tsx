@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import { Spinner } from "flowbite-react";
 import { UserActionLog, LogUser } from "services/routes/logs";
 import {
@@ -40,6 +41,16 @@ export function Historico({
    const formattedCreatedAt = formatDateTimeSafe(createdAt);
    const hasContent = formattedCreatedAt || logs.length > 0;
 
+   // Ordena logs por timestamp em ordem cronológica (mais antigo primeiro)
+   const sortedLogs = useMemo(
+      () =>
+         [...logs].sort(
+            (a, b) =>
+               new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
+         ),
+      [logs]
+   );
+
    if (!hasContent && !isLoading) return null;
 
    return (
@@ -57,7 +68,7 @@ export function Historico({
                </div>
             ) : (
                <>
-                  {/* Item de criação */}
+                  {/* Item de criação (sempre o mais antigo) */}
                   {formattedCreatedAt && (
                      <HistoricoItem
                         type="create"
@@ -66,8 +77,8 @@ export function Historico({
                      />
                   )}
 
-                  {/* Logs de alteração */}
-                  {logs.map((log) => {
+                  {/* Logs de alteração em ordem cronológica */}
+                  {sortedLogs.map((log) => {
                      const before = log.before ? JSON.parse(log.before) : {};
                      const after = log.after ? JSON.parse(log.after) : {};
                      const changedFields = Object.keys(after);
@@ -79,8 +90,8 @@ export function Historico({
 
                      const changes = !isDeleteAction
                         ? changedFields.map((field) => {
-                             let oldVal = before[field] ?? "";
-                             let newVal = after[field] ?? "";
+                             let oldVal = String(before[field] ?? "");
+                             let newVal = String(after[field] ?? "");
 
                              if (formatFieldValue) {
                                 oldVal = formatFieldValue(field, oldVal);

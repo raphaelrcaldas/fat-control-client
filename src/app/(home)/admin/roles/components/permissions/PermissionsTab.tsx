@@ -244,12 +244,14 @@ export default function PermissionsTab() {
          <div className="overflow-x-auto">
             <Table hoverable>
                <TableHead>
-                  <TableHeadCell>Recurso</TableHeadCell>
-                  <TableHeadCell>Ação</TableHeadCell>
-                  <TableHeadCell>Descrição</TableHeadCell>
-                  <TableHeadCell>
-                     <span className="sr-only">Ações</span>
-                  </TableHeadCell>
+                  <TableRow>
+                     <TableHeadCell>Recurso</TableHeadCell>
+                     <TableHeadCell>Ação</TableHeadCell>
+                     <TableHeadCell>Descrição</TableHeadCell>
+                     <TableHeadCell>
+                        <span className="sr-only">Ações</span>
+                     </TableHeadCell>
+                  </TableRow>
                </TableHead>
                <TableBody className="divide-y">
                   {filteredPermissions.length === 0 ? (

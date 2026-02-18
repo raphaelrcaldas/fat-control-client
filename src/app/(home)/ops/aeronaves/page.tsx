@@ -10,6 +10,7 @@ import { AeronaveCard } from "./components/AeronaveCard";
 import { AeronaveFormModal } from "./components/AeronaveFormModal";
 import { SituacaoSummary } from "./components/SituacaoSummary";
 import type { AeronavePublic } from "services/routes/aeronaves";
+import { PermBased } from "../../hooks/usePermBased";
 
 export default function AeronavesPage() {
    const [showFormModal, setShowFormModal] = useState(false);
@@ -91,10 +92,13 @@ export default function AeronavesPage() {
                <p className="mb-4 text-sm text-gray-500">
                   Cadastre a primeira aeronave para começar
                </p>
-               <Button color="red" onClick={handleOpenCreate} size="sm">
-                  <HiPlus className="mr-2 h-4 w-4" />
-                  Cadastrar Aeronave
-               </Button>
+
+               <PermBased resource={"aeronaves"} requiredPerm={"create"}>
+                  <Button color="red" onClick={handleOpenCreate} size="sm">
+                     <HiPlus className="mr-2 h-4 w-4" />
+                     Cadastrar Aeronave
+                  </Button>
+               </PermBased>
             </div>
          ) : (
             <div

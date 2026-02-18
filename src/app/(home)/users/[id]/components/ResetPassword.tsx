@@ -48,7 +48,7 @@ export function ResetPassword({ userId }) {
 
    if (resetSuccess) {
       return (
-         <div className="flex flex-col items-center justify-center p-12">
+         <div className="flex flex-col items-center justify-center py-16">
             <div className="mb-4 animate-pulse rounded-full bg-green-100 p-4">
                <HiCheckCircle className="h-16 w-16 text-green-600" />
             </div>
@@ -68,7 +68,7 @@ export function ResetPassword({ userId }) {
 
    if (showConfirm) {
       return (
-         <div className="flex flex-col items-center justify-center p-16">
+         <div className="flex flex-col items-center justify-center py-16">
             <div className="mb-4 rounded-full bg-yellow-100 p-4">
                <HiExclamation className="h-16 w-16 text-yellow-600" />
             </div>
@@ -107,10 +107,10 @@ export function ResetPassword({ userId }) {
    }
 
    return (
-      <div className="flex flex-col items-center justify-center p-2">
-         <div className="w-full max-w-lg">
-            {/* Card informativo */}
-            <div className="mb-6 border-l-4 border-blue-500 bg-blue-50 p-4">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+         {/* Coluna esquerda: informações */}
+         <div className="space-y-4">
+            <div className="rounded-lg border border-blue-200 bg-blue-50 p-5">
                <div className="flex items-start gap-3">
                   <HiShieldCheck className="mt-0.5 h-6 w-6 shrink-0 text-blue-600" />
                   <div>
@@ -125,31 +125,7 @@ export function ResetPassword({ userId }) {
                </div>
             </div>
 
-            {/* Card principal */}
-            <div className="rounded-lg border-2 border-gray-200 bg-white p-8 text-center">
-               <div className="mb-4 inline-flex rounded-full bg-gray-100 p-4">
-                  <HiKey className="h-12 w-12 text-gray-600" />
-               </div>
-               <h3 className="mb-2 text-lg font-semibold text-gray-900">
-                  Resetar Senha do Usuário
-               </h3>
-               <p className="mb-6 text-gray-600">
-                  Clique no botão abaixo para iniciar o processo de redefinição
-                  de senha.
-               </p>
-               <Button
-                  color="blue"
-                  size="lg"
-                  onClick={() => setShowConfirm(true)}
-                  className="w-full"
-               >
-                  <HiKey className="mr-2 h-5 w-5" />
-                  Redefinir Senha
-               </Button>
-            </div>
-
-            {/* Avisos de segurança */}
-            <div className="mt-6 rounded-lg border border-yellow-200 bg-yellow-50 p-4">
+            <div className="rounded-lg border border-yellow-200 bg-yellow-50 p-5">
                <div className="flex items-start gap-2">
                   <HiExclamation className="mt-0.5 h-5 w-5 shrink-0 text-yellow-600" />
                   <div className="text-sm text-yellow-800">
@@ -164,6 +140,29 @@ export function ResetPassword({ userId }) {
                   </div>
                </div>
             </div>
+         </div>
+
+         {/* Coluna direita: ação */}
+         <div className="rounded-lg border border-gray-200 p-8 text-center">
+            <div className="mb-4 inline-flex rounded-full bg-gray-100 p-4">
+               <HiKey className="h-12 w-12 text-gray-600" />
+            </div>
+            <h3 className="mb-2 text-lg font-semibold text-gray-900">
+               Resetar Senha do Usuário
+            </h3>
+            <p className="mb-6 text-gray-600">
+               Clique no botão abaixo para iniciar o processo de redefinição de
+               senha.
+            </p>
+            <Button
+               color="blue"
+               size="lg"
+               onClick={() => setShowConfirm(true)}
+               className="w-full"
+            >
+               <HiKey className="mr-2 h-5 w-5" />
+               Redefinir Senha
+            </Button>
          </div>
       </div>
    );

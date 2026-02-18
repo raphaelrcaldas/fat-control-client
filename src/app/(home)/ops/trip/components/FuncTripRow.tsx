@@ -5,6 +5,7 @@ import {
    type OperType,
 } from "@/constants/tripulantes";
 import type { CrewFunc } from "../types/trip.types";
+import { OPER_CONFIG } from "@/constants/tripulantes";
 
 /** Mapeia cores do tema para classes Tailwind */
 const OPER_COLOR_CLASSES: Record<OperType, string> = {
