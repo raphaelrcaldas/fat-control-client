@@ -10,8 +10,6 @@ import {
    Tooltip,
 } from "flowbite-react";
 import { HiPencil } from "react-icons/hi";
-import { MdWarning } from "react-icons/md";
-import { formatDateFull, isoStrToDate } from "utils/dateHandler";
 import type { AeronavePublic } from "services/routes/aeronaves";
 import clsx from "clsx";
 import { PermBased } from "@/app/(home)/hooks/usePermBased";
@@ -19,18 +17,6 @@ import { PermBased } from "@/app/(home)/hooks/usePermBased";
 interface AeronaveTableProps {
    aeronaves: AeronavePublic[];
    onEdit: (aeronave: AeronavePublic) => void;
-}
-
-function isInspProxima(dateStr: string | null): boolean {
-   if (!dateStr) return false;
-   const diff = isoStrToDate(dateStr).getTime() - Date.now();
-   const days = diff / (1000 * 60 * 60 * 24);
-   return days >= 0 && days <= 30;
-}
-
-function isInspVencida(dateStr: string | null): boolean {
-   if (!dateStr) return false;
-   return isoStrToDate(dateStr).getTime() < Date.now();
 }
 
 export function AeronaveTable({ aeronaves, onEdit }: AeronaveTableProps) {
@@ -42,16 +28,12 @@ export function AeronaveTable({ aeronaves, onEdit }: AeronaveTableProps) {
                   <TableHeadCell>Matrícula</TableHeadCell>
                   <TableHeadCell>Situação</TableHeadCell>
                   <TableHeadCell>Observação</TableHeadCell>
-                  <TableHeadCell>Próx. Inspeção</TableHeadCell>
                   <TableHeadCell>Status</TableHeadCell>
                   <TableHeadCell className="text-center">Ações</TableHeadCell>
                </TableRow>
             </TableHead>
             <TableBody className="divide-y">
                {aeronaves.map((aeronave) => {
-                  const proxima = isInspProxima(aeronave.prox_insp);
-                  const vencida = isInspVencida(aeronave.prox_insp);
-
                   return (
                      <TableRow
                         key={aeronave.matricula}
@@ -77,26 +59,8 @@ export function AeronaveTable({ aeronaves, onEdit }: AeronaveTableProps) {
                         </TableCell>
                         <TableCell className="max-w-xs text-gray-600">
                            {aeronave.obs ? (
-                              <span>{aeronave.obs}</span>
-                           ) : (
-                              <span className="text-gray-300">—</span>
-                           )}
-                        </TableCell>
-                        <TableCell>
-                           {aeronave.prox_insp ? (
-                              <span
-                                 className={`inline-flex items-center gap-1.5 ${
-                                    vencida
-                                       ? "font-semibold text-red-600"
-                                       : proxima
-                                         ? "font-semibold text-yellow-600"
-                                         : "text-gray-700"
-                                 }`}
-                              >
-                                 {(proxima || vencida) && (
-                                    <MdWarning className="h-4 w-4" />
-                                 )}
-                                 {formatDateFull(aeronave.prox_insp)}
+                              <span className="whitespace-pre-line">
+                                 {aeronave.obs}
                               </span>
                            ) : (
                               <span className="text-gray-300">—</span>

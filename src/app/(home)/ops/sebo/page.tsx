@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { getTripData } from "services/google-sheets/sheets";
 import TripTable from "./components/tripTable";
-import { useSeboContext } from "../../context/sebo";
+import { usePersistedState } from "@/hooks/usePersistedState";
 import { durationToMinutes, sortTripsByDuration } from "./utils";
 import ChartSebo from "./components/chartSebo";
 import FilterPanel from "./components/filterPanel";
@@ -17,7 +17,7 @@ function SeboPage() {
    const [opOp, setOpOp] = useState(true);
    const [opAl, setOpAl] = useState(false);
 
-   const { seboFunc, setSeboFunc } = useSeboContext();
+   const [seboFunc, setSeboFunc] = usePersistedState("sebo.seboFunc", "mc");
 
    useEffect(() => {
       const fetchData = async () => {

@@ -1,8 +1,6 @@
 "use client";
 
 import { HiPencil } from "react-icons/hi";
-import { MdWarning } from "react-icons/md";
-import { formatDateFull, isoStrToDate } from "utils/dateHandler";
 import type { AeronavePublic } from "services/routes/aeronaves";
 import { PermBased } from "@/app/(home)/hooks/usePermBased";
 import clsx from "clsx";
@@ -12,16 +10,7 @@ interface AeronaveCardProps {
    onEdit: (aeronave: AeronavePublic) => void;
 }
 
-function isInspAlerta(dateStr: string | null): boolean {
-   if (!dateStr) return false;
-   const diff = isoStrToDate(dateStr).getTime() - Date.now();
-   const days = diff / (1000 * 60 * 60 * 24);
-   return days <= 30;
-}
-
 export function AeronaveCard({ aeronave, onEdit }: AeronaveCardProps) {
-   const alerta = isInspAlerta(aeronave.prox_insp);
-
    return (
       <div
          className={`rounded-lg border bg-white shadow-sm ${!aeronave.active ? "border-gray-200 opacity-60" : "border-gray-200"}`}
@@ -60,25 +49,12 @@ export function AeronaveCard({ aeronave, onEdit }: AeronaveCardProps) {
          {/* Body */}
          <div className="space-y-2 px-4 py-3">
             {aeronave.obs && (
-               <p className="text-sm text-gray-600">{aeronave.obs}</p>
+               <p className="text-sm whitespace-pre-line text-gray-600">
+                  {aeronave.obs}
+               </p>
             )}
 
-            <div className="flex items-center justify-between">
-               {aeronave.prox_insp ? (
-                  <span
-                     className={`inline-flex items-center gap-1 text-sm ${
-                        alerta ? "font-semibold text-red-600" : "text-gray-600"
-                     }`}
-                  >
-                     {alerta && <MdWarning className="h-4 w-4" />}
-                     Inspeção: {formatDateFull(aeronave.prox_insp)}
-                  </span>
-               ) : (
-                  <span className="text-sm text-gray-400">
-                     Sem inspeção agendada
-                  </span>
-               )}
-
+            <div className="flex items-center justify-end">
                <span
                   className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${
                      aeronave.active

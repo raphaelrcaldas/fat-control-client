@@ -14,7 +14,6 @@ export const aeronaveFormSchema = z.object({
       .regex(/^\d{4}$/, "Matrícula deve conter apenas dígitos"),
    sit: z.string().length(2, "Selecione uma situação"),
    obs: z.string().nullable().optional(),
-   prox_insp: z.string().nullable().optional(),
    active: z.boolean(),
 });
 
@@ -24,6 +23,5 @@ export const defaultAeronaveValues: AeronaveFormData = {
    matricula: "",
    sit: "DI",
    obs: null,
-   prox_insp: null,
    active: true,
 };

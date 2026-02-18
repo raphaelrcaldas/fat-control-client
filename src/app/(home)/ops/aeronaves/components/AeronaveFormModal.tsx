@@ -70,7 +70,6 @@ export function AeronaveFormModal({
                matricula: editingAeronave.matricula,
                sit: editingAeronave.sit,
                obs: editingAeronave.obs || null,
-               prox_insp: editingAeronave.prox_insp || null,
                active: editingAeronave.active,
             });
          } else {
@@ -88,7 +87,6 @@ export function AeronaveFormModal({
       return (
          formData.sit !== editingAeronave.sit ||
          formData.obs !== (editingAeronave.obs || null) ||
-         formData.prox_insp !== (editingAeronave.prox_insp || null) ||
          formData.active !== editingAeronave.active
       );
    }, [formData, editingAeronave, isEditMode]);
@@ -133,8 +131,6 @@ export function AeronaveFormModal({
                updateData.sit = formData.sit;
             if (formData.obs !== (editingAeronave!.obs || null))
                updateData.obs = formData.obs || null;
-            if (formData.prox_insp !== (editingAeronave!.prox_insp || null))
-               updateData.prox_insp = formData.prox_insp || null;
             if (formData.active !== editingAeronave!.active)
                updateData.active = formData.active;
 
@@ -156,7 +152,6 @@ export function AeronaveFormModal({
                active: formData.active,
                sit: formData.sit,
                obs: formData.obs || null,
-               prox_insp: formData.prox_insp || null,
             });
 
             push({
@@ -283,40 +278,16 @@ export function AeronaveFormModal({
                   </div>
                )}
 
-               {/* Próxima Inspeção */}
-               <div className="grid grid-cols-2">
-                  <div>
-                     <Label
-                        htmlFor="prox_insp"
-                        className="mb-2 block text-sm font-semibold"
-                     >
-                        Próxima Inspeção
-                     </Label>
-                     <TextInput
-                        id="prox_insp"
-                        type="date"
-                        value={formData.prox_insp || ""}
-                        onChange={(e) =>
-                           updateField("prox_insp", e.target.value || null)
-                        }
-                     />
-                  </div>
-
-                  {/* Status Ativo */}
-                  <div className="grid items-center justify-center justify-items-center">
-                     <Label
-                        htmlFor="prox_insp"
-                        className="block text-sm font-semibold"
-                     >
-                        Aeronave Ativa
-                     </Label>
-                     <ToggleSwitch
-                        className="w-fit items-center justify-center"
-                        checked={formData.active}
-                        color="green"
-                        onChange={(val) => updateField("active", val)}
-                     />
-                  </div>
+               {/* Status Ativo */}
+               <div className="flex items-center gap-3">
+                  <Label className="text-sm font-semibold">
+                     Aeronave Ativa
+                  </Label>
+                  <ToggleSwitch
+                     checked={formData.active}
+                     color="green"
+                     onChange={(val) => updateField("active", val)}
+                  />
                </div>
 
                {/* Botões */}

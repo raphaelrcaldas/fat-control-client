@@ -1,5 +1,6 @@
 "use client";
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useContext } from "react";
+import { usePersistedState } from "@/hooks/usePersistedState";
 
 interface QuadsContextType {
    quadFunc: string;
@@ -12,14 +13,16 @@ interface QuadsContextType {
 
 const QuadsContext = createContext<QuadsContextType | undefined>(undefined);
 
-interface QuadsProviderProps {
-   children: React.ReactNode;
-}
-
-export const QuadsProvider = ({ children }: QuadsProviderProps) => {
-   const [quadFunc, setQuadFunc] = useState("mc");
-   const [quadType, setQuadType] = useState<number>(1);
-   const [visual, setVisual] = useState<"comp" | "reduz">("comp");
+export function QuadsProvider({ children }: { children: React.ReactNode }) {
+   const [quadFunc, setQuadFunc] = usePersistedState("quads.quadFunc", "mc");
+   const [quadType, setQuadType] = usePersistedState<number>(
+      "quads.quadType",
+      1
+   );
+   const [visual, setVisual] = usePersistedState<"comp" | "reduz">(
+      "quads.visual",
+      "comp"
+   );
 
    return (
       <QuadsContext.Provider
@@ -35,7 +38,7 @@ export const QuadsProvider = ({ children }: QuadsProviderProps) => {
          {children}
       </QuadsContext.Provider>
    );
-};
+}
 
 export function useQuadsContext() {
    const context = useContext(QuadsContext);

@@ -6,7 +6,7 @@ import IndispCell from "./components/indispCell";
 import { TripIndisp } from "./components/tripIndisp";
 import { getTripData } from "services/google-sheets/sheets";
 import clsx from "clsx";
-import { useIndispContext } from "../../context/indisp";
+import { usePersistedState } from "@/hooks/usePersistedState";
 import { LastIndisps } from "./components/lastIndisps";
 import { AppLoadingScreen } from "../../components/appLoadingScreen";
 import { TripSheet } from "services/google-sheets/sheets";
@@ -46,7 +46,10 @@ export default function IndispPage() {
    const [dateRef, setDateRef] = useState<Date>(new Date());
    const [dataTrip, setDataTrip] = useState<TripSheet[] | null>(null);
 
-   const { indispFunc, setIndispFunc } = useIndispContext();
+   const [indispFunc, setIndispFunc] = usePersistedState(
+      "indisp.indispFunc",
+      "mc"
+   );
 
    // Array de datas derivado - sem useState/useEffect
    const datesArray = useMemo(

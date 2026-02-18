@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState, useMemo, useCallback, useRef } from "react";
+import { usePersistedState } from "@/hooks/usePersistedState";
 import { Select, Radio, Label, Spinner } from "flowbite-react";
 import { useQuadsContext } from "../../context/quads";
 import { compareByAntiguidade } from "utils/sortByAntiguidade";
@@ -12,7 +13,7 @@ const DEFAULT_UAE = "11gt";
 const DEFAULT_PROJ = "kc-390";
 
 export default function QuadPage() {
-   const [ordem, setOrdem] = useState("opr");
+   const [ordem, setOrdem] = usePersistedState("quads.ordem", "opr");
    const [groupName, setGroupName] = useState("");
    const [typeName, setTypeName] = useState("");
 
@@ -150,6 +151,14 @@ export default function QuadPage() {
       ));
    }, [quads, ordem, groupName, typeName]);
 
+   if (loadingTypes) {
+      return (
+         <div className="flex items-center justify-center gap-2 p-6 font-semibold">
+            Carregando <Spinner size="lg" color="failure" />
+         </div>
+      );
+   }
+
    return (
       <div className="p-2">
          <div className="mb-3 flex gap-4 rounded-lg bg-white p-2 py-3 shadow-md">
@@ -174,6 +183,7 @@ export default function QuadPage() {
                <Select
                   value={quadType}
                   onChange={(e) => setQuadType(parseInt(e.target.value))}
+                  className="w-40"
                   disabled={loadingTypes}
                >
                   {quadsType

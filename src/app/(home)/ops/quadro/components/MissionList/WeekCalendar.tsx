@@ -257,6 +257,9 @@ export default function WeekCalendar({
                               >
                                  {anv.sit}
                               </span>
+                              <div className="text-xs whitespace-pre-line">
+                                 {anv.obs}
+                              </div>
                            </div>
                         </td>
                         {weekDays.map((day, idx) => {

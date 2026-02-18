@@ -33,7 +33,10 @@ export default function QuadForm({ trip, quad, show, setShow }: QuadFormProps) {
       [quad]
    );
 
-   const [date, setDate] = useState<string | null>(defaultValues.value || "");
+   const [startDate, setStartDate] = useState<string>(
+      defaultValues.value || ""
+   );
+   const [endDate, setEndDate] = useState<string>("");
    const [obs, setObs] = useState<string | null>(
       defaultValues.description || ""
    );
@@ -52,7 +55,8 @@ export default function QuadForm({ trip, quad, show, setShow }: QuadFormProps) {
    // Reseta o formulário quando abre um novo quad
    useEffect(() => {
       if (show) {
-         setDate(defaultValues.value || "");
+         setStartDate(defaultValues.value || "");
+         setEndDate("");
          setObs(defaultValues.description || "");
          setLastro(0);
          setInputType("data");
@@ -60,10 +64,27 @@ export default function QuadForm({ trip, quad, show, setShow }: QuadFormProps) {
    }, [show, defaultValues]);
 
    const cleanAndClose = () => {
-      setDate(defaultValues.value);
+      setStartDate(defaultValues.value || "");
+      setEndDate("");
       setObs(defaultValues.description);
       setLastro(0);
       setShow(false);
+   };
+
+   const generateDateRange = (start: string, end: string): string[] => {
+      const dates: string[] = [];
+      const current = new Date(start + "T00:00:00");
+      const last = new Date(end + "T00:00:00");
+
+      while (current <= last) {
+         const y = current.getFullYear();
+         const m = String(current.getMonth() + 1).padStart(2, "0");
+         const d = String(current.getDate()).padStart(2, "0");
+         dates.push(`${y}-${m}-${d}`);
+         current.setDate(current.getDate() + 1);
+      }
+
+      return dates;
    };
 
    const handleLastroChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -77,28 +98,55 @@ export default function QuadForm({ trip, quad, show, setShow }: QuadFormProps) {
          return;
       }
 
-      if (inputType === "data" && !date) {
-         push({ message: "Selecione uma data", type: "warning" });
+      if (inputType === "data" && !startDate) {
+         push({ message: "Selecione a data inicial", type: "warning" });
          return;
       }
 
-      const payload: Quad = {
-         id: quad?.id,
-         trip_id: trip.id,
-         value: inputType === "data" ? date || null : null,
-         description: obs || null,
-         type_id: quadType,
-      };
+      if (inputType === "data" && !quad && endDate && endDate < startDate) {
+         push({
+            message: "A data final deve ser igual ou posterior à data inicial",
+            type: "warning",
+         });
+         return;
+      }
 
       try {
          let result;
 
          if (quad) {
+            const payload: Quad = {
+               id: quad.id,
+               trip_id: trip.id,
+               value: inputType === "data" ? startDate || null : null,
+               description: obs || null,
+               type_id: quadType,
+            };
             result = await updateQuadMutation.mutateAsync(payload);
+         } else if (inputType === "lastro") {
+            const payload: Quad = {
+               trip_id: trip.id,
+               value: null,
+               description: obs || null,
+               type_id: quadType,
+            };
+            result = await createQuadMutation.mutateAsync(
+               Array(lastro).fill(payload)
+            );
          } else {
-            const quadsToHandle =
-               lastro > 0 ? Array(lastro).fill(payload) : [payload];
-            result = await createQuadMutation.mutateAsync(quadsToHandle);
+            const dates =
+               endDate && endDate >= startDate
+                  ? generateDateRange(startDate, endDate)
+                  : [startDate];
+
+            const quads: Quad[] = dates.map((d) => ({
+               trip_id: trip.id,
+               value: d,
+               description: obs || null,
+               type_id: quadType,
+            }));
+
+            result = await createQuadMutation.mutateAsync(quads);
          }
 
          if (result.ok) {
@@ -121,13 +169,15 @@ export default function QuadForm({ trip, quad, show, setShow }: QuadFormProps) {
 
    const isFormValid = () => {
       if (inputType === "data") {
-         return !!date;
+         if (!startDate) return false;
+         if (!quad && endDate && endDate < startDate) return false;
+         return true;
       }
       return lastro > 0;
    };
 
    return (
-      <Modal show={show} onClose={cleanAndClose} size="md" popup>
+      <Modal show={show} onClose={cleanAndClose} size="md" popup dismissible>
          <ModalHeader>
             {quad ? "Atualizar Quadrinho" : "Adicionar Quadrinho"}
          </ModalHeader>
@@ -153,17 +203,47 @@ export default function QuadForm({ trip, quad, show, setShow }: QuadFormProps) {
                <div className="space-y-2">
                   {inputType === "data" ? (
                      <>
-                        <Label htmlFor="date" className="text-sm font-medium">
-                           Data
+                        <Label
+                           htmlFor="startDate"
+                           className="text-sm font-medium"
+                        >
+                           {quad ? "Data" : "Data Inicial"}
                         </Label>
                         <TextInput
-                           id="date"
-                           value={date ?? ""}
-                           onChange={(e) => setDate(e.target.value)}
+                           id="startDate"
+                           value={startDate}
+                           onChange={(e) => setStartDate(e.target.value)}
                            type="date"
                            autoComplete="off"
                            autoFocus
                         />
+                        {!quad && (
+                           <>
+                              <Label
+                                 htmlFor="endDate"
+                                 className="text-sm font-medium"
+                              >
+                                 Data Final
+                              </Label>
+                              <TextInput
+                                 id="endDate"
+                                 value={endDate}
+                                 onChange={(e) => setEndDate(e.target.value)}
+                                 type="date"
+                                 autoComplete="off"
+                                 min={startDate || undefined}
+                              />
+                              {startDate && endDate && endDate >= startDate && (
+                                 <p className="text-xs text-gray-500">
+                                    {
+                                       generateDateRange(startDate, endDate)
+                                          .length
+                                    }{" "}
+                                    quadrinho(s) será(ão) inserido(s)
+                                 </p>
+                              )}
+                           </>
+                        )}
                      </>
                   ) : (
                      <>
@@ -190,6 +270,7 @@ export default function QuadForm({ trip, quad, show, setShow }: QuadFormProps) {
                   </Label>
                   <Textarea
                      id="obs"
+                     className="placeholder:text-gray-500"
                      value={!obs ? "" : obs}
                      onChange={(e) => setObs(e.target.value)}
                      placeholder="Digite observações (opcional)"
@@ -208,14 +289,14 @@ export default function QuadForm({ trip, quad, show, setShow }: QuadFormProps) {
                   Cancelar
                </Button>
                <Button
-                  color="blue"
+                  color="red"
                   onClick={handleSubmit}
                   disabled={loading || !isFormValid()}
                   className="flex-1"
                >
                   {loading ? (
                      <div className="flex items-center gap-2">
-                        <Spinner size="sm" color="failure" />
+                        <Spinner size="sm" color="" />
                         <span>Salvando...</span>
                      </div>
                   ) : quad ? (

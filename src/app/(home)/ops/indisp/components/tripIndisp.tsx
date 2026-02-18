@@ -408,7 +408,7 @@ function TripIndispRow({ indisp, trip }) {
                {indispProps.value}
             </span>
          </TableCell>
-         <TableCell className="hidden p-1 md:table-cell">
+         <TableCell className="hidden p-1 whitespace-pre-line md:table-cell">
             {indisp.obs}
          </TableCell>
          <TableCell className="p-1 font-semibold">{dateStart}</TableCell>

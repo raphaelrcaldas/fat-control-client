@@ -7,7 +7,7 @@ import { useAuth } from "../context/auth";
 import Navbar from "./components/layout/navbar";
 import SidebarWithFooter from "./components/layout/sidebar";
 import PageTransition from "./components/layout/page-transition";
-import Providers from "./context/providers";
+import { QuadsProvider } from "./context/quads";
 
 interface RootLayoutProps {
    children: React.ReactNode;
@@ -49,7 +49,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
    const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
 
    return (
-      <Providers>
+      <QuadsProvider>
          <div className="flex h-screen flex-col overflow-hidden bg-gray-50">
             {/* Navbar inteligente */}
             <Navbar
@@ -83,6 +83,6 @@ export default function RootLayout({ children }: RootLayoutProps) {
                </main>
             </div>
          </div>
-      </Providers>
+      </QuadsProvider>
    );
 }

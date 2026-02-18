@@ -8,7 +8,6 @@ export interface AeronavePublic {
    active: boolean;
    sit: string;
    obs: string | null;
-   prox_insp: string | null;
    updated_at: string | null;
 }
 
@@ -17,14 +16,12 @@ export interface AeronaveCreate {
    active: boolean;
    sit: string;
    obs: string | null;
-   prox_insp: string | null;
 }
 
 export interface AeronaveUpdate {
    active?: boolean;
    sit?: string;
    obs?: string | null;
-   prox_insp?: string | null;
 }
 
 export interface PaginatedResponse<T> {

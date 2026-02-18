@@ -120,7 +120,9 @@ function IndispBody({ indisp, onClick }) {
 
          {indisp.obs && (
             <div className="mt-1 rounded px-2 py-1.5">
-               <p className="leading-relaxed text-gray-700">{indisp.obs}</p>
+               <p className="leading-relaxed whitespace-pre-line text-gray-700">
+                  {indisp.obs}
+               </p>
             </div>
          )}
 
