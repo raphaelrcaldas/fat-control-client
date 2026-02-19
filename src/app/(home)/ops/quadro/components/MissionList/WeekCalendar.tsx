@@ -66,6 +66,7 @@ function getEtapasDoDia(
          }
       }
    }
+   etapas.sort((a, b) => a.horaZ.localeCompare(b.horaZ));
    return etapas;
 }
 
