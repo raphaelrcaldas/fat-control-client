@@ -77,13 +77,13 @@ const OrdemItem = memo(function OrdemItem({
       [onCloneOrdem, ordem]
    );
 
-   // const handleDelete = useCallback(
-   //    (e: React.MouseEvent) => {
-   //       e.stopPropagation();
-   //       onDeleteOrdem?.(ordem);
-   //    },
-   //    [onDeleteOrdem, ordem]
-   // );
+   const handleDelete = useCallback(
+      (e: React.MouseEvent) => {
+         e.stopPropagation();
+         onDeleteOrdem?.(ordem);
+      },
+      [onDeleteOrdem, ordem]
+   );
 
    return (
       <div
@@ -208,19 +208,20 @@ const OrdemItem = memo(function OrdemItem({
                         <HiDocumentDuplicate size={20} />
                      </button>
                   </PermBased>
-                  {/* {onDeleteOrdem && (
-                     <button
-                        onClick={handleDelete}
-                        className="rounded-lg p-2 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-500"
-                        title={
-                           ordem.status === "rascunho"
-                              ? "Excluir rascunho"
-                              : "Excluir ordem de missao"
-                        }
+                  {onDeleteOrdem && ordem.status === "rascunho" && (
+                     <PermBased
+                        resource={"ordem_missao"}
+                        requiredPerm={"delete"}
                      >
-                        <HiTrash size={20} />
-                     </button>
-                  )} */}
+                        <button
+                           onClick={handleDelete}
+                           className="rounded-lg p-2 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-500"
+                           title="Excluir rascunho"
+                        >
+                           <HiTrash size={20} />
+                        </button>
+                     </PermBased>
+                  )}
                </div>
             </div>
          </div>
