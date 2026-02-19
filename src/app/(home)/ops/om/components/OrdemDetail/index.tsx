@@ -392,10 +392,15 @@ export function OrdemDetail({
                {isReadOnlyMode && (
                   <>
                      {formData.status !== "cancelada" && (
-                        <Button color="red" onClick={toggleReadOnlyMode}>
-                           <HiPencil className="mr-2" size={16} />
-                           Editar
-                        </Button>
+                        <PermBased
+                           resource={"ordem_missao"}
+                           requiredPerm={"update"}
+                        >
+                           <Button color="red" onClick={toggleReadOnlyMode}>
+                              <HiPencil className="mr-2" size={16} />
+                              Editar
+                           </Button>
+                        </PermBased>
                      )}
                      {formData.status === "aprovada" && (
                         <PermBased
@@ -598,23 +603,28 @@ export function OrdemDetail({
                            )}
                            Documento
                         </Button>
-                        <Button
-                           color="light"
-                           onClick={handlePedidoLanche}
-                           disabled={
-                              isGeneratingLanche || isSaving || isApproving
-                           }
+                        <PermBased
+                           resource={"ordem_missao"}
+                           requiredPerm={"create"}
                         >
-                           {isGeneratingLanche ? (
-                              <Spinner color="failure" size="sm" />
-                           ) : (
-                              <HiShoppingBag
-                                 className="mr-2 text-yellow-500"
-                                 size={16}
-                              />
-                           )}
-                           Pedido de Lanche
-                        </Button>
+                           <Button
+                              color="light"
+                              onClick={handlePedidoLanche}
+                              disabled={
+                                 isGeneratingLanche || isSaving || isApproving
+                              }
+                           >
+                              {isGeneratingLanche ? (
+                                 <Spinner color="failure" size="sm" />
+                              ) : (
+                                 <HiShoppingBag
+                                    className="mr-2 text-yellow-500"
+                                    size={16}
+                                 />
+                              )}
+                              Pedido de Lanche
+                           </Button>
+                        </PermBased>
                      </div>
                   )}
 

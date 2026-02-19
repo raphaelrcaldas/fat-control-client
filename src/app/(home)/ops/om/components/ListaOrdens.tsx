@@ -7,6 +7,7 @@ import {
    STATUS_CONFIG as statusConfig,
    type StatusType,
 } from "@/constants/ops/ordens-missao/status";
+import { PermBased } from "@/app/(home)/hooks/usePermBased";
 
 interface ListaOrdensProps {
    ordens: OrdemMissaoList[];
@@ -76,13 +77,13 @@ const OrdemItem = memo(function OrdemItem({
       [onCloneOrdem, ordem]
    );
 
-   const handleDelete = useCallback(
-      (e: React.MouseEvent) => {
-         e.stopPropagation();
-         onDeleteOrdem?.(ordem);
-      },
-      [onDeleteOrdem, ordem]
-   );
+   // const handleDelete = useCallback(
+   //    (e: React.MouseEvent) => {
+   //       e.stopPropagation();
+   //       onDeleteOrdem?.(ordem);
+   //    },
+   //    [onDeleteOrdem, ordem]
+   // );
 
    return (
       <div
@@ -198,13 +199,15 @@ const OrdemItem = memo(function OrdemItem({
             </div>
             <div className="flex items-center gap-4">
                <div className="flex items-center gap-1">
-                  <button
-                     onClick={handleClone}
-                     className="rounded-lg p-2 text-gray-400 transition-colors hover:bg-blue-50 hover:text-blue-500"
-                     title="Clonar missao"
-                  >
-                     <HiDocumentDuplicate size={20} />
-                  </button>
+                  <PermBased resource={"ordem_missao"} requiredPerm={"create"}>
+                     <button
+                        onClick={handleClone}
+                        className="rounded-lg p-2 text-gray-400 transition-colors hover:bg-blue-50 hover:text-blue-500"
+                        title="Clonar missao"
+                     >
+                        <HiDocumentDuplicate size={20} />
+                     </button>
+                  </PermBased>
                   {/* {onDeleteOrdem && (
                      <button
                         onClick={handleDelete}
