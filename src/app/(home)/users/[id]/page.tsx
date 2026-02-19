@@ -3,7 +3,8 @@
 import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { Spinner } from "flowbite-react";
-import { useUser } from "@/hooks/queries";
+import { useUser, useUpdateUser } from "@/hooks/queries";
+import { useToast } from "@/app/context/toast";
 import { UserReadView } from "./components/UserReadView";
 import { UserAudit } from "./components/UserAudit";
 import { ResetPassword } from "./components/ResetPassword";
@@ -32,6 +33,32 @@ export default function UserDetailsPage() {
    const [activeTab, setActiveTab] = useState<TabKey>("dados");
 
    const { data: user, isLoading } = useUser(userId);
+   const updateUser = useUpdateUser();
+   const { push } = useToast();
+
+   async function toggleActive() {
+      if (!user) return;
+      const newStatus = !user.active;
+      try {
+         const result = await updateUser.mutateAsync({
+            id: userId,
+            data: { active: newStatus },
+         });
+         if (result.ok) {
+            push({
+               message: `Usuário ${newStatus ? "ativado" : "desativado"}`,
+               type: "success",
+            });
+         } else {
+            push({
+               message: result.message || "Erro ao alterar status",
+               type: "error",
+            });
+         }
+      } catch {
+         push({ message: "Erro ao alterar status", type: "error" });
+      }
+   }
 
    if (isLoading) {
       return (
@@ -86,15 +113,24 @@ export default function UserDetailsPage() {
                   {/* Info rápida (lado direito) */}
                   <div className="hidden items-center gap-3 sm:flex">
                      {user.active !== undefined && (
-                        <div
+                        <button
+                           onClick={toggleActive}
+                           disabled={updateUser.isPending}
                            className={clsx(
-                              "flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium backdrop-blur-sm",
+                              "flex cursor-pointer items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium backdrop-blur-sm transition-opacity hover:opacity-80 disabled:cursor-wait disabled:opacity-60",
                               user.active
                                  ? "bg-green-500/80 text-white"
                                  : "bg-gray-500/80 text-white"
                            )}
+                           title={
+                              user.active
+                                 ? "Clique para desativar"
+                                 : "Clique para ativar"
+                           }
                         >
-                           {user.active ? (
+                           {updateUser.isPending ? (
+                              <Spinner size="sm" color="failure" />
+                           ) : user.active ? (
                               <>
                                  <HiCheckCircle className="h-4 w-4" />
                                  Ativo
@@ -105,7 +141,7 @@ export default function UserDetailsPage() {
                                  Inativo
                               </>
                            )}
-                        </div>
+                        </button>
                      )}
                   </div>
                </div>
