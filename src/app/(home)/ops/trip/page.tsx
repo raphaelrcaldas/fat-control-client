@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
    Select,
    TextInput,
@@ -26,8 +26,6 @@ import type { FuncType, OperType } from "./types/trip.types";
 
 export default function TripPage() {
    const [uae] = useState("11gt");
-   const [filterName, setFilterName] = useState("");
-   const debouncedFilter = useDebouncedValue(filterName, 350);
 
    const {
       trips,
@@ -35,6 +33,7 @@ export default function TripPage() {
       isFetching,
       filters,
       updateFilter,
+      updateSearch,
       clearFilters,
       currentPage,
       perPage,
@@ -43,13 +42,35 @@ export default function TripPage() {
       handlePageChange,
       handlePerPageChange,
       PER_PAGE_OPTIONS,
+      urlSearch,
    } = useTripList({
       uae,
    });
 
+   // Local state for search input (immediate typing feedback)
+   const [filterName, setFilterName] = useState(urlSearch);
+   const debouncedFilter = useDebouncedValue(filterName, 350);
+
+   // Sync debounced search to URL
    useEffect(() => {
-      updateFilter("name", debouncedFilter);
+      if (debouncedFilter !== urlSearch) {
+         updateSearch(debouncedFilter);
+      }
+      // eslint-disable-next-line react-hooks/exhaustive-deps
    }, [debouncedFilter]);
+
+   // Sync URL search param back to local input when navigating back
+   useEffect(() => {
+      if (urlSearch !== filterName && urlSearch !== debouncedFilter) {
+         setFilterName(urlSearch);
+      }
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+   }, [urlSearch]);
+
+   const handleClearFilters = useCallback(() => {
+      clearFilters();
+      setFilterName("");
+   }, [clearFilters]);
 
    const hasActiveFilters =
       filters.p_g.length > 0 ||
@@ -169,10 +190,7 @@ export default function TripPage() {
                         color="red"
                         size="sm"
                         outline
-                        onClick={() => {
-                           clearFilters();
-                           setFilterName("");
-                        }}
+                        onClick={handleClearFilters}
                      >
                         <HiX className="mr-1 h-4 w-4" />
                         Limpar Filtros
@@ -202,10 +220,7 @@ export default function TripPage() {
                         color="red"
                         size="xs"
                         outline
-                        onClick={() => {
-                           clearFilters();
-                           setFilterName("");
-                        }}
+                        onClick={handleClearFilters}
                      >
                         Limpar Filtros
                      </Button>

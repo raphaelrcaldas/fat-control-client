@@ -1,4 +1,5 @@
-import { useState, useRef, useEffect, useMemo } from "react";
+import { useCallback, useMemo } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import { useTrips } from "@/hooks/queries";
 import type { FuncType, OperType } from "../types/trip.types";
 
@@ -6,87 +7,161 @@ type UseTripListParams = {
    uae: string;
 };
 
-type FilterParams = {
-   name: string;
-   p_g: string[];
-   func: FuncType[];
-   oper: OperType[];
-   active: boolean | null;
-};
-
 const PER_PAGE_OPTIONS = [10, 15, 25, 50, 100];
 
+const DEFAULT_PAGE = 1;
+const DEFAULT_PER_PAGE = 10;
+const DEFAULT_ACTIVE = true;
+
+function parseCommaSeparated(value: string | null): string[] {
+   if (!value) return [];
+   return value.split(",").filter(Boolean);
+}
+
 export function useTripList({ uae }: UseTripListParams) {
-   const [currentPage, setCurrentPage] = useState(1);
-   const [perPage, setPerPage] = useState(10);
+   const searchParams = useSearchParams();
+   const router = useRouter();
 
-   const [filters, setFilters] = useState<FilterParams>({
-      name: "",
-      p_g: [],
-      func: [],
-      oper: [],
-      active: true,
-   });
+   // --- Read URL params ---
+   const urlSearch = searchParams.get("search") ?? "";
+   const filterPG = parseCommaSeparated(searchParams.get("pg"));
+   const filterFunc = parseCommaSeparated(
+      searchParams.get("func")
+   ) as FuncType[];
+   const filterOper = parseCommaSeparated(
+      searchParams.get("oper")
+   ) as OperType[];
+   const activeParam = searchParams.get("active");
+   const filterActive =
+      activeParam === null ? DEFAULT_ACTIVE : activeParam === "true";
+   const currentPage = Number(searchParams.get("page")) || DEFAULT_PAGE;
+   const perPage = Number(searchParams.get("per_page")) || DEFAULT_PER_PAGE;
 
-   // Ref para controlar se e a primeira renderizacao
-   const isFirstRender = useRef(true);
+   // --- URL update helper ---
+   const updateParams = useCallback(
+      (updates: Record<string, string | undefined>, resetPage = true) => {
+         const params = new URLSearchParams(searchParams.toString());
 
-   // Resetar pagina quando filtros mudam (exceto primeira renderizacao)
-   useEffect(() => {
-      if (isFirstRender.current) {
-         isFirstRender.current = false;
-         return;
-      }
-      setCurrentPage(1);
-   }, [
-      filters.name,
-      filters.p_g,
-      filters.func,
-      filters.oper,
-      filters.active,
-      perPage,
-   ]);
+         for (const [key, value] of Object.entries(updates)) {
+            if (value === undefined || value === "") {
+               params.delete(key);
+            } else {
+               params.set(key, value);
+            }
+         }
 
-   // Resetar pagina quando uae muda
-   useEffect(() => {
-      setCurrentPage(1);
-   }, [uae]);
+         if (resetPage) {
+            params.delete("page");
+         }
 
-   // Montar parametros da query
+         // Clean defaults from URL
+         if (params.get("per_page") === String(DEFAULT_PER_PAGE)) {
+            params.delete("per_page");
+         }
+         if (params.get("page") === String(DEFAULT_PAGE)) {
+            params.delete("page");
+         }
+         if (params.get("active") === String(DEFAULT_ACTIVE)) {
+            params.delete("active");
+         }
+
+         const qs = params.toString();
+         router.replace(qs ? `?${qs}` : "?", { scroll: false });
+      },
+      [searchParams, router]
+   );
+
+   // --- Filters object (for compatibility with page) ---
+   const filters = useMemo(
+      () => ({
+         name: urlSearch,
+         p_g: filterPG,
+         func: filterFunc,
+         oper: filterOper,
+         active: filterActive,
+      }),
+      [urlSearch, filterPG, filterFunc, filterOper, filterActive]
+   );
+
+   // --- Query params ---
    const queryParams = useMemo(
       () => ({
          uae,
-         active: filters.active,
+         active: filterActive,
          page: currentPage,
          per_page: perPage,
-         search: filters.name || undefined,
-         p_g: filters.p_g.length > 0 ? filters.p_g : undefined,
-         func: filters.func.length > 0 ? filters.func : undefined,
-         oper: filters.oper.length > 0 ? filters.oper : undefined,
+         search: urlSearch || undefined,
+         p_g: filterPG.length > 0 ? filterPG : undefined,
+         func: filterFunc.length > 0 ? filterFunc : undefined,
+         oper: filterOper.length > 0 ? filterOper : undefined,
       }),
-      [uae, currentPage, perPage, filters]
+      [
+         uae,
+         currentPage,
+         perPage,
+         urlSearch,
+         filterPG,
+         filterFunc,
+         filterOper,
+         filterActive,
+      ]
    );
 
    const { data, isLoading, isFetching, refetch } = useTrips(queryParams);
 
-   function updateFilter<K extends keyof FilterParams>(
-      key: K,
-      value: FilterParams[K]
-   ) {
-      setFilters((prev) => ({ ...prev, [key]: value }));
-   }
+   // --- Update handlers ---
+   const updateSearch = useCallback(
+      (value: string) => {
+         updateParams({ search: value || undefined });
+      },
+      [updateParams]
+   );
 
-   function clearFilters() {
-      setFilters({ name: "", p_g: [], func: [], oper: [], active: true });
-   }
+   const updateFilter = useCallback(
+      (key: string, value: string[] | boolean | string) => {
+         if (key === "name") {
+            updateParams({ search: (value as string) || undefined });
+         } else if (key === "active") {
+            updateParams({
+               active: value === DEFAULT_ACTIVE ? undefined : String(value),
+            });
+         } else if (key === "p_g") {
+            const arr = value as string[];
+            updateParams({ pg: arr.length > 0 ? arr.join(",") : undefined });
+         } else if (key === "func") {
+            const arr = value as string[];
+            updateParams({ func: arr.length > 0 ? arr.join(",") : undefined });
+         } else if (key === "oper") {
+            const arr = value as string[];
+            updateParams({ oper: arr.length > 0 ? arr.join(",") : undefined });
+         }
+      },
+      [updateParams]
+   );
 
-   const handlePageChange = (page: number) => {
-      setCurrentPage(page);
-   };
+   const clearFilters = useCallback(() => {
+      router.replace("?", { scroll: false });
+   }, [router]);
 
-   const handlePerPageChange = (newPerPage: number) => {
-      setPerPage(newPerPage);
-   };
+   const handlePageChange = useCallback(
+      (page: number) => {
+         updateParams(
+            { page: page > DEFAULT_PAGE ? String(page) : undefined },
+            false
+         );
+      },
+      [updateParams]
+   );
+
+   const handlePerPageChange = useCallback(
+      (newPerPage: number) => {
+         updateParams({
+            per_page:
+               newPerPage !== DEFAULT_PER_PAGE ? String(newPerPage) : undefined,
+         });
+      },
+      [updateParams]
+   );
 
    return {
       trips: data?.items ?? [],
@@ -95,8 +170,8 @@ export function useTripList({ uae }: UseTripListParams) {
       refetch,
       filters,
       updateFilter,
+      updateSearch,
       clearFilters,
-      // Paginacao
       currentPage: data?.page ?? currentPage,
       perPage,
       totalPages: data?.pages ?? 1,
@@ -104,5 +179,6 @@ export function useTripList({ uae }: UseTripListParams) {
       handlePageChange,
       handlePerPageChange,
       PER_PAGE_OPTIONS,
+      urlSearch,
    };
 }
