@@ -4,7 +4,8 @@ import { Button, Select, TextInput, Spinner } from "flowbite-react";
 import { HiSearch, HiUserAdd, HiUsers } from "react-icons/hi";
 import { Pagination } from "@/components/Pagination";
 import { MultiSelect } from "@/components/MultiSelect";
-import { useState } from "react";
+import { useState, useCallback, useEffect } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import useDebouncedValue from "@/hooks/useDebouncedValue";
 import { postoGradRecords } from "services/routes/postos";
 import { UserCreateModal } from "./components/UserCreateModal";
@@ -13,6 +14,10 @@ import { UserCard } from "./components/UserCard";
 import { useUsers } from "@/hooks/queries";
 
 const PER_PAGE_OPTIONS = [10, 15, 25, 50, 100];
+
+const DEFAULT_PER_PAGE = 10;
+const DEFAULT_PAGE = 1;
+const DEFAULT_ACTIVE = ["true"];
 
 // Opções para os MultiSelects
 const PG_OPTIONS = postoGradRecords.map((pg) => ({
@@ -33,16 +38,131 @@ function getActiveFilter(active: string[]): boolean | undefined {
    return undefined;
 }
 
+// Helper: Parse comma-separated param into array (empty string = empty array)
+function parseCommaSeparated(value: string | null): string[] {
+   if (!value) return [];
+   return value.split(",").filter(Boolean);
+}
+
 export default function UsersPage() {
-   // Filtros (client state)
-   const [filterName, setFilterName] = useState("");
-   const [filterPG, setFilterPG] = useState<string[]>([]);
-   const [filterActive, setFilterActive] = useState<string[]>(["true"]);
+   const searchParams = useSearchParams();
+   const router = useRouter();
+
+   // --- Read URL params ---
+   const urlSearch = searchParams.get("search") ?? "";
+   const filterPG = parseCommaSeparated(searchParams.get("pg"));
+   const filterActive =
+      searchParams.get("active") !== null
+         ? parseCommaSeparated(searchParams.get("active"))
+         : DEFAULT_ACTIVE;
+   const currentPage = Number(searchParams.get("page")) || DEFAULT_PAGE;
+   const perPage = Number(searchParams.get("per_page")) || DEFAULT_PER_PAGE;
+
+   // --- Local state for search input (immediate typing feedback) ---
+   const [filterName, setFilterName] = useState(urlSearch);
    const [showCreateModal, setShowCreateModal] = useState(false);
-   const [currentPage, setCurrentPage] = useState(1);
-   const [perPage, setPerPage] = useState(10);
 
    const debouncedFilter = useDebouncedValue(filterName, 350);
+
+   // --- URL update helper ---
+   const updateParams = useCallback(
+      (updates: Record<string, string | undefined>, resetPage = true) => {
+         const params = new URLSearchParams(searchParams.toString());
+
+         // Apply updates
+         for (const [key, value] of Object.entries(updates)) {
+            if (value === undefined || value === "") {
+               params.delete(key);
+            } else {
+               params.set(key, value);
+            }
+         }
+
+         // Reset page to 1 when filters change
+         if (resetPage) {
+            params.delete("page");
+         }
+
+         // Clean defaults from URL
+         if (params.get("per_page") === String(DEFAULT_PER_PAGE)) {
+            params.delete("per_page");
+         }
+         if (params.get("page") === String(DEFAULT_PAGE)) {
+            params.delete("page");
+         }
+         // active=true is the default, so remove it from URL
+         if (params.get("active") === "true") {
+            params.delete("active");
+         }
+
+         const qs = params.toString();
+         router.replace(qs ? `?${qs}` : "?", { scroll: false });
+      },
+      [searchParams, router]
+   );
+
+   // --- Sync debounced search to URL ---
+   useEffect(() => {
+      // Only sync if debounced value differs from what's in the URL
+      if (debouncedFilter !== urlSearch) {
+         updateParams({ search: debouncedFilter || undefined });
+      }
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+   }, [debouncedFilter]);
+
+   // --- Sync URL search param back to local input when navigating back ---
+   useEffect(() => {
+      // When the URL search param changes externally (e.g. back navigation),
+      // update the local input only if the debounced value already matches
+      // (meaning the user is not actively typing)
+      if (urlSearch !== filterName && urlSearch !== debouncedFilter) {
+         setFilterName(urlSearch);
+      }
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+   }, [urlSearch]);
+
+   // --- Filter change handlers ---
+   const handleSearchChange = useCallback((value: string) => {
+      setFilterName(value);
+      // URL sync happens via the debounced effect above
+   }, []);
+
+   const handlePGChange = useCallback(
+      (values: string[]) => {
+         updateParams({ pg: values.length > 0 ? values.join(",") : undefined });
+      },
+      [updateParams]
+   );
+
+   const handleActiveChange = useCallback(
+      (values: string[]) => {
+         // Encode as comma-separated; empty array means "all" (no filter)
+         // Default is ["true"], so "true" gets cleaned from URL by updateParams
+         updateParams({
+            active: values.length === 0 ? "" : values.join(","),
+         });
+      },
+      [updateParams]
+   );
+
+   const handlePageChange = useCallback(
+      (page: number) => {
+         updateParams(
+            { page: page > DEFAULT_PAGE ? String(page) : undefined },
+            false
+         );
+      },
+      [updateParams]
+   );
+
+   const handlePerPageChange = useCallback(
+      (value: number) => {
+         updateParams({
+            per_page: value !== DEFAULT_PER_PAGE ? String(value) : undefined,
+         });
+      },
+      [updateParams]
+   );
 
    // React Query - busca usuários com filtros
    const {
@@ -60,15 +180,6 @@ export default function UsersPage() {
    const usuarios = data?.items ?? [];
    const totalPages = data?.pages ?? 1;
    const totalUsers = data?.total ?? 0;
-
-   // Reset page quando filtros mudam
-   const handleFilterChange = <T,>(
-      setter: React.Dispatch<React.SetStateAction<T>>,
-      value: T
-   ) => {
-      setter(value);
-      setCurrentPage(1);
-   };
 
    const hasFilters =
       debouncedFilter || filterPG.length > 0 || filterActive.length > 0;
@@ -100,9 +211,7 @@ export default function UsersPage() {
                      icon={HiSearch}
                      placeholder="Buscar por nome de guerra ou nome completo..."
                      value={filterName}
-                     onChange={(e) =>
-                        handleFilterChange(setFilterName, e.target.value)
-                     }
+                     onChange={(e) => handleSearchChange(e.target.value)}
                      sizing="md"
                   />
                </div>
@@ -113,7 +222,7 @@ export default function UsersPage() {
                   <MultiSelect
                      options={PG_OPTIONS}
                      selected={filterPG}
-                     onChange={(v) => handleFilterChange(setFilterPG, v)}
+                     onChange={handlePGChange}
                      placeholder="Todos P/G"
                      className="w-48"
                   />
@@ -122,7 +231,7 @@ export default function UsersPage() {
                   <MultiSelect
                      options={STATUS_OPTIONS}
                      selected={filterActive}
-                     onChange={(v) => handleFilterChange(setFilterActive, v)}
+                     onChange={handleActiveChange}
                      placeholder="Todos Status"
                      className="w-48"
                   />
@@ -219,10 +328,9 @@ export default function UsersPage() {
                               id="perPage"
                               sizing="sm"
                               value={perPage}
-                              onChange={(e) => {
-                                 setPerPage(Number(e.target.value));
-                                 setCurrentPage(1);
-                              }}
+                              onChange={(e) =>
+                                 handlePerPageChange(Number(e.target.value))
+                              }
                               className="w-20"
                            >
                               {PER_PAGE_OPTIONS.map((option) => (
@@ -237,7 +345,7 @@ export default function UsersPage() {
                         <Pagination
                            currentPage={currentPage}
                            totalPages={totalPages}
-                           onPageChange={setCurrentPage}
+                           onPageChange={handlePageChange}
                         />
                      )}
                   </nav>

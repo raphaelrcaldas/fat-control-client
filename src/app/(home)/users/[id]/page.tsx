@@ -9,7 +9,6 @@ import { UserAudit } from "./components/UserAudit";
 import { ResetPassword } from "./components/ResetPassword";
 import clsx from "clsx";
 import {
-   HiArrowLeft,
    HiUser,
    HiClipboardList,
    HiKey,
@@ -58,15 +57,6 @@ export default function UserDetailsPage() {
 
    return (
       <div className="h-full w-full space-y-4 overflow-auto p-1">
-         {/* Navegação */}
-         <button
-            onClick={() => router.push("/users")}
-            className="inline-flex items-center gap-1.5 text-sm text-gray-500 transition-colors hover:text-gray-900"
-         >
-            <HiArrowLeft className="h-4 w-4" />
-            Voltar para Usuários
-         </button>
-
          {/* Perfil do Usuário */}
          <div className="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
             <div className="bg-linear-to-r from-red-500 to-red-700 px-6 py-4">
