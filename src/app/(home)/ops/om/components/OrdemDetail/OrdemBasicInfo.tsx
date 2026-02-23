@@ -4,7 +4,11 @@ import { memo, useState, useEffect, useCallback, useMemo } from "react";
 import clsx from "clsx";
 import type { OrdemMissaoOut } from "services/routes/om/ordens";
 import type { AeronavePublic } from "services/routes/aeronaves";
-import { minutesToTime, timeToMinutes } from "utils/dateHandler";
+import {
+   minutesToTime,
+   timeToMinutes,
+   calcularTempoVooMinutos,
+} from "utils/dateHandler";
 
 /**
  * Componente de input para tempo no formato HH:MM
@@ -124,13 +128,15 @@ export const OrdemBasicInfo = memo(function OrdemBasicInfo({
    validationErrors,
    aeronaves,
 }: OrdemBasicInfoProps) {
-   // Calcular o somatório de tempo de voo das etapas
+   // Calcular o somatório de tempo de voo das etapas a partir de dt_dep/dt_arr atuais
    const somaTempoVooEtapas = useMemo(() => {
       if (!formData.etapas || formData.etapas.length === 0) return 0;
-      return formData.etapas.reduce(
-         (acc, etapa) => acc + (etapa.tvoo_etp || 0),
-         0
-      );
+      return formData.etapas.reduce((acc, etapa) => {
+         if (etapa.dt_dep && etapa.dt_arr) {
+            return acc + calcularTempoVooMinutos(etapa.dt_dep, etapa.dt_arr);
+         }
+         return acc;
+      }, 0);
    }, [formData.etapas]);
 
    // Validar se esf_aer é menor que o somatório de tempo de voo

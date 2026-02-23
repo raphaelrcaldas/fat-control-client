@@ -111,7 +111,7 @@ export default function IndispPage() {
    const funcLabels = FUNC_LABELS_SHORT;
 
    return (
-      <div className="flex h-full flex-col overflow-hidden">
+      <div className="flex flex-1 flex-col overflow-hidden">
          <div className="mb-2 flex shrink-0 flex-col items-center gap-3 rounded-lg border border-gray-200 bg-linear-to-r from-gray-50 to-white px-4 py-3 shadow-sm md:flex-row md:justify-between">
             {/* Select de Função - Customizado */}
             <div className="flex items-center gap-2">

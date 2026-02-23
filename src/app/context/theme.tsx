@@ -7,6 +7,10 @@ import { ThemeProvider, createTheme } from "flowbite-react";
  * Tema customizado do Flowbite React
  * Define estilos personalizados para componentes da aplicação
  */
+const whiteInputColors = {
+   gray: "bg-white border-gray-300 text-gray-900 placeholder-gray-500 focus:border-primary-500 focus:ring-primary-500",
+};
+
 const customTheme = createTheme({
    modal: {
       root: { show: { on: "backdrop-blur-xs" } },
@@ -21,8 +25,17 @@ const customTheme = createTheme({
       },
    },
    table: {
-      body: { cell: { base: "py-2.5" } },
+      body: { cell: { base: "py-2" } },
       row: { base: "border-gray-200 bg-white" },
+   },
+   textInput: {
+      field: { input: { colors: whiteInputColors } },
+   },
+   select: {
+      field: { select: { colors: whiteInputColors } },
+   },
+   textarea: {
+      colors: whiteInputColors,
    },
 });
 

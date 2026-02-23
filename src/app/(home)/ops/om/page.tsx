@@ -1,15 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import clsx from "clsx";
+import { useRouter } from "next/navigation";
 import { Tabs, TabItem, Spinner, Pagination } from "flowbite-react";
 import { FiltrosOrdem } from "./types";
 import { FiltrosOrdemComponent } from "./components/FiltrosOrdem";
 import { ListaOrdens } from "./components/ListaOrdens";
-import { OrdemDetail } from "./components/OrdemDetail";
 import { DeleteOrdemModal } from "./components/DeleteOrdemModal";
-import { formatDateForDisplay } from "./components/OrdemDetail/utils/ordemUtils";
-import { useOrdens, useOrdem, useDeleteOrdem } from "@/hooks/queries";
+import { useOrdens, useDeleteOrdem } from "@/hooks/queries";
 import { type OrdemMissaoList } from "services/routes/om/ordens";
 import { PermBased } from "../../hooks/usePermBased";
 
@@ -47,6 +45,8 @@ const getDefaultDates = () => {
 const defaultDates = getDefaultDates();
 
 export default function OrdensMissao() {
+   const router = useRouter();
+
    // Paginacao
    const [pageAprovadas, setPageAprovadas] = useState(1);
    const [pageRascunho, setPageRascunho] = useState(1);
@@ -61,10 +61,6 @@ export default function OrdensMissao() {
    });
    const [debouncedBusca, setDebouncedBusca] = useState(filtros.busca);
 
-   // Modal de edicao/criacao
-   const [modalOpen, setModalOpen] = useState(false);
-   const [selectedOrdemId, setSelectedOrdemId] = useState<number | null>(null);
-   const [isCloning, setIsCloning] = useState(false);
    const [activeTab, setActiveTab] = useState(0);
 
    // Modal de exclusao
@@ -72,10 +68,6 @@ export default function OrdensMissao() {
    const [ordemToDelete, setOrdemToDelete] = useState<OrdemMissaoList | null>(
       null
    );
-
-   // Estado de carregamento ao abrir ordem (para overlay)
-   const [loadingOrdemData, setLoadingOrdemData] =
-      useState<OrdemMissaoList | null>(null);
 
    // ========================================
    // TanStack Query - Queries
@@ -102,9 +94,6 @@ export default function OrdensMissao() {
       per_page: 20,
       status: ["rascunho"],
    });
-
-   // Query: Detalhe da ordem selecionada
-   const selectedOrdemQuery = useOrdem(selectedOrdemId);
 
    // Mutation: Excluir ordem
    const deleteOrdemMutation = useDeleteOrdem();
@@ -144,25 +133,12 @@ export default function OrdensMissao() {
    // Handlers
    // ========================================
 
-   // Refresh apos salvar ordem (mutations invalidam automaticamente)
-   const handleSaveOrdem = () => {
-      setModalOpen(false);
-      setSelectedOrdemId(null);
-      setIsCloning(false);
-   };
-
    const handleOpenOrdem = (ordem: OrdemMissaoList) => {
-      setLoadingOrdemData(ordem);
-      setSelectedOrdemId(ordem.id);
-      setIsCloning(false);
-      setModalOpen(true);
+      router.push(`/ops/om/${ordem.id}`);
    };
 
    const handleCloneOrdem = (ordem: OrdemMissaoList) => {
-      setLoadingOrdemData(ordem);
-      setSelectedOrdemId(ordem.id);
-      setIsCloning(true);
-      setModalOpen(true);
+      router.push(`/ops/om/${ordem.id}/clonar`);
    };
 
    // Abre modal de confirmacao de exclusao
@@ -219,12 +195,7 @@ export default function OrdensMissao() {
    };
 
    return (
-      <div
-         className={clsx(
-            "p-2 text-gray-900",
-            modalOpen && "relative h-full overflow-hidden"
-         )}
-      >
+      <div className="p-2 text-gray-900">
          <div className="mx-auto">
             {/* Header */}
             <header className="mb-3 flex items-center justify-between">
@@ -238,11 +209,7 @@ export default function OrdensMissao() {
                </div>
                <PermBased resource={"ordem_missao"} requiredPerm={"create"}>
                   <button
-                     onClick={() => {
-                        setSelectedOrdemId(null);
-                        setIsCloning(false);
-                        setModalOpen(true);
-                     }}
+                     onClick={() => router.push("/ops/om/nova")}
                      className="flex items-center gap-2 rounded-lg bg-red-500 px-5 py-2.5 font-bold text-white shadow hover:bg-red-700"
                   >
                      <span className="text-lg">+</span>
@@ -361,20 +328,6 @@ export default function OrdensMissao() {
             </Tabs>
          </div>
 
-         {/* Modal de edicao/criacao */}
-         <OrdemDetail
-            ordem={selectedOrdemQuery.data ?? null}
-            onSave={handleSaveOrdem}
-            onClose={() => {
-               setModalOpen(false);
-               setSelectedOrdemId(null);
-               setIsCloning(false);
-            }}
-            isNew={!selectedOrdemQuery.data || isCloning}
-            isCloning={isCloning}
-            isOpen={modalOpen}
-         />
-
          {/* Modal de exclusao */}
          <DeleteOrdemModal
             isOpen={deleteModalOpen}
@@ -386,21 +339,6 @@ export default function OrdensMissao() {
             onCancel={cancelDeleteOrdem}
             isDeleting={deleteOrdemMutation.isPending}
          />
-
-         {/* Overlay de carregamento ao abrir ordem */}
-         {selectedOrdemQuery.isLoading && loadingOrdemData && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-xs">
-               <div className="flex flex-col items-center gap-4 rounded-lg bg-white p-8 shadow-xl">
-                  <Spinner size="xl" color="failure" />
-                  <p className="text-lg font-medium text-gray-700">
-                     Carregando detalhes da ordem
-                  </p>
-                  <p className="font-mono text-xl font-bold text-gray-900 uppercase">
-                     {`${loadingOrdemData.numero}/${loadingOrdemData.uae}/${formatDateForDisplay(loadingOrdemData.data_saida)}`}
-                  </p>
-               </div>
-            </div>
-         )}
       </div>
    );
 }

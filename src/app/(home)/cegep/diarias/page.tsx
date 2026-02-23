@@ -47,7 +47,7 @@ export default function DiariasPage() {
    const errorMessage = error?.message || null;
 
    return (
-      <div className="flex h-full w-full flex-col overflow-hidden bg-gray-50">
+      <div className="flex w-full flex-1 flex-col overflow-hidden bg-gray-50">
          {/* Header */}
          <DiariaHeader
             loading={loading}

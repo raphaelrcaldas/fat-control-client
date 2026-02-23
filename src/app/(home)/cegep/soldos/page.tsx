@@ -134,7 +134,7 @@ export default function SoldosPage() {
    const loading = isLoading;
 
    return (
-      <div className="flex h-full w-full flex-col overflow-hidden bg-gray-50">
+      <div className="flex w-full flex-1 flex-col overflow-hidden bg-gray-50">
          {/* Header */}
          <div className="mb-4 rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">

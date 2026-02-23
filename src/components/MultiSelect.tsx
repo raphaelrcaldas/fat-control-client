@@ -4,12 +4,21 @@ import { useState, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { HiChevronDown } from "react-icons/hi";
 
+type FlowbiteSizing = "sm" | "md" | "lg";
+
+const SIZING_CLASSES: Record<FlowbiteSizing, string> = {
+   sm: "p-2 sm:text-xs",
+   md: "p-2.5 text-sm",
+   lg: "p-4 sm:text-base",
+};
+
 type MultiSelectProps = {
    options: { value: string; label: string }[];
    selected: string[];
    onChange: (values: string[]) => void;
    placeholder?: string;
    className?: string;
+   sizing?: FlowbiteSizing;
 };
 
 export function MultiSelect({
@@ -18,6 +27,7 @@ export function MultiSelect({
    onChange,
    placeholder = "Selecione...",
    className = "",
+   sizing = "md",
 }: MultiSelectProps) {
    const [isOpen, setIsOpen] = useState(false);
    const [isAnimating, setIsAnimating] = useState(false);
@@ -166,7 +176,7 @@ export function MultiSelect({
             ref={buttonRef}
             type="button"
             onClick={() => setIsOpen(!isOpen)}
-            className={`flex w-full items-center justify-between gap-2 rounded-lg border bg-white px-3 py-2 text-sm transition-all duration-200 focus:border-red-500 focus:ring-2 focus:ring-red-500 focus:outline-none ${
+            className={`flex w-full items-center justify-between gap-2 rounded-lg border bg-white ${SIZING_CLASSES[sizing]} transition-all duration-200 focus:border-red-500 focus:ring-2 focus:ring-red-500 focus:outline-none ${
                selected.length > 0
                   ? "border-red-300 bg-red-50 text-gray-900 hover:bg-red-100"
                   : "border-gray-300 text-gray-900 hover:bg-gray-50"

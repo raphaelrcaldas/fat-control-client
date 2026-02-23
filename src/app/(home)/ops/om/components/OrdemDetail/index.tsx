@@ -28,26 +28,24 @@ import { HiTag } from "react-icons/hi";
 import { formatDateForDisplay } from "./utils/ordemUtils";
 import { gerarOrdemMissaoDocx } from "../../utils/exportOrdemMissao";
 import { gerarPedidoLanche } from "../../utils/exportLanche";
-import { useToast } from "../../../../../context/toast";
+import { useToast } from "@/app/context/toast";
 import { PermBased } from "@/app/(home)/hooks/usePermBased";
 
-interface OrdemDetailProps {
+interface OrdemFormContentProps {
    ordem: OrdemMissaoOut | null;
    onSave: () => void;
    onClose: () => void;
    isNew: boolean;
    isCloning?: boolean;
-   isOpen: boolean;
 }
 
-export function OrdemDetail({
+export function OrdemFormContent({
    ordem,
    onSave,
    onClose,
    isNew,
    isCloning = false,
-   isOpen,
-}: OrdemDetailProps) {
+}: OrdemFormContentProps) {
    const { push: pushToast } = useToast();
    const {
       formData,
@@ -247,21 +245,6 @@ export function OrdemDetail({
       [camposEspeciais]
    );
 
-   const [isVisible, setIsVisible] = useState(false);
-   const [shouldRender, setShouldRender] = useState(false);
-
-   // Controle de animacao de entrada/saida
-   useEffect(() => {
-      if (isOpen) {
-         setShouldRender(true);
-         // setTimeout garante que o browser pintou o estado inicial antes da transicao
-         const timer = setTimeout(() => setIsVisible(true), 20);
-         return () => clearTimeout(timer);
-      } else {
-         setIsVisible(false);
-      }
-   }, [isOpen]);
-
    // Scroll automatico para erros quando aparecem
    useEffect(() => {
       if (
@@ -285,35 +268,6 @@ export function OrdemDetail({
          errorContainerRef.current.focus();
       }
    }, [error, formValidationErrors]);
-
-   // Bloquear scroll do body e do layout main quando o painel estiver aberto
-   useEffect(() => {
-      const layoutMain = document.querySelector("main.overflow-auto");
-      if (isOpen) {
-         document.body.style.overflow = "hidden";
-         if (layoutMain) {
-            (layoutMain as HTMLElement).style.overflow = "hidden";
-         }
-      } else {
-         document.body.style.overflow = "";
-         if (layoutMain) {
-            (layoutMain as HTMLElement).style.overflow = "";
-         }
-      }
-      return () => {
-         document.body.style.overflow = "";
-         if (layoutMain) {
-            (layoutMain as HTMLElement).style.overflow = "";
-         }
-      };
-   }, [isOpen]);
-
-   // Aguardar animacao de saida antes de desmontar
-   const handleTransitionEnd = () => {
-      if (!isVisible && !isOpen) {
-         setShouldRender(false);
-      }
-   };
 
    const title = useMemo(() => {
       if (isCloning) return "Clonar";
@@ -339,16 +293,8 @@ export function OrdemDetail({
       [ordem]
    );
 
-   if (!shouldRender) return null;
-
    return (
-      <div
-         className={clsx(
-            "absolute inset-0 z-50 flex flex-col overflow-hidden rounded-2xl border border-gray-200 bg-gray-50 shadow-xl transition-transform duration-150 ease-out",
-            isVisible ? "translate-x-0" : "translate-x-full"
-         )}
-         onTransitionEnd={handleTransitionEnd}
-      >
+      <div className="flex flex-1 flex-col overflow-hidden rounded-2xl border border-gray-200 bg-gray-50 shadow-xl">
          {/* Header Fixo */}
          <header className="flex shrink-0 items-center justify-between border-b border-gray-200 bg-white px-6 py-4 shadow-sm">
             <div className="flex min-w-0 flex-1 items-center gap-4">

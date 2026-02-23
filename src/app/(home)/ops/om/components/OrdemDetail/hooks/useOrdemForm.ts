@@ -26,11 +26,6 @@ const calcularEsfAer = (etapas: EtapaOut[]): number => {
    }, 0);
 };
 
-// Calcula a soma de tvoo_etp de todas as etapas (usado para validação)
-const calcularSomaTempoVooEtapas = (etapas: EtapaOut[]): number => {
-   return etapas.reduce((acc, etapa) => acc + (etapa.tvoo_etp || 0), 0);
-};
-
 // Local type for tripulacao management (API uses TripulacaoAgrupada)
 interface TripulacaoOrdem {
    pil: CrewMember[];
@@ -521,12 +516,12 @@ export const useOrdemForm = ({
          }
       });
 
-      // Validar esf_aer >= soma de tvoo_etp das etapas
-      const somaTempoVooEtapas = calcularSomaTempoVooEtapas(formData.etapas);
+      // Validar esf_aer >= soma do tempo de voo calculado das etapas atuais
+      const somaTempoVooAtual = calcularEsfAer(formData.etapas);
       const esfAer = formData.esf_aer || 0;
-      if (esfAer > 0 && esfAer < somaTempoVooEtapas) {
-         const horas = Math.floor(somaTempoVooEtapas / 60);
-         const minutos = somaTempoVooEtapas % 60;
+      if (esfAer > 0 && esfAer < somaTempoVooAtual) {
+         const horas = Math.floor(somaTempoVooAtual / 60);
+         const minutos = somaTempoVooAtual % 60;
          const somaFormatada = `${horas.toString().padStart(2, "0")}:${minutos.toString().padStart(2, "0")}`;
          errors.push(
             `Esforço Aéreo deve ser maior ou igual à soma do tempo de voo das etapas (${somaFormatada})`
@@ -604,12 +599,12 @@ export const useOrdemForm = ({
          }
       }
 
-      // Validar esf_aer >= soma de tvoo_etp das etapas
-      const somaTempoVooEtapas = calcularSomaTempoVooEtapas(formData.etapas);
+      // Validar esf_aer >= soma do tempo de voo calculado das etapas atuais
+      const somaTempoVooAtual = calcularEsfAer(formData.etapas);
       const esfAer = formData.esf_aer || 0;
-      if (esfAer > 0 && esfAer < somaTempoVooEtapas) {
-         const horas = Math.floor(somaTempoVooEtapas / 60);
-         const minutos = somaTempoVooEtapas % 60;
+      if (esfAer > 0 && esfAer < somaTempoVooAtual) {
+         const horas = Math.floor(somaTempoVooAtual / 60);
+         const minutos = somaTempoVooAtual % 60;
          const somaFormatada = `${horas.toString().padStart(2, "0")}:${minutos.toString().padStart(2, "0")}`;
          errors.push(
             `Esforço Aéreo deve ser maior ou igual à soma do tempo de voo das etapas (${somaFormatada})`
