@@ -2,7 +2,7 @@
 
 export function AppLoadingScreen() {
    return (
-      <div className="grid flex-1 content-center justify-items-center bg-linear-to-br from-gray-50 to-gray-100">
+      <div className="grid min-h-full flex-1 content-center justify-items-center bg-linear-to-br from-gray-50 to-gray-100">
          <div className="animate-fade-in relative mx-8 grid w-full max-w-md justify-items-center rounded-xl border border-gray-200 bg-white p-10 shadow-xl">
             {/* Logo/Título com animação de pulse suave */}
             <div className="animate-pulse-subtle mb-6 text-center">
