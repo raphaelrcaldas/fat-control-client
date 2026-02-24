@@ -1,5 +1,6 @@
 "use client";
-import { useState, useMemo } from "react";
+import { useMemo, useCallback } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import { listOrdens } from "services/routes/om/ordens";
 import { ordemKeys } from "@/hooks/queries/useOrdens";
@@ -22,9 +23,21 @@ function toLocalDateStr(date: Date): string {
    return `${y}-${m}-${d}`;
 }
 
+function parseInicioParam(value: string | null): Date {
+   if (value) {
+      const parsed = new Date(value + "T00:00:00");
+      if (!isNaN(parsed.getTime())) return getWeekStart(parsed);
+   }
+   return getWeekStart(new Date());
+}
+
 export default function QuadroOperacoes() {
-   const [currentWeekStart, setCurrentWeekStart] = useState<Date>(() =>
-      getWeekStart(new Date())
+   const searchParams = useSearchParams();
+   const router = useRouter();
+
+   const currentWeekStart = useMemo(
+      () => parseInicioParam(searchParams.get("inicio")),
+      [searchParams]
    );
 
    const filters = useMemo(() => {
@@ -55,13 +68,16 @@ export default function QuadroOperacoes() {
       );
    }, [todasAeronaves, ordens]);
 
-   const navigateWeek = (direction: number) => {
-      setCurrentWeekStart((prev) => {
-         const newDate = new Date(prev);
+   const navigateWeek = useCallback(
+      (direction: number) => {
+         const newDate = new Date(currentWeekStart);
          newDate.setDate(newDate.getDate() + direction * 7);
-         return newDate;
-      });
-   };
+         const params = new URLSearchParams(searchParams);
+         params.set("inicio", toLocalDateStr(newDate));
+         router.push(`?${params.toString()}`);
+      },
+      [currentWeekStart, searchParams, router]
+   );
 
    return (
       <WeekCalendar

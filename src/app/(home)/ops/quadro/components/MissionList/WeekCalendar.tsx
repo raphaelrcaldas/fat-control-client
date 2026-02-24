@@ -1,5 +1,6 @@
 "use client";
 import React, { useState } from "react";
+import { useRouter } from "next/navigation";
 import type { OrdemMissaoList } from "services/routes/om/ordens";
 import {
    STATUS_CONFIG,
@@ -79,6 +80,7 @@ function AeronaveCell({
    date: Date;
    ordens: OrdemMissaoList[];
 }) {
+   const router = useRouter();
    const dateStr = toLocalDateStr(date);
    const etapas = getEtapasDoDia(ordens, matricula, dateStr);
 
@@ -100,8 +102,9 @@ function AeronaveCell({
             return (
                <div
                   key={`${etapa.omId}-${idx}`}
-                  className={`truncate rounded border px-1 py-0.5 text-center font-mono text-sm font-medium ${statusCfg.bg} ${statusCfg.text} ${statusCfg.border}`}
+                  className={`cursor-pointer truncate rounded border px-1 py-0.5 text-center font-mono text-sm font-medium transition-opacity hover:opacity-80 ${statusCfg.bg} ${statusCfg.text} ${statusCfg.border}`}
                   title={`OM ${etapa.omNumero} — ${etapa.omTipo}`}
+                  onClick={() => router.push(`/ops/om/${etapa.omId}`)}
                >
                   {etapa.horaZ && (
                      <span className="text-[10px]">{etapa.horaZ} </span>

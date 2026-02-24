@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect, useCallback } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Tabs, TabItem, Spinner, Pagination } from "flowbite-react";
 import { FiltrosOrdem } from "./types";
 import { FiltrosOrdemComponent } from "./components/FiltrosOrdem";
@@ -44,12 +44,34 @@ const getDefaultDates = () => {
 
 const defaultDates = getDefaultDates();
 
+type TabKey = "aprovadas" | "rascunho";
+const TAB_INDEX: Record<TabKey, number> = { aprovadas: 0, rascunho: 1 };
+const TAB_KEY: Record<number, TabKey> = { 0: "aprovadas", 1: "rascunho" };
+
 export default function OrdensMissao() {
    const router = useRouter();
+   const searchParams = useSearchParams();
 
-   // Paginacao
-   const [pageAprovadas, setPageAprovadas] = useState(1);
-   const [pageRascunho, setPageRascunho] = useState(1);
+   // URL search params como fonte de verdade
+   const tabParam = (searchParams.get("tab") as TabKey) || "aprovadas";
+   const activeTab = TAB_INDEX[tabParam] ?? 0;
+   const currentPage = Number(searchParams.get("page")) || 1;
+
+   const updateParams = useCallback(
+      (updates: Record<string, string | null>) => {
+         const params = new URLSearchParams(searchParams.toString());
+         for (const [key, value] of Object.entries(updates)) {
+            if (value === null) params.delete(key);
+            else params.set(key, value);
+         }
+         router.replace(`?${params.toString()}`, { scroll: false });
+      },
+      [searchParams, router]
+   );
+
+   // Paginacao derivada da URL
+   const pageAprovadas = tabParam === "aprovadas" ? currentPage : 1;
+   const pageRascunho = tabParam === "rascunho" ? currentPage : 1;
 
    // Filtros
    const [filtros, setFiltros] = useState<FiltrosOrdem>({
@@ -60,8 +82,6 @@ export default function OrdensMissao() {
       etiquetas_ids: [],
    });
    const [debouncedBusca, setDebouncedBusca] = useState(filtros.busca);
-
-   const [activeTab, setActiveTab] = useState(0);
 
    // Modal de exclusao
    const [deleteModalOpen, setDeleteModalOpen] = useState(false);
@@ -120,7 +140,10 @@ export default function OrdensMissao() {
 
    // Reset para pagina 1 quando filtros mudam
    useEffect(() => {
-      setPageAprovadas(1);
+      if (currentPage !== 1 && tabParam === "aprovadas") {
+         updateParams({ page: null });
+      }
+      // eslint-disable-next-line react-hooks/exhaustive-deps
    }, [
       filtros.status,
       filtros.dataInicio,
@@ -179,7 +202,8 @@ export default function OrdensMissao() {
    };
 
    const handleTabChange = (tab: number) => {
-      setActiveTab(tab);
+      const key = TAB_KEY[tab] ?? "aprovadas";
+      updateParams({ tab: key === "aprovadas" ? null : key, page: null });
       if (filtros.status.length > 0) {
          setFiltros((prev) => ({ ...prev, status: [] }));
       }
@@ -187,11 +211,11 @@ export default function OrdensMissao() {
 
    // Handlers de paginacao
    const handlePageChangeAprovadas = (page: number) => {
-      setPageAprovadas(page);
+      updateParams({ page: page === 1 ? null : String(page) });
    };
 
    const handlePageChangeRascunho = (page: number) => {
-      setPageRascunho(page);
+      updateParams({ page: page === 1 ? null : String(page) });
    };
 
    return (

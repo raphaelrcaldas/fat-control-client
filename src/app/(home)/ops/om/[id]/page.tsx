@@ -12,7 +12,7 @@ export default function OrdemDetailPage() {
    const { data: ordem, isLoading } = useOrdem(ordemId);
 
    const handleNavigateBack = () => {
-      router.push("/ops/om");
+      router.back();
    };
 
    if (isLoading) {
