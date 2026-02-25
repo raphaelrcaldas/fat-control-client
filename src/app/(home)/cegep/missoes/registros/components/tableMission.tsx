@@ -1,4 +1,12 @@
 import { useState, memo, useMemo } from "react";
+import {
+   Table,
+   TableHead,
+   TableHeadCell,
+   TableBody,
+   TableRow,
+   TableCell,
+} from "flowbite-react";
 import MissionDetail from "./missionDetail";
 import { Missao } from "services/routes/cegep/missoes";
 import clsx from "clsx";
@@ -17,60 +25,39 @@ export const TableMission = memo(function TableMission({
    setShowForm,
 }: TableMissionProps) {
    return (
-      <div className="overflow-x-auto rounded-lg border border-gray-200">
-         <table className="w-full text-left text-sm text-gray-700">
-            <thead className="border-b border-gray-200 bg-gray-50 text-xs text-gray-600 uppercase">
-               <tr>
-                  <th scope="col" className="px-4 py-3">
-                     Documento
-                  </th>
-                  <th scope="col" className="px-4 py-3">
-                     Tipo
-                  </th>
-                  <th scope="col" className="px-4 py-3">
-                     Descricao
-                  </th>
-                  <th scope="col" className="px-4 py-3">
-                     Afastamento
-                  </th>
-                  <th scope="col" className="px-4 py-3">
-                     Regresso
-                  </th>
-                  <th scope="col" className="px-4 py-3 text-center">
-                     Militares
-                  </th>
-                  <th scope="col" className="px-4 py-3">
-                     Pernoites
-                  </th>
-                  <th scope="col" className="px-4 py-3">
-                     Etiquetas
-                  </th>
-               </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200">
-               {missoes.map((missao, index) => (
+      <div className="overflow-x-auto">
+         <Table striped hoverable>
+            <TableHead>
+               <TableHeadCell>Documento</TableHeadCell>
+               <TableHeadCell>Tipo</TableHeadCell>
+               <TableHeadCell>Descricao</TableHeadCell>
+               <TableHeadCell>Afastamento</TableHeadCell>
+               <TableHeadCell>Regresso</TableHeadCell>
+               <TableHeadCell className="text-center">Militares</TableHeadCell>
+               <TableHeadCell>Pernoites</TableHeadCell>
+               <TableHeadCell>Etiquetas</TableHeadCell>
+            </TableHead>
+            <TableBody className="divide-y">
+               {missoes.map((missao) => (
                   <TableMissionRow
                      key={missao.id}
                      missao={missao}
-                     index={index}
                      setClone={setClone}
                      setShowForm={setShowForm}
                   />
                ))}
-            </tbody>
-         </table>
+            </TableBody>
+         </Table>
       </div>
    );
 });
 
 const TableMissionRow = memo(function TableMissionRow({
    missao,
-   index,
    setClone,
    setShowForm,
 }: {
    missao: Missao;
-   index: number;
    setClone: (missao: Missao) => void;
    setShowForm: (show: boolean) => void;
 }) {
@@ -106,15 +93,11 @@ const TableMissionRow = memo(function TableMissionRow({
 
    return (
       <>
-         <tr
+         <TableRow
             onClick={() => setShowDetail(true)}
-            className={clsx(
-               "cursor-pointer transition-colors hover:bg-red-50",
-               index % 2 === 0 ? "bg-white" : "bg-gray-50/50"
-            )}
+            className="cursor-pointer bg-white"
          >
-            {/* Documento */}
-            <td className="px-4 py-3 whitespace-nowrap">
+            <TableCell className="font-medium whitespace-nowrap text-gray-900">
                <div className="flex items-center gap-2">
                   <div
                      className={clsx("rounded-md p-1.5", {
@@ -124,30 +107,25 @@ const TableMissionRow = memo(function TableMissionRow({
                   >
                      <HiDocumentText className="text-sm text-white" />
                   </div>
-                  <span className="font-semibold text-gray-800 uppercase">
+                  <span className="font-semibold uppercase">
                      {missao.tipo_doc} {String(missao.n_doc).padStart(3, "0")}
                   </span>
                </div>
-            </td>
+            </TableCell>
 
-            {/* Tipo */}
-            <td className="px-4 py-3 whitespace-nowrap">
+            <TableCell className="whitespace-nowrap">
                <span className="font-medium uppercase">{missao.tipo}</span>
-            </td>
+            </TableCell>
 
-            {/* Descricao */}
-            <td className="max-w-48 truncate px-4 py-3" title={missao.desc}>
+            <TableCell className="max-w-48 truncate" title={missao.desc}>
                <span className="uppercase">{missao.desc || "-"}</span>
-            </td>
+            </TableCell>
 
-            {/* Afastamento */}
-            <td className="px-4 py-3 whitespace-nowrap">{ini}</td>
+            <TableCell className="whitespace-nowrap">{ini}</TableCell>
 
-            {/* Regresso */}
-            <td className="px-4 py-3 whitespace-nowrap">{fim}</td>
+            <TableCell className="whitespace-nowrap">{fim}</TableCell>
 
-            {/* Militares */}
-            <td className="px-4 py-3 text-center whitespace-nowrap">
+            <TableCell className="text-center whitespace-nowrap">
                {users.length > 0 ? (
                   <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-gray-200 text-xs font-semibold text-gray-700">
                      {users.length}
@@ -155,10 +133,9 @@ const TableMissionRow = memo(function TableMissionRow({
                ) : (
                   <span className="text-gray-400">-</span>
                )}
-            </td>
+            </TableCell>
 
-            {/* Pernoites (cidades) */}
-            <td className="max-w-56 px-4 py-3">
+            <TableCell className="max-w-56">
                {cidades.length > 0 ? (
                   <div className="flex flex-wrap gap-1">
                      {cidades.map((cidade) => (
@@ -173,10 +150,9 @@ const TableMissionRow = memo(function TableMissionRow({
                ) : (
                   <span className="text-gray-400">-</span>
                )}
-            </td>
+            </TableCell>
 
-            {/* Etiquetas */}
-            <td className="px-4 py-3">
+            <TableCell>
                {etiquetas.length > 0 ? (
                   <div className="flex flex-wrap gap-1">
                      {etiquetas.map((etiqueta) => (
@@ -194,8 +170,8 @@ const TableMissionRow = memo(function TableMissionRow({
                ) : (
                   <span className="text-gray-400">-</span>
                )}
-            </td>
-         </tr>
+            </TableCell>
+         </TableRow>
 
          {showDetail && (
             <MissionDetail

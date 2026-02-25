@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { Label, Select, TextInput, Badge, Spinner } from "flowbite-react";
-import { ListComiss } from "./components/listComiss";
+import { TableComiss } from "./components/tableComiss";
 import { DetailComiss } from "./components/detailComiss";
 import { RoleBasedRoute } from "../../hooks/useRoleBased";
 import { sortByAntiguidade } from "utils/sortByAntiguidade";
@@ -371,13 +371,11 @@ export default function ComissPage() {
                ) : (
                   <div
                      className={clsx(
-                        "space-y-1 pb-3 transition-opacity",
+                        "pb-3 transition-opacity",
                         isFetching && "opacity-50"
                      )}
                   >
-                     {cmtos.map((c) => (
-                        <ListComiss key={c.id} comiss={c} />
-                     ))}
+                     <TableComiss cmtos={cmtos} />
                   </div>
                )}
             </div>
