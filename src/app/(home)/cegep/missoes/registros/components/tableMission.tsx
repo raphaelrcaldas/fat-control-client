@@ -28,14 +28,18 @@ export const TableMission = memo(function TableMission({
       <div className="overflow-x-auto">
          <Table striped hoverable>
             <TableHead>
-               <TableHeadCell>Documento</TableHeadCell>
-               <TableHeadCell>Tipo</TableHeadCell>
-               <TableHeadCell>Descricao</TableHeadCell>
-               <TableHeadCell>Afastamento</TableHeadCell>
-               <TableHeadCell>Regresso</TableHeadCell>
-               <TableHeadCell className="text-center">Militares</TableHeadCell>
-               <TableHeadCell>Pernoites</TableHeadCell>
-               <TableHeadCell>Etiquetas</TableHeadCell>
+               <TableRow>
+                  <TableHeadCell>Documento</TableHeadCell>
+                  <TableHeadCell>Tipo</TableHeadCell>
+                  <TableHeadCell>Descricao</TableHeadCell>
+                  <TableHeadCell>Afastamento</TableHeadCell>
+                  <TableHeadCell>Regresso</TableHeadCell>
+                  <TableHeadCell className="text-center">
+                     Militares
+                  </TableHeadCell>
+                  <TableHeadCell>Pernoites</TableHeadCell>
+                  <TableHeadCell>Etiquetas</TableHeadCell>
+               </TableRow>
             </TableHead>
             <TableBody className="divide-y">
                {missoes.map((missao) => (

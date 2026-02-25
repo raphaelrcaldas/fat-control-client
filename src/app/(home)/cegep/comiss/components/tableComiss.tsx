@@ -24,19 +24,33 @@ export const TableComiss = memo(function TableComiss({
    cmtos,
 }: TableComissProps) {
    return (
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto rounded-md bg-white shadow-md">
          <Table striped hoverable>
             <TableHead>
-               <TableHeadCell>Militar</TableHeadCell>
-               <TableHeadCell className="text-center">Abertura</TableHeadCell>
-               <TableHeadCell className="text-center">Fechamento</TableHeadCell>
-               <TableHeadCell className="text-center">Tipo</TableHeadCell>
-               <TableHeadCell className="text-center">Progresso</TableHeadCell>
-               <TableHeadCell className="text-center">Módulo</TableHeadCell>
-               <TableHeadCell className="text-center">Previsto</TableHeadCell>
-               <TableHeadCell className="text-center">Computado</TableHeadCell>
-               <TableHeadCell className="text-center">Restante</TableHeadCell>
-               <TableHeadCell className="text-center">Missoes</TableHeadCell>
+               <TableRow>
+                  <TableHeadCell>Militar</TableHeadCell>
+                  <TableHeadCell className="text-center">
+                     Abertura
+                  </TableHeadCell>
+                  <TableHeadCell className="text-center">
+                     Fechamento
+                  </TableHeadCell>
+                  <TableHeadCell className="text-center">Tipo</TableHeadCell>
+                  <TableHeadCell className="text-center">
+                     Progresso
+                  </TableHeadCell>
+                  <TableHeadCell className="text-center">Módulo</TableHeadCell>
+                  <TableHeadCell className="text-center">
+                     Previsto
+                  </TableHeadCell>
+                  <TableHeadCell className="text-center">
+                     Computado
+                  </TableHeadCell>
+                  <TableHeadCell className="text-center">
+                     Restante
+                  </TableHeadCell>
+                  <TableHeadCell className="text-center">Missoes</TableHeadCell>
+               </TableRow>
             </TableHead>
             <TableBody className="divide-y">
                {cmtos.map((comiss) => (
@@ -115,15 +129,15 @@ const TableComissRow = memo(function TableComissRow({
                </div>
             </TableCell>
 
-            <TableCell className="whitespace-nowrap text-center">
+            <TableCell className="text-center whitespace-nowrap">
                <span className="font-mono text-sm">{dataAbertura}</span>
             </TableCell>
 
-            <TableCell className="whitespace-nowrap text-center">
+            <TableCell className="text-center whitespace-nowrap">
                <span className="font-mono text-sm">{dataFechamento}</span>
             </TableCell>
 
-            <TableCell className="whitespace-nowrap text-center">
+            <TableCell className="text-center whitespace-nowrap">
                <span
                   className={clsx(
                      "inline-flex items-center rounded-lg px-2.5 py-1 text-xs font-medium",
