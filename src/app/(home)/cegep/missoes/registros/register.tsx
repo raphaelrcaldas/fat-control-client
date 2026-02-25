@@ -4,10 +4,12 @@ import { useState, useCallback, useEffect } from "react";
 import { Label, TextInput, Badge, Spinner } from "flowbite-react";
 import { Missao } from "services/routes/cegep/missoes";
 import { CardMission } from "./components/cardMission";
+import { TableMission } from "./components/tableMission";
 import MissionDetail from "./components/missionDetail";
 import { useRegisterContext } from "../../context/registerContext";
 import { useMissoes } from "@/hooks/queries/useMissoes";
 import { useEtiquetasMissoes } from "@/hooks/queries/useEtiquetasMissoes";
+import { usePersistedState } from "@/hooks/usePersistedState";
 import { Pagination } from "@/components/Pagination";
 import { MultiSelect } from "@/components/MultiSelect";
 import {
@@ -20,6 +22,8 @@ import {
    HiLocationMarker,
    HiCalendar,
    HiTag,
+   HiViewGrid,
+   HiViewList,
 } from "react-icons/hi";
 import clsx from "clsx";
 
@@ -28,6 +32,10 @@ export function RegisPage() {
    const [showForm, setShowForm] = useState(false);
    const [showFilters, setShowFilters] = useState(false);
    const [selectedEtiquetaIds, setSelectedEtiquetaIds] = useState<number[]>([]);
+   const [viewMode, setViewMode] = usePersistedState<"cards" | "table">(
+      "missoes-view-mode",
+      "cards"
+   );
 
    // Pagination states
    const [currentPage, setCurrentPage] = useState(1);
@@ -590,19 +598,62 @@ export function RegisPage() {
                         </div>
                      ) : (
                         <div>
-                           <h3 className="mb-4 text-lg font-bold text-gray-800">
-                              Registros Encontrados ({total})
-                           </h3>
-                           <div className="grid grid-cols-1 gap-3 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
-                              {missoes?.map((m) => (
-                                 <CardMission
-                                    key={m.id}
-                                    missao={m}
-                                    setClone={handleSetClone}
-                                    setShowForm={handleSetShowForm}
-                                 />
-                              ))}
+                           <div className="mb-4 flex items-center justify-between">
+                              <h3 className="text-lg font-bold text-gray-800">
+                                 Registros Encontrados ({total})
+                              </h3>
+                              <div className="flex overflow-hidden rounded-lg border border-gray-200">
+                                 <button
+                                    type="button"
+                                    onClick={() => setViewMode("cards")}
+                                    className={clsx(
+                                       "flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium transition-colors",
+                                       viewMode === "cards"
+                                          ? "bg-red-600 text-white"
+                                          : "bg-white text-gray-600 hover:bg-gray-50"
+                                    )}
+                                 >
+                                    <HiViewGrid className="h-4 w-4" />
+                                    <span className="hidden sm:inline">
+                                       Cards
+                                    </span>
+                                 </button>
+                                 <button
+                                    type="button"
+                                    onClick={() => setViewMode("table")}
+                                    className={clsx(
+                                       "flex items-center gap-1.5 border-l border-gray-200 px-3 py-1.5 text-sm font-medium transition-colors",
+                                       viewMode === "table"
+                                          ? "bg-red-600 text-white"
+                                          : "bg-white text-gray-600 hover:bg-gray-50"
+                                    )}
+                                 >
+                                    <HiViewList className="h-4 w-4" />
+                                    <span className="hidden sm:inline">
+                                       Tabela
+                                    </span>
+                                 </button>
+                              </div>
                            </div>
+
+                           {viewMode === "cards" ? (
+                              <div className="grid grid-cols-1 gap-3 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+                                 {missoes?.map((m) => (
+                                    <CardMission
+                                       key={m.id}
+                                       missao={m}
+                                       setClone={handleSetClone}
+                                       setShowForm={handleSetShowForm}
+                                    />
+                                 ))}
+                              </div>
+                           ) : (
+                              <TableMission
+                                 missoes={missoes ?? []}
+                                 setClone={handleSetClone}
+                                 setShowForm={handleSetShowForm}
+                              />
+                           )}
 
                            {/* Pagination Section */}
                            {missoes && missoes.length > 0 && (
