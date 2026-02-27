@@ -13,9 +13,18 @@ import { Pagination } from "@/components/Pagination";
 import { MultiSelect } from "@/components/MultiSelect";
 import { UserRow } from "./components/userRow";
 import { UserMissionDetailModal } from "../../components/UserMissionDetailModal";
-import { useFilterContext } from "../../context/filterContext";
 import { usePagamentos } from "@/hooks/queries/usePagamentos";
 import { PagamentoRecord } from "services/routes/cegep/financeiro";
+import {
+   useSearchParamsUpdater,
+   getStringParam,
+   getNumberParam,
+   getArrayParam,
+   serializeArray,
+   serializeNumber,
+   serializeString,
+} from "@/hooks/useSearchParamsState";
+import { useDebouncedCallback } from "@/hooks/useDebouncedCallback";
 import {
    HiDocumentText,
    HiCurrencyDollar,
@@ -29,6 +38,16 @@ import {
 } from "react-icons/hi";
 import { clsx } from "clsx";
 
+function getDefaultIni(): string {
+   const d = new Date();
+   d.setDate(d.getDate() - 60);
+   return d.toISOString().split("T")[0];
+}
+
+function getDefaultFim(): string {
+   return new Date().toISOString().split("T")[0];
+}
+
 export function FilterPage({ active }: { active: boolean }) {
    const [showFilters, setShowFilters] = useState(false);
    const [showModal, setShowModal] = useState(false);
@@ -36,33 +55,98 @@ export function FilterPage({ active }: { active: boolean }) {
       null
    );
 
-   const {
-      nDoc,
-      setNDoc,
-      tipoDoc,
-      setTipoDoc,
-      selectedTipo,
-      userSearch,
-      setUserSearch,
-      setSelectedTipo,
-      selectedSit,
-      setSelectedSit,
-      dataInicio,
-      setDataInicio,
-      dataFim,
-      setDataFim,
-      selectedAll,
-      setSelectedAll,
-      valorSoma,
-      setValorSoma,
-      selectedIds,
-      setSelectedIds,
-      currentPage,
-      setCurrentPage,
-      itemsPerPage,
-      setItemsPerPage,
-      isHydrated,
-   } = useFilterContext();
+   // UI-only selection state (not filter state)
+   const [selectedAll, setSelectedAll] = useState(false);
+   const [valorSoma, setValorSoma] = useState(0);
+   const [selectedIds, setSelectedIds] = useState<number[]>([]);
+
+   const { searchParams, setParams } = useSearchParamsUpdater();
+
+   // Read filters from URL
+   const tipoDoc = getArrayParam(searchParams, "tipo_doc");
+   const nDoc = getNumberParam(searchParams, "n_doc");
+   const selectedTipo = getArrayParam(searchParams, "tipo");
+   const selectedSit = getArrayParam(searchParams, "sit");
+   const userSearch = getStringParam(searchParams, "user");
+   const dataInicio = getStringParam(searchParams, "ini", getDefaultIni());
+   const dataFim = getStringParam(searchParams, "fim", getDefaultFim());
+   const currentPage = Number(getStringParam(searchParams, "page", "1"));
+   const itemsPerPage = Number(getStringParam(searchParams, "per_page", "10"));
+
+   // Local state for text inputs (immediate feedback + debounced URL update)
+   const [localUserSearch, setLocalUserSearch] = useState(userSearch);
+   const [localNDoc, setLocalNDoc] = useState<string>(
+      nDoc !== undefined ? String(nDoc) : ""
+   );
+
+   // Sync local state when URL changes externally (back/forward)
+   useEffect(() => {
+      setLocalUserSearch(userSearch);
+   }, [userSearch]);
+   useEffect(() => {
+      setLocalNDoc(nDoc !== undefined ? String(nDoc) : "");
+   }, [nDoc]);
+
+   // Debounced URL updaters
+   const debouncedSetUser = useDebouncedCallback((value: string) => {
+      setParams({ user: serializeString(value), page: undefined });
+   }, 300);
+
+   const debouncedSetNDoc = useDebouncedCallback((value: string) => {
+      setParams({
+         n_doc: value === "" ? undefined : value,
+         page: undefined,
+      });
+   }, 300);
+
+   // Setters that update URL
+   function setTipoDoc(value: string[]) {
+      setParams({ tipo_doc: serializeArray(value), page: undefined });
+   }
+
+   function setSelectedTipo(value: string[]) {
+      setParams({ tipo: serializeArray(value), page: undefined });
+   }
+
+   function setSelectedSit(value: string[]) {
+      setParams({ sit: serializeArray(value), page: undefined });
+   }
+
+   function setDataInicio(value: string) {
+      setParams({
+         ini: serializeString(value, getDefaultIni()),
+         page: undefined,
+      });
+   }
+
+   function setDataFim(value: string) {
+      setParams({
+         fim: serializeString(value, getDefaultFim()),
+         page: undefined,
+      });
+   }
+
+   function setCurrentPage(page: number) {
+      setParams({ page: page === 1 ? undefined : String(page) });
+   }
+
+   function setItemsPerPage(value: number) {
+      setParams({
+         per_page: value === 10 ? undefined : String(value),
+         page: undefined,
+      });
+   }
+
+   // Event handlers for text inputs
+   function handleUserSearchChange(value: string) {
+      setLocalUserSearch(value);
+      debouncedSetUser(value);
+   }
+
+   function handleNDocChange(value: string) {
+      setLocalNDoc(value);
+      debouncedSetNDoc(value);
+   }
 
    // React Query para buscar pagamentos
    const { data, isLoading, isFetching } = usePagamentos(
@@ -77,7 +161,7 @@ export function FilterPage({ active }: { active: boolean }) {
          ini: dataInicio || undefined,
          fim: dataFim || undefined,
       },
-      { enabled: active && isHydrated }
+      { enabled: active }
    );
 
    const misRecords = data?.items ?? null;
@@ -88,28 +172,6 @@ export function FilterPage({ active }: { active: boolean }) {
       setSelectedRecord(record);
       setShowModal(true);
    }
-
-   // Reset page when filters change
-   useEffect(() => {
-      setCurrentPage(1);
-   }, [
-      tipoDoc,
-      nDoc,
-      selectedTipo,
-      selectedSit,
-      userSearch,
-      dataInicio,
-      dataFim,
-      setCurrentPage,
-   ]);
-
-   // Reset itemsPerPage change
-   useEffect(() => {
-      if (currentPage !== 1) {
-         setCurrentPage(1);
-      }
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-   }, [itemsPerPage]);
 
    // Handle select all
    useEffect(() => {
@@ -122,9 +184,9 @@ export function FilterPage({ active }: { active: boolean }) {
          setSelectedIds([]);
          setValorSoma(0);
       }
-   }, [selectedAll, misRecords, setSelectedIds, setValorSoma]);
+   }, [selectedAll, misRecords]);
 
-   function handleSelect(id, valor, checked) {
+   function handleSelect(id: number, valor: number, checked: boolean) {
       if (checked) {
          setSelectedIds((prev) => [...prev, id]);
          setValorSoma((prev) => prev + Number(valor));
@@ -140,8 +202,8 @@ export function FilterPage({ active }: { active: boolean }) {
       selectedTipo?.length ||
       selectedSit?.length ||
       userSearch ||
-      dataInicio ||
-      dataFim
+      dataInicio !== getDefaultIni() ||
+      dataFim !== getDefaultFim()
    );
 
    const activeFiltersCount =
@@ -150,20 +212,42 @@ export function FilterPage({ active }: { active: boolean }) {
       (selectedTipo?.length || 0) +
       (selectedSit?.length || 0) +
       (userSearch ? 1 : 0) +
-      (dataInicio ? 1 : 0) +
-      (dataFim ? 1 : 0);
+      (dataInicio !== getDefaultIni() ? 1 : 0) +
+      (dataFim !== getDefaultFim() ? 1 : 0);
 
    const clearFilters = () => {
-      setTipoDoc([]);
-      setNDoc(undefined);
-      setSelectedTipo([]);
-      setSelectedSit([]);
-      setUserSearch("");
-      const hoje = new Date();
-      const quinzeDiasAntes = new Date(hoje.getFullYear(), 0, 1);
-      setDataInicio(quinzeDiasAntes.toISOString().split("T")[0]);
-      setDataFim(hoje.toISOString().split("T")[0]);
+      setParams({
+         tipo_doc: undefined,
+         n_doc: undefined,
+         tipo: undefined,
+         sit: undefined,
+         user: undefined,
+         ini: undefined,
+         fim: undefined,
+         page: undefined,
+      });
+      setLocalUserSearch("");
+      setLocalNDoc("");
    };
+
+   // Badge removal handlers
+   function removeNDoc() {
+      setParams({ n_doc: undefined, page: undefined });
+      setLocalNDoc("");
+   }
+
+   function removeUserSearch() {
+      setParams({ user: undefined, page: undefined });
+      setLocalUserSearch("");
+   }
+
+   function removeDataInicio() {
+      setParams({ ini: undefined, page: undefined });
+   }
+
+   function removeDataFim() {
+      setParams({ fim: undefined, page: undefined });
+   }
 
    return (
       <div className="space-y-2">
@@ -197,7 +281,7 @@ export function FilterPage({ active }: { active: boolean }) {
                         <HiHashtag className="h-3 w-3" />
                         <span>Nº {nDoc}</span>
                         <button
-                           onClick={() => setNDoc(undefined)}
+                           onClick={removeNDoc}
                            className="ml-1 hover:text-red-600"
                         >
                            <HiX className="h-3 w-3" />
@@ -257,7 +341,7 @@ export function FilterPage({ active }: { active: boolean }) {
                         <HiUser className="h-3 w-3" />
                         <span>Militar: {userSearch}</span>
                         <button
-                           onClick={() => setUserSearch("")}
+                           onClick={removeUserSearch}
                            className="ml-1 hover:text-red-600"
                         >
                            <HiX className="h-3 w-3" />
@@ -266,7 +350,7 @@ export function FilterPage({ active }: { active: boolean }) {
                   </Badge>
                )}
 
-               {dataInicio && (
+               {dataInicio !== getDefaultIni() && (
                   <Badge color="red">
                      <div className="flex items-center gap-1.5">
                         <HiCalendar className="h-3 w-3" />
@@ -277,17 +361,7 @@ export function FilterPage({ active }: { active: boolean }) {
                            ).toLocaleDateString("pt-BR")}
                         </span>
                         <button
-                           onClick={() => {
-                              const hoje = new Date();
-                              const quinzeDiasAntes = new Date(
-                                 hoje.getFullYear(),
-                                 0,
-                                 1
-                              );
-                              setDataInicio(
-                                 quinzeDiasAntes.toISOString().split("T")[0]
-                              );
-                           }}
+                           onClick={removeDataInicio}
                            className="ml-1 hover:text-red-600"
                         >
                            <HiX className="h-3 w-3" />
@@ -296,7 +370,7 @@ export function FilterPage({ active }: { active: boolean }) {
                   </Badge>
                )}
 
-               {dataFim && (
+               {dataFim !== getDefaultFim() && (
                   <Badge color="red">
                      <div className="flex items-center gap-1.5">
                         <HiCalendar className="h-3 w-3" />
@@ -307,10 +381,7 @@ export function FilterPage({ active }: { active: boolean }) {
                            )}
                         </span>
                         <button
-                           onClick={() => {
-                              const hoje = new Date();
-                              setDataFim(hoje.toISOString().split("T")[0]);
-                           }}
+                           onClick={removeDataFim}
                            className="ml-1 hover:text-red-600"
                         >
                            <HiX className="h-3 w-3" />
@@ -378,14 +449,8 @@ export function FilterPage({ active }: { active: boolean }) {
                         </Label>
                         <TextInput
                            type="text"
-                           value={nDoc ?? ""}
-                           onChange={(e) =>
-                              setNDoc(
-                                 e.target.value === ""
-                                    ? undefined
-                                    : Number(e.target.value)
-                              )
-                           }
+                           value={localNDoc}
+                           onChange={(e) => handleNDocChange(e.target.value)}
                            onKeyDown={(e) => {
                               if (
                                  !(
@@ -451,8 +516,10 @@ export function FilterPage({ active }: { active: boolean }) {
                         </Label>
                         <TextInput
                            type="text"
-                           value={userSearch}
-                           onChange={(e) => setUserSearch(e.target.value)}
+                           value={localUserSearch}
+                           onChange={(e) =>
+                              handleUserSearchChange(e.target.value)
+                           }
                            placeholder="Nome completo ou de guerra"
                            sizing="sm"
                         />

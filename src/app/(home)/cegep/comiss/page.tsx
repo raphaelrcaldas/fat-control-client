@@ -371,7 +371,7 @@ export default function ComissPage() {
                ) : (
                   <div
                      className={clsx(
-                        "pb-3 transition-opacity",
+                        "transition-opacity",
                         isFetching && "opacity-50"
                      )}
                   >

@@ -6,12 +6,23 @@ import { Missao } from "services/routes/cegep/missoes";
 import { CardMission } from "./components/cardMission";
 import { TableMission } from "./components/tableMission";
 import MissionDetail from "./components/missionDetail";
-import { useRegisterContext } from "../../context/registerContext";
 import { useMissoes } from "@/hooks/queries/useMissoes";
 import { useEtiquetasMissoes } from "@/hooks/queries/useEtiquetasMissoes";
 import { usePersistedState } from "@/hooks/usePersistedState";
 import { Pagination } from "@/components/Pagination";
 import { MultiSelect } from "@/components/MultiSelect";
+import {
+   useSearchParamsUpdater,
+   getStringParam,
+   getNumberParam,
+   getArrayParam,
+   getNumberArrayParam,
+   serializeArray,
+   serializeNumberArray,
+   serializeNumber,
+   serializeString,
+} from "@/hooks/useSearchParamsState";
+import { useDebouncedCallback } from "@/hooks/useDebouncedCallback";
 import {
    HiX,
    HiFilter,
@@ -27,38 +38,129 @@ import {
 } from "react-icons/hi";
 import clsx from "clsx";
 
+function getDefaultIni(): string {
+   const d = new Date();
+   d.setDate(d.getDate() - 60);
+   return d.toISOString().split("T")[0];
+}
+
+function getDefaultFim(): string {
+   return new Date().toISOString().split("T")[0];
+}
+
+const perPage = 20;
+
 export function RegisPage() {
    const [cloneMis, setCloneMis] = useState<Missao | null>(null);
    const [showForm, setShowForm] = useState(false);
    const [showFilters, setShowFilters] = useState(false);
-   const [selectedEtiquetaIds, setSelectedEtiquetaIds] = useState<number[]>([]);
+
+   const { searchParams, setParams } = useSearchParamsUpdater();
+
+   // Read filters from URL
+   const tipoDoc = getArrayParam(searchParams, "tipo_doc");
+   const nDoc = getNumberParam(searchParams, "n_doc");
+   const selectedTipo = getArrayParam(searchParams, "tipo");
+   const userSearch = getStringParam(searchParams, "user");
+   const citySearch = getStringParam(searchParams, "city");
+   const dataInicio = getStringParam(searchParams, "ini", getDefaultIni());
+   const dataFim = getStringParam(searchParams, "fim", getDefaultFim());
+   const selectedEtiquetaIds = getNumberArrayParam(searchParams, "etiquetas");
+   const currentPage = Number(getStringParam(searchParams, "page", "1"));
    const [viewMode, setViewMode] = usePersistedState<"cards" | "table">(
       "missoes-view-mode",
       "cards"
    );
 
-   // Pagination states
-   const [currentPage, setCurrentPage] = useState(1);
-   const [perPage] = useState(20);
+   // Local state for text inputs (immediate feedback + debounced URL update)
+   const [localUserSearch, setLocalUserSearch] = useState(userSearch);
+   const [localCitySearch, setLocalCitySearch] = useState(citySearch);
+   const [localNDoc, setLocalNDoc] = useState<string>(
+      nDoc !== undefined ? String(nDoc) : ""
+   );
+
+   // Sync local state when URL changes externally (back/forward)
+   useEffect(() => {
+      setLocalUserSearch(userSearch);
+   }, [userSearch]);
+   useEffect(() => {
+      setLocalCitySearch(citySearch);
+   }, [citySearch]);
+   useEffect(() => {
+      setLocalNDoc(nDoc !== undefined ? String(nDoc) : "");
+   }, [nDoc]);
+
+   // Debounced URL updaters
+   const debouncedSetUser = useDebouncedCallback((value: string) => {
+      setParams({ user: serializeString(value), page: undefined });
+   }, 300);
+
+   const debouncedSetCity = useDebouncedCallback((value: string) => {
+      setParams({ city: serializeString(value), page: undefined });
+   }, 300);
+
+   const debouncedSetNDoc = useDebouncedCallback((value: string) => {
+      setParams({
+         n_doc: value === "" ? undefined : value,
+         page: undefined,
+      });
+   }, 300);
+
+   // Setters that update URL
+   function setTipoDoc(value: string[]) {
+      setParams({ tipo_doc: serializeArray(value), page: undefined });
+   }
+
+   function setSelectedTipo(value: string[]) {
+      setParams({ tipo: serializeArray(value), page: undefined });
+   }
+
+   function setDataInicio(value: string) {
+      setParams({
+         ini: serializeString(value, getDefaultIni()),
+         page: undefined,
+      });
+   }
+
+   function setDataFim(value: string) {
+      setParams({
+         fim: serializeString(value, getDefaultFim()),
+         page: undefined,
+      });
+   }
+
+   function setSelectedEtiquetaIds(
+      updater: number[] | ((prev: number[]) => number[])
+   ) {
+      const newIds =
+         typeof updater === "function" ? updater(selectedEtiquetaIds) : updater;
+      setParams({
+         etiquetas: serializeNumberArray(newIds),
+         page: undefined,
+      });
+   }
+
+   function handlePageChange(page: number) {
+      setParams({ page: page === 1 ? undefined : String(page) });
+   }
+
+   // Event handlers for text inputs
+   function handleUserSearchChange(value: string) {
+      setLocalUserSearch(value);
+      debouncedSetUser(value);
+   }
+
+   function handleCitySearchChange(value: string) {
+      setLocalCitySearch(value);
+      debouncedSetCity(value);
+   }
+
+   function handleNDocChange(value: string) {
+      setLocalNDoc(value);
+      debouncedSetNDoc(value);
+   }
 
    const { data: etiquetasDisponiveis = [] } = useEtiquetasMissoes();
-
-   const {
-      dataInicio,
-      setDataInicio,
-      dataFim,
-      setDataFim,
-      tipoDoc,
-      setTipoDoc,
-      nDoc,
-      setNDoc,
-      selectedTipo,
-      setSelectedTipo,
-      userSearch,
-      setUserSearch,
-      citySearch,
-      setCitySearch,
-   } = useRegisterContext();
 
    // React Query para buscar missoes
    const { data, isLoading, isFetching } = useMissoes({
@@ -87,23 +189,26 @@ export function RegisPage() {
       selectedTipo.length > 0 ||
       userSearch ||
       citySearch ||
-      dataInicio ||
-      dataFim ||
+      dataInicio !== getDefaultIni() ||
+      dataFim !== getDefaultFim() ||
       selectedEtiquetaIds.length > 0
    );
 
    const clearFilters = () => {
-      setTipoDoc([]);
-      setNDoc(undefined);
-      setSelectedTipo([]);
-      setUserSearch("");
-      setCitySearch("");
-      setSelectedEtiquetaIds([]);
-      const hoje = new Date();
-      const quinzeDiasAntes = new Date(hoje.getFullYear(), 0, 1);
-      setDataInicio(quinzeDiasAntes.toISOString().split("T")[0]);
-      setDataFim(hoje.toISOString().split("T")[0]);
-      setCurrentPage(1);
+      setParams({
+         tipo_doc: undefined,
+         n_doc: undefined,
+         tipo: undefined,
+         user: undefined,
+         city: undefined,
+         etiquetas: undefined,
+         ini: undefined,
+         fim: undefined,
+         page: undefined,
+      });
+      setLocalUserSearch("");
+      setLocalCitySearch("");
+      setLocalNDoc("");
    };
 
    const handleSetClone = useCallback((missao: Missao) => {
@@ -114,243 +219,246 @@ export function RegisPage() {
       setShowForm(show);
    }, []);
 
-   const handlePageChange = useCallback((page: number) => {
-      setCurrentPage(page);
-   }, []);
+   // Badge removal handlers for individual filters
+   function removeTipoDoc(tipo: string) {
+      setTipoDoc(tipoDoc.filter((t) => t !== tipo));
+   }
 
-   // Reset to page 1 when any filter changes
-   useEffect(() => {
-      setCurrentPage(1);
-   }, [
-      tipoDoc,
-      nDoc,
-      selectedTipo,
-      dataInicio,
-      dataFim,
-      userSearch,
-      citySearch,
-      selectedEtiquetaIds,
-   ]);
+   function removeNDoc() {
+      setParams({ n_doc: undefined, page: undefined });
+      setLocalNDoc("");
+   }
+
+   function removeSelectedTipo(tipo: string) {
+      setSelectedTipo(selectedTipo.filter((t) => t !== tipo));
+   }
+
+   function removeUserSearch() {
+      setParams({ user: undefined, page: undefined });
+      setLocalUserSearch("");
+   }
+
+   function removeCitySearch() {
+      setParams({ city: undefined, page: undefined });
+      setLocalCitySearch("");
+   }
+
+   function removeDataInicio() {
+      setParams({ ini: undefined, page: undefined });
+   }
+
+   function removeDataFim() {
+      setParams({ fim: undefined, page: undefined });
+   }
+
+   function removeEtiqueta(id: number) {
+      setSelectedEtiquetaIds((prev) => prev.filter((eid) => eid !== id));
+   }
+
+   function toggleEtiqueta(etiquetaId: number) {
+      const isSelected = selectedEtiquetaIds.includes(etiquetaId);
+      if (isSelected) {
+         setSelectedEtiquetaIds((prev) =>
+            prev.filter((id) => id !== etiquetaId)
+         );
+      } else {
+         setSelectedEtiquetaIds([...selectedEtiquetaIds, etiquetaId]);
+      }
+   }
 
    return (
       <>
          <div className="flex h-full flex-col overflow-hidden">
-            {/* Active Filters Tags */}
-            {hasActiveFilters && (
-               <section className="mb-3 flex shrink-0 justify-between">
-                  <div className="flex flex-wrap items-center gap-2">
-                     <span className="text-xs font-medium text-gray-600">
-                        Filtros ativos:
-                     </span>
+            {/* Toolbar: filtros ativos + botões */}
+            <section className="mb-3 flex shrink-0 justify-between">
+               <div className="flex flex-wrap items-center gap-2">
+                  {hasActiveFilters && (
+                     <>
+                        <span className="text-xs font-medium text-gray-600">
+                           Filtros ativos:
+                        </span>
 
-                     {tipoDoc.map((tipo) => (
-                        <Badge key={tipo} color="red" className="">
-                           <div className="flex items-center gap-1.5">
-                              <HiDocumentText className="h-3 w-3" />
-                              <span>
-                                 Ordem: {tipo === "om" ? "Missão" : "Serviço"}
-                              </span>
-                              <button
-                                 onClick={() =>
-                                    setTipoDoc((prev) =>
-                                       prev.filter((t) => t !== tipo)
-                                    )
-                                 }
-                                 className="ml-1 hover:text-red-600"
-                              >
-                                 <HiX className="h-3 w-3" />
-                              </button>
-                           </div>
-                        </Badge>
-                     ))}
+                        {tipoDoc.map((tipo) => (
+                           <Badge key={tipo} color="red" className="">
+                              <div className="flex items-center gap-1.5">
+                                 <HiDocumentText className="h-3 w-3" />
+                                 <span>
+                                    Ordem:{" "}
+                                    {tipo === "om" ? "Missão" : "Serviço"}
+                                 </span>
+                                 <button
+                                    onClick={() => removeTipoDoc(tipo)}
+                                    className="ml-1 hover:text-red-600"
+                                 >
+                                    <HiX className="h-3 w-3" />
+                                 </button>
+                              </div>
+                           </Badge>
+                        ))}
 
-                     {nDoc && (
-                        <Badge color="red">
-                           <div className="flex items-center gap-1.5">
-                              <HiHashtag className="h-3 w-3" />
-                              <span>Nº {nDoc}</span>
-                              <button
-                                 onClick={() => setNDoc(undefined)}
-                                 className="ml-1 hover:text-red-600"
-                              >
-                                 <HiX className="h-3 w-3" />
-                              </button>
-                           </div>
-                        </Badge>
-                     )}
-
-                     {selectedTipo.map((tipo) => (
-                        <Badge key={tipo} color="red">
-                           <div className="flex items-center gap-1.5">
-                              <HiClipboardList className="h-3 w-3" />
-                              <span>Tipo: {tipo.toUpperCase()}</span>
-                              <button
-                                 onClick={() =>
-                                    setSelectedTipo((prev) =>
-                                       prev.filter((t) => t !== tipo)
-                                    )
-                                 }
-                                 className="ml-1 hover:text-red-600"
-                              >
-                                 <HiX className="h-3 w-3" />
-                              </button>
-                           </div>
-                        </Badge>
-                     ))}
-
-                     {userSearch && (
-                        <Badge color="red">
-                           <div className="flex items-center gap-1.5">
-                              <HiUser className="h-3 w-3" />
-                              <span>Militar: {userSearch}</span>
-                              <button
-                                 onClick={() => setUserSearch("")}
-                                 className="ml-1 hover:text-red-600"
-                              >
-                                 <HiX className="h-3 w-3" />
-                              </button>
-                           </div>
-                        </Badge>
-                     )}
-
-                     {citySearch && (
-                        <Badge color="red">
-                           <div className="flex items-center gap-1.5">
-                              <HiLocationMarker className="h-3 w-3" />
-                              <span>Cidade: {citySearch}</span>
-                              <button
-                                 onClick={() => setCitySearch("")}
-                                 className="ml-1 hover:text-red-600"
-                              >
-                                 <HiX className="h-3 w-3" />
-                              </button>
-                           </div>
-                        </Badge>
-                     )}
-
-                     {dataInicio && (
-                        <Badge color="red">
-                           <div className="flex items-center gap-1.5">
-                              <HiCalendar className="h-3 w-3" />
-                              <span>
-                                 Afastamento:{" "}
-                                 {new Date(
-                                    dataInicio + "T00:00:00"
-                                 ).toLocaleDateString("pt-BR")}
-                              </span>
-                              <button
-                                 onClick={() => {
-                                    const hoje = new Date();
-                                    const quinzeDiasAntes = new Date(
-                                       hoje.getFullYear(),
-                                       0,
-                                       1
-                                    );
-                                    setDataInicio(
-                                       quinzeDiasAntes
-                                          .toISOString()
-                                          .split("T")[0]
-                                    );
-                                 }}
-                                 className="ml-1 hover:text-red-600"
-                              >
-                                 <HiX className="h-3 w-3" />
-                              </button>
-                           </div>
-                        </Badge>
-                     )}
-
-                     {dataFim && (
-                        <Badge color="red">
-                           <div className="flex items-center gap-1.5">
-                              <HiCalendar className="h-3 w-3" />
-                              <span>
-                                 Regresso:{" "}
-                                 {new Date(
-                                    dataFim + "T00:00:00"
-                                 ).toLocaleDateString("pt-BR")}
-                              </span>
-                              <button
-                                 onClick={() => {
-                                    const hoje = new Date();
-                                    setDataFim(
-                                       hoje.toISOString().split("T")[0]
-                                    );
-                                 }}
-                                 className="ml-1 hover:text-red-600"
-                              >
-                                 <HiX className="h-3 w-3" />
-                              </button>
-                           </div>
-                        </Badge>
-                     )}
-
-                     {/* Etiquetas selecionadas */}
-                     {selectedEtiquetaIds.map((id) => {
-                        const etiqueta = etiquetasDisponiveis.find(
-                           (e) => e.id === id
-                        );
-                        if (!etiqueta) return null;
-                        return (
-                           <span
-                              key={id}
-                              className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium text-white"
-                              style={{ backgroundColor: etiqueta.cor }}
-                           >
-                              <HiTag className="h-3 w-3" />
-                              {etiqueta.nome}
-                              <button
-                                 onClick={() =>
-                                    setSelectedEtiquetaIds((prev) =>
-                                       prev.filter((eid) => eid !== id)
-                                    )
-                                 }
-                                 className="ml-0.5 rounded-full p-0.5 hover:bg-white/20"
-                              >
-                                 <HiX className="h-3 w-3" />
-                              </button>
-                           </span>
-                        );
-                     })}
-
-                     <button
-                        onClick={clearFilters}
-                        className="text-xs text-gray-500 underline hover:text-gray-700"
-                     >
-                        Limpar todos
-                     </button>
-                  </div>
-                  <div className="flex items-center gap-2">
-                     <button
-                        type="button"
-                        onClick={() => setShowFilters(!showFilters)}
-                        className="flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"
-                     >
-                        <HiFilter />
-                        {showFilters ? "Ocultar" : "Filtros"}
-                        {hasActiveFilters && (
-                           <Badge color="red" size="sm">
-                              {tipoDoc.length +
-                                 selectedTipo.length +
-                                 (nDoc ? 1 : 0) +
-                                 (userSearch ? 1 : 0) +
-                                 (citySearch ? 1 : 0) +
-                                 (dataInicio ? 1 : 0) +
-                                 (dataFim ? 1 : 0)}
+                        {nDoc && (
+                           <Badge color="red">
+                              <div className="flex items-center gap-1.5">
+                                 <HiHashtag className="h-3 w-3" />
+                                 <span>Nº {nDoc}</span>
+                                 <button
+                                    onClick={removeNDoc}
+                                    className="ml-1 hover:text-red-600"
+                                 >
+                                    <HiX className="h-3 w-3" />
+                                 </button>
+                              </div>
                            </Badge>
                         )}
-                     </button>
-                     <button
-                        type="button"
-                        onClick={() => handleSetShowForm(true)}
-                        className="flex items-center gap-1.5 rounded-lg bg-red-600 px-3 py-2 text-sm font-semibold text-white hover:bg-red-700"
-                     >
-                        <span>+</span>
-                        Nova Missão
-                     </button>
-                  </div>
-               </section>
-            )}
+
+                        {selectedTipo.map((tipo) => (
+                           <Badge key={tipo} color="red">
+                              <div className="flex items-center gap-1.5">
+                                 <HiClipboardList className="h-3 w-3" />
+                                 <span>Tipo: {tipo.toUpperCase()}</span>
+                                 <button
+                                    onClick={() => removeSelectedTipo(tipo)}
+                                    className="ml-1 hover:text-red-600"
+                                 >
+                                    <HiX className="h-3 w-3" />
+                                 </button>
+                              </div>
+                           </Badge>
+                        ))}
+
+                        {userSearch && (
+                           <Badge color="red">
+                              <div className="flex items-center gap-1.5">
+                                 <HiUser className="h-3 w-3" />
+                                 <span>Militar: {userSearch}</span>
+                                 <button
+                                    onClick={removeUserSearch}
+                                    className="ml-1 hover:text-red-600"
+                                 >
+                                    <HiX className="h-3 w-3" />
+                                 </button>
+                              </div>
+                           </Badge>
+                        )}
+
+                        {citySearch && (
+                           <Badge color="red">
+                              <div className="flex items-center gap-1.5">
+                                 <HiLocationMarker className="h-3 w-3" />
+                                 <span>Cidade: {citySearch}</span>
+                                 <button
+                                    onClick={removeCitySearch}
+                                    className="ml-1 hover:text-red-600"
+                                 >
+                                    <HiX className="h-3 w-3" />
+                                 </button>
+                              </div>
+                           </Badge>
+                        )}
+
+                        {dataInicio !== getDefaultIni() && (
+                           <Badge color="red">
+                              <div className="flex items-center gap-1.5">
+                                 <HiCalendar className="h-3 w-3" />
+                                 <span>
+                                    Afastamento:{" "}
+                                    {new Date(
+                                       dataInicio + "T00:00:00"
+                                    ).toLocaleDateString("pt-BR")}
+                                 </span>
+                                 <button
+                                    onClick={removeDataInicio}
+                                    className="ml-1 hover:text-red-600"
+                                 >
+                                    <HiX className="h-3 w-3" />
+                                 </button>
+                              </div>
+                           </Badge>
+                        )}
+
+                        {dataFim !== getDefaultFim() && (
+                           <Badge color="red">
+                              <div className="flex items-center gap-1.5">
+                                 <HiCalendar className="h-3 w-3" />
+                                 <span>
+                                    Regresso:{" "}
+                                    {new Date(
+                                       dataFim + "T00:00:00"
+                                    ).toLocaleDateString("pt-BR")}
+                                 </span>
+                                 <button
+                                    onClick={removeDataFim}
+                                    className="ml-1 hover:text-red-600"
+                                 >
+                                    <HiX className="h-3 w-3" />
+                                 </button>
+                              </div>
+                           </Badge>
+                        )}
+
+                        {/* Etiquetas selecionadas */}
+                        {selectedEtiquetaIds.map((id) => {
+                           const etiqueta = etiquetasDisponiveis.find(
+                              (e) => e.id === id
+                           );
+                           if (!etiqueta) return null;
+                           return (
+                              <span
+                                 key={id}
+                                 className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium text-white"
+                                 style={{ backgroundColor: etiqueta.cor }}
+                              >
+                                 <HiTag className="h-3 w-3" />
+                                 {etiqueta.nome}
+                                 <button
+                                    onClick={() => removeEtiqueta(id)}
+                                    className="ml-0.5 rounded-full p-0.5 hover:bg-white/20"
+                                 >
+                                    <HiX className="h-3 w-3" />
+                                 </button>
+                              </span>
+                           );
+                        })}
+
+                        <button
+                           onClick={clearFilters}
+                           className="text-xs text-gray-500 underline hover:text-gray-700"
+                        >
+                           Limpar todos
+                        </button>
+                     </>
+                  )}
+               </div>
+               <div className="flex items-center gap-2">
+                  <button
+                     type="button"
+                     onClick={() => setShowFilters(!showFilters)}
+                     className="flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                  >
+                     <HiFilter />
+                     {showFilters ? "Ocultar" : "Filtros"}
+                     {hasActiveFilters && (
+                        <Badge color="red" size="sm">
+                           {tipoDoc.length +
+                              selectedTipo.length +
+                              (nDoc ? 1 : 0) +
+                              (userSearch ? 1 : 0) +
+                              (citySearch ? 1 : 0) +
+                              (dataInicio !== getDefaultIni() ? 1 : 0) +
+                              (dataFim !== getDefaultFim() ? 1 : 0)}
+                        </Badge>
+                     )}
+                  </button>
+                  <button
+                     type="button"
+                     onClick={() => handleSetShowForm(true)}
+                     className="flex items-center gap-1.5 rounded-lg bg-red-600 px-3 py-2 text-sm font-semibold text-white hover:bg-red-700"
+                  >
+                     <span>+</span>
+                     Nova Missão
+                  </button>
+               </div>
+            </section>
 
             {/* Filters Section */}
             <div
@@ -401,14 +509,8 @@ export function RegisPage() {
                            </Label>
                            <TextInput
                               type="text"
-                              value={nDoc ?? ""}
-                              onChange={(e) =>
-                                 setNDoc(
-                                    e.target.value === ""
-                                       ? undefined
-                                       : Number(e.target.value)
-                                 )
-                              }
+                              value={localNDoc}
+                              onChange={(e) => handleNDocChange(e.target.value)}
                               onKeyDown={(e) => {
                                  if (
                                     !(
@@ -456,8 +558,10 @@ export function RegisPage() {
                            </Label>
                            <TextInput
                               type="text"
-                              value={userSearch}
-                              onChange={(e) => setUserSearch(e.target.value)}
+                              value={localUserSearch}
+                              onChange={(e) =>
+                                 handleUserSearchChange(e.target.value)
+                              }
                               placeholder="Nome de guerra"
                               sizing="sm"
                            />
@@ -471,8 +575,10 @@ export function RegisPage() {
                            </Label>
                            <TextInput
                               type="text"
-                              value={citySearch}
-                              onChange={(e) => setCitySearch(e.target.value)}
+                              value={localCitySearch}
+                              onChange={(e) =>
+                                 handleCitySearchChange(e.target.value)
+                              }
                               placeholder="Município"
                               sizing="sm"
                            />
@@ -521,20 +627,9 @@ export function RegisPage() {
                                  return (
                                     <button
                                        key={etiqueta.id ?? `etiqueta-${index}`}
-                                       onClick={() => {
-                                          if (isSelected) {
-                                             setSelectedEtiquetaIds((prev) =>
-                                                prev.filter(
-                                                   (id) => id !== etiqueta.id
-                                                )
-                                             );
-                                          } else {
-                                             setSelectedEtiquetaIds((prev) => [
-                                                ...prev,
-                                                etiqueta.id!,
-                                             ]);
-                                          }
-                                       }}
+                                       onClick={() =>
+                                          toggleEtiqueta(etiqueta.id!)
+                                       }
                                        className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium transition-all ${
                                           isSelected
                                              ? "text-white shadow-sm"

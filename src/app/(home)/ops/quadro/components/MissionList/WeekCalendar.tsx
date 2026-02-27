@@ -10,6 +10,8 @@ import { Spinner } from "flowbite-react";
 import { extractDate, extractTime } from "utils/dateHandler";
 import type { AeronavePublic } from "services/routes/aeronaves";
 import clsx from "clsx";
+import { usePermBased } from "@/app/(home)/hooks/usePermBased";
+import { AeronaveFormModal } from "@/app/(home)/ops/aeronaves/components/AeronaveFormModal";
 
 const SIT_COLORS: Record<string, string> = {
    DI: "bg-emerald-400",
@@ -126,6 +128,10 @@ export default function WeekCalendar({
    onNavigateWeek,
 }: WeekCalendarProps) {
    const [daysToShow, setDaysToShow] = useState(14);
+   const [editingAeronave, setEditingAeronave] =
+      useState<AeronavePublic | null>(null);
+   const { hasPerm } = usePermBased();
+   const canEditAeronave = hasPerm("aeronaves", "update");
 
    React.useEffect(() => {
       const updateDaysToShow = () => {
@@ -249,7 +255,21 @@ export default function WeekCalendar({
                   {aeronaves.map((anv) => (
                      <tr key={anv.matricula} className="hover:bg-gray-50/50">
                         <td className="border-r border-b border-gray-200 p-1 text-center">
-                           <div className="flex flex-col items-center justify-center gap-1.5">
+                           <div
+                              className={clsx(
+                                 "flex flex-col items-center justify-center gap-1.5",
+                                 canEditAeronave &&
+                                    "cursor-pointer rounded transition-colors hover:bg-gray-100"
+                              )}
+                              onClick={
+                                 canEditAeronave
+                                    ? () => setEditingAeronave(anv)
+                                    : undefined
+                              }
+                              title={
+                                 canEditAeronave ? "Editar aeronave" : undefined
+                              }
+                           >
                               <span className="text-sm font-bold text-gray-700">
                                  {anv.matricula}
                               </span>
@@ -338,13 +358,12 @@ export default function WeekCalendar({
             </div>
          </div> */}
 
-         {/* Modal */}
-         {/* {selectedSobreaviso && (
-            <SobreavisoModal
-               sobreaviso={selectedSobreaviso}
-               onClose={() => setSelectedSobreaviso(null)}
-            />
-         )} */}
+         {/* Modal Editar Aeronave */}
+         <AeronaveFormModal
+            show={!!editingAeronave}
+            onClose={() => setEditingAeronave(null)}
+            editingAeronave={editingAeronave}
+         />
       </div>
    );
 }

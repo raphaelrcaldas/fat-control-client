@@ -6,12 +6,24 @@ import { IoMdPaper, IoMdSettings } from "react-icons/io";
 import { RegisPage } from "./registros/register";
 import { FilterPage } from "./pagamentos/filterPage";
 import { ConfigPage } from "./configuracoes/configPage";
-import { useState } from "react";
-import { FilterProvider } from "../context/filterContext";
-import { RegisterProvider } from "../context/registerContext";
+import { useSearchParamsUpdater } from "@/hooks/useSearchParamsState";
+
+const TAB_NAMES = ["registros", "pagamentos", "configuracoes"] as const;
 
 export default function MissPage() {
-   const [activeTab, setActiveTab] = useState(0);
+   const { searchParams, setParams } = useSearchParamsUpdater();
+
+   const activeTabName = searchParams.get("tab") || "registros";
+   const activeTabIndex = Math.max(
+      TAB_NAMES.indexOf(activeTabName as (typeof TAB_NAMES)[number]),
+      0
+   );
+
+   function handleTabChange(index: number) {
+      setParams({
+         tab: TAB_NAMES[index] === "registros" ? undefined : TAB_NAMES[index],
+      });
+   }
 
    return (
       <div className="min-h-screen bg-gray-50">
@@ -32,35 +44,31 @@ export default function MissPage() {
             <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-xl">
                <Tabs
                   aria-label="Tabs de missões"
-                  onActiveTabChange={setActiveTab}
+                  onActiveTabChange={handleTabChange}
                   className="tabs-container"
                >
                   <TabItem
-                     active={activeTab === 0}
+                     active={activeTabIndex === 0}
                      title="Registros"
                      icon={IoMdPaper}
                   >
                      <div className="animate-fadeIn">
-                        <RegisterProvider>
-                           <RegisPage />
-                        </RegisterProvider>
+                        <RegisPage />
                      </div>
                   </TabItem>
 
                   <TabItem
-                     active={activeTab === 1}
+                     active={activeTabIndex === 1}
                      title="Pagamentos"
                      icon={MdOutlineAttachMoney}
                   >
                      <div className="animate-fadeIn">
-                        <FilterProvider>
-                           <FilterPage active={activeTab === 1} />
-                        </FilterProvider>
+                        <FilterPage active={activeTabIndex === 1} />
                      </div>
                   </TabItem>
 
                   <TabItem
-                     active={activeTab === 2}
+                     active={activeTabIndex === 2}
                      title="Configurações"
                      icon={IoMdSettings}
                   >
