@@ -11,12 +11,15 @@ import {
    MdAttachMoney,
    MdCalendarViewWeek,
    MdFlightTakeoff,
+   MdBarChart,
 } from "react-icons/md";
 import { FaUsers } from "react-icons/fa6";
 import { FaPaperPlane } from "react-icons/fa";
 import { RiAdminLine } from "react-icons/ri";
 import { GiSecurityGate } from "react-icons/gi";
 import { TbLogs } from "react-icons/tb";
+import { ImStatsDots } from "react-icons/im";
+import { CiPaperplane } from "react-icons/ci";
 
 export const navItems = [
    {
@@ -84,6 +87,24 @@ export const navItems = [
             path: "/ops/aeronaves",
             resource: "aeronaves",
             permission: "view",
+         },
+      ],
+   },
+   {
+      type: "collapse",
+      icon: MdBarChart,
+      label: "Estatística",
+      roles: ["admin"],
+      children: [
+         {
+            icon: CiPaperplane,
+            label: "Etapas",
+            path: "/estatistica/etapas",
+         },
+         {
+            icon: ImStatsDots,
+            label: "Esforço Aéreo",
+            path: "/estatistica/esfaer",
          },
       ],
    },

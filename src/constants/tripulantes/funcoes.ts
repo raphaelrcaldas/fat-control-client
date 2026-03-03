@@ -156,6 +156,86 @@ export const FUNCOES_PRINCIPAIS: FuncaoTripulante[] = [
 ];
 
 // =============================================================================
+// CORES TAILWIND POR TEMA (mapeamento estático para Tailwind não purgar)
+// =============================================================================
+
+export interface FuncColorSet {
+   bg: string;
+   border: string;
+   text: string;
+   badge: string;
+   bar: string;
+}
+
+export const FUNC_COLORS: Record<string, FuncColorSet> = {
+   blue: {
+      bg: "bg-blue-50/60",
+      border: "border-blue-200",
+      text: "text-blue-700",
+      badge: "bg-blue-100 text-blue-800",
+      bar: "bg-blue-500",
+   },
+   amber: {
+      bg: "bg-amber-50/60",
+      border: "border-amber-200",
+      text: "text-amber-700",
+      badge: "bg-amber-100 text-amber-800",
+      bar: "bg-amber-500",
+   },
+   emerald: {
+      bg: "bg-emerald-50/60",
+      border: "border-emerald-200",
+      text: "text-emerald-700",
+      badge: "bg-emerald-100 text-emerald-800",
+      bar: "bg-emerald-500",
+   },
+   cyan: {
+      bg: "bg-cyan-50/60",
+      border: "border-cyan-200",
+      text: "text-cyan-700",
+      badge: "bg-cyan-100 text-cyan-800",
+      bar: "bg-cyan-500",
+   },
+   red: {
+      bg: "bg-red-50/60",
+      border: "border-red-200",
+      text: "text-red-700",
+      badge: "bg-red-100 text-red-800",
+      bar: "bg-red-500",
+   },
+   purple: {
+      bg: "bg-purple-50/60",
+      border: "border-purple-200",
+      text: "text-purple-700",
+      badge: "bg-purple-100 text-purple-800",
+      bar: "bg-purple-500",
+   },
+   pink: {
+      bg: "bg-pink-50/60",
+      border: "border-pink-200",
+      text: "text-pink-700",
+      badge: "bg-pink-100 text-pink-800",
+      bar: "bg-pink-500",
+   },
+   gray: {
+      bg: "bg-gray-50/60",
+      border: "border-gray-200",
+      text: "text-gray-700",
+      badge: "bg-gray-100 text-gray-800",
+      bar: "bg-gray-500",
+   },
+};
+
+/**
+ * Retorna o conjunto de cores Tailwind para uma função
+ */
+export function getFuncColors(func: string): FuncColorSet {
+   const config = FUNCOES_CONFIG[func as FuncType];
+   const themeColor = config?.theme.color ?? "gray";
+   return FUNC_COLORS[themeColor] ?? FUNC_COLORS.gray;
+}
+
+// =============================================================================
 // HELPERS
 // =============================================================================
 

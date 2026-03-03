@@ -13,3 +13,6 @@ export * from "./useSoldos";
 export * from "./useDiariaValores";
 export * from "./useAeronaves";
 export * from "./useSecurity";
+export * from "./useEtapas";
+export * from "./useEsfAer";
+export * from "./useTiposMissao";

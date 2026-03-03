@@ -161,6 +161,13 @@ export function formatTimeUTC(isoDateTime: string): string {
 }
 
 /**
+ * Extrai HH:MM de uma string de hora no formato HH:MM:SS (vindo do banco)
+ */
+export function formatTime(timeStr: string): string {
+   return timeStr.slice(0, 5);
+}
+
+/**
  * Formata data ISO para DDMMYYYY (sem separadores, usado para identificação de OM)
  */
 export function formatDateForDisplay(dateStr: string): string {

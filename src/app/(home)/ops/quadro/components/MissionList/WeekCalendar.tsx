@@ -73,6 +73,43 @@ function getEtapasDoDia(
    return etapas;
 }
 
+interface LocalidadeEntreEtapas {
+   localidade: string;
+   omStatus: string;
+}
+
+function getLocalidadeEntreEtapas(
+   ordens: OrdemMissaoList[],
+   matricula: string,
+   dateStr: string
+): LocalidadeEntreEtapas | null {
+   const todasEtapas: { dtDep: string; dest: string; omStatus: string }[] = [];
+
+   for (const om of ordens) {
+      if (om.matricula_anv !== matricula) continue;
+      for (const etapa of om.etapas) {
+         todasEtapas.push({
+            dtDep: etapa.dt_dep,
+            dest: etapa.dest,
+            omStatus: om.status,
+         });
+      }
+   }
+
+   todasEtapas.sort((a, b) => a.dtDep.localeCompare(b.dtDep));
+
+   let last: { dest: string; omStatus: string } | null = null;
+   for (const etapa of todasEtapas) {
+      if (extractDate(etapa.dtDep) < dateStr) {
+         last = { dest: etapa.dest, omStatus: etapa.omStatus };
+      }
+   }
+
+   if (!last || last.dest === "SBGL") return null;
+
+   return { localidade: last.dest, omStatus: last.omStatus };
+}
+
 function AeronaveCell({
    matricula,
    date,
@@ -87,6 +124,21 @@ function AeronaveCell({
    const etapas = getEtapasDoDia(ordens, matricula, dateStr);
 
    if (etapas.length === 0) {
+      const info = getLocalidadeEntreEtapas(ordens, matricula, dateStr);
+      if (info) {
+         const statusCfg =
+            STATUS_CONFIG[info.omStatus as StatusType] ??
+            STATUS_CONFIG.aprovada;
+         return (
+            <div className="flex min-h-12 flex-col justify-start gap-0.5 p-0.5">
+               <div
+                  className={`truncate rounded border px-1 py-0.5 text-center font-mono text-sm font-medium ${statusCfg.bg} ${statusCfg.text} ${statusCfg.border}`}
+               >
+                  {info.localidade}
+               </div>
+            </div>
+         );
+      }
       return (
          <div className="flex aspect-square items-center justify-center">
             <span className="text-xs text-gray-300">—</span>
