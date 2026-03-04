@@ -39,6 +39,52 @@ export interface EsfAerResumoResponse {
    total_meses: number[];
 }
 
+export interface EsfAerUpdateItem {
+   tipo: string;
+   modelo: string;
+   grupo: string;
+   programa: string;
+   subprograma: string;
+   aplicacao: string;
+   meses: number[];
+   horas_alocadas: number;
+   horas_gastas: number;
+   saldo_horas: number;
+}
+
+export interface EsfAerUpdateRequest {
+   ano_ref: number;
+   items: EsfAerUpdateItem[];
+}
+
+export interface EsfAerDiffRow {
+   descricao: string;
+   antes: number;
+   depois: number;
+}
+
+export interface EsfAerImportResponse {
+   ano_ref: number;
+   rows: EsfAerDiffRow[];
+   total_antes: number;
+   total_depois: number;
+}
+
+export async function updateEsfAer(
+   data: EsfAerUpdateRequest
+): Promise<EsfAerImportResponse> {
+   const response = await request("PUT", esfAerRoute, data);
+   const json = (await response.json()) as ApiResponse<EsfAerImportResponse>;
+   return (
+      json.data ?? {
+         ano_ref: data.ano_ref,
+         rows: [],
+         total_antes: 0,
+         total_depois: 0,
+      }
+   );
+}
+
 export async function getEsfAerResumo(
    anoRef: number,
    signal?: AbortSignal

@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { Select, Spinner, Label } from "flowbite-react";
+import { useMemo, useState } from "react";
+import { Select, Spinner, Label, Button, Checkbox } from "flowbite-react";
 import clsx from "clsx";
 import { useEsfAerResumo } from "@/hooks/queries";
 import { YEAR_OPTIONS } from "./constants";
@@ -9,20 +9,41 @@ import { getGroupSummaries } from "./utils";
 import { EsfAerGroupCards } from "./components/EsfAerGroupCards";
 import { EsfAerTable } from "./components/EsfAerTable";
 import { EsfAerChartLine, EsfAerChartTable } from "./components/EsfAerChart";
+import { ImportModal } from "./components/ImportModal";
 
 export default function EsfAerPage() {
    const currentYear = new Date().getFullYear();
    const [anoRef, setAnoRef] = useState(currentYear);
+   const [showImportModal, setShowImportModal] = useState(false);
+   const [showSimulador, setShowSimulador] = useState(false);
 
    const { data, isLoading, isFetching } = useEsfAerResumo(anoRef);
 
    const isRefetching = !isLoading && isFetching;
 
-   const items = data?.items ?? [];
-   const totalAlocado = data?.total_alocado ?? 0;
-   const totalVoado = data?.total_voado ?? 0;
-   const totalSaldo = data?.total_saldo ?? 0;
-   const totalMeses = data?.total_meses ?? Array(12).fill(0);
+   const allItems = data?.items ?? [];
+
+   const { items, totalAlocado, totalVoado, totalSaldo, totalMeses } =
+      useMemo(() => {
+         const filtered = showSimulador
+            ? allItems
+            : allItems.filter((i) => !i.descricao.includes("SML"));
+
+         return {
+            items: filtered,
+            totalAlocado: filtered.reduce((s, i) => s + i.alocado, 0),
+            totalVoado: filtered.reduce((s, i) => s + i.voado, 0),
+            totalSaldo: filtered.reduce((s, i) => s + i.saldo, 0),
+            totalMeses: filtered.reduce(
+               (acc, i) => {
+                  i.meses.forEach((v, idx) => (acc[idx] += v));
+                  return acc;
+               },
+               Array(12).fill(0) as number[]
+            ),
+         };
+      }, [allItems, showSimulador]);
+
    const groupSummaries = getGroupSummaries(items);
 
    if (isLoading) {
@@ -43,7 +64,27 @@ export default function EsfAerPage() {
             <h1 className="text-xl font-semibold text-gray-900">
                Esforço Aereo
             </h1>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-4">
+               <div className="flex items-center gap-1.5">
+                  <Checkbox
+                     id="showSimulador"
+                     checked={showSimulador}
+                     onChange={(e) => setShowSimulador(e.target.checked)}
+                  />
+                  <Label
+                     htmlFor="showSimulador"
+                     className="cursor-pointer text-sm text-gray-600"
+                  >
+                     Exibir simulador
+                  </Label>
+               </div>
+               <Button
+                  color="blue"
+                  size="sm"
+                  onClick={() => setShowImportModal(true)}
+               >
+                  Importar
+               </Button>
                <Label htmlFor="anoRef" className="font-medium text-gray-700">
                   Ano Referência:
                </Label>
@@ -100,6 +141,12 @@ export default function EsfAerPage() {
                </div>
             </div>
          )}
+
+         <ImportModal
+            show={showImportModal}
+            setShow={setShowImportModal}
+            anoRef={anoRef}
+         />
       </div>
    );
 }

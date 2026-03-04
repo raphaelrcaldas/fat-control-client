@@ -1,9 +1,16 @@
-import { useQuery, keepPreviousData } from "@tanstack/react-query";
+import {
+   useQuery,
+   useMutation,
+   useQueryClient,
+   keepPreviousData,
+} from "@tanstack/react-query";
 import {
    getEsfAerList,
    getEsfAerResumo,
+   updateEsfAer,
    type EsfAerItem,
    type EsfAerResumoResponse,
+   type EsfAerUpdateRequest,
 } from "services/routes/estatistica/esfAer";
 
 export const esfAerKeys = {
@@ -24,5 +31,15 @@ export function useEsfAerResumo(anoRef: number) {
       queryKey: esfAerKeys.resumo(anoRef),
       queryFn: ({ signal }) => getEsfAerResumo(anoRef, signal),
       placeholderData: keepPreviousData,
+   });
+}
+
+export function useUpdateEsfAer() {
+   const queryClient = useQueryClient();
+   return useMutation({
+      mutationFn: (data: EsfAerUpdateRequest) => updateEsfAer(data),
+      onSuccess: () => {
+         queryClient.invalidateQueries({ queryKey: esfAerKeys.all });
+      },
    });
 }
