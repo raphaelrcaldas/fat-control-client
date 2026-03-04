@@ -152,7 +152,11 @@ export function FuncGroupDropZone({
                            </span>
                            <button
                               type="button"
-                              onClick={() => !isAdded && onAddTrip(trip, func)}
+                              onClick={() => {
+                                 if (isAdded) return;
+                                 onAddTrip(trip, func);
+                                 setSearchQuery("");
+                              }}
                               disabled={isAdded}
                               className={clsx(
                                  "rounded p-0.5",
