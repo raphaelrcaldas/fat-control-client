@@ -84,6 +84,7 @@ export function EsfAerChartLine({
             {
                seriesName: "PLANEJADO",
                min: 0,
+               max: Math.round(totalAlocado * 1.1),
                tickAmount: 6,
                title: { text: "Acumulado / Planejado" },
                labels: {
