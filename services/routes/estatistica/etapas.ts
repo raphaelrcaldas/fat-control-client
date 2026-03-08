@@ -23,7 +23,7 @@ export interface EtapaItem {
    obs: string | null;
    esf_aer_itens: string[];
    tipo_missao_cod: string | null;
-   tripulantes: Record<string, string[]>;
+   tripulantes: TripEtapaItem[];
 }
 
 export interface MissaoComEtapas {
@@ -68,6 +68,20 @@ export interface PaginatedEtapasResponse {
    page: number;
    per_page: number;
    pages: number;
+   total_items: number;
+}
+
+export interface EtapaFlatItem extends EtapaItem {
+   missao_id: number;
+   missao_titulo: string | null;
+}
+
+export interface PaginatedEtapasFlatResponse {
+   items: EtapaFlatItem[];
+   total: number;
+   page: number;
+   per_page: number;
+   pages: number;
 }
 
 export interface TripEtapaItem {
@@ -88,14 +102,22 @@ export interface OIEtapaItem {
    tvoo: number;
 }
 
-export interface EtapaDetail extends Omit<EtapaItem, "tripulantes"> {
+export interface EtapaDetail extends EtapaItem {
    pousos: number;
-   tripulantes: TripEtapaItem[];
    oi_etapas: OIEtapaItem[];
 }
 
-export async function getEtapaDetail(id: number, signal?: AbortSignal): Promise<EtapaDetail> {
-   const response = await request("GET", `${etapasRoute}${id}`, null, undefined, signal);
+export async function getEtapaDetail(
+   id: number,
+   signal?: AbortSignal
+): Promise<EtapaDetail> {
+   const response = await request(
+      "GET",
+      `${etapasRoute}${id}`,
+      null,
+      undefined,
+      signal
+   );
    const json = (await response.json()) as ApiResponse<EtapaDetail>;
    if (!response.ok) {
       throw new Error(json.message || "Etapa não encontrada");
@@ -121,7 +143,9 @@ export async function getEtapas(
               }),
            ...(params.trip_search && { trip_search: params.trip_search }),
            ...(params.page != null && { page: params.page.toString() }),
-           ...(params.per_page != null && { per_page: params.per_page.toString() }),
+           ...(params.per_page != null && {
+              per_page: params.per_page.toString(),
+           }),
         }
       : undefined;
    const response = await request(
@@ -133,6 +157,43 @@ export async function getEtapas(
    );
    const json =
       (await response.json()) as ApiPaginatedResponse<MissaoComEtapas>;
+   return {
+      items: json.data || [],
+      total: json.total,
+      page: json.page,
+      per_page: json.per_page,
+      pages: json.pages,
+      total_items: json.total_items ?? 0,
+   };
+}
+
+export async function getEtapasFlat(
+   params?: GetEtapasParams,
+   signal?: AbortSignal
+): Promise<PaginatedEtapasFlatResponse> {
+   const queryParams: Record<string, string | string[]> = { flat: "true" };
+   if (params) {
+      if (params.data_ini) queryParams.data_ini = params.data_ini;
+      if (params.data_fim) queryParams.data_fim = params.data_fim;
+      if (params.origem) queryParams.origem = params.origem;
+      if (params.destino) queryParams.destino = params.destino;
+      if (params.anv && params.anv.length > 0) queryParams.anv = params.anv;
+      if (params.esf_aer) queryParams.esf_aer = params.esf_aer;
+      if (params.tipo_missao_cod && params.tipo_missao_cod.length > 0)
+         queryParams.tipo_missao_cod = params.tipo_missao_cod;
+      if (params.trip_search) queryParams.trip_search = params.trip_search;
+      if (params.page != null) queryParams.page = params.page.toString();
+      if (params.per_page != null)
+         queryParams.per_page = params.per_page.toString();
+   }
+   const response = await request(
+      "GET",
+      etapasRoute,
+      null,
+      queryParams,
+      signal
+   );
+   const json = (await response.json()) as ApiPaginatedResponse<EtapaFlatItem>;
    return {
       items: json.data || [],
       total: json.total,
@@ -180,8 +241,9 @@ export interface EtapaCreatePayload {
    oi_etapas: OIEtapaIn[];
 }
 
-export interface EtapaUpdatePayload
-   extends Partial<Omit<EtapaCreatePayload, "missao_id">> {
+export interface EtapaUpdatePayload extends Partial<
+   Omit<EtapaCreatePayload, "missao_id">
+> {
    tripulantes?: TripEtapaIn[];
    oi_etapas?: OIEtapaIn[];
 }

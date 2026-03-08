@@ -202,12 +202,21 @@ export function DadosVooSection({
                   id="pousos"
                   type="number"
                   min={0}
+                  max={32767}
                   value={formData.pousos}
                   onChange={(e) =>
                      setField("pousos", parseInt(e.target.value) || 0)
                   }
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-red-400 focus:outline-none"
+                  className={clsx(
+                     "w-full rounded-lg border px-3 py-2 text-sm focus:ring-2 focus:ring-red-400 focus:outline-none",
+                     errors.pousos
+                        ? "border-red-500 bg-red-50"
+                        : "border-gray-300 bg-white"
+                  )}
                />
+               {errors.pousos && (
+                  <p className="mt-0.5 text-xs text-red-600">{errors.pousos}</p>
+               )}
             </div>
             <div className="flex flex-col items-center">
                <Label className="mb-1 block text-xs font-medium">SAGEM</Label>
@@ -232,28 +241,43 @@ export function DadosVooSection({
             <div className="grid grid-cols-6 gap-3 border-t border-gray-200 p-3">
                {(
                   [
-                     { key: "tow", label: "TOW (kg)", min: 1, step: 1 },
-                     { key: "pax", label: "PAX", min: 0, step: 1 },
-                     { key: "carga", label: "Carga (Kg)", min: 0, step: 1 },
+                     {
+                        key: "tow",
+                        label: "TOW (kg)",
+                        min: 1,
+                        max: 2147483647,
+                        step: 1,
+                     },
+                     { key: "pax", label: "PAX", min: 0, max: 32767, step: 1 },
+                     {
+                        key: "carga",
+                        label: "Carga (Kg)",
+                        min: 0,
+                        max: 32767,
+                        step: 1,
+                     },
                      {
                         key: "comb",
                         label: "Combustível (L)",
                         min: 1,
+                        max: 32767,
                         step: 1,
                      },
                      {
                         key: "lub",
                         label: "Lubrificante (L)",
                         min: 0,
+                        max: 9999.9,
                         step: 0.1,
                      },
                   ] as Array<{
                      key: "tow" | "pax" | "carga" | "comb" | "lub";
                      label: string;
                      min: number;
+                     max: number;
                      step: number;
                   }>
-               ).map(({ key, label, min, step }) => (
+               ).map(({ key, label, min, max, step }) => (
                   <div key={key}>
                      <Label
                         htmlFor={key}
@@ -265,6 +289,7 @@ export function DadosVooSection({
                         id={key}
                         type="number"
                         min={min}
+                        max={max}
                         step={step ?? 1}
                         value={formData[key] ?? ""}
                         onChange={(e) => {
@@ -280,8 +305,18 @@ export function DadosVooSection({
                            }
                         }}
                         placeholder="—"
-                        className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-red-400 focus:outline-none"
+                        className={clsx(
+                           "w-full rounded-lg border px-3 py-2 text-sm focus:ring-2 focus:ring-red-400 focus:outline-none",
+                           errors[key]
+                              ? "border-red-500 bg-red-50"
+                              : "border-gray-300 bg-white"
+                        )}
                      />
+                     {errors[key] && (
+                        <p className="mt-0.5 text-xs text-red-600">
+                           {errors[key]}
+                        </p>
+                     )}
                   </div>
                ))}
 

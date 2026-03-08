@@ -14,7 +14,8 @@ import { useEsfAerList } from "@/hooks/queries/useEsfAer";
 import { useTiposMissao } from "@/hooks/queries/useTiposMissao";
 import { useAeronaves } from "@/hooks/queries/useAeronaves";
 import { minutesToTime } from "@/../utils/dateHandler";
-import type { AssignedTrip, EtapaFormModalProps } from "./types";
+import type { EtapaItem } from "services/routes/estatistica/etapas";
+import type { AssignedTrip, EtapaFormModalProps, PoolTrip } from "./types";
 import { useEtapaForm } from "./hooks/useEtapaForm";
 import { useOiItems } from "./hooks/useOiItems";
 import { useTripulantes } from "./hooks/useTripulantes";
@@ -22,6 +23,28 @@ import { DadosVooSection } from "./components/DadosVooSection";
 import { OrdensInstrucaoSection } from "./components/OrdensInstrucaoSection";
 import { TripulantesSection } from "./components/TripulantesSection";
 import { FormActions } from "./components/FormActions";
+
+function getMissionPool(
+   etapas: EtapaItem[],
+   assignedIds: Set<number>
+): PoolTrip[] {
+   const seen = new Map<number, PoolTrip>();
+   for (const etapa of etapas) {
+      for (const t of etapa.tripulantes) {
+         if (!seen.has(t.trip_id) && !assignedIds.has(t.trip_id)) {
+            seen.set(t.trip_id, {
+               tripId: t.trip_id,
+               trig: t.trig,
+               nomeGuerra: t.nome_guerra,
+               pGraduacao: t.p_g,
+               lastFunc: t.func as FuncType,
+               lastFuncBordo: t.func_bordo,
+            });
+         }
+      }
+   }
+   return Array.from(seen.values());
+}
 
 export function EtapaFormModal({
    show,
@@ -44,14 +67,16 @@ export function EtapaFormModal({
    // Fetch last etapa detail for pre-fill on create
    const lastEtapa =
       missao.etapas.length > 0 ? missao.etapas[missao.etapas.length - 1] : null;
-   const { data: lastEtapaDetail } = useEtapaDetail(
-      !isEdit && lastEtapa ? lastEtapa.id : null
-   );
+   const { data: lastEtapaDetail, isLoading: loadingLastDetail } =
+      useEtapaDetail(!isEdit && lastEtapa ? lastEtapa.id : null);
 
    // External data
-   const { data: esfAerData } = useEsfAerList();
-   const { data: tiposMissaoData } = useTiposMissao();
-   const { data: aeronavesData } = useAeronaves({ per_page: 50 });
+   const { data: esfAerData, isLoading: loadingEsfAer } = useEsfAerList();
+   const { data: tiposMissaoData, isLoading: loadingTiposMissao } =
+      useTiposMissao();
+   const { data: aeronavesData, isLoading: loadingAeronaves } = useAeronaves({
+      per_page: 50,
+   });
 
    const esfAerList = esfAerData ?? [];
    const tiposMissaoList = tiposMissaoData ?? [];
@@ -70,7 +95,6 @@ export function EtapaFormModal({
       show,
       isEdit,
       etapaDetail,
-      lastEtapaDetail,
       missaoEtapas: missao.etapas,
    });
 
@@ -85,6 +109,7 @@ export function EtapaFormModal({
    } = useOiItems({ tvoo });
 
    const {
+      poolTrips,
       setPoolTrips,
       assignedTrips,
       setAssignedTrips,
@@ -126,8 +151,9 @@ export function EtapaFormModal({
             func: t.func as FuncType,
             funcBordo: t.func_bordo,
          }));
+         const assignedIdSet = new Set(assigned.map((t) => t.tripId));
          setAssignedTrips(assigned);
-         setPoolTrips([]);
+         setPoolTrips(getMissionPool(missao.etapas, assignedIdSet));
       } else if (lastEtapaDetail) {
          // Pre-fill from last etapa: OIs (without tvoo) + tripulantes
          setOiItems(
@@ -150,11 +176,12 @@ export function EtapaFormModal({
                funcBordo: t.func_bordo,
             })
          );
+         const assignedIdSet = new Set(assigned.map((t) => t.tripId));
          setAssignedTrips(assigned);
-         setPoolTrips([]);
+         setPoolTrips(getMissionPool(missao.etapas, assignedIdSet));
       } else {
          setOiItems([]);
-         setPoolTrips([]);
+         setPoolTrips(getMissionPool(missao.etapas, new Set()));
          setAssignedTrips([]);
       }
    }, [
@@ -272,7 +299,12 @@ export function EtapaFormModal({
       }
    }
 
-   const isLoading = isEdit && loadingDetail;
+   const isLoading =
+      (isEdit && loadingDetail) ||
+      (!isEdit && !!lastEtapa && loadingLastDetail) ||
+      loadingEsfAer ||
+      loadingTiposMissao ||
+      loadingAeronaves;
 
    return (
       <Modal show={show} size="6xl" onClose={onClose} dismissible>
@@ -310,6 +342,7 @@ export function EtapaFormModal({
                   />
 
                   <TripulantesSection
+                     poolTrips={poolTrips}
                      assignedTrips={assignedTrips}
                      assignedIds={assignedIds}
                      updateFuncBordo={updateFuncBordo}

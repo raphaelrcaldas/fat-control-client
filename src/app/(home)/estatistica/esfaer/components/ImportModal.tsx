@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import {
    Modal,
    ModalBody,
@@ -45,10 +45,7 @@ function toUpdateItems(rows: EsfAerImportRow[]): EsfAerUpdateItem[] {
       programa: r.programa,
       subprograma: r.subprograma,
       aplicacao: r.aplicacao,
-      meses: r.meses,
       horas_alocadas: r.horasAlocadas,
-      horas_gastas: r.horasGastas,
-      saldo_horas: r.saldoHoras,
    }));
 }
 
@@ -128,8 +125,11 @@ export function ImportModal({ show, setShow, anoRef }: ImportModalProps) {
       }
    };
 
-   const now = new Date();
-   const dateStr = `${now.toLocaleDateString("pt-BR")} ${now.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}`;
+   const dateStr = useMemo(() => {
+      if (!importResult) return "";
+      const now = new Date();
+      return `${now.toLocaleDateString("pt-BR")} ${now.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}`;
+   }, [importResult]);
 
    return (
       <>

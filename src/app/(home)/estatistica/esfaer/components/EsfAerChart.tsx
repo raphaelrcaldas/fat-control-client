@@ -27,14 +27,23 @@ export function EsfAerChartLine({
    const chartData = useMemo(() => {
       const monthlyPlan = totalAlocado / 12;
       const planned: number[] = [];
-      const accumulated: number[] = [];
+      const accumulated: (number | null)[] = [];
       const monthlyVoado: number[] = [];
+
+      // Encontra o último mês com dados voados
+      let lastFlownIndex = -1;
+      for (let i = 11; i >= 0; i--) {
+         if (totalMeses[i] > 0) {
+            lastFlownIndex = i;
+            break;
+         }
+      }
 
       let accum = 0;
       for (let i = 0; i < 12; i++) {
          planned.push(monthlyPlan * (i + 1));
          accum += totalMeses[i];
-         accumulated.push(accum);
+         accumulated.push(i <= lastFlownIndex ? accum : null);
          monthlyVoado.push(totalMeses[i]);
       }
 
@@ -150,6 +159,15 @@ export function EsfAerChartTable({
 }: EsfAerChartProps) {
    const monthlySummary = useMemo(() => {
       const monthlyPlan = totalAlocado / 12;
+
+      let lastFlownIndex = -1;
+      for (let i = 11; i >= 0; i--) {
+         if (totalMeses[i] > 0) {
+            lastFlownIndex = i;
+            break;
+         }
+      }
+
       let accum = 0;
       return MONTH_LABELS.map((label, i) => {
          accum += totalMeses[i];
@@ -157,7 +175,7 @@ export function EsfAerChartTable({
             label,
             planejado: Math.round(monthlyPlan * (i + 1)),
             voado: totalMeses[i],
-            acumulado: accum,
+            acumulado: i <= lastFlownIndex ? accum : null,
          };
       });
    }, [totalAlocado, totalMeses]);
@@ -190,7 +208,9 @@ export function EsfAerChartTable({
                         {minutesToTime(row.voado)}
                      </TableCell>
                      <TableCell className="text-center">
-                        {minutesToTime(row.acumulado)}
+                        {row.acumulado !== null
+                           ? minutesToTime(row.acumulado)
+                           : "-"}
                      </TableCell>
                   </TableRow>
                ))}

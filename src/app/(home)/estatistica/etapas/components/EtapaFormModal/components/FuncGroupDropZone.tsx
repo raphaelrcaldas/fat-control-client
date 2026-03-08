@@ -147,7 +147,7 @@ export function FuncGroupDropZone({
                            <span className="font-mono text-xs font-semibold text-gray-700 uppercase">
                               {trip.trig}
                            </span>
-                           <span className="flex-1 truncate text-xs text-gray-500 uppercase">
+                           <span className="flex-1 truncate text-xs text-gray-700 uppercase">
                               {trip.user.p_g} {trip.user.nome_guerra}
                            </span>
                            <button
@@ -186,11 +186,12 @@ export function FuncGroupDropZone({
                   className="flex items-center justify-center gap-1 rounded border border-white bg-white px-1.5 py-1 text-xs uppercase shadow-sm"
                >
                   <MdDragIndicator className="h-3.5 w-3.5 shrink-0 text-gray-300" />
-                  <span className="font-mono font-semibold text-gray-700">
+                  {/* <span className="font-mono font-semibold text-gray-700">
                      {t.trig}
+                  </span> */}
+                  <span className="font-medium text-gray-700">
+                     {t.pGraduacao} {t.nomeGuerra}
                   </span>
-                  <span className="text-gray-500">{t.pGraduacao}</span>
-                  <span className="text-gray-500">{t.nomeGuerra}</span>
                   {posicoes.length > 0 ? (
                      <select
                         value={t.funcBordo}

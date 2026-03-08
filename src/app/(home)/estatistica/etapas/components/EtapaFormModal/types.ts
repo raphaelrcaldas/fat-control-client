@@ -37,6 +37,8 @@ export interface PoolTrip {
    trig: string;
    nomeGuerra: string;
    pGraduacao: string;
+   lastFunc?: FuncType;
+   lastFuncBordo?: string;
 }
 
 export interface AssignedTrip extends PoolTrip {

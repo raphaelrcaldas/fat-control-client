@@ -3,6 +3,8 @@
 import clsx from "clsx";
 import { HiEye, HiPencilAlt } from "react-icons/hi";
 import {
+   FUNC_BORDO_ORDER,
+   FUNC_ORDER,
    getFuncColors,
    FUNCOES_CONFIG,
    type FuncType,
@@ -13,6 +15,7 @@ import {
    formatTime,
    minutesToTime,
 } from "@/../utils/dateHandler";
+import type { TripEtapaItem } from "services/routes/estatistica/etapas";
 
 export interface EtapaRowProps {
    data: string;
@@ -26,7 +29,7 @@ export interface EtapaRowProps {
    parte1: boolean;
    tipo_missao_cod: string | null;
    esf_aer_itens: string[];
-   tripulantes: Record<string, string[]>;
+   tripulantes: TripEtapaItem[];
    loading: boolean;
    checked: boolean;
    onToggle: () => void;
@@ -113,39 +116,32 @@ export function EtapaRow({
             )}
          </TableCell>
          <TableCell>
-            {Object.keys(tripulantes).length > 0 ? (
+            {tripulantes.length > 0 ? (
                <div className="flex flex-wrap items-center gap-1">
-                  {(
-                     [
-                        "pil",
-                        "oe",
-                        "mc",
-                        "lm",
-                        "tf",
-                        "os",
-                        "md",
-                        "ml",
-                     ] as FuncType[]
-                  )
-                     .filter((func) => tripulantes[func])
-                     .flatMap((func) => {
-                        const trigs = tripulantes[func];
-                        const colors = getFuncColors(func);
-                        return trigs.map((trig) => (
-                           <span
-                              key={`${func}-${trig}`}
-                              className={clsx(
-                                 "w-10 rounded px-1.5 py-0.5 text-xs font-semibold uppercase",
-                                 colors.badge
-                              )}
-                              title={
-                                 FUNCOES_CONFIG[func as FuncType]?.label ?? func
-                              }
-                           >
-                              {trig}
-                           </span>
-                        ));
-                     })}
+                  {FUNC_ORDER.flatMap((func) => {
+                     const members = tripulantes
+                        .filter((t) => t.func === func)
+                        .sort(
+                           (a, b) =>
+                              (FUNC_BORDO_ORDER[a.func_bordo] ?? 50) -
+                              (FUNC_BORDO_ORDER[b.func_bordo] ?? 50)
+                        );
+                     if (members.length === 0) return [];
+                     const colors = getFuncColors(func);
+
+                     return members.map((m) => (
+                        <span
+                           key={`${func}-${m.trig}`}
+                           className={clsx(
+                              "w-10 rounded px-1.5 py-0.5 text-xs font-semibold uppercase",
+                              colors.badge
+                           )}
+                           title={`[${m.func_bordo}]  ${m.p_g} ${m.nome_guerra}`.toUpperCase()}
+                        >
+                           {m.trig}
+                        </span>
+                     ));
+                  })}
                </div>
             ) : (
                <span className="text-gray-300">&mdash;</span>

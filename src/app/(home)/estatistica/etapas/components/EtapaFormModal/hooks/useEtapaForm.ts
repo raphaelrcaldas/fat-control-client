@@ -2,20 +2,20 @@ import { useCallback, useMemo, useState } from "react";
 import type { EtapaDetail } from "services/routes/estatistica/etapas";
 import type { EtapaItem } from "services/routes/estatistica/etapas";
 import type { FormData } from "../types";
-import { DEFAULT_FORM } from "../constants";
+import { DEFAULT_FORM, FIELD_LIMITS } from "../constants";
 import { calcTvoo, timeToHHmm } from "../helpers";
-import { minutesToTime } from "@/../utils/dateHandler";
+
+type LimitKey = keyof typeof FIELD_LIMITS;
 
 interface UseEtapaFormParams {
    show: boolean;
    isEdit: boolean;
    etapaDetail: EtapaDetail | undefined;
-   lastEtapaDetail: EtapaDetail | undefined;
    missaoEtapas: EtapaItem[];
 }
 
 export function useEtapaForm(params: UseEtapaFormParams) {
-   const { show, isEdit, etapaDetail, lastEtapaDetail, missaoEtapas } = params;
+   const { show, isEdit, etapaDetail, missaoEtapas } = params;
 
    const [formData, setFormData] = useState<FormData>(DEFAULT_FORM);
    const [errors, setErrors] = useState<
@@ -30,9 +30,31 @@ export function useEtapaForm(params: UseEtapaFormParams) {
 
    const tvooValid = tvoo > 0 && tvoo % 5 === 0;
 
-   // Field update helper
+   // Field update helper with real-time numeric validation
    function setField<K extends keyof FormData>(key: K, value: FormData[K]) {
       setFormData((prev) => ({ ...prev, [key]: value }));
+
+      if (key in FIELD_LIMITS && value != null && value !== "") {
+         const num = Number(value);
+         const { min, max, label } = FIELD_LIMITS[key as LimitKey];
+         if (!isNaN(num)) {
+            if (num < min) {
+               setErrors((prev) => ({
+                  ...prev,
+                  [key]: `${label} deve ser no mínimo ${min}`,
+               }));
+               return;
+            }
+            if (num > max) {
+               setErrors((prev) => ({
+                  ...prev,
+                  [key]: `${label} deve ser no máximo ${max.toLocaleString("pt-BR")}`,
+               }));
+               return;
+            }
+         }
+      }
+
       setErrors((prev) => {
          const next = { ...prev };
          delete next[key];
@@ -51,6 +73,19 @@ export function useEtapaForm(params: UseEtapaFormParams) {
       if (!formData.dep) errs.dep = "Informe a hora de decolagem";
       if (!formData.arr) errs.arr = "Informe a hora de pouso";
       if (!formData.anv) errs.anv = "Selecione a aeronave";
+
+      // Validate numeric field limits
+      for (const [key, { min, max, label }] of Object.entries(FIELD_LIMITS)) {
+         const val = formData[key as LimitKey];
+         if (val == null) continue;
+         const num = Number(val);
+         if (num < min)
+            errs[key as keyof FormData] = `${label} deve ser no mínimo ${min}`;
+         else if (num > max)
+            errs[key as keyof FormData] =
+               `${label} deve ser no máximo ${max.toLocaleString("pt-BR")}`;
+      }
+
       setErrors(errs);
       return Object.keys(errs).length === 0 && tvooValid && oiValid;
    }
@@ -89,11 +124,12 @@ export function useEtapaForm(params: UseEtapaFormParams) {
                : null;
          setFormData({
             ...DEFAULT_FORM,
+            data: lastEtapa?.data ?? "",
             origem: lastEtapa?.destino ?? "",
-            anv: lastEtapaDetail?.anv ?? "",
+            anv: lastEtapa?.anv ?? "",
          });
       }
-   }, [isEdit, etapaDetail, lastEtapaDetail, missaoEtapas]);
+   }, [isEdit, etapaDetail, missaoEtapas]);
 
    return {
       formData,

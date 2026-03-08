@@ -1,9 +1,9 @@
 import clsx from "clsx";
 import { HiPlus, HiX } from "react-icons/hi";
 import { Label } from "flowbite-react";
-import { minutesToTime } from "@/../utils/dateHandler";
+import { minutesToTime, timeToMinutes } from "@/../utils/dateHandler";
+import { SearchableSelect } from "@/components/SearchableSelect";
 import type { OIItem } from "../types";
-import { formatTimeInput, finalizeTimeInput } from "../helpers";
 
 interface OrdensInstrucaoSectionProps {
    oiItems: OIItem[];
@@ -14,7 +14,7 @@ interface OrdensInstrucaoSectionProps {
    oiValid: boolean;
    tvoo: number;
    esfAerList: Array<{ id: number; descricao: string }>;
-   tiposMissaoList: Array<{ id: number; cod: string }>;
+   tiposMissaoList: Array<{ id: number; cod: string; desc: string }>;
 }
 
 export function OrdensInstrucaoSection({
@@ -72,24 +72,20 @@ export function OrdensInstrucaoSection({
                         <Label className="mb-1 block text-xs font-medium">
                            Esforço Aéreo
                         </Label>
-                        <select
-                           value={oi.esf_aer_id ?? ""}
-                           onChange={(e) =>
+                        <SearchableSelect
+                           options={esfAerList.map((e) => ({
+                              value: String(e.id),
+                              label: e.descricao,
+                           }))}
+                           value={oi.esf_aer_id ? String(oi.esf_aer_id) : ""}
+                           onChange={(val) =>
                               updateOiItem(oi.uid, {
-                                 esf_aer_id: e.target.value
-                                    ? Number(e.target.value)
-                                    : null,
+                                 esf_aer_id: val ? Number(val) : null,
                               })
                            }
-                           className="w-full rounded-lg border border-gray-300 bg-white px-2 py-2 text-sm focus:ring-2 focus:ring-red-400 focus:outline-none"
-                        >
-                           <option value="">Selecionar...</option>
-                           {esfAerList.map((e) => (
-                              <option key={e.id} value={e.id}>
-                                 {e.descricao}
-                              </option>
-                           ))}
-                        </select>
+                           placeholder="Selecionar..."
+                           sizing="sm"
+                        />
                      </div>
                      <div>
                         <Label className="mb-1 block text-xs font-medium">
@@ -109,7 +105,7 @@ export function OrdensInstrucaoSection({
                            <option value="">Selecionar...</option>
                            {tiposMissaoList.map((t) => (
                               <option key={t.id} value={t.id}>
-                                 {t.cod}
+                                 {t.cod} - {t.desc}
                               </option>
                            ))}
                         </select>
@@ -144,26 +140,21 @@ export function OrdensInstrucaoSection({
                            ))}
                         </div>
                      </div>
-                     <div className="w-24">
+                     <div className="w-28">
                         <Label className="mb-1 block text-xs font-medium">
                            T.Voo
                         </Label>
                         <input
-                           type="text"
-                           inputMode="numeric"
-                           maxLength={5}
-                           placeholder="00:00"
-                           value={oi.tvooDisplay}
-                           onChange={(e) =>
+                           type="time"
+                           value={oi.tvooDisplay || "00:00"}
+                           onChange={(e) => {
+                              const val = e.target.value;
                               updateOiItem(oi.uid, {
-                                 tvooDisplay: formatTimeInput(e.target.value),
-                              })
-                           }
-                           onBlur={() => {
-                              const result = finalizeTimeInput(oi.tvooDisplay);
-                              updateOiItem(oi.uid, result);
+                                 tvooDisplay: val,
+                                 tvoo: val ? timeToMinutes(val) : 0,
+                              });
                            }}
-                           className="w-full rounded-lg border border-gray-300 bg-white px-2 py-2 text-center text-sm focus:ring-2 focus:ring-red-400 focus:outline-none"
+                           className="w-full rounded-lg border border-gray-300 bg-white px-2 py-2 text-center font-mono text-sm focus:ring-2 focus:ring-red-400 focus:outline-none"
                         />
                      </div>
                      <button

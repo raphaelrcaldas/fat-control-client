@@ -24,7 +24,14 @@ export function useOiItems(params: UseOiItemsParams) {
          ));
 
    function addOiItem() {
-      setOiItems((prev) => [...prev, newOiItem()]);
+      setOiItems((prev) => {
+         const last = prev.length > 0 ? prev[prev.length - 1] : null;
+         const item = newOiItem();
+         if (last?.esf_aer_id) {
+            item.esf_aer_id = last.esf_aer_id;
+         }
+         return [...prev, item];
+      });
    }
 
    function removeOiItem(uid: string) {

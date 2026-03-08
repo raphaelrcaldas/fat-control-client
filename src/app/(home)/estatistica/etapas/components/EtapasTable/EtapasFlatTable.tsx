@@ -1,13 +1,10 @@
 "use client";
 
-import type {
-   EtapaItem,
-   MissaoComEtapas,
-} from "services/routes/estatistica/etapas";
+import type { EtapaFlatItem } from "services/routes/estatistica/etapas";
 import { EtapasInnerTable } from "./EtapasInnerTable";
 
 export interface EtapasFlatTableProps {
-   missoes: MissaoComEtapas[];
+   etapas: EtapaFlatItem[];
    loading: boolean;
    selectedIds: Set<number>;
    onToggleEtapa: (id: number) => void;
@@ -15,11 +12,11 @@ export interface EtapasFlatTableProps {
    allSelected: boolean;
    someSelected: boolean;
    onDetailEtapa: (id: number) => void;
-   onEditEtapa: (etapa: EtapaItem) => void;
+   onEditEtapa: (etapa: EtapaFlatItem) => void;
 }
 
 export function EtapasFlatTable({
-   missoes,
+   etapas,
    loading,
    selectedIds,
    onToggleEtapa,
@@ -29,12 +26,10 @@ export function EtapasFlatTable({
    onDetailEtapa,
    onEditEtapa,
 }: EtapasFlatTableProps) {
-   const allEtapas = missoes.flatMap((m) => m.etapas);
-
    return (
       <div className="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
          <EtapasInnerTable
-            etapas={allEtapas}
+            etapas={etapas}
             loading={loading}
             selectedIds={selectedIds}
             onToggleEtapa={onToggleEtapa}

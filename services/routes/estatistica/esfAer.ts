@@ -46,10 +46,7 @@ export interface EsfAerUpdateItem {
    programa: string;
    subprograma: string;
    aplicacao: string;
-   meses: number[];
    horas_alocadas: number;
-   horas_gastas: number;
-   saldo_horas: number;
 }
 
 export interface EsfAerUpdateRequest {

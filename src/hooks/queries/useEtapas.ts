@@ -11,6 +11,7 @@ import {
    deleteMissao,
    getEtapaDetail,
    getEtapas,
+   getEtapasFlat,
    updateEtapa,
    updateMissao,
    type EtapaCreatePayload,
@@ -29,6 +30,9 @@ export const etapaKeys = {
    lists: () => [...etapaKeys.all, "list"] as const,
    list: (filters?: GetEtapasParams) =>
       [...etapaKeys.lists(), filters] as const,
+   flats: () => [...etapaKeys.all, "flat"] as const,
+   flat: (filters?: GetEtapasParams) =>
+      [...etapaKeys.flats(), filters] as const,
    details: () => [...etapaKeys.all, "detail"] as const,
    detail: (id: number) => [...etapaKeys.details(), id] as const,
 };
@@ -40,11 +44,24 @@ export const etapaKeys = {
 /**
  * Lista paginada de missoes com etapas e filtros
  */
-export function useEtapas(params?: GetEtapasParams) {
+export function useEtapas(params?: GetEtapasParams, enabled = true) {
    return useQuery({
       queryKey: etapaKeys.list(params),
       queryFn: ({ signal }) => getEtapas(params, signal),
       placeholderData: keepPreviousData,
+      enabled,
+   });
+}
+
+/**
+ * Lista paginada flat de etapas (sem agrupamento por missao)
+ */
+export function useEtapasFlat(params?: GetEtapasParams, enabled = true) {
+   return useQuery({
+      queryKey: etapaKeys.flat(params),
+      queryFn: ({ signal }) => getEtapasFlat(params, signal),
+      placeholderData: keepPreviousData,
+      enabled,
    });
 }
 
@@ -69,7 +86,7 @@ export function useCreateMissao() {
    return useMutation({
       mutationFn: (data: MissaoCreate) => createMissao(data),
       onSuccess: () => {
-         queryClient.invalidateQueries({ queryKey: etapaKeys.lists() });
+         queryClient.invalidateQueries({ queryKey: etapaKeys.all });
       },
    });
 }
@@ -80,7 +97,7 @@ export function useUpdateMissao() {
       mutationFn: ({ id, data }: { id: number; data: MissaoUpdate }) =>
          updateMissao(id, data),
       onSuccess: () => {
-         queryClient.invalidateQueries({ queryKey: etapaKeys.lists() });
+         queryClient.invalidateQueries({ queryKey: etapaKeys.all });
       },
    });
 }
@@ -90,7 +107,7 @@ export function useDeleteEstatMissao() {
    return useMutation({
       mutationFn: (id: number) => deleteMissao(id),
       onSuccess: () => {
-         queryClient.invalidateQueries({ queryKey: etapaKeys.lists() });
+         queryClient.invalidateQueries({ queryKey: etapaKeys.all });
       },
    });
 }
@@ -104,7 +121,7 @@ export function useCreateEtapa() {
    return useMutation({
       mutationFn: (data: EtapaCreatePayload) => createEtapa(data),
       onSuccess: () => {
-         queryClient.invalidateQueries({ queryKey: etapaKeys.lists() });
+         queryClient.invalidateQueries({ queryKey: etapaKeys.all });
       },
    });
 }
@@ -115,7 +132,7 @@ export function useUpdateEtapa() {
       mutationFn: ({ id, data }: { id: number; data: EtapaUpdatePayload }) =>
          updateEtapa(id, data),
       onSuccess: (_, { id }) => {
-         queryClient.invalidateQueries({ queryKey: etapaKeys.lists() });
+         queryClient.invalidateQueries({ queryKey: etapaKeys.all });
          queryClient.invalidateQueries({ queryKey: etapaKeys.detail(id) });
       },
    });
@@ -126,7 +143,7 @@ export function useDeleteEtapa() {
    return useMutation({
       mutationFn: (id: number) => deleteEtapa(id),
       onSuccess: () => {
-         queryClient.invalidateQueries({ queryKey: etapaKeys.lists() });
+         queryClient.invalidateQueries({ queryKey: etapaKeys.all });
       },
    });
 }

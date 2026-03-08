@@ -59,6 +59,20 @@ export const FUNCOES_CONFIG: Record<FuncType, FuncConfig> = {
          { codigo: "AG", label: "Aluno", descricao: "Loadmaster em instrução" },
       ],
    },
+   tf: {
+      label: "Comissário",
+      labelShort: "Comissário",
+      theme: { color: "purple", badge: "purple" },
+      posicoes: [
+         { codigo: "TF", label: "Comissário", descricao: "Comissário titular" },
+         {
+            codigo: "IF",
+            label: "Instrutor",
+            descricao: "Comissário instrutor",
+         },
+         { codigo: "AF", label: "Aluno", descricao: "Comissário em instrução" },
+      ],
+   },
    oe: {
       label: "Operador de Equipamentos",
       labelShort: "OE-3",
@@ -95,20 +109,7 @@ export const FUNCOES_CONFIG: Record<FuncType, FuncConfig> = {
          },
       ],
    },
-   tf: {
-      label: "Comissário",
-      labelShort: "Comissário",
-      theme: { color: "purple", badge: "purple" },
-      posicoes: [
-         { codigo: "TF", label: "Comissário", descricao: "Comissário titular" },
-         {
-            codigo: "IF",
-            label: "Instrutor",
-            descricao: "Comissário instrutor",
-         },
-         { codigo: "AF", label: "Aluno", descricao: "Comissário em instrução" },
-      ],
-   },
+
    ml: {
       label: "Mestre de Lançamento",
       labelShort: "ML",
@@ -291,3 +292,25 @@ export function getTodasPosicoes(): string[] {
       config.posicoes.map((p) => p.codigo)
    );
 }
+
+// =============================================================================
+// ORDENAÇÃO
+// =============================================================================
+
+export const FUNC_ORDER: FuncType[] = [
+   "pil",
+   "oe",
+   "mc",
+   "lm",
+   "tf",
+   "os",
+   "md",
+   "ml",
+];
+
+export const FUNC_BORDO_ORDER: Record<string, number> = {
+   "1P": 0,
+   IN: 1,
+   AL: 2,
+   "2P": 3,
+};

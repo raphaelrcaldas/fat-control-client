@@ -17,6 +17,7 @@ export interface ApiPaginatedResponse<T = unknown> extends ApiResponse<T[]> {
    page: number;
    per_page: number;
    pages: number;
+   total_items: number | null;
 }
 
 export interface ApiResult<T = unknown> {

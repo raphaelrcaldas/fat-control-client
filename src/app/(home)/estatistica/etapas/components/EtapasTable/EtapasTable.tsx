@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Checkbox } from "flowbite-react";
 import type {
+   EtapaFlatItem,
    EtapaItem,
    MissaoComEtapas,
 } from "services/routes/estatistica/etapas";
@@ -13,6 +14,7 @@ import { EtapaFormModal } from "../EtapaFormModal";
 
 export interface EtapasTableProps {
    missoes: MissaoComEtapas[];
+   flatEtapas?: EtapaFlatItem[];
    loading: boolean;
    selectedIds: Set<number>;
    onToggleEtapa: (id: number) => void;
@@ -26,6 +28,7 @@ export interface EtapasTableProps {
 
 export function EtapasTable({
    missoes,
+   flatEtapas = [],
    loading,
    selectedIds,
    onToggleEtapa,
@@ -42,11 +45,15 @@ export function EtapasTable({
       editingEtapa: EtapaItem | null;
    } | null>(null);
 
-   if (!loading && missoes.length === 0) {
+   const hasData = grouped ? missoes.length > 0 : flatEtapas.length > 0;
+
+   if (!loading && !hasData) {
       return null;
    }
 
-   const allEtapaIds = missoes.flatMap((m) => m.etapas.map((e) => e.id));
+   const allEtapaIds = grouped
+      ? missoes.flatMap((m) => m.etapas.map((e) => e.id))
+      : flatEtapas.map((e) => e.id);
    const someSelected =
       !allSelected && allEtapaIds.some((id) => selectedIds.has(id));
 
@@ -92,7 +99,7 @@ export function EtapasTable({
             </>
          ) : (
             <EtapasFlatTable
-               missoes={missoes}
+               etapas={flatEtapas}
                loading={loading}
                selectedIds={selectedIds}
                onToggleEtapa={onToggleEtapa}
@@ -100,13 +107,19 @@ export function EtapasTable({
                allSelected={allSelected}
                someSelected={someSelected}
                onDetailEtapa={setDetailId}
-               onEditEtapa={(etapa) => {
-                  const missao = missoes.find((m) =>
-                     m.etapas.some((e) => e.id === etapa.id)
-                  );
-                  if (missao)
-                     setEtapaFormState({ missao, editingEtapa: etapa });
-               }}
+               onEditEtapa={(etapa) =>
+                  setEtapaFormState({
+                     missao: {
+                        id: etapa.missao_id,
+                        titulo: etapa.missao_titulo,
+                        obs: null,
+                        etapas: flatEtapas.filter(
+                           (e) => e.missao_id === etapa.missao_id
+                        ),
+                     },
+                     editingEtapa: etapa,
+                  })
+               }
             />
          )}
 
