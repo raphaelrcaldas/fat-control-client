@@ -91,7 +91,7 @@ export function TripulantesByFunc({
                            >
                               <div
                                  className={clsx(
-                                    "flex items-center justify-center rounded px-2 py-1 text-xs font-bold uppercase font-mono",
+                                    "flex items-center justify-center rounded px-2 py-1 font-mono text-xs font-bold uppercase",
                                     colors.badge
                                  )}
                               >

@@ -64,9 +64,9 @@ export async function updateQuad(quad: Quad): Promise<ApiResult<null>> {
    );
 }
 
-export async function deleteQuad(quadId: number): Promise<ApiResult<null>> {
+export async function deleteQuad(ids: number[]): Promise<ApiResult<null>> {
    return parseApiResponse<null>(
-      await request("DELETE", quadsRoute + quadId)
+      await request("DELETE", quadsRoute, { ids })
    );
 }
 

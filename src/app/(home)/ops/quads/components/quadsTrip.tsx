@@ -2,6 +2,7 @@
 
 import {
    Button,
+   Checkbox,
    Modal,
    ModalBody,
    ModalHeader,
@@ -35,7 +36,8 @@ interface QuadsTripProps {
 interface QuadRowProps {
    quad: Quad;
    trip: CrewMember;
-   onDelete: (id: number) => Promise<void>;
+   selected: boolean;
+   onToggleSelect: (id: number) => void;
 }
 
 export function QuadsTrip({
@@ -46,6 +48,9 @@ export function QuadsTrip({
 }: QuadsTripProps) {
    const [openModal, setOpenModal] = useState(false);
    const [showForm, setShowForm] = useState(false);
+   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
+   const [showBatchDeleteConfirm, setShowBatchDeleteConfirm] = useState(false);
+   const [batchDeleting, setBatchDeleting] = useState(false);
    const { quadType } = useQuadsContext();
    const { push } = useToast();
 
@@ -63,35 +68,64 @@ export function QuadsTrip({
       [trip.user.posto.short, trip.user.nome_guerra]
    );
 
-   const handleDelete = useCallback(
-      async (quadId: number) => {
-         try {
-            const result = await deleteQuadMutation.mutateAsync(quadId);
-            if (result.ok) {
-               push({
-                  message: result.message || "Quadrinho deletado com sucesso!",
-                  type: "success",
-               });
-            } else {
-               push({
-                  message: result.message || "Erro ao deletar",
-                  type: "error",
-               });
-            }
-         } catch (err) {
-            console.error(err);
+   const handleToggleSelect = useCallback((id: number) => {
+      setSelectedIds((prev) => {
+         const next = new Set(prev);
+         if (next.has(id)) {
+            next.delete(id);
+         } else {
+            next.add(id);
+         }
+         return next;
+      });
+   }, []);
+
+   const handleSelectAll = useCallback(() => {
+      const allIds = quads
+         .map((q) => q.id)
+         .filter((id): id is number => id !== undefined);
+      setSelectedIds(new Set(allIds));
+   }, [quads]);
+
+   const handleClearSelection = useCallback(() => {
+      setSelectedIds(new Set());
+   }, []);
+
+   const handleBatchDelete = useCallback(async () => {
+      setShowBatchDeleteConfirm(false);
+      setBatchDeleting(true);
+      try {
+         const ids = Array.from(selectedIds);
+         const result = await deleteQuadMutation.mutateAsync(ids);
+         if (result.ok) {
             push({
-               message: (err as Error).message || "Erro ao deletar quadrinho",
+               message:
+                  result.message ||
+                  `${ids.length} quadrinho(s) deletado(s) com sucesso!`,
+               type: "success",
+            });
+            setSelectedIds(new Set());
+         } else {
+            push({
+               message: result.message || "Erro ao deletar quadrinhos",
                type: "error",
             });
          }
-      },
-      [push, deleteQuadMutation]
-   );
+      } catch (err) {
+         console.error(err);
+         push({
+            message: (err as Error).message || "Erro ao deletar quadrinhos",
+            type: "error",
+         });
+      } finally {
+         setBatchDeleting(false);
+      }
+   }, [selectedIds, deleteQuadMutation, push]);
 
    const handleCloseModal = useCallback(() => {
       setOpenModal(false);
       setShowForm(false);
+      setSelectedIds(new Set());
    }, []);
 
    return (
@@ -164,6 +198,29 @@ export function QuadsTrip({
                   </div>
                </div>
 
+               {quads.length > 0 && selectedIds.size > 0 && (
+                  <div className="mb-3 flex items-center justify-between rounded-lg border border-red-200 bg-red-50 px-3 py-2">
+                     <span className="text-sm font-semibold text-gray-700">
+                        {selectedIds.size} selecionado(s)
+                     </span>
+                     <div className="flex items-center gap-2">
+                        <button
+                           onClick={handleSelectAll}
+                           className="cursor-pointer text-xs font-medium text-blue-600 hover:underline"
+                        >
+                           Selecionar Todos
+                        </button>
+                        <span className="text-gray-300">|</span>
+                        <button
+                           onClick={handleClearSelection}
+                           className="cursor-pointer text-xs font-medium text-gray-500 hover:underline"
+                        >
+                           Limpar
+                        </button>
+                     </div>
+                  </div>
+               )}
+
                <div className="h-96 overflow-y-auto rounded-lg bg-white shadow-lg dark:bg-gray-800">
                   {loading ? (
                      <LoadingState />
@@ -171,6 +228,7 @@ export function QuadsTrip({
                      <Table className="text-center" hoverable>
                         <TableHead>
                            <TableRow>
+                              <TableHeadCell className="w-10" />
                               <TableHeadCell>Valor</TableHeadCell>
                               <TableHeadCell>Ações</TableHeadCell>
                            </TableRow>
@@ -181,7 +239,11 @@ export function QuadsTrip({
                                  key={index}
                                  quad={quad}
                                  trip={trip}
-                                 onDelete={handleDelete}
+                                 selected={
+                                    quad.id !== undefined &&
+                                    selectedIds.has(quad.id)
+                                 }
+                                 onToggleSelect={handleToggleSelect}
                               />
                            ))}
                         </TableBody>
@@ -191,8 +253,29 @@ export function QuadsTrip({
                   )}
                </div>
 
-               <PermBased resource={"quad"} requiredPerm={"create"}>
-                  <div className="mt-4 flex justify-center">
+               <div className="mt-4 flex items-center justify-center gap-2">
+                  <PermBased resource={"quad_ops"} requiredPerm={"create"}>
+                     {selectedIds.size > 0 && (
+                        <Button
+                           color="gray"
+                           disabled={batchDeleting}
+                           onClick={() => setShowBatchDeleteConfirm(true)}
+                           className="w-full sm:w-auto"
+                        >
+                           {batchDeleting ? (
+                              <Spinner
+                                 size="sm"
+                                 color="failure"
+                                 className="mr-2"
+                              />
+                           ) : (
+                              <FaRegTrashCan className="mr-2 h-4 w-4" />
+                           )}
+                           Deletar ({selectedIds.size})
+                        </Button>
+                     )}
+                  </PermBased>
+                  <PermBased resource={"quad"} requiredPerm={"create"}>
                      <Button
                         color="red"
                         onClick={() => setShowForm(true)}
@@ -201,30 +284,25 @@ export function QuadsTrip({
                         <FaPlus className="mr-2 h-4 w-4" />
                         Adicionar Quadrinho
                      </Button>
-                  </div>
-               </PermBased>
+                  </PermBased>
+               </div>
 
                <QuadForm trip={trip} show={showForm} setShow={setShowForm} />
             </ModalBody>
          </Modal>
+
+         <ConfirmDeleteModal
+            show={showBatchDeleteConfirm}
+            onConfirm={handleBatchDelete}
+            onCancel={() => setShowBatchDeleteConfirm(false)}
+            count={selectedIds.size}
+         />
       </>
    );
 }
 
-function QuadRow({ quad, trip, onDelete }: QuadRowProps) {
+function QuadRow({ quad, trip, selected, onToggleSelect }: QuadRowProps) {
    const [showForm, setShowForm] = useState(false);
-   const [deleting, setDeleting] = useState(false);
-   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-
-   const handleDeleteClick = useCallback(async () => {
-      setShowDeleteConfirm(false);
-      setDeleting(true);
-      try {
-         await onDelete(quad.id!);
-      } finally {
-         setDeleting(false);
-      }
-   }, [quad.id, onDelete]);
 
    const displayValue = quad.value ? isoDateToString(quad.value) : "LASTRO";
    const canEdit = Boolean(quad.value);
@@ -232,6 +310,15 @@ function QuadRow({ quad, trip, onDelete }: QuadRowProps) {
    return (
       <>
          <TableRow className="transition-colors hover:bg-gray-50 dark:hover:bg-gray-700">
+            <TableCell className="w-10">
+               <Checkbox
+                  checked={selected}
+                  onChange={() =>
+                     quad.id !== undefined && onToggleSelect(quad.id)
+                  }
+                  className="size-5 text-red-600 focus:ring-red-500"
+               />
+            </TableCell>
             <TableCell className="text-center font-semibold">
                {displayValue}
             </TableCell>
@@ -243,23 +330,8 @@ function QuadRow({ quad, trip, onDelete }: QuadRowProps) {
                            onClick={() => setShowForm(true)}
                            className="cursor-pointer rounded-md p-2 text-blue-500 transition-all duration-200 hover:bg-blue-500 hover:text-white active:scale-95"
                            aria-label="Editar quadrinho"
-                           disabled={deleting}
                         >
                            <FaEdit className="size-5" />
-                        </button>
-                     )}
-
-                     {deleting ? (
-                        <div className="p-2">
-                           <Spinner size="sm" color="failure" />
-                        </div>
-                     ) : (
-                        <button
-                           onClick={() => setShowDeleteConfirm(true)}
-                           className="cursor-pointer rounded-md p-2 text-red-500 transition-all duration-200 hover:bg-red-500 hover:text-white active:scale-95"
-                           aria-label="Deletar quadrinho"
-                        >
-                           <FaRegTrashCan className="size-5" />
                         </button>
                      )}
                   </PermBased>
@@ -275,12 +347,6 @@ function QuadRow({ quad, trip, onDelete }: QuadRowProps) {
                quad={quad}
             />
          )}
-
-         <ConfirmDeleteModal
-            show={showDeleteConfirm}
-            onConfirm={handleDeleteClick}
-            onCancel={() => setShowDeleteConfirm(false)}
-         />
       </>
    );
 }
@@ -328,11 +394,18 @@ function ConfirmDeleteModal({
    show,
    onConfirm,
    onCancel,
+   count,
 }: {
    show: boolean;
    onConfirm: () => void;
    onCancel: () => void;
+   count?: number;
 }) {
+   const isBatch = count !== undefined && count > 1;
+   const message = isBatch
+      ? `Tem certeza que deseja deletar ${count} quadrinhos selecionados?`
+      : "Tem certeza que deseja deletar este quadrinho?";
+
    return (
       <Modal show={show} size="sm" onClose={onCancel} popup>
          <ModalHeader />
@@ -340,7 +413,7 @@ function ConfirmDeleteModal({
             <div className="text-center">
                <FaRegTrashCan className="mx-auto mb-4 h-14 w-14 text-red-500" />
                <h3 className="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
-                  Tem certeza que deseja deletar este quadrinho?
+                  {message}
                </h3>
                <div className="flex justify-center gap-4">
                   <Button color="red" onClick={onConfirm}>

@@ -109,13 +109,13 @@ export function useUpdateQuad() {
 }
 
 /**
- * Deletar quad
+ * Deletar quad(s) - aceita array de IDs para delete em lote
  */
 export function useDeleteQuad() {
    const queryClient = useQueryClient();
 
    return useMutation({
-      mutationFn: (quadId: number) => deleteQuad(quadId),
+      mutationFn: (ids: number[]) => deleteQuad(ids),
       onSuccess: () => {
          queryClient.invalidateQueries({ queryKey: quadKeys.lists() });
          queryClient.invalidateQueries({ queryKey: quadKeys.details() });
