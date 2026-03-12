@@ -109,20 +109,25 @@ export function DetailComiss({
    const [diasCumprir, setDiasCumprir] = useState(defaultValues.diasCumprir);
 
    // Dados computados para visualização
-   const data_abertura = comiss
-      ? isoStrToDate(comiss.data_ab).toLocaleDateString("pt-br", {
-           day: "2-digit",
-           month: "2-digit",
-           year: "2-digit",
-        })
-      : "";
-   const data_fechamento = comiss
-      ? isoStrToDate(comiss.data_fc).toLocaleDateString("pt-br", {
-           day: "2-digit",
-           month: "2-digit",
-           year: "2-digit",
-        })
-      : "";
+   const { data_abertura, data_fechamento } = useMemo(
+      () => ({
+         data_abertura: comiss
+            ? isoStrToDate(comiss.data_ab).toLocaleDateString("pt-br", {
+                 day: "2-digit",
+                 month: "2-digit",
+                 year: "2-digit",
+              })
+            : "",
+         data_fechamento: comiss
+            ? isoStrToDate(comiss.data_fc).toLocaleDateString("pt-br", {
+                 day: "2-digit",
+                 month: "2-digit",
+                 year: "2-digit",
+              })
+            : "",
+      }),
+      [comiss]
+   );
 
    const ajd_ab = comiss?.valor_aj_ab || 0;
    const ajd_fc = comiss?.valor_aj_fc || 0;

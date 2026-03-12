@@ -49,6 +49,8 @@ function getDefaultFim(): string {
 }
 
 const perPage = 20;
+const defaultIni = getDefaultIni();
+const defaultFim = getDefaultFim();
 
 export function RegisPage() {
    const [cloneMis, setCloneMis] = useState<Missao | null>(null);
@@ -63,8 +65,8 @@ export function RegisPage() {
    const selectedTipo = getArrayParam(searchParams, "tipo");
    const userSearch = getStringParam(searchParams, "user");
    const citySearch = getStringParam(searchParams, "city");
-   const dataInicio = getStringParam(searchParams, "ini", getDefaultIni());
-   const dataFim = getStringParam(searchParams, "fim", getDefaultFim());
+   const dataInicio = getStringParam(searchParams, "ini", defaultIni);
+   const dataFim = getStringParam(searchParams, "fim", defaultFim);
    const selectedEtiquetaIds = getNumberArrayParam(searchParams, "etiquetas");
    const currentPage = Number(getStringParam(searchParams, "page", "1"));
    const [viewMode, setViewMode] = usePersistedState<"cards" | "table">(
@@ -117,14 +119,14 @@ export function RegisPage() {
 
    function setDataInicio(value: string) {
       setParams({
-         ini: serializeString(value, getDefaultIni()),
+         ini: serializeString(value, defaultIni),
          page: undefined,
       });
    }
 
    function setDataFim(value: string) {
       setParams({
-         fim: serializeString(value, getDefaultFim()),
+         fim: serializeString(value, defaultFim),
          page: undefined,
       });
    }
@@ -189,8 +191,8 @@ export function RegisPage() {
       selectedTipo.length > 0 ||
       userSearch ||
       citySearch ||
-      dataInicio !== getDefaultIni() ||
-      dataFim !== getDefaultFim() ||
+      dataInicio !== defaultIni ||
+      dataFim !== defaultFim ||
       selectedEtiquetaIds.length > 0
    );
 
@@ -356,7 +358,7 @@ export function RegisPage() {
                            </Badge>
                         )}
 
-                        {dataInicio !== getDefaultIni() && (
+                        {dataInicio !== defaultIni && (
                            <Badge color="red">
                               <div className="flex items-center gap-1.5">
                                  <HiCalendar className="h-3 w-3" />
@@ -376,7 +378,7 @@ export function RegisPage() {
                            </Badge>
                         )}
 
-                        {dataFim !== getDefaultFim() && (
+                        {dataFim !== defaultFim && (
                            <Badge color="red">
                               <div className="flex items-center gap-1.5">
                                  <HiCalendar className="h-3 w-3" />
@@ -444,8 +446,8 @@ export function RegisPage() {
                               (nDoc ? 1 : 0) +
                               (userSearch ? 1 : 0) +
                               (citySearch ? 1 : 0) +
-                              (dataInicio !== getDefaultIni() ? 1 : 0) +
-                              (dataFim !== getDefaultFim() ? 1 : 0)}
+                              (dataInicio !== defaultIni ? 1 : 0) +
+                              (dataFim !== defaultFim ? 1 : 0)}
                         </Badge>
                      )}
                   </button>
@@ -461,12 +463,13 @@ export function RegisPage() {
             </section>
 
             {/* Filters Section */}
-            <div
-               className={`mb-2 shrink-0 overflow-hidden transition-all duration-300 ease-in-out ${
-                  showFilters ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
-               }`}
+            <section
+               className={clsx(
+                  "mb-2 grid shrink-0 transition-[grid-template-rows] duration-300 ease-in-out",
+                  showFilters ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
+               )}
             >
-               <section>
+               <div className="overflow-hidden">
                   <div className="rounded-lg border border-gray-200 bg-white p-4">
                      <div className="mb-4 flex items-center justify-between">
                         <h6 className="text-sm font-medium text-gray-700">
@@ -630,7 +633,7 @@ export function RegisPage() {
                                        onClick={() =>
                                           toggleEtiqueta(etiqueta.id!)
                                        }
-                                       className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium transition-all ${
+                                       className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ${
                                           isSelected
                                              ? "text-white shadow-sm"
                                              : "border border-dashed"
@@ -659,8 +662,8 @@ export function RegisPage() {
                         </div>
                      )}
                   </div>
-               </section>
-            </div>
+               </div>
+            </section>
 
             {/* Results Section */}
             <section className="flex-1">
@@ -670,12 +673,7 @@ export function RegisPage() {
                      <p className="text-sm text-gray-500">Carregando...</p>
                   </div>
                ) : (
-                  <div
-                     className={clsx(
-                        "transition-opacity duration-200",
-                        isFetching && "opacity-50"
-                     )}
-                  >
+                  <div className={clsx(isFetching && "opacity-50")}>
                      {/* Results Grid */}
                      {missoes?.length === 0 ? (
                         <div className="flex flex-col items-center justify-center rounded-lg border border-gray-200 bg-gray-50 p-8">

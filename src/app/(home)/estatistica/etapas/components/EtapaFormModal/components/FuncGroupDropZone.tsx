@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import clsx from "clsx";
 import { useDroppable } from "@dnd-kit/core";
 import { HiPlus, HiX } from "react-icons/hi";
@@ -12,6 +12,7 @@ import {
 import type { FuncType } from "@/constants/tripulantes/funcoes";
 import { tripKeys } from "@/hooks/queries/useTrips";
 import { getTrips } from "services/routes/trips";
+import useDebouncedValue from "@/hooks/useDebouncedValue";
 import type { AssignedTrip } from "../types";
 
 const colorMap: Record<string, string> = {
@@ -69,18 +70,7 @@ export function FuncGroupDropZone({
 
    // Inline search state
    const [searchQuery, setSearchQuery] = useState("");
-   const [debouncedSearch, setDebouncedSearch] = useState("");
-   const searchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-   useEffect(() => {
-      if (searchTimerRef.current) clearTimeout(searchTimerRef.current);
-      searchTimerRef.current = setTimeout(() => {
-         setDebouncedSearch(searchQuery);
-      }, 300);
-      return () => {
-         if (searchTimerRef.current) clearTimeout(searchTimerRef.current);
-      };
-   }, [searchQuery]);
+   const debouncedSearch = useDebouncedValue(searchQuery, 300);
 
    const searchParams = debouncedSearch
       ? { search: debouncedSearch, per_page: 5, active: true }
@@ -186,9 +176,6 @@ export function FuncGroupDropZone({
                   className="flex items-center justify-center gap-1 rounded border border-white bg-white px-1.5 py-1 text-xs uppercase shadow-sm"
                >
                   <MdDragIndicator className="h-3.5 w-3.5 shrink-0 text-gray-300" />
-                  {/* <span className="font-mono font-semibold text-gray-700">
-                     {t.trig}
-                  </span> */}
                   <span className="font-medium text-gray-700">
                      {t.pGraduacao} {t.nomeGuerra}
                   </span>

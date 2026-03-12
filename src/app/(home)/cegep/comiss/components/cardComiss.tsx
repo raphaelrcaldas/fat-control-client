@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Card, Dropdown, DropdownItem } from "flowbite-react";
 import { isoStrToDate } from "utils/dateHandler";
 import { CircularProgressbar, buildStyles } from "react-circular-progressbar";
@@ -20,21 +20,19 @@ export function CardComiss({ comiss }: { comiss: ComissList }) {
    const deleteMutation = useDeleteComiss();
    const [showDetail, setShowDetail] = useState(false);
    const user = comiss.user;
-   const data_abertura = isoStrToDate(comiss.data_ab).toLocaleDateString(
-      "pt-br",
-      {
-         day: "2-digit",
-         month: "2-digit",
-         year: "2-digit",
-      }
-   );
-   const data_fechamento = isoStrToDate(comiss.data_fc).toLocaleDateString(
-      "pt-br",
-      {
-         day: "2-digit",
-         month: "2-digit",
-         year: "2-digit",
-      }
+
+   const { data_abertura, data_fechamento } = useMemo(
+      () => ({
+         data_abertura: isoStrToDate(comiss.data_ab).toLocaleDateString(
+            "pt-br",
+            { day: "2-digit", month: "2-digit", year: "2-digit" }
+         ),
+         data_fechamento: isoStrToDate(comiss.data_fc).toLocaleDateString(
+            "pt-br",
+            { day: "2-digit", month: "2-digit", year: "2-digit" }
+         ),
+      }),
+      [comiss.data_ab, comiss.data_fc]
    );
 
    const ajd_ab = comiss.valor_aj_ab;
@@ -198,6 +196,16 @@ function ComissProgress({
    let color = modulo ? "#009401" : "#d70001";
    color = status == "fechado" ? "#919191" : color;
 
+   const progressStyles = useMemo(
+      () =>
+         buildStyles({
+            pathColor: color,
+            textColor: color,
+            textSize: "21px",
+         }),
+      [color]
+   );
+
    return (
       <CircularProgressbar
          className="size-24"
@@ -205,11 +213,7 @@ function ComissProgress({
          strokeWidth={11}
          maxValue={100}
          text={`${value}%`}
-         styles={buildStyles({
-            pathColor: color,
-            textColor: color,
-            textSize: "21px",
-         })}
+         styles={progressStyles}
       />
    );
 }

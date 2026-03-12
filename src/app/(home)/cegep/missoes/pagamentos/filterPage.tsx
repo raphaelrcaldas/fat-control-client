@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
    Label,
    TextInput,
@@ -48,6 +48,9 @@ function getDefaultFim(): string {
    return new Date().toISOString().split("T")[0];
 }
 
+const defaultIni = getDefaultIni();
+const defaultFim = getDefaultFim();
+
 export function FilterPage({ active }: { active: boolean }) {
    const [showFilters, setShowFilters] = useState(false);
    const [showModal, setShowModal] = useState(false);
@@ -59,6 +62,7 @@ export function FilterPage({ active }: { active: boolean }) {
    const [selectedAll, setSelectedAll] = useState(false);
    const [valorSoma, setValorSoma] = useState(0);
    const [selectedIds, setSelectedIds] = useState<number[]>([]);
+   const selectedIdSet = useMemo(() => new Set(selectedIds), [selectedIds]);
 
    const { searchParams, setParams } = useSearchParamsUpdater();
 
@@ -68,8 +72,8 @@ export function FilterPage({ active }: { active: boolean }) {
    const selectedTipo = getArrayParam(searchParams, "tipo");
    const selectedSit = getArrayParam(searchParams, "sit");
    const userSearch = getStringParam(searchParams, "user");
-   const dataInicio = getStringParam(searchParams, "ini", getDefaultIni());
-   const dataFim = getStringParam(searchParams, "fim", getDefaultFim());
+   const dataInicio = getStringParam(searchParams, "ini", defaultIni);
+   const dataFim = getStringParam(searchParams, "fim", defaultFim);
    const currentPage = Number(getStringParam(searchParams, "page", "1"));
    const itemsPerPage = Number(getStringParam(searchParams, "per_page", "10"));
 
@@ -114,14 +118,14 @@ export function FilterPage({ active }: { active: boolean }) {
 
    function setDataInicio(value: string) {
       setParams({
-         ini: serializeString(value, getDefaultIni()),
+         ini: serializeString(value, defaultIni),
          page: undefined,
       });
    }
 
    function setDataFim(value: string) {
       setParams({
-         fim: serializeString(value, getDefaultFim()),
+         fim: serializeString(value, defaultFim),
          page: undefined,
       });
    }
@@ -202,8 +206,8 @@ export function FilterPage({ active }: { active: boolean }) {
       selectedTipo?.length ||
       selectedSit?.length ||
       userSearch ||
-      dataInicio !== getDefaultIni() ||
-      dataFim !== getDefaultFim()
+      dataInicio !== defaultIni ||
+      dataFim !== defaultFim
    );
 
    const activeFiltersCount =
@@ -212,8 +216,8 @@ export function FilterPage({ active }: { active: boolean }) {
       (selectedTipo?.length || 0) +
       (selectedSit?.length || 0) +
       (userSearch ? 1 : 0) +
-      (dataInicio !== getDefaultIni() ? 1 : 0) +
-      (dataFim !== getDefaultFim() ? 1 : 0);
+      (dataInicio !== defaultIni ? 1 : 0) +
+      (dataFim !== defaultFim ? 1 : 0);
 
    const clearFilters = () => {
       setParams({
@@ -350,7 +354,7 @@ export function FilterPage({ active }: { active: boolean }) {
                   </Badge>
                )}
 
-               {dataInicio !== getDefaultIni() && (
+               {dataInicio !== defaultIni && (
                   <Badge color="red">
                      <div className="flex items-center gap-1.5">
                         <HiCalendar className="h-3 w-3" />
@@ -370,7 +374,7 @@ export function FilterPage({ active }: { active: boolean }) {
                   </Badge>
                )}
 
-               {dataFim !== getDefaultFim() && (
+               {dataFim !== defaultFim && (
                   <Badge color="red">
                      <div className="flex items-center gap-1.5">
                         <HiCalendar className="h-3 w-3" />
@@ -602,7 +606,7 @@ export function FilterPage({ active }: { active: boolean }) {
 
                            <div
                               className={clsx(
-                                 "border-t border-green-200 bg-green-50 px-3 py-1 shadow transition-all duration-300",
+                                 "border-t border-green-200 bg-green-50 px-3 py-1 shadow",
                                  selectedIds.length > 0
                                     ? "translate-y-0 opacity-100"
                                     : "pointer-events-none translate-y-full opacity-0"
@@ -659,7 +663,7 @@ export function FilterPage({ active }: { active: boolean }) {
                      {/* Área dos registros com spinner */}
                      <div
                         className={clsx(
-                           "relative overflow-x-auto transition-opacity duration-200",
+                           "relative overflow-x-auto",
                            isFetching && "opacity-50"
                         )}
                      >
@@ -673,9 +677,7 @@ export function FilterPage({ active }: { active: boolean }) {
                               <UserRow
                                  key={record.user_mis.id}
                                  record={record}
-                                 checked={selectedIds.includes(
-                                    record.user_mis.id
-                                 )}
+                                 checked={selectedIdSet.has(record.user_mis.id)}
                                  onSelect={handleSelect}
                                  onShowDetail={handleShowDetail}
                               />

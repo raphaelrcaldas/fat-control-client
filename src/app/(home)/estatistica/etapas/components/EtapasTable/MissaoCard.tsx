@@ -1,5 +1,6 @@
 "use client";
 
+import { memo, useMemo } from "react";
 import { HiPencilAlt, HiPlus, HiTrash } from "react-icons/hi";
 import { Checkbox } from "flowbite-react";
 import type {
@@ -15,13 +16,13 @@ export interface MissaoCardProps {
    onToggleEtapa: (id: number) => void;
    onToggleMissao: (etapaIds: number[]) => void;
    onDetailEtapa: (id: number) => void;
-   onEditEtapa: (etapa: EtapaItem) => void;
+   onEditEtapa: (id: number) => void;
    onAddEtapa: (missao: MissaoComEtapas) => void;
    onEditMissao: (missao: MissaoComEtapas) => void;
    onDeleteMissao: (missao: MissaoComEtapas) => void;
 }
 
-export function MissaoCard({
+export const MissaoCard = memo(function MissaoCard({
    missao,
    loading,
    selectedIds,
@@ -33,7 +34,11 @@ export function MissaoCard({
    onEditMissao,
    onDeleteMissao,
 }: MissaoCardProps) {
-   const etapaIds = missao.etapas.map((e) => e.id);
+   const etapaIds = useMemo(
+      () => missao.etapas.map((e) => e.id),
+      [missao.etapas]
+   );
+
    const allChecked =
       etapaIds.length > 0 && etapaIds.every((id) => selectedIds.has(id));
    const someChecked =
@@ -107,4 +112,4 @@ export function MissaoCard({
          )}
       </div>
    );
-}
+});

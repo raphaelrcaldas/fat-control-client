@@ -129,13 +129,13 @@ const TripTable = ({ trips, setRow, activeRow, isLoading }) => {
                            VISA
                         </span>
                      </th>
-                     <th className="group cursor-pointer px-4 py-3 transition-colors hover:bg-gray-300">
+                     {/* <th className="group cursor-pointer px-4 py-3 transition-colors hover:bg-gray-300">
                         <div className="flex items-center justify-center gap-1">
                            <span className="font-semibold text-gray-700">
                               TOTAL
                            </span>
                         </div>
-                     </th>
+                     </th> */}
                      <th className="group cursor-pointer px-4 py-3 transition-colors hover:bg-gray-300">
                         <div className="flex items-center justify-center gap-1">
                            <span className="font-semibold text-gray-700">
@@ -253,9 +253,9 @@ const TripTable = ({ trips, setRow, activeRow, isLoading }) => {
                                     </span>
                                  </Tooltip>
                               </td>
-                              <td className="px-4 py-2 font-medium text-gray-700">
+                              {/* <td className="px-4 py-2 font-medium text-gray-700">
                                  {trip.hTotal}
-                              </td>
+                              </td> */}
                               <td className="px-4 py-2 font-bold text-blue-600">
                                  {trip.hAno}
                               </td>

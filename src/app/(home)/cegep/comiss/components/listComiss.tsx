@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Progress, Label, Button } from "flowbite-react";
 import { isoStrToDate } from "utils/dateHandler";
 import {
@@ -14,21 +14,19 @@ import { ComissList } from "services/routes/cegep/comiss";
 export function ListComiss({ comiss }: { comiss: ComissList }) {
    const [showDetail, setShowDetail] = useState(false);
    const user = comiss.user;
-   const data_abertura = isoStrToDate(comiss.data_ab).toLocaleDateString(
-      "pt-br",
-      {
-         day: "2-digit",
-         month: "2-digit",
-         year: "2-digit",
-      }
-   );
-   const data_fechamento = isoStrToDate(comiss.data_fc).toLocaleDateString(
-      "pt-br",
-      {
-         day: "2-digit",
-         month: "2-digit",
-         year: "2-digit",
-      }
+
+   const { data_abertura, data_fechamento } = useMemo(
+      () => ({
+         data_abertura: isoStrToDate(comiss.data_ab).toLocaleDateString(
+            "pt-br",
+            { day: "2-digit", month: "2-digit", year: "2-digit" }
+         ),
+         data_fechamento: isoStrToDate(comiss.data_fc).toLocaleDateString(
+            "pt-br",
+            { day: "2-digit", month: "2-digit", year: "2-digit" }
+         ),
+      }),
+      [comiss.data_ab, comiss.data_fc]
    );
 
    const ajd_ab = comiss.valor_aj_ab;
@@ -39,7 +37,7 @@ export function ListComiss({ comiss }: { comiss: ComissList }) {
          <div
             onClick={() => setShowDetail(true)}
             className={clsx(
-               "group cursor-pointer rounded-xl border border-gray-100 bg-white/80 shadow-sm backdrop-blur-sm transition-all duration-300 hover:border-gray-200 hover:shadow-md",
+               "group cursor-pointer rounded-xl border border-gray-100 bg-white/80 shadow-sm backdrop-blur-sm hover:border-gray-200 hover:shadow-md",
                {
                   "hover:bg-blue-50/50": comiss.dias_cumprir,
                   "hover:bg-green-50/50": !comiss.dias_cumprir,
@@ -57,7 +55,7 @@ export function ListComiss({ comiss }: { comiss: ComissList }) {
                   <div className="flex items-center gap-2.5">
                      <div
                         className={clsx(
-                           "h-2 w-2 rounded-full transition-colors duration-300",
+                           "h-2 w-2 rounded-full transition-colors",
                            {
                               "bg-emerald-500 shadow-sm shadow-emerald-200":
                                  comiss.status === "aberto",
@@ -72,7 +70,7 @@ export function ListComiss({ comiss }: { comiss: ComissList }) {
                   <div className="flex items-center gap-2.5">
                      <div
                         className={clsx(
-                           "h-2 w-2 rounded-full transition-colors duration-300",
+                           "h-2 w-2 rounded-full transition-colors",
                            {
                               "bg-rose-500 shadow-sm shadow-rose-200":
                                  comiss.status === "aberto",
@@ -89,7 +87,7 @@ export function ListComiss({ comiss }: { comiss: ComissList }) {
                {/* Tipo de Comissionamento */}
                <div
                   className={clsx(
-                     "flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors duration-200 md:w-32",
+                     "flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors md:w-32",
                      {
                         "bg-blue-100 text-blue-700": comiss.dias_cumprir,
                         "bg-green-100 text-green-700": !comiss.dias_cumprir,
@@ -169,10 +167,10 @@ export function ListComiss({ comiss }: { comiss: ComissList }) {
                </div>
 
                {/* Indicador Clicável */}
-               <div className="hidden h-8 w-8 items-center justify-center rounded-full bg-gray-100 transition-colors duration-200 group-hover:bg-blue-100 sm:flex">
+               <div className="hidden h-8 w-8 items-center justify-center rounded-full bg-gray-100 transition-colors group-hover:bg-blue-100 sm:flex">
                   <MdChevronRight
                      size={20}
-                     className="text-gray-400 transition-all duration-200 group-hover:translate-x-0.5 group-hover:text-blue-600"
+                     className="text-gray-400 transition-transform group-hover:translate-x-0.5 group-hover:text-blue-600"
                   />
                </div>
             </div>

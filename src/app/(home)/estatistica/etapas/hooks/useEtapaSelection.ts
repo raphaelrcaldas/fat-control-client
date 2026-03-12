@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useMemo } from "react";
 import type {
    EtapaFlatItem,
    MissaoComEtapas,
@@ -21,10 +21,14 @@ export function useEtapaSelection(
       setSelectedIds(new Set());
    }, [dataKey]);
 
-   const allEtapaIds =
-      flatEtapas.length > 0
-         ? flatEtapas.map((e) => e.id)
-         : missoes.flatMap((m) => m.etapas.map((e) => e.id));
+   const allEtapaIds = useMemo(
+      () =>
+         flatEtapas.length > 0
+            ? flatEtapas.map((e) => e.id)
+            : missoes.flatMap((m) => m.etapas.map((e) => e.id)),
+      [flatEtapas, missoes]
+   );
+
    const allSelected =
       allEtapaIds.length > 0 && allEtapaIds.every((id) => selectedIds.has(id));
 

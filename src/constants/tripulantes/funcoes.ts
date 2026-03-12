@@ -33,6 +33,11 @@ export const FUNCOES_CONFIG: Record<FuncType, FuncConfig> = {
          { codigo: "2P", label: "2º Piloto", descricao: "Copiloto" },
          { codigo: "IN", label: "Instrutor", descricao: "Piloto instrutor" },
          { codigo: "AL", label: "Aluno", descricao: "Piloto em instrução" },
+         {
+            codigo: "O3",
+            label: "Operador",
+            descricao: "Operador de equipamentos",
+         },
       ],
    },
    mc: {

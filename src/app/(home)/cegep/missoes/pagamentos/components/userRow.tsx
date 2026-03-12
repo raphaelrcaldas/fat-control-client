@@ -1,72 +1,87 @@
 "use client";
+import { memo, useMemo } from "react";
 import { Checkbox, Button, Badge } from "flowbite-react";
 import { IoMdInformationCircleOutline } from "react-icons/io";
 import { HiCalendar } from "react-icons/hi";
 import clsx from "clsx";
+import { PagamentoRecord } from "services/routes/cegep/financeiro";
 
-export function UserRow({ record, checked, onSelect, onShowDetail }) {
-   const afast =
-      new Date(record.missao.afast).toLocaleDateString("pt-BR", {
-         day: "2-digit",
-         month: "2-digit",
-         year: "2-digit",
-         hour: "2-digit",
-         minute: "2-digit",
-      }) || "N/A";
+interface UserRowProps {
+   record: PagamentoRecord;
+   checked: boolean;
+   onSelect: (id: number, valor: number, checked: boolean) => void;
+   onShowDetail: (record: PagamentoRecord) => void;
+}
 
-   const regres =
-      new Date(record.missao.regres).toLocaleDateString("pt-BR", {
-         day: "2-digit",
-         month: "2-digit",
-         year: "2-digit",
-         hour: "2-digit",
-         minute: "2-digit",
-      }) || "N/A";
+const STATUS_CONFIGS = {
+   g: {
+      label: "G",
+      color: "warning",
+      bgClass: "bg-orange-50",
+      hoverClass: "hover:bg-orange-100",
+      borderClass: "border-l-2 border-orange-400",
+      active: "ring-2 ring-orange-400",
+      checkBoxColor: "yellow",
+   },
+   d: {
+      label: "D",
+      color: "success",
+      bgClass: "bg-green-50",
+      hoverClass: "hover:bg-green-100",
+      borderClass: "border-l-2 border-green-400",
+      active: "ring-2 ring-green-400",
+      checkBoxColor: "green",
+   },
+   c: {
+      label: "C",
+      color: "info",
+      bgClass: "bg-blue-50",
+      hoverClass: "hover:bg-blue-100",
+      borderClass: "border-l-2 border-blue-400",
+      active: "ring-2 ring-blue-400",
+      checkBoxColor: "blue",
+   },
+} as const;
+
+export const UserRow = memo(function UserRow({
+   record,
+   checked,
+   onSelect,
+   onShowDetail,
+}: UserRowProps) {
+   const { afast, regres } = useMemo(
+      () => ({
+         afast:
+            new Date(record.missao.afast).toLocaleDateString("pt-BR", {
+               day: "2-digit",
+               month: "2-digit",
+               year: "2-digit",
+               hour: "2-digit",
+               minute: "2-digit",
+            }) || "N/A",
+         regres:
+            new Date(record.missao.regres).toLocaleDateString("pt-BR", {
+               day: "2-digit",
+               month: "2-digit",
+               year: "2-digit",
+               hour: "2-digit",
+               minute: "2-digit",
+            }) || "N/A",
+      }),
+      [record.missao.afast, record.missao.regres]
+   );
 
    function onChange() {
       onSelect(record.user_mis.id, record.missao.valor_total, !checked);
    }
 
-   const getStatusConfig = (sit: string) => {
-      const configs = {
-         g: {
-            label: "G",
-            color: "warning",
-            bgClass: "bg-orange-50",
-            hoverClass: "hover:bg-orange-100",
-            borderClass: "border-l-2 border-orange-400",
-            active: "ring-2 ring-orange-400",
-            checkBoxColor: "yellow",
-         },
-         d: {
-            label: "D",
-            color: "success",
-            bgClass: "bg-green-50",
-            hoverClass: "hover:bg-green-100",
-            borderClass: "border-l-2 border-green-400",
-            active: "ring-2 ring-green-400",
-            checkBoxColor: "green",
-         },
-         c: {
-            label: "C",
-            color: "info",
-            bgClass: "bg-blue-50",
-            hoverClass: "hover:bg-blue-100",
-            borderClass: "border-l-2 border-blue-400",
-            active: "ring-2 ring-blue-400",
-            checkBoxColor: "blue",
-         },
-      };
-      return configs[sit] || configs.g;
-   };
-
-   const statusConfig = getStatusConfig(record.user_mis.sit);
+   const statusConfig = STATUS_CONFIGS[record.user_mis.sit] || STATUS_CONFIGS.g;
 
    return (
       <li
          key={record.missao.id}
          className={clsx(
-            "group relative my-2 rounded px-2 py-3 transition-all duration-200 ease-in-out",
+            "group relative my-2 rounded px-2 py-3",
             "flex flex-row items-center gap-0.5 sm:gap-2",
             statusConfig.bgClass,
             statusConfig.hoverClass,
@@ -80,7 +95,7 @@ export function UserRow({ record, checked, onSelect, onShowDetail }) {
          {/* Checkbox Section */}
          <div className="flex w-8 items-center justify-center">
             <Checkbox
-               className="size-5 cursor-pointer transition-transform hover:scale-105"
+               className="size-5 cursor-pointer"
                color={statusConfig.checkBoxColor}
                checked={checked}
                onChange={onChange}
@@ -200,4 +215,4 @@ export function UserRow({ record, checked, onSelect, onShowDetail }) {
          </div>
       </li>
    );
-}
+});

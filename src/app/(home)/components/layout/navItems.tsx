@@ -97,6 +97,11 @@ export const navItems = [
       roles: ["admin"],
       children: [
          {
+            icon: MdSort,
+            label: "Pau de Sebo",
+            path: "/estatistica/sebo",
+         },
+         {
             icon: CiPaperplane,
             label: "Etapas",
             path: "/estatistica/etapas",

@@ -12,7 +12,7 @@ export interface EtapasFlatTableProps {
    allSelected: boolean;
    someSelected: boolean;
    onDetailEtapa: (id: number) => void;
-   onEditEtapa: (etapa: EtapaFlatItem) => void;
+   onEditEtapa: (id: number) => void;
 }
 
 export function EtapasFlatTable({

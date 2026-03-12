@@ -16,3 +16,4 @@ export * from "./useSecurity";
 export * from "./useEtapas";
 export * from "./useEsfAer";
 export * from "./useTiposMissao";
+export * from "./useSebo";

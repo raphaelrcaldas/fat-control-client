@@ -1,5 +1,6 @@
 "use client";
 
+import { useCallback } from "react";
 import {
    Checkbox,
    Table,
@@ -23,7 +24,7 @@ export interface EtapasInnerTableProps {
    selectedIds: Set<number>;
    onToggleEtapa: (id: number) => void;
    onDetailEtapa: (id: number) => void;
-   onEditEtapa: (etapa: EtapaItem) => void;
+   onEditEtapa: (id: number) => void;
    headerCheckbox?: HeaderCheckboxProps;
 }
 
@@ -82,6 +83,7 @@ export function EtapasInnerTable({
                {etapas.map((etapa) => (
                   <EtapaRow
                      key={etapa.id}
+                     id={etapa.id}
                      data={etapa.data}
                      origem={etapa.origem}
                      destino={etapa.destino}
@@ -96,9 +98,9 @@ export function EtapasInnerTable({
                      sagem={etapa.sagem}
                      parte1={etapa.parte1}
                      checked={selectedIds.has(etapa.id)}
-                     onToggle={() => onToggleEtapa(etapa.id)}
-                     onDetail={() => onDetailEtapa(etapa.id)}
-                     onEdit={() => onEditEtapa(etapa)}
+                     onToggleEtapa={onToggleEtapa}
+                     onDetailEtapa={onDetailEtapa}
+                     onEditEtapa={onEditEtapa}
                   />
                ))}
             </TableBody>
