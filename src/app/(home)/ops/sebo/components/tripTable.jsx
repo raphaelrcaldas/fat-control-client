@@ -253,9 +253,6 @@ const TripTable = ({ trips, setRow, activeRow, isLoading }) => {
                                     </span>
                                  </Tooltip>
                               </td>
-                              {/* <td className="px-4 py-2 font-medium text-gray-700">
-                                 {trip.hTotal}
-                              </td> */}
                               <td className="px-4 py-2 font-bold text-blue-600">
                                  {trip.hAno}
                               </td>

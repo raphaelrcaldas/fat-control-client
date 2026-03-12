@@ -16,8 +16,8 @@ export const converterMinutosParaHoras = (minutos) => {
 
 export const sortTripsByDuration = (trips) => {
    return trips.sort((a, b) => {
-      const [hoursA, minutesA] = a.hAno.split(":").map(Number);
-      const [hoursB, minutesB] = b.hAno.split(":").map(Number);
+      const [hoursA, minutesA] = (a.hAno || "0:00").split(":").map(Number);
+      const [hoursB, minutesB] = (b.hAno || "0:00").split(":").map(Number);
 
       const totalMinutesA = hoursA * 60 + minutesA;
       const totalMinutesB = hoursB * 60 + minutesB;

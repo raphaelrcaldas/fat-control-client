@@ -18,7 +18,6 @@ export type TripSheet = {
    ant_opr?: any;
    duv?: any;
    dsv?: any;
-   hTotal?: any;
    hAno?: any;
 };
 
@@ -72,8 +71,7 @@ export async function getTripData(): Promise<TripSheet[]> {
          ant_opr: row[13],
          duv: row[14],
          dsv: row[15],
-         hTotal: row[16],
-         hAno: row[17],
+         hAno: row[16],
       }
 
       return tripData;

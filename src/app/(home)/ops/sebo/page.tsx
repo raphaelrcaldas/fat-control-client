@@ -98,7 +98,7 @@ function SeboPage() {
                      </h3>
                      <ChartSebo
                         data={arrayFunc.map((trip) =>
-                           durationToMinutes(trip.hAno)
+                           durationToMinutes(trip.hAno || "0:00")
                         )}
                         categories={arrayFunc.map((trip) => trip.trig)}
                         activeRow={activeRow}
