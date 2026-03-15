@@ -91,8 +91,8 @@ export const EtapaRow = memo(function EtapaRow({
             "bg-white",
             loading && "opacity-50",
             !sagem
-               ? "bg-amber-50 hover:bg-amber-100"
-               : !parte1 && "bg-green-50 hover:bg-green-100"
+               ? "bg-amber-100 hover:bg-amber-200"
+               : !parte1 && "bg-green-100 hover:bg-green-200"
          )}
       >
          <TableCell className="w-10">
@@ -114,7 +114,7 @@ export const EtapaRow = memo(function EtapaRow({
          </TableCell>
          <TableCell className="font-mono">{formatTime(dep)}</TableCell>
          <TableCell className="font-mono">{formatTime(arr)}</TableCell>
-         <TableCell className="font-mono font-semibold">
+         <TableCell className="font-mono font-semibold text-slate-800">
             {minutesToTime(tvoo)}
          </TableCell>
          <TableCell className="text-gray-900">{anv}</TableCell>
@@ -128,7 +128,7 @@ export const EtapaRow = memo(function EtapaRow({
                      <li
                         key={item}
                         className={clsx(
-                           "px-3 py-0.5 text-sm whitespace-nowrap",
+                           "px-3 py-0.5 text-sm font-medium whitespace-nowrap",
                            {
                               "text-blue-600": item.includes("COMAE"),
                               "text-amber-600": item.includes("COMPREP"),

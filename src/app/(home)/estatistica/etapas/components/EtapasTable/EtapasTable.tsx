@@ -1,12 +1,15 @@
 "use client";
 
 import { useState, useMemo, useCallback } from "react";
-import { Checkbox } from "flowbite-react";
+import { Badge, Checkbox, Spinner } from "flowbite-react";
+import { HiCheck, HiX, HiCheckCircle, HiClock } from "react-icons/hi";
 import type {
    EtapaFlatItem,
    EtapaItem,
    MissaoComEtapas,
 } from "services/routes/estatistica/etapas";
+import { useBulkUpdateEtapas } from "@/hooks/queries/useEtapas";
+import { minutesToTime } from "@/../utils/dateHandler";
 import { MissaoCard } from "./MissaoCard";
 import { EtapasFlatTable } from "./EtapasFlatTable";
 import { EtapaDetailModal } from "../EtapaDetailModal";
@@ -127,12 +130,107 @@ export function EtapasTable({
       []
    );
 
+   // ── Bulk update ──────────────────────────────────────────────
+   const bulkUpdate = useBulkUpdateEtapas();
+   const [bulkFeedback, setBulkFeedback] = useState<string | null>(null);
+
+   const totalTvoo = useMemo(() => {
+      const allEtapas = grouped ? missoes.flatMap((m) => m.etapas) : flatEtapas;
+      return allEtapas
+         .filter((e) => selectedIds.has(e.id))
+         .reduce((sum, e) => sum + e.tvoo, 0);
+   }, [selectedIds, missoes, flatEtapas, grouped]);
+
+   const handleBulkUpdate = useCallback(
+      (field: "sagem" | "parte1", value: boolean) => {
+         const ids = Array.from(selectedIds);
+         bulkUpdate.mutate(
+            { ids, data: { [field]: value } },
+            {
+               onSuccess: (result) => {
+                  if (result.ok) {
+                     const label = field === "sagem" ? "SAGEM" : "Parte 1";
+                     setBulkFeedback(
+                        `${label} ${value ? "marcado" : "desmarcado"} em ${ids.length} etapa(s)`
+                     );
+                     setTimeout(() => setBulkFeedback(null), 3000);
+                  }
+               },
+            }
+         );
+      },
+      [selectedIds, bulkUpdate]
+   );
+
+   const selectionActions = selectedIds.size > 0 && (
+      <div className="flex flex-wrap items-center gap-2">
+         <div className="h-4 w-px bg-gray-300" />
+         <Badge color="red" size="sm">
+            {selectedIds.size} etapa(s)
+         </Badge>
+         <div className="flex items-center gap-1 text-sm font-semibold text-gray-800">
+            <HiClock className="h-4 w-4 text-blue-600" />
+            {minutesToTime(totalTvoo)}
+         </div>
+         <div className="h-4 w-px bg-gray-300" />
+
+         <div className="flex items-center gap-2 rounded-md bg-white px-3 py-1 shadow">
+            <span className="mr-1 text-sm font-medium text-gray-500">
+               SAGEM
+            </span>
+            <button
+               onClick={() => handleBulkUpdate("sagem", true)}
+               disabled={bulkUpdate.isPending}
+               className="rounded bg-emerald-50 px-1.5 py-0.5 text-sm font-semibold text-emerald-700 shadow hover:bg-emerald-100 disabled:opacity-50"
+            >
+               <HiCheck className="inline h-4 w-4" />
+            </button>
+            <button
+               onClick={() => handleBulkUpdate("sagem", false)}
+               disabled={bulkUpdate.isPending}
+               className="rounded bg-amber-50 px-1.5 py-0.5 text-sm font-semibold text-amber-700 shadow hover:bg-amber-100 disabled:opacity-50"
+            >
+               <HiX className="inline h-4 w-4" />
+            </button>
+         </div>
+         <div className="h-4 w-px bg-gray-300" />
+
+         <div className="flex items-center gap-2 rounded-md bg-white px-3 py-1 shadow">
+            <span className="mr-1 text-sm font-medium text-gray-500">
+               Parte 1
+            </span>
+            <button
+               onClick={() => handleBulkUpdate("parte1", true)}
+               disabled={bulkUpdate.isPending}
+               className="rounded bg-emerald-50 px-1.5 py-0.5 text-sm font-semibold text-emerald-700 shadow hover:bg-emerald-100 disabled:opacity-50"
+            >
+               <HiCheck className="inline h-4 w-4" />
+            </button>
+            <button
+               onClick={() => handleBulkUpdate("parte1", false)}
+               disabled={bulkUpdate.isPending}
+               className="rounded bg-amber-50 px-1.5 py-0.5 text-sm font-semibold text-amber-700 shadow hover:bg-amber-100 disabled:opacity-50"
+            >
+               <HiX className="inline h-4 w-4" />
+            </button>
+         </div>
+
+         {bulkUpdate.isPending && <Spinner size="xs" color="failure" />}
+         {bulkFeedback && (
+            <span className="flex items-center gap-0.5 text-sm font-medium text-emerald-600">
+               <HiCheckCircle className="h-4 w-4" />
+               {bulkFeedback}
+            </span>
+         )}
+      </div>
+   );
+
    return (
       <div className="space-y-4 py-2">
          {grouped ? (
             <>
-               {/* Selecionar tudo da pagina */}
-               <div className="flex items-center gap-2 px-1">
+               {/* Selecionar tudo da pagina + ações em massa */}
+               <div className="flex h-8 flex-wrap items-center gap-2 px-1">
                   <Checkbox
                      color="red"
                      checked={allSelected}
@@ -142,9 +240,10 @@ export function EtapasTable({
                      onChange={onToggleAll}
                      className="cursor-pointer"
                   />
-                  <span className="text-xs font-medium text-gray-600">
+                  <span className="text-sm font-medium text-gray-600">
                      Selecionar todas as etapas da pagina
                   </span>
+                  {selectionActions}
                </div>
 
                {missoes.map((missao) => (
@@ -164,17 +263,24 @@ export function EtapasTable({
                ))}
             </>
          ) : (
-            <EtapasFlatTable
-               etapas={flatEtapas}
-               loading={loading}
-               selectedIds={selectedIds}
-               onToggleEtapa={onToggleEtapa}
-               onToggleAll={onToggleAll}
-               allSelected={allSelected}
-               someSelected={someSelected}
-               onDetailEtapa={handleDetailEtapa}
-               onEditEtapa={handleEditEtapaFlat}
-            />
+            <>
+               {selectionActions && (
+                  <div className="flex flex-wrap items-center gap-2 px-1">
+                     {selectionActions}
+                  </div>
+               )}
+               <EtapasFlatTable
+                  etapas={flatEtapas}
+                  loading={loading}
+                  selectedIds={selectedIds}
+                  onToggleEtapa={onToggleEtapa}
+                  onToggleAll={onToggleAll}
+                  allSelected={allSelected}
+                  someSelected={someSelected}
+                  onDetailEtapa={handleDetailEtapa}
+                  onEditEtapa={handleEditEtapaFlat}
+               />
+            </>
          )}
 
          <EtapaDetailModal

@@ -275,6 +275,30 @@ export async function deleteEtapa(id: number): Promise<ApiResult<null>> {
    );
 }
 
+// ─── Bulk Update ──────────────────────────────────────────────────────────
+
+export interface BulkUpdatePayload {
+   ids: number[];
+   data: Pick<EtapaUpdatePayload, "sagem" | "parte1">;
+}
+
+export async function bulkUpdateEtapas(
+   payload: BulkUpdatePayload
+): Promise<ApiResult<null>> {
+   const results = await Promise.all(
+      payload.ids.map((id) => updateEtapa(id, payload.data))
+   );
+   const failed = results.filter((r) => !r.ok);
+   if (failed.length > 0) {
+      return {
+         ok: false,
+         data: null,
+         message: `Falha ao atualizar ${failed.length} de ${payload.ids.length} etapas`,
+      };
+   }
+   return { ok: true, data: null, message: null };
+}
+
 // ─── Missão CRUD ───────────────────────────────────────────────────────────
 
 const missaoRoute = "estatistica/missao/";

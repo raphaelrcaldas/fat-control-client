@@ -5,6 +5,7 @@ import {
    keepPreviousData,
 } from "@tanstack/react-query";
 import {
+   bulkUpdateEtapas,
    createEtapa,
    createMissao,
    deleteEtapa,
@@ -14,6 +15,7 @@ import {
    getEtapasFlat,
    updateEtapa,
    updateMissao,
+   type BulkUpdatePayload,
    type EtapaCreatePayload,
    type EtapaUpdatePayload,
    type GetEtapasParams,
@@ -134,6 +136,16 @@ export function useUpdateEtapa() {
       onSuccess: (_, { id }) => {
          queryClient.invalidateQueries({ queryKey: etapaKeys.all });
          queryClient.invalidateQueries({ queryKey: etapaKeys.detail(id) });
+      },
+   });
+}
+
+export function useBulkUpdateEtapas() {
+   const queryClient = useQueryClient();
+   return useMutation({
+      mutationFn: (payload: BulkUpdatePayload) => bulkUpdateEtapas(payload),
+      onSuccess: () => {
+         queryClient.invalidateQueries({ queryKey: etapaKeys.all });
       },
    });
 }

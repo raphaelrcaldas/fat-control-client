@@ -63,5 +63,9 @@ export function useEtapaSelection(
       });
    }, [allEtapaIds]);
 
-   return { selectedIds, allSelected, toggleEtapa, toggleMissao, toggleAll };
+   const clearSelection = useCallback(() => {
+      setSelectedIds(new Set());
+   }, []);
+
+   return { selectedIds, allSelected, toggleEtapa, toggleMissao, toggleAll, clearSelection };
 }

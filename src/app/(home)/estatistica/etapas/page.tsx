@@ -59,6 +59,7 @@ export default function EtapasPage() {
          <div className="mb-4 shrink-0 rounded-lg border border-gray-200 bg-white shadow-sm">
             <div className="flex flex-wrap items-center justify-between gap-3 p-4">
                <h2>Etapas</h2>
+
                <div className="flex items-center gap-2">
                   <Button
                      color="red"
