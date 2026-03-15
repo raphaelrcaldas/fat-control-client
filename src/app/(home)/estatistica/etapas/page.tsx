@@ -16,6 +16,7 @@ import { EtapasFilterPanel } from "./components/EtapasFilterPanel";
 import { ActiveFilterTags } from "./components/ActiveFilterTags";
 import { MissaoFormModal } from "./components/MissaoFormModal";
 import { MissaoDeleteModal } from "./components/MissaoDeleteModal";
+import { ExportModal } from "./components/ExportModal";
 import { PaginationInfo } from "./components/PaginationInfo";
 import { useEtapasFilters, PER_PAGE_OPTIONS } from "./hooks/useEtapasFilters";
 import { useEtapaSelection } from "./hooks/useEtapaSelection";
@@ -34,10 +35,11 @@ export default function EtapasPage() {
    const [deletingMissao, setDeletingMissao] = useState<MissaoComEtapas | null>(
       null
    );
+   const [showExportModal, setShowExportModal] = useState(false);
 
    const filters = useEtapasFilters(groupByMissao);
    const { selectedIds, allSelected, toggleEtapa, toggleMissao, toggleAll } =
-      useEtapaSelection(filters.missoes, filters.flatEtapas);
+      useEtapaSelection(filters.missoes, filters.flatEtapas, groupByMissao);
 
    const handleOpenCreateMissao = useCallback(() => {
       setEditingMissao(null);
@@ -108,6 +110,7 @@ export default function EtapasPage() {
                      color="light"
                      size="sm"
                      disabled={selectedIds.size === 0}
+                     onClick={() => setShowExportModal(true)}
                   >
                      <HiDownload className="mr-2 h-4 w-4" />
                      Exportar
@@ -324,6 +327,12 @@ export default function EtapasPage() {
             show={showDeleteModal}
             onClose={() => setShowDeleteModal(false)}
             missao={deletingMissao}
+         />
+
+         <ExportModal
+            show={showExportModal}
+            onClose={() => setShowExportModal(false)}
+            selectedIds={selectedIds}
          />
       </div>
    );

@@ -174,7 +174,7 @@ export function EtapasTable({
          </div>
          <div className="h-4 w-px bg-gray-300" />
 
-         <div className="flex items-center gap-2 rounded-md bg-white px-3 py-1 shadow">
+         <div className="flex items-center gap-2 rounded-md bg-white px-3 py-1.5 shadow">
             <span className="mr-1 text-sm font-medium text-gray-500">
                SAGEM
             </span>
@@ -195,7 +195,7 @@ export function EtapasTable({
          </div>
          <div className="h-4 w-px bg-gray-300" />
 
-         <div className="flex items-center gap-2 rounded-md bg-white px-3 py-1 shadow">
+         <div className="flex items-center gap-2 rounded-md bg-white px-3 py-1.5 shadow">
             <span className="mr-1 text-sm font-medium text-gray-500">
                Parte 1
             </span>

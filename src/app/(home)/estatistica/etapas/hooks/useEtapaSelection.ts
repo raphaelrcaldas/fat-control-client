@@ -8,14 +8,14 @@ import type {
 
 export function useEtapaSelection(
    missoes: MissaoComEtapas[],
-   flatEtapas: EtapaFlatItem[] = []
+   flatEtapas: EtapaFlatItem[] = [],
+   grouped = true
 ) {
    const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
 
-   const dataKey =
-      flatEtapas.length > 0
-         ? `flat-${flatEtapas.length}-${flatEtapas[0]?.id}-${flatEtapas.at(-1)?.id}`
-         : `grouped-${missoes.length}-${missoes[0]?.id}-${missoes.at(-1)?.id}`;
+   const dataKey = grouped
+      ? `grouped-${missoes.length}-${missoes[0]?.id}-${missoes.at(-1)?.id}`
+      : `flat-${flatEtapas.length}-${flatEtapas[0]?.id}-${flatEtapas.at(-1)?.id}`;
 
    useEffect(() => {
       setSelectedIds(new Set());
@@ -23,10 +23,10 @@ export function useEtapaSelection(
 
    const allEtapaIds = useMemo(
       () =>
-         flatEtapas.length > 0
-            ? flatEtapas.map((e) => e.id)
-            : missoes.flatMap((m) => m.etapas.map((e) => e.id)),
-      [flatEtapas, missoes]
+         grouped
+            ? missoes.flatMap((m) => m.etapas.map((e) => e.id))
+            : flatEtapas.map((e) => e.id),
+      [grouped, flatEtapas, missoes]
    );
 
    const allSelected =

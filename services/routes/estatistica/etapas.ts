@@ -299,6 +299,32 @@ export async function bulkUpdateEtapas(
    return { ok: true, data: null, message: null };
 }
 
+// ─── Export ───────────────────────────────────────────────────────────────
+
+export interface ExportEtapasPayload {
+   ids: number[];
+   pousos: boolean;
+   nivel: boolean;
+   tow: boolean;
+   pax: boolean;
+   carga: boolean;
+   comb: boolean;
+   lub: boolean;
+   esforco_aereo: boolean;
+   tripulantes: boolean;
+}
+
+export async function exportEtapas(
+   payload: ExportEtapasPayload
+): Promise<Blob> {
+   const response = await request("POST", `${etapasRoute}export`, payload);
+   if (!response.ok) {
+      const json = await response.json();
+      throw new Error(json.message || "Erro ao exportar etapas");
+   }
+   return response.blob();
+}
+
 // ─── Missão CRUD ───────────────────────────────────────────────────────────
 
 const missaoRoute = "estatistica/missao/";
