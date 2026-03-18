@@ -9,7 +9,7 @@ import { PagamentoRecord } from "services/routes/cegep/financeiro";
 interface UserRowProps {
    record: PagamentoRecord;
    checked: boolean;
-   onSelect: (id: number, valor: number, checked: boolean) => void;
+   onSelect: (id: number, valor: number, diarias: number, checked: boolean) => void;
    onShowDetail: (record: PagamentoRecord) => void;
 }
 
@@ -72,7 +72,7 @@ export const UserRow = memo(function UserRow({
    );
 
    function onChange() {
-      onSelect(record.user_mis.id, record.missao.valor_total, !checked);
+      onSelect(record.user_mis.id, record.missao.valor_total, record.missao.diarias ?? 0, !checked);
    }
 
    const statusConfig = STATUS_CONFIGS[record.user_mis.sit] || STATUS_CONFIGS.g;

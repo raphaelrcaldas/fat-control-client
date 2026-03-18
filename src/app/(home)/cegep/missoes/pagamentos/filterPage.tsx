@@ -61,6 +61,7 @@ export function FilterPage({ active }: { active: boolean }) {
    // UI-only selection state (not filter state)
    const [selectedAll, setSelectedAll] = useState(false);
    const [valorSoma, setValorSoma] = useState(0);
+   const [diariasSoma, setDiariasSoma] = useState(0);
    const [selectedIds, setSelectedIds] = useState<number[]>([]);
    const selectedIdSet = useMemo(() => new Set(selectedIds), [selectedIds]);
 
@@ -184,19 +185,25 @@ export function FilterPage({ active }: { active: boolean }) {
          setValorSoma(
             misRecords.reduce((acc, r) => acc + Number(r.missao.valor_total), 0)
          );
+         setDiariasSoma(
+            misRecords.reduce((acc, r) => acc + Number(r.missao.diarias ?? 0), 0)
+         );
       } else if (misRecords && !selectedAll) {
          setSelectedIds([]);
          setValorSoma(0);
+         setDiariasSoma(0);
       }
    }, [selectedAll, misRecords]);
 
-   function handleSelect(id: number, valor: number, checked: boolean) {
+   function handleSelect(id: number, valor: number, diarias: number, checked: boolean) {
       if (checked) {
          setSelectedIds((prev) => [...prev, id]);
          setValorSoma((prev) => prev + Number(valor));
+         setDiariasSoma((prev) => prev + Number(diarias));
       } else {
          setSelectedIds((prev) => prev.filter((item) => item !== id));
          setValorSoma((prev) => prev - Number(valor));
+         setDiariasSoma((prev) => prev - Number(diarias));
       }
    }
 
@@ -627,6 +634,9 @@ export function FilterPage({ active }: { active: boolean }) {
                                        style: "currency",
                                        currency: "BRL",
                                     })}
+                                 </p>
+                                 <p className="font-medium text-green-700">
+                                    {diariasSoma.toFixed(1)} diária{diariasSoma !== 1 ? "s" : ""}
                                  </p>
                               </div>
                            </div>
