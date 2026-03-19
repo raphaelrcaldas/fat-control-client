@@ -1,0 +1,280 @@
+"use client";
+
+import {
+   Table,
+   TableHead,
+   TableHeadCell,
+   TableBody,
+   TableRow,
+   TableCell,
+   Spinner,
+} from "flowbite-react";
+import { HiChevronUp, HiChevronDown } from "react-icons/hi";
+import { MdHealthAndSafety } from "react-icons/md";
+import clsx from "clsx";
+import type { UserCartaoSaude } from "services/routes/aeromedica/cartoesSaude";
+import type { SortField, SortDirection } from "../types";
+import {
+   getDateStatus,
+   getStatusConfig,
+   formatDate,
+   getDaysRemaining,
+   getCemalStatus,
+} from "../utils/dateStatus";
+
+// ========================================
+// DateCell
+// ========================================
+
+function DateCell({ dateStr }: { dateStr: string | null | undefined }) {
+   const status = getDateStatus(dateStr);
+   const config = getStatusConfig(status);
+   const Icon = config.icon;
+
+   return (
+      <div className="flex items-center gap-1.5">
+         <Icon className={clsx("h-4 w-4 shrink-0", config.color)} />
+         <span className={clsx("text-sm font-medium", config.color)}>
+            {formatDate(dateStr)}
+         </span>
+         {status !== "empty" && (
+            <span className={clsx("text-xs", config.color)}>
+               ({getDaysRemaining(dateStr)})
+            </span>
+         )}
+      </div>
+   );
+}
+
+// ========================================
+// CemalCell
+// ========================================
+
+function CemalCell({
+   cemal,
+   agCemal,
+}: {
+   cemal: string | null | undefined;
+   agCemal: string | null | undefined;
+}) {
+   const status = getDateStatus(cemal);
+   const config = getStatusConfig(status);
+   const Icon = config.icon;
+
+   return (
+      <div className="flex flex-col gap-0.5">
+         <div className="flex items-center gap-1.5">
+            <Icon className={clsx("h-4 w-4 shrink-0", config.color)} />
+            <span className={clsx("text-sm font-medium", config.color)}>
+               {formatDate(cemal)}
+            </span>
+            {status !== "empty" && (
+               <span className={clsx("text-xs", config.color)}>
+                  ({getDaysRemaining(cemal)})
+               </span>
+            )}
+         </div>
+         {agCemal && (
+            <span className="text-[11px] text-blue-600">
+               Agendado: {formatDate(agCemal)}
+            </span>
+         )}
+      </div>
+   );
+}
+
+// ========================================
+// SortableHeader
+// ========================================
+
+interface SortableHeaderProps {
+   label: string;
+   field: SortField;
+   currentSort: SortField | null;
+   direction: SortDirection;
+   onSort: (field: SortField) => void;
+}
+
+function SortableHeader({
+   label,
+   field,
+   currentSort,
+   direction,
+   onSort,
+}: SortableHeaderProps) {
+   const isActive = currentSort === field;
+
+   return (
+      <TableHeadCell
+         className="cursor-pointer select-none px-4 py-3 font-semibold transition-colors hover:text-gray-900"
+         onClick={() => onSort(field)}
+      >
+         <div className="flex items-center gap-1">
+            <span>{label}</span>
+            <div className="flex flex-col">
+               <HiChevronUp
+                  className={clsx(
+                     "-mb-1 h-3 w-3",
+                     isActive && direction === "asc"
+                        ? "text-red-600"
+                        : "text-gray-400"
+                  )}
+               />
+               <HiChevronDown
+                  className={clsx(
+                     "h-3 w-3",
+                     isActive && direction === "desc"
+                        ? "text-red-600"
+                        : "text-gray-400"
+                  )}
+               />
+            </div>
+         </div>
+      </TableHeadCell>
+   );
+}
+
+// ========================================
+// CartoesSaudeTable
+// ========================================
+
+interface CartoesSaudeTableProps {
+   data: UserCartaoSaude[];
+   isLoading: boolean;
+   sortField: SortField | null;
+   sortDirection: SortDirection;
+   onSort: (field: SortField) => void;
+   onRowClick: (item: UserCartaoSaude) => void;
+   hasActiveFilters: boolean;
+   onClearFilters: () => void;
+}
+
+export default function CartoesSaudeTable({
+   data,
+   isLoading,
+   sortField,
+   sortDirection,
+   onSort,
+   onRowClick,
+   hasActiveFilters,
+   onClearFilters,
+}: CartoesSaudeTableProps) {
+   if (isLoading) {
+      return (
+         <div className="flex h-64 items-center justify-center">
+            <Spinner color="failure" size="xl" />
+         </div>
+      );
+   }
+
+   if (data.length === 0) {
+      return (
+         <div className="flex h-64 flex-col items-center justify-center">
+            <MdHealthAndSafety className="mb-4 h-16 w-16 text-gray-300" />
+            <p className="text-lg font-medium text-gray-500">
+               Nenhum resultado encontrado
+            </p>
+            {hasActiveFilters && (
+               <button
+                  onClick={onClearFilters}
+                  className="mt-2 text-sm text-red-600 hover:text-red-700"
+               >
+                  Limpar filtros
+               </button>
+            )}
+         </div>
+      );
+   }
+
+   return (
+      <div className="overflow-x-auto">
+         <Table hoverable>
+            <TableHead className="border-b border-gray-200 bg-gray-50 text-xs uppercase text-gray-700">
+               <TableRow>
+                  <TableHeadCell className="w-10 px-3 py-3" />
+                  <SortableHeader
+                     label="Militar"
+                     field="militar"
+                     currentSort={sortField}
+                     direction={sortDirection}
+                     onSort={onSort}
+                  />
+                  <SortableHeader
+                     label="CEMAL"
+                     field="cemal"
+                     currentSort={sortField}
+                     direction={sortDirection}
+                     onSort={onSort}
+                  />
+                  <SortableHeader
+                     label="TOVN"
+                     field="tovn"
+                     currentSort={sortField}
+                     direction={sortDirection}
+                     onSort={onSort}
+                  />
+                  <SortableHeader
+                     label="IMAE"
+                     field="imae"
+                     currentSort={sortField}
+                     direction={sortDirection}
+                     onSort={onSort}
+                  />
+               </TableRow>
+            </TableHead>
+            <TableBody>
+               {data.map((item) => {
+                  const cemalStatus = getCemalStatus(item);
+                  const dotColor = {
+                     valid: "bg-green-500",
+                     warning: "bg-yellow-400",
+                     critical: "bg-orange-500",
+                     expired: "bg-red-500",
+                     empty: "bg-gray-300",
+                  }[cemalStatus];
+
+                  return (
+                     <TableRow
+                        key={item.user.id}
+                        onClick={() => onRowClick(item)}
+                        className="cursor-pointer border-b border-gray-200 transition-colors hover:bg-gray-50"
+                     >
+                        <TableCell className="w-10 px-3 py-3">
+                           <span
+                              className={clsx(
+                                 "inline-block h-3 w-3 rounded-full",
+                                 dotColor
+                              )}
+                           />
+                        </TableCell>
+                        <TableCell className="px-4 py-3 font-medium whitespace-nowrap uppercase text-gray-900">
+                           <div>
+                              <p className="font-semibold">
+                                 {item.user.posto.short}{" "}
+                                 {item.user.nome_guerra}
+                              </p>
+                              <p className="text-xs text-gray-500">
+                                 {item.user.nome_completo}
+                              </p>
+                           </div>
+                        </TableCell>
+                        <TableCell className="px-4 py-3 whitespace-nowrap">
+                           <CemalCell
+                              cemal={item.cartao?.cemal}
+                              agCemal={item.cartao?.ag_cemal}
+                           />
+                        </TableCell>
+                        <TableCell className="px-4 py-3 whitespace-nowrap">
+                           <DateCell dateStr={item.cartao?.tovn} />
+                        </TableCell>
+                        <TableCell className="px-4 py-3 whitespace-nowrap">
+                           <DateCell dateStr={item.cartao?.imae} />
+                        </TableCell>
+                     </TableRow>
+                  );
+               })}
+            </TableBody>
+         </Table>
+      </div>
+   );
+}

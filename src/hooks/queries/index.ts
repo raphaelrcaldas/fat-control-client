@@ -17,3 +17,4 @@ export * from "./useEtapas";
 export * from "./useEsfAer";
 export * from "./useTiposMissao";
 export * from "./useSebo";
+export * from "./useCartoesSaude";

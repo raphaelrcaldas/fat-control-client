@@ -12,6 +12,8 @@ import {
    MdCalendarViewWeek,
    MdFlightTakeoff,
    MdBarChart,
+   MdHealthAndSafety,
+   MdMedicalServices,
 } from "react-icons/md";
 import { FaUsers } from "react-icons/fa6";
 import { FaPaperPlane } from "react-icons/fa";
@@ -110,6 +112,21 @@ export const navItems = [
             icon: ImStatsDots,
             label: "Esforço Aéreo",
             path: "/estatistica/esfaer",
+         },
+      ],
+   },
+   {
+      type: "collapse",
+      icon: MdHealthAndSafety,
+      label: "Aeromédica",
+      roles: ["aeromed"],
+      children: [
+         {
+            icon: MdMedicalServices,
+            label: "Cartões de Saúde",
+            path: "/aeromedica/cartoes-saude",
+            // resource: "cartoes_saude",
+            // permission: "view",
          },
       ],
    },
