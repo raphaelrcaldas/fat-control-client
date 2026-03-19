@@ -42,10 +42,10 @@ export function AeronaveTable({ aeronaves, onEdit }: AeronaveTableProps) {
                         <TableCell className="text-base font-bold text-gray-900">
                            {aeronave.matricula}
                         </TableCell>
-                        <TableCell className="flex justify-center">
+                        <TableCell className="text-center align-middle">
                            <span
                               className={clsx(
-                                 "w-10 rounded p-2 font-bold text-white",
+                                 "inline-block w-10 rounded p-2 font-bold text-white",
                                  {
                                     "bg-emerald-400": aeronave.sit == "DI",
                                     "bg-red-400": aeronave.sit == "IN",
