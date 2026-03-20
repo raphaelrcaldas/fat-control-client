@@ -170,7 +170,15 @@ export default function EditCartaoDrawer({
                         onChange={handleChange}
                      />
                   ) : (
-                     <AtasTab userId={item.user.id} />
+                     <AtasTab
+                     userId={item.user.id}
+                     onCemalUpdated={(cemal) =>
+                        setFormData((prev) => ({
+                           ...prev,
+                           cemal,
+                        }))
+                     }
+                  />
                   )}
                </div>
             </ModalBody>

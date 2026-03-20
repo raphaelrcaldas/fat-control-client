@@ -23,7 +23,13 @@ import {
 } from "services/routes/aeromedica/atas";
 import { formatDateFull } from "utils/dateHandler";
 
-export default function AtasTab({ userId }: { userId: number }) {
+export default function AtasTab({
+   userId,
+   onCemalUpdated,
+}: {
+   userId: number;
+   onCemalUpdated?: (cemal: string) => void;
+}) {
    const { push } = useToast();
    const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -76,6 +82,9 @@ export default function AtasTab({ userId }: { userId: number }) {
       try {
          const result = await uploadMutation.mutateAsync({ userId, file });
          setLastUpload(result);
+         if (result.cemal_atualizado && result.dados_extraidos.validade_inspsau) {
+            onCemalUpdated?.(result.dados_extraidos.validade_inspsau);
+         }
          if (result.extracao_vazia) {
             push({
                message: "Ata enviada. Preencha os dados manualmente.",
@@ -110,6 +119,9 @@ export default function AtasTab({ userId }: { userId: number }) {
             ignorarNome: true,
          });
          setLastUpload(result);
+         if (result.cemal_atualizado && result.dados_extraidos.validade_inspsau) {
+            onCemalUpdated?.(result.dados_extraidos.validade_inspsau);
+         }
          push({ message: "Ata enviada com sucesso", type: "success" });
       } catch (err: unknown) {
          const message =
@@ -132,6 +144,9 @@ export default function AtasTab({ userId }: { userId: number }) {
                validade_inspsau: manualForm.validade_inspsau || null,
             },
          });
+         if (manualForm.validade_inspsau) {
+            onCemalUpdated?.(manualForm.validade_inspsau);
+         }
          push({ message: "Ata atualizada com sucesso", type: "success" });
          setLastUpload(null);
          setManualForm({

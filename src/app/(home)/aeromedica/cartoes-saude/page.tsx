@@ -25,9 +25,7 @@ export default function CartoesSaudePage() {
    const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
    const [sortField, setSortField] = useState<SortField | null>(null);
    const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
-   const [selectedItem, setSelectedItem] = useState<UserCartaoSaude | null>(
-      null
-   );
+   const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
    const [showDrawer, setShowDrawer] = useState(false);
 
    const debouncedSearch = useDebouncedValue(searchUser, 500);
@@ -108,14 +106,19 @@ export default function CartoesSaudePage() {
       [sortField, sortDirection]
    );
 
+   const selectedItem = useMemo(
+      () => cartoesSaude.find((item) => item.user.id === selectedUserId) ?? null,
+      [cartoesSaude, selectedUserId]
+   );
+
    const handleRowClick = useCallback((item: UserCartaoSaude) => {
-      setSelectedItem(item);
+      setSelectedUserId(item.user.id);
       setShowDrawer(true);
    }, []);
 
    const handleCloseDrawer = () => {
       setShowDrawer(false);
-      setSelectedItem(null);
+      setSelectedUserId(null);
    };
 
    const hasActiveFilters =
