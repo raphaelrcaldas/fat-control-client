@@ -11,11 +11,11 @@ import type {
    TripFilter,
    StatusFilter,
 } from "./types";
-import { getCemalStatus, countFieldStatuses } from "./utils/dateStatus";
+import { getCemalStatus, getDateStatus } from "./utils/dateStatus";
 import StatCardsGrid from "./components/StatCards";
 import Filters from "./components/Filters";
 import CartoesSaudeTable from "./components/CartoesSaudeTable";
-import EditCartaoDrawer from "./components/editCartaoDrawer";
+import EditCartaoDrawer from "./components/EditCartaoDrawer";
 
 export default function CartoesSaudePage() {
    const [searchUser, setSearchUser] = useState("");
@@ -54,6 +54,9 @@ export default function CartoesSaudePage() {
    // Filtro de status (client-side)
    const filteredByStatus = useMemo(() => {
       if (statusFilter === "all") return cartoesSaude;
+      if (statusFilter === "sem_ata") {
+         return cartoesSaude.filter((item) => item.cemal_tem_ata === false);
+      }
       return cartoesSaude.filter((item) => {
          const worst = getCemalStatus(item);
          return worst === statusFilter;
@@ -105,10 +108,10 @@ export default function CartoesSaudePage() {
       [sortField, sortDirection]
    );
 
-   const handleRowClick = (item: UserCartaoSaude) => {
+   const handleRowClick = useCallback((item: UserCartaoSaude) => {
       setSelectedItem(item);
       setShowDrawer(true);
-   };
+   }, []);
 
    const handleCloseDrawer = () => {
       setShowDrawer(false);
@@ -130,23 +133,45 @@ export default function CartoesSaudePage() {
       setStatusFilter("all");
    };
 
-   // Stats por campo
-   const cemalStats = useMemo(
-      () => countFieldStatuses(cartoesSaude, "cemal"),
-      [cartoesSaude]
-   );
-   const cemalScheduled = useMemo(
-      () => cartoesSaude.filter((i) => i.cartao?.ag_cemal).length,
-      [cartoesSaude]
-   );
-   const tovnStats = useMemo(
-      () => countFieldStatuses(cartoesSaude, "tovn"),
-      [cartoesSaude]
-   );
-   const imaeStats = useMemo(
-      () => countFieldStatuses(cartoesSaude, "imae"),
-      [cartoesSaude]
-   );
+   // Stats por campo (iteração única)
+   const { cemalStats, cemalScheduled, tovnStats, imaeStats } = useMemo(() => {
+      const cemal = { valid: 0, warning: 0, critical: 0, expired: 0 };
+      const tovn = { valid: 0, warning: 0, critical: 0, expired: 0 };
+      const imae = { valid: 0, warning: 0, critical: 0, expired: 0 };
+      let cemalTotal = 0;
+      let tovnTotal = 0;
+      let imaeTotal = 0;
+      let scheduled = 0;
+
+      for (const item of cartoesSaude) {
+         const c = item.cartao;
+         const cemalStatus = getCemalStatus(item);
+         if (cemalStatus !== "empty") {
+            cemal[cemalStatus]++;
+            cemalTotal++;
+         }
+         if (c?.ag_cemal) scheduled++;
+
+         const tovnStatus = getDateStatus(c?.tovn);
+         if (tovnStatus !== "empty") {
+            tovn[tovnStatus]++;
+            tovnTotal++;
+         }
+
+         const imaeStatus = getDateStatus(c?.imae);
+         if (imaeStatus !== "empty") {
+            imae[imaeStatus]++;
+            imaeTotal++;
+         }
+      }
+
+      return {
+         cemalStats: { counts: cemal, total: cemalTotal },
+         cemalScheduled: scheduled,
+         tovnStats: { counts: tovn, total: tovnTotal },
+         imaeStats: { counts: imae, total: imaeTotal },
+      };
+   }, [cartoesSaude]);
 
    return (
       <div className="flex flex-col gap-4 p-1">

@@ -14,6 +14,7 @@ import {
    MdBarChart,
    MdHealthAndSafety,
    MdMedicalServices,
+   MdStorage,
 } from "react-icons/md";
 import { FaUsers } from "react-icons/fa6";
 import { FaPaperPlane } from "react-icons/fa";
@@ -193,6 +194,11 @@ export const navItems = [
             icon: TbLogs,
             label: "Logs",
             path: "/admin/logs",
+         },
+         {
+            icon: MdStorage,
+            label: "Storage",
+            path: "/admin/storage",
          },
       ],
    },

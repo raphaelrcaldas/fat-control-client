@@ -19,6 +19,8 @@ export interface UserCartaoSaude {
    user: UserPublic;
    cartao: CartaoSaudePublic | null;
    tripulante: boolean;
+   cemal_tem_ata: boolean | null;
+   total_atas: number;
 }
 
 export interface CartaoSaudeCreate {

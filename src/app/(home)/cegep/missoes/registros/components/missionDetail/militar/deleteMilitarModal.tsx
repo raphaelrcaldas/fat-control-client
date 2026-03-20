@@ -27,7 +27,7 @@ export function DeleteMilitarModal({
                {/* Botão fechar */}
                <button
                   onClick={() => setShow(false)}
-                  className="absolute top-4 right-4 text-white/80 transition-colors duration-200 hover:text-white"
+                  className="absolute top-4 right-4 text-white/80 hover:text-white"
                >
                   <HiXMark className="h-6 w-6" />
                </button>
@@ -61,14 +61,14 @@ export function DeleteMilitarModal({
                   <div className="flex gap-3 pt-2">
                      <Button
                         onClick={() => setShow(false)}
-                        className="flex-1 border-2 border-gray-300 bg-linear-to-r from-gray-100 to-gray-200 text-gray-700 shadow-sm transition-all duration-300 hover:from-gray-200 hover:to-gray-300 hover:shadow"
+                        className="flex-1 border-2 border-gray-300 bg-linear-to-r from-gray-100 to-gray-200 text-gray-700 hover:from-gray-200 hover:to-gray-300"
                      >
                         <HiXMark className="mr-2 h-5 w-5" />
                         Cancelar
                      </Button>
                      <Button
                         onClick={handleConfirm}
-                        className="flex-1 bg-linear-to-r from-red-500 to-red-600 shadow-md transition-all duration-300 hover:from-red-600 hover:to-red-700 hover:shadow-lg"
+                        className="flex-1 bg-linear-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700"
                      >
                         <HiTrash className="mr-2 h-5 w-5" />
                         Excluir

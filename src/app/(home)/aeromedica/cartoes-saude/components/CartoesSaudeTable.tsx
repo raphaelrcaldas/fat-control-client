@@ -1,5 +1,6 @@
 "use client";
 
+import { memo } from "react";
 import {
    Table,
    TableHead,
@@ -26,7 +27,11 @@ import {
 // DateCell
 // ========================================
 
-function DateCell({ dateStr }: { dateStr: string | null | undefined }) {
+const DateCell = memo(function DateCell({
+   dateStr,
+}: {
+   dateStr: string | null | undefined;
+}) {
    const status = getDateStatus(dateStr);
    const config = getStatusConfig(status);
    const Icon = config.icon;
@@ -44,18 +49,20 @@ function DateCell({ dateStr }: { dateStr: string | null | undefined }) {
          )}
       </div>
    );
-}
+});
 
 // ========================================
 // CemalCell
 // ========================================
 
-function CemalCell({
+const CemalCell = memo(function CemalCell({
    cemal,
    agCemal,
+   temAta,
 }: {
    cemal: string | null | undefined;
    agCemal: string | null | undefined;
+   temAta: boolean | null;
 }) {
    const status = getDateStatus(cemal);
    const config = getStatusConfig(status);
@@ -79,9 +86,14 @@ function CemalCell({
                Agendado: {formatDate(agCemal)}
             </span>
          )}
+         {temAta === false && (
+            <span className="text-[11px] font-medium text-amber-600">
+               Sem ata anexada
+            </span>
+         )}
       </div>
    );
-}
+});
 
 // ========================================
 // SortableHeader
@@ -95,7 +107,7 @@ interface SortableHeaderProps {
    onSort: (field: SortField) => void;
 }
 
-function SortableHeader({
+const SortableHeader = memo(function SortableHeader({
    label,
    field,
    currentSort,
@@ -132,7 +144,73 @@ function SortableHeader({
          </div>
       </TableHeadCell>
    );
-}
+});
+
+// ========================================
+// Dot color map (fora do render)
+// ========================================
+
+const DOT_COLORS = {
+   valid: "bg-green-500",
+   warning: "bg-yellow-400",
+   critical: "bg-orange-500",
+   expired: "bg-red-500",
+   empty: "bg-gray-300",
+} as const;
+
+// ========================================
+// CartoesSaudeRow
+// ========================================
+
+const CartoesSaudeRow = memo(function CartoesSaudeRow({
+   item,
+   onClick,
+}: {
+   item: UserCartaoSaude;
+   onClick: (item: UserCartaoSaude) => void;
+}) {
+   const cemalStatus = getCemalStatus(item);
+   const dotColor = DOT_COLORS[cemalStatus];
+
+   return (
+      <TableRow
+         onClick={() => onClick(item)}
+         className="cursor-pointer border-b border-gray-200 transition-colors hover:bg-gray-50"
+      >
+         <TableCell className="w-10 px-3 py-3">
+            <span
+               className={clsx(
+                  "inline-block h-3 w-3 rounded-full",
+                  dotColor
+               )}
+            />
+         </TableCell>
+         <TableCell className="px-4 py-3 font-medium whitespace-nowrap uppercase text-gray-900">
+            <div>
+               <p className="font-semibold">
+                  {item.user.posto.short} {item.user.nome_guerra}
+               </p>
+               <p className="text-xs text-gray-500">
+                  {item.user.nome_completo}
+               </p>
+            </div>
+         </TableCell>
+         <TableCell className="px-4 py-3 whitespace-nowrap">
+            <CemalCell
+               cemal={item.cartao?.cemal}
+               agCemal={item.cartao?.ag_cemal}
+               temAta={item.cemal_tem_ata}
+            />
+         </TableCell>
+         <TableCell className="px-4 py-3 whitespace-nowrap">
+            <DateCell dateStr={item.cartao?.tovn} />
+         </TableCell>
+         <TableCell className="px-4 py-3 whitespace-nowrap">
+            <DateCell dateStr={item.cartao?.imae} />
+         </TableCell>
+      </TableRow>
+   );
+});
 
 // ========================================
 // CartoesSaudeTable
@@ -223,56 +301,13 @@ export default function CartoesSaudeTable({
                </TableRow>
             </TableHead>
             <TableBody>
-               {data.map((item) => {
-                  const cemalStatus = getCemalStatus(item);
-                  const dotColor = {
-                     valid: "bg-green-500",
-                     warning: "bg-yellow-400",
-                     critical: "bg-orange-500",
-                     expired: "bg-red-500",
-                     empty: "bg-gray-300",
-                  }[cemalStatus];
-
-                  return (
-                     <TableRow
-                        key={item.user.id}
-                        onClick={() => onRowClick(item)}
-                        className="cursor-pointer border-b border-gray-200 transition-colors hover:bg-gray-50"
-                     >
-                        <TableCell className="w-10 px-3 py-3">
-                           <span
-                              className={clsx(
-                                 "inline-block h-3 w-3 rounded-full",
-                                 dotColor
-                              )}
-                           />
-                        </TableCell>
-                        <TableCell className="px-4 py-3 font-medium whitespace-nowrap uppercase text-gray-900">
-                           <div>
-                              <p className="font-semibold">
-                                 {item.user.posto.short}{" "}
-                                 {item.user.nome_guerra}
-                              </p>
-                              <p className="text-xs text-gray-500">
-                                 {item.user.nome_completo}
-                              </p>
-                           </div>
-                        </TableCell>
-                        <TableCell className="px-4 py-3 whitespace-nowrap">
-                           <CemalCell
-                              cemal={item.cartao?.cemal}
-                              agCemal={item.cartao?.ag_cemal}
-                           />
-                        </TableCell>
-                        <TableCell className="px-4 py-3 whitespace-nowrap">
-                           <DateCell dateStr={item.cartao?.tovn} />
-                        </TableCell>
-                        <TableCell className="px-4 py-3 whitespace-nowrap">
-                           <DateCell dateStr={item.cartao?.imae} />
-                        </TableCell>
-                     </TableRow>
-                  );
-               })}
+               {data.map((item) => (
+                  <CartoesSaudeRow
+                     key={item.user.id}
+                     item={item}
+                     onClick={onRowClick}
+                  />
+               ))}
             </TableBody>
          </Table>
       </div>

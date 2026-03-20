@@ -96,21 +96,3 @@ export function getDaysRemaining(
 export function getCemalStatus(item: UserCartaoSaude): DateStatus {
    return getDateStatus(item.cartao?.cemal);
 }
-
-/** Conta status de um campo especifico */
-export function countFieldStatuses(
-   data: UserCartaoSaude[],
-   field: "cemal" | "tovn" | "imae"
-) {
-   const counts = { valid: 0, warning: 0, critical: 0, expired: 0 };
-   let total = 0;
-   for (const item of data) {
-      const val = item.cartao?.[field];
-      const status = getDateStatus(val);
-      if (status !== "empty") {
-         counts[status]++;
-         total++;
-      }
-   }
-   return { counts, total };
-}

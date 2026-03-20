@@ -41,7 +41,7 @@ export function useCartoesSaude(params?: GetCartoesSaudeParams) {
          return sortByAntiguidade(data);
       },
       placeholderData: keepPreviousData,
-      staleTime: 0,
+      staleTime: 5 * 60_000,
    });
 }
 

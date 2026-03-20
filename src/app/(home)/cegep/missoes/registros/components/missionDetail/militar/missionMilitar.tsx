@@ -1,10 +1,10 @@
+import { memo, useState } from "react";
 import clsx from "clsx";
 import { UserMission } from "services/routes/cegep/missoes";
 import { FormMilitar } from "./formMilitar";
-import { useState } from "react";
-import { useSituacaoConfig } from "../../useSituacaoConfig";
+import { getSituacaoConfig } from "../../useSituacaoConfig";
 
-export function MissionMilitar({
+export const MissionMilitar = memo(function MissionMilitar({
    userMis,
    edit = false,
    mils,
@@ -18,7 +18,7 @@ export function MissionMilitar({
    setMils?: (mils: UserMission[]) => void;
 }) {
    const [showUserForm, setShowUserForm] = useState(false);
-   const config = useSituacaoConfig(userMis.sit);
+   const config = getSituacaoConfig(userMis.sit);
 
    function handleClick() {
       if (edit) {
@@ -30,7 +30,7 @@ export function MissionMilitar({
       <>
          <div
             className={clsx(
-               "group relative flex items-center gap-3 rounded-xl border-2 px-2 py-1 shadow-sm transition-all duration-300 select-none",
+               "group relative flex items-center gap-3 rounded-xl border-2 px-2 py-1 shadow-sm select-none",
                config.bgColor,
                config.borderColor,
                {
@@ -78,4 +78,4 @@ export function MissionMilitar({
          )}
       </>
    );
-}
+});

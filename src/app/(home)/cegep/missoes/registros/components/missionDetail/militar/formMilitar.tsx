@@ -146,7 +146,7 @@ export function FormMilitar({
                            pill
                            onClick={() => setShowUserSearch(true)}
                            size="sm"
-                           className="bg-linear-to-r from-blue-500 to-blue-600 shadow-md transition-all duration-300 hover:from-blue-600 hover:to-blue-700 hover:shadow-lg"
+                           className="bg-linear-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700"
                         >
                            <IoMdSearch className="mr-2 h-4 w-4" />
                            Buscar
@@ -155,7 +155,7 @@ export function FormMilitar({
 
                      <div className="flex items-center justify-center p-2">
                         {user ? (
-                           <div className="rounded-xl border-2 border-blue-200 bg-white px-6 py-3 shadow-lg transition-all duration-300 hover:shadow-xl">
+                           <div className="rounded-xl border-2 border-blue-200 bg-white px-6 py-3 shadow-lg">
                               <span className="text-base font-semibold text-gray-800 uppercase">
                                  <span className="text-blue-600">
                                     {user.p_g}
@@ -195,7 +195,7 @@ export function FormMilitar({
                      <Select
                         value={pgMis}
                         onChange={(e) => setPgMis(e.target.value)}
-                        className="rounded-lg border-2 border-gray-200 transition-all duration-300 focus:border-blue-500 focus:ring-blue-500"
+                        className="rounded-lg border-2 border-gray-200 focus:border-blue-500 focus:ring-blue-500"
                      >
                         <option value="" disabled>
                            Selecione...
@@ -219,7 +219,7 @@ export function FormMilitar({
                      <Select
                         value={sit}
                         onChange={(e) => setSit(e.target.value)}
-                        className="rounded-lg border-2 border-gray-200 transition-all duration-300 focus:border-blue-500 focus:ring-blue-500"
+                        className="rounded-lg border-2 border-gray-200 focus:border-blue-500 focus:ring-blue-500"
                      >
                         <option disabled value="">
                            Selecione...
@@ -236,7 +236,7 @@ export function FormMilitar({
                   {userMis && (
                      <Button
                         onClick={handleDeleteClick}
-                        className="min-w-32 bg-linear-to-r from-red-500 to-red-600 shadow-md transition-all duration-300 hover:from-red-600 hover:to-red-700 hover:shadow-lg"
+                        className="min-w-32 bg-linear-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700"
                      >
                         <HiTrash className="mr-2 h-4 w-4" />
                         Excluir
@@ -245,7 +245,7 @@ export function FormMilitar({
                   <Button
                      type="submit"
                      disabled={!isChanged}
-                     className="min-w-32 bg-linear-to-r from-green-500 to-green-600 shadow-md transition-all duration-300 hover:from-green-600 hover:to-green-700 hover:shadow-lg disabled:from-gray-300 disabled:to-gray-400 disabled:shadow-none"
+                     className="min-w-32 bg-linear-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 disabled:from-gray-300 disabled:to-gray-400"
                   >
                      <HiCheckCircle className="mr-2 h-4 w-4" />
                      Salvar

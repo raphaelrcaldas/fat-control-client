@@ -198,6 +198,13 @@ export default function Filters({
                >
                   Regular
                </FilterButton>
+               <FilterButton
+                  active={statusFilter === "sem_ata"}
+                  onClick={() => onStatusFilterChange("sem_ata")}
+                  dot="bg-amber-500"
+               >
+                  Sem ata
+               </FilterButton>
             </div>
          </div>
 

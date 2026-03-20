@@ -20,6 +20,7 @@ import {
 } from "react-icons/hi";
 import { UserFull, UserSchema } from "services/routes/users";
 import { formatDateFull } from "utils/dateHandler";
+import { formatSaram } from "utils/validators";
 import { postoGradRecords } from "@/constants/militar/postos";
 import { unidadeOptions } from "@/constants/militar/unidades";
 import { useUpdateUser } from "@/hooks/queries";
@@ -353,7 +354,7 @@ export function UserReadView({ user, userId }: UserReadViewProps) {
             <EditableField
                icon={HiHashtag}
                label="SARAM"
-               value={user.saram}
+               value={user.saram ? formatSaram(user.saram) : ""}
                rawValue={user.saram || ""}
                fieldName="saram"
                userId={userId}

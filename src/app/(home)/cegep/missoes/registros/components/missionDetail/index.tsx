@@ -127,20 +127,37 @@ export default function MissionDetail({
       [pnts]
    );
 
-   const isChanged =
-      nDoc !== defaultValues.nDoc ||
-      tipoDoc !== defaultValues.tipoDoc ||
-      desc !== defaultValues.desc ||
-      tipo !== defaultValues.tipo ||
-      afast !== defaultValues.afast ||
-      regres !== defaultValues.regres ||
-      acrecDesloc !== defaultValues.acrecDesloc ||
-      ind !== defaultValues.ind ||
-      obs !== defaultValues.obs ||
-      JSON.stringify(pnts) !== JSON.stringify(defaultValues.pnts) ||
-      JSON.stringify(mils) !== JSON.stringify(defaultValues.mils) ||
-      JSON.stringify(etiquetasMissao) !==
-         JSON.stringify(defaultValues.etiquetas);
+   const isChanged = useMemo(
+      () =>
+         nDoc !== defaultValues.nDoc ||
+         tipoDoc !== defaultValues.tipoDoc ||
+         desc !== defaultValues.desc ||
+         tipo !== defaultValues.tipo ||
+         afast !== defaultValues.afast ||
+         regres !== defaultValues.regres ||
+         acrecDesloc !== defaultValues.acrecDesloc ||
+         ind !== defaultValues.ind ||
+         obs !== defaultValues.obs ||
+         JSON.stringify(pnts) !== JSON.stringify(defaultValues.pnts) ||
+         JSON.stringify(mils) !== JSON.stringify(defaultValues.mils) ||
+         JSON.stringify(etiquetasMissao) !==
+            JSON.stringify(defaultValues.etiquetas),
+      [
+         nDoc,
+         tipoDoc,
+         desc,
+         tipo,
+         afast,
+         regres,
+         acrecDesloc,
+         ind,
+         obs,
+         pnts,
+         mils,
+         etiquetasMissao,
+         defaultValues,
+      ]
+   );
 
    function handleFragMis() {
       const checkNDoc = nDoc != 0;
@@ -345,23 +362,28 @@ export default function MissionDetail({
 
    return (
       <>
-         <ErrorModal
-            show={showErrorModal}
-            onClose={() => setShowErrorModal(false)}
-            errorMessage={errorMessage}
-            errorTitle="Erro"
-         />
-         <DeleteMissionModal
-            show={showDeleteModal}
-            onClose={() => setShowDeleteModal(false)}
-            onConfirm={onDelete}
-            missionInfo={{
-               tipoDoc: tipoDoc,
-               nDoc: nDoc,
-               desc: desc,
-            }}
-         />
+         {showErrorModal && (
+            <ErrorModal
+               show={showErrorModal}
+               onClose={() => setShowErrorModal(false)}
+               errorMessage={errorMessage}
+               errorTitle="Erro"
+            />
+         )}
+         {showDeleteModal && (
+            <DeleteMissionModal
+               show={showDeleteModal}
+               onClose={() => setShowDeleteModal(false)}
+               onConfirm={onDelete}
+               missionInfo={{
+                  tipoDoc: tipoDoc,
+                  nDoc: nDoc,
+                  desc: desc,
+               }}
+            />
+         )}
          {/* Modal de Validação */}
+         {showValidationModal && (
          <Modal
             show={showValidationModal}
             onClose={() => setShowValidationModal(false)}
@@ -417,6 +439,7 @@ export default function MissionDetail({
                </Button>
             </ModalFooter>
          </Modal>
+         )}
 
          <Modal size="4xl" show={show} onClose={handleClose} dismissible>
             <ModalHeader className="border-b border-slate-200 pb-4">
@@ -499,7 +522,7 @@ export default function MissionDetail({
                                     <button
                                        key={etiqueta.id}
                                        onClick={() => toggleEtiqueta(etiqueta)}
-                                       className="inline-flex items-center gap-1.5 rounded-full border border-dashed px-2.5 py-1 text-xs font-medium transition-colors"
+                                       className="inline-flex items-center gap-1.5 rounded-full border border-dashed px-2.5 py-1 text-xs font-medium"
                                        style={{
                                           borderColor: etiqueta.cor,
                                           color: etiqueta.cor,
@@ -649,7 +672,7 @@ export default function MissionDetail({
                            <div className="inline-block">
                               <span
                                  className={clsx(
-                                    "inline-flex items-center rounded-lg px-3 py-2 text-sm font-bold tracking-wide text-white uppercase shadow-sm transition-all",
+                                    "inline-flex items-center rounded-lg px-3 py-2 text-sm font-bold tracking-wide text-white uppercase shadow-sm",
                                     {
                                        "bg-amber-500": tipo === "opr",
                                        "bg-blue-500": tipo === "adm",
@@ -680,7 +703,7 @@ export default function MissionDetail({
                            <div className="inline-block">
                               <span
                                  className={clsx(
-                                    "inline-flex items-center rounded-lg px-4 py-2 text-sm font-bold tracking-wide uppercase shadow-sm transition-all",
+                                    "inline-flex items-center rounded-lg px-4 py-2 text-sm font-bold tracking-wide uppercase shadow-sm",
                                     {
                                        "bg-emerald-500 text-white":
                                           ind == "ind",
@@ -936,14 +959,14 @@ export default function MissionDetail({
                         <Button
                            color="blue"
                            onClick={() => setEditMode(true)}
-                           className="px-6 py-2.5 font-semibold shadow-md transition-all hover:shadow-lg"
+                           className="px-6 py-2.5 font-semibold"
                         >
                            Editar
                         </Button>
                         <Button
                            color="gray"
                            onClick={handleClone}
-                           className="px-6 py-2.5 font-semibold shadow-md transition-all hover:shadow-lg"
+                           className="px-6 py-2.5 font-semibold"
                         >
                            <FaRegClone className="mr-2" />
                            Clonar
@@ -951,7 +974,7 @@ export default function MissionDetail({
                         <Button
                            color="red"
                            onClick={() => setShowDeleteModal(true)}
-                           className="px-6 py-2.5 font-semibold shadow-md transition-all hover:shadow-lg"
+                           className="px-6 py-2.5 font-semibold"
                         >
                            Deletar
                         </Button>
@@ -974,7 +997,7 @@ export default function MissionDetail({
                            onClick={handleFragMis}
                            color="blue"
                            disabled={!isChanged || isLoading}
-                           className="px-8 py-2.5 font-semibold shadow-md transition-all hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-50"
+                           className="px-8 py-2.5 font-semibold disabled:cursor-not-allowed disabled:opacity-50"
                         >
                            {isLoading ? (
                               <div className="flex items-center gap-2">

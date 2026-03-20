@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { Tooltip } from "flowbite-react";
 import { Pernoite } from "services/routes/cegep/missoes";
 import { FormPernoite } from "./formPernoite";
@@ -15,7 +16,7 @@ interface MissionPernoiteProps {
    setPnts: React.Dispatch<React.SetStateAction<Pernoite[]>>;
 }
 
-export function MissionPernoite({
+export const MissionPernoite = memo(function MissionPernoite({
    pnt,
    pnts,
    afast,
@@ -103,4 +104,4 @@ export function MissionPernoite({
          )}
       </>
    );
-}
+});

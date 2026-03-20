@@ -235,7 +235,7 @@ export function FormPernoite({
                            Data de Início
                         </label>
                         <input
-                           className="block w-full rounded-lg border-2 border-gray-300 bg-white p-3 text-sm text-gray-900 transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
+                           className="block w-full rounded-lg border-2 border-gray-300 bg-white p-3 text-sm text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
                            type="date"
                            value={dataIni}
                            min={afast ? afast.split("T")[0] : ""}
@@ -251,7 +251,7 @@ export function FormPernoite({
                            Data de Fim
                         </label>
                         <input
-                           className="block w-full rounded-lg border-2 border-gray-300 bg-white p-3 text-sm text-gray-900 transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
+                           className="block w-full rounded-lg border-2 border-gray-300 bg-white p-3 text-sm text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
                            type="date"
                            value={dataFim}
                            min={afast ? afast.split("T")[0] : ""}
@@ -298,7 +298,7 @@ export function FormPernoite({
                         pill
                         onClick={() => setShowSearchLocal(true)}
                         color="purple"
-                        className="shadow-md transition-shadow hover:shadow-lg"
+                        className="shadow-md"
                      >
                         <IoMdSearch className="size-5" />
                      </Button>
@@ -321,7 +321,7 @@ export function FormPernoite({
                   </h3>
                   <div className="grid grid-cols-2 gap-4">
                      <div
-                        className="cursor-pointer rounded-lg border-2 border-gray-200 bg-white p-4 transition-colors hover:border-green-300"
+                        className="cursor-pointer rounded-lg border-2 border-gray-200 bg-white p-4 hover:border-green-300"
                         onClick={() => setAcDesloc(!acDesloc)}
                      >
                         <div className="flex items-center justify-between">
@@ -343,7 +343,7 @@ export function FormPernoite({
                      </div>
 
                      <div
-                        className="cursor-pointer rounded-lg border-2 border-gray-200 bg-white p-4 transition-colors hover:border-amber-300"
+                        className="cursor-pointer rounded-lg border-2 border-gray-200 bg-white p-4 hover:border-amber-300"
                         onClick={() => setMeiaDiaria(!meiaDiaria)}
                      >
                         <div className="flex items-center justify-between">
