@@ -113,6 +113,11 @@ const SeboTable = ({ trips, activeRow, setRow, isLoading, infoCols }: SeboTableP
                         IMAE
                      </TableHeadCell>
                   )}
+                  {infoCols.crm && (
+                     <TableHeadCell className="hidden text-center md:table-cell">
+                        CRM
+                     </TableHeadCell>
+                  )}
                   <TableHeadCell className="text-center">ANO</TableHeadCell>
                </TableRow>
             </TableHead>
@@ -202,6 +207,22 @@ const SeboTable = ({ trips, activeRow, setRow, isLoading, infoCols }: SeboTableP
                                  <span className={getDateColor(trip.cartoes.imae)}>
                                     {trip.cartoes.imae
                                        ? isoDateToString(trip.cartoes.imae)
+                                       : "NIL"}
+                                 </span>
+                              </Tooltip>
+                           </TableCell>
+                        )}
+                        {infoCols.crm && (
+                           <TableCell className="hidden text-center md:table-cell">
+                              <Tooltip
+                                 content={getDateTooltip(
+                                    trip.cartoes.crm,
+                                    "CRM"
+                                 )}
+                              >
+                                 <span className={getDateColor(trip.cartoes.crm)}>
+                                    {trip.cartoes.crm
+                                       ? isoDateToString(trip.cartoes.crm)
                                        : "NIL"}
                                  </span>
                               </Tooltip>

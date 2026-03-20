@@ -6,13 +6,14 @@ import FilterPanel from "./components/filterPanel";
 import SeboTable from "./components/seboTable";
 import SeboChart from "./components/seboChart";
 
-export const INFO_COLUMNS = ["cemal", "tovn", "imae"] as const;
+export const INFO_COLUMNS = ["cemal", "tovn", "imae", "crm"] as const;
 export type InfoColumn = (typeof INFO_COLUMNS)[number];
 
 const defaultInfoCols: Record<InfoColumn, boolean> = {
    cemal: true,
    tovn: true,
    imae: true,
+   crm: true,
 };
 
 function SeboPage() {

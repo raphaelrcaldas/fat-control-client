@@ -11,21 +11,34 @@ import {
    Spinner,
 } from "flowbite-react";
 import { HiChevronUp, HiChevronDown } from "react-icons/hi";
-import { MdHealthAndSafety } from "react-icons/md";
+import { MdGroups } from "react-icons/md";
 import clsx from "clsx";
-import type { UserCartaoSaude } from "services/routes/aeromedica/cartoesSaude";
+import type { TripCrmOut } from "services/routes/seg-voo/crm";
 import type { SortField, SortDirection } from "../types";
 import {
    getDateStatus,
    getStatusConfig,
    formatDate,
    getDaysRemaining,
-   getCemalStatus,
-} from "../utils/dateStatus";
+} from "@/app/(home)/aeromedica/cartoes-saude/utils/dateStatus";
 
-// ========================================
-// DateCell
-// ========================================
+const SimpleDateCell = memo(function SimpleDateCell({
+   dateStr,
+}: {
+   dateStr: string | null | undefined;
+}) {
+   return (
+      <span className="text-sm text-gray-700">{formatDate(dateStr)}</span>
+   );
+});
+
+const DOT_COLORS = {
+   valid: "bg-green-500",
+   warning: "bg-yellow-400",
+   critical: "bg-orange-500",
+   expired: "bg-red-500",
+   empty: "bg-gray-300",
+} as const;
 
 const DateCell = memo(function DateCell({
    dateStr,
@@ -50,54 +63,6 @@ const DateCell = memo(function DateCell({
       </div>
    );
 });
-
-// ========================================
-// CemalCell
-// ========================================
-
-const CemalCell = memo(function CemalCell({
-   cemal,
-   agCemal,
-   temAta,
-}: {
-   cemal: string | null | undefined;
-   agCemal: string | null | undefined;
-   temAta: boolean | null;
-}) {
-   const status = getDateStatus(cemal);
-   const config = getStatusConfig(status);
-   const Icon = config.icon;
-
-   return (
-      <div className="flex flex-col gap-0.5">
-         <div className="flex items-center gap-1.5">
-            <Icon className={clsx("h-4 w-4 shrink-0", config.color)} />
-            <span className={clsx("text-sm font-medium", config.color)}>
-               {formatDate(cemal)}
-            </span>
-            {status !== "empty" && (
-               <span className={clsx("text-xs", config.color)}>
-                  ({getDaysRemaining(cemal)})
-               </span>
-            )}
-         </div>
-         {agCemal && (
-            <span className="text-[11px] text-blue-600">
-               Agendado: {formatDate(agCemal)}
-            </span>
-         )}
-         {temAta === false && (
-            <span className="text-[11px] font-medium text-amber-600">
-               Sem ata anexada
-            </span>
-         )}
-      </div>
-   );
-});
-
-// ========================================
-// SortableHeader
-// ========================================
 
 interface SortableHeaderProps {
    label: string;
@@ -128,7 +93,7 @@ const SortableHeader = memo(function SortableHeader({
                   className={clsx(
                      "-mb-1 h-3 w-3",
                      isActive && direction === "asc"
-                        ? "text-red-600"
+                        ? "text-sky-600"
                         : "text-gray-400"
                   )}
                />
@@ -136,7 +101,7 @@ const SortableHeader = memo(function SortableHeader({
                   className={clsx(
                      "h-3 w-3",
                      isActive && direction === "desc"
-                        ? "text-red-600"
+                        ? "text-sky-600"
                         : "text-gray-400"
                   )}
                />
@@ -146,83 +111,56 @@ const SortableHeader = memo(function SortableHeader({
    );
 });
 
-// ========================================
-// Dot color map (fora do render)
-// ========================================
-
-const DOT_COLORS = {
-   valid: "bg-green-500",
-   warning: "bg-yellow-400",
-   critical: "bg-orange-500",
-   expired: "bg-red-500",
-   empty: "bg-gray-300",
-} as const;
-
-// ========================================
-// CartoesSaudeRow
-// ========================================
-
-const CartoesSaudeRow = memo(function CartoesSaudeRow({
+const CrmRow = memo(function CrmRow({
    item,
    onClick,
 }: {
-   item: UserCartaoSaude;
-   onClick: (item: UserCartaoSaude) => void;
+   item: TripCrmOut;
+   onClick: (item: TripCrmOut) => void;
 }) {
-   const cemalStatus = getCemalStatus(item);
-   const dotColor = DOT_COLORS[cemalStatus];
+   const status = getDateStatus(item.crm?.data_validade);
+   const dotColor = DOT_COLORS[status];
 
    return (
       <TableRow
          onClick={() => onClick(item)}
-         className="cursor-pointer border-b border-gray-200 transition-colors hover:bg-gray-50"
+         onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && onClick(item)}
+         tabIndex={0}
+         role="button"
+         className="cursor-pointer border-b border-gray-200 transition-colors hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500"
       >
          <TableCell className="w-10 px-3 py-3">
             <span
-               className={clsx(
-                  "inline-block h-3 w-3 rounded-full",
-                  dotColor
-               )}
+               className={clsx("inline-block h-3 w-3 rounded-full", dotColor)}
             />
          </TableCell>
          <TableCell className="px-4 py-3 font-medium whitespace-nowrap uppercase text-gray-900">
             <p className="font-semibold">
-               {item.user.posto.short} {item.user.nome_guerra}
+               {item.p_g} {item.nome_guerra}
             </p>
          </TableCell>
          <TableCell className="px-4 py-3 whitespace-nowrap">
-            <CemalCell
-               cemal={item.cartao?.cemal}
-               agCemal={item.cartao?.ag_cemal}
-               temAta={item.cemal_tem_ata}
-            />
+            <SimpleDateCell dateStr={item.crm?.data_realizacao} />
          </TableCell>
          <TableCell className="px-4 py-3 whitespace-nowrap">
-            <DateCell dateStr={item.cartao?.tovn} />
-         </TableCell>
-         <TableCell className="px-4 py-3 whitespace-nowrap">
-            <DateCell dateStr={item.cartao?.imae} />
+            <DateCell dateStr={item.crm?.data_validade} />
          </TableCell>
       </TableRow>
    );
 });
 
-// ========================================
-// CartoesSaudeTable
-// ========================================
-
-interface CartoesSaudeTableProps {
-   data: UserCartaoSaude[];
+interface CrmTableProps {
+   data: TripCrmOut[];
    isLoading: boolean;
    sortField: SortField | null;
    sortDirection: SortDirection;
    onSort: (field: SortField) => void;
-   onRowClick: (item: UserCartaoSaude) => void;
+   onRowClick: (item: TripCrmOut) => void;
    hasActiveFilters: boolean;
    onClearFilters: () => void;
 }
 
-export default function CartoesSaudeTable({
+const CrmTable = memo(function CrmTable({
    data,
    isLoading,
    sortField,
@@ -231,7 +169,7 @@ export default function CartoesSaudeTable({
    onRowClick,
    hasActiveFilters,
    onClearFilters,
-}: CartoesSaudeTableProps) {
+}: CrmTableProps) {
    if (isLoading) {
       return (
          <div className="flex h-64 items-center justify-center">
@@ -243,14 +181,14 @@ export default function CartoesSaudeTable({
    if (data.length === 0) {
       return (
          <div className="flex h-64 flex-col items-center justify-center">
-            <MdHealthAndSafety className="mb-4 h-16 w-16 text-gray-300" />
+            <MdGroups className="mb-4 h-16 w-16 text-gray-300" />
             <p className="text-lg font-medium text-gray-500">
                Nenhum resultado encontrado
             </p>
             {hasActiveFilters && (
                <button
                   onClick={onClearFilters}
-                  className="mt-2 text-sm text-red-600 hover:text-red-700"
+                  className="mt-2 text-sm text-sky-600 hover:text-sky-700"
                >
                   Limpar filtros
                </button>
@@ -272,23 +210,12 @@ export default function CartoesSaudeTable({
                      direction={sortDirection}
                      onSort={onSort}
                   />
+                  <TableHeadCell className="px-4 py-3 font-semibold">
+                     Realização
+                  </TableHeadCell>
                   <SortableHeader
-                     label="CEMAL"
-                     field="cemal"
-                     currentSort={sortField}
-                     direction={sortDirection}
-                     onSort={onSort}
-                  />
-                  <SortableHeader
-                     label="TOVN"
-                     field="tovn"
-                     currentSort={sortField}
-                     direction={sortDirection}
-                     onSort={onSort}
-                  />
-                  <SortableHeader
-                     label="IMAE"
-                     field="imae"
+                     label="Validade"
+                     field="validade"
                      currentSort={sortField}
                      direction={sortDirection}
                      onSort={onSort}
@@ -297,8 +224,8 @@ export default function CartoesSaudeTable({
             </TableHead>
             <TableBody>
                {data.map((item) => (
-                  <CartoesSaudeRow
-                     key={item.user.id}
+                  <CrmRow
+                     key={item.trip_id}
                      item={item}
                      onClick={onRowClick}
                   />
@@ -307,4 +234,6 @@ export default function CartoesSaudeTable({
          </Table>
       </div>
    );
-}
+});
+
+export default CrmTable;

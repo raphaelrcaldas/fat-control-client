@@ -15,6 +15,8 @@ import {
    MdHealthAndSafety,
    MdMedicalServices,
    MdStorage,
+   MdSecurity,
+   MdGroups,
 } from "react-icons/md";
 import { FaUsers } from "react-icons/fa6";
 import { FaPaperPlane } from "react-icons/fa";
@@ -128,6 +130,19 @@ export const navItems = [
             path: "/aeromedica/cartoes-saude",
             // resource: "cartoes_saude",
             // permission: "view",
+         },
+      ],
+   },
+   {
+      type: "collapse",
+      icon: MdSecurity,
+      label: "Segurança de Voo",
+      roles: ["seg_voo"],
+      children: [
+         {
+            icon: MdGroups,
+            label: "CRM",
+            path: "/seg-voo/crm",
          },
       ],
    },
