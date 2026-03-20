@@ -17,6 +17,7 @@ export interface UserPublic {
    active: boolean;
    ult_promo: string | null;
    ant_rel: number | null;
+   telefone: string | null;
 }
 
 export interface PaginatedResponse<T> {
@@ -43,6 +44,7 @@ export interface UserSchema {
    id_fab: string | null;
    saram: string;
    cpf: string;
+   telefone: string | null;
    ult_promo: string | null;
    active: boolean;
    nasc: string | null;

@@ -4,6 +4,7 @@
  */
 
 import { useState } from "react";
+import { useMask, format as maskFormat } from "@react-input/mask";
 import { TextInput, Select, Spinner } from "flowbite-react";
 import { FaUser, FaShieldAlt } from "react-icons/fa";
 import {
@@ -12,6 +13,7 @@ import {
    HiCalendar,
    HiHashtag,
    HiOfficeBuilding,
+   HiPhone,
    HiStar,
    HiSortAscending,
    HiPencil,
@@ -36,7 +38,23 @@ interface UserReadViewProps {
    userId: number;
 }
 
-type FieldType = "text" | "email" | "date" | "number" | "select";
+type FieldType = "text" | "email" | "date" | "number" | "select" | "phone";
+
+const phoneOptions10 = {
+   mask: "(__) ____-____",
+   replacement: { _: /\d/ },
+};
+const phoneOptions11 = {
+   mask: "(__) _____-____",
+   replacement: { _: /\d/ },
+};
+
+function formatPhone(digits: string): string {
+   const clean = digits.replace(/\D/g, "");
+   if (!clean) return "";
+   if (clean.length <= 10) return maskFormat(clean, phoneOptions10);
+   return maskFormat(clean, phoneOptions11);
+}
 
 interface FieldConfig {
    icon: React.ComponentType<{ className?: string }>;
@@ -93,8 +111,25 @@ function EditableField({
 
    const saving = updateMutation.isPending;
 
+   const phoneMaskRef = useMask({
+      mask: "(__) _____-____",
+      replacement: { _: /\d/ },
+      modify: (data) => {
+         const digits = data.value.replace(/\D/g, "");
+         // Ao inserir com 10 dígitos preenchidos, abre máscara de 11
+         if (digits.length >= 10 && data.inputType === "insert") {
+            return { mask: "(__) _____-____" };
+         }
+         // Já tem 11 dígitos (inclusive ao deletar)
+         if (digits.length > 10) {
+            return { mask: "(__) _____-____" };
+         }
+         return { mask: "(__) ____-____" };
+      },
+   });
+
    function startEdit() {
-      setLocalValue(rawValue);
+      setLocalValue(type === "phone" ? formatPhone(rawValue) : rawValue);
       setEditing(true);
    }
 
@@ -104,8 +139,10 @@ function EditableField({
    }
 
    async function save() {
+      const stripped =
+         type === "phone" ? localValue.replace(/\D/g, "") : localValue;
       const newVal =
-         type === "number" ? Number(localValue) || null : localValue || null;
+         type === "number" ? Number(stripped) || null : stripped || null;
       if (
          String(newVal ?? "").toLowerCase() ===
          String(rawValue ?? "").toLowerCase()
@@ -151,7 +188,18 @@ function EditableField({
                </p>
                <div className="flex items-center gap-1.5">
                   <div className="max-w-sm">
-                     {type === "select" && options ? (
+                     {type === "phone" ? (
+                        <input
+                           ref={phoneMaskRef}
+                           type="text"
+                           value={localValue}
+                           onChange={(e) => setLocalValue(e.target.value)}
+                           onKeyDown={handleKeyDown}
+                           placeholder="(__) _____-____"
+                           className="block w-40 rounded-lg border border-gray-300 bg-gray-50 px-2 py-1.5 text-xs text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                           autoFocus
+                        />
+                     ) : type === "select" && options ? (
                         <Select
                            sizing="sm"
                            value={localValue}
@@ -297,6 +345,15 @@ export function UserReadView({ user, userId }: UserReadViewProps) {
                fieldName="nasc"
                userId={userId}
                type="date"
+            />
+            <EditableField
+               icon={HiPhone}
+               label="Telefone"
+               value={formatPhone(user.telefone || "")}
+               rawValue={user.telefone || ""}
+               fieldName="telefone"
+               userId={userId}
+               type="phone"
             />
             <EditableField
                icon={HiMail}
