@@ -12,13 +12,43 @@ import {
 import Tooltip from "./tooltip";
 import { minutesToTime, isoDateToString } from "@/../utils/dateHandler";
 import type { SeboTripItem } from "services/routes/estatistica/sebo";
+import type { InfoColumn } from "../page";
 
 interface SeboTableProps {
    trips: SeboTripItem[];
    activeRow: number;
    setRow: (index: number) => void;
    isLoading: boolean;
+   infoCols: Record<InfoColumn, boolean>;
 }
+
+const getDaysUntil = (isoDate: string): number => {
+   const date = new Date(isoDate + "T00:00:00");
+   const today = new Date();
+   today.setHours(0, 0, 0, 0);
+   return Math.ceil((date.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+};
+
+const getDateColor = (isoDate: string | null): string => {
+   const styles =
+      "rounded-lg text-white font-semibold font-mono px-2 py-1 text-xs inline-block cursor-help";
+
+   if (!isoDate) return styles + " bg-slate-500";
+
+   const diffDays = getDaysUntil(isoDate);
+   if (diffDays <= 0) return styles + " bg-red-500";
+   if (diffDays <= 30) return styles + " bg-yellow-400 text-gray-800";
+   return styles + " bg-green-500";
+};
+
+const getDateTooltip = (isoDate: string | null, label: string): string => {
+   if (!isoDate) return `${label} não informado`;
+
+   const diffDays = getDaysUntil(isoDate);
+   const formatted = isoDateToString(isoDate);
+   if (diffDays <= 0) return `${label} vencido há ${Math.abs(diffDays)} dias (${formatted})`;
+   return `${label} vence em ${diffDays} dias (${formatted})`;
+};
 
 const getDsvColor = (value: number | null): string => {
    const styles =
@@ -44,7 +74,8 @@ const getOperBadgeClasses = (oper: string): string => {
    return "bg-gray-100 text-gray-700";
 };
 
-const SeboTable = ({ trips, activeRow, setRow, isLoading }: SeboTableProps) => {
+const SeboTable = ({ trips, activeRow, setRow, isLoading, infoCols }: SeboTableProps) => {
+   const visibleInfoCount = Object.values(infoCols).filter(Boolean).length;
    if (isLoading) {
       return (
          <div className="flex h-64 items-center justify-center rounded-lg bg-white shadow-md">
@@ -67,7 +98,21 @@ const SeboTable = ({ trips, activeRow, setRow, isLoading }: SeboTableProps) => {
                   <TableHeadCell className="text-center">TRIG</TableHeadCell>
                   <TableHeadCell className="text-center">OP</TableHeadCell>
                   <TableHeadCell className="text-center">DSV</TableHeadCell>
-                  <TableHeadCell className="text-center">TOTAL</TableHeadCell>
+                  {infoCols.cemal && (
+                     <TableHeadCell className="hidden text-center md:table-cell">
+                        CEMAL
+                     </TableHeadCell>
+                  )}
+                  {infoCols.tovn && (
+                     <TableHeadCell className="hidden text-center md:table-cell">
+                        TOVN
+                     </TableHeadCell>
+                  )}
+                  {infoCols.imae && (
+                     <TableHeadCell className="hidden text-center md:table-cell">
+                        IMAE
+                     </TableHeadCell>
+                  )}
                   <TableHeadCell className="text-center">ANO</TableHeadCell>
                </TableRow>
             </TableHead>
@@ -114,9 +159,54 @@ const SeboTable = ({ trips, activeRow, setRow, isLoading }: SeboTableProps) => {
                               </span>
                            </Tooltip>
                         </TableCell>
-                        <TableCell className="text-center font-medium text-gray-700">
-                           {minutesToTime(trip.voo.h_total)}
-                        </TableCell>
+                        {infoCols.cemal && (
+                           <TableCell className="hidden text-center md:table-cell">
+                              <Tooltip
+                                 content={getDateTooltip(
+                                    trip.cartoes.cemal,
+                                    "CEMAL"
+                                 )}
+                              >
+                                 <span className={getDateColor(trip.cartoes.cemal)}>
+                                    {trip.cartoes.cemal
+                                       ? isoDateToString(trip.cartoes.cemal)
+                                       : "NIL"}
+                                 </span>
+                              </Tooltip>
+                           </TableCell>
+                        )}
+                        {infoCols.tovn && (
+                           <TableCell className="hidden text-center md:table-cell">
+                              <Tooltip
+                                 content={getDateTooltip(
+                                    trip.cartoes.tovn,
+                                    "TOVN"
+                                 )}
+                              >
+                                 <span className={getDateColor(trip.cartoes.tovn)}>
+                                    {trip.cartoes.tovn
+                                       ? isoDateToString(trip.cartoes.tovn)
+                                       : "NIL"}
+                                 </span>
+                              </Tooltip>
+                           </TableCell>
+                        )}
+                        {infoCols.imae && (
+                           <TableCell className="hidden text-center md:table-cell">
+                              <Tooltip
+                                 content={getDateTooltip(
+                                    trip.cartoes.imae,
+                                    "IMAE"
+                                 )}
+                              >
+                                 <span className={getDateColor(trip.cartoes.imae)}>
+                                    {trip.cartoes.imae
+                                       ? isoDateToString(trip.cartoes.imae)
+                                       : "NIL"}
+                                 </span>
+                              </Tooltip>
+                           </TableCell>
+                        )}
                         <TableCell className="text-center font-bold text-blue-600">
                            {minutesToTime(trip.voo.h_ano)}
                         </TableCell>
@@ -125,7 +215,7 @@ const SeboTable = ({ trips, activeRow, setRow, isLoading }: SeboTableProps) => {
                ) : (
                   <TableRow>
                      <TableCell
-                        colSpan={7}
+                        colSpan={6 + visibleInfoCount}
                         className="py-12 text-center text-gray-500"
                      >
                         Nenhum registro encontrado

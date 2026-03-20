@@ -1,7 +1,7 @@
 "use client";
 import { useMemo } from "react";
 import { Select } from "flowbite-react";
-import { FUNCOES_CONFIG, type FuncType } from "@/constants/tripulantes/funcoes";
+import { INFO_COLUMNS, type InfoColumn } from "../page";
 
 interface FilterPanelProps {
    seboFunc: string;
@@ -12,12 +12,14 @@ interface FilterPanelProps {
    setOpOp: (value: boolean) => void;
    opAl: boolean;
    setOpAl: (value: boolean) => void;
-   selectedPosicoes: string[];
-   setSelectedPosicoes: (value: string[]) => void;
+   soO3: boolean;
+   setSoO3: (value: boolean) => void;
    ano: number;
    setAno: (value: number) => void;
    totalResults: number;
    isLoading: boolean;
+   infoCols: Record<InfoColumn, boolean>;
+   setInfoCols: (value: Record<InfoColumn, boolean>) => void;
 }
 
 const FilterPanel = ({
@@ -29,12 +31,14 @@ const FilterPanel = ({
    setOpOp,
    opAl,
    setOpAl,
-   selectedPosicoes,
-   setSelectedPosicoes,
+   soO3,
+   setSoO3,
    ano,
    setAno,
    totalResults,
    isLoading,
+   infoCols,
+   setInfoCols,
 }: FilterPanelProps) => {
    const currentYear = new Date().getFullYear();
    const yearOptions = useMemo(() => {
@@ -53,23 +57,6 @@ const FilterPanel = ({
       { value: "os", label: "Observador SAR", icon: "🔍" },
       { value: "oe", label: "OE", icon: "⚙️" },
    ];
-
-   const posicoes = useMemo(() => {
-      const config = FUNCOES_CONFIG[seboFunc as FuncType];
-      return config?.posicoes ?? [];
-   }, [seboFunc]);
-
-   const togglePosicao = (codigo: string) => {
-      if (selectedPosicoes.includes(codigo)) {
-         setSelectedPosicoes(selectedPosicoes.filter((p) => p !== codigo));
-      } else {
-         setSelectedPosicoes([...selectedPosicoes, codigo]);
-      }
-   };
-
-   const allPosSelected =
-      posicoes.length > 0 &&
-      posicoes.every((p) => selectedPosicoes.includes(p.codigo));
 
    const operationFilters = [
       {
@@ -107,7 +94,7 @@ const FilterPanel = ({
       <div className="space-y-4 rounded-xl bg-white p-4 shadow-lg">
          <div className="grid gap-4 sm:flex sm:items-end">
             <div className="">
-               <label className="mb-2 block text-sm font-medium text-gray-700">
+               <label className="mb-2 block text-center text-sm font-medium text-gray-700">
                   Função
                </label>
                <Select
@@ -123,7 +110,7 @@ const FilterPanel = ({
                </Select>
             </div>
             <div>
-               <label className="mb-3 block text-sm font-medium text-gray-700">
+               <label className="mb-3 block text-center text-sm font-medium text-gray-700">
                   Operacionalidade
                </label>
                <div className="flex flex-wrap gap-3">
@@ -131,7 +118,7 @@ const FilterPanel = ({
                      <button
                         key={filter.id}
                         onClick={() => filter.onChange(!filter.checked)}
-                        className={`rounded-lg px-4 py-2 font-medium transition-all duration-200 ${
+                        className={`rounded-lg px-2 py-1.5 font-medium transition-all duration-200 ${
                            filter.checked
                               ? filter.color === "red"
                                  ? "bg-red-500 text-white shadow-md hover:bg-red-600"
@@ -176,39 +163,52 @@ const FilterPanel = ({
                </div>
             </div>
 
-            {/* Função a Bordo */}
-            {posicoes.length > 0 && (
-               <div>
+            {/* Toggle O3 - apenas para pilotos */}
+            {seboFunc === "pil" && (
+               <div className="flex flex-col items-center">
                   <label className="mb-3 block text-sm font-medium text-gray-700">
-                     Função a Bordo
+                     Somente O3
                   </label>
-                  <div className="flex flex-wrap gap-2">
-                     {posicoes.map((pos) => {
-                        const isSelected = selectedPosicoes.includes(
-                           pos.codigo
-                        );
-                        return (
-                           <button
-                              key={pos.codigo}
-                              onClick={() => togglePosicao(pos.codigo)}
-                              title={pos.descricao}
-                              className={`rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200 ${
-                                 isSelected
-                                    ? "bg-blue-500 text-white shadow-md hover:bg-blue-600"
-                                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                              } transform hover:scale-105 active:scale-95`}
-                           >
-                              {pos.codigo}
-                           </button>
-                        );
-                     })}
-                  </div>
+                  <button
+                     onClick={() => setSoO3(!soO3)}
+                     className={`rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200 ${
+                        soO3
+                           ? "bg-blue-500 text-white shadow-md hover:bg-blue-600"
+                           : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                     } transform hover:scale-105 active:scale-95`}
+                  >
+                     O3
+                  </button>
                </div>
             )}
 
+            {/* Colunas Info */}
+            <div>
+               <label className="mb-3 block text-center text-sm font-medium text-gray-700">
+                  Informações
+               </label>
+               <div className="flex flex-wrap gap-2">
+                  {INFO_COLUMNS.map((col) => (
+                     <button
+                        key={col}
+                        onClick={() =>
+                           setInfoCols({ ...infoCols, [col]: !infoCols[col] })
+                        }
+                        className={`rounded-lg px-3 py-2 text-sm font-medium uppercase transition-all duration-200 ${
+                           infoCols[col]
+                              ? "bg-cyan-500 text-white shadow-md hover:bg-cyan-600"
+                              : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                        } transform hover:scale-105 active:scale-95`}
+                     >
+                        {col}
+                     </button>
+                  ))}
+               </div>
+            </div>
+
             {/* Ano - alinhado à direita */}
             <div className="min-w-24 sm:ml-auto">
-               <label className="mb-2 block text-sm font-medium text-gray-700">
+               <label className="mb-2 block text-center text-sm font-medium text-gray-700">
                   Ano
                </label>
                <Select

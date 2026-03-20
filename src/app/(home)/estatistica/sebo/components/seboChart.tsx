@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useMemo, useCallback } from "react";
 import dynamic from "next/dynamic";
 import { minutesToTime } from "@/../utils/dateHandler";
 import type { SeboTripItem } from "services/routes/estatistica/sebo";
@@ -24,8 +24,6 @@ export default function SeboChart({
    activeRow,
    trips,
 }: SeboChartProps) {
-   const [media, setMedia] = useState(0);
-
    const barColors = useMemo(
       () =>
          data.map((_, i) => (i === activeRow ? COLOR_ACTIVE : COLOR_DEFAULT)),
@@ -43,18 +41,14 @@ export default function SeboChart({
       return {
          total: minutesToTime(soma),
          media: minutesToTime(Math.round(avg)),
+         mediaRaw: avg,
          max: minutesToTime(max),
          min: minutesToTime(min),
          count: data.length,
       };
    }, [data]);
 
-   useEffect(() => {
-      if (data && data.length > 0) {
-         const soma = data.reduce((acc, curr) => acc + curr, 0);
-         setMedia(soma / data.length);
-      }
-   }, [data]);
+   const media = stats?.mediaRaw ?? 0;
 
    const customTooltip = useCallback(
       ({
@@ -77,7 +71,7 @@ export default function SeboChart({
             <div style="color: #3b82f6; font-weight: 600; font-size: 16px; margin-bottom: 4px;">${hours}</div>
             ${
                trip?.nome_guerra
-                  ? `<div style="color: #6b7280; font-size: 12px;">${trip.nome_guerra}</div>`
+                  ? `<div style="color: #6b7280; font-size: 12px;">${trip.nome_guerra.toUpperCase()}</div>`
                   : ""
             }
             ${

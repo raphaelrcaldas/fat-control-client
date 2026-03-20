@@ -5,7 +5,6 @@ const seboRoute = "estatistica/sebo/";
 
 export interface SeboVoo {
    h_ano: number;
-   h_total: number;
    dsv: number | null;
    data_ult_voo: string | null; // "YYYY-MM-DD"
 }

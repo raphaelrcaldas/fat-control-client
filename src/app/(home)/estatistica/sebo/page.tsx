@@ -2,10 +2,18 @@
 import { useState, useMemo, useCallback } from "react";
 import { useSebo } from "@/hooks/queries";
 import { usePersistedState } from "@/hooks/usePersistedState";
-import { FUNCOES_CONFIG, type FuncType } from "@/constants/tripulantes/funcoes";
 import FilterPanel from "./components/filterPanel";
 import SeboTable from "./components/seboTable";
 import SeboChart from "./components/seboChart";
+
+export const INFO_COLUMNS = ["cemal", "tovn", "imae"] as const;
+export type InfoColumn = (typeof INFO_COLUMNS)[number];
+
+const defaultInfoCols: Record<InfoColumn, boolean> = {
+   cemal: true,
+   tovn: true,
+   imae: true,
+};
 
 function SeboPage() {
    const [activeRow, setActiveRow] = useState(0);
@@ -14,22 +22,23 @@ function SeboPage() {
    const [opOp, setOpOp] = useState(true);
    const [opAl, setOpAl] = useState(false);
 
+   const [infoCols, setInfoCols] = usePersistedState<Record<InfoColumn, boolean>>(
+      "estatistica.seboInfoCols",
+      defaultInfoCols
+   );
+
    const [seboFunc, setSeboFuncRaw] = usePersistedState(
       "estatistica.seboFunc",
       "mc"
    );
 
-   const [selectedPosicoes, setSelectedPosicoes] = useState<string[]>(() => {
-      const config = FUNCOES_CONFIG[seboFunc as FuncType];
-      return config?.posicoes.map((p) => p.codigo) ?? [];
-   });
+   const [soO3, setSoO3] = useState(false);
    const [ano, setAno] = useState(() => new Date().getFullYear());
 
    const setSeboFunc = useCallback(
       (value: string) => {
          setSeboFuncRaw(value);
-         const config = FUNCOES_CONFIG[value as FuncType];
-         setSelectedPosicoes(config?.posicoes.map((p) => p.codigo) ?? []);
+         setSoO3(false);
          setActiveRow(0);
       },
       [setSeboFuncRaw]
@@ -47,22 +56,17 @@ function SeboPage() {
    // Quando todos os filtros estao ativos, nao enviar oper (retorna todos)
    const allActive = opIn && opOp && opAl;
 
-   // Quando todas as posicoes estao selecionadas, nao enviar func_bordo
-   const allPosSelected = useMemo(() => {
-      const posicoes = FUNCOES_CONFIG[seboFunc as FuncType]?.posicoes ?? [];
-      return (
-         posicoes.length > 0 &&
-         posicoes.every((p) => selectedPosicoes.includes(p.codigo))
-      );
-   }, [seboFunc, selectedPosicoes]);
+   // func_bordo: para pilotos, toggle O3 vs demais
+   const funcBordo = useMemo(() => {
+      if (seboFunc !== "pil") return undefined;
+      if (soO3) return ["O3"];
+      return ["1P", "2P", "IN", "AL"];
+   }, [seboFunc, soO3]);
 
    const { data: rawTrips, isLoading } = useSebo({
       func: seboFunc,
       oper: allActive || operParams.length === 0 ? undefined : operParams,
-      func_bordo:
-         allPosSelected || selectedPosicoes.length === 0
-            ? undefined
-            : selectedPosicoes,
+      func_bordo: funcBordo,
       ano,
    });
 
@@ -91,12 +95,14 @@ function SeboPage() {
             setOpOp={setOpOp}
             opAl={opAl}
             setOpAl={setOpAl}
-            selectedPosicoes={selectedPosicoes}
-            setSelectedPosicoes={setSelectedPosicoes}
+            soO3={soO3}
+            setSoO3={setSoO3}
             ano={ano}
             setAno={setAno}
             totalResults={sortedTrips.length}
             isLoading={isLoading}
+            infoCols={infoCols}
+            setInfoCols={setInfoCols}
          />
 
          {/* Content Flex Layout */}
@@ -108,6 +114,7 @@ function SeboPage() {
                   activeRow={activeRow}
                   setRow={setActiveRow}
                   isLoading={isLoading}
+                  infoCols={infoCols}
                />
             </div>
 
@@ -120,7 +127,7 @@ function SeboPage() {
                      </h3>
                      <SeboChart
                         data={sortedTrips.map((trip) => trip.voo.h_ano)}
-                        categories={sortedTrips.map((trip) => trip.trig)}
+                        categories={sortedTrips.map((trip) => trip.trig.toUpperCase())}
                         activeRow={activeRow}
                         trips={sortedTrips}
                      />
