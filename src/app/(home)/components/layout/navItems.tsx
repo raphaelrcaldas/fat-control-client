@@ -103,12 +103,22 @@ export const navItems = [
       type: "collapse",
       icon: MdBarChart,
       label: "Estatística",
-      roles: ["admin"],
+      roles: [
+         "ops_avancado",
+         "ops_basico",
+         "dout_avancado",
+         "dout_basico",
+         "apoio_avancado",
+         "apoio_basico",
+         "aeromed",
+      ],
       children: [
          {
             icon: MdSort,
             label: "Pau de Sebo",
             path: "/estatistica/sebo",
+            resource: "estatistica",
+            permission: "view",
          },
          {
             icon: CiPaperplane,
@@ -119,6 +129,8 @@ export const navItems = [
             icon: ImStatsDots,
             label: "Esforço Aéreo",
             path: "/estatistica/esfaer",
+            resource: "esf_aer",
+            permission: "view",
          },
       ],
    },
