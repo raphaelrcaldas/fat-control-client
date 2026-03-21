@@ -8,8 +8,8 @@ import { useAeronaves } from "@/hooks/queries/useAeronaves";
 import { useEsfAerList } from "@/hooks/queries/useEsfAer";
 import { useTiposMissao } from "@/hooks/queries/useTiposMissao";
 
-const PER_PAGE_OPTIONS = [10, 15, 25, 50];
-const DEFAULT_PER_PAGE = 15;
+const PER_PAGE_OPTIONS = [25, 50, 100, 200, 400];
+const DEFAULT_PER_PAGE = 25;
 const DEFAULT_PAGE = 1;
 
 function toISODate(date: Date): string {
@@ -74,8 +74,10 @@ export function useEtapasFilters(grouped = true) {
    useEffect(() => {
       if (!searchParams.has("data_ini") || !searchParams.has("data_fim")) {
          const params = new URLSearchParams(searchParams.toString());
-         if (!params.has("data_ini")) params.set("data_ini", getDefaultDataIni());
-         if (!params.has("data_fim")) params.set("data_fim", getDefaultDataFim());
+         if (!params.has("data_ini"))
+            params.set("data_ini", getDefaultDataIni());
+         if (!params.has("data_fim"))
+            params.set("data_fim", getDefaultDataFim());
          router.replace(`?${params.toString()}`, { scroll: false });
       }
       // eslint-disable-next-line react-hooks/exhaustive-deps

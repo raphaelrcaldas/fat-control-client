@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useMemo, useRef, useState } from "react";
+import { domToPng } from "modern-screenshot";
 import {
    Modal,
    ModalBody,
@@ -65,6 +66,8 @@ export function ImportModal({ show, setShow, anoRef }: ImportModalProps) {
       useState<EsfAerImportResponse | null>(null);
    const gutterRef = useRef<HTMLDivElement>(null);
    const textareaRef = useRef<HTMLTextAreaElement>(null);
+   const resultRef = useRef<HTMLDivElement>(null);
+   const [isCapturing, setIsCapturing] = useState(false);
 
    const mutation = useUpdateEsfAer();
    const { push } = useToast();
@@ -132,12 +135,32 @@ export function ImportModal({ show, setShow, anoRef }: ImportModalProps) {
       return `${now.toLocaleDateString("pt-BR")} ${now.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}`;
    }, [importResult]);
 
+   const handleDownloadImage = async () => {
+      if (!resultRef.current || !importResult) return;
+      setIsCapturing(true);
+      try {
+         const dataUrl = await domToPng(resultRef.current, {
+            backgroundColor: "#ffffff",
+            scale: 2,
+         });
+         const link = document.createElement("a");
+         const today = new Date().toISOString().slice(0, 10);
+         link.download = `esfaer-importacao-${importResult.ano_ref}-${today}.png`;
+         link.href = dataUrl;
+         link.click();
+      } catch {
+         push({ message: "Erro ao gerar imagem", type: "error" });
+      } finally {
+         setIsCapturing(false);
+      }
+   };
+
    return (
       <>
          <Modal show={show} size="7xl" onClose={handleClose} dismissible>
             <ModalHeader>
                Importar Esforço Aéreo —{" "}
-               <span className="rounded bg-blue-100 px-2 py-0.5 font-bold text-blue-800">
+               <span className="rounded bg-red-100 px-2 py-0.5 font-bold text-red-800">
                   {anoRef}
                </span>
             </ModalHeader>
@@ -167,7 +190,7 @@ export function ImportModal({ show, setShow, anoRef }: ImportModalProps) {
 
                   <div className="flex gap-2">
                      <Button
-                        color="blue"
+                        color="red"
                         onClick={handleParse}
                         disabled={!rawText.trim()}
                      >
@@ -352,9 +375,9 @@ export function ImportModal({ show, setShow, anoRef }: ImportModalProps) {
             <ModalHeader />
             <ModalBody>
                <div className="text-center">
-                  <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-gray-100">
+                  <div className="mx-auto my-4 flex h-14 w-14 items-center justify-center rounded-full bg-emerald-50 ring-4 ring-emerald-100">
                      <svg
-                        className="h-6 w-6 text-gray-400"
+                        className="h-7 w-7 text-emerald-600"
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
@@ -362,23 +385,43 @@ export function ImportModal({ show, setShow, anoRef }: ImportModalProps) {
                         <path
                            strokeLinecap="round"
                            strokeLinejoin="round"
-                           strokeWidth={2}
+                           strokeWidth={2.5}
                            d="M5 13l4 4L19 7"
                         />
                      </svg>
                   </div>
-                  <h3 className="mb-2 text-lg font-semibold text-gray-800">
-                     Nenhuma alteração detectada
+                  <h3 className="mb-1 text-lg font-bold text-gray-900">
+                     Importação concluída
                   </h3>
-                  <p className="mb-5 text-sm text-gray-500">
-                     Os dados importados para{" "}
-                     <span className="rounded bg-blue-100 px-1.5 py-0.5 font-bold text-blue-800">
+                  <p className="mb-4 text-sm text-gray-500">
+                     As horas alocadas para{" "}
+                     <span className="inline-flex items-center rounded-md bg-gray-100 px-2 py-0.5 font-semibold text-gray-700">
                         {importResult?.ano_ref}
                      </span>{" "}
-                     são idênticos aos registros existentes.
+                     já estão atualizadas — nenhuma alteração necessária.
                   </p>
-                  <Button color="gray" onClick={() => setImportResult(null)}>
-                     Fechar
+                  <div className="mx-auto mb-5 flex items-start gap-2.5 rounded-lg border border-blue-200 bg-blue-50 px-3 py-2.5 text-left">
+                     <svg
+                        className="mt-0.5 h-4 w-4 shrink-0 text-blue-500"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                     >
+                        <path
+                           fillRule="evenodd"
+                           d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                           clipRule="evenodd"
+                        />
+                     </svg>
+                     <p className="text-xs leading-relaxed text-blue-700">
+                        Apenas os meses voados (SAGEM) foram atualizados.
+                     </p>
+                  </div>
+                  <Button
+                     color="gray"
+                     className="mx-auto"
+                     onClick={() => setImportResult(null)}
+                  >
+                     Entendido
                   </Button>
                </div>
             </ModalBody>
@@ -395,112 +438,139 @@ export function ImportModal({ show, setShow, anoRef }: ImportModalProps) {
             <ModalBody>
                {importResult && (
                   <div>
-                     <h3 className="mb-4 text-center text-lg font-semibold">
-                        Verificado em {dateStr} —{" "}
-                        <span className="rounded bg-blue-100 px-2 py-0.5 font-bold text-blue-800">
-                           {importResult.ano_ref}
-                        </span>
-                     </h3>
-                     <div className="overflow-x-auto rounded-lg shadow-md">
-                        <Table>
-                           <TableHead>
-                              <TableRow className="text-center">
-                                 <TableHeadCell className="bg-gray-200 px-3 py-3">
-                                    Esforço Aéreo
-                                 </TableHeadCell>
-                                 <TableHeadCell className="bg-gray-200 px-3 py-3">
-                                    Antes
-                                 </TableHeadCell>
-                                 <TableHeadCell className="bg-gray-200 px-3 py-3">
-                                    Depois
-                                 </TableHeadCell>
-                                 <TableHeadCell className="bg-gray-200 px-3 py-3">
-                                    Variação
-                                 </TableHeadCell>
-                              </TableRow>
-                           </TableHead>
-                           <TableBody className="divide-y">
-                              {importResult.rows.map((row, i) => {
-                                 const antes = row.antes ?? 0;
-                                 const depois = row.depois ?? 0;
-                                 const diff = depois - antes;
-                                 const isNew = row.antes === null;
-                                 const isRemoved = row.depois === null;
-                                 return (
-                                    <TableRow
-                                       key={i}
-                                       className="bg-gray-50 text-center"
+                     <div ref={resultRef} className="bg-white p-2">
+                        <h3 className="text-center mb-2 text-lg font-semibold">
+                           Ano Referência: {importResult.ano_ref}
+                        </h3>
+                        <h3 className="mb-4 text-center text-sm text-gray-500">
+                           Verificado em {dateStr}
+                        </h3>
+                        <div className="overflow-x-auto rounded-lg shadow-md">
+                           <Table>
+                              <TableHead>
+                                 <TableRow className="text-center">
+                                    <TableHeadCell className="bg-gray-200 px-3 py-3">
+                                       Esforço Aéreo
+                                    </TableHeadCell>
+                                    <TableHeadCell className="bg-gray-200 px-3 py-3">
+                                       Antes
+                                    </TableHeadCell>
+                                    <TableHeadCell className="bg-gray-200 px-3 py-3">
+                                       Depois
+                                    </TableHeadCell>
+                                    <TableHeadCell className="bg-gray-200 px-3 py-3">
+                                       Variação
+                                    </TableHeadCell>
+                                 </TableRow>
+                              </TableHead>
+                              <TableBody className="divide-y">
+                                 {importResult.rows.map((row, i) => {
+                                    const antes = row.antes ?? 0;
+                                    const depois = row.depois ?? 0;
+                                    const diff = depois - antes;
+                                    const isNew = row.antes === null;
+                                    const isRemoved = row.depois === null;
+                                    return (
+                                       <TableRow
+                                          key={i}
+                                          className="bg-gray-50 text-center"
+                                       >
+                                          <TableCell
+                                             className={getDescricaoStyles(
+                                                row.descricao
+                                             )}
+                                          >
+                                             {row.descricao}
+                                          </TableCell>
+                                          <TableCell className="px-3 py-2">
+                                             {isNew ? (
+                                                <span className="text-xs text-gray-400">
+                                                   novo
+                                                </span>
+                                             ) : (
+                                                minutesToTime(antes)
+                                             )}
+                                          </TableCell>
+                                          <TableCell className="px-3 py-2">
+                                             {isRemoved ? (
+                                                <span className="text-xs text-gray-400">
+                                                   removido
+                                                </span>
+                                             ) : (
+                                                minutesToTime(depois)
+                                             )}
+                                          </TableCell>
+                                          <TableCell
+                                             className={clsx(
+                                                "px-3 py-2 font-semibold",
+                                                {
+                                                   "text-green-700": diff > 0,
+                                                   "text-red-600": diff < 0,
+                                                }
+                                             )}
+                                          >
+                                             {formatDiff(diff)}
+                                          </TableCell>
+                                       </TableRow>
+                                    );
+                                 })}
+                                 {/* Total */}
+                                 <TableRow className="text-center font-semibold text-gray-900">
+                                    <TableCell className="bg-gray-100 px-3 py-3 text-left">
+                                       Total Esquadrão
+                                    </TableCell>
+                                    <TableCell className="bg-gray-100 px-3 py-3">
+                                       {minutesToTime(importResult.total_antes)}
+                                    </TableCell>
+                                    <TableCell className="bg-gray-100 px-3 py-3">
+                                       {minutesToTime(
+                                          importResult.total_depois
+                                       )}
+                                    </TableCell>
+                                    <TableCell
+                                       className={clsx(
+                                          "bg-gray-100 px-3 py-3",
+                                          {
+                                             "text-green-700":
+                                                importResult.total_depois -
+                                                   importResult.total_antes >
+                                                0,
+                                             "text-red-600":
+                                                importResult.total_depois -
+                                                   importResult.total_antes <
+                                                0,
+                                          }
+                                       )}
                                     >
-                                       <TableCell
-                                          className={getDescricaoStyles(
-                                             row.descricao
-                                          )}
-                                       >
-                                          {row.descricao}
-                                       </TableCell>
-                                       <TableCell className="px-3 py-2">
-                                          {isNew ? (
-                                             <span className="text-xs text-gray-400">
-                                                novo
-                                             </span>
-                                          ) : (
-                                             minutesToTime(antes)
-                                          )}
-                                       </TableCell>
-                                       <TableCell className="px-3 py-2">
-                                          {isRemoved ? (
-                                             <span className="text-xs text-gray-400">
-                                                removido
-                                             </span>
-                                          ) : (
-                                             minutesToTime(depois)
-                                          )}
-                                       </TableCell>
-                                       <TableCell
-                                          className={clsx(
-                                             "px-3 py-2 font-semibold",
-                                             {
-                                                "text-green-700": diff > 0,
-                                                "text-red-600": diff < 0,
-                                             }
-                                          )}
-                                       >
-                                          {formatDiff(diff)}
-                                       </TableCell>
-                                    </TableRow>
-                                 );
-                              })}
-                              {/* Total */}
-                              <TableRow className="text-center font-semibold text-gray-900">
-                                 <TableCell className="bg-gray-100 px-3 py-3 text-left">
-                                    Total Esquadrão
-                                 </TableCell>
-                                 <TableCell className="bg-gray-100 px-3 py-3">
-                                    {minutesToTime(importResult.total_antes)}
-                                 </TableCell>
-                                 <TableCell className="bg-gray-100 px-3 py-3">
-                                    {minutesToTime(importResult.total_depois)}
-                                 </TableCell>
-                                 <TableCell
-                                    className={clsx("bg-gray-100 px-3 py-3", {
-                                       "text-green-700":
+                                       {formatDiff(
                                           importResult.total_depois -
-                                             importResult.total_antes >
-                                          0,
-                                       "text-red-600":
-                                          importResult.total_depois -
-                                             importResult.total_antes <
-                                          0,
-                                    })}
-                                 >
-                                    {formatDiff(
-                                       importResult.total_depois -
-                                          importResult.total_antes
-                                    )}
-                                 </TableCell>
-                              </TableRow>
-                           </TableBody>
-                        </Table>
+                                             importResult.total_antes
+                                       )}
+                                    </TableCell>
+                                 </TableRow>
+                              </TableBody>
+                           </Table>
+                        </div>
+                     </div>
+                     <div className="mt-4 flex justify-center">
+                        <Button
+                           color="red"
+                           onClick={handleDownloadImage}
+                           disabled={isCapturing}
+                        >
+                           {isCapturing ? (
+                              <>
+                                 <Spinner
+                                    size="sm"
+                                    color="failure"
+                                    className="mr-2"
+                                 />
+                                 Gerando imagem...
+                              </>
+                           ) : (
+                              "Baixar como imagem"
+                           )}
+                        </Button>
                      </div>
                   </div>
                )}

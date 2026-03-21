@@ -63,7 +63,7 @@ export default function EsfAerPage() {
          {/* Header */}
          <div className="mb-2 flex shrink-0 items-center justify-between p-2">
             <h1 className="text-xl font-semibold text-gray-900">
-               Esforço Aereo
+               Esforço Aéreo
             </h1>
             <div className="flex items-center gap-4">
                <div className="flex items-center gap-1.5">

@@ -126,7 +126,7 @@ export function EtapasFilterPanel({
 
             <div className="w-72">
                <Label className="mb-1 block text-xs font-medium text-gray-700">
-                  Esforco Aereo
+                  Esforço Aéreo
                </Label>
                <SearchableSelect
                   options={esfAerOptions}
