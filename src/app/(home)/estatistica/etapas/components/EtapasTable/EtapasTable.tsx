@@ -2,7 +2,15 @@
 
 import { useState, useMemo, useCallback } from "react";
 import { Badge, Checkbox, Spinner } from "flowbite-react";
-import { HiCheck, HiX, HiCheckCircle, HiClock } from "react-icons/hi";
+import {
+   HiCheck,
+   HiX,
+   HiCheckCircle,
+   HiClock,
+   HiSun,
+   HiMoon,
+} from "react-icons/hi";
+import { GiOwl } from "react-icons/gi";
 import type {
    EtapaFlatItem,
    EtapaItem,
@@ -14,6 +22,7 @@ import { MissaoCard } from "./MissaoCard";
 import { EtapasFlatTable } from "./EtapasFlatTable";
 import { EtapaDetailModal } from "../EtapaDetailModal";
 import { EtapaFormModal } from "../EtapaFormModal";
+import { PermBased } from "@/app/(home)/hooks/usePermBased";
 
 export interface EtapasTableProps {
    missoes: MissaoComEtapas[];
@@ -141,6 +150,18 @@ export function EtapasTable({
          .reduce((sum, e) => sum + e.tvoo, 0);
    }, [selectedIds, missoes, flatEtapas, grouped]);
 
+   const oiTotals = useMemo(() => {
+      const allEtapas = grouped ? missoes.flatMap((m) => m.etapas) : flatEtapas;
+      const selected = allEtapas.filter((e) => selectedIds.has(e.id));
+      const totals = { d: 0, n: 0, v: 0 };
+      for (const etapa of selected) {
+         for (const oi of etapa.oi_etapas) {
+            totals[oi.reg] += oi.tvoo;
+         }
+      }
+      return totals;
+   }, [selectedIds, missoes, flatEtapas, grouped]);
+
    const handleBulkUpdate = useCallback(
       (field: "sagem" | "parte1", value: boolean) => {
          const ids = Array.from(selectedIds);
@@ -173,47 +194,70 @@ export function EtapasTable({
             {minutesToTime(totalTvoo)}
          </div>
          <div className="h-4 w-px bg-gray-300" />
-
-         <div className="flex items-center gap-2 rounded-md bg-white px-3 py-1.5 shadow">
-            <span className="mr-1 text-sm font-medium text-gray-500">
-               SAGEM
-            </span>
-            <button
-               onClick={() => handleBulkUpdate("sagem", true)}
-               disabled={bulkUpdate.isPending}
-               className="rounded bg-emerald-50 px-1.5 py-0.5 text-sm font-semibold text-emerald-700 shadow hover:bg-emerald-100 disabled:opacity-50"
-            >
-               <HiCheck className="inline h-4 w-4" />
-            </button>
-            <button
-               onClick={() => handleBulkUpdate("sagem", false)}
-               disabled={bulkUpdate.isPending}
-               className="rounded bg-amber-50 px-1.5 py-0.5 text-sm font-semibold text-amber-700 shadow hover:bg-amber-100 disabled:opacity-50"
-            >
-               <HiX className="inline h-4 w-4" />
-            </button>
-         </div>
+         {(oiTotals.d > 0 || oiTotals.n > 0 || oiTotals.v > 0) && (
+            <div className="flex items-center gap-2">
+               {oiTotals.d > 0 && (
+                  <div className="flex items-center gap-1 text-sm font-semibold text-amber-600">
+                     <HiSun className="h-4 w-4" />
+                     {minutesToTime(oiTotals.d)}
+                  </div>
+               )}
+               {oiTotals.n > 0 && (
+                  <div className="flex items-center gap-1 text-sm font-semibold text-indigo-600">
+                     <HiMoon className="h-4 w-4" />
+                     {minutesToTime(oiTotals.n)}
+                  </div>
+               )}
+               {oiTotals.v > 0 && (
+                  <div className="flex items-center gap-1 text-sm font-semibold text-emerald-600">
+                     <GiOwl className="h-4 w-4" />
+                     {minutesToTime(oiTotals.v)}
+                  </div>
+               )}
+            </div>
+         )}
          <div className="h-4 w-px bg-gray-300" />
 
-         <div className="flex items-center gap-2 rounded-md bg-white px-3 py-1.5 shadow">
-            <span className="mr-1 text-sm font-medium text-gray-500">
-               Parte 1
-            </span>
-            <button
-               onClick={() => handleBulkUpdate("parte1", true)}
-               disabled={bulkUpdate.isPending}
-               className="rounded bg-emerald-50 px-1.5 py-0.5 text-sm font-semibold text-emerald-700 shadow hover:bg-emerald-100 disabled:opacity-50"
-            >
-               <HiCheck className="inline h-4 w-4" />
-            </button>
-            <button
-               onClick={() => handleBulkUpdate("parte1", false)}
-               disabled={bulkUpdate.isPending}
-               className="rounded bg-amber-50 px-1.5 py-0.5 text-sm font-semibold text-amber-700 shadow hover:bg-amber-100 disabled:opacity-50"
-            >
-               <HiX className="inline h-4 w-4" />
-            </button>
-         </div>
+         <PermBased resource="etp_mis" requiredPerm="create">
+            <div className="flex items-center gap-2 rounded-md bg-white px-3 py-1.5 shadow">
+               <span className="mr-1 text-sm font-medium text-gray-500">
+                  SAGEM
+               </span>
+               <button
+                  onClick={() => handleBulkUpdate("sagem", true)}
+                  disabled={bulkUpdate.isPending}
+                  className="rounded bg-emerald-50 px-1.5 py-0.5 text-sm font-semibold text-emerald-700 shadow hover:bg-emerald-100 disabled:opacity-50"
+               >
+                  <HiCheck className="inline h-4 w-4" />
+               </button>
+               <button
+                  onClick={() => handleBulkUpdate("sagem", false)}
+                  disabled={bulkUpdate.isPending}
+                  className="rounded bg-amber-50 px-1.5 py-0.5 text-sm font-semibold text-amber-700 shadow hover:bg-amber-100 disabled:opacity-50"
+               >
+                  <HiX className="inline h-4 w-4" />
+               </button>
+            </div>
+            <div className="flex items-center gap-2 rounded-md bg-white px-3 py-1.5 shadow">
+               <span className="mr-1 text-sm font-medium text-gray-500">
+                  Parte 1
+               </span>
+               <button
+                  onClick={() => handleBulkUpdate("parte1", true)}
+                  disabled={bulkUpdate.isPending}
+                  className="rounded bg-emerald-50 px-1.5 py-0.5 text-sm font-semibold text-emerald-700 shadow hover:bg-emerald-100 disabled:opacity-50"
+               >
+                  <HiCheck className="inline h-4 w-4" />
+               </button>
+               <button
+                  onClick={() => handleBulkUpdate("parte1", false)}
+                  disabled={bulkUpdate.isPending}
+                  className="rounded bg-amber-50 px-1.5 py-0.5 text-sm font-semibold text-amber-700 shadow hover:bg-amber-100 disabled:opacity-50"
+               >
+                  <HiX className="inline h-4 w-4" />
+               </button>
+            </div>
+         </PermBased>
 
          {bulkUpdate.isPending && <Spinner size="xs" color="failure" />}
          {bulkFeedback && (
