@@ -21,8 +21,7 @@ export interface EtapaItem {
    sagem: boolean;
    parte1: boolean;
    obs: string | null;
-   esf_aer_itens: string[];
-   tipo_missao_cod: string | null;
+   oi_etapas: OIEtapaItem[];
    tripulantes: TripEtapaItem[];
 }
 
@@ -98,13 +97,12 @@ export interface OIEtapaItem {
    tipo_missao_id: number;
    esf_aer: string;
    tipo_missao_cod: string;
-   reg: string; // d=diurno, n=noturno, v=NVG
+   reg: "d" | "n" | "v";
    tvoo: number;
 }
 
 export interface EtapaDetail extends EtapaItem {
    pousos: number;
-   oi_etapas: OIEtapaItem[];
 }
 
 export async function getEtapaDetail(

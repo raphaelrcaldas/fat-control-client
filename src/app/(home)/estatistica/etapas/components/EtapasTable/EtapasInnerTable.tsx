@@ -1,6 +1,5 @@
 "use client";
 
-import { useCallback } from "react";
 import {
    Checkbox,
    Table,
@@ -71,10 +70,7 @@ export function EtapasInnerTable({
                   <TableHeadCell className="w-16">ARR</TableHeadCell>
                   <TableHeadCell className="w-18">TV</TableHeadCell>
                   <TableHeadCell className="w-20">Aeronave</TableHeadCell>
-                  <TableHeadCell className="w-14 whitespace-nowrap">
-                     COD OI
-                  </TableHeadCell>
-                  <TableHeadCell className="w-64">Esforço Aereo</TableHeadCell>
+                  <TableHeadCell className="w-68">Esforço Aéreo</TableHeadCell>
                   <TableHeadCell>Tripulação</TableHeadCell>
                   <TableHeadCell className="w-10" />
                </TableRow>
@@ -91,8 +87,7 @@ export function EtapasInnerTable({
                      arr={etapa.arr}
                      tvoo={etapa.tvoo}
                      anv={etapa.anv}
-                     tipo_missao_cod={etapa.tipo_missao_cod}
-                     esf_aer_itens={etapa.esf_aer_itens}
+                     oi_etapas={etapa.oi_etapas}
                      tripulantes={etapa.tripulantes}
                      loading={loading}
                      sagem={etapa.sagem}

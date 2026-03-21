@@ -2,12 +2,12 @@
 
 import { memo, useMemo } from "react";
 import clsx from "clsx";
-import { HiEye, HiPencilAlt } from "react-icons/hi";
+import { HiEye, HiMoon, HiPencilAlt, HiSun } from "react-icons/hi";
+import { GiOwl } from "react-icons/gi";
 import {
    FUNC_BORDO_ORDER,
    FUNC_ORDER,
    getFuncColors,
-   type FuncType,
 } from "@/constants/tripulantes/funcoes";
 import { Checkbox, TableCell, TableRow } from "flowbite-react";
 import {
@@ -15,8 +15,17 @@ import {
    formatTime,
    minutesToTime,
 } from "@/../utils/dateHandler";
-import type { TripEtapaItem } from "services/routes/estatistica/etapas";
+import type {
+   TripEtapaItem,
+   OIEtapaItem,
+} from "services/routes/estatistica/etapas";
 import { PermBased } from "@/app/(home)/hooks/usePermBased";
+
+const REG_ICON: Record<string, { icon: typeof HiSun; color: string }> = {
+   d: { icon: HiSun, color: "text-amber-500" },
+   n: { icon: HiMoon, color: "text-indigo-500" },
+   v: { icon: GiOwl, color: "text-emerald-500" },
+};
 
 export interface EtapaRowProps {
    id: number;
@@ -29,8 +38,7 @@ export interface EtapaRowProps {
    anv: string;
    sagem: boolean;
    parte1: boolean;
-   tipo_missao_cod: string | null;
-   esf_aer_itens: string[];
+   oi_etapas: OIEtapaItem[];
    tripulantes: TripEtapaItem[];
    loading: boolean;
    checked: boolean;
@@ -48,8 +56,7 @@ export const EtapaRow = memo(function EtapaRow({
    arr,
    tvoo,
    anv,
-   tipo_missao_cod,
-   esf_aer_itens,
+   oi_etapas,
    tripulantes,
    sagem,
    parte1,
@@ -119,27 +126,53 @@ export const EtapaRow = memo(function EtapaRow({
             {minutesToTime(tvoo)}
          </TableCell>
          <TableCell className="text-gray-900">{anv}</TableCell>
-         <TableCell className="text-gray-700 uppercase">
-            {tipo_missao_cod}
-         </TableCell>
-         <TableCell className="w-64">
-            {esf_aer_itens.length > 0 ? (
-               <ul className="space-y-0.5">
-                  {esf_aer_itens.map((item) => (
-                     <li
-                        key={item}
-                        className={clsx(
-                           "px-3 py-0.5 text-sm font-medium whitespace-nowrap",
-                           {
-                              "text-blue-600": item.includes("COMAE"),
-                              "text-amber-600": item.includes("COMPREP"),
-                              "text-gray-600": item.includes("DCTA"),
-                           }
-                        )}
-                     >
-                        {item}
-                     </li>
-                  ))}
+         <TableCell>
+            {oi_etapas.length > 0 ? (
+               <ul className="flex h-full flex-col items-center justify-center space-y-1">
+                  {oi_etapas.map((oi, i) => {
+                     const reg = REG_ICON[oi.reg];
+                     const RegIcon = reg?.icon ?? HiSun;
+                     return (
+                        <li
+                           key={`${oi.esf_aer_id}-${oi.tipo_missao_id}-${oi.reg}`}
+                           className={clsx(
+                              "flex w-fit items-center justify-center gap-1 rounded px-2 py-1 text-[11px] font-medium whitespace-nowrap"
+                           )}
+                        >
+                           <span
+                              className={clsx(
+                                 "",
+                                 oi.esf_aer.includes("COMAE")
+                                    ? "text-blue-700"
+                                    : oi.esf_aer.includes("COMPREP")
+                                      ? "text-amber-700"
+                                      : "text-gray-600"
+                              )}
+                           >
+                              {oi.esf_aer}
+                           </span>
+                           <span className="text-gray-300">|</span>
+                           <span
+                              className={clsx(
+                                 "font-mono",
+                                 reg?.color ?? "text-gray-500"
+                              )}
+                           >
+                              {minutesToTime(oi.tvoo)}
+                           </span>
+                           <RegIcon
+                              className={clsx(
+                                 "h-3 w-3 shrink-0",
+                                 reg?.color ?? "text-gray-500"
+                              )}
+                           />
+                           <span className="text-gray-300">|</span>
+                           <span className="font-mono uppercase">
+                              {oi.tipo_missao_cod}
+                           </span>
+                        </li>
+                     );
+                  })}
                </ul>
             ) : (
                <span className="text-gray-300">&mdash;</span>
