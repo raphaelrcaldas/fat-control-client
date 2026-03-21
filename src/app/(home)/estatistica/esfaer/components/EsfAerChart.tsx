@@ -129,7 +129,7 @@ export function EsfAerChartLine({
             borderColor: "#E5E7EB",
          },
       }),
-      [chartData.voadoMax]
+      [totalAlocado, chartData.voadoMax]
    );
 
    const chartSeries = useMemo(
