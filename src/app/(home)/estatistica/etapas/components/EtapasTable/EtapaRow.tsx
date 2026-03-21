@@ -91,8 +91,8 @@ export const EtapaRow = memo(function EtapaRow({
             "bg-white",
             loading && "opacity-50",
             !sagem
-               ? "bg-amber-100 hover:bg-amber-200"
-               : !parte1 && "bg-green-100 hover:bg-green-200"
+               ? "bg-amber-50 hover:bg-amber-100"
+               : !parte1 && "bg-green-50 hover:bg-green-100"
          )}
       >
          <TableCell className="w-10">

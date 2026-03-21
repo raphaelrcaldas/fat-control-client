@@ -40,64 +40,37 @@ export default function SidebarWithFooter({
    };
 
    const filteredNavItems = useMemo(() => {
-      return navItems
-         .filter((item) => {
-            // Verifica permissão baseada em roles do item principal
-            if (item.roles && item.roles.length > 0) {
-               if (!hasRole(item.roles)) {
-                  return false;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const result: any[] = [];
+
+      for (const item of navItems) {
+         // Verifica permissão baseada em roles do item principal
+         if (item.roles && item.roles.length > 0) {
+            if (!hasRole(item.roles)) continue;
+         }
+
+         // Se for um collapse, filtra os filhos numa única passagem
+         if (item.type === "collapse" && item.children) {
+            const filteredChildren = item.children.filter((child) => {
+               if ("resource" in child && "permission" in child) {
+                  return hasPerm(child.resource, child.permission);
                }
-            }
-
-            // Se for um collapse, filtra os filhos
-            if (item.type === "collapse" && item.children) {
-               const filteredChildren = item.children.filter((child: any) => {
-                  // Verifica permissão por resource e permission
-                  if (child.resource && child.permission) {
-                     return hasPerm(child.resource, child.permission);
-                  }
-
-                  // Verifica permissão por roles
-                  if (child.roles && child.roles.length > 0) {
-                     return hasRole(child.roles);
-                  }
-
-                  return true;
-               });
-
-               // Retorna o item com os filhos filtrados, ou não retorna se não houver filhos visíveis
-               if (filteredChildren.length > 0) {
-                  return true;
+               if ("roles" in child && child.roles.length > 0) {
+                  return hasRole(child.roles);
                }
+               return true;
+            });
 
-               return false;
+            if (filteredChildren.length > 0) {
+               result.push({ ...item, children: filteredChildren });
             }
+            continue;
+         }
 
-            return true;
-         })
-         .map((item) => {
-            // Cria uma cópia do item com os filhos filtrados
-            if (item.type === "collapse" && item.children) {
-               const filteredChildren = item.children.filter((child: any) => {
-                  if (child.resource && child.permission) {
-                     return hasPerm(child.resource, child.permission);
-                  }
+         result.push(item);
+      }
 
-                  if (child.roles && child.roles.length > 0) {
-                     return hasRole(child.roles);
-                  }
-
-                  return true;
-               });
-
-               return {
-                  ...item,
-                  children: filteredChildren,
-               };
-            }
-
-            return item;
-         });
+      return result;
    }, [hasRole, hasPerm]);
 
    return (

@@ -1,6 +1,13 @@
 import { useAuth } from "@/app/context/auth";
+import type { ReactNode } from "react";
 
-export const PermBased = ({ children, resource, requiredPerm }) => {
+interface PermBasedProps {
+   children: ReactNode;
+   resource: string;
+   requiredPerm: string;
+}
+
+export const PermBased = ({ children, resource, requiredPerm }: PermBasedProps) => {
    const { role, perms } = useAuth();
 
    if (role === "admin") {
@@ -8,7 +15,7 @@ export const PermBased = ({ children, resource, requiredPerm }) => {
    }
 
    const checkPerm = perms.find(
-      (p) => p.resource == resource && p.name == requiredPerm
+      (p) => p.resource === resource && p.name === requiredPerm
    );
 
    if (!role || !checkPerm) {
@@ -21,7 +28,7 @@ export const PermBased = ({ children, resource, requiredPerm }) => {
 export const usePermBased = () => {
    const { role, perms } = useAuth();
 
-   const hasPerm = (resource, requiredPerm) => {
+   const hasPerm = (resource?: string, requiredPerm?: string) => {
       if (role === "admin") {
          return true;
       }

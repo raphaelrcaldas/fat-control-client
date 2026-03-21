@@ -63,20 +63,26 @@ export default function SidebarCollapse({
          </button>
 
          {/* Submenu */}
-         {isOpen && (
-            <div className="ml-4 space-y-1 border-l-2 border-gray-200 pl-1">
-               {item.children?.map((child) => (
-                  <SidebarItem
-                     key={child.path}
-                     item={child}
-                     isMobile={isMobile}
-                     isActive={pathname === child.path}
-                     onClick={onClick}
-                     isChild
-                  />
-               ))}
+         <div
+            className={`grid transition-[grid-template-rows] duration-200 ease-in-out ${
+               isOpen ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
+            }`}
+         >
+            <div className="overflow-hidden">
+               <div className="ml-4 space-y-1 border-l-2 border-gray-200 pl-1">
+                  {item.children?.map((child) => (
+                     <SidebarItem
+                        key={child.path}
+                        item={child}
+                        isMobile={isMobile}
+                        isActive={pathname === child.path}
+                        onClick={onClick}
+                        isChild
+                     />
+                  ))}
+               </div>
             </div>
-         )}
+         </div>
       </div>
    );
 }

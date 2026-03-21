@@ -152,7 +152,7 @@ export const navItems = [
       type: "collapse",
       icon: MdSchool,
       label: "Instrução",
-      roles: ["instrucao"],
+      roles: ["dout_avancado", "dout_basico"],
       children: [
          {
             icon: MdTranslate,
