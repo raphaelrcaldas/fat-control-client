@@ -21,9 +21,9 @@ const defaultInfoCols: Record<InfoColumn, boolean> = {
 function SeboPage() {
    const [activeRow, setActiveRow] = useState(0);
 
-   const [opIn, setOpIn] = useState(true);
-   const [opOp, setOpOp] = useState(true);
-   const [opAl, setOpAl] = useState(false);
+   const [opIn, setOpIn] = usePersistedState("estatistica.seboOpIn", true);
+   const [opOp, setOpOp] = usePersistedState("estatistica.seboOpOp", true);
+   const [opAl, setOpAl] = usePersistedState("estatistica.seboOpAl", false);
 
    const [infoCols, setInfoCols] = usePersistedState<Record<InfoColumn, boolean>>(
       "estatistica.seboInfoCols",

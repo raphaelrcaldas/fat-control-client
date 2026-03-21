@@ -101,7 +101,7 @@ const FilterPanel = ({
 
    return (
       <div className="space-y-4 rounded-xl bg-white p-4 shadow-lg">
-         <div className="grid gap-4 sm:flex sm:items-end">
+         <div className="grid gap-6 sm:flex sm:items-end">
             <div className="">
                <label className="mb-2 block text-center text-sm font-medium text-gray-700">
                   Função
@@ -122,7 +122,7 @@ const FilterPanel = ({
                <label className="mb-3 block text-center text-sm font-medium text-gray-700">
                   Operacionalidade
                </label>
-               <div className="flex flex-wrap gap-3">
+               <div className="flex flex-wrap gap-1">
                   {operationFilters.map((filter) => (
                      <button
                         key={filter.id}
@@ -137,8 +137,8 @@ const FilterPanel = ({
                               : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                         } transform hover:scale-105 active:scale-95`}
                      >
-                        <span className="flex items-center gap-2">
-                           {filter.checked ? (
+                        <span className="w-8 gap-1 text-center p-1">
+                           {/* {filter.checked ? (
                               <svg
                                  className="h-5 w-5"
                                  fill="currentColor"
@@ -164,7 +164,7 @@ const FilterPanel = ({
                                     d="M6 18L18 6M6 6l12 12"
                                  />
                               </svg>
-                           )}
+                           )} */}
                            {filter.label}
                         </span>
                      </button>
@@ -176,7 +176,7 @@ const FilterPanel = ({
             {seboFunc === "pil" && (
                <div className="flex flex-col items-center">
                   <label className="mb-3 block text-sm font-medium text-gray-700">
-                     Somente O3
+                     OE
                   </label>
                   <button
                      onClick={() => setSoO3(!soO3)}
@@ -186,7 +186,33 @@ const FilterPanel = ({
                            : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                      } transform hover:scale-105 active:scale-95`}
                   >
-                     O3
+                     {soO3 ? (
+                        <svg
+                           className="h-5 w-5"
+                           fill="currentColor"
+                           viewBox="0 0 20 20"
+                        >
+                           <path
+                              fillRule="evenodd"
+                              d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                              clipRule="evenodd"
+                           />
+                        </svg>
+                     ) : (
+                        <svg
+                           className="h-5 w-5"
+                           fill="none"
+                           stroke="currentColor"
+                           viewBox="0 0 24 24"
+                        >
+                           <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M6 18L18 6M6 6l12 12"
+                           />
+                        </svg>
+                     )}
                   </button>
                </div>
             )}
@@ -194,9 +220,9 @@ const FilterPanel = ({
             {/* Colunas Info */}
             <div>
                <label className="mb-3 block text-center text-sm font-medium text-gray-700">
-                  Informações
+                  Cartões
                </label>
-               <div className="flex flex-wrap gap-2">
+               <div className="flex flex-wrap gap-1">
                   {INFO_COLUMNS.map((col) => (
                      <button
                         key={col}
