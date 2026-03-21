@@ -28,7 +28,8 @@ export interface EsfAerResumoItem {
    alocado: number;
    voado: number;
    saldo: number;
-   meses: number[];
+   meses_sagem: number[];
+   meses_voados: number[];
 }
 
 export interface EsfAerResumoResponse {
@@ -36,7 +37,8 @@ export interface EsfAerResumoResponse {
    total_alocado: number;
    total_voado: number;
    total_saldo: number;
-   total_meses: number[];
+   total_meses_sagem: number[];
+   total_meses_voados: number[];
 }
 
 export interface EsfAerUpdateItem {
@@ -47,6 +49,7 @@ export interface EsfAerUpdateItem {
    subprograma: string;
    aplicacao: string;
    horas_alocadas: number;
+   meses_sagem: number[];
 }
 
 export interface EsfAerUpdateRequest {
@@ -56,8 +59,8 @@ export interface EsfAerUpdateRequest {
 
 export interface EsfAerDiffRow {
    descricao: string;
-   antes: number;
-   depois: number;
+   antes: number | null;
+   depois: number | null;
 }
 
 export interface EsfAerImportResponse {
@@ -100,7 +103,8 @@ export async function getEsfAerResumo(
          total_alocado: 0,
          total_voado: 0,
          total_saldo: 0,
-         total_meses: Array(12).fill(0),
+         total_meses_sagem: Array(12).fill(0),
+         total_meses_voados: Array(12).fill(0),
       }
    );
 }

@@ -8,6 +8,7 @@ import { YEAR_OPTIONS } from "./constants";
 import { getGroupSummaries } from "./utils";
 import { EsfAerGroupCards } from "./components/EsfAerGroupCards";
 import { EsfAerTable } from "./components/EsfAerTable";
+import { EsfAerAlertTable } from "./components/EsfAerAlertTable";
 import { EsfAerChartLine, EsfAerChartTable } from "./components/EsfAerChart";
 import { ImportModal } from "./components/ImportModal";
 import { PermBased } from "../../hooks/usePermBased";
@@ -24,24 +25,23 @@ export default function EsfAerPage() {
 
    const allItems = data?.items ?? [];
 
-   const { items, totalAlocado, totalVoado, totalSaldo, totalMeses } =
+   const { items, totalAlocado, totalVoado, totalSaldo, totalMesesVoados } =
       useMemo(() => {
          const filtered = showSimulador
             ? allItems
             : allItems.filter((i) => !i.descricao.includes("SML"));
+
+         const zeros = () => Array(12).fill(0) as number[];
 
          return {
             items: filtered,
             totalAlocado: filtered.reduce((s, i) => s + i.alocado, 0),
             totalVoado: filtered.reduce((s, i) => s + i.voado, 0),
             totalSaldo: filtered.reduce((s, i) => s + i.saldo, 0),
-            totalMeses: filtered.reduce(
-               (acc, i) => {
-                  i.meses.forEach((v, idx) => (acc[idx] += v));
-                  return acc;
-               },
-               Array(12).fill(0) as number[]
-            ),
+            totalMesesVoados: filtered.reduce((acc, i) => {
+               i.meses_voados.forEach((v, idx) => (acc[idx] += v));
+               return acc;
+            }, zeros()),
          };
       }, [allItems, showSimulador]);
 
@@ -70,6 +70,7 @@ export default function EsfAerPage() {
                   <Checkbox
                      id="showSimulador"
                      checked={showSimulador}
+                     color="red"
                      onChange={(e) => setShowSimulador(e.target.checked)}
                   />
                   <Label
@@ -82,7 +83,7 @@ export default function EsfAerPage() {
 
                <PermBased resource="esfaer" requiredPerm="create">
                   <Button
-                     color="blue"
+                     color="red"
                      size="sm"
                      onClick={() => setShowImportModal(true)}
                   >
@@ -122,25 +123,29 @@ export default function EsfAerPage() {
                   isRefetching && "pointer-events-none opacity-50"
                )}
             >
-               <EsfAerGroupCards groups={groupSummaries} />
+               <PermBased resource="esfaer" requiredPerm="create">
+                  <EsfAerAlertTable items={items} />
+               </PermBased>
                <EsfAerTable
                   items={items}
                   totalAlocado={totalAlocado}
                   totalVoado={totalVoado}
                   totalSaldo={totalSaldo}
-                  totalMeses={totalMeses}
+                  totalMesesVoados={totalMesesVoados}
                />
+               <EsfAerGroupCards groups={groupSummaries} />
+
                <div className="col-span-full grid grid-cols-1 gap-4 lg:grid-cols-3">
                   <div className="lg:col-span-2">
                      <EsfAerChartLine
                         totalAlocado={totalAlocado}
-                        totalMeses={totalMeses}
+                        totalMeses={totalMesesVoados}
                      />
                   </div>
                   <div className="lg:col-span-1">
                      <EsfAerChartTable
                         totalAlocado={totalAlocado}
-                        totalMeses={totalMeses}
+                        totalMeses={totalMesesVoados}
                      />
                   </div>
                </div>

@@ -46,6 +46,7 @@ function toUpdateItems(rows: EsfAerImportRow[]): EsfAerUpdateItem[] {
       subprograma: r.subprograma,
       aplicacao: r.aplicacao,
       horas_alocadas: r.horasAlocadas,
+      meses_sagem: r.meses,
    }));
 }
 
@@ -386,7 +387,7 @@ export function ImportModal({ show, setShow, anoRef }: ImportModalProps) {
          {/* Modal de Resultado - Comparação */}
          <Modal
             show={!!importResult && hasChanges(importResult)}
-            size="2xl"
+            size="3xl"
             onClose={() => setImportResult(null)}
             dismissible
          >
@@ -420,7 +421,11 @@ export function ImportModal({ show, setShow, anoRef }: ImportModalProps) {
                            </TableHead>
                            <TableBody className="divide-y">
                               {importResult.rows.map((row, i) => {
-                                 const diff = row.depois - row.antes;
+                                 const antes = row.antes ?? 0;
+                                 const depois = row.depois ?? 0;
+                                 const diff = depois - antes;
+                                 const isNew = row.antes === null;
+                                 const isRemoved = row.depois === null;
                                  return (
                                     <TableRow
                                        key={i}
@@ -434,10 +439,22 @@ export function ImportModal({ show, setShow, anoRef }: ImportModalProps) {
                                           {row.descricao}
                                        </TableCell>
                                        <TableCell className="px-3 py-2">
-                                          {minutesToTime(row.antes)}
+                                          {isNew ? (
+                                             <span className="text-xs text-gray-400">
+                                                novo
+                                             </span>
+                                          ) : (
+                                             minutesToTime(antes)
+                                          )}
                                        </TableCell>
                                        <TableCell className="px-3 py-2">
-                                          {minutesToTime(row.depois)}
+                                          {isRemoved ? (
+                                             <span className="text-xs text-gray-400">
+                                                removido
+                                             </span>
+                                          ) : (
+                                             minutesToTime(depois)
+                                          )}
                                        </TableCell>
                                        <TableCell
                                           className={clsx(

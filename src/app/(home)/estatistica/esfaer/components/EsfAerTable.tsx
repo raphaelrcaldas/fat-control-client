@@ -17,7 +17,7 @@ interface EsfAerTableProps {
    totalAlocado: number;
    totalVoado: number;
    totalSaldo: number;
-   totalMeses: number[];
+   totalMesesVoados: number[];
 }
 
 export function EsfAerTable({
@@ -25,7 +25,7 @@ export function EsfAerTable({
    totalAlocado,
    totalVoado,
    totalSaldo,
-   totalMeses,
+   totalMesesVoados,
 }: EsfAerTableProps) {
    return (
       <div className="rounded-lg border border-gray-200 bg-white">
@@ -33,8 +33,8 @@ export function EsfAerTable({
             striped
             theme={{
                root: { base: "text-sm text-center" },
-               body: { cell: { base: "px-4" } },
-               head: { cell: { base: "px-4 bg-gray-200" } },
+               body: { cell: { base: "px-3" } },
+               head: { cell: { base: "px-3 bg-gray-200" } },
             }}
          >
             <TableHead>
@@ -78,7 +78,7 @@ export function EsfAerTable({
                      >
                         {formatMinutes(item.saldo)}
                      </TableCell>
-                     {item.meses.map((val, i) => (
+                     {item.meses_voados.map((val, i) => (
                         <TableCell
                            key={MONTH_LABELS[i]}
                            className={clsx("text-slate-300", {
@@ -105,7 +105,7 @@ export function EsfAerTable({
                   <TableCell className="border-r border-gray-300 bg-gray-300">
                      {formatMinutes(totalSaldo)}
                   </TableCell>
-                  {totalMeses.map((val, i) => (
+                  {totalMesesVoados.map((val, i) => (
                      <TableCell key={MONTH_LABELS[i]} className="bg-gray-300">
                         {minutesToTime(val)}
                      </TableCell>
