@@ -118,6 +118,16 @@ const SeboTable = ({ trips, activeRow, setRow, isLoading, infoCols }: SeboTableP
                         CRM
                      </TableHeadCell>
                   )}
+                  {infoCols.val_pass && (
+                     <TableHeadCell className="hidden text-center md:table-cell">
+                        PASS
+                     </TableHeadCell>
+                  )}
+                  {infoCols.val_visa && (
+                     <TableHeadCell className="hidden text-center md:table-cell">
+                        VISA
+                     </TableHeadCell>
+                  )}
                   <TableHeadCell className="text-center">ANO</TableHeadCell>
                </TableRow>
             </TableHead>
@@ -223,6 +233,38 @@ const SeboTable = ({ trips, activeRow, setRow, isLoading, infoCols }: SeboTableP
                                  <span className={getDateColor(trip.cartoes.crm)}>
                                     {trip.cartoes.crm
                                        ? isoDateToString(trip.cartoes.crm)
+                                       : "NIL"}
+                                 </span>
+                              </Tooltip>
+                           </TableCell>
+                        )}
+                        {infoCols.val_pass && (
+                           <TableCell className="hidden text-center md:table-cell">
+                              <Tooltip
+                                 content={getDateTooltip(
+                                    trip.cartoes.val_pass,
+                                    "Passaporte"
+                                 )}
+                              >
+                                 <span className={getDateColor(trip.cartoes.val_pass)}>
+                                    {trip.cartoes.val_pass
+                                       ? isoDateToString(trip.cartoes.val_pass)
+                                       : "NIL"}
+                                 </span>
+                              </Tooltip>
+                           </TableCell>
+                        )}
+                        {infoCols.val_visa && (
+                           <TableCell className="hidden text-center md:table-cell">
+                              <Tooltip
+                                 content={getDateTooltip(
+                                    trip.cartoes.val_visa,
+                                    "VISA"
+                                 )}
+                              >
+                                 <span className={getDateColor(trip.cartoes.val_visa)}>
+                                    {trip.cartoes.val_visa
+                                       ? isoDateToString(trip.cartoes.val_visa)
                                        : "NIL"}
                                  </span>
                               </Tooltip>

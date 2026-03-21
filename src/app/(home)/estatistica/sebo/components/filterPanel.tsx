@@ -3,6 +3,15 @@ import { useMemo } from "react";
 import { Select } from "flowbite-react";
 import { INFO_COLUMNS, type InfoColumn } from "../page";
 
+const INFO_LABELS: Record<InfoColumn, string> = {
+   cemal: "CEMAL",
+   tovn: "TOVN",
+   imae: "IMAE",
+   crm: "CRM",
+   val_pass: "PASS",
+   val_visa: "VISA",
+};
+
 interface FilterPanelProps {
    seboFunc: string;
    setSeboFunc: (value: string) => void;
@@ -200,7 +209,7 @@ const FilterPanel = ({
                               : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                         } transform hover:scale-105 active:scale-95`}
                      >
-                        {col}
+                        {INFO_LABELS[col]}
                      </button>
                   ))}
                </div>

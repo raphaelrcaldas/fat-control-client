@@ -11,32 +11,21 @@ import {
    Spinner,
 } from "flowbite-react";
 import { HiChevronUp, HiChevronDown } from "react-icons/hi";
-import { MdGroups } from "react-icons/md";
+import { FaPassport } from "react-icons/fa";
 import clsx from "clsx";
-import type { TripCrmOut } from "services/routes/seg-voo/crm";
+import type { TripPassaporteOut } from "services/routes/inteligencia/passaportes";
 import type { SortField, SortDirection } from "../types";
 import {
    getDateStatus,
    getStatusConfig,
    formatDate,
    getDaysRemaining,
-} from "@/utils/dateStatus";
+   getWorstStatus,
+} from "../utils/dateStatus";
 
-const SimpleDateCell = memo(function SimpleDateCell({
-   dateStr,
-}: {
-   dateStr: string | null | undefined;
-}) {
-   return <span className="text-sm text-gray-700">{formatDate(dateStr)}</span>;
-});
-
-const DOT_COLORS = {
-   valid: "bg-green-500",
-   warning: "bg-yellow-400",
-   critical: "bg-orange-500",
-   expired: "bg-red-500",
-   empty: "bg-gray-300",
-} as const;
+// ========================================
+// DateCell
+// ========================================
 
 const DateCell = memo(function DateCell({
    dateStr,
@@ -61,6 +50,10 @@ const DateCell = memo(function DateCell({
       </div>
    );
 });
+
+// ========================================
+// SortableHeader
+// ========================================
 
 interface SortableHeaderProps {
    label: string;
@@ -91,7 +84,7 @@ const SortableHeader = memo(function SortableHeader({
                   className={clsx(
                      "-mb-1 h-3 w-3",
                      isActive && direction === "asc"
-                        ? "text-red-600"
+                        ? "text-blue-600"
                         : "text-gray-400"
                   )}
                />
@@ -99,7 +92,7 @@ const SortableHeader = memo(function SortableHeader({
                   className={clsx(
                      "h-3 w-3",
                      isActive && direction === "desc"
-                        ? "text-red-600"
+                        ? "text-blue-600"
                         : "text-gray-400"
                   )}
                />
@@ -109,15 +102,34 @@ const SortableHeader = memo(function SortableHeader({
    );
 });
 
-const CrmRow = memo(function CrmRow({
+// ========================================
+// Dot color map
+// ========================================
+
+const DOT_COLORS = {
+   valid: "bg-green-500",
+   warning: "bg-yellow-400",
+   critical: "bg-orange-500",
+   expired: "bg-red-500",
+   empty: "bg-gray-300",
+} as const;
+
+// ========================================
+// PassaporteRow
+// ========================================
+
+const PassaporteRow = memo(function PassaporteRow({
    item,
    onClick,
 }: {
-   item: TripCrmOut;
-   onClick: (item: TripCrmOut) => void;
+   item: TripPassaporteOut;
+   onClick: (item: TripPassaporteOut) => void;
 }) {
-   const status = getDateStatus(item.crm?.data_validade);
-   const dotColor = DOT_COLORS[status];
+   const worst = getWorstStatus(
+      item.passaporte?.validade_passaporte,
+      item.passaporte?.validade_visa
+   );
+   const dotColor = DOT_COLORS[worst];
 
    return (
       <TableRow
@@ -127,7 +139,7 @@ const CrmRow = memo(function CrmRow({
          }
          tabIndex={0}
          role="button"
-         className="cursor-pointer border-b border-gray-200 transition-colors hover:bg-red-50"
+         className="cursor-pointer border-b border-gray-200 transition-colors hover:bg-blue-50"
       >
          <TableCell className="w-10 px-3 py-3">
             <span
@@ -140,27 +152,36 @@ const CrmRow = memo(function CrmRow({
             </p>
          </TableCell>
          <TableCell className="px-4 py-3 whitespace-nowrap">
-            <SimpleDateCell dateStr={item.crm?.data_realizacao} />
+            <span className="text-sm text-gray-700">
+               {item.passaporte?.passaporte || "---"}
+            </span>
          </TableCell>
          <TableCell className="px-4 py-3 whitespace-nowrap">
-            <DateCell dateStr={item.crm?.data_validade} />
+            <DateCell dateStr={item.passaporte?.validade_passaporte} />
+         </TableCell>
+         <TableCell className="px-4 py-3 whitespace-nowrap">
+            <DateCell dateStr={item.passaporte?.validade_visa} />
          </TableCell>
       </TableRow>
    );
 });
 
-interface CrmTableProps {
-   data: TripCrmOut[];
+// ========================================
+// PassaportesTable
+// ========================================
+
+interface PassaportesTableProps {
+   data: TripPassaporteOut[];
    isLoading: boolean;
    sortField: SortField | null;
    sortDirection: SortDirection;
    onSort: (field: SortField) => void;
-   onRowClick: (item: TripCrmOut) => void;
+   onRowClick: (item: TripPassaporteOut) => void;
    hasActiveFilters: boolean;
    onClearFilters: () => void;
 }
 
-const CrmTable = memo(function CrmTable({
+const PassaportesTable = memo(function PassaportesTable({
    data,
    isLoading,
    sortField,
@@ -169,7 +190,7 @@ const CrmTable = memo(function CrmTable({
    onRowClick,
    hasActiveFilters,
    onClearFilters,
-}: CrmTableProps) {
+}: PassaportesTableProps) {
    if (isLoading) {
       return (
          <div className="flex h-64 items-center justify-center">
@@ -181,14 +202,14 @@ const CrmTable = memo(function CrmTable({
    if (data.length === 0) {
       return (
          <div className="flex h-64 flex-col items-center justify-center">
-            <MdGroups className="mb-4 h-16 w-16 text-gray-300" />
+            <FaPassport className="mb-4 h-16 w-16 text-gray-300" />
             <p className="text-lg font-medium text-gray-500">
                Nenhum resultado encontrado
             </p>
             {hasActiveFilters && (
                <button
                   onClick={onClearFilters}
-                  className="mt-2 text-sm text-sky-600 hover:text-sky-700"
+                  className="mt-2 text-sm text-blue-600 hover:text-blue-700"
                >
                   Limpar filtros
                </button>
@@ -211,11 +232,18 @@ const CrmTable = memo(function CrmTable({
                      onSort={onSort}
                   />
                   <TableHeadCell className="px-4 py-3 font-semibold">
-                     Realização
+                     Passaporte
                   </TableHeadCell>
                   <SortableHeader
-                     label="Validade"
-                     field="validade"
+                     label="Validade Passaporte"
+                     field="validade_passaporte"
+                     currentSort={sortField}
+                     direction={sortDirection}
+                     onSort={onSort}
+                  />
+                  <SortableHeader
+                     label="Validade VISA"
+                     field="validade_visa"
                      currentSort={sortField}
                      direction={sortDirection}
                      onSort={onSort}
@@ -224,7 +252,11 @@ const CrmTable = memo(function CrmTable({
             </TableHead>
             <TableBody>
                {data.map((item) => (
-                  <CrmRow key={item.trip_id} item={item} onClick={onRowClick} />
+                  <PassaporteRow
+                     key={item.trip_id}
+                     item={item}
+                     onClick={onRowClick}
+                  />
                ))}
             </TableBody>
          </Table>
@@ -232,4 +264,4 @@ const CrmTable = memo(function CrmTable({
    );
 });
 
-export default CrmTable;
+export default PassaportesTable;

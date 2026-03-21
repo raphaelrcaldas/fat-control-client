@@ -14,54 +14,29 @@ import { HiTrash } from "react-icons/hi";
 import clsx from "clsx";
 import { useToast } from "@/app/context/toast";
 import { formatSaram } from "utils/validators";
-import { useUpsertCrm, useDeleteCrm } from "@/hooks/queries";
-import type { TripCrmOut, CrmUpsert } from "services/routes/seg-voo/crm";
-import {
-   getDateStatus,
-   getStatusConfig,
-} from "@/utils/dateStatus";
+import { useUpsertPassaporte, useDeletePassaporte } from "@/hooks/queries";
+import type {
+   TripPassaporteOut,
+   PassaporteUpsert,
+} from "services/routes/inteligencia/passaportes";
+import { getDateStatus, getStatusConfig } from "../utils/dateStatus";
 
 // ========================================
-// Campos de data
+// Status labels
 // ========================================
-
-// Campo simples — sem avaliação de status (usado para data de realização)
-function SimpleDateField({
-   label,
-   name,
-   value,
-   onChange,
-}: {
-   label: string;
-   name: string;
-   value: string;
-   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-}) {
-   return (
-      <div>
-         <Label htmlFor={name}>{label}</Label>
-         <div className="mt-1">
-            <TextInput
-               id={name}
-               name={name}
-               type="date"
-               value={value}
-               onChange={onChange}
-            />
-         </div>
-      </div>
-   );
-}
 
 const statusLabels = {
    valid: "Em dia",
-   warning: "Atenção (< 90 dias)",
-   critical: "Crítico (< 30 dias)",
+   warning: "Atencao (< 90 dias)",
+   critical: "Critico (< 30 dias)",
    expired: "Vencido",
    empty: "Sem data",
 } as const;
 
-// Campo com indicador de status — usado para data de validade
+// ========================================
+// ValidadeDateField
+// ========================================
+
 function ValidadeDateField({
    label,
    name,
@@ -100,40 +75,42 @@ function ValidadeDateField({
 }
 
 // ========================================
-// EditCrmDrawer
+// EditPassaporteDrawer
 // ========================================
 
-interface EditCrmDrawerProps {
+interface EditPassaporteDrawerProps {
    show: boolean;
    onClose: () => void;
-   item: TripCrmOut;
+   item: TripPassaporteOut;
 }
 
-const EditCrmDrawer = memo(function EditCrmDrawer({
+const EditPassaporteDrawer = memo(function EditPassaporteDrawer({
    show,
    onClose,
    item,
-}: EditCrmDrawerProps) {
+}: EditPassaporteDrawerProps) {
    const { push } = useToast();
-   const isEdit = !!item.crm;
+   const isEdit = !!item.passaporte;
 
-   const upsertMutation = useUpsertCrm();
-   const deleteMutation = useDeleteCrm();
+   const upsertMutation = useUpsertPassaporte();
+   const deleteMutation = useDeletePassaporte();
 
    const isLoading = upsertMutation.isPending;
    const isDeleting = deleteMutation.isPending;
 
    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
    const [formData, setFormData] = useState({
-      data_realizacao: item.crm?.data_realizacao || "",
-      data_validade: item.crm?.data_validade || "",
+      passaporte: item.passaporte?.passaporte || "",
+      validade_passaporte: item.passaporte?.validade_passaporte || "",
+      validade_visa: item.passaporte?.validade_visa || "",
    });
 
    useEffect(() => {
       if (show) {
          setFormData({
-            data_realizacao: item.crm?.data_realizacao || "",
-            data_validade: item.crm?.data_validade || "",
+            passaporte: item.passaporte?.passaporte || "",
+            validade_passaporte: item.passaporte?.validade_passaporte || "",
+            validade_visa: item.passaporte?.validade_visa || "",
          });
          setShowDeleteConfirm(false);
       }
@@ -141,52 +118,29 @@ const EditCrmDrawer = memo(function EditCrmDrawer({
 
    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       const { name, value } = e.target;
-      if (name === "data_realizacao" && value) {
-         const dt = new Date(value + "T00:00:00");
-         dt.setFullYear(dt.getFullYear() + 2);
-         const validade = dt.toISOString().split("T")[0];
-         setFormData((prev) => ({
-            ...prev,
-            data_realizacao: value,
-            data_validade: validade,
-         }));
-      } else {
-         setFormData((prev) => ({ ...prev, [name]: value }));
-      }
+      setFormData((prev) => ({ ...prev, [name]: value }));
    };
 
    const handleSave = async () => {
-      if (
-         formData.data_realizacao &&
-         formData.data_validade &&
-         formData.data_realizacao > formData.data_validade
-      ) {
-         push({
-            title: "Data inválida",
-            message: "A data de realização não pode ser maior que a de validade.",
-            type: "error",
-         });
-         return;
-      }
-
       try {
-         const data: CrmUpsert = {
-            data_realizacao: formData.data_realizacao || null,
-            data_validade: formData.data_validade || null,
+         const data: PassaporteUpsert = {
+            passaporte: formData.passaporte || null,
+            validade_passaporte: formData.validade_passaporte || null,
+            validade_visa: formData.validade_visa || null,
          };
 
          await upsertMutation.mutateAsync({ trip_id: item.trip_id, data });
 
          push({
             message: isEdit
-               ? "CRM atualizado com sucesso"
-               : "CRM cadastrado com sucesso",
+               ? "Passaporte atualizado com sucesso"
+               : "Passaporte cadastrado com sucesso",
             type: "success",
          });
          onClose();
       } catch (err: unknown) {
          const message =
-            err instanceof Error ? err.message : "Erro ao salvar CRM";
+            err instanceof Error ? err.message : "Erro ao salvar passaporte";
          push({ title: "Erro", message, type: "error" });
       }
    };
@@ -194,11 +148,11 @@ const EditCrmDrawer = memo(function EditCrmDrawer({
    const handleDelete = async () => {
       try {
          await deleteMutation.mutateAsync(item.trip_id);
-         push({ message: "CRM removido com sucesso", type: "success" });
+         push({ message: "Passaporte removido com sucesso", type: "success" });
          onClose();
       } catch (err: unknown) {
          const message =
-            err instanceof Error ? err.message : "Erro ao remover CRM";
+            err instanceof Error ? err.message : "Erro ao remover passaporte";
          push({ title: "Erro", message, type: "error" });
       } finally {
          setShowDeleteConfirm(false);
@@ -209,11 +163,11 @@ const EditCrmDrawer = memo(function EditCrmDrawer({
       <>
          <Modal show={show} onClose={onClose} size="md" dismissible>
             <ModalHeader>
-               {isEdit ? "Editar CRM" : "Cadastrar CRM"}
+               {isEdit ? "Editar Passaporte" : "Cadastrar Passaporte"}
             </ModalHeader>
             <ModalBody>
                <div className="space-y-6">
-                  {/* Informações do militar */}
+                  {/* Informacoes do militar */}
                   <div className="rounded-lg border bg-gray-50 p-4">
                      <p className="text-sm font-semibold uppercase text-gray-900">
                         {item.p_g} {item.nome_guerra}
@@ -232,18 +186,33 @@ const EditCrmDrawer = memo(function EditCrmDrawer({
 
                   <div className="border-t border-gray-200" />
 
-                  {/* Campos de data */}
+                  {/* Numero do passaporte */}
+                  <div>
+                     <Label htmlFor="passaporte">Passaporte</Label>
+                     <div className="mt-1">
+                        <TextInput
+                           id="passaporte"
+                           name="passaporte"
+                           type="text"
+                           placeholder="Ex: SC014119"
+                           value={formData.passaporte}
+                           onChange={handleChange}
+                        />
+                     </div>
+                  </div>
+
+                  {/* Datas de validade */}
                   <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                     <SimpleDateField
-                        label="Data de Realização"
-                        name="data_realizacao"
-                        value={formData.data_realizacao}
+                     <ValidadeDateField
+                        label="Validade Passaporte"
+                        name="validade_passaporte"
+                        value={formData.validade_passaporte}
                         onChange={handleChange}
                      />
                      <ValidadeDateField
-                        label="Data de Validade"
-                        name="data_validade"
-                        value={formData.data_validade}
+                        label="Validade VISA"
+                        name="validade_visa"
+                        value={formData.validade_visa}
                         onChange={handleChange}
                      />
                   </div>
@@ -292,17 +261,17 @@ const EditCrmDrawer = memo(function EditCrmDrawer({
             onClose={() => setShowDeleteConfirm(false)}
             size="md"
          >
-            <ModalHeader>Confirmar Exclusão</ModalHeader>
+            <ModalHeader>Confirmar Exclusao</ModalHeader>
             <ModalBody>
                <p className="text-gray-700">
-                  Tem certeza que deseja remover o CRM de{" "}
+                  Tem certeza que deseja remover o passaporte de{" "}
                   <strong className="uppercase">
                      {item.p_g} {item.nome_guerra}
                   </strong>
                   ?
                </p>
                <p className="mt-2 text-sm text-gray-500">
-                  Esta ação não pode ser desfeita.
+                  Esta acao nao pode ser desfeita.
                </p>
             </ModalBody>
             <ModalFooter>
@@ -326,4 +295,4 @@ const EditCrmDrawer = memo(function EditCrmDrawer({
    );
 });
 
-export default EditCrmDrawer;
+export default EditPassaporteDrawer;

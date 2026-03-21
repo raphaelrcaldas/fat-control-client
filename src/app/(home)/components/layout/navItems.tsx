@@ -19,6 +19,8 @@ import {
    MdGroups,
    MdSchool,
    MdTranslate,
+   MdPolicy,
+   MdBadge,
 } from "react-icons/md";
 import { FaUsers } from "react-icons/fa6";
 import { FaPaperPlane } from "react-icons/fa";
@@ -158,6 +160,19 @@ export const navItems = [
             icon: MdTranslate,
             label: "Idiomas",
             path: "/instrucao/idiomas",
+         },
+      ],
+   },
+   {
+      type: "collapse",
+      icon: MdPolicy,
+      label: "Inteligência",
+      roles: ["inteligencia"],
+      children: [
+         {
+            icon: MdBadge,
+            label: "Passaportes",
+            path: "/inteligencia/passaportes",
          },
       ],
    },

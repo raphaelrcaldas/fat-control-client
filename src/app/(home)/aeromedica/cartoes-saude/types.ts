@@ -1,4 +1,3 @@
-export type DateStatus = "valid" | "warning" | "critical" | "expired" | "empty";
 export type SortField = "militar" | "cemal" | "tovn" | "imae";
 export type SortDirection = "asc" | "desc";
 export type TripFilter = "all" | "trip" | "naoTrip";

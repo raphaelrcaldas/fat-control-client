@@ -4,11 +4,11 @@ import { memo } from "react";
 import { Badge, Progress } from "flowbite-react";
 import { MdWarning } from "react-icons/md";
 import clsx from "clsx";
-import type { DateStatus } from "../types";
+import type { DateStatus } from "@/utils/dateStatus";
 import {
    getDateStatus,
    getStatusConfig,
-} from "@/app/(home)/aeromedica/cartoes-saude/utils/dateStatus";
+} from "@/utils/dateStatus";
 import type { TripCrmOut } from "services/routes/seg-voo/crm";
 
 

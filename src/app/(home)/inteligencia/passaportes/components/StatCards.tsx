@@ -1,9 +1,10 @@
 "use client";
 
+import { memo } from "react";
 import { Badge, Progress } from "flowbite-react";
 import { MdWarning } from "react-icons/md";
-import { FaHeartPulse, FaEye } from "react-icons/fa6";
-import { FaSpaceShuttle } from "react-icons/fa";
+import { HiIdentification } from "react-icons/hi";
+import { FaPassport } from "react-icons/fa";
 import clsx from "clsx";
 import type { DateStatus } from "@/utils/dateStatus";
 import { getStatusConfig } from "../utils/dateStatus";
@@ -20,7 +21,6 @@ interface StatCardProps {
    total: number;
    counts: { valid: number; warning: number; critical: number; expired: number };
    urgent: number;
-   extra?: React.ReactNode;
 }
 
 function StatCard({
@@ -31,7 +31,6 @@ function StatCard({
    total,
    counts,
    urgent,
-   extra,
 }: StatCardProps) {
    const statuses: DateStatus[] = ["valid", "warning", "critical", "expired"];
 
@@ -99,9 +98,6 @@ function StatCard({
                );
             })}
          </div>
-
-         {/* Extra row */}
-         {extra}
       </div>
    );
 }
@@ -111,68 +107,42 @@ function StatCard({
 // ========================================
 
 interface StatCardsGridProps {
-   cemalStats: {
+   passaporteStats: {
       total: number;
       counts: { valid: number; warning: number; critical: number; expired: number };
    };
-   cemalScheduled: number;
-   imaeStats: {
-      total: number;
-      counts: { valid: number; warning: number; critical: number; expired: number };
-   };
-   tovnStats: {
+   visaStats: {
       total: number;
       counts: { valid: number; warning: number; critical: number; expired: number };
    };
 }
 
-export default function StatCardsGrid({
-   cemalStats,
-   cemalScheduled,
-   imaeStats,
-   tovnStats,
+const StatCardsGrid = memo(function StatCardsGrid({
+   passaporteStats,
+   visaStats,
 }: StatCardsGridProps) {
    return (
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
          <StatCard
-            icon={FaHeartPulse}
-            iconColor="text-rose-500"
-            iconBg="bg-rose-50"
-            label="CEMAL — Inspeção de Saúde"
-            total={cemalStats.total}
-            counts={cemalStats.counts}
-            urgent={cemalStats.counts.expired + cemalStats.counts.critical}
-            extra={
-               <div className="mt-3 flex items-center justify-between border-t border-gray-100 pt-3">
-                  <span className="text-xs text-gray-500">
-                     Com agendamento
-                  </span>
-                  <Badge color="info" size="sm">
-                     <span className="font-bold tabular-nums">
-                        {cemalScheduled} / {cemalStats.total}
-                     </span>
-                  </Badge>
-               </div>
-            }
+            icon={FaPassport}
+            iconColor="text-blue-600"
+            iconBg="bg-blue-50"
+            label="Passaporte"
+            total={passaporteStats.total}
+            counts={passaporteStats.counts}
+            urgent={passaporteStats.counts.expired + passaporteStats.counts.critical}
          />
          <StatCard
-            icon={FaSpaceShuttle}
-            iconColor="text-cyan-500"
-            iconBg="bg-cyan-50"
-            label="IMAE — Adaptação Fisiológica"
-            total={imaeStats.total}
-            counts={imaeStats.counts}
-            urgent={imaeStats.counts.expired + imaeStats.counts.critical}
-         />
-         <StatCard
-            icon={FaEye}
-            iconColor="text-emerald-500"
-            iconBg="bg-emerald-50"
-            label="TOVN — Visão Noturna"
-            total={tovnStats.total}
-            counts={tovnStats.counts}
-            urgent={tovnStats.counts.expired + tovnStats.counts.critical}
+            icon={HiIdentification}
+            iconColor="text-indigo-600"
+            iconBg="bg-indigo-50"
+            label="Visto Americano"
+            total={visaStats.total}
+            counts={visaStats.counts}
+            urgent={visaStats.counts.expired + visaStats.counts.critical}
          />
       </div>
    );
-}
+});
+
+export default StatCardsGrid;
