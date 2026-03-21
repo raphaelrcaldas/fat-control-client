@@ -12,6 +12,20 @@ const PER_PAGE_OPTIONS = [10, 15, 25, 50];
 const DEFAULT_PER_PAGE = 15;
 const DEFAULT_PAGE = 1;
 
+function toISODate(date: Date): string {
+   return date.toISOString().slice(0, 10);
+}
+
+function getDefaultDataIni(): string {
+   const d = new Date();
+   d.setDate(d.getDate() - 30);
+   return toISODate(d);
+}
+
+function getDefaultDataFim(): string {
+   return toISODate(new Date());
+}
+
 export { PER_PAGE_OPTIONS, DEFAULT_PER_PAGE };
 
 function useSyncDebouncedParam(
@@ -50,11 +64,22 @@ export function useEtapasFilters(grouped = true) {
    const urlDestino = searchParams.get("destino") ?? "";
    const urlTrip = searchParams.get("trip_search") ?? "";
    const urlEsfAer = searchParams.get("esf_aer") ?? "";
-   const urlDataIni = searchParams.get("data_ini") ?? "";
-   const urlDataFim = searchParams.get("data_fim") ?? "";
+   const urlDataIni = searchParams.get("data_ini") ?? getDefaultDataIni();
+   const urlDataFim = searchParams.get("data_fim") ?? getDefaultDataFim();
    const urlTipoMissao = searchParams.getAll("tipo_missao_cod");
    const currentPage = Number(searchParams.get("page")) || DEFAULT_PAGE;
    const perPage = Number(searchParams.get("per_page")) || DEFAULT_PER_PAGE;
+
+   // --- Seed default dates into URL on first render ---
+   useEffect(() => {
+      if (!searchParams.has("data_ini") || !searchParams.has("data_fim")) {
+         const params = new URLSearchParams(searchParams.toString());
+         if (!params.has("data_ini")) params.set("data_ini", getDefaultDataIni());
+         if (!params.has("data_fim")) params.set("data_fim", getDefaultDataFim());
+         router.replace(`?${params.toString()}`, { scroll: false });
+      }
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+   }, []);
 
    // --- Local state (text inputs with debounce) ---
    const [filterOrigem, setFilterOrigem] = useState(urlOrigem);
@@ -197,17 +222,11 @@ export function useEtapasFilters(grouped = true) {
       setFilterDestino("");
       setFilterTrip("");
       setFilterEsfAer("");
-      updateParams({
-         anv: undefined,
-         origem: undefined,
-         destino: undefined,
-         trip_search: undefined,
-         esf_aer: undefined,
-         tipo_missao_cod: undefined,
-         data_ini: undefined,
-         data_fim: undefined,
-      });
-   }, [updateParams]);
+      const params = new URLSearchParams();
+      params.set("data_ini", getDefaultDataIni());
+      params.set("data_fim", getDefaultDataFim());
+      router.replace(`?${params.toString()}`, { scroll: false });
+   }, [router]);
 
    // --- React Query ---
    const queryParams = {
@@ -237,17 +256,19 @@ export function useEtapasFilters(grouped = true) {
       ? (groupedQuery.data?.total_items ?? 0)
       : (flatQuery.data?.total ?? 0);
 
+   const hasCustomDataIni =
+      searchParams.has("data_ini") &&
+      searchParams.get("data_ini") !== getDefaultDataIni();
+   const hasCustomDataFim =
+      searchParams.has("data_fim") &&
+      searchParams.get("data_fim") !== getDefaultDataFim();
+
    const activeFilterCount =
       (urlAnv.length > 0 ? 1 : 0) +
       (urlTipoMissao.length > 0 ? 1 : 0) +
-      [
-         urlOrigem,
-         urlDestino,
-         urlTrip,
-         urlEsfAer,
-         urlDataIni,
-         urlDataFim,
-      ].filter(Boolean).length;
+      [urlOrigem, urlDestino, urlTrip, urlEsfAer].filter(Boolean).length +
+      (hasCustomDataIni ? 1 : 0) +
+      (hasCustomDataFim ? 1 : 0);
 
    const hasActiveFilters = activeFilterCount > 0;
    const isRefetching = !loading && isFetching;
