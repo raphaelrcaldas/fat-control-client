@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
 import { IoChevronDown } from "react-icons/io5";
 import SidebarItem from "./sidebarItem";
+import { usePersistedState } from "@/hooks/usePersistedState";
 import type { IconType } from "react-icons";
 
 interface SidebarCollapseProps {
@@ -35,7 +35,10 @@ export default function SidebarCollapse({
    const hasActiveChild = item.children?.some(
       (child) => pathname === child.path
    );
-   const [isOpen, setIsOpen] = useState(true);
+   const [isOpen, setIsOpen] = usePersistedState<boolean>(
+      `sidebar:${item.label}`,
+      true
+   );
 
    return (
       <div className="space-y-1">
