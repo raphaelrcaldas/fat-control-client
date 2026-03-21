@@ -20,3 +20,4 @@ export * from "./useSebo";
 export * from "./useCartoesSaude";
 export * from "./useAtas";
 export * from "./useCrm";
+export * from "./useIdiomas";

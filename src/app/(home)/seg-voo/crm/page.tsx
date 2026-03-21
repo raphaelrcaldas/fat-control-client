@@ -120,18 +120,16 @@ export default function CrmPage() {
 
    return (
       <div className="flex flex-col gap-4 p-1">
-         <div className="rounded-2xl border border-blue-100 bg-white p-4 shadow-xl">
-            <h1 className="mb-1 text-2xl font-bold text-blue-900">
+         <div className="rounded-2xl border border-red-100 bg-white p-4 shadow shadow-red-100">
+            <h1 className="mb-1 text-2xl font-bold text-red-900">
                CRM — Crew Resource Management
             </h1>
-            <p className="text-xs font-bold uppercase tracking-[0.2em] text-blue-400">
+            <p className="text-xs font-bold tracking-[0.2em] text-red-400 uppercase">
                O Homem · O Meio · A Máquina
             </p>
          </div>
 
-         {!isLoading && crmData.length > 0 && (
-               <StatCards data={crmData} />
-         )}
+         {!isLoading && crmData.length > 0 && <StatCards data={crmData} />}
 
          <div className="relative overflow-hidden bg-white shadow-md sm:rounded-lg">
             <Filters

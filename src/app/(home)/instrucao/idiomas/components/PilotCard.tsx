@@ -1,0 +1,358 @@
+"use client";
+
+import clsx from "clsx";
+import { memo, useState, useCallback } from "react";
+import type { TripIdiomasOut } from "services/routes/instrucao/idiomas";
+import type { IdiomStatus } from "../types";
+import {
+   getIdiomStatus,
+   getStatusColors,
+   getDiffDays,
+   getDaysLabel,
+   formatDate,
+} from "../utils/idiomaStatus";
+
+// ========================================
+// StatusBadge
+// ========================================
+
+function StatusBadge({
+   label,
+   status,
+   daysLabel,
+}: {
+   label: string;
+   status: IdiomStatus;
+   daysLabel: string;
+}) {
+   if (status === "empty") return null;
+   const colors = getStatusColors(status);
+   return (
+      <span
+         className="inline-flex items-center gap-1 rounded px-2 py-0.5 text-[11px] font-medium"
+         style={{
+            backgroundColor: colors.badgeBg,
+            border: `0.5px solid ${colors.badgeBorder}`,
+            color: colors.text,
+         }}
+      >
+         <span
+            className="h-1.5 w-1.5 shrink-0 rounded-full"
+            style={{ backgroundColor: colors.dot }}
+         />
+         {label} · {daysLabel}
+      </span>
+   );
+}
+
+// ========================================
+// FieldRow
+// ========================================
+
+function FieldRow({
+   label,
+   dateStr,
+}: {
+   label: string;
+   dateStr: string | null | undefined;
+}) {
+   if (!dateStr) {
+      return (
+         <div className="flex items-center justify-between border-b border-gray-100 py-1 last:border-0">
+            <span className="text-xs text-gray-500">{label}</span>
+            <span className="text-xs font-normal text-gray-300">—</span>
+         </div>
+      );
+   }
+   const status = getIdiomStatus(dateStr);
+   const colors = getStatusColors(status);
+   return (
+      <div className="flex items-center justify-between border-b border-gray-100 py-1 last:border-0">
+         <span className="text-xs text-gray-500">{label}</span>
+         <span className="flex items-center gap-1.5 text-xs font-medium">
+            <span
+               className="inline-block shrink-0 rounded-full"
+               style={{ backgroundColor: colors.dot, width: 7, height: 7 }}
+            />
+            <span className="font-mono text-sm">{formatDate(dateStr)}</span>
+            <span className="text-xs text-gray-400">
+               ({getDaysLabel(dateStr)})
+            </span>
+         </span>
+      </div>
+   );
+}
+
+// ========================================
+// LangCard
+// ========================================
+
+const LEVELS = ["A1", "A2", "B1", "B2"] as const;
+// Cor fixa por posição do pip (0=esquerda → 3=direita)
+const PIP_POSITION_COLORS = ["#EF9F27", "#F5C542", "#5DCAA5", "#1D9E75"];
+
+function LangCard({
+   lang,
+   level,
+   validity,
+}: {
+   lang: string;
+   level: string | null;
+   validity: string | null;
+}) {
+   if (!level) {
+      return (
+         <div className="mb-2 rounded-lg bg-gray-50 px-3 py-2.5">
+            <div className="text-xs font-medium text-gray-700">{lang}</div>
+            <div className="mt-0.5 text-[11px] text-gray-400">
+               Não cadastrado
+            </div>
+         </div>
+      );
+   }
+
+   const levelIdx = LEVELS.indexOf(level as (typeof LEVELS)[number]);
+   const status = getIdiomStatus(validity);
+   const colors = getStatusColors(status);
+
+   return (
+      <div className="mb-2 rounded-lg bg-gray-50 px-3 py-2.5">
+         <div className="mb-1 flex items-center justify-between">
+            <span className="text-xs font-medium text-gray-700">{lang}</span>
+            <span
+               className="rounded px-1.5 py-0.5 text-[11px] font-medium"
+               style={{
+                  backgroundColor: colors.badgeBg,
+                  border: `0.5px solid ${colors.badgeBorder}`,
+                  color: colors.text,
+               }}
+            >
+               {level}
+            </span>
+         </div>
+         <div className="mb-1 flex gap-1">
+            {PIP_POSITION_COLORS.map((color, i) => (
+               <div
+                  key={i}
+                  className="rounded-[3px]"
+                  style={{
+                     width: 24,
+                     height: 6,
+                     backgroundColor:
+                        i < LEVELS.length - levelIdx ? color : "#e5e7eb",
+                  }}
+               />
+            ))}
+         </div>
+         <div className="flex items-center justify-between">
+            <span className="text-[11px] text-gray-400">B2 → A1</span>
+            {validity && (
+               <span className="text-[11px]" style={{ color: colors.text }}>
+                  {formatDate(validity)} · {getDaysLabel(validity)}
+               </span>
+            )}
+         </div>
+      </div>
+   );
+}
+
+// ========================================
+// PilotCard
+// ========================================
+
+interface PilotCardProps {
+   pilot: TripIdiomasOut;
+   onEdit: (pilot: TripIdiomasOut) => void;
+}
+
+const PilotCard = memo(function PilotCard({ pilot, onEdit }: PilotCardProps) {
+   const [isExpanded, setIsExpanded] = useState(false);
+
+   const toggleExpanded = useCallback(() => setIsExpanded((v) => !v), []);
+
+   const handleKeyDown = useCallback(
+      (e: React.KeyboardEvent) => {
+         if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            toggleExpanded();
+         }
+      },
+      [toggleExpanded]
+   );
+
+   const ptaiStatus = getIdiomStatus(pilot.idiomas?.ptai_validade);
+   const taiSStatus = getIdiomStatus(pilot.idiomas?.tai_s_validade);
+
+   return (
+      <div
+         className={clsx(
+            "cursor-pointer rounded-xl border bg-white px-3 py-2 transition-all",
+            isExpanded
+               ? "border-red-200 shadow-md shadow-red-100"
+               : "border-gray-200"
+         )}
+      >
+         {/* Header */}
+         <div
+            role="button"
+            tabIndex={0}
+            aria-expanded={isExpanded}
+            onClick={toggleExpanded}
+            onKeyDown={handleKeyDown}
+         >
+            <div className="flex items-center gap-3">
+               {/* Avatar */}
+               <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-red-50 text-[13px] font-medium text-red-600">
+                  {pilot.p_g.toUpperCase()}
+               </div>
+
+               {/* Info */}
+               <div className="min-w-0 flex-1">
+                  <div className="truncate text-sm font-medium text-gray-900">
+                     {pilot.nome_guerra.toUpperCase()}
+                  </div>
+               </div>
+
+               {/* Badges — visíveis apenas em telas maiores */}
+               <div className="hidden flex-wrap gap-1.5 sm:flex">
+                  {pilot.idiomas?.ptai_validade && (
+                     <StatusBadge
+                        label="PTAI"
+                        status={ptaiStatus}
+                        daysLabel={getDaysLabel(pilot.idiomas.ptai_validade)}
+                     />
+                  )}
+                  {pilot.idiomas?.tai_s_validade && (
+                     <StatusBadge
+                        label="TAI S"
+                        status={taiSStatus}
+                        daysLabel={getDaysLabel(pilot.idiomas.tai_s_validade)}
+                     />
+                  )}
+                  {pilot.idiomas?.tai_s1_validade && (
+                     <StatusBadge
+                        label="TAI S1"
+                        status={taiSStatus}
+                        daysLabel={getDaysLabel(pilot.idiomas.tai_s1_validade)}
+                     />
+                  )}
+                  {pilot.idiomas?.hab_espanhol && (
+                     <span className="inline-flex items-center gap-1 rounded border border-green-200 bg-green-100 px-2 py-0.5 text-[11px] font-medium text-gray-600">
+                        ESP {pilot.idiomas.hab_espanhol}
+                     </span>
+                  )}
+                  {pilot.idiomas?.hab_ingles && (
+                     <span className="inline-flex items-center gap-1 rounded border border-blue-200 bg-blue-100 px-2 py-0.5 text-[11px] font-medium text-gray-600">
+                        ING {pilot.idiomas.hab_ingles}
+                     </span>
+                  )}
+               </div>
+
+               {/* Expand icon */}
+               <span
+                  className="shrink-0 text-sm text-gray-400 transition-transform duration-250 ease-in-out"
+                  style={{ transform: isExpanded ? "rotate(90deg)" : "" }}
+               >
+                  ▶
+               </span>
+            </div>
+
+            {/* Badges — visíveis apenas em telas pequenas, abaixo do nome */}
+            <div className="mt-2 flex flex-wrap gap-1.5 pl-12 sm:hidden">
+               {pilot.idiomas?.ptai_validade && (
+                  <StatusBadge
+                     label="PTAI"
+                     status={ptaiStatus}
+                     daysLabel={getDaysLabel(pilot.idiomas.ptai_validade)}
+                  />
+               )}
+               {pilot.idiomas?.tai_s_validade && (
+                  <StatusBadge
+                     label="TAI S"
+                     status={taiSStatus}
+                     daysLabel={getDaysLabel(pilot.idiomas.tai_s_validade)}
+                  />
+               )}
+               {pilot.idiomas?.tai_s1_validade && (
+                  <StatusBadge
+                     label="TAI S1"
+                     status={taiSStatus}
+                     daysLabel={getDaysLabel(pilot.idiomas.tai_s1_validade)}
+                  />
+               )}
+               {pilot.idiomas?.hab_espanhol && (
+                  <span className="inline-flex items-center gap-1 rounded border border-green-200 bg-green-100 px-2 py-0.5 text-[11px] font-medium text-gray-600">
+                     ESP {pilot.idiomas.hab_espanhol}
+                  </span>
+               )}
+               {pilot.idiomas?.hab_ingles && (
+                  <span className="inline-flex items-center gap-1 rounded border border-blue-200 bg-blue-100 px-2 py-0.5 text-[11px] font-medium text-gray-600">
+                     ING {pilot.idiomas.hab_ingles}
+                  </span>
+               )}
+            </div>
+         </div>
+
+         {/* Expanded body — grid-rows trick for height animation */}
+         <div
+            className="grid transition-[grid-template-rows] duration-250 ease-in-out"
+            style={{ gridTemplateRows: isExpanded ? "1fr" : "0fr" }}
+         >
+            <div className="overflow-hidden">
+               <div className="mt-3.5 border-t border-gray-100 pt-3.5">
+                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                     {/* Left: Provas e validações */}
+                     <div>
+                        <div className="mb-2 text-sm font-medium tracking-wider text-gray-500 uppercase">
+                           Provas e validações
+                        </div>
+                        <FieldRow
+                           label="PTAI"
+                           dateStr={pilot.idiomas?.ptai_validade}
+                        />
+                        <FieldRow
+                           label="TAI S"
+                           dateStr={pilot.idiomas?.tai_s_validade}
+                        />
+                        <FieldRow
+                           label="TAI S1"
+                           dateStr={pilot.idiomas?.tai_s1_validade}
+                        />
+                     </div>
+
+                     {/* Right: Habilidades linguísticas */}
+                     <div>
+                        <div className="mb-2 text-sm font-medium tracking-wider text-gray-500 uppercase">
+                           Habilidades linguísticas
+                        </div>
+                        <LangCard
+                           lang="Espanhol"
+                           level={pilot.idiomas?.hab_espanhol ?? null}
+                           validity={pilot.idiomas?.val_espanhol ?? null}
+                        />
+                        <LangCard
+                           lang="Inglês"
+                           level={pilot.idiomas?.hab_ingles ?? null}
+                           validity={pilot.idiomas?.val_ingles ?? null}
+                        />
+                        <div className="mt-3 flex justify-end">
+                           <button
+                              onClick={(e) => {
+                                 e.stopPropagation();
+                                 onEdit(pilot);
+                              }}
+                              className="text-sm text-blue-600 hover:underline"
+                           >
+                              Editar
+                           </button>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   );
+});
+
+export default PilotCard;

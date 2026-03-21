@@ -17,6 +17,8 @@ import {
    MdStorage,
    MdSecurity,
    MdGroups,
+   MdSchool,
+   MdTranslate,
 } from "react-icons/md";
 import { FaUsers } from "react-icons/fa6";
 import { FaPaperPlane } from "react-icons/fa";
@@ -143,6 +145,19 @@ export const navItems = [
             icon: MdGroups,
             label: "CRM",
             path: "/seg-voo/crm",
+         },
+      ],
+   },
+   {
+      type: "collapse",
+      icon: MdSchool,
+      label: "Instrução",
+      roles: ["instrucao"],
+      children: [
+         {
+            icon: MdTranslate,
+            label: "Idiomas",
+            path: "/instrucao/idiomas",
          },
       ],
    },

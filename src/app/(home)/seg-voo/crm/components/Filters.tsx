@@ -38,7 +38,7 @@ function FilterButton({
          className={clsx(
             "inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-sm font-medium transition-all",
             active
-               ? "border-blue-800 bg-blue-800 text-white"
+               ? "border-red-800 bg-red-800 text-white"
                : "border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
          )}
       >
@@ -165,7 +165,7 @@ const Filters = memo(function Filters({
                   <button
                      type="button"
                      onClick={onClearFilters}
-                     className="flex items-center gap-1 text-blue-800 hover:text-blue-900"
+                     className="flex items-center gap-1 text-red-800 hover:text-red-900"
                   >
                      <HiX className="h-4 w-4" />
                      <span>Limpar filtros</span>

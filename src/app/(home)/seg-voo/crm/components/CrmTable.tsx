@@ -27,9 +27,7 @@ const SimpleDateCell = memo(function SimpleDateCell({
 }: {
    dateStr: string | null | undefined;
 }) {
-   return (
-      <span className="text-sm text-gray-700">{formatDate(dateStr)}</span>
-   );
+   return <span className="text-sm text-gray-700">{formatDate(dateStr)}</span>;
 });
 
 const DOT_COLORS = {
@@ -83,7 +81,7 @@ const SortableHeader = memo(function SortableHeader({
 
    return (
       <TableHeadCell
-         className="cursor-pointer select-none px-4 py-3 font-semibold transition-colors hover:text-gray-900"
+         className="cursor-pointer px-4 py-3 font-semibold transition-colors select-none hover:text-gray-900"
          onClick={() => onSort(field)}
       >
          <div className="flex items-center gap-1">
@@ -93,7 +91,7 @@ const SortableHeader = memo(function SortableHeader({
                   className={clsx(
                      "-mb-1 h-3 w-3",
                      isActive && direction === "asc"
-                        ? "text-sky-600"
+                        ? "text-red-600"
                         : "text-gray-400"
                   )}
                />
@@ -101,7 +99,7 @@ const SortableHeader = memo(function SortableHeader({
                   className={clsx(
                      "h-3 w-3",
                      isActive && direction === "desc"
-                        ? "text-sky-600"
+                        ? "text-red-600"
                         : "text-gray-400"
                   )}
                />
@@ -124,17 +122,19 @@ const CrmRow = memo(function CrmRow({
    return (
       <TableRow
          onClick={() => onClick(item)}
-         onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && onClick(item)}
+         onKeyDown={(e) =>
+            (e.key === "Enter" || e.key === " ") && onClick(item)
+         }
          tabIndex={0}
          role="button"
-         className="cursor-pointer border-b border-gray-200 transition-colors hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500"
+         className="cursor-pointer border-b border-gray-200 transition-colors hover:bg-red-50"
       >
          <TableCell className="w-10 px-3 py-3">
             <span
                className={clsx("inline-block h-3 w-3 rounded-full", dotColor)}
             />
          </TableCell>
-         <TableCell className="px-4 py-3 font-medium whitespace-nowrap uppercase text-gray-900">
+         <TableCell className="px-4 py-3 font-medium whitespace-nowrap text-gray-900 uppercase">
             <p className="font-semibold">
                {item.p_g} {item.nome_guerra}
             </p>
@@ -200,7 +200,7 @@ const CrmTable = memo(function CrmTable({
    return (
       <div className="overflow-x-auto">
          <Table hoverable>
-            <TableHead className="border-b border-gray-200 bg-gray-50 text-xs uppercase text-gray-700">
+            <TableHead className="border-b border-gray-200 bg-gray-50 text-xs text-gray-700 uppercase">
                <TableRow>
                   <TableHeadCell className="w-10 px-3 py-3" />
                   <SortableHeader
@@ -224,11 +224,7 @@ const CrmTable = memo(function CrmTable({
             </TableHead>
             <TableBody>
                {data.map((item) => (
-                  <CrmRow
-                     key={item.trip_id}
-                     item={item}
-                     onClick={onRowClick}
-                  />
+                  <CrmRow key={item.trip_id} item={item} onClick={onRowClick} />
                ))}
             </TableBody>
          </Table>
