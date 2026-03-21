@@ -8,6 +8,7 @@ import type {
    MissaoComEtapas,
 } from "services/routes/estatistica/etapas";
 import { EtapasInnerTable } from "./EtapasInnerTable";
+import { PermBased } from "@/app/(home)/hooks/usePermBased";
 
 export interface MissaoCardProps {
    missao: MissaoComEtapas;
@@ -68,31 +69,33 @@ export const MissaoCard = memo(function MissaoCard({
                   {missao.obs}
                </span>
             )}
-            <div className="ml-auto flex items-center gap-1">
-               <button
-                  onClick={() => onAddEtapa(missao)}
-                  className="rounded-md p-1.5 text-gray-400 transition-colors hover:bg-green-50 hover:text-green-700"
-                  title="Adicionar etapa"
-               >
-                  <HiPlus className="h-4 w-4" />
-               </button>
-               <button
-                  onClick={() => onEditMissao(missao)}
-                  className="rounded-md p-1.5 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-700"
-                  title="Editar missao"
-               >
-                  <HiPencilAlt className="h-4 w-4" />
-               </button>
-               {!hasEtapas && (
+            <PermBased requiredPerm="create" resource="etp_mis">
+               <div className="ml-auto flex items-center gap-1">
                   <button
-                     onClick={() => onDeleteMissao(missao)}
-                     className="rounded-md p-1.5 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-600"
-                     title="Excluir missao"
+                     onClick={() => onAddEtapa(missao)}
+                     className="rounded-md p-1.5 text-gray-400 transition-colors hover:bg-green-50 hover:text-green-700"
+                     title="Adicionar etapa"
                   >
-                     <HiTrash className="h-4 w-4" />
+                     <HiPlus className="h-4 w-4" />
                   </button>
-               )}
-            </div>
+                  <button
+                     onClick={() => onEditMissao(missao)}
+                     className="rounded-md p-1.5 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-700"
+                     title="Editar missao"
+                  >
+                     <HiPencilAlt className="h-4 w-4" />
+                  </button>
+                  {!hasEtapas && (
+                     <button
+                        onClick={() => onDeleteMissao(missao)}
+                        className="rounded-md p-1.5 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-600"
+                        title="Excluir missao"
+                     >
+                        <HiTrash className="h-4 w-4" />
+                     </button>
+                  )}
+               </div>
+            </PermBased>
          </div>
 
          {/* Tabela de etapas ou mensagem vazia */}

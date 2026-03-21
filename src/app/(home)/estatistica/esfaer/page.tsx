@@ -10,6 +10,7 @@ import { EsfAerGroupCards } from "./components/EsfAerGroupCards";
 import { EsfAerTable } from "./components/EsfAerTable";
 import { EsfAerChartLine, EsfAerChartTable } from "./components/EsfAerChart";
 import { ImportModal } from "./components/ImportModal";
+import { PermBased } from "../../hooks/usePermBased";
 
 export default function EsfAerPage() {
    const currentYear = new Date().getFullYear();
@@ -78,13 +79,17 @@ export default function EsfAerPage() {
                      Exibir simulador
                   </Label>
                </div>
-               <Button
-                  color="blue"
-                  size="sm"
-                  onClick={() => setShowImportModal(true)}
-               >
-                  Importar
-               </Button>
+
+               <PermBased resource="esfaer" requiredPerm="create">
+                  <Button
+                     color="blue"
+                     size="sm"
+                     onClick={() => setShowImportModal(true)}
+                  >
+                     Importar
+                  </Button>
+               </PermBased>
+
                <Label htmlFor="anoRef" className="font-medium text-gray-700">
                   Ano Referência:
                </Label>

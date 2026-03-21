@@ -22,6 +22,7 @@ import { useEtapasFilters, PER_PAGE_OPTIONS } from "./hooks/useEtapasFilters";
 import { useEtapaSelection } from "./hooks/useEtapaSelection";
 import type { MissaoComEtapas } from "services/routes/estatistica/etapas";
 import clsx from "clsx";
+import { PermBased } from "../../hooks/usePermBased";
 
 export default function EtapasPage() {
    const [showFilters, setShowFilters] = useState(false);
@@ -63,14 +64,16 @@ export default function EtapasPage() {
                <h2>Etapas</h2>
 
                <div className="flex items-center gap-2">
-                  <Button
-                     color="red"
-                     size="sm"
-                     onClick={handleOpenCreateMissao}
-                  >
-                     <HiPlus className="mr-2 h-4 w-4" />
-                     Nova Missao
-                  </Button>
+                  <PermBased resource="etp_mis" requiredPerm="create">
+                     <Button
+                        color="red"
+                        size="sm"
+                        onClick={handleOpenCreateMissao}
+                     >
+                        <HiPlus className="mr-2 h-4 w-4" />
+                        Nova Missao
+                     </Button>
+                  </PermBased>
                   <Button
                      color="light"
                      size="sm"

@@ -16,6 +16,7 @@ import {
    minutesToTime,
 } from "@/../utils/dateHandler";
 import type { TripEtapaItem } from "services/routes/estatistica/etapas";
+import { PermBased } from "@/app/(home)/hooks/usePermBased";
 
 export interface EtapaRowProps {
    id: number;
@@ -162,13 +163,15 @@ export const EtapaRow = memo(function EtapaRow({
                >
                   <HiEye className="h-4 w-4" />
                </button>
-               <button
-                  onClick={() => onEditEtapa(id)}
-                  className="rounded-md p-1.5 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-700"
-                  title="Editar etapa"
-               >
-                  <HiPencilAlt className="h-4 w-4" />
-               </button>
+               <PermBased resource="etp_mis" requiredPerm="create">
+                  <button
+                     onClick={() => onEditEtapa(id)}
+                     className="rounded-md p-1.5 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-700"
+                     title="Editar etapa"
+                  >
+                     <HiPencilAlt className="h-4 w-4" />
+                  </button>
+               </PermBased>
             </div>
          </TableCell>
       </TableRow>
