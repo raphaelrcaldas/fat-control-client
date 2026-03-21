@@ -640,129 +640,119 @@ export function DetailComiss({
                   </p>
                </div>
 
-               <PermBased resource="comiss" requiredPerm="create">
-                  {/* Documentos */}
-                  <div className="hidden gap-4 md:grid md:grid-cols-3">
-                     <div className="rounded-xl border border-gray-200 bg-gray-50 p-4 text-center">
-                        <span className="block text-base font-semibold text-gray-900 uppercase">
-                           {comiss.doc_prop}
-                        </span>
-                        <span className="text-xs tracking-wide text-gray-500 uppercase">
-                           Proposta
-                        </span>
-                     </div>
-                     <div className="rounded-xl border border-gray-200 bg-gray-50 p-4 text-center">
-                        <span className="block text-base font-semibold text-gray-900 uppercase">
-                           {comiss.doc_aut}
-                        </span>
-                        <span className="text-xs tracking-wide text-gray-500 uppercase">
-                           Autorização
-                        </span>
-                     </div>
-                     <div className="rounded-xl border border-gray-200 bg-gray-50 p-4 text-center">
-                        <span className="block text-base font-semibold text-gray-900 uppercase">
-                           {comiss.doc_enc || "ND"}
-                        </span>
-                        <span className="text-xs tracking-wide text-gray-500 uppercase">
-                           Encerramento
-                        </span>
-                     </div>
+               {/* Documentos */}
+               <div className="hidden gap-4 md:grid md:grid-cols-3">
+                  <div className="rounded-xl border border-gray-200 bg-gray-50 p-4 text-center">
+                     <span className="block text-base font-semibold text-gray-900 uppercase">
+                        {comiss.doc_prop}
+                     </span>
+                     <span className="text-xs tracking-wide text-gray-500 uppercase">
+                        Proposta
+                     </span>
                   </div>
+                  <div className="rounded-xl border border-gray-200 bg-gray-50 p-4 text-center">
+                     <span className="block text-base font-semibold text-gray-900 uppercase">
+                        {comiss.doc_aut}
+                     </span>
+                     <span className="text-xs tracking-wide text-gray-500 uppercase">
+                        Autorização
+                     </span>
+                  </div>
+                  <div className="rounded-xl border border-gray-200 bg-gray-50 p-4 text-center">
+                     <span className="block text-base font-semibold text-gray-900 uppercase">
+                        {comiss.doc_enc || "ND"}
+                     </span>
+                     <span className="text-xs tracking-wide text-gray-500 uppercase">
+                        Encerramento
+                     </span>
+                  </div>
+               </div>
 
-                  {/* Datas e Valores */}
-                  <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
-                     {/* Abertura */}
-                     <div className="rounded-xl border border-emerald-200 bg-linear-to-br from-emerald-50 to-green-50 p-4 shadow-sm">
-                        <h4 className="mb-1 flex items-center gap-2 text-sm font-semibold text-emerald-800">
-                           <div className="h-2 w-2 rounded-full bg-emerald-500" />
-                           Abertura
-                        </h4>
-                        <div className="grid grid-cols-3 gap-4">
-                           <div className="text-center">
-                              <span className="block text-base font-semibold text-gray-900">
-                                 {data_abertura}
-                              </span>
-                              <span className="text-xs text-gray-500">
-                                 Data
-                              </span>
-                           </div>
-                           <div className="text-center">
-                              <span className="block text-base font-semibold text-gray-900">
-                                 {Number(comiss.qtd_aj_ab).toFixed(1)}
-                              </span>
-                              <span className="text-xs text-gray-500">
-                                 Ajuda de Custo
-                              </span>
-                           </div>
-                           <div className="text-center">
-                              <span className="block text-base font-semibold text-gray-900">
-                                 {realCurrency(comiss.valor_aj_ab)}
-                              </span>
-                              <span className="text-xs text-gray-500">
-                                 Valor
-                              </span>
-                           </div>
+               {/* Datas e Valores */}
+               <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
+                  {/* Abertura */}
+                  <div className="rounded-xl border border-emerald-200 bg-linear-to-br from-emerald-50 to-green-50 p-4 shadow-sm">
+                     <h4 className="mb-1 flex items-center gap-2 text-sm font-semibold text-emerald-800">
+                        <div className="h-2 w-2 rounded-full bg-emerald-500" />
+                        Abertura
+                     </h4>
+                     <div className="grid grid-cols-3 gap-4">
+                        <div className="text-center">
+                           <span className="block text-base font-semibold text-gray-900">
+                              {data_abertura}
+                           </span>
+                           <span className="text-xs text-gray-500">Data</span>
                         </div>
-                     </div>
-
-                     {/* Fechamento */}
-                     <div className="rounded-xl border border-orange-200 bg-linear-to-br from-orange-50 to-amber-50 p-4 shadow-sm">
-                        <h4 className="mb-1 flex items-center gap-2 text-sm font-semibold text-orange-800">
-                           <div className="h-2 w-2 rounded-full bg-orange-500" />
-                           Fechamento
-                        </h4>
-                        <div className="grid grid-cols-3 gap-4">
-                           <div className="text-center">
-                              <span className="block text-base font-semibold text-gray-900">
-                                 {data_fechamento}
-                              </span>
-                              <span className="text-xs text-gray-500">
-                                 Data Prevista
-                              </span>
-                           </div>
-                           <div className="text-center">
-                              <span className="block text-base font-semibold text-gray-900">
-                                 {Number(comiss.qtd_aj_fc).toFixed(1)}
-                              </span>
-                              <span className="text-xs text-gray-500">
-                                 Ajuda de Custo
-                              </span>
-                           </div>
-                           <div className="text-center">
-                              <span className="block text-base font-semibold text-gray-900">
-                                 {realCurrency(comiss.valor_aj_fc)}
-                              </span>
-                              <span className="text-xs text-gray-500">
-                                 Valor
-                              </span>
-                           </div>
+                        <div className="text-center">
+                           <span className="block text-base font-semibold text-gray-900">
+                              {Number(comiss.qtd_aj_ab).toFixed(1)}
+                           </span>
+                           <span className="text-xs text-gray-500">
+                              Ajuda de Custo
+                           </span>
+                        </div>
+                        <div className="text-center">
+                           <span className="block text-base font-semibold text-gray-900">
+                              {realCurrency(comiss.valor_aj_ab)}
+                           </span>
+                           <span className="text-xs text-gray-500">Valor</span>
                         </div>
                      </div>
                   </div>
-                  {/* Status e Informações */}
-                  <div className="grid grid-cols-3 gap-4">
-                     <div className="flex items-center justify-center gap-2 rounded-xl border border-gray-200 bg-gray-50 p-4">
-                        <span className="text-sm text-gray-600">Status:</span>
-                        <span className="text-sm font-semibold text-gray-900 uppercase">
-                           {comiss.status}
-                        </span>
-                     </div>
-                     <div className="flex items-center justify-center gap-2 rounded-xl border border-gray-200 bg-gray-50 p-4">
-                        <span className="text-sm text-gray-600">Módulo:</span>
-                        <span className="text-sm font-semibold text-gray-900 uppercase">
-                           {comiss.modulo ? "Sim" : "Não"}
-                        </span>
-                     </div>
-                     <div className="flex items-center justify-center gap-2 rounded-xl border border-gray-200 bg-gray-50 p-4">
-                        <span className="text-sm text-gray-600">
-                           Dependente:
-                        </span>
-                        <span className="text-sm font-semibold text-gray-900 uppercase">
-                           {comiss.dep ? "Sim" : "Não"}
-                        </span>
+
+                  {/* Fechamento */}
+                  <div className="rounded-xl border border-orange-200 bg-linear-to-br from-orange-50 to-amber-50 p-4 shadow-sm">
+                     <h4 className="mb-1 flex items-center gap-2 text-sm font-semibold text-orange-800">
+                        <div className="h-2 w-2 rounded-full bg-orange-500" />
+                        Fechamento
+                     </h4>
+                     <div className="grid grid-cols-3 gap-4">
+                        <div className="text-center">
+                           <span className="block text-base font-semibold text-gray-900">
+                              {data_fechamento}
+                           </span>
+                           <span className="text-xs text-gray-500">
+                              Data Prevista
+                           </span>
+                        </div>
+                        <div className="text-center">
+                           <span className="block text-base font-semibold text-gray-900">
+                              {Number(comiss.qtd_aj_fc).toFixed(1)}
+                           </span>
+                           <span className="text-xs text-gray-500">
+                              Ajuda de Custo
+                           </span>
+                        </div>
+                        <div className="text-center">
+                           <span className="block text-base font-semibold text-gray-900">
+                              {realCurrency(comiss.valor_aj_fc)}
+                           </span>
+                           <span className="text-xs text-gray-500">Valor</span>
+                        </div>
                      </div>
                   </div>
-               </PermBased>
+               </div>
+               {/* Status e Informações */}
+               <div className="grid grid-cols-3 gap-4">
+                  <div className="flex items-center justify-center gap-2 rounded-xl border border-gray-200 bg-gray-50 p-4">
+                     <span className="text-sm text-gray-600">Status:</span>
+                     <span className="text-sm font-semibold text-gray-900 uppercase">
+                        {comiss.status}
+                     </span>
+                  </div>
+                  <div className="flex items-center justify-center gap-2 rounded-xl border border-gray-200 bg-gray-50 p-4">
+                     <span className="text-sm text-gray-600">Módulo:</span>
+                     <span className="text-sm font-semibold text-gray-900 uppercase">
+                        {comiss.modulo ? "Sim" : "Não"}
+                     </span>
+                  </div>
+                  <div className="flex items-center justify-center gap-2 rounded-xl border border-gray-200 bg-gray-50 p-4">
+                     <span className="text-sm text-gray-600">Dependente:</span>
+                     <span className="text-sm font-semibold text-gray-900 uppercase">
+                        {comiss.dep ? "Sim" : "Não"}
+                     </span>
+                  </div>
+               </div>
 
                {/* Métricas */}
                <div className="space-y-4 rounded-xl border border-gray-200 bg-linear-to-r from-gray-50 to-slate-50 p-6">

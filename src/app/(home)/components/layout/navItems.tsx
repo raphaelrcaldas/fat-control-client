@@ -180,19 +180,27 @@ export const navItems = [
       type: "collapse",
       icon: FaUsers,
       label: "Pessoal",
-      roles: [],
+      roles: [
+         "ops_avancado",
+         "ops_basico",
+         "dout_avancado",
+         "dout_basico",
+         "apoio_avancado",
+         "apoio_basico",
+      ],
       children: [
          {
             icon: MdAirplaneTicket,
             label: "Missões",
             path: "/cegep/missoes",
-            roles: ["apoio_avancado"],
+            roles: ["apoio_avancado", "apoio_basico"],
          },
          {
             icon: MdMoney,
             label: "Comissionamento",
             path: "/cegep/comiss",
-            roles: [],
+            resource: "comiss",
+            permission: "view",
          },
          {
             icon: MdAccountBalance,
