@@ -16,6 +16,24 @@ export function useTripulantes() {
       [assignedTrips]
    );
 
+   function removeAllFromFunc(func: FuncType) {
+      setAssignedTrips((prev) => {
+         const toRemove = prev.filter((t) => t.func === func);
+         if (toRemove.length === 0) return prev;
+         setPoolTrips((pool) => [
+            ...pool,
+            ...toRemove.map((t) => ({
+               tripId: t.tripId,
+               trig: t.trig,
+               nomeGuerra: t.nomeGuerra,
+               pGraduacao: t.pGraduacao,
+               lastFunc: t.func,
+            })),
+         ]);
+         return prev.filter((t) => t.func !== func);
+      });
+   }
+
    function removeFromGroup(tripId: number) {
       const trip = assignedTrips.find((t) => t.tripId === tripId);
       if (!trip) return;
@@ -120,6 +138,7 @@ export function useTripulantes() {
       assignedTrips,
       setAssignedTrips,
       assignedIds,
+      removeAllFromFunc,
       removeFromGroup,
       updateFuncBordo,
       addTripToGroup,

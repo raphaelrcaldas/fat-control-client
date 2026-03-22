@@ -114,6 +114,7 @@ export function EtapaFormModal({
       assignedTrips,
       setAssignedTrips,
       assignedIds,
+      removeAllFromFunc,
       removeFromGroup,
       updateFuncBordo,
       addTripToGroup,
@@ -346,6 +347,7 @@ export function EtapaFormModal({
                      assignedTrips={assignedTrips}
                      assignedIds={assignedIds}
                      updateFuncBordo={updateFuncBordo}
+                     removeAllFromFunc={removeAllFromFunc}
                      removeFromGroup={removeFromGroup}
                      addTripToGroup={addTripToGroup}
                      sensors={sensors}

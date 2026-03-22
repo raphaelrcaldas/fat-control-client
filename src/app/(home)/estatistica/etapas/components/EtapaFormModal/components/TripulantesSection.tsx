@@ -45,6 +45,7 @@ interface TripulantesSectionProps {
    assignedTrips: AssignedTrip[];
    assignedIds: Set<number>;
    updateFuncBordo: (tripId: number, funcBordo: string) => void;
+   removeAllFromFunc: (func: FuncType) => void;
    removeFromGroup: (tripId: number) => void;
    addTripToGroup: (
       trip: {
@@ -65,6 +66,7 @@ export function TripulantesSection({
    assignedTrips,
    assignedIds,
    updateFuncBordo,
+   removeAllFromFunc,
    removeFromGroup,
    addTripToGroup,
    sensors,
@@ -115,6 +117,7 @@ export function TripulantesSection({
                      func={func}
                      trips={assignedTrips.filter((t) => t.func === func)}
                      onFuncBordoChange={updateFuncBordo}
+                     onRemoveAll={() => removeAllFromFunc(func)}
                      onRemove={removeFromGroup}
                      onAddTrip={addTripToGroup}
                      assignedIds={assignedIds}

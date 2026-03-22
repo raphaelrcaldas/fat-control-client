@@ -41,6 +41,7 @@ export function FuncGroupDropZone({
    func,
    trips,
    onFuncBordoChange,
+   onRemoveAll,
    onRemove,
    onAddTrip,
    assignedIds,
@@ -48,6 +49,7 @@ export function FuncGroupDropZone({
    func: FuncType;
    trips: AssignedTrip[];
    onFuncBordoChange: (tripId: number, funcBordo: string) => void;
+   onRemoveAll: () => void;
    onRemove: (tripId: number) => void;
    onAddTrip: (
       trip: {
@@ -95,15 +97,27 @@ export function FuncGroupDropZone({
       >
          <div
             className={clsx(
-               "rounded-t-lg px-2 py-1 text-xs font-semibold",
+               "flex items-center justify-between rounded-t-lg px-2 py-1 text-xs font-semibold",
                headerColorMap[color] ?? "bg-gray-100 text-gray-600"
             )}
          >
-            {config.label}
+            <span>
+               {config.label}
+               {trips.length > 0 && (
+                  <span className="ml-1 font-normal opacity-70">
+                     ({trips.length})
+                  </span>
+               )}
+            </span>
             {trips.length > 0 && (
-               <span className="ml-1 font-normal opacity-70">
-                  ({trips.length})
-               </span>
+               <button
+                  type="button"
+                  onClick={onRemoveAll}
+                  className="rounded p-0.5 opacity-60 hover:opacity-100"
+                  title="Limpar todos"
+               >
+                  <HiX className="h-3 w-3" />
+               </button>
             )}
          </div>
 
