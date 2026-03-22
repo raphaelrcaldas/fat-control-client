@@ -84,7 +84,7 @@ const SortableHeader = memo(function SortableHeader({
                   className={clsx(
                      "-mb-1 h-3 w-3",
                      isActive && direction === "asc"
-                        ? "text-blue-600"
+                        ? "text-red-600"
                         : "text-gray-400"
                   )}
                />
@@ -92,7 +92,7 @@ const SortableHeader = memo(function SortableHeader({
                   className={clsx(
                      "h-3 w-3",
                      isActive && direction === "desc"
-                        ? "text-blue-600"
+                        ? "text-red-600"
                         : "text-gray-400"
                   )}
                />
@@ -139,7 +139,7 @@ const PassaporteRow = memo(function PassaporteRow({
          }
          tabIndex={0}
          role="button"
-         className="cursor-pointer border-b border-gray-200 transition-colors hover:bg-blue-50"
+         className="cursor-pointer border-b border-gray-200 transition-colors hover:bg-red-50"
       >
          <TableCell className="w-10 px-3 py-3">
             <span
@@ -152,7 +152,7 @@ const PassaporteRow = memo(function PassaporteRow({
             </p>
          </TableCell>
          <TableCell className="px-4 py-3 whitespace-nowrap">
-            <span className="text-sm text-gray-700">
+            <span className="text-sm text-gray-700 font-semibold">
                {item.passaporte?.passaporte || "---"}
             </span>
          </TableCell>
@@ -209,7 +209,7 @@ const PassaportesTable = memo(function PassaportesTable({
             {hasActiveFilters && (
                <button
                   onClick={onClearFilters}
-                  className="mt-2 text-sm text-blue-600 hover:text-blue-700"
+                  className="mt-2 text-sm text-red-600 hover:text-red-700"
                >
                   Limpar filtros
                </button>
@@ -232,7 +232,7 @@ const PassaportesTable = memo(function PassaportesTable({
                      onSort={onSort}
                   />
                   <TableHeadCell className="px-4 py-3 font-semibold">
-                     Passaporte
+                     Nº Passaporte
                   </TableHeadCell>
                   <SortableHeader
                      label="Validade Passaporte"

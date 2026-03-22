@@ -162,8 +162,8 @@ export default function PassaportesPage() {
       <div className="flex flex-col gap-4 p-1">
          {/* Header */}
          <div className="flex items-center gap-3">
-            <div className="rounded-lg bg-blue-100 p-2">
-               <MdPolicy className="h-6 w-6 text-blue-600" />
+            <div className="rounded-lg bg-red-100 p-2">
+               <MdPolicy className="h-6 w-6 text-red-600" />
             </div>
             <div>
                <h1 className="text-xl font-semibold text-gray-900">

@@ -125,8 +125,8 @@ const StatCardsGrid = memo(function StatCardsGrid({
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
          <StatCard
             icon={FaPassport}
-            iconColor="text-blue-600"
-            iconBg="bg-blue-50"
+            iconColor="text-red-600"
+            iconBg="bg-red-50"
             label="Passaporte"
             total={passaporteStats.total}
             counts={passaporteStats.counts}
@@ -134,8 +134,8 @@ const StatCardsGrid = memo(function StatCardsGrid({
          />
          <StatCard
             icon={HiIdentification}
-            iconColor="text-indigo-600"
-            iconBg="bg-indigo-50"
+            iconColor="text-red-600"
+            iconBg="bg-red-50"
             label="Visto Americano"
             total={visaStats.total}
             counts={visaStats.counts}
