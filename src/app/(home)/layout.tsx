@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { deleteCookie } from "cookies-next";
-import { useAuth } from "../context/auth";
 import Navbar from "./components/layout/navbar";
 import SidebarWithFooter from "./components/layout/sidebar";
 import PageTransition from "./components/layout/page-transition";
@@ -16,7 +15,6 @@ interface RootLayoutProps {
 export default function RootLayout({ children }: RootLayoutProps) {
    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
    const [isMobile, setIsMobile] = useState(false);
-   const { user } = useAuth();
    const router = useRouter();
    const pathname = usePathname();
 
@@ -53,7 +51,6 @@ export default function RootLayout({ children }: RootLayoutProps) {
          <div className="flex h-screen flex-col overflow-hidden bg-gray-50">
             {/* Navbar inteligente */}
             <Navbar
-               user={user}
                onToggleSidebar={toggleSidebar}
                isSidebarOpen={isSidebarOpen}
             />

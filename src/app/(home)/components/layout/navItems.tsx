@@ -242,7 +242,7 @@ export const navItems = [
       icon: MdOutlinePeopleAlt,
       label: "Usuários",
       path: "/users",
-      roles: ["apoio_avancado", "apoio_basico"],
+      roles: ["apoio_avancado", "apoio_basico", "dout_avancado", "dout_basico"],
    },
    {
       type: "collapse",

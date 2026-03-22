@@ -3,6 +3,7 @@
 import { useState, useMemo } from "react";
 import { usePathname } from "next/navigation";
 import clsx from "clsx";
+import type { IconType } from "react-icons";
 import { useAuth } from "@/app/context/auth";
 import SidebarItem from "./sidebarItem";
 import SidebarCollapse from "./sidebarCollapse";
@@ -12,6 +13,24 @@ import { Button } from "flowbite-react";
 import LoadingOverlay from "./loadingOverlay";
 import { useRoleBased } from "../../hooks/useRoleBased";
 import { usePermBased } from "../../hooks/usePermBased";
+
+interface FilteredNavChild {
+   icon: IconType;
+   label: string;
+   path: string;
+   resource?: string;
+   permission?: string;
+   roles?: readonly string[];
+}
+
+interface FilteredNavItem {
+   type: "item" | "collapse";
+   icon: IconType;
+   label: string;
+   path?: string;
+   roles?: readonly string[];
+   children?: FilteredNavChild[];
+}
 
 interface SidebarProps {
    isOpen: boolean;
@@ -40,8 +59,7 @@ export default function SidebarWithFooter({
    };
 
    const filteredNavItems = useMemo(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const result: any[] = [];
+      const result: FilteredNavItem[] = [];
 
       for (const item of navItems) {
          // Verifica permissão baseada em roles do item principal

@@ -13,6 +13,7 @@ interface QuickAction {
    icon: React.ComponentType<{ className?: string }>;
    route: string;
    color: string;
+   gradientFrom: string;
    bgColor: string;
 }
 
@@ -26,6 +27,7 @@ export default function QuickActions() {
          icon: MdSort,
          route: "/sebo",
          color: "text-blue-600",
+         gradientFrom: "from-blue-600",
          bgColor: "bg-blue-50 group-hover:bg-blue-100",
       },
       {
@@ -34,6 +36,7 @@ export default function QuickActions() {
          icon: MdAirplaneTicket,
          route: "/quads",
          color: "text-purple-600",
+         gradientFrom: "from-purple-600",
          bgColor: "bg-purple-50 group-hover:bg-purple-100",
       },
       {
@@ -42,6 +45,7 @@ export default function QuickActions() {
          icon: MdAirplanemodeInactive,
          route: "/indisp",
          color: "text-orange-600",
+         gradientFrom: "from-orange-600",
          bgColor: "bg-orange-50 group-hover:bg-orange-100",
       },
    ];
@@ -81,10 +85,7 @@ export default function QuickActions() {
                   </div>
 
                   <div
-                     className={`absolute bottom-0 left-0 h-1 w-full bg-linear-to-r ${action.color.replace(
-                        "text",
-                        "from"
-                     )} origin-left scale-x-0 transform to-transparent transition-transform duration-300 group-hover:scale-x-100`}
+                     className={`absolute bottom-0 left-0 h-1 w-full bg-linear-to-r ${action.gradientFrom} origin-left scale-x-0 transform to-transparent transition-transform duration-300 group-hover:scale-x-100`}
                   ></div>
                </button>
             );

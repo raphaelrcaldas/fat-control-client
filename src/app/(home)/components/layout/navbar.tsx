@@ -6,7 +6,6 @@ import Image from "next/image";
 import profilePic from "public/assets/1_1_gt.jpg";
 
 interface NavbarProps {
-   user: string;
    onToggleSidebar: () => void;
    isSidebarOpen: boolean;
 }

@@ -13,9 +13,9 @@ import {
    HiUser,
    HiClipboardList,
    HiKey,
-   HiIdentification,
    HiCheckCircle,
    HiXCircle,
+   HiArrowLeft,
 } from "react-icons/hi";
 
 const TABS = [
@@ -88,6 +88,15 @@ export default function UserDetailsPage() {
          <div className="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
             <div className="bg-linear-to-r from-red-500 to-red-700 px-6 py-4">
                <div className="flex items-center gap-4">
+                  {/* Voltar */}
+                  <button
+                     onClick={() => router.back()}
+                     className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-white/80 transition-colors hover:bg-white/20 hover:text-white"
+                     title="Voltar"
+                  >
+                     <HiArrowLeft size={24} />
+                  </button>
+
                   {/* Avatar */}
                   <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full border-2 border-white/30 bg-white/20 backdrop-blur-sm">
                      <span className="text-xl font-bold text-white">

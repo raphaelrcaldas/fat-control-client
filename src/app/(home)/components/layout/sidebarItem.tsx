@@ -1,10 +1,11 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import type { IconType } from "react-icons";
 
 interface SidebarItemProps {
    item: {
-      icon: any;
+      icon: IconType;
       label: string;
       path?: string;
    };

@@ -10,16 +10,12 @@ export default function PageTransition({ children }: PageTransitionProps) {
    const [isVisible, setIsVisible] = useState(false);
 
    useEffect(() => {
-      // Start invisible
-      setIsVisible(false);
-
-      // Trigger animation after mounting
       const timer = setTimeout(() => {
          setIsVisible(true);
       }, 50);
 
       return () => clearTimeout(timer);
-   }, [children]);
+   }, []);
 
    return (
       <div
