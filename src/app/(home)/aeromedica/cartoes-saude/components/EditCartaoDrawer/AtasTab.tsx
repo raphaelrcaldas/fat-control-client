@@ -82,16 +82,18 @@ export default function AtasTab({
       try {
          const result = await uploadMutation.mutateAsync({ userId, file });
          setLastUpload(result);
-         if (result.cemal_atualizado && result.dados_extraidos.validade_inspsau) {
-            onCemalUpdated?.(result.dados_extraidos.validade_inspsau);
-         }
          if (result.extracao_vazia) {
             push({
                message: "Ata enviada. Preencha os dados manualmente.",
                type: "warning",
             });
          } else {
-            push({ message: "Ata enviada com sucesso", type: "success" });
+            setManualForm({
+               letra_finalidade: result.dados_extraidos.letra_finalidade || "",
+               data_realizacao: result.dados_extraidos.data_realizacao || "",
+               validade_inspsau: result.dados_extraidos.validade_inspsau || "",
+            });
+            push({ message: "Ata enviada. Confira os dados extraídos.", type: "success" });
          }
       } catch (err: unknown) {
          if (err instanceof NomeDivergenteError) {
@@ -119,10 +121,16 @@ export default function AtasTab({
             ignorarNome: true,
          });
          setLastUpload(result);
-         if (result.cemal_atualizado && result.dados_extraidos.validade_inspsau) {
-            onCemalUpdated?.(result.dados_extraidos.validade_inspsau);
+         if (result.extracao_vazia) {
+            push({ message: "Ata enviada. Preencha os dados manualmente.", type: "warning" });
+         } else {
+            setManualForm({
+               letra_finalidade: result.dados_extraidos.letra_finalidade || "",
+               data_realizacao: result.dados_extraidos.data_realizacao || "",
+               validade_inspsau: result.dados_extraidos.validade_inspsau || "",
+            });
+            push({ message: "Ata enviada. Confira os dados extraídos.", type: "success" });
          }
-         push({ message: "Ata enviada com sucesso", type: "success" });
       } catch (err: unknown) {
          const message =
             err instanceof Error ? err.message : "Erro ao enviar ata";
@@ -144,8 +152,9 @@ export default function AtasTab({
                validade_inspsau: manualForm.validade_inspsau || null,
             },
          });
-         if (manualForm.validade_inspsau) {
-            onCemalUpdated?.(manualForm.validade_inspsau);
+         const validade = manualForm.validade_inspsau;
+         if (validade) {
+            onCemalUpdated?.(validade);
          }
          push({ message: "Ata atualizada com sucesso", type: "success" });
          setLastUpload(null);
@@ -205,16 +214,8 @@ export default function AtasTab({
             </Button>
          </div>
 
-         {/* Feedback do último upload */}
-         {lastUpload && !lastUpload.extracao_vazia && (
-            <UploadFeedback
-               dados={lastUpload}
-               onClose={() => setLastUpload(null)}
-            />
-         )}
-
-         {/* Formulário manual — PDF digitalizado sem texto */}
-         {lastUpload?.extracao_vazia && (
+         {/* Confirmação dos dados extraídos / Formulário manual */}
+         {lastUpload && (
             <ManualForm
                form={manualForm}
                onChange={setManualForm}
@@ -228,6 +229,7 @@ export default function AtasTab({
                   });
                }}
                isSaving={updateMutation.isPending}
+               variant={lastUpload.extracao_vazia ? "warning" : "success"}
             />
          )}
 
@@ -289,61 +291,13 @@ export default function AtasTab({
 // Sub-components
 // ========================================
 
-function UploadFeedback({
-   dados,
-   onClose,
-}: {
-   dados: AtaUploadResponse;
-   onClose: () => void;
-}) {
-   return (
-      <div className="rounded-lg border border-green-300 bg-green-50 p-3 dark:border-green-700 dark:bg-green-900/20">
-         <p className="mb-1 text-sm font-semibold text-green-800 dark:text-green-300">
-            Dados extraídos:
-         </p>
-         <div className="space-y-0.5 text-sm text-green-700 dark:text-green-400">
-            {dados.dados_extraidos.letra_finalidade && (
-               <p>
-                  Letra:{" "}
-                  <strong>{dados.dados_extraidos.letra_finalidade}</strong>
-               </p>
-            )}
-            {dados.dados_extraidos.data_realizacao && (
-               <p>
-                  Realização:{" "}
-                  {formatDateFull(dados.dados_extraidos.data_realizacao)}
-               </p>
-            )}
-            {dados.dados_extraidos.validade_inspsau && (
-               <p>
-                  Validade:{" "}
-                  <strong>
-                     {formatDateFull(dados.dados_extraidos.validade_inspsau)}
-                  </strong>
-               </p>
-            )}
-            {dados.cemal_atualizado && (
-               <p className="mt-1 font-semibold">
-                  CEMAL atualizado automaticamente
-               </p>
-            )}
-         </div>
-         <button
-            className="mt-2 text-xs text-green-600 underline hover:text-green-800 dark:text-green-400"
-            onClick={onClose}
-         >
-            Fechar
-         </button>
-      </div>
-   );
-}
-
 function ManualForm({
    form,
    onChange,
    onSave,
    onSkip,
    isSaving,
+   variant = "warning",
 }: {
    form: { letra_finalidade: string; data_realizacao: string; validade_inspsau: string };
    onChange: React.Dispatch<
@@ -352,20 +306,54 @@ function ManualForm({
    onSave: () => void;
    onSkip: () => void;
    isSaving: boolean;
+   variant?: "warning" | "success";
 }) {
+   const isSuccess = variant === "success";
+
    return (
-      <div className="rounded-lg border border-amber-300 bg-amber-50 p-4 dark:border-amber-700 dark:bg-amber-900/20">
+      <div
+         className={
+            isSuccess
+               ? "rounded-lg border border-green-300 bg-green-50 p-4 dark:border-green-700 dark:bg-green-900/20"
+               : "rounded-lg border border-amber-300 bg-amber-50 p-4 dark:border-amber-700 dark:bg-amber-900/20"
+         }
+      >
          <div className="flex items-start gap-3">
-            <div className="rounded-full bg-amber-100 p-1.5 dark:bg-amber-800">
-               <HiExclamation className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+            <div
+               className={
+                  isSuccess
+                     ? "rounded-full bg-green-100 p-1.5 dark:bg-green-800"
+                     : "rounded-full bg-amber-100 p-1.5 dark:bg-amber-800"
+               }
+            >
+               {isSuccess ? (
+                  <HiInformationCircle className="h-5 w-5 text-green-600 dark:text-green-400" />
+               ) : (
+                  <HiExclamation className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+               )}
             </div>
             <div className="flex-1">
-               <p className="text-sm font-semibold text-amber-800 dark:text-amber-300">
-                  Não foi possível extrair os dados automaticamente
+               <p
+                  className={
+                     isSuccess
+                        ? "text-sm font-semibold text-green-800 dark:text-green-300"
+                        : "text-sm font-semibold text-amber-800 dark:text-amber-300"
+                  }
+               >
+                  {isSuccess
+                     ? "Confira os dados extraídos"
+                     : "Não foi possível extrair os dados automaticamente"}
                </p>
-               <p className="mt-1 text-xs text-amber-700 dark:text-amber-400">
-                  O PDF parece ser uma imagem digitalizada. Preencha os campos
-                  manualmente.
+               <p
+                  className={
+                     isSuccess
+                        ? "mt-1 text-xs text-green-700 dark:text-green-400"
+                        : "mt-1 text-xs text-amber-700 dark:text-amber-400"
+                  }
+               >
+                  {isSuccess
+                     ? "Verifique e corrija se necessário antes de salvar."
+                     : "O PDF parece ser uma imagem digitalizada. Preencha os campos manualmente."}
                </p>
             </div>
          </div>
@@ -430,7 +418,11 @@ function ManualForm({
                   onClick={onSave}
                   disabled={isSaving}
                >
-                  {isSaving ? "Salvando..." : "Salvar"}
+                  {isSaving
+                     ? "Salvando..."
+                     : isSuccess
+                       ? "Confirmar"
+                       : "Salvar"}
                </Button>
                <Button color="gray" size="xs" onClick={onSkip}>
                   Pular
