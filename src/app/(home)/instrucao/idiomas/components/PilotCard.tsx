@@ -25,11 +25,10 @@ function StatusBadge({
    status: IdiomStatus;
    daysLabel: string;
 }) {
-   if (status === "empty") return null;
    const colors = getStatusColors(status);
    return (
       <span
-         className="inline-flex items-center gap-1 rounded px-2 py-0.5 text-[11px] font-medium"
+         className="inline-flex w-42 items-center justify-center gap-1 rounded px-2 py-0.5 text-[11px] font-medium"
          style={{
             backgroundColor: colors.badgeBg,
             border: `0.5px solid ${colors.badgeBorder}`,
@@ -40,7 +39,7 @@ function StatusBadge({
             className="h-1.5 w-1.5 shrink-0 rounded-full"
             style={{ backgroundColor: colors.dot }}
          />
-         {label} · {daysLabel}
+         {label} · {status === "empty" ? "—" : daysLabel}
       </span>
    );
 }
@@ -214,38 +213,42 @@ const PilotCard = memo(function PilotCard({ pilot, onEdit }: PilotCardProps) {
                </div>
 
                {/* Badges — visíveis apenas em telas maiores */}
-               <div className="hidden flex-wrap gap-1.5 sm:flex">
-                  {pilot.idiomas?.ptai_validade && (
-                     <StatusBadge
-                        label="PTAI"
-                        status={ptaiStatus}
-                        daysLabel={getDaysLabel(pilot.idiomas.ptai_validade)}
-                     />
-                  )}
-                  {pilot.idiomas?.tai_s_validade && (
-                     <StatusBadge
-                        label="TAI S"
-                        status={taiSStatus}
-                        daysLabel={getDaysLabel(pilot.idiomas.tai_s_validade)}
-                     />
-                  )}
-                  {pilot.idiomas?.tai_s1_validade && (
-                     <StatusBadge
-                        label="TAI S1"
-                        status={taiSStatus}
-                        daysLabel={getDaysLabel(pilot.idiomas.tai_s1_validade)}
-                     />
-                  )}
-                  {pilot.idiomas?.hab_espanhol && (
-                     <span className="inline-flex items-center gap-1 rounded border border-green-200 bg-green-100 px-2 py-0.5 text-[11px] font-medium text-gray-600">
-                        ESP {pilot.idiomas.hab_espanhol}
-                     </span>
-                  )}
-                  {pilot.idiomas?.hab_ingles && (
-                     <span className="inline-flex items-center gap-1 rounded border border-blue-200 bg-blue-100 px-2 py-0.5 text-[11px] font-medium text-gray-600">
-                        ING {pilot.idiomas.hab_ingles}
-                     </span>
-                  )}
+               <div className="hidden gap-1.5 sm:flex">
+                  <StatusBadge
+                     label="PTAI"
+                     status={ptaiStatus}
+                     daysLabel={getDaysLabel(pilot.idiomas?.ptai_validade)}
+                  />
+                  <StatusBadge
+                     label="TAI S"
+                     status={taiSStatus}
+                     daysLabel={getDaysLabel(pilot.idiomas?.tai_s_validade)}
+                  />
+                  <StatusBadge
+                     label="TAI S1"
+                     status={getIdiomStatus(pilot.idiomas?.tai_s1_validade)}
+                     daysLabel={getDaysLabel(pilot.idiomas?.tai_s1_validade)}
+                  />
+                  <span
+                     className={clsx(
+                        "inline-flex w-18 items-center justify-center gap-1 rounded border px-2 py-0.5 text-[11px] font-medium",
+                        pilot.idiomas?.hab_espanhol
+                           ? "border-green-200 bg-green-100 text-gray-600"
+                           : "border-gray-200 bg-gray-100 text-gray-400"
+                     )}
+                  >
+                     ESP {pilot.idiomas?.hab_espanhol ?? "—"}
+                  </span>
+                  <span
+                     className={clsx(
+                        "inline-flex w-18 items-center justify-center gap-1 rounded border px-2 py-0.5 text-[11px] font-medium",
+                        pilot.idiomas?.hab_ingles
+                           ? "border-blue-200 bg-blue-100 text-gray-600"
+                           : "border-gray-200 bg-gray-100 text-gray-400"
+                     )}
+                  >
+                     ING {pilot.idiomas?.hab_ingles ?? "—"}
+                  </span>
                </div>
 
                {/* Expand icon */}
@@ -259,37 +262,41 @@ const PilotCard = memo(function PilotCard({ pilot, onEdit }: PilotCardProps) {
 
             {/* Badges — visíveis apenas em telas pequenas, abaixo do nome */}
             <div className="mt-2 flex flex-wrap gap-1.5 pl-12 sm:hidden">
-               {pilot.idiomas?.ptai_validade && (
-                  <StatusBadge
-                     label="PTAI"
-                     status={ptaiStatus}
-                     daysLabel={getDaysLabel(pilot.idiomas.ptai_validade)}
-                  />
-               )}
-               {pilot.idiomas?.tai_s_validade && (
-                  <StatusBadge
-                     label="TAI S"
-                     status={taiSStatus}
-                     daysLabel={getDaysLabel(pilot.idiomas.tai_s_validade)}
-                  />
-               )}
-               {pilot.idiomas?.tai_s1_validade && (
-                  <StatusBadge
-                     label="TAI S1"
-                     status={taiSStatus}
-                     daysLabel={getDaysLabel(pilot.idiomas.tai_s1_validade)}
-                  />
-               )}
-               {pilot.idiomas?.hab_espanhol && (
-                  <span className="inline-flex items-center gap-1 rounded border border-green-200 bg-green-100 px-2 py-0.5 text-[11px] font-medium text-gray-600">
-                     ESP {pilot.idiomas.hab_espanhol}
-                  </span>
-               )}
-               {pilot.idiomas?.hab_ingles && (
-                  <span className="inline-flex items-center gap-1 rounded border border-blue-200 bg-blue-100 px-2 py-0.5 text-[11px] font-medium text-gray-600">
-                     ING {pilot.idiomas.hab_ingles}
-                  </span>
-               )}
+               <StatusBadge
+                  label="PTAI"
+                  status={ptaiStatus}
+                  daysLabel={getDaysLabel(pilot.idiomas?.ptai_validade)}
+               />
+               <StatusBadge
+                  label="TAI S"
+                  status={taiSStatus}
+                  daysLabel={getDaysLabel(pilot.idiomas?.tai_s_validade)}
+               />
+               <StatusBadge
+                  label="TAI S1"
+                  status={getIdiomStatus(pilot.idiomas?.tai_s1_validade)}
+                  daysLabel={getDaysLabel(pilot.idiomas?.tai_s1_validade)}
+               />
+               <span
+                  className={clsx(
+                     "inline-flex w-14 items-center justify-center gap-1 rounded border px-2 py-0.5 text-[11px] font-medium",
+                     pilot.idiomas?.hab_espanhol
+                        ? "border-green-200 bg-green-100 text-gray-600"
+                        : "border-gray-200 bg-gray-100 text-gray-400"
+                  )}
+               >
+                  ESP {pilot.idiomas?.hab_espanhol ?? "—"}
+               </span>
+               <span
+                  className={clsx(
+                     "inline-flex w-14 items-center justify-center gap-1 rounded border px-2 py-0.5 text-[11px] font-medium",
+                     pilot.idiomas?.hab_ingles
+                        ? "border-blue-200 bg-blue-100 text-gray-600"
+                        : "border-gray-200 bg-gray-100 text-gray-400"
+                  )}
+               >
+                  ING {pilot.idiomas?.hab_ingles ?? "—"}
+               </span>
             </div>
          </div>
 

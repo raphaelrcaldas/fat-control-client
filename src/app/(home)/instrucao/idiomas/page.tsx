@@ -39,15 +39,16 @@ export default function IdiomasPage() {
                      Habilidades de Idioma
                   </h1>
                   <p className="text-sm text-gray-500">
-                     Controle de PTAI, TAI e proficiência linguística dos pilotos
+                     Controle de PTAI, TAI e proficiência linguística dos
+                     pilotos
                   </p>
                </div>
                {!isLoading && (
-                  <div className="ml-auto flex items-center gap-1.5 rounded-lg bg-gray-100 px-3 py-1.5">
-                     <span className="text-lg font-semibold text-gray-800">
+                  <div className="ml-auto flex items-center gap-1.5 rounded-lg bg-red-100 px-3 py-1.5">
+                     <span className="text-lg font-semibold text-red-800">
                         {data.length}
                      </span>
-                     <span className="text-xs text-gray-500">pilotos</span>
+                     <span className="text-xs text-red-500">pilotos</span>
                   </div>
                )}
             </div>

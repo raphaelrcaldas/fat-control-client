@@ -15,7 +15,10 @@ import { HiTrash } from "react-icons/hi";
 import { MdTranslate } from "react-icons/md";
 import { useToast } from "@/app/context/toast";
 import { useUpsertIdiomas, useDeleteIdiomas } from "@/hooks/queries";
-import type { TripIdiomasOut, IdiomasUpsert } from "services/routes/instrucao/idiomas";
+import type {
+   TripIdiomasOut,
+   IdiomasUpsert,
+} from "services/routes/instrucao/idiomas";
 
 interface EditIdiomasDrawerProps {
    show: boolean;
@@ -27,7 +30,7 @@ const NIVEL_OPTIONS = ["", "A1", "A2", "B1", "B2"] as const;
 
 function SectionTitle({ children }: { children: React.ReactNode }) {
    return (
-      <p className="mb-3 text-[11px] font-semibold uppercase tracking-widest text-gray-400">
+      <p className="mb-3 text-[11px] font-semibold tracking-widest text-gray-600 uppercase">
          {children}
       </p>
    );
@@ -89,7 +92,9 @@ const EditIdiomasDrawer = memo(function EditIdiomasDrawer({
       }
    }, [show, item]);
 
-   const handleInput = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+   const handleInput = (
+      e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+   ) => {
       const { name, value } = e.target;
       setFormData((prev) => ({ ...prev, [name]: value }));
    };
@@ -145,10 +150,13 @@ const EditIdiomasDrawer = memo(function EditIdiomasDrawer({
                   </div>
                   <div>
                      <p className="text-base font-semibold text-gray-900">
-                        {item.p_g.toUpperCase()} {item.nome_guerra.toUpperCase()}
+                        {item.p_g.toUpperCase()}{" "}
+                        {item.nome_guerra.toUpperCase()}
                      </p>
                      <p className="text-sm font-normal text-gray-400">
-                        {isEdit ? "Editar habilidades de idioma" : "Cadastrar habilidades de idioma"}
+                        {isEdit
+                           ? "Editar habilidades de idioma"
+                           : "Cadastrar habilidades de idioma"}
                      </p>
                   </div>
                </div>
@@ -157,9 +165,9 @@ const EditIdiomasDrawer = memo(function EditIdiomasDrawer({
             <ModalBody>
                <div className="space-y-6">
                   {/* Provas e validações */}
-                  <div className="rounded-xl border border-gray-100 bg-gray-50 p-4">
+                  <div className="rounded-xl border border-gray-100 bg-gray-50 p-4 shadow-md">
                      <SectionTitle>Provas e validações</SectionTitle>
-                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                     <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
                         <Field id="ptai_validade" label="PTAI">
                            <TextInput
                               id="ptai_validade"
@@ -194,9 +202,9 @@ const EditIdiomasDrawer = memo(function EditIdiomasDrawer({
                   </div>
 
                   {/* Espanhol */}
-                  <div className="rounded-xl border border-gray-100 bg-gray-50 p-4">
+                  <div className="rounded-xl border border-gray-100 bg-gray-50 p-4 shadow-md">
                      <SectionTitle>Espanhol</SectionTitle>
-                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                         <Field id="hab_espanhol" label="Nível">
                            <Select
                               id="hab_espanhol"
@@ -226,9 +234,9 @@ const EditIdiomasDrawer = memo(function EditIdiomasDrawer({
                   </div>
 
                   {/* Inglês */}
-                  <div className="rounded-xl border border-gray-100 bg-gray-50 p-4">
+                  <div className="rounded-xl border border-gray-100 bg-gray-50 p-4 shadow-md">
                      <SectionTitle>Inglês</SectionTitle>
-                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                         <Field id="hab_ingles" label="Nível">
                            <Select
                               id="hab_ingles"
@@ -275,11 +283,23 @@ const EditIdiomasDrawer = memo(function EditIdiomasDrawer({
                      <span />
                   )}
                   <div className="flex gap-2">
-                     <Button color="gray" onClick={onClose} disabled={isLoading}>
+                     <Button
+                        color="gray"
+                        onClick={onClose}
+                        disabled={isLoading}
+                     >
                         Cancelar
                      </Button>
-                     <Button color="blue" onClick={handleSave} disabled={isLoading}>
-                        {isLoading ? "Salvando..." : isEdit ? "Atualizar" : "Cadastrar"}
+                     <Button
+                        color="blue"
+                        onClick={handleSave}
+                        disabled={isLoading}
+                     >
+                        {isLoading
+                           ? "Salvando..."
+                           : isEdit
+                             ? "Atualizar"
+                             : "Cadastrar"}
                      </Button>
                   </div>
                </div>
@@ -311,7 +331,11 @@ const EditIdiomasDrawer = memo(function EditIdiomasDrawer({
                   >
                      Cancelar
                   </Button>
-                  <Button color="red" onClick={handleDelete} disabled={isDeleting}>
+                  <Button
+                     color="red"
+                     onClick={handleDelete}
+                     disabled={isDeleting}
+                  >
                      {isDeleting ? "Removendo..." : "Remover"}
                   </Button>
                </div>
