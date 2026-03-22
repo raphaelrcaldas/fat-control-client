@@ -24,12 +24,12 @@ interface FilteredNavChild {
 }
 
 interface FilteredNavItem {
-   type: "item" | "collapse";
+   type: string;
    icon: IconType;
    label: string;
    path?: string;
    roles?: readonly string[];
-   children?: FilteredNavChild[];
+   children?: readonly FilteredNavChild[] | FilteredNavChild[];
 }
 
 interface SidebarProps {
