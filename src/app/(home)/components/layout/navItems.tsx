@@ -111,6 +111,7 @@ export const navItems = [
          "apoio_avancado",
          "apoio_basico",
          "aeromed",
+         "seg_voo",
       ],
       children: [
          {
@@ -124,6 +125,8 @@ export const navItems = [
             icon: CiPaperplane,
             label: "Etapas",
             path: "/estatistica/etapas",
+            resource: "etapas",
+            permission: "view",
          },
          {
             icon: ImStatsDots,
@@ -205,7 +208,8 @@ export const navItems = [
             icon: MdAirplaneTicket,
             label: "Missões",
             path: "/cegep/missoes",
-            roles: ["apoio_avancado", "apoio_basico"],
+            resource: "missoes_cegep",
+            permission: "view",
          },
          {
             icon: MdMoney,
