@@ -42,6 +42,11 @@ export interface AtaUploadResponse {
    extracao_vazia: boolean;
 }
 
+export interface AtaExtrairResponse {
+   dados_extraidos: DadosExtraidos;
+   extracao_vazia: boolean;
+}
+
 export interface AtaUpdateData {
    letra_finalidade: string | null;
    data_realizacao: string | null;
@@ -65,22 +70,65 @@ export interface AllBucketsStats {
    buckets: BucketStats[];
 }
 
-export class NomeDivergenteError extends Error {
+export interface NomeConflito {
    nomeAta: string;
    nomeSistema: string;
-   constructor(nomeAta: string, nomeSistema: string) {
-      super("Nome divergente");
-      this.nomeAta = nomeAta;
-      this.nomeSistema = nomeSistema;
-   }
+}
+
+export interface ExtrairAtaResult {
+   data: AtaExtrairResponse;
+   nomeConflito: NomeConflito | null;
 }
 
 // === API Functions ===
 
+export async function extrairAta(
+   userId: number,
+   file: File
+): Promise<ExtrairAtaResult> {
+   const formData = new FormData();
+   formData.append("file", file);
+
+   const token = getTokenFromCookies();
+   const headers: HeadersInit = {};
+   if (token) {
+      headers["Authorization"] = `Bearer ${token}`;
+   }
+
+   const params = new URLSearchParams({ user_id: String(userId) });
+
+   const response = await fetch(`${atasRoute}extrair?${params}`, {
+      method: "POST",
+      headers,
+      body: formData,
+   });
+
+   if (!response.ok) {
+      const json = await response.json();
+      throw new Error(json.message || json.detail || "Erro ao extrair dados da ata");
+   }
+
+   const json = (await response.json()) as ApiResponse<AtaExtrairResponse>;
+   if (!json.data) throw new Error("Resposta inválida do servidor");
+
+   const nomeConflito: NomeConflito | null =
+      json.message === "nome_divergente" && json.errors
+         ? { nomeAta: json.errors.nome_ata, nomeSistema: json.errors.nome_sistema }
+         : null;
+
+   return { data: json.data, nomeConflito };
+}
+
+export interface DadosConfirmados {
+   letra_finalidade: string;
+   data_realizacao: string;
+   validade_inspsau: string;
+}
+
 export async function uploadAta(
    userId: number,
    file: File,
-   ignorarNome = false
+   dados: DadosConfirmados
 ): Promise<AtaUploadResponse> {
    const formData = new FormData();
    formData.append("file", file);
@@ -92,7 +140,10 @@ export async function uploadAta(
    }
 
    const params = new URLSearchParams({ user_id: String(userId) });
-   if (ignorarNome) params.set("ignorar_nome", "true");
+   params.set("dados_confirmados", "true");
+   if (dados.letra_finalidade) params.set("conf_letra", dados.letra_finalidade);
+   if (dados.data_realizacao) params.set("conf_realizacao", dados.data_realizacao);
+   if (dados.validade_inspsau) params.set("conf_validade", dados.validade_inspsau);
 
    const response = await fetch(`${atasRoute}?${params}`, {
       method: "POST",
@@ -102,12 +153,6 @@ export async function uploadAta(
 
    if (!response.ok) {
       const json = await response.json();
-      if (json.message === "nome_divergente" && json.errors) {
-         throw new NomeDivergenteError(
-            json.errors.nome_ata,
-            json.errors.nome_sistema
-         );
-      }
       throw new Error(json.message || json.detail || "Erro ao enviar ata");
    }
 

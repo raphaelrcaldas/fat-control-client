@@ -4,6 +4,7 @@ import {
    useQueryClient,
 } from "@tanstack/react-query";
 import {
+   extrairAta,
    uploadAta,
    getAtasByUser,
    updateAta,
@@ -13,7 +14,7 @@ import {
    getAtasOrfas,
    deleteAtasOrfas,
 } from "services/routes/aeromedica/atas";
-import type { AtaUpdateData } from "services/routes/aeromedica/atas";
+import type { AtaUpdateData, DadosConfirmados } from "services/routes/aeromedica/atas";
 import { cartoesSaudeKeys } from "./useCartoesSaude";
 
 // ========================================
@@ -77,6 +78,20 @@ export function useAtasOrfas() {
 // Mutations
 // ========================================
 
+export function useExtrairAta() {
+   return useMutation({
+      mutationFn: async ({
+         userId,
+         file,
+      }: {
+         userId: number;
+         file: File;
+      }) => {
+         return extrairAta(userId, file);
+      },
+   });
+}
+
 export function useUploadAta() {
    const queryClient = useQueryClient();
 
@@ -84,13 +99,13 @@ export function useUploadAta() {
       mutationFn: async ({
          userId,
          file,
-         ignorarNome = false,
+         dados,
       }: {
          userId: number;
          file: File;
-         ignorarNome?: boolean;
+         dados: DadosConfirmados;
       }) => {
-         return uploadAta(userId, file, ignorarNome);
+         return uploadAta(userId, file, dados);
       },
       onSuccess: (_data, variables) => {
          queryClient.invalidateQueries({
@@ -141,6 +156,10 @@ export function useDeleteAta() {
          });
          queryClient.invalidateQueries({
             queryKey: atasKeys.storageStats(),
+         });
+         // cemal_tem_ata e total_atas podem mudar
+         queryClient.invalidateQueries({
+            queryKey: cartoesSaudeKeys.lists(),
          });
       },
    });

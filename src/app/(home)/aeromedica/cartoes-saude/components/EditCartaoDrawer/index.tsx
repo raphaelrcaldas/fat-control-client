@@ -71,7 +71,10 @@ export default function EditCartaoDrawer({
          setShowDeleteConfirm(false);
          setActiveTab("dados");
       }
-   }, [show, item]);
+      // Depende de user.id (nao do objeto item inteiro) para que uma
+      // invalidacao de cache nao resete o form enquanto o drawer esta aberto.
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+   }, [show, item.user.id]);
 
    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       const { name, value } = e.target;

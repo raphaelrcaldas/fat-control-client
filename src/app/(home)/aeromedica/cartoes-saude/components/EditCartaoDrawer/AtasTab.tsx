@@ -12,14 +12,13 @@ import {
 import { useToast } from "@/app/context/toast";
 import {
    useAtasByUser,
+   useExtrairAta,
    useUploadAta,
-   useUpdateAta,
    useDeleteAta,
 } from "@/hooks/queries";
-import {
-   NomeDivergenteError,
-   type AtaUploadResponse,
-   type AtaInspecaoWithUrl,
+import type {
+   AtaInspecaoWithUrl,
+   NomeConflito,
 } from "services/routes/aeromedica/atas";
 import { formatDateFull } from "utils/dateHandler";
 
@@ -34,11 +33,14 @@ export default function AtasTab({
    const fileInputRef = useRef<HTMLInputElement>(null);
 
    const { data: atas, isLoading } = useAtasByUser(userId);
+   const extrairMutation = useExtrairAta();
    const uploadMutation = useUploadAta();
-   const updateMutation = useUpdateAta();
    const deleteMutation = useDeleteAta();
 
-   const [lastUpload, setLastUpload] = useState<AtaUploadResponse | null>(null);
+   // Arquivo pendente aguardando confirmação do usuário
+   const [pendingFile, setPendingFile] = useState<File | null>(null);
+   const [extracaoVazia, setExtracaoVazia] = useState(false);
+   const [nomeConflito, setNomeConflito] = useState<NomeConflito | null>(null);
    const [manualForm, setManualForm] = useState({
       letra_finalidade: "",
       data_realizacao: "",
@@ -47,14 +49,21 @@ export default function AtasTab({
    const [showDeleteAtaConfirm, setShowDeleteAtaConfirm] = useState<
       number | null
    >(null);
-   const [nomeConflito, setNomeConflito] = useState<{
-      nomeAta: string;
-      nomeSistema: string;
-      file: File;
-   } | null>(null);
 
    const resetFileInput = () => {
       if (fileInputRef.current) fileInputRef.current.value = "";
+   };
+
+   const clearPending = () => {
+      setPendingFile(null);
+      setExtracaoVazia(false);
+      setNomeConflito(null);
+      setManualForm({
+         letra_finalidade: "",
+         data_realizacao: "",
+         validade_inspsau: "",
+      });
+      resetFileInput();
    };
 
    const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -80,32 +89,31 @@ export default function AtasTab({
       }
 
       try {
-         const result = await uploadMutation.mutateAsync({ userId, file });
-         setLastUpload(result);
-         if (result.extracao_vazia) {
+         const result = await extrairMutation.mutateAsync({ userId, file });
+         setPendingFile(file);
+         setExtracaoVazia(result.data.extracao_vazia);
+         setNomeConflito(result.nomeConflito);
+
+         if (result.data.extracao_vazia) {
             push({
-               message: "Ata enviada. Preencha os dados manualmente.",
+               message: "Preencha os dados manualmente antes de enviar.",
                type: "warning",
             });
          } else {
             setManualForm({
-               letra_finalidade: result.dados_extraidos.letra_finalidade || "",
-               data_realizacao: result.dados_extraidos.data_realizacao || "",
-               validade_inspsau: result.dados_extraidos.validade_inspsau || "",
+               letra_finalidade: result.data.dados_extraidos.letra_finalidade || "",
+               data_realizacao: result.data.dados_extraidos.data_realizacao || "",
+               validade_inspsau: result.data.dados_extraidos.validade_inspsau || "",
             });
-            push({ message: "Ata enviada. Confira os dados extraídos.", type: "success" });
+            if (result.nomeConflito) {
+               push({ message: "Atenção: nome divergente. Confira os dados.", type: "warning" });
+            } else {
+               push({ message: "Confira os dados extraídos antes de enviar.", type: "success" });
+            }
          }
       } catch (err: unknown) {
-         if (err instanceof NomeDivergenteError) {
-            setNomeConflito({
-               nomeAta: err.nomeAta,
-               nomeSistema: err.nomeSistema,
-               file,
-            });
-            return;
-         }
          const message =
-            err instanceof Error ? err.message : "Erro ao enviar ata";
+            err instanceof Error ? err.message : "Erro ao processar ata";
          push({ title: "Erro", message, type: "error" });
       }
 
@@ -113,59 +121,25 @@ export default function AtasTab({
    };
 
    const handleConfirmUpload = async () => {
-      if (!nomeConflito) return;
+      if (!pendingFile) return;
       try {
          const result = await uploadMutation.mutateAsync({
             userId,
-            file: nomeConflito.file,
-            ignorarNome: true,
+            file: pendingFile,
+            dados: {
+               letra_finalidade: manualForm.letra_finalidade,
+               data_realizacao: manualForm.data_realizacao,
+               validade_inspsau: manualForm.validade_inspsau,
+            },
          });
-         setLastUpload(result);
-         if (result.extracao_vazia) {
-            push({ message: "Ata enviada. Preencha os dados manualmente.", type: "warning" });
-         } else {
-            setManualForm({
-               letra_finalidade: result.dados_extraidos.letra_finalidade || "",
-               data_realizacao: result.dados_extraidos.data_realizacao || "",
-               validade_inspsau: result.dados_extraidos.validade_inspsau || "",
-            });
-            push({ message: "Ata enviada. Confira os dados extraídos.", type: "success" });
+         if (result.cemal_atualizado && manualForm.validade_inspsau) {
+            onCemalUpdated?.(manualForm.validade_inspsau);
          }
+         push({ message: "Ata enviada com sucesso", type: "success" });
+         clearPending();
       } catch (err: unknown) {
          const message =
             err instanceof Error ? err.message : "Erro ao enviar ata";
-         push({ title: "Erro", message, type: "error" });
-      } finally {
-         setNomeConflito(null);
-         resetFileInput();
-      }
-   };
-
-   const handleManualSave = async () => {
-      if (!lastUpload) return;
-      try {
-         await updateMutation.mutateAsync({
-            ataId: lastUpload.ata.id,
-            data: {
-               letra_finalidade: manualForm.letra_finalidade || null,
-               data_realizacao: manualForm.data_realizacao || null,
-               validade_inspsau: manualForm.validade_inspsau || null,
-            },
-         });
-         const validade = manualForm.validade_inspsau;
-         if (validade) {
-            onCemalUpdated?.(validade);
-         }
-         push({ message: "Ata atualizada com sucesso", type: "success" });
-         setLastUpload(null);
-         setManualForm({
-            letra_finalidade: "",
-            data_realizacao: "",
-            validade_inspsau: "",
-         });
-      } catch (err: unknown) {
-         const message =
-            err instanceof Error ? err.message : "Erro ao atualizar ata";
          push({ title: "Erro", message, type: "error" });
       }
    };
@@ -183,53 +157,53 @@ export default function AtasTab({
       }
    };
 
+   const isExtracting = extrairMutation.isPending;
+   const isUploading = uploadMutation.isPending;
+
    return (
       <div className="space-y-4">
          {/* Upload */}
-         <div>
-            <input
-               ref={fileInputRef}
-               type="file"
-               accept=".pdf"
-               className="hidden"
-               onChange={handleFileChange}
-            />
-            <Button
-               color="blue"
-               size="sm"
-               onClick={() => fileInputRef.current?.click()}
-               disabled={uploadMutation.isPending}
-            >
-               {uploadMutation.isPending ? (
-                  <>
-                     <Spinner color="failure" size="sm" className="mr-2" />
-                     Enviando...
-                  </>
-               ) : (
-                  <>
-                     <HiUpload className="mr-2" />
-                     Upload de Ata (PDF)
-                  </>
-               )}
-            </Button>
-         </div>
+         {!pendingFile && (
+            <div>
+               <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept=".pdf"
+                  className="hidden"
+                  aria-label="Selecionar PDF de ata de inspeção"
+                  onChange={handleFileChange}
+               />
+               <Button
+                  color="blue"
+                  size="sm"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={isExtracting}
+               >
+                  {isExtracting ? (
+                     <>
+                        <Spinner color="failure" size="sm" className="mr-2" />
+                        Processando...
+                     </>
+                  ) : (
+                     <>
+                        <HiUpload className="mr-2" />
+                        Upload de Ata (PDF)
+                     </>
+                  )}
+               </Button>
+            </div>
+         )}
 
-         {/* Confirmação dos dados extraídos / Formulário manual */}
-         {lastUpload && (
+         {/* Formulário de confirmação dos dados */}
+         {pendingFile && (
             <ManualForm
                form={manualForm}
                onChange={setManualForm}
-               onSave={handleManualSave}
-               onSkip={() => {
-                  setLastUpload(null);
-                  setManualForm({
-                     letra_finalidade: "",
-                     data_realizacao: "",
-                     validade_inspsau: "",
-                  });
-               }}
-               isSaving={updateMutation.isPending}
-               variant={lastUpload.extracao_vazia ? "warning" : "success"}
+               onSave={handleConfirmUpload}
+               onCancel={clearPending}
+               isSaving={isUploading}
+               variant={extracaoVazia ? "warning" : "success"}
+               nomeConflito={nomeConflito}
             />
          )}
 
@@ -269,20 +243,6 @@ export default function AtasTab({
                )}
             </div>
          )}
-
-         {/* Aviso nome divergente */}
-         {nomeConflito && (
-            <NomeConflitoAlert
-               nomeAta={nomeConflito.nomeAta}
-               nomeSistema={nomeConflito.nomeSistema}
-               isPending={uploadMutation.isPending}
-               onConfirm={handleConfirmUpload}
-               onCancel={() => {
-                  setNomeConflito(null);
-                  resetFileInput();
-               }}
-            />
-         )}
       </div>
    );
 }
@@ -295,20 +255,22 @@ function ManualForm({
    form,
    onChange,
    onSave,
-   onSkip,
+   onCancel,
    isSaving,
    variant = "warning",
+   nomeConflito,
 }: {
    form: { letra_finalidade: string; data_realizacao: string; validade_inspsau: string };
    onChange: React.Dispatch<
       React.SetStateAction<typeof form>
    >;
    onSave: () => void;
-   onSkip: () => void;
+   onCancel: () => void;
    isSaving: boolean;
    variant?: "warning" | "success";
+   nomeConflito: NomeConflito | null;
 }) {
-   const isSuccess = variant === "success";
+   const isSuccess = variant === "success" && !nomeConflito;
 
    return (
       <div
@@ -340,9 +302,11 @@ function ManualForm({
                         : "text-sm font-semibold text-amber-800 dark:text-amber-300"
                   }
                >
-                  {isSuccess
-                     ? "Confira os dados extraídos"
-                     : "Não foi possível extrair os dados automaticamente"}
+                  {nomeConflito
+                     ? "O nome na ata não confere com o sistema"
+                     : variant === "warning"
+                       ? "Não foi possível extrair os dados automaticamente"
+                       : "Confira os dados extraídos"}
                </p>
                <p
                   className={
@@ -351,12 +315,36 @@ function ManualForm({
                         : "mt-1 text-xs text-amber-700 dark:text-amber-400"
                   }
                >
-                  {isSuccess
-                     ? "Verifique e corrija se necessário antes de salvar."
-                     : "O PDF parece ser uma imagem digitalizada. Preencha os campos manualmente."}
+                  {nomeConflito
+                     ? "Verifique se a ata pertence a este militar."
+                     : variant === "warning"
+                       ? "O PDF parece ser uma imagem digitalizada. Preencha os campos manualmente."
+                       : "Verifique e corrija se necessário antes de enviar."}
                </p>
             </div>
          </div>
+
+         {/* Alerta de nome divergente inline */}
+         {nomeConflito && (
+            <div className="mt-3 space-y-2">
+               <div className="rounded-md bg-white/60 px-3 py-2 dark:bg-gray-800/40">
+                  <span className="text-xs text-amber-600 dark:text-amber-400">
+                     Nome na ata
+                  </span>
+                  <p className="text-sm font-semibold uppercase text-gray-900 dark:text-white">
+                     {nomeConflito.nomeAta}
+                  </p>
+               </div>
+               <div className="rounded-md bg-white/60 px-3 py-2 dark:bg-gray-800/40">
+                  <span className="text-xs text-amber-600 dark:text-amber-400">
+                     Nome no sistema
+                  </span>
+                  <p className="text-sm font-semibold uppercase text-gray-900 dark:text-white">
+                     {nomeConflito.nomeSistema}
+                  </p>
+               </div>
+            </div>
+         )}
 
          <div className="mt-4 space-y-3">
             <div>
@@ -411,21 +399,26 @@ function ManualForm({
                   </div>
                </div>
             </div>
+            {!form.validade_inspsau && (
+               <p className="text-xs text-red-600 dark:text-red-400">
+                  A validade é obrigatória para enviar.
+               </p>
+            )}
             <div className="flex gap-2 pt-1">
                <Button
                   color="blue"
                   size="xs"
                   onClick={onSave}
-                  disabled={isSaving}
+                  disabled={isSaving || !form.validade_inspsau}
                >
                   {isSaving
-                     ? "Salvando..."
+                     ? "Enviando..."
                      : isSuccess
-                       ? "Confirmar"
-                       : "Salvar"}
+                       ? "Confirmar e Enviar"
+                       : "Salvar e Enviar"}
                </Button>
-               <Button color="gray" size="xs" onClick={onSkip}>
-                  Pular
+               <Button color="gray" size="xs" onClick={onCancel}>
+                  Cancelar
                </Button>
             </div>
          </div>
@@ -505,69 +498,6 @@ function AtaCard({
                      <HiTrash className="h-4 w-4" />
                   </button>
                )}
-            </div>
-         </div>
-      </div>
-   );
-}
-
-function NomeConflitoAlert({
-   nomeAta,
-   nomeSistema,
-   isPending,
-   onConfirm,
-   onCancel,
-}: {
-   nomeAta: string;
-   nomeSistema: string;
-   isPending: boolean;
-   onConfirm: () => void;
-   onCancel: () => void;
-}) {
-   return (
-      <div className="rounded-lg border border-amber-300 bg-amber-50 p-4 dark:border-amber-700 dark:bg-amber-900/20">
-         <div className="flex items-start gap-3">
-            <div className="rounded-full bg-amber-100 p-1.5 dark:bg-amber-800">
-               <HiExclamation className="h-5 w-5 text-amber-600 dark:text-amber-400" />
-            </div>
-            <div className="flex-1">
-               <p className="text-sm font-semibold text-amber-800 dark:text-amber-300">
-                  O nome na ata não confere com o sistema
-               </p>
-               <div className="mt-3 space-y-2">
-                  <div className="rounded-md bg-white/60 px-3 py-2 dark:bg-gray-800/40">
-                     <span className="text-xs text-amber-600 dark:text-amber-400">
-                        Nome na ata
-                     </span>
-                     <p className="text-sm font-semibold uppercase text-gray-900 dark:text-white">
-                        {nomeAta}
-                     </p>
-                  </div>
-                  <div className="rounded-md bg-white/60 px-3 py-2 dark:bg-gray-800/40">
-                     <span className="text-xs text-amber-600 dark:text-amber-400">
-                        Nome no sistema
-                     </span>
-                     <p className="text-sm font-semibold uppercase text-gray-900 dark:text-white">
-                        {nomeSistema}
-                     </p>
-                  </div>
-               </div>
-               <p className="mt-3 text-xs text-amber-700 dark:text-amber-400">
-                  Deseja enviar a ata mesmo assim?
-               </p>
-               <div className="mt-3 flex gap-2">
-                  <Button
-                     color="yellow"
-                     size="xs"
-                     onClick={onConfirm}
-                     disabled={isPending}
-                  >
-                     {isPending ? "Enviando..." : "Sim, enviar mesmo assim"}
-                  </Button>
-                  <Button color="gray" size="xs" onClick={onCancel}>
-                     Cancelar
-                  </Button>
-               </div>
             </div>
          </div>
       </div>
