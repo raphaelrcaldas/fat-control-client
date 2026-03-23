@@ -17,6 +17,7 @@ import {
 } from "../../schemas/userFormSchema";
 import { PersonalDataSection, MilitaryDataSection } from "./FormSections";
 import { getChangedFields } from "./utils";
+import { formatPhone, formatCpf, formatSaram } from "@/constants/formats";
 import { useUser, useUpdateUser, useCreateUser } from "@/hooks/queries";
 
 // ========================================
@@ -39,11 +40,12 @@ function toFormData(data: any): CreateUserFormData {
       esp: (data.esp || "").toUpperCase(),
       nome_guerra: (data.nome_guerra || "").toUpperCase(),
       nome_completo: (data.nome_completo || "").toUpperCase(),
-      saram: data.saram ?? null,
-      id_fab: data.id_fab ?? null,
-      cpf: data.cpf || "",
+      saram: formatSaram(data.saram || ""),
+      id_fab: data.id_fab ?? "",
+      cpf: formatCpf(data.cpf || ""),
       email_fab: data.email_fab || "",
       email_pess: data.email_pess || "",
+      telefone: formatPhone(data.telefone || ""),
       nasc: data.nasc ?? null,
       ult_promo: data.ult_promo ?? null,
       ant_rel: data.ant_rel ?? null,
@@ -113,10 +115,12 @@ export function UserForm({ userId, onSuccess }: UserFormProps) {
       // Normaliza campos vazios para null (backend não aceita "")
       const normalizedData = {
          ...data,
+         saram: data.saram?.replace(/\D/g, "") || "",
+         cpf: data.cpf?.replace(/\D/g, "") || null,
+         telefone: data.telefone?.replace(/\D/g, "") || null,
          email_fab: data.email_fab || null,
          email_pess: data.email_pess || null,
          id_fab: data.id_fab || null,
-         cpf: data.cpf || null,
       };
 
       try {
@@ -147,8 +151,9 @@ export function UserForm({ userId, onSuccess }: UserFormProps) {
             });
 
             if (result.ok) {
-               setInitialValues(data);
-               reset(data);
+               const updatedForm = toFormData(normalizedData);
+               setInitialValues(updatedForm);
+               reset(updatedForm);
                onSuccess?.();
             }
          } else {

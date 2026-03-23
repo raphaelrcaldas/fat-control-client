@@ -23,7 +23,7 @@ import {
    CartaoSaudeCreate,
    CartaoSaudeUpdate,
 } from "services/routes/aeromedica/cartoesSaude";
-import { formatSaram } from "utils/validators";
+import { formatSaram } from "@/constants/formats";
 import DateField from "./DateField";
 import AtasTab from "./AtasTab";
 

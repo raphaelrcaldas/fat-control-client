@@ -4,12 +4,13 @@
  */
 
 import { Label, TextInput, Select, Checkbox } from "flowbite-react";
-import { HiMail } from "react-icons/hi";
+import { HiMail, HiPhone } from "react-icons/hi";
 import { FaUser, FaShieldAlt } from "react-icons/fa";
 import clsx from "clsx";
 import { postoGradRecords } from "@/constants/militar/postos";
 import { unidadeOptions } from "@/constants/militar/unidades";
 import { onlyLettersKeyDown, onlyNumbersKeyDown } from "./utils";
+import { formatPhone, formatCpf, formatSaram } from "@/constants/formats";
 
 interface FormSectionProps {
    register: any;
@@ -52,6 +53,9 @@ function SectionCard({
 // ========================================
 
 export function PersonalDataSection({ register, errors }: FormSectionProps) {
+   const { onChange: cpfOnChange, ...cpfRest } = register("cpf");
+   const { onChange: phoneOnChange, ...phoneRest } = register("telefone");
+
    return (
       <SectionCard title="Dados Pessoais" icon={FaUser}>
          <div className="max-w-md">
@@ -73,11 +77,15 @@ export function PersonalDataSection({ register, errors }: FormSectionProps) {
             <Label htmlFor="cpf">CPF</Label>
             <TextInput
                id="cpf"
-               {...register("cpf")}
+               {...cpfRest}
+               onChange={(e) => {
+                  const digits = e.target.value.replace(/\D/g, "").slice(0, 11);
+                  e.target.value = formatCpf(digits);
+                  cpfOnChange(e);
+               }}
                autoComplete="off"
-               maxLength={11}
-               minLength={11}
-               onKeyDown={onlyNumbersKeyDown}
+               maxLength={14}
+               placeholder="000.000.000-00"
                className={clsx({
                   "focus:border-red-500 focus:ring-red-500": errors.cpf,
                })}
@@ -113,6 +121,27 @@ export function PersonalDataSection({ register, errors }: FormSectionProps) {
             />
             <FieldError error={errors.email_pess} />
          </div>
+
+         <div className="max-w-2xs">
+            <Label htmlFor="telefone">Telefone</Label>
+            <TextInput
+               id="telefone"
+               type="tel"
+               {...phoneRest}
+               onChange={(e) => {
+                  const digits = e.target.value.replace(/\D/g, "").slice(0, 11);
+                  e.target.value = formatPhone(digits);
+                  phoneOnChange(e);
+               }}
+               autoComplete="off"
+               icon={HiPhone}
+               placeholder="(00) 00000-0000"
+               className={clsx({
+                  "focus:border-red-500 focus:ring-red-500": errors.telefone,
+               })}
+            />
+            <FieldError error={errors.telefone} />
+         </div>
       </SectionCard>
    );
 }
@@ -122,6 +151,7 @@ export function PersonalDataSection({ register, errors }: FormSectionProps) {
 // ========================================
 
 export function MilitaryDataSection({ register, errors }: FormSectionProps) {
+   const { onChange: saramOnChange, ...saramRest } = register("saram");
    const pgOptions = postoGradRecords.map((pg) => ({
       value: pg.short,
       label: pg.mid,
@@ -206,11 +236,15 @@ export function MilitaryDataSection({ register, errors }: FormSectionProps) {
             <Label htmlFor="saram">SARAM</Label>
             <TextInput
                id="saram"
-               {...register("saram")}
+               {...saramRest}
+               onChange={(e) => {
+                  const digits = e.target.value.replace(/\D/g, "").slice(0, 7);
+                  e.target.value = formatSaram(digits);
+                  saramOnChange(e);
+               }}
                autoComplete="off"
-               maxLength={7}
-               minLength={7}
-               onKeyDown={onlyNumbersKeyDown}
+               maxLength={8}
+               placeholder="000000-0"
                className={clsx({
                   "focus:border-red-500 focus:ring-red-500": errors.saram,
                })}

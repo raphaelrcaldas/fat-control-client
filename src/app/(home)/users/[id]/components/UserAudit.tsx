@@ -5,6 +5,7 @@ import { Spinner } from "flowbite-react";
 import { HiClock, HiDocumentText } from "react-icons/hi";
 import { Historico } from "@/app/(home)/ops/indisp/components/Historico";
 import { cpf as cpfValidator } from "cpf-cnpj-validator";
+import { formatCpf } from "@/constants/formats";
 
 /**
  * Mapa de nomes de campo da API → labels amigáveis
@@ -45,7 +46,7 @@ function formatUserFieldValue(field: string, value: string): string {
          return und ? und.label : str;
       }
       case "cpf":
-         return cpfValidator.isValid(str) ? cpfValidator.format(str) : str;
+         return cpfValidator.isValid(str) ? formatCpf(str) : str;
       case "active":
          return str === "true" ? "Ativo" : "Inativo";
       case "password":

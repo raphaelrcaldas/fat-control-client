@@ -11,8 +11,10 @@ export const createUserFormSchema = z.object({
    unidade: z.string().nonempty("Obrigatório"),
    saram: z
       .string()
-      .length(7, "SARAM deve ter 7 dígitos")
-      .regex(/^\d+$/, "SARAM deve conter apenas dígitos")
+      .refine(
+         (v) => v.replace(/\D/g, "").length === 7,
+         "SARAM deve ter 7 dígitos",
+      )
       .refine(validarSaram, "SARAM inválido"),
    id_fab: z.union([
       z.literal(""),
@@ -27,8 +29,18 @@ export const createUserFormSchema = z.object({
          .string()
          .refine((userCPF) => cpf.isValid(userCPF), "Digite um CPF válido"),
    ]),
-   email_fab: z.union([z.literal(""), z.email().endsWith("fab.mil.br")]),
+   email_fab: z.union([z.literal(""), z.email().endsWith("@fab.mil.br")]),
    email_pess: z.union([z.literal(""), z.email()]),
+   telefone: z.union([
+      z.literal(""),
+      z.string().refine(
+         (v) => {
+            const d = v.replace(/\D/g, "");
+            return d.length === 10 || d.length === 11;
+         },
+         "Telefone deve ter 10 ou 11 dígitos",
+      ),
+   ]),
    nasc: z.nullable(z.string()),
    ult_promo: z.nullable(z.string()),
    ant_rel: z.nullable(z.coerce.number().gt(0)),
@@ -51,5 +63,6 @@ export const defaultUserValues: CreateUserFormData = {
    cpf: "",
    email_fab: "",
    email_pess: "",
+   telefone: "",
    active: true,
 };

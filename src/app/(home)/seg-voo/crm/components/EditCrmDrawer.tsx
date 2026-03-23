@@ -13,7 +13,7 @@ import {
 import { HiTrash } from "react-icons/hi";
 import clsx from "clsx";
 import { useToast } from "@/app/context/toast";
-import { formatSaram } from "utils/validators";
+import { formatSaram } from "@/constants/formats";
 import { useUpsertCrm, useDeleteCrm } from "@/hooks/queries";
 import type { TripCrmOut, CrmUpsert } from "services/routes/seg-voo/crm";
 import {

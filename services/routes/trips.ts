@@ -86,6 +86,12 @@ export async function getTrips(
    };
 }
 
+export async function getTripUserIds(uae: string): Promise<number[]> {
+   const response = await request("GET", tripRoute + "user-ids", null, { uae });
+   const json = await response.json() as { data: number[] };
+   return json.data;
+}
+
 export async function addTrip(trip: CreateTripData): Promise<ApiResult<null>> {
    return parseApiResponse<null>(await request("POST", tripRoute, trip));
 }

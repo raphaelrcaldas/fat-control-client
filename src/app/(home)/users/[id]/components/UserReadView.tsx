@@ -4,7 +4,7 @@
  */
 
 import { useState } from "react";
-import { useMask, format as maskFormat } from "@react-input/mask";
+import { useMask } from "@react-input/mask";
 import { TextInput, Select, Spinner } from "flowbite-react";
 import { FaUser, FaShieldAlt } from "react-icons/fa";
 import {
@@ -22,12 +22,11 @@ import {
 } from "react-icons/hi";
 import { UserFull, UserSchema } from "services/routes/users";
 import { formatDateFull } from "utils/dateHandler";
-import { formatSaram } from "utils/validators";
+import { formatSaram, formatPhone, formatCpf, phoneMaskConfig } from "@/constants/formats";
 import { postoGradRecords } from "@/constants/militar/postos";
 import { unidadeOptions } from "@/constants/militar/unidades";
 import { useUpdateUser } from "@/hooks/queries";
 import { useToast } from "@/app/context/toast";
-import { cpf as cpfValidator } from "cpf-cnpj-validator";
 
 // ========================================
 // Tipos
@@ -39,22 +38,6 @@ interface UserReadViewProps {
 }
 
 type FieldType = "text" | "email" | "date" | "number" | "select" | "phone";
-
-const phoneOptions10 = {
-   mask: "(__) ____-____",
-   replacement: { _: /\d/ },
-};
-const phoneOptions11 = {
-   mask: "(__) _____-____",
-   replacement: { _: /\d/ },
-};
-
-function formatPhone(digits: string): string {
-   const clean = digits.replace(/\D/g, "");
-   if (!clean) return "";
-   if (clean.length <= 10) return maskFormat(clean, phoneOptions10);
-   return maskFormat(clean, phoneOptions11);
-}
 
 interface FieldConfig {
    icon: React.ComponentType<{ className?: string }>;
@@ -111,22 +94,7 @@ function EditableField({
 
    const saving = updateMutation.isPending;
 
-   const phoneMaskRef = useMask({
-      mask: "(__) _____-____",
-      replacement: { _: /\d/ },
-      modify: (data) => {
-         const digits = data.value.replace(/\D/g, "");
-         // Ao inserir com 10 dígitos preenchidos, abre máscara de 11
-         if (digits.length >= 10 && data.inputType === "insert") {
-            return { mask: "(__) _____-____" };
-         }
-         // Já tem 11 dígitos (inclusive ao deletar)
-         if (digits.length > 10) {
-            return { mask: "(__) _____-____" };
-         }
-         return { mask: "(__) ____-____" };
-      },
-   });
+   const phoneMaskRef = useMask(phoneMaskConfig);
 
    function startEdit() {
       setLocalValue(type === "phone" ? formatPhone(rawValue) : rawValue);
@@ -335,7 +303,7 @@ export function UserReadView({ user, userId }: UserReadViewProps) {
             <ReadOnlyField
                icon={HiHashtag}
                label="CPF"
-               value={user.cpf ? cpfValidator.format(user.cpf) : ""}
+               value={formatCpf(user.cpf || "")}
             />
             <EditableField
                icon={HiCalendar}

@@ -6,20 +6,19 @@ import { useState } from "react";
 import { SearchUser as UserSearchModal } from "@/app/(home)/users/components/searchUser";
 import { TripRegister } from "./tripRegister";
 import { UserPublic } from "services/routes/users";
-import type { Trip } from "../types/trip.types";
+import { useTripUserIds } from "@/hooks/queries";
 
 type SearchUserProps = {
    uae: string;
-   trips: Trip[];
 };
 
-export function SearchUser({ uae, trips }: SearchUserProps) {
+export function SearchUser({ uae }: SearchUserProps) {
    const [showSearch, setShowSearch] = useState(false);
    const [selectedUser, setSelectedUser] = useState<UserPublic | null>(null);
    const [showRegister, setShowRegister] = useState(false);
 
-   // IDs dos usuários que já são tripulantes (para ignorar na busca)
-   const tripUserIds = trips.map((trip) => trip.user.id);
+   // IDs de todos os usuários que já são tripulantes (ativos e inativos)
+   const { data: tripUserIds = [] } = useTripUserIds(uae);
 
    function handleUserSelected(user: UserPublic) {
       setSelectedUser(user);
