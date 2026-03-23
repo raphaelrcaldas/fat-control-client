@@ -111,9 +111,10 @@ export async function extrairAta(
    const json = (await response.json()) as ApiResponse<AtaExtrairResponse>;
    if (!json.data) throw new Error("Resposta inválida do servidor");
 
+   const errors = json.errors as { nome_ata: string; nome_sistema: string } | null;
    const nomeConflito: NomeConflito | null =
-      json.message === "nome_divergente" && json.errors
-         ? { nomeAta: json.errors.nome_ata, nomeSistema: json.errors.nome_sistema }
+      json.message === "nome_divergente" && errors
+         ? { nomeAta: errors.nome_ata, nomeSistema: errors.nome_sistema }
          : null;
 
    return { data: json.data, nomeConflito };
