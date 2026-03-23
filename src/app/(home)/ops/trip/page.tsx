@@ -111,32 +111,6 @@ export default function TripPage() {
                      />
                   </div>
 
-                  {/* Toggle Ativo/Inativo */}
-                  <div className="flex gap-1">
-                     <Button
-                        color={filters.active ? "green" : "light"}
-                        size="sm"
-                        onClick={() => updateFilter("active", true)}
-                     >
-                        Ativos
-                     </Button>
-                     <Button
-                        color={!filters.active ? "gray" : "light"}
-                        size="sm"
-                        onClick={() => updateFilter("active", false)}
-                     >
-                        Inativos
-                     </Button>
-                  </div>
-
-                  {/* Botão Adicionar */}
-                  <PermBased resource={"trips"} requiredPerm={"create"}>
-                     <SearchUser uae={uae} trips={trips} />
-                  </PermBased>
-               </div>
-
-               {/* Linha 2: Filtros Avançados */}
-               <div className="mt-3 flex flex-wrap items-center gap-3">
                   {/* Filtro P/G */}
                   <div className="w-44">
                      <MultiSelect
@@ -184,6 +158,32 @@ export default function TripPage() {
                      />
                   </div>
 
+                  {/* Toggle Ativo/Inativo */}
+                  <div className="flex gap-1">
+                     <Button
+                        color={filters.active ? "green" : "light"}
+                        size="sm"
+                        onClick={() => updateFilter("active", true)}
+                     >
+                        Ativos
+                     </Button>
+                     <Button
+                        color={!filters.active ? "gray" : "light"}
+                        size="sm"
+                        onClick={() => updateFilter("active", false)}
+                     >
+                        Inativos
+                     </Button>
+                  </div>
+
+                  {/* Botão Adicionar */}
+                  <PermBased resource={"trips"} requiredPerm={"create"}>
+                     <SearchUser uae={uae} />
+                  </PermBased>
+               </div>
+
+               {/* Linha 2: Filtros Avançados */}
+               <div className="mt-3 flex flex-wrap items-center gap-3">
                   {/* Limpar Filtros */}
                   {hasActiveFilters && (
                      <Button

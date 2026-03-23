@@ -6,6 +6,7 @@ import {
 } from "@tanstack/react-query";
 import {
    getTrips,
+   getTripUserIds,
    addTrip,
    updateTrip,
    addCrewFunc,
@@ -25,6 +26,7 @@ export const tripKeys = {
    all: ["trips"] as const,
    lists: () => [...tripKeys.all, "list"] as const,
    list: (filters?: GetTripsParams) => [...tripKeys.lists(), filters] as const,
+   userIds: (uae: string) => [...tripKeys.all, "user-ids", uae] as const,
    details: () => [...tripKeys.all, "detail"] as const,
    detail: (id: number) => [...tripKeys.details(), id] as const,
 };
@@ -45,6 +47,16 @@ export function useTrips(params?: GetTripsParams) {
    });
 }
 
+/**
+ * IDs de usuários que já são tripulantes em uma UAE
+ */
+export function useTripUserIds(uae: string) {
+   return useQuery({
+      queryKey: tripKeys.userIds(uae),
+      queryFn: () => getTripUserIds(uae),
+   });
+}
+
 // ========================================
 // Mutations
 // ========================================
@@ -59,6 +71,7 @@ export function useCreateTrip() {
       mutationFn: (data: CreateTripData) => addTrip(data),
       onSuccess: () => {
          queryClient.invalidateQueries({ queryKey: tripKeys.lists() });
+         queryClient.invalidateQueries({ queryKey: tripKeys.all });
       },
    });
 }

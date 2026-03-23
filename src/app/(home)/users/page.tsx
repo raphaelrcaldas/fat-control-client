@@ -13,9 +13,9 @@ import { UserTable } from "./components/UserTable";
 import { UserCard } from "./components/UserCard";
 import { useUsers } from "@/hooks/queries";
 
-const PER_PAGE_OPTIONS = [10, 15, 25, 50, 100];
+const PER_PAGE_OPTIONS = [25, 50, 100];
 
-const DEFAULT_PER_PAGE = 10;
+const DEFAULT_PER_PAGE = 25;
 const DEFAULT_PAGE = 1;
 const DEFAULT_ACTIVE = ["true"];
 

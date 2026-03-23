@@ -7,10 +7,10 @@ type UseTripListParams = {
    uae: string;
 };
 
-const PER_PAGE_OPTIONS = [10, 15, 25, 50, 100];
+const PER_PAGE_OPTIONS = [25, 50, 100];
 
 const DEFAULT_PAGE = 1;
-const DEFAULT_PER_PAGE = 10;
+const DEFAULT_PER_PAGE = 25;
 const DEFAULT_ACTIVE = true;
 
 function parseCommaSeparated(value: string | null): string[] {

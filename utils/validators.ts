@@ -51,16 +51,3 @@ export function validarSaram(saram: string | number): boolean {
 
    return dvInformado === dvCalculado;
 }
-
-/**
- * Formata SARAM com dígito verificador: "628491" → "628491-4"
- * Se já contém o DV (7+ dígitos), apenas insere o hífen.
- */
-export function formatSaram(saram: string | number): string {
-   const str = String(saram).replace("-", "").trim();
-   if (!/^\d{6,7}$/.test(str)) return String(saram);
-
-   const base = str.slice(0, 6);
-   const dv = str.length === 7 ? str[6] : String(calcularDvSaram(base));
-   return `${base}-${dv}`;
-}

@@ -41,8 +41,11 @@ export function SearchUser({
       setHasSearched(true);
 
       try {
-         const response = await getUsers({ search: searchUser, per_page: 10 });
-         setUsers(response.items);
+         const response = await getUsers({ search: searchUser, per_page: 10, active: true });
+         const ignrSet = new Set(userIdsIgnr);
+         const available = response.items.filter((u) => !ignrSet.has(u.id));
+         const ignored = response.items.filter((u) => ignrSet.has(u.id));
+         setUsers([...available, ...ignored]);
       } catch (err) {
          setError("Erro ao buscar usuários. Tente novamente.");
          setUsers([]);
