@@ -10,10 +10,10 @@ import {
    Label,
    TextInput,
 } from "flowbite-react";
-import { HiTrash } from "react-icons/hi";
+import { HiPhone, HiTrash } from "react-icons/hi";
 import clsx from "clsx";
 import { useToast } from "@/app/context/toast";
-import { formatSaram } from "@/constants/formats";
+import { formatPhone, formatSaram } from "@/constants/formats";
 import { useUpsertPassaporte, useDeletePassaporte } from "@/hooks/queries";
 import type {
    TripPassaporteOut,
@@ -177,9 +177,15 @@ const EditPassaporteDrawer = memo(function EditPassaporteDrawer({
                            {item.nome_completo}
                         </p>
                      )}
-                     <div className="mt-2 flex gap-3 text-sm text-gray-500">
+                     <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-sm text-gray-500">
                         {item.saram && (
                            <span>SARAM: {formatSaram(item.saram)}</span>
+                        )}
+                        {item.telefone && (
+                           <span className="inline-flex items-center gap-1">
+                              <HiPhone className="h-3.5 w-3.5" />
+                              {formatPhone(item.telefone)}
+                           </span>
                         )}
                      </div>
                   </div>

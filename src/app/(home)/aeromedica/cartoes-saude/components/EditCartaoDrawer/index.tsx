@@ -10,7 +10,7 @@ import {
    Label,
    TextInput,
 } from "flowbite-react";
-import { HiTrash } from "react-icons/hi";
+import { HiPhone, HiTrash } from "react-icons/hi";
 import clsx from "clsx";
 import { useToast } from "@/app/context/toast";
 import {
@@ -23,7 +23,7 @@ import {
    CartaoSaudeCreate,
    CartaoSaudeUpdate,
 } from "services/routes/aeromedica/cartoesSaude";
-import { formatSaram } from "@/constants/formats";
+import { formatPhone, formatSaram } from "@/constants/formats";
 import DateField from "./DateField";
 import AtasTab from "./AtasTab";
 
@@ -278,8 +278,14 @@ function MilitarInfo({ item }: { item: UserCartaoSaude }) {
          <p className="mt-2 text-sm text-gray-500 uppercase dark:text-gray-400">
             {item.user.nome_completo}
          </p>
-         <div className="flex gap-3 text-sm text-gray-500 dark:text-gray-400">
+         <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-gray-500 dark:text-gray-400">
             {item.user.saram && <span>SARAM: {formatSaram(item.user.saram)}</span>}
+            {item.user.telefone && (
+               <span className="inline-flex items-center gap-1">
+                  <HiPhone className="h-3.5 w-3.5" />
+                  {formatPhone(item.user.telefone)}
+               </span>
+            )}
          </div>
       </div>
    );
