@@ -10,7 +10,8 @@ export type IndispType =
    | "lic"
    | "mis"
    | "odm"
-   | "pes";
+   | "pes"
+   | "ins";
 
 export interface IndispOption {
    value: IndispType;
@@ -86,6 +87,14 @@ export const INDISP_OPTIONS: IndispOption[] = [
          bg: "bg-blue-200",
       },
    },
+   {
+      value: "ins",
+      label: "CEMAL",
+      color: {
+         button: "bg-red-500 enabled:hover:bg-red-800",
+         bg: "bg-red-100",
+      },
+   },
 ];
 
 /**
@@ -100,6 +109,7 @@ export const INDISP_LABELS_EMOJI: Record<IndispType, string> = {
    mis: "✈️ Missão",
    odm: "🪖 Ordem de Missão",
    pes: "🏡 Particular",
+   ins: "🩺 CEMAL",
 };
 
 /**
