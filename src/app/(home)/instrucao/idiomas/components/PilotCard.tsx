@@ -28,7 +28,7 @@ function StatusBadge({
    const colors = getStatusColors(status);
    return (
       <span
-         className="inline-flex w-42 items-center justify-center gap-1 rounded px-2 py-0.5 text-[11px] font-medium"
+         className="inline-flex w-44 shrink-0 items-center justify-center gap-1 whitespace-nowrap rounded px-2 py-0.5 text-[11px] font-medium"
          style={{
             backgroundColor: colors.badgeBg,
             border: `0.5px solid ${colors.badgeBorder}`,
@@ -229,26 +229,16 @@ const PilotCard = memo(function PilotCard({ pilot, onEdit }: PilotCardProps) {
                      status={getIdiomStatus(pilot.idiomas?.tai_s1_validade)}
                      daysLabel={getDaysLabel(pilot.idiomas?.tai_s1_validade)}
                   />
-                  <span
-                     className={clsx(
-                        "inline-flex w-18 items-center justify-center gap-1 rounded border px-2 py-0.5 text-[11px] font-medium",
-                        pilot.idiomas?.hab_espanhol
-                           ? "border-green-200 bg-green-100 text-gray-600"
-                           : "border-gray-200 bg-gray-100 text-gray-400"
-                     )}
-                  >
-                     ESP {pilot.idiomas?.hab_espanhol ?? "—"}
-                  </span>
-                  <span
-                     className={clsx(
-                        "inline-flex w-18 items-center justify-center gap-1 rounded border px-2 py-0.5 text-[11px] font-medium",
-                        pilot.idiomas?.hab_ingles
-                           ? "border-blue-200 bg-blue-100 text-gray-600"
-                           : "border-gray-200 bg-gray-100 text-gray-400"
-                     )}
-                  >
-                     ING {pilot.idiomas?.hab_ingles ?? "—"}
-                  </span>
+                  <StatusBadge
+                     label={`ESP ${pilot.idiomas?.hab_espanhol ?? "—"}`}
+                     status={getIdiomStatus(pilot.idiomas?.val_espanhol)}
+                     daysLabel={getDaysLabel(pilot.idiomas?.val_espanhol)}
+                  />
+                  <StatusBadge
+                     label={`ING ${pilot.idiomas?.hab_ingles ?? "—"}`}
+                     status={getIdiomStatus(pilot.idiomas?.val_ingles)}
+                     daysLabel={getDaysLabel(pilot.idiomas?.val_ingles)}
+                  />
                </div>
 
                {/* Expand icon */}
@@ -277,26 +267,16 @@ const PilotCard = memo(function PilotCard({ pilot, onEdit }: PilotCardProps) {
                   status={getIdiomStatus(pilot.idiomas?.tai_s1_validade)}
                   daysLabel={getDaysLabel(pilot.idiomas?.tai_s1_validade)}
                />
-               <span
-                  className={clsx(
-                     "inline-flex w-14 items-center justify-center gap-1 rounded border px-2 py-0.5 text-[11px] font-medium",
-                     pilot.idiomas?.hab_espanhol
-                        ? "border-green-200 bg-green-100 text-gray-600"
-                        : "border-gray-200 bg-gray-100 text-gray-400"
-                  )}
-               >
-                  ESP {pilot.idiomas?.hab_espanhol ?? "—"}
-               </span>
-               <span
-                  className={clsx(
-                     "inline-flex w-14 items-center justify-center gap-1 rounded border px-2 py-0.5 text-[11px] font-medium",
-                     pilot.idiomas?.hab_ingles
-                        ? "border-blue-200 bg-blue-100 text-gray-600"
-                        : "border-gray-200 bg-gray-100 text-gray-400"
-                  )}
-               >
-                  ING {pilot.idiomas?.hab_ingles ?? "—"}
-               </span>
+               <StatusBadge
+                  label={`ESP ${pilot.idiomas?.hab_espanhol ?? "—"}`}
+                  status={getIdiomStatus(pilot.idiomas?.val_espanhol)}
+                  daysLabel={getDaysLabel(pilot.idiomas?.val_espanhol)}
+               />
+               <StatusBadge
+                  label={`ING ${pilot.idiomas?.hab_ingles ?? "—"}`}
+                  status={getIdiomStatus(pilot.idiomas?.val_ingles)}
+                  daysLabel={getDaysLabel(pilot.idiomas?.val_ingles)}
+               />
             </div>
          </div>
 

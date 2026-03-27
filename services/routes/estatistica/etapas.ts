@@ -57,6 +57,7 @@ export interface GetEtapasParams {
    esf_aer?: string;
    tipo_missao_cod?: string[];
    trip_search?: string;
+   excluir_sim?: boolean;
    page?: number;
    per_page?: number;
 }
@@ -140,6 +141,7 @@ export async function getEtapas(
                  tipo_missao_cod: params.tipo_missao_cod,
               }),
            ...(params.trip_search && { trip_search: params.trip_search }),
+           excluir_sim: params.excluir_sim === false ? "false" : "true",
            ...(params.page != null && { page: params.page.toString() }),
            ...(params.per_page != null && {
               per_page: params.per_page.toString(),
@@ -169,7 +171,8 @@ export async function getEtapasFlat(
    params?: GetEtapasParams,
    signal?: AbortSignal
 ): Promise<PaginatedEtapasFlatResponse> {
-   const queryParams: Record<string, string | string[]> = { flat: "true" };
+   const excluirSim = params?.excluir_sim === false ? "false" : "true";
+   const queryParams: Record<string, string | string[]> = { flat: "true", excluir_sim: excluirSim };
    if (params) {
       if (params.data_ini) queryParams.data_ini = params.data_ini;
       if (params.data_fim) queryParams.data_fim = params.data_fim;

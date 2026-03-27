@@ -9,6 +9,7 @@ import {
    Button,
    Label,
    TextInput,
+   Spinner,
 } from "flowbite-react";
 import { HiPhone, HiTrash } from "react-icons/hi";
 import clsx from "clsx";
@@ -95,12 +96,13 @@ const EditPassaporteDrawer = memo(function EditPassaporteDrawer({
    const upsertMutation = useUpsertPassaporte();
    const deleteMutation = useDeletePassaporte();
 
-   const isLoading = upsertMutation.isPending;
+   const isLoading = upsertMutation.isPending || deleteMutation.isPending;
    const isDeleting = deleteMutation.isPending;
 
    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
    const [formData, setFormData] = useState({
       passaporte: item.passaporte?.passaporte || "",
+      visa: item.passaporte?.visa || "",
       validade_passaporte: item.passaporte?.validade_passaporte || "",
       validade_visa: item.passaporte?.validade_visa || "",
    });
@@ -109,6 +111,7 @@ const EditPassaporteDrawer = memo(function EditPassaporteDrawer({
       if (show) {
          setFormData({
             passaporte: item.passaporte?.passaporte || "",
+            visa: item.passaporte?.visa || "",
             validade_passaporte: item.passaporte?.validade_passaporte || "",
             validade_visa: item.passaporte?.validade_visa || "",
          });
@@ -125,6 +128,7 @@ const EditPassaporteDrawer = memo(function EditPassaporteDrawer({
       try {
          const data: PassaporteUpsert = {
             passaporte: formData.passaporte || null,
+            visa: formData.visa || null,
             validade_passaporte: formData.validade_passaporte || null,
             validade_visa: formData.validade_visa || null,
          };
@@ -169,11 +173,11 @@ const EditPassaporteDrawer = memo(function EditPassaporteDrawer({
                <div className="space-y-6">
                   {/* Informacoes do militar */}
                   <div className="rounded-lg border bg-gray-50 p-4">
-                     <p className="text-sm font-semibold uppercase text-gray-900">
+                     <p className="text-sm font-semibold text-gray-900 uppercase">
                         {item.p_g} {item.nome_guerra}
                      </p>
                      {item.nome_completo && (
-                        <p className="mt-1 text-sm uppercase text-gray-500">
+                        <p className="mt-1 text-sm text-gray-500 uppercase">
                            {item.nome_completo}
                         </p>
                      )}
@@ -202,6 +206,21 @@ const EditPassaporteDrawer = memo(function EditPassaporteDrawer({
                            type="text"
                            placeholder="Ex: SC014119"
                            value={formData.passaporte}
+                           onChange={handleChange}
+                        />
+                     </div>
+                  </div>
+
+                  {/* Numero do visto */}
+                  <div>
+                     <Label htmlFor="visa">Nº Visto</Label>
+                     <div className="mt-1">
+                        <TextInput
+                           id="visa"
+                           name="visa"
+                           type="text"
+                           placeholder="Ex: AA1234567 ou B1/B2"
+                           value={formData.visa}
                            onChange={handleChange}
                         />
                      </div>
@@ -251,11 +270,16 @@ const EditPassaporteDrawer = memo(function EditPassaporteDrawer({
                         onClick={handleSave}
                         disabled={isLoading}
                      >
-                        {isLoading
-                           ? "Salvando..."
-                           : isEdit
-                             ? "Atualizar"
-                             : "Cadastrar"}
+                        {isLoading ? (
+                           <div className="flex items-center gap-2">
+                              <Spinner size="sm" color="info" />
+                              <span>Salvando...</span>
+                           </div>
+                        ) : isEdit ? (
+                           "Atualizar"
+                        ) : (
+                           "Cadastrar"
+                        )}
                      </Button>
                   </div>
                </div>
@@ -267,7 +291,7 @@ const EditPassaporteDrawer = memo(function EditPassaporteDrawer({
             onClose={() => setShowDeleteConfirm(false)}
             size="md"
          >
-            <ModalHeader>Confirmar Exclusao</ModalHeader>
+            <ModalHeader>Confirmar Exclusão</ModalHeader>
             <ModalBody>
                <p className="text-gray-700">
                   Tem certeza que deseja remover o passaporte de{" "}
@@ -277,7 +301,7 @@ const EditPassaporteDrawer = memo(function EditPassaporteDrawer({
                   ?
                </p>
                <p className="mt-2 text-sm text-gray-500">
-                  Esta acao nao pode ser desfeita.
+                  Esta ação não pode ser desfeita.
                </p>
             </ModalBody>
             <ModalFooter>
@@ -288,11 +312,7 @@ const EditPassaporteDrawer = memo(function EditPassaporteDrawer({
                >
                   Cancelar
                </Button>
-               <Button
-                  color="red"
-                  onClick={handleDelete}
-                  disabled={isDeleting}
-               >
+               <Button color="red" onClick={handleDelete} disabled={isDeleting}>
                   {isDeleting ? "Removendo..." : "Remover"}
                </Button>
             </ModalFooter>

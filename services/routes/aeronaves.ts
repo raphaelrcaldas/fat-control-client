@@ -8,6 +8,7 @@ export interface AeronavePublic {
    active: boolean;
    sit: string;
    obs: string | null;
+   is_sim: boolean;
    updated_at: string | null;
 }
 
@@ -16,12 +17,14 @@ export interface AeronaveCreate {
    active: boolean;
    sit: string;
    obs: string | null;
+   is_sim?: boolean;
 }
 
 export interface AeronaveUpdate {
    active?: boolean;
    sit?: string;
    obs?: string | null;
+   is_sim?: boolean;
 }
 
 export interface PaginatedResponse<T> {
@@ -33,9 +36,9 @@ export interface PaginatedResponse<T> {
 }
 
 export interface GetAeronavesParams {
-   search?: string;
    sit?: string;
    active?: boolean;
+   is_sim?: boolean;
    page?: number;
    per_page?: number;
 }
@@ -46,13 +49,17 @@ export async function getAeronaves(
 ): Promise<PaginatedResponse<AeronavePublic>> {
    const queryParams = params
       ? {
-           ...(params.search && { search: params.search }),
            ...(params.sit && { sit: params.sit }),
            ...(params.active !== undefined && {
               active: params.active.toString(),
            }),
-           ...(params.page && { page: params.page.toString() }),
-           ...(params.per_page && { per_page: params.per_page.toString() }),
+           ...(params.is_sim !== undefined && {
+              is_sim: params.is_sim.toString(),
+           }),
+           ...(params.page !== undefined && { page: params.page.toString() }),
+           ...(params.per_page !== undefined && {
+              per_page: params.per_page.toString(),
+           }),
         }
       : undefined;
    const response = await request(

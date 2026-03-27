@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import { Spinner } from "flowbite-react";
 import { useIdiomas } from "@/hooks/queries";
 import { MdTranslate } from "react-icons/md";
@@ -8,23 +8,10 @@ import type { TripIdiomasOut } from "services/routes/instrucao/idiomas";
 import PilotCard from "./components/PilotCard";
 import EditIdiomasDrawer from "./components/EditIdiomasDrawer";
 
-const LEVEL_RANK: Record<string, number> = { A1: 1, A2: 2, B1: 3, B2: 4 };
-
-function bestLevel(p: TripIdiomasOut): number {
-   const esp = LEVEL_RANK[p.idiomas?.hab_espanhol ?? ""] ?? 0;
-   const ing = LEVEL_RANK[p.idiomas?.hab_ingles ?? ""] ?? 0;
-   return Math.max(esp, ing);
-}
-
 export default function IdiomasPage() {
    const [editItem, setEditItem] = useState<TripIdiomasOut | null>(null);
 
    const { data = [], isLoading } = useIdiomas();
-
-   const sorted = useMemo(
-      () => [...data].sort((a, b) => bestLevel(b) - bestLevel(a)),
-      [data]
-   );
 
    return (
       <div className="flex flex-col gap-6 p-1">
@@ -60,12 +47,12 @@ export default function IdiomasPage() {
                <div className="flex justify-center py-16">
                   <Spinner color="failure" size="lg" />
                </div>
-            ) : sorted.length === 0 ? (
+            ) : data.length === 0 ? (
                <div className="py-16 text-center text-sm text-gray-400">
                   Nenhum piloto encontrado.
                </div>
             ) : (
-               sorted.map((p) => (
+               data.map((p) => (
                   <PilotCard key={p.trip_id} pilot={p} onEdit={setEditItem} />
                ))
             )}

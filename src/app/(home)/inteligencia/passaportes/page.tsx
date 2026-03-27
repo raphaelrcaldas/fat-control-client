@@ -104,7 +104,8 @@ export default function PassaportesPage() {
 
    const selectedItem = useMemo(
       () =>
-         passaportesData.find((item) => item.trip_id === selectedTripId) ?? null,
+         passaportesData.find((item) => item.trip_id === selectedTripId) ??
+         null,
       [passaportesData, selectedTripId]
    );
 

@@ -19,7 +19,12 @@ interface StatCardProps {
    iconBg: string;
    label: string;
    total: number;
-   counts: { valid: number; warning: number; critical: number; expired: number };
+   counts: {
+      valid: number;
+      warning: number;
+      critical: number;
+      expired: number;
+   };
    urgent: number;
 }
 
@@ -37,7 +42,7 @@ function StatCard({
    return (
       <div className="overflow-hidden rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
          {/* Header */}
-         <div className="flex items-center justify-between mb-4">
+         <div className="mb-4 flex items-center justify-between">
             <div className="flex items-center gap-3">
                <div className={clsx("rounded-xl p-2.5", iconBg)}>
                   <Icon className={clsx("h-5 w-5", iconColor)} />
@@ -75,7 +80,7 @@ function StatCard({
                      </div>
                      <div
                         className={clsx(
-                           "text-[9px] font-semibold uppercase tracking-widest opacity-80",
+                           "text-[9px] font-semibold tracking-widest uppercase opacity-80",
                            cfg.color
                         )}
                      >
@@ -109,11 +114,21 @@ function StatCard({
 interface StatCardsGridProps {
    passaporteStats: {
       total: number;
-      counts: { valid: number; warning: number; critical: number; expired: number };
+      counts: {
+         valid: number;
+         warning: number;
+         critical: number;
+         expired: number;
+      };
    };
    visaStats: {
       total: number;
-      counts: { valid: number; warning: number; critical: number; expired: number };
+      counts: {
+         valid: number;
+         warning: number;
+         critical: number;
+         expired: number;
+      };
    };
 }
 
@@ -130,7 +145,9 @@ const StatCardsGrid = memo(function StatCardsGrid({
             label="Passaporte"
             total={passaporteStats.total}
             counts={passaporteStats.counts}
-            urgent={passaporteStats.counts.expired + passaporteStats.counts.critical}
+            urgent={
+               passaporteStats.counts.expired + passaporteStats.counts.critical
+            }
          />
          <StatCard
             icon={HiIdentification}

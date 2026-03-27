@@ -4,9 +4,16 @@ import { useState } from "react";
 import { Button, Spinner } from "flowbite-react";
 import { MdStorage } from "react-icons/md";
 import { HiExclamation, HiTrash } from "react-icons/hi";
-import { useAllBucketsStats, useAtasOrfas, useDeleteAtasOrfas } from "@/hooks/queries";
+import {
+   useAllBucketsStats,
+   useAtasOrfas,
+   useDeleteAtasOrfas,
+} from "@/hooks/queries";
 import { useToast } from "@/app/context/toast";
-import type { BucketStats, AtaOrfaPublic } from "services/routes/aeromedica/atas";
+import type {
+   BucketStats,
+   AtaOrfaPublic,
+} from "services/routes/aeromedica/atas";
 
 const MAX_STORAGE_MB = 1024;
 

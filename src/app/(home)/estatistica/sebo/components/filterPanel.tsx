@@ -137,7 +137,7 @@ const FilterPanel = ({
                               : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                         } transform hover:scale-105 active:scale-95`}
                      >
-                        <span className="w-8 gap-1 text-center p-1">
+                        <span className="w-8 gap-1 p-1 text-center">
                            {/* {filter.checked ? (
                               <svg
                                  className="h-5 w-5"

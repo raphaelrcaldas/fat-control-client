@@ -6,7 +6,14 @@ import FilterPanel from "./components/filterPanel";
 import SeboTable from "./components/seboTable";
 import SeboChart from "./components/seboChart";
 
-export const INFO_COLUMNS = ["cemal", "tovn", "imae", "crm", "val_pass", "val_visa"] as const;
+export const INFO_COLUMNS = [
+   "cemal",
+   "tovn",
+   "imae",
+   "crm",
+   "val_pass",
+   "val_visa",
+] as const;
 export type InfoColumn = (typeof INFO_COLUMNS)[number];
 
 const defaultInfoCols: Record<InfoColumn, boolean> = {
@@ -25,10 +32,9 @@ function SeboPage() {
    const [opOp, setOpOp] = usePersistedState("estatistica.seboOpOp", true);
    const [opAl, setOpAl] = usePersistedState("estatistica.seboOpAl", false);
 
-   const [infoCols, setInfoCols] = usePersistedState<Record<InfoColumn, boolean>>(
-      "estatistica.seboInfoCols",
-      defaultInfoCols
-   );
+   const [infoCols, setInfoCols] = usePersistedState<
+      Record<InfoColumn, boolean>
+   >("estatistica.seboInfoCols", defaultInfoCols);
 
    const [seboFunc, setSeboFuncRaw] = usePersistedState(
       "estatistica.seboFunc",
@@ -122,18 +128,33 @@ function SeboPage() {
             </div>
 
             {/* Chart Section - Occupies remaining space */}
-            {!isLoading && sortedTrips.length > 0 && (
+            {(isLoading || sortedTrips.length > 0) && (
                <div className="flex-1">
                   <div className="sticky top-4 rounded-xl bg-white p-4 shadow-lg">
-                     <h3 className="mb-4 text-lg font-semibold text-gray-800">
-                        Grafico de Horas de Voo
-                     </h3>
-                     <SeboChart
-                        data={sortedTrips.map((trip) => trip.voo.h_ano)}
-                        categories={sortedTrips.map((trip) => trip.trig.toUpperCase())}
-                        activeRow={activeRow}
-                        trips={sortedTrips}
-                     />
+                     {isLoading ? (
+                        <>
+                           <div className="mb-4 flex gap-3">
+                              <div className="h-16 flex-1 animate-pulse rounded-lg bg-gray-200" />
+                              <div className="h-16 flex-1 animate-pulse rounded-lg bg-gray-200" />
+                              <div className="h-16 flex-1 animate-pulse rounded-lg bg-gray-200" />
+                           </div>
+                           <div className="h-[380px] animate-pulse rounded-lg bg-gray-200" />
+                        </>
+                     ) : (
+                        <>
+                           <h3 className="mb-4 text-lg font-semibold text-gray-800">
+                              Grafico de Horas de Voo
+                           </h3>
+                           <SeboChart
+                              data={sortedTrips.map((trip) => trip.voo.h_ano)}
+                              categories={sortedTrips.map((trip) =>
+                                 trip.trig.toUpperCase()
+                              )}
+                              activeRow={activeRow}
+                              trips={sortedTrips}
+                           />
+                        </>
+                     )}
                   </div>
                </div>
             )}

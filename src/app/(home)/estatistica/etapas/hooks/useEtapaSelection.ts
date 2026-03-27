@@ -67,5 +67,12 @@ export function useEtapaSelection(
       setSelectedIds(new Set());
    }, []);
 
-   return { selectedIds, allSelected, toggleEtapa, toggleMissao, toggleAll, clearSelection };
+   return {
+      selectedIds,
+      allSelected,
+      toggleEtapa,
+      toggleMissao,
+      toggleAll,
+      clearSelection,
+   };
 }

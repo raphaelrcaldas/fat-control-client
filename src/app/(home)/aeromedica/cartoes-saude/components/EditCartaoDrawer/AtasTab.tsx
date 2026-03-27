@@ -101,14 +101,23 @@ export default function AtasTab({
             });
          } else {
             setManualForm({
-               letra_finalidade: result.data.dados_extraidos.letra_finalidade || "",
-               data_realizacao: result.data.dados_extraidos.data_realizacao || "",
-               validade_inspsau: result.data.dados_extraidos.validade_inspsau || "",
+               letra_finalidade:
+                  result.data.dados_extraidos.letra_finalidade || "",
+               data_realizacao:
+                  result.data.dados_extraidos.data_realizacao || "",
+               validade_inspsau:
+                  result.data.dados_extraidos.validade_inspsau || "",
             });
             if (result.nomeConflito) {
-               push({ message: "Atenção: nome divergente. Confira os dados.", type: "warning" });
+               push({
+                  message: "Atenção: nome divergente. Confira os dados.",
+                  type: "warning",
+               });
             } else {
-               push({ message: "Confira os dados extraídos antes de enviar.", type: "success" });
+               push({
+                  message: "Confira os dados extraídos antes de enviar.",
+                  type: "success",
+               });
             }
          }
       } catch (err: unknown) {
@@ -260,10 +269,12 @@ function ManualForm({
    variant = "warning",
    nomeConflito,
 }: {
-   form: { letra_finalidade: string; data_realizacao: string; validade_inspsau: string };
-   onChange: React.Dispatch<
-      React.SetStateAction<typeof form>
-   >;
+   form: {
+      letra_finalidade: string;
+      data_realizacao: string;
+      validade_inspsau: string;
+   };
+   onChange: React.Dispatch<React.SetStateAction<typeof form>>;
    onSave: () => void;
    onCancel: () => void;
    isSaving: boolean;
@@ -331,7 +342,7 @@ function ManualForm({
                   <span className="text-xs text-amber-600 dark:text-amber-400">
                      Nome na ata
                   </span>
-                  <p className="text-sm font-semibold uppercase text-gray-900 dark:text-white">
+                  <p className="text-sm font-semibold text-gray-900 uppercase dark:text-white">
                      {nomeConflito.nomeAta}
                   </p>
                </div>
@@ -339,7 +350,7 @@ function ManualForm({
                   <span className="text-xs text-amber-600 dark:text-amber-400">
                      Nome no sistema
                   </span>
-                  <p className="text-sm font-semibold uppercase text-gray-900 dark:text-white">
+                  <p className="text-sm font-semibold text-gray-900 uppercase dark:text-white">
                      {nomeConflito.nomeSistema}
                   </p>
                </div>

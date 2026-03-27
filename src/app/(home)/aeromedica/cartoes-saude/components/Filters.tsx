@@ -2,15 +2,14 @@
 
 import { TextInput, Spinner } from "flowbite-react";
 import { HiSearch, HiX } from "react-icons/hi";
-import {
-   MdFlightTakeoff,
-   MdPeopleAlt,
-   MdFilterList,
-} from "react-icons/md";
+import { MdFlightTakeoff, MdPeopleAlt, MdFilterList } from "react-icons/md";
 import clsx from "clsx";
 import { MultiSelect } from "@/components/MultiSelect";
 import { postoGradRecords } from "@/constants/militar";
-import { FUNCOES_PRINCIPAIS, FUNC_LABELS } from "@/constants/tripulantes/funcoes";
+import {
+   FUNCOES_PRINCIPAIS,
+   FUNC_LABELS,
+} from "@/constants/tripulantes/funcoes";
 import type { TripFilter, StatusFilter } from "../types";
 
 // ========================================
@@ -55,9 +54,7 @@ function FilterButton({
          )}
       >
          {Icon && <Icon className="h-3.5 w-3.5" />}
-         {dot && (
-            <span className={clsx("h-2 w-2 rounded-full", dot)} />
-         )}
+         {dot && <span className={clsx("h-2 w-2 rounded-full", dot)} />}
          {children}
       </button>
    );
@@ -214,18 +211,11 @@ export default function Filters({
                <div className="flex items-center gap-4">
                   <span className="text-gray-600">
                      Exibindo{" "}
-                     <strong className="text-gray-900">
-                        {filteredCount}
-                     </strong>{" "}
-                     de{" "}
-                     <strong className="text-gray-900">
-                        {totalCount}
-                     </strong>{" "}
+                     <strong className="text-gray-900">{filteredCount}</strong>{" "}
+                     de <strong className="text-gray-900">{totalCount}</strong>{" "}
                      militares
                   </span>
-                  {isFetching && (
-                     <Spinner color="failure" size="sm" />
-                  )}
+                  {isFetching && <Spinner color="failure" size="sm" />}
                </div>
                {hasActiveFilters && (
                   <button

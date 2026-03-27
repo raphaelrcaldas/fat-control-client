@@ -150,9 +150,7 @@ export default function EditCartaoDrawer({
       <>
          <Modal show={show} onClose={onClose} size="lg" dismissible>
             <ModalHeader>
-               {isEdit
-                  ? "Editar Cartão de Saúde"
-                  : "Cadastrar Cartão de Saúde"}
+               {isEdit ? "Editar Cartão de Saúde" : "Cadastrar Cartão de Saúde"}
             </ModalHeader>
             <ModalBody>
                <div className="h-140 space-y-6">
@@ -174,14 +172,14 @@ export default function EditCartaoDrawer({
                      />
                   ) : (
                      <AtasTab
-                     userId={item.user.id}
-                     onCemalUpdated={(cemal) =>
-                        setFormData((prev) => ({
-                           ...prev,
-                           cemal,
-                        }))
-                     }
-                  />
+                        userId={item.user.id}
+                        onCemalUpdated={(cemal) =>
+                           setFormData((prev) => ({
+                              ...prev,
+                              cemal,
+                           }))
+                        }
+                     />
                   )}
                </div>
             </ModalBody>
@@ -252,11 +250,7 @@ export default function EditCartaoDrawer({
                >
                   Cancelar
                </Button>
-               <Button
-                  color="red"
-                  onClick={handleDelete}
-                  disabled={isDeleting}
-               >
+               <Button color="red" onClick={handleDelete} disabled={isDeleting}>
                   {isDeleting ? "Deletando..." : "Deletar"}
                </Button>
             </ModalFooter>
@@ -279,7 +273,9 @@ function MilitarInfo({ item }: { item: UserCartaoSaude }) {
             {item.user.nome_completo}
          </p>
          <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-gray-500 dark:text-gray-400">
-            {item.user.saram && <span>SARAM: {formatSaram(item.user.saram)}</span>}
+            {item.user.saram && (
+               <span>SARAM: {formatSaram(item.user.saram)}</span>
+            )}
             {item.user.telefone && (
                <span className="inline-flex items-center gap-1">
                   <HiPhone className="h-3.5 w-3.5" />
@@ -308,10 +304,16 @@ function TabButtons({
 
    return (
       <div className="flex gap-2 border-b border-gray-200 dark:border-gray-700">
-         <button className={tabClass("dados")} onClick={() => onTabChange("dados")}>
+         <button
+            className={tabClass("dados")}
+            onClick={() => onTabChange("dados")}
+         >
             Dados
          </button>
-         <button className={tabClass("atas")} onClick={() => onTabChange("atas")}>
+         <button
+            className={tabClass("atas")}
+            onClick={() => onTabChange("atas")}
+         >
             Atas
          </button>
       </div>

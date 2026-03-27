@@ -73,7 +73,11 @@ export default function SidebarWithFooter({
                if ("resource" in child && "permission" in child) {
                   return hasPerm(child.resource, child.permission);
                }
-               if ("roles" in child && Array.isArray(child.roles) && child.roles.length > 0) {
+               if (
+                  "roles" in child &&
+                  Array.isArray(child.roles) &&
+                  child.roles.length > 0
+               ) {
                   return hasRole(child.roles);
                }
                return true;

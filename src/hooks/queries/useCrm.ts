@@ -15,8 +15,7 @@ import {
 export const crmKeys = {
    all: ["crm"] as const,
    lists: () => [...crmKeys.all, "list"] as const,
-   list: (params?: GetCrmParams) =>
-      [...crmKeys.lists(), params] as const,
+   list: (params?: GetCrmParams) => [...crmKeys.lists(), params] as const,
 };
 
 export function useCrm(params?: GetCrmParams) {

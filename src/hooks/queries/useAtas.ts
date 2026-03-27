@@ -1,8 +1,4 @@
-import {
-   useQuery,
-   useMutation,
-   useQueryClient,
-} from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
    extrairAta,
    uploadAta,
@@ -14,7 +10,10 @@ import {
    getAtasOrfas,
    deleteAtasOrfas,
 } from "services/routes/aeromedica/atas";
-import type { AtaUpdateData, DadosConfirmados } from "services/routes/aeromedica/atas";
+import type {
+   AtaUpdateData,
+   DadosConfirmados,
+} from "services/routes/aeromedica/atas";
 import { cartoesSaudeKeys } from "./useCartoesSaude";
 
 // ========================================
@@ -80,13 +79,7 @@ export function useAtasOrfas() {
 
 export function useExtrairAta() {
    return useMutation({
-      mutationFn: async ({
-         userId,
-         file,
-      }: {
-         userId: number;
-         file: File;
-      }) => {
+      mutationFn: async ({ userId, file }: { userId: number; file: File }) => {
          return extrairAta(userId, file);
       },
    });

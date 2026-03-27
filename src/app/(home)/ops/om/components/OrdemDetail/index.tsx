@@ -84,7 +84,10 @@ export function OrdemFormContent({
    // TanStack Query - etiquetas e aeronaves com cache automatico
    const etiquetasQuery = useEtiquetas();
    const allLabels = etiquetasQuery.data ?? [];
-   const { data: aeronaveData } = useAeronaves({ per_page: 100 });
+   const { data: aeronaveData } = useAeronaves({
+      per_page: 100,
+      is_sim: false,
+   });
    const aeronaves = aeronaveData?.items ?? [];
 
    const [isLabelManagerOpen, setIsLabelManagerOpen] = useState(false);

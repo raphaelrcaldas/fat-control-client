@@ -152,50 +152,54 @@ export default function EtapasPage() {
                      onDataIniChange={filters.handleDataIniChange}
                      onDataFimChange={filters.handleDataFimChange}
                      onMultiSelectChange={filters.handleMultiSelectChange}
+                     incluirSim={filters.urlIncluirSim}
+                     onIncluirSimChange={filters.handleIncluirSimChange}
                   />
                </div>
             </div>
          </div>
 
-         {filters.hasActiveFilters && (
-            <ActiveFilterTags
-               urlDataIni={filters.urlDataIni}
-               urlDataFim={filters.urlDataFim}
-               urlAnv={filters.urlAnv}
-               urlOrigem={filters.urlOrigem}
-               urlDestino={filters.urlDestino}
-               urlTrip={filters.urlTrip}
-               urlEsfAer={filters.urlEsfAer}
-               urlTipoMissao={filters.urlTipoMissao}
-               onRemoveDataIni={() =>
-                  filters.updateParams({ data_ini: undefined })
-               }
-               onRemoveDataFim={() =>
-                  filters.updateParams({ data_fim: undefined })
-               }
-               onRemoveAnv={() => filters.handleMultiSelectChange("anv", [])}
-               onRemoveOrigem={() => {
-                  filters.setFilterOrigem("");
-                  filters.updateParams({ origem: undefined });
-               }}
-               onRemoveDestino={() => {
-                  filters.setFilterDestino("");
-                  filters.updateParams({ destino: undefined });
-               }}
-               onRemoveTrip={() => {
-                  filters.setFilterTrip("");
-                  filters.updateParams({ trip_search: undefined });
-               }}
-               onRemoveEsfAer={() => {
-                  filters.setFilterEsfAer("");
-                  filters.updateParams({ esf_aer: undefined });
-               }}
-               onRemoveTipoMissao={() =>
-                  filters.handleMultiSelectChange("tipo_missao_cod", [])
-               }
-               onClearAll={filters.clearFilters}
-            />
-         )}
+         <ActiveFilterTags
+            urlDataIni={filters.urlDataIni}
+            urlDataFim={filters.urlDataFim}
+            urlAnv={filters.urlAnv}
+            urlOrigem={filters.urlOrigem}
+            urlDestino={filters.urlDestino}
+            urlTrip={filters.urlTrip}
+            urlEsfAer={filters.urlEsfAer}
+            urlTipoMissao={filters.urlTipoMissao}
+            onRemoveDataIni={() =>
+               filters.updateParams({ data_ini: undefined })
+            }
+            onRemoveDataFim={() =>
+               filters.updateParams({ data_fim: undefined })
+            }
+            onRemoveAnv={() => filters.handleMultiSelectChange("anv", [])}
+            onRemoveOrigem={() => {
+               filters.setFilterOrigem("");
+               filters.updateParams({ origem: undefined });
+            }}
+            onRemoveDestino={() => {
+               filters.setFilterDestino("");
+               filters.updateParams({ destino: undefined });
+            }}
+            onRemoveTrip={() => {
+               filters.setFilterTrip("");
+               filters.updateParams({ trip_search: undefined });
+            }}
+            onRemoveEsfAer={() => {
+               filters.setFilterEsfAer("");
+               filters.updateParams({ esf_aer: undefined });
+            }}
+            onRemoveTipoMissao={() =>
+               filters.handleMultiSelectChange("tipo_missao_cod", [])
+            }
+            urlIncluirSim={filters.urlIncluirSim}
+            onRemoveIncluirSim={() =>
+               filters.updateParams({ incluir_sim: undefined })
+            }
+            onClearAll={filters.clearFilters}
+         />
 
          <div className="relative flex-1 overflow-auto">
             {filters.loading && (

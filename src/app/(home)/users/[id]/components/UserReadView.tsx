@@ -22,7 +22,12 @@ import {
 } from "react-icons/hi";
 import { UserFull, UserSchema } from "services/routes/users";
 import { formatDateFull } from "utils/dateHandler";
-import { formatSaram, formatPhone, formatCpf, phoneMaskConfig } from "@/constants/formats";
+import {
+   formatSaram,
+   formatPhone,
+   formatCpf,
+   phoneMaskConfig,
+} from "@/constants/formats";
 import { postoGradRecords } from "@/constants/militar/postos";
 import { unidadeOptions } from "@/constants/militar/unidades";
 import { useUpdateUser } from "@/hooks/queries";
@@ -164,7 +169,7 @@ function EditableField({
                            onChange={(e) => setLocalValue(e.target.value)}
                            onKeyDown={handleKeyDown}
                            placeholder="(__) _____-____"
-                           className="block w-40 rounded-lg border border-gray-300 bg-gray-50 px-2 py-1.5 text-xs text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                           className="block w-40 rounded-lg border border-gray-300 bg-gray-50 px-2 py-1.5 text-xs text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
                            autoFocus
                         />
                      ) : type === "select" && options ? (

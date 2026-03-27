@@ -118,7 +118,7 @@ const SortableHeader = memo(function SortableHeader({
 
    return (
       <TableHeadCell
-         className="cursor-pointer select-none px-4 py-3 font-semibold transition-colors hover:text-gray-900"
+         className="cursor-pointer px-4 py-3 font-semibold transition-colors select-none hover:text-gray-900"
          onClick={() => onSort(field)}
       >
          <div className="flex items-center gap-1">
@@ -179,13 +179,10 @@ const CartoesSaudeRow = memo(function CartoesSaudeRow({
       >
          <TableCell className="w-10 px-3 py-3">
             <span
-               className={clsx(
-                  "inline-block h-3 w-3 rounded-full",
-                  dotColor
-               )}
+               className={clsx("inline-block h-3 w-3 rounded-full", dotColor)}
             />
          </TableCell>
-         <TableCell className="px-4 py-3 font-medium whitespace-nowrap uppercase text-gray-900">
+         <TableCell className="px-4 py-3 font-medium whitespace-nowrap text-gray-900 uppercase">
             <p className="font-semibold">
                {item.user.posto.short} {item.user.nome_guerra}
             </p>
@@ -262,7 +259,7 @@ export default function CartoesSaudeTable({
    return (
       <div className="overflow-x-auto">
          <Table hoverable>
-            <TableHead className="border-b border-gray-200 bg-gray-50 text-xs uppercase text-gray-700">
+            <TableHead className="border-b border-gray-200 bg-gray-50 text-xs text-gray-700 uppercase">
                <TableRow>
                   <TableHeadCell className="w-10 px-3 py-3" />
                   <SortableHeader

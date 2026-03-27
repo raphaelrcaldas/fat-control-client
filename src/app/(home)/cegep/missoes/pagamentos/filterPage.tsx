@@ -186,7 +186,10 @@ export function FilterPage({ active }: { active: boolean }) {
             misRecords.reduce((acc, r) => acc + Number(r.missao.valor_total), 0)
          );
          setDiariasSoma(
-            misRecords.reduce((acc, r) => acc + Number(r.missao.diarias ?? 0), 0)
+            misRecords.reduce(
+               (acc, r) => acc + Number(r.missao.diarias ?? 0),
+               0
+            )
          );
       } else if (misRecords && !selectedAll) {
          setSelectedIds([]);
@@ -195,7 +198,12 @@ export function FilterPage({ active }: { active: boolean }) {
       }
    }, [selectedAll, misRecords]);
 
-   function handleSelect(id: number, valor: number, diarias: number, checked: boolean) {
+   function handleSelect(
+      id: number,
+      valor: number,
+      diarias: number,
+      checked: boolean
+   ) {
       if (checked) {
          setSelectedIds((prev) => [...prev, id]);
          setValorSoma((prev) => prev + Number(valor));
@@ -636,7 +644,8 @@ export function FilterPage({ active }: { active: boolean }) {
                                     })}
                                  </p>
                                  <p className="font-medium text-green-700">
-                                    {diariasSoma.toFixed(1)} diária{diariasSoma !== 1 ? "s" : ""}
+                                    {diariasSoma.toFixed(1)} diária
+                                    {diariasSoma !== 1 ? "s" : ""}
                                  </p>
                               </div>
                            </div>

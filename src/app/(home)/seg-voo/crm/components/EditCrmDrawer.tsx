@@ -16,10 +16,7 @@ import { useToast } from "@/app/context/toast";
 import { formatPhone, formatSaram } from "@/constants/formats";
 import { useUpsertCrm, useDeleteCrm } from "@/hooks/queries";
 import type { TripCrmOut, CrmUpsert } from "services/routes/seg-voo/crm";
-import {
-   getDateStatus,
-   getStatusConfig,
-} from "@/utils/dateStatus";
+import { getDateStatus, getStatusConfig } from "@/utils/dateStatus";
 
 // ========================================
 // Campos de data
@@ -163,7 +160,8 @@ const EditCrmDrawer = memo(function EditCrmDrawer({
       ) {
          push({
             title: "Data inválida",
-            message: "A data de realização não pode ser maior que a de validade.",
+            message:
+               "A data de realização não pode ser maior que a de validade.",
             type: "error",
          });
          return;
@@ -208,18 +206,16 @@ const EditCrmDrawer = memo(function EditCrmDrawer({
    return (
       <>
          <Modal show={show} onClose={onClose} size="md" dismissible>
-            <ModalHeader>
-               {isEdit ? "Editar CRM" : "Cadastrar CRM"}
-            </ModalHeader>
+            <ModalHeader>{isEdit ? "Editar CRM" : "Cadastrar CRM"}</ModalHeader>
             <ModalBody>
                <div className="space-y-6">
                   {/* Informações do militar */}
                   <div className="rounded-lg border bg-gray-50 p-4">
-                     <p className="text-sm font-semibold uppercase text-gray-900">
+                     <p className="text-sm font-semibold text-gray-900 uppercase">
                         {item.p_g} {item.nome_guerra}
                      </p>
                      {item.nome_completo && (
-                        <p className="mt-1 text-sm uppercase text-gray-500">
+                        <p className="mt-1 text-sm text-gray-500 uppercase">
                            {item.nome_completo}
                         </p>
                      )}
@@ -319,11 +315,7 @@ const EditCrmDrawer = memo(function EditCrmDrawer({
                >
                   Cancelar
                </Button>
-               <Button
-                  color="red"
-                  onClick={handleDelete}
-                  disabled={isDeleting}
-               >
+               <Button color="red" onClick={handleDelete} disabled={isDeleting}>
                   {isDeleting ? "Removendo..." : "Remover"}
                </Button>
             </ModalFooter>

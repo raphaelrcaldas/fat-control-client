@@ -6,7 +6,10 @@ interface RoleBasedRouteProps {
    requiredRoles: readonly string[];
 }
 
-export const RoleBasedRoute = ({ children, requiredRoles }: RoleBasedRouteProps) => {
+export const RoleBasedRoute = ({
+   children,
+   requiredRoles,
+}: RoleBasedRouteProps) => {
    const { role } = useAuth();
 
    if (role === "admin") {

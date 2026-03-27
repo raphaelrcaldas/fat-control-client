@@ -7,7 +7,10 @@ import { MdFilterList } from "react-icons/md";
 import clsx from "clsx";
 import { MultiSelect } from "@/components/MultiSelect";
 import { postoGradRecords } from "@/constants/militar";
-import { FUNCOES_PRINCIPAIS, FUNC_LABELS } from "@/constants/tripulantes/funcoes";
+import {
+   FUNCOES_PRINCIPAIS,
+   FUNC_LABELS,
+} from "@/constants/tripulantes/funcoes";
 import type { StatusFilter } from "../types";
 
 const PG_OPTIONS = postoGradRecords.map((pg) => ({
@@ -83,7 +86,7 @@ const Filters = memo(function Filters({
 }: FiltersProps) {
    return (
       <>
-         <div className="flex flex-col gap-3 p-4 md:flex-row md:items-center md:flex-wrap">
+         <div className="flex flex-col gap-3 p-4 md:flex-row md:flex-wrap md:items-center">
             <div className="min-w-0 flex-1">
                <TextInput
                   icon={HiSearch}
@@ -155,8 +158,7 @@ const Filters = memo(function Filters({
                   <span className="text-gray-600">
                      Exibindo{" "}
                      <strong className="text-gray-900">{filteredCount}</strong>{" "}
-                     de{" "}
-                     <strong className="text-gray-900">{totalCount}</strong>{" "}
+                     de <strong className="text-gray-900">{totalCount}</strong>{" "}
                      militares
                   </span>
                   {isFetching && <Spinner color="failure" size="sm" />}

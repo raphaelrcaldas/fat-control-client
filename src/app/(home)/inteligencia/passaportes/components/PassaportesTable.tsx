@@ -76,6 +76,13 @@ const SortableHeader = memo(function SortableHeader({
       <TableHeadCell
          className="cursor-pointer px-4 py-3 font-semibold transition-colors select-none hover:text-gray-900"
          onClick={() => onSort(field)}
+         aria-sort={
+            isActive
+               ? direction === "asc"
+                  ? "ascending"
+                  : "descending"
+               : "none"
+         }
       >
          <div className="flex items-center gap-1">
             <span>{label}</span>
@@ -144,6 +151,7 @@ const PassaporteRow = memo(function PassaporteRow({
          <TableCell className="w-10 px-3 py-3">
             <span
                className={clsx("inline-block h-3 w-3 rounded-full", dotColor)}
+               aria-label={`Status: ${worst}`}
             />
          </TableCell>
          <TableCell className="px-4 py-3 font-medium whitespace-nowrap text-gray-900 uppercase">
@@ -152,8 +160,13 @@ const PassaporteRow = memo(function PassaporteRow({
             </p>
          </TableCell>
          <TableCell className="px-4 py-3 whitespace-nowrap">
-            <span className="text-sm text-gray-700 font-semibold">
+            <span className="text-sm font-semibold text-gray-700">
                {item.passaporte?.passaporte || "---"}
+            </span>
+         </TableCell>
+         <TableCell className="px-4 py-3 whitespace-nowrap">
+            <span className="text-sm font-semibold text-gray-700">
+               {item.passaporte?.visa || "---"}
             </span>
          </TableCell>
          <TableCell className="px-4 py-3 whitespace-nowrap">
@@ -233,6 +246,9 @@ const PassaportesTable = memo(function PassaportesTable({
                   />
                   <TableHeadCell className="px-4 py-3 font-semibold">
                      Nº Passaporte
+                  </TableHeadCell>
+                  <TableHeadCell className="px-4 py-3 font-semibold">
+                     Nº Visto
                   </TableHeadCell>
                   <SortableHeader
                      label="Validade Passaporte"

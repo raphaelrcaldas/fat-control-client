@@ -15,6 +15,7 @@ export const aeronaveFormSchema = z.object({
    sit: z.string().length(2, "Selecione uma situação"),
    obs: z.string().nullable().optional(),
    active: z.boolean(),
+   is_sim: z.boolean(),
 });
 
 export type AeronaveFormData = z.infer<typeof aeronaveFormSchema>;
@@ -24,4 +25,5 @@ export const defaultAeronaveValues: AeronaveFormData = {
    sit: "DI",
    obs: null,
    active: true,
+   is_sim: false,
 };

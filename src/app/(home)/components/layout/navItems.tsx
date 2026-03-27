@@ -25,7 +25,7 @@ import {
 import { FaUsers } from "react-icons/fa6";
 import { FaPaperPlane } from "react-icons/fa";
 import { RiAdminLine } from "react-icons/ri";
-import { GiSecurityGate } from "react-icons/gi";
+import { GiSecurityGate, GiJoystick } from "react-icons/gi";
 import { TbLogs } from "react-icons/tb";
 import { ImStatsDots } from "react-icons/im";
 import { CiPaperplane } from "react-icons/ci";
@@ -175,6 +175,11 @@ export const navItems = [
             icon: MdTranslate,
             label: "Idiomas",
             path: "/instrucao/idiomas",
+         },
+         {
+            icon: GiJoystick,
+            label: "Simulador",
+            path: "/instrucao/simulador",
          },
       ],
    },

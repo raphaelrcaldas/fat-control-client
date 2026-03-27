@@ -26,6 +26,7 @@ export function AeronaveTable({ aeronaves, onEdit }: AeronaveTableProps) {
             <TableHead>
                <TableRow>
                   <TableHeadCell>Matrícula</TableHeadCell>
+                  <TableHeadCell>Tipo</TableHeadCell>
                   <TableHeadCell>Situação</TableHeadCell>
                   <TableHeadCell>Observação</TableHeadCell>
                   <TableHeadCell>Status</TableHeadCell>
@@ -37,20 +38,31 @@ export function AeronaveTable({ aeronaves, onEdit }: AeronaveTableProps) {
                   return (
                      <TableRow
                         key={aeronave.matricula}
-                        className={`bg-white ${!aeronave.active ? "opacity-30" : ""}`}
+                        className={`bg-white ${!aeronave.active ? "opacity-50" : ""}`}
                      >
                         <TableCell className="text-base font-bold text-gray-900">
                            {aeronave.matricula}
+                        </TableCell>
+                        <TableCell className="text-center align-middle">
+                           {aeronave.is_sim ? (
+                              <span className="inline-flex items-center rounded-full bg-purple-100 px-2.5 py-0.5 text-xs font-medium text-purple-700">
+                                 Simulador
+                              </span>
+                           ) : (
+                              <span className="inline-flex items-center rounded-full bg-sky-100 px-2.5 py-0.5 text-xs font-medium text-sky-700">
+                                 Aeronave
+                              </span>
+                           )}
                         </TableCell>
                         <TableCell className="text-center align-middle">
                            <span
                               className={clsx(
                                  "inline-block w-10 rounded p-2 font-bold text-white",
                                  {
-                                    "bg-emerald-400": aeronave.sit == "DI",
-                                    "bg-red-400": aeronave.sit == "IN",
-                                    "bg-gray-400": aeronave.sit == "IS",
-                                    "bg-orange-400": aeronave.sit == "DO",
+                                    "bg-emerald-400": aeronave.sit === "DI",
+                                    "bg-red-400": aeronave.sit === "IN",
+                                    "bg-gray-400": aeronave.sit === "IS",
+                                    "bg-orange-400": aeronave.sit === "DO",
                                  }
                               )}
                            >
@@ -86,8 +98,12 @@ export function AeronaveTable({ aeronaves, onEdit }: AeronaveTableProps) {
                                  onClick={() => onEdit(aeronave)}
                                  className="rounded-lg p-1.5 text-gray-500 transition-colors hover:bg-blue-50 hover:text-blue-600"
                                  title="Editar"
+                                 aria-label={`Editar aeronave ${aeronave.matricula}`}
                               >
-                                 <HiPencil className="h-4.5 w-4.5" />
+                                 <HiPencil
+                                    className="h-4.5 w-4.5"
+                                    aria-hidden="true"
+                                 />
                               </button>
                            </PermBased>
                         </TableCell>

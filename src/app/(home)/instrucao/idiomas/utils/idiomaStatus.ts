@@ -7,7 +7,9 @@ export function getDiffDays(dateStr: string): number {
    return Math.round((date.getTime() - today.getTime()) / 86400000);
 }
 
-export function getIdiomStatus(dateStr: string | null | undefined): IdiomStatus {
+export function getIdiomStatus(
+   dateStr: string | null | undefined
+): IdiomStatus {
    if (!dateStr) return "empty";
    const diff = getDiffDays(dateStr);
    if (diff < 0) return "danger";
@@ -68,4 +70,3 @@ export function getStatusColors(status: IdiomStatus): StatusColors {
          };
    }
 }
-

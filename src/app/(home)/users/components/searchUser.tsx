@@ -41,7 +41,11 @@ export function SearchUser({
       setHasSearched(true);
 
       try {
-         const response = await getUsers({ search: searchUser, per_page: 10, active: true });
+         const response = await getUsers({
+            search: searchUser,
+            per_page: 10,
+            active: true,
+         });
          const ignrSet = new Set(userIdsIgnr);
          const available = response.items.filter((u) => !ignrSet.has(u.id));
          const ignored = response.items.filter((u) => ignrSet.has(u.id));

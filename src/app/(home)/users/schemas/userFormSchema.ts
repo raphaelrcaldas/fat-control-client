@@ -13,7 +13,7 @@ export const createUserFormSchema = z.object({
       .string()
       .refine(
          (v) => v.replace(/\D/g, "").length === 7,
-         "SARAM deve ter 7 dígitos",
+         "SARAM deve ter 7 dígitos"
       )
       .refine(validarSaram, "SARAM inválido"),
    id_fab: z.union([
@@ -33,13 +33,10 @@ export const createUserFormSchema = z.object({
    email_pess: z.union([z.literal(""), z.email()]),
    telefone: z.union([
       z.literal(""),
-      z.string().refine(
-         (v) => {
-            const d = v.replace(/\D/g, "");
-            return d.length === 10 || d.length === 11;
-         },
-         "Telefone deve ter 10 ou 11 dígitos",
-      ),
+      z.string().refine((v) => {
+         const d = v.replace(/\D/g, "");
+         return d.length === 10 || d.length === 11;
+      }, "Telefone deve ter 10 ou 11 dígitos"),
    ]),
    nasc: z.nullable(z.string()),
    ult_promo: z.nullable(z.string()),

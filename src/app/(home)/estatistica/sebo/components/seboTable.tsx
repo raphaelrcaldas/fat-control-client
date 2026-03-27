@@ -7,7 +7,6 @@ import {
    TableBody,
    TableRow,
    TableCell,
-   Spinner,
 } from "flowbite-react";
 import Tooltip from "./tooltip";
 import { minutesToTime, isoDateToString } from "@/../utils/dateHandler";
@@ -46,7 +45,8 @@ const getDateTooltip = (isoDate: string | null, label: string): string => {
 
    const diffDays = getDaysUntil(isoDate);
    const formatted = isoDateToString(isoDate);
-   if (diffDays <= 0) return `${label} vencido há ${Math.abs(diffDays)} dias (${formatted})`;
+   if (diffDays <= 0)
+      return `${label} vencido há ${Math.abs(diffDays)} dias (${formatted})`;
    return `${label} vence em ${diffDays} dias (${formatted})`;
 };
 
@@ -74,25 +74,34 @@ const getOperBadgeClasses = (oper: string): string => {
    return "bg-gray-100 text-gray-700";
 };
 
-const SeboTable = ({ trips, activeRow, setRow, isLoading, infoCols }: SeboTableProps) => {
+const SKELETON_ROWS = 8;
+
+const SkeletonCell = ({ width = "w-12" }: { width?: string }) => (
+   <div className={`mx-auto h-4 animate-pulse rounded bg-gray-200 ${width}`} />
+);
+
+const SeboTable = ({
+   trips,
+   activeRow,
+   setRow,
+   isLoading,
+   infoCols,
+}: SeboTableProps) => {
    const visibleInfoCount = Object.values(infoCols).filter(Boolean).length;
-   if (isLoading) {
-      return (
-         <div className="flex h-64 items-center justify-center rounded-lg bg-white shadow-md">
-            <Spinner color="failure" size="lg" />
-         </div>
-      );
-   }
 
    return (
-      <div className="overflow-x-auto rounded-lg uppercase shadow-md">
+      <div
+         className={clsx("overflow-x-auto rounded-lg uppercase shadow-md", {
+            "opacity-60": isLoading,
+         })}
+      >
          <Table hoverable striped>
             <TableHead>
                <TableRow>
                   <TableHeadCell className="hidden text-center 2xl:table-cell">
                      PG
                   </TableHeadCell>
-                  <TableHeadCell className="hidden text-center 2xl:table-cell">
+                  <TableHeadCell className="hidden min-w-40 text-center 2xl:table-cell">
                      NOME DE GUERRA
                   </TableHeadCell>
                   <TableHeadCell className="text-center">TRIG</TableHeadCell>
@@ -132,7 +141,60 @@ const SeboTable = ({ trips, activeRow, setRow, isLoading, infoCols }: SeboTableP
                </TableRow>
             </TableHead>
             <TableBody className="divide-y">
-               {trips.length > 0 ? (
+               {isLoading ? (
+                  Array.from({ length: SKELETON_ROWS }).map((_, index) => (
+                     <TableRow key={`skeleton-${index}`}>
+                        <TableCell className="hidden 2xl:table-cell">
+                           <SkeletonCell width="w-8" />
+                        </TableCell>
+                        <TableCell className="hidden 2xl:table-cell">
+                           <SkeletonCell width="w-24" />
+                        </TableCell>
+                        <TableCell>
+                           <SkeletonCell width="w-10" />
+                        </TableCell>
+                        <TableCell>
+                           <SkeletonCell width="w-10" />
+                        </TableCell>
+                        <TableCell>
+                           <SkeletonCell width="w-10" />
+                        </TableCell>
+                        {infoCols.cemal && (
+                           <TableCell className="hidden md:table-cell">
+                              <SkeletonCell width="w-16" />
+                           </TableCell>
+                        )}
+                        {infoCols.tovn && (
+                           <TableCell className="hidden md:table-cell">
+                              <SkeletonCell width="w-16" />
+                           </TableCell>
+                        )}
+                        {infoCols.imae && (
+                           <TableCell className="hidden md:table-cell">
+                              <SkeletonCell width="w-16" />
+                           </TableCell>
+                        )}
+                        {infoCols.crm && (
+                           <TableCell className="hidden md:table-cell">
+                              <SkeletonCell width="w-16" />
+                           </TableCell>
+                        )}
+                        {infoCols.val_pass && (
+                           <TableCell className="hidden md:table-cell">
+                              <SkeletonCell width="w-16" />
+                           </TableCell>
+                        )}
+                        {infoCols.val_visa && (
+                           <TableCell className="hidden md:table-cell">
+                              <SkeletonCell width="w-16" />
+                           </TableCell>
+                        )}
+                        <TableCell>
+                           <SkeletonCell width="w-12" />
+                        </TableCell>
+                     </TableRow>
+                  ))
+               ) : trips.length > 0 ? (
                   trips.map((trip, index) => (
                      <TableRow
                         key={trip.trip_id}
@@ -182,7 +244,9 @@ const SeboTable = ({ trips, activeRow, setRow, isLoading, infoCols }: SeboTableP
                                     "CEMAL"
                                  )}
                               >
-                                 <span className={getDateColor(trip.cartoes.cemal)}>
+                                 <span
+                                    className={getDateColor(trip.cartoes.cemal)}
+                                 >
                                     {trip.cartoes.cemal
                                        ? isoDateToString(trip.cartoes.cemal)
                                        : "NIL"}
@@ -198,7 +262,9 @@ const SeboTable = ({ trips, activeRow, setRow, isLoading, infoCols }: SeboTableP
                                     "TOVN"
                                  )}
                               >
-                                 <span className={getDateColor(trip.cartoes.tovn)}>
+                                 <span
+                                    className={getDateColor(trip.cartoes.tovn)}
+                                 >
                                     {trip.cartoes.tovn
                                        ? isoDateToString(trip.cartoes.tovn)
                                        : "NIL"}
@@ -214,7 +280,9 @@ const SeboTable = ({ trips, activeRow, setRow, isLoading, infoCols }: SeboTableP
                                     "IMAE"
                                  )}
                               >
-                                 <span className={getDateColor(trip.cartoes.imae)}>
+                                 <span
+                                    className={getDateColor(trip.cartoes.imae)}
+                                 >
                                     {trip.cartoes.imae
                                        ? isoDateToString(trip.cartoes.imae)
                                        : "NIL"}
@@ -230,7 +298,9 @@ const SeboTable = ({ trips, activeRow, setRow, isLoading, infoCols }: SeboTableP
                                     "CRM"
                                  )}
                               >
-                                 <span className={getDateColor(trip.cartoes.crm)}>
+                                 <span
+                                    className={getDateColor(trip.cartoes.crm)}
+                                 >
                                     {trip.cartoes.crm
                                        ? isoDateToString(trip.cartoes.crm)
                                        : "NIL"}
@@ -246,7 +316,11 @@ const SeboTable = ({ trips, activeRow, setRow, isLoading, infoCols }: SeboTableP
                                     "Passaporte"
                                  )}
                               >
-                                 <span className={getDateColor(trip.cartoes.val_pass)}>
+                                 <span
+                                    className={getDateColor(
+                                       trip.cartoes.val_pass
+                                    )}
+                                 >
                                     {trip.cartoes.val_pass
                                        ? isoDateToString(trip.cartoes.val_pass)
                                        : "NIL"}
@@ -262,7 +336,11 @@ const SeboTable = ({ trips, activeRow, setRow, isLoading, infoCols }: SeboTableP
                                     "VISA"
                                  )}
                               >
-                                 <span className={getDateColor(trip.cartoes.val_visa)}>
+                                 <span
+                                    className={getDateColor(
+                                       trip.cartoes.val_visa
+                                    )}
+                                 >
                                     {trip.cartoes.val_visa
                                        ? isoDateToString(trip.cartoes.val_visa)
                                        : "NIL"}

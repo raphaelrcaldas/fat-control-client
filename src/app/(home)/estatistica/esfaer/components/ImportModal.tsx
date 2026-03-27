@@ -439,7 +439,7 @@ export function ImportModal({ show, setShow, anoRef }: ImportModalProps) {
                {importResult && (
                   <div>
                      <div ref={resultRef} className="bg-white p-2">
-                        <h3 className="text-center mb-2 text-lg font-semibold">
+                        <h3 className="mb-2 text-center text-lg font-semibold">
                            Ano Referência: {importResult.ano_ref}
                         </h3>
                         <h3 className="mb-4 text-center text-sm text-gray-500">

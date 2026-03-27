@@ -18,7 +18,12 @@ interface StatCardProps {
    iconBg: string;
    label: string;
    total: number;
-   counts: { valid: number; warning: number; critical: number; expired: number };
+   counts: {
+      valid: number;
+      warning: number;
+      critical: number;
+      expired: number;
+   };
    urgent: number;
    extra?: React.ReactNode;
 }
@@ -38,7 +43,7 @@ function StatCard({
    return (
       <div className="overflow-hidden rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
          {/* Header */}
-         <div className="flex items-center justify-between mb-4">
+         <div className="mb-4 flex items-center justify-between">
             <div className="flex items-center gap-3">
                <div className={clsx("rounded-xl p-2.5", iconBg)}>
                   <Icon className={clsx("h-5 w-5", iconColor)} />
@@ -76,7 +81,7 @@ function StatCard({
                      </div>
                      <div
                         className={clsx(
-                           "text-[9px] font-semibold uppercase tracking-widest opacity-80",
+                           "text-[9px] font-semibold tracking-widest uppercase opacity-80",
                            cfg.color
                         )}
                      >
@@ -113,16 +118,31 @@ function StatCard({
 interface StatCardsGridProps {
    cemalStats: {
       total: number;
-      counts: { valid: number; warning: number; critical: number; expired: number };
+      counts: {
+         valid: number;
+         warning: number;
+         critical: number;
+         expired: number;
+      };
    };
    cemalScheduled: number;
    imaeStats: {
       total: number;
-      counts: { valid: number; warning: number; critical: number; expired: number };
+      counts: {
+         valid: number;
+         warning: number;
+         critical: number;
+         expired: number;
+      };
    };
    tovnStats: {
       total: number;
-      counts: { valid: number; warning: number; critical: number; expired: number };
+      counts: {
+         valid: number;
+         warning: number;
+         critical: number;
+         expired: number;
+      };
    };
 }
 
@@ -144,9 +164,7 @@ export default function StatCardsGrid({
             urgent={cemalStats.counts.expired + cemalStats.counts.critical}
             extra={
                <div className="mt-3 flex items-center justify-between border-t border-gray-100 pt-3">
-                  <span className="text-xs text-gray-500">
-                     Com agendamento
-                  </span>
+                  <span className="text-xs text-gray-500">Com agendamento</span>
                   <Badge color="info" size="sm">
                      <span className="font-bold tabular-nums">
                         {cemalScheduled} / {cemalStats.total}

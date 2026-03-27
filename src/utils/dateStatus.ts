@@ -8,9 +8,7 @@ import {
 
 export type DateStatus = "valid" | "warning" | "critical" | "expired" | "empty";
 
-export function getDateStatus(
-   dateStr: string | null | undefined
-): DateStatus {
+export function getDateStatus(dateStr: string | null | undefined): DateStatus {
    if (!dateStr) return "empty";
    const today = new Date();
    today.setHours(0, 0, 0, 0);
@@ -79,9 +77,7 @@ export function formatDate(dateStr: string | null | undefined): string {
    return date.toLocaleDateString("pt-BR");
 }
 
-export function getDaysRemaining(
-   dateStr: string | null | undefined
-): string {
+export function getDaysRemaining(dateStr: string | null | undefined): string {
    if (!dateStr) return "";
    const today = new Date();
    today.setHours(0, 0, 0, 0);

@@ -7,7 +7,11 @@ interface PermBasedProps {
    requiredPerm: string;
 }
 
-export const PermBased = ({ children, resource, requiredPerm }: PermBasedProps) => {
+export const PermBased = ({
+   children,
+   resource,
+   requiredPerm,
+}: PermBasedProps) => {
    const { role, perms } = useAuth();
 
    if (role === "admin") {

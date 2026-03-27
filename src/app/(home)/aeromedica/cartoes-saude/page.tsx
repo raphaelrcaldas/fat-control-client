@@ -107,7 +107,8 @@ export default function CartoesSaudePage() {
    );
 
    const selectedItem = useMemo(
-      () => cartoesSaude.find((item) => item.user.id === selectedUserId) ?? null,
+      () =>
+         cartoesSaude.find((item) => item.user.id === selectedUserId) ?? null,
       [cartoesSaude, selectedUserId]
    );
 

@@ -13,6 +13,7 @@ import {
    Spinner,
 } from "flowbite-react";
 import { MdCheckCircle, MdWarning, MdCancel, MdBuild } from "react-icons/md";
+import clsx from "clsx";
 import { useToast } from "@/app/context/toast";
 import {
    useCreateAeronave,
@@ -24,7 +25,7 @@ import {
    SITUACOES,
    type AeronaveFormData,
 } from "../schemas/aeronaveSchema";
-import type { AeronavePublic } from "services/routes/aeronaves";
+import type { AeronavePublic, AeronaveUpdate } from "services/routes/aeronaves";
 
 interface AeronaveFormModalProps {
    show: boolean;
@@ -46,6 +47,13 @@ const SIT_COLORS: Record<string, string> = {
    DO: "text-yellow-500",
    IN: "text-red-500",
    IS: "text-blue-500",
+};
+
+const SIT_SELECTED: Record<string, string> = {
+   DI: "border-green-500 bg-green-50",
+   DO: "border-yellow-500 bg-yellow-50",
+   IN: "border-red-500 bg-red-50",
+   IS: "border-blue-500 bg-blue-50",
 };
 
 export function AeronaveFormModal({
@@ -71,6 +79,7 @@ export function AeronaveFormModal({
                sit: editingAeronave.sit,
                obs: editingAeronave.obs || null,
                active: editingAeronave.active,
+               is_sim: editingAeronave.is_sim,
             });
          } else {
             setFormData(defaultAeronaveValues);
@@ -87,7 +96,8 @@ export function AeronaveFormModal({
       return (
          formData.sit !== editingAeronave.sit ||
          formData.obs !== (editingAeronave.obs || null) ||
-         formData.active !== editingAeronave.active
+         formData.active !== editingAeronave.active ||
+         formData.is_sim !== editingAeronave.is_sim
       );
    }, [formData, editingAeronave, isEditMode]);
 
@@ -126,13 +136,15 @@ export function AeronaveFormModal({
 
       try {
          if (isEditMode) {
-            const updateData: Record<string, unknown> = {};
+            const updateData: AeronaveUpdate = {};
             if (formData.sit !== editingAeronave!.sit)
                updateData.sit = formData.sit;
             if (formData.obs !== (editingAeronave!.obs || null))
                updateData.obs = formData.obs || null;
             if (formData.active !== editingAeronave!.active)
                updateData.active = formData.active;
+            if (formData.is_sim !== editingAeronave!.is_sim)
+               updateData.is_sim = formData.is_sim;
 
             const res = await updateMutation.mutateAsync({
                matricula: editingAeronave!.matricula,
@@ -152,6 +164,7 @@ export function AeronaveFormModal({
                active: formData.active,
                sit: formData.sit,
                obs: formData.obs || null,
+               is_sim: formData.is_sim,
             });
 
             push({
@@ -231,11 +244,12 @@ export function AeronaveFormModal({
                               key={s.value}
                               type="button"
                               onClick={() => updateField("sit", s.value)}
-                              className={`flex items-center gap-2.5 rounded-lg border-2 p-3 text-left transition-all ${
+                              className={clsx(
+                                 "flex items-center gap-2.5 rounded-lg border-2 p-3 text-left transition-all",
                                  isSelected
-                                    ? "border-red-500 bg-red-50 shadow-sm"
+                                    ? `${SIT_SELECTED[s.value]} shadow-sm`
                                     : "border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50"
-                              }`}
+                              )}
                            >
                               <Icon
                                  className={`h-5 w-5 shrink-0 ${SIT_COLORS[s.value]}`}
@@ -278,15 +292,22 @@ export function AeronaveFormModal({
                   </div>
                )}
 
-               {/* Status Ativo */}
-               <div className="flex items-center gap-3">
-                  <Label className="text-sm font-semibold">
-                     Aeronave Ativa
-                  </Label>
+               {/* Configurações */}
+               <div className="space-y-3 rounded-lg border border-gray-100 bg-gray-50 p-3">
+                  <p className="text-xs font-semibold tracking-wide text-gray-500 uppercase">
+                     Configurações
+                  </p>
                   <ToggleSwitch
+                     label="Aeronave Ativa"
                      checked={formData.active}
                      color="green"
                      onChange={(val) => updateField("active", val)}
+                  />
+                  <ToggleSwitch
+                     label="Simulador"
+                     checked={formData.is_sim}
+                     color="purple"
+                     onChange={(val) => updateField("is_sim", val)}
                   />
                </div>
 
