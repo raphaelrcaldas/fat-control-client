@@ -33,16 +33,16 @@ export function EtapaDetailContent({ etapaId }: EtapaDetailContentProps) {
       <div className="flex h-full flex-col rounded">
          <div className="shrink-0 border-b border-slate-200 bg-white px-6 pt-5 pb-4 text-slate-800">
             <div className="mb-4 flex flex-wrap items-center gap-2">
-               <span className="font-mono text-sm font-bold text-red-600">
+               <span className="font-mono text-sm font-bold text-red-400">
                   #{data.id}
                </span>
                <div className="h-4 w-px bg-red-200" />
                <div className="flex items-center gap-1.5 rounded-md bg-red-100 px-2.5 py-1 font-medium text-slate-700">
-                  <HiCalendar className="size-5 text-red-500" />
+                  <HiCalendar className="size-5 text-red-700" />
                   {formatDateFull(data.data)}
                </div>
                <div className="flex items-center gap-1.5 rounded-md bg-red-100 px-2.5 py-1 font-semibold text-slate-700">
-                  <MdAirplanemodeActive className="size-5 text-red-500" />
+                  <MdAirplanemodeActive className="size-5 text-red-700" />
                   FAB {data.anv}
                </div>
             </div>
@@ -60,13 +60,13 @@ export function EtapaDetailContent({ etapaId }: EtapaDetailContentProps) {
             {(!data.sagem || !data.parte1) && (
                <div className="mb-5 flex flex-col gap-2">
                   {!data.sagem && (
-                     <div className="flex items-center gap-2 rounded-lg border border-yellow-300 bg-yellow-50 px-3 py-2 text-sm font-semibold text-yellow-800">
+                     <div className="flex items-center gap-2 rounded-lg border border-red-300 bg-red-50 px-3 py-2 text-sm font-semibold text-red-800">
                         <span className="text-base">&#9888;</span>
                         NÃO REGISTRADO NO SAGEM
                      </div>
                   )}
                   {!data.parte1 && (
-                     <div className="flex items-center gap-2 rounded-lg border border-yellow-300 bg-yellow-50 px-3 py-2 text-sm font-semibold text-yellow-800">
+                     <div className="flex items-center gap-2 rounded-lg border border-red-300 bg-red-50 px-3 py-2 text-sm font-semibold text-red-800">
                         <span className="text-base">&#9888;</span>
                         RELATÓRIO NÃO RECOLHIDO
                      </div>
@@ -89,7 +89,7 @@ export function EtapaDetailContent({ etapaId }: EtapaDetailContentProps) {
                      <SectionTitle
                         icon={<GoDatabase className="h-4 w-4" />}
                         title="Dados do Voo"
-                        color="blue"
+                        color="red"
                      />
                      <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
                         <StatCard
@@ -143,7 +143,7 @@ export function EtapaDetailContent({ etapaId }: EtapaDetailContentProps) {
                         <SectionTitle
                            icon={<CiPaperplane className="h-4 w-4" />}
                            title="Missão"
-                           color="amber"
+                           color="red"
                         />
                         <OIEtapasList items={data.oi_etapas} />
                      </div>
@@ -155,10 +155,10 @@ export function EtapaDetailContent({ etapaId }: EtapaDetailContentProps) {
                      <SectionTitle
                         icon={<FaUsers className="h-4 w-4" />}
                         title="Tripulantes"
-                        color="emerald"
+                        color="red"
                      />
                      {data.tripulantes.length > 0 && (
-                        <span className="rounded-full bg-emerald-100 px-2.5 py-0.5 text-[10px] font-bold text-emerald-700">
+                        <span className="rounded-full bg-red-100 px-2.5 py-0.5 text-[10px] font-bold text-red-700">
                            {data.tripulantes.length} total
                         </span>
                      )}
