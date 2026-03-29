@@ -1,9 +1,5 @@
 import { FaPlaneDeparture, FaPlaneArrival, FaClock } from "react-icons/fa";
-import { minutesToTime } from "@/../utils/dateHandler";
-
-function formatTime(timeStr: string): string {
-   return timeStr.slice(0, 5);
-}
+import { minutesToTime, formatTime } from "@/../utils/dateHandler";
 
 interface RouteVisualizationProps {
    origem: string;
@@ -21,7 +17,7 @@ export function RouteVisualization({
    tvoo,
 }: RouteVisualizationProps) {
    return (
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-3 text-red-800">
          <div className="text-center">
             <p className="text-2xl font-black tracking-wider uppercase sm:text-3xl">
                {origem}
@@ -36,11 +32,11 @@ export function RouteVisualization({
 
          <div className="flex flex-1 flex-col items-center gap-1">
             <div className="relative flex w-full items-center">
-               <div className="border-slate/80 h-px flex-1 border-t border-dashed" />
-               <div className="mx-1 flex items-center justify-center gap-2 rounded-lg bg-white p-2 font-semibold shadow">
+               <div className="h-px flex-1 border-t border-dashed border-red-300" />
+               <div className="mx-1 flex items-center justify-center gap-2 rounded-lg bg-white px-3 py-1.5 font-semibold text-red-800 shadow-sm ring-1 ring-red-200">
                   <FaClock /> {minutesToTime(tvoo)}
                </div>
-               <div className="border-slate/80 h-px flex-1 border-t border-dashed" />
+               <div className="h-px flex-1 border-t border-dashed border-red-300" />
             </div>
          </div>
 

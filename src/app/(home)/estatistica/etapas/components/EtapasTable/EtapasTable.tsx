@@ -20,8 +20,8 @@ import { useBulkUpdateEtapas } from "@/hooks/queries/useEtapas";
 import { minutesToTime } from "@/../utils/dateHandler";
 import { MissaoCard } from "./MissaoCard";
 import { EtapasFlatTable } from "./EtapasFlatTable";
-import { EtapaDetailModal } from "../EtapaDetailModal";
-import { EtapaFormModal } from "../EtapaFormModal";
+import { EtapasNavigatorModal } from "../EtapasNavigatorModal/EtapasNavigatorModal";
+import { EtapaFormModal } from "../EtapaFormModal/EtapaFormModal";
 import { PermBased } from "@/app/(home)/hooks/usePermBased";
 
 export interface EtapasTableProps {
@@ -36,6 +36,7 @@ export interface EtapasTableProps {
    onEditMissao: (missao: MissaoComEtapas) => void;
    onDeleteMissao: (missao: MissaoComEtapas) => void;
    grouped?: boolean;
+   onClearSelection?: () => void;
 }
 
 export function EtapasTable({
@@ -50,8 +51,13 @@ export function EtapasTable({
    onEditMissao,
    onDeleteMissao,
    grouped = true,
+   onClearSelection,
 }: EtapasTableProps) {
-   const [detailId, setDetailId] = useState<number | null>(null);
+   const [detailState, setDetailState] = useState<{
+      etapaId: number;
+      etapas: EtapaItem[];
+      missaoTitulo?: string | null;
+   } | null>(null);
    const [etapaFormState, setEtapaFormState] = useState<{
       missao: MissaoComEtapas;
       editingEtapa: EtapaItem | null;
@@ -104,9 +110,23 @@ export function EtapasTable({
    }, [grouped, flatEtapas]);
 
    // Stable callback: open detail by id
-   const handleDetailEtapa = useCallback((id: number) => {
-      setDetailId(id);
-   }, []);
+   const handleDetailEtapa = useCallback(
+      (id: number) => {
+         if (grouped) {
+            const missao = missoes.find((m) =>
+               m.etapas.some((e) => e.id === id)
+            );
+            setDetailState({
+               etapaId: id,
+               etapas: missao?.etapas ?? [],
+               missaoTitulo: missao?.titulo,
+            });
+         } else {
+            setDetailState({ etapaId: id, etapas: flatEtapas });
+         }
+      },
+      [grouped, missoes, flatEtapas]
+   );
 
    // Stable callback: open edit form by id (grouped mode)
    const handleEditEtapaGrouped = useCallback(
@@ -175,6 +195,7 @@ export function EtapasTable({
                         `${label} ${value ? "marcado" : "desmarcado"} em ${ids.length} etapa(s)`
                      );
                      setTimeout(() => setBulkFeedback(null), 3000);
+                     onClearSelection?.();
                   }
                },
             }
@@ -327,10 +348,14 @@ export function EtapasTable({
             </>
          )}
 
-         <EtapaDetailModal
-            etapaId={detailId}
-            onClose={() => setDetailId(null)}
-         />
+         {detailState && (
+            <EtapasNavigatorModal
+               etapas={detailState.etapas}
+               initialEtapaId={detailState.etapaId}
+               onClose={() => setDetailState(null)}
+               missaoTitulo={detailState.missaoTitulo}
+            />
+         )}
 
          {etapaFormState && (
             <EtapaFormModal

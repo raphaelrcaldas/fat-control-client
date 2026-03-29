@@ -14,15 +14,17 @@ const iconColors: Record<string, string> = {
    emerald: "text-emerald-500",
 };
 
+interface SectionTitleProps {
+   icon: React.ReactNode;
+   title: string;
+   color?: string;
+}
+
 export function SectionTitle({
    icon,
    title,
    color = "blue",
-}: {
-   icon: React.ReactNode;
-   title: string;
-   color?: string;
-}) {
+}: SectionTitleProps) {
    return (
       <div className="flex items-center gap-2">
          <div

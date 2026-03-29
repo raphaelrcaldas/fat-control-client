@@ -1,1 +1,0 @@
-export { EtapaDetailModal } from "./EtapaDetailModal";

@@ -11,7 +11,7 @@ import {
 } from "react-icons/hi";
 import { Pagination } from "@/components/Pagination";
 import { useState, useCallback } from "react";
-import { EtapasTable } from "./components/EtapasTable";
+import { EtapasTable } from "./components/EtapasTable/EtapasTable";
 import { EtapasFilterPanel } from "./components/EtapasFilterPanel";
 import { ActiveFilterTags } from "./components/ActiveFilterTags";
 import { MissaoFormModal } from "./components/MissaoFormModal";
@@ -39,8 +39,14 @@ export default function EtapasPage() {
    const [showExportModal, setShowExportModal] = useState(false);
 
    const filters = useEtapasFilters(groupByMissao);
-   const { selectedIds, allSelected, toggleEtapa, toggleMissao, toggleAll } =
-      useEtapaSelection(filters.missoes, filters.flatEtapas, groupByMissao);
+   const {
+      selectedIds,
+      allSelected,
+      toggleEtapa,
+      toggleMissao,
+      toggleAll,
+      clearSelection,
+   } = useEtapaSelection(filters.missoes, filters.flatEtapas, groupByMissao);
 
    const handleOpenCreateMissao = useCallback(() => {
       setEditingMissao(null);
@@ -264,6 +270,7 @@ export default function EtapasPage() {
                      onEditMissao={handleEditMissao}
                      onDeleteMissao={handleDeleteMissao}
                      grouped={groupByMissao}
+                     onClearSelection={clearSelection}
                   />
                </div>
             )}

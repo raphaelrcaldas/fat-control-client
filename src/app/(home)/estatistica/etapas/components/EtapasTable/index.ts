@@ -1,1 +1,0 @@
-export { EtapasTable } from "./EtapasTable";
