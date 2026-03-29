@@ -56,7 +56,10 @@ export default function QuadroOperacoes() {
       placeholderData: keepPreviousData,
    });
 
-   const { data: aeronaveData } = useAeronaves({ per_page: 100, is_sim: false });
+   const { data: aeronaveData } = useAeronaves({
+      per_page: 100,
+      is_sim: false,
+   });
 
    const ordens = data?.items ?? [];
    const todasAeronaves = aeronaveData?.items ?? [];

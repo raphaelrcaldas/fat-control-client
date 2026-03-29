@@ -28,7 +28,7 @@ function StatusBadge({
    const colors = getStatusColors(status);
    return (
       <span
-         className="inline-flex w-44 shrink-0 items-center justify-center gap-1 whitespace-nowrap rounded px-2 py-0.5 text-[11px] font-medium"
+         className="inline-flex w-44 shrink-0 items-center justify-center gap-1 rounded px-2 py-0.5 text-[11px] font-medium whitespace-nowrap"
          style={{
             backgroundColor: colors.badgeBg,
             border: `0.5px solid ${colors.badgeBorder}`,
