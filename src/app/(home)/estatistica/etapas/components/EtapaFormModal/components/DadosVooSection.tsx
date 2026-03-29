@@ -217,6 +217,13 @@ export function DadosVooSection({
                {errors.pousos && (
                   <p className="mt-0.5 text-xs text-red-600">{errors.pousos}</p>
                )}
+               {formData.destino === "ROTA" &&
+                  formData.pousos !== 0 &&
+                  !errors.pousos && (
+                     <p className="mt-0.5 text-xs text-amber-600">
+                        (ROTA) Verifique o nº de pousos
+                     </p>
+                  )}
             </div>
             <div className="flex flex-col items-center">
                <Label className="mb-1 block text-xs font-medium">SAGEM</Label>
