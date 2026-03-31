@@ -13,6 +13,7 @@ import {
 import { useEffect, useState } from "react";
 import QuickActions from "./components/quickActions";
 import { getUserActionLogs } from "services/routes/logs";
+import { MetarCard } from "./components/MetarCard/MetarCard";
 
 export default function HomeApp() {
    const { user, role, userPg, userId } = useAuth();
@@ -140,14 +141,8 @@ export default function HomeApp() {
                <QuickActions />
             </div> */}
 
-            {/* Stats or Additional Info Card */}
-            {/* <div className="bg-linear-to-r from-red-500 to-red-600 rounded-2xl shadow-xl p-8 text-white transform transition-all duration-700 delay-300">
-               <h2 className="text-2xl font-bold mb-4">Dica do Dia</h2>
-               <p className="text-red-50 text-lg">
-                  Mantenha seus dados sempre atualizados para garantir a precisão dos
-                  relatórios e análises do sistema.
-               </p>
-            </div> */}
+            {/* METAR */}
+            <MetarCard />
          </div>
       </div>
    );
