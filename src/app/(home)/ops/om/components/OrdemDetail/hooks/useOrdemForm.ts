@@ -198,10 +198,11 @@ export const useOrdemForm = ({
       const currentEtapa = newEtapas[afterIndex];
       const newEtapa = createNextEtapa(currentEtapa) as EtapaOut;
       newEtapas.splice(afterIndex + 1, 0, newEtapa);
+      const calculatedEsfAer = calcularEsfAer(newEtapas);
       setFormData({
          ...formData,
          etapas: newEtapas,
-         esf_aer: calcularEsfAer(newEtapas),
+         esf_aer: Math.max(formData.esf_aer ?? 0, calculatedEsfAer),
       });
    };
 
@@ -259,10 +260,11 @@ export const useOrdemForm = ({
          };
       }
 
+      const calculatedEsfAer = calcularEsfAer(newEtapas);
       setFormData({
          ...formData,
          etapas: newEtapas,
-         esf_aer: calcularEsfAer(newEtapas),
+         esf_aer: Math.max(formData.esf_aer ?? 0, calculatedEsfAer),
       });
    };
 
@@ -270,10 +272,11 @@ export const useOrdemForm = ({
    const addEtapa = (etapa: EtapaOut) => {
       if (!isEditable) return;
       const newEtapas = [...formData.etapas, etapa];
+      const calculatedEsfAer = calcularEsfAer(newEtapas);
       setFormData({
          ...formData,
          etapas: newEtapas,
-         esf_aer: calcularEsfAer(newEtapas),
+         esf_aer: Math.max(formData.esf_aer ?? 0, calculatedEsfAer),
       });
    };
 
@@ -387,7 +390,11 @@ export const useOrdemForm = ({
    const handleSortEtapas = () => {
       if (!isEditable) return;
       const sorted = sortEtapas(formData.etapas);
-      setFormData({ ...formData, etapas: sorted });
+      setFormData({
+         ...formData,
+         etapas: sorted,
+         esf_aer: calcularEsfAer(sorted),
+      });
    };
 
    const validateForm = (): { isValid: boolean; errors: string[] } => {
@@ -519,7 +526,7 @@ export const useOrdemForm = ({
       // Validar esf_aer >= soma do tempo de voo calculado das etapas atuais
       const somaTempoVooAtual = calcularEsfAer(formData.etapas);
       const esfAer = formData.esf_aer || 0;
-      if (esfAer > 0 && esfAer < somaTempoVooAtual) {
+      if (somaTempoVooAtual > 0 && esfAer < somaTempoVooAtual) {
          const horas = Math.floor(somaTempoVooAtual / 60);
          const minutos = somaTempoVooAtual % 60;
          const somaFormatada = `${horas.toString().padStart(2, "0")}:${minutos.toString().padStart(2, "0")}`;
@@ -602,7 +609,7 @@ export const useOrdemForm = ({
       // Validar esf_aer >= soma do tempo de voo calculado das etapas atuais
       const somaTempoVooAtual = calcularEsfAer(formData.etapas);
       const esfAer = formData.esf_aer || 0;
-      if (esfAer > 0 && esfAer < somaTempoVooAtual) {
+      if (somaTempoVooAtual > 0 && esfAer < somaTempoVooAtual) {
          const horas = Math.floor(somaTempoVooAtual / 60);
          const minutos = somaTempoVooAtual % 60;
          const somaFormatada = `${horas.toString().padStart(2, "0")}:${minutos.toString().padStart(2, "0")}`;

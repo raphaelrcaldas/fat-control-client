@@ -142,7 +142,7 @@ export const OrdemBasicInfo = memo(function OrdemBasicInfo({
    // Validar se esf_aer é menor que o somatório de tempo de voo
    const erroEsfAer = useMemo(() => {
       const esfAer = formData.esf_aer || 0;
-      if (esfAer > 0 && esfAer < somaTempoVooEtapas) {
+      if (somaTempoVooEtapas > 0 && esfAer < somaTempoVooEtapas) {
          return `Mínimo: ${minutesToTime(somaTempoVooEtapas)} (soma das etapas)`;
       }
       return null;

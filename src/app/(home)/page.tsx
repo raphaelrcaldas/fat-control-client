@@ -2,18 +2,8 @@
 
 import { useAuth } from "@/app/context/auth";
 import { FaUserCircle, FaShieldAlt, FaClock, FaHistory } from "react-icons/fa";
-import {
-   MdDashboard,
-   MdAssignment,
-   MdSettings,
-   MdAirplanemodeInactive,
-   MdAirplaneTicket,
-   MdSort,
-} from "react-icons/md";
 import { useEffect, useState } from "react";
-import QuickActions from "./components/quickActions";
 import { getUserActionLogs } from "services/routes/logs";
-import { MetarCard } from "./components/MetarCard/MetarCard";
 
 export default function HomeApp() {
    const { user, role, userPg, userId } = useAuth();
@@ -85,7 +75,9 @@ export default function HomeApp() {
                      <h1 className="mb-2 text-xl text-gray-800">
                         {getGreeting()},{" "}
                         <span className="font-bold uppercase">
-                           {userPg} {user}
+                           {userId == 239
+                              ? "Gordo Mizerável"
+                              : `${userPg} ${user}`}
                         </span>
                         !
                      </h1>
@@ -124,25 +116,6 @@ export default function HomeApp() {
                   </div>
                </div>
             </div>
-
-            {/* Quick Actions */}
-            {/* <div className='max-w-5xl mx-auto'>
-               <div className='mb-2'>
-                  <h2 className='text-2xl font-bold text-gray-900 mb-2 tracking-tight'>
-                     Acesso Rápido
-                  </h2>
-                  <div className='flex items-center gap-'>
-                     <div className='h-0.5 w-12 bg-linear-to-r from-blue-600 to-purple-600 rounded-full'></div>
-                     <p className='text-gray-600 font-medium ml-2'>
-                        Navegue rapidamente pelas principais funcionalidades
-                     </p>
-                  </div>
-               </div>
-               <QuickActions />
-            </div> */}
-
-            {/* METAR */}
-            <MetarCard />
          </div>
       </div>
    );

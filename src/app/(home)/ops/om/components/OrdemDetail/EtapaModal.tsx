@@ -136,6 +136,11 @@ export function EtapaModal({
          return;
       }
 
+      // Guard contra respostas stale de queries anteriores
+      if (routeSuggestion.origem !== origem || routeSuggestion.dest !== dest) {
+         return;
+      }
+
       // Determinar tipo de sugestão baseado nas flags
       if (
          routeSuggestion.has_route_data &&
@@ -176,6 +181,8 @@ export function EtapaModal({
             dt_arr: newDtArr,
          };
       });
+      // Resetar lastAdjustmentRef para evitar conflito com auto-ajustes de data/hora
+      lastAdjustmentRef.current = "";
    }, [routeSuggestion, isEditing, origem, dest]);
 
    // Resetar refs e flags quando modal fecha
@@ -263,6 +270,7 @@ export function EtapaModal({
    const camposObrigatorios = useMemo(() => {
       const erros: string[] = [];
       if (!formData.dt_dep) erros.push("Data/hora de decolagem");
+      if (!formData.origem?.trim()) erros.push("Origem");
       if (!formData.dt_arr) erros.push("Data/hora de pouso");
       if (!formData.dest) erros.push("Destino");
       if (!formData.alternativa) erros.push("Alternativa");
@@ -270,14 +278,17 @@ export function EtapaModal({
          erros.push("Tempo de voo alternativa");
       if (!formData.qtd_comb || formData.qtd_comb === 0)
          erros.push("Quantidade de combustível");
+      if (!formData.esf_aer?.trim()) erros.push("Esforço aéreo");
       return erros;
    }, [
       formData.dt_dep,
+      formData.origem,
       formData.dt_arr,
       formData.dest,
       formData.alternativa,
       formData.tvoo_alt,
       formData.qtd_comb,
+      formData.esf_aer,
    ]);
 
    const hasValidationErrors = !!(
