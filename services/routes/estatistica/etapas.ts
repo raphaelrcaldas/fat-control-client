@@ -29,6 +29,7 @@ export interface MissaoComEtapas {
    id: number;
    titulo: string | null;
    obs: string | null;
+   is_simulador: boolean;
    etapas: EtapaItem[];
 }
 
@@ -36,11 +37,13 @@ export interface MissaoPublic {
    id: number;
    titulo: string | null;
    obs: string | null;
+   is_simulador: boolean;
 }
 
 export interface MissaoCreate {
    titulo?: string | null;
    obs?: string | null;
+   is_simulador?: boolean;
 }
 
 export interface MissaoUpdate {
@@ -57,7 +60,7 @@ export interface GetEtapasParams {
    esf_aer?: string;
    tipo_missao_cod?: string[];
    trip_search?: string;
-   excluir_sim?: boolean;
+   is_simulador?: boolean;
    page?: number;
    per_page?: number;
 }
@@ -141,7 +144,9 @@ export async function getEtapas(
                  tipo_missao_cod: params.tipo_missao_cod,
               }),
            ...(params.trip_search && { trip_search: params.trip_search }),
-           excluir_sim: params.excluir_sim === false ? "false" : "true",
+           ...(params.is_simulador != null && {
+              is_simulador: params.is_simulador ? "true" : "false",
+           }),
            ...(params.page != null && { page: params.page.toString() }),
            ...(params.per_page != null && {
               per_page: params.per_page.toString(),
@@ -171,8 +176,7 @@ export async function getEtapasFlat(
    params?: GetEtapasParams,
    signal?: AbortSignal
 ): Promise<PaginatedEtapasFlatResponse> {
-   const excluirSim = params?.excluir_sim === false ? "false" : "true";
-   const queryParams: Record<string, string | string[]> = { flat: "true", excluir_sim: excluirSim };
+   const queryParams: Record<string, string | string[]> = { flat: "true" };
    if (params) {
       if (params.data_ini) queryParams.data_ini = params.data_ini;
       if (params.data_fim) queryParams.data_fim = params.data_fim;
@@ -183,6 +187,8 @@ export async function getEtapasFlat(
       if (params.tipo_missao_cod && params.tipo_missao_cod.length > 0)
          queryParams.tipo_missao_cod = params.tipo_missao_cod;
       if (params.trip_search) queryParams.trip_search = params.trip_search;
+      if (params.is_simulador != null)
+         queryParams.is_simulador = params.is_simulador ? "true" : "false";
       if (params.page != null) queryParams.page = params.page.toString();
       if (params.per_page != null)
          queryParams.per_page = params.per_page.toString();

@@ -102,6 +102,7 @@ export function EtapasTable({
                id: e.missao_id,
                titulo: (e as EtapaFlatItem).missao_titulo,
                obs: null,
+               is_simulador: false,
                etapas: flatEtapas.filter((fe) => fe.missao_id === e.missao_id),
             });
          }

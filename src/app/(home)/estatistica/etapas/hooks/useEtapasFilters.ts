@@ -67,7 +67,6 @@ export function useEtapasFilters(grouped = true) {
    const urlDataIni = searchParams.get("data_ini") ?? getDefaultDataIni();
    const urlDataFim = searchParams.get("data_fim") ?? getDefaultDataFim();
    const urlTipoMissao = searchParams.getAll("tipo_missao_cod");
-   const urlIncluirSim = searchParams.get("incluir_sim") === "true";
    const currentPage = Number(searchParams.get("page")) || DEFAULT_PAGE;
    const perPage = Number(searchParams.get("per_page")) || DEFAULT_PER_PAGE;
 
@@ -212,12 +211,6 @@ export function useEtapasFilters(grouped = true) {
       [updateParams]
    );
 
-   const handleIncluirSimChange = useCallback(
-      (checked: boolean) =>
-         updateParams({ incluir_sim: checked ? "true" : undefined }),
-      [updateParams]
-   );
-
    const handlePerPageChange = useCallback(
       (value: number) =>
          updateParams({
@@ -249,7 +242,7 @@ export function useEtapasFilters(grouped = true) {
       tipo_missao_cod: urlTipoMissao.length > 0 ? urlTipoMissao : undefined,
       data_ini: urlDataIni || undefined,
       data_fim: urlDataFim || undefined,
-      excluir_sim: !urlIncluirSim,
+      is_simulador: false,
    };
 
    const groupedQuery = useEtapas(queryParams, grouped);
@@ -271,8 +264,7 @@ export function useEtapasFilters(grouped = true) {
       (urlTipoMissao.length > 0 ? 1 : 0) +
       [urlOrigem, urlDestino, urlTrip, urlEsfAer].filter(Boolean).length +
       (urlDataIni ? 1 : 0) +
-      (urlDataFim ? 1 : 0) +
-      (urlIncluirSim ? 1 : 0);
+      (urlDataFim ? 1 : 0);
 
    const hasActiveFilters = activeFilterCount > 0;
    const isRefetching = !loading && isFetching;
@@ -299,7 +291,6 @@ export function useEtapasFilters(grouped = true) {
       urlDataIni,
       urlDataFim,
       urlTipoMissao,
-      urlIncluirSim,
 
       // Local input state
       filterOrigem,
@@ -323,7 +314,6 @@ export function useEtapasFilters(grouped = true) {
       handleDataFimChange,
       handlePageChange,
       handlePerPageChange,
-      handleIncluirSimChange,
       clearFilters,
    };
 }
