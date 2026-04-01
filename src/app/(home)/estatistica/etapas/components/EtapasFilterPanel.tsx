@@ -29,8 +29,6 @@ interface EtapasFilterPanelProps {
    onDataIniChange: (v: string) => void;
    onDataFimChange: (v: string) => void;
    onMultiSelectChange: (key: string, values: string[]) => void;
-   incluirSim: boolean;
-   onIncluirSimChange: (checked: boolean) => void;
 }
 
 export function EtapasFilterPanel({
@@ -52,8 +50,6 @@ export function EtapasFilterPanel({
    onDataIniChange,
    onDataFimChange,
    onMultiSelectChange,
-   incluirSim,
-   onIncluirSimChange,
 }: EtapasFilterPanelProps) {
    return (
       <div
@@ -168,18 +164,6 @@ export function EtapasFilterPanel({
                   onChange={(e) => setFilterTrip(e.target.value)}
                   sizing="sm"
                />
-            </div>
-
-            <div className="flex items-end pb-2">
-               <label className="flex cursor-pointer items-center gap-2 text-sm font-medium whitespace-nowrap text-gray-700">
-                  <input
-                     type="checkbox"
-                     checked={incluirSim}
-                     onChange={(e) => onIncluirSimChange(e.target.checked)}
-                     className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                  />
-                  Incluir Simulador
-               </label>
             </div>
          </div>
       </div>

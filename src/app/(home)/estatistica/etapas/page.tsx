@@ -158,8 +158,6 @@ export default function EtapasPage() {
                      onDataIniChange={filters.handleDataIniChange}
                      onDataFimChange={filters.handleDataFimChange}
                      onMultiSelectChange={filters.handleMultiSelectChange}
-                     incluirSim={filters.urlIncluirSim}
-                     onIncluirSimChange={filters.handleIncluirSimChange}
                   />
                </div>
             </div>
@@ -199,10 +197,6 @@ export default function EtapasPage() {
             }}
             onRemoveTipoMissao={() =>
                filters.handleMultiSelectChange("tipo_missao_cod", [])
-            }
-            urlIncluirSim={filters.urlIncluirSim}
-            onRemoveIncluirSim={() =>
-               filters.updateParams({ incluir_sim: undefined })
             }
             onClearAll={filters.clearFilters}
          />

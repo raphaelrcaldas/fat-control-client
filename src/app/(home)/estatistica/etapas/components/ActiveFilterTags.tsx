@@ -1,12 +1,7 @@
 "use client";
 
 import { Badge } from "flowbite-react";
-import {
-   MdBarChart,
-   MdFlightTakeoff,
-   MdFlightLand,
-   MdComputer,
-} from "react-icons/md";
+import { MdBarChart, MdFlightTakeoff, MdFlightLand } from "react-icons/md";
 import { HiCalendar, HiX, HiUser } from "react-icons/hi";
 import { formatDateFull } from "@/../utils/dateHandler";
 
@@ -27,8 +22,6 @@ interface ActiveFilterTagsProps {
    onRemoveTrip: () => void;
    onRemoveEsfAer: () => void;
    onRemoveTipoMissao: () => void;
-   urlIncluirSim: boolean;
-   onRemoveIncluirSim: () => void;
    onClearAll: () => void;
 }
 
@@ -49,8 +42,6 @@ export function ActiveFilterTags({
    onRemoveTrip,
    onRemoveEsfAer,
    onRemoveTipoMissao,
-   urlIncluirSim,
-   onRemoveIncluirSim,
    onClearAll,
 }: ActiveFilterTagsProps) {
    return (
@@ -187,23 +178,6 @@ export function ActiveFilterTags({
                      aria-label="Remover filtro tipo missao"
                      onClick={onRemoveTipoMissao}
                      className="ml-1 hover:text-red-600"
-                  >
-                     <HiX className="h-3 w-3" />
-                  </button>
-               </div>
-            </Badge>
-         )}
-
-         {urlIncluirSim && (
-            <Badge color="yellow">
-               <div className="flex items-center gap-1.5">
-                  <MdComputer className="h-3 w-3" />
-                  <span>Incluindo Simulador</span>
-                  <button
-                     type="button"
-                     aria-label="Remover filtro incluir simulador"
-                     onClick={onRemoveIncluirSim}
-                     className="ml-1 hover:text-yellow-600"
                   >
                      <HiX className="h-3 w-3" />
                   </button>
