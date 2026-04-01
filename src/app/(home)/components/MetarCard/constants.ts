@@ -74,4 +74,3 @@ export const CATEGORY_STYLE: Record<
       label: "LIFR",
    },
 };
-

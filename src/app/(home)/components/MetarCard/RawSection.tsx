@@ -14,11 +14,7 @@ export function RawSection({ showRaw, onToggle, metar, taf }: RawSectionProps) {
             onClick={onToggle}
             className="flex items-center gap-1 text-xs font-medium text-gray-400 transition hover:text-gray-600"
          >
-            {showRaw ? (
-               <MdExpandLess size={16} />
-            ) : (
-               <MdExpandMore size={16} />
-            )}
+            {showRaw ? <MdExpandLess size={16} /> : <MdExpandMore size={16} />}
             Mensagem bruta
          </button>
 
@@ -33,10 +29,7 @@ export function RawSection({ showRaw, onToggle, metar, taf }: RawSectionProps) {
                      <p className="mt-2 font-mono text-xs text-white/40">TAF</p>
                      <div className="font-mono text-sm text-blue-400">
                         {taf
-                           .replace(
-                              /\s+(BECMG|TEMPO|PROB\d+|RMK)/g,
-                              "\n$1"
-                           )
+                           .replace(/\s+(BECMG|TEMPO|PROB\d+|RMK)/g, "\n$1")
                            .split("\n")
                            .map((line, i) => (
                               <p

@@ -7,12 +7,7 @@ import {
    MdSchedule,
    MdWaves,
 } from "react-icons/md";
-import {
-   WiThunderstorm,
-   WiRain,
-   WiFog,
-   WiSnow,
-} from "react-icons/wi";
+import { WiThunderstorm, WiRain, WiFog, WiSnow } from "react-icons/wi";
 import { MetarInfoTile } from "./MetarInfoTile";
 import type { ParsedMetar } from "./types";
 
