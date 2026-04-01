@@ -1,83 +1,128 @@
 "use client";
 
-import { useState, useMemo } from "react";
-import { Alert, Label, Select, Spinner } from "flowbite-react";
-import { MdFlightTakeoff } from "react-icons/md";
-import { useEtapas } from "@/hooks/queries";
+import { useState, useCallback } from "react";
+import { Alert, Button, Label, Select, Spinner } from "flowbite-react";
+import { MdFlightTakeoff, MdDelete } from "react-icons/md";
+import { HiPlus } from "react-icons/hi";
+import {
+   useDeleteEtapa,
+   useDeleteEstatMissao,
+} from "@/hooks/queries/useEtapas";
+import { useToast } from "@/app/context/toast";
 import { minutesToTime } from "@/../utils/dateHandler";
-import type {
-   MissaoComEtapas,
-   EtapaItem,
-   TripEtapaItem,
-} from "services/routes/estatistica/etapas";
-import DuplasSidebar, { type Dupla } from "./components/DuplasSidebar";
+import type { EtapaItem } from "services/routes/estatistica/etapas";
+import type { Dupla } from "./types";
+import { useSimuladorDuplas } from "./hooks/useSimuladorDuplas";
+import DuplasSidebar from "./components/DuplasSidebar";
 import SessaoCard from "./components/SessaoCard";
+import CreateDuplaModal from "./components/CreateDuplaModal";
+import AddSessaoModal from "./components/AddSessaoModal";
+import { GiJoystick } from "react-icons/gi";
 
 const currentYear = new Date().getFullYear();
 const YEAR_OPTIONS = Array.from({ length: 4 }, (_, i) => currentYear - 2 + i);
 
-function buildDuplas(missoes: MissaoComEtapas[]): Dupla[] {
-   const map = new Map<string, Dupla>();
-   for (const missao of missoes) {
-      const pilotsMap = new Map<number, TripEtapaItem>();
-      for (const etapa of missao.etapas) {
-         for (const trip of etapa.tripulantes) {
-            pilotsMap.set(trip.trip_id, trip);
-         }
-      }
-      if (pilotsMap.size === 0) continue;
-      const sorted = Array.from(pilotsMap.values()).sort(
-         (a, b) => a.trip_id - b.trip_id
-      );
-      const key = sorted.map((t) => t.trip_id).join("-");
-      if (!map.has(key)) {
-         map.set(key, { key, pilots: sorted, etapas: [] });
-      }
-      const dupla = map.get(key);
-      if (dupla) {
-         for (const etapa of missao.etapas) {
-            dupla.etapas.push(etapa);
-         }
-      }
-   }
-   return Array.from(map.values()).sort((a, b) =>
-      (a.pilots[0]?.nome_guerra ?? "").localeCompare(
-         b.pilots[0]?.nome_guerra ?? ""
-      )
-   );
-}
-
 export default function SimuladorPage() {
-   const [selectedKey, setSelectedKey] = useState<string | null>(null);
    const [search, setSearch] = useState("");
    const [anoRef, setAnoRef] = useState(currentYear);
 
-   const { data, isLoading, isError } = useEtapas({
-      anv: ["2850"],
-      excluir_sim: false,
-      per_page: 200,
-      data_ini: `${anoRef}-01-01`,
-      data_fim: `${anoRef}-12-31`,
-   });
+   // Modais
+   const [showCreateDupla, setShowCreateDupla] = useState(false);
+   const [showAddSessao, setShowAddSessao] = useState(false);
+   const [editingEtapa, setEditingEtapa] = useState<EtapaItem | null>(null);
 
-   const duplas = useMemo(() => buildDuplas(data?.items ?? []), [data]);
+   const {
+      duplas,
+      selectedDupla,
+      selectedKey,
+      setSelectedKey,
+      isLoading,
+      isError,
+      handleDuplaCreated,
+      removePending,
+   } = useSimuladorDuplas(anoRef);
 
-   const selectedDupla = useMemo(
-      () => duplas.find((d) => d.key === selectedKey) ?? null,
-      [duplas, selectedKey]
+   const { push } = useToast();
+   const deleteEtapaMutation = useDeleteEtapa();
+   const deleteMissaoMutation = useDeleteEstatMissao();
+
+   const handleAddSessao = useCallback(() => {
+      if (!selectedDupla) return;
+      setEditingEtapa(null);
+      setShowAddSessao(true);
+   }, [selectedDupla]);
+
+   const handleSessaoClick = useCallback((etapa: EtapaItem) => {
+      setEditingEtapa(etapa);
+      setShowAddSessao(true);
+   }, []);
+
+   const handleDeleteSessao = useCallback(
+      async (etapa: EtapaItem) => {
+         try {
+            const res = await deleteEtapaMutation.mutateAsync(etapa.id);
+            push({
+               title: res.ok ? "Sucesso!" : "Erro",
+               message: res.message ?? "Sessão excluída",
+               type: res.ok ? "success" : "error",
+            });
+            if (res.ok) {
+               setShowAddSessao(false);
+               setEditingEtapa(null);
+            }
+         } catch (err) {
+            push({
+               title: "Erro",
+               message:
+                  err instanceof Error ? err.message : "Erro ao excluir sessão",
+               type: "error",
+            });
+         }
+      },
+      [deleteEtapaMutation, push]
    );
 
-   const totalMin = duplas.reduce(
-      (sum, d) => sum + d.etapas.reduce((s, e) => s + e.tvoo, 0),
-      0
+   const handleDeleteDupla = useCallback(
+      async (dupla: Dupla) => {
+         if (dupla.etapas.length > 0) {
+            push({
+               title: "Erro",
+               message: "Exclua todas as sessões antes de remover a dupla",
+               type: "error",
+            });
+            return;
+         }
+
+         try {
+            const res = await deleteMissaoMutation.mutateAsync(dupla.missaoId);
+            push({
+               title: res.ok ? "Sucesso!" : "Erro",
+               message: res.message ?? "Dupla excluída",
+               type: res.ok ? "success" : "error",
+            });
+            if (res.ok) {
+               removePending(dupla.missaoId);
+               if (selectedKey === dupla.key) setSelectedKey(null);
+            }
+         } catch (err) {
+            push({
+               title: "Erro",
+               message:
+                  err instanceof Error ? err.message : "Erro ao excluir dupla",
+               type: "error",
+            });
+         }
+      },
+      [deleteMissaoMutation, push, selectedKey]
    );
 
    return (
       <div className="flex flex-col gap-6 p-1">
+         {/* ── Header ─────────────────────────────────────────────────── */}
          <div className="rounded-2xl border border-gray-200 bg-white px-6 py-5 shadow-sm">
             <div className="flex flex-wrap items-center gap-4">
-               <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-purple-600 shadow-md">
-                  <MdFlightTakeoff className="h-6 w-6 text-white" />
+               <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-red-600 shadow-md">
+                  <GiJoystick className="h-6 w-6 text-white" />
                </div>
                <div>
                   <h1 className="text-xl font-semibold text-gray-900">
@@ -106,30 +151,11 @@ export default function SimuladorPage() {
                         </option>
                      ))}
                   </Select>
-                  {!isLoading && !isError && (
-                     <>
-                        <div className="flex items-center gap-1.5 rounded-lg bg-purple-100 px-3 py-1.5">
-                           <span className="text-lg font-semibold text-purple-800">
-                              {duplas.length}
-                           </span>
-                           <span className="text-xs text-purple-500">
-                              duplas
-                           </span>
-                        </div>
-                        <div className="flex items-center gap-1.5 rounded-lg bg-gray-100 px-3 py-1.5">
-                           <span className="font-mono text-lg font-semibold text-gray-800">
-                              {minutesToTime(totalMin)}
-                           </span>
-                           <span className="text-xs text-gray-500">
-                              h total
-                           </span>
-                        </div>
-                     </>
-                  )}
                </div>
             </div>
          </div>
 
+         {/* ── Conteúdo ───────────────────────────────────────────────── */}
          {isError && (
             <Alert color="failure">
                Erro ao carregar as sessões do simulador. Verifique a conexão e
@@ -144,7 +170,7 @@ export default function SimuladorPage() {
          ) : (
             !isError && (
                <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
-                  <div className="flex min-h-[480px]">
+                  <div className="flex min-h-120">
                      <DuplasSidebar
                         duplas={duplas}
                         selectedKey={selectedKey}
@@ -153,9 +179,10 @@ export default function SimuladorPage() {
                         onSelect={(key) =>
                            setSelectedKey((prev) => (prev === key ? null : key))
                         }
+                        onCreateDupla={() => setShowCreateDupla(true)}
                      />
 
-                     <div className="flex-1 overflow-y-auto bg-gray-50 p-6">
+                     <div className="flex flex-1 flex-col overflow-y-auto bg-gray-50">
                         {!selectedDupla ? (
                            <div className="flex h-full flex-col items-center justify-center gap-3 text-gray-400">
                               <MdFlightTakeoff className="h-12 w-12 opacity-30" />
@@ -164,23 +191,115 @@ export default function SimuladorPage() {
                               </p>
                            </div>
                         ) : (
-                           <div className="flex flex-col gap-3">
-                              {selectedDupla.etapas
-                                 .slice()
-                                 .sort(
-                                    (a, b) =>
-                                       new Date(a.data).getTime() -
-                                       new Date(b.data).getTime()
-                                 )
-                                 .map((etapa: EtapaItem) => (
-                                    <SessaoCard key={etapa.id} etapa={etapa} />
-                                 ))}
-                           </div>
+                           <>
+                              {/* Barra de ações da dupla */}
+                              <div className="flex items-center justify-between border-b border-gray-200 bg-white px-6 py-3">
+                                 <div>
+                                    <p className="text-sm font-semibold text-gray-900 uppercase">
+                                       {selectedDupla.pilots.length > 0
+                                          ? selectedDupla.pilots
+                                               .map(
+                                                  (p) =>
+                                                     `${p.p_g} ${p.nome_guerra}`
+                                               )
+                                               .join(" / ")
+                                          : "Sem pilotos"}
+                                    </p>
+                                    
+                                 </div>
+                                 <div className="flex items-center gap-2">
+                                    <Button
+                                       color="red"
+                                       size="sm"
+                                       onClick={() =>
+                                          handleDeleteDupla(selectedDupla)
+                                       }
+                                       disabled={
+                                          selectedDupla.etapas.length > 0
+                                       }
+                                       title={
+                                          selectedDupla.etapas.length > 0
+                                             ? "Exclua todas as sessões primeiro"
+                                             : "Excluir dupla"
+                                       }
+                                    >
+                                       <MdDelete className="mr-2 h-4 w-4" />
+                                       Excluir Dupla
+                                    </Button>
+                                    <Button
+                                       color="light"
+                                       size="sm"
+                                       onClick={handleAddSessao}
+                                    >
+                                       <HiPlus className="mr-2 h-4 w-4" />
+                                       Nova Sessão
+                                    </Button>
+                                 </div>
+                              </div>
+
+                              {/* Lista de sessões */}
+                              <div className="flex-1 p-6">
+                                 {selectedDupla.etapas.length === 0 ? (
+                                    <div className="flex h-full flex-col items-center justify-center gap-3 text-gray-400">
+                                       <MdFlightTakeoff className="h-10 w-10 opacity-20" />
+                                       <p className="text-sm">
+                                          Nenhuma sessão registrada.
+                                       </p>
+                                       <Button
+                                          color="light"
+                                          size="sm"
+                                          onClick={handleAddSessao}
+                                       >
+                                          <HiPlus className="mr-2 h-4 w-4" />
+                                          Adicionar primeira sessão
+                                       </Button>
+                                    </div>
+                                 ) : (
+                                    <div className="flex flex-col gap-3">
+                                       {selectedDupla.etapas
+                                          .slice()
+                                          .sort(
+                                             (a, b) =>
+                                                new Date(a.data).getTime() -
+                                                new Date(b.data).getTime()
+                                          )
+                                          .map((etapa: EtapaItem) => (
+                                             <SessaoCard
+                                                key={etapa.id}
+                                                etapa={etapa}
+                                                onClick={handleSessaoClick}
+                                             />
+                                          ))}
+                                    </div>
+                                 )}
+                              </div>
+                           </>
                         )}
                      </div>
                   </div>
                </div>
             )
+         )}
+
+         {/* ── Modais ─────────────────────────────────────────────────── */}
+         <CreateDuplaModal
+            show={showCreateDupla}
+            onClose={() => setShowCreateDupla(false)}
+            onCreated={handleDuplaCreated}
+         />
+
+         {selectedDupla && (
+            <AddSessaoModal
+               show={showAddSessao}
+               onClose={() => {
+                  setShowAddSessao(false);
+                  setEditingEtapa(null);
+               }}
+               missaoId={selectedDupla.missaoId}
+               pilots={selectedDupla.pilots}
+               editEtapa={editingEtapa}
+               onDelete={handleDeleteSessao}
+            />
          )}
       </div>
    );

@@ -1,18 +1,10 @@
 "use client";
 
-import { TextInput } from "flowbite-react";
+import { Button, TextInput } from "flowbite-react";
 import clsx from "clsx";
-import type {
-   EtapaItem,
-   TripEtapaItem,
-} from "services/routes/estatistica/etapas";
+import { HiPlus } from "react-icons/hi";
 import { minutesToTime, isoDateToString } from "@/../utils/dateHandler";
-
-export interface Dupla {
-   key: string;
-   pilots: TripEtapaItem[];
-   etapas: EtapaItem[];
-}
+import type { Dupla } from "../types";
 
 interface DuplasSidebarProps {
    duplas: Dupla[];
@@ -20,6 +12,7 @@ interface DuplasSidebarProps {
    search: string;
    onSearchChange: (v: string) => void;
    onSelect: (key: string) => void;
+   onCreateDupla: () => void;
 }
 
 export default function DuplasSidebar({
@@ -28,19 +21,32 @@ export default function DuplasSidebar({
    search,
    onSearchChange,
    onSelect,
+   onCreateDupla,
 }: DuplasSidebarProps) {
-   const filtered = duplas.filter((d) =>
-      d.pilots.some((p) =>
+   const filtered = duplas.filter((d) => {
+      if (!search) return true;
+      if (d.pilots.length === 0) return true;
+      return d.pilots.some((p) =>
          p.nome_guerra.toLowerCase().includes(search.toLowerCase())
-      )
-   );
+      );
+   });
 
    return (
       <div className="flex w-70 shrink-0 flex-col border-r border-gray-200 bg-white">
          <div className="border-b border-gray-200 px-4 py-3">
-            <p className="mb-2 font-mono text-xs font-semibold tracking-widest text-gray-400 uppercase">
-               Duplas
-            </p>
+            <div className="mb-2 flex items-center justify-between">
+               <p className="font-mono text-xs font-semibold tracking-widest text-gray-400 uppercase">
+                  Duplas
+               </p>
+               <Button
+                  color="light"
+                  size="xs"
+                  onClick={onCreateDupla}
+                  className="h-6"
+               >
+                  <HiPlus className="h-3.5 w-3.5" />
+               </Button>
+            </div>
             <TextInput
                sizing="sm"
                placeholder="Buscar piloto..."
@@ -62,6 +68,7 @@ export default function DuplasSidebar({
                );
                const firstDate = dupla.etapas.map((e) => e.data).sort()[0];
                const isSelected = selectedKey === dupla.key;
+               const isEmpty = dupla.etapas.length === 0;
 
                return (
                   <button
@@ -69,29 +76,43 @@ export default function DuplasSidebar({
                      type="button"
                      onClick={() => onSelect(dupla.key)}
                      className={clsx(
-                        "flex w-full items-center gap-3 border-b border-gray-100 px-4 py-3 text-left transition-colors hover:bg-gray-50",
-                        isSelected && "border-l-4 border-l-blue-500 bg-blue-50"
+                        "flex w-full items-center gap-3 border-b border-red-100 px-4 py-3 text-left transition-colors hover:bg-red-50",
+                        isSelected && "border-l-4 border-l-red-500 bg-red-50"
                      )}
                   >
                      <div className="min-w-0 flex-1">
-                        {dupla.pilots.map((p) => (
-                           <p
-                              key={p.trip_id}
-                              className="truncate text-xs font-medium text-gray-800 uppercase"
-                           >
-                              {p.p_g} {p.nome_guerra}
+                        {dupla.pilots.length > 0 ? (
+                           dupla.pilots.map((p) => (
+                              <p
+                                 key={p.trip_id}
+                                 className="truncate text-xs font-medium text-gray-800 uppercase"
+                              >
+                                 {p.p_g} {p.nome_guerra}
+                              </p>
+                           ))
+                        ) : (
+                           <p className="truncate text-xs font-medium text-gray-400 italic">
+                              Sem pilotos
                            </p>
-                        ))}
+                        )}
                      </div>
 
                      <div className="flex shrink-0 flex-col items-end gap-1">
-                        <span className="font-mono text-xs text-blue-600">
-                           {minutesToTime(totalMin)}h
-                        </span>
-                        {firstDate && (
-                           <span className="font-mono text-xs text-gray-400">
-                              {isoDateToString(firstDate)}
+                        {isEmpty ? (
+                           <span className="text-[10px] font-medium text-amber-500">
+                              SEM SESSÕES
                            </span>
+                        ) : (
+                           <>
+                              <span className="font-mono text-xs text-red-600">
+                                 {minutesToTime(totalMin)}h
+                              </span>
+                              {firstDate && (
+                                 <span className="font-mono text-xs text-gray-600">
+                                    {isoDateToString(firstDate)}
+                                 </span>
+                              )}
+                           </>
                         )}
                      </div>
                   </button>

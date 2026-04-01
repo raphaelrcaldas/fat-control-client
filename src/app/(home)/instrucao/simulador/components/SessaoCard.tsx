@@ -18,21 +18,26 @@ const MONTHS = [
 
 interface SessaoCardProps {
    etapa: EtapaItem;
+   onClick: (etapa: EtapaItem) => void;
 }
 
-export default function SessaoCard({ etapa }: SessaoCardProps) {
+export default function SessaoCard({ etapa, onClick }: SessaoCardProps) {
    const date = new Date(etapa.data + "T12:00:00");
    const day = String(date.getDate()).padStart(2, "0");
    const month = MONTHS[date.getMonth()];
 
    return (
-      <div className="overflow-hidden rounded-xl border border-gray-200 bg-white">
+      <button
+         type="button"
+         onClick={() => onClick(etapa)}
+         className="w-full overflow-hidden rounded-xl border border-gray-200 bg-white text-left shadow-red-300 transition-shadow hover:shadow"
+      >
          <div className="flex w-full items-stretch gap-0">
-            <div className="flex w-14 shrink-0 flex-col items-center justify-center bg-gray-800 py-3">
+            <div className="flex w-14 shrink-0 flex-col items-center justify-center bg-gray-600 py-3">
                <span className="font-mono text-2xl leading-none font-bold text-white">
                   {day}
                </span>
-               <span className="font-mono text-xs font-medium text-gray-400">
+               <span className="font-mono text-xs font-medium text-gray-200">
                   {month}
                </span>
             </div>
@@ -51,13 +56,13 @@ export default function SessaoCard({ etapa }: SessaoCardProps) {
                </div>
 
                <div className="text-right">
-                  <span className="font-mono text-sm font-bold text-blue-600">
+                  <span className="font-mono text-sm font-bold text-slate-600">
                      {minutesToTime(etapa.tvoo)}
                   </span>
                   <p className="text-xs text-gray-400">T.Voo</p>
                </div>
             </div>
          </div>
-      </div>
+      </button>
    );
 }
