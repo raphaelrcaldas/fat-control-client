@@ -33,11 +33,11 @@ export default function SessaoCard({ etapa, onClick }: SessaoCardProps) {
          className="w-full overflow-hidden rounded-xl border border-gray-200 bg-white text-left shadow-red-300 transition-shadow hover:shadow"
       >
          <div className="flex w-full items-stretch gap-0">
-            <div className="flex w-14 shrink-0 flex-col items-center justify-center bg-gray-600 py-3">
+            <div className="flex w-14 shrink-0 flex-col items-center justify-center bg-red-600 py-3">
                <span className="font-mono text-2xl leading-none font-bold text-white">
                   {day}
                </span>
-               <span className="font-mono text-xs font-medium text-gray-200">
+               <span className="font-mono text-xs font-medium text-red-200">
                   {month}
                </span>
             </div>

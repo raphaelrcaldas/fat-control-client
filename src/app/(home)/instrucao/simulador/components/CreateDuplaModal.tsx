@@ -149,7 +149,7 @@ export default function CreateDuplaModal({
       <Modal show={show} size="lg" onClose={onClose} dismissible>
          <ModalHeader>
             <div className="flex items-center gap-3">
-               <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-purple-600">
+               <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-red-600">
                   <HiUserGroup className="h-5 w-5 text-white" />
                </div>
                <div>
@@ -240,15 +240,12 @@ export default function CreateDuplaModal({
                      return pilot ? (
                         <div
                            key={pilot.trip_id}
-                           className="flex items-center gap-3 rounded-lg border border-blue-200 bg-blue-50/60 px-4 py-3 uppercase"
+                           className="flex items-center gap-3 rounded-lg border border-red-200 bg-red-50/60 px-4 py-3 uppercase"
                         >
                            <div className="min-w-0 flex-1">
                               <p className="text-sm font-semibold text-gray-900">
                                  {pilot.p_g} {pilot.nome_guerra}
-                              </p>
-                              <p className="font-mono text-xs text-gray-400">
-                                 {pilot.trig}
-                              </p>
+                              </p> 
                            </div>
                            <button
                               type="button"

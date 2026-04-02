@@ -117,7 +117,7 @@ export default function SimuladorPage() {
    );
 
    return (
-      <div className="flex flex-col gap-6 p-1">
+      <div className="flex flex-col gap-3 p-1">
          {/* ── Header ─────────────────────────────────────────────────── */}
          <div className="rounded-2xl border border-gray-200 bg-white px-6 py-5 shadow-sm">
             <div className="flex flex-wrap items-center gap-4">
@@ -196,6 +196,9 @@ export default function SimuladorPage() {
                               <div className="flex items-center justify-between border-b border-gray-200 bg-white px-6 py-3">
                                  <div>
                                     <p className="text-sm font-semibold text-gray-900 uppercase">
+                                       <span className="mr-2 text-xs text-slate-400">
+                                          #{selectedDupla?.missaoId}
+                                       </span>
                                        {selectedDupla.pilots.length > 0
                                           ? selectedDupla.pilots
                                                .map(
@@ -205,7 +208,6 @@ export default function SimuladorPage() {
                                                .join(" / ")
                                           : "Sem pilotos"}
                                     </p>
-                                    
                                  </div>
                                  <div className="flex items-center gap-2">
                                     <Button
@@ -238,7 +240,7 @@ export default function SimuladorPage() {
                               </div>
 
                               {/* Lista de sessões */}
-                              <div className="flex-1 p-6">
+                              <div className="flex-1 px-6 py-3">
                                  {selectedDupla.etapas.length === 0 ? (
                                     <div className="flex h-full flex-col items-center justify-center gap-3 text-gray-400">
                                        <MdFlightTakeoff className="h-10 w-10 opacity-20" />
@@ -255,13 +257,14 @@ export default function SimuladorPage() {
                                        </Button>
                                     </div>
                                  ) : (
-                                    <div className="flex flex-col gap-3">
+                                    <div className="flex flex-col gap-2">
                                        {selectedDupla.etapas
                                           .slice()
                                           .sort(
                                              (a, b) =>
-                                                new Date(a.data).getTime() -
-                                                new Date(b.data).getTime()
+                                                `${a.data}T${a.dep}`.localeCompare(
+                                                   `${b.data}T${b.dep}`
+                                                )
                                           )
                                           .map((etapa: EtapaItem) => (
                                              <SessaoCard
