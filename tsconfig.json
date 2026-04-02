@@ -1,10 +1,11 @@
 {
   "compilerOptions": {
-    "baseUrl": ".",
     "paths": {
-      "@/*": [
-        "src/*"
-      ]
+      "@/*": ["./src/*"],
+      "services/*": ["./services/*"],
+      "utils/*": ["./utils/*"],
+      "src/*": ["./src/*"],
+      "public/*": ["./public/*"]
     },
     "lib": [
       "dom",
