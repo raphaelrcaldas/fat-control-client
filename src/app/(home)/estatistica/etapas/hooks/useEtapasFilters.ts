@@ -146,7 +146,10 @@ export function useEtapasFilters(grouped = true) {
    );
 
    // --- Aeronaves data ---
-   const { data: aeronaveData } = useAeronaves({ per_page: 100 });
+   const { data: aeronaveData } = useAeronaves({
+      per_page: 100,
+      is_sim: false,
+   });
    const aeronaveOptions = useMemo(
       () =>
          (aeronaveData?.items ?? []).map((a) => ({

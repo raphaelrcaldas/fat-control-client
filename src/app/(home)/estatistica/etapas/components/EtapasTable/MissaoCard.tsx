@@ -49,7 +49,7 @@ export const MissaoCard = memo(function MissaoCard({
    return (
       <div className="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
          {/* Header da missao */}
-         <div className="flex flex-wrap items-center gap-3 border-b border-gray-200 px-4 py-3">
+         <div className="flex flex-wrap items-center gap-3 border-b border-gray-200 px-3 py-1">
             {hasEtapas && (
                <Checkbox
                   color="red"

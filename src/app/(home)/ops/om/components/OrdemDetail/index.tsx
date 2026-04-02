@@ -297,7 +297,7 @@ export function OrdemFormContent({
    );
 
    return (
-      <div className="flex flex-1 flex-col overflow-hidden rounded-2xl border border-gray-200 bg-gray-50 shadow-xl">
+      <div className="flex flex-1 flex-col overflow-hidden rounded-lg border border-gray-200 bg-gray-50 shadow-xl">
          {/* Header Fixo */}
          <header className="flex shrink-0 items-center justify-between border-b border-gray-200 bg-white px-6 py-4 shadow-sm">
             <div className="flex min-w-0 flex-1 items-center gap-4">

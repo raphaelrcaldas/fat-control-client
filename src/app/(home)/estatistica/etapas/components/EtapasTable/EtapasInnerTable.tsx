@@ -34,7 +34,6 @@ export function EtapasInnerTable({
    onToggleEtapa,
    onDetailEtapa,
    onEditEtapa,
-   headerCheckbox,
 }: EtapasInnerTableProps) {
    return (
       <div className="overflow-x-auto">
@@ -42,39 +41,9 @@ export function EtapasInnerTable({
             hoverable
             className="text-center"
             theme={{
-               head: { cell: { base: "bg-white px-2" } },
-               body: { cell: { base: "px-2" } },
+               body: { cell: { base: "px-1 py-1.5" } },
             }}
          >
-            <TableHead>
-               <TableRow>
-                  <TableHeadCell className="w-10">
-                     {headerCheckbox && (
-                        <Checkbox
-                           color="red"
-                           checked={headerCheckbox.checked}
-                           ref={(el) => {
-                              if (el)
-                                 el.indeterminate =
-                                    headerCheckbox.indeterminate;
-                           }}
-                           onChange={headerCheckbox.onChange}
-                           className="cursor-pointer"
-                        />
-                     )}
-                  </TableHeadCell>
-                  <TableHeadCell className="w-28">Data</TableHeadCell>
-                  <TableHeadCell className="w-16">Origem</TableHeadCell>
-                  <TableHeadCell className="w-16">Destino</TableHeadCell>
-                  <TableHeadCell className="w-16">DEP</TableHeadCell>
-                  <TableHeadCell className="w-16">ARR</TableHeadCell>
-                  <TableHeadCell className="w-18">TV</TableHeadCell>
-                  <TableHeadCell className="w-20">Aeronave</TableHeadCell>
-                  <TableHeadCell className="w-68">Esforço Aéreo</TableHeadCell>
-                  <TableHeadCell>Tripulação</TableHeadCell>
-                  <TableHeadCell className="w-10" />
-               </TableRow>
-            </TableHead>
             <TableBody className="divide-y">
                {etapas.map((etapa) => (
                   <EtapaRow

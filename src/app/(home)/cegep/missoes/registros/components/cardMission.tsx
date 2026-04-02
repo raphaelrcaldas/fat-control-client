@@ -57,7 +57,7 @@ export const CardMission = memo(function CardMission({
 
             {/* Header com documento - CLICÁVEL */}
             <div
-               className="-m-2 mb-4 flex cursor-pointer items-center gap-3 rounded-lg p-2 transition-colors hover:bg-gray-50"
+               className="-m-2 mb-1 flex cursor-pointer items-center gap-3 rounded-lg p-2 transition-colors hover:bg-gray-50"
                onClick={() => setShowDetail(true)}
                title="Clique para ver detalhes da missão"
             >
@@ -81,7 +81,7 @@ export const CardMission = memo(function CardMission({
                </div>
             </div>
 
-            <div className="flex h-full flex-col gap-4">
+            <div className="flex h-full flex-col gap-3">
                {/* Observações */}
                {missao.obs && (
                   <div

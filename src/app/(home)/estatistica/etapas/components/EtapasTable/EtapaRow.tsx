@@ -111,24 +111,24 @@ export const EtapaRow = memo(function EtapaRow({
                className="cursor-pointer"
             />
          </TableCell>
-         <TableCell className="font-mono text-gray-500">
+         <TableCell className="w-28 font-mono text-gray-500">
             {formatDateFull(data)}
          </TableCell>
-         <TableCell className="font-mono font-medium text-gray-800 uppercase">
+         <TableCell className="w-16 font-mono font-medium text-gray-800 uppercase">
             {origem}
          </TableCell>
-         <TableCell className="font-mono font-medium text-gray-800 uppercase">
+         <TableCell className="w-16 font-mono font-medium text-gray-800 uppercase">
             {destino}
          </TableCell>
-         <TableCell className="font-mono">{formatTime(dep)}</TableCell>
-         <TableCell className="font-mono">{formatTime(arr)}</TableCell>
-         <TableCell className="font-mono font-semibold text-slate-800">
+         <TableCell className="w-16 font-mono">{formatTime(dep)}</TableCell>
+         <TableCell className="w-16 font-mono">{formatTime(arr)}</TableCell>
+         <TableCell className="w-16 font-mono font-semibold text-slate-800">
             {minutesToTime(tvoo)}
          </TableCell>
-         <TableCell className="text-gray-900">{anv}</TableCell>
-         <TableCell>
+         <TableCell className="w-16 text-gray-900">{anv}</TableCell>
+         <TableCell className="w-92">
             {oi_etapas.length > 0 ? (
-               <ul className="flex h-full flex-col items-center justify-center space-y-1">
+               <ul>
                   {oi_etapas.map((oi, i) => {
                      const reg = REG_ICON[oi.reg];
                      const RegIcon = reg?.icon ?? HiSun;
@@ -136,7 +136,7 @@ export const EtapaRow = memo(function EtapaRow({
                         <li
                            key={`${oi.esf_aer_id}-${oi.tipo_missao_id}-${oi.reg}`}
                            className={clsx(
-                              "flex w-fit items-center justify-center gap-1 rounded px-2 py-1 text-[11px] font-medium whitespace-nowrap"
+                              "flex items-center justify-center gap-1.5 text-xs"
                            )}
                         >
                            <span
@@ -154,18 +154,18 @@ export const EtapaRow = memo(function EtapaRow({
                            <span className="text-gray-300">|</span>
                            <span
                               className={clsx(
-                                 "font-mono",
+                                 "flex items-center justify-center gap-0.5 font-mono",
                                  reg?.color ?? "text-gray-500"
                               )}
                            >
                               {minutesToTime(oi.tvoo)}
+                              <RegIcon
+                                 className={clsx(
+                                    "h-3 w-3 shrink-0",
+                                    reg?.color ?? "text-gray-500"
+                                 )}
+                              />
                            </span>
-                           <RegIcon
-                              className={clsx(
-                                 "h-3 w-3 shrink-0",
-                                 reg?.color ?? "text-gray-500"
-                              )}
-                           />
                            <span className="text-gray-300">|</span>
                            <span className="font-mono uppercase">
                               {oi.tipo_missao_cod}
