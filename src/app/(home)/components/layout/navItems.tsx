@@ -135,6 +135,13 @@ export const navItems = [
             resource: "esf_aer",
             permission: "view",
          },
+         {
+            icon: MdFlightTakeoff,
+            label: "Horas por ANV",
+            path: "/estatistica/horas-anv",
+            resource: "estatistica",
+            permission: "view",
+         },
       ],
    },
    {

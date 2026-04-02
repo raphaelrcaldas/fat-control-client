@@ -15,6 +15,7 @@ export * from "./useAeronaves";
 export * from "./useSecurity";
 export * from "./useEtapas";
 export * from "./useEsfAer";
+export * from "./useHorasAnv";
 export * from "./useTiposMissao";
 export * from "./useSebo";
 export * from "./useCartoesSaude";
