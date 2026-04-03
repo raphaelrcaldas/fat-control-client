@@ -37,7 +37,6 @@ export function UserCard({ user }: UserCardProps) {
                size="sm"
                onClick={() => router.push(`/users/${user.id}`)}
                aria-label={`Ver detalhes de ${user.nome_guerra}`}
-               className="p-0"
             >
                <IoMdInformationCircleOutline className="h-5 w-5 text-red-600" />
             </Button>
@@ -45,9 +44,9 @@ export function UserCard({ user }: UserCardProps) {
 
          <div className="grid grid-cols-4 gap-2 border-t border-gray-100 pt-3">
             <div>
-               <p className="mb-1 text-xs text-gray-500">Posto/Graduação</p>
+               <p className="mb-1 text-xs text-gray-500">P/G</p>
                <Badge color="gray" className="text-xs capitalize">
-                  {user.posto.long}
+                  {user.posto.mid}
                </Badge>
             </div>
             <div>

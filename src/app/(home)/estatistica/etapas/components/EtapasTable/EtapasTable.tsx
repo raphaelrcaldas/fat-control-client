@@ -206,18 +206,18 @@ export function EtapasTable({
    );
 
    const selectionActions = selectedIds.size > 0 && (
-      <div className="flex flex-wrap items-center gap-2">
+      <div className="flex items-center gap-2">
          <div className="h-4 w-px bg-gray-300" />
-         <Badge color="red" size="sm">
+         <Badge color="red" size="sm" className="hidden lg:block">
             {selectedIds.size} etapa(s)
          </Badge>
          <div className="flex items-center gap-1 text-sm font-semibold text-gray-800">
             <HiClock className="h-4 w-4 text-blue-600" />
             {minutesToTime(totalTvoo)}
          </div>
-         <div className="h-4 w-px bg-gray-300" />
+         <div className="hidden h-4 w-px bg-gray-300 lg:flex" />
          {(oiTotals.d > 0 || oiTotals.n > 0 || oiTotals.v > 0) && (
-            <div className="flex items-center gap-2">
+            <div className="hidden items-center gap-2 lg:flex">
                {oiTotals.d > 0 && (
                   <div className="flex items-center gap-1 text-sm font-semibold text-amber-600">
                      <HiSun className="h-4 w-4" />
@@ -238,10 +238,10 @@ export function EtapasTable({
                )}
             </div>
          )}
-         <div className="h-4 w-px bg-gray-300" />
+         <div className="hidden h-4 w-px bg-gray-300 lg:flex" />
 
          <PermBased resource="etp_mis" requiredPerm="create">
-            <div className="flex items-center gap-2 rounded-md bg-white px-3 py-1.5 shadow">
+            <div className="hidden items-center gap-2 rounded-md bg-white px-3 py-1.5 shadow lg:flex">
                <span className="mr-1 text-sm font-medium text-gray-500">
                   SAGEM
                </span>
@@ -260,7 +260,7 @@ export function EtapasTable({
                   <HiX className="inline h-4 w-4" />
                </button>
             </div>
-            <div className="flex items-center gap-2 rounded-md bg-white px-3 py-1.5 shadow">
+            <div className="hidden items-center gap-2 rounded-md bg-white px-3 py-1.5 shadow lg:flex">
                <span className="mr-1 text-sm font-medium text-gray-500">
                   Parte 1
                </span>

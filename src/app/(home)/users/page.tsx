@@ -217,7 +217,7 @@ export default function UsersPage() {
                </div>
 
                {/* Filtros */}
-               <div className="flex flex-wrap gap-2">
+               <div className="flex gap-2">
                   {/* Filtro P/G */}
                   <MultiSelect
                      options={PG_OPTIONS}

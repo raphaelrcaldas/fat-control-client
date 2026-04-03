@@ -9,6 +9,7 @@ import {
    HiViewBoards,
    HiTable,
 } from "react-icons/hi";
+import { CiPaperplane } from "react-icons/ci";
 import { Pagination } from "@/components/Pagination";
 import { useState, useCallback } from "react";
 import { EtapasTable } from "./components/EtapasTable/EtapasTable";
@@ -67,8 +68,17 @@ export default function EtapasPage() {
       <div className="flex flex-1 flex-col overflow-hidden p-1">
          <div className="mb-4 shrink-0 rounded-lg border border-gray-200 bg-white shadow-sm">
             <div className="flex flex-wrap items-center justify-between gap-3 p-4">
-               <h2>Etapas</h2>
-
+               <div className="flex flex-row gap-3">
+                  <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-red-600 shadow-md">
+                     <CiPaperplane className="h-6 w-6 text-white" />
+                  </div>
+                  <div>
+                     <h1 className="text-xl font-semibold text-gray-900">
+                        Etapas
+                     </h1>
+                     <p className="text-sm text-gray-500">Relatórios de voo</p>
+                  </div>
+               </div>
                <div className="flex items-center gap-2">
                   <PermBased resource="etp_mis" requiredPerm="create">
                      <Button
@@ -98,6 +108,7 @@ export default function EtapasPage() {
                   <Button
                      color="light"
                      size="sm"
+                     className="hidden sm:flex"
                      onClick={() => {
                         setGroupByMissao((v) => !v);
                         filters.handlePageChange(1);

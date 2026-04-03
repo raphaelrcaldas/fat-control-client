@@ -11,7 +11,7 @@ import {
 } from "@/constants/tripulantes/funcoes";
 import { Checkbox, TableCell, TableRow } from "flowbite-react";
 import {
-   formatDateFull,
+   isoDateToString,
    formatTime,
    minutesToTime,
 } from "@/../utils/dateHandler";
@@ -111,22 +111,24 @@ export const EtapaRow = memo(function EtapaRow({
                className="cursor-pointer"
             />
          </TableCell>
-         <TableCell className="w-28 font-mono text-gray-500">
-            {formatDateFull(data)}
+         <TableCell className="w-20 font-mono text-gray-500">
+            {isoDateToString(data)}
          </TableCell>
-         <TableCell className="w-16 font-mono font-medium text-gray-800 uppercase">
+         <TableCell className="w-14 font-mono font-medium text-gray-800 uppercase">
             {origem}
          </TableCell>
-         <TableCell className="w-16 font-mono font-medium text-gray-800 uppercase">
+         <TableCell className="w-14 font-mono font-medium text-gray-800 uppercase">
             {destino}
          </TableCell>
-         <TableCell className="w-16 font-mono">{formatTime(dep)}</TableCell>
-         <TableCell className="w-16 font-mono">{formatTime(arr)}</TableCell>
-         <TableCell className="w-16 font-mono font-semibold text-slate-800">
+         <TableCell className="w-14 font-mono">{formatTime(dep)}</TableCell>
+         <TableCell className="w-14 font-mono">{formatTime(arr)}</TableCell>
+         <TableCell className="w-14 font-mono font-semibold text-slate-800">
             {minutesToTime(tvoo)}
          </TableCell>
-         <TableCell className="w-16 text-gray-900">{anv}</TableCell>
-         <TableCell className="w-92">
+         <TableCell className="hidden w-14 text-gray-900 sm:table-cell">
+            {anv}
+         </TableCell>
+         <TableCell className="hidden w-92 md:table-cell">
             {oi_etapas.length > 0 ? (
                <ul>
                   {oi_etapas.map((oi, i) => {
@@ -178,7 +180,7 @@ export const EtapaRow = memo(function EtapaRow({
                <span className="text-gray-300">&mdash;</span>
             )}
          </TableCell>
-         <TableCell>
+         <TableCell className="hidden lg:table-cell">
             {tripBadges.length > 0 ? (
                <div className="flex flex-wrap items-center gap-1">
                   {tripBadges}
