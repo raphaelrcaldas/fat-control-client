@@ -6,8 +6,7 @@ import {
 
 export const horasAnvKeys = {
    all: ["horasAnv"] as const,
-   resumo: (anoRef: number) =>
-      [...horasAnvKeys.all, "resumo", anoRef] as const,
+   resumo: (anoRef: number) => [...horasAnvKeys.all, "resumo", anoRef] as const,
 };
 
 export function useHorasAnv(anoRef: number) {

@@ -245,7 +245,7 @@ export default function CreateDuplaModal({
                            <div className="min-w-0 flex-1">
                               <p className="text-sm font-semibold text-gray-900">
                                  {pilot.p_g} {pilot.nome_guerra}
-                              </p> 
+                              </p>
                            </div>
                            <button
                               type="button"

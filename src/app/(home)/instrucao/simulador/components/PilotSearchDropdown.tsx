@@ -168,7 +168,7 @@ export default function PilotSearchDropdown({
                      onChange={(e) =>
                         onUpdateFuncBordo(p.trip_id, e.target.value)
                      }
-                     className="rounded-lg border border-gray-300 bg-gray-50 px-2 py-1 text-sm w-16"
+                     className="w-16 rounded-lg border border-gray-300 bg-gray-50 px-2 py-1 text-sm"
                   >
                      <option value="1P">1P</option>
                      <option value="2P">2P</option>

@@ -260,11 +260,10 @@ export default function SimuladorPage() {
                                     <div className="flex flex-col gap-2">
                                        {selectedDupla.etapas
                                           .slice()
-                                          .sort(
-                                             (a, b) =>
-                                                `${a.data}T${a.dep}`.localeCompare(
-                                                   `${b.data}T${b.dep}`
-                                                )
+                                          .sort((a, b) =>
+                                             `${a.data}T${a.dep}`.localeCompare(
+                                                `${b.data}T${b.dep}`
+                                             )
                                           )
                                           .map((etapa: EtapaItem) => (
                                              <SessaoCard

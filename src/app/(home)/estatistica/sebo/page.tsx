@@ -148,7 +148,7 @@ function SeboPage() {
                               <div className="h-16 flex-1 animate-pulse rounded-lg bg-gray-200" />
                               <div className="h-16 flex-1 animate-pulse rounded-lg bg-gray-200" />
                            </div>
-                           <div className="h-[380px] animate-pulse rounded-lg bg-gray-200" />
+                           <div className="h-95 animate-pulse rounded-lg bg-gray-200" />
                         </>
                      ) : (
                         <>
