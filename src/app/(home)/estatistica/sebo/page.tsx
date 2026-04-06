@@ -1,5 +1,6 @@
 "use client";
 import { useState, useMemo, useCallback } from "react";
+import { FUNCOES_CONFIG, type FuncType } from "@/constants/tripulantes/funcoes";
 import { useSebo } from "@/hooks/queries";
 import { usePersistedState } from "@/hooks/usePersistedState";
 import FilterPanel from "./components/filterPanel";
@@ -65,11 +66,20 @@ function SeboPage() {
    // Quando todos os filtros estao ativos, nao enviar oper (retorna todos)
    const allActive = opIn && opOp && opAl;
 
-   // func_bordo: para pilotos, toggle O3 vs demais
+   // func_bordo: derivado das posições da função selecionada
    const funcBordo = useMemo(() => {
-      if (seboFunc !== "pil") return undefined;
-      if (soO3) return ["O3"];
-      return ["1P", "2P", "IN", "AL"];
+      if (seboFunc === "pil") {
+         // pilotos: toggle OE filtra apenas O3; default exclui O3
+         if (soO3) return ["O3"];
+         return FUNCOES_CONFIG.pil.posicoes
+            .filter((p) => p.codigo !== "O3")
+            .map((p) => p.codigo);
+      }
+      const funcType = seboFunc as FuncType;
+      const config =
+         funcType in FUNCOES_CONFIG ? FUNCOES_CONFIG[funcType] : null;
+      if (!config || config.posicoes.length === 0) return undefined;
+      return config.posicoes.map((p) => p.codigo);
    }, [seboFunc, soO3]);
 
    const { data: rawTrips, isLoading } = useSebo({

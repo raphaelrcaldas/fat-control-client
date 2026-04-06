@@ -102,14 +102,14 @@ const FilterPanel = ({
    return (
       <div className="space-y-4 rounded-xl bg-white p-4 shadow-lg">
          <div className="grid gap-6 sm:flex sm:items-end">
-            <div className="">
+            <div className="w-44">
                <label className="mb-2 block text-center text-sm font-medium text-gray-700">
                   Função
                </label>
                <Select
                   value={seboFunc}
                   onChange={(e) => setSeboFunc(e.target.value)}
-                  className="w-full"
+                  className=""
                >
                   {funcOptions.map((option) => (
                      <option key={option.value} value={option.value}>

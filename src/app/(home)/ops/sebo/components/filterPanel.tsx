@@ -64,7 +64,7 @@ const FilterPanel = ({
    return (
       <div className="space-y-4 rounded-xl bg-white p-4 shadow-lg">
          <div className="grid gap-4 sm:flex">
-            <div className="">
+            <div className="w-44">
                <label className="mb-2 block text-sm font-medium text-gray-700">
                   Função
                </label>

@@ -40,19 +40,22 @@ export async function getSebo(
    params: GetSeboParams,
    signal?: AbortSignal,
 ): Promise<SeboTripItem[]> {
-   const queryParams: Record<string, string | string[]> = {
+   const queryParams: Record<string, string> = {
       func: params.func,
    };
    if (params.oper && params.oper.length > 0) {
-      queryParams.oper = params.oper;
+      queryParams.oper = JSON.stringify(params.oper);
    }
    if (params.func_bordo && params.func_bordo.length > 0) {
-      queryParams.func_bordo = params.func_bordo;
+      queryParams.func_bordo = JSON.stringify(params.func_bordo);
    }
    if (params.ano) {
       queryParams.ano = String(params.ano);
    }
    const response = await request("GET", seboRoute, null, queryParams, signal);
+   if (!response.ok) {
+      throw new Error(`Erro ao buscar sebo: ${response.status}`);
+   }
    const json = (await response.json()) as ApiResponse<SeboTripItem[]>;
-   return json.data || [];
+   return json.data ?? [];
 }
