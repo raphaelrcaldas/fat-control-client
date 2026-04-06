@@ -280,10 +280,9 @@ export default function EtapasPage() {
                </div>
             )}
 
-            {((groupByMissao
+            {(groupByMissao
                ? filters.missoes.length > 0
-               : filters.flatEtapas.length > 0) ||
-               filters.loading) && (
+               : filters.flatEtapas.length > 0) && (
                <nav
                   className={clsx(
                      "mt-4 flex flex-col items-start justify-between space-y-3 rounded-lg border border-gray-200 bg-white px-4 py-3 md:flex-row md:items-center md:space-y-0",
