@@ -46,7 +46,7 @@ export default function SidebarItem({
          } `}
       >
          <Icon className={`h-5 w-5 shrink-0`} />
-         <span className="text-base">{item.label}</span>
+         <span className={isChild ? "text-sm" : "text-base"}>{item.label}</span>
       </button>
    );
 }

@@ -33,7 +33,8 @@ export default function SidebarCollapse({
 }: SidebarCollapseProps) {
    const Icon = item.icon;
    const hasActiveChild = item.children?.some(
-      (child) => pathname === child.path
+      (child) =>
+         pathname === child.path || pathname.startsWith(child.path + "/")
    );
    const [isOpen, setIsOpen] = usePersistedState<boolean>(
       `sidebar:${item.label}`,
@@ -75,7 +76,10 @@ export default function SidebarCollapse({
                         key={child.path}
                         item={child}
                         isMobile={isMobile}
-                        isActive={pathname === child.path}
+                        isActive={
+                        pathname === child.path ||
+                        pathname.startsWith(child.path + "/")
+                     }
                         onClick={onClick}
                         isChild
                      />
