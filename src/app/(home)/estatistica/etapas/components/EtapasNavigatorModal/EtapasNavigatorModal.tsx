@@ -86,24 +86,24 @@ export function EtapasNavigatorModal({
                            ref={isSelected ? selectedRef : null}
                            onClick={() => setSelectedId(etapa.id)}
                            className={clsx(
-                              "w-full cursor-pointer border-l-2 px-4 py-3 text-left transition-colors",
+                              "w-full cursor-pointer border-l-2 px-3 py-1.5 text-left transition-colors",
                               isSelected
                                  ? "border-red-500 bg-red-100"
                                  : "border-transparent hover:bg-slate-50"
                            )}
                         >
                            {/* Row 1: date + anv */}
-                           <div className="flex items-center gap-1.5">
-                              <span className="text-xs text-slate-500">
+                           <div className="flex items-center gap-2">
+                              <span className="rounded text-xs font-bold text-red-800">
                                  {isoDateToString(etapa.data)}
                               </span>
-                              <span className="rounded bg-red-200 px-1.5 py-0.5 font-mono text-[10px] font-bold text-red-800">
+                              <span className="text-xs font-semibold">
                                  {etapa.anv}
                               </span>
                            </div>
 
                            {/* Row 2: route */}
-                           <p className="mt-0.5 truncate text-sm font-semibold text-slate-800">
+                           <p className="mt-0.5 truncate text-sm text-slate-800">
                               {etapa.origem} → {etapa.destino}
                            </p>
 
