@@ -123,36 +123,28 @@ function AeronaveCell({
    const dateStr = toLocalDateStr(date);
    const etapas = getEtapasDoDia(ordens, matricula, dateStr);
 
-   if (etapas.length === 0) {
-      const info = getLocalidadeEntreEtapas(ordens, matricula, dateStr);
-      if (info) {
-         const statusCfg =
-            STATUS_CONFIG[info.omStatus as StatusType] ??
-            STATUS_CONFIG.aprovada;
-         return (
-            <div className="flex min-h-12 flex-col justify-start gap-0.5 p-0.5">
-               <div
-                  className={`truncate rounded border px-1 py-0.5 text-center font-mono text-sm font-medium ${statusCfg.bg} ${statusCfg.text} ${statusCfg.border}`}
-               >
-                  {info.localidade}
-               </div>
-            </div>
-         );
-      }
-      return (
-         <div className="flex aspect-square items-center justify-center">
-            <span className="text-xs text-gray-300">—</span>
-         </div>
-      );
-   }
+   const info =
+      etapas.length === 0
+         ? getLocalidadeEntreEtapas(ordens, matricula, dateStr)
+         : null;
+   const infoStatus = info
+      ? (STATUS_CONFIG[info.omStatus as StatusType] ?? STATUS_CONFIG.aprovada)
+      : null;
 
    return (
-      <div className="flex min-h-12 flex-col justify-start gap-0.5 p-0.5">
+      <div className="flex min-h-38 flex-col justify-start gap-0.5 p-1">
+         {info && infoStatus && (
+            <div
+               className={`truncate rounded border px-1 py-0.5 text-center font-mono text-sm font-medium ${infoStatus.bg} ${infoStatus.text} ${infoStatus.border}`}
+            >
+               {info.localidade}
+            </div>
+         )}
+
          {etapas.map((etapa, idx) => {
             const statusCfg =
                STATUS_CONFIG[etapa.omStatus as StatusType] ??
                STATUS_CONFIG.aprovada;
-
             return (
                <div
                   key={`${etapa.omId}-${idx}`}
@@ -161,7 +153,7 @@ function AeronaveCell({
                   onClick={() => router.push(`/ops/om/${etapa.omId}`)}
                >
                   {etapa.horaZ && (
-                     <span className="text-[10px]">{etapa.horaZ} </span>
+                     <span className="text-xs">{etapa.horaZ} </span>
                   )}
                   {etapa.origem} - {etapa.dest}
                </div>
