@@ -33,15 +33,14 @@ export function ConfigPage() {
    const createUpdateMutation = useCreateUpdateEtiqueta();
    const deleteMutation = useDeleteEtiqueta();
 
-   const [editingEtiqueta, setEditingEtiqueta] = useState<Etiqueta | null>(
-      null
-   );
-   const [novaEtiqueta, setNovaEtiqueta] = useState<Partial<Etiqueta>>({
+   const [isModalOpen, setIsModalOpen] = useState(false);
+   const [isEditing, setIsEditing] = useState(false);
+   const [formData, setFormData] = useState<Partial<Etiqueta>>({
       nome: "",
       cor: "#3B82F6",
       descricao: "",
    });
-   const [showNovaEtiquetaForm, setShowNovaEtiquetaForm] = useState(false);
+
    const [etiquetaToDelete, setEtiquetaToDelete] = useState<Etiqueta | null>(
       null
    );
@@ -49,45 +48,41 @@ export function ConfigPage() {
    // Combined saving state from mutations
    const saving = createUpdateMutation.isPending || deleteMutation.isPending;
 
-   const handleAddEtiqueta = () => {
-      if (!novaEtiqueta.nome) return;
-
-      createUpdateMutation.mutate(
-         {
-            nome: novaEtiqueta.nome,
-            cor: novaEtiqueta.cor || "#3B82F6",
-            descricao: novaEtiqueta.descricao,
-         },
-         {
-            onSuccess: () => {
-               setNovaEtiqueta({ nome: "", cor: "#3B82F6", descricao: "" });
-               setShowNovaEtiquetaForm(false);
-            },
-         }
-      );
+   const openCreateModal = () => {
+      setFormData({ nome: "", cor: "#3B82F6", descricao: "" });
+      setIsEditing(false);
+      setIsModalOpen(true);
    };
 
-   const handleUpdateEtiqueta = (updated: Etiqueta) => {
-      // Encontrar etiqueta original para comparar
-      const original = etiquetas.find((e) => e.id === updated.id);
-      if (!original) return;
+   const openEditModal = (etiqueta: Etiqueta) => {
+      setFormData(etiqueta);
+      setIsEditing(true);
+      setIsModalOpen(true);
+   };
 
-      // Verificar se houve mudanças
-      const hasChanges =
-         original.nome !== updated.nome ||
-         original.cor !== updated.cor ||
-         (original.descricao || "") !== (updated.descricao || "");
+   const handleSaveEtiqueta = () => {
+      if (!formData.nome) return;
 
-      if (!hasChanges) {
-         setEditingEtiqueta(null);
-         return;
+      if (isEditing && formData.id) {
+         createUpdateMutation.mutate(formData as Etiqueta, {
+            onSuccess: () => {
+               setIsModalOpen(false);
+            },
+         });
+      } else {
+         createUpdateMutation.mutate(
+            {
+               nome: formData.nome,
+               cor: formData.cor || "#3B82F6",
+               descricao: formData.descricao,
+            },
+            {
+               onSuccess: () => {
+                  setIsModalOpen(false);
+               },
+            }
+         );
       }
-
-      createUpdateMutation.mutate(updated, {
-         onSuccess: () => {
-            setEditingEtiqueta(null);
-         },
-      });
    };
 
    const handleConfirmDelete = () => {
@@ -136,9 +131,7 @@ export function ConfigPage() {
                         </Badge>
                      </div>
                      <button
-                        onClick={() =>
-                           setShowNovaEtiquetaForm(!showNovaEtiquetaForm)
-                        }
+                        onClick={openCreateModal}
                         className="flex items-center gap-1.5 rounded-lg bg-purple-600 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-purple-700"
                      >
                         <HiPlus className="h-3 w-3" />
@@ -146,222 +139,44 @@ export function ConfigPage() {
                      </button>
                   </div>
 
-                  {/* Formulário Nova Etiqueta */}
-                  {showNovaEtiquetaForm && (
-                     <div className="mb-4 rounded-lg border border-gray-200 bg-gray-50 p-3">
-                        <div className="grid grid-cols-1 gap-3 sm:grid-cols-4">
-                           <div>
-                              <Label className="mb-1.5 text-xs text-gray-600">
-                                 Nome
-                              </Label>
-                              <TextInput
-                                 type="text"
-                                 value={novaEtiqueta.nome || ""}
-                                 onChange={(e) =>
-                                    setNovaEtiqueta({
-                                       ...novaEtiqueta,
-                                       nome: e.target.value,
-                                    })
-                                 }
-                                 placeholder="Nome da etiqueta"
-                                 sizing="sm"
-                              />
-                           </div>
-                           <div>
-                              <Label className="mb-1.5 text-xs text-gray-600">
-                                 Descrição
-                              </Label>
-                              <TextInput
-                                 type="text"
-                                 value={novaEtiqueta.descricao || ""}
-                                 onChange={(e) =>
-                                    setNovaEtiqueta({
-                                       ...novaEtiqueta,
-                                       descricao: e.target.value,
-                                    })
-                                 }
-                                 placeholder="Descrição opcional"
-                                 sizing="sm"
-                              />
-                           </div>
-                           <div>
-                              <Label className="mb-1.5 text-xs text-gray-600">
-                                 Cor
-                              </Label>
-                              <div className="flex flex-wrap gap-1.5">
-                                 {coresPredefinidas.map((cor) => (
-                                    <button
-                                       key={cor}
-                                       onClick={() =>
-                                          setNovaEtiqueta({
-                                             ...novaEtiqueta,
-                                             cor,
-                                          })
-                                       }
-                                       className={`h-6 w-6 rounded-full border-2 transition-transform hover:scale-110 ${novaEtiqueta.cor === cor ? "scale-110 border-gray-800" : "border-transparent"}`}
-                                       style={{ backgroundColor: cor }}
-                                    />
-                                 ))}
-                              </div>
-                           </div>
-                           <div className="flex items-end gap-2">
-                              <button
-                                 onClick={handleAddEtiqueta}
-                                 className="flex items-center gap-1.5 rounded-lg bg-green-600 px-3 py-2 text-xs font-medium text-white transition-colors hover:bg-green-700"
-                              >
-                                 <HiCheck className="h-3 w-3" />
-                                 Criar
-                              </button>
-                              <button
-                                 onClick={() => {
-                                    setShowNovaEtiquetaForm(false);
-                                    setNovaEtiqueta({
-                                       nome: "",
-                                       cor: "#3B82F6",
-                                       descricao: "",
-                                    });
-                                 }}
-                                 className="flex items-center gap-1.5 rounded-lg bg-gray-200 px-3 py-2 text-xs font-medium text-gray-600 transition-colors hover:bg-gray-300"
-                              >
-                                 <HiX className="h-3 w-3" />
-                                 Cancelar
-                              </button>
-                           </div>
-                        </div>
-                     </div>
-                  )}
-
                   {/* Lista de Etiquetas */}
                   <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                      {etiquetas.map((etiqueta, index) => (
                         <div
                            key={etiqueta.id ?? `etiqueta-${index}`}
-                           className={`flex items-center justify-between rounded-lg border p-2.5 transition-all ${editingEtiqueta?.id === etiqueta.id ? "border-purple-400 bg-purple-50" : "border-gray-200 bg-white hover:border-gray-300"}`}
+                           className="flex items-center justify-between rounded-lg border border-gray-200 bg-white p-2.5 transition-all hover:border-gray-300"
                         >
-                           {editingEtiqueta?.id === etiqueta.id ? (
-                              <div className="flex flex-1 flex-col gap-3">
-                                 <div className="flex flex-col gap-1">
-                                    <label className="text-xs font-medium text-gray-600">
-                                       Nome
-                                    </label>
-                                    <div className="flex items-center gap-2">
-                                       <input
-                                          type="text"
-                                          value={editingEtiqueta?.nome ?? ""}
-                                          onChange={(e) =>
-                                             editingEtiqueta &&
-                                             setEditingEtiqueta({
-                                                ...editingEtiqueta,
-                                                nome: e.target.value,
-                                             })
-                                          }
-                                          className="flex-1 rounded border border-gray-300 px-2 py-1 text-sm"
-                                          placeholder="Nome"
-                                       />
-                                       <button
-                                          onClick={() =>
-                                             handleUpdateEtiqueta(
-                                                editingEtiqueta
-                                             )
-                                          }
-                                          className="rounded p-1.5 text-green-600 hover:bg-green-100"
-                                          disabled={saving}
-                                          title="Salvar"
-                                       >
-                                          <HiCheck className="h-4 w-4" />
-                                       </button>
-                                       <button
-                                          onClick={() =>
-                                             setEditingEtiqueta(null)
-                                          }
-                                          className="rounded p-1.5 text-gray-500 hover:bg-gray-100"
-                                          title="Cancelar"
-                                       >
-                                          <HiX className="h-4 w-4" />
-                                       </button>
-                                    </div>
-                                 </div>
-                                 <div className="flex flex-col gap-1">
-                                    <label className="text-xs font-medium text-gray-600">
-                                       Cor
-                                    </label>
-                                    <div className="flex gap-1">
-                                       {coresPredefinidas
-                                          .slice(0, 10)
-                                          .map((cor) => (
-                                             <button
-                                                key={cor}
-                                                onClick={() =>
-                                                   editingEtiqueta &&
-                                                   setEditingEtiqueta({
-                                                      ...editingEtiqueta,
-                                                      cor,
-                                                   })
-                                                }
-                                                className={`h-5 w-5 rounded-full border-2 transition-all ${editingEtiqueta?.cor === cor ? "scale-110 border-gray-800" : "border-transparent hover:border-gray-400"}`}
-                                                style={{ backgroundColor: cor }}
-                                             />
-                                          ))}
-                                    </div>
-                                 </div>
-                                 <div className="flex flex-col gap-1">
-                                    <label className="text-xs font-medium text-gray-600">
-                                       Descrição (opcional)
-                                    </label>
-                                    <input
-                                       type="text"
-                                       value={editingEtiqueta?.descricao ?? ""}
-                                       onChange={(e) =>
-                                          editingEtiqueta &&
-                                          setEditingEtiqueta({
-                                             ...editingEtiqueta,
-                                             descricao: e.target.value,
-                                          })
-                                       }
-                                       className="w-full rounded border border-gray-300 px-2 py-1 text-sm"
-                                       placeholder="Descrição da etiqueta"
-                                    />
-                                 </div>
-                              </div>
-                           ) : (
-                              <>
-                                 <div className="flex items-center gap-2">
-                                    <div
-                                       className="h-3 w-3 shrink-0 rounded-full"
-                                       style={{ backgroundColor: etiqueta.cor }}
-                                    />
-                                    <div>
-                                       <span className="text-sm font-medium text-gray-800">
-                                          {etiqueta.nome}
-                                       </span>
-                                       {etiqueta.descricao && (
-                                          <p className="max-w-37.5 truncate text-xs text-gray-500">
-                                             {etiqueta.descricao}
-                                          </p>
-                                       )}
-                                    </div>
-                                 </div>
-                                 <div className="flex items-center gap-1">
-                                    <button
-                                       onClick={() =>
-                                          setEditingEtiqueta(etiqueta)
-                                       }
-                                       className="rounded p-1.5 text-gray-500 transition-colors hover:bg-purple-100 hover:text-purple-600"
-                                    >
-                                       <HiPencil className="h-3.5 w-3.5" />
-                                    </button>
-                                    <button
-                                       onClick={() =>
-                                          setEtiquetaToDelete(etiqueta)
-                                       }
-                                       className="rounded p-1.5 text-gray-500 transition-colors hover:bg-red-100 hover:text-red-600"
-                                       disabled={saving}
-                                    >
-                                       <HiTrash className="h-3.5 w-3.5" />
-                                    </button>
-                                 </div>
-                              </>
-                           )}
+                           <div className="flex items-center gap-3">
+                              <span
+                                 className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium text-white"
+                                 style={{ backgroundColor: etiqueta.cor }}
+                              >
+                                 <HiTag className="h-3 w-3" />
+                                 {etiqueta.nome}
+                              </span>
+                              {etiqueta.descricao && (
+                                 <p className="max-w-37.5 truncate text-xs text-gray-500" title={etiqueta.descricao}>
+                                    {etiqueta.descricao}
+                                 </p>
+                              )}
+                           </div>
+                           <div className="flex items-center gap-1">
+                              <button
+                                 onClick={() => openEditModal(etiqueta)}
+                                 className="rounded p-1.5 text-gray-500 transition-colors hover:bg-purple-100 hover:text-purple-600"
+                                 title="Editar etiqueta"
+                              >
+                                 <HiPencil className="h-3.5 w-3.5" />
+                              </button>
+                              <button
+                                 onClick={() => setEtiquetaToDelete(etiqueta)}
+                                 className="rounded p-1.5 text-gray-500 transition-colors hover:bg-red-100 hover:text-red-600"
+                                 disabled={saving}
+                                 title="Excluir etiqueta"
+                              >
+                                 <HiTrash className="h-3.5 w-3.5" />
+                              </button>
+                           </div>
                         </div>
                      ))}
                   </div>
@@ -373,8 +188,8 @@ export function ConfigPage() {
                            Nenhuma etiqueta criada
                         </p>
                         <button
-                           onClick={() => setShowNovaEtiquetaForm(true)}
-                           className="mt-2 text-sm text-purple-600 hover:text-purple-700"
+                           onClick={openCreateModal}
+                           className="mt-2 text-sm font-medium text-purple-600 hover:text-purple-700"
                         >
                            Criar primeira etiqueta
                         </button>
@@ -444,6 +259,89 @@ export function ConfigPage() {
                      {saving ? "Excluindo..." : "Excluir Etiqueta"}
                   </Button>
                </div>
+            </ModalFooter>
+         </Modal>
+
+         {/* Modal de Criação / Edição */}
+         <Modal show={isModalOpen} onClose={() => setIsModalOpen(false)} size="md">
+            <ModalHeader>
+               {isEditing ? "Editar Etiqueta" : "Nova Etiqueta"}
+            </ModalHeader>
+            <ModalBody>
+               <div className="space-y-4">
+                  {/* Preview Area */}
+                  <div className="flex flex-col items-center rounded-lg border border-gray-200 bg-gray-50 py-4">
+                     <span className="mb-2 text-xs font-medium text-gray-500">PREVIEW</span>
+                     <span
+                        className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium text-white shadow-sm transition-colors"
+                        style={{ backgroundColor: formData.cor || "#3B82F6" }}
+                     >
+                        <HiTag className="h-4 w-4" />
+                        {formData.nome || "Nome da etiqueta"}
+                     </span>
+                  </div>
+
+                  <div>
+                     <Label className="mb-1.5 flex text-sm font-medium text-gray-700">
+                        Nome <span className="ml-1 text-red-500">*</span>
+                     </Label>
+                     <TextInput
+                        type="text"
+                        value={formData.nome || ""}
+                        onChange={(e) => setFormData({ ...formData, nome: e.target.value })}
+                        placeholder="Ex: Urgente, Suprimento..."
+                        autoFocus
+                     />
+                  </div>
+
+                  <div>
+                     <Label className="mb-1.5 flex text-sm font-medium text-gray-700">
+                        Descrição
+                     </Label>
+                     <TextInput
+                        type="text"
+                        value={formData.descricao || ""}
+                        onChange={(e) => setFormData({ ...formData, descricao: e.target.value })}
+                        placeholder="Em poucas palavras..."
+                     />
+                  </div>
+
+                  <div>
+                     <Label className="mb-1.5 flex text-sm font-medium text-gray-700">
+                        Cor
+                     </Label>
+                     <div className="flex flex-wrap gap-2 rounded-lg border border-gray-200 bg-gray-50 p-3">
+                        {coresPredefinidas.map((cor) => {
+                           const isSelected = formData.cor === cor;
+                           return (
+                              <button
+                                 key={cor}
+                                 onClick={() => setFormData({ ...formData, cor })}
+                                 className={`group relative flex h-8 w-8 items-center justify-center rounded-full transition-all ${isSelected ? "ring-2 ring-purple-400 ring-offset-2" : "hover:scale-110"}`}
+                                 style={{ backgroundColor: cor }}
+                                 title={cor}
+                              >
+                                 {isSelected && (
+                                    <HiCheck className="h-5 w-5 text-white drop-shadow-md" />
+                                 )}
+                              </button>
+                           );
+                        })}
+                     </div>
+                  </div>
+               </div>
+            </ModalBody>
+            <ModalFooter className="flex justify-end gap-2 bg-gray-50">
+               <Button color="gray" onClick={() => setIsModalOpen(false)} disabled={saving}>
+                  Cancelar
+               </Button>
+               <Button
+                  color="purple"
+                  onClick={handleSaveEtiqueta}
+                  disabled={saving || !formData.nome}
+               >
+                  {saving ? "Salvando..." : isEditing ? "Salvar" : "Criar Etiqueta"}
+               </Button>
             </ModalFooter>
          </Modal>
       </div>
