@@ -1,0 +1,151 @@
+"use client";
+
+import { Missao } from "services/routes/cegep/missoes";
+import { useMissionForm } from "../hooks/useMissionForm";
+import { MissionHeader } from "./MissionHeader";
+import { MissionActionBar } from "./MissionActionBar";
+import { ValidationModal } from "./ValidationModal";
+import { ErrorModal } from "../registros/components/missionDetail/errorModal";
+import { DeleteMissionModal } from "../registros/components/missionDetail/deleteMissionModal";
+import { EtiquetasSection } from "./sections/EtiquetasSection";
+import { DocumentoSection } from "./sections/DocumentoSection";
+import { DescricaoSection } from "./sections/DescricaoSection";
+import { ClassificacaoSection } from "./sections/ClassificacaoSection";
+import { PeriodoSection } from "./sections/PeriodoSection";
+import { ObservacoesSection } from "./sections/ObservacoesSection";
+import { PernoitesSection } from "./sections/PernoitesSection";
+import { MilitaresSection } from "./sections/MilitaresSection";
+
+interface MissionPageProps {
+   missao?: Missao | null;
+   initialEdit: boolean;
+   onClose: () => void;
+   onClone?: () => void;
+}
+
+export function MissionPage({
+   missao,
+   initialEdit,
+   onClose,
+   onClone,
+}: MissionPageProps) {
+   const form = useMissionForm({ missao, initialEdit, onClose, onClone });
+
+   return (
+      <>
+         {form.showErrorModal && (
+            <ErrorModal
+               show={form.showErrorModal}
+               onClose={() => form.setShowErrorModal(false)}
+               errorMessage={form.errorMessage}
+               errorTitle="Erro"
+            />
+         )}
+         {form.showDeleteModal && (
+            <DeleteMissionModal
+               show={form.showDeleteModal}
+               onClose={() => form.setShowDeleteModal(false)}
+               onConfirm={form.handleDelete}
+               missionInfo={{
+                  tipoDoc: form.tipoDoc,
+                  nDoc: form.nDoc,
+                  desc: form.desc,
+               }}
+            />
+         )}
+         {form.showValidationModal && (
+            <ValidationModal
+               show={form.showValidationModal}
+               errors={form.validationErrors}
+               onClose={() => form.setShowValidationModal(false)}
+            />
+         )}
+
+         <div className="flex w-full justify-center">
+            <div className="flex max-w-7xl w-full flex-col gap-4">
+               <MissionHeader
+                  tipoDoc={form.tipoDoc}
+                  nDoc={form.nDoc}
+                  desc={form.desc}
+                  isNew={form.isNew}
+                  onBack={onClose}
+               />
+
+               <div className="space-y-6">
+                  <EtiquetasSection
+                     etiquetasMissao={form.etiquetasMissao}
+                     editMode={form.editMode}
+                     toggleEtiqueta={form.toggleEtiqueta}
+                  />
+
+                  <DocumentoSection
+                     tipoDoc={form.tipoDoc}
+                     setTipoDoc={form.setTipoDoc}
+                     nDoc={form.nDoc}
+                     setNDoc={form.setNDoc}
+                     editMode={form.editMode}
+                  />
+
+                  <DescricaoSection
+                     desc={form.desc}
+                     setDesc={form.setDesc}
+                     editMode={form.editMode}
+                  />
+
+                  <ClassificacaoSection
+                     tipo={form.tipo}
+                     setTipo={form.setTipo}
+                     ind={form.ind}
+                     setInd={form.setInd}
+                     editMode={form.editMode}
+                  />
+
+                  <PeriodoSection
+                     afast={form.afast}
+                     setAfast={form.setAfast}
+                     regres={form.regres}
+                     setRegres={form.setRegres}
+                     acrecDesloc={form.acrecDesloc}
+                     setAcrecDesloc={form.setAcrecDesloc}
+                     editMode={form.editMode}
+                  />
+
+                  <ObservacoesSection
+                     obs={form.obs}
+                     setObs={form.setObs}
+                     editMode={form.editMode}
+                  />
+
+                  <PernoitesSection
+                     sortedPnts={form.sortedPnts}
+                     pnts={form.pnts}
+                     setPnts={form.setPnts}
+                     afast={form.afast}
+                     regres={form.regres}
+                     editMode={form.editMode}
+                     checkAfastRegres={form.checkAfastRegres}
+                  />
+
+                  <MilitaresSection
+                     mils={form.mils}
+                     setMils={form.setMils}
+                     editMode={form.editMode}
+                  />
+               </div>
+
+               <MissionActionBar
+                  editMode={form.editMode}
+                  isNew={form.isNew}
+                  isChanged={form.isChanged}
+                  isLoading={form.isLoading}
+                  onEdit={() => form.setEditMode(true)}
+                  onCancelEdit={form.handleCancelEdit}
+                  onSave={form.handleSave}
+                  onClone={onClone ? form.handleClone : undefined}
+                  onDelete={() => form.setShowDeleteModal(true)}
+               />
+            </div>
+         </div>
+      </>
+   );
+}

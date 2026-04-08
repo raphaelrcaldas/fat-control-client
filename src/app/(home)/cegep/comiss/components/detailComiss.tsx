@@ -24,7 +24,8 @@ import {
    Comiss as ComissSchema,
 } from "services/routes/cegep/comiss";
 import { RiFileExcel2Fill } from "react-icons/ri";
-import { HiDocumentText } from "react-icons/hi";
+import { HiDocumentText, HiExternalLink } from "react-icons/hi";
+import { useRouter } from "next/navigation";
 import { UserMissionDetailModal } from "../../components/UserMissionDetailModal";
 import { IoMdInformationCircleOutline, IoMdSearch } from "react-icons/io";
 import { MdOutlineEdit, MdDeleteOutline } from "react-icons/md";
@@ -39,6 +40,7 @@ import {
    useUpdateComiss,
    useDeleteComiss,
 } from "@/hooks/queries";
+import { formatSaram } from "@/constants";
 
 export function DetailComiss({
    show,
@@ -55,6 +57,7 @@ export function DetailComiss({
    const [showMissionModal, setShowMissionModal] = useState(false);
    const [selectedMission, setSelectedMission] = useState(null);
    const { push } = useToast();
+   const router = useRouter();
 
    // React Query - Fetch detail with missions
    const { data: detail, isLoading: loadingDetail } = useComissDetail(
@@ -636,7 +639,8 @@ export function DetailComiss({
                      {comiss.user.nome_guerra}
                   </h3>
                   <p className="text-sm text-gray-600 capitalize">
-                     {comiss.user.nome_completo}
+                     {comiss.user.nome_completo} (
+                     {formatSaram(comiss.user.saram)})
                   </p>
                </div>
 
@@ -984,6 +988,9 @@ export function DetailComiss({
                                     });
                                     setShowMissionModal(true);
                                  }}
+                                 onNavigate={() =>
+                                    router.push(`/cegep/missoes/${m.id}`)
+                                 }
                               />
                            ))}
                         </div>
@@ -1129,7 +1136,7 @@ export function DetailComiss({
    );
 }
 
-function MissionRow({ mis, diasPrev, onShowDetail }) {
+function MissionRow({ mis, diasPrev, onShowDetail, onNavigate }) {
    const ini = new Date(mis.afast).toLocaleDateString("pt-BR", {
       year: "2-digit",
       month: "2-digit",
@@ -1168,14 +1175,25 @@ function MissionRow({ mis, diasPrev, onShowDetail }) {
                   : realCurrency(mis.valor_total)}
             </span>
          </div>
-         <Button
-            size="sm"
-            color="light"
-            className="shrink-0 transition-colors duration-200 hover:bg-gray-100"
-            onClick={onShowDetail}
-         >
-            <IoMdInformationCircleOutline size={18} />
-         </Button>
+         <div className="flex shrink-0 gap-1">
+            <Button
+               size="sm"
+               color="light"
+               className="transition-colors duration-200 hover:bg-gray-100"
+               onClick={onShowDetail}
+            >
+               <IoMdInformationCircleOutline size={18} />
+            </Button>
+            <Button
+               size="sm"
+               color="light"
+               className="transition-colors duration-200 hover:bg-blue-50"
+               onClick={onNavigate}
+               title="Abrir missão"
+            >
+               <HiExternalLink size={18} />
+            </Button>
+         </div>
       </div>
    );
 }

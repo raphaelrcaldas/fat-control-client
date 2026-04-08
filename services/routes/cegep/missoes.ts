@@ -241,6 +241,26 @@ export async function getFragMissoes(
    }
 }
 
+export async function getFragMissao(
+   id: number,
+   signal?: AbortSignal
+): Promise<Missao> {
+   const response = await request(
+      "GET",
+      missoesRoute + id,
+      null,
+      undefined,
+      signal
+   );
+   const json = (await response.json()) as ApiResponse<Missao>;
+   if (!response.ok) {
+      throw new Error(
+         json.message || `API error: ${response.status} ${response.statusText}`
+      );
+   }
+   return json.data as Missao;
+}
+
 export async function createUpdateFragMis(
    missao: Missao
 ): Promise<ApiResult<null>> {

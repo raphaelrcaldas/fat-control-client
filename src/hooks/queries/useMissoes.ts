@@ -6,6 +6,7 @@ import {
 } from "@tanstack/react-query";
 import {
    getFragMissoes,
+   getFragMissao,
    createUpdateFragMis,
    deleteFragMis,
    MissoesRequest,
@@ -38,6 +39,17 @@ export function useMissoes(filters?: Partial<MissoesRequest>) {
       queryKey: missaoKeys.list(filters),
       queryFn: ({ signal }) => getFragMissoes(filters, signal),
       placeholderData: keepPreviousData,
+   });
+}
+
+/**
+ * Buscar uma missão específica por ID
+ */
+export function useMissao(id: number) {
+   return useQuery({
+      queryKey: missaoKeys.detail(id),
+      queryFn: ({ signal }) => getFragMissao(id, signal),
+      enabled: !!id && id > 0,
    });
 }
 
