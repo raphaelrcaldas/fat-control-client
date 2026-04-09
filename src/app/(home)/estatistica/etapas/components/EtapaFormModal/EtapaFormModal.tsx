@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Modal, ModalBody, ModalHeader, Spinner } from "flowbite-react";
+import { Modal, ModalBody, ModalHeader, ModalFooter, Spinner, Alert } from "flowbite-react";
 import type { FuncType } from "@/constants/tripulantes/funcoes";
 import { useToast } from "@/app/context/toast";
 import {
@@ -201,9 +201,18 @@ export function EtapaFormModal({
    // Submit
    const isSubmitting = createMutation.isPending || updateMutation.isPending;
 
-   async function handleSubmit(e: React.FormEvent) {
-      e.preventDefault();
-      if (!validate(oiValid)) return;
+   async function handleSubmit(e?: React.SyntheticEvent) {
+      if (e) e.preventDefault();
+      if (!validate(oiValid)) {
+         if (!tvooValid) {
+            push({ title: "TVOO Inválido", message: "O Tempo de Voo deve ser múltiplo de 5 e maior que 0.", type: "warning" });
+         } else if (oiItems.length > 0 && !oiValid) {
+            push({ title: "Ordens Inválidas", message: "A soma dos tempos das OIs não bate com o TVOO.", type: "warning" });
+         } else {
+            push({ title: "Atenção", message: "Verifique os erros nos campos do formulário.", type: "warning" });
+         }
+         return;
+      }
 
       const tripulantes = assignedTrips.map((t) => ({
          trip_id: t.tripId,
@@ -314,13 +323,18 @@ export function EtapaFormModal({
                ? `Editar Etapa #${editingEtapa?.id} — Missão #${missao.id}`
                : `Nova Etapa — Missão #${missao.id}${missao.titulo ? ` · ${missao.titulo}` : ""}`}
          </ModalHeader>
-         <ModalBody className="max-h-[80vh] overflow-y-auto">
+         <ModalBody className="max-h-[70vh] overflow-y-auto">
             {isLoading ? (
                <div className="flex items-center justify-center py-16">
                   <Spinner size="lg" color="failure" />
                </div>
             ) : (
                <form onSubmit={handleSubmit} className="space-y-6">
+                  {!isEdit && lastEtapaDetail && (
+                     <Alert color="info" className="mb-2">
+                        <span className="font-medium">Dica:</span> Alguns campos foram preenchidos com base no último pouso para acelerar o preenchimento.
+                     </Alert>
+                  )}
                   <DadosVooSection
                      formData={formData}
                      setField={setField}
@@ -355,23 +369,23 @@ export function EtapaFormModal({
                      handleDragStart={handleDragStart}
                      handleDragEnd={handleDragEnd}
                   />
-
-                  <FormActions
-                     onClose={onClose}
-                     isSubmitting={isSubmitting}
-                     isEdit={isEdit}
-                     disabled={
-                        isSubmitting ||
-                        !tvooValid ||
-                        (oiItems.length > 0 && !oiValid)
-                     }
-                     onDelete={isEdit ? handleDelete : undefined}
-                     isDeleting={deleteMutation.isPending}
-                     confirmDelete={confirmDelete}
-                  />
                </form>
             )}
          </ModalBody>
+         {!isLoading && (
+            <ModalFooter className="w-full bg-gray-50 dark:bg-gray-800">
+               <FormActions
+                  onClose={onClose}
+                  isSubmitting={isSubmitting}
+                  isEdit={isEdit}
+                  disabled={isSubmitting}
+                  onSubmit={handleSubmit}
+                  onDelete={isEdit ? handleDelete : undefined}
+                  isDeleting={deleteMutation.isPending}
+                  confirmDelete={confirmDelete}
+               />
+            </ModalFooter>
+         )}
       </Modal>
    );
 }

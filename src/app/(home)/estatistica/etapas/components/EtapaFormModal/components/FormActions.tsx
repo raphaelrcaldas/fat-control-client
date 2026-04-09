@@ -6,6 +6,7 @@ interface FormActionsProps {
    isSubmitting: boolean;
    isEdit: boolean;
    disabled: boolean;
+   onSubmit?: (e?: any) => void;
    onDelete?: () => void;
    isDeleting?: boolean;
    confirmDelete?: boolean;
@@ -16,6 +17,7 @@ export function FormActions({
    isSubmitting,
    isEdit,
    disabled,
+   onSubmit,
    onDelete,
    isDeleting,
    confirmDelete,
@@ -23,7 +25,7 @@ export function FormActions({
    const busy = isSubmitting || !!isDeleting;
 
    return (
-      <div className="flex items-center border-t border-gray-200 pt-4">
+      <div className="flex w-full items-center justify-between">
          {isEdit && onDelete && (
             <Button
                color="red"
@@ -53,7 +55,7 @@ export function FormActions({
             <Button color="gray" onClick={onClose} disabled={busy}>
                Cancelar
             </Button>
-            <Button type="submit" color="red" disabled={disabled || busy}>
+            <Button type="button" color="red" onClick={onSubmit} disabled={disabled || busy}>
                {isSubmitting ? (
                   <div className="flex items-center gap-2">
                      <Spinner size="sm" color="failure" />
