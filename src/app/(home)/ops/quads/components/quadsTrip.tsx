@@ -198,28 +198,22 @@ export function QuadsTrip({
                   </div>
                </div>
 
-               {quads.length > 0 && selectedIds.size > 0 && (
-                  <div className="mb-3 flex items-center justify-between rounded-lg border border-red-200 bg-red-50 px-3 py-2">
-                     <span className="text-sm font-semibold text-gray-700">
-                        {selectedIds.size} selecionado(s)
-                     </span>
-                     <div className="flex items-center gap-2">
-                        <button
-                           onClick={handleSelectAll}
-                           className="cursor-pointer text-xs font-medium text-blue-600 hover:underline"
-                        >
-                           Selecionar Todos
-                        </button>
-                        <span className="text-gray-300">|</span>
-                        <button
-                           onClick={handleClearSelection}
-                           className="cursor-pointer text-xs font-medium text-gray-500 hover:underline"
-                        >
-                           Limpar
-                        </button>
-                     </div>
-                  </div>
-               )}
+               <div
+                  className={`mb-3 flex items-center justify-between rounded-lg border border-red-300 bg-red-50 px-3 py-2 shadow-sm transition-opacity duration-150 ${quads.length > 0 && selectedIds.size > 0
+                        ? "opacity-100"
+                        : "invisible opacity-0"
+                     }`}
+               >
+                  <span className="text-sm font-semibold text-red-700">
+                     ✓ {selectedIds.size} selecionado(s)
+                  </span>
+                  <button
+                     onClick={handleClearSelection}
+                     className="cursor-pointer rounded px-2 py-0.5 text-xs font-medium text-gray-500 hover:bg-gray-200 hover:text-gray-700"
+                  >
+                     Limpar seleção
+                  </button>
+               </div>
 
                <div className="h-96 overflow-y-auto rounded-lg bg-white shadow-lg dark:bg-gray-800">
                   {loading ? (
@@ -228,15 +222,33 @@ export function QuadsTrip({
                      <Table className="text-center" hoverable>
                         <TableHead>
                            <TableRow>
-                              <TableHeadCell className="w-10" />
+                              <TableHeadCell className="w-10">
+                                 <button
+                                    onClick={
+                                       selectedIds.size === quads.length
+                                          ? handleClearSelection
+                                          : handleSelectAll
+                                    }
+                                    title={
+                                       selectedIds.size === quads.length
+                                          ? "Desmarcar todos"
+                                          : "Selecionar todos"
+                                    }
+                                    className="flex size-5 cursor-pointer items-center justify-center rounded border-2 border-gray-500 bg-white transition-colors hover:border-red-500"
+                                 >
+                                    {selectedIds.size === quads.length && quads.length > 0 && (
+                                       <span className="block h-2.5 w-2.5 rounded-sm bg-red-600" />
+                                    )}
+                                 </button>
+                              </TableHeadCell>
                               <TableHeadCell>Valor</TableHeadCell>
                               <TableHeadCell>Ações</TableHeadCell>
                            </TableRow>
                         </TableHead>
                         <TableBody>
-                           {quads.map((quad, index) => (
+                           {quads.map((quad) => (
                               <QuadRow
-                                 key={index}
+                                 key={quad.id ?? quad.value}
                                  quad={quad}
                                  trip={trip}
                                  selected={
@@ -309,14 +321,14 @@ function QuadRow({ quad, trip, selected, onToggleSelect }: QuadRowProps) {
 
    return (
       <>
-         <TableRow className="transition-colors hover:bg-gray-50 dark:hover:bg-gray-700">
+         <TableRow className="min-h-[44px] transition-colors hover:bg-gray-50 dark:hover:bg-gray-700">
             <TableCell className="w-10">
                <Checkbox
                   checked={selected}
                   onChange={() =>
                      quad.id !== undefined && onToggleSelect(quad.id)
                   }
-                  className="size-5 text-red-600 focus:ring-red-500"
+                  className="size-5 cursor-pointer rounded border-2 border-gray-500 text-red-600 ring-offset-1 checked:border-red-600 focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
                />
             </TableCell>
             <TableCell className="text-center font-semibold">

@@ -74,7 +74,7 @@ export function DadosVooSection({
                      placeholder="SBGR"
                      maxLength={4}
                      className={clsx(
-                        "w-full rounded-lg border px-3 py-[7px] font-mono text-xs uppercase transition-all focus:border-red-400 focus:ring-1 focus:ring-red-400 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white",
+                        "placeholder:text-gray-400 w-full rounded-lg border px-3 py-[7px] font-mono text-xs uppercase transition-all focus:border-red-400 focus:ring-1 focus:ring-red-400 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white",
                         errors.origem ? "border-red-500 bg-red-50 dark:bg-red-900/20" : "border-gray-300 bg-gray-50 dark:bg-gray-800"
                      )}
                   />
@@ -90,7 +90,7 @@ export function DadosVooSection({
                      placeholder="SBSP"
                      maxLength={4}
                      className={clsx(
-                        "w-full rounded-lg border px-3 py-[7px] font-mono text-xs uppercase transition-all focus:border-red-400 focus:ring-1 focus:ring-red-400 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white",
+                        "placeholder:text-gray-400 w-full rounded-lg border px-3 py-[7px] font-mono text-xs uppercase transition-all focus:border-red-400 focus:ring-1 focus:ring-red-400 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white",
                         errors.destino ? "border-red-500 bg-red-50 dark:bg-red-900/20" : "border-gray-300 bg-gray-50 dark:bg-gray-800"
                      )}
                   />

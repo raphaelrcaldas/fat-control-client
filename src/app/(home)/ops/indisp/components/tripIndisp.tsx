@@ -124,7 +124,7 @@ export const TripIndisp = ({
                <ModalHeader>
                   <span className="text-lg font-bold">Indisponibilidades</span>
                </ModalHeader>
-               <ModalBody className="max-h-112.5 min-h-112.5 overflow-y-auto">
+               <ModalBody className="max-h-112.5 min-h-112.5 overflow-y-scroll">
                   <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-4">
                      <h3 className="text-center text-lg font-bold text-gray-900 uppercase">
                         {user.posto.short} {user.esp} {user.nome_guerra}
@@ -403,17 +403,17 @@ function TripIndispRow({ indisp, trip }) {
 
    return (
       <TableRow>
-         <TableCell className="p-1 font-semibold">
+         <TableCell className="h-10 p-1 font-semibold">
             <span className={clsx("rounded-md p-2", indispProps.color.bg)}>
                {indispProps.value}
             </span>
          </TableCell>
-         <TableCell className="hidden p-1 whitespace-pre-line md:table-cell">
+         <TableCell className="hidden h-10 p-1 whitespace-pre-line md:table-cell">
             {indisp.obs}
          </TableCell>
-         <TableCell className="p-1 font-semibold">{dateStart}</TableCell>
-         <TableCell className="p-1 font-semibold">{dateEnd}</TableCell>
-         <TableCell className="p-1">
+         <TableCell className="h-10 p-1 font-semibold">{dateStart}</TableCell>
+         <TableCell className="h-10 p-1 font-semibold">{dateEnd}</TableCell>
+         <TableCell className="h-10 p-1">
             <div className="flex items-center justify-center">
                <PermBased requiredPerm={"create"} resource={"indisp_trips"}>
                   <Button

@@ -127,6 +127,9 @@ export function useEtapaForm(params: UseEtapaFormParams) {
             data: lastEtapa?.data ?? "",
             origem: lastEtapa?.destino ?? "",
             anv: lastEtapa?.anv ?? "",
+            // Se o destino anterior era "ROTA", pré-preenche a decolagem
+            // com o horário de pouso da etapa anterior (continuação em rota)
+            dep: lastEtapa?.destino === "ROTA" ? timeToHHmm(lastEtapa.arr) : "",
          });
       }
    }, [isEdit, etapaDetail, missaoEtapas]);
