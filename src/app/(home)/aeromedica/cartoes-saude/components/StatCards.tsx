@@ -23,6 +23,7 @@ interface StatCardProps {
       warning: number;
       critical: number;
       expired: number;
+      empty: number;
    };
    urgent: number;
    extra?: React.ReactNode;
@@ -38,7 +39,7 @@ function StatCard({
    urgent,
    extra,
 }: StatCardProps) {
-   const statuses: DateStatus[] = ["valid", "warning", "critical", "expired"];
+   const statuses: DateStatus[] = ["valid", "warning", "critical", "expired", "empty"];
 
    return (
       <div className="overflow-hidden rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
@@ -64,11 +65,13 @@ function StatCard({
          </div>
 
          {/* Counters */}
-         <div className="grid grid-cols-4 gap-2">
+         <div className="grid grid-cols-5 gap-2">
             {statuses.map((s) => {
                const cfg = getStatusConfig(s);
                const count = counts[s];
-               const pct = total > 0 ? Math.round((count / total) * 100) : 0;
+               const grandTotal = total + counts.empty;
+               const base = s === "empty" ? grandTotal : total;
+               const pct = base > 0 ? Math.round((count / base) * 100) : 0;
                return (
                   <div key={s} className="text-center">
                      <div
@@ -96,7 +99,9 @@ function StatCard({
                                  ? "green"
                                  : cfg.barColor === "yellow"
                                    ? "yellow"
-                                   : "red"
+                                   : cfg.barColor === "gray"
+                                     ? "dark"
+                                     : "red"
                            }
                         />
                      </div>
@@ -123,6 +128,7 @@ interface StatCardsGridProps {
          warning: number;
          critical: number;
          expired: number;
+         empty: number;
       };
    };
    cemalScheduled: number;
@@ -133,6 +139,7 @@ interface StatCardsGridProps {
          warning: number;
          critical: number;
          expired: number;
+         empty: number;
       };
    };
    tovnStats: {
@@ -142,6 +149,7 @@ interface StatCardsGridProps {
          warning: number;
          critical: number;
          expired: number;
+         empty: number;
       };
    };
 }
@@ -162,16 +170,6 @@ export default function StatCardsGrid({
             total={cemalStats.total}
             counts={cemalStats.counts}
             urgent={cemalStats.counts.expired + cemalStats.counts.critical}
-            extra={
-               <div className="mt-3 flex items-center justify-between border-t border-gray-100 pt-3">
-                  <span className="text-xs text-gray-500">Com agendamento</span>
-                  <Badge color="info" size="sm">
-                     <span className="font-bold tabular-nums">
-                        {cemalScheduled} / {cemalStats.total}
-                     </span>
-                  </Badge>
-               </div>
-            }
          />
          <StatCard
             icon={FaSpaceShuttle}

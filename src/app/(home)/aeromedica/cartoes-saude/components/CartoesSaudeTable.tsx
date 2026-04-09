@@ -42,11 +42,6 @@ const DateCell = memo(function DateCell({
          <span className={clsx("text-sm font-medium", config.color)}>
             {formatDate(dateStr)}
          </span>
-         {status !== "empty" && (
-            <span className={clsx("text-xs", config.color)}>
-               ({getDaysRemaining(dateStr)})
-            </span>
-         )}
       </div>
    );
 });
@@ -75,11 +70,6 @@ const CemalCell = memo(function CemalCell({
             <span className={clsx("text-sm font-medium", config.color)}>
                {formatDate(cemal)}
             </span>
-            {status !== "empty" && (
-               <span className={clsx("text-xs", config.color)}>
-                  ({getDaysRemaining(cemal)})
-               </span>
-            )}
          </div>
          {agCemal && (
             <span className="text-[11px] text-blue-600">
