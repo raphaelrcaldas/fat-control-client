@@ -457,6 +457,7 @@ export function FilterPage({ active }: { active: boolean }) {
                            selected={tipoDoc}
                            onChange={setTipoDoc}
                            placeholder="Todos"
+                           sizing="sm"
                         />
                      </div>
 
@@ -506,6 +507,7 @@ export function FilterPage({ active }: { active: boolean }) {
                            selected={selectedTipo}
                            onChange={setSelectedTipo}
                            placeholder="Todos"
+                           sizing="sm"
                         />
                      </div>
 
@@ -524,6 +526,7 @@ export function FilterPage({ active }: { active: boolean }) {
                            selected={selectedSit}
                            onChange={setSelectedSit}
                            placeholder="Todos"
+                           sizing="sm"
                         />
                      </div>
 
@@ -562,7 +565,7 @@ export function FilterPage({ active }: { active: boolean }) {
                                  setDataFim(newValue);
                               }
                            }}
-                           className="block w-full rounded-lg border border-gray-300 bg-white p-2 text-sm text-gray-900 focus:border-red-500 focus:ring-red-500"
+                           className="block w-full rounded-lg border border-gray-300 bg-white p-2 text-xs text-gray-900 focus:border-red-500 focus:ring-red-500"
                         />
                      </div>
 
@@ -584,7 +587,7 @@ export function FilterPage({ active }: { active: boolean }) {
                                  setDataInicio(newValue);
                               }
                            }}
-                           className="block w-full rounded-lg border border-gray-300 bg-white p-2 text-sm text-gray-900 focus:border-red-500 focus:ring-red-500"
+                           className="block w-full rounded-lg border border-gray-300 bg-white p-2 text-xs text-gray-900 focus:border-red-500 focus:ring-red-500"
                         />
                      </div>
                   </div>

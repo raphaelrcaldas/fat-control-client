@@ -7,10 +7,12 @@ import { RegisPage } from "./registros/register";
 import { FilterPage } from "./pagamentos/filterPage";
 import { ConfigPage } from "./configuracoes/configPage";
 import { useSearchParamsUpdater } from "@/hooks/useSearchParamsState";
+import { useRouter } from "next/navigation";
 
 const TAB_NAMES = ["registros", "pagamentos", "configuracoes"] as const;
 
 export default function MissPage() {
+   const router = useRouter();
    const { searchParams, setParams } = useSearchParamsUpdater();
 
    const activeTabName = searchParams.get("tab") || "registros";
@@ -30,13 +32,35 @@ export default function MissPage() {
          <div className="mx-auto p-1">
             {/* Header Section */}
             <div className="mb-4">
-               <div className="rounded-2xl border border-red-100 bg-white p-4 shadow-xl">
-                  <h1 className="mb-1 text-2xl font-bold text-red-600">
-                     Gestão de Missões
-                  </h1>
-                  <p className="text-gray-600">
-                     Controle completo de registros e pagamentos de missões
-                  </p>
+               <div className="flex items-center justify-between rounded-2xl border border-red-100 bg-white p-4 shadow-xl">
+                  <div>
+                     <h1 className="mb-1 text-2xl font-bold text-red-600">
+                        Gestão de Missões
+                     </h1>
+                     <p className="text-gray-600">
+                        Controle completo de registros e pagamentos de missões
+                     </p>
+                  </div>
+                  <button
+                     type="button"
+                     onClick={() => router.push("/cegep/missoes/new")}
+                     className="flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-red-700"
+                  >
+                     <svg
+                        className="h-4 w-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                     >
+                        <path
+                           strokeLinecap="round"
+                           strokeLinejoin="round"
+                           strokeWidth={2}
+                           d="M12 4v16m8-8H4"
+                        />
+                     </svg>
+                     <span className="hidden sm:inline">Nova Missão</span>
+                  </button>
                </div>
             </div>
 

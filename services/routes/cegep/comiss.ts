@@ -51,6 +51,9 @@ export interface ComissWithMiss extends Comiss {
 export interface ComissFilters {
    status?: string;
    search?: string;
+   pg?: string[];
+   tipo?: string;
+   modulo?: string;
 }
 
 export async function getCmtos(
@@ -64,6 +67,9 @@ export async function getCmtos(
       {
          status: filters?.status ?? "aberto",
          search: filters?.search ?? "",
+         pg: filters?.pg?.length ? filters.pg.join(",") : "",
+         tipo: filters?.tipo ?? "",
+         modulo: filters?.modulo ?? "",
       },
       signal
    );
@@ -90,10 +96,26 @@ export async function updateCmto(comiss: Comiss): Promise<ApiResult<null>> {
    );
 }
 
+export interface DeletePreviewMission {
+   id: number;
+   tipo_doc: string;
+   n_doc: number;
+   desc: string;
+   afast: string;
+   regres: string;
+}
+
+export interface DeletePreview {
+   missoes_count: number;
+   missoes: DeletePreviewMission[];
+}
+
 export async function deleteCmto(
-   comissId: number
-): Promise<ApiResult<null>> {
-   return parseApiResponse<null>(
-      await request("DELETE", `${comissRoute}${comissId}`)
+   comissId: number,
+   confirm?: boolean
+): Promise<ApiResult<DeletePreview | null>> {
+   const params = confirm ? { confirm: "true" } : null;
+   return parseApiResponse<DeletePreview | null>(
+      await request("DELETE", `${comissRoute}${comissId}`, null, params)
    );
 }

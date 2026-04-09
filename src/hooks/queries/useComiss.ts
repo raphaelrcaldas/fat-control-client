@@ -94,15 +94,20 @@ export function useUpdateComiss() {
 }
 
 /**
- * Excluir comissionamento
+ * Excluir comissionamento (2 etapas)
+ * Sem confirm: retorna preview com missoes vinculadas
+ * Com confirm: executa exclusao em cascata
  */
 export function useDeleteComiss() {
    const queryClient = useQueryClient();
 
    return useMutation({
-      mutationFn: (id: number) => deleteCmto(id),
-      onSuccess: () => {
-         queryClient.invalidateQueries({ queryKey: comissKeys.lists() });
+      mutationFn: ({ id, confirm }: { id: number; confirm?: boolean }) =>
+         deleteCmto(id, confirm),
+      onSuccess: (result) => {
+         if (!result.data) {
+            queryClient.invalidateQueries({ queryKey: comissKeys.lists() });
+         }
       },
    });
 }
