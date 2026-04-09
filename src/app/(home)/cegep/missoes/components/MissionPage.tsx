@@ -62,7 +62,7 @@ export function MissionPage({
          )}
 
          <div className="flex w-full justify-center">
-            <div className="flex max-w-7xl w-full flex-col gap-4">
+            <div className="flex w-full max-w-7xl flex-col gap-4">
                <MissionHeader
                   tipoDoc={form.tipoDoc}
                   nDoc={form.nDoc}

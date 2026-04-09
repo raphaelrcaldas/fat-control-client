@@ -55,7 +55,12 @@ export function FormActions({
             <Button color="gray" onClick={onClose} disabled={busy}>
                Cancelar
             </Button>
-            <Button type="button" color="red" onClick={onSubmit} disabled={disabled || busy}>
+            <Button
+               type="button"
+               color="red"
+               onClick={onSubmit}
+               disabled={disabled || busy}
+            >
                {isSubmitting ? (
                   <div className="flex items-center gap-2">
                      <Spinner size="sm" color="failure" />

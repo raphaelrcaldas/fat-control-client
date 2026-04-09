@@ -199,7 +199,7 @@ export function FuncGroupDropZone({
                         onChange={(e) =>
                            onFuncBordoChange(t.tripId, e.target.value)
                         }
-                        className="ml-auto w-[68px] rounded border border-gray-300 bg-gray-50 px-1 py-0.5 text-[10px] font-bold text-gray-700 transition-colors focus:border-red-400 focus:outline-none focus:ring-1 focus:ring-red-400"
+                        className="ml-auto w-[68px] rounded border border-gray-300 bg-gray-50 px-1 py-0.5 text-[10px] font-bold text-gray-700 transition-colors focus:border-red-400 focus:ring-1 focus:ring-red-400 focus:outline-none"
                      >
                         {posicoes.map((p) => (
                            <option key={p.codigo} value={p.codigo}>

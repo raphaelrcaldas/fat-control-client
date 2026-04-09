@@ -1,5 +1,4 @@
 import {
-   MdSort,
    MdAirplaneTicket,
    MdAirplanemodeInactive,
    MdHail,
@@ -21,6 +20,7 @@ import {
    MdTranslate,
    MdPolicy,
    MdBadge,
+   MdSort,
 } from "react-icons/md";
 import { FaUsers } from "react-icons/fa6";
 import { FaPaperPlane } from "react-icons/fa";
@@ -54,13 +54,6 @@ export const navItems = [
             icon: MdCalendarViewWeek,
             label: "Quadro Operacional",
             path: "/ops/quadro",
-         },
-         {
-            icon: MdSort,
-            label: "Pau de Sebo",
-            path: "/ops/sebo",
-            resource: "sebo",
-            permission: "view",
          },
          {
             icon: MdAirplaneTicket,
@@ -103,22 +96,12 @@ export const navItems = [
       type: "collapse",
       icon: MdBarChart,
       label: "Estatística",
-      roles: [
-         "ops_avancado",
-         "ops_basico",
-         "dout_avancado",
-         "dout_basico",
-         "apoio_avancado",
-         "apoio_basico",
-         "aeromed",
-         "seg_voo",
-      ],
       children: [
          {
             icon: MdSort,
             label: "Pau de Sebo",
             path: "/estatistica/sebo",
-            resource: "estatistica",
+            resource: "sebo",
             permission: "view",
          },
          {
@@ -139,7 +122,7 @@ export const navItems = [
             icon: MdFlightTakeoff,
             label: "Horas por ANV",
             path: "/estatistica/horas-anv",
-            resource: "estatistica",
+            resource: "aeronaves",
             permission: "view",
          },
       ],

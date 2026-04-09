@@ -19,7 +19,6 @@ import {
    getDateStatus,
    getStatusConfig,
    formatDate,
-   getDaysRemaining,
    getWorstStatus,
 } from "../utils/dateStatus";
 
@@ -42,11 +41,6 @@ const DateCell = memo(function DateCell({
          <span className={clsx("text-sm font-medium", config.color)}>
             {formatDate(dateStr)}
          </span>
-         {status !== "empty" && (
-            <span className={clsx("text-xs", config.color)}>
-               ({getDaysRemaining(dateStr)})
-            </span>
-         )}
       </div>
    );
 });

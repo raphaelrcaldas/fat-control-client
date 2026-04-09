@@ -61,7 +61,7 @@ export function EsfAerAlertTable({ items }: EsfAerAlertTableProps) {
    if (diffItems.length === 0) return null;
 
    return (
-      <div className="rounded-lg border border-amber-300 bg-amber-50">
+      <div className="hidden w-1/2 overflow-x-auto rounded-lg border border-amber-300 bg-amber-50 md:block">
          <div className="flex items-center justify-center gap-2 border-b border-amber-300 px-4 py-2">
             <svg
                className="h-5 w-5 text-amber-500"

@@ -1,7 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Modal, ModalBody, ModalHeader, ModalFooter, Spinner, Alert } from "flowbite-react";
+import {
+   Modal,
+   ModalBody,
+   ModalHeader,
+   ModalFooter,
+   Spinner,
+   Alert,
+} from "flowbite-react";
 import type { FuncType } from "@/constants/tripulantes/funcoes";
 import { useToast } from "@/app/context/toast";
 import {
@@ -205,11 +212,23 @@ export function EtapaFormModal({
       if (e) e.preventDefault();
       if (!validate(oiValid)) {
          if (!tvooValid) {
-            push({ title: "TVOO Inválido", message: "O Tempo de Voo deve ser múltiplo de 5 e maior que 0.", type: "warning" });
+            push({
+               title: "TVOO Inválido",
+               message: "O Tempo de Voo deve ser múltiplo de 5 e maior que 0.",
+               type: "warning",
+            });
          } else if (oiItems.length > 0 && !oiValid) {
-            push({ title: "Ordens Inválidas", message: "A soma dos tempos das OIs não bate com o TVOO.", type: "warning" });
+            push({
+               title: "Ordens Inválidas",
+               message: "A soma dos tempos das OIs não bate com o TVOO.",
+               type: "warning",
+            });
          } else {
-            push({ title: "Atenção", message: "Verifique os erros nos campos do formulário.", type: "warning" });
+            push({
+               title: "Atenção",
+               message: "Verifique os erros nos campos do formulário.",
+               type: "warning",
+            });
          }
          return;
       }
@@ -332,7 +351,9 @@ export function EtapaFormModal({
                <form onSubmit={handleSubmit} className="space-y-6">
                   {!isEdit && lastEtapaDetail && (
                      <Alert color="info" className="mb-2">
-                        <span className="font-medium">Dica:</span> Alguns campos foram preenchidos com base no último pouso para acelerar o preenchimento.
+                        <span className="font-medium">Dica:</span> Alguns campos
+                        foram preenchidos com base no último pouso para acelerar
+                        o preenchimento.
                      </Alert>
                   )}
                   <DadosVooSection

@@ -23,7 +23,7 @@ interface EsfAerGroupCardsProps {
 
 export function EsfAerGroupCards({ groups }: EsfAerGroupCardsProps) {
    return (
-      <div className="grid w-2/3 grid-cols-3 gap-4">
+      <div className="grid w-full grid-cols-3 gap-4 md:w-2/3">
          {groups.map((group) => {
             const styles = GROUP_STYLES[group.label] ?? {
                border: "border-gray-300",

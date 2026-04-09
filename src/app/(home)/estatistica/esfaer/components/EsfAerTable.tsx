@@ -28,7 +28,7 @@ export function EsfAerTable({
    totalMesesVoados,
 }: EsfAerTableProps) {
    return (
-      <div className="rounded-lg border border-gray-200 bg-white">
+      <div className="w-full overflow-x-auto rounded-lg border border-gray-200 bg-white">
          <Table
             striped
             theme={{
@@ -93,9 +93,7 @@ export function EsfAerTable({
 
                {/* Footer / Total row */}
                <TableRow className="font-semibold text-gray-800">
-                  <TableCell className="sticky left-0 z-10 bg-gray-300">
-                     TOTAL
-                  </TableCell>
+                  <TableCell className="bg-gray-300">TOTAL</TableCell>
                   <TableCell className="bg-gray-300">
                      {minutesToTime(totalAlocado)}
                   </TableCell>

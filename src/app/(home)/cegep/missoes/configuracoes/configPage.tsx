@@ -155,7 +155,10 @@ export function ConfigPage() {
                                  {etiqueta.nome}
                               </span>
                               {etiqueta.descricao && (
-                                 <p className="max-w-37.5 truncate text-xs text-gray-500" title={etiqueta.descricao}>
+                                 <p
+                                    className="max-w-37.5 truncate text-xs text-gray-500"
+                                    title={etiqueta.descricao}
+                                 >
                                     {etiqueta.descricao}
                                  </p>
                               )}
@@ -263,7 +266,11 @@ export function ConfigPage() {
          </Modal>
 
          {/* Modal de Criação / Edição */}
-         <Modal show={isModalOpen} onClose={() => setIsModalOpen(false)} size="md">
+         <Modal
+            show={isModalOpen}
+            onClose={() => setIsModalOpen(false)}
+            size="md"
+         >
             <ModalHeader>
                {isEditing ? "Editar Etiqueta" : "Nova Etiqueta"}
             </ModalHeader>
@@ -271,7 +278,9 @@ export function ConfigPage() {
                <div className="space-y-4">
                   {/* Preview Area */}
                   <div className="flex flex-col items-center rounded-lg border border-gray-200 bg-gray-50 py-4">
-                     <span className="mb-2 text-xs font-medium text-gray-500">PREVIEW</span>
+                     <span className="mb-2 text-xs font-medium text-gray-500">
+                        PREVIEW
+                     </span>
                      <span
                         className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium text-white shadow-sm transition-colors"
                         style={{ backgroundColor: formData.cor || "#3B82F6" }}
@@ -288,7 +297,9 @@ export function ConfigPage() {
                      <TextInput
                         type="text"
                         value={formData.nome || ""}
-                        onChange={(e) => setFormData({ ...formData, nome: e.target.value })}
+                        onChange={(e) =>
+                           setFormData({ ...formData, nome: e.target.value })
+                        }
                         placeholder="Ex: Urgente, Suprimento..."
                         autoFocus
                      />
@@ -301,7 +312,12 @@ export function ConfigPage() {
                      <TextInput
                         type="text"
                         value={formData.descricao || ""}
-                        onChange={(e) => setFormData({ ...formData, descricao: e.target.value })}
+                        onChange={(e) =>
+                           setFormData({
+                              ...formData,
+                              descricao: e.target.value,
+                           })
+                        }
                         placeholder="Em poucas palavras..."
                      />
                   </div>
@@ -316,7 +332,9 @@ export function ConfigPage() {
                            return (
                               <button
                                  key={cor}
-                                 onClick={() => setFormData({ ...formData, cor })}
+                                 onClick={() =>
+                                    setFormData({ ...formData, cor })
+                                 }
                                  className={`group relative flex h-8 w-8 items-center justify-center rounded-full transition-all ${isSelected ? "ring-2 ring-purple-400 ring-offset-2" : "hover:scale-110"}`}
                                  style={{ backgroundColor: cor }}
                                  title={cor}
@@ -332,7 +350,11 @@ export function ConfigPage() {
                </div>
             </ModalBody>
             <ModalFooter className="flex justify-end gap-2 bg-gray-50">
-               <Button color="gray" onClick={() => setIsModalOpen(false)} disabled={saving}>
+               <Button
+                  color="gray"
+                  onClick={() => setIsModalOpen(false)}
+                  disabled={saving}
+               >
                   Cancelar
                </Button>
                <Button
@@ -340,7 +362,11 @@ export function ConfigPage() {
                   onClick={handleSaveEtiqueta}
                   disabled={saving || !formData.nome}
                >
-                  {saving ? "Salvando..." : isEditing ? "Salvar" : "Criar Etiqueta"}
+                  {saving
+                     ? "Salvando..."
+                     : isEditing
+                       ? "Salvar"
+                       : "Criar Etiqueta"}
                </Button>
             </ModalFooter>
          </Modal>

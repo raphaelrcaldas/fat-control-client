@@ -1,17 +1,15 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
+import { useMemo, useState } from "react";
 import { Tooltip, Spinner, Select } from "flowbite-react";
 import IndispCell from "./components/indispCell";
 import { TripIndisp } from "./components/tripIndisp";
-import { getTripData } from "services/google-sheets/sheets";
 import clsx from "clsx";
 import { usePersistedState } from "@/hooks/usePersistedState";
 import { LastIndisps } from "./components/lastIndisps";
 import { AppLoadingScreen } from "../../components/appLoadingScreen";
-import { TripSheet } from "services/google-sheets/sheets";
 import { CrewIndispList } from "services/routes/indisps";
-import { datasIguais, isoStrLocalToDate } from "utils/dateHandler";
+import { datasIguais, isoStrToDate } from "utils/dateHandler";
 import { FUNC_LABELS_SHORT, FUNCOES_PRINCIPAIS } from "@/constants/tripulantes";
 import {
    HiChevronLeft,
@@ -44,7 +42,6 @@ function genDates(dateRefer: Date, daysToGenerate: number) {
 
 export default function IndispPage() {
    const [dateRef, setDateRef] = useState<Date>(new Date());
-   const [dataTrip, setDataTrip] = useState<TripSheet[] | null>(null);
 
    const [indispFunc, setIndispFunc] = usePersistedState(
       "indisp.indispFunc",
@@ -65,7 +62,7 @@ export default function IndispPage() {
    } = useCrewIndisps(indispFunc, "11gt");
 
    // Loading inicial (primeira carga) vs refetch (mudança de função)
-   const isInitialLoading = isLoadingIndisps || !dataTrip;
+   const isInitialLoading = isLoadingIndisps;
    const showLoadingOverlay = isFetching && !isLoadingIndisps;
 
    const changeDateRef = (day, month) => {
@@ -83,12 +80,6 @@ export default function IndispPage() {
 
       setDateRef(dateCopy);
    };
-
-   useEffect(() => {
-      getTripData().then((data) => {
-         setDataTrip(data);
-      });
-   }, []);
 
    // Loading inicial - apenas na primeira carga
    if (isInitialLoading) return <AppLoadingScreen />;
@@ -195,7 +186,7 @@ export default function IndispPage() {
             </div>
          </div>
 
-         {indisps && indisps.length > 0 && dataTrip.length > 0 ? (
+         {indisps && indisps.length > 0 ? (
             <div className="relative flex min-h-0 flex-1 flex-col gap-2 overflow-hidden">
                {/* Loading Overlay - quando refetching */}
                {showLoadingOverlay && (
@@ -253,7 +244,6 @@ export default function IndispPage() {
                                        key={index}
                                        dates={datesArray}
                                        tripData={item}
-                                       gSheetData={dataTrip}
                                     />
                                  ))}
                               {indisps.filter(
@@ -283,7 +273,6 @@ export default function IndispPage() {
                                              key={index}
                                              dates={datesArray}
                                              tripData={item}
-                                             gSheetData={dataTrip}
                                           />
                                        ))}
                                  </>
@@ -405,24 +394,17 @@ function ThMonth({ dayRef, className }: { dayRef: Date; className?: string }) {
 
 function TripRow({
    dates,
-   gSheetData,
    tripData,
 }: {
    dates: Date[];
-   gSheetData: TripSheet[];
    tripData: CrewIndispList;
 }) {
-   const tripSheet = gSheetData?.find(
-      (trips) =>
-         typeof trips?.trig === "string" &&
-         typeof tripData?.trip?.trig === "string" &&
-         trips.trig.toLowerCase() === tripData.trip.trig.toLowerCase()
-   );
-
-   const dataCemal =
-      tripSheet && tripSheet.cemal ? isoStrLocalToDate(tripSheet.cemal) : null;
-   const dataUltVoo =
-      tripSheet && tripSheet.duv ? isoStrLocalToDate(tripSheet.duv) : null;
+   const dataCemal = tripData.trip.cemal
+      ? isoStrToDate(tripData.trip.cemal)
+      : null;
+   const dataUltVoo = tripData.trip.data_ult_voo
+      ? isoStrToDate(tripData.trip.data_ult_voo)
+      : null;
 
    return (
       <tr>

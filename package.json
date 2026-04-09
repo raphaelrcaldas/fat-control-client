@@ -38,7 +38,6 @@
       "exceljs": "^4.4.0",
       "flowbite": "^4",
       "flowbite-react": "0.12.14",
-      "googleapis": "^169",
       "leaflet": "^1.9.4",
       "modern-screenshot": "^4.6.8",
       "next": "^16.0.1",

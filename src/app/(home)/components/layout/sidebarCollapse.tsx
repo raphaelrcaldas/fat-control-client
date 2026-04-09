@@ -77,9 +77,9 @@ export default function SidebarCollapse({
                         item={child}
                         isMobile={isMobile}
                         isActive={
-                        pathname === child.path ||
-                        pathname.startsWith(child.path + "/")
-                     }
+                           pathname === child.path ||
+                           pathname.startsWith(child.path + "/")
+                        }
                         onClick={onClick}
                         isChild
                      />

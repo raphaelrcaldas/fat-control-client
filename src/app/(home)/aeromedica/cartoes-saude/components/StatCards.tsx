@@ -39,7 +39,13 @@ function StatCard({
    urgent,
    extra,
 }: StatCardProps) {
-   const statuses: DateStatus[] = ["valid", "warning", "critical", "expired", "empty"];
+   const statuses: DateStatus[] = [
+      "valid",
+      "warning",
+      "critical",
+      "expired",
+      "empty",
+   ];
 
    return (
       <div className="overflow-hidden rounded-xl border border-gray-200 bg-white p-5 shadow-sm">

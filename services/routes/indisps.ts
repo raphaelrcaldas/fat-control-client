@@ -9,6 +9,8 @@ export interface CrewIndisp {
    id: number;
    user: UserPublic;
    func: { func: string; oper: string; proj: string };
+   cemal: string | null;
+   data_ult_voo: string | null;
 }
 
 export interface IndispType {

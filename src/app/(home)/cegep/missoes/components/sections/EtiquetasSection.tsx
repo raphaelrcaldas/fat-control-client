@@ -62,8 +62,7 @@ export function EtiquetasSection({
                   <div className="flex flex-wrap gap-2">
                      {etiquetasDisponiveis
                         .filter(
-                           (e) =>
-                              !etiquetasMissao.some((em) => em.id === e.id)
+                           (e) => !etiquetasMissao.some((em) => em.id === e.id)
                         )
                         .map((etiqueta) => (
                            <button

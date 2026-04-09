@@ -135,7 +135,7 @@ export default function EsfAerPage() {
                />
                <EsfAerGroupCards groups={groupSummaries} />
 
-               <div className="col-span-full grid grid-cols-1 gap-4 lg:grid-cols-3">
+               <div className="col-span-full hidden grid-cols-1 gap-4 lg:grid lg:grid-cols-3">
                   <div className="lg:col-span-2">
                      <EsfAerChartLine
                         totalAlocado={totalAlocado}

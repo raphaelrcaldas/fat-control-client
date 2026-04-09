@@ -31,9 +31,7 @@ export function ClassificacaoSection({
                      className="w-full"
                   >
                      <option value="" disabled></option>
-                     <option value="tal">
-                        TAL - Transporte Aerologístico
-                     </option>
+                     <option value="tal">TAL - Transporte Aerologístico</option>
                      <option value="opr">OPR - Operacional</option>
                      <option value="adm">ADM - Administrativo</option>
                   </Select>

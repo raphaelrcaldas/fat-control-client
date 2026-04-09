@@ -199,10 +199,11 @@ export function QuadsTrip({
                </div>
 
                <div
-                  className={`mb-3 flex items-center justify-between rounded-lg border border-red-300 bg-red-50 px-3 py-2 shadow-sm transition-opacity duration-150 ${quads.length > 0 && selectedIds.size > 0
+                  className={`mb-3 flex items-center justify-between rounded-lg border border-red-300 bg-red-50 px-3 py-2 shadow-sm transition-opacity duration-150 ${
+                     quads.length > 0 && selectedIds.size > 0
                         ? "opacity-100"
                         : "invisible opacity-0"
-                     }`}
+                  }`}
                >
                   <span className="text-sm font-semibold text-red-700">
                      ✓ {selectedIds.size} selecionado(s)
@@ -236,9 +237,10 @@ export function QuadsTrip({
                                     }
                                     className="flex size-5 cursor-pointer items-center justify-center rounded border-2 border-gray-500 bg-white transition-colors hover:border-red-500"
                                  >
-                                    {selectedIds.size === quads.length && quads.length > 0 && (
-                                       <span className="block h-2.5 w-2.5 rounded-sm bg-red-600" />
-                                    )}
+                                    {selectedIds.size === quads.length &&
+                                       quads.length > 0 && (
+                                          <span className="block h-2.5 w-2.5 rounded-sm bg-red-600" />
+                                       )}
                                  </button>
                               </TableHeadCell>
                               <TableHeadCell>Valor</TableHeadCell>

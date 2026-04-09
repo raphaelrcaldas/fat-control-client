@@ -1,4 +1,10 @@
-import { Modal, ModalHeader, ModalBody, ModalFooter, Button } from "flowbite-react";
+import {
+   Modal,
+   ModalHeader,
+   ModalBody,
+   ModalFooter,
+   Button,
+} from "flowbite-react";
 import { FaExclamationTriangle } from "react-icons/fa";
 
 interface ValidationModalProps {
@@ -7,7 +13,11 @@ interface ValidationModalProps {
    onClose: () => void;
 }
 
-export function ValidationModal({ show, errors, onClose }: ValidationModalProps) {
+export function ValidationModal({
+   show,
+   errors,
+   onClose,
+}: ValidationModalProps) {
    return (
       <Modal show={show} onClose={onClose} size="md" dismissible>
          <ModalHeader className="border-b border-amber-200 bg-linear-to-r from-amber-50 to-orange-50">
@@ -50,7 +60,11 @@ export function ValidationModal({ show, errors, onClose }: ValidationModalProps)
             </div>
          </ModalBody>
          <ModalFooter className="border-t border-slate-200 bg-slate-50">
-            <Button color="blue" onClick={onClose} className="w-full font-semibold">
+            <Button
+               color="blue"
+               onClick={onClose}
+               className="w-full font-semibold"
+            >
                Entendi
             </Button>
          </ModalFooter>

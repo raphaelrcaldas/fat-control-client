@@ -39,9 +39,9 @@ export function useMissionForm({
          ind: missao ? (missao.indenizavel ? "ind" : "n_ind") : "",
          acrecDesloc: missao ? missao.acrec_desloc : false,
          obs: missao ? missao.obs : "",
-         pnts: missao ? missao.pernoites ?? [] : [],
-         mils: missao ? missao.users ?? [] : [],
-         etiquetas: missao ? missao.etiquetas ?? [] : [],
+         pnts: missao ? (missao.pernoites ?? []) : [],
+         mils: missao ? (missao.users ?? []) : [],
+         etiquetas: missao ? (missao.etiquetas ?? []) : [],
       }),
       [missao]
    );

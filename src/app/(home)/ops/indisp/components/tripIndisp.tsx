@@ -14,7 +14,11 @@ import {
    TableRow,
 } from "flowbite-react";
 import { IndispForm } from "./indispForm";
-import { isoDateToString } from "utils/dateHandler";
+import {
+   isoDateToString,
+   isoStrToDate,
+   formatDateFull,
+} from "utils/dateHandler";
 import { getIndisp, indispsOptions } from "./options";
 import { PermBased } from "@/app/(home)/hooks/usePermBased";
 import { CrewIndisp, IndispType } from "services/routes/indisps";
@@ -113,7 +117,7 @@ export const TripIndisp = ({
             {trip.trig}
             {trip.func.oper == "in" && (
                <div
-                  className="absolute -end-1 -top-1 size-4 rounded-full bg-red-400"
+                  className="absolute -inset-e-1 -top-1 size-4 rounded-full bg-red-400"
                   aria-label="Instrutor"
                ></div>
             )}
@@ -124,14 +128,17 @@ export const TripIndisp = ({
                <ModalHeader>
                   <span className="text-lg font-bold">Indisponibilidades</span>
                </ModalHeader>
-               <ModalBody className="max-h-112.5 min-h-112.5 overflow-y-scroll">
-                  <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-4">
+               <ModalBody className="max-h-160 min-h-160 overflow-y-scroll">
+                  <div className="mb-1 p-1">
                      <h3 className="text-center text-lg font-bold text-gray-900 uppercase">
-                        {user.posto.short} {user.esp} {user.nome_guerra}
+                        {user.posto.mid} {user.nome_guerra}
                      </h3>
-                     <h3 className="mt-1 text-center text-sm text-gray-600 uppercase">
-                        {user.nome_completo}
-                     </h3>
+                  </div>
+
+                  {/* Cards CEMAL e Último Voo */}
+                  <div className="mb-4 grid grid-cols-2 gap-3">
+                     <CemalCard cemal={trip.cemal} />
+                     <UltVooCard dataUltVoo={trip.data_ult_voo} trip={trip} />
                   </div>
 
                   {/* Painel de Filtros */}
@@ -394,6 +401,148 @@ export const TripIndisp = ({
       </>
    );
 };
+
+function CemalCard({ cemal }: { cemal: string | null }) {
+   const today = new Date();
+   const todayStart = new Date(
+      today.getFullYear(),
+      today.getMonth(),
+      today.getDate()
+   ).valueOf();
+
+   const cemalDate = cemal ? isoStrToDate(cemal) : null;
+   const cemalStart = cemalDate
+      ? new Date(
+           cemalDate.getFullYear(),
+           cemalDate.getMonth(),
+           cemalDate.getDate()
+        ).valueOf()
+      : null;
+   const isValid = cemalStart !== null && cemalStart >= todayStart;
+
+   return (
+      <div
+         className={clsx(
+            "rounded-lg border p-3 text-center",
+            isValid
+               ? "border-emerald-200 bg-emerald-50"
+               : cemalDate
+                 ? "border-purple-200 bg-purple-50"
+                 : "border-gray-200 bg-gray-50"
+         )}
+      >
+         <p className="text-xs font-medium text-gray-500 uppercase">CEMAL</p>
+         <p
+            className={clsx(
+               "mt-1 text-sm font-bold",
+               isValid
+                  ? "text-emerald-700"
+                  : cemalDate
+                    ? "text-purple-700"
+                    : "text-gray-600"
+            )}
+         >
+            {cemalDate ? formatDateFull(cemal) : "Sem registro"}
+         </p>
+         <p
+            className={clsx(
+               "text-xs",
+               isValid
+                  ? "text-emerald-600"
+                  : cemalDate
+                    ? "text-purple-600"
+                    : "text-gray-500"
+            )}
+         >
+            {isValid ? "Válido" : cemalDate ? "Expirado" : "Não informado"}
+         </p>
+      </div>
+   );
+}
+
+function UltVooCard({
+   dataUltVoo,
+   trip,
+}: {
+   dataUltVoo: string | null;
+   trip: CrewIndisp;
+}) {
+   const today = new Date();
+   const todayStart = new Date(
+      today.getFullYear(),
+      today.getMonth(),
+      today.getDate()
+   ).valueOf();
+
+   const ultVooDate = dataUltVoo ? isoStrToDate(dataUltVoo) : null;
+   const ultVooStart = ultVooDate
+      ? new Date(
+           ultVooDate.getFullYear(),
+           ultVooDate.getMonth(),
+           ultVooDate.getDate()
+        ).valueOf()
+      : null;
+
+   const daysSinceLastFlight =
+      ultVooStart !== null
+         ? Math.floor((todayStart - ultVooStart) / (1000 * 60 * 60 * 24))
+         : null;
+
+   const isEligible =
+      trip.func.func !== "oe" &&
+      trip.func.func !== "os" &&
+      trip.func.oper !== "al";
+
+   const MIN_DESADAPTA = 45;
+   const isDesadaptado =
+      isEligible &&
+      daysSinceLastFlight !== null &&
+      daysSinceLastFlight >= MIN_DESADAPTA;
+
+   const cardClass = !isEligible
+      ? "border-gray-200 bg-gray-50"
+      : isDesadaptado
+        ? "border-slate-200 bg-slate-50"
+        : ultVooDate
+          ? "border-emerald-200 bg-emerald-50"
+          : "border-gray-200 bg-gray-50";
+
+   const textClass = !isEligible
+      ? "text-gray-600"
+      : isDesadaptado
+        ? "text-slate-700"
+        : ultVooDate
+          ? "text-emerald-700"
+          : "text-gray-600";
+
+   const subTextClass = !isEligible
+      ? "text-gray-500"
+      : isDesadaptado
+        ? "text-slate-600"
+        : ultVooDate
+          ? "text-emerald-600"
+          : "text-gray-500";
+
+   const statusText = !isEligible
+      ? "Não elegível"
+      : isDesadaptado
+        ? `Desadaptado (${daysSinceLastFlight}d)`
+        : daysSinceLastFlight !== null
+          ? `${daysSinceLastFlight} dia${daysSinceLastFlight !== 1 ? "s" : ""} atrás`
+          : "Sem dados";
+
+   return (
+      <div className={clsx("rounded-lg border p-3 text-center", cardClass)}>
+         <p className="text-xs font-medium text-gray-500 uppercase">
+            Último Voo
+         </p>
+         <p className={clsx("mt-1 text-sm font-bold", textClass)}>
+            {ultVooDate ? formatDateFull(dataUltVoo) : "Sem registro"}
+         </p>
+         <p className={clsx("text-xs", subTextClass)}>{statusText}</p>
+      </div>
+   );
+}
 
 function TripIndispRow({ indisp, trip }) {
    const [openInd, setOpenInd] = useState(false);

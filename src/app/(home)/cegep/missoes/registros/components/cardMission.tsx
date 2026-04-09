@@ -82,8 +82,7 @@ export const CardMission = memo(function CardMission({
                   className={clsx(
                      "flex items-start gap-2 rounded-lg border p-3",
                      {
-                        "border-blue-200 bg-blue-50":
-                           missao.tipo_doc == "om",
+                        "border-blue-200 bg-blue-50": missao.tipo_doc == "om",
                         "border-orange-200 bg-orange-50":
                            missao.tipo_doc == "os",
                      }

@@ -32,13 +32,13 @@ export function OrdensInstrucaoSection({
       <section className="mt-6">
          <div className="mb-4 flex items-center justify-between rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 shadow-inner dark:border-gray-700 dark:bg-gray-800">
             <div className="flex items-center gap-3">
-               <h3 className="text-[11px] font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">
+               <h3 className="text-[11px] font-bold tracking-wider text-gray-500 uppercase dark:text-gray-400">
                   Ordens de Instrução
                </h3>
                {oiItems.length > 0 && (
                   <span
                      className={clsx(
-                        "rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide shadow-sm",
+                        "rounded-full px-2.5 py-1 text-[10px] font-bold tracking-wide uppercase shadow-sm",
                         oiValid
                            ? "bg-green-100 text-green-700 ring-1 ring-green-300 dark:bg-green-900/40 dark:text-green-400"
                            : "bg-amber-100 text-amber-700 ring-1 ring-amber-300 dark:bg-amber-900/40 dark:text-amber-400"
@@ -61,8 +61,13 @@ export function OrdensInstrucaoSection({
 
          {oiItems.length === 0 ? (
             <div className="flex flex-col items-center rounded-xl border border-dashed border-gray-300 bg-gray-50 p-6 text-center dark:border-gray-700 dark:bg-gray-800/50">
-               <p className="text-sm font-medium text-gray-500">Nenhuma Ordem de Instrução associada</p>
-               <p className="mt-1 text-xs text-gray-400">Clique em "Nova OI" se houver registro de treinamento para adicionar à estatística.</p>
+               <p className="text-sm font-medium text-gray-500">
+                  Nenhuma Ordem de Instrução associada
+               </p>
+               <p className="mt-1 text-xs text-gray-400">
+                  Clique em "Nova OI" se houver registro de treinamento para
+                  adicionar à estatística.
+               </p>
             </div>
          ) : (
             <div className="space-y-3">
@@ -73,44 +78,74 @@ export function OrdensInstrucaoSection({
                   >
                      {/* Esforço Aéreo */}
                      <div className="flex flex-col text-left">
-                        <Label className="mb-1 text-[10px] font-bold uppercase text-gray-500">Esforço Aéreo</Label>
+                        <Label className="mb-1 text-[10px] font-bold text-gray-500 uppercase">
+                           Esforço Aéreo
+                        </Label>
                         <SearchableSelect
-                           options={esfAerList.map((e) => ({ value: String(e.id), label: e.descricao }))}
+                           options={esfAerList.map((e) => ({
+                              value: String(e.id),
+                              label: e.descricao,
+                           }))}
                            value={oi.esf_aer_id ? String(oi.esf_aer_id) : ""}
-                           onChange={(val) => updateOiItem(oi.uid, { esf_aer_id: val ? Number(val) : null })}
+                           onChange={(val) =>
+                              updateOiItem(oi.uid, {
+                                 esf_aer_id: val ? Number(val) : null,
+                              })
+                           }
                            placeholder="Buscar Esforço..."
                            sizing="sm"
                         />
                      </div>
                      {/* Tipo Missão */}
                      <div className="flex flex-col text-left">
-                        <Label className="mb-1 text-[10px] font-bold uppercase text-gray-500">Tipo Missão</Label>
+                        <Label className="mb-1 text-[10px] font-bold text-gray-500 uppercase">
+                           Tipo Missão
+                        </Label>
                         <select
                            value={oi.tipo_missao_id ?? ""}
-                           onChange={(e) => updateOiItem(oi.uid, { tipo_missao_id: e.target.value ? Number(e.target.value) : null })}
+                           onChange={(e) =>
+                              updateOiItem(oi.uid, {
+                                 tipo_missao_id: e.target.value
+                                    ? Number(e.target.value)
+                                    : null,
+                              })
+                           }
                            className="w-full rounded-lg border border-gray-300 bg-gray-50 px-3 py-[7px] text-xs font-medium text-gray-700 transition-colors focus:border-red-400 focus:ring-1 focus:ring-red-400 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                         >
                            <option value="">Selecionar Sigla...</option>
                            {tiposMissaoList.map((t) => (
-                              <option key={t.id} value={t.id}>{t.cod} - {t.desc}</option>
+                              <option key={t.id} value={t.id}>
+                                 {t.cod} - {t.desc}
+                              </option>
                            ))}
                         </select>
                      </div>
                      {/* Reg */}
                      <div className="flex flex-col text-left">
-                        <Label className="mb-1 whitespace-nowrap text-[10px] font-bold uppercase text-gray-500">Regime</Label>
+                        <Label className="mb-1 text-[10px] font-bold whitespace-nowrap text-gray-500 uppercase">
+                           Regime
+                        </Label>
                         <div className="flex overflow-hidden rounded-lg border border-gray-300 shadow-sm dark:border-gray-600">
-                           {([{ v: "d", l: "D" }, { v: "n", l: "N" }, { v: "v", l: "V" }] as const).map(({ v, l }) => (
+                           {(
+                              [
+                                 { v: "d", l: "D" },
+                                 { v: "n", l: "N" },
+                                 { v: "v", l: "V" },
+                              ] as const
+                           ).map(({ v, l }) => (
                               <button
                                  key={v}
                                  type="button"
-                                 onClick={() => updateOiItem(oi.uid, { reg: v })}
+                                 onClick={() =>
+                                    updateOiItem(oi.uid, { reg: v })
+                                 }
                                  className={clsx(
-                                    "px-3 py-[7px] text-xs font-bold transition-colors focus:outline-none flex-1",
+                                    "flex-1 px-3 py-[7px] text-xs font-bold transition-colors focus:outline-none",
                                     oi.reg === v
                                        ? "bg-red-800 text-white dark:bg-red-200 dark:text-red-900"
                                        : "bg-white text-red-500 hover:bg-red-100 dark:bg-red-800 dark:text-red-400 dark:hover:bg-red-700",
-                                    v !== "d" && "border-l border-red-200 dark:border-red-600"
+                                    v !== "d" &&
+                                       "border-l border-red-200 dark:border-red-600"
                                  )}
                               >
                                  {l}
@@ -120,15 +155,20 @@ export function OrdensInstrucaoSection({
                      </div>
                      {/* T.Voo */}
                      <div className="flex flex-col text-left">
-                        <Label className="mb-1 text-[10px] font-bold uppercase text-gray-500">Tempo</Label>
+                        <Label className="mb-1 text-[10px] font-bold text-gray-500 uppercase">
+                           Tempo
+                        </Label>
                         <input
                            type="time"
                            value={oi.tvooDisplay || "00:00"}
                            onChange={(e) => {
                               const val = e.target.value;
-                              updateOiItem(oi.uid, { tvooDisplay: val, tvoo: val ? timeToMinutes(val) : 0 });
+                              updateOiItem(oi.uid, {
+                                 tvooDisplay: val,
+                                 tvoo: val ? timeToMinutes(val) : 0,
+                              });
                            }}
-                           className="w-full rounded-lg border border-gray-300 bg-gray-50 px-2 py-[7px] text-center font-mono text-xs shadow-inner transition-colors focus:border-red-400 focus:outline-none focus:ring-1 focus:ring-red-400 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+                           className="w-full rounded-lg border border-gray-300 bg-gray-50 px-2 py-[7px] text-center font-mono text-xs shadow-inner transition-colors focus:border-red-400 focus:ring-1 focus:ring-red-400 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-white"
                         />
                      </div>
                      {/* Excluir */}
@@ -147,7 +187,10 @@ export function OrdensInstrucaoSection({
 
                {oiItems.length > 0 && !oiValid && tvoo > 0 && (
                   <div className="mt-2 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-600 dark:border-red-800/50 dark:bg-red-900/20">
-                     O somatório das OIs (<strong>{minutesToTime(oiTotalTvoo)}</strong>) não coincide com o tempo total da Etapa (<strong>{minutesToTime(tvoo)}</strong>).
+                     O somatório das OIs (
+                     <strong>{minutesToTime(oiTotalTvoo)}</strong>) não coincide
+                     com o tempo total da Etapa (
+                     <strong>{minutesToTime(tvoo)}</strong>).
                   </div>
                )}
             </div>

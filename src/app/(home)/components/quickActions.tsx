@@ -1,11 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import {
-   MdSort,
-   MdAirplaneTicket,
-   MdAirplanemodeInactive,
-} from "react-icons/md";
+import { MdAirplaneTicket, MdAirplanemodeInactive } from "react-icons/md";
 
 interface QuickAction {
    title: string;
@@ -21,15 +17,6 @@ export default function QuickActions() {
    const router = useRouter();
 
    const actions: QuickAction[] = [
-      {
-         title: "Pau de Sebo",
-         description: "Visualizar pau de sebo operacional",
-         icon: MdSort,
-         route: "/sebo",
-         color: "text-blue-600",
-         gradientFrom: "from-blue-600",
-         bgColor: "bg-blue-50 group-hover:bg-blue-100",
-      },
       {
          title: "Quadrinhos",
          description: "Acessar quadrinhos e escalas",

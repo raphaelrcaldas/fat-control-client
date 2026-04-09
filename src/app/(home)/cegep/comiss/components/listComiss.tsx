@@ -53,14 +53,11 @@ export function ListComiss({ comiss }: { comiss: ComissList }) {
             <div className="hidden gap-6 md:flex">
                <div className="flex items-center gap-2.5">
                   <div
-                     className={clsx(
-                        "h-2 w-2 rounded-full transition-colors",
-                        {
-                           "bg-emerald-500 shadow-sm shadow-emerald-200":
-                              comiss.status === "aberto",
-                           "bg-gray-400": comiss.status === "fechado",
-                        }
-                     )}
+                     className={clsx("h-2 w-2 rounded-full transition-colors", {
+                        "bg-emerald-500 shadow-sm shadow-emerald-200":
+                           comiss.status === "aberto",
+                        "bg-gray-400": comiss.status === "fechado",
+                     })}
                   />
                   <span className="font-mono text-sm text-gray-700">
                      {data_abertura}
@@ -68,14 +65,11 @@ export function ListComiss({ comiss }: { comiss: ComissList }) {
                </div>
                <div className="flex items-center gap-2.5">
                   <div
-                     className={clsx(
-                        "h-2 w-2 rounded-full transition-colors",
-                        {
-                           "bg-rose-500 shadow-sm shadow-rose-200":
-                              comiss.status === "aberto",
-                           "bg-gray-400": comiss.status === "fechado",
-                        }
-                     )}
+                     className={clsx("h-2 w-2 rounded-full transition-colors", {
+                        "bg-rose-500 shadow-sm shadow-rose-200":
+                           comiss.status === "aberto",
+                        "bg-gray-400": comiss.status === "fechado",
+                     })}
                   />
                   <span className="font-mono text-sm text-gray-700">
                      {data_fechamento}
@@ -130,9 +124,7 @@ export function ListComiss({ comiss }: { comiss: ComissList }) {
                         dias
                      </span>
                   </div>
-                  <div className="mt-0.5 text-xs text-gray-500">
-                     Previsto
-                  </div>
+                  <div className="mt-0.5 text-xs text-gray-500">Previsto</div>
                </div>
                <div className="text-center">
                   <div className="text-base font-semibold text-gray-900">
@@ -143,9 +135,7 @@ export function ListComiss({ comiss }: { comiss: ComissList }) {
                         dias
                      </span>
                   </div>
-                  <div className="mt-0.5 text-xs text-gray-500">
-                     Computado
-                  </div>
+                  <div className="mt-0.5 text-xs text-gray-500">Computado</div>
                </div>
                <div className="text-center">
                   <div className="text-base font-semibold text-gray-900">
@@ -159,9 +149,7 @@ export function ListComiss({ comiss }: { comiss: ComissList }) {
                         dias
                      </span>
                   </div>
-                  <div className="mt-0.5 text-xs text-gray-500">
-                     Restante
-                  </div>
+                  <div className="mt-0.5 text-xs text-gray-500">Restante</div>
                </div>
             </div>
 

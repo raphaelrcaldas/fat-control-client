@@ -104,9 +104,13 @@ const SeboTable = ({
                   <TableHeadCell className="hidden min-w-40 text-center 2xl:table-cell">
                      NOME DE GUERRA
                   </TableHeadCell>
-                  <TableHeadCell className="text-center">TRIG</TableHeadCell>
-                  <TableHeadCell className="text-center">OP</TableHeadCell>
-                  <TableHeadCell className="text-center">DSV</TableHeadCell>
+                  <TableHeadCell className="px-4 text-center">
+                     TRIG
+                  </TableHeadCell>
+                  <TableHeadCell className="px-4 text-center">OP</TableHeadCell>
+                  <TableHeadCell className="px-4 text-center">
+                     DSV
+                  </TableHeadCell>
                   {infoCols.cemal && (
                      <TableHeadCell className="hidden text-center md:table-cell">
                         CEMAL
@@ -137,7 +141,9 @@ const SeboTable = ({
                         VISA
                      </TableHeadCell>
                   )}
-                  <TableHeadCell className="text-center">ANO</TableHeadCell>
+                  <TableHeadCell className="px-6 text-center">
+                     ANO
+                  </TableHeadCell>
                </TableRow>
             </TableHead>
             <TableBody className="divide-y">
@@ -208,16 +214,16 @@ const SeboTable = ({
                            }
                         )}
                      >
-                        <TableCell className="hidden text-center font-semibold text-gray-700 2xl:table-cell">
+                        <TableCell className="hidden px-0.5 text-center font-semibold text-gray-700 2xl:table-cell">
                            {trip.p_g}
                         </TableCell>
-                        <TableCell className="hidden text-center font-semibold text-nowrap text-gray-800 2xl:table-cell">
+                        <TableCell className="hidden px-0.5 text-center font-semibold text-nowrap text-gray-800 2xl:table-cell">
                            {trip.nome_guerra}
                         </TableCell>
-                        <TableCell className="text-center font-bold text-gray-900">
+                        <TableCell className="px-0.5 text-center font-bold text-gray-900">
                            {trip.trig}
                         </TableCell>
-                        <TableCell className="text-center">
+                        <TableCell className="px-0.5 text-center">
                            <span
                               className={clsx(
                                  "rounded-full px-3 py-1 text-xs font-bold",
@@ -227,7 +233,7 @@ const SeboTable = ({
                               {trip.oper}
                            </span>
                         </TableCell>
-                        <TableCell className="text-center">
+                        <TableCell className="px-0.5 text-center">
                            <Tooltip
                               content={getDsvTooltip(trip.voo.data_ult_voo)}
                            >
@@ -237,7 +243,7 @@ const SeboTable = ({
                            </Tooltip>
                         </TableCell>
                         {infoCols.cemal && (
-                           <TableCell className="hidden text-center md:table-cell">
+                           <TableCell className="hidden px-0.5 text-center md:table-cell">
                               <Tooltip
                                  content={getDateTooltip(
                                     trip.cartoes.cemal,
@@ -255,7 +261,7 @@ const SeboTable = ({
                            </TableCell>
                         )}
                         {infoCols.tovn && (
-                           <TableCell className="hidden text-center md:table-cell">
+                           <TableCell className="hidden px-0.5 text-center md:table-cell">
                               <Tooltip
                                  content={getDateTooltip(
                                     trip.cartoes.tovn,
@@ -273,7 +279,7 @@ const SeboTable = ({
                            </TableCell>
                         )}
                         {infoCols.imae && (
-                           <TableCell className="hidden text-center md:table-cell">
+                           <TableCell className="hidden px-0.5 text-center md:table-cell">
                               <Tooltip
                                  content={getDateTooltip(
                                     trip.cartoes.imae,
@@ -291,7 +297,7 @@ const SeboTable = ({
                            </TableCell>
                         )}
                         {infoCols.crm && (
-                           <TableCell className="hidden text-center md:table-cell">
+                           <TableCell className="hidden px-0.5 text-center md:table-cell">
                               <Tooltip
                                  content={getDateTooltip(
                                     trip.cartoes.crm,
@@ -309,7 +315,7 @@ const SeboTable = ({
                            </TableCell>
                         )}
                         {infoCols.val_pass && (
-                           <TableCell className="hidden text-center md:table-cell">
+                           <TableCell className="hidden px-0.5 text-center md:table-cell">
                               <Tooltip
                                  content={getDateTooltip(
                                     trip.cartoes.val_pass,
@@ -329,7 +335,7 @@ const SeboTable = ({
                            </TableCell>
                         )}
                         {infoCols.val_visa && (
-                           <TableCell className="hidden text-center md:table-cell">
+                           <TableCell className="hidden px-0.5 text-center md:table-cell">
                               <Tooltip
                                  content={getDateTooltip(
                                     trip.cartoes.val_visa,
@@ -348,7 +354,7 @@ const SeboTable = ({
                               </Tooltip>
                            </TableCell>
                         )}
-                        <TableCell className="text-center font-bold text-blue-600">
+                        <TableCell className="px-0.5 text-center font-bold text-blue-600">
                            {minutesToTime(trip.voo.h_ano)}
                         </TableCell>
                      </TableRow>
