@@ -12,6 +12,7 @@ import { HiCheckCircle } from "react-icons/hi";
 import { UserPublic } from "services/routes/users";
 import { useRouter } from "next/navigation";
 import { unidadeOptions } from "@/constants/militar/unidades";
+import { formatSaram } from "@/constants/formats/saram";
 import clsx from "clsx";
 
 interface UserTableProps {
@@ -26,7 +27,7 @@ export function UserTable({ usuarios, loading }: UserTableProps) {
       <div
          className={`hidden min-h-100 overflow-x-auto md:block ${loading ? "opacity-50" : "opacity-100"} transition-opacity duration-200`}
       >
-         <Table hoverable>
+         <Table hoverable theme={{body:{cell:{base:"py-1.5"}}}}>
             <TableHead>
                <TableRow>
                   <TableHeadCell># ID</TableHeadCell>
@@ -34,6 +35,8 @@ export function UserTable({ usuarios, loading }: UserTableProps) {
                   <TableHeadCell>Especialidade</TableHeadCell>
                   <TableHeadCell>Nome de Guerra</TableHeadCell>
                   <TableHeadCell>Nome Completo</TableHeadCell>
+                  <TableHeadCell className="text-center">SARAM</TableHeadCell>
+                  <TableHeadCell className="text-center">ID</TableHeadCell>
                   <TableHeadCell className="text-center">Unidade</TableHeadCell>
                   <TableHeadCell className="text-center">Status</TableHeadCell>
                   <TableHeadCell>
@@ -56,6 +59,12 @@ export function UserTable({ usuarios, loading }: UserTableProps) {
                      </TableCell>
                      <TableCell className="text-gray-600 capitalize">
                         {user.nome_completo}
+                     </TableCell>
+                     <TableCell className="text-center font-mono text-gray-500">
+                        {formatSaram(user.saram)}
+                     </TableCell>
+                     <TableCell className="text-center font-mono text-gray-500">
+                        {user.id_fab ?? "—"}
                      </TableCell>
                      <TableCell className="text-center">
                         {unidadeOptions.find((u) => u.value === user.unidade)

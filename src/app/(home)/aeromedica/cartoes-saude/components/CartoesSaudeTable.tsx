@@ -19,7 +19,6 @@ import {
    getDateStatus,
    getStatusConfig,
    formatDate,
-   getDaysRemaining,
    getCemalStatus,
 } from "../utils/dateStatus";
 
@@ -177,6 +176,9 @@ const CartoesSaudeRow = memo(function CartoesSaudeRow({
                {item.user.posto.short} {item.user.nome_guerra}
             </p>
          </TableCell>
+         <TableCell className="px-4 py-3 font-mono whitespace-nowrap text-gray-600">
+            {item.cartao?.prontuario ?? "—"}
+         </TableCell>
          <TableCell className="px-4 py-3 whitespace-nowrap">
             <CemalCell
                cemal={item.cartao?.cemal}
@@ -259,6 +261,9 @@ export default function CartoesSaudeTable({
                      direction={sortDirection}
                      onSort={onSort}
                   />
+                  <TableHeadCell className="px-4 py-3 font-semibold">
+                     Prontuário
+                  </TableHeadCell>
                   <SortableHeader
                      label="CEMAL"
                      field="cemal"
