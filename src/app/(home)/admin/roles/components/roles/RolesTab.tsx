@@ -127,8 +127,11 @@ export default function RolesTab() {
    };
 
    const groupPermissionsByResource = (permissions: PermissionDetail[]) => {
+      const seen = new Set<number>();
       const grouped: Record<string, PermissionDetail[]> = {};
       permissions.forEach((p) => {
+         if (seen.has(p.id)) return;
+         seen.add(p.id);
          if (!grouped[p.resource]) {
             grouped[p.resource] = [];
          }

@@ -54,6 +54,8 @@ export const navItems = [
             icon: MdCalendarViewWeek,
             label: "Quadro Operacional",
             path: "/ops/quadro",
+            resource: "quadro-oper",
+            permission: "view",
          },
          {
             icon: MdAirplaneTicket,
@@ -96,6 +98,7 @@ export const navItems = [
       type: "collapse",
       icon: MdBarChart,
       label: "Estatística",
+      roles: [],
       children: [
          {
             icon: MdSort,
@@ -131,14 +134,14 @@ export const navItems = [
       type: "collapse",
       icon: MdHealthAndSafety,
       label: "Aeromédica",
-      roles: ["aeromed"],
+      roles: [],
       children: [
          {
             icon: MdMedicalServices,
             label: "Cartões de Saúde",
             path: "/aeromedica/cartoes-saude",
-            // resource: "cartoes_saude",
-            // permission: "view",
+            resource: "cartoes-saude",
+            permission: "view",
          },
       ],
    },
@@ -146,12 +149,14 @@ export const navItems = [
       type: "collapse",
       icon: MdSecurity,
       label: "Segurança de Voo",
-      roles: ["seg_voo"],
+      roles: [],
       children: [
          {
             icon: MdGroups,
             label: "CRM",
             path: "/seg-voo/crm",
+            resource: "crm",
+            permission: "view",
          },
       ],
    },
@@ -159,17 +164,21 @@ export const navItems = [
       type: "collapse",
       icon: MdSchool,
       label: "Instrução",
-      roles: ["dout_avancado", "dout_basico"],
+      roles: [],
       children: [
          {
             icon: MdTranslate,
             label: "Idiomas",
             path: "/instrucao/idiomas",
+            resource: "idiomas",
+            permission: "view",
          },
          {
             icon: GiJoystick,
             label: "Simulador",
             path: "/instrucao/simulador",
+            resource: "simulador",
+            permission: "view",
          },
       ],
    },
