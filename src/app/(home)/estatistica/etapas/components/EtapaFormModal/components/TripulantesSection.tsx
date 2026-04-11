@@ -10,8 +10,8 @@ import clsx from "clsx";
 import {
    TODAS_FUNCOES,
    FUNC_ORDER,
-   FUNC_BORDO_ORDER,
    getFuncColors,
+   getFuncLabel,
 } from "@/constants/tripulantes/funcoes";
 import type { FuncType } from "@/constants/tripulantes/funcoes";
 import type { AssignedTrip, PoolTrip } from "../types";
@@ -28,7 +28,7 @@ function DraggablePoolChip({ trip }: { trip: PoolTrip }) {
       <div
          ref={setNodeRef}
          className={clsx(
-            "flex cursor-grab items-center rounded px-3 py-1 text-sm font-semibold uppercase transition-opacity",
+            "w-fit cursor-grab items-center rounded px-3 py-1 text-center font-mono text-sm font-semibold uppercase transition-opacity",
             isDragging ? "opacity-30" : "",
             colors ? colors.badge : "bg-gray-100 text-gray-600"
          )}
@@ -74,16 +74,37 @@ export function TripulantesSection({
    handleDragStart,
    handleDragEnd,
 }: TripulantesSectionProps) {
-   const sortedPool = useMemo(() => {
-      const funcIdx = Object.fromEntries(FUNC_ORDER.map((f, i) => [f, i]));
-      return [...poolTrips].sort((a, b) => {
-         const fa = funcIdx[a.lastFunc ?? ""] ?? 99;
-         const fb = funcIdx[b.lastFunc ?? ""] ?? 99;
-         if (fa !== fb) return fa - fb;
-         const ba = FUNC_BORDO_ORDER[a.lastFuncBordo ?? ""] ?? 50;
-         const bb = FUNC_BORDO_ORDER[b.lastFuncBordo ?? ""] ?? 50;
-         return ba - bb;
+   const poolByFunc = useMemo(() => {
+      const sorted = [...poolTrips].sort((a, b) => {
+         const antDiff = (a.ant ?? 999) - (b.ant ?? 999);
+         if (antDiff !== 0) return antDiff;
+         const promoA = a.ult_promo ?? "";
+         const promoB = b.ult_promo ?? "";
+         if (promoA !== promoB) return promoA.localeCompare(promoB);
+         return (a.ant_rel ?? 0) - (b.ant_rel ?? 0);
       });
+
+      const groups = new Map<string, PoolTrip[]>();
+      for (const trip of sorted) {
+         const key = trip.lastFunc ?? "__sem_funcao__";
+         if (!groups.has(key)) groups.set(key, []);
+         groups.get(key)!.push(trip);
+      }
+
+      // Retorna na ordem de FUNC_ORDER, sem função no final
+      const ordered: { funcKey: string; trips: PoolTrip[] }[] = [];
+      for (const func of FUNC_ORDER) {
+         if (groups.has(func)) {
+            ordered.push({ funcKey: func, trips: groups.get(func)! });
+         }
+      }
+      if (groups.has("__sem_funcao__")) {
+         ordered.push({
+            funcKey: "__sem_funcao__",
+            trips: groups.get("__sem_funcao__")!,
+         });
+      }
+      return ordered;
    }, [poolTrips]);
 
    return (
@@ -97,15 +118,32 @@ export function TripulantesSection({
             onDragStart={handleDragStart}
             onDragEnd={handleDragEnd}
          >
-            {sortedPool.length > 0 && (
+            {poolByFunc.length > 0 && (
                <div className="mb-3 rounded-lg border border-dashed border-gray-300 bg-gray-50 p-2.5">
                   <p className="mb-1.5 text-xs font-medium text-gray-400 uppercase">
                      Pool da Missão — arraste para atribuir função
                   </p>
-                  <div className="flex flex-wrap gap-1.5">
-                     {sortedPool.map((trip) => (
-                        <DraggablePoolChip key={trip.tripId} trip={trip} />
-                     ))}
+                  <div className="flex flex-col gap-1.5">
+                     {poolByFunc.map(({ funcKey, trips }) => {
+                        return (
+                           <div
+                              key={funcKey}
+                              className="flex items-center gap-1.5"
+                           >
+                              <span className="w-10 shrink-0 text-center text-sm font-medium text-gray-400 uppercase">
+                                 {funcKey}
+                              </span>
+                              <div className="flex flex-wrap gap-1.5">
+                                 {trips.map((trip) => (
+                                    <DraggablePoolChip
+                                       key={trip.tripId}
+                                       trip={trip}
+                                    />
+                                 ))}
+                              </div>
+                           </div>
+                        );
+                     })}
                   </div>
                </div>
             )}

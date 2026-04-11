@@ -56,6 +56,7 @@ export function EtapasInnerTable({
                      arr={etapa.arr}
                      tvoo={etapa.tvoo}
                      anv={etapa.anv}
+                     pousos={etapa.pousos}
                      oi_etapas={etapa.oi_etapas}
                      tripulantes={etapa.tripulantes}
                      loading={loading}

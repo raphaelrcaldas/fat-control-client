@@ -39,6 +39,9 @@ export interface PoolTrip {
    pGraduacao: string;
    lastFunc?: FuncType;
    lastFuncBordo?: string;
+   ant?: number;
+   ult_promo?: string | null;
+   ant_rel?: number | null;
 }
 
 export interface AssignedTrip extends PoolTrip {

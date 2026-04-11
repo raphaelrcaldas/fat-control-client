@@ -46,6 +46,9 @@ function getMissionPool(
                pGraduacao: t.p_g,
                lastFunc: t.func as FuncType,
                lastFuncBordo: t.func_bordo,
+               ant: t.ant,
+               ult_promo: t.ult_promo,
+               ant_rel: t.ant_rel,
             });
          }
       }
@@ -158,6 +161,9 @@ export function EtapaFormModal({
             pGraduacao: t.p_g,
             func: t.func as FuncType,
             funcBordo: t.func_bordo,
+            ant: t.ant,
+            ult_promo: t.ult_promo,
+            ant_rel: t.ant_rel,
          }));
          const assignedIdSet = new Set(assigned.map((t) => t.tripId));
          setAssignedTrips(assigned);
@@ -182,6 +188,9 @@ export function EtapaFormModal({
                pGraduacao: t.p_g,
                func: t.func as FuncType,
                funcBordo: t.func_bordo,
+               ant: t.ant,
+               ult_promo: t.ult_promo,
+               ant_rel: t.ant_rel,
             })
          );
          const assignedIdSet = new Set(assigned.map((t) => t.tripId));

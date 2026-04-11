@@ -36,6 +36,7 @@ export interface EtapaRowProps {
    arr: string;
    tvoo: number;
    anv: string;
+   pousos: number;
    sagem: boolean;
    parte1: boolean;
    oi_etapas: OIEtapaItem[];
@@ -56,6 +57,7 @@ export const EtapaRow = memo(function EtapaRow({
    arr,
    tvoo,
    anv,
+   pousos,
    oi_etapas,
    tripulantes,
    sagem,
@@ -127,6 +129,9 @@ export const EtapaRow = memo(function EtapaRow({
          </TableCell>
          <TableCell className="hidden w-14 text-gray-900 sm:table-cell">
             {anv}
+         </TableCell>
+         <TableCell className="hidden w-5 font-mono text-gray-400 sm:table-cell">
+            {pousos}
          </TableCell>
          <TableCell className="hidden w-92 md:table-cell">
             {oi_etapas.length > 0 ? (

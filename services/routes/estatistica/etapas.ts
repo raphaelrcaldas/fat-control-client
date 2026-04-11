@@ -12,12 +12,7 @@ export interface EtapaItem {
    arr: string;
    tvoo: number;
    anv: string;
-   tow: number | null;
-   pax: number | null;
-   carga: number | null;
-   comb: number | null;
-   lub: number | null;
-   nivel: string | null;
+   pousos: number;
    sagem: boolean;
    parte1: boolean;
    obs: string | null;
@@ -94,6 +89,9 @@ export interface TripEtapaItem {
    p_g: string;
    func: string;
    func_bordo: string;
+   ant: number;
+   ult_promo: string | null;
+   ant_rel: number | null;
 }
 
 export interface OIEtapaItem {
@@ -106,7 +104,12 @@ export interface OIEtapaItem {
 }
 
 export interface EtapaDetail extends EtapaItem {
-   pousos: number;
+   tow: number | null;
+   pax: number | null;
+   carga: number | null;
+   comb: number | null;
+   lub: number | null;
+   nivel: string | null;
 }
 
 export async function getEtapaDetail(
