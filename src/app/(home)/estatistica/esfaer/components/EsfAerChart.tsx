@@ -9,11 +9,9 @@ import {
    TableRow,
    TableCell,
 } from "flowbite-react";
-import dynamic from "next/dynamic";
+import Chart from "react-apexcharts";
 import { minutesToTime } from "@/../utils/dateHandler";
 import { MONTH_LABELS } from "../constants";
-
-const Chart = dynamic(() => import("react-apexcharts"), { ssr: false });
 
 interface EsfAerChartProps {
    totalAlocado: number;

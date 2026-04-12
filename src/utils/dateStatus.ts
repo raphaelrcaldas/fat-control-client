@@ -5,6 +5,7 @@ import {
    MdCancel,
    MdRemoveCircleOutline,
 } from "react-icons/md";
+import { formatDateFull } from "utils/dateHandler";
 
 export type DateStatus = "valid" | "warning" | "critical" | "expired" | "empty";
 
@@ -72,9 +73,7 @@ export function getStatusConfig(status: DateStatus) {
 }
 
 export function formatDate(dateStr: string | null | undefined): string {
-   if (!dateStr) return "---";
-   const date = new Date(dateStr + "T00:00:00");
-   return date.toLocaleDateString("pt-BR");
+   return formatDateFull(dateStr) || "---";
 }
 
 export function getDaysRemaining(dateStr: string | null | undefined): string {

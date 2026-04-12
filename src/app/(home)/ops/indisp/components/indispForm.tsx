@@ -13,8 +13,6 @@ import {
    Textarea,
    TextInput,
 } from "flowbite-react";
-import { format } from "date-fns";
-
 import { indispsOptions, getIndisp } from "./options";
 import { IndispType } from "services/routes/indisps";
 import { getUserActionLogs, UserActionLog } from "services/routes/logs";
@@ -60,7 +58,7 @@ export function IndispForm({ open, setOpen, trip, indisp, readOnly = false }) {
 
    // 1. Gerenciamento de estado com useState
    const defaultValues = useMemo(() => {
-      const today = format(new Date(), "yyyy-MM-dd");
+      const today = new Date().toISOString().split("T")[0];
       return {
          mtv: indisp ? indisp.mtv : "",
          dateStart: indisp ? indisp.date_start : today,

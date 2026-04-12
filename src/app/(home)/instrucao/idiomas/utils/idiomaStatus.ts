@@ -1,4 +1,5 @@
 import type { IdiomStatus } from "../types";
+import { formatDateFull } from "utils/dateHandler";
 
 export function getDiffDays(dateStr: string): number {
    const today = new Date();
@@ -26,9 +27,7 @@ export function getDaysLabel(dateStr: string | null | undefined): string {
 }
 
 export function formatDate(dateStr: string | null | undefined): string {
-   if (!dateStr) return "—";
-   const [year, month, day] = dateStr.split("-");
-   return `${day}/${month}/${year}`;
+   return formatDateFull(dateStr) || "—";
 }
 
 export interface StatusColors {

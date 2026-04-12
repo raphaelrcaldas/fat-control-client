@@ -1,12 +1,8 @@
 "use client";
 import { useMemo, useCallback } from "react";
-import dynamic from "next/dynamic";
+import Chart from "react-apexcharts";
 import { minutesToTime } from "@/../utils/dateHandler";
 import type { SeboTripItem } from "services/routes/estatistica/sebo";
-
-const Chart = dynamic(() => import("react-apexcharts"), {
-   ssr: false,
-});
 
 interface SeboChartProps {
    data: number[];

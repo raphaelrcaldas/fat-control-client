@@ -1,17 +1,13 @@
 "use client";
 
-import { format } from "date-fns";
-import { ptBR } from "date-fns/locale";
+import { formatDateTime } from "utils/dateHandler";
 import { LogUser } from "services/routes/logs";
 
 // Formata datetime de forma segura (retorna null se inválido)
 export function formatDateTimeSafe(
    dateStr: string | null | undefined
 ): string | null {
-   if (!dateStr) return null;
-   const date = new Date(dateStr.endsWith("Z") ? dateStr : dateStr + "Z");
-   if (isNaN(date.getTime())) return null;
-   return format(date, "dd/MM/yyyy HH:mm", { locale: ptBR });
+   return formatDateTime(dateStr);
 }
 
 // Regex para detectar data ISO (YYYY-MM-DD ou YYYY-MM-DDTHH:mm:ss)

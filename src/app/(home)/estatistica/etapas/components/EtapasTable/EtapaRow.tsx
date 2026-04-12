@@ -2,8 +2,7 @@
 
 import { memo, useMemo } from "react";
 import clsx from "clsx";
-import { HiEye, HiMoon, HiPencilAlt, HiSun } from "react-icons/hi";
-import { GiOwl } from "react-icons/gi";
+import { HiEye, HiPencilAlt } from "react-icons/hi";
 import {
    FUNC_BORDO_ORDER,
    FUNC_ORDER,
@@ -21,10 +20,10 @@ import type {
 } from "services/routes/estatistica/etapas";
 import { PermBased } from "@/app/(home)/hooks/usePermBased";
 
-const REG_ICON: Record<string, { icon: typeof HiSun; color: string }> = {
-   d: { icon: HiSun, color: "text-amber-500" },
-   n: { icon: HiMoon, color: "text-indigo-500" },
-   v: { icon: GiOwl, color: "text-emerald-500" },
+const REG_COLOR: Record<string, string> = {
+   d: "text-amber-500",
+   n: "text-indigo-500",
+   v: "text-emerald-500",
 };
 
 export interface EtapaRowProps {
@@ -137,8 +136,6 @@ export const EtapaRow = memo(function EtapaRow({
             {oi_etapas.length > 0 ? (
                <ul>
                   {oi_etapas.map((oi, i) => {
-                     const reg = REG_ICON[oi.reg];
-                     const RegIcon = reg?.icon ?? HiSun;
                      return (
                         <li
                            key={`${oi.esf_aer_id}-${oi.tipo_missao_id}-${oi.reg}`}
@@ -152,8 +149,8 @@ export const EtapaRow = memo(function EtapaRow({
                                  oi.esf_aer.includes("COMAE")
                                     ? "text-blue-700"
                                     : oi.esf_aer.includes("COMPREP")
-                                      ? "text-amber-700"
-                                      : "text-gray-600"
+                                       ? "text-amber-700"
+                                       : "text-gray-600"
                               )}
                            >
                               {oi.esf_aer}
@@ -162,16 +159,10 @@ export const EtapaRow = memo(function EtapaRow({
                            <span
                               className={clsx(
                                  "flex items-center justify-center gap-0.5 font-mono",
-                                 reg?.color ?? "text-gray-500"
+                                 REG_COLOR[oi.reg] ?? "text-gray-500"
                               )}
                            >
                               {minutesToTime(oi.tvoo)}
-                              <RegIcon
-                                 className={clsx(
-                                    "h-3 w-3 shrink-0",
-                                    reg?.color ?? "text-gray-500"
-                                 )}
-                              />
                            </span>
                            <span className="text-gray-300">|</span>
                            <span className="font-mono uppercase">

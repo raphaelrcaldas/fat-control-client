@@ -41,6 +41,21 @@ const createCustomIcon = () => {
    });
 };
 
+// --- HELPER COMPONENT: Corrige tamanho do mapa após mount ---
+const MapResizer = () => {
+   const map = useMap();
+
+   useEffect(() => {
+      const timer = setTimeout(() => {
+         map.invalidateSize();
+      }, 100);
+
+      return () => clearTimeout(timer);
+   }, [map]);
+
+   return null;
+};
+
 // --- HELPER COMPONENT: Controlador de Voo ---
 const FlyToLocation = ({
    target,
@@ -151,13 +166,14 @@ export default function AerodromoMap({
    return (
       <div className="absolute inset-0 z-0 h-full w-full">
          <MapContainer
-            // @ts-expect-error - MapContainer props typing issue
             center={DEFAULT_CENTER}
             zoom={DEFAULT_ZOOM}
             style={{ height: "100%", width: "100%" }}
             scrollWheelZoom={true}
          >
             <TileLayer key={selectedMapType} url={currentMap.url} />
+
+            <MapResizer />
 
             <FlyToLocation
                target={selectedAero}
@@ -181,7 +197,6 @@ export default function AerodromoMap({
                   <Marker
                      key={aero.id}
                      position={[aero.latitude, aero.longitude]}
-                     // @ts-expect-error - Marker icon prop typing issue
                      icon={createCustomIcon()}
                   >
                      <Popup>
@@ -206,7 +221,7 @@ export default function AerodromoMap({
 
          {/* Controle de Seleção de Mapa */}
          <div
-            className="absolute top-4 left-1/2 z-[500] -translate-x-1/2"
+            className="absolute top-4 left-1/2 z-500 -translate-x-1/2"
             ref={dropdownRef}
          >
             <div className="relative">
@@ -224,7 +239,7 @@ export default function AerodromoMap({
 
                {/* Dropdown com opções de mapas */}
                {showMapSelector && (
-                  <div className="absolute top-full left-1/2 mt-2 min-w-[180px] -translate-x-1/2 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-xl">
+                  <div className="absolute top-full left-1/2 mt-2 min-w-45 -translate-x-1/2 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-xl">
                      {(Object.keys(mapTypes) as MapType[]).map((type) => (
                         <button
                            key={type}
