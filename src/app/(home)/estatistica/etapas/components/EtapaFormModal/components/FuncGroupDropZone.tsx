@@ -90,10 +90,7 @@ export function FuncGroupDropZone({
    return (
       <div
          ref={setNodeRef}
-         className={clsx(
-            "flex min-h-20 flex-col rounded-lg border transition-colors",
-            zoneClass
-         )}
+         className={clsx("flex min-h-20 flex-col rounded-lg border", zoneClass)}
       >
          <div
             className={clsx(

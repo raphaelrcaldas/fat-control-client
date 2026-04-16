@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { DndContext, DragOverlay } from "@dnd-kit/core";
+import { DndContext, DragOverlay, pointerWithin } from "@dnd-kit/core";
 import type {
    DragStartEvent,
    DragEndEvent,
@@ -115,6 +115,7 @@ export function TripulantesSection({
 
          <DndContext
             sensors={sensors}
+            collisionDetection={pointerWithin}
             onDragStart={handleDragStart}
             onDragEnd={handleDragEnd}
          >

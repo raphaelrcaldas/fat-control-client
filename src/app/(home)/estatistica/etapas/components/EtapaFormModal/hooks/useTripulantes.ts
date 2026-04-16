@@ -28,6 +28,10 @@ export function useTripulantes() {
                nomeGuerra: t.nomeGuerra,
                pGraduacao: t.pGraduacao,
                lastFunc: t.func,
+               lastFuncBordo: t.funcBordo,
+               ant: t.ant,
+               ult_promo: t.ult_promo,
+               ant_rel: t.ant_rel,
             })),
          ]);
          return prev.filter((t) => t.func !== func);
@@ -47,6 +51,9 @@ export function useTripulantes() {
             pGraduacao: trip.pGraduacao,
             lastFunc: trip.func,
             lastFuncBordo: trip.funcBordo,
+            ant: trip.ant,
+            ult_promo: trip.ult_promo,
+            ant_rel: trip.ant_rel,
          },
       ]);
    }
