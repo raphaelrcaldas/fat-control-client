@@ -17,7 +17,7 @@ import {
    TextInput,
    Spinner,
 } from "flowbite-react";
-import { FaPlus, FaPenToSquare, FaTrashCan } from "react-icons/fa6";
+import { FaPlus, FaPenToSquare, FaTrashCan, FaMagnifyingGlass, FaDatabase } from "react-icons/fa6";
 import { useToast } from "@/app/context/toast";
 import {
    useResources,
@@ -66,6 +66,7 @@ export default function ResourcesTab() {
       description: "",
    });
    const [formErrors, setFormErrors] = useState<FormErrors>({});
+   const [searchTerm, setSearchTerm] = useState("");
 
    // Handlers
    const handleOpenCreateModal = () => {
@@ -238,81 +239,114 @@ export default function ResourcesTab() {
       );
    }
 
+   // Filtered resources
+   const filteredResources = resources.filter((resource) => {
+      const searchLower = searchTerm.toLowerCase();
+      return (
+         resource.name.toLowerCase().includes(searchLower) ||
+         resource.description?.toLowerCase().includes(searchLower) ||
+         resource.id.toString() === searchLower
+      );
+   });
+
    return (
       <div className="space-y-4">
-         {/* Header with Create Button */}
-         <div className="flex items-center justify-between">
+         {/* Header with Search and Create Button */}
+         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
                Recursos
             </h2>
-            <Button color="blue" onClick={handleOpenCreateModal}>
-               <FaPlus className="mr-2 h-4 w-4" />
-               Novo Recurso
-            </Button>
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+               <TextInput
+                  id="search"
+                  type="text"
+                  icon={FaMagnifyingGlass}
+                  placeholder="Buscar recursos..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full sm:w-64"
+               />
+               <Button color="blue" onClick={handleOpenCreateModal} className="w-full sm:w-auto">
+                  <FaPlus className="mr-2 h-4 w-4" />
+                  Novo Recurso
+               </Button>
+            </div>
          </div>
 
          {/* Resources Table */}
-         <div className="overflow-x-auto">
-            <Table>
-               <TableHead>
-                  <TableRow>
-                     <TableHeadCell>ID</TableHeadCell>
-                     <TableHeadCell>Nome</TableHeadCell>
-                     <TableHeadCell>Descrição</TableHeadCell>
-                     <TableHeadCell>
-                        <span className="sr-only">Ações</span>
-                     </TableHeadCell>
-                  </TableRow>
-               </TableHead>
-               <TableBody className="divide-y">
-                  {resources.length === 0 ? (
+         <div className="overflow-hidden rounded-lg border border-gray-200 shadow-sm dark:border-gray-700">
+            <div className="overflow-x-auto">
+               <Table hoverable>
+                  <TableHead className="bg-gray-50 dark:bg-gray-700">
                      <TableRow>
-                        <TableCell colSpan={4} className="py-8 text-center">
-                           <p className="text-gray-500 dark:text-gray-400">
-                              Nenhum recurso cadastrado
-                           </p>
-                        </TableCell>
+                        <TableHeadCell className="w-20">ID</TableHeadCell>
+                        <TableHeadCell>Nome</TableHeadCell>
+                        <TableHeadCell>Descrição</TableHeadCell>
+                        <TableHeadCell className="text-right">
+                           Ações
+                        </TableHeadCell>
                      </TableRow>
-                  ) : (
-                     resources.map((resource) => (
-                        <TableRow
-                           key={resource.id}
-                           className="bg-white dark:border-gray-700 dark:bg-gray-800"
-                        >
-                           <TableCell className="font-medium whitespace-nowrap text-gray-900 dark:text-white">
-                              {resource.id}
-                           </TableCell>
-                           <TableCell>{resource.name}</TableCell>
-                           <TableCell>{resource.description}</TableCell>
-                           <TableCell>
-                              <div className="flex items-center gap-2">
-                                 <Button
-                                    color="light"
-                                    size="sm"
-                                    onClick={() =>
-                                       handleOpenEditModal(resource)
-                                    }
-                                    title="Editar"
-                                 >
-                                    <FaPenToSquare className="h-4 w-4" />
-                                 </Button>
-                                 <Button
-                                    color="red"
-                                    size="sm"
-                                    onClick={() =>
-                                       handleOpenDeleteModal(resource.id)
-                                    }
-                                    title="Excluir"
-                                 >
-                                    <FaTrashCan className="h-4 w-4" />
-                                 </Button>
+                  </TableHead>
+                  <TableBody className="divide-y">
+                     {filteredResources.length === 0 ? (
+                        <TableRow>
+                           <TableCell colSpan={4} className="py-12 text-center">
+                              <div className="flex flex-col items-center justify-center text-gray-500 dark:text-gray-400">
+                                 <FaDatabase className="mb-3 h-10 w-10 opacity-40" />
+                                 <p className="text-lg font-medium">Nenhum recurso encontrado</p>
+                                 {searchTerm && (
+                                    <p className="mt-1 text-sm">
+                                       Não encontramos resultados para "{searchTerm}".
+                                    </p>
+                                 )}
                               </div>
                            </TableCell>
                         </TableRow>
-                     ))
-                  )}
-               </TableBody>
-            </Table>
+                     ) : (
+                        filteredResources.map((resource) => (
+                           <TableRow
+                              key={resource.id}
+                              className="bg-white dark:border-gray-800 dark:bg-gray-900"
+                           >
+                              <TableCell className="font-medium text-gray-900 dark:text-white">
+                                 #{resource.id}
+                              </TableCell>
+                              <TableCell className="font-semibold text-gray-900 dark:text-white">{resource.name}</TableCell>
+                              <TableCell className="text-gray-500 dark:text-gray-400">
+                                 {resource.description || "-"}
+                              </TableCell>
+                              <TableCell>
+                                 <div className="flex items-center justify-end gap-2">
+                                    <Button
+                                       color="light"
+                                       size="sm"
+                                       onClick={() =>
+                                          handleOpenEditModal(resource)
+                                       }
+                                       title="Editar"
+                                       className="focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-800"
+                                    >
+                                       <FaPenToSquare className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                                    </Button>
+                                    <Button
+                                       color="light"
+                                       size="sm"
+                                       onClick={() =>
+                                          handleOpenDeleteModal(resource.id)
+                                       }
+                                       title="Excluir"
+                                       className="focus:ring-2 focus:ring-red-300 dark:focus:ring-red-800"
+                                    >
+                                       <FaTrashCan className="h-4 w-4 text-red-600 dark:text-red-400" />
+                                    </Button>
+                                 </div>
+                              </TableCell>
+                           </TableRow>
+                        ))
+                     )}
+                  </TableBody>
+               </Table>
+            </div>
          </div>
 
          {/* Create/Edit Modal */}

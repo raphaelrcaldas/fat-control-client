@@ -31,7 +31,7 @@ import {
    TextInput,
 } from "flowbite-react";
 import { useMemo, useState } from "react";
-import { FaFilter, FaPenToSquare, FaPlus, FaTrashCan } from "react-icons/fa6";
+import { FaFilter, FaPenToSquare, FaPlus, FaTrashCan, FaMagnifyingGlass, FaKey } from "react-icons/fa6";
 
 interface PermissionFormData {
    resource_id: number | "";
@@ -72,14 +72,20 @@ export default function PermissionsTab() {
       Partial<Record<keyof PermissionFormData, string>>
    >({});
    const [resourceFilter, setResourceFilter] = useState<string>("all");
+   const [searchTerm, setSearchTerm] = useState("");
 
-   // Filtered permissions based on resource filter
+   // Filtered permissions based on resource filter and search
    const filteredPermissions = useMemo(() => {
-      if (resourceFilter === "all") {
-         return permissions;
-      }
-      return permissions.filter((p) => p.resource === resourceFilter);
-   }, [permissions, resourceFilter]);
+      return permissions.filter((p) => {
+         const matchesResource = resourceFilter === "all" || p.resource === resourceFilter;
+         const searchLower = searchTerm.toLowerCase();
+         const matchesSearch = 
+            p.action.toLowerCase().includes(searchLower) ||
+            p.description?.toLowerCase().includes(searchLower) ||
+            p.resource.toLowerCase().includes(searchLower);
+         return matchesResource && matchesSearch;
+      });
+   }, [permissions, resourceFilter, searchTerm]);
 
    // Handlers
    const handleOpenCreateModal = () => {
@@ -215,15 +221,26 @@ export default function PermissionsTab() {
 
    return (
       <div className="space-y-4">
-         {/* Header with filter and create button */}
-         <div className="flex items-center justify-between gap-4">
-            <div className="flex items-center gap-2">
-               <FaFilter className="text-gray-500" />
+         {/* Header with Search, Filter and Create Button */}
+         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+               Permissões
+            </h2>
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+               <TextInput
+                  id="search"
+                  type="text"
+                  icon={FaMagnifyingGlass}
+                  placeholder="Buscar permissões..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full sm:w-48"
+               />
                <Select
                   id="resource-filter"
                   value={resourceFilter}
                   onChange={(e) => setResourceFilter(e.target.value)}
-                  className="w-64"
+                  className="w-full sm:w-48"
                >
                   <option value="all">Todos os recursos</option>
                   {resources.map((resource) => (
@@ -232,72 +249,85 @@ export default function PermissionsTab() {
                      </option>
                   ))}
                </Select>
+               <Button color="blue" onClick={handleOpenCreateModal} className="w-full sm:w-auto">
+                  <FaPlus className="mr-2 h-4 w-4" />
+                  Nova Permissão
+               </Button>
             </div>
-
-            <Button color="red" onClick={handleOpenCreateModal}>
-               <FaPlus className="mr-2" />
-               Nova Permissão
-            </Button>
          </div>
 
          {/* Permissions table */}
-         <div className="overflow-x-auto">
-            <Table hoverable>
-               <TableHead>
-                  <TableRow>
-                     <TableHeadCell>Recurso</TableHeadCell>
-                     <TableHeadCell>Ação</TableHeadCell>
-                     <TableHeadCell>Descrição</TableHeadCell>
-                     <TableHeadCell>
-                        <span className="sr-only">Ações</span>
-                     </TableHeadCell>
-                  </TableRow>
-               </TableHead>
-               <TableBody className="divide-y">
-                  {filteredPermissions.length === 0 ? (
+         <div className="overflow-hidden rounded-lg border border-gray-200 shadow-sm dark:border-gray-700">
+            <div className="overflow-x-auto">
+               <Table hoverable>
+                  <TableHead className="bg-gray-50 dark:bg-gray-700">
                      <TableRow>
-                        <TableCell
-                           colSpan={4}
-                           className="text-center text-gray-500"
-                        >
-                           Nenhuma permissão encontrada
-                        </TableCell>
+                        <TableHeadCell>Recurso</TableHeadCell>
+                        <TableHeadCell>Ação</TableHeadCell>
+                        <TableHeadCell>Descrição</TableHeadCell>
+                        <TableHeadCell className="text-right">
+                           Ações
+                        </TableHeadCell>
                      </TableRow>
-                  ) : (
-                     filteredPermissions.map((permission) => (
-                        <TableRow key={permission.id}>
-                           <TableCell className="font-medium">
-                              {permission.resource}
-                           </TableCell>
-                           <TableCell>{permission.action}</TableCell>
-                           <TableCell>{permission.description}</TableCell>
-                           <TableCell>
-                              <div className="flex items-center gap-2">
-                                 <Button
-                                    size="sm"
-                                    color="gray"
-                                    onClick={() =>
-                                       handleOpenEditModal(permission)
-                                    }
-                                 >
-                                    <FaPenToSquare />
-                                 </Button>
-                                 <Button
-                                    size="sm"
-                                    color="red"
-                                    onClick={() =>
-                                       handleOpenDeleteModal(permission)
-                                    }
-                                 >
-                                    <FaTrashCan />
-                                 </Button>
+                  </TableHead>
+                  <TableBody className="divide-y">
+                     {filteredPermissions.length === 0 ? (
+                        <TableRow>
+                           <TableCell colSpan={4} className="py-12 text-center">
+                              <div className="flex flex-col items-center justify-center text-gray-500 dark:text-gray-400">
+                                 <FaKey className="mb-3 h-10 w-10 opacity-40" />
+                                 <p className="text-lg font-medium">Nenhuma permissão encontrada</p>
+                                 {(searchTerm || resourceFilter !== "all") && (
+                                    <p className="mt-1 text-sm">
+                                       Nenhum resultado corresponde à sua busca ou filtro.
+                                    </p>
+                                 )}
                               </div>
                            </TableCell>
                         </TableRow>
-                     ))
-                  )}
-               </TableBody>
-            </Table>
+                     ) : (
+                        filteredPermissions.map((permission) => (
+                           <TableRow
+                              key={permission.id}
+                              className="bg-white dark:border-gray-800 dark:bg-gray-900"
+                           >
+                              <TableCell className="font-medium text-gray-900 dark:text-white">
+                                 {permission.resource}
+                              </TableCell>
+                              <TableCell className="font-semibold text-gray-900 dark:text-white">
+                                 {permission.action}
+                              </TableCell>
+                              <TableCell className="text-gray-500 dark:text-gray-400">
+                                 {permission.description || "-"}
+                              </TableCell>
+                              <TableCell>
+                                 <div className="flex items-center justify-end gap-2">
+                                    <Button
+                                       color="light"
+                                       size="sm"
+                                       onClick={() => handleOpenEditModal(permission)}
+                                       title="Editar"
+                                       className="focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-800"
+                                    >
+                                       <FaPenToSquare className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                                    </Button>
+                                    <Button
+                                       color="light"
+                                       size="sm"
+                                       onClick={() => handleOpenDeleteModal(permission)}
+                                       title="Excluir"
+                                       className="focus:ring-2 focus:ring-red-300 dark:focus:ring-red-800"
+                                    >
+                                       <FaTrashCan className="h-4 w-4 text-red-600 dark:text-red-400" />
+                                    </Button>
+                                 </div>
+                              </TableCell>
+                           </TableRow>
+                        ))
+                     )}
+                  </TableBody>
+               </Table>
+            </div>
          </div>
 
          {/* Create/Edit Modal */}
@@ -394,7 +424,7 @@ export default function PermissionsTab() {
                </ModalBody>
                <ModalFooter>
                   <Button
-                     color="red"
+                     color="blue"
                      type="submit"
                      disabled={
                         createMutation.isPending || updateMutation.isPending
@@ -403,7 +433,6 @@ export default function PermissionsTab() {
                      {createMutation.isPending || updateMutation.isPending ? (
                         <>
                            <Spinner
-                              color="failure"
                               size="sm"
                               className="mr-2"
                            />
