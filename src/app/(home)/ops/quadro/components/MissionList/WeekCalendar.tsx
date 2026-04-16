@@ -254,7 +254,7 @@ export default function WeekCalendar({
 
          {/* Calendário */}
          <div
-            className={`overflow-x-auto rounded-xl bg-white shadow-lg transition-opacity duration-200 ${isFetching ? "opacity-50" : ""}`}
+            className={`relative overflow-x-auto rounded-xl bg-white shadow-lg transition-opacity duration-200 ${isFetching && !isLoading ? "opacity-50" : ""}`}
          >
             <table className="w-full table-fixed border-collapse">
                <thead>
@@ -380,8 +380,8 @@ export default function WeekCalendar({
             </table>
 
             {isLoading && ordens.length === 0 && (
-               <div className="flex items-center justify-center py-12">
-                  <Spinner color="failure" size="lg" />
+               <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/50 backdrop-blur-sm py-12">
+                  <Spinner color="failure" size="xl" />
                </div>
             )}
          </div>
