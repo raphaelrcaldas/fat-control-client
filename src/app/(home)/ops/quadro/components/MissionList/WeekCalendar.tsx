@@ -135,7 +135,7 @@ function AeronaveCell({
       <div className="flex min-h-38 flex-col justify-start gap-0.5 p-1">
          {info && infoStatus && (
             <div
-               className={`truncate rounded border px-1 py-0.5 text-center font-mono text-sm font-medium ${infoStatus.bg} ${infoStatus.text} ${infoStatus.border}`}
+               className={`truncate rounded-lg border-white/40 px-1.5 py-1 text-center font-mono text-sm font-semibold shadow-sm backdrop-blur-sm transition-all ${infoStatus.bg} ${infoStatus.text} ${infoStatus.border}`}
             >
                {info.localidade}
             </div>
@@ -148,7 +148,7 @@ function AeronaveCell({
             return (
                <div
                   key={`${etapa.omId}-${idx}`}
-                  className={`cursor-pointer truncate rounded border px-1 py-0.5 text-center font-mono text-sm font-medium transition-opacity hover:opacity-80 ${statusCfg.bg} ${statusCfg.text} ${statusCfg.border}`}
+                  className={`cursor-pointer truncate rounded-md border-white/50 px-1.5 py-1 text-center font-mono text-sm font-semibold shadow-sm backdrop-blur-sm transition-all hover:-translate-y-0.5 hover:shadow-md hover:brightness-110 ${statusCfg.bg} ${statusCfg.text} ${statusCfg.border}`}
                   title={`OM ${etapa.omNumero} — ${etapa.omTipo}`}
                   onClick={() => router.push(`/ops/om/${etapa.omId}`)}
                >
@@ -212,21 +212,21 @@ export default function WeekCalendar({
    return (
       <div className="min-h-screen text-gray-900">
          {/* Header com navegação */}
-         <div className="mb-3">
-            <div className="flex flex-col items-center gap-2">
-               <div className="flex w-full items-center justify-between">
-                  <h1 className="text-lg font-black tracking-wider text-gray-800 md:text-xl">
+         <div className="mb-4">
+            <div className="flex flex-col items-center gap-3">
+               <div className="flex w-full items-center justify-between px-1">
+                  <h1 className="text-xl font-bold tracking-tight text-slate-800 md:text-2xl">
                      QUADRO DE OPERAÇÕES
                   </h1>
                </div>
                <div className="flex items-center gap-2">
                   <button
                      onClick={() => onNavigateWeek(-1)}
-                     className="rounded-lg border border-gray-300 bg-white px-2 py-1 font-medium hover:bg-gray-50"
+                     className="rounded-lg bg-white/60 px-3 py-1.5 text-sm font-semibold text-slate-600 shadow-sm backdrop-blur-sm transition-all hover:bg-white/90 hover:text-slate-800 hover:shadow"
                   >
                      ← Anterior
                   </button>
-                  <span className="flex min-w-35 items-center justify-center gap-2 px-2 text-center text-gray-600">
+                  <span className="flex min-w-[140px] items-center justify-center gap-2 px-2 text-center text-sm font-bold text-slate-700">
                      {isFetching && <Spinner color="failure" size="xs" />}
                      {weekDays[0].toLocaleDateString("pt-BR", {
                         day: "2-digit",
@@ -244,7 +244,7 @@ export default function WeekCalendar({
                   </span>
                   <button
                      onClick={() => onNavigateWeek(1)}
-                     className="rounded-lg border border-gray-300 bg-white px-2 py-1 font-medium hover:bg-gray-50"
+                     className="rounded-lg bg-white/60 px-3 py-1.5 text-sm font-semibold text-slate-600 shadow-sm backdrop-blur-sm transition-all hover:bg-white/90 hover:text-slate-800 hover:shadow"
                   >
                      Próxima →
                   </button>
@@ -254,12 +254,12 @@ export default function WeekCalendar({
 
          {/* Calendário */}
          <div
-            className={`relative overflow-x-auto rounded-xl bg-white shadow-lg transition-opacity duration-200 ${isFetching && !isLoading ? "opacity-50" : ""}`}
+            className={`relative overflow-x-auto rounded-xl border border-white/60 bg-white/50 shadow-sm backdrop-blur-md transition-opacity duration-200 ${isFetching && !isLoading ? "opacity-50" : ""}`}
          >
             <table className="w-full table-fixed border-collapse">
                <thead>
-                  <tr className="bg-gray-50">
-                     <th className="w-28 border-r border-b border-gray-200 bg-white p-1 text-left text-[10px] font-bold text-gray-600 uppercase"></th>
+                  <tr className="bg-white/30">
+                     <th className="w-28 border-b border-r border-slate-200/60 bg-white/30 p-1 text-left text-[10px] font-bold uppercase text-slate-500"></th>
                      {weekDays.map((day, idx) => {
                         const dateStr = toLocalDateStr(day);
                         const isToday = dateStr === today;
@@ -268,15 +268,13 @@ export default function WeekCalendar({
                         return (
                            <th
                               key={idx}
-                              className={`border-r border-b border-gray-200 p-1 text-center ${
-                                 isToday ? "bg-blue-50" : "bg-white"
-                                 //   ? "bg-gray-100"
-                                 //   : ""
+                              className={`border-b border-r border-slate-200/60 p-1 text-center ${
+                                 isToday ? "bg-blue-50/60" : "bg-transparent"
                               }`}
                            >
                               <div
-                                 className={`text-[8px] uppercase ${
-                                    isToday ? "text-blue-600" : "text-gray-500"
+                                 className={`text-[9px] font-semibold uppercase tracking-wider ${
+                                    isToday ? "text-blue-700" : "text-slate-500"
                                  }`}
                               >
                                  {day.toLocaleDateString("pt-BR", {
@@ -284,8 +282,8 @@ export default function WeekCalendar({
                                  })}
                               </div>
                               <div
-                                 className={`text-sm font-bold ${
-                                    isToday ? "text-blue-600" : "text-gray-700"
+                                 className={`text-lg font-bold ${
+                                    isToday ? "text-blue-700" : "text-slate-700"
                                  }`}
                               >
                                  {day.getDate()}
@@ -297,13 +295,13 @@ export default function WeekCalendar({
                </thead>
                <tbody>
                   {aeronaves.map((anv) => (
-                     <tr key={anv.matricula} className="hover:bg-gray-50/50">
-                        <td className="border-r border-b border-gray-200 p-1 text-center">
+                     <tr key={anv.matricula} className="transition-colors hover:bg-white/40">
+                        <td className="border-b border-r border-slate-200/60 p-1 text-center">
                            <div
                               className={clsx(
-                                 "flex flex-col items-center justify-center gap-1.5",
+                                 "flex flex-col items-center justify-center gap-1.5 p-1",
                                  canEditAeronave &&
-                                    "cursor-pointer rounded transition-colors hover:bg-gray-100"
+                                    "cursor-pointer rounded-lg transition-colors hover:bg-white/60 hover:shadow-sm"
                               )}
                               onClick={
                                  canEditAeronave
@@ -314,18 +312,18 @@ export default function WeekCalendar({
                                  canEditAeronave ? "Editar aeronave" : undefined
                               }
                            >
-                              <span className="text-sm font-bold text-gray-700">
+                              <span className="text-sm font-bold tracking-tight text-slate-700">
                                  {anv.matricula}
                               </span>
                               <span
                                  className={clsx(
-                                    "rounded px-2 py-0.5 text-center text-sm font-bold text-white",
-                                    SIT_COLORS[anv.sit] ?? "bg-gray-300"
+                                    "rounded-md px-2 py-0.5 text-center text-[11px] font-bold tracking-wider text-white shadow-sm",
+                                    SIT_COLORS[anv.sit] ?? "bg-slate-300"
                                  )}
                               >
                                  {anv.sit}
                               </span>
-                              <div className="text-xs whitespace-pre-line">
+                              <div className="text-xs font-medium text-slate-500 whitespace-pre-line">
                                  {anv.obs}
                               </div>
                            </div>
@@ -336,8 +334,8 @@ export default function WeekCalendar({
                            return (
                               <td
                                  key={idx}
-                                 className={`border-r border-b border-gray-200 align-top ${
-                                    isWeekend ? "bg-red-100/40" : ""
+                                 className={`border-b border-r border-slate-200/60 align-top ${
+                                    isWeekend ? "bg-red-50/30" : "bg-transparent"
                                  }`}
                               >
                                  <AeronaveCell

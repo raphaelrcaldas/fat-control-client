@@ -97,11 +97,11 @@ export const EtapaRow = memo(function EtapaRow({
    return (
       <TableRow
          className={clsx(
-            "bg-white",
+            "bg-transparent transition-all duration-200 hover:bg-white/40",
             loading && "opacity-50",
             !sagem
-               ? "bg-amber-50 hover:bg-amber-100"
-               : !parte1 && "bg-green-50 hover:bg-green-100"
+               ? "bg-amber-50/50 hover:bg-amber-100/60"
+               : !parte1 && "bg-emerald-50/50 hover:bg-emerald-100/60"
          )}
       >
          <TableCell className="w-10">
@@ -112,24 +112,24 @@ export const EtapaRow = memo(function EtapaRow({
                className="cursor-pointer"
             />
          </TableCell>
-         <TableCell className="w-20 font-mono text-gray-500">
+         <TableCell className="w-20 font-mono text-slate-500">
             {isoDateToString(data)}
          </TableCell>
-         <TableCell className="w-14 font-mono font-medium text-gray-800 uppercase">
+         <TableCell className="w-14 font-mono font-bold text-slate-800 uppercase">
             {origem}
          </TableCell>
-         <TableCell className="w-14 font-mono font-medium text-gray-800 uppercase">
+         <TableCell className="w-14 font-mono font-bold text-slate-800 uppercase">
             {destino}
          </TableCell>
-         <TableCell className="w-14 font-mono">{formatTime(dep)}</TableCell>
-         <TableCell className="w-14 font-mono">{formatTime(arr)}</TableCell>
-         <TableCell className="w-14 font-mono font-semibold text-slate-800">
+         <TableCell className="w-14 font-mono text-slate-600">{formatTime(dep)}</TableCell>
+         <TableCell className="w-14 font-mono text-slate-600">{formatTime(arr)}</TableCell>
+         <TableCell className="w-14 font-mono font-bold text-slate-800">
             {minutesToTime(tvoo)}
          </TableCell>
-         <TableCell className="hidden w-14 text-gray-900 sm:table-cell">
+         <TableCell className="hidden w-14 font-medium text-slate-700 sm:table-cell">
             {anv}
          </TableCell>
-         <TableCell className="hidden w-5 font-mono text-gray-400 sm:table-cell">
+         <TableCell className="hidden w-5 font-mono text-slate-400 sm:table-cell">
             {pousos}
          </TableCell>
          <TableCell className="hidden w-92 md:table-cell">
@@ -189,7 +189,7 @@ export const EtapaRow = memo(function EtapaRow({
             <div className="flex items-center gap-0.5">
                <button
                   onClick={() => onDetailEtapa(id)}
-                  className="rounded-md p-1.5 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-700"
+                  className="rounded-lg p-2 text-slate-400 transition-all hover:bg-white/60 hover:text-indigo-600 hover:shadow-sm"
                   title="Detalhes da etapa"
                >
                   <HiEye className="h-4 w-4" />
@@ -197,7 +197,7 @@ export const EtapaRow = memo(function EtapaRow({
                <PermBased resource="etp_mis" requiredPerm="create">
                   <button
                      onClick={() => onEditEtapa(id)}
-                     className="rounded-md p-1.5 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-700"
+                     className="rounded-lg p-2 text-slate-400 transition-all hover:bg-white/60 hover:text-emerald-600 hover:shadow-sm"
                      title="Editar etapa"
                   >
                      <HiPencilAlt className="h-4 w-4" />
