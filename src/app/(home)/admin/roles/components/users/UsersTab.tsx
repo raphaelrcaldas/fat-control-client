@@ -8,6 +8,8 @@ import { devLogin as devLoginApi } from "services/routes/auth";
 import { setCookie } from "cookies-next";
 import { useToast } from "@/app/context/toast";
 import useDebouncedValue from "@/hooks/useDebouncedValue";
+import { ConfirmModal } from "@/components/ui/ConfirmModal";
+import { FaArrowRightToBracket } from "react-icons/fa6";
 
 interface UsersTabProps {
    userRoles: UserWithRole[];
@@ -23,6 +25,19 @@ export const UsersTab = memo(function UsersTab({
    const [filterName, setFilterName] = useState("");
    const [isUpdating, setIsUpdating] = useState(false);
    const [showAddModal, setShowAddModal] = useState(false);
+
+   const [showDelModal, setShowDelModal] = useState(false);
+   const [isDeleting, setIsDeleting] = useState(false);
+   const [deletingUserRole, setDeletingUserRole] = useState<{
+      userId: number;
+      roleId: number;
+      userName: string;
+   } | null>(null);
+
+   const [showLoginModal, setShowLoginModal] = useState(false);
+   const [loginUserId, setLoginUserId] = useState<number | null>(null);
+   const [isLoggingIn, setIsLoggingIn] = useState(false);
+
    const debouncedFilter = useDebouncedValue(filterName, 400);
    const { push } = useToast();
 
@@ -63,78 +78,78 @@ export const UsersTab = memo(function UsersTab({
                push({ type: "error", message: result.message });
             }
          } catch (error) {
+            console.error("updateUserRole failed", error);
             push({ type: "error", message: "Erro ao atualizar perfil" });
          }
       },
       [push, updateUserRoles]
    );
 
-   const delUserRole = useCallback(
-      async (userId: number, roleId: number, userName: string) => {
-         const confirmDel = window.confirm(
-            `Tem certeza que deseja remover o perfil de ${userName.toUpperCase()}?`
-         );
+   const delUserRole = useCallback(async () => {
+      if (!deletingUserRole) return;
 
-         if (confirmDel) {
-            try {
-               const result = await deleteUserRole(roleId, userId);
-               if (result.ok) {
-                  push({ type: "success", message: result.message });
-                  updateUserRoles();
-               } else {
-                  push({ type: "error", message: result.message });
-               }
-            } catch (error) {
-               push({ type: "error", message: "Erro ao deletar perfil" });
-            }
+      const { userId, roleId } = deletingUserRole;
+      setIsDeleting(true);
+      try {
+         const result = await deleteUserRole(roleId, userId);
+         if (result.ok) {
+            push({ type: "success", message: result.message });
+            setShowDelModal(false);
+            setDeletingUserRole(null);
+            await updateUserRoles();
+         } else {
+            push({ type: "error", message: result.message });
          }
-      },
-      [push, updateUserRoles]
-   );
+      } catch (error) {
+         console.error("deleteUserRole failed", error);
+         push({ type: "error", message: "Erro ao deletar perfil" });
+      } finally {
+         setIsDeleting(false);
+      }
+   }, [deletingUserRole, push, updateUserRoles]);
 
-   const devLogin = useCallback(
-      async (userId: number) => {
-         const confirmLogin = window.confirm(`Fazer login como este usuário?`);
+   const devLogin = useCallback(async () => {
+      if (!loginUserId) return;
 
-         if (!confirmLogin) return;
+      setIsLoggingIn(true);
+      try {
+         const result = await devLoginApi(loginUserId);
 
-         try {
-            const result = await devLoginApi(userId);
-
-            if (!result.ok) {
-               push({
-                  type: "error",
-                  message: result.message || "Erro ao fazer login",
-               });
-               return;
-            }
-
-            if (result.data?.access_token) {
-               setCookie("token", result.data.access_token, {
-                  maxAge: 24 * 60 * 60,
-               });
-
-               push({
-                  type: "success",
-                  message: "Login realizado com sucesso!",
-               });
-
-               window.location.href = "/";
-            } else {
-               push({
-                  type: "error",
-                  message: "Token não recebido do servidor",
-               });
-            }
-         } catch (error) {
+         if (!result.ok) {
             push({
                type: "error",
-               message: "Erro ao fazer login como usuário",
+               message: result.message || "Erro ao fazer login",
+            });
+            return;
+         }
+
+         if (result.data?.access_token) {
+            setCookie("token", result.data.access_token, {
+               maxAge: 24 * 60 * 60,
+            });
+
+            push({
+               type: "success",
+               message: "Login realizado com sucesso!",
+            });
+
+            window.location.href = "/";
+         } else {
+            push({
+               type: "error",
+               message: "Token não recebido do servidor",
             });
          }
-      },
-      [push]
-   );
+      } catch (error) {
+         console.error("devLogin failed", error);
+         push({
+            type: "error",
+            message: "Erro ao fazer login como usuário",
+         });
+      } finally {
+         setIsLoggingIn(false);
+      }
+   }, [loginUserId, push]);
 
    return (
       <>
@@ -144,6 +159,33 @@ export const UsersTab = memo(function UsersTab({
             update={updateUserRoles}
             usersIgnr={userRoles.map((u) => u.user.id)}
             roles={roles}
+         />
+
+         <ConfirmModal
+            show={showDelModal}
+            title="Remover perfil?"
+            description={
+               deletingUserRole
+                  ? `Tem certeza que deseja remover o perfil de ${deletingUserRole.userName.toUpperCase()}?`
+                  : ""
+            }
+            isLoading={isDeleting}
+            onClose={() => setShowDelModal(false)}
+            onConfirm={delUserRole}
+            confirmButtonText="Sim, remover"
+         />
+
+         <ConfirmModal
+            show={showLoginModal}
+            title="Login como usuário?"
+            description="Você será redirecionado e terá as mesmas permissões deste usuário."
+            isLoading={isLoggingIn}
+            onClose={() => setShowLoginModal(false)}
+            onConfirm={devLogin}
+            icon={FaArrowRightToBracket}
+            iconColor="text-blue-500"
+            confirmButtonColor="blue"
+            confirmButtonText="Fazer Login"
          />
 
          <div className="grid gap-4 lg:grid-cols-3">
@@ -157,8 +199,14 @@ export const UsersTab = memo(function UsersTab({
                   onRefresh={updateUserRoles}
                   onAddUser={() => setShowAddModal(true)}
                   onRoleChange={pathUserRole}
-                  onDevLogin={devLogin}
-                  onDeleteRole={delUserRole}
+                  onDevLogin={(userId) => {
+                     setLoginUserId(userId);
+                     setShowLoginModal(true);
+                  }}
+                  onDeleteRole={(userId, roleId, userName) => {
+                     setDeletingUserRole({ userId, roleId, userName });
+                     setShowDelModal(true);
+                  }}
                />
             </div>
             <div>

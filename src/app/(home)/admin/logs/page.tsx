@@ -12,10 +12,11 @@ import {
    TextInput,
    Select,
    Badge,
-   Spinner,
 } from "flowbite-react";
-import { HiSearch, HiRefresh, HiFilter } from "react-icons/hi";
+import { HiSearch, HiRefresh, HiFilter, HiClipboardList } from "react-icons/hi";
 import clsx from "clsx";
+import { TableSkeleton } from "@/components/ui/Skeleton";
+import { EmptyState } from "@/components/ui/EmptyState";
 
 export default function LogDashboard() {
    const [logs, setLogs] = useState<UserActionLog[]>([]);
@@ -135,38 +136,31 @@ export default function LogDashboard() {
                <TableBody className="divide-y divide-gray-200">
                   {loading ? (
                      <TableRow className="bg-white">
-                        <TableCell colSpan={4} className="py-12 text-center">
-                           <div className="flex flex-col items-center justify-center gap-3">
-                              <Spinner
-                                 size="xl"
-                                 aria-label="loading"
-                                 color="failure"
-                              />
-                              <span className="text-base font-medium text-gray-600">
-                                 Carregando logs...
-                              </span>
-                           </div>
+                        <TableCell colSpan={4} className="p-4">
+                           <TableSkeleton rows={8} cols={4} />
                         </TableCell>
                      </TableRow>
                   ) : filteredLogs.length === 0 ? (
                      <TableRow className="bg-white">
-                        <TableCell colSpan={4} className="py-12 text-center">
-                           <div className="flex flex-col items-center gap-2">
-                              <span className="text-5xl text-gray-400">📋</span>
-                              <p className="font-medium text-gray-600">
-                                 {searchTerm
+                        <TableCell colSpan={4} className="py-12">
+                           <EmptyState
+                              icon={HiClipboardList}
+                              title={
+                                 searchTerm
                                     ? "Nenhum log encontrado para essa busca"
-                                    : "Nenhum log encontrado"}
-                              </p>
-                              {searchTerm && (
-                                 <button
-                                    onClick={() => setSearchTerm("")}
-                                    className="text-sm text-blue-600 hover:underline"
-                                 >
-                                    Limpar filtros
-                                 </button>
-                              )}
-                           </div>
+                                    : "Nenhum log encontrado"
+                              }
+                              action={
+                                 searchTerm ? (
+                                    <button
+                                       onClick={() => setSearchTerm("")}
+                                       className="text-sm text-blue-600 hover:underline"
+                                    >
+                                       Limpar filtros
+                                    </button>
+                                 ) : undefined
+                              }
+                           />
                         </TableCell>
                      </TableRow>
                   ) : (

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Button, Spinner } from "flowbite-react";
+import { Button } from "flowbite-react";
 import { MdStorage } from "react-icons/md";
 import { HiExclamation, HiTrash } from "react-icons/hi";
 import {
@@ -10,6 +10,7 @@ import {
    useDeleteAtasOrfas,
 } from "@/hooks/queries";
 import { useToast } from "@/app/context/toast";
+import { Skeleton } from "@/components/ui/Skeleton";
 import type {
    BucketStats,
    AtaOrfaPublic,
@@ -311,8 +312,13 @@ export default function StoragePage() {
          </div>
 
          {isLoading ? (
-            <div className="flex justify-center py-12">
-               <Spinner color="failure" size="xl" />
+            <div className="space-y-6">
+               <Skeleton className="h-64 w-full" />
+               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                  {Array.from({ length: 3 }).map((_, i) => (
+                     <Skeleton key={i} className="h-48 w-full" />
+                  ))}
+               </div>
             </div>
          ) : (
             <>

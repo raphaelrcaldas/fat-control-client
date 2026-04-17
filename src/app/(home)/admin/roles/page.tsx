@@ -10,8 +10,12 @@ import {
 import { useToast } from "@/app/context/toast";
 import { sortByAntiguidadeInPlace } from "utils/sortByAntiguidade";
 import { FaUsers, FaShieldHalved, FaCubes, FaKey } from "react-icons/fa6";
-import { Tabs, TabItem, Spinner } from "flowbite-react";
-import { UsersTab, RolesTab, ResourcesTab, PermissionsTab } from "./components";
+import { Tabs, TabItem } from "flowbite-react";
+import { UsersTab } from "./components/users/UsersTab";
+import RolesTab from "./components/roles/RolesTab";
+import ResourcesTab from "./components/resources/ResourcesTab";
+import PermissionsTab from "./components/permissions/PermissionsTab";
+import { TableSkeleton, Skeleton } from "@/components/ui/Skeleton";
 
 export default function RolePage() {
    const [userRoles, setUserRoles] = useState<UserWithRole[] | null>(null);
@@ -57,11 +61,13 @@ export default function RolePage() {
 
    if (!userRoles) {
       return (
-         <div className="flex h-screen items-center justify-center">
-            <div className="flex flex-col items-center gap-3">
-               <Spinner color="failure" size="xl" />
-               <span className="text-gray-600">Carregando perfis...</span>
+         <div className="space-y-6 p-4">
+            <div className="flex gap-4 border-b pb-2">
+               {Array.from({ length: 4 }).map((_, i) => (
+                  <Skeleton key={i} className="h-8 w-24" />
+               ))}
             </div>
+            <TableSkeleton rows={10} cols={3} />
          </div>
       );
    }

@@ -24,11 +24,11 @@ import {
    useRemoveRolePermission,
 } from "@/hooks/queries/useSecurity";
 import { useToast } from "@/app/context/toast";
-import { getRoleTheme, ROLE_THEMES } from "../../config/roleThemes";
-import type {
-   RoleDetail,
-   PermissionDetail,
-} from "services/routes/security/roles";
+import { getRoleTheme } from "../../config/roleThemes";
+import { ConfirmModal } from "@/components/ui/ConfirmModal";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { TableSkeleton } from "@/components/ui/Skeleton";
+import type { PermissionDetail } from "services/routes/security/roles";
 
 export default function RolesTab() {
    const [expandedRoleId, setExpandedRoleId] = useState<number | null>(null);
@@ -37,6 +37,15 @@ export default function RolesTab() {
    const [selectedPermissionId, setSelectedPermissionId] = useState<
       number | null
    >(null);
+
+   const [showRemoveModal, setShowRemoveModal] = useState(false);
+   const [removingPermission, setRemovingPermission] = useState<{
+      roleId: number;
+      permissionId: number;
+      roleName: string;
+      permissionResource: string;
+      permissionAction: string;
+   } | null>(null);
 
    const { data: roles, isLoading: loadingRoles } = useRoles();
    const { data: allPermissions, isLoading: loadingPermissions } =
@@ -72,57 +81,81 @@ export default function RolesTab() {
       setSelectedPermissionId(null);
    };
 
-   const handleAddPermission = async () => {
-      if (!selectedRoleId || !selectedPermissionId) return;
-
-      const result = await addRolePermission.mutateAsync({
-         roleId: selectedRoleId,
-         permissionId: selectedPermissionId,
-      });
-
-      if (result.ok) {
-         push({
-            type: "success",
-            message: result.message || "Permissão adicionada com sucesso",
-         });
-         handleCloseAddModal();
-      } else {
-         push({
-            type: "error",
-            message: result.message || "Erro ao adicionar permissão",
-         });
-      }
-   };
-
-   const handleRemovePermission = async (
+   const handleOpenRemoveModal = (
       roleId: number,
       permissionId: number,
       roleName: string,
       permissionResource: string,
       permissionAction: string
    ) => {
-      const roleLabel = getRoleTheme(roleName).label || roleName;
-      const confirmRemove = window.confirm(
-         `Remover permissão "${permissionResource} > ${permissionAction}" do perfil ${roleLabel}?`
-      );
-
-      if (!confirmRemove) return;
-
-      const result = await removeRolePermission.mutateAsync({
+      setRemovingPermission({
          roleId,
          permissionId,
+         roleName,
+         permissionResource,
+         permissionAction,
       });
+      setShowRemoveModal(true);
+   };
 
-      if (result.ok) {
-         push({
-            type: "success",
-            message: result.message || "Permissão removida com sucesso",
+   const handleCloseRemoveModal = () => {
+      setShowRemoveModal(false);
+      setRemovingPermission(null);
+   };
+
+   const handleAddPermission = async () => {
+      if (!selectedRoleId || !selectedPermissionId) return;
+
+      try {
+         const result = await addRolePermission.mutateAsync({
+            roleId: selectedRoleId,
+            permissionId: selectedPermissionId,
          });
-      } else {
-         push({
-            type: "error",
-            message: result.message || "Erro ao remover permissão",
+
+         if (result.ok) {
+            push({
+               type: "success",
+               message: result.message || "Permissão adicionada com sucesso",
+            });
+            handleCloseAddModal();
+         } else {
+            push({
+               type: "error",
+               message: result.message || "Erro ao adicionar permissão",
+            });
+         }
+      } catch (error) {
+         console.error("addRolePermission failed", error);
+         push({ type: "error", message: "Ocorreu um erro inesperado" });
+      }
+   };
+
+   const handleRemovePermission = async () => {
+      if (!removingPermission) return;
+
+      const { roleId, permissionId } = removingPermission;
+
+      try {
+         const result = await removeRolePermission.mutateAsync({
+            roleId,
+            permissionId,
          });
+
+         if (result.ok) {
+            push({
+               type: "success",
+               message: result.message || "Permissão removida com sucesso",
+            });
+            handleCloseRemoveModal();
+         } else {
+            push({
+               type: "error",
+               message: result.message || "Erro ao remover permissão",
+            });
+         }
+      } catch (error) {
+         console.error("removeRolePermission failed", error);
+         push({ type: "error", message: "Ocorreu um erro inesperado" });
       }
    };
 
@@ -142,20 +175,15 @@ export default function RolesTab() {
 
    if (loadingRoles || loadingPermissions) {
       return (
-         <div className="flex items-center justify-center py-12">
-            <Spinner color="failure" size="xl" />
+         <div className="px-2 py-8">
+            <TableSkeleton rows={6} cols={3} />
          </div>
       );
    }
 
    if (!roles || roles.length === 0) {
       return (
-         <div className="rounded-lg border border-gray-200 bg-white p-8 text-center dark:border-gray-700 dark:bg-gray-800">
-            <FaShieldHalved className="mx-auto mb-4 h-12 w-12 text-gray-400" />
-            <p className="text-gray-500 dark:text-gray-400">
-               Nenhum perfil encontrado
-            </p>
-         </div>
+         <EmptyState icon={FaShieldHalved} title="Nenhum perfil encontrado" />
       );
    }
 
@@ -258,7 +286,7 @@ export default function RolesTab() {
                                                    </div>
                                                    <button
                                                       onClick={() =>
-                                                         handleRemovePermission(
+                                                         handleOpenRemoveModal(
                                                             role.id,
                                                             permission.id,
                                                             role.name,
@@ -367,6 +395,20 @@ export default function RolesTab() {
                </Button>
             </ModalFooter>
          </Modal>
+
+         <ConfirmModal
+            show={showRemoveModal}
+            title="Remover permissão?"
+            description={
+               removingPermission
+                  ? `Remover permissão "${removingPermission.permissionResource} > ${removingPermission.permissionAction}" do perfil ${getRoleTheme(removingPermission.roleName).label || removingPermission.roleName}?`
+                  : ""
+            }
+            isLoading={removeRolePermission.isPending}
+            onClose={handleCloseRemoveModal}
+            onConfirm={handleRemovePermission}
+            confirmButtonText="Sim, remover"
+         />
       </>
    );
 }
