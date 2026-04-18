@@ -21,8 +21,14 @@ interface AeronaveTableProps {
 
 export function AeronaveTable({ aeronaves, onEdit }: AeronaveTableProps) {
    return (
-      <div className="hidden overflow-x-auto rounded-lg bg-white shadow-md md:block">
-         <Table hoverable className="text-center">
+      <div className="hidden overflow-x-auto rounded-xl border border-gray-300 bg-white shadow-md md:block">
+         <Table
+            hoverable
+            className="text-center"
+            theme={{
+               head: { cell: { base: "bg-white border-b border-slate-200" } },
+            }}
+         >
             <TableHead>
                <TableRow>
                   <TableHeadCell>Matrícula</TableHeadCell>

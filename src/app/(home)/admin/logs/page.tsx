@@ -121,8 +121,8 @@ export default function LogDashboard() {
          </div>
 
          {/* Tabela */}
-         <div className="overflow-hidden rounded-lg bg-white shadow-md">
-            <Table hoverable>
+         <div className="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-200">
+            <Table hoverable theme={{ head: { cell: { base: "bg-white" } } }}>
                <TableHead>
                   <TableRow>
                      <TableHeadCell>Data/Hora</TableHeadCell>

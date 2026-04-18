@@ -25,9 +25,18 @@ export function UserTable({ usuarios, loading }: UserTableProps) {
 
    return (
       <div
-         className={`hidden min-h-100 overflow-x-auto md:block ${loading ? "opacity-50" : "opacity-100"} transition-opacity duration-200`}
+         className={clsx(
+            "mx-2 hidden min-h-100 overflow-x-auto rounded-xl border border-gray-300 bg-white shadow-sm transition-opacity duration-200 md:block",
+            loading ? "opacity-50" : "opacity-100"
+         )}
       >
-         <Table hoverable theme={{ body: { cell: { base: "py-1.5" } } }}>
+         <Table
+            hoverable
+            theme={{
+               body: { cell: { base: "py-1" } },
+               head: { cell: { base: "bg-white border-b border-slate-200" } },
+            }}
+         >
             <TableHead>
                <TableRow>
                   <TableHeadCell># ID</TableHeadCell>

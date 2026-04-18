@@ -24,7 +24,7 @@ export function MisPntsTable({
    total,
 }: MisPntsTableProps) {
    return (
-      <div className="rounded-xl bg-linear-to-br from-gray-50 to-white p-2">
+      <div>
          {/* Header */}
          <div className="mb-2 flex items-center gap-3">
             <div className="flex h-7 w-7 items-center justify-center rounded-full bg-red-100 text-red-600">
@@ -34,7 +34,14 @@ export function MisPntsTable({
          </div>
 
          <div className="overflow-x-auto rounded-lg border border-gray-200 shadow-md">
-            <Table className="text-center">
+            <Table
+               className="text-center"
+               theme={{
+                  head: {
+                     cell: { base: "bg-white border-b border-slate-200" },
+                  },
+               }}
+            >
                <TableHead>
                   <TableRow>
                      <TableHeadCell className="">
@@ -67,22 +74,17 @@ export function MisPntsTable({
                   </TableRow>
                </TableHead>
                <TableBody className="divide-y divide-gray-200">
-                  {pernoites.map((pnt, idx) => {
+                  {pernoites.map((pnt) => {
                      const ini = isoDateToString(pnt.data_ini);
                      const fim = isoDateToString(pnt.data_fim);
                      const ac_desloc = pnt.acrec_desloc ? 95 : 0;
 
                      return (
-                        <TableRow
-                           key={pnt.id}
-                           className={`${
-                              idx % 2 === 0 ? "bg-white" : "bg-gray-50"
-                           } transition-colors hover:bg-red-50`}
-                        >
-                           <TableCell className="font-medium text-gray-700">
+                        <TableRow key={pnt.id}>
+                           <TableCell className="font-mono text-gray-700">
                               {ini}
                            </TableCell>
-                           <TableCell className="font-medium text-gray-700">
+                           <TableCell className="font-mono text-gray-700">
                               {fim}
                            </TableCell>
                            <TableCell>
@@ -92,9 +94,11 @@ export function MisPntsTable({
                                  </span>
                               </div>
                            </TableCell>
-                           <TableCell>{pnt.custo.dias}</TableCell>
+                           <TableCell className="font-mono">
+                              {pnt.custo.dias}
+                           </TableCell>
                            <TableCell>
-                              <div className="flex flex-col items-center gap-1">
+                              <div className="flex flex-col items-center gap-1 font-mono">
                                  {pnt.custo.vals.map((val, i) => {
                                     const qtd = Number(val.qtd).toFixed(1);
                                     const valor = Number(
@@ -106,7 +110,7 @@ export function MisPntsTable({
 
                                     return (
                                        <div
-                                          className="rounded bg-red-50 px-2 py-1 text-sm font-medium text-nowrap"
+                                          className="rounded border border-current/30 bg-red-100 px-2 py-0.5 text-sm font-medium text-nowrap text-slate-600"
                                           key={i}
                                        >
                                           {qtd} × {valor}
@@ -116,7 +120,7 @@ export function MisPntsTable({
                               </div>
                            </TableCell>
                            <TableCell>
-                              <span className="text-gray-800">
+                              <span className="font-mono text-gray-800">
                                  {ac_desloc > 0
                                     ? Number(ac_desloc).toLocaleString(
                                          "pt-BR",
@@ -129,7 +133,7 @@ export function MisPntsTable({
                               </span>
                            </TableCell>
                            <TableCell>
-                              <span className="rounded-lg bg-green-50 px-3 py-1 font-bold text-green-700">
+                              <span className="rounded-lg border border-current/30 bg-green-50 px-3 py-1 font-mono font-bold text-green-700">
                                  {Number(pnt.custo.subtotal).toLocaleString(
                                     "pt-BR",
                                     {
@@ -168,7 +172,7 @@ export function MisPntsTable({
                   <span className="text-xs font-medium text-gray-600">
                      Acresc. Desloc. Sede
                   </span>
-                  <span className="text-base font-bold text-green-700">
+                  <span className="font-mono text-base text-green-700">
                      {acDeslocSede
                         ? Number(95).toLocaleString("pt-BR", {
                              style: "currency",
@@ -187,7 +191,7 @@ export function MisPntsTable({
                   <span className="text-xs font-semibold text-white uppercase">
                      Valor Total
                   </span>
-                  <span className="text-base font-bold text-white">
+                  <span className="font-mono text-base text-white">
                      {Number(total).toLocaleString("pt-BR", {
                         style: "currency",
                         currency: "BRL",

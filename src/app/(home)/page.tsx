@@ -97,7 +97,7 @@ export default function HomeApp() {
                         </div>
                         <div className="flex items-center gap-2 rounded-lg bg-blue-50 px-4 py-2">
                            <FaClock className="text-blue-500" />
-                           <span className="text-sm font-medium text-gray-700">
+                           <span className="font-mono text-sm text-gray-700">
                               {currentTime.toLocaleTimeString("pt-BR")}
                            </span>
                         </div>

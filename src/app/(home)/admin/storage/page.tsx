@@ -68,7 +68,7 @@ function StorageCard({
    const usage = getUsageColor(percent);
 
    return (
-      <div className="rounded-lg border bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+      <div className="rounded-lg border border-slate-300 bg-white p-6 shadow-sm">
          {subtitle && (
             <p className="mb-3 text-xs font-medium tracking-wide text-gray-400 uppercase dark:text-gray-500">
                {subtitle}
@@ -244,7 +244,7 @@ function BucketCard({ bucket }: { bucket: BucketStats }) {
    const isAtasBucket = bucket.name === "atas-inspecao";
 
    return (
-      <div className="rounded-lg border bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+      <div className="rounded-lg border border-slate-300 bg-white p-5 shadow-sm">
          <div className="mb-3 flex items-center gap-2">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-900/30">
                <MdStorage className="h-4 w-4 text-blue-600 dark:text-blue-400" />

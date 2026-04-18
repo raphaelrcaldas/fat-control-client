@@ -91,11 +91,14 @@ const SeboTable = ({
 
    return (
       <div
-         className={clsx("overflow-x-auto rounded-lg uppercase shadow-md", {
-            "opacity-60": isLoading,
-         })}
+         className={clsx(
+            "overflow-x-auto rounded-xl bg-white uppercase shadow-md ring-1 ring-gray-200",
+            {
+               "opacity-60": isLoading,
+            }
+         )}
       >
-         <Table hoverable striped>
+         <Table hoverable theme={{ head: { cell: { base: "bg-white" } } }}>
             <TableHead>
                <TableRow>
                   <TableHeadCell className="hidden text-center 2xl:table-cell">

@@ -65,10 +65,11 @@ export default function MissPage() {
             </div>
 
             {/* Tabs Section */}
-            <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-xl">
+            <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow">
                <Tabs
                   aria-label="Tabs de missões"
                   onActiveTabChange={handleTabChange}
+                  theme={{ base: "gap-0", tabpanel: "py-1" }}
                   className="tabs-container"
                >
                   <TabItem

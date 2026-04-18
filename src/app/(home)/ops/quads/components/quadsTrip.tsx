@@ -323,7 +323,7 @@ function QuadRow({ quad, trip, selected, onToggleSelect }: QuadRowProps) {
 
    return (
       <>
-         <TableRow className="min-h-[44px] transition-colors hover:bg-gray-50 dark:hover:bg-gray-700">
+         <TableRow className="min-h-11 transition-colors hover:bg-gray-50 dark:hover:bg-gray-700">
             <TableCell className="w-10">
                <Checkbox
                   checked={selected}

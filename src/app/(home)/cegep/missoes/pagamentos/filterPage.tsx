@@ -8,6 +8,11 @@ import {
    Checkbox,
    Badge,
    Spinner,
+   Table,
+   TableHead,
+   TableHeadCell,
+   TableBody,
+   TableRow,
 } from "flowbite-react";
 import { Pagination } from "@/components/Pagination";
 import { MultiSelect } from "@/components/MultiSelect";
@@ -369,52 +374,54 @@ export function FilterPage({ active }: { active: boolean }) {
                   </Badge>
                )}
 
-               {dataInicio !== defaultIni && (
-                  <Badge color="red">
-                     <div className="flex items-center gap-1.5">
-                        <HiCalendar className="h-3 w-3" />
-                        <span>
-                           Afastamento:{" "}
-                           {new Date(
-                              dataInicio + "T00:00:00"
-                           ).toLocaleDateString("pt-BR")}
-                        </span>
+               <Badge color="red">
+                  <div className="flex items-center gap-1.5">
+                     <HiCalendar className="h-3 w-3" />
+                     <span>
+                        Afastamento:{" "}
+                        {new Date(dataInicio + "T00:00:00").toLocaleDateString(
+                           "pt-BR"
+                        )}
+                     </span>
+                     {dataInicio !== defaultIni && (
                         <button
                            onClick={removeDataInicio}
                            className="ml-1 hover:text-red-600"
                         >
                            <HiX className="h-3 w-3" />
                         </button>
-                     </div>
-                  </Badge>
-               )}
+                     )}
+                  </div>
+               </Badge>
 
-               {dataFim !== defaultFim && (
-                  <Badge color="red">
-                     <div className="flex items-center gap-1.5">
-                        <HiCalendar className="h-3 w-3" />
-                        <span>
-                           Regresso:{" "}
-                           {new Date(dataFim + "T00:00:00").toLocaleDateString(
-                              "pt-BR"
-                           )}
-                        </span>
+               <Badge color="red">
+                  <div className="flex items-center gap-1.5">
+                     <HiCalendar className="h-3 w-3" />
+                     <span>
+                        Regresso:{" "}
+                        {new Date(dataFim + "T00:00:00").toLocaleDateString(
+                           "pt-BR"
+                        )}
+                     </span>
+                     {dataFim !== defaultFim && (
                         <button
                            onClick={removeDataFim}
                            className="ml-1 hover:text-red-600"
                         >
                            <HiX className="h-3 w-3" />
                         </button>
-                     </div>
-                  </Badge>
-               )}
+                     )}
+                  </div>
+               </Badge>
 
-               <button
-                  onClick={clearFilters}
-                  className="text-xs text-gray-500 underline hover:text-gray-700"
-               >
-                  Limpar todos
-               </button>
+               {hasActiveFilters && (
+                  <button
+                     onClick={clearFilters}
+                     className="text-xs text-gray-500 underline hover:text-gray-700"
+                  >
+                     Limpar todos
+                  </button>
+               )}
             </div>
             <button
                type="button"
@@ -608,32 +615,30 @@ export function FilterPage({ active }: { active: boolean }) {
                   </div>
                ) : misRecords && misRecords.length > 0 ? (
                   <div>
-                     <div className="flex flex-wrap items-center justify-between gap-3 border-b border-gray-200 bg-gray-50 px-6 py-2">
+                     <div className="flex flex-wrap items-center justify-between gap-3 border-b border-gray-200 bg-gray-50 px-3 py-0.5">
                         <div className="flex items-center gap-4">
                            <div className="flex items-center gap-2">
                               <Checkbox
-                                 className="h-4 w-4"
+                                 className="size-5"
                                  checked={selectedAll}
                                  color="red"
                                  onChange={() => setSelectedAll(!selectedAll)}
                               />
                            </div>
-                           <h3 className="text-lg font-bold text-gray-800">
+                           <h3 className="font-medium text-gray-800">
                               Registros Encontrados ({totalRecords})
                            </h3>
 
                            <div
                               className={clsx(
-                                 "border-t border-green-200 bg-green-50 px-3 py-1 shadow",
+                                 "rounded-lg border border-green-300 bg-green-50 px-2 py-1.5 shadow transition",
                                  selectedIds.length > 0
                                     ? "translate-y-0 opacity-100"
                                     : "pointer-events-none translate-y-full opacity-0"
                               )}
                            >
                               <div className="flex items-center gap-3">
-                                 <div className="flex h-10 w-10 items-center justify-center rounded-full bg-green-100">
-                                    <HiCurrencyDollar className="text-xl text-green-600" />
-                                 </div>
+                                 <HiCurrencyDollar className="text-xl text-green-600" />
                                  <p className="text-sm font-medium text-gray-700">
                                     {selectedIds.length}{" "}
                                     {selectedIds.length === 1
@@ -694,17 +699,64 @@ export function FilterPage({ active }: { active: boolean }) {
                               <Spinner size="xl" color="failure" />
                            </div>
                         )}
-                        <ul className="px-2">
-                           {misRecords?.map((record) => (
-                              <UserRow
-                                 key={record.user_mis.id}
-                                 record={record}
-                                 checked={selectedIdSet.has(record.user_mis.id)}
-                                 onSelect={handleSelect}
-                                 onShowDetail={handleShowDetail}
-                              />
-                           ))}
-                        </ul>
+                        <Table
+                           hoverable
+                           theme={{
+                              body: { cell: { base: "py-1 px-3" } },
+                              head: {
+                                 cell: {
+                                    base: "bg-white border-b border-slate-200 px-3",
+                                 },
+                              },
+                           }}
+                        >
+                           <TableHead>
+                              <TableRow>
+                                 <TableHeadCell className="text-center">
+                                    <span className="sr-only">Sel</span>
+                                 </TableHeadCell>
+                                 <TableHeadCell className="text-center">
+                                    Ordem
+                                 </TableHeadCell>
+                                 <TableHeadCell>Militar</TableHeadCell>
+                                 <TableHeadCell className="text-center">
+                                    Sit
+                                 </TableHeadCell>
+                                 <TableHeadCell>Descrição</TableHeadCell>
+                                 <TableHeadCell className="text-center">
+                                    Afastamento
+                                 </TableHeadCell>
+                                 <TableHeadCell className="text-center">
+                                    Regresso
+                                 </TableHeadCell>
+                                 <TableHeadCell className="text-center">
+                                    Dias
+                                 </TableHeadCell>
+                                 <TableHeadCell className="text-center">
+                                    Diárias
+                                 </TableHeadCell>
+                                 <TableHeadCell className="text-center">
+                                    Valor
+                                 </TableHeadCell>
+                                 <TableHeadCell className="text-center">
+                                    <span className="sr-only">Ações</span>
+                                 </TableHeadCell>
+                              </TableRow>
+                           </TableHead>
+                           <TableBody className="divide-y">
+                              {misRecords?.map((record) => (
+                                 <UserRow
+                                    key={record.user_mis.id}
+                                    record={record}
+                                    checked={selectedIdSet.has(
+                                       record.user_mis.id
+                                    )}
+                                    onSelect={handleSelect}
+                                    onShowDetail={handleShowDetail}
+                                 />
+                              ))}
+                           </TableBody>
+                        </Table>
                      </div>
                      {totalPages > 1 && (
                         <div className="flex justify-center border-t border-gray-200 bg-gray-50 px-6 py-4">

@@ -100,7 +100,7 @@ export function UserMissionDetailModal({
                            <span className="text-[10px] text-red-100">
                               Afastamento
                            </span>
-                           <span className="font-medium">{afast}</span>
+                           <span className="font-mono">{afast}</span>
                         </div>
                      </div>
                      <div className="flex items-center gap-2 rounded bg-white/20 px-3 py-2 text-sm backdrop-blur-sm">
@@ -109,7 +109,7 @@ export function UserMissionDetailModal({
                            <span className="text-[10px] text-red-100">
                               Regresso
                            </span>
-                           <span className="font-medium">{regres}</span>
+                           <span className="font-mono">{regres}</span>
                         </div>
                      </div>
                   </div>

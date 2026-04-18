@@ -24,7 +24,7 @@ export function ResourcesTable({
    onDelete,
 }: ResourcesTableProps) {
    return (
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto rounded-xl bg-white shadow-sm ring-1 ring-gray-200">
          <Table hoverable>
             <TableHead>
                <TableRow>

@@ -21,8 +21,13 @@ export const TableMission = memo(function TableMission({
    missoes,
 }: TableMissionProps) {
    return (
-      <div className="overflow-x-auto">
-         <Table striped hoverable>
+      <div className="overflow-x-auto rounded-xl border border-gray-300 bg-white shadow-sm">
+         <Table
+            hoverable
+            theme={{
+               head: { cell: { base: "bg-white border-b border-slate-200" } },
+            }}
+         >
             <TableHead>
                <TableRow>
                   <TableHeadCell>Documento</TableHeadCell>
@@ -97,23 +102,23 @@ const TableMissionRow = memo(function TableMissionRow({
                >
                   <HiDocumentText className="text-sm text-white" />
                </div>
-               <span className="font-semibold uppercase">
+               <span className="font-mono uppercase">
                   {missao.tipo_doc} {String(missao.n_doc).padStart(3, "0")}
                </span>
             </div>
          </TableCell>
 
          <TableCell className="whitespace-nowrap">
-            <span className="font-medium uppercase">{missao.tipo}</span>
+            <span className="font-mono uppercase">{missao.tipo}</span>
          </TableCell>
 
          <TableCell className="max-w-48 truncate" title={missao.desc}>
             <span className="uppercase">{missao.desc || "-"}</span>
          </TableCell>
 
-         <TableCell className="whitespace-nowrap">{ini}</TableCell>
+         <TableCell className="font-mono whitespace-nowrap">{ini}</TableCell>
 
-         <TableCell className="whitespace-nowrap">{fim}</TableCell>
+         <TableCell className="font-mono whitespace-nowrap">{fim}</TableCell>
 
          <TableCell className="text-center whitespace-nowrap">
             {users.length > 0 ? (
@@ -127,15 +132,23 @@ const TableMissionRow = memo(function TableMissionRow({
 
          <TableCell className="max-w-56">
             {cidades.length > 0 ? (
-               <div className="flex flex-wrap gap-1">
-                  {cidades.map((cidade) => (
+               <div
+                  className="flex flex-nowrap gap-1 overflow-hidden"
+                  title={cidades.join(", ")}
+               >
+                  {cidades.slice(0, 2).map((cidade) => (
                      <span
                         key={cidade}
-                        className="inline-block rounded bg-gray-100 px-1.5 py-0.5 text-xs font-medium text-gray-700 uppercase"
+                        className="inline-block max-w-42 truncate rounded border border-slate-300 bg-gray-100 px-1.5 py-0.5 text-xs font-medium text-gray-700 uppercase shadow"
                      >
                         {cidade}
                      </span>
                   ))}
+                  {cidades.length > 2 && (
+                     <span className="inline-block rounded border border-slate-300 bg-gray-100 px-1.5 py-0.5 text-xs font-medium text-gray-700 shadow">
+                        +{cidades.length - 2}
+                     </span>
+                  )}
                </div>
             ) : (
                <span className="text-gray-400">-</span>

@@ -9,7 +9,7 @@ import { usePersistedState } from "@/hooks/usePersistedState";
 import { LastIndisps } from "./components/lastIndisps";
 import { AppLoadingScreen } from "../../components/appLoadingScreen";
 import { CrewIndispList } from "services/routes/indisps";
-import { datasIguais, isoStrToDate } from "utils/dateHandler";
+import { datasIguais } from "utils/dateHandler";
 import { FUNC_LABELS_SHORT, FUNCOES_PRINCIPAIS } from "@/constants/tripulantes";
 import {
    HiChevronLeft,
@@ -21,6 +21,8 @@ import {
 import { indispsOptions } from "./components/options";
 import { useCrewIndisps } from "@/hooks/queries";
 import { getColumnVisibilityClass } from "./utils/columnVisibility";
+import { IndispModalProvider } from "./context/indispModalContext";
+import { IndispModal } from "./components/indispModal";
 
 // Número fixo de dias - visibilidade controlada via CSS (Tailwind breakpoints)
 const DAYS_TO_GENERATE = 21;
@@ -102,7 +104,8 @@ export default function IndispPage() {
    const funcLabels = FUNC_LABELS_SHORT;
 
    return (
-      <div className="flex flex-1 flex-col overflow-hidden">
+      <IndispModalProvider>
+         <div className="flex flex-1 flex-col overflow-hidden">
          <div className="mb-2 flex shrink-0 flex-col items-center gap-3 rounded-lg border border-gray-200 bg-linear-to-r from-gray-50 to-white px-4 py-3 shadow-sm md:flex-row md:justify-between">
             {/* Select de Função - Customizado */}
             <div className="flex items-center gap-2">
@@ -296,7 +299,9 @@ export default function IndispPage() {
                </div>
             </div>
          )}
-      </div>
+         </div>
+         <IndispModal indisps={indisps} />
+      </IndispModalProvider>
    );
 }
 
@@ -399,13 +404,6 @@ function TripRow({
    dates: Date[];
    tripData: CrewIndispList;
 }) {
-   const dataCemal = tripData.trip.cemal
-      ? isoStrToDate(tripData.trip.cemal)
-      : null;
-   const dataUltVoo = tripData.trip.data_ult_voo
-      ? isoStrToDate(tripData.trip.data_ult_voo)
-      : null;
-
    return (
       <tr>
          <th scope="row" className="grid justify-items-center p-px">
@@ -422,12 +420,7 @@ function TripRow({
                   })}
                >
                   <div className="flex h-full w-full items-center justify-center">
-                     <IndispCell
-                        dateRef={day}
-                        tripData={tripData}
-                        cemal={dataCemal}
-                        ultVoo={dataUltVoo}
-                     />
+                     <IndispCell dateRef={day} tripData={tripData} />
                   </div>
                </td>
             );
