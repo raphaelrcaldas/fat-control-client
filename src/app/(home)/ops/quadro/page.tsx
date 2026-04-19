@@ -5,6 +5,7 @@ import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import { listOrdens } from "services/routes/om/ordens";
 import { ordemKeys } from "@/hooks/queries/useOrdens";
 import { useAeronaves } from "@/hooks/queries/useAeronaves";
+import { useDaysToShow } from "@/hooks/useDaysToShow";
 import WeekCalendar from "./components/MissionList/WeekCalendar";
 
 function getWeekStart(date: Date): Date {
@@ -26,7 +27,10 @@ function toLocalDateStr(date: Date): string {
 function parseInicioParam(value: string | null): Date {
    if (value) {
       const parsed = new Date(value + "T00:00:00");
-      if (!isNaN(parsed.getTime())) return getWeekStart(parsed);
+      if (!isNaN(parsed.getTime())) {
+         parsed.setHours(0, 0, 0, 0);
+         return parsed;
+      }
    }
    return getWeekStart(new Date());
 }
@@ -34,6 +38,7 @@ function parseInicioParam(value: string | null): Date {
 export default function QuadroOperacoes() {
    const searchParams = useSearchParams();
    const router = useRouter();
+   const daysToShow = useDaysToShow();
 
    const currentWeekStart = useMemo(
       () => parseInicioParam(searchParams.get("inicio")),
@@ -42,13 +47,13 @@ export default function QuadroOperacoes() {
 
    const filters = useMemo(() => {
       const end = new Date(currentWeekStart);
-      end.setDate(end.getDate() + 20);
+      end.setDate(end.getDate() + daysToShow - 1);
       return {
          data_inicio: toLocalDateStr(currentWeekStart),
          data_fim: toLocalDateStr(end),
          per_page: 100,
       };
-   }, [currentWeekStart]);
+   }, [currentWeekStart, daysToShow]);
 
    const { data, isLoading, isFetching } = useQuery({
       queryKey: ordemKeys.list(filters),
@@ -74,12 +79,12 @@ export default function QuadroOperacoes() {
    const navigateWeek = useCallback(
       (direction: number) => {
          const newDate = new Date(currentWeekStart);
-         newDate.setDate(newDate.getDate() + direction * 7);
+         newDate.setDate(newDate.getDate() + direction * daysToShow);
          const params = new URLSearchParams(searchParams);
          params.set("inicio", toLocalDateStr(newDate));
          router.push(`?${params.toString()}`);
       },
-      [currentWeekStart, searchParams, router]
+      [currentWeekStart, daysToShow, searchParams, router]
    );
 
    return (
@@ -89,6 +94,7 @@ export default function QuadroOperacoes() {
          isLoading={isLoading}
          isFetching={isFetching}
          currentWeekStart={currentWeekStart}
+         daysToShow={daysToShow}
          onNavigateWeek={navigateWeek}
       />
    );

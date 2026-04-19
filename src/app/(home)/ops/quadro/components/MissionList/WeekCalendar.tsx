@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import type { OrdemMissaoList } from "services/routes/om/ordens";
 import {
@@ -33,6 +33,7 @@ interface WeekCalendarProps {
    isLoading: boolean;
    isFetching: boolean;
    currentWeekStart: Date;
+   daysToShow: number;
    onNavigateWeek: (direction: number) => void;
 }
 
@@ -132,10 +133,10 @@ function AeronaveCell({
       : null;
 
    return (
-      <div className="flex min-h-38 flex-col justify-start gap-0.5 p-1">
+      <div className="flex min-h-38 flex-col justify-start gap-1 p-1">
          {info && infoStatus && (
             <div
-               className={`truncate rounded-lg border-white/40 px-1.5 py-1 text-center font-mono text-sm font-semibold shadow-sm backdrop-blur-sm transition-all ${infoStatus.bg} ${infoStatus.text} ${infoStatus.border}`}
+               className={`truncate rounded-md border px-1.5 py-0.5 text-center font-mono text-sm font-semibold shadow-sm backdrop-blur-sm transition-all ${infoStatus.bg} ${infoStatus.text} ${infoStatus.border}`}
             >
                {info.localidade}
             </div>
@@ -148,14 +149,19 @@ function AeronaveCell({
             return (
                <div
                   key={`${etapa.omId}-${idx}`}
-                  className={`cursor-pointer truncate rounded-md border-white/50 px-1.5 py-1 text-center font-mono text-sm font-semibold shadow-sm backdrop-blur-sm transition-all hover:-translate-y-0.5 hover:shadow-md hover:brightness-110 ${statusCfg.bg} ${statusCfg.text} ${statusCfg.border}`}
+                  className={`cursor-pointer truncate rounded-md border px-1.5 py-0.5 text-center font-mono text-sm font-semibold shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md ${statusCfg.bg} ${statusCfg.text} ${statusCfg.border}`}
                   title={`OM ${etapa.omNumero} — ${etapa.omTipo}`}
                   onClick={() => router.push(`/ops/om/${etapa.omId}`)}
                >
                   {etapa.horaZ && (
                      <span className="text-xs">{etapa.horaZ} </span>
                   )}
-                  {etapa.origem} - {etapa.dest}
+                  <span className="hidden sm:inline">
+                     {etapa.origem} - {etapa.dest}
+                  </span>
+                  <span className="sm:hidden">
+                     {etapa.origem.slice(-2)}-{etapa.dest.slice(-2)}
+                  </span>
                </div>
             );
          })}
@@ -169,32 +175,13 @@ export default function WeekCalendar({
    isLoading,
    isFetching,
    currentWeekStart,
+   daysToShow,
    onNavigateWeek,
 }: WeekCalendarProps) {
-   const [daysToShow, setDaysToShow] = useState(14);
    const [editingAeronave, setEditingAeronave] =
       useState<AeronavePublic | null>(null);
    const { hasPerm } = usePermBased();
    const canEditAeronave = hasPerm("aeronaves", "update");
-
-   React.useEffect(() => {
-      const updateDaysToShow = () => {
-         const width = window.innerWidth;
-         if (width >= 1920) {
-            setDaysToShow(11);
-         } else if (width >= 1280) {
-            setDaysToShow(7);
-         } else if (width >= 768) {
-            setDaysToShow(7);
-         } else {
-            setDaysToShow(3);
-         }
-      };
-
-      updateDaysToShow();
-      window.addEventListener("resize", updateDaysToShow);
-      return () => window.removeEventListener("resize", updateDaysToShow);
-   }, []);
 
    const getWeekDays = () => {
       const days: Date[] = [];
@@ -212,13 +199,8 @@ export default function WeekCalendar({
    return (
       <div className="min-h-screen text-gray-900">
          {/* Header com navegação */}
-         <div className="mb-4">
+         <div className="m-4">
             <div className="flex flex-col items-center gap-3">
-               <div className="flex w-full items-center justify-between px-1">
-                  <h1 className="text-xl font-bold tracking-tight text-slate-800 md:text-2xl">
-                     QUADRO DE OPERAÇÕES
-                  </h1>
-               </div>
                <div className="flex items-center gap-2">
                   <button
                      onClick={() => onNavigateWeek(-1)}
@@ -226,7 +208,7 @@ export default function WeekCalendar({
                   >
                      ← Anterior
                   </button>
-                  <span className="flex min-w-[140px] items-center justify-center gap-2 px-2 text-center text-sm font-bold text-slate-700">
+                  <span className="flex min-w-35 items-center justify-center gap-2 px-2 text-center text-sm font-bold text-slate-700">
                      {isFetching && <Spinner color="failure" size="xs" />}
                      {weekDays[0].toLocaleDateString("pt-BR", {
                         day: "2-digit",
@@ -254,12 +236,12 @@ export default function WeekCalendar({
 
          {/* Calendário */}
          <div
-            className={`relative overflow-x-auto rounded-xl border border-white/60 bg-white/50 shadow-sm backdrop-blur-md transition-opacity duration-200 ${isFetching && !isLoading ? "opacity-50" : ""}`}
+            className={`relative overflow-x-auto rounded-xl border border-slate-200 shadow duration-200 ${isFetching && !isLoading ? "opacity-50" : ""}`}
          >
             <table className="w-full table-fixed border-collapse">
                <thead>
-                  <tr className="bg-white/30">
-                     <th className="w-28 border-b border-r border-slate-200/60 bg-white/30 p-1 text-left text-[10px] font-bold uppercase text-slate-500"></th>
+                  <tr className="bg-white">
+                     <th className="w-28 border-r border-b border-slate-200/60 bg-white/30 p-1 text-left text-[10px] font-bold text-slate-500 uppercase"></th>
                      {weekDays.map((day, idx) => {
                         const dateStr = toLocalDateStr(day);
                         const isToday = dateStr === today;
@@ -268,12 +250,12 @@ export default function WeekCalendar({
                         return (
                            <th
                               key={idx}
-                              className={`border-b border-r border-slate-200/60 p-1 text-center ${
+                              className={`border-r border-b border-slate-200/60 p-2 text-center ${
                                  isToday ? "bg-blue-50/60" : "bg-transparent"
                               }`}
                            >
                               <div
-                                 className={`text-[9px] font-semibold uppercase tracking-wider ${
+                                 className={`text-[9px] font-semibold tracking-wider uppercase ${
                                     isToday ? "text-blue-700" : "text-slate-500"
                                  }`}
                               >
@@ -295,8 +277,11 @@ export default function WeekCalendar({
                </thead>
                <tbody>
                   {aeronaves.map((anv) => (
-                     <tr key={anv.matricula} className="transition-colors hover:bg-white/40">
-                        <td className="border-b border-r border-slate-200/60 p-1 text-center">
+                     <tr
+                        key={anv.matricula}
+                        className="transition-colors hover:bg-white/40"
+                     >
+                        <td className="border-r border-b border-slate-200/60 p-1 text-center">
                            <div
                               className={clsx(
                                  "flex flex-col items-center justify-center gap-1.5 p-1",
@@ -323,7 +308,7 @@ export default function WeekCalendar({
                               >
                                  {anv.sit}
                               </span>
-                              <div className="text-xs font-medium text-slate-500 whitespace-pre-line">
+                              <div className="text-xs font-medium whitespace-pre-line text-slate-500">
                                  {anv.obs}
                               </div>
                            </div>
@@ -334,8 +319,8 @@ export default function WeekCalendar({
                            return (
                               <td
                                  key={idx}
-                                 className={`border-b border-r border-slate-200/60 align-top ${
-                                    isWeekend ? "bg-red-50/30" : "bg-transparent"
+                                 className={`border-r border-b border-slate-200/60 align-top ${
+                                    isWeekend ? "bg-red-50" : "bg-transparent"
                                  }`}
                               >
                                  <AeronaveCell
@@ -378,7 +363,7 @@ export default function WeekCalendar({
             </table>
 
             {isLoading && ordens.length === 0 && (
-               <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/50 backdrop-blur-sm py-12">
+               <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/50 py-12 backdrop-blur-sm">
                   <Spinner color="failure" size="xl" />
                </div>
             )}
