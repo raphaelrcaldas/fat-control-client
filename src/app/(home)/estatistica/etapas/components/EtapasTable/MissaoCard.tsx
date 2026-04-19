@@ -47,9 +47,9 @@ export const MissaoCard = memo(function MissaoCard({
    const hasEtapas = missao.etapas.length > 0;
 
    return (
-      <div className="mx-0.5 overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-200">
+      <div className="mx-0.5 overflow-hidden rounded-xl bg-white shadow ring-1 ring-gray-200">
          {/* Header da missao */}
-         <div className="flex flex-wrap items-center gap-4 border-b border-slate-200 bg-white px-5 py-1.5">
+         <div className="flex flex-wrap items-center gap-4 border-b border-slate-200 bg-white px-3 py-0.5">
             {hasEtapas && (
                <Checkbox
                   color="red"
@@ -70,7 +70,7 @@ export const MissaoCard = memo(function MissaoCard({
                </span>
             )}
             <PermBased requiredPerm="create" resource="etp_mis">
-               <div className="ml-auto flex items-center gap-1">
+               <div className="ml-auto flex items-center gap-0.5">
                   <button
                      onClick={() => onAddEtapa(missao)}
                      className="rounded-lg p-2 text-slate-400 transition-all hover:bg-white/60 hover:text-emerald-600 hover:shadow-sm"

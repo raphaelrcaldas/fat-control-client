@@ -83,7 +83,7 @@ export const EtapaRow = memo(function EtapaRow({
             <span
                key={`${func}-${m.trig}`}
                className={clsx(
-                  "w-10 rounded px-1.5 py-0.5 text-xs font-semibold uppercase",
+                  "rounded border border-current/20 px-2 py-0.5 font-mono text-xs font-semibold uppercase",
                   colors.badge
                )}
                title={`[${m.func_bordo}]  ${m.p_g} ${m.nome_guerra}`.toUpperCase()}
@@ -121,8 +121,12 @@ export const EtapaRow = memo(function EtapaRow({
          <TableCell className="w-14 font-mono font-bold text-slate-800 uppercase">
             {destino}
          </TableCell>
-         <TableCell className="w-14 font-mono text-slate-600">{formatTime(dep)}</TableCell>
-         <TableCell className="w-14 font-mono text-slate-600">{formatTime(arr)}</TableCell>
+         <TableCell className="w-14 font-mono text-slate-600">
+            {formatTime(dep)}
+         </TableCell>
+         <TableCell className="w-14 font-mono text-slate-600">
+            {formatTime(arr)}
+         </TableCell>
          <TableCell className="w-14 font-mono font-bold text-slate-800">
             {minutesToTime(tvoo)}
          </TableCell>
@@ -140,7 +144,7 @@ export const EtapaRow = memo(function EtapaRow({
                         <li
                            key={`${oi.esf_aer_id}-${oi.tipo_missao_id}-${oi.reg}`}
                            className={clsx(
-                              "flex items-center justify-center gap-1.5 text-xs"
+                              "flex items-center justify-center gap-1.5 text-xs font-medium"
                            )}
                         >
                            <span

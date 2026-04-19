@@ -41,7 +41,7 @@ export function EtapasInnerTable({
             hoverable
             className="text-center"
             theme={{
-               body: { cell: { base: "px-1 py-1.5" } },
+               body: { cell: { base: "px-1 py-0.5" } },
             }}
          >
             <TableBody className="divide-y">

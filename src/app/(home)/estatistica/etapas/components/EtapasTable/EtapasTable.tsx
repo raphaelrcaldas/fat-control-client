@@ -292,7 +292,7 @@ export function EtapasTable({
    );
 
    return (
-      <div className="space-y-2 py-1">
+      <div className="space-y-3 py-1">
          {grouped ? (
             <>
                {/* Selecionar tudo da pagina + ações em massa */}

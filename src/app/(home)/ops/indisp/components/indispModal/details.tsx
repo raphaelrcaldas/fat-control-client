@@ -39,8 +39,8 @@ export default function IndispDetails({
 
    return (
       <div className="text-sm">
-         <div className="border-b border-gray-200 py-1">
-            <h3 className="text-center text-base font-bold text-gray-900 uppercase">
+         <div className="border-b border-gray-200 py-3">
+            <h3 className="text-center text-base font-semibold text-gray-900 uppercase">
                {`${trip.user.posto.short} ${trip.user.nome_guerra}`}
             </h3>
          </div>

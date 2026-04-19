@@ -31,7 +31,6 @@ export function IndispModal({ indisps }: IndispModalProps) {
 
    return (
       <Modal show={isOpen} onClose={close} size="md" dismissible popup>
-         <ModalHeader />
          <ModalBody>
             {tripData && status && state.status === "open" && (
                <IndispDetails
