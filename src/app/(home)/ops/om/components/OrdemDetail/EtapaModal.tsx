@@ -137,7 +137,11 @@ export function EtapaModal({
       }
 
       // Guard contra respostas stale de queries anteriores
-      if (routeSuggestion.origem !== origem || routeSuggestion.dest !== dest) {
+      // Para sugestão parcial, origem é null (esperado), verificar só dest
+      if (routeSuggestion.dest !== dest) {
+         return;
+      }
+      if (routeSuggestion.has_route_data && routeSuggestion.origem !== origem) {
          return;
       }
 
@@ -537,7 +541,7 @@ export function EtapaModal({
                </div>
 
                {/* Tempo de Voo Calculado + Status da Busca de Rota */}
-               <div className="grid items-center justify-center gap-4 md:flex">
+               <div className="flex flex-wrap items-center justify-center gap-4">
                   <div className="flex items-center gap-3 rounded-full border border-gray-200 bg-gray-50 px-6 py-2">
                      <HiClock className="h-5 w-5 text-gray-500" />
                      <span className="text-sm font-medium text-gray-600">
@@ -614,14 +618,36 @@ export function EtapaModal({
                      )}
 
                   {/* Indicador de sugestão parcial (apenas destino) */}
-                  {!isLoadingRoute && suggestionType === "partial" && (
-                     <div className="flex items-center gap-2 rounded-full border border-amber-200 bg-amber-50 px-4 py-2">
-                        <HiLightningBolt className="h-4 w-4 text-amber-500" />
-                        <span className="text-sm text-amber-600">
-                           Sugestão parcial (alternativa baseada no destino)
-                        </span>
-                     </div>
-                  )}
+                  {!isLoadingRoute &&
+                     suggestionType === "partial" &&
+                     routeSuggestion && (
+                        <div className="flex flex-col items-center gap-1.5">
+                           <div className="flex items-center gap-2 rounded-full border border-amber-200 bg-amber-50 px-4 py-2">
+                              <HiLightningBolt className="h-4 w-4 text-amber-500" />
+                              <span className="text-sm font-medium text-amber-600">
+                                 Sugestão parcial baseada no destino
+                              </span>
+                           </div>
+                           <div className="flex flex-wrap justify-center gap-1">
+                              {routeSuggestion.alternativa && (
+                                 <span className="rounded-full bg-amber-100 px-2.5 py-0.5 text-xs text-amber-700">
+                                    Alt:{" "}
+                                    <span className="font-mono font-semibold">
+                                       {routeSuggestion.alternativa}
+                                    </span>
+                                 </span>
+                              )}
+                              {routeSuggestion.tvoo_alt != null && (
+                                 <span className="rounded-full bg-amber-100 px-2.5 py-0.5 text-xs text-amber-700">
+                                    Tvoo Alt:{" "}
+                                    <span className="font-mono font-semibold">
+                                       {minutesToTime(routeSuggestion.tvoo_alt)}
+                                    </span>
+                                 </span>
+                              )}
+                           </div>
+                        </div>
+                     )}
 
                   {/* Indicador de nenhuma sugestão encontrada */}
                   {!isLoadingRoute &&
@@ -639,14 +665,14 @@ export function EtapaModal({
                {/* Linha 2: Alternativa, Combustível, Esforço Aéreo */}
                <div className="grid grid-cols-2 gap-3 md:grid-cols-9">
                   {/* Alternativa */}
-                  <div className="rounded-xl border border-amber-200 bg-amber-50/30 p-4 md:col-span-3">
+                  <div className="rounded-xl border border-amber-200 bg-amber-50/30 p-2 md:col-span-3 md:p-4">
                      <div className="mb-4 flex items-center gap-2">
                         <HiLocationMarker className="h-5 w-5 text-amber-500" />
                         <h4 className="text-sm font-semibold tracking-wide text-amber-700 uppercase">
                            Alternativa
                         </h4>
                      </div>
-                     <div className="grid gap-4 sm:grid-cols-2">
+                     <div className="grid grid-cols-2 gap-4">
                         <div>
                            <Label
                               htmlFor="alternativa"
@@ -731,7 +757,7 @@ export function EtapaModal({
                   </div>
 
                   {/* Combustível */}
-                  <div className="rounded-xl border border-purple-200 bg-purple-50/30 p-4 md:col-span-2">
+                  <div className="rounded-xl border border-purple-200 bg-purple-50/30 p-2 md:col-span-2 md:p-4">
                      <div className="mb-4 flex items-center gap-2">
                         <span className="flex h-5 w-5 items-center justify-center rounded bg-purple-500 text-xs font-bold text-white">
                            T
@@ -782,7 +808,7 @@ export function EtapaModal({
                   </div>
 
                   {/* Esforço Aéreo */}
-                  <div className="col-span-2 rounded-xl border border-red-200 bg-red-50/30 p-4 md:col-span-4">
+                  <div className="col-span-2 rounded-xl border border-red-200 bg-red-50/30 p-2 md:col-span-4 md:p-4">
                      <div className="mb-4 flex items-center gap-2">
                         <span className="flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs font-bold text-white">
                            E
