@@ -329,11 +329,11 @@ export function EtapaModal({
          </ModalHeader>
 
          <ModalBody>
-            <div className="space-y-6">
+            <div className="space-y-2">
                {/* Linha 1: Decolagem e Pouso */}
-               <div className="grid grid-cols-2 gap-3">
+               <div className="grid gap-3 md:grid-cols-2">
                   {/* Grupo Decolagem */}
-                  <div className="rounded-xl border border-blue-200 bg-blue-50/30 p-4">
+                  <div className="rounded-xl border border-blue-200 bg-blue-50/30 p-2 md:p-4">
                      <div className="mb-4 flex items-center gap-2">
                         <span className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-500 text-xs font-bold text-white">
                            1
@@ -342,8 +342,8 @@ export function EtapaModal({
                            Decolagem
                         </h4>
                      </div>
-                     <div className="grid grid-cols-4 gap-4">
-                        <div className="col-span-2">
+                     <div className="grid grid-cols-7 gap-4">
+                        <div className="col-span-3">
                            <Label
                               htmlFor="dt_dep_date"
                               className="mb-2 block text-xs font-medium text-gray-600"
@@ -363,11 +363,11 @@ export function EtapaModal({
                               }
                               className={clsx(
                                  inputBaseClass,
-                                 "border-gray-300 focus:ring-blue-500"
+                                 "w-24 border-gray-300 focus:ring-blue-500"
                               )}
                            />
                         </div>
-                        <div>
+                        <div className="col-span-2">
                            <Label
                               htmlFor="dt_dep_time"
                               className="mb-2 block text-xs font-medium text-gray-600"
@@ -395,7 +395,7 @@ export function EtapaModal({
                               )}
                            />
                         </div>
-                        <div>
+                        <div className="col-span-2">
                            <Label
                               htmlFor="origem"
                               className="mb-2 block text-xs font-medium text-gray-600"
@@ -429,7 +429,7 @@ export function EtapaModal({
                   </div>
 
                   {/* Grupo Pouso */}
-                  <div className="rounded-xl border border-green-200 bg-green-50/30 p-4">
+                  <div className="rounded-xl border border-green-200 bg-green-50/30 p-2 md:p-4">
                      <div className="mb-4 flex items-center gap-2">
                         <span className="flex h-6 w-6 items-center justify-center rounded-full bg-green-500 text-xs font-bold text-white">
                            2
@@ -438,8 +438,8 @@ export function EtapaModal({
                            Pouso
                         </h4>
                      </div>
-                     <div className="grid grid-cols-4 gap-4">
-                        <div className="col-span-2">
+                     <div className="grid grid-cols-7 gap-4">
+                        <div className="col-span-3">
                            <Label
                               htmlFor="dt_arr_date"
                               className="mb-2 block text-xs font-medium text-gray-600"
@@ -471,7 +471,7 @@ export function EtapaModal({
                               </span>
                            )}
                         </div>
-                        <div>
+                        <div className="col-span-2">
                            <Label
                               htmlFor="dt_arr_time"
                               className="mb-2 block text-xs font-medium text-gray-600"
@@ -495,7 +495,7 @@ export function EtapaModal({
                               )}
                            />
                         </div>
-                        <div>
+                        <div className="col-span-2">
                            <Label
                               htmlFor="dest"
                               className="mb-2 block text-xs font-medium text-gray-600"
@@ -537,7 +537,7 @@ export function EtapaModal({
                </div>
 
                {/* Tempo de Voo Calculado + Status da Busca de Rota */}
-               <div className="flex items-center justify-center gap-4">
+               <div className="grid items-center justify-center gap-4 md:flex">
                   <div className="flex items-center gap-3 rounded-full border border-gray-200 bg-gray-50 px-6 py-2">
                      <HiClock className="h-5 w-5 text-gray-500" />
                      <span className="text-sm font-medium text-gray-600">
@@ -559,14 +559,59 @@ export function EtapaModal({
                   )}
 
                   {/* Indicador de sugestão completa (rota + destino) */}
-                  {!isLoadingRoute && suggestionType === "full" && (
-                     <div className="flex items-center gap-2 rounded-full border border-green-200 bg-green-50 px-4 py-2">
-                        <HiLightningBolt className="h-4 w-4 text-green-500" />
-                        <span className="text-sm text-green-600">
-                           Sugestão completa baseada em rota anterior
-                        </span>
-                     </div>
-                  )}
+                  {!isLoadingRoute &&
+                     suggestionType === "full" &&
+                     routeSuggestion && (
+                        <div className="flex flex-col items-center gap-1.5">
+                           <div className="flex items-center gap-2 rounded-full border border-green-200 bg-green-50 px-4 py-2">
+                              <HiLightningBolt className="h-4 w-4 text-green-500" />
+                              <span className="text-sm font-medium text-green-600">
+                                 Sugestão completa baseada em rota anterior
+                              </span>
+                           </div>
+                           <div className="flex flex-wrap justify-center gap-1">
+                              {routeSuggestion.alternativa && (
+                                 <span className="rounded-full bg-green-100 px-2.5 py-0.5 text-xs text-green-700">
+                                    Alt:{" "}
+                                    <span className="font-mono font-semibold">
+                                       {routeSuggestion.alternativa}
+                                    </span>
+                                 </span>
+                              )}
+                              {routeSuggestion.tvoo_alt != null && (
+                                 <span className="rounded-full bg-green-100 px-2.5 py-0.5 text-xs text-green-700">
+                                    Tvoo Alt:{" "}
+                                    <span className="font-mono font-semibold">
+                                       {minutesToTime(routeSuggestion.tvoo_alt)}
+                                    </span>
+                                 </span>
+                              )}
+                              {routeSuggestion.qtd_comb != null && (
+                                 <span className="rounded-full bg-green-100 px-2.5 py-0.5 text-xs text-green-700">
+                                    Combustível:{" "}
+                                    <span className="font-mono font-semibold">
+                                       {routeSuggestion.qtd_comb.toLocaleString(
+                                          "pt-BR"
+                                       )}
+                                       T
+                                    </span>
+                                 </span>
+                              )}
+                              {routeSuggestion.tvoo_etp != null &&
+                                 routeSuggestion.tvoo_etp > 0 && (
+                                    <span className="rounded-full bg-green-100 px-2.5 py-0.5 text-xs text-green-700">
+                                       Chegada calculada (
+                                       <span className="font-mono font-semibold">
+                                          {minutesToTime(
+                                             routeSuggestion.tvoo_etp
+                                          )}
+                                       </span>
+                                       )
+                                    </span>
+                                 )}
+                           </div>
+                        </div>
+                     )}
 
                   {/* Indicador de sugestão parcial (apenas destino) */}
                   {!isLoadingRoute && suggestionType === "partial" && (
@@ -592,9 +637,9 @@ export function EtapaModal({
                </div>
 
                {/* Linha 2: Alternativa, Combustível, Esforço Aéreo */}
-               <div className="grid grid-cols-3 gap-3">
+               <div className="grid grid-cols-2 gap-3 md:grid-cols-9">
                   {/* Alternativa */}
-                  <div className="rounded-xl border border-amber-200 bg-amber-50/30 p-4">
+                  <div className="rounded-xl border border-amber-200 bg-amber-50/30 p-4 md:col-span-3">
                      <div className="mb-4 flex items-center gap-2">
                         <HiLocationMarker className="h-5 w-5 text-amber-500" />
                         <h4 className="text-sm font-semibold tracking-wide text-amber-700 uppercase">
@@ -686,7 +731,7 @@ export function EtapaModal({
                   </div>
 
                   {/* Combustível */}
-                  <div className="rounded-xl border border-purple-200 bg-purple-50/30 p-4">
+                  <div className="rounded-xl border border-purple-200 bg-purple-50/30 p-4 md:col-span-2">
                      <div className="mb-4 flex items-center gap-2">
                         <span className="flex h-5 w-5 items-center justify-center rounded bg-purple-500 text-xs font-bold text-white">
                            T
@@ -737,7 +782,7 @@ export function EtapaModal({
                   </div>
 
                   {/* Esforço Aéreo */}
-                  <div className="rounded-xl border border-red-200 bg-red-50/30 p-4">
+                  <div className="col-span-2 rounded-xl border border-red-200 bg-red-50/30 p-4 md:col-span-4">
                      <div className="mb-4 flex items-center gap-2">
                         <span className="flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs font-bold text-white">
                            E

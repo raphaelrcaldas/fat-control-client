@@ -90,7 +90,7 @@ const OrdemItem = memo(function OrdemItem({
          role="button"
          tabIndex={0}
          aria-label={`Abrir ordem de missão ${ordem.numero}`}
-         className="cursor-pointer rounded-xl border border-gray-200 bg-white p-4 shadow-sm transition-all hover:border-red-300 hover:shadow-md focus:border-red-400 focus:ring-2 focus:ring-red-400 focus:outline-none"
+         className="cursor-pointer rounded-xl border border-gray-200 bg-white px-4 py-3 shadow-sm transition-all hover:border-red-300 hover:shadow-md focus:border-red-400 focus:ring-2 focus:ring-red-400 focus:outline-none"
          onClick={handleClick}
          onKeyDown={handleKeyDown}
       >
@@ -105,7 +105,7 @@ const OrdemItem = memo(function OrdemItem({
                   </div>
                </div>
                <div className="h-10 w-px bg-gray-200" />
-               <div className="flex w-24 flex-col gap-1.5 text-center">
+               <div className="hidden w-24 flex-col gap-1.5 text-center md:flex">
                   <Label className="pointer-events-none text-xs text-gray-500">
                      Status
                   </Label>
@@ -115,8 +115,8 @@ const OrdemItem = memo(function OrdemItem({
                      {ordem.status}
                   </span>
                </div>
-               <div className="h-10 w-px bg-gray-200" />
-               <div className="flex w-32 flex-col gap-1.5 text-center">
+               <div className="hidden h-10 w-px bg-gray-200 md:block" />
+               <div className="hidden w-32 flex-col gap-1.5 text-center md:flex">
                   <Label className="pointer-events-none text-xs text-gray-500">
                      Etiquetas
                   </Label>
@@ -143,8 +143,8 @@ const OrdemItem = memo(function OrdemItem({
                      </span>
                   )}
                </div>
-               <div className="hidden h-10 w-px bg-gray-200 sm:block" />
-               <div className="flex flex-col gap-1.5">
+               <div className="hidden h-10 w-px bg-gray-200 md:block" />
+               <div className="hidden flex-col gap-1.5 md:flex">
                   <Label className="pointer-events-none text-xs text-gray-500">
                      Documento Referência
                   </Label>
@@ -159,12 +159,11 @@ const OrdemItem = memo(function OrdemItem({
                   </p>
                </div>
                <div className="hidden h-10 w-px bg-gray-200 md:block" />
-
-               <div className="flex flex-col gap-1.5">
+               <div className="hidden flex-col gap-1.5 md:flex">
                   <Label className="pointer-events-none text-xs text-gray-500">
                      Descrição
                   </Label>
-                  <p className="pointer-events-none hidden w-48 text-sm sm:block">
+                  <p className="pointer-events-none w-48 truncate text-sm">
                      <span
                         className={
                            ordem.tipo ? "text-gray-600" : "text-gray-400"
@@ -177,14 +176,14 @@ const OrdemItem = memo(function OrdemItem({
                <div className="hidden h-10 w-px bg-gray-200 md:block" />
 
                <div className="flex flex-col gap-1.5">
-                  <Label className="pointer-events-none text-xs text-gray-500">
+                  {/* <Label className="pointer-events-none text-xs text-gray-500">
                      Rota
-                  </Label>
+                  </Label> */}
                   {Object.keys(resumoRota).length > 0 && (
-                     <div className="hidden flex-col gap-2 md:flex">
+                     <div className="flex flex-col gap-2">
                         {Object.entries(resumoRota).map(([data, etapas]) => (
                            <div key={data} className="text-sm font-medium">
-                              <span className="mr-2 rounded bg-gray-200 px-2 py-1 font-mono text-gray-600">
+                              <span className="mr-2 rounded border border-slate-400 bg-gray-200 px-2 py-1 font-mono text-gray-700">
                                  {data}
                               </span>
                               <span className="font-mono">
@@ -273,7 +272,7 @@ export const ListaOrdens = memo(function ListaOrdens({
    }
 
    return (
-      <div className="space-y-3">
+      <div className="space-y-2">
          {sortedOrdens.map((ordem) => (
             <OrdemItem
                key={ordem.id}

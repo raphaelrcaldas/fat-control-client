@@ -176,16 +176,16 @@ export const EtapasTable = memo(function EtapasTable({
                                  <TableCell className="font-bold text-green-600 uppercase">
                                     {etapa.dest || "—"}
                                  </TableCell>
-                                 <TableCell className="text-amber-500 uppercase">
+                                 <TableCell className="uppercase">
                                     {etapa.alternativa || "—"}
                                  </TableCell>
-                                 <TableCell className="text-amber-500">
+                                 <TableCell className="">
                                     {tempoAlt}
                                  </TableCell>
-                                 <TableCell className="text-center font-mono text-purple-700">
+                                 <TableCell className="text-center font-mono">
                                     {etapa.qtd_comb || "—"}
                                  </TableCell>
-                                 <TableCell className="font-medium text-red-600 uppercase">
+                                 <TableCell className="font-medium uppercase">
                                     {etapa.esf_aer || "—"}
                                  </TableCell>
                                  {isEditable && (

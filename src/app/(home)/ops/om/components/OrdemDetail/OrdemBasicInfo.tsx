@@ -156,7 +156,7 @@ export const OrdemBasicInfo = memo(function OrdemBasicInfo({
    const isNumeroEditable = isEditable && formData.status === "aprovada";
 
    return (
-      <div className="flex gap-4">
+      <div className="grid gap-4 md:flex">
          <div className="w-24">
             <label
                htmlFor="numero-om"

@@ -300,7 +300,7 @@ export function OrdemFormContent({
       <div className="flex flex-1 flex-col overflow-hidden rounded-lg border border-gray-200 bg-gray-50 shadow-xl">
          {/* Header Fixo */}
          <header className="flex shrink-0 items-center justify-between border-b border-gray-200 bg-white px-6 py-4 shadow-sm">
-            <div className="flex min-w-0 flex-1 items-center gap-4">
+            <div className="hidden min-w-0 flex-1 items-center gap-4 md:flex">
                <button
                   onClick={handleClose}
                   className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-700"
@@ -330,7 +330,7 @@ export function OrdemFormContent({
 
             {/* Badge centralizado */}
             {isReadOnlyMode && (
-               <div className="flex flex-1 justify-center">
+               <div className="hidden flex-1 justify-center md:flex">
                   <span className="rounded-lg border border-gray-300 bg-gray-100 px-3 py-1.5 text-xs font-bold tracking-wider text-gray-700 uppercase">
                      Somente Leitura
                   </span>
@@ -585,7 +585,7 @@ export function OrdemFormContent({
                            Informacões
                         </h3>
                      </div>
-                     <div className="px-16 py-4">
+                     <div className="px-10 py-4">
                         <OrdemBasicInfo
                            formData={formData}
                            isEditable={isEditable}
