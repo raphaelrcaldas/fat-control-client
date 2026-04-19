@@ -14,7 +14,7 @@ import {
    TableRow,
    Spinner,
 } from "flowbite-react";
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo, useRef, useEffect } from "react";
 import { isoDateToString } from "utils/dateHandler";
 import { useQuadsContext } from "@/app/(home)/context/quads";
 import { CrewMember } from "services/routes/trips";
@@ -91,6 +91,15 @@ export function QuadsTrip({
       setSelectedIds(new Set());
    }, []);
 
+   const selectAllRef = useRef<HTMLInputElement>(null);
+
+   useEffect(() => {
+      if (selectAllRef.current) {
+         selectAllRef.current.indeterminate =
+            selectedIds.size > 0 && selectedIds.size < quads.length;
+      }
+   }, [selectedIds.size, quads.length]);
+
    const handleBatchDelete = useCallback(async () => {
       setShowBatchDeleteConfirm(false);
       setBatchDeleting(true);
@@ -139,7 +148,7 @@ export function QuadsTrip({
          >
             {trip.trig}
             <div
-               className="absolute -top-2 -right-2 inline-flex h-6 w-6 items-center justify-center rounded-full border-2 border-white bg-red-500 text-xs font-bold text-white"
+               className="absolute -top-2 -right-2 inline-flex size-6 items-center justify-center rounded-full border-2 border-white bg-red-500 font-mono text-xs text-white"
                aria-label={`${totalQuads} quadrinhos`}
             >
                {totalQuads}
@@ -216,16 +225,32 @@ export function QuadsTrip({
                   </button>
                </div>
 
-               <div className="h-96 overflow-y-auto rounded-lg bg-white shadow-lg dark:bg-gray-800">
+               <div className="h-96 overflow-y-auto rounded-xl bg-white shadow-sm ring-1 ring-gray-200">
                   {loading ? (
                      <LoadingState />
                   ) : quads.length > 0 ? (
-                     <Table className="text-center" hoverable>
+                     <Table
+                        className="text-center"
+                        hoverable
+                        theme={{
+                           head: {
+                              cell: {
+                                 base: "bg-white border-b border-slate-200",
+                              },
+                           },
+                        }}
+                     >
                         <TableHead>
                            <TableRow>
                               <TableHeadCell className="w-10">
-                                 <button
-                                    onClick={
+                                 <Checkbox
+                                    ref={selectAllRef}
+                                    color="red"
+                                    checked={
+                                       quads.length > 0 &&
+                                       selectedIds.size === quads.length
+                                    }
+                                    onChange={
                                        selectedIds.size === quads.length
                                           ? handleClearSelection
                                           : handleSelectAll
@@ -235,13 +260,8 @@ export function QuadsTrip({
                                           ? "Desmarcar todos"
                                           : "Selecionar todos"
                                     }
-                                    className="flex size-5 cursor-pointer items-center justify-center rounded border-2 border-gray-500 bg-white transition-colors hover:border-red-500"
-                                 >
-                                    {selectedIds.size === quads.length &&
-                                       quads.length > 0 && (
-                                          <span className="block h-2.5 w-2.5 rounded-sm bg-red-600" />
-                                       )}
-                                 </button>
+                                    className="size-5 cursor-pointer rounded border-2 border-gray-500 text-red-600 ring-offset-1 checked:border-red-600 focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+                                 />
                               </TableHeadCell>
                               <TableHeadCell>Valor</TableHeadCell>
                               <TableHeadCell>Ações</TableHeadCell>

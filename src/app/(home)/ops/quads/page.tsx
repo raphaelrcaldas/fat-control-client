@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState, useMemo, useCallback, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { usePersistedState } from "@/hooks/usePersistedState";
 import { Select, Radio, Label, Spinner } from "flowbite-react";
 import { useQuadsContext } from "../../context/quads";
@@ -14,8 +14,6 @@ const DEFAULT_PROJ = "kc-390";
 
 export default function QuadPage() {
    const [ordem, setOrdem] = usePersistedState("quads.ordem", "opr");
-   const [groupName, setGroupName] = useState("");
-   const [typeName, setTypeName] = useState("");
 
    const { quadFunc, setQuadFunc, quadType, setQuadType, visual, setVisual } =
       useQuadsContext();
@@ -83,27 +81,20 @@ export default function QuadPage() {
       scrollRef.current.scrollLeft = scrollLeft.current - walk;
    };
 
-   const getQuadsName = useCallback(() => {
-      if (quadsType.length === 0) return;
-
+   const { groupName, typeName } = useMemo(() => {
       for (const group of quadsType) {
          for (const type of group.types) {
             if (type.id === quadType) {
-               setGroupName(group.long);
-               setTypeName(type.long);
-               return;
+               return { groupName: group.long, typeName: type.long };
             }
          }
       }
-      // Se não encontrou, limpa os nomes
-      setGroupName("");
-      setTypeName("");
+      return { groupName: "", typeName: "" };
    }, [quadsType, quadType]);
 
    useEffect(() => {
       if (quadsType.length === 0) return;
 
-      // Procura se o type atual é válido para a função escolhida
       const isValidType = quadsType.some((group) =>
          group.types.some(
             (type) => type.id === quadType && type.funcs_list.includes(quadFunc)
@@ -111,7 +102,6 @@ export default function QuadPage() {
       );
 
       if (!isValidType) {
-         // pega o primeiro type válido da lista
          for (const group of quadsType) {
             const validType = group.types.find((t) =>
                t.funcs_list.includes(quadFunc)
@@ -122,9 +112,7 @@ export default function QuadPage() {
             }
          }
       }
-
-      getQuadsName();
-   }, [quadsType, quadFunc, quadType, setQuadType, getQuadsName]);
+   }, [quadsType, quadFunc, quadType, setQuadType]);
 
    const quadsList = useMemo(() => {
       const quadsOrdenados = [...quads].sort((a, b) => {
@@ -160,8 +148,8 @@ export default function QuadPage() {
    }
 
    return (
-      <div className="p-2">
-         <div className="mb-3 flex gap-4 rounded-lg bg-white p-2 py-3 shadow-md">
+      <div>
+         <div className="mb-2 flex gap-4 rounded-lg border border-slate-300 bg-white px-2 py-3 shadow">
             <div className="grid text-center">
                <Label>Função</Label>
                <Select
@@ -196,17 +184,15 @@ export default function QuadPage() {
                         const nameGroup = group.long.toUpperCase();
                         return (
                            <optgroup key={index} label={nameGroup}>
-                              {group.types.map((type) => {
-                                 const typeLabel = type.long.toUpperCase();
-                                 const funcsList = type.funcs_list;
-                                 if (!funcsList.includes(quadFunc)) return;
-
-                                 return (
+                              {group.types
+                                 .filter((type) =>
+                                    type.funcs_list.includes(quadFunc)
+                                 )
+                                 .map((type) => (
                                     <option key={type.id} value={type.id}>
-                                       {typeLabel}
+                                       {type.long.toUpperCase()}
                                     </option>
-                                 );
-                              })}
+                                 ))}
                            </optgroup>
                         );
                      })}
@@ -268,7 +254,7 @@ export default function QuadPage() {
             </div>
          </div>
 
-         <div className="mb-1 ml-5 flex items-center gap-2 px-2 uppercase">
+         <div className="mb-1 flex items-center gap-2 px-2 uppercase">
             <p className="text-2xl font-bold">{groupName}</p>
             <p className="text-base font-semibold">{typeName}</p>
          </div>
@@ -276,7 +262,7 @@ export default function QuadPage() {
          <div
             ref={scrollRef}
             id="quad_table"
-            className="relative flex max-h-[80%] cursor-grab flex-col gap-1 overflow-x-auto overflow-y-auto rounded-lg bg-white py-3 whitespace-nowrap shadow-md select-none md:max-h-[80%]"
+            className="relative flex max-h-[80%] cursor-grab flex-col gap-1 overflow-x-auto overflow-y-auto rounded-lg border border-slate-300 bg-white py-3 whitespace-nowrap shadow select-none"
             onMouseDown={handleMouseDown}
             onMouseMove={handleMouseMove}
             onMouseUp={handleMouseUp}
