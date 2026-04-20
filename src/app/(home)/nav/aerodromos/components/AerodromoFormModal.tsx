@@ -1,5 +1,7 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
+import { useForm, Controller } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import {
    Button,
    Label,
@@ -16,6 +18,11 @@ import { Aerodromo, AerodromoFormData } from "../types";
 import { Cidade } from "services/routes/cities";
 import { SearchLocal } from "@/components/location/SearchLocal";
 import CoordinateInput from "../../CoordinateInput";
+import {
+   aerodromoSchema,
+   AerodromoFormOutput,
+   AerodromoFormValues,
+} from "../schema";
 
 interface AerodromoFormModalProps {
    show: boolean;
@@ -24,7 +31,7 @@ interface AerodromoFormModalProps {
    onSubmit: (data: AerodromoFormData) => void;
 }
 
-const initialFormState: AerodromoFormData = {
+const initialValues: AerodromoFormValues = {
    nome: "",
    codigo_icao: "",
    codigo_iata: "",
@@ -38,86 +45,71 @@ const initialFormState: AerodromoFormData = {
    base_aerea: null,
 };
 
+const FieldError = ({ message }: { message?: string }) =>
+   message ? <p className="mt-1 text-xs text-red-600">{message}</p> : null;
+
 export default function AerodromoFormModal({
    show,
    editingAerodromo,
    onClose,
    onSubmit,
 }: AerodromoFormModalProps) {
-   const [formData, setFormData] =
-      useState<AerodromoFormData>(initialFormState);
-   const [isNacional, setIsNacional] = useState(true);
    const [cidadeSelecionada, setCidadeSelecionada] = useState<Cidade | null>(
       null
    );
    const [showSearchModal, setShowSearchModal] = useState(false);
-   const [coordError, setCoordError] = useState<string>("");
+
+   const {
+      control,
+      register,
+      handleSubmit,
+      reset,
+      watch,
+      setValue,
+      formState: { errors, isSubmitting },
+   } = useForm<AerodromoFormValues, unknown, AerodromoFormOutput>({
+      resolver: zodResolver(aerodromoSchema),
+      defaultValues: initialValues,
+      mode: "onBlur",
+   });
+
+   const pais = watch("pais");
+   const isNacional = pais === "Brasil";
+   const baseAereaValue = watch("base_aerea");
 
    useEffect(() => {
       if (editingAerodromo) {
          const { id, cidade, ...rest } = editingAerodromo;
-         setFormData(rest);
-         setIsNacional(rest.pais === "Brasil");
+         reset({
+            ...rest,
+            codigo_iata: rest.codigo_iata ?? "",
+         });
          setCidadeSelecionada(cidade || null);
       } else {
-         setFormData(initialFormState);
-         setIsNacional(true);
+         reset(initialValues);
          setCidadeSelecionada(null);
       }
-   }, [editingAerodromo]);
+   }, [editingAerodromo, reset]);
 
-   const handleSubmit = (e: React.FormEvent) => {
-      e.preventDefault();
-
-      // Validação de coordenadas
-      if (formData.latitude === 0 && formData.longitude === 0) {
-         setCoordError(
-            "Por favor, preencha as coordenadas (latitude e longitude)"
-         );
-         return;
-      }
-
-      if (formData.latitude === 0) {
-         setCoordError("Por favor, preencha a latitude");
-         return;
-      }
-
-      if (formData.longitude === 0) {
-         setCoordError("Por favor, preencha a longitude");
-         return;
-      }
-
-      onSubmit(formData);
-      setFormData(initialFormState);
-      setIsNacional(true);
+   const submit = handleSubmit((data) => {
+      onSubmit(data as AerodromoFormData);
+      reset(initialValues);
       setCidadeSelecionada(null);
-      setCoordError("");
-   };
+   });
 
    const handleClose = () => {
-      setFormData(initialFormState);
-      setIsNacional(true);
+      reset(initialValues);
       setCidadeSelecionada(null);
-      setCoordError("");
       onClose();
    };
 
    const handleNacionalChange = (checked: boolean) => {
-      setIsNacional(checked);
       if (checked) {
-         // Nacional: define Brasil e limpa cidade_manual
-         setFormData({
-            ...formData,
-            pais: "Brasil",
-            cidade_manual: null,
-         });
+         setValue("pais", "Brasil", { shouldValidate: true });
+         setValue("cidade_manual", null, { shouldValidate: true });
       } else {
-         // Internacional: limpa codigo_cidade e cidade selecionada
-         setFormData({
-            ...formData,
-            pais: "",
-            codigo_cidade: null,
-         });
+         setValue("pais", "", { shouldValidate: true });
+         setValue("codigo_cidade", null, { shouldValidate: true });
          setCidadeSelecionada(null);
       }
    };
@@ -127,13 +119,21 @@ export default function AerodromoFormModal({
       nome: string;
       uf: string;
    }) => {
-      setFormData({
-         ...formData,
-         codigo_cidade: selectedCity.codigo,
-         cidade_manual: null,
-      });
+      setValue("codigo_cidade", selectedCity.codigo, { shouldValidate: true });
+      setValue("cidade_manual", null);
       setCidadeSelecionada(selectedCity);
    };
+
+   const updateBaseAerea = (field: "nome" | "sigla", value: string) => {
+      const current = baseAereaValue ?? { nome: "", sigla: "" };
+      const next = { ...current, [field]: value };
+      const nextOrNull = next.nome === "" && next.sigla === "" ? null : next;
+      setValue("base_aerea", nextOrNull, { shouldValidate: true });
+   };
+
+   const baseAereaErrors = errors.base_aerea as
+      | { nome?: { message?: string }; sigla?: { message?: string } }
+      | undefined;
 
    return (
       <Modal show={show} onClose={handleClose} size="xl" dismissible>
@@ -141,11 +141,7 @@ export default function AerodromoFormModal({
             {editingAerodromo ? "Editar Aeródromo" : "Novo Aeródromo"}
          </ModalHeader>
          <ModalBody>
-            <form
-               onSubmit={handleSubmit}
-               className="space-y-4"
-               autoComplete="off"
-            >
+            <form onSubmit={submit} className="space-y-4" autoComplete="off">
                {/* Informações Básicas */}
                <div>
                   <h6 className="mb-3 flex items-center gap-2 border-b border-gray-200 pb-2 text-sm font-semibold text-gray-900">
@@ -157,17 +153,12 @@ export default function AerodromoFormModal({
                         <Label htmlFor="nome">Nome do Aeródromo *</Label>
                         <TextInput
                            id="nome"
-                           required
                            autoComplete="off"
-                           value={formData.nome}
-                           onChange={(e) =>
-                              setFormData({
-                                 ...formData,
-                                 nome: e.target.value,
-                              })
-                           }
                            placeholder="Ex: Aeroporto Internacional de Brasília"
+                           color={errors.nome ? "failure" : undefined}
+                           {...register("nome")}
                         />
+                        <FieldError message={errors.nome?.message} />
                      </div>
                      <div className="grid grid-cols-3 gap-4 md:col-span-2">
                         <div>
@@ -175,18 +166,16 @@ export default function AerodromoFormModal({
                            <TextInput
                               id="codigo_icao"
                               name="codigo_icao_field"
-                              required
                               maxLength={4}
                               autoComplete="new-password"
                               placeholder="Ex: SBBR"
-                              value={formData.codigo_icao}
-                              onChange={(e) =>
-                                 setFormData({
-                                    ...formData,
-                                    codigo_icao: e.target.value.toUpperCase(),
-                                 })
-                              }
+                              color={errors.codigo_icao ? "failure" : undefined}
+                              {...register("codigo_icao", {
+                                 setValueAs: (v: string) =>
+                                    (v ?? "").toUpperCase(),
+                              })}
                            />
+                           <FieldError message={errors.codigo_icao?.message} />
                         </div>
                         <div>
                            <Label htmlFor="codigo_iata">Código IATA</Label>
@@ -196,31 +185,25 @@ export default function AerodromoFormModal({
                               maxLength={3}
                               autoComplete="new-password"
                               placeholder="Ex: BSB"
-                              value={formData.codigo_iata || ""}
-                              onChange={(e) =>
-                                 setFormData({
-                                    ...formData,
-                                    codigo_iata: e.target.value.toUpperCase(),
-                                 })
-                              }
+                              color={errors.codigo_iata ? "failure" : undefined}
+                              {...register("codigo_iata", {
+                                 setValueAs: (v: string) =>
+                                    (v ?? "").toUpperCase(),
+                              })}
                            />
+                           <FieldError message={errors.codigo_iata?.message} />
                         </div>
                         <div>
                            <Label htmlFor="utc">Fuso Horário (UTC) *</Label>
                            <TextInput
                               id="utc"
                               type="number"
-                              required
                               autoComplete="off"
                               placeholder="Ex: -3"
-                              value={formData.utc}
-                              onChange={(e) =>
-                                 setFormData({
-                                    ...formData,
-                                    utc: parseInt(e.target.value) || 0,
-                                 })
-                              }
+                              color={errors.utc ? "failure" : undefined}
+                              {...register("utc", { valueAsNumber: true })}
                            />
+                           <FieldError message={errors.utc?.message} />
                         </div>
                      </div>
                   </div>
@@ -237,19 +220,15 @@ export default function AerodromoFormModal({
                         <Label htmlFor="base_nome">Nome da Base Aérea</Label>
                         <TextInput
                            id="base_nome"
-                           value={formData.base_aerea?.nome || ""}
                            autoComplete="off"
+                           value={baseAereaValue?.nome ?? ""}
+                           color={baseAereaErrors?.nome ? "failure" : undefined}
                            onChange={(e) =>
-                              setFormData({
-                                 ...formData,
-                                 base_aerea: {
-                                    nome: e.target.value,
-                                    sigla: formData.base_aerea?.sigla || "",
-                                 },
-                              })
+                              updateBaseAerea("nome", e.target.value)
                            }
                            placeholder="Ex: Base Aérea de Anápolis"
                         />
+                        <FieldError message={baseAereaErrors?.nome?.message} />
                      </div>
                      <div>
                         <Label htmlFor="base_sigla">Sigla da Base</Label>
@@ -257,17 +236,18 @@ export default function AerodromoFormModal({
                            id="base_sigla"
                            maxLength={4}
                            autoComplete="off"
-                           value={formData.base_aerea?.sigla || ""}
+                           value={baseAereaValue?.sigla ?? ""}
+                           color={baseAereaErrors?.sigla ? "failure" : undefined}
                            onChange={(e) =>
-                              setFormData({
-                                 ...formData,
-                                 base_aerea: {
-                                    nome: formData.base_aerea?.nome || "",
-                                    sigla: e.target.value.toUpperCase(),
-                                 },
-                              })
+                              updateBaseAerea(
+                                 "sigla",
+                                 e.target.value.toUpperCase()
+                              )
                            }
                            placeholder="Ex: BAAN"
+                        />
+                        <FieldError
+                           message={baseAereaErrors?.sigla?.message}
                         />
                      </div>
                   </div>
@@ -280,7 +260,6 @@ export default function AerodromoFormModal({
                      Localização
                   </h6>
 
-                  {/* Checkbox Aeródromo Nacional */}
                   <div className="mb-4">
                      <div className="flex items-center gap-2">
                         <Checkbox
@@ -298,7 +277,6 @@ export default function AerodromoFormModal({
                      </div>
                   </div>
 
-                  {/* Se Nacional: Seletor de Cidade */}
                   {isNacional ? (
                      <div className="grid grid-cols-1 gap-4">
                         <div className="flex flex-row items-center justify-between gap-3">
@@ -325,6 +303,7 @@ export default function AerodromoFormModal({
                            <Button
                               size="lg"
                               pill
+                              type="button"
                               onClick={() => setShowSearchModal(true)}
                               color="red"
                               className="shadow-md transition-shadow hover:shadow-lg"
@@ -332,6 +311,7 @@ export default function AerodromoFormModal({
                               <IoMdSearch className="size-5" />
                            </Button>
                         </div>
+                        <FieldError message={errors.codigo_cidade?.message} />
 
                         <SearchLocal
                            show={showSearchModal}
@@ -340,38 +320,34 @@ export default function AerodromoFormModal({
                         />
                      </div>
                   ) : (
-                     /* Se Internacional: Campos manuais */
                      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                         <div>
                            <Label htmlFor="pais">País *</Label>
                            <TextInput
                               id="pais"
-                              required
-                              value={formData.pais}
                               autoComplete="off"
-                              onChange={(e) =>
-                                 setFormData({
-                                    ...formData,
-                                    pais: e.target.value,
-                                 })
-                              }
                               placeholder="Ex: Estados Unidos"
+                              color={errors.pais ? "failure" : undefined}
+                              {...register("pais")}
                            />
+                           <FieldError message={errors.pais?.message} />
                         </div>
                         <div>
                            <Label htmlFor="cidade_manual">Cidade *</Label>
                            <TextInput
                               id="cidade_manual"
-                              required
-                              value={formData.cidade_manual || ""}
                               autoComplete="off"
-                              onChange={(e) =>
-                                 setFormData({
-                                    ...formData,
-                                    cidade_manual: e.target.value,
-                                 })
-                              }
                               placeholder="Ex: Los Angeles, CA"
+                              color={
+                                 errors.cidade_manual ? "failure" : undefined
+                              }
+                              {...register("cidade_manual", {
+                                 setValueAs: (v: string) =>
+                                    v && v.trim() !== "" ? v : null,
+                              })}
+                           />
+                           <FieldError
+                              message={errors.cidade_manual?.message}
                            />
                         </div>
                      </div>
@@ -384,61 +360,60 @@ export default function AerodromoFormModal({
                      Coordenadas Geográficas
                   </h6>
                   <div className="grid grid-cols-1 gap-4 md:grid-cols-1">
-                     <CoordinateInput
-                        id="latitude"
-                        label="Latitude"
-                        type="latitude"
-                        value={formData.latitude}
-                        onChange={(value) => {
-                           setFormData({ ...formData, latitude: value });
-                           setCoordError("");
-                        }}
-                        required
+                     <Controller
+                        control={control}
+                        name="latitude"
+                        render={({ field }) => (
+                           <div>
+                              <CoordinateInput
+                                 id="latitude"
+                                 label="Latitude"
+                                 type="latitude"
+                                 value={field.value}
+                                 onChange={field.onChange}
+                                 required
+                              />
+                              <FieldError message={errors.latitude?.message} />
+                           </div>
+                        )}
                      />
-                     <CoordinateInput
-                        id="longitude"
-                        label="Longitude"
-                        type="longitude"
-                        value={formData.longitude}
-                        onChange={(value) => {
-                           setFormData({ ...formData, longitude: value });
-                           setCoordError("");
-                        }}
-                        required
+                     <Controller
+                        control={control}
+                        name="longitude"
+                        render={({ field }) => (
+                           <div>
+                              <CoordinateInput
+                                 id="longitude"
+                                 label="Longitude"
+                                 type="longitude"
+                                 value={field.value}
+                                 onChange={field.onChange}
+                                 required
+                              />
+                              <FieldError message={errors.longitude?.message} />
+                           </div>
+                        )}
                      />
-                     {coordError && (
-                        <div className="col-span-full">
-                           <p className="mt-1 text-sm text-red-600">
-                              {coordError}
-                           </p>
-                        </div>
-                     )}
                      <div>
                         <Label htmlFor="elevacao">Elevação (pés) *</Label>
                         <TextInput
                            id="elevacao"
                            type="number"
                            autoComplete="off"
-                           required
                            placeholder="Ex: 3497"
-                           value={formData.elevacao}
-                           onChange={(e) =>
-                              setFormData({
-                                 ...formData,
-                                 elevacao: parseInt(e.target.value) || 0,
-                              })
-                           }
+                           color={errors.elevacao ? "failure" : undefined}
+                           {...register("elevacao", { valueAsNumber: true })}
                         />
+                        <FieldError message={errors.elevacao?.message} />
                      </div>
                   </div>
                </div>
 
-               {/* Botões */}
                <div className="flex justify-end gap-3 border-t border-gray-200 pt-4">
-                  <Button color="gray" onClick={handleClose}>
+                  <Button color="gray" type="button" onClick={handleClose}>
                      Cancelar
                   </Button>
-                  <Button color="red" type="submit">
+                  <Button color="red" type="submit" disabled={isSubmitting}>
                      {editingAerodromo
                         ? "Salvar Alterações"
                         : "Cadastrar Aeródromo"}

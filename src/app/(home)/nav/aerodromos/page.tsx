@@ -1,6 +1,15 @@
 "use client";
-import { useState, useMemo, useEffect } from "react";
-import { Button, TextInput, Spinner, Alert } from "flowbite-react";
+import { useState, useMemo, useEffect, useCallback } from "react";
+import {
+   Button,
+   TextInput,
+   Spinner,
+   Alert,
+   Modal,
+   ModalHeader,
+   ModalBody,
+   ModalFooter,
+} from "flowbite-react";
 import {
    HiPlus,
    HiPencil,
@@ -10,6 +19,7 @@ import {
    HiShieldCheck,
    HiHome,
    HiExclamation,
+   HiOutlineExclamationCircle,
 } from "react-icons/hi";
 import { MdTerrain, MdMyLocation } from "react-icons/md";
 import { LuMapPin } from "react-icons/lu";
@@ -38,6 +48,8 @@ export default function AerodromoCadastro() {
    const [selectedAero, setSelectedAero] = useState<Aerodromo | null>(null);
    const [mapResetKey, setMapResetKey] = useState(0);
    const [isXlScreen, setIsXlScreen] = useState(false);
+   const [deleteTarget, setDeleteTarget] = useState<Aerodromo | null>(null);
+   const [deleting, setDeleting] = useState(false);
    const { push } = useToast();
 
    // Detecta se a tela é xl+ para renderizar o mapa apenas quando visível
@@ -59,31 +71,36 @@ export default function AerodromoCadastro() {
       };
    }, []);
 
-   // Carrega aeródromos da API
-   useEffect(() => {
-      loadAerodromos();
-   }, []);
+   const loadAerodromos = useCallback(
+      async (signal?: AbortSignal) => {
+         try {
+            setLoading(true);
+            setError(null);
+            const data = await getAerodromos(signal);
+            setAerodromos(data);
+         } catch (err: any) {
+            if (err?.name === "AbortError" || signal?.aborted) return;
+            const errorMessage =
+               err?.message || "Erro ao carregar aeródromos. Tente novamente.";
+            setError(errorMessage);
+            push({
+               title: "Erro",
+               message: errorMessage,
+               type: "error",
+            });
+            console.error(err);
+         } finally {
+            if (!signal?.aborted) setLoading(false);
+         }
+      },
+      [push]
+   );
 
-   const loadAerodromos = async () => {
-      try {
-         setLoading(true);
-         setError(null);
-         const data = await getAerodromos();
-         setAerodromos(data);
-      } catch (err: any) {
-         const errorMessage =
-            err?.message || "Erro ao carregar aeródromos. Tente novamente.";
-         setError(errorMessage);
-         push({
-            title: "Erro",
-            message: errorMessage,
-            type: "error",
-         });
-         console.error(err);
-      } finally {
-         setLoading(false);
-      }
-   };
+   useEffect(() => {
+      const controller = new AbortController();
+      loadAerodromos(controller.signal);
+      return () => controller.abort();
+   }, [loadAerodromos]);
 
    const handleOpenModal = (aerodromo: Aerodromo | null = null) => {
       setEditingAerodromo(aerodromo);
@@ -157,33 +174,34 @@ export default function AerodromoCadastro() {
       }
    };
 
-   const handleDelete = async (id: number) => {
-      const aeroToDelete = aerodromos.find((a) => a.id === id);
-      if (confirm("Tem certeza que deseja excluir este aeródromo?")) {
-         try {
-            setError(null);
-            await deleteAerodromo(id);
-            setAerodromos(aerodromos.filter((a) => a.id !== id));
-            if (selectedAero?.id === id) {
-               setSelectedAero(null);
-            }
-            push({
-               title: "Sucesso!",
-               message: `Aeródromo ${
-                  aeroToDelete?.codigo_icao || ""
-               } excluído com sucesso`,
-               type: "success",
-            });
-         } catch (err: any) {
-            const errorMessage =
-               err?.message || "Erro ao excluir aeródromo. Tente novamente.";
-            push({
-               title: "Erro",
-               message: errorMessage,
-               type: "error",
-            });
-            console.error(err);
+   const confirmDelete = async () => {
+      if (!deleteTarget) return;
+      const { id, codigo_icao } = deleteTarget;
+      try {
+         setDeleting(true);
+         setError(null);
+         await deleteAerodromo(id);
+         setAerodromos((prev) => prev.filter((a) => a.id !== id));
+         if (selectedAero?.id === id) {
+            setSelectedAero(null);
          }
+         push({
+            title: "Sucesso!",
+            message: `Aeródromo ${codigo_icao} excluído com sucesso`,
+            type: "success",
+         });
+         setDeleteTarget(null);
+      } catch (err: any) {
+         const errorMessage =
+            err?.message || "Erro ao excluir aeródromo. Tente novamente.";
+         push({
+            title: "Erro",
+            message: errorMessage,
+            type: "error",
+         });
+         console.error(err);
+      } finally {
+         setDeleting(false);
       }
    };
 
@@ -388,8 +406,7 @@ export default function AerodromoCadastro() {
                                           "cursor-pointer border-b border-gray-200 transition-colors last:border-b-0 hover:bg-gray-50",
                                           {
                                              "bg-slate-100":
-                                                selectedAero &&
-                                                selectedAero.id == aero.id,
+                                                selectedAero?.id === aero.id,
                                           }
                                        )}
                                        onClick={() => setSelectedAero(aero)}
@@ -485,7 +502,7 @@ export default function AerodromoCadastro() {
                                              <button
                                                 onClick={(e) => {
                                                    e.stopPropagation();
-                                                   handleDelete(aero.id);
+                                                   setDeleteTarget(aero);
                                                 }}
                                                 className="text-gray-600 hover:text-red-600"
                                                 title="Excluir"
@@ -562,6 +579,51 @@ export default function AerodromoCadastro() {
             onClose={handleCloseModal}
             onSubmit={handleSubmit}
          />
+
+         {/* Modal de Confirmação de Exclusão */}
+         <Modal
+            show={deleteTarget !== null}
+            size="md"
+            onClose={() => !deleting && setDeleteTarget(null)}
+            popup
+            dismissible
+         >
+            <ModalHeader />
+            <ModalBody>
+               <div className="text-center">
+                  <HiOutlineExclamationCircle className="mx-auto mb-4 h-14 w-14 text-red-500" />
+                  <h3 className="mb-2 text-lg font-semibold text-gray-900">
+                     Confirmar exclusão
+                  </h3>
+                  <p className="text-sm text-gray-600">
+                     Tem certeza que deseja excluir o aeródromo{" "}
+                     <span className="font-mono font-semibold text-red-600">
+                        {deleteTarget?.codigo_icao}
+                     </span>
+                     ? Esta ação não pode ser desfeita.
+                  </p>
+               </div>
+            </ModalBody>
+            <ModalFooter className="justify-center">
+               <Button
+                  color="gray"
+                  onClick={() => setDeleteTarget(null)}
+                  disabled={deleting}
+               >
+                  Cancelar
+               </Button>
+               <Button color="red" onClick={confirmDelete} disabled={deleting}>
+                  {deleting ? (
+                     <>
+                        <Spinner size="sm" className="mr-2" />
+                        Excluindo...
+                     </>
+                  ) : (
+                     "Sim, excluir"
+                  )}
+               </Button>
+            </ModalFooter>
+         </Modal>
       </div>
    );
 }
