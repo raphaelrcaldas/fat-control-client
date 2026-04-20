@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { Modal, ModalBody, ModalHeader } from "flowbite-react";
+import { Button, Modal, ModalBody, ModalFooter } from "flowbite-react";
 import { CrewIndispList } from "services/routes/indisps";
 import {
    useIndispModalActions,
@@ -42,6 +42,11 @@ export function IndispModal({ indisps }: IndispModalProps) {
                />
             )}
          </ModalBody>
+         <ModalFooter className="justify-center">
+            <Button color="gray" size="sm" onClick={close} tabIndex={-1}>
+               Fechar
+            </Button>
+         </ModalFooter>
       </Modal>
    );
 }
