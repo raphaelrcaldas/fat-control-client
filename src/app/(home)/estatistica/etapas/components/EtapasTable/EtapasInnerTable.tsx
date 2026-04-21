@@ -1,13 +1,6 @@
 "use client";
 
-import {
-   Checkbox,
-   Table,
-   TableBody,
-   TableHead,
-   TableHeadCell,
-   TableRow,
-} from "flowbite-react";
+import { Table, TableBody } from "flowbite-react";
 import type { EtapaItem } from "services/routes/estatistica/etapas";
 import { EtapaRow } from "./EtapaRow";
 
@@ -41,7 +34,7 @@ export function EtapasInnerTable({
             hoverable
             className="text-center"
             theme={{
-               body: { cell: { base: "px-1 py-0.5" } },
+               body: { cell: { base: "px-1 py-0.5 align-middle" } },
             }}
          >
             <TableBody className="divide-y">

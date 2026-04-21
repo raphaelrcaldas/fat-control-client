@@ -87,7 +87,7 @@ export default function EtapasPage() {
                         onClick={handleOpenCreateMissao}
                      >
                         <HiPlus className="mr-2 h-4 w-4" />
-                        Nova Missao
+                        Missao
                      </Button>
                   </PermBased>
                   <Button

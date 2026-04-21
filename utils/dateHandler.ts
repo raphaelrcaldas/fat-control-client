@@ -28,6 +28,18 @@ export function isoDateToString(isoDate: string): string {
    return `${day}/${month}/${year}`;
 }
 
+export function isoDateToShort(isoDate: string): string {
+   if (!isoDate) return "";
+
+   const date = new Date(isoDate);
+   if (isNaN(date.getTime())) return "";
+
+   const day = String(date.getUTCDate()).padStart(2, "0");
+   const month = String(date.getUTCMonth() + 1).padStart(2, "0");
+
+   return `${day}/${month}`;
+}
+
 export function isoStrLocalToDate(localStr: string): Date | null {
    if (!localStr || typeof localStr !== "string") return null;
 

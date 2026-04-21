@@ -10,62 +10,74 @@ interface AeronaveCardProps {
    onEdit: (aeronave: AeronavePublic) => void;
 }
 
+const SIT_COLORS: Record<string, string> = {
+   DI: "bg-emerald-500",
+   DO: "bg-orange-500",
+   IN: "bg-red-500",
+   IS: "bg-gray-400",
+};
+
 export function AeronaveCard({ aeronave, onEdit }: AeronaveCardProps) {
    return (
       <div
-         className={`rounded-lg border bg-white shadow-sm ${!aeronave.active ? "border-gray-200 opacity-60" : "border-gray-200"}`}
+         className={clsx(
+            "rounded-lg border border-gray-200 shadow-sm",
+            aeronave.active ? "bg-white" : "bg-gray-50/60"
+         )}
       >
-         {/* Header */}
-         <div className="flex items-center justify-between border-b border-gray-100 px-4 py-3">
-            <div className="flex items-center gap-3">
-               <span className="text-lg font-bold text-gray-900">
-                  {aeronave.matricula}
-               </span>
-
+         <div className="flex items-center justify-between gap-3 px-4 py-3">
+            <div className="flex min-w-0 items-center gap-3">
                <span
                   className={clsx(
-                     "grid w-10 justify-items-center rounded p-2 font-bold text-white",
-                     {
-                        "bg-emerald-400": aeronave.sit == "DI",
-                        "bg-red-400": aeronave.sit == "IN",
-                        "bg-gray-400": aeronave.sit == "IS",
-                        "bg-orange-400": aeronave.sit == "DO",
-                     }
+                     "inline-flex w-12 shrink-0 items-center justify-center rounded-md py-1 text-sm font-bold tracking-wide text-white",
+                     SIT_COLORS[aeronave.sit]
                   )}
                >
                   {aeronave.sit}
                </span>
+               <div className="min-w-0">
+                  <div className="flex items-center gap-2">
+                     <span
+                        className={clsx(
+                           "font-mono text-lg font-semibold tracking-wider",
+                           aeronave.active
+                              ? "text-gray-900"
+                              : "text-gray-400 line-through"
+                        )}
+                     >
+                        {aeronave.matricula}
+                     </span>
+                     {aeronave.is_sim && (
+                        <span className="inline-flex items-center rounded bg-purple-50 px-1.5 py-0.5 text-[10px] font-semibold tracking-wide text-purple-700 uppercase ring-1 ring-purple-200 ring-inset">
+                           SIM
+                        </span>
+                     )}
+                  </div>
+                  {!aeronave.active && (
+                     <p className="mt-0.5 text-xs font-medium text-gray-500">
+                        Inativa
+                     </p>
+                  )}
+               </div>
             </div>
             <PermBased resource={"aeronaves"} requiredPerm={"update"}>
                <button
                   onClick={() => onEdit(aeronave)}
-                  className="rounded-lg p-1.5 text-gray-400 transition-colors hover:bg-blue-50 hover:text-blue-600"
+                  className="rounded-md p-1.5 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-700"
+                  aria-label={`Editar aeronave ${aeronave.matricula}`}
                >
                   <HiPencil className="h-4 w-4" />
                </button>
             </PermBased>
          </div>
 
-         {/* Body */}
-         <div className="space-y-2 px-4 py-3">
-            {aeronave.obs && (
+         {aeronave.obs && (
+            <div className="border-t border-gray-100 px-4 py-2.5">
                <p className="text-sm whitespace-pre-line text-gray-600">
                   {aeronave.obs}
                </p>
-            )}
-
-            <div className="flex items-center justify-end">
-               <span
-                  className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${
-                     aeronave.active
-                        ? "bg-green-100 text-green-800"
-                        : "bg-red-100 text-red-800"
-                  }`}
-               >
-                  {aeronave.active ? "Ativa" : "Inativa"}
-               </span>
             </div>
-         </div>
+         )}
       </div>
    );
 }

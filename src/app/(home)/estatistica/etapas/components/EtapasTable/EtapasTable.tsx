@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo, useCallback } from "react";
-import { Badge, Checkbox, Spinner } from "flowbite-react";
+import { Badge, Checkbox, Label, Spinner } from "flowbite-react";
 import {
    HiCheck,
    HiX,
@@ -64,10 +64,6 @@ export function EtapasTable({
    } | null>(null);
 
    const hasData = grouped ? missoes.length > 0 : flatEtapas.length > 0;
-
-   if (!loading && !hasData) {
-      return null;
-   }
 
    const allEtapaIds = useMemo(
       () =>
@@ -205,6 +201,10 @@ export function EtapasTable({
       [selectedIds, bulkUpdate]
    );
 
+   if (!loading && !hasData) {
+      return null;
+   }
+
    const selectionActions = selectedIds.size > 0 && (
       <div className="flex items-center gap-2">
          <div className="h-4 w-px bg-gray-300" />
@@ -292,12 +292,13 @@ export function EtapasTable({
    );
 
    return (
-      <div className="space-y-3 py-1">
+      <div className="space-y-3">
          {grouped ? (
             <>
                {/* Selecionar tudo da pagina + ações em massa */}
-               <div className="ml-2 flex h-8 flex-wrap items-center gap-2 px-1">
+               <div className="ml-2 flex h-10 flex-wrap items-center gap-2 px-1">
                   <Checkbox
+                     id="select-all-etapas"
                      color="red"
                      checked={allSelected}
                      ref={(el) => {
@@ -306,9 +307,12 @@ export function EtapasTable({
                      onChange={onToggleAll}
                      className="cursor-pointer"
                   />
-                  <span className="text-sm font-medium text-gray-600">
+                  <Label
+                     htmlFor="select-all-etapas"
+                     className="cursor-pointer text-sm font-medium text-gray-600"
+                  >
                      Selecionar todas as etapas da pagina
-                  </span>
+                  </Label>
                   {selectionActions}
                </div>
 

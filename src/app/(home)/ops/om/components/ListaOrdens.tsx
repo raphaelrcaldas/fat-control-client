@@ -183,12 +183,20 @@ const OrdemItem = memo(function OrdemItem({
                      <div className="flex flex-col gap-2">
                         {Object.entries(resumoRota).map(([data, etapas]) => (
                            <div key={data} className="text-sm font-medium">
-                              <span className="mr-2 rounded border border-slate-400 bg-gray-200 px-2 py-1 font-mono text-gray-700">
+                              <span className="mr-2 rounded border border-slate-400 bg-gray-200 px-1 py-0.5 font-mono text-gray-700">
                                  {data}
                               </span>
                               <span className="font-mono">
-                                 {etapas.map((e) => e.origem).join(" ")}{" "}
-                                 {etapas[etapas.length - 1].dest}
+                                 <span className="sm:hidden">
+                                    {etapas
+                                       .map((e) => e.origem.slice(-2))
+                                       .join(" ")}{" "}
+                                    {etapas[etapas.length - 1].dest.slice(-2)}
+                                 </span>
+                                 <span className="hidden sm:inline">
+                                    {etapas.map((e) => e.origem).join(" ")}{" "}
+                                    {etapas[etapas.length - 1].dest}
+                                 </span>
                               </span>
                            </div>
                         ))}

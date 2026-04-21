@@ -14,37 +14,29 @@ const SITUACAO_CARDS = [
       sit: "DI",
       label: "Disponíveis",
       icon: MdCheckCircle,
-      iconColor: "text-green-500",
-      bgColor: "bg-green-50",
-      borderColor: "border-green-200",
-      textColor: "text-green-700",
+      accent: "bg-emerald-500",
+      iconColor: "text-emerald-500",
    },
    {
       sit: "DO",
-      label: "Com Restrição",
+      label: "C/ Restrição",
       icon: MdWarning,
-      iconColor: "text-yellow-500",
-      bgColor: "bg-yellow-50",
-      borderColor: "border-yellow-200",
-      textColor: "text-yellow-700",
+      accent: "bg-orange-500",
+      iconColor: "text-orange-500",
    },
    {
       sit: "IN",
       label: "Indisponíveis",
       icon: MdCancel,
+      accent: "bg-red-500",
       iconColor: "text-red-500",
-      bgColor: "bg-red-50",
-      borderColor: "border-red-200",
-      textColor: "text-red-700",
    },
    {
       sit: "IS",
       label: "Em Inspeção",
       icon: MdBuild,
-      iconColor: "text-blue-500",
-      bgColor: "bg-blue-50",
-      borderColor: "border-blue-200",
-      textColor: "text-blue-700",
+      accent: "bg-gray-400",
+      iconColor: "text-gray-500",
    },
 ] as const;
 
@@ -54,29 +46,32 @@ interface SituacaoSummaryProps {
 
 export function SituacaoSummary({ aeronaves }: SituacaoSummaryProps) {
    const activeAeronaves = aeronaves.filter((a) => a.active);
+   const totalActive = activeAeronaves.length;
+   const totalInactive = aeronaves.length - totalActive;
+
    const counts = SITUACAO_CARDS.map((card) => ({
       ...card,
       count: activeAeronaves.filter((a) => a.sit === card.sit).length,
    }));
 
-   const totalActive = activeAeronaves.length;
-   const totalInactive = aeronaves.length - totalActive;
-
    return (
-      <div className="mb-4 grid grid-cols-2 gap-3 lg:grid-cols-5">
+      <div className="mb-4 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5">
          {/* Total */}
-         <div className="flex items-center gap-3 rounded-lg border border-gray-200 bg-white p-3 shadow-sm">
-            <div className="rounded-lg bg-gray-100 p-2">
-               <MdFlightTakeoff className="h-5 w-5 text-gray-600" />
-            </div>
-            <div>
-               <p className="text-2xl font-bold text-gray-900">{totalActive}</p>
-               <p className="text-xs text-gray-500">
+         <div className="flex items-center justify-between rounded-lg border border-gray-200 bg-white px-3 py-2.5">
+            <div className="min-w-0">
+               <p className="text-[11px] font-medium tracking-wide text-gray-500 uppercase">
                   Ativas
-                  {totalInactive > 0 &&
-                     ` (${totalInactive} inativa${totalInactive > 1 ? "s" : ""})`}
+               </p>
+               <p className="mt-0.5 text-2xl font-semibold text-gray-900">
+                  {totalActive}
+                  {totalInactive > 0 && (
+                     <span className="ml-1 text-sm font-normal text-gray-400">
+                        / {aeronaves.length}
+                     </span>
+                  )}
                </p>
             </div>
+            <MdFlightTakeoff className="h-5 w-5 shrink-0 text-gray-400" />
          </div>
 
          {/* Per situation */}
@@ -85,17 +80,21 @@ export function SituacaoSummary({ aeronaves }: SituacaoSummaryProps) {
             return (
                <div
                   key={item.sit}
-                  className={`flex items-center gap-3 rounded-lg border ${item.borderColor} ${item.bgColor} p-3 shadow-sm`}
+                  className="relative flex items-center justify-between overflow-hidden rounded-lg border border-gray-200 bg-white px-3 py-2.5"
                >
-                  <div className={`rounded-lg bg-white/70 p-2`}>
-                     <Icon className={`h-5 w-5 ${item.iconColor}`} />
-                  </div>
-                  <div>
-                     <p className={`text-2xl font-bold ${item.textColor}`}>
+                  <span
+                     className={`absolute top-0 bottom-0 left-0 w-1 ${item.accent}`}
+                     aria-hidden="true"
+                  />
+                  <div className="min-w-0 pl-1">
+                     <p className="text-[11px] font-medium tracking-wide text-gray-500 uppercase">
+                        {item.label}
+                     </p>
+                     <p className="mt-0.5 text-2xl font-semibold text-gray-900">
                         {item.count}
                      </p>
-                     <p className="text-xs text-gray-600">{item.label}</p>
                   </div>
+                  <Icon className={`h-5 w-5 shrink-0 ${item.iconColor}`} />
                </div>
             );
          })}

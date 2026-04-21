@@ -241,12 +241,11 @@ export default function WeekCalendar({
             <table className="w-full table-fixed border-collapse">
                <thead>
                   <tr className="bg-white">
-                     <th className="w-28 border-r border-b border-slate-200/60 bg-white/30 p-1 text-left text-[10px] font-bold text-slate-500 uppercase"></th>
+                     <th className="w-16 border-r border-b border-slate-200/60 bg-white/30 sm:w-24"></th>
                      {weekDays.map((day, idx) => {
                         const dateStr = toLocalDateStr(day);
                         const isToday = dateStr === today;
-                        const isWeekend =
-                           day.getDay() === 0 || day.getDay() === 6;
+
                         return (
                            <th
                               key={idx}
@@ -308,7 +307,7 @@ export default function WeekCalendar({
                               >
                                  {anv.sit}
                               </span>
-                              <div className="text-xs font-medium whitespace-pre-line text-slate-500">
+                              <div className="hidden text-xs font-medium text-slate-500 md:block">
                                  {anv.obs}
                               </div>
                            </div>

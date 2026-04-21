@@ -11,6 +11,7 @@ import {
 import { Checkbox, TableCell, TableRow } from "flowbite-react";
 import {
    isoDateToString,
+   isoDateToShort,
    formatTime,
    minutesToTime,
 } from "@/../utils/dateHandler";
@@ -94,17 +95,57 @@ export const EtapaRow = memo(function EtapaRow({
       });
    }, [tripulantes]);
 
+   const oiList = useMemo(() => {
+      if (oi_etapas.length === 0)
+         return <span className="text-gray-300">&mdash;</span>;
+      return (
+         <ul>
+            {oi_etapas.map((oi) => (
+               <li
+                  key={`${oi.esf_aer_id}-${oi.tipo_missao_id}-${oi.reg}`}
+                  className="flex items-center justify-center gap-1.5 text-xs font-medium"
+               >
+                  <span
+                     className={clsx(
+                        oi.esf_aer.includes("COMAE")
+                           ? "text-blue-700"
+                           : oi.esf_aer.includes("COMPREP")
+                             ? "text-amber-700"
+                             : "text-gray-600"
+                     )}
+                  >
+                     {oi.esf_aer}
+                  </span>
+                  <span className="text-gray-300">|</span>
+                  <span
+                     className={clsx(
+                        "flex items-center justify-center gap-0.5 font-mono",
+                        REG_COLOR[oi.reg] ?? "text-gray-500"
+                     )}
+                  >
+                     {minutesToTime(oi.tvoo)}
+                  </span>
+                  <span className="text-gray-300">|</span>
+                  <span className="font-mono uppercase">
+                     {oi.tipo_missao_cod}
+                  </span>
+               </li>
+            ))}
+         </ul>
+      );
+   }, [oi_etapas]);
+
    return (
       <TableRow
          className={clsx(
-            "bg-transparent transition-all duration-200 hover:bg-white/40",
+            "hover:bg-white/40",
             loading && "opacity-50",
             !sagem
                ? "bg-amber-50/50 hover:bg-amber-100/60"
                : !parte1 && "bg-emerald-50/50 hover:bg-emerald-100/60"
          )}
       >
-         <TableCell className="w-10">
+         <TableCell className="w-7">
             <Checkbox
                color="red"
                checked={checked}
@@ -112,74 +153,32 @@ export const EtapaRow = memo(function EtapaRow({
                className="cursor-pointer"
             />
          </TableCell>
-         <TableCell className="w-20 font-mono text-slate-500">
-            {isoDateToString(data)}
+         <TableCell className="w-12 font-mono text-slate-500 sm:w-20">
+            <span className="sm:hidden">{isoDateToShort(data)}</span>
+            <span className="hidden sm:inline">{isoDateToString(data)}</span>
          </TableCell>
-         <TableCell className="w-14 font-mono font-bold text-slate-800 uppercase">
+         <TableCell className="w-12 font-mono font-bold text-slate-800 uppercase sm:w-14">
             {origem}
          </TableCell>
-         <TableCell className="w-14 font-mono font-bold text-slate-800 uppercase">
+         <TableCell className="w-12 font-mono font-bold text-slate-800 uppercase sm:w-14">
             {destino}
          </TableCell>
-         <TableCell className="w-14 font-mono text-slate-600">
+         <TableCell className="w-13 font-mono text-slate-600 sm:w-16">
             {formatTime(dep)}
          </TableCell>
-         <TableCell className="w-14 font-mono text-slate-600">
+         <TableCell className="w-13 font-mono text-slate-600 sm:w-16">
             {formatTime(arr)}
          </TableCell>
-         <TableCell className="w-14 font-mono font-bold text-slate-800">
+         <TableCell className="w-13 font-mono text-slate-900 sm:w-16">
             {minutesToTime(tvoo)}
          </TableCell>
-         <TableCell className="hidden w-14 font-medium text-slate-700 sm:table-cell">
+         <TableCell className="hidden w-14 font-mono text-slate-700 sm:table-cell">
             {anv}
          </TableCell>
          <TableCell className="hidden w-5 font-mono text-slate-400 sm:table-cell">
             {pousos}
          </TableCell>
-         <TableCell className="hidden w-92 md:table-cell">
-            {oi_etapas.length > 0 ? (
-               <ul>
-                  {oi_etapas.map((oi, i) => {
-                     return (
-                        <li
-                           key={`${oi.esf_aer_id}-${oi.tipo_missao_id}-${oi.reg}`}
-                           className={clsx(
-                              "flex items-center justify-center gap-1.5 text-xs font-medium"
-                           )}
-                        >
-                           <span
-                              className={clsx(
-                                 "",
-                                 oi.esf_aer.includes("COMAE")
-                                    ? "text-blue-700"
-                                    : oi.esf_aer.includes("COMPREP")
-                                      ? "text-amber-700"
-                                      : "text-gray-600"
-                              )}
-                           >
-                              {oi.esf_aer}
-                           </span>
-                           <span className="text-gray-300">|</span>
-                           <span
-                              className={clsx(
-                                 "flex items-center justify-center gap-0.5 font-mono",
-                                 REG_COLOR[oi.reg] ?? "text-gray-500"
-                              )}
-                           >
-                              {minutesToTime(oi.tvoo)}
-                           </span>
-                           <span className="text-gray-300">|</span>
-                           <span className="font-mono uppercase">
-                              {oi.tipo_missao_cod}
-                           </span>
-                        </li>
-                     );
-                  })}
-               </ul>
-            ) : (
-               <span className="text-gray-300">&mdash;</span>
-            )}
-         </TableCell>
+         <TableCell className="hidden w-92 md:table-cell">{oiList}</TableCell>
          <TableCell className="hidden lg:table-cell">
             {tripBadges.length > 0 ? (
                <div className="flex flex-wrap items-center gap-1">
@@ -189,11 +188,11 @@ export const EtapaRow = memo(function EtapaRow({
                <span className="text-gray-300">&mdash;</span>
             )}
          </TableCell>
-         <TableCell className="w-10">
+         <TableCell className="w-12 px-0 sm:w-14">
             <div className="flex items-center gap-0.5">
                <button
                   onClick={() => onDetailEtapa(id)}
-                  className="rounded-lg p-2 text-slate-400 transition-all hover:bg-white/60 hover:text-indigo-600 hover:shadow-sm"
+                  className="rounded-lg px-1 py-2 text-slate-400 transition-colors hover:bg-white/60 hover:text-indigo-600 hover:shadow-sm"
                   title="Detalhes da etapa"
                >
                   <HiEye className="h-4 w-4" />
@@ -201,7 +200,7 @@ export const EtapaRow = memo(function EtapaRow({
                <PermBased resource="etp_mis" requiredPerm="create">
                   <button
                      onClick={() => onEditEtapa(id)}
-                     className="rounded-lg p-2 text-slate-400 transition-all hover:bg-white/60 hover:text-emerald-600 hover:shadow-sm"
+                     className="rounded-lg px-1 py-2 text-slate-400 transition-colors hover:bg-white/60 hover:text-emerald-600 hover:shadow-sm"
                      title="Editar etapa"
                   >
                      <HiPencilAlt className="h-4 w-4" />

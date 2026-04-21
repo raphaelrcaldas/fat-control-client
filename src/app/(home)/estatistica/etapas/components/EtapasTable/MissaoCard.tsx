@@ -49,7 +49,7 @@ export const MissaoCard = memo(function MissaoCard({
    return (
       <div className="mx-0.5 overflow-hidden rounded-xl bg-white shadow ring-1 ring-gray-200">
          {/* Header da missao */}
-         <div className="flex flex-wrap items-center gap-4 border-b border-slate-200 bg-white px-3 py-0.5">
+         <div className="flex flex-wrap items-center gap-3 border-b border-slate-200 bg-white px-1.5 py-0.5">
             {hasEtapas && (
                <Checkbox
                   color="red"
@@ -61,7 +61,7 @@ export const MissaoCard = memo(function MissaoCard({
                   className="cursor-pointer"
                />
             )}
-            <span className="text-base font-medium text-slate-800">
+            <span className="text-sm font-medium text-slate-800">
                {missao.titulo ?? `Missão #${missao.id}`}
             </span>
             {missao.obs && (

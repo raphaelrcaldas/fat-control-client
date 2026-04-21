@@ -100,9 +100,9 @@ const FilterPanel = ({
    };
 
    return (
-      <div className="space-y-4 rounded-xl bg-white p-4 shadow-lg">
-         <div className="grid gap-6 sm:flex sm:items-end">
-            <div className="w-44">
+      <div className="space-y-4 rounded-xl bg-white p-3 shadow-lg">
+         <div className="flex flex-wrap gap-3">
+            <div>
                <label className="mb-2 block text-center text-sm font-medium text-gray-700">
                   Função
                </label>
@@ -174,7 +174,7 @@ const FilterPanel = ({
 
             {/* Toggle O3 - apenas para pilotos */}
             {seboFunc === "pil" && (
-               <div className="flex flex-col items-center">
+               <div className="flex w-fit flex-col items-center">
                   <label className="mb-3 block text-sm font-medium text-gray-700">
                      OE
                   </label>
@@ -218,7 +218,7 @@ const FilterPanel = ({
             )}
 
             {/* Colunas Info */}
-            <div>
+            <div className="hidden sm:block">
                <label className="mb-3 block text-center text-sm font-medium text-gray-700">
                   Cartões
                </label>
