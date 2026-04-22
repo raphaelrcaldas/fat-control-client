@@ -22,6 +22,8 @@ import {
    type MissaoCreate,
    type MissaoUpdate,
 } from "services/routes/estatistica/etapas";
+import { esfAerKeys } from "./useEsfAer";
+import { seboKeys } from "./useSebo";
 
 // ========================================
 // Query Keys - Centralizadas
@@ -124,6 +126,8 @@ export function useCreateEtapa() {
       mutationFn: (data: EtapaCreatePayload) => createEtapa(data),
       onSuccess: () => {
          queryClient.invalidateQueries({ queryKey: etapaKeys.all });
+         queryClient.invalidateQueries({ queryKey: esfAerKeys.all });
+         queryClient.invalidateQueries({ queryKey: seboKeys.all });
       },
    });
 }
@@ -136,6 +140,8 @@ export function useUpdateEtapa() {
       onSuccess: (_, { id }) => {
          queryClient.invalidateQueries({ queryKey: etapaKeys.all });
          queryClient.invalidateQueries({ queryKey: etapaKeys.detail(id) });
+         queryClient.invalidateQueries({ queryKey: esfAerKeys.all });
+         queryClient.invalidateQueries({ queryKey: seboKeys.all });
       },
    });
 }
@@ -146,6 +152,7 @@ export function useBulkUpdateEtapas() {
       mutationFn: (payload: BulkUpdatePayload) => bulkUpdateEtapas(payload),
       onSuccess: () => {
          queryClient.invalidateQueries({ queryKey: etapaKeys.all });
+         queryClient.invalidateQueries({ queryKey: seboKeys.all });
       },
    });
 }
@@ -156,6 +163,8 @@ export function useDeleteEtapa() {
       mutationFn: (id: number) => deleteEtapa(id),
       onSuccess: () => {
          queryClient.invalidateQueries({ queryKey: etapaKeys.all });
+         queryClient.invalidateQueries({ queryKey: esfAerKeys.all });
+         queryClient.invalidateQueries({ queryKey: seboKeys.all });
       },
    });
 }
