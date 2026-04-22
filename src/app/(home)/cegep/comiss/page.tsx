@@ -38,7 +38,7 @@ export default function ComissPage() {
 
    // Estado local para input de texto (debounce)
    const [searchUser, setSearchUser] = useState(urlSearch);
-   const deferredSearch = useDebouncedValue(searchUser);
+   const deferredSearch = useDebouncedValue(searchUser, 500);
 
    // Sync debounced search -> URL
    useEffect(() => {

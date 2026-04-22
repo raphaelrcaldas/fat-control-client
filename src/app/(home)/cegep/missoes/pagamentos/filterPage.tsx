@@ -100,14 +100,14 @@ export function FilterPage({ active }: { active: boolean }) {
    // Debounced URL updaters
    const debouncedSetUser = useDebouncedCallback((value: string) => {
       setParams({ user: serializeString(value), page: undefined });
-   }, 300);
+   }, 400);
 
    const debouncedSetNDoc = useDebouncedCallback((value: string) => {
       setParams({
          n_doc: value === "" ? undefined : value,
          page: undefined,
       });
-   }, 300);
+   }, 400);
 
    // Setters that update URL
    function setTipoDoc(value: string[]) {

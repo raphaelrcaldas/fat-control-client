@@ -2,14 +2,13 @@
 
 import { useEffect, useRef, useState } from "react";
 
-export default function useDebouncedValue<T>(value: T, delay = 220): T {
+export default function useDebouncedValue<T>(value: T, delay = 400): T {
    const [debounced, setDebounced] = useState<T>(value);
-   const ref = useRef<number | null>(null);
+   const ref = useRef<ReturnType<typeof setTimeout> | null>(null);
 
    useEffect(() => {
-      if (ref.current) window.clearTimeout(ref.current);
-      // @ts-ignore
-      ref.current = window.setTimeout(() => setDebounced(value), delay);
+      if (ref.current) clearTimeout(ref.current);
+      ref.current = setTimeout(() => setDebounced(value), delay);
       return () => {
          if (ref.current) window.clearTimeout(ref.current);
       };

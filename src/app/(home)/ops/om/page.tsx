@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import useDebouncedValue from "@/hooks/useDebouncedValue";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Tabs, TabItem, Spinner, Pagination } from "flowbite-react";
 import { FiltrosOrdem } from "./types";
@@ -81,7 +82,7 @@ export default function OrdensMissao() {
       dataFim: defaultDates.dataFim,
       etiquetas_ids: [],
    });
-   const [debouncedBusca, setDebouncedBusca] = useState(filtros.busca);
+   const debouncedBusca = useDebouncedValue(filtros.busca, 500);
 
    // Modal de exclusao
    const [deleteModalOpen, setDeleteModalOpen] = useState(false);
@@ -129,14 +130,6 @@ export default function OrdensMissao() {
       total: ordensRascunhoQuery.data?.total ?? 0,
       pages: ordensRascunhoQuery.data?.pages ?? 1,
    };
-
-   // Debounce para campos de texto
-   useEffect(() => {
-      const timer = setTimeout(() => {
-         setDebouncedBusca(filtros.busca);
-      }, 500);
-      return () => clearTimeout(timer);
-   }, [filtros.busca]);
 
    // Reset para pagina 1 quando filtros mudam
    useEffect(() => {

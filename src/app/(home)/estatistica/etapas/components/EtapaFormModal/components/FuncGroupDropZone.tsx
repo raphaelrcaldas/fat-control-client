@@ -72,7 +72,7 @@ export function FuncGroupDropZone({
 
    // Inline search state
    const [searchQuery, setSearchQuery] = useState("");
-   const debouncedSearch = useDebouncedValue(searchQuery, 300);
+   const debouncedSearch = useDebouncedValue(searchQuery, 400);
 
    const searchParams = debouncedSearch
       ? { search: debouncedSearch, per_page: 5, active: true }
