@@ -351,7 +351,7 @@ export function EtapaFormModal({
                ? `Editar Etapa #${editingEtapa?.id} — Missão #${missao.id}`
                : `Nova Etapa — Missão #${missao.id}${missao.titulo ? ` · ${missao.titulo}` : ""}`}
          </ModalHeader>
-         <ModalBody className="max-h-[70vh] overflow-y-auto">
+         <ModalBody className="max-h-[70vh] overflow-y-auto [scrollbar-gutter:stable]">
             {isLoading ? (
                <div className="flex items-center justify-center py-16">
                   <Spinner size="lg" color="failure" />

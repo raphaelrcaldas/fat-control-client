@@ -184,10 +184,10 @@ export function FuncGroupDropZone({
             {trips.map((t) => (
                <div
                   key={t.tripId}
-                  className="flex items-center justify-center gap-1 rounded border border-white bg-white px-1.5 py-1 text-xs uppercase shadow-sm"
+                  className="flex items-center gap-1 rounded border border-white bg-white px-1.5 py-1 text-xs uppercase shadow-sm"
                >
                   <MdDragIndicator className="h-3.5 w-3.5 shrink-0 text-gray-300" />
-                  <span className="font-medium text-gray-700">
+                  <span className="min-w-0 flex-1 truncate font-medium text-gray-700">
                      {t.pGraduacao} {t.nomeGuerra}
                   </span>
                   {posicoes.length > 0 ? (
@@ -196,7 +196,7 @@ export function FuncGroupDropZone({
                         onChange={(e) =>
                            onFuncBordoChange(t.tripId, e.target.value)
                         }
-                        className="ml-auto w-[68px] rounded border border-gray-300 bg-gray-50 px-1 py-0.5 text-[10px] font-bold text-gray-700 transition-colors focus:border-red-400 focus:ring-1 focus:ring-red-400 focus:outline-none"
+                        className="w-[68px] shrink-0 rounded border border-gray-300 bg-gray-50 px-1 py-0.5 text-[10px] font-bold text-gray-700 transition-colors focus:border-red-400 focus:ring-1 focus:ring-red-400 focus:outline-none"
                      >
                         {posicoes.map((p) => (
                            <option key={p.codigo} value={p.codigo}>
@@ -205,11 +205,11 @@ export function FuncGroupDropZone({
                         ))}
                      </select>
                   ) : (
-                     <span className="ml-auto text-xs text-gray-400">--</span>
+                     <span className="shrink-0 text-xs text-gray-400">--</span>
                   )}
                   <button
                      onClick={() => onRemove(t.tripId)}
-                     className="ml-0.5 text-gray-300 hover:text-red-500"
+                     className="ml-0.5 shrink-0 text-gray-300 hover:text-red-500"
                   >
                      <HiX className="h-3 w-3" />
                   </button>
