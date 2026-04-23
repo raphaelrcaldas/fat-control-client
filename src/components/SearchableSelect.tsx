@@ -40,7 +40,7 @@ export function SearchableSelect({
       width: 0,
    });
    const containerRef = useRef<HTMLDivElement>(null);
-   const buttonRef = useRef<HTMLDivElement>(null);
+   const buttonRef = useRef<HTMLButtonElement>(null);
    const dropdownRef = useRef<HTMLDivElement>(null);
    const inputRef = useRef<HTMLInputElement>(null);
 
@@ -53,18 +53,31 @@ export function SearchableSelect({
    }, [options, search]);
 
    useEffect(() => {
-      if (isOpen && buttonRef.current) {
-         const rect = buttonRef.current.getBoundingClientRect();
-         setDropdownPosition({
-            top: rect.bottom + 4,
-            left: rect.left,
-            width: rect.width,
-         });
+      if (isOpen) {
          setTimeout(() => inputRef.current?.focus(), 0);
       } else {
          setSearch("");
       }
    }, [isOpen]);
+
+   function openDropdown() {
+      if (!buttonRef.current) return;
+      const rect = buttonRef.current.getBoundingClientRect();
+      setDropdownPosition({
+         top: rect.bottom + 4,
+         left: rect.left,
+         width: rect.width,
+      });
+      setIsOpen(true);
+   }
+
+   function toggleDropdown() {
+      if (isOpen) {
+         setIsOpen(false);
+      } else {
+         openDropdown();
+      }
+   }
 
    // Close on outside click or scroll
    useEffect(() => {
@@ -106,21 +119,8 @@ export function SearchableSelect({
             top: dropdownPosition.top,
             left: dropdownPosition.left,
             width: dropdownPosition.width,
-            animation: "fadeSlideIn 0.2s ease-out",
          }}
       >
-         <style jsx>{`
-            @keyframes fadeSlideIn {
-               from {
-                  opacity: 0;
-                  transform: translateY(-8px);
-               }
-               to {
-                  opacity: 1;
-                  transform: translateY(0);
-               }
-            }
-         `}</style>
          <div className="border-b border-gray-200 p-2">
             <input
                ref={inputRef}
@@ -144,7 +144,7 @@ export function SearchableSelect({
                         key={option.value}
                         onClick={() => handleSelect(option)}
                         className={clsx(
-                           "cursor-pointer px-3 py-2.5 text-sm transition-colors duration-150 hover:bg-gray-50",
+                           "cursor-pointer px-3 py-2.5 text-sm hover:bg-gray-50",
                            isSelected && "bg-red-50 font-medium text-red-700"
                         )}
                      >
@@ -159,19 +159,13 @@ export function SearchableSelect({
 
    return (
       <div className={`relative ${className}`} ref={containerRef}>
-         <div
+         <button
             ref={buttonRef}
-            role="button"
-            tabIndex={0}
-            onClick={() => setIsOpen(!isOpen)}
-            onKeyDown={(e) => {
-               if (e.key === "Enter" || e.key === " ") {
-                  e.preventDefault();
-                  setIsOpen(!isOpen);
-               }
-            }}
+            type="button"
+            onClick={toggleDropdown}
+            style={{ transform: "translateZ(0)" }}
             className={clsx(
-               "flex w-full cursor-pointer items-center justify-between gap-2 rounded-lg border bg-white transition-all duration-200 focus:border-red-500 focus:ring-2 focus:ring-red-500 focus:outline-none",
+               "flex w-full cursor-pointer items-center justify-between gap-2 rounded-lg border bg-white focus:border-red-500 focus:ring-2 focus:ring-red-500 focus:outline-none",
                SIZING_CLASSES[sizing],
                value
                   ? "border-gray-300 text-gray-900 hover:bg-gray-50"
@@ -206,12 +200,12 @@ export function SearchableSelect({
                )}
                <HiChevronDown
                   className={clsx(
-                     "h-4 w-4 text-gray-500 transition-transform duration-200",
+                     "h-4 w-4 text-gray-500",
                      isOpen && "rotate-180"
                   )}
                />
             </span>
-         </div>
+         </button>
 
          {typeof window !== "undefined" &&
             createPortal(dropdownContent, document.body)}

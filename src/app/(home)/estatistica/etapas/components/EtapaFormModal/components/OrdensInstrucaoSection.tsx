@@ -52,7 +52,7 @@ export function OrdensInstrucaoSection({
             <button
                type="button"
                onClick={addOiItem}
-               className="flex items-center gap-1 rounded-lg bg-white px-3 py-1.5 text-xs font-semibold text-gray-700 shadow-sm ring-1 ring-gray-200 transition-colors hover:bg-red-50 hover:text-red-700 hover:ring-red-200 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-red-900/50"
+               className="flex items-center gap-1 rounded-lg bg-white px-3 py-1.5 text-xs font-semibold text-gray-700 shadow-sm ring-1 ring-gray-200 hover:bg-red-50 hover:text-red-700 hover:ring-red-200 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-red-900/50"
             >
                <HiPlus className="h-4 w-4" />
                Nova OI
@@ -74,7 +74,7 @@ export function OrdensInstrucaoSection({
                {oiItems.map((oi) => (
                   <div
                      key={oi.uid}
-                     className="grid grid-cols-[1fr_1fr_auto_80px_auto] items-center gap-3 rounded-xl border border-gray-200 bg-white p-3 pr-4 transition-all dark:border-gray-700 dark:bg-gray-800"
+                     className="grid grid-cols-[1fr_1fr_auto_80px_auto] items-center gap-3 rounded-xl border border-gray-200 bg-white p-3 pr-4 dark:border-gray-700 dark:bg-gray-800"
                   >
                      {/* Esforço Aéreo */}
                      <div className="flex flex-col text-left">
@@ -101,24 +101,22 @@ export function OrdensInstrucaoSection({
                         <Label className="mb-1 text-[10px] font-bold text-gray-500 uppercase">
                            Tipo Missão
                         </Label>
-                        <select
-                           value={oi.tipo_missao_id ?? ""}
-                           onChange={(e) =>
+                        <SearchableSelect
+                           options={tiposMissaoList.map((t) => ({
+                              value: String(t.id),
+                              label: `${t.cod} - ${t.desc}`,
+                           }))}
+                           value={
+                              oi.tipo_missao_id ? String(oi.tipo_missao_id) : ""
+                           }
+                           onChange={(val) =>
                               updateOiItem(oi.uid, {
-                                 tipo_missao_id: e.target.value
-                                    ? Number(e.target.value)
-                                    : null,
+                                 tipo_missao_id: val ? Number(val) : null,
                               })
                            }
-                           className="w-full rounded-lg border border-gray-300 bg-gray-50 px-3 py-[7px] text-xs font-medium text-gray-700 transition-colors focus:border-red-400 focus:ring-1 focus:ring-red-400 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                        >
-                           <option value="">Selecionar Sigla...</option>
-                           {tiposMissaoList.map((t) => (
-                              <option key={t.id} value={t.id}>
-                                 {t.cod} - {t.desc}
-                              </option>
-                           ))}
-                        </select>
+                           placeholder="Buscar Sigla..."
+                           sizing="sm"
+                        />
                      </div>
                      {/* Reg */}
                      <div className="flex flex-col text-left">
@@ -140,7 +138,7 @@ export function OrdensInstrucaoSection({
                                     updateOiItem(oi.uid, { reg: v })
                                  }
                                  className={clsx(
-                                    "flex-1 px-3 py-[7px] text-xs font-bold transition-colors focus:outline-none",
+                                    "flex-1 px-3 py-[7px] text-xs font-bold focus:outline-none",
                                     oi.reg === v
                                        ? "bg-red-800 text-white dark:bg-red-200 dark:text-red-900"
                                        : "bg-white text-red-500 hover:bg-red-100 dark:bg-red-800 dark:text-red-400 dark:hover:bg-red-700",
@@ -168,7 +166,7 @@ export function OrdensInstrucaoSection({
                                  tvoo: val ? timeToMinutes(val) : 0,
                               });
                            }}
-                           className="w-full rounded-lg border border-gray-300 bg-gray-50 px-2 py-[7px] text-center font-mono text-xs shadow-inner transition-colors focus:border-red-400 focus:ring-1 focus:ring-red-400 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+                           className="w-full rounded-lg border border-gray-300 bg-gray-50 px-2 py-[7px] text-center font-mono text-xs shadow-inner focus:border-red-400 focus:ring-1 focus:ring-red-400 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-white"
                         />
                      </div>
                      {/* Excluir */}
@@ -176,7 +174,7 @@ export function OrdensInstrucaoSection({
                         <button
                            type="button"
                            onClick={() => removeOiItem(oi.uid)}
-                           className="flex h-8 w-8 items-center justify-center rounded-full text-gray-400 transition-colors hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/30"
+                           className="flex h-8 w-8 items-center justify-center rounded-full text-gray-400 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/30"
                            title="Remover OI"
                         >
                            <HiX className="h-5 w-5" />

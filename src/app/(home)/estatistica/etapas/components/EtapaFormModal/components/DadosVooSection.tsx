@@ -41,7 +41,7 @@ export function DadosVooSection({
                      value={formData.data}
                      onChange={(e) => setField("data", e.target.value)}
                      className={clsx(
-                        "w-full rounded-lg border px-3 py-[7px] text-xs transition-all focus:border-red-400 focus:ring-1 focus:ring-red-400 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white",
+                        "w-full rounded-lg border px-3 py-[7px] text-xs focus:border-red-400 focus:ring-1 focus:ring-red-400 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white",
                         errors.data
                            ? "border-red-500 bg-red-50 dark:bg-red-900/20"
                            : "border-gray-300 bg-gray-50 dark:bg-gray-800"
@@ -65,7 +65,7 @@ export function DadosVooSection({
                      value={formData.anv}
                      onChange={(e) => setField("anv", e.target.value)}
                      className={clsx(
-                        "w-full rounded-lg border px-3 py-[7px] text-xs transition-all focus:border-red-400 focus:ring-1 focus:ring-red-400 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white",
+                        "w-full rounded-lg border px-3 py-[7px] text-xs focus:border-red-400 focus:ring-1 focus:ring-red-400 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white",
                         errors.anv
                            ? "border-red-500 bg-red-50 dark:bg-red-900/20"
                            : "border-gray-300 bg-gray-50 dark:bg-gray-800"
@@ -104,7 +104,7 @@ export function DadosVooSection({
                      placeholder="SBGR"
                      maxLength={4}
                      className={clsx(
-                        "w-full rounded-lg border px-3 py-[7px] font-mono text-xs uppercase transition-all placeholder:text-gray-400 focus:border-red-400 focus:ring-1 focus:ring-red-400 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white",
+                        "w-full rounded-lg border px-3 py-[7px] font-mono text-xs uppercase placeholder:text-gray-400 focus:border-red-400 focus:ring-1 focus:ring-red-400 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white",
                         errors.origem
                            ? "border-red-500 bg-red-50 dark:bg-red-900/20"
                            : "border-gray-300 bg-gray-50 dark:bg-gray-800"
@@ -136,7 +136,7 @@ export function DadosVooSection({
                      placeholder="SBSP"
                      maxLength={4}
                      className={clsx(
-                        "w-full rounded-lg border px-3 py-[7px] font-mono text-xs uppercase transition-all placeholder:text-gray-400 focus:border-red-400 focus:ring-1 focus:ring-red-400 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white",
+                        "w-full rounded-lg border px-3 py-[7px] font-mono text-xs uppercase placeholder:text-gray-400 focus:border-red-400 focus:ring-1 focus:ring-red-400 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white",
                         errors.destino
                            ? "border-red-500 bg-red-50 dark:bg-red-900/20"
                            : "border-gray-300 bg-gray-50 dark:bg-gray-800"
@@ -170,7 +170,7 @@ export function DadosVooSection({
                      value={formData.dep}
                      onChange={(e) => setField("dep", e.target.value)}
                      className={clsx(
-                        "w-full rounded-lg border px-3 py-[7px] font-mono text-xs transition-all focus:border-red-400 focus:ring-1 focus:ring-red-400 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white",
+                        "w-full rounded-lg border px-3 py-[7px] font-mono text-xs focus:border-red-400 focus:ring-1 focus:ring-red-400 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white",
                         errors.dep
                            ? "border-red-500 bg-red-50 dark:bg-red-900/20"
                            : "border-gray-300 bg-gray-50 dark:bg-gray-800"
@@ -195,7 +195,7 @@ export function DadosVooSection({
                      value={formData.arr}
                      onChange={(e) => setField("arr", e.target.value)}
                      className={clsx(
-                        "w-full rounded-lg border px-3 py-[7px] font-mono text-xs transition-all focus:border-red-400 focus:ring-1 focus:ring-red-400 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white",
+                        "w-full rounded-lg border px-3 py-[7px] font-mono text-xs focus:border-red-400 focus:ring-1 focus:ring-red-400 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white",
                         errors.arr
                            ? "border-red-500 bg-red-50 dark:bg-red-900/20"
                            : "border-gray-300 bg-gray-50 dark:bg-gray-800"
@@ -213,7 +213,7 @@ export function DadosVooSection({
                   </Label>
                   <div
                      className={clsx(
-                        "flex h-[32px] items-center justify-center rounded-lg border px-3 font-mono text-xs shadow-inner transition-all",
+                        "flex h-[32px] items-center justify-center rounded-lg border px-3 font-mono text-xs shadow-inner",
                         tvoo > 0 && tvooValid
                            ? "border-green-300 bg-green-50 text-green-700 dark:border-green-800/80 dark:bg-green-900/20 dark:text-green-400"
                            : tvoo > 0
@@ -254,7 +254,7 @@ export function DadosVooSection({
                         setField("pousos", parseInt(e.target.value) || 0)
                      }
                      className={clsx(
-                        "w-full rounded-lg border px-3 py-[7px] text-xs transition-all focus:border-red-400 focus:ring-1 focus:ring-red-400 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white",
+                        "w-full rounded-lg border px-3 py-[7px] text-xs focus:border-red-400 focus:ring-1 focus:ring-red-400 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white",
                         errors.pousos
                            ? "border-red-500 bg-red-50 dark:bg-red-900/20"
                            : "border-gray-300 bg-gray-50 dark:bg-gray-800"
@@ -376,7 +376,7 @@ export function DadosVooSection({
                         }}
                         placeholder="—"
                         className={clsx(
-                           "w-full rounded-lg border px-3 py-[7px] text-xs transition-all focus:border-red-400 focus:ring-1 focus:ring-red-400 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white",
+                           "w-full rounded-lg border px-3 py-[7px] text-xs focus:border-red-400 focus:ring-1 focus:ring-red-400 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white",
                            errors[key]
                               ? "border-red-500 bg-red-50 dark:bg-red-900/20"
                               : "border-gray-300 bg-gray-50 dark:bg-gray-800"
@@ -413,7 +413,7 @@ export function DadosVooSection({
                         if (formData.nivel)
                            setField("nivel", formData.nivel.padStart(3, "0"));
                      }}
-                     className="w-full rounded-lg border border-gray-300 bg-gray-50 px-3 py-[7px] text-center font-mono text-xs tracking-widest transition-all focus:border-red-400 focus:ring-1 focus:ring-red-400 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+                     className="w-full rounded-lg border border-gray-300 bg-gray-50 px-3 py-[7px] text-center font-mono text-xs tracking-widest focus:border-red-400 focus:ring-1 focus:ring-red-400 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-white"
                   />
                </div>
             </div>
@@ -433,7 +433,7 @@ export function DadosVooSection({
                value={formData.obs}
                onChange={(e) => setField("obs", e.target.value)}
                placeholder="Adicione notas breves ou discrepâncias sobre o trecho operado..."
-               className="w-full resize-y bg-gray-50 transition-shadow focus:border-red-400 focus:ring-red-400 dark:bg-gray-700"
+               className="w-full resize-y bg-gray-50 focus:border-red-400 focus:ring-red-400 dark:bg-gray-700"
             />
          </div>
       </section>
