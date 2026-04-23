@@ -185,8 +185,6 @@ export function EtapaModal({
             dt_arr: newDtArr,
          };
       });
-      // Resetar lastAdjustmentRef para evitar conflito com auto-ajustes de data/hora
-      lastAdjustmentRef.current = "";
    }, [routeSuggestion, isEditing, origem, dest]);
 
    // Resetar refs e flags quando modal fecha
@@ -198,49 +196,44 @@ export function EtapaModal({
       }
    }, [isOpen]);
 
-   // Ref para rastrear o último ajuste e evitar loop infinito
-   const lastAdjustmentRef = useRef<string>("");
-
-   // Auto-ajuste: quando data decolagem > data pouso, ajustar data pouso
+   // Ref para ler valores de pouso dentro dos effects sem torná-los deps.
+   // Evita que digitação em dt_arr dispare auto-ajuste e sobrescreva o valor parcial.
+   const currentPousoRef = useRef({ dataPouso, horaPouso });
    useEffect(() => {
-      if (!dataDecolagem || !dataPouso) return;
+      currentPousoRef.current = { dataPouso, horaPouso };
+   });
 
-      if (dataDecolagem > dataPouso) {
-         const adjustmentKey = `data-${dataDecolagem}`;
-         if (lastAdjustmentRef.current !== adjustmentKey) {
-            lastAdjustmentRef.current = adjustmentKey;
-            const newIsoDatetime = toIsoDatetime(
-               dataDecolagem,
-               horaPouso || "00:00"
-            );
-            setFormData((prev) => ({ ...prev, dt_arr: newIsoDatetime }));
-         }
-      } else {
-         lastAdjustmentRef.current = "";
+   // Auto-ajuste: quando data decolagem > data pouso, ajustar data pouso.
+   // Reage apenas a mudanças em decolagem (não em pouso) para não brigar com digitação.
+   useEffect(() => {
+      if (!dataDecolagem) return;
+      const { dataPouso: pouso, horaPouso: hora } = currentPousoRef.current;
+      if (!pouso) return;
+
+      if (dataDecolagem > pouso) {
+         const newIsoDatetime = toIsoDatetime(dataDecolagem, hora || "00:00");
+         setFormData((prev) => ({ ...prev, dt_arr: newIsoDatetime }));
       }
-   }, [dataDecolagem, dataPouso, horaPouso]);
+   }, [dataDecolagem]);
 
-   // Auto-ajuste: se mesma data mas hora decolagem >= hora pouso
+   // Auto-ajuste: se mesma data mas hora decolagem >= hora pouso.
+   // Reage apenas a mudanças em decolagem (não em pouso) para não brigar com digitação.
    useEffect(() => {
-      if (!dataDecolagem || !horaDecolagem || !dataPouso || !horaPouso) return;
+      if (!dataDecolagem || !horaDecolagem) return;
+      const { dataPouso: pouso, horaPouso: hora } = currentPousoRef.current;
+      if (!pouso || !hora) return;
 
-      if (dataDecolagem === dataPouso && horaDecolagem >= horaPouso) {
+      if (dataDecolagem === pouso && horaDecolagem >= hora) {
          const [hours, minutes] = horaDecolagem.split(":").map(Number);
          const totalMinutes = hours * 60 + minutes + 5;
          const newHours = Math.floor(totalMinutes / 60) % 24;
          const newMinutes = totalMinutes % 60;
          const newHoraPouso = `${String(newHours).padStart(2, "0")}:${String(newMinutes).padStart(2, "0")}`;
 
-         const adjustmentKey = `hora-${newHoraPouso}`;
-         if (lastAdjustmentRef.current !== adjustmentKey) {
-            lastAdjustmentRef.current = adjustmentKey;
-            const newIsoDatetime = toIsoDatetime(dataPouso, newHoraPouso);
-            setFormData((prev) => ({ ...prev, dt_arr: newIsoDatetime }));
-         }
-      } else {
-         lastAdjustmentRef.current = "";
+         const newIsoDatetime = toIsoDatetime(pouso, newHoraPouso);
+         setFormData((prev) => ({ ...prev, dt_arr: newIsoDatetime }));
       }
-   }, [dataDecolagem, horaDecolagem, dataPouso, horaPouso]);
+   }, [dataDecolagem, horaDecolagem]);
 
    // Validações
    const erroDataHora = useMemo(() => {
@@ -382,15 +375,25 @@ export function EtapaModal({
                               type="time"
                               id="dt_dep_time"
                               value={horaDecolagem}
-                              onChange={(e) => {
-                                 const rounded = roundTimeToFiveMinutes(
-                                    e.target.value
-                                 );
+                              onChange={(e) =>
                                  updateDateTime(
                                     "dt_dep",
                                     dataDecolagem,
-                                    rounded
+                                    e.target.value
+                                 )
+                              }
+                              onBlur={(e) => {
+                                 if (!e.target.value) return;
+                                 const rounded = roundTimeToFiveMinutes(
+                                    e.target.value
                                  );
+                                 if (rounded !== e.target.value) {
+                                    updateDateTime(
+                                       "dt_dep",
+                                       dataDecolagem,
+                                       rounded
+                                    );
+                                 }
                               }}
                               step="300"
                               className={clsx(
@@ -486,11 +489,25 @@ export function EtapaModal({
                               type="time"
                               id="dt_arr_time"
                               value={horaPouso}
-                              onChange={(e) => {
+                              onChange={(e) =>
+                                 updateDateTime(
+                                    "dt_arr",
+                                    dataPouso,
+                                    e.target.value
+                                 )
+                              }
+                              onBlur={(e) => {
+                                 if (!e.target.value) return;
                                  const rounded = roundTimeToFiveMinutes(
                                     e.target.value
                                  );
-                                 updateDateTime("dt_arr", dataPouso, rounded);
+                                 if (rounded !== e.target.value) {
+                                    updateDateTime(
+                                       "dt_arr",
+                                       dataPouso,
+                                       rounded
+                                    );
+                                 }
                               }}
                               step="300"
                               className={clsx(
