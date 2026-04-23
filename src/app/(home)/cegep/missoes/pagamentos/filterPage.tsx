@@ -88,6 +88,8 @@ export function FilterPage({ active }: { active: boolean }) {
    const [localNDoc, setLocalNDoc] = useState<string>(
       nDoc !== undefined ? String(nDoc) : ""
    );
+   const [localDataInicio, setLocalDataInicio] = useState(dataInicio);
+   const [localDataFim, setLocalDataFim] = useState(dataFim);
 
    // Sync local state when URL changes externally (back/forward)
    useEffect(() => {
@@ -96,6 +98,12 @@ export function FilterPage({ active }: { active: boolean }) {
    useEffect(() => {
       setLocalNDoc(nDoc !== undefined ? String(nDoc) : "");
    }, [nDoc]);
+   useEffect(() => {
+      setLocalDataInicio(dataInicio);
+   }, [dataInicio]);
+   useEffect(() => {
+      setLocalDataFim(dataFim);
+   }, [dataFim]);
 
    // Debounced URL updaters
    const debouncedSetUser = useDebouncedCallback((value: string) => {
@@ -108,6 +116,24 @@ export function FilterPage({ active }: { active: boolean }) {
          page: undefined,
       });
    }, 400);
+
+   const isValidDate = (v: string) => /^\d{4}-\d{2}-\d{2}$/.test(v);
+
+   const debouncedSetDataInicio = useDebouncedCallback((value: string) => {
+      if (!isValidDate(value)) return;
+      setParams({
+         ini: serializeString(value, defaultIni),
+         page: undefined,
+      });
+   }, 500);
+
+   const debouncedSetDataFim = useDebouncedCallback((value: string) => {
+      if (!isValidDate(value)) return;
+      setParams({
+         fim: serializeString(value, defaultFim),
+         page: undefined,
+      });
+   }, 500);
 
    // Setters that update URL
    function setTipoDoc(value: string[]) {
@@ -562,14 +588,17 @@ export function FilterPage({ active }: { active: boolean }) {
                         </Label>
                         <input
                            type="date"
-                           value={dataInicio}
-                           max={dataFim || undefined}
+                           value={localDataInicio}
+                           max={localDataFim || undefined}
                            onChange={(e) => {
                               const newValue = e.target.value;
-                              setDataInicio(newValue);
-                              // Se a nova data de afastamento for maior que a de regresso, ajusta a de regresso
-                              if (dataFim && newValue > dataFim) {
-                                 setDataFim(newValue);
+                              setLocalDataInicio(newValue);
+                              if (isValidDate(newValue)) {
+                                 debouncedSetDataInicio(newValue);
+                                 if (localDataFim && newValue > localDataFim) {
+                                    setLocalDataFim(newValue);
+                                    debouncedSetDataFim(newValue);
+                                 }
                               }
                            }}
                            className="block w-full rounded-lg border border-gray-300 bg-white p-2 text-xs text-gray-900 focus:border-red-500 focus:ring-red-500"
@@ -584,14 +613,20 @@ export function FilterPage({ active }: { active: boolean }) {
                         </Label>
                         <input
                            type="date"
-                           value={dataFim}
-                           min={dataInicio || undefined}
+                           value={localDataFim}
+                           min={localDataInicio || undefined}
                            onChange={(e) => {
                               const newValue = e.target.value;
-                              setDataFim(newValue);
-                              // Se a nova data de regresso for menor que a de afastamento, ajusta a de afastamento
-                              if (dataInicio && newValue < dataInicio) {
-                                 setDataInicio(newValue);
+                              setLocalDataFim(newValue);
+                              if (isValidDate(newValue)) {
+                                 debouncedSetDataFim(newValue);
+                                 if (
+                                    localDataInicio &&
+                                    newValue < localDataInicio
+                                 ) {
+                                    setLocalDataInicio(newValue);
+                                    debouncedSetDataInicio(newValue);
+                                 }
                               }
                            }}
                            className="block w-full rounded-lg border border-gray-300 bg-white p-2 text-xs text-gray-900 focus:border-red-500 focus:ring-red-500"

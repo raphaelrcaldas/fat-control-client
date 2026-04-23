@@ -72,6 +72,8 @@ export function RegisPage() {
    const [localNDoc, setLocalNDoc] = useState<string>(
       nDoc !== undefined ? String(nDoc) : ""
    );
+   const [localDataInicio, setLocalDataInicio] = useState(dataInicio);
+   const [localDataFim, setLocalDataFim] = useState(dataFim);
 
    // Sync local state when URL changes externally (back/forward)
    useEffect(() => {
@@ -83,6 +85,12 @@ export function RegisPage() {
    useEffect(() => {
       setLocalNDoc(nDoc !== undefined ? String(nDoc) : "");
    }, [nDoc]);
+   useEffect(() => {
+      setLocalDataInicio(dataInicio);
+   }, [dataInicio]);
+   useEffect(() => {
+      setLocalDataFim(dataFim);
+   }, [dataFim]);
 
    // Debounced URL updaters
    const debouncedSetUser = useDebouncedCallback((value: string) => {
@@ -99,6 +107,24 @@ export function RegisPage() {
          page: undefined,
       });
    }, 400);
+
+   const isValidDate = (v: string) => /^\d{4}-\d{2}-\d{2}$/.test(v);
+
+   const debouncedSetDataInicio = useDebouncedCallback((value: string) => {
+      if (!isValidDate(value)) return;
+      setParams({
+         ini: serializeString(value, defaultIni),
+         page: undefined,
+      });
+   }, 500);
+
+   const debouncedSetDataFim = useDebouncedCallback((value: string) => {
+      if (!isValidDate(value)) return;
+      setParams({
+         fim: serializeString(value, defaultFim),
+         page: undefined,
+      });
+   }, 500);
 
    // Setters that update URL
    function setTipoDoc(value: string[]) {
@@ -364,8 +390,14 @@ export function RegisPage() {
                      </Label>
                      <input
                         type="date"
-                        value={dataInicio}
-                        onChange={(e) => setDataInicio(e.target.value)}
+                        value={localDataInicio}
+                        onChange={(e) => {
+                           const newValue = e.target.value;
+                           setLocalDataInicio(newValue);
+                           if (isValidDate(newValue)) {
+                              debouncedSetDataInicio(newValue);
+                           }
+                        }}
                         className="block w-full rounded-lg border border-gray-300 bg-white p-2 text-xs text-gray-900 focus:border-red-500 focus:ring-red-500"
                      />
                   </div>
@@ -378,8 +410,14 @@ export function RegisPage() {
                      </Label>
                      <input
                         type="date"
-                        value={dataFim}
-                        onChange={(e) => setDataFim(e.target.value)}
+                        value={localDataFim}
+                        onChange={(e) => {
+                           const newValue = e.target.value;
+                           setLocalDataFim(newValue);
+                           if (isValidDate(newValue)) {
+                              debouncedSetDataFim(newValue);
+                           }
+                        }}
                         className="block w-full rounded-lg border border-gray-300 bg-white p-2 text-xs text-gray-900 focus:border-red-500 focus:ring-red-500"
                      />
                   </div>
