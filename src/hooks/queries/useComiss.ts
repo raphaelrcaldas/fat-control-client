@@ -10,6 +10,7 @@ import {
    createCmto,
    updateCmto,
    deleteCmto,
+   getComissSummary,
    ComissFilters,
    Comiss,
 } from "services/routes/cegep/comiss";
@@ -70,6 +71,7 @@ export function useCreateComiss() {
       mutationFn: (data: Comiss) => createCmto(data),
       onSuccess: () => {
          queryClient.invalidateQueries({ queryKey: comissKeys.lists() });
+         queryClient.invalidateQueries({ queryKey: [...comissKeys.all, "summary"] });
       },
    });
 }
@@ -89,6 +91,7 @@ export function useUpdateComiss() {
             });
          }
          queryClient.invalidateQueries({ queryKey: comissKeys.lists() });
+         queryClient.invalidateQueries({ queryKey: [...comissKeys.all, "summary"] });
       },
    });
 }
@@ -107,7 +110,19 @@ export function useDeleteComiss() {
       onSuccess: (result) => {
          if (!result.data) {
             queryClient.invalidateQueries({ queryKey: comissKeys.lists() });
+            queryClient.invalidateQueries({ queryKey: [...comissKeys.all, "summary"] });
          }
       },
+   });
+}
+
+/**
+ * Retorna os totais e as listagens para a dashboard financeira de comissionamentos
+ */
+export function useComissSummary(ano: number) {
+   return useQuery({
+      queryKey: [...comissKeys.all, "summary", ano] as const,
+      queryFn: ({ signal }) => getComissSummary(ano, signal),
+      enabled: !!ano,
    });
 }

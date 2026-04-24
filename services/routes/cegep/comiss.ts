@@ -119,3 +119,33 @@ export async function deleteCmto(
       await request("DELETE", `${comissRoute}${comissId}`, null, params)
    );
 }
+
+export interface ComissSummaryStats {
+   soma: number;
+   orcamento: number;
+   previsao?: number;
+   soma_abertura?: number;
+   soma_fechamento?: number;
+}
+
+export interface ComissSummaryResponse {
+   abertura: ComissSummaryStats;
+   fechamento: ComissSummaryStats;
+   total: ComissSummaryStats;
+   comissionamentos: ComissList[];
+}
+
+export async function getComissSummary(
+   ano: number,
+   signal?: AbortSignal
+): Promise<ComissSummaryResponse> {
+   const response = await request(
+      "GET",
+      `${comissRoute}summary`,
+      null,
+      { ano: ano.toString() },
+      signal
+   );
+   const json = (await response.json()) as ApiResponse<ComissSummaryResponse>;
+   return json.data as ComissSummaryResponse;
+}

@@ -12,6 +12,7 @@ import {
    MissoesRequest,
    Missao,
 } from "services/routes/cegep/missoes";
+import { comissKeys } from "./useComiss";
 
 // ========================================
 // Query Keys - Centralizadas
@@ -68,6 +69,7 @@ export function useCreateUpdateMissao() {
       onSuccess: async (response) => {
          // Invalida todas as listas de missoes
          queryClient.invalidateQueries({ queryKey: missaoKeys.lists() });
+         queryClient.invalidateQueries({ queryKey: [...comissKeys.all, "summary"] });
          return response;
       },
    });
@@ -84,6 +86,7 @@ export function useDeleteMissao() {
       onSuccess: () => {
          // Invalida todas as listas de missoes
          queryClient.invalidateQueries({ queryKey: missaoKeys.lists() });
+         queryClient.invalidateQueries({ queryKey: [...comissKeys.all, "summary"] });
       },
    });
 }
