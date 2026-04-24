@@ -197,8 +197,21 @@ export const OrdemBasicInfo = memo(function OrdemBasicInfo({
                }
                disabled={!isEditable}
                placeholder="FIEX-001/2025"
+               maxLength={100}
                className="w-full rounded-lg border-2 border-gray-200 bg-white px-3 py-2.5 text-gray-900 uppercase transition-all placeholder:text-gray-400 focus:border-red-400 focus:ring-2 focus:ring-red-400 disabled:cursor-not-allowed disabled:opacity-50"
             />
+            {isEditable && (formData.doc_ref?.length ?? 0) >= 80 && (
+               <p
+                  className={clsx(
+                     "mt-1 text-right text-xs",
+                     (formData.doc_ref?.length ?? 0) >= 95
+                        ? "text-red-500"
+                        : "text-yellow-600"
+                  )}
+               >
+                  {formData.doc_ref?.length ?? 0}/100
+               </p>
+            )}
          </div>
          <div className="flex-1">
             <label className="mb-2 flex items-center gap-1.5 text-xs font-semibold tracking-wide text-gray-600 uppercase">
@@ -213,6 +226,7 @@ export const OrdemBasicInfo = memo(function OrdemBasicInfo({
                }
                disabled={!isEditable}
                placeholder="EX: TRANSPORTE DE AUTORIDADE"
+               maxLength={100}
                className={clsx(
                   "w-full rounded-lg border-2 bg-white px-3 py-2.5 text-gray-900 uppercase transition-all placeholder:text-gray-400 focus:ring-2 disabled:cursor-not-allowed disabled:opacity-50",
                   validationErrors?.tipo
@@ -220,6 +234,18 @@ export const OrdemBasicInfo = memo(function OrdemBasicInfo({
                      : "border-gray-200 focus:border-red-400 focus:ring-red-400"
                )}
             />
+            {isEditable && (formData.tipo?.length ?? 0) >= 80 && (
+               <p
+                  className={clsx(
+                     "mt-1 text-right text-xs",
+                     (formData.tipo?.length ?? 0) >= 95
+                        ? "text-red-500"
+                        : "text-yellow-600"
+                  )}
+               >
+                  {formData.tipo?.length ?? 0}/100
+               </p>
+            )}
          </div>
          <div className="w-42">
             <label className="mb-2 flex items-center gap-1.5 text-xs font-semibold tracking-wide text-gray-600 uppercase">
