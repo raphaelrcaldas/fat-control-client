@@ -237,7 +237,9 @@ export default function AerodromoFormModal({
                            maxLength={4}
                            autoComplete="off"
                            value={baseAereaValue?.sigla ?? ""}
-                           color={baseAereaErrors?.sigla ? "failure" : undefined}
+                           color={
+                              baseAereaErrors?.sigla ? "failure" : undefined
+                           }
                            onChange={(e) =>
                               updateBaseAerea(
                                  "sigla",
@@ -246,9 +248,7 @@ export default function AerodromoFormModal({
                            }
                            placeholder="Ex: BAAN"
                         />
-                        <FieldError
-                           message={baseAereaErrors?.sigla?.message}
-                        />
+                        <FieldError message={baseAereaErrors?.sigla?.message} />
                      </div>
                   </div>
                </div>

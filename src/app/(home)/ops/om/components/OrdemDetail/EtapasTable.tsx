@@ -179,9 +179,7 @@ export const EtapasTable = memo(function EtapasTable({
                                  <TableCell className="uppercase">
                                     {etapa.alternativa || "—"}
                                  </TableCell>
-                                 <TableCell className="">
-                                    {tempoAlt}
-                                 </TableCell>
+                                 <TableCell className="">{tempoAlt}</TableCell>
                                  <TableCell className="text-center font-mono">
                                     {etapa.qtd_comb || "—"}
                                  </TableCell>

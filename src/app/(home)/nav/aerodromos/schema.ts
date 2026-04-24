@@ -13,7 +13,8 @@ const baseAereaSchema = z
       if (nomeEmpty !== siglaEmpty) {
          ctx.addIssue({
             code: "custom",
-            message: "Preencha nome e sigla da base aérea ou deixe ambos vazios",
+            message:
+               "Preencha nome e sigla da base aérea ou deixe ambos vazios",
             path: nomeEmpty ? ["nome"] : ["sigla"],
          });
       }
@@ -26,7 +27,10 @@ export const aerodromoSchema = z
          .string()
          .trim()
          .length(4, "Código ICAO deve ter 4 caracteres")
-         .regex(/^[A-Z]{4}$/, "Código ICAO deve conter apenas letras maiúsculas"),
+         .regex(
+            /^[A-Z]{4}$/,
+            "Código ICAO deve conter apenas letras maiúsculas"
+         ),
       codigo_iata: z
          .string()
          .trim()

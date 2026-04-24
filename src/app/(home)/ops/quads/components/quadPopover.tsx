@@ -10,12 +10,15 @@ export function QuadPopover({ quad }: { quad: Quad }) {
 
    return (
       <div
-         className={clsx(`flex size-9 shrink-0 items-center justify-center rounded`, {
-            "bg-red-500 hover:bg-red-700": quad.value,
-            "bg-slate-500 hover:bg-slate-700": !quad.value,
-            "sm:w-18": visual === "comp",
-            "sm:w-9": visual === "reduz",
-         })}
+         className={clsx(
+            `flex size-9 shrink-0 items-center justify-center rounded`,
+            {
+               "bg-red-500 hover:bg-red-700": quad.value,
+               "bg-slate-500 hover:bg-slate-700": !quad.value,
+               "sm:w-18": visual === "comp",
+               "sm:w-9": visual === "reduz",
+            }
+         )}
       >
          <span
             className={clsx("hidden text-center font-mono text-sm text-white", {

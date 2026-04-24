@@ -71,7 +71,7 @@ export const OrdemTripulacao = memo(function OrdemTripulacao({
    );
 
    return (
-      <div className="grid md:grid-cols-6 gap-2">
+      <div className="grid gap-2 md:grid-cols-6">
          {TODAS_FUNCOES.map((funcao) => {
             const errorKey = REQUIRED_FUNCOES[funcao];
             const isRequired = errorKey !== null;

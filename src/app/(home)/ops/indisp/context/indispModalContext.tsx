@@ -32,8 +32,7 @@ export function IndispModalProvider({ children }: { children: ReactNode }) {
       ({ tripId, dateRef }) => {
          // salva elemento focado para restaurar foco ao fechar (a11y)
          const active = document.activeElement;
-         triggerRef.current =
-            active instanceof HTMLElement ? active : null;
+         triggerRef.current = active instanceof HTMLElement ? active : null;
          setState({ status: "open", tripId, dateRef });
       },
       []
