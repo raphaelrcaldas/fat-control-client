@@ -7,6 +7,7 @@ import {
 import { useRouter } from "next/navigation";
 import { ListaPage } from "./listaPage";
 import { GestaoFiscalPage } from "./gestaoFiscal";
+import { PermBased } from "@/app/(home)/hooks/usePermBased";
 
 const TAB_NAMES = ["registros", "gestao_fiscal"] as const;
 
@@ -82,7 +83,11 @@ export default function ComissPage() {
             {/* Tab Panel Content */}
             <div className="animate-fadeIn">
                {activeTabIndex === 0 && <ListaPage />}
-               {activeTabIndex === 1 && <GestaoFiscalPage />}
+               {activeTabIndex === 1 && (
+                  <PermBased resource="orcamento" requiredPerm="view">
+                     <GestaoFiscalPage />
+                  </PermBased>
+               )}
             </div>
          </div>
 

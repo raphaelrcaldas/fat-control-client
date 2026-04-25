@@ -171,17 +171,32 @@ export function ComissPage({ detail, onEdit, onClose }: ComissPageProps) {
       <>
          <div className="flex w-full justify-center">
             <div className="flex w-full max-w-7xl flex-col gap-3">
-               {/* Header com botao voltar */}
-               <div className="flex items-center justify-between rounded-xl bg-white p-4 shadow-sm">
+               {/* Header: voltar + nome do militar + exportações */}
+               <div className="relative rounded-xl border border-blue-100 bg-white px-4 py-4 shadow-sm">
+                  {/* Botão voltar — absoluto à esquerda */}
                   <button
                      onClick={onClose}
-                     className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-900"
+                     className="absolute top-1/2 left-4 flex -translate-y-1/2 items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-900"
                   >
                      <HiArrowLeft className="h-4 w-4" />
-                     Voltar
+                     <span className="hidden sm:inline">Voltar</span>
                   </button>
-                  <div className="grid gap-2 sm:flex">
-                     <PermBased resource={"comiss"} requiredPerm={"create"}>
+
+                  {/* Nome do militar — sempre centralizado */}
+                  <div className="text-center">
+                     <h3 className="text-lg font-bold tracking-wide text-gray-900 uppercase">
+                        {comiss.user.posto.mid} {comiss.user.esp}{" "}
+                        {comiss.user.nome_guerra}
+                     </h3>
+                     <p className="text-sm text-gray-600 capitalize">
+                        {comiss.user.nome_completo} (
+                        {formatSaram(comiss.user.saram)})
+                     </p>
+                  </div>
+
+                  {/* Botões de exportação — absolutos à direita */}
+                  <PermBased resource={"comiss"} requiredPerm={"create"}>
+                     <div className="absolute top-1/2 right-4 flex -translate-y-1/2 gap-2">
                         <Button
                            color="light"
                            onClick={handleExportSheet}
@@ -190,7 +205,7 @@ export function ComissPage({ detail, onEdit, onClose }: ComissPageProps) {
                         >
                            <div className="flex items-center gap-2">
                               <RiFileExcel2Fill className="size-5 text-green-600" />
-                              <span className="hidden font-semibold sm:flex">
+                              <span className="hidden font-semibold sm:inline">
                                  Planilha
                               </span>
                            </div>
@@ -203,25 +218,13 @@ export function ComissPage({ detail, onEdit, onClose }: ComissPageProps) {
                         >
                            <div className="flex items-center gap-2">
                               <HiDocumentText className="size-5 text-blue-600" />
-                              <span className="hidden font-semibold sm:flex">
+                              <span className="hidden font-semibold sm:inline">
                                  Apostila
                               </span>
                            </div>
                         </Button>
-                     </PermBased>
-                  </div>
-               </div>
-
-               {/* Informacoes do Militar */}
-               <div className="space-y-2 rounded-xl border border-blue-100 bg-white p-4 text-center shadow-sm">
-                  <h3 className="text-lg font-bold tracking-wide text-gray-900 uppercase">
-                     {comiss.user.posto.mid} {comiss.user.esp}{" "}
-                     {comiss.user.nome_guerra}
-                  </h3>
-                  <p className="text-sm text-gray-600 capitalize">
-                     {comiss.user.nome_completo} (
-                     {formatSaram(comiss.user.saram)})
-                  </p>
+                     </div>
+                  </PermBased>
                </div>
 
                {/* Documentos */}

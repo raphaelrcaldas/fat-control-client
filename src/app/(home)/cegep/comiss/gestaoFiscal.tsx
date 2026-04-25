@@ -27,6 +27,7 @@ import { HiOutlineAdjustments } from "react-icons/hi";
 import { useState, useMemo } from "react";
 import { formatDateFull } from "@/../utils/dateHandler";
 import { compareByAntiguidade } from "utils/sortByAntiguidade";
+import { PermBased } from "@/app/(home)/hooks/usePermBased";
 import { HiChevronUp, HiChevronDown, HiSelector } from "react-icons/hi";
 import clsx from "clsx";
 
@@ -154,17 +155,19 @@ export function GestaoFiscalPage() {
                      ))}
                   </Select>
                </div>
-               <Button
-                  size="sm"
-                  color="red"
-                  onClick={() =>
-                     router.push(`/cegep/comiss/orcamento?ano=${ano}`)
-                  }
-                  title="Editar teto orçamentário"
-               >
-                  <HiOutlineAdjustments className="mr-2 h-4 w-4" />
-                  Editar Teto
-               </Button>
+               <PermBased resource="orcamento" requiredPerm="create">
+                  <Button
+                     size="sm"
+                     color="red"
+                     onClick={() =>
+                        router.push(`/cegep/comiss/orcamento?ano=${ano}`)
+                     }
+                     title="Editar teto orçamentário"
+                  >
+                     <HiOutlineAdjustments className="mr-2 h-4 w-4" />
+                     Editar Teto
+                  </Button>
+               </PermBased>
             </div>
          </div>
 

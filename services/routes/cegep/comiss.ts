@@ -38,7 +38,37 @@ export interface ComissList extends Comiss {
    missoes_count: number;
 }
 
-// Detalhe de comissionamento (com missões)
+export interface ComissLogUser {
+   id: number;
+   p_g: string;
+   nome_guerra: string;
+}
+
+export interface ComissLogSnapshot {
+   status: string;
+   dep: boolean;
+   data_ab: string;
+   qtd_aj_ab: number;
+   valor_aj_ab: number;
+   data_fc: string;
+   qtd_aj_fc: number;
+   valor_aj_fc: number;
+   dias_cumprir: number | null;
+   doc_prop: string;
+   doc_aut: string;
+   doc_enc: string | null;
+}
+
+export interface ComissLog {
+   id: number;
+   user: ComissLogUser;
+   action: string;
+   before: ComissLogSnapshot | null;
+   after: ComissLogSnapshot | null;
+   timestamp: string;
+}
+
+// Detalhe de comissionamento (com missões e logs de auditoria)
 export interface ComissWithMiss extends Comiss {
    missoes: Missao[];
    dias_comp: number;
@@ -46,6 +76,7 @@ export interface ComissWithMiss extends Comiss {
    vals_comp: number;
    modulo: boolean;
    completude: number;
+   logs: ComissLog[];
 }
 
 export interface ComissFilters {

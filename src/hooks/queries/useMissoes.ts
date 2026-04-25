@@ -66,12 +66,17 @@ export function useCreateUpdateMissao() {
 
    return useMutation({
       mutationFn: (data: Missao) => createUpdateFragMis(data),
-      onSuccess: async (response) => {
-         // Invalida todas as listas de missoes
+      onSuccess: async (response, data) => {
          queryClient.invalidateQueries({ queryKey: missaoKeys.lists() });
          queryClient.invalidateQueries({
             queryKey: [...comissKeys.all, "summary"],
          });
+         // Invalida o detalhe (inclui logs) ao editar uma missão existente
+         if (data.id) {
+            queryClient.invalidateQueries({
+               queryKey: missaoKeys.detail(data.id),
+            });
+         }
          return response;
       },
    });

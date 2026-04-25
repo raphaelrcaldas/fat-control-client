@@ -54,6 +54,33 @@ export interface Pernoite {
    };
 }
 
+export interface MissaoLogUser {
+   id: number;
+   p_g: string;
+   nome_guerra: string;
+}
+
+export interface MissaoLogSnapshot {
+   tipo_doc: string;
+   n_doc: number;
+   desc: string;
+   afast: string;
+   regres: string;
+   indenizavel: boolean;
+   acrec_desloc: boolean;
+   tipo: string;
+   obs: string;
+}
+
+export interface MissaoLog {
+   id: number;
+   user: MissaoLogUser;
+   action: string;
+   before: MissaoLogSnapshot | null;
+   after: MissaoLogSnapshot | null;
+   timestamp: string;
+}
+
 export interface Missao {
    id?: number;
    tipo_doc: string;
@@ -72,6 +99,7 @@ export interface Missao {
    valor_total?: number;
    qtd_ac?: number;
    etiquetas?: Etiqueta[];
+   logs?: MissaoLog[];
 }
 
 export interface MissoesPaginatedResponse {
