@@ -6,6 +6,8 @@ const formatCurrency = (val: number) =>
    }).format(val);
 import {
    Badge,
+   Button,
+   Progress,
    Select,
    Spinner,
    Table,
@@ -21,6 +23,7 @@ import {
    FaPlaneDeparture,
    FaRegMoneyBillAlt,
 } from "react-icons/fa";
+import { HiOutlineAdjustments } from "react-icons/hi";
 import { useState, useMemo } from "react";
 import { formatDateFull } from "@/../utils/dateHandler";
 import { compareByAntiguidade } from "utils/sortByAntiguidade";
@@ -151,6 +154,17 @@ export function GestaoFiscalPage() {
                      ))}
                   </Select>
                </div>
+               <Button
+                  size="sm"
+                  color="red"
+                  onClick={() =>
+                     router.push(`/cegep/comiss/orcamento?ano=${ano}`)
+                  }
+                  title="Editar teto orçamentário"
+               >
+                  <HiOutlineAdjustments className="mr-2 h-4 w-4" />
+                  Editar Teto
+               </Button>
             </div>
          </div>
 
@@ -164,202 +178,225 @@ export function GestaoFiscalPage() {
             </div>
          ) : (
             <>
-               {/* DASHBOARD CARDS */}
-               <div className="mt-2 grid grid-cols-1 gap-6 md:grid-cols-3">
-                  {/* ORÇAMENTO TOTAL */}
-                  <div className="group relative overflow-hidden rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
-                     {/* Glass decor */}
-                     <div className="pointer-events-none absolute -top-6 -right-6 h-24 w-24 rounded-full bg-red-50 opacity-60 transition-transform group-hover:scale-110"></div>
-                     <div className="mb-2 flex items-start justify-between">
-                        <span className="block text-xs font-bold tracking-wider text-gray-500 uppercase">
-                           Orçamento Total (Ano)
-                        </span>
-                        <FaRegMoneyBillAlt className="text-gray-400" />
-                     </div>
-                     <div className="mb-4 text-3xl font-extrabold text-gray-900 drop-shadow-sm">
-                        {formatCurrency(data.total.orcamento)}
-                     </div>
-                     <div className="mb-1 flex justify-between text-sm text-gray-500">
-                        <span>Consumido / Previsto</span>
-                        <div className="flex gap-1 font-semibold text-gray-700">
-                           <span className="text-green-600">
-                              {Math.round(
-                                 (data.total.soma / data.total.orcamento) * 100
-                              )}
-                              %
+               {/* EMPTY STATE — sem orçamento cadastrado para o ano */}
+               {!data.orcamento_id && (
+                  <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-gray-300 bg-gray-50 py-10 text-center">
+                     <FaRegMoneyBillAlt className="h-8 w-8 text-gray-300" />
+                     <p className="text-sm font-medium text-gray-600">
+                        Nenhum orçamento cadastrado para {ano}.
+                     </p>
+                     <Button
+                        size="sm"
+                        color="red"
+                        onClick={() =>
+                           router.push(`/cegep/comiss/orcamento?ano=${ano}`)
+                        }
+                     >
+                        Cadastrar Teto Orçamentário
+                     </Button>
+                  </div>
+               )}
+
+               {/* DASHBOARD CARDS — só exibe quando há orçamento */}
+               {data.orcamento_id && (
+                  <div className="mt-2 grid grid-cols-1 gap-6 md:grid-cols-3">
+                     {/* ORÇAMENTO TOTAL */}
+                     <div className="group relative overflow-hidden rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+                        {/* Glass decor */}
+                        <div className="pointer-events-none absolute -top-6 -right-6 h-24 w-24 rounded-full bg-red-50 opacity-60 transition-transform group-hover:scale-110"></div>
+                        <div className="mb-2 flex items-start justify-between">
+                           <span className="block text-xs font-bold tracking-wider text-gray-500 uppercase">
+                              Orçamento Total (Ano)
                            </span>
-                           {data.total.previsao ? (
-                              <span className="text-yellow-500">
+                           <FaRegMoneyBillAlt className="text-gray-400" />
+                        </div>
+                        <div className="mb-4 text-3xl font-extrabold text-gray-900 drop-shadow-sm">
+                           {formatCurrency(data.total.orcamento)}
+                        </div>
+                        <div className="mb-1 flex justify-between text-sm text-gray-500">
+                           <span>Consumido / Previsto</span>
+                           <div className="flex gap-1 font-semibold text-gray-700">
+                              <span className="text-green-600">
                                  {Math.round(
-                                    (data.total.previsao /
-                                       data.total.orcamento) *
+                                    (data.total.soma / data.total.orcamento) *
                                        100
                                  )}
                                  %
                               </span>
-                           ) : null}
+                              {data.total.previsao ? (
+                                 <span className="text-yellow-500">
+                                    {Math.round(
+                                       (data.total.previsao /
+                                          data.total.orcamento) *
+                                          100
+                                    )}
+                                    %
+                                 </span>
+                              ) : null}
+                           </div>
                         </div>
-                     </div>
-                     <div className="flex h-2.5 w-full overflow-hidden rounded-full bg-gray-100">
-                        <div
-                           className="h-full rounded-l-full bg-green-500"
-                           style={{
-                              width: `${(data.total.soma / data.total.orcamento) * 100}%`,
-                           }}
-                        ></div>
-                        {data.total.previsao ? (
+                        <div className="flex h-2.5 w-full overflow-hidden rounded-full bg-gray-100">
                            <div
-                              className="h-full bg-yellow-400"
+                              className="h-full rounded-l-full bg-green-500"
                               style={{
-                                 width: `${(data.total.previsao / data.total.orcamento) * 100}%`,
+                                 width: `${(data.total.soma / data.total.orcamento) * 100}%`,
                               }}
                            ></div>
-                        ) : null}
-                     </div>
-                     <div className="mt-3 flex gap-4 text-[10px] font-bold tracking-wide uppercase">
-                        <div className="flex items-center gap-1.5 text-green-700">
-                           <span className="h-2 w-2 rounded-full bg-green-500"></span>
-                           Pago {formatCurrency(data.total.soma)}
+                           {data.total.previsao ? (
+                              <div
+                                 className="h-full bg-yellow-400"
+                                 style={{
+                                    width: `${(data.total.previsao / data.total.orcamento) * 100}%`,
+                                 }}
+                              ></div>
+                           ) : null}
                         </div>
-                        <div className="flex items-center gap-1.5 text-yellow-700">
-                           <span className="h-2 w-2 rounded-full bg-yellow-400"></span>
-                           Previsto {formatCurrency(data.total.previsao || 0)}
-                        </div>
-                        <div className="ml-auto flex items-center gap-1.5 text-blue-700">
-                           <span className="h-2 w-2 rounded-full bg-blue-500"></span>
-                           Disponível{" "}
-                           {formatCurrency(
-                              data.total.orcamento -
-                                 data.total.soma -
-                                 (data.total.previsao || 0)
-                           )}
-                        </div>
-                     </div>
-                  </div>
-
-                  {/* FECHAMENTOS */}
-                  <div className="group relative overflow-hidden rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
-                     {/* Glass decor */}
-                     <div className="pointer-events-none absolute -top-6 -right-6 h-24 w-24 rounded-full bg-red-50 opacity-60 transition-transform group-hover:scale-110"></div>
-                     <div className="mb-2 flex items-start justify-between">
-                        <span className="block text-xs font-bold tracking-wider text-gray-500 uppercase">
-                           Fechamentos (Términos)
-                        </span>
-                        <FaPlaneArrival className="text-gray-400" />
-                     </div>
-                     <div className="mb-4 text-3xl font-extrabold text-gray-900 drop-shadow-sm">
-                        {formatCurrency(data.fechamento.orcamento)}
-                     </div>
-                     <div className="mb-1 flex justify-between text-sm text-gray-500">
-                        <span>Consumido / Previsto</span>
-                        <div className="flex gap-1 font-semibold text-gray-700">
-                           <span className="text-green-600">
-                              {Math.round(
-                                 (data.fechamento.soma /
-                                    data.fechamento.orcamento) *
-                                    100
+                        <div className="mt-3 flex gap-4 text-[10px] font-bold tracking-wide uppercase">
+                           <div className="flex items-center gap-1.5 text-green-700">
+                              <span className="h-2 w-2 rounded-full bg-green-500"></span>
+                              Pago {formatCurrency(data.total.soma)}
+                           </div>
+                           <div className="flex items-center gap-1.5 text-yellow-700">
+                              <span className="h-2 w-2 rounded-full bg-yellow-400"></span>
+                              Previsto{" "}
+                              {formatCurrency(data.total.previsao || 0)}
+                           </div>
+                           <div className="ml-auto flex items-center gap-1.5 text-blue-700">
+                              <span className="h-2 w-2 rounded-full bg-blue-500"></span>
+                              Disponível{" "}
+                              {formatCurrency(
+                                 data.total.orcamento -
+                                    data.total.soma -
+                                    (data.total.previsao || 0)
                               )}
-                              %
+                           </div>
+                        </div>
+                     </div>
+
+                     {/* FECHAMENTOS */}
+                     <div className="group relative overflow-hidden rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+                        {/* Glass decor */}
+                        <div className="pointer-events-none absolute -top-6 -right-6 h-24 w-24 rounded-full bg-red-50 opacity-60 transition-transform group-hover:scale-110"></div>
+                        <div className="mb-2 flex items-start justify-between">
+                           <span className="block text-xs font-bold tracking-wider text-gray-500 uppercase">
+                              Fechamentos (Términos)
                            </span>
-                           {data.fechamento.previsao ? (
-                              <span className="text-yellow-500">
+                           <FaPlaneArrival className="text-gray-400" />
+                        </div>
+                        <div className="mb-4 text-3xl font-extrabold text-gray-900 drop-shadow-sm">
+                           {formatCurrency(data.fechamento.orcamento)}
+                        </div>
+                        <div className="mb-1 flex justify-between text-sm text-gray-500">
+                           <span>Consumido / Previsto</span>
+                           <div className="flex gap-1 font-semibold text-gray-700">
+                              <span className="text-green-600">
                                  {Math.round(
-                                    (data.fechamento.previsao /
+                                    (data.fechamento.soma /
                                        data.fechamento.orcamento) *
                                        100
                                  )}
                                  %
                               </span>
-                           ) : null}
+                              {data.fechamento.previsao ? (
+                                 <span className="text-yellow-500">
+                                    {Math.round(
+                                       (data.fechamento.previsao /
+                                          data.fechamento.orcamento) *
+                                          100
+                                    )}
+                                    %
+                                 </span>
+                              ) : null}
+                           </div>
                         </div>
-                     </div>
-                     <div className="flex h-2.5 w-full overflow-hidden rounded-full bg-gray-100">
-                        <div
-                           className="h-full rounded-l-full bg-green-500"
-                           style={{
-                              width: `${(data.fechamento.soma / data.fechamento.orcamento) * 100}%`,
-                           }}
-                        ></div>
-                        {data.fechamento.previsao ? (
+                        <div className="flex h-2.5 w-full overflow-hidden rounded-full bg-gray-100">
                            <div
-                              className="h-full bg-yellow-400"
+                              className="h-full rounded-l-full bg-green-500"
                               style={{
-                                 width: `${(data.fechamento.previsao / data.fechamento.orcamento) * 100}%`,
+                                 width: `${(data.fechamento.soma / data.fechamento.orcamento) * 100}%`,
                               }}
                            ></div>
-                        ) : null}
-                     </div>
-                     <div className="mt-3 flex gap-4 text-[10px] font-bold tracking-wide uppercase">
-                        <div className="flex items-center gap-1.5 text-green-700">
-                           <span className="h-2 w-2 rounded-full bg-green-500"></span>
-                           Pago {formatCurrency(data.fechamento.soma)}
+                           {data.fechamento.previsao ? (
+                              <div
+                                 className="h-full bg-yellow-400"
+                                 style={{
+                                    width: `${(data.fechamento.previsao / data.fechamento.orcamento) * 100}%`,
+                                 }}
+                              ></div>
+                           ) : null}
                         </div>
-                        <div className="flex items-center gap-1.5 text-yellow-700">
-                           <span className="h-2 w-2 rounded-full bg-yellow-400"></span>
-                           Previsto{" "}
-                           {formatCurrency(data.fechamento.previsao || 0)}
-                        </div>
-                        <div className="ml-auto flex items-center gap-1.5 text-blue-700">
-                           <span className="h-2 w-2 rounded-full bg-blue-500"></span>
-                           Disponível{" "}
-                           {formatCurrency(
-                              data.fechamento.orcamento -
-                                 data.fechamento.soma -
-                                 (data.fechamento.previsao || 0)
-                           )}
-                        </div>
-                     </div>
-                  </div>
-
-                  {/* ABERTURAS */}
-                  <div className="group relative overflow-hidden rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
-                     {/* Glass decor */}
-                     <div className="pointer-events-none absolute -top-6 -right-6 h-24 w-24 rounded-full bg-red-50 opacity-60 transition-transform group-hover:scale-110"></div>
-                     <div className="mb-2 flex items-start justify-between">
-                        <span className="block text-xs font-bold tracking-wider text-gray-500 uppercase">
-                           Aberturas (Inícios)
-                        </span>
-                        <FaPlaneDeparture className="text-gray-400" />
-                     </div>
-                     <div className="mb-4 text-3xl font-extrabold text-gray-900 drop-shadow-sm">
-                        {formatCurrency(data.abertura.orcamento)}
-                     </div>
-                     <div className="mb-1 flex justify-between text-sm text-gray-500">
-                        <span>Consumido / Previsto</span>
-                        <div className="flex gap-1 font-semibold text-gray-700">
-                           <span className="text-green-600">
-                              {Math.round(
-                                 (data.abertura.soma /
-                                    data.abertura.orcamento) *
-                                    100
+                        <div className="mt-3 flex gap-4 text-[10px] font-bold tracking-wide uppercase">
+                           <div className="flex items-center gap-1.5 text-green-700">
+                              <span className="h-2 w-2 rounded-full bg-green-500"></span>
+                              Pago {formatCurrency(data.fechamento.soma)}
+                           </div>
+                           <div className="flex items-center gap-1.5 text-yellow-700">
+                              <span className="h-2 w-2 rounded-full bg-yellow-400"></span>
+                              Previsto{" "}
+                              {formatCurrency(data.fechamento.previsao || 0)}
+                           </div>
+                           <div className="ml-auto flex items-center gap-1.5 text-blue-700">
+                              <span className="h-2 w-2 rounded-full bg-blue-500"></span>
+                              Disponível{" "}
+                              {formatCurrency(
+                                 data.fechamento.orcamento -
+                                    data.fechamento.soma -
+                                    (data.fechamento.previsao || 0)
                               )}
-                              %
+                           </div>
+                        </div>
+                     </div>
+
+                     {/* ABERTURAS */}
+                     <div className="group relative overflow-hidden rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+                        {/* Glass decor */}
+                        <div className="pointer-events-none absolute -top-6 -right-6 h-24 w-24 rounded-full bg-red-50 opacity-60 transition-transform group-hover:scale-110"></div>
+                        <div className="mb-2 flex items-start justify-between">
+                           <span className="block text-xs font-bold tracking-wider text-gray-500 uppercase">
+                              Aberturas (Inícios)
                            </span>
+                           <FaPlaneDeparture className="text-gray-400" />
                         </div>
-                     </div>
-                     <div className="flex h-2.5 w-full overflow-hidden rounded-full bg-gray-100">
-                        <div
-                           className="h-full rounded-full bg-green-500"
-                           style={{
-                              width: `${(data.abertura.soma / data.abertura.orcamento) * 100}%`,
-                           }}
-                        ></div>
-                     </div>
-                     <div className="mt-3 flex justify-between text-[10px] font-bold tracking-wide uppercase">
-                        <div className="flex items-center gap-1.5 text-green-700">
-                           <span className="h-2 w-2 rounded-full bg-green-500"></span>
-                           Pago {formatCurrency(data.abertura.soma)}
+                        <div className="mb-4 text-3xl font-extrabold text-gray-900 drop-shadow-sm">
+                           {formatCurrency(data.abertura.orcamento)}
                         </div>
-                        <div className="ml-auto flex items-center gap-1.5 text-blue-700">
-                           <span className="h-2 w-2 rounded-full bg-blue-500"></span>
-                           Disponível{" "}
-                           {formatCurrency(
-                              data.abertura.orcamento - data.abertura.soma
-                           )}
+                        <div className="mb-1 flex justify-between text-sm text-gray-500">
+                           <span>Consumido / Previsto</span>
+                           <div className="flex gap-1 font-semibold text-gray-700">
+                              <span className="text-green-600">
+                                 {Math.round(
+                                    (data.abertura.soma /
+                                       data.abertura.orcamento) *
+                                       100
+                                 )}
+                                 %
+                              </span>
+                           </div>
+                        </div>
+                        <div className="flex h-2.5 w-full overflow-hidden rounded-full bg-gray-100">
+                           <div
+                              className="h-full rounded-full bg-green-500"
+                              style={{
+                                 width: `${(data.abertura.soma / data.abertura.orcamento) * 100}%`,
+                              }}
+                           ></div>
+                        </div>
+                        <div className="mt-3 flex justify-between text-[10px] font-bold tracking-wide uppercase">
+                           <div className="flex items-center gap-1.5 text-green-700">
+                              <span className="h-2 w-2 rounded-full bg-green-500"></span>
+                              Pago {formatCurrency(data.abertura.soma)}
+                           </div>
+                           <div className="ml-auto flex items-center gap-1.5 text-blue-700">
+                              <span className="h-2 w-2 rounded-full bg-blue-500"></span>
+                              Disponível{" "}
+                              {formatCurrency(
+                                 data.abertura.orcamento - data.abertura.soma
+                              )}
+                           </div>
                         </div>
                      </div>
                   </div>
-               </div>
+               )}
 
                {/* TABELA DE REGISTROS DO ANO */}
                <div className="mt-8 overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-200">
@@ -451,17 +488,22 @@ export function GestaoFiscalPage() {
                                        </div>
                                     </TableCell>
                                     <TableCell className="text-center whitespace-nowrap">
-                                       <div className="inline-flex flex-col items-center">
+                                       <div className="inline-flex flex-col items-center gap-1">
                                           <span className="text-xs font-bold text-gray-700">
                                              {c.completude}%
                                           </span>
-                                          <div className="mt-1 h-1.5 w-16 overflow-hidden rounded-full bg-gray-200">
-                                             <div
-                                                className="h-full rounded-full bg-blue-500"
-                                                style={{
-                                                   width: `${c.completude}%`,
-                                                }}
-                                             ></div>
+                                          <div className="w-20">
+                                             <Progress
+                                                progress={c.completude}
+                                                size="sm"
+                                                color={
+                                                   c.status === "fechado"
+                                                      ? "gray"
+                                                      : c.modulo
+                                                        ? "green"
+                                                        : "red"
+                                                }
+                                             />
                                           </div>
                                        </div>
                                     </TableCell>

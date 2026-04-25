@@ -71,7 +71,9 @@ export function useCreateComiss() {
       mutationFn: (data: Comiss) => createCmto(data),
       onSuccess: () => {
          queryClient.invalidateQueries({ queryKey: comissKeys.lists() });
-         queryClient.invalidateQueries({ queryKey: [...comissKeys.all, "summary"] });
+         queryClient.invalidateQueries({
+            queryKey: [...comissKeys.all, "summary"],
+         });
       },
    });
 }
@@ -91,7 +93,9 @@ export function useUpdateComiss() {
             });
          }
          queryClient.invalidateQueries({ queryKey: comissKeys.lists() });
-         queryClient.invalidateQueries({ queryKey: [...comissKeys.all, "summary"] });
+         queryClient.invalidateQueries({
+            queryKey: [...comissKeys.all, "summary"],
+         });
       },
    });
 }
@@ -110,7 +114,9 @@ export function useDeleteComiss() {
       onSuccess: (result) => {
          if (!result.data) {
             queryClient.invalidateQueries({ queryKey: comissKeys.lists() });
-            queryClient.invalidateQueries({ queryKey: [...comissKeys.all, "summary"] });
+            queryClient.invalidateQueries({
+               queryKey: [...comissKeys.all, "summary"],
+            });
          }
       },
    });

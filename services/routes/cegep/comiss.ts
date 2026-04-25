@@ -129,6 +129,7 @@ export interface ComissSummaryStats {
 }
 
 export interface ComissSummaryResponse {
+   orcamento_id: number | null;
    abertura: ComissSummaryStats;
    fechamento: ComissSummaryStats;
    total: ComissSummaryStats;
