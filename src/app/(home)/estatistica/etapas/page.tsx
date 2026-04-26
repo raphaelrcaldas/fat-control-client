@@ -161,6 +161,8 @@ export default function EtapasPage() {
                      setFilterDestino={filters.setFilterDestino}
                      filterTrip={filters.filterTrip}
                      setFilterTrip={filters.setFilterTrip}
+                     filterFuncao={filters.filterFuncao}
+                     onFuncaoChange={filters.handleFuncaoChange}
                      filterEsfAer={filters.filterEsfAer}
                      setFilterEsfAer={filters.setFilterEsfAer}
                      esfAerOptions={filters.esfAerOptions}
@@ -181,6 +183,7 @@ export default function EtapasPage() {
             urlOrigem={filters.urlOrigem}
             urlDestino={filters.urlDestino}
             urlTrip={filters.urlTrip}
+            urlFuncao={filters.urlFuncao}
             urlEsfAer={filters.urlEsfAer}
             urlTipoMissao={filters.urlTipoMissao}
             onRemoveDataIni={() =>
@@ -202,6 +205,7 @@ export default function EtapasPage() {
                filters.setFilterTrip("");
                filters.updateParams({ trip_search: undefined });
             }}
+            onRemoveFuncao={() => filters.handleFuncaoChange("")}
             onRemoveEsfAer={() => {
                filters.setFilterEsfAer("");
                filters.updateParams({ esf_aer: undefined });

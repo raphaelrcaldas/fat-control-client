@@ -55,6 +55,7 @@ export interface GetEtapasParams {
    esf_aer?: string;
    tipo_missao_cod?: string[];
    trip_search?: string;
+   funcao?: string;
    is_simulador?: boolean;
    page?: number;
    per_page?: number;
@@ -147,6 +148,7 @@ export async function getEtapas(
                  tipo_missao_cod: params.tipo_missao_cod,
               }),
            ...(params.trip_search && { trip_search: params.trip_search }),
+           ...(params.funcao && { funcao: params.funcao }),
            ...(params.is_simulador != null && {
               is_simulador: params.is_simulador ? "true" : "false",
            }),
@@ -190,6 +192,7 @@ export async function getEtapasFlat(
       if (params.tipo_missao_cod && params.tipo_missao_cod.length > 0)
          queryParams.tipo_missao_cod = params.tipo_missao_cod;
       if (params.trip_search) queryParams.trip_search = params.trip_search;
+      if (params.funcao) queryParams.funcao = params.funcao;
       if (params.is_simulador != null)
          queryParams.is_simulador = params.is_simulador ? "true" : "false";
       if (params.page != null) queryParams.page = params.page.toString();

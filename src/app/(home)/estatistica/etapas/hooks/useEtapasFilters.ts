@@ -59,14 +59,18 @@ export function useEtapasFilters(grouped = true) {
    const router = useRouter();
 
    // --- Read URL params ---
-   const urlAnv = searchParams.getAll("anv");
+   const urlAnv = useMemo(() => searchParams.getAll("anv"), [searchParams]);
+   const urlTipoMissao = useMemo(
+      () => searchParams.getAll("tipo_missao_cod"),
+      [searchParams]
+   );
    const urlOrigem = searchParams.get("origem") ?? "";
    const urlDestino = searchParams.get("destino") ?? "";
    const urlTrip = searchParams.get("trip_search") ?? "";
+   const urlFuncao = searchParams.get("funcao") ?? "";
    const urlEsfAer = searchParams.get("esf_aer") ?? "";
    const urlDataIni = searchParams.get("data_ini") ?? getDefaultDataIni();
    const urlDataFim = searchParams.get("data_fim") ?? getDefaultDataFim();
-   const urlTipoMissao = searchParams.getAll("tipo_missao_cod");
    const currentPage = Number(searchParams.get("page")) || DEFAULT_PAGE;
    const perPage = Number(searchParams.get("per_page")) || DEFAULT_PER_PAGE;
 
@@ -88,6 +92,7 @@ export function useEtapasFilters(grouped = true) {
    const [filterDestino, setFilterDestino] = useState(urlDestino);
    const [filterTrip, setFilterTrip] = useState(urlTrip);
    const [filterEsfAer, setFilterEsfAer] = useState(urlEsfAer);
+   const [filterFuncao, setFilterFuncao] = useState(urlFuncao);
 
    const debouncedOrigem = useDebouncedValue(filterOrigem, 350);
    const debouncedDestino = useDebouncedValue(filterDestino, 350);
@@ -205,6 +210,31 @@ export function useEtapasFilters(grouped = true) {
       [updateParams]
    );
 
+   const handleFuncaoChange = useCallback(
+      (value: string) => {
+         setFilterFuncao(value);
+         updateParams({ funcao: value || undefined });
+      },
+      [updateParams]
+   );
+
+   useEffect(() => {
+      if (urlFuncao !== filterFuncao) setFilterFuncao(urlFuncao);
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+   }, [urlFuncao]);
+
+   useEffect(() => {
+      if (filterTrip !== "") return;
+      const updates: Record<string, string | undefined> = {};
+      if (urlTrip) updates.trip_search = undefined;
+      if (urlFuncao) {
+         updates.funcao = undefined;
+         setFilterFuncao("");
+      }
+      if (Object.keys(updates).length > 0) updateParams(updates);
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+   }, [filterTrip]);
+
    const handlePageChange = useCallback(
       (page: number) =>
          updateParams(
@@ -227,6 +257,7 @@ export function useEtapasFilters(grouped = true) {
       setFilterDestino("");
       setFilterTrip("");
       setFilterEsfAer("");
+      setFilterFuncao("");
       const params = new URLSearchParams();
       params.set("data_ini", getDefaultDataIni());
       params.set("data_fim", getDefaultDataFim());
@@ -241,6 +272,7 @@ export function useEtapasFilters(grouped = true) {
       origem: debouncedOrigem || undefined,
       destino: debouncedDestino || undefined,
       trip_search: debouncedTrip || undefined,
+      funcao: debouncedTrip && urlFuncao ? urlFuncao : undefined,
       esf_aer: debouncedEsfAer || undefined,
       tipo_missao_cod: urlTipoMissao.length > 0 ? urlTipoMissao : undefined,
       data_ini: urlDataIni || undefined,
@@ -266,6 +298,7 @@ export function useEtapasFilters(grouped = true) {
       (urlAnv.length > 0 ? 1 : 0) +
       (urlTipoMissao.length > 0 ? 1 : 0) +
       [urlOrigem, urlDestino, urlTrip, urlEsfAer].filter(Boolean).length +
+      (urlTrip && urlFuncao ? 1 : 0) +
       (urlDataIni ? 1 : 0) +
       (urlDataFim ? 1 : 0);
 
@@ -290,6 +323,7 @@ export function useEtapasFilters(grouped = true) {
       urlOrigem,
       urlDestino,
       urlTrip,
+      urlFuncao,
       urlEsfAer,
       urlDataIni,
       urlDataFim,
@@ -302,6 +336,7 @@ export function useEtapasFilters(grouped = true) {
       setFilterDestino,
       filterTrip,
       setFilterTrip,
+      filterFuncao,
       filterEsfAer,
       setFilterEsfAer,
 
@@ -315,6 +350,7 @@ export function useEtapasFilters(grouped = true) {
       handleMultiSelectChange,
       handleDataIniChange,
       handleDataFimChange,
+      handleFuncaoChange,
       handlePageChange,
       handlePerPageChange,
       clearFilters,

@@ -12,6 +12,7 @@ interface ActiveFilterTagsProps {
    urlOrigem: string;
    urlDestino: string;
    urlTrip: string;
+   urlFuncao: string;
    urlEsfAer: string;
    urlTipoMissao: string[];
    onRemoveDataIni: () => void;
@@ -20,6 +21,7 @@ interface ActiveFilterTagsProps {
    onRemoveOrigem: () => void;
    onRemoveDestino: () => void;
    onRemoveTrip: () => void;
+   onRemoveFuncao: () => void;
    onRemoveEsfAer: () => void;
    onRemoveTipoMissao: () => void;
    onClearAll: () => void;
@@ -32,6 +34,7 @@ export function ActiveFilterTags({
    urlOrigem,
    urlDestino,
    urlTrip,
+   urlFuncao,
    urlEsfAer,
    urlTipoMissao,
    onRemoveDataIni,
@@ -40,6 +43,7 @@ export function ActiveFilterTags({
    onRemoveOrigem,
    onRemoveDestino,
    onRemoveTrip,
+   onRemoveFuncao,
    onRemoveEsfAer,
    onRemoveTipoMissao,
    onClearAll,
@@ -144,6 +148,22 @@ export function ActiveFilterTags({
                      type="button"
                      aria-label="Remover filtro tripulante"
                      onClick={onRemoveTrip}
+                     className="ml-1 hover:text-red-600"
+                  >
+                     <HiX className="h-3 w-3" />
+                  </button>
+               </div>
+            </Badge>
+         )}
+
+         {urlTrip && urlFuncao && (
+            <Badge color="red">
+               <div className="flex items-center gap-1.5">
+                  <span>Funcao: {urlFuncao.toUpperCase()}</span>
+                  <button
+                     type="button"
+                     aria-label="Remover filtro funcao"
+                     onClick={onRemoveFuncao}
                      className="ml-1 hover:text-red-600"
                   >
                      <HiX className="h-3 w-3" />

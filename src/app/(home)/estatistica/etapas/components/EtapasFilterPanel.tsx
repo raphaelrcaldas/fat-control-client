@@ -1,9 +1,11 @@
 "use client";
 
-import { Label, TextInput } from "flowbite-react";
+import { memo } from "react";
+import { Label, Select, TextInput } from "flowbite-react";
 import { MdSearch } from "react-icons/md";
 import { MultiSelect } from "@/components/MultiSelect";
 import { SearchableSelect } from "@/components/SearchableSelect";
+import { TODAS_FUNCOES } from "@/constants/tripulantes/funcoes";
 
 interface SelectOption {
    value: string;
@@ -21,6 +23,8 @@ interface EtapasFilterPanelProps {
    setFilterDestino: (v: string) => void;
    filterTrip: string;
    setFilterTrip: (v: string) => void;
+   filterFuncao: string;
+   onFuncaoChange: (v: string) => void;
    filterEsfAer: string;
    setFilterEsfAer: (v: string) => void;
    esfAerOptions: SelectOption[];
@@ -31,7 +35,7 @@ interface EtapasFilterPanelProps {
    onMultiSelectChange: (key: string, values: string[]) => void;
 }
 
-export function EtapasFilterPanel({
+export const EtapasFilterPanel = memo(function EtapasFilterPanel({
    urlDataIni,
    urlDataFim,
    urlAnv,
@@ -42,6 +46,8 @@ export function EtapasFilterPanel({
    setFilterDestino,
    filterTrip,
    setFilterTrip,
+   filterFuncao,
+   onFuncaoChange,
    filterEsfAer,
    setFilterEsfAer,
    esfAerOptions,
@@ -157,15 +163,31 @@ export function EtapasFilterPanel({
                <Label className="mb-1 block text-xs font-medium text-gray-700">
                   Tripulante
                </Label>
-               <TextInput
-                  icon={MdSearch}
-                  placeholder="Buscar trigrama ou nome de guerra ..."
-                  value={filterTrip}
-                  onChange={(e) => setFilterTrip(e.target.value)}
-                  sizing="sm"
-               />
+               <div className="flex overflow-hidden rounded-lg border border-gray-300 bg-white focus-within:border-red-500 focus-within:ring-2 focus-within:ring-red-500">
+                  <Select
+                     value={filterFuncao}
+                     onChange={(e) => onFuncaoChange(e.target.value)}
+                     sizing="sm"
+                     className="[&_select]:w-16 [&_select]:rounded-none [&_select]:border-0 [&_select]:border-r [&_select]:border-gray-300 [&_select]:bg-transparent [&_select]:shadow-none [&_select]:focus:border-gray-300 [&_select]:focus:ring-0"
+                  >
+                     <option value="">--</option>
+                     {TODAS_FUNCOES.map((f) => (
+                        <option key={f} value={f}>
+                           {f.toUpperCase()}
+                        </option>
+                     ))}
+                  </Select>
+                  <TextInput
+                     icon={MdSearch}
+                     placeholder="Buscar trigrama ou nome de guerra ..."
+                     value={filterTrip}
+                     onChange={(e) => setFilterTrip(e.target.value)}
+                     sizing="sm"
+                     className="flex-1 [&_input]:rounded-none [&_input]:border-0 [&_input]:bg-transparent [&_input]:shadow-none [&_input]:focus:border-0 [&_input]:focus:ring-0"
+                  />
+               </div>
             </div>
          </div>
       </div>
    );
-}
+});
