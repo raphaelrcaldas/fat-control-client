@@ -58,11 +58,20 @@ export function useEtapasFilters(grouped = true) {
    const searchParams = useSearchParams();
    const router = useRouter();
 
+   // Use the serialized form as a stable primitive dep so callbacks/memos
+   // don't re-create on every render if Next returns a new searchParams ref.
+   const spString = searchParams.toString();
+
    // --- Read URL params ---
-   const urlAnv = useMemo(() => searchParams.getAll("anv"), [searchParams]);
+   const urlAnv = useMemo(
+      () => searchParams.getAll("anv"),
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      [spString]
+   );
    const urlTipoMissao = useMemo(
       () => searchParams.getAll("tipo_missao_cod"),
-      [searchParams]
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      [spString]
    );
    const urlOrigem = searchParams.get("origem") ?? "";
    const urlDestino = searchParams.get("destino") ?? "";
@@ -102,7 +111,7 @@ export function useEtapasFilters(grouped = true) {
    // --- URL update helper ---
    const updateParams = useCallback(
       (updates: Record<string, string | undefined>, resetPage = true) => {
-         const params = new URLSearchParams(searchParams.toString());
+         const params = new URLSearchParams(spString);
 
          for (const [key, value] of Object.entries(updates)) {
             if (value === undefined || value === "") {
@@ -120,7 +129,7 @@ export function useEtapasFilters(grouped = true) {
          const qs = params.toString();
          router.replace(qs ? `?${qs}` : "?", { scroll: false });
       },
-      [searchParams, router]
+      [spString, router]
    );
 
    // --- Sync debounced text values to URL ---
@@ -189,14 +198,14 @@ export function useEtapasFilters(grouped = true) {
    // --- Multiselect handlers (direct to URL) ---
    const handleMultiSelectChange = useCallback(
       (key: string, values: string[]) => {
-         const params = new URLSearchParams(searchParams.toString());
+         const params = new URLSearchParams(spString);
          params.delete(key);
          values.forEach((v) => params.append(key, v));
          params.delete("page");
          const qs = params.toString();
          router.replace(qs ? `?${qs}` : "?", { scroll: false });
       },
-      [searchParams, router]
+      [spString, router]
    );
 
    // --- Select / date handlers (direct to URL) ---

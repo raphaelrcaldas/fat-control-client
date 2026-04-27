@@ -143,36 +143,29 @@ export default function EtapasPage() {
                </div>
             </div>
 
-            <div
-               className={clsx(
-                  "grid transition-[grid-template-rows] duration-300 ease-in-out",
-                  showFilters ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
-               )}
-            >
-               <div className="overflow-hidden">
-                  <EtapasFilterPanel
-                     urlDataIni={filters.urlDataIni}
-                     urlDataFim={filters.urlDataFim}
-                     urlAnv={filters.urlAnv}
-                     urlTipoMissao={filters.urlTipoMissao}
-                     filterOrigem={filters.filterOrigem}
-                     setFilterOrigem={filters.setFilterOrigem}
-                     filterDestino={filters.filterDestino}
-                     setFilterDestino={filters.setFilterDestino}
-                     filterTrip={filters.filterTrip}
-                     setFilterTrip={filters.setFilterTrip}
-                     filterFuncao={filters.filterFuncao}
-                     onFuncaoChange={filters.handleFuncaoChange}
-                     filterEsfAer={filters.filterEsfAer}
-                     setFilterEsfAer={filters.setFilterEsfAer}
-                     esfAerOptions={filters.esfAerOptions}
-                     aeronaveOptions={filters.aeronaveOptions}
-                     tipoMissaoOptions={filters.tipoMissaoOptions}
-                     onDataIniChange={filters.handleDataIniChange}
-                     onDataFimChange={filters.handleDataFimChange}
-                     onMultiSelectChange={filters.handleMultiSelectChange}
-                  />
-               </div>
+            <div className={clsx(showFilters ? "block" : "hidden")}>
+               <EtapasFilterPanel
+                  urlDataIni={filters.urlDataIni}
+                  urlDataFim={filters.urlDataFim}
+                  urlAnv={filters.urlAnv}
+                  urlTipoMissao={filters.urlTipoMissao}
+                  filterOrigem={filters.filterOrigem}
+                  setFilterOrigem={filters.setFilterOrigem}
+                  filterDestino={filters.filterDestino}
+                  setFilterDestino={filters.setFilterDestino}
+                  filterTrip={filters.filterTrip}
+                  setFilterTrip={filters.setFilterTrip}
+                  filterFuncao={filters.filterFuncao}
+                  onFuncaoChange={filters.handleFuncaoChange}
+                  filterEsfAer={filters.filterEsfAer}
+                  setFilterEsfAer={filters.setFilterEsfAer}
+                  esfAerOptions={filters.esfAerOptions}
+                  aeronaveOptions={filters.aeronaveOptions}
+                  tipoMissaoOptions={filters.tipoMissaoOptions}
+                  onDataIniChange={filters.handleDataIniChange}
+                  onDataFimChange={filters.handleDataFimChange}
+                  onMultiSelectChange={filters.handleMultiSelectChange}
+               />
             </div>
          </div>
 
