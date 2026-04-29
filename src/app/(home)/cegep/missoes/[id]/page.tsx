@@ -5,7 +5,10 @@ import { Spinner } from "flowbite-react";
 import { useMissao } from "@/hooks/queries/useMissoes";
 import { MissionPage } from "../components/MissionPage";
 import { formatDateTime } from "@/../utils/dateHandler";
-import type { MissaoLog, MissaoLogSnapshot } from "services/routes/cegep/missoes";
+import type {
+   MissaoLog,
+   MissaoLogSnapshot,
+} from "services/routes/cegep/missoes";
 
 // ─── Formatadores ─────────────────────────────────────────────────────────────
 
@@ -26,10 +29,16 @@ const FIELD_LABELS: Record<keyof MissaoLogSnapshot, string> = {
    obs: "Observações",
 };
 
-const BOOL_FIELDS = new Set<keyof MissaoLogSnapshot>(["indenizavel", "acrec_desloc"]);
+const BOOL_FIELDS = new Set<keyof MissaoLogSnapshot>([
+   "indenizavel",
+   "acrec_desloc",
+]);
 const DATE_FIELDS = new Set<keyof MissaoLogSnapshot>(["afast", "regres"]);
 
-function formatFieldValue(field: keyof MissaoLogSnapshot, value: unknown): string {
+function formatFieldValue(
+   field: keyof MissaoLogSnapshot,
+   value: unknown
+): string {
    if (value === null || value === undefined) return "—";
    if (BOOL_FIELDS.has(field)) return value ? "Sim" : "Não";
    if (DATE_FIELDS.has(field)) {
@@ -56,10 +65,16 @@ function MissaoLogEntry({ log }: { log: MissaoLog }) {
    const before = log.before;
    const after = log.after;
 
-   const diffs: { field: keyof MissaoLogSnapshot; before: unknown; after: unknown }[] = [];
+   const diffs: {
+      field: keyof MissaoLogSnapshot;
+      before: unknown;
+      after: unknown;
+   }[] = [];
 
    if (after) {
-      for (const field of Object.keys(FIELD_LABELS) as (keyof MissaoLogSnapshot)[]) {
+      for (const field of Object.keys(
+         FIELD_LABELS
+      ) as (keyof MissaoLogSnapshot)[]) {
          const b = before ? before[field] : undefined;
          const a = after[field];
          if (b !== a) diffs.push({ field, before: b, after: a });
@@ -71,7 +86,9 @@ function MissaoLogEntry({ log }: { log: MissaoLog }) {
          <span className="absolute -inset-s-6.5 mt-1.5 flex h-3 w-3 items-center justify-center rounded-full border border-red-300 bg-red-100" />
          <div className="flex flex-wrap items-baseline justify-between gap-2">
             <div>
-               <span className="text-sm font-semibold text-gray-800">{action}</span>
+               <span className="text-sm font-semibold text-gray-800">
+                  {action}
+               </span>
                {log.user && (
                   <span className="ml-2 text-xs text-gray-500 uppercase">
                      por {log.user.p_g} {log.user.nome_guerra}
