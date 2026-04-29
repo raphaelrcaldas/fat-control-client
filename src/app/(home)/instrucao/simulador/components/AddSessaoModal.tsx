@@ -58,11 +58,17 @@ function timeToMinutes(t: string): number {
    return (h || 0) * 60 + (m || 0);
 }
 
+/**
+ * Calcula tvoo. arr DEVE ser maior que dep no mesmo dia.
+ * arr == 00:00 com dep > 00:00 representa fim do dia (24:00).
+ * Retorna 0 se invalido (atravessa o dia).
+ */
 function computeTvoo(dep: string, arr: string): number {
    if (!dep || !arr) return 0;
    const depMin = timeToMinutes(dep);
    let arrMin = timeToMinutes(arr);
-   if (arrMin < depMin) arrMin += 1440;
+   if (arrMin === 0 && depMin > 0) arrMin = 1440;
+   if (arrMin <= depMin) return 0;
    return arrMin - depMin;
 }
 
@@ -154,6 +160,7 @@ export default function AddSessaoModal({
    // Compute tvoo
    const tvoo = useMemo(() => computeTvoo(dep, arr), [dep, arr]);
    const tvooValid = tvoo >= 5 && tvoo % 5 === 0;
+   const crossesDay = !!dep && !!arr && tvoo === 0;
 
    // Set default tipo_missao when loaded (only for create mode)
    useEffect(() => {
@@ -320,9 +327,11 @@ export default function AddSessaoModal({
    const tvooColor =
       !dep || !arr
          ? "border-gray-200 bg-gray-50 text-gray-400"
-         : tvooValid
-           ? "border-green-200 bg-green-50 text-green-700"
-           : "border-amber-200 bg-amber-50 text-amber-700";
+         : crossesDay
+           ? "border-red-200 bg-red-50 text-red-700"
+           : tvooValid
+             ? "border-green-200 bg-green-50 text-green-700"
+             : "border-amber-200 bg-amber-50 text-amber-700";
 
    const pilotNames =
       sessionPilots.length > 0
@@ -469,13 +478,26 @@ export default function AddSessaoModal({
                               <div
                                  className={`flex items-center justify-center rounded-lg border px-3 py-1.5 font-mono text-sm font-bold ${tvooColor}`}
                               >
-                                 {dep && arr ? minutesToTime(tvoo) : "—"}
+                                 {crossesDay
+                                    ? "ATRAVESSA DIA"
+                                    : dep && arr
+                                      ? minutesToTime(tvoo)
+                                      : "—"}
                               </div>
-                              {dep && arr && !tvooValid && tvoo > 0 && (
-                                 <span className="text-xs text-amber-600">
-                                    Múltiplo de 5 min
+                              {crossesDay && (
+                                 <span className="text-xs text-red-600">
+                                    Use 00:00 como fim do dia
                                  </span>
                               )}
+                              {dep &&
+                                 arr &&
+                                 !crossesDay &&
+                                 !tvooValid &&
+                                 tvoo > 0 && (
+                                    <span className="text-xs text-amber-600">
+                                       Múltiplo de 5 min
+                                    </span>
+                                 )}
                            </div>
                         </div>
                      </div>

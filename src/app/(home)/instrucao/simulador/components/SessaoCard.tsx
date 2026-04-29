@@ -30,37 +30,52 @@ export default function SessaoCard({ etapa, onClick }: SessaoCardProps) {
       <button
          type="button"
          onClick={() => onClick(etapa)}
-         className="w-full overflow-hidden rounded-xl border border-gray-200 bg-white text-left shadow-red-300 transition-shadow hover:shadow"
+         className="w-full rounded-lg border border-l-[3px] border-gray-200 border-l-red-600 bg-white text-left transition-all duration-150 hover:border-gray-300 hover:bg-gray-50 hover:shadow-sm"
       >
-         <div className="flex w-full items-stretch gap-0">
-            <div className="flex w-14 shrink-0 flex-col items-center justify-center bg-red-600 py-3">
-               <span className="font-mono text-2xl leading-none font-bold text-white">
+         <div className="flex items-center gap-4 px-4 py-2.5">
+            <div className="w-10 shrink-0 text-left font-mono">
+               <span className="text-sm leading-none font-bold text-gray-800">
                   {day}
                </span>
-               <span className="font-mono text-xs font-medium text-red-200">
+               <span className="ml-1 text-xs font-medium text-red-500">
                   {month}
                </span>
             </div>
 
-            <div className="flex flex-1 items-center gap-4 px-4 py-3">
-               <div className="flex flex-1 flex-col gap-0.5 font-mono">
-                  <span className="text-sm font-bold text-gray-900">
-                     {etapa.origem} &rarr; {etapa.destino}
-                  </span>
-                  <div className="flex items-center gap-2 text-xs text-gray-500">
-                     <span>
-                        DEP {formatTime(etapa.dep)} | ARR{" "}
-                        {formatTime(etapa.arr)}
-                     </span>
-                  </div>
-               </div>
+            <div className="h-6 w-px shrink-0 bg-gray-200" />
 
+            <div className="flex items-center gap-1 font-mono">
+               <span className="text-sm font-bold text-gray-900">
+                  {etapa.origem}
+               </span>
+               <span className="mx-1 text-xs text-red-400">&rarr;</span>
+               <span className="text-sm font-bold text-gray-900">
+                  {etapa.destino}
+               </span>
+            </div>
+
+            <div className="flex flex-1 items-center gap-5 font-mono">
                <div className="text-right">
-                  <span className="font-mono text-sm font-bold text-slate-600">
-                     {minutesToTime(etapa.tvoo)}
+                  <span className="text-xs font-semibold text-gray-700">
+                     {formatTime(etapa.dep)}
                   </span>
-                  <p className="text-xs text-gray-400">T.Voo</p>
                </div>
+               <div className="text-right">
+                  <span className="text-xs font-semibold text-gray-700">
+                     {formatTime(etapa.arr)}
+                  </span>
+               </div>
+            </div>
+
+            <div className="h-6 w-px shrink-0 bg-gray-200" />
+
+            <div className="w-12 shrink-0 text-right font-mono">
+               <span className="text-sm font-bold text-gray-800">
+                  {minutesToTime(etapa.tvoo)}
+               </span>
+               <p className="text-[10px] font-medium tracking-wide text-gray-400 uppercase">
+                  T.Voo
+               </p>
             </div>
          </div>
       </button>

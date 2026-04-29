@@ -1,12 +1,20 @@
 import type { OIItem } from "./types";
 import { timeToMinutes } from "@/../utils/dateHandler";
 
+/**
+ * Calcula tvoo em minutos. arr DEVE ser maior que dep no
+ * mesmo dia. arr == 00:00 com dep > 00:00 representa fim do
+ * dia (24:00). Retorna 0 se invalido (atravessa o dia).
+ */
 export function calcTvoo(dep: string, arr: string): number {
    if (!dep || !arr) return 0;
    const [dh, dm] = dep.split(":").map(Number);
    const [ah, am] = arr.split(":").map(Number);
-   const diff = ah * 60 + am - (dh * 60 + dm);
-   return diff > 0 ? diff : diff + 1440;
+   const depMin = dh * 60 + dm;
+   let arrMin = ah * 60 + am;
+   if (arrMin === 0 && depMin > 0) arrMin = 1440;
+   if (arrMin <= depMin) return 0;
+   return arrMin - depMin;
 }
 
 export function newOiItem(): OIItem {

@@ -28,6 +28,9 @@ export function useEtapaForm(params: UseEtapaFormParams) {
       [formData.dep, formData.arr]
    );
 
+   // Etapa nao pode atravessar o dia (arr <= dep, exceto
+   // arr=00:00 que representa fim do dia)
+   const crossesDay = !!formData.dep && !!formData.arr && tvoo === 0;
    const tvooValid = tvoo > 0 && tvoo % 5 === 0;
 
    // Field update helper with real-time numeric validation
@@ -72,6 +75,9 @@ export function useEtapaForm(params: UseEtapaFormParams) {
          errs.destino = "Codigo ICAO deve ter 4 caracteres";
       if (!formData.dep) errs.dep = "Informe a hora de decolagem";
       if (!formData.arr) errs.arr = "Informe a hora de pouso";
+      else if (crossesDay)
+         errs.arr =
+            "Etapa nao pode atravessar o dia. Use 00:00 como fim do dia.";
       if (!formData.anv) errs.anv = "Selecione a aeronave";
 
       // Validate numeric field limits
@@ -141,6 +147,7 @@ export function useEtapaForm(params: UseEtapaFormParams) {
       errors,
       tvoo,
       tvooValid,
+      crossesDay,
       validate,
       initializeForm,
    };

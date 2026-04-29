@@ -9,6 +9,7 @@ interface DadosVooSectionProps {
    errors: Partial<Record<keyof FormData, string>>;
    tvoo: number;
    tvooValid: boolean;
+   crossesDay: boolean;
    aeronavesList: Array<{ matricula: string }>;
 }
 
@@ -18,6 +19,7 @@ export function DadosVooSection({
    errors,
    tvoo,
    tvooValid,
+   crossesDay,
    aeronavesList,
 }: DadosVooSectionProps) {
    return (
@@ -214,14 +216,20 @@ export function DadosVooSection({
                   <div
                      className={clsx(
                         "flex h-[32px] items-center justify-center rounded-lg border px-3 font-mono text-xs shadow-inner",
-                        tvoo > 0 && tvooValid
-                           ? "border-green-300 bg-green-50 text-green-700 dark:border-green-800/80 dark:bg-green-900/20 dark:text-green-400"
-                           : tvoo > 0
-                             ? "border-amber-300 bg-amber-50 text-amber-700 dark:border-amber-800/80 dark:bg-amber-900/20 dark:text-amber-400"
-                             : "border-gray-200 bg-gray-100 text-gray-400 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-500"
+                        crossesDay
+                           ? "border-red-300 bg-red-50 text-red-700 dark:border-red-800/80 dark:bg-red-900/20 dark:text-red-400"
+                           : tvoo > 0 && tvooValid
+                             ? "border-green-300 bg-green-50 text-green-700 dark:border-green-800/80 dark:bg-green-900/20 dark:text-green-400"
+                             : tvoo > 0
+                               ? "border-amber-300 bg-amber-50 text-amber-700 dark:border-amber-800/80 dark:bg-amber-900/20 dark:text-amber-400"
+                               : "border-gray-200 bg-gray-100 text-gray-400 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-500"
                      )}
                   >
-                     {tvoo > 0 ? (
+                     {crossesDay ? (
+                        <span className="text-[9px] font-bold tracking-tighter uppercase">
+                           atravessa dia
+                        </span>
+                     ) : tvoo > 0 ? (
                         <div className="flex items-center gap-1.5 select-none">
                            <span className="font-bold tracking-wide">
                               {minutesToTime(tvoo)}

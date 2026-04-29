@@ -99,6 +99,7 @@ export function EtapaFormModal({
       errors,
       tvoo,
       tvooValid,
+      crossesDay,
       validate,
       initializeForm,
    } = useEtapaForm({
@@ -220,7 +221,14 @@ export function EtapaFormModal({
    async function handleSubmit(e?: React.SyntheticEvent) {
       if (e) e.preventDefault();
       if (!validate(oiValid)) {
-         if (!tvooValid) {
+         if (crossesDay) {
+            push({
+               title: "Horário Inválido",
+               message:
+                  "A etapa não pode atravessar o dia. Use 00:00 como fim do dia.",
+               type: "warning",
+            });
+         } else if (!tvooValid) {
             push({
                title: "TVOO Inválido",
                message: "O Tempo de Voo deve ser múltiplo de 5 e maior que 0.",
@@ -371,6 +379,7 @@ export function EtapaFormModal({
                      errors={errors}
                      tvoo={tvoo}
                      tvooValid={tvooValid}
+                     crossesDay={crossesDay}
                      aeronavesList={aeronavesList}
                   />
 
