@@ -43,11 +43,13 @@ function ValidadeDateField({
    name,
    value,
    onChange,
+   min,
 }: {
    label: string;
    name: string;
    value: string;
    onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+   min?: string;
 }) {
    const status = getDateStatus(value || null);
    const config = getStatusConfig(status);
@@ -63,6 +65,7 @@ function ValidadeDateField({
                type="date"
                value={value}
                onChange={onChange}
+               min={min || undefined}
             />
          </div>
          <div className="mt-1 flex items-center gap-1.5">
@@ -102,8 +105,11 @@ const EditPassaporteDrawer = memo(function EditPassaporteDrawer({
    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
    const [formData, setFormData] = useState({
       passaporte: item.passaporte?.passaporte || "",
-      visa: item.passaporte?.visa || "",
+      data_expedicao_passaporte:
+         item.passaporte?.data_expedicao_passaporte || "",
       validade_passaporte: item.passaporte?.validade_passaporte || "",
+      visa: item.passaporte?.visa || "",
+      data_expedicao_visa: item.passaporte?.data_expedicao_visa || "",
       validade_visa: item.passaporte?.validade_visa || "",
    });
 
@@ -111,8 +117,11 @@ const EditPassaporteDrawer = memo(function EditPassaporteDrawer({
       if (show) {
          setFormData({
             passaporte: item.passaporte?.passaporte || "",
-            visa: item.passaporte?.visa || "",
+            data_expedicao_passaporte:
+               item.passaporte?.data_expedicao_passaporte || "",
             validade_passaporte: item.passaporte?.validade_passaporte || "",
+            visa: item.passaporte?.visa || "",
+            data_expedicao_visa: item.passaporte?.data_expedicao_visa || "",
             validade_visa: item.passaporte?.validade_visa || "",
          });
          setShowDeleteConfirm(false);
@@ -125,11 +134,41 @@ const EditPassaporteDrawer = memo(function EditPassaporteDrawer({
    };
 
    const handleSave = async () => {
+      if (
+         formData.data_expedicao_passaporte &&
+         formData.validade_passaporte &&
+         formData.data_expedicao_passaporte > formData.validade_passaporte
+      ) {
+         push({
+            title: "Erro",
+            message:
+               "Data de expedição do passaporte não pode ser maior que a validade",
+            type: "error",
+         });
+         return;
+      }
+      if (
+         formData.data_expedicao_visa &&
+         formData.validade_visa &&
+         formData.data_expedicao_visa > formData.validade_visa
+      ) {
+         push({
+            title: "Erro",
+            message:
+               "Data de expedição do visto não pode ser maior que a validade",
+            type: "error",
+         });
+         return;
+      }
+
       try {
          const data: PassaporteUpsert = {
             passaporte: formData.passaporte || null,
-            visa: formData.visa || null,
+            data_expedicao_passaporte:
+               formData.data_expedicao_passaporte || null,
             validade_passaporte: formData.validade_passaporte || null,
+            visa: formData.visa || null,
+            data_expedicao_visa: formData.data_expedicao_visa || null,
             validade_visa: formData.validade_visa || null,
          };
 
@@ -165,7 +204,7 @@ const EditPassaporteDrawer = memo(function EditPassaporteDrawer({
 
    return (
       <>
-         <Modal show={show} onClose={onClose} size="md" dismissible>
+         <Modal show={show} onClose={onClose} size="xl" dismissible>
             <ModalHeader>
                {isEdit ? "Editar Passaporte" : "Cadastrar Passaporte"}
             </ModalHeader>
@@ -194,53 +233,93 @@ const EditPassaporteDrawer = memo(function EditPassaporteDrawer({
                      </div>
                   </div>
 
-                  <div className="border-t border-gray-200" />
-
-                  {/* Numero do passaporte */}
-                  <div>
-                     <Label htmlFor="passaporte">Passaporte</Label>
-                     <div className="mt-1">
-                        <TextInput
-                           id="passaporte"
-                           name="passaporte"
-                           type="text"
-                           placeholder="Ex: SC014119"
-                           value={formData.passaporte}
+                  {/* Grupo Passaporte */}
+                  <fieldset className="rounded-lg border border-gray-300 p-4 shadow">
+                     <legend className="px-2 text-sm font-semibold text-gray-700 uppercase">
+                        Passaporte
+                     </legend>
+                     <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+                        <div>
+                           <Label htmlFor="passaporte">Nº Passaporte</Label>
+                           <div className="mt-1">
+                              <TextInput
+                                 id="passaporte"
+                                 name="passaporte"
+                                 type="text"
+                                 placeholder="----"
+                                 value={formData.passaporte}
+                                 onChange={handleChange}
+                              />
+                           </div>
+                        </div>
+                        <div>
+                           <Label htmlFor="data_expedicao_passaporte">
+                              Expedição
+                           </Label>
+                           <div className="mt-1">
+                              <TextInput
+                                 id="data_expedicao_passaporte"
+                                 name="data_expedicao_passaporte"
+                                 type="date"
+                                 value={formData.data_expedicao_passaporte}
+                                 onChange={handleChange}
+                                 max={formData.validade_passaporte || undefined}
+                              />
+                           </div>
+                        </div>
+                        <ValidadeDateField
+                           label="Validade"
+                           name="validade_passaporte"
+                           value={formData.validade_passaporte}
                            onChange={handleChange}
+                           min={formData.data_expedicao_passaporte}
                         />
                      </div>
-                  </div>
+                  </fieldset>
 
-                  {/* Numero do visto */}
-                  <div>
-                     <Label htmlFor="visa">Nº Visto</Label>
-                     <div className="mt-1">
-                        <TextInput
-                           id="visa"
-                           name="visa"
-                           type="text"
-                           placeholder="Ex: AA1234567 ou B1/B2"
-                           value={formData.visa}
+                  {/* Grupo Visa */}
+                  <fieldset className="rounded-lg border border-gray-300 p-4 shadow">
+                     <legend className="px-2 text-sm font-semibold text-gray-700 uppercase">
+                        Visa
+                     </legend>
+                     <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+                        <div>
+                           <Label htmlFor="visa">Nº Visto</Label>
+                           <div className="mt-1">
+                              <TextInput
+                                 id="visa"
+                                 name="visa"
+                                 type="text"
+                                 placeholder="----"
+                                 value={formData.visa}
+                                 onChange={handleChange}
+                              />
+                           </div>
+                        </div>
+                        <div>
+                           <Label htmlFor="data_expedicao_visa">
+                              Expedição
+                           </Label>
+                           <div className="mt-1">
+                              <TextInput
+                                 id="data_expedicao_visa"
+                                 name="data_expedicao_visa"
+                                 type="date"
+                                 value={formData.data_expedicao_visa}
+                                 onChange={handleChange}
+                                 max={formData.validade_visa || undefined}
+                              />
+                           </div>
+                        </div>
+                        <ValidadeDateField
+                           label="Validade"
+                           name="validade_visa"
+                           value={formData.validade_visa}
                            onChange={handleChange}
+                           min={formData.data_expedicao_visa}
                         />
                      </div>
-                  </div>
-
-                  {/* Datas de validade */}
-                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                     <ValidadeDateField
-                        label="Validade Passaporte"
-                        name="validade_passaporte"
-                        value={formData.validade_passaporte}
-                        onChange={handleChange}
-                     />
-                     <ValidadeDateField
-                        label="Validade VISA"
-                        name="validade_visa"
-                        value={formData.validade_visa}
-                        onChange={handleChange}
-                     />
-                  </div>
+                  </fieldset>
                </div>
             </ModalBody>
             <ModalFooter>

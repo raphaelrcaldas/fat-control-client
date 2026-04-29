@@ -140,7 +140,7 @@ const PassaporteRow = memo(function PassaporteRow({
          }
          tabIndex={0}
          role="button"
-         className="cursor-pointer border-b border-gray-200 transition-colors hover:bg-red-50"
+         className="cursor-pointer border-b border-gray-200 font-mono transition-colors hover:bg-red-50"
       >
          <TableCell className="w-10 px-3 py-3">
             <span
@@ -159,13 +159,14 @@ const PassaporteRow = memo(function PassaporteRow({
             </span>
          </TableCell>
          <TableCell className="px-4 py-3 whitespace-nowrap">
+            <DateCell dateStr={item.passaporte?.validade_passaporte} />
+         </TableCell>
+         <TableCell className="px-4 py-3 whitespace-nowrap">
             <span className="text-sm font-semibold text-gray-700">
                {item.passaporte?.visa || "---"}
             </span>
          </TableCell>
-         <TableCell className="px-4 py-3 whitespace-nowrap">
-            <DateCell dateStr={item.passaporte?.validade_passaporte} />
-         </TableCell>
+
          <TableCell className="px-4 py-3 whitespace-nowrap">
             <DateCell dateStr={item.passaporte?.validade_visa} />
          </TableCell>
@@ -241,9 +242,6 @@ const PassaportesTable = memo(function PassaportesTable({
                   <TableHeadCell className="px-4 py-3 font-semibold">
                      Nº Passaporte
                   </TableHeadCell>
-                  <TableHeadCell className="px-4 py-3 font-semibold">
-                     Nº Visto
-                  </TableHeadCell>
                   <SortableHeader
                      label="Validade Passaporte"
                      field="validade_passaporte"
@@ -251,6 +249,9 @@ const PassaportesTable = memo(function PassaportesTable({
                      direction={sortDirection}
                      onSort={onSort}
                   />
+                  <TableHeadCell className="px-4 py-3 font-semibold">
+                     Nº VISA
+                  </TableHeadCell>
                   <SortableHeader
                      label="Validade VISA"
                      field="validade_visa"

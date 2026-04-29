@@ -8,8 +8,10 @@ export interface PassaportePublic {
    id: number;
    user_id: number;
    passaporte: string | null;
-   visa: string | null;
+   data_expedicao_passaporte: string | null;
    validade_passaporte: string | null;
+   visa: string | null;
+   data_expedicao_visa: string | null;
    validade_visa: string | null;
 }
 
@@ -26,8 +28,10 @@ export interface TripPassaporteOut {
 
 export interface PassaporteUpsert {
    passaporte?: string | null;
-   visa?: string | null;
+   data_expedicao_passaporte?: string | null;
    validade_passaporte?: string | null;
+   visa?: string | null;
+   data_expedicao_visa?: string | null;
    validade_visa?: string | null;
 }
 
