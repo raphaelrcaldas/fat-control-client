@@ -74,43 +74,6 @@ function getEtapasDoDia(
    return etapas;
 }
 
-interface LocalidadeEntreEtapas {
-   localidade: string;
-   omStatus: string;
-}
-
-function getLocalidadeEntreEtapas(
-   ordens: OrdemMissaoList[],
-   matricula: string,
-   dateStr: string
-): LocalidadeEntreEtapas | null {
-   const todasEtapas: { dtDep: string; dest: string; omStatus: string }[] = [];
-
-   for (const om of ordens) {
-      if (om.matricula_anv !== matricula) continue;
-      for (const etapa of om.etapas) {
-         todasEtapas.push({
-            dtDep: etapa.dt_dep,
-            dest: etapa.dest,
-            omStatus: om.status,
-         });
-      }
-   }
-
-   todasEtapas.sort((a, b) => a.dtDep.localeCompare(b.dtDep));
-
-   let last: { dest: string; omStatus: string } | null = null;
-   for (const etapa of todasEtapas) {
-      if (extractDate(etapa.dtDep) < dateStr) {
-         last = { dest: etapa.dest, omStatus: etapa.omStatus };
-      }
-   }
-
-   if (!last || last.dest === "SBGL") return null;
-
-   return { localidade: last.dest, omStatus: last.omStatus };
-}
-
 function AeronaveCell({
    matricula,
    date,
@@ -124,24 +87,8 @@ function AeronaveCell({
    const dateStr = toLocalDateStr(date);
    const etapas = getEtapasDoDia(ordens, matricula, dateStr);
 
-   const info =
-      etapas.length === 0
-         ? getLocalidadeEntreEtapas(ordens, matricula, dateStr)
-         : null;
-   const infoStatus = info
-      ? (STATUS_CONFIG[info.omStatus as StatusType] ?? STATUS_CONFIG.aprovada)
-      : null;
-
    return (
       <div className="flex min-h-38 flex-col justify-start gap-1 p-1">
-         {info && infoStatus && (
-            <div
-               className={`truncate rounded-md border px-1.5 py-0.5 text-center font-mono text-sm font-semibold shadow-sm backdrop-blur-sm transition-all ${infoStatus.bg} ${infoStatus.text} ${infoStatus.border}`}
-            >
-               {info.localidade}
-            </div>
-         )}
-
          {etapas.map((etapa, idx) => {
             const statusCfg =
                STATUS_CONFIG[etapa.omStatus as StatusType] ??
