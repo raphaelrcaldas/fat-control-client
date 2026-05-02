@@ -75,8 +75,15 @@ export default async function request<T = any>(
 
    // Interceptor para 403
    if (response.status === 403 && typeof window !== "undefined") {
-      // Redireciona para a página de login
-      window.location.href = "/";
+      const body = await response
+         .clone()
+         .json()
+         .catch(() => null);
+      if (body?.message === "PASSWORD_CHANGE_REQUIRED") {
+         window.location.href = "/change-password";
+      } else {
+         window.location.href = "/";
+      }
    }
 
    return response;

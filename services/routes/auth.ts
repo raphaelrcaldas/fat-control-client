@@ -36,6 +36,10 @@ export async function refreshToken(token: string) {
    return response;
 }
 
-export async function devLogin(userId: number): Promise<ApiResult<{ access_token: string }>> {
-   return parseApiResponse<{ access_token: string }>(await request("POST", `auth/dev_login?user_id=${userId}`));
+export async function devLogin(
+   userId: number
+): Promise<ApiResult<{ access_token: string }>> {
+   return parseApiResponse<{ access_token: string }>(
+      await request("POST", `auth/dev_login?user_id=${userId}`)
+   );
 }

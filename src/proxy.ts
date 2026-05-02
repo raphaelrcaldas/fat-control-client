@@ -59,12 +59,35 @@ export async function proxy(request: NextRequest) {
       return redirectToLogin(request);
    }
 
+   // --- Gate first_login ---
+   const payload = decodeJwtPayload(tokenValue);
+   const pathname = request.nextUrl.pathname;
+   if (payload?.first_login === true && pathname !== "/change-password") {
+      return NextResponse.redirect(new URL("/change-password", request.url));
+   }
+   if (payload?.first_login === false && pathname === "/change-password") {
+      return NextResponse.redirect(new URL("/", request.url));
+   }
+
    const response = NextResponse.next();
    response.cookies.set("token", tokenValue ?? "", {
       maxAge: 24 * 60 * 60,
    });
 
    return response;
+}
+
+function decodeJwtPayload(token: string): { first_login?: boolean } | null {
+   try {
+      const [, payload] = token.split(".");
+      if (!payload) return null;
+      const normalized = payload.replace(/-/g, "+").replace(/_/g, "/");
+      const pad = normalized.length % 4;
+      const padded = pad ? normalized + "=".repeat(4 - pad) : normalized;
+      return JSON.parse(atob(padded));
+   } catch {
+      return null;
+   }
 }
 
 // Função auxiliar para centralizar a lógica de redirecionamento para o login

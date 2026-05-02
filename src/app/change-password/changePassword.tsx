@@ -1,9 +1,11 @@
 import { changePassword } from "services/routes/users";
+import { refreshToken } from "services/routes/auth";
 import { Label, TextInput, Button, Spinner } from "flowbite-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useToast } from "@/app/context/toast";
 import { useRouter } from "next/navigation";
+import { getCookie, setCookie } from "cookies-next";
 
 interface ChangePwdSchema {
    oldPassword: string;
@@ -36,6 +38,30 @@ export function ChangePassword() {
                message: result.message || "Senha alterada com sucesso!",
                type: "success",
             });
+
+            const currentToken = getCookie("token");
+            if (typeof currentToken === "string" && currentToken) {
+               try {
+                  const refreshRes = await refreshToken(currentToken);
+                  if (refreshRes.ok) {
+                     const json = await refreshRes.json();
+                     const newToken = json?.data?.access_token;
+                     if (newToken) {
+                        setCookie("token", newToken, {
+                           maxAge: 24 * 60 * 60,
+                           path: "/",
+                        });
+                     }
+                  }
+               } catch {
+                  push({
+                     message:
+                        "Senha alterada, mas não foi possível renovar a sessão. Faça login novamente.",
+                     type: "error",
+                  });
+               }
+            }
+
             route.push("/");
          } else {
             push({
