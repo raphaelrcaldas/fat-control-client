@@ -10,6 +10,7 @@ import {
    addUser,
    updateUser,
    resetPassword,
+   deleteUser,
    GetUsersParams,
    UserSchema,
 } from "services/routes/users";
@@ -103,6 +104,21 @@ export function useUpdateUser() {
          queryClient.invalidateQueries({ queryKey: userKeys.detail(id) });
          queryClient.invalidateQueries({ queryKey: userKeys.lists() });
          queryClient.invalidateQueries({ queryKey: userKeys.logs(id) });
+      },
+   });
+}
+
+/**
+ * Deletar usuário
+ */
+export function useDeleteUser() {
+   const queryClient = useQueryClient();
+
+   return useMutation({
+      mutationFn: (userId: number) => deleteUser(userId),
+      onSuccess: () => {
+         queryClient.invalidateQueries({ queryKey: userKeys.lists() });
+         queryClient.invalidateQueries({ queryKey: userKeys.details() });
       },
    });
 }

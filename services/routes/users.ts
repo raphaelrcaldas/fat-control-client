@@ -134,3 +134,9 @@ export async function resetPassword(userId: number): Promise<ApiResult<null>> {
       })
    );
 }
+
+export async function deleteUser(userId: number): Promise<ApiResult<null>> {
+   return parseApiResponse<null>(
+      await request("DELETE", usersRoute + userId)
+   );
+}

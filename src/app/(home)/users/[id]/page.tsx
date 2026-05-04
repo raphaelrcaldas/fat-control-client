@@ -3,11 +3,13 @@
 import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { Spinner } from "flowbite-react";
-import { useUser, useUpdateUser } from "@/hooks/queries";
+import { useUser, useUpdateUser, useDeleteUser } from "@/hooks/queries";
 import { useToast } from "@/app/context/toast";
+import { PermBased } from "@/app/(home)/hooks/usePermBased";
 import { UserReadView } from "./components/UserReadView";
 import { UserAudit } from "./components/UserAudit";
 import { ResetPassword } from "./components/ResetPassword";
+import { DeleteUserModal } from "./components/DeleteUserModal";
 import clsx from "clsx";
 import {
    HiUser,
@@ -17,6 +19,7 @@ import {
    HiXCircle,
    HiArrowLeft,
 } from "react-icons/hi";
+import { MdDelete } from "react-icons/md";
 
 const TABS = [
    { key: "dados", label: "Dados Cadastrais", icon: HiUser },
@@ -32,9 +35,31 @@ export default function UserDetailsPage() {
    const userId = Number(params.id);
    const [activeTab, setActiveTab] = useState<TabKey>("dados");
 
+   const [showDeleteModal, setShowDeleteModal] = useState(false);
+
    const { data: user, isLoading } = useUser(userId);
    const updateUser = useUpdateUser();
+   const deleteUser = useDeleteUser();
    const { push } = useToast();
+
+   async function handleDelete() {
+      try {
+         const result = await deleteUser.mutateAsync(userId);
+         if (result.ok) {
+            push({ message: "Usuário excluído com sucesso", type: "success" });
+            router.push("/users");
+         } else {
+            push({
+               message: result.message || "Erro ao excluir usuário",
+               type: "error",
+            });
+            setShowDeleteModal(false);
+         }
+      } catch {
+         push({ message: "Erro de conexão ao excluir usuário", type: "error" });
+         setShowDeleteModal(false);
+      }
+   }
 
    async function toggleActive() {
       if (!user) return;
@@ -152,6 +177,16 @@ export default function UserDetailsPage() {
                            )}
                         </button>
                      )}
+                     <PermBased resource="user" requiredPerm="delete">
+                        <button
+                           onClick={() => setShowDeleteModal(true)}
+                           className="flex cursor-pointer items-center gap-1.5 rounded-lg bg-red-900/60 px-3 py-1.5 text-sm font-medium text-white backdrop-blur-sm transition-opacity hover:opacity-80"
+                           title="Excluir usuário"
+                        >
+                           <MdDelete className="h-4 w-4" />
+                           Excluir
+                        </button>
+                     </PermBased>
                   </div>
                </div>
             </div>
@@ -186,6 +221,15 @@ export default function UserDetailsPage() {
                {activeTab === "senha" && <ResetPassword userId={userId} />}
             </div>
          </div>
+
+         <DeleteUserModal
+            show={showDeleteModal}
+            onClose={() => setShowDeleteModal(false)}
+            onConfirm={handleDelete}
+            isPending={deleteUser.isPending}
+            userName={user.nome_guerra}
+            userId={userId}
+         />
       </div>
    );
 }
