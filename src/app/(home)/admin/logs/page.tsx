@@ -1,7 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getUserActionLogs, UserActionLog } from "services/routes/logs";
+import {
+   getUserActionLogs,
+   deleteUserActionLog,
+   UserActionLog,
+} from "services/routes/logs";
 import {
    Table,
    TableHead,
@@ -12,11 +16,23 @@ import {
    TextInput,
    Select,
    Badge,
+   Modal,
+   ModalBody,
+   ModalHeader,
+   Button,
 } from "flowbite-react";
-import { HiSearch, HiRefresh, HiFilter, HiClipboardList } from "react-icons/hi";
+import {
+   HiSearch,
+   HiRefresh,
+   HiFilter,
+   HiClipboardList,
+   HiTrash,
+} from "react-icons/hi";
+import { MdWarning, MdDelete, MdClose } from "react-icons/md";
 import clsx from "clsx";
 import { TableSkeleton } from "@/components/ui/Skeleton";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { useToast } from "@/app/context/toast";
 
 export default function LogDashboard() {
    const [logs, setLogs] = useState<UserActionLog[]>([]);
@@ -25,6 +41,9 @@ export default function LogDashboard() {
    const [searchTerm, setSearchTerm] = useState<string>("");
    const [actionFilter, setActionFilter] = useState<string>("login");
    const [lastUpdate, setLastUpdate] = useState<Date>(new Date());
+   const [logToDelete, setLogToDelete] = useState<UserActionLog | null>(null);
+   const [isDeleting, setIsDeleting] = useState<boolean>(false);
+   const { push } = useToast();
 
    const fetchLogs = async () => {
       const filters = { action: actionFilter };
@@ -62,6 +81,26 @@ export default function LogDashboard() {
       });
       setFilteredLogs(filtered);
    }, [searchTerm, logs]);
+
+   const handleDelete = async () => {
+      if (!logToDelete) return;
+      setIsDeleting(true);
+      try {
+         await deleteUserActionLog(logToDelete.id);
+         setLogs((prev) => prev.filter((l) => l.id !== logToDelete.id));
+         setFilteredLogs((prev) => prev.filter((l) => l.id !== logToDelete.id));
+         setLogToDelete(null);
+         push({ type: "success", message: "Log excluído com sucesso." });
+      } catch (err: any) {
+         console.error("Erro ao excluir log:", err);
+         push({
+            type: "error",
+            message: "Erro ao excluir log. Tente novamente.",
+         });
+      } finally {
+         setIsDeleting(false);
+      }
+   };
 
    return (
       <div className="grid gap-4 p-2">
@@ -131,18 +170,19 @@ export default function LogDashboard() {
                         Ação
                      </TableHeadCell>
                      <TableHeadCell>Origem</TableHeadCell>
+                     <TableHeadCell>Ações</TableHeadCell>
                   </TableRow>
                </TableHead>
                <TableBody className="divide-y divide-gray-200">
                   {loading ? (
                      <TableRow className="bg-white">
-                        <TableCell colSpan={4} className="p-4">
-                           <TableSkeleton rows={8} cols={4} />
+                        <TableCell colSpan={5} className="p-4">
+                           <TableSkeleton rows={8} cols={5} />
                         </TableCell>
                      </TableRow>
                   ) : filteredLogs.length === 0 ? (
                      <TableRow className="bg-white">
-                        <TableCell colSpan={4} className="py-12">
+                        <TableCell colSpan={5} className="py-12">
                            <EmptyState
                               icon={HiClipboardList}
                               title={
@@ -165,17 +205,48 @@ export default function LogDashboard() {
                      </TableRow>
                   ) : (
                      filteredLogs.map((log) => (
-                        <LogRow key={log.id} log={log} />
+                        <LogRow
+                           key={log.id}
+                           log={log}
+                           onDeleteClick={setLogToDelete}
+                        />
                      ))
                   )}
                </TableBody>
             </Table>
          </div>
+
+         {logToDelete && (
+            <DeleteLogModal
+               show={true}
+               onClose={() => setLogToDelete(null)}
+               onConfirm={handleDelete}
+               isPending={isDeleting}
+               logId={logToDelete.id}
+               userName={`${logToDelete.user.p_g} ${logToDelete.user.nome_guerra}`}
+               timestamp={new Date(
+                  logToDelete.timestamp + "Z"
+               ).toLocaleDateString("pt-BR", {
+                  day: "2-digit",
+                  month: "2-digit",
+                  year: "2-digit",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                  second: "2-digit",
+               })}
+            />
+         )}
       </div>
    );
 }
 
-function LogRow({ log }: { log: UserActionLog }) {
+function LogRow({
+   log,
+   onDeleteClick,
+}: {
+   log: UserActionLog;
+   onDeleteClick: (log: UserActionLog) => void;
+}) {
    const timestamp =
       new Date(log.timestamp + "Z").toLocaleDateString("pt-BR", {
          day: "2-digit",
@@ -229,6 +300,120 @@ function LogRow({ log }: { log: UserActionLog }) {
                {afterParse.client}
             </span>
          </TableCell>
+         <TableCell>
+            <button
+               onClick={() => onDeleteClick(log)}
+               className="rounded p-1.5 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-600"
+               title="Excluir log"
+               type="button"
+            >
+               <HiTrash className="size-4" />
+            </button>
+         </TableCell>
       </TableRow>
+   );
+}
+
+interface DeleteLogModalProps {
+   show: boolean;
+   onClose: () => void;
+   onConfirm: () => void;
+   isPending: boolean;
+   logId: number;
+   userName: string;
+   timestamp: string;
+}
+
+function DeleteLogModal({
+   show,
+   onClose,
+   onConfirm,
+   isPending,
+   logId,
+   userName,
+   timestamp,
+}: DeleteLogModalProps) {
+   return (
+      <Modal size="lg" show={show} onClose={onClose} dismissible>
+         <ModalHeader className="border-b-2 border-red-100 bg-linear-to-r from-red-50 to-orange-50">
+            <div className="flex items-center gap-3">
+               <div className="rounded-full bg-red-500 p-2">
+                  <MdWarning className="size-6 text-white" />
+               </div>
+               <span className="text-xl font-bold text-gray-800">
+                  Confirmar Exclusão
+               </span>
+            </div>
+         </ModalHeader>
+         <ModalBody className="p-6">
+            <div className="flex flex-col gap-6">
+               <div className="rounded-r-lg border-l-4 border-red-500 bg-red-50 p-4">
+                  <p className="font-medium text-gray-800">
+                     Tem certeza que deseja excluir este log?
+                  </p>
+                  <p className="mt-2 text-sm text-gray-600">
+                     Esta ação não pode ser desfeita. O registro será removido
+                     permanentemente.
+                  </p>
+               </div>
+
+               <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
+                  <h4 className="mb-3 text-sm font-semibold text-gray-700">
+                     Detalhes do Log:
+                  </h4>
+                  <div className="space-y-2">
+                     <div className="flex items-center gap-2">
+                        <span className="text-sm text-gray-600">ID:</span>
+                        <span className="font-semibold text-gray-800">
+                           #{logId}
+                        </span>
+                     </div>
+                     <div className="flex items-center gap-2">
+                        <span className="text-sm text-gray-600">Usuário:</span>
+                        <span className="font-semibold text-gray-800 uppercase">
+                           {userName}
+                        </span>
+                     </div>
+                     <div className="flex items-center gap-2">
+                        <span className="text-sm text-gray-600">
+                           Data/Hora:
+                        </span>
+                        <span className="font-mono text-sm font-semibold text-gray-800">
+                           {timestamp}
+                        </span>
+                     </div>
+                  </div>
+               </div>
+
+               <div className="flex justify-center gap-3 pt-2">
+                  <Button
+                     color="gray"
+                     className="w-32"
+                     onClick={onClose}
+                     type="button"
+                     disabled={isPending}
+                  >
+                     <div className="flex items-center gap-2">
+                        <MdClose className="size-5" />
+                        <span>Cancelar</span>
+                     </div>
+                  </Button>
+
+                  <Button
+                     color="red"
+                     className="w-32"
+                     onClick={onConfirm}
+                     type="button"
+                     disabled={isPending}
+                  >
+                     <div className="flex items-center gap-2">
+                        <MdDelete className="size-5" />
+                        <span>{isPending ? "Excluindo..." : "Excluir"}</span>
+                     </div>
+                  </Button>
+               </div>
+            </div>
+         </ModalBody>
+      </Modal>
    );
 }

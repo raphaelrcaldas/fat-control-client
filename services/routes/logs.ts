@@ -49,3 +49,11 @@ export async function getUserActionLogs(
 
    return json.data || [];
 }
+
+export async function deleteUserActionLog(id: number): Promise<void> {
+   const res = await request("DELETE", `${logsRoute}user-actions/${id}`);
+   const json = (await res.json()) as ApiResponse<null>;
+   if (!res.ok) {
+      throw new Error(json.message || "Erro ao excluir log");
+   }
+}
