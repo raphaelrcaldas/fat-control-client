@@ -7,6 +7,8 @@ import Navbar from "./components/layout/navbar";
 import SidebarWithFooter from "./components/layout/sidebar";
 import PageTransition from "./components/layout/page-transition";
 import { QuadsProvider } from "./context/quads";
+import { AuthProvider } from "../context/auth";
+import { getQueryClient } from "@/lib/queryClient";
 
 interface RootLayoutProps {
    children: React.ReactNode;
@@ -40,46 +42,49 @@ export default function RootLayout({ children }: RootLayoutProps) {
    }, [isMobile, isSidebarOpen]);
 
    const handleLogout = async () => {
-      deleteCookie("token");
+      getQueryClient().clear();
+      deleteCookie("token", { path: "/" });
       router.refresh();
    };
 
    const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
 
    return (
-      <QuadsProvider>
-         <div className="flex h-screen flex-col overflow-hidden bg-gray-50">
-            {/* Navbar inteligente */}
-            <Navbar
-               onToggleSidebar={toggleSidebar}
-               isSidebarOpen={isSidebarOpen}
-            />
-
-            {/* Container principal - ajusta padding baseado na navbar */}
-            <div className="flex flex-1 overflow-hidden pt-16">
-               {/* Backdrop */}
-               {isMobile && isSidebarOpen && (
-                  <div
-                     className="animate-in fade-in fixed inset-0 z-40 bg-black/50 duration-300 lg:hidden"
-                     onClick={() => setIsSidebarOpen(false)}
-                     aria-hidden="true"
-                  />
-               )}
-
-               {/* Sidebar */}
-               <SidebarWithFooter
-                  isOpen={isSidebarOpen}
-                  isMobile={isMobile}
-                  onLogout={handleLogout}
-                  onClose={() => setIsSidebarOpen(false)}
+      <AuthProvider>
+         <QuadsProvider>
+            <div className="flex h-screen flex-col overflow-hidden bg-gray-50">
+               {/* Navbar inteligente */}
+               <Navbar
+                  onToggleSidebar={toggleSidebar}
+                  isSidebarOpen={isSidebarOpen}
                />
 
-               {/* Conteúdo */}
-               <main className="flex-1 overflow-auto p-2">
-                  <PageTransition key={pathname}>{children}</PageTransition>
-               </main>
+               {/* Container principal - ajusta padding baseado na navbar */}
+               <div className="flex flex-1 overflow-hidden pt-16">
+                  {/* Backdrop */}
+                  {isMobile && isSidebarOpen && (
+                     <div
+                        className="animate-in fade-in fixed inset-0 z-40 bg-black/50 duration-300 lg:hidden"
+                        onClick={() => setIsSidebarOpen(false)}
+                        aria-hidden="true"
+                     />
+                  )}
+
+                  {/* Sidebar */}
+                  <SidebarWithFooter
+                     isOpen={isSidebarOpen}
+                     isMobile={isMobile}
+                     onLogout={handleLogout}
+                     onClose={() => setIsSidebarOpen(false)}
+                  />
+
+                  {/* Conteúdo */}
+                  <main className="flex-1 overflow-auto p-2">
+                     <PageTransition key={pathname}>{children}</PageTransition>
+                  </main>
+               </div>
             </div>
-         </div>
-      </QuadsProvider>
+         </QuadsProvider>
+      </AuthProvider>
    );
 }

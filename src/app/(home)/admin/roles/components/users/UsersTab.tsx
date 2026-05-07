@@ -6,6 +6,7 @@ import type { UserWithRole, RoleDetail } from "../../config/types";
 import { updateUserRole, deleteUserRole } from "services/routes/security/roles";
 import { devLogin as devLoginApi } from "services/routes/auth";
 import { setCookie } from "cookies-next";
+import { getQueryClient } from "@/lib/queryClient";
 import { useToast } from "@/app/context/toast";
 import useDebouncedValue from "@/hooks/useDebouncedValue";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
@@ -124,8 +125,10 @@ export const UsersTab = memo(function UsersTab({
          }
 
          if (result.data?.access_token) {
+            getQueryClient().clear();
             setCookie("token", result.data.access_token, {
                maxAge: 24 * 60 * 60,
+               path: "/",
             });
 
             push({

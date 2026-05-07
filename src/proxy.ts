@@ -44,6 +44,7 @@ export async function proxy(request: NextRequest) {
          response.cookies.delete("pkce_code_verifier");
          response.cookies.set("token", access_token, {
             maxAge: 24 * 60 * 60,
+            path: "/",
          });
 
          return response;
@@ -72,6 +73,7 @@ export async function proxy(request: NextRequest) {
    const response = NextResponse.next();
    response.cookies.set("token", tokenValue ?? "", {
       maxAge: 24 * 60 * 60,
+      path: "/",
    });
 
    return response;

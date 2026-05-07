@@ -69,11 +69,13 @@ export default async function request<T = any>(
    // Interceptor para 401
    if (response.status === 401 && typeof window !== "undefined") {
       // Redireciona para a página de login
-      deleteCookie("token");
+      deleteCookie("token", { path: "/" });
       window.location.href = "/";
+      return response;
    }
 
-   // Interceptor para 403
+   // Interceptor para 403 — apenas troca de senha pendente.
+   // 403 de RBAC NÃO redireciona; deixa o caller tratar (ex.: ApiResult.ok=false).
    if (response.status === 403 && typeof window !== "undefined") {
       const body = await response
          .clone()
@@ -81,8 +83,6 @@ export default async function request<T = any>(
          .catch(() => null);
       if (body?.message === "PASSWORD_CHANGE_REQUIRED") {
          window.location.href = "/change-password";
-      } else {
-         window.location.href = "/";
       }
    }
 

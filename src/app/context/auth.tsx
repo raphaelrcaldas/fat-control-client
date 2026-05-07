@@ -1,5 +1,6 @@
 "use client";
 import React, { createContext, useContext, useEffect, useState } from "react";
+import { deleteCookie } from "cookies-next";
 import { getMe } from "services/routes/users";
 import { AppLoadingScreen } from "src/app/(home)/components/appLoadingScreen";
 import PermDenied from "../components/permDenied";
@@ -30,29 +31,100 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
    const [role, setRole] = useState<string | null>(null);
    const [perms, setPerms] = useState<PermType[]>([]);
    const [loading, setLoading] = useState(true);
+   const [fetchFailed, setFetchFailed] = useState(false);
+   const [retryNonce, setRetryNonce] = useState(0);
 
    useEffect(() => {
-      const fetchUser = async () => {
-         try {
-            const data = await getMe();
+      let cancelled = false;
 
-            setUser(data.nome_guerra);
-            setUserPg(data.posto);
-            setUserId(data.id);
-            setRole(data.role);
-            setPerms(data.permissions || []);
-         } catch (error) {
-            console.error("Falha na autenticação do cliente:", error);
-         } finally {
-            setLoading(false);
+      const fetchUser = async () => {
+         const maxAttempts = 4;
+         for (let attempt = 0; attempt < maxAttempts; attempt++) {
+            try {
+               const data = await getMe();
+               if (cancelled) return;
+               if (!data) throw new Error("Resposta vazia de /users/me");
+
+               setUser(data.nome_guerra);
+               setUserPg(data.posto);
+               setUserId(data.id);
+               setRole(data.role);
+               setPerms(data.permissions || []);
+               setFetchFailed(false);
+               setLoading(false);
+               return;
+            } catch (error) {
+               if (cancelled) return;
+               if (attempt === maxAttempts - 1) {
+                  console.error("Falha na autenticação do cliente:", error);
+                  setFetchFailed(true);
+                  setLoading(false);
+                  return;
+               }
+               const delay = Math.min(1000 * 2 ** attempt, 8000);
+               await new Promise((r) => setTimeout(r, delay));
+            }
          }
       };
 
+      setLoading(true);
+      setFetchFailed(false);
       fetchUser();
-   }, []);
+      return () => {
+         cancelled = true;
+      };
+   }, [retryNonce]);
 
    if (loading) {
       return <AppLoadingScreen />;
+   }
+
+   if (fetchFailed) {
+      return (
+         <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-gray-50 p-4">
+            <div className="rounded-xl border border-red-200 bg-white p-8 text-center shadow-lg">
+               <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-red-100">
+                  <svg
+                     className="h-8 w-8 text-red-600"
+                     fill="none"
+                     stroke="currentColor"
+                     viewBox="0 0 24 24"
+                  >
+                     <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"
+                     />
+                  </svg>
+               </div>
+               <h2 className="mb-2 text-xl font-bold text-gray-800">
+                  Erro ao carregar dados
+               </h2>
+               <p className="mb-6 text-sm text-gray-600">
+                  Não foi possível carregar seus dados. Tente novamente ou faça
+                  login novamente.
+               </p>
+               <div className="flex flex-col gap-3">
+                  <button
+                     onClick={() => setRetryNonce((n) => n + 1)}
+                     className="rounded-lg bg-red-600 px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-red-700"
+                  >
+                     Tentar novamente
+                  </button>
+                  <button
+                     onClick={() => {
+                        deleteCookie("token", { path: "/" });
+                        window.location.href = "/";
+                     }}
+                     className="rounded-lg border border-gray-300 bg-white px-6 py-2.5 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-50"
+                  >
+                     Sair
+                  </button>
+               </div>
+            </div>
+         </div>
+      );
    }
 
    if (!role) {
