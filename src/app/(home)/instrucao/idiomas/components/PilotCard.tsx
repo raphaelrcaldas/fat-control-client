@@ -86,9 +86,16 @@ function FieldRow({
 // LangCard
 // ========================================
 
-const LEVELS = ["A1", "A2", "B1", "B2"] as const;
-// Cor fixa por posição do pip (0=esquerda → 3=direita)
-const PIP_POSITION_COLORS = ["#EF9F27", "#F5C542", "#5DCAA5", "#1D9E75"];
+const LEVELS = ["A1", "A2", "B1", "B2", "C1", "C2"] as const;
+// Cor fixa por posição do pip (0=esquerda/A1 → 5=direita/C2)
+const PIP_POSITION_COLORS = [
+   "#EF9F27",
+   "#F5C542",
+   "#5DCAA5",
+   "#1D9E75",
+   "#0E7C5E",
+   "#0A5640",
+];
 
 function LangCard({
    lang,
@@ -135,16 +142,15 @@ function LangCard({
                   key={i}
                   className="rounded-[3px]"
                   style={{
-                     width: 24,
+                     width: 18,
                      height: 6,
-                     backgroundColor:
-                        i < LEVELS.length - levelIdx ? color : "#e5e7eb",
+                     backgroundColor: i <= levelIdx ? color : "#e5e7eb",
                   }}
                />
             ))}
          </div>
          <div className="flex items-center justify-between">
-            <span className="text-[11px] text-gray-400">B2 → A1</span>
+            <span className="text-[11px] text-gray-400">A1 → C2</span>
             {validity && (
                <span className="text-[11px]" style={{ color: colors.text }}>
                   {formatDate(validity)} · {getDaysLabel(validity)}
