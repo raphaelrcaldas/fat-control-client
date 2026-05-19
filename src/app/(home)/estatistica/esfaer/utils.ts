@@ -159,5 +159,6 @@ export function getDescricaoStyles(descricao: string): string {
       "text-orange-400": descricao.includes("COMPREP"),
       "text-blue-500": descricao.includes("COMAE"),
       "font-bold": descricao.includes("SESQAE"),
+      "animate-bounce": descricao.includes("COMPREP PRPO SML"),
    });
 }

@@ -63,7 +63,7 @@ const FilterPanel = ({
       { value: "mc", label: "Mecânico", icon: "🔧" },
       { value: "lm", label: "LoadMaster", icon: "📦" },
       { value: "tf", label: "Comissário", icon: "👔" },
-      { value: "os", label: "Observador SAR", icon: "🔍" },
+      { value: "os", label: "Obs SAR", icon: "🔍" },
       { value: "oe", label: "OE", icon: "⚙️" },
    ];
 
@@ -102,7 +102,7 @@ const FilterPanel = ({
    return (
       <div className="space-y-4 rounded-xl bg-white p-3 shadow-lg">
          <div className="flex flex-wrap gap-3">
-            <div>
+            <div className="w-36">
                <label className="mb-2 block text-center text-sm font-medium text-gray-700">
                   Função
                </label>
