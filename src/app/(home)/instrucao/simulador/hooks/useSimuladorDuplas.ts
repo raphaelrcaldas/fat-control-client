@@ -80,15 +80,11 @@ export function useSimuladorDuplas(anoRef: number) {
 
    const { data, isLoading, isError } = useEtapas({
       is_simulador: true,
-      per_page: 200,
       data_ini: `${anoRef}-01-01`,
       data_fim: `${anoRef}-12-31`,
    });
 
-   const apiDuplas = useMemo(
-      () => buildDuplasFromApi(data?.items ?? []),
-      [data]
-   );
+   const apiDuplas = useMemo(() => buildDuplasFromApi(data ?? []), [data]);
 
    const duplas = useMemo(
       () => mergeDuplas(apiDuplas, pendingDuplas),

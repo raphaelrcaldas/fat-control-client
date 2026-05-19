@@ -61,15 +61,6 @@ export interface GetEtapasParams {
    per_page?: number;
 }
 
-export interface PaginatedEtapasResponse {
-   items: MissaoComEtapas[];
-   total: number;
-   page: number;
-   per_page: number;
-   pages: number;
-   total_items: number;
-}
-
 export interface EtapaFlatItem extends EtapaItem {
    missao_id: number;
    missao_titulo: string | null;
@@ -134,7 +125,7 @@ export async function getEtapaDetail(
 export async function getEtapas(
    params?: GetEtapasParams,
    signal?: AbortSignal
-): Promise<PaginatedEtapasResponse> {
+): Promise<MissaoComEtapas[]> {
    const queryParams = params
       ? {
            ...(params.data_ini && { data_ini: params.data_ini }),
@@ -152,10 +143,6 @@ export async function getEtapas(
            ...(params.is_simulador != null && {
               is_simulador: params.is_simulador ? "true" : "false",
            }),
-           ...(params.page != null && { page: params.page.toString() }),
-           ...(params.per_page != null && {
-              per_page: params.per_page.toString(),
-           }),
         }
       : undefined;
    const response = await request(
@@ -165,16 +152,8 @@ export async function getEtapas(
       queryParams,
       signal
    );
-   const json =
-      (await response.json()) as ApiPaginatedResponse<MissaoComEtapas>;
-   return {
-      items: json.data || [],
-      total: json.total,
-      page: json.page,
-      per_page: json.per_page,
-      pages: json.pages,
-      total_items: json.total_items ?? 0,
-   };
+   const json = (await response.json()) as ApiResponse<MissaoComEtapas[]>;
+   return json.data ?? [];
 }
 
 export async function getEtapasFlat(

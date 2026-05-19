@@ -274,9 +274,9 @@ export function useEtapasFilters(grouped = true) {
    }, [router]);
 
    // --- React Query ---
-   const queryParams = {
-      page: currentPage,
-      per_page: perPage,
+   // Modo grouped: sem paginacao (backend retorna lista completa)
+   // Modo flat: paginacao por etapa individual
+   const groupedParams = {
       anv: urlAnv.length > 0 ? urlAnv : undefined,
       origem: debouncedOrigem || undefined,
       destino: debouncedDestino || undefined,
@@ -288,19 +288,24 @@ export function useEtapasFilters(grouped = true) {
       data_fim: urlDataFim || undefined,
       is_simulador: false,
    };
+   const flatParams = {
+      ...groupedParams,
+      page: currentPage,
+      per_page: perPage,
+   };
 
-   const groupedQuery = useEtapas(queryParams, grouped);
-   const flatQuery = useEtapasFlat(queryParams, !grouped);
+   const groupedQuery = useEtapas(groupedParams, grouped);
+   const flatQuery = useEtapasFlat(flatParams, !grouped);
 
    const activeQuery = grouped ? groupedQuery : flatQuery;
    const { isLoading: loading, isFetching } = activeQuery;
 
-   const missoes = groupedQuery.data?.items ?? [];
+   const missoes = groupedQuery.data ?? [];
    const flatEtapas = flatQuery.data?.items ?? [];
-   const totalPages = activeQuery.data?.pages ?? 1;
-   const totalMissoes = groupedQuery.data?.total ?? 0;
+   const totalPages = grouped ? 1 : (flatQuery.data?.pages ?? 1);
+   const totalMissoes = grouped ? missoes.length : 0;
    const totalEtapas = grouped
-      ? (groupedQuery.data?.total_items ?? 0)
+      ? missoes.reduce((acc, m) => acc + m.etapas.length, 0)
       : (flatQuery.data?.total ?? 0);
 
    const activeFilterCount =
