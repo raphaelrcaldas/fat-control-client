@@ -192,7 +192,7 @@ export const UsersTab = memo(function UsersTab({
          />
 
          <div className="grid gap-4 lg:grid-cols-3">
-            <div className="lg:col-span-2">
+            <div className="rounded-md border border-slate-300 lg:col-span-2">
                <UsersTable
                   filteredUsers={filteredUsers}
                   roles={roles}

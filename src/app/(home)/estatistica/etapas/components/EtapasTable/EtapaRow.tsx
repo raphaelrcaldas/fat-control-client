@@ -107,6 +107,7 @@ export const EtapaRow = memo(function EtapaRow({
                >
                   <span
                      className={clsx(
+                        "w-60 truncate",
                         oi.esf_aer.includes("COMAE")
                            ? "text-blue-700"
                            : oi.esf_aer.includes("COMPREP")

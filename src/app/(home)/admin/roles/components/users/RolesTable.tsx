@@ -17,7 +17,7 @@ interface RolesTableProps {
 
 export const RolesTable = memo(function RolesTable({ roles }: RolesTableProps) {
    return (
-      <div className="h-fit overflow-hidden rounded-lg bg-white shadow-md">
+      <div className="h-fit overflow-hidden rounded-md border border-slate-300 bg-white shadow-md">
          <div className="border-b border-gray-200 bg-gray-50 p-4">
             <h3 className="flex items-center gap-2 text-lg font-semibold text-gray-800">
                <FaUserShield />

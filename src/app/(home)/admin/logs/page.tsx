@@ -132,7 +132,7 @@ export default function LogDashboard() {
          </div>
 
          {/* Filtros */}
-         <div className="rounded-lg bg-white p-4 shadow-md">
+         <div className="rounded-lg border border-slate-300 bg-white p-4 shadow-md">
             <div className="mb-3 flex items-center gap-2">
                <HiFilter className="text-gray-600" />
                <h3 className="font-medium text-gray-700">Filtros</h3>

@@ -28,7 +28,7 @@ export function EsfAerTable({
    totalMesesVoados,
 }: EsfAerTableProps) {
    return (
-      <div className="w-full overflow-x-auto rounded-lg border border-gray-200 bg-white">
+      <div className="w-full overflow-x-auto rounded-lg border border-gray-200 bg-white font-mono">
          <Table
             striped
             theme={{
