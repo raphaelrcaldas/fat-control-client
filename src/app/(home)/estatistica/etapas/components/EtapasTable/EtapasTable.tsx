@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import { Badge, Checkbox, Label, Spinner } from "flowbite-react";
 import {
    HiCheck,
@@ -21,7 +22,6 @@ import { minutesToTime } from "@/../utils/dateHandler";
 import { MissaoCard } from "./MissaoCard";
 import { EtapasFlatTable } from "./EtapasFlatTable";
 import { EtapasNavigatorModal } from "../EtapasNavigatorModal/EtapasNavigatorModal";
-import { EtapaFormModal } from "../EtapaFormModal/EtapaFormModal";
 import { PermBased } from "@/app/(home)/hooks/usePermBased";
 
 export interface EtapasTableProps {
@@ -33,7 +33,6 @@ export interface EtapasTableProps {
    onToggleMissao: (etapaIds: number[]) => void;
    onToggleAll: () => void;
    allSelected: boolean;
-   onEditMissao: (missao: MissaoComEtapas) => void;
    onDeleteMissao: (missao: MissaoComEtapas) => void;
    grouped?: boolean;
    onClearSelection?: () => void;
@@ -48,7 +47,6 @@ export function EtapasTable({
    onToggleMissao,
    onToggleAll,
    allSelected,
-   onEditMissao,
    onDeleteMissao,
    grouped = true,
    onClearSelection,
@@ -58,10 +56,8 @@ export function EtapasTable({
       etapas: EtapaItem[];
       missaoTitulo?: string | null;
    } | null>(null);
-   const [etapaFormState, setEtapaFormState] = useState<{
-      missao: MissaoComEtapas;
-      editingEtapa: EtapaItem | null;
-   } | null>(null);
+
+   const router = useRouter();
 
    const hasData = grouped ? missoes.length > 0 : flatEtapas.length > 0;
 
@@ -128,13 +124,11 @@ export function EtapasTable({
    // Stable callback: open edit form by id (grouped mode)
    const handleEditEtapaGrouped = useCallback(
       (id: number) => {
-         const etapa = etapaById.get(id);
-         if (!etapa) return;
          const missao = missoes.find((m) => m.etapas.some((e) => e.id === id));
          if (!missao) return;
-         setEtapaFormState({ missao, editingEtapa: etapa });
+         router.push(`/estatistica/etapas/missao/${missao.id}?etapa=${id}`);
       },
-      [etapaById, missoes]
+      [missoes, router]
    );
 
    // Stable callback: open edit form by id (flat mode)
@@ -143,17 +137,11 @@ export function EtapasTable({
          const etapa = etapaById.get(id);
          if (!etapa) return;
          const flatEtapa = etapa as EtapaFlatItem;
-         const missao = missaoByEtapaId?.get(flatEtapa.missao_id);
-         if (!missao) return;
-         setEtapaFormState({ missao, editingEtapa: etapa });
+         router.push(
+            `/estatistica/etapas/missao/${flatEtapa.missao_id}?etapa=${id}`
+         );
       },
-      [etapaById, missaoByEtapaId]
-   );
-
-   const handleAddEtapa = useCallback(
-      (m: MissaoComEtapas) =>
-         setEtapaFormState({ missao: m, editingEtapa: null }),
-      []
+      [etapaById, router]
    );
 
    // ── Bulk update ──────────────────────────────────────────────
@@ -326,8 +314,6 @@ export function EtapasTable({
                      onToggleMissao={onToggleMissao}
                      onDetailEtapa={handleDetailEtapa}
                      onEditEtapa={handleEditEtapaGrouped}
-                     onAddEtapa={handleAddEtapa}
-                     onEditMissao={onEditMissao}
                      onDeleteMissao={onDeleteMissao}
                   />
                ))}
@@ -359,15 +345,6 @@ export function EtapasTable({
                initialEtapaId={detailState.etapaId}
                onClose={() => setDetailState(null)}
                missaoTitulo={detailState.missaoTitulo}
-            />
-         )}
-
-         {etapaFormState && (
-            <EtapaFormModal
-               show={!!etapaFormState}
-               onClose={() => setEtapaFormState(null)}
-               missao={etapaFormState.missao}
-               editingEtapa={etapaFormState.editingEtapa}
             />
          )}
       </div>

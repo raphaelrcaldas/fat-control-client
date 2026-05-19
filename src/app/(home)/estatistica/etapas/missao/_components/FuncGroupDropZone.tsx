@@ -14,7 +14,7 @@ import type { FuncType, PosicaoABordo } from "@/constants/tripulantes/funcoes";
 import { tripKeys } from "@/hooks/queries/useTrips";
 import { getTrips } from "services/routes/trips";
 import useDebouncedValue from "@/hooks/useDebouncedValue";
-import type { AssignedTrip } from "../types";
+import type { DraftAssignedTrip } from "../_state/types";
 
 function FuncBordoSelect({
    value,
@@ -122,7 +122,7 @@ export function FuncGroupDropZone({
    assignedIds,
 }: {
    func: FuncType;
-   trips: AssignedTrip[];
+   trips: DraftAssignedTrip[];
    onFuncBordoChange: (tripId: number, funcBordo: string) => void;
    onRemoveAll: () => void;
    onRemove: (tripId: number) => void;

@@ -10,12 +10,12 @@ import {
    HiTable,
 } from "react-icons/hi";
 import { CiPaperplane } from "react-icons/ci";
+import Link from "next/link";
 import { Pagination } from "@/components/Pagination";
 import { useState, useCallback } from "react";
 import { EtapasTable } from "./components/EtapasTable/EtapasTable";
 import { EtapasFilterPanel } from "./components/EtapasFilterPanel";
 import { ActiveFilterTags } from "./components/ActiveFilterTags";
-import { MissaoFormModal } from "./components/MissaoFormModal";
 import { MissaoDeleteModal } from "./components/MissaoDeleteModal";
 import { ExportModal } from "./components/ExportModal";
 import { PaginationInfo } from "./components/PaginationInfo";
@@ -29,10 +29,6 @@ export default function EtapasPage() {
    const [showFilters, setShowFilters] = useState(false);
    const [groupByMissao, setGroupByMissao] = useState(true);
 
-   const [showMissaoModal, setShowMissaoModal] = useState(false);
-   const [editingMissao, setEditingMissao] = useState<MissaoComEtapas | null>(
-      null
-   );
    const [showDeleteModal, setShowDeleteModal] = useState(false);
    const [deletingMissao, setDeletingMissao] = useState<MissaoComEtapas | null>(
       null
@@ -48,16 +44,6 @@ export default function EtapasPage() {
       toggleAll,
       clearSelection,
    } = useEtapaSelection(filters.missoes, filters.flatEtapas, groupByMissao);
-
-   const handleOpenCreateMissao = useCallback(() => {
-      setEditingMissao(null);
-      setShowMissaoModal(true);
-   }, []);
-
-   const handleEditMissao = useCallback((missao: MissaoComEtapas) => {
-      setEditingMissao(missao);
-      setShowMissaoModal(true);
-   }, []);
 
    const handleDeleteMissao = useCallback((missao: MissaoComEtapas) => {
       setDeletingMissao(missao);
@@ -82,9 +68,10 @@ export default function EtapasPage() {
                <div className="flex items-center gap-2">
                   <PermBased resource="etp_mis" requiredPerm="create">
                      <Button
+                        as={Link}
+                        href="/estatistica/etapas/missao/nova"
                         color="red"
                         size="sm"
-                        onClick={handleOpenCreateMissao}
                      >
                         <HiPlus className="mr-2 h-4 w-4" />
                         Missao
@@ -269,7 +256,6 @@ export default function EtapasPage() {
                      onToggleMissao={toggleMissao}
                      onToggleAll={toggleAll}
                      allSelected={allSelected}
-                     onEditMissao={handleEditMissao}
                      onDeleteMissao={handleDeleteMissao}
                      grouped={groupByMissao}
                      onClearSelection={clearSelection}
@@ -302,33 +288,35 @@ export default function EtapasPage() {
                         }
                         viewMode={groupByMissao ? "grouped" : "flat"}
                      />
-                     <div className="flex items-center gap-2">
-                        <label
-                           htmlFor="perPage"
-                           className="text-sm text-gray-500"
-                        >
-                           Por pagina:
-                        </label>
-                        <Select
-                           id="perPage"
-                           sizing="sm"
-                           value={filters.perPage}
-                           onChange={(e) =>
-                              filters.handlePerPageChange(
-                                 Number(e.target.value)
-                              )
-                           }
-                           className="w-20"
-                        >
-                           {PER_PAGE_OPTIONS.map((option) => (
-                              <option key={option} value={option}>
-                                 {option}
-                              </option>
-                           ))}
-                        </Select>
-                     </div>
+                     {!groupByMissao && (
+                        <div className="flex items-center gap-2">
+                           <label
+                              htmlFor="perPage"
+                              className="text-sm text-gray-500"
+                           >
+                              Por pagina:
+                           </label>
+                           <Select
+                              id="perPage"
+                              sizing="sm"
+                              value={filters.perPage}
+                              onChange={(e) =>
+                                 filters.handlePerPageChange(
+                                    Number(e.target.value)
+                                 )
+                              }
+                              className="w-20"
+                           >
+                              {PER_PAGE_OPTIONS.map((option) => (
+                                 <option key={option} value={option}>
+                                    {option}
+                                 </option>
+                              ))}
+                           </Select>
+                        </div>
+                     )}
                   </div>
-                  {filters.totalPages > 1 && (
+                  {!groupByMissao && filters.totalPages > 1 && (
                      <Pagination
                         currentPage={filters.currentPage}
                         totalPages={filters.totalPages}
@@ -338,12 +326,6 @@ export default function EtapasPage() {
                </nav>
             )}
          </div>
-
-         <MissaoFormModal
-            show={showMissaoModal}
-            onClose={() => setShowMissaoModal(false)}
-            editingMissao={editingMissao}
-         />
 
          <MissaoDeleteModal
             show={showDeleteModal}

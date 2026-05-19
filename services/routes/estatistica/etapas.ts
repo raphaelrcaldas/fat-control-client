@@ -104,6 +104,11 @@ export interface EtapaDetail extends EtapaItem {
    nivel: string | null;
 }
 
+export interface MissaoComEtapasDetail
+   extends Omit<MissaoComEtapas, "etapas"> {
+   etapas: EtapaDetail[];
+}
+
 export async function getEtapaDetail(
    id: number,
    signal?: AbortSignal
@@ -321,6 +326,24 @@ export async function exportEtapas(
 
 const missaoRoute = "estatistica/missao/";
 
+export async function getMissao(
+   id: number,
+   signal?: AbortSignal
+): Promise<MissaoComEtapasDetail> {
+   const response = await request(
+      "GET",
+      `${missaoRoute}${id}`,
+      null,
+      undefined,
+      signal
+   );
+   const json = (await response.json()) as ApiResponse<MissaoComEtapasDetail>;
+   if (!response.ok) {
+      throw new Error(json.message || "Missão não encontrada");
+   }
+   return json.data!;
+}
+
 export async function createMissao(
    data: MissaoCreate
 ): Promise<ApiResult<MissaoPublic>> {
@@ -341,5 +364,73 @@ export async function updateMissao(
 export async function deleteMissao(id: number): Promise<ApiResult<null>> {
    return parseApiResponse<null>(
       await request("DELETE", `${missaoRoute}${id}`)
+   );
+}
+
+export async function deleteMissaoComEtapas(
+   id: number
+): Promise<ApiResult<null>> {
+   return parseApiResponse<null>(
+      await request("DELETE", `${missaoRoute}${id}/com-etapas`)
+   );
+}
+
+// ─── Missão + Etapas atomico ──────────────────────────────────────────────
+
+export interface EtapaCreateNestedPayload {
+   data: string;
+   origem: string;
+   destino: string;
+   dep: string; // HH:mm:ss
+   arr: string; // HH:mm:ss
+   tvoo: number;
+   anv: string;
+   pousos: number;
+   tow: number | null;
+   pax: number | null;
+   carga: number | null;
+   comb: number | null;
+   lub: number | null;
+   nivel: string | null;
+   sagem: boolean;
+   parte1: boolean;
+   obs: string | null;
+   tripulantes: TripEtapaIn[];
+   oi_etapas: OIEtapaIn[];
+}
+
+export interface MissaoComEtapasCreatePayload {
+   titulo: string | null;
+   obs: string | null;
+   is_simulador: boolean;
+   etapas: EtapaCreateNestedPayload[];
+}
+
+export async function createMissaoWithEtapas(
+   data: MissaoComEtapasCreatePayload
+): Promise<ApiResult<MissaoPublic>> {
+   return parseApiResponse<MissaoPublic>(
+      await request("POST", `${missaoRoute}with-etapas`, data)
+   );
+}
+
+export interface EtapaUpdateNestedPayload extends EtapaCreateNestedPayload {
+   id: number;
+}
+
+export interface MissaoComEtapasUpdatePayload {
+   titulo: string | null;
+   obs: string | null;
+   delete_ids: number[];
+   update: EtapaUpdateNestedPayload[];
+   create: EtapaCreateNestedPayload[];
+}
+
+export async function updateMissaoWithEtapas(
+   id: number,
+   data: MissaoComEtapasUpdatePayload
+): Promise<ApiResult<MissaoComEtapasDetail>> {
+   return parseApiResponse<MissaoComEtapasDetail>(
+      await request("PUT", `${missaoRoute}${id}/with-etapas`, data)
    );
 }

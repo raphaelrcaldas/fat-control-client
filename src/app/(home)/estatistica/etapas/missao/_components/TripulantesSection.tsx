@@ -1,4 +1,5 @@
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 import { DndContext, DragOverlay, pointerWithin } from "@dnd-kit/core";
 import type {
    DragStartEvent,
@@ -14,10 +15,10 @@ import {
    getFuncLabel,
 } from "@/constants/tripulantes/funcoes";
 import type { FuncType } from "@/constants/tripulantes/funcoes";
-import type { AssignedTrip, PoolTrip } from "../types";
+import type { DraftAssignedTrip, DraftPoolTrip } from "../_state/types";
 import { FuncGroupDropZone } from "./FuncGroupDropZone";
 
-function DraggablePoolChip({ trip }: { trip: PoolTrip }) {
+function DraggablePoolChip({ trip }: { trip: DraftPoolTrip }) {
    const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
       id: `pool-${trip.tripId}`,
       data: { trip },
@@ -41,8 +42,8 @@ function DraggablePoolChip({ trip }: { trip: PoolTrip }) {
 }
 
 interface TripulantesSectionProps {
-   poolTrips: PoolTrip[];
-   assignedTrips: AssignedTrip[];
+   poolTrips: DraftPoolTrip[];
+   assignedTrips: DraftAssignedTrip[];
    assignedIds: Set<number>;
    updateFuncBordo: (tripId: number, funcBordo: string) => void;
    removeAllFromFunc: (func: FuncType) => void;
@@ -56,7 +57,7 @@ interface TripulantesSectionProps {
       func: FuncType
    ) => void;
    sensors: SensorDescriptor<object>[];
-   activeTrip: PoolTrip | null;
+   activeTrip: DraftPoolTrip | null;
    handleDragStart: (event: DragStartEvent) => void;
    handleDragEnd: (event: DragEndEvent) => void;
 }
@@ -74,6 +75,15 @@ export function TripulantesSection({
    handleDragStart,
    handleDragEnd,
 }: TripulantesSectionProps) {
+   // Portal o DragOverlay para document.body — o PageTransition wrapper
+   // usa `transform` (CSS), o que faz `position: fixed` (usado pelo
+   // overlay do dnd-kit) virar relativo a ele em vez da viewport, e
+   // o chip aparece deslocado em relacao ao cursor.
+   const [portalTarget, setPortalTarget] = useState<HTMLElement | null>(null);
+   useEffect(() => {
+      setPortalTarget(document.body);
+   }, []);
+
    const poolByFunc = useMemo(() => {
       const sorted = [...poolTrips].sort((a, b) => {
          const antDiff = (a.ant ?? 999) - (b.ant ?? 999);
@@ -84,7 +94,7 @@ export function TripulantesSection({
          return (a.ant_rel ?? 0) - (b.ant_rel ?? 0);
       });
 
-      const groups = new Map<string, PoolTrip[]>();
+      const groups = new Map<string, DraftPoolTrip[]>();
       for (const trip of sorted) {
          const key = trip.lastFunc ?? "__sem_funcao__";
          if (!groups.has(key)) groups.set(key, []);
@@ -92,7 +102,7 @@ export function TripulantesSection({
       }
 
       // Retorna na ordem de FUNC_ORDER, sem função no final
-      const ordered: { funcKey: string; trips: PoolTrip[] }[] = [];
+      const ordered: { funcKey: string; trips: DraftPoolTrip[] }[] = [];
       for (const func of FUNC_ORDER) {
          if (groups.has(func)) {
             ordered.push({ funcKey: func, trips: groups.get(func)! });
@@ -108,11 +118,7 @@ export function TripulantesSection({
    }, [poolTrips]);
 
    return (
-      <section>
-         <h3 className="mb-3 border-b border-gray-200 pb-1.5 text-sm font-semibold tracking-wide text-gray-500 uppercase">
-            Tripulantes
-         </h3>
-
+      <section className="space-y-3">
          <DndContext
             sensors={sensors}
             collisionDetection={pointerWithin}
@@ -120,8 +126,8 @@ export function TripulantesSection({
             onDragEnd={handleDragEnd}
          >
             {poolByFunc.length > 0 && (
-               <div className="mb-3 rounded-lg border border-dashed border-gray-300 bg-gray-50 p-2.5">
-                  <p className="mb-1.5 text-xs font-medium text-gray-400 uppercase">
+               <div className="rounded-lg border border-dashed border-gray-300 bg-gray-50 p-2.5">
+                  <p className="mb-1.5 text-xs font-semibold tracking-wide text-gray-500 uppercase">
                      Pool da Missão — arraste para atribuir função
                   </p>
                   <div className="flex flex-col gap-1.5">
@@ -131,7 +137,7 @@ export function TripulantesSection({
                               key={funcKey}
                               className="flex items-center gap-1.5"
                            >
-                              <span className="w-10 shrink-0 text-center text-sm font-medium text-gray-400 uppercase">
+                              <span className="w-10 shrink-0 text-center text-xs font-semibold text-gray-500 uppercase">
                                  {funcKey}
                               </span>
                               <div className="flex flex-wrap gap-1.5">
@@ -164,20 +170,24 @@ export function TripulantesSection({
                ))}
             </div>
 
-            <DragOverlay>
-               {activeTrip ? (
-                  <div
-                     className={clsx(
-                        "flex cursor-grabbing items-center justify-center rounded px-3 py-2 text-sm font-semibold uppercase shadow-lg",
-                        activeTrip.lastFunc
-                           ? getFuncColors(activeTrip.lastFunc).badge
-                           : "border border-gray-300 bg-white text-gray-600"
-                     )}
-                  >
-                     {activeTrip.trig}
-                  </div>
-               ) : null}
-            </DragOverlay>
+            {portalTarget &&
+               createPortal(
+                  <DragOverlay>
+                     {activeTrip ? (
+                        <div
+                           className={clsx(
+                              "w-fit cursor-grabbing items-center rounded px-3 py-1 text-center font-mono text-sm font-semibold uppercase shadow-lg",
+                              activeTrip.lastFunc
+                                 ? getFuncColors(activeTrip.lastFunc).badge
+                                 : "bg-gray-100 text-gray-600"
+                           )}
+                        >
+                           {activeTrip.trig}
+                        </div>
+                     ) : null}
+                  </DragOverlay>,
+                  portalTarget
+               )}
          </DndContext>
       </section>
    );

@@ -1,7 +1,7 @@
 "use client";
 
 import { memo, useMemo } from "react";
-import { HiPencilAlt, HiPlus, HiTrash } from "react-icons/hi";
+import { HiTrash } from "react-icons/hi";
 import { Checkbox } from "flowbite-react";
 import type {
    EtapaItem,
@@ -18,8 +18,6 @@ export interface MissaoCardProps {
    onToggleMissao: (etapaIds: number[]) => void;
    onDetailEtapa: (id: number) => void;
    onEditEtapa: (id: number) => void;
-   onAddEtapa: (missao: MissaoComEtapas) => void;
-   onEditMissao: (missao: MissaoComEtapas) => void;
    onDeleteMissao: (missao: MissaoComEtapas) => void;
 }
 
@@ -31,8 +29,6 @@ export const MissaoCard = memo(function MissaoCard({
    onToggleMissao,
    onDetailEtapa,
    onEditEtapa,
-   onAddEtapa,
-   onEditMissao,
    onDeleteMissao,
 }: MissaoCardProps) {
    const etapaIds = useMemo(
@@ -49,7 +45,7 @@ export const MissaoCard = memo(function MissaoCard({
    return (
       <div className="mx-0.5 overflow-hidden rounded-xl bg-white shadow ring-1 ring-gray-200">
          {/* Header da missao */}
-         <div className="flex flex-wrap items-center gap-3 border-b border-slate-200 bg-white px-1.5 py-0.5">
+         <div className="flex flex-wrap items-center gap-3 border-b border-slate-200 bg-white px-1.5 py-1">
             {hasEtapas && (
                <Checkbox
                   color="red"
@@ -69,23 +65,9 @@ export const MissaoCard = memo(function MissaoCard({
                   {missao.obs}
                </span>
             )}
-            <PermBased requiredPerm="create" resource="etp_mis">
-               <div className="ml-auto flex items-center gap-0.5">
-                  <button
-                     onClick={() => onAddEtapa(missao)}
-                     className="rounded-lg p-2 text-slate-400 transition-all hover:bg-white/60 hover:text-emerald-600 hover:shadow-sm"
-                     title="Adicionar etapa"
-                  >
-                     <HiPlus className="h-4 w-4" />
-                  </button>
-                  <button
-                     onClick={() => onEditMissao(missao)}
-                     className="rounded-lg p-2 text-slate-400 transition-all hover:bg-white/60 hover:text-indigo-600 hover:shadow-sm"
-                     title="Editar missao"
-                  >
-                     <HiPencilAlt className="h-4 w-4" />
-                  </button>
-                  {!hasEtapas && (
+            {!hasEtapas && (
+               <PermBased requiredPerm="create" resource="etp_mis">
+                  <div className="ml-auto flex items-center gap-0.5">
                      <button
                         onClick={() => onDeleteMissao(missao)}
                         className="rounded-lg p-2 text-slate-400 transition-all hover:bg-red-50/80 hover:text-red-600 hover:shadow-sm"
@@ -93,9 +75,9 @@ export const MissaoCard = memo(function MissaoCard({
                      >
                         <HiTrash className="h-4 w-4" />
                      </button>
-                  )}
-               </div>
-            </PermBased>
+                  </div>
+               </PermBased>
+            )}
          </div>
 
          {/* Tabela de etapas ou mensagem vazia */}
