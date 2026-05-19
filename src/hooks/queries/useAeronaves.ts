@@ -28,7 +28,11 @@ export function useAeronaves(params?: GetAeronavesParams) {
       queryKey: aeronaveKeys.list(params),
       queryFn: ({ signal }) => getAeronaves(params, signal),
       placeholderData: keepPreviousData,
-      staleTime: 0,
+      // Lista de aeronaves é dado de referência: raramente muda e
+      // quando muda (create/update/delete) as mutations abaixo
+      // invalidam aeronaveKeys.lists() explicitamente. Sem isso,
+      // toda página que monta o hook dispara um refetch.
+      staleTime: Infinity,
    });
 }
 

@@ -23,6 +23,9 @@ export function useEsfAerList() {
    return useQuery<EsfAerItem[]>({
       queryKey: esfAerKeys.list(),
       queryFn: ({ signal }) => getEsfAerList(signal),
+      // Esforço aéreo é dado de referência: raramente muda e
+      // useUpdateEsfAer invalida esfAerKeys.all em mutations.
+      staleTime: Infinity,
    });
 }
 
