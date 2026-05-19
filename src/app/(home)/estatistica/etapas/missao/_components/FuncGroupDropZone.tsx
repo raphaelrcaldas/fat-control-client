@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import clsx from "clsx";
 import { useDroppable } from "@dnd-kit/core";
 import { HiPlus, HiX } from "react-icons/hi";
@@ -26,27 +27,53 @@ function FuncBordoSelect({
    onChange: (codigo: string) => void;
 }) {
    const [open, setOpen] = useState(false);
-   const rootRef = useRef<HTMLDivElement>(null);
+   const [pos, setPos] = useState<{ top: number; right: number } | null>(null);
+   const buttonRef = useRef<HTMLButtonElement>(null);
+   const dropdownRef = useRef<HTMLUListElement>(null);
 
    useEffect(() => {
       if (!open) return;
+      const btn = buttonRef.current;
+      if (!btn) return;
+
+      function reposition() {
+         if (!btn) return;
+         const rect = btn.getBoundingClientRect();
+         setPos({
+            top: rect.bottom + 2,
+            right: window.innerWidth - rect.right,
+         });
+      }
+      reposition();
+
       function handleOutside(e: MouseEvent) {
-         if (!rootRef.current?.contains(e.target as Node)) setOpen(false);
+         const target = e.target as Node;
+         if (btn?.contains(target)) return;
+         if (dropdownRef.current?.contains(target)) return;
+         setOpen(false);
       }
       function handleEscape(e: KeyboardEvent) {
          if (e.key === "Escape") setOpen(false);
       }
+      function handleClose() {
+         setOpen(false);
+      }
       document.addEventListener("mousedown", handleOutside);
       document.addEventListener("keydown", handleEscape);
+      window.addEventListener("scroll", handleClose, true);
+      window.addEventListener("resize", handleClose);
       return () => {
          document.removeEventListener("mousedown", handleOutside);
          document.removeEventListener("keydown", handleEscape);
+         window.removeEventListener("scroll", handleClose, true);
+         window.removeEventListener("resize", handleClose);
       };
    }, [open]);
 
    return (
-      <div ref={rootRef} className="relative shrink-0">
+      <div className="relative shrink-0">
          <button
+            ref={buttonRef}
             type="button"
             onClick={() => setOpen((v) => !v)}
             className="flex w-12 items-center justify-between rounded border border-gray-300 bg-gray-50 px-1 py-0.5 text-[10px] font-bold text-gray-700 focus:border-red-400 focus:ring-1 focus:ring-red-400 focus:outline-none"
@@ -54,38 +81,47 @@ function FuncBordoSelect({
             <span>{value}</span>
             <HiChevronDown className="h-2.5 w-2.5 text-gray-400" />
          </button>
-         {open && (
-            <ul
-               role="listbox"
-               className="absolute right-0 z-20 mt-0.5 min-w-12 overflow-hidden rounded border border-gray-200 bg-white shadow-lg"
-            >
-               {options.map((p) => {
-                  const selected = p.codigo === value;
-                  return (
-                     <li key={p.codigo}>
-                        <button
-                           type="button"
-                           role="option"
-                           aria-selected={selected}
-                           onClick={() => {
-                              onChange(p.codigo);
-                              setOpen(false);
-                           }}
-                           title={p.label}
-                           className={clsx(
-                              "block w-full px-2 py-1 text-left text-[10px] font-bold uppercase",
-                              selected
-                                 ? "bg-red-50 text-red-700"
-                                 : "text-gray-700 hover:bg-gray-100"
-                           )}
-                        >
-                           {p.codigo}
-                        </button>
-                     </li>
-                  );
-               })}
-            </ul>
-         )}
+         {open &&
+            pos &&
+            createPortal(
+               <ul
+                  ref={dropdownRef}
+                  role="listbox"
+                  style={{
+                     position: "fixed",
+                     top: pos.top,
+                     right: pos.right,
+                  }}
+                  className="z-50 min-w-12 overflow-hidden rounded border border-gray-200 bg-white shadow-lg"
+               >
+                  {options.map((p) => {
+                     const selected = p.codigo === value;
+                     return (
+                        <li key={p.codigo}>
+                           <button
+                              type="button"
+                              role="option"
+                              aria-selected={selected}
+                              onClick={() => {
+                                 onChange(p.codigo);
+                                 setOpen(false);
+                              }}
+                              title={p.label}
+                              className={clsx(
+                                 "block w-full px-2 py-1 text-left text-[10px] font-bold uppercase",
+                                 selected
+                                    ? "bg-red-50 text-red-700"
+                                    : "text-gray-700 hover:bg-gray-100"
+                              )}
+                           >
+                              {p.codigo}
+                           </button>
+                        </li>
+                     );
+                  })}
+               </ul>,
+               document.body
+            )}
       </div>
    );
 }
