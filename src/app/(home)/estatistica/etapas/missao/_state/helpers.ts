@@ -116,6 +116,32 @@ export function buildLastEtapaTemplate(
    };
 }
 
+export interface LastEtapaSeed {
+   form: Partial<EtapaFormData>;
+   oiItems: DraftOIItem[];
+   assignedTrips: DraftAssignedTrip[];
+}
+
+export function buildLastEtapaSeed(draft: MissaoDraft): LastEtapaSeed {
+   const form = buildLastEtapaTemplate(draft);
+   if (draft.etapas.length === 0) {
+      return { form, oiItems: [], assignedTrips: [] };
+   }
+   const last = draft.etapas[draft.etapas.length - 1];
+   const oiItems: DraftOIItem[] = last.oiItems.map((oi) => ({
+      uid: crypto.randomUUID(),
+      esf_aer_id: oi.esf_aer_id,
+      tipo_missao_id: oi.tipo_missao_id,
+      reg: oi.reg,
+      tvoo: 0,
+      tvooDisplay: "",
+   }));
+   const assignedTrips: DraftAssignedTrip[] = last.assignedTrips.map((t) => ({
+      ...t,
+   }));
+   return { form, oiItems, assignedTrips };
+}
+
 export function buildPoolFromDraft(
    draft: MissaoDraft,
    currentLocalId: string | null

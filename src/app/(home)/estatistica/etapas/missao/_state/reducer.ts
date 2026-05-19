@@ -1,7 +1,7 @@
 import {
    DEFAULT_ETAPA_FORM,
    buildDraftFromServer,
-   buildLastEtapaTemplate,
+   buildLastEtapaSeed,
    emptyDraft,
    newOiItem,
    selectStatusByEtapa,
@@ -66,16 +66,19 @@ export function missaoDraftReducer(
       }
 
       case "ADD_ETAPA": {
-         const template =
-            action.payload?.template ?? buildLastEtapaTemplate(state);
-         const form = { ...DEFAULT_ETAPA_FORM, ...template };
+         const seed = buildLastEtapaSeed(state);
+         const form = {
+            ...DEFAULT_ETAPA_FORM,
+            ...seed.form,
+            ...(action.payload?.template ?? {}),
+         };
          const etapa: DraftEtapa = {
             localId: crypto.randomUUID(),
             serverId: null,
             status: "rascunho",
             form,
-            oiItems: [],
-            assignedTrips: [],
+            oiItems: seed.oiItems,
+            assignedTrips: seed.assignedTrips,
             dirty: true,
          };
          etapa.status = selectStatusByEtapa(etapa);
