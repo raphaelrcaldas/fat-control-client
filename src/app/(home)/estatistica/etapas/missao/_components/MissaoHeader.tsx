@@ -42,9 +42,20 @@ export function MissaoHeader({
                   </button>
                )}
                <div className="flex min-w-0 flex-col gap-2">
-                  <h1 className="text-2xl font-semibold text-gray-900">
-                     {title}
-                  </h1>
+                  <div className="flex flex-wrap items-center gap-2.5">
+                     <h1 className="text-2xl font-semibold text-gray-900">
+                        {title}
+                     </h1>
+                     {dirty && (
+                        <span
+                           className="inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-2.5 py-1 text-xs font-medium text-amber-700 ring-1 ring-amber-200/80"
+                           title="Existem alterações que ainda não foram salvas"
+                        >
+                           <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-amber-500" />
+                           Não salvo
+                        </span>
+                     )}
+                  </div>
                   {subtitleTags && (
                      <div className="flex flex-wrap items-center gap-2">
                         {subtitleTags}
@@ -65,11 +76,6 @@ export function MissaoHeader({
                      <HiTrash className="mr-2 h-4 w-4 text-red-600" />
                      Excluir etapa
                   </Button>
-               )}
-               {dirty && (
-                  <span className="hidden text-xs font-medium text-amber-600 sm:inline">
-                     • Mudanças não salvas
-                  </span>
                )}
                {dirty && onRevert && (
                   <Button

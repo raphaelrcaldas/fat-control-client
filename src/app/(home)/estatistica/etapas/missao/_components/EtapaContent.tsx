@@ -18,7 +18,7 @@ import { OrdensInstrucaoSection } from "./OrdensInstrucaoSection";
 import { TripulantesSection } from "./TripulantesSection";
 
 import { EtapaSectionCard } from "./EtapaSectionCard";
-import { EspecificosList } from "./especificos/EspecificosList";
+import { EspecificosSection } from "./especificos/EspecificosSection";
 import { PreFilledBanner } from "./PreFilledBanner";
 
 interface EtapaContentProps {
@@ -51,6 +51,14 @@ export function EtapaContent({ localId }: EtapaContentProps) {
       removeFromGroup,
       updateFuncBordo,
       addTripToGroup,
+      pqd,
+      revo,
+      heavyCds,
+      addEspecifico,
+      removeEspecifico,
+      updatePqd,
+      updateRevo,
+      updateHeavyCds,
    } = editor;
 
    const { sensors, activeTrip, handleDragStart, handleDragEnd } =
@@ -145,15 +153,17 @@ export function EtapaContent({ localId }: EtapaContentProps) {
             />
          </EtapaSectionCard>
 
-         <EtapaSectionCard
-            title="Específicos da Missão"
-            badge={
-               <span className="rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-semibold text-gray-600 uppercase">
-                  Detectado pelas OIs adicionadas
-               </span>
-            }
-         >
-            <EspecificosList oiItems={oiItems} tiposMissao={tiposMissaoList} />
+         <EtapaSectionCard title="Específicos da Missão">
+            <EspecificosSection
+               pqd={pqd}
+               revo={revo}
+               heavyCds={heavyCds}
+               addEspecifico={addEspecifico}
+               removeEspecifico={removeEspecifico}
+               updatePqd={updatePqd}
+               updateRevo={updateRevo}
+               updateHeavyCds={updateHeavyCds}
+            />
          </EtapaSectionCard>
       </>
    );

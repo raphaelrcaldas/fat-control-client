@@ -3,11 +3,19 @@ import {
    buildDraftFromServer,
    buildLastEtapaSeed,
    emptyDraft,
+   newEspecifico,
    newOiItem,
    selectStatusByEtapa,
    serializeDraft,
 } from "./helpers";
-import type { Action, DraftEtapa, MissaoDraft } from "./types";
+import type {
+   Action,
+   DraftEtapa,
+   DraftHeavyCds,
+   DraftPqd,
+   DraftRevo,
+   MissaoDraft,
+} from "./types";
 
 function updateEtapa(
    draft: MissaoDraft,
@@ -79,6 +87,9 @@ export function missaoDraftReducer(
             form,
             oiItems: seed.oiItems,
             assignedTrips: seed.assignedTrips,
+            pqd: [],
+            revo: [],
+            heavyCds: [],
             dirty: true,
          };
          etapa.status = selectStatusByEtapa(etapa);
@@ -159,6 +170,73 @@ export function missaoDraftReducer(
          return updateEtapa(state, localId, (etapa) => ({
             ...etapa,
             oiItems: ois,
+         }));
+      }
+
+      case "ADD_ESPECIFICO": {
+         const { localId, kind } = action.payload;
+         return updateEtapa(state, localId, (etapa) => {
+            const item = newEspecifico(kind);
+            if (kind === "pqd") {
+               return { ...etapa, pqd: [...etapa.pqd, item as DraftPqd] };
+            }
+            if (kind === "revo") {
+               return { ...etapa, revo: [...etapa.revo, item as DraftRevo] };
+            }
+            return {
+               ...etapa,
+               heavyCds: [...etapa.heavyCds, item as DraftHeavyCds],
+            };
+         });
+      }
+
+      case "REMOVE_ESPECIFICO": {
+         const { localId, kind, uid } = action.payload;
+         return updateEtapa(state, localId, (etapa) => {
+            if (kind === "pqd") {
+               return {
+                  ...etapa,
+                  pqd: etapa.pqd.filter((p) => p.uid !== uid),
+               };
+            }
+            if (kind === "revo") {
+               return {
+                  ...etapa,
+                  revo: etapa.revo.filter((r) => r.uid !== uid),
+               };
+            }
+            return {
+               ...etapa,
+               heavyCds: etapa.heavyCds.filter((h) => h.uid !== uid),
+            };
+         });
+      }
+
+      case "UPDATE_PQD": {
+         const { localId, uid, patch } = action.payload;
+         return updateEtapa(state, localId, (etapa) => ({
+            ...etapa,
+            pqd: etapa.pqd.map((p) => (p.uid === uid ? { ...p, ...patch } : p)),
+         }));
+      }
+
+      case "UPDATE_REVO": {
+         const { localId, uid, patch } = action.payload;
+         return updateEtapa(state, localId, (etapa) => ({
+            ...etapa,
+            revo: etapa.revo.map((r) =>
+               r.uid === uid ? { ...r, ...patch } : r
+            ),
+         }));
+      }
+
+      case "UPDATE_HEAVY_CDS": {
+         const { localId, uid, patch } = action.payload;
+         return updateEtapa(state, localId, (etapa) => ({
+            ...etapa,
+            heavyCds: etapa.heavyCds.map((h) =>
+               h.uid === uid ? { ...h, ...patch } : h
+            ),
          }));
       }
 

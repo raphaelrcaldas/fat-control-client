@@ -59,6 +59,14 @@ function buildEtapaNested(etapa: DraftEtapa): EtapaCreateNestedPayload {
             reg: oi.reg,
             tvoo: oi.tvoo,
          })),
+      pqd: etapa.pqd.map((p) => ({ tipo: p.tipo, qtd: p.qtd ?? 0 })),
+      revo: etapa.revo.map((r) => ({ comb_transf: r.combTransf ?? 0 })),
+      heavy_cds: etapa.heavyCds.map((h) => ({
+         tipo: h.tipo,
+         peso: h.peso ?? 0,
+         dist: h.dist ?? 0,
+         radial: h.radial ?? 0,
+      })),
    };
 }
 

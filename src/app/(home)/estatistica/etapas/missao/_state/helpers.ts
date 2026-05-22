@@ -11,9 +11,13 @@ import type {
 import type {
    DraftAssignedTrip,
    DraftEtapa,
+   DraftHeavyCds,
    DraftOIItem,
    DraftPoolTrip,
+   DraftPqd,
+   DraftRevo,
    DraftStatus,
+   EspecificoKind,
    EtapaFormData,
    MissaoDraft,
 } from "./types";
@@ -61,6 +65,69 @@ export function newOiItem(esfAerId: number | null = null): DraftOIItem {
    };
 }
 
+export function newPqd(): DraftPqd {
+   return { uid: crypto.randomUUID(), tipo: "VTC", qtd: 1 };
+}
+
+export function newRevo(): DraftRevo {
+   return { uid: crypto.randomUUID(), combTransf: null };
+}
+
+export function newHeavyCds(): DraftHeavyCds {
+   return {
+      uid: crypto.randomUUID(),
+      tipo: "heavy",
+      peso: null,
+      dist: null,
+      radial: null,
+   };
+}
+
+export function newEspecifico(
+   kind: EspecificoKind
+): DraftPqd | DraftRevo | DraftHeavyCds {
+   switch (kind) {
+      case "pqd":
+         return newPqd();
+      case "revo":
+         return newRevo();
+      case "heavyCds":
+         return newHeavyCds();
+   }
+}
+
+/** Um item PQD so e valido com quantidade preenchida e >= 1. */
+export function isPqdValid(p: DraftPqd): boolean {
+   return p.qtd != null && p.qtd >= 1;
+}
+
+/** Um item REVO so e valido com combustivel transferido preenchido e >= 1. */
+export function isRevoValid(r: DraftRevo): boolean {
+   return r.combTransf != null && r.combTransf >= 1;
+}
+
+/** Um lancamento de carga so e valido com peso/dist >= 1 e radial 0..359. */
+export function isHeavyCdsValid(h: DraftHeavyCds): boolean {
+   return (
+      h.peso != null &&
+      h.peso >= 1 &&
+      h.dist != null &&
+      h.dist >= 1 &&
+      h.radial != null &&
+      h.radial >= 0 &&
+      h.radial <= 359
+   );
+}
+
+/** Todos os especificos da etapa preenchidos (arrays vazios sao validos). */
+export function selectEspecificosValid(etapa: DraftEtapa): boolean {
+   return (
+      etapa.pqd.every(isPqdValid) &&
+      etapa.revo.every(isRevoValid) &&
+      etapa.heavyCds.every(isHeavyCdsValid)
+   );
+}
+
 interface EtapaTotals {
    tvoo: number;
    pousos: number;
@@ -99,7 +166,8 @@ export function selectStatusByEtapa(etapa: DraftEtapa): DraftStatus {
    if (!baseFilled) {
       return etapa.serverId == null ? "rascunho" : "editando";
    }
-   if (!tvooValid || !totals.oiValid) return "verificar";
+   if (!tvooValid || !totals.oiValid || !selectEspecificosValid(etapa))
+      return "verificar";
    return "ok";
 }
 
@@ -230,6 +298,31 @@ function detailToOiItems(detail: EtapaDetail): DraftOIItem[] {
    }));
 }
 
+function detailToPqd(detail: EtapaDetail): DraftPqd[] {
+   return (detail.pqd ?? []).map((p) => ({
+      uid: crypto.randomUUID(),
+      tipo: p.tipo,
+      qtd: p.qtd,
+   }));
+}
+
+function detailToRevo(detail: EtapaDetail): DraftRevo[] {
+   return (detail.revo ?? []).map((r) => ({
+      uid: crypto.randomUUID(),
+      combTransf: r.comb_transf,
+   }));
+}
+
+function detailToHeavyCds(detail: EtapaDetail): DraftHeavyCds[] {
+   return (detail.heavy_cds ?? []).map((h) => ({
+      uid: crypto.randomUUID(),
+      tipo: h.tipo,
+      peso: h.peso,
+      dist: h.dist,
+      radial: h.radial,
+   }));
+}
+
 function detailToAssignedTrips(detail: EtapaDetail): DraftAssignedTrip[] {
    return detail.tripulantes.map((t) => ({
       tripId: t.trip_id,
@@ -270,6 +363,9 @@ export function buildDraftEtapaFromDetail(detail: EtapaDetail): DraftEtapa {
       form,
       oiItems: detailToOiItems(detail),
       assignedTrips: detailToAssignedTrips(detail),
+      pqd: detailToPqd(detail),
+      revo: detailToRevo(detail),
+      heavyCds: detailToHeavyCds(detail),
       dirty: false,
    };
    etapa.status = selectStatusByEtapa(etapa);
@@ -315,6 +411,9 @@ export function emptyDraft(): MissaoDraft {
       form: { ...DEFAULT_ETAPA_FORM },
       oiItems: [],
       assignedTrips: [],
+      pqd: [],
+      revo: [],
+      heavyCds: [],
       dirty: false,
    };
    const draft: MissaoDraft = {

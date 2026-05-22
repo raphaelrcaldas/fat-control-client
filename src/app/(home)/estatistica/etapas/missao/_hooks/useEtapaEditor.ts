@@ -14,13 +14,18 @@ import {
 import {
    buildPoolFromDraft,
    calcTvoo,
+   selectEspecificosValid,
    selectEtapaTotals,
 } from "../_state/helpers";
 import type {
    DraftAssignedTrip,
    DraftEtapa,
+   DraftHeavyCds,
    DraftOIItem,
    DraftPoolTrip,
+   DraftPqd,
+   DraftRevo,
+   EspecificoKind,
    EtapaFormData,
 } from "../_state/types";
 
@@ -72,6 +77,16 @@ export interface UseEtapaEditorResult {
    removeFromGroup: (tripId: number) => void;
    updateFuncBordo: (tripId: number, funcBordo: string) => void;
    addTripToGroup: (trip: AddTripInput, func: FuncType) => void;
+
+   // Especificos
+   pqd: DraftPqd[];
+   revo: DraftRevo[];
+   heavyCds: DraftHeavyCds[];
+   addEspecifico: (kind: EspecificoKind) => void;
+   removeEspecifico: (kind: EspecificoKind, uid: string) => void;
+   updatePqd: (uid: string, patch: Partial<DraftPqd>) => void;
+   updateRevo: (uid: string, patch: Partial<DraftRevo>) => void;
+   updateHeavyCds: (uid: string, patch: Partial<DraftHeavyCds>) => void;
 
    // Validation
    validate: () => boolean;
@@ -248,6 +263,48 @@ export function useEtapaEditor(localId: string): UseEtapaEditorResult {
       [assignedIds, dispatch, localId]
    );
 
+   // Especifico actions
+   const addEspecifico = useCallback(
+      (kind: EspecificoKind) => {
+         dispatch({ type: "ADD_ESPECIFICO", payload: { localId, kind } });
+      },
+      [dispatch, localId]
+   );
+
+   const removeEspecifico = useCallback(
+      (kind: EspecificoKind, uid: string) => {
+         dispatch({
+            type: "REMOVE_ESPECIFICO",
+            payload: { localId, kind, uid },
+         });
+      },
+      [dispatch, localId]
+   );
+
+   const updatePqd = useCallback(
+      (uid: string, patch: Partial<DraftPqd>) => {
+         dispatch({ type: "UPDATE_PQD", payload: { localId, uid, patch } });
+      },
+      [dispatch, localId]
+   );
+
+   const updateRevo = useCallback(
+      (uid: string, patch: Partial<DraftRevo>) => {
+         dispatch({ type: "UPDATE_REVO", payload: { localId, uid, patch } });
+      },
+      [dispatch, localId]
+   );
+
+   const updateHeavyCds = useCallback(
+      (uid: string, patch: Partial<DraftHeavyCds>) => {
+         dispatch({
+            type: "UPDATE_HEAVY_CDS",
+            payload: { localId, uid, patch },
+         });
+      },
+      [dispatch, localId]
+   );
+
    // Imperative validation (mirrors original useEtapaForm.validate())
    const validate = useCallback((): boolean => {
       const errs: FormErrors = { ...liveErrors };
@@ -264,8 +321,8 @@ export function useEtapaEditor(localId: string): UseEtapaEditorResult {
       if (!formData.anv) errs.anv = "Selecione a aeronave";
 
       const baseOk = Object.keys(errs).length === 0;
-      return baseOk && tvooValid && oiValid;
-   }, [crossesDay, formData, liveErrors, oiValid, tvooValid]);
+      return baseOk && tvooValid && oiValid && selectEspecificosValid(etapa);
+   }, [crossesDay, etapa, formData, liveErrors, oiValid, tvooValid]);
 
    return {
       etapa,
@@ -288,6 +345,14 @@ export function useEtapaEditor(localId: string): UseEtapaEditorResult {
       removeFromGroup,
       updateFuncBordo,
       addTripToGroup,
+      pqd: etapa.pqd,
+      revo: etapa.revo,
+      heavyCds: etapa.heavyCds,
+      addEspecifico,
+      removeEspecifico,
+      updatePqd,
+      updateRevo,
+      updateHeavyCds,
       validate,
    };
 }

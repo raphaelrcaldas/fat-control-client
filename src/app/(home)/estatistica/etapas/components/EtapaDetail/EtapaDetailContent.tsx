@@ -1,7 +1,7 @@
 "use client";
 
 import { Spinner } from "flowbite-react";
-import { HiAnnotation, HiCalendar } from "react-icons/hi";
+import { HiAnnotation, HiCalendar, HiOutlineCube } from "react-icons/hi";
 import { FaUsers, FaWeightHanging, FaGasPump, FaOilCan } from "react-icons/fa";
 import { GoDatabase } from "react-icons/go";
 import { CiPaperplane } from "react-icons/ci";
@@ -13,6 +13,7 @@ import { StatCard } from "./StatCard";
 import { TripulantesByFunc } from "./TripulantesByFunc";
 import { SectionTitle } from "./SectionTitle";
 import { OIEtapasList } from "./OIEtapasList";
+import { EspecificosList } from "./EspecificosList";
 
 interface EtapaDetailContentProps {
    etapaId: number | null;
@@ -146,6 +147,23 @@ export function EtapaDetailContent({ etapaId }: EtapaDetailContentProps) {
                            color="red"
                         />
                         <OIEtapasList items={data.oi_etapas} />
+                     </div>
+                  )}
+
+                  {(data.pqd.length > 0 ||
+                     data.revo.length > 0 ||
+                     data.heavy_cds.length > 0) && (
+                     <div className="space-y-3">
+                        <SectionTitle
+                           icon={<HiOutlineCube className="h-4 w-4" />}
+                           title="Missões Específicas"
+                           color="red"
+                        />
+                        <EspecificosList
+                           pqd={data.pqd}
+                           revo={data.revo}
+                           heavyCds={data.heavy_cds}
+                        />
                      </div>
                   )}
                </div>

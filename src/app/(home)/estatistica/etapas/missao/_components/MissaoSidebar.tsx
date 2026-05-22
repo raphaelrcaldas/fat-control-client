@@ -2,10 +2,7 @@
 
 import { Button } from "flowbite-react";
 import { HiPlus, HiTrash } from "react-icons/hi";
-import {
-   EtapaSidebarItem,
-   type EtapaStatus,
-} from "./EtapaSidebarItem";
+import { EtapaSidebarItem, type EtapaStatus } from "./EtapaSidebarItem";
 
 export type SidebarEtapa = {
    localId: string;

@@ -29,6 +29,30 @@ export interface DraftOIItem {
    tvooDisplay: string;
 }
 
+export type PqdTipo = "VTC" | "LV" | "PREC" | "LIVRE";
+export type HeavyCdsTipo = "heavy" | "cds";
+
+export interface DraftPqd {
+   uid: string;
+   tipo: PqdTipo;
+   qtd: number | null;
+}
+
+export interface DraftRevo {
+   uid: string;
+   combTransf: number | null;
+}
+
+export interface DraftHeavyCds {
+   uid: string;
+   tipo: HeavyCdsTipo;
+   peso: number | null;
+   dist: number | null;
+   radial: number | null;
+}
+
+export type EspecificoKind = "pqd" | "revo" | "heavyCds";
+
 export interface DraftPoolTrip {
    tripId: number;
    trig: string;
@@ -55,6 +79,9 @@ export interface DraftEtapa {
    form: EtapaFormData;
    oiItems: DraftOIItem[];
    assignedTrips: DraftAssignedTrip[];
+   pqd: DraftPqd[];
+   revo: DraftRevo[];
+   heavyCds: DraftHeavyCds[];
    dirty: boolean;
 }
 
@@ -134,6 +161,30 @@ export type Action =
    | {
         type: "SET_ETAPA_OIS";
         payload: { localId: string; ois: DraftOIItem[] };
+     }
+   | {
+        type: "ADD_ESPECIFICO";
+        payload: { localId: string; kind: EspecificoKind };
+     }
+   | {
+        type: "REMOVE_ESPECIFICO";
+        payload: { localId: string; kind: EspecificoKind; uid: string };
+     }
+   | {
+        type: "UPDATE_PQD";
+        payload: { localId: string; uid: string; patch: Partial<DraftPqd> };
+     }
+   | {
+        type: "UPDATE_REVO";
+        payload: { localId: string; uid: string; patch: Partial<DraftRevo> };
+     }
+   | {
+        type: "UPDATE_HEAVY_CDS";
+        payload: {
+           localId: string;
+           uid: string;
+           patch: Partial<DraftHeavyCds>;
+        };
      }
    | {
         type: "MARK_ETAPA_PERSISTED";

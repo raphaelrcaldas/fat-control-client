@@ -18,6 +18,9 @@ export interface EtapaItem {
    obs: string | null;
    oi_etapas: OIEtapaItem[];
    tripulantes: TripEtapaItem[];
+   pqd: PqdEtapaItem[];
+   revo: RevoEtapaItem[];
+   heavy_cds: HeavyCdsEtapaItem[];
 }
 
 export interface MissaoComEtapas {
@@ -95,6 +98,25 @@ export interface OIEtapaItem {
    tvoo: number;
 }
 
+export type PqdTipo = "VTC" | "LV" | "PREC" | "LIVRE";
+export type HeavyCdsTipo = "heavy" | "cds";
+
+export interface PqdEtapaItem {
+   tipo: PqdTipo;
+   qtd: number;
+}
+
+export interface RevoEtapaItem {
+   comb_transf: number;
+}
+
+export interface HeavyCdsEtapaItem {
+   tipo: HeavyCdsTipo;
+   peso: number;
+   dist: number;
+   radial: number;
+}
+
 export interface EtapaDetail extends EtapaItem {
    tow: number | null;
    pax: number | null;
@@ -104,8 +126,7 @@ export interface EtapaDetail extends EtapaItem {
    nivel: string | null;
 }
 
-export interface MissaoComEtapasDetail
-   extends Omit<MissaoComEtapas, "etapas"> {
+export interface MissaoComEtapasDetail extends Omit<MissaoComEtapas, "etapas"> {
    etapas: EtapaDetail[];
 }
 
@@ -213,6 +234,22 @@ export interface OIEtapaIn {
    tipo_missao_id: number;
    reg: "d" | "n" | "v";
    tvoo: number;
+}
+
+export interface PqdEtapaIn {
+   tipo: PqdTipo;
+   qtd: number;
+}
+
+export interface RevoEtapaIn {
+   comb_transf: number;
+}
+
+export interface HeavyCdsEtapaIn {
+   tipo: HeavyCdsTipo;
+   peso: number;
+   dist: number;
+   radial: number;
 }
 
 export interface EtapaCreatePayload {
@@ -397,6 +434,9 @@ export interface EtapaCreateNestedPayload {
    obs: string | null;
    tripulantes: TripEtapaIn[];
    oi_etapas: OIEtapaIn[];
+   pqd: PqdEtapaIn[];
+   revo: RevoEtapaIn[];
+   heavy_cds: HeavyCdsEtapaIn[];
 }
 
 export interface MissaoComEtapasCreatePayload {
