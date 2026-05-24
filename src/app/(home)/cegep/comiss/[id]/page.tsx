@@ -103,7 +103,7 @@ export default function ComissDetailPage() {
    }
 
    return (
-      <div className="grid flex-row gap-4 lg:flex">
+      <div className="flex flex-col gap-4 lg:flex-row">
          <ComissPage
             detail={comiss}
             onEdit={() => setIsEditMode(true)}
@@ -112,7 +112,7 @@ export default function ComissDetailPage() {
 
          {/* HISTÓRICO DE AUDITORIA */}
          {comiss.logs.length > 0 && (
-            <div className="w-full rounded-xl border border-gray-200 bg-white shadow-sm lg:mx-4 lg:w-1/3">
+            <div className="w-full rounded-xl border border-gray-200 bg-white shadow-sm lg:w-1/3 lg:shrink-0">
                <div className="border-b border-gray-100 bg-gray-50/50 px-5 py-3">
                   <h3 className="font-semibold text-gray-800">
                      Histórico de Alterações
@@ -122,17 +122,11 @@ export default function ComissDetailPage() {
                   </p>
                </div>
                <div className="p-5">
-                  {comiss.logs.length === 0 ? (
-                     <p className="py-6 text-center text-sm text-gray-500">
-                        Sem registros de alteração.
-                     </p>
-                  ) : (
-                     <ol className="relative space-y-4 border-s border-gray-200 ps-5">
-                        {comiss.logs.map((log) => (
-                           <ComissLogEntry key={log.id} log={log} />
-                        ))}
-                     </ol>
-                  )}
+                  <ol className="relative space-y-4 border-s border-gray-200 ps-5">
+                     {comiss.logs.map((log) => (
+                        <ComissLogEntry key={log.id} log={log} />
+                     ))}
+                  </ol>
                </div>
             </div>
          )}
@@ -163,24 +157,24 @@ function ComissLogEntry({ log }: { log: ComissLog }) {
 
    return (
       <li className="relative">
-         <span className="absolute -inset-s-6.5 mt-1.5 flex h-3 w-3 items-center justify-center rounded-full border border-red-300 bg-red-100" />
-         <div className="flex flex-wrap items-baseline justify-between gap-2">
-            <div>
+         <span className="absolute -start-[26px] top-[6px] flex h-3 w-3 items-center justify-center rounded-full border border-red-300 bg-red-100" />
+         <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+            <div className="flex min-w-0 flex-wrap items-baseline gap-x-2">
                <span className="text-sm font-semibold text-gray-800">
                   {action}
                </span>
                {log.user && (
-                  <span className="ml-2 text-xs text-gray-500 uppercase">
+                  <span className="text-xs text-gray-500 uppercase">
                      por {log.user.p_g} {log.user.nome_guerra}
                   </span>
                )}
             </div>
-            <time className="text-xs text-gray-400">
+            <time className="text-xs whitespace-nowrap text-gray-400">
                {formatDateTime(log.timestamp) ?? ""}
             </time>
          </div>
          {diffs.length > 0 && (
-            <ul className="mt-2 space-y-0.5 text-xs text-gray-600">
+            <ul className="mt-2 space-y-0.5 text-xs break-words text-gray-600">
                {diffs.map((d) => (
                   <li key={d.field}>
                      <span className="font-medium text-gray-700">
