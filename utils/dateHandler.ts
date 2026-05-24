@@ -191,6 +191,53 @@ export function formatDateForDisplay(dateStr: string): string {
 }
 
 /**
+ * Retorna data de hoje em formato ISO (YYYY-MM-DD) no fuso local
+ */
+export function todayIso(): string {
+   const d = new Date();
+   const y = d.getFullYear();
+   const m = String(d.getMonth() + 1).padStart(2, "0");
+   const day = String(d.getDate()).padStart(2, "0");
+   return `${y}-${m}-${day}`;
+}
+
+/**
+ * Formata período entre duas datas ISO (YYYY-MM-DD):
+ *   - mesma data: "DD/MM/YY"
+ *   - intervalo: "DD/MM → DD/MM/YY"
+ */
+export function formatPeriodo(date_start: string, date_end: string): string {
+   const ini = isoStrToDate(date_start);
+   const fim = isoStrToDate(date_end);
+   const d1 = String(ini.getDate()).padStart(2, "0");
+   const m1 = String(ini.getMonth() + 1).padStart(2, "0");
+   const d2 = String(fim.getDate()).padStart(2, "0");
+   const m2 = String(fim.getMonth() + 1).padStart(2, "0");
+   const y = String(fim.getFullYear()).slice(-2);
+   if (date_start === date_end) return `${d1}/${m1}/${y}`;
+   return `${d1}/${m1} → ${d2}/${m2}/${y}`;
+}
+
+/**
+ * Formata período sem ano (apenas dia/mês):
+ *   - mesma data: "DD/MM"
+ *   - intervalo: "DD/MM → DD/MM"
+ */
+export function formatPeriodoSemAno(
+   date_start: string,
+   date_end: string
+): string {
+   const ini = isoStrToDate(date_start);
+   const fim = isoStrToDate(date_end);
+   const d1 = String(ini.getDate()).padStart(2, "0");
+   const m1 = String(ini.getMonth() + 1).padStart(2, "0");
+   const d2 = String(fim.getDate()).padStart(2, "0");
+   const m2 = String(fim.getMonth() + 1).padStart(2, "0");
+   if (date_start === date_end) return `${d1}/${m1}`;
+   return `${d1}/${m1} → ${d2}/${m2}`;
+}
+
+/**
  * Formata ISO datetime para DD/MM/YYYY HH:mm (horário local)
  * Retorna null se inválido ou ausente
  */

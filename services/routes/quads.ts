@@ -13,12 +13,15 @@ export interface QuadParams {
 }
 
 export interface QuadTypeGroup {
+   id: number;
+   short: string;
    long: string;
    types: QuadType[];
 }
 
 export interface QuadType {
    id: number;
+   short: string;
    long: string;
    funcs_list: string[];
 }
@@ -43,7 +46,7 @@ export async function addQuad(quads: Quad[]): Promise<ApiResult<null>> {
 
 export async function getQuads(params: QuadParams): Promise<CrewQuadRes[]> {
    const res = await request("GET", quadsRoute, null, params);
-   const json = await res.json() as ApiResponse<CrewQuadRes[]>;
+   const json = (await res.json()) as ApiResponse<CrewQuadRes[]>;
    return json.data || [];
 }
 
@@ -54,7 +57,7 @@ export async function getQuadById(
    const res = await request("GET", `${quadsRoute}trip/${tripId}`, null, {
       type_id: quadId,
    });
-   const json = await res.json() as ApiResponse<Quad[]>;
+   const json = (await res.json()) as ApiResponse<Quad[]>;
    return json.data || [];
 }
 
@@ -65,15 +68,13 @@ export async function updateQuad(quad: Quad): Promise<ApiResult<null>> {
 }
 
 export async function deleteQuad(ids: number[]): Promise<ApiResult<null>> {
-   return parseApiResponse<null>(
-      await request("DELETE", quadsRoute, { ids })
-   );
+   return parseApiResponse<null>(await request("DELETE", quadsRoute, { ids }));
 }
 
 export async function getQuadsType(uae: string): Promise<QuadTypeGroup[]> {
    const response = await request("GET", quadsRoute + "types", null, {
       uae: uae,
    });
-   const json = await response.json() as ApiResponse<QuadTypeGroup[]>;
+   const json = (await response.json()) as ApiResponse<QuadTypeGroup[]>;
    return json.data || [];
 }

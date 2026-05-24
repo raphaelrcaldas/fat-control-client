@@ -27,3 +27,4 @@ export * from "./usePassaportes";
 export * from "./useMetar";
 export * from "./useSol";
 export * from "./useRotaer";
+export * from "./useEscala";

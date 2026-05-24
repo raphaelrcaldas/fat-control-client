@@ -21,6 +21,7 @@ import {
    MdPolicy,
    MdBadge,
    MdSort,
+   MdEventAvailable,
 } from "react-icons/md";
 import { FaUsers } from "react-icons/fa6";
 import { FaPaperPlane } from "react-icons/fa";
@@ -76,6 +77,13 @@ export const navItems = [
             label: "Indisponibilidades",
             path: "/ops/indisp",
             resource: "indisp_trips",
+            permission: "view",
+         },
+         {
+            icon: MdEventAvailable,
+            label: "Escala",
+            path: "/ops/escala",
+            resource: "quad_ops",
             permission: "view",
          },
          {
