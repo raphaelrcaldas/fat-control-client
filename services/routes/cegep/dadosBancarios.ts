@@ -10,6 +10,9 @@ export interface DadosBancariosBase {
    codigo_banco: string;
    agencia: string;
    conta: string;
+   remuneracao: number | null;
+   mes_ano: string | null; // ISO date (YYYY-MM-DD)
+   aux_transp: number | null;
 }
 
 export interface DadosBancariosCreate extends DadosBancariosBase {
@@ -21,13 +24,16 @@ export interface DadosBancariosUpdate {
    codigo_banco?: string;
    agencia?: string;
    conta?: string;
+   remuneracao?: number | null;
+   mes_ano?: string | null;
+   aux_transp?: number | null;
 }
 
 export interface DadosBancariosPublic extends DadosBancariosBase {
    id: number;
    user_id: number;
    created_at: string;
-   updated_at: string;
+   updated_at: string | null;
 }
 
 export interface DadosBancariosWithUser extends DadosBancariosPublic {
@@ -114,4 +120,30 @@ export async function deleteDadosBancarios(
    return parseApiResponse<null>(
       await request("DELETE", `${dadosBancariosRoute}${dados_id}`)
    );
+}
+
+// POST - Sincroniza remuneração com o Portal da Transparência
+export interface SyncRemuneracaoResponse {
+   cpf: string;
+   mes_ano: string; // YYYY-MM-DD
+   remuneracao_bruta: number | null;
+   remuneracao_liquida: number | null;
+}
+
+export async function syncRemuneracaoPortal(
+   user_id: number,
+   mes_ano: string
+): Promise<SyncRemuneracaoResponse> {
+   const response = await request(
+      "POST",
+      `${dadosBancariosRoute}sync-remuneracao`,
+      { user_id, mes_ano }
+   );
+   const json = (await response.json()) as ApiResponse<SyncRemuneracaoResponse>;
+   if (!response.ok || !json.data) {
+      throw new Error(
+         json.message || "Erro ao consultar Portal da Transparência"
+      );
+   }
+   return json.data;
 }

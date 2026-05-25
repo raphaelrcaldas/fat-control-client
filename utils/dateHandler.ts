@@ -238,6 +238,45 @@ export function formatPeriodoSemAno(
 }
 
 /**
+ * Retorna o mês anterior ao atual no formato "YYYY-MM"
+ */
+export function previousMonthInput(): string {
+   const now = new Date();
+   const d = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+   const y = d.getFullYear();
+   const m = String(d.getMonth() + 1).padStart(2, "0");
+   return `${y}-${m}`;
+}
+
+/**
+ * Formata data ISO (YYYY-MM-DD) para "MM/YYYY"
+ */
+export function formatMesAno(isoDate: string | null | undefined): string {
+   if (!isoDate) return "";
+   const [year, month] = isoDate.split("T")[0].split("-");
+   if (!year || !month) return "";
+   return `${month}/${year}`;
+}
+
+/**
+ * Converte data ISO (YYYY-MM-DD) para valor de <input type="month"> (YYYY-MM)
+ */
+export function isoToMonthInput(isoDate: string | null | undefined): string {
+   if (!isoDate) return "";
+   const [year, month] = isoDate.split("T")[0].split("-");
+   if (!year || !month) return "";
+   return `${year}-${month}`;
+}
+
+/**
+ * Converte valor de <input type="month"> (YYYY-MM) para data ISO (YYYY-MM-01)
+ */
+export function monthInputToIso(monthValue: string): string {
+   if (!monthValue) return "";
+   return `${monthValue}-01`;
+}
+
+/**
  * Formata ISO datetime para DD/MM/YYYY HH:mm (horário local)
  * Retorna null se inválido ou ausente
  */

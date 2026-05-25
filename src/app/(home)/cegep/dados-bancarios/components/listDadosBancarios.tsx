@@ -1,10 +1,16 @@
 import { useState } from "react";
 import { DadosBancariosWithUser } from "services/routes/cegep/dadosBancarios";
+import { formatDateFull, formatMesAno } from "@/../utils/dateHandler";
 import DetailDadosBancarios from "./detailDadosBancarios";
 
 interface ListDadosBancariosProps {
    dados: DadosBancariosWithUser[];
 }
+
+const currencyFormatter = new Intl.NumberFormat("pt-BR", {
+   style: "currency",
+   currency: "BRL",
+});
 
 export default function ListDadosBancarios({ dados }: ListDadosBancariosProps) {
    const [selectedDados, setSelectedDados] =
@@ -43,6 +49,24 @@ export default function ListDadosBancarios({ dados }: ListDadosBancariosProps) {
                         <th scope="col" className="px-4 py-3 font-semibold">
                            Conta
                         </th>
+                        <th
+                           scope="col"
+                           className="px-4 py-3 text-right font-semibold"
+                        >
+                           Remuneração
+                        </th>
+                        <th
+                           scope="col"
+                           className="px-4 py-3 text-center font-semibold"
+                        >
+                           Mês/Ano
+                        </th>
+                        <th
+                           scope="col"
+                           className="px-4 py-3 text-right font-semibold"
+                        >
+                           Aux. Transp.
+                        </th>
                         <th scope="col" className="px-4 py-3 font-semibold">
                            Atualizado em
                         </th>
@@ -73,10 +97,23 @@ export default function ListDadosBancarios({ dados }: ListDadosBancariosProps) {
                            <td className="px-4 py-3 text-gray-700 dark:text-gray-300">
                               {dado.conta}
                            </td>
+                           <td className="px-4 py-3 text-right font-medium text-gray-900 tabular-nums dark:text-white">
+                              {dado.remuneracao != null
+                                 ? currencyFormatter.format(dado.remuneracao)
+                                 : "—"}
+                           </td>
+                           <td className="px-4 py-3 text-center text-gray-700 dark:text-gray-300">
+                              {dado.mes_ano ? formatMesAno(dado.mes_ano) : "—"}
+                           </td>
+                           <td className="px-4 py-3 text-right text-gray-700 tabular-nums dark:text-gray-300">
+                              {dado.aux_transp != null
+                                 ? currencyFormatter.format(dado.aux_transp)
+                                 : "—"}
+                           </td>
                            <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">
-                              {new Date(dado.updated_at).toLocaleDateString(
-                                 "pt-BR"
-                              )}
+                              {dado.updated_at
+                                 ? formatDateFull(dado.updated_at)
+                                 : "—"}
                            </td>
                         </tr>
                      ))}

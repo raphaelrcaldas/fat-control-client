@@ -9,6 +9,7 @@ import {
    createDadosBancarios,
    updateDadosBancarios,
    deleteDadosBancarios,
+   syncRemuneracaoPortal,
    GetDadosBancariosParams,
    DadosBancariosCreate,
    DadosBancariosUpdate,
@@ -103,6 +104,22 @@ export function useUpdateDadosBancarios() {
             queryKey: dadosBancariosKeys.lists(),
          });
       },
+   });
+}
+
+/**
+ * Sincronizar remuneração com o Portal da Transparência
+ * (apenas consulta — não persiste no banco)
+ */
+export function useSyncRemuneracaoPortal() {
+   return useMutation({
+      mutationFn: ({
+         user_id,
+         mes_ano,
+      }: {
+         user_id: number;
+         mes_ano: string;
+      }) => syncRemuneracaoPortal(user_id, mes_ano),
    });
 }
 

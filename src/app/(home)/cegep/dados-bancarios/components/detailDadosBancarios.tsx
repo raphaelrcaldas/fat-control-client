@@ -13,12 +13,38 @@ import { DadosBancariosWithUser } from "services/routes/cegep/dadosBancarios";
 import { UserPublic } from "services/routes/users";
 import { SearchUser } from "@/app/(home)/users/components/searchUser";
 import { useToast } from "@/app/context/toast";
-import { HiTrash, HiUser } from "react-icons/hi";
+import { HiCloudDownload, HiTrash, HiUser } from "react-icons/hi";
 import {
    useCreateDadosBancarios,
    useUpdateDadosBancarios,
    useDeleteDadosBancarios,
+   useSyncRemuneracaoPortal,
 } from "@/hooks/queries";
+import {
+   isoToMonthInput,
+   monthInputToIso,
+   previousMonthInput,
+} from "@/../utils/dateHandler";
+
+const MESES_PT = [
+   "Janeiro",
+   "Fevereiro",
+   "Março",
+   "Abril",
+   "Maio",
+   "Junho",
+   "Julho",
+   "Agosto",
+   "Setembro",
+   "Outubro",
+   "Novembro",
+   "Dezembro",
+];
+
+const ANOS_RANGE = (() => {
+   const atual = new Date().getFullYear();
+   return Array.from({ length: 6 }, (_, i) => atual - i);
+})();
 
 // Lista dos principais bancos brasileiros
 const BANCOS_BRASILEIROS = [
@@ -52,9 +78,11 @@ export default function DetailDadosBancarios({
    const createMutation = useCreateDadosBancarios();
    const updateMutation = useUpdateDadosBancarios();
    const deleteMutation = useDeleteDadosBancarios();
+   const syncMutation = useSyncRemuneracaoPortal();
 
    const isLoading = createMutation.isPending || updateMutation.isPending;
    const isDeleting = deleteMutation.isPending;
+   const isSyncing = syncMutation.isPending;
 
    // Estado do formulário
    const [selectedUser, setSelectedUser] = useState<UserPublic | null>(
@@ -68,6 +96,11 @@ export default function DetailDadosBancarios({
       codigo_banco: dados?.codigo_banco || "",
       agencia: dados?.agencia || "",
       conta: dados?.conta || "",
+      remuneracao: dados?.remuneracao != null ? String(dados.remuneracao) : "",
+      mes_ano: dados?.mes_ano
+         ? isoToMonthInput(dados.mes_ano)
+         : previousMonthInput(),
+      aux_transp: dados?.aux_transp != null ? String(dados.aux_transp) : "",
    });
 
    const [errors, setErrors] = useState<Record<string, string>>({});
@@ -82,6 +115,13 @@ export default function DetailDadosBancarios({
                codigo_banco: dados.codigo_banco,
                agencia: dados.agencia,
                conta: dados.conta,
+               remuneracao:
+                  dados.remuneracao != null ? String(dados.remuneracao) : "",
+               mes_ano: dados.mes_ano
+                  ? isoToMonthInput(dados.mes_ano)
+                  : previousMonthInput(),
+               aux_transp:
+                  dados.aux_transp != null ? String(dados.aux_transp) : "",
             });
          } else {
             setSelectedUser(null);
@@ -90,6 +130,9 @@ export default function DetailDadosBancarios({
                codigo_banco: "",
                agencia: "",
                conta: "",
+               remuneracao: "",
+               mes_ano: previousMonthInput(),
+               aux_transp: "",
             });
          }
          setErrors({});
@@ -153,14 +196,91 @@ export default function DetailDadosBancarios({
          newErrors.conta = "Conta é obrigatória";
       }
 
+      // Remuneração e aux_transp são opcionais — só validar se preenchidos
+      if (formData.remuneracao !== "") {
+         const remuneracaoNum = Number(formData.remuneracao);
+         if (Number.isNaN(remuneracaoNum) || remuneracaoNum < 0) {
+            newErrors.remuneracao = "Remuneração inválida";
+         }
+      }
+
+      if (formData.aux_transp !== "") {
+         const auxTranspNum = Number(formData.aux_transp);
+         if (Number.isNaN(auxTranspNum) || auxTranspNum < 0) {
+            newErrors.aux_transp = "Auxílio transporte inválido";
+         }
+      }
+
       setErrors(newErrors);
       return Object.keys(newErrors).length === 0;
+   };
+
+   const handleSyncPortal = async () => {
+      const userId = isEdit ? dados!.user.id : selectedUser?.id;
+      if (!userId) {
+         setErrors((prev) => ({
+            ...prev,
+            user: "Selecione um usuário antes de buscar no Portal",
+         }));
+         return;
+      }
+      if (!formData.mes_ano) {
+         setErrors((prev) => ({
+            ...prev,
+            mes_ano: "Informe o mês/ano antes de buscar no Portal",
+         }));
+         return;
+      }
+
+      try {
+         const result = await syncMutation.mutateAsync({
+            user_id: userId,
+            mes_ano: monthInputToIso(formData.mes_ano),
+         });
+
+         const valor = result.remuneracao_bruta;
+
+         if (valor == null) {
+            push({
+               title: "Atenção",
+               message: "Portal não retornou remuneração bruta para este mês.",
+               type: "warning",
+            });
+            return;
+         }
+
+         setFormData((prev) => ({
+            ...prev,
+            remuneracao: String(valor),
+         }));
+
+         push({
+            message: `Remuneração bruta de R$ ${valor.toLocaleString("pt-BR", {
+               minimumFractionDigits: 2,
+            })} preenchida. Revise e clique em Atualizar para salvar.`,
+            type: "success",
+         });
+      } catch (err: any) {
+         push({
+            title: "Erro Portal da Transparência",
+            message: err?.message || "Falha ao consultar o Portal",
+            type: "error",
+         });
+      }
    };
 
    const handleSave = async () => {
       if (!validateForm()) return;
 
       try {
+         const remuneracao =
+            formData.remuneracao === "" ? null : Number(formData.remuneracao);
+         const aux_transp =
+            formData.aux_transp === "" ? null : Number(formData.aux_transp);
+         const mes_ano = formData.mes_ano
+            ? monthInputToIso(formData.mes_ano)
+            : null;
+
          if (isEdit) {
             await updateMutation.mutateAsync({
                id: dados.id,
@@ -169,6 +289,9 @@ export default function DetailDadosBancarios({
                   codigo_banco: formData.codigo_banco,
                   agencia: formData.agencia,
                   conta: formData.conta,
+                  remuneracao,
+                  mes_ano,
+                  aux_transp,
                },
             });
          } else {
@@ -180,6 +303,9 @@ export default function DetailDadosBancarios({
                codigo_banco: formData.codigo_banco,
                agencia: formData.agencia,
                conta: formData.conta,
+               remuneracao,
+               mes_ano,
+               aux_transp,
             });
          }
 
@@ -228,19 +354,10 @@ export default function DetailDadosBancarios({
             </ModalHeader>
             <ModalBody>
                <div className="space-y-6">
-                  {/* Descrição do Modal */}
-                  <div className="rounded-lg border border-red-200 bg-red-50 p-4 dark:border-red-800 dark:bg-red-900/20">
-                     <p className="text-sm text-red-800 dark:text-red-200">
-                        {isEdit
-                           ? "Atualize as informações bancárias do militar. Apenas contas correntes são aceitas."
-                           : "Cadastre os dados da conta corrente do militar para processamento de pagamentos."}
-                     </p>
-                  </div>
-
                   {/* Seleção de Usuário (apenas para criação) */}
                   {!isEdit && (
                      <div>
-                        <p className="mt-1 mb-2 text-xs text-gray-500 dark:text-gray-400">
+                        <p className="mb-2 text-xs text-gray-500 dark:text-gray-400">
                            Selecione o militar que terá os dados bancários
                            cadastrados
                         </p>
@@ -341,8 +458,12 @@ export default function DetailDadosBancarios({
                            onChange={handleChange}
                            placeholder="0000"
                            color={errors.agencia ? "failure" : "gray"}
-                           //   helperText={errors.agencia}
                         />
+                        {errors.agencia && (
+                           <p className="mt-1 text-sm text-red-600">
+                              {errors.agencia}
+                           </p>
+                        )}
                      </div>
                      <div>
                         <Label htmlFor="conta" className="text-xs">
@@ -355,8 +476,144 @@ export default function DetailDadosBancarios({
                            onChange={handleChange}
                            placeholder="00000-0"
                            color={errors.conta ? "failure" : "gray"}
-                           //   helperText={errors.conta}
                         />
+                        {errors.conta && (
+                           <p className="mt-1 text-sm text-red-600">
+                              {errors.conta}
+                           </p>
+                        )}
+                     </div>
+                  </div>
+
+                  {/* Divisor */}
+                  <div className="border-t border-gray-200 dark:border-gray-700"></div>
+
+                  {/* Mês/Ano de referência */}
+                  <div>
+                     <Label htmlFor="mes_ano">Mês/Ano de referência</Label>
+                     <p className="mt-1 mb-2 text-xs text-gray-500 dark:text-gray-400">
+                        Mês a que os valores de remuneração e auxílio transporte
+                        se referem
+                     </p>
+                     <div className="flex items-end gap-2">
+                        <Select
+                           id="mes_ano_mes"
+                           value={formData.mes_ano.split("-")[1] || ""}
+                           onChange={(e) => {
+                              const mes = e.target.value;
+                              const ano =
+                                 formData.mes_ano.split("-")[0] ||
+                                 String(new Date().getFullYear());
+                              setFormData((prev) => ({
+                                 ...prev,
+                                 mes_ano: mes ? `${ano}-${mes}` : "",
+                              }));
+                              if (errors.mes_ano)
+                                 setErrors((prev) => ({
+                                    ...prev,
+                                    mes_ano: "",
+                                 }));
+                           }}
+                           color={errors.mes_ano ? "failure" : "gray"}
+                           className="flex-1"
+                        >
+                           <option value="">Mês</option>
+                           {MESES_PT.map((nome, i) => (
+                              <option
+                                 key={i}
+                                 value={String(i + 1).padStart(2, "0")}
+                              >
+                                 {nome}
+                              </option>
+                           ))}
+                        </Select>
+                        <Select
+                           id="mes_ano_ano"
+                           value={formData.mes_ano.split("-")[0] || ""}
+                           onChange={(e) => {
+                              const ano = e.target.value;
+                              const mes = formData.mes_ano.split("-")[1] || "";
+                              setFormData((prev) => ({
+                                 ...prev,
+                                 mes_ano: ano && mes ? `${ano}-${mes}` : "",
+                              }));
+                              if (errors.mes_ano)
+                                 setErrors((prev) => ({
+                                    ...prev,
+                                    mes_ano: "",
+                                 }));
+                           }}
+                           color={errors.mes_ano ? "failure" : "gray"}
+                           className="w-28"
+                        >
+                           <option value="">Ano</option>
+                           {ANOS_RANGE.map((ano) => (
+                              <option key={ano} value={ano}>
+                                 {ano}
+                              </option>
+                           ))}
+                        </Select>
+                        <Button
+                           color="blue"
+                           size="sm"
+                           onClick={handleSyncPortal}
+                           disabled={isSyncing || isLoading}
+                           title="Buscar remuneração no Portal da Transparência"
+                        >
+                           <HiCloudDownload className="mr-2 h-4 w-4" />
+                           {isSyncing ? "Buscando..." : "Buscar no Portal"}
+                        </Button>
+                     </div>
+                     {errors.mes_ano && (
+                        <p className="mt-1 text-sm text-red-600">
+                           {errors.mes_ano}
+                        </p>
+                     )}
+                  </div>
+
+                  {/* Remuneração e Auxílio Transporte */}
+                  <div className="grid grid-cols-2 gap-4">
+                     <div>
+                        <Label htmlFor="remuneracao" className="text-xs">
+                           Remuneração (R$)
+                        </Label>
+                        <TextInput
+                           id="remuneracao"
+                           name="remuneracao"
+                           type="number"
+                           step="0.01"
+                           min="0"
+                           value={formData.remuneracao}
+                           onChange={handleChange}
+                           placeholder="0,00"
+                           color={errors.remuneracao ? "failure" : "gray"}
+                        />
+                        {errors.remuneracao && (
+                           <p className="mt-1 text-sm text-red-600">
+                              {errors.remuneracao}
+                           </p>
+                        )}
+                     </div>
+                     <div>
+                        <Label htmlFor="aux_transp" className="text-xs">
+                           Auxílio Transporte (R$)
+                        </Label>
+                        <TextInput
+                           id="aux_transp"
+                           name="aux_transp"
+                           type="number"
+                           step="0.01"
+                           min="0"
+                           value={formData.aux_transp}
+                           onChange={handleChange}
+                           placeholder="0,00"
+                           color={errors.aux_transp ? "failure" : "gray"}
+                        />
+                        {errors.aux_transp && (
+                           <p className="mt-1 text-sm text-red-600">
+                              {errors.aux_transp}
+                           </p>
+                        )}
                      </div>
                   </div>
                </div>
