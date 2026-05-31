@@ -53,7 +53,7 @@ export function PqdBlock({ item, index, onChange, onRemove }: PqdBlockProps) {
                         type="button"
                         onClick={() => onChange({ tipo: v })}
                         className={clsx(
-                           "flex-1 px-2 py-[7px] text-xs font-bold focus:outline-none",
+                           "flex-1 px-2 py-1.75 text-xs font-bold focus:outline-none",
                            item.tipo === v
                               ? "bg-purple-700 text-white"
                               : "bg-white text-purple-600 hover:bg-purple-100",
@@ -70,11 +70,11 @@ export function PqdBlock({ item, index, onChange, onRemove }: PqdBlockProps) {
                <Label className={especificoLabelClass}>Quantidade</Label>
                <TextInput
                   type="number"
-                  min={1}
+                  min={0}
                   max={32767}
                   value={item.qtd ?? ""}
                   color={
-                     item.qtd != null && item.qtd >= 1 ? undefined : "failure"
+                     item.qtd != null && item.qtd >= 0 ? undefined : "failure"
                   }
                   onChange={(e) =>
                      onChange({ qtd: parseIntOrNull(e.target.value, 0, 32767) })
@@ -82,8 +82,10 @@ export function PqdBlock({ item, index, onChange, onRemove }: PqdBlockProps) {
                   sizing="sm"
                   className="text-center font-mono"
                />
-               {(item.qtd == null || item.qtd < 1) && (
-                  <p className="mt-1 text-xs text-red-600">Mínimo 1</p>
+               {(item.qtd == null || item.qtd < 0) && (
+                  <p className="mt-1 text-xs text-red-600">
+                     Informe a quantidade (0 = passagem em branco)
+                  </p>
                )}
             </div>
          </div>

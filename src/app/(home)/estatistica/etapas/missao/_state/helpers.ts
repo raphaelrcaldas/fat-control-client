@@ -96,9 +96,9 @@ export function newEspecifico(
    }
 }
 
-/** Um item PQD so e valido com quantidade preenchida e >= 1. */
+/** Um item PQD e valido com quantidade preenchida e >= 0 (0 = passagem em branco). */
 export function isPqdValid(p: DraftPqd): boolean {
-   return p.qtd != null && p.qtd >= 1;
+   return p.qtd != null && p.qtd >= 0;
 }
 
 /** Um item REVO so e valido com combustivel transferido preenchido e >= 1. */
