@@ -23,7 +23,7 @@ import {
    MdSort,
    MdEventAvailable,
 } from "react-icons/md";
-import { FaUsers } from "react-icons/fa6";
+import { FaUsers, FaBuilding, FaSitemap } from "react-icons/fa6";
 import { FaPaperPlane } from "react-icons/fa";
 import { RiAdminLine } from "react-icons/ri";
 import { GiSecurityGate, GiJoystick } from "react-icons/gi";
@@ -37,12 +37,14 @@ export const navItems = [
       icon: MdHome,
       label: "Início",
       path: "/",
+      scope: "shared",
       roles: [],
    },
    {
       type: "collapse",
       icon: FaPaperPlane,
       label: "Operações",
+      scope: "tenant",
       roles: [
          "ops_avancado",
          "ops_basico",
@@ -106,6 +108,7 @@ export const navItems = [
       type: "collapse",
       icon: MdBarChart,
       label: "Estatística",
+      scope: "tenant",
       roles: [],
       children: [
          {
@@ -142,6 +145,7 @@ export const navItems = [
       type: "collapse",
       icon: MdHealthAndSafety,
       label: "Aeromédica",
+      scope: "tenant",
       roles: [],
       children: [
          {
@@ -157,6 +161,7 @@ export const navItems = [
       type: "collapse",
       icon: MdSecurity,
       label: "Segurança de Voo",
+      scope: "tenant",
       roles: [],
       children: [
          {
@@ -172,6 +177,7 @@ export const navItems = [
       type: "collapse",
       icon: MdSchool,
       label: "Instrução",
+      scope: "tenant",
       roles: [],
       children: [
          {
@@ -194,6 +200,7 @@ export const navItems = [
       type: "collapse",
       icon: MdPolicy,
       label: "Inteligência",
+      scope: "tenant",
       roles: ["inteligencia"],
       children: [
          {
@@ -207,6 +214,7 @@ export const navItems = [
       type: "collapse",
       icon: FaUsers,
       label: "Pessoal",
+      scope: "tenant",
       roles: [
          "ops_avancado",
          "ops_basico",
@@ -258,14 +266,26 @@ export const navItems = [
       icon: MdOutlinePeopleAlt,
       label: "Usuários",
       path: "/users",
+      scope: "tenant",
       roles: ["apoio_avancado", "apoio_basico", "dout_avancado", "dout_basico"],
    },
    {
       type: "collapse",
       icon: RiAdminLine,
       label: "Admin",
+      scope: "system",
       roles: ["admin"],
       children: [
+         {
+            icon: FaBuilding,
+            label: "Organizações",
+            path: "/admin/organizacoes",
+         },
+         {
+            icon: FaSitemap,
+            label: "Tenants",
+            path: "/admin/tenants",
+         },
          {
             icon: GiSecurityGate,
             label: "Roles",

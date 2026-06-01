@@ -7,6 +7,10 @@ import {
    type UserWithRole,
    type RoleDetail,
 } from "services/routes/security/roles";
+import {
+   getOrganizacoes,
+   type Organizacao,
+} from "services/routes/organizacoes";
 import { useToast } from "@/app/context/toast";
 import { sortByAntiguidadeInPlace } from "utils/sortByAntiguidade";
 import { FaUsers, FaShieldHalved, FaCubes, FaKey } from "react-icons/fa6";
@@ -20,6 +24,7 @@ import { TableSkeleton, Skeleton } from "@/components/ui/Skeleton";
 export default function RolePage() {
    const [userRoles, setUserRoles] = useState<UserWithRole[] | null>(null);
    const [roles, setRoles] = useState<RoleDetail[]>([]);
+   const [orgs, setOrgs] = useState<Organizacao[]>([]);
 
    const { push } = useToast();
 
@@ -39,14 +44,16 @@ export default function RolePage() {
    useEffect(() => {
       const loadData = async () => {
          try {
-            const [usersRolesData, rolesData] = await Promise.all([
+            const [usersRolesData, rolesData, orgsData] = await Promise.all([
                getUsersRoles(),
                getRoles(),
+               getOrganizacoes(),
             ]);
 
             sortByAntiguidadeInPlace(usersRolesData);
             setUserRoles(usersRolesData);
             setRoles(rolesData);
+            setOrgs(orgsData);
          } catch {
             push({
                type: "error",
@@ -79,6 +86,7 @@ export default function RolePage() {
                <UsersTab
                   userRoles={userRoles}
                   roles={roles}
+                  orgs={orgs}
                   onRefreshUsers={refreshUserRoles}
                />
             </TabItem>

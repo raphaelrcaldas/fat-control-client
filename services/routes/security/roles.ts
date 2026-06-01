@@ -25,6 +25,7 @@ export interface RoleDetail extends Role {
 export interface UserWithRole {
    role: Role;
    user: UserPublic;
+   organizacao_id: string | null;
 }
 
 export async function getUsersRoles(): Promise<UserWithRole[]> {
@@ -35,10 +36,15 @@ export async function getUsersRoles(): Promise<UserWithRole[]> {
 }
 
 export async function addUserRole(
-   roleId,
-   userId
+   roleId: number,
+   userId: number,
+   organizacaoId: string | null = null
 ): Promise<ApiResult<null>> {
-   const payload = { role_id: roleId, user_id: userId };
+   const payload = {
+      role_id: roleId,
+      user_id: userId,
+      organizacao_id: organizacaoId,
+   };
 
    return parseApiResponse<null>(
       await request("POST", rolesPath + "users/", payload)
@@ -46,10 +52,15 @@ export async function addUserRole(
 }
 
 export async function updateUserRole(
-   roleId,
-   userId
+   roleId: number,
+   userId: number,
+   organizacaoId: string | null = null
 ): Promise<ApiResult<null>> {
-   const payload = { role_id: roleId, user_id: userId };
+   const payload = {
+      role_id: roleId,
+      user_id: userId,
+      organizacao_id: organizacaoId,
+   };
 
    return parseApiResponse<null>(
       await request("PUT", rolesPath + "users/", payload)
@@ -57,10 +68,15 @@ export async function updateUserRole(
 }
 
 export async function deleteUserRole(
-   roleId,
-   userId
+   roleId: number,
+   userId: number,
+   organizacaoId: string | null = null
 ): Promise<ApiResult<null>> {
-   const payload = { role_id: roleId, user_id: userId };
+   const payload = {
+      role_id: roleId,
+      user_id: userId,
+      organizacao_id: organizacaoId,
+   };
 
    return parseApiResponse<null>(
       await request("DELETE", rolesPath + "users/", payload)
@@ -87,23 +103,23 @@ export async function getRoleDetail(roleId: number): Promise<RoleDetail> {
 
 export async function addRolePermission(
    roleId: number,
-   permissionId: number,
+   permissionId: number
 ): Promise<ApiResult<null>> {
    return parseApiResponse<null>(
       await request("POST", `${rolesPath}${roleId}/permissions/`, {
          permission_id: permissionId,
-      }),
+      })
    );
 }
 
 export async function removeRolePermission(
    roleId: number,
-   permissionId: number,
+   permissionId: number
 ): Promise<ApiResult<null>> {
    return parseApiResponse<null>(
       await request(
          "DELETE",
-         `${rolesPath}${roleId}/permissions/${permissionId}`,
-      ),
+         `${rolesPath}${roleId}/permissions/${permissionId}`
+      )
    );
 }

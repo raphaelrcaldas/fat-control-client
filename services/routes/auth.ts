@@ -43,3 +43,13 @@ export async function devLogin(
       await request("POST", `auth/dev_login?user_id=${userId}`)
    );
 }
+
+export async function switchOrg(
+   organizacaoId: string | null
+): Promise<ApiResult<{ access_token: string }>> {
+   return parseApiResponse<{ access_token: string }>(
+      await request("POST", "auth/switch-org", {
+         organizacao_id: organizacaoId,
+      })
+   );
+}

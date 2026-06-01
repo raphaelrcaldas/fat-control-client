@@ -28,6 +28,7 @@ interface FilteredNavItem {
    icon: IconType;
    label: string;
    path?: string;
+   scope?: "system" | "tenant" | "shared";
    roles?: readonly string[];
    children?: readonly FilteredNavChild[] | FilteredNavChild[];
 }
@@ -46,9 +47,12 @@ export default function SidebarWithFooter({
    onLogout,
 }: SidebarProps) {
    const pathname = usePathname();
-   const { user, userPg, role } = useAuth();
+   const { user, userPg, role, activeOrg } = useAuth();
    const { hasRole } = useRoleBased();
    const { hasPerm } = usePermBased();
+   // Contexto "Sistema" = sem org ativa (control plane do admin de sistema).
+   // Apenas admin pode ter active_org NULL.
+   const isSystemContext = activeOrg === null;
    const useOverlay = isMobile;
    const [isLoggingOut, setIsLoggingOut] = useState(false);
 
@@ -62,6 +66,12 @@ export default function SidebarWithFooter({
       const result: FilteredNavItem[] = [];
 
       for (const item of navItems) {
+         // Gate por escopo: a org ativa define qual plano aparece.
+         // "system" só no contexto Sistema; "tenant" só dentro de uma
+         // unidade; "shared" (e ausência de scope) em ambos.
+         if (item.scope === "system" && !isSystemContext) continue;
+         if (item.scope === "tenant" && isSystemContext) continue;
+
          // Verifica permissão baseada em roles do item principal
          if (item.roles && item.roles.length > 0) {
             if (!hasRole(item.roles)) continue;
@@ -93,7 +103,7 @@ export default function SidebarWithFooter({
       }
 
       return result;
-   }, [hasRole, hasPerm]);
+   }, [hasRole, hasPerm, isSystemContext]);
 
    return (
       <>

@@ -4,6 +4,7 @@ import { HiMenuAlt1 } from "react-icons/hi";
 import { MdClose } from "react-icons/md";
 import Image from "next/image";
 import profilePic from "public/assets/1_1_gt.jpg";
+import { OrgSwitcher } from "./OrgSwitcher";
 
 interface NavbarProps {
    onToggleSidebar: () => void;
@@ -42,6 +43,8 @@ export default function Navbar({
                </span>
             </div>
          </div>
+
+         <OrgSwitcher />
       </nav>
    );
 }

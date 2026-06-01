@@ -58,12 +58,21 @@ export interface UserFull extends UserSchema {
    posto: PostoGrad;
 }
 
+export interface OrgScope {
+   organizacao_id: string | null;
+   sigla: string | null;
+   nome: string | null;
+   role: string;
+}
+
 export interface UserMe {
    id: number;
    posto: string;
    nome_guerra: string;
    role: string;
    permissions: { name: string; resource: string }[];
+   active_org: string | null;
+   orgs: OrgScope[];
 }
 
 export async function getMe() {
@@ -136,7 +145,5 @@ export async function resetPassword(userId: number): Promise<ApiResult<null>> {
 }
 
 export async function deleteUser(userId: number): Promise<ApiResult<null>> {
-   return parseApiResponse<null>(
-      await request("DELETE", usersRoute + userId)
-   );
+   return parseApiResponse<null>(await request("DELETE", usersRoute + userId));
 }

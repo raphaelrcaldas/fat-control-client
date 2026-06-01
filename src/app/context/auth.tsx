@@ -1,7 +1,7 @@
 "use client";
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { deleteCookie } from "cookies-next";
-import { getMe } from "services/routes/users";
+import { getMe, type OrgScope } from "services/routes/users";
 import { AppLoadingScreen } from "src/app/(home)/components/appLoadingScreen";
 import PermDenied from "../components/permDenied";
 
@@ -16,6 +16,8 @@ interface AuthContextType {
    userId: number | null;
    role: string | null;
    perms: PermType[];
+   activeOrg: string | null;
+   orgs: OrgScope[];
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -30,6 +32,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
    const [userId, setUserId] = useState<number | null>(null);
    const [role, setRole] = useState<string | null>(null);
    const [perms, setPerms] = useState<PermType[]>([]);
+   const [activeOrg, setActiveOrg] = useState<string | null>(null);
+   const [orgs, setOrgs] = useState<OrgScope[]>([]);
    const [loading, setLoading] = useState(true);
    const [fetchFailed, setFetchFailed] = useState(false);
    const [retryNonce, setRetryNonce] = useState(0);
@@ -50,6 +54,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
                setUserId(data.id);
                setRole(data.role);
                setPerms(data.permissions || []);
+               setActiveOrg(data.active_org ?? null);
+               setOrgs(data.orgs || []);
                setFetchFailed(false);
                setLoading(false);
                return;
@@ -139,6 +145,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
             userId: userId,
             role: role,
             perms: perms,
+            activeOrg: activeOrg,
+            orgs: orgs,
          }}
       >
          {children}

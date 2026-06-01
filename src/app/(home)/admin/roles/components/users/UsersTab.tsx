@@ -2,8 +2,10 @@ import { memo, useState, useCallback, useMemo } from "react";
 import { UsersTable } from "./UsersTable";
 import { RolesTable } from "./RolesTable";
 import UserAddRole from "./userAddRole";
+import UserEditRole, { type EditingRole } from "./UserEditRole";
 import type { UserWithRole, RoleDetail } from "../../config/types";
-import { updateUserRole, deleteUserRole } from "services/routes/security/roles";
+import type { Organizacao } from "services/routes/organizacoes";
+import { deleteUserRole } from "services/routes/security/roles";
 import { devLogin as devLoginApi } from "services/routes/auth";
 import { setCookie } from "cookies-next";
 import { getQueryClient } from "@/lib/queryClient";
@@ -15,23 +17,29 @@ import { FaArrowRightToBracket } from "react-icons/fa6";
 interface UsersTabProps {
    userRoles: UserWithRole[];
    roles: RoleDetail[];
+   orgs: Organizacao[];
    onRefreshUsers: () => Promise<void>;
 }
 
 export const UsersTab = memo(function UsersTab({
    userRoles,
    roles,
+   orgs,
    onRefreshUsers,
 }: UsersTabProps) {
    const [filterName, setFilterName] = useState("");
    const [isUpdating, setIsUpdating] = useState(false);
    const [showAddModal, setShowAddModal] = useState(false);
 
+   const [showEditModal, setShowEditModal] = useState(false);
+   const [editingRole, setEditingRole] = useState<EditingRole | null>(null);
+
    const [showDelModal, setShowDelModal] = useState(false);
    const [isDeleting, setIsDeleting] = useState(false);
    const [deletingUserRole, setDeletingUserRole] = useState<{
       userId: number;
       roleId: number;
+      organizacaoId: string | null;
       userName: string;
    } | null>(null);
 
@@ -68,31 +76,33 @@ export const UsersTab = memo(function UsersTab({
       }
    }, [onRefreshUsers]);
 
-   const pathUserRole = useCallback(
-      async (userId: number, roleId: string) => {
-         try {
-            const result = await updateUserRole(roleId, userId);
-            if (result.ok) {
-               push({ type: "success", message: result.message });
-               updateUserRoles();
-            } else {
-               push({ type: "error", message: result.message });
-            }
-         } catch (error) {
-            console.error("updateUserRole failed", error);
-            push({ type: "error", message: "Erro ao atualizar perfil" });
-         }
+   const onEditRole = useCallback(
+      (ur: UserWithRole) => {
+         const orgLabel =
+            ur.organizacao_id === null
+               ? "Sistema"
+               : (orgs.find((o) => o.sigla === ur.organizacao_id)?.sigla ??
+                 ur.organizacao_id);
+
+         setEditingRole({
+            userId: ur.user.id,
+            userLabel: `${ur.user.p_g} ${ur.user.nome_guerra}`,
+            organizacaoId: ur.organizacao_id,
+            orgLabel,
+            currentRoleId: ur.role.id,
+         });
+         setShowEditModal(true);
       },
-      [push, updateUserRoles]
+      [orgs]
    );
 
    const delUserRole = useCallback(async () => {
       if (!deletingUserRole) return;
 
-      const { userId, roleId } = deletingUserRole;
+      const { userId, roleId, organizacaoId } = deletingUserRole;
       setIsDeleting(true);
       try {
-         const result = await deleteUserRole(roleId, userId);
+         const result = await deleteUserRole(roleId, userId, organizacaoId);
          if (result.ok) {
             push({ type: "success", message: result.message });
             setShowDelModal(false);
@@ -160,8 +170,16 @@ export const UsersTab = memo(function UsersTab({
             show={showAddModal}
             setShow={setShowAddModal}
             update={updateUserRoles}
-            usersIgnr={userRoles.map((u) => u.user.id)}
             roles={roles}
+            orgs={orgs}
+         />
+
+         <UserEditRole
+            show={showEditModal}
+            setShow={setShowEditModal}
+            update={updateUserRoles}
+            roles={roles}
+            editing={editingRole}
          />
 
          <ConfirmModal
@@ -195,19 +213,23 @@ export const UsersTab = memo(function UsersTab({
             <div className="rounded-md border border-slate-300 lg:col-span-2">
                <UsersTable
                   filteredUsers={filteredUsers}
-                  roles={roles}
                   filterName={filterName}
                   isUpdating={isUpdating}
                   onFilterChange={setFilterName}
                   onRefresh={updateUserRoles}
                   onAddUser={() => setShowAddModal(true)}
-                  onRoleChange={pathUserRole}
+                  onEditRole={onEditRole}
                   onDevLogin={(userId) => {
                      setLoginUserId(userId);
                      setShowLoginModal(true);
                   }}
-                  onDeleteRole={(userId, roleId, userName) => {
-                     setDeletingUserRole({ userId, roleId, userName });
+                  onDeleteRole={(userId, organizacaoId, roleId, userName) => {
+                     setDeletingUserRole({
+                        userId,
+                        organizacaoId,
+                        roleId,
+                        userName,
+                     });
                      setShowDelModal(true);
                   }}
                />

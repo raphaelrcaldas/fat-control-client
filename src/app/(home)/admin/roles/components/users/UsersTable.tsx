@@ -16,33 +16,37 @@ import {
    FaMagnifyingGlass,
    FaArrowRightToBracket,
    FaRegTrashCan,
+   FaUserPen,
 } from "react-icons/fa6";
 import { HiRefresh } from "react-icons/hi";
-import type { UserWithRole, RoleDetail } from "../../config/types";
-import { RoleBadgeDropdown } from "./RoleBadgeDropdown";
+import type { UserWithRole } from "../../config/types";
+import { getRoleTheme } from "../../config/roleThemes";
 
 interface UsersTableProps {
    filteredUsers: UserWithRole[];
-   roles: RoleDetail[];
    filterName: string;
    isUpdating: boolean;
    onFilterChange: (value: string) => void;
    onRefresh: () => void;
    onAddUser: () => void;
-   onRoleChange: (userId: number, roleId: string) => void;
+   onEditRole: (ur: UserWithRole) => void;
    onDevLogin: (userId: number) => void;
-   onDeleteRole: (userId: number, roleId: number, userName: string) => void;
+   onDeleteRole: (
+      userId: number,
+      organizacaoId: string | null,
+      roleId: number,
+      userName: string
+   ) => void;
 }
 
 export const UsersTable = memo(function UsersTable({
    filteredUsers,
-   roles,
    filterName,
    isUpdating,
    onFilterChange,
    onRefresh,
    onAddUser,
-   onRoleChange,
+   onEditRole,
    onDevLogin,
    onDeleteRole,
 }: UsersTableProps) {
@@ -121,7 +125,7 @@ export const UsersTable = memo(function UsersTable({
                         const userName = `${ur.user.p_g} ${ur.user.nome_guerra}`;
                         return (
                            <TableRow
-                              key={ur.user.id}
+                              key={`${ur.user.id}-${ur.organizacao_id ?? "sys"}`}
                               className="bg-white hover:bg-gray-50"
                            >
                               <TableCell className="font-medium">
@@ -135,17 +139,28 @@ export const UsersTable = memo(function UsersTable({
                                  </div>
                               </TableCell>
                               <TableCell>
-                                 <RoleBadgeDropdown
-                                    currentRole={ur.role}
-                                    roles={roles}
-                                    onRoleChange={(roleId) =>
-                                       onRoleChange(ur.user.id, roleId)
-                                    }
-                                    disabled={isUpdating}
-                                 />
+                                 {(() => {
+                                    const colors = getRoleTheme(ur.role.name);
+                                    return (
+                                       <span
+                                          className={`inline-flex items-center rounded-full px-3 py-1.5 text-sm font-medium uppercase ${colors.bg} ${colors.text}`}
+                                       >
+                                          {ur.role.name}
+                                       </span>
+                                    );
+                                 })()}
                               </TableCell>
                               <TableCell>
                                  <div className="flex justify-center gap-2">
+                                    <Tooltip content="Editar perfil">
+                                       <button
+                                          onClick={() => onEditRole(ur)}
+                                          disabled={isUpdating}
+                                          className="rounded-lg p-2 text-gray-600 hover:bg-gray-100 disabled:opacity-50"
+                                       >
+                                          <FaUserPen className="size-4" />
+                                       </button>
+                                    </Tooltip>
                                     <Tooltip content="Login como usuário">
                                        <button
                                           onClick={() => onDevLogin(ur.user.id)}
@@ -159,6 +174,7 @@ export const UsersTable = memo(function UsersTable({
                                           onClick={() =>
                                              onDeleteRole(
                                                 ur.user.id,
+                                                ur.organizacao_id,
                                                 ur.role.id,
                                                 userName
                                              )

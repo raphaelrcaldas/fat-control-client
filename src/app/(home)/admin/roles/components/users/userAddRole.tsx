@@ -21,35 +21,42 @@ import {
 import { SearchUser } from "src/app/(home)/users/components/searchUser";
 import { addUserRole, Role } from "services/routes/security/roles";
 import { UserPublic } from "services/routes/users";
+import type { Organizacao } from "services/routes/organizacoes";
 import { useToast } from "@/app/context/toast";
 
 export default function UserAddRole({
    show,
    setShow,
    update,
-   usersIgnr,
    roles,
+   orgs,
 }: {
    show: boolean;
    setShow: (s: boolean) => void;
    update?: () => void;
-   usersIgnr: number[];
    roles: Role[];
+   orgs: Organizacao[];
 }) {
    const { push } = useToast();
 
    const [showSearch, setShowSearch] = useState(false);
    const [selectedUser, setSelectedUser] = useState<UserPublic | null>(null);
    const [selectedRole, setSelectedRole] = useState<number | null>(null);
+   const [selectedOrg, setSelectedOrg] = useState<string | null>(null);
    const [isSaving, setIsSaving] = useState(false);
    const [validationError, setValidationError] = useState<string>("");
 
    function onClose() {
       setSelectedUser(null);
       setSelectedRole(null);
+      setSelectedOrg(null);
       setValidationError("");
       setShow(false);
    }
+
+   const selectedRoleObj = roles.find((r) => r.id === selectedRole) ?? null;
+   const isAdminRole = selectedRoleObj?.name === "admin";
+   const orgRequired = selectedRoleObj !== null && !isAdminRole;
 
    function validateForm() {
       if (!selectedUser) {
@@ -58,6 +65,13 @@ export default function UserAddRole({
       }
       if (!selectedRole) {
          setValidationError("Selecione um perfil");
+         return false;
+      }
+      if (orgRequired && selectedOrg === null) {
+         setValidationError(
+            "Selecione uma unidade para este perfil " +
+               "(apenas administrador pode ser do sistema)"
+         );
          return false;
       }
       setValidationError("");
@@ -69,7 +83,11 @@ export default function UserAddRole({
 
       setIsSaving(true);
       try {
-         const result = await addUserRole(selectedRole!, selectedUser!.id);
+         const result = await addUserRole(
+            selectedRole!,
+            selectedUser!.id,
+            selectedOrg
+         );
          if (result.ok) {
             push({ type: "success", message: result.message });
             update?.();
@@ -87,7 +105,8 @@ export default function UserAddRole({
       }
    }
 
-   const isFormValid = selectedUser && selectedRole;
+   const isFormValid =
+      selectedUser && selectedRole && !(orgRequired && selectedOrg === null);
 
    return (
       <>
@@ -161,6 +180,36 @@ export default function UserAddRole({
                      </div>
                   </div>
 
+                  {/* Seleção de Organização */}
+                  <div>
+                     <label className="mb-2 block text-sm font-semibold text-gray-700">
+                        Organização *
+                     </label>
+                     <Select
+                        value={selectedOrg ?? ""}
+                        onChange={(e) => {
+                           const v = e.target.value;
+                           setSelectedOrg(v === "" ? null : v);
+                           setValidationError("");
+                        }}
+                     >
+                        <option value="" disabled={orgRequired}>
+                           Sistema (global)
+                        </option>
+                        {orgs.map((o) => (
+                           <option key={o.sigla} value={o.sigla}>
+                              {o.sigla.toUpperCase()} - {o.nome}
+                           </option>
+                        ))}
+                     </Select>
+                     {orgRequired && (
+                        <p className="mt-1 text-sm text-gray-500">
+                           Apenas o perfil de administrador pode ser do sistema.
+                           Selecione uma unidade.
+                        </p>
+                     )}
+                  </div>
+
                   {/* Seleção de Perfil */}
                   <div>
                      <label className="mb-2 block text-sm font-semibold text-gray-700">
@@ -226,7 +275,7 @@ export default function UserAddRole({
                      setSelectedUser(u);
                      setValidationError("");
                   }}
-                  userIdsIgnr={usersIgnr}
+                  userIdsIgnr={[]}
                />
             </ModalBody>
 
