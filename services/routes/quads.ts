@@ -75,3 +75,92 @@ export async function getQuadsType(): Promise<QuadTypeGroup[]> {
    const json = (await response.json()) as ApiResponse<QuadTypeGroup[]>;
    return json.data || [];
 }
+
+// ===========================================================================
+// Gerenciamento da estrutura de quadrinhos (Grupo -> Tipo -> Função)
+// ===========================================================================
+
+export interface QuadGroupPayload {
+   short: string;
+   long: string;
+}
+
+export interface QuadTypePayload {
+   short: string;
+   long: string;
+}
+
+export interface QuadGroupOut {
+   id: number;
+   short: string;
+   long: string;
+   uae: string;
+}
+
+export interface QuadTypeOut {
+   id: number;
+   group_id: number;
+   short: string;
+   long: string;
+   funcs_list: string[];
+}
+
+export async function createQuadsGroup(
+   data: QuadGroupPayload
+): Promise<ApiResult<QuadGroupOut>> {
+   return parseApiResponse<QuadGroupOut>(
+      await request("POST", `${quadsRoute}groups`, data)
+   );
+}
+
+export async function updateQuadsGroup(
+   groupId: number,
+   data: Partial<QuadGroupPayload>
+): Promise<ApiResult<QuadGroupOut>> {
+   return parseApiResponse<QuadGroupOut>(
+      await request("PUT", `${quadsRoute}groups/${groupId}`, data)
+   );
+}
+
+export async function deleteQuadsGroup(
+   groupId: number
+): Promise<ApiResult<null>> {
+   return parseApiResponse<null>(
+      await request("DELETE", `${quadsRoute}groups/${groupId}`)
+   );
+}
+
+export async function createQuadsType(
+   groupId: number,
+   data: QuadTypePayload
+): Promise<ApiResult<QuadTypeOut>> {
+   return parseApiResponse<QuadTypeOut>(
+      await request("POST", `${quadsRoute}groups/${groupId}/types`, data)
+   );
+}
+
+export async function updateQuadsType(
+   typeId: number,
+   data: Partial<QuadTypePayload>
+): Promise<ApiResult<QuadTypeOut>> {
+   return parseApiResponse<QuadTypeOut>(
+      await request("PUT", `${quadsRoute}types/${typeId}`, data)
+   );
+}
+
+export async function deleteQuadsType(
+   typeId: number
+): Promise<ApiResult<null>> {
+   return parseApiResponse<null>(
+      await request("DELETE", `${quadsRoute}types/${typeId}`)
+   );
+}
+
+export async function setQuadsTypeFuncs(
+   typeId: number,
+   funcs: string[]
+): Promise<ApiResult<QuadTypeOut>> {
+   return parseApiResponse<QuadTypeOut>(
+      await request("PUT", `${quadsRoute}types/${typeId}/funcs`, { funcs })
+   );
+}

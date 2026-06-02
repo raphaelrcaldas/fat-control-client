@@ -1,8 +1,11 @@
 "use client";
 import { useEffect, useMemo, useRef } from "react";
+import Link from "next/link";
 import { usePersistedState } from "@/hooks/usePersistedState";
-import { Select, Radio, Label, Spinner } from "flowbite-react";
+import { Select, Radio, Label, Spinner, Button } from "flowbite-react";
+import { FaSliders } from "react-icons/fa6";
 import { useQuadsContext } from "../../context/quads";
+import { PermBased } from "../../hooks/usePermBased";
 import { compareByAntiguidade } from "utils/sortByAntiguidade";
 import { useQuads, useQuadsTypes } from "@/hooks/queries";
 import { FUNCOES_PRINCIPAIS, getFuncLabel } from "@/constants";
@@ -249,6 +252,15 @@ export default function QuadPage() {
                   <Label htmlFor="reduz">Reduzida</Label>
                </div>
             </div>
+
+            <PermBased resource="quad_ops" requiredPerm="create">
+               <div className="ml-auto flex items-center">
+                  <Button as={Link} href="/ops/quads/gerenciar" color="light">
+                     <FaSliders className="mr-2 h-4 w-4" />
+                     Gerenciar
+                  </Button>
+               </div>
+            </PermBased>
          </div>
 
          <div className="mb-1 flex items-center gap-2 px-2 uppercase">

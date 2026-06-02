@@ -11,8 +11,17 @@ import {
    addQuad,
    updateQuad,
    deleteQuad,
+   createQuadsGroup,
+   updateQuadsGroup,
+   deleteQuadsGroup,
+   createQuadsType,
+   updateQuadsType,
+   deleteQuadsType,
+   setQuadsTypeFuncs,
    QuadParams,
    Quad,
+   QuadGroupPayload,
+   QuadTypePayload,
 } from "services/routes/quads";
 
 // ========================================
@@ -119,5 +128,95 @@ export function useDeleteQuad() {
          queryClient.invalidateQueries({ queryKey: quadKeys.lists() });
          queryClient.invalidateQueries({ queryKey: quadKeys.details() });
       },
+   });
+}
+
+// ========================================
+// Mutations - Gerenciamento da estrutura (Grupo / Tipo / Função)
+// ========================================
+
+/**
+ * Invalida a estrutura de quadrinhos (tipos) e as listas que dependem dela.
+ */
+function useInvalidateQuadsStructure() {
+   const queryClient = useQueryClient();
+   return () => {
+      queryClient.invalidateQueries({ queryKey: quadKeys.types() });
+      queryClient.invalidateQueries({ queryKey: quadKeys.lists() });
+   };
+}
+
+export function useCreateQuadsGroup() {
+   const invalidate = useInvalidateQuadsStructure();
+   return useMutation({
+      mutationFn: (data: QuadGroupPayload) => createQuadsGroup(data),
+      onSuccess: invalidate,
+   });
+}
+
+export function useUpdateQuadsGroup() {
+   const invalidate = useInvalidateQuadsStructure();
+   return useMutation({
+      mutationFn: ({
+         groupId,
+         data,
+      }: {
+         groupId: number;
+         data: Partial<QuadGroupPayload>;
+      }) => updateQuadsGroup(groupId, data),
+      onSuccess: invalidate,
+   });
+}
+
+export function useDeleteQuadsGroup() {
+   const invalidate = useInvalidateQuadsStructure();
+   return useMutation({
+      mutationFn: (groupId: number) => deleteQuadsGroup(groupId),
+      onSuccess: invalidate,
+   });
+}
+
+export function useCreateQuadsType() {
+   const invalidate = useInvalidateQuadsStructure();
+   return useMutation({
+      mutationFn: ({
+         groupId,
+         data,
+      }: {
+         groupId: number;
+         data: QuadTypePayload;
+      }) => createQuadsType(groupId, data),
+      onSuccess: invalidate,
+   });
+}
+
+export function useUpdateQuadsType() {
+   const invalidate = useInvalidateQuadsStructure();
+   return useMutation({
+      mutationFn: ({
+         typeId,
+         data,
+      }: {
+         typeId: number;
+         data: Partial<QuadTypePayload>;
+      }) => updateQuadsType(typeId, data),
+      onSuccess: invalidate,
+   });
+}
+
+export function useDeleteQuadsType() {
+   const invalidate = useInvalidateQuadsStructure();
+   return useMutation({
+      mutationFn: (typeId: number) => deleteQuadsType(typeId),
+      onSuccess: invalidate,
+   });
+}
+
+export function useSetQuadsTypeFuncs() {
+   const invalidate = useInvalidateQuadsStructure();
+   return useMutation({
+      mutationFn: ({ typeId, funcs }: { typeId: number; funcs: string[] }) =>
+         setQuadsTypeFuncs(typeId, funcs),
+      onSuccess: invalidate,
    });
 }
