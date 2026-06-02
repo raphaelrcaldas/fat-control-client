@@ -1,7 +1,7 @@
 "use client";
 
 import { memo } from "react";
-import { HiPencil } from "react-icons/hi";
+import { HiPencil, HiSparkles } from "react-icons/hi";
 import clsx from "clsx";
 import {
    formatDateFull,
@@ -24,6 +24,7 @@ type Props = {
    status: EtapaStatus;
    selected: boolean;
    isModified?: boolean;
+   isNew?: boolean;
    onClick: () => void;
 };
 
@@ -38,6 +39,7 @@ function EtapaSidebarItemBase({
    status,
    selected,
    isModified,
+   isNew,
    onClick,
 }: Props) {
    return (
@@ -54,7 +56,10 @@ function EtapaSidebarItemBase({
             selected ? "before:bg-red-500" : "before:bg-transparent",
             isModified &&
                !selected &&
-               "before:bg-amber-300/70 before:mask-[repeating-linear-gradient(to_bottom,black_0_4px,transparent_4px_8px)]"
+               "before:bg-amber-300/70 before:mask-[repeating-linear-gradient(to_bottom,black_0_4px,transparent_4px_8px)]",
+            isNew &&
+               !selected &&
+               "before:bg-emerald-300/70 before:mask-[repeating-linear-gradient(to_bottom,black_0_4px,transparent_4px_8px)]"
          )}
       >
          <div className="flex min-w-0 flex-col gap-1">
@@ -85,6 +90,15 @@ function EtapaSidebarItemBase({
          </div>
 
          <div className="flex items-center justify-end gap-2">
+            {isNew && (
+               <span
+                  className="flex items-center gap-1 rounded-full bg-emerald-50 px-1.5 py-0.5 text-[10px] font-semibold text-emerald-700 ring-1 ring-emerald-200"
+                  title="Esta etapa é nova e ainda não foi salva"
+               >
+                  <HiSparkles className="h-3 w-3" />
+                  Nova
+               </span>
+            )}
             {isModified && (
                <span
                   className="flex items-center gap-1 rounded-full bg-amber-50 px-1.5 py-0.5 text-[10px] font-semibold text-amber-700 ring-1 ring-amber-200"
