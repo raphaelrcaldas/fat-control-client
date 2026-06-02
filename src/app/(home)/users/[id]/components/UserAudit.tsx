@@ -1,6 +1,7 @@
-import { useUserLogs } from "@/hooks/queries";
+import { useMemo } from "react";
+import { useUserLogs, useUnidadeOptions } from "@/hooks/queries";
+import type { UnidadeOption } from "@/hooks/queries";
 import { postoGradRecords } from "@/constants/militar/postos";
-import { unidadeOptions } from "@/constants/militar/unidades";
 import { Spinner } from "flowbite-react";
 import { HiClock, HiDocumentText } from "react-icons/hi";
 import { Historico } from "@/app/(home)/ops/indisp/components/Historico";
@@ -30,32 +31,35 @@ const USER_FIELD_LABELS: Record<string, string> = {
 };
 
 /**
- * Formata valores de campos específicos para exibição legível
+ * Cria o formatador de valores de campo. Recebe as opções de unidade
+ * (diretório de organizações) para resolver `unidade` → label.
  */
-function formatUserFieldValue(field: string, value: string): string {
-   const str = String(value ?? "");
-   if (!str) return str;
+function makeFormatUserFieldValue(unidadeOptions: UnidadeOption[]) {
+   return function formatUserFieldValue(field: string, value: string): string {
+      const str = String(value ?? "");
+      if (!str) return str;
 
-   switch (field) {
-      case "p_g": {
-         const posto = postoGradRecords.find((p) => p.short === str);
-         return posto ? posto.long : str;
+      switch (field) {
+         case "p_g": {
+            const posto = postoGradRecords.find((p) => p.short === str);
+            return posto ? posto.long : str;
+         }
+         case "unidade": {
+            const und = unidadeOptions.find((u) => u.value === str);
+            return und ? und.label : str;
+         }
+         case "cpf":
+            return cpfValidator.isValid(str) ? formatCpf(str) : str;
+         case "active":
+            return str === "true" ? "Ativo" : "Inativo";
+         case "password":
+            return "••••••••";
+         case "_senha":
+            return "Redefinida";
+         default:
+            return str;
       }
-      case "unidade": {
-         const und = unidadeOptions.find((u) => u.value === str);
-         return und ? und.label : str;
-      }
-      case "cpf":
-         return cpfValidator.isValid(str) ? formatCpf(str) : str;
-      case "active":
-         return str === "true" ? "Ativo" : "Inativo";
-      case "password":
-         return "••••••••";
-      case "_senha":
-         return "Redefinida";
-      default:
-         return str;
-   }
+   };
 }
 
 /**
@@ -77,6 +81,11 @@ function preprocessLogs(logs: ReturnType<typeof useUserLogs>["data"]) {
 
 export function UserAudit({ userId }: { userId?: number }) {
    const { data: rawLogs = [], isLoading, error } = useUserLogs(userId);
+   const unidadeOptions = useUnidadeOptions();
+   const formatFieldValue = useMemo(
+      () => makeFormatUserFieldValue(unidadeOptions),
+      [unidadeOptions]
+   );
    const logs = preprocessLogs(rawLogs);
 
    if (!userId) return null;
@@ -123,7 +132,7 @@ export function UserAudit({ userId }: { userId?: number }) {
       <Historico
          logs={logs}
          fieldLabels={USER_FIELD_LABELS}
-         formatFieldValue={formatUserFieldValue}
+         formatFieldValue={formatFieldValue}
          title="Histórico de Alterações"
          maxHeight="max-h-[600px]"
       />

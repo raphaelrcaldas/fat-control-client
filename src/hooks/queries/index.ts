@@ -1,6 +1,7 @@
 // Re-exports centralizados de queries
 export * from "./useUsers";
 export * from "./useOrganizacoes";
+export * from "./useUnidadeOptions";
 export * from "./useTenants";
 export * from "./useOrdens";
 export * from "./useTrips";

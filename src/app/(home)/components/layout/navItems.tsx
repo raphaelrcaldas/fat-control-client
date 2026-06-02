@@ -262,11 +262,13 @@ export const navItems = [
       ],
    },
    {
+      // Diretório universal de usuários: visível em ambos os contextos
+      // (Sistema e unidade). Ver project-users-universal.
       type: "item",
       icon: MdOutlinePeopleAlt,
       label: "Usuários",
       path: "/users",
-      scope: "tenant",
+      scope: "shared",
       roles: ["apoio_avancado", "apoio_basico", "dout_avancado", "dout_basico"],
    },
    {

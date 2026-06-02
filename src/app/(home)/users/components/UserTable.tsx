@@ -11,7 +11,7 @@ import {
 import { HiCheckCircle } from "react-icons/hi";
 import { UserPublic } from "services/routes/users";
 import { useRouter } from "next/navigation";
-import { unidadeOptions } from "@/constants/militar/unidades";
+import { useUnidadeOptions } from "@/hooks/queries";
 import { formatSaram } from "@/constants/formats/saram";
 import clsx from "clsx";
 
@@ -22,6 +22,7 @@ interface UserTableProps {
 
 export function UserTable({ usuarios, loading }: UserTableProps) {
    const router = useRouter();
+   const unidadeOptions = useUnidadeOptions();
 
    return (
       <div

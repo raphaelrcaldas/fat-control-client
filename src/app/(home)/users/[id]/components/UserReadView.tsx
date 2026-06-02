@@ -29,8 +29,7 @@ import {
    phoneMaskConfig,
 } from "@/constants/formats";
 import { postoGradRecords } from "@/constants/militar/postos";
-import { unidadeOptions } from "@/constants/militar/unidades";
-import { useUpdateUser } from "@/hooks/queries";
+import { useUpdateUser, useUnidadeOptions } from "@/hooks/queries";
 import { useToast } from "@/app/context/toast";
 
 // ========================================
@@ -285,6 +284,7 @@ function ReadOnlyField({
 // ========================================
 
 export function UserReadView({ user, userId }: UserReadViewProps) {
+   const unidadeOptions = useUnidadeOptions();
    const postoLabel =
       postoGradRecords.find((p) => p.short === user.p_g)?.long || user.p_g;
 

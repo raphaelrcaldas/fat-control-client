@@ -8,7 +8,7 @@ import { HiMail, HiPhone } from "react-icons/hi";
 import { FaUser, FaShieldAlt } from "react-icons/fa";
 import clsx from "clsx";
 import { postoGradRecords } from "@/constants/militar/postos";
-import { unidadeOptions } from "@/constants/militar/unidades";
+import { useUnidadeOptions } from "@/hooks/queries";
 import { onlyLettersKeyDown, onlyNumbersKeyDown } from "./utils";
 import { formatPhone, formatCpf, formatSaram } from "@/constants/formats";
 
@@ -151,6 +151,7 @@ export function PersonalDataSection({ register, errors }: FormSectionProps) {
 // ========================================
 
 export function MilitaryDataSection({ register, errors }: FormSectionProps) {
+   const unidadeOptions = useUnidadeOptions();
    const { onChange: saramOnChange, ...saramRest } = register("saram");
    const pgOptions = postoGradRecords.map((pg) => ({
       value: pg.short,

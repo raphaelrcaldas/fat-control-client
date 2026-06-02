@@ -5,7 +5,7 @@ import { IoMdInformationCircleOutline } from "react-icons/io";
 import { HiCheckCircle, HiXCircle } from "react-icons/hi";
 import { UserPublic } from "services/routes/users";
 import { useRouter } from "next/navigation";
-import { unidadeOptions } from "@/constants/militar/unidades";
+import { useUnidadeOptions } from "@/hooks/queries";
 
 interface UserCardProps {
    user: UserPublic;
@@ -13,6 +13,7 @@ interface UserCardProps {
 
 export function UserCard({ user }: UserCardProps) {
    const router = useRouter();
+   const unidadeOptions = useUnidadeOptions();
 
    return (
       <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm transition-shadow duration-150 hover:shadow-md">

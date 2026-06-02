@@ -25,6 +25,10 @@ export function useOrganizacoes() {
    return useQuery({
       queryKey: organizacaoKeys.list(),
       queryFn: getOrganizacoes,
+      // Diretório de organizações é dado de referência (muda raramente).
+      // Mantém fresco pela sessão inteira; create/update/delete invalidam
+      // a lista explicitamente, então a edição continua refletindo.
+      staleTime: Infinity,
    });
 }
 
