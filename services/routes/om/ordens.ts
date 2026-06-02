@@ -81,7 +81,6 @@ export interface OrdemMissaoCreate {
    status: string;
    campos_especiais: CampoEspecial[];
    doc_ref?: string | null;
-   uae: string;
    esf_aer: number;
    etapas: EtapaCreate[];
    tripulacao?: TripulacaoAgrupada | null;

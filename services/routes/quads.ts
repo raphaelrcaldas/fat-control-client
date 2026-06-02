@@ -7,7 +7,6 @@ const quadsRoute = "ops/quads/";
 export interface QuadParams {
    funcao: string;
    tipo_quad: number;
-   uae?: string;
    proj?: string;
    [key: string]: string | number | undefined;
 }
@@ -71,10 +70,8 @@ export async function deleteQuad(ids: number[]): Promise<ApiResult<null>> {
    return parseApiResponse<null>(await request("DELETE", quadsRoute, { ids }));
 }
 
-export async function getQuadsType(uae: string): Promise<QuadTypeGroup[]> {
-   const response = await request("GET", quadsRoute + "types", null, {
-      uae: uae,
-   });
+export async function getQuadsType(): Promise<QuadTypeGroup[]> {
+   const response = await request("GET", quadsRoute + "types");
    const json = (await response.json()) as ApiResponse<QuadTypeGroup[]>;
    return json.data || [];
 }

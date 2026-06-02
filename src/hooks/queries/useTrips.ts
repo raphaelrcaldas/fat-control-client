@@ -26,7 +26,7 @@ export const tripKeys = {
    all: ["trips"] as const,
    lists: () => [...tripKeys.all, "list"] as const,
    list: (filters?: GetTripsParams) => [...tripKeys.lists(), filters] as const,
-   userIds: (uae: string) => [...tripKeys.all, "user-ids", uae] as const,
+   userIds: () => [...tripKeys.all, "user-ids"] as const,
    details: () => [...tripKeys.all, "detail"] as const,
    detail: (id: number) => [...tripKeys.details(), id] as const,
 };
@@ -48,12 +48,12 @@ export function useTrips(params?: GetTripsParams) {
 }
 
 /**
- * IDs de usuários que já são tripulantes em uma UAE
+ * IDs de usuários que já são tripulantes na org ativa (do token)
  */
-export function useTripUserIds(uae: string) {
+export function useTripUserIds() {
    return useQuery({
-      queryKey: tripKeys.userIds(uae),
-      queryFn: () => getTripUserIds(uae),
+      queryKey: tripKeys.userIds(),
+      queryFn: () => getTripUserIds(),
    });
 }
 

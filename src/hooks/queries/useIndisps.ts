@@ -22,8 +22,7 @@ export const indispKeys = {
    all: ["indisps"] as const,
    lists: () => [...indispKeys.all, "list"] as const,
    list: (filters?: IndispFilters) => [...indispKeys.lists(), filters] as const,
-   byFunc: (func: string, uae: string) =>
-      [...indispKeys.all, "func", func, uae] as const,
+   byFunc: (func: string) => [...indispKeys.all, "func", func] as const,
    byUser: (userId: number, filters?: IndispFilters) =>
       [...indispKeys.all, "user", userId, filters] as const,
 };
@@ -39,10 +38,10 @@ export const indispKeys = {
  * - placeholderData: keepPreviousData = mantem dados anteriores durante fetch
  * - refetchOnMount: 'always' = sempre refetch ao montar
  */
-export function useCrewIndisps(func: string, uae: string) {
+export function useCrewIndisps(func: string) {
    return useQuery({
-      queryKey: indispKeys.byFunc(func, uae),
-      queryFn: ({ signal }) => getCrewIndisps(func, uae, signal),
+      queryKey: indispKeys.byFunc(func),
+      queryFn: ({ signal }) => getCrewIndisps(func, signal),
       staleTime: 0,
       refetchOnMount: "always",
       placeholderData: keepPreviousData,

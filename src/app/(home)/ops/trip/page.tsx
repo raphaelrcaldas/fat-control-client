@@ -25,8 +25,6 @@ import { useTripList } from "./hooks/useTripList";
 import type { FuncType, OperType } from "./types/trip.types";
 
 export default function TripPage() {
-   const [uae] = useState("11gt");
-
    const {
       trips,
       loading,
@@ -43,9 +41,7 @@ export default function TripPage() {
       handlePerPageChange,
       PER_PAGE_OPTIONS,
       urlSearch,
-   } = useTripList({
-      uae,
-   });
+   } = useTripList();
 
    // Local state for search input (immediate typing feedback)
    const [filterName, setFilterName] = useState(urlSearch);
@@ -178,7 +174,7 @@ export default function TripPage() {
 
                   {/* Botão Adicionar */}
                   <PermBased resource={"trips"} requiredPerm={"create"}>
-                     <SearchUser uae={uae} />
+                     <SearchUser />
                   </PermBased>
                </div>
 

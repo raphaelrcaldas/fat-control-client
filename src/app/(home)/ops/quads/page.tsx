@@ -9,7 +9,6 @@ import { FUNCOES_PRINCIPAIS, getFuncLabel } from "@/constants";
 import CrewRow from "./components/crewRow";
 
 // Constantes para valores configuráveis
-const DEFAULT_UAE = "11gt";
 const DEFAULT_PROJ = "kc-390";
 
 export default function QuadPage() {
@@ -19,14 +18,12 @@ export default function QuadPage() {
       useQuadsContext();
 
    // React Query hooks
-   const { data: quadsType = [], isLoading: loadingTypes } =
-      useQuadsTypes(DEFAULT_UAE);
+   const { data: quadsType = [], isLoading: loadingTypes } = useQuadsTypes();
 
    const params = useMemo(
       () => ({
          funcao: quadFunc,
          tipo_quad: quadType,
-         uae: DEFAULT_UAE,
          proj: DEFAULT_PROJ,
       }),
       [quadFunc, quadType]

@@ -40,21 +40,19 @@ export interface IndispFilters {
    mtv?: string;
 }
 
-
 // ========================================
 // Queries
 // ========================================
 
 export async function getCrewIndisps(
    func: string,
-   uae: string,
    signal?: AbortSignal
 ): Promise<CrewIndispList[]> {
    const response = await request(
       "GET",
       indispRoute,
       null,
-      { funcao: func, uae },
+      { funcao: func },
       signal
    );
    const json = (await response.json()) as ApiResponse<CrewIndispList[]>;

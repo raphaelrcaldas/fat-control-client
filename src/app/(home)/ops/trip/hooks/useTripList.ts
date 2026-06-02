@@ -3,10 +3,6 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { useTrips } from "@/hooks/queries";
 import type { FuncType, OperType } from "../types/trip.types";
 
-type UseTripListParams = {
-   uae: string;
-};
-
 const PER_PAGE_OPTIONS = [25, 50, 100];
 
 const DEFAULT_PAGE = 1;
@@ -18,7 +14,7 @@ function parseCommaSeparated(value: string | null): string[] {
    return value.split(",").filter(Boolean);
 }
 
-export function useTripList({ uae }: UseTripListParams) {
+export function useTripList() {
    const searchParams = useSearchParams();
    const router = useRouter();
 
@@ -86,7 +82,6 @@ export function useTripList({ uae }: UseTripListParams) {
    // --- Query params ---
    const queryParams = useMemo(
       () => ({
-         uae,
          active: filterActive,
          page: currentPage,
          per_page: perPage,
@@ -96,7 +91,6 @@ export function useTripList({ uae }: UseTripListParams) {
          oper: filterOper.length > 0 ? filterOper : undefined,
       }),
       [
-         uae,
          currentPage,
          perPage,
          urlSearch,

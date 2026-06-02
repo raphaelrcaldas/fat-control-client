@@ -24,7 +24,6 @@ export const quadKeys = {
    lists: () => [...quadKeys.all, "list"] as const,
    list: (filters?: QuadParams) => [...quadKeys.lists(), filters] as const,
    types: () => [...quadKeys.all, "types"] as const,
-   type: (uae: string) => [...quadKeys.types(), uae] as const,
    details: () => [...quadKeys.all, "detail"] as const,
    detail: (tripId: number, typeId: number) =>
       [...quadKeys.details(), tripId, typeId] as const,
@@ -64,12 +63,12 @@ export function useQuadsByTrip(
 }
 
 /**
- * Tipos de quadrinhos disponíveis por UAE
+ * Tipos de quadrinhos disponíveis na org ativa (do token)
  */
-export function useQuadsTypes(uae: string) {
+export function useQuadsTypes() {
    return useQuery({
-      queryKey: quadKeys.type(uae),
-      queryFn: () => getQuadsType(uae),
+      queryKey: quadKeys.types(),
+      queryFn: () => getQuadsType(),
       staleTime: 0,
    });
 }

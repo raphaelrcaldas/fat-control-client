@@ -20,14 +20,12 @@ import {
 import type { TripRegisterFormFields } from "../types/trip.types";
 
 type TripRegisterProps = {
-   uae: string;
    user: UserPublic;
    show?: boolean;
    onClose?: () => void;
 };
 
 export function TripRegister({
-   uae,
    user,
    show: externalShow,
    onClose: externalOnClose,
@@ -47,7 +45,6 @@ export function TripRegister({
       defaultValues: {
          user_id: user.id,
          active: true,
-         uae: uae,
          trig: "",
       },
    });
@@ -57,11 +54,10 @@ export function TripRegister({
          reset({
             user_id: user.id,
             active: true,
-            uae: uae,
             trig: "",
          });
       }
-   }, [show, user.id, uae, reset]);
+   }, [show, user.id, reset]);
 
    function closeModal() {
       reset();

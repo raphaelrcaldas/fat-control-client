@@ -57,7 +57,6 @@ export interface GetEscalaParams {
    tipo_quad_id: number;
    funcs: string[];
    sort: EscalaSort;
-   uae?: string;
    proj?: string;
 }
 

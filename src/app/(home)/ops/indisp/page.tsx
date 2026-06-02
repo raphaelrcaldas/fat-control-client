@@ -61,7 +61,7 @@ export default function IndispPage() {
       data: indisps,
       isLoading: isLoadingIndisps,
       isFetching,
-   } = useCrewIndisps(indispFunc, "11gt");
+   } = useCrewIndisps(indispFunc);
 
    // Loading inicial (primeira carga) vs refetch (mudança de função)
    const isInitialLoading = isLoadingIndisps;

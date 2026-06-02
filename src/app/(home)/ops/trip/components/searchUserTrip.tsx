@@ -8,17 +8,13 @@ import { TripRegister } from "./tripRegister";
 import { UserPublic } from "services/routes/users";
 import { useTripUserIds } from "@/hooks/queries";
 
-type SearchUserProps = {
-   uae: string;
-};
-
-export function SearchUser({ uae }: SearchUserProps) {
+export function SearchUser() {
    const [showSearch, setShowSearch] = useState(false);
    const [selectedUser, setSelectedUser] = useState<UserPublic | null>(null);
    const [showRegister, setShowRegister] = useState(false);
 
    // IDs de todos os usuários que já são tripulantes (ativos e inativos)
-   const { data: tripUserIds = [] } = useTripUserIds(uae);
+   const { data: tripUserIds = [] } = useTripUserIds();
 
    function handleUserSelected(user: UserPublic) {
       setSelectedUser(user);
@@ -50,7 +46,6 @@ export function SearchUser({ uae }: SearchUserProps) {
          {selectedUser && (
             <TripRegister
                user={selectedUser}
-               uae={uae}
                show={showRegister}
                onClose={handleRegisterClose}
             />

@@ -653,7 +653,6 @@ export const useOrdemForm = ({
             : isNew || isCloning
               ? "rascunho"
               : formData.status,
-         uae: formData.uae || "11gt",
          esf_aer: formData.esf_aer || 0,
          etapas: etapasOrdenadas.map((etapa) => ({
             dt_dep: etapa.dt_dep,

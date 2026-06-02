@@ -24,7 +24,6 @@ export type FuncFormFields = {
 export type TripRegisterFormFields = {
    user_id: number;
    active: boolean;
-   uae: string;
    trig: string;
 };
 

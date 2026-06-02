@@ -20,12 +20,10 @@ export interface SearchTripsParams {
    func: string;
    q?: string;
    proj?: string;
-   uae?: string;
 }
 
 export interface GetTripsParams {
    [key: string]: string | number | boolean | string[] | undefined;
-   uae?: string;
    active?: boolean;
    page?: number;
    per_page?: number;
@@ -46,7 +44,6 @@ export interface PaginatedTripsResponse {
 export interface CreateTripData {
    user_id: number;
    active: boolean;
-   uae: string;
    trig: string;
 }
 
@@ -61,7 +58,6 @@ export async function getTrips(
 ): Promise<PaginatedTripsResponse> {
    // Converter parâmetros para Record<string, string | number>
    const queryParams: Record<string, string | number> = {};
-   if (params.uae) queryParams.uae = params.uae;
    if (params.active !== undefined) queryParams.active = String(params.active);
    if (params.page) queryParams.page = params.page;
    if (params.per_page) queryParams.per_page = params.per_page;
@@ -75,7 +71,7 @@ export async function getTrips(
       queryParams.oper = params.oper.join(",");
 
    const response = await request("GET", tripRoute, null, queryParams, signal);
-   const json = await response.json() as ApiPaginatedResponse<CrewMember>;
+   const json = (await response.json()) as ApiPaginatedResponse<CrewMember>;
 
    return {
       items: json.data || [],
@@ -86,9 +82,9 @@ export async function getTrips(
    };
 }
 
-export async function getTripUserIds(uae: string): Promise<number[]> {
-   const response = await request("GET", tripRoute + "user-ids", null, { uae });
-   const json = await response.json() as { data: number[] };
+export async function getTripUserIds(): Promise<number[]> {
+   const response = await request("GET", tripRoute + "user-ids");
+   const json = (await response.json()) as { data: number[] };
    return json.data;
 }
 
@@ -123,9 +119,7 @@ export async function updateCrewFunc(
    );
 }
 
-export async function deleteCrewFunc(
-   funcId: number
-): Promise<ApiResult<null>> {
+export async function deleteCrewFunc(funcId: number): Promise<ApiResult<null>> {
    return parseApiResponse<null>(
       await request("DELETE", `${tripRoute}func/${funcId}`)
    );

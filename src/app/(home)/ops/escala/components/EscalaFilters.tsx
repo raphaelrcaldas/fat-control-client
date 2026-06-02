@@ -28,7 +28,7 @@ export function EscalaFilters({
    onChange,
    isFetching = false,
 }: EscalaFiltersProps) {
-   const { data: quadsType = [], isLoading } = useQuadsTypes("11gt");
+   const { data: quadsType = [], isLoading } = useQuadsTypes();
    const today = useMemo(() => todayIso(), []);
 
    const eligibleGroups = useMemo(

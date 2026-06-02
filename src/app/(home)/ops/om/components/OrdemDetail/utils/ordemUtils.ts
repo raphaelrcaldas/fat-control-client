@@ -96,5 +96,4 @@ export const createDefaultOrdem = (): Partial<OrdemMissaoOut> => ({
    esf_aer: 0,
    etapas: [], // Inicia sem etapas - usuário adiciona via modal
    etiquetas: [],
-   uae: "11gt",
 });
