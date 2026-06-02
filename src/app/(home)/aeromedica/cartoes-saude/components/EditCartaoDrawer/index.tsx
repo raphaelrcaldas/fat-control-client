@@ -54,7 +54,6 @@ export default function EditCartaoDrawer({
    const [formData, setFormData] = useState({
       prontuario: item.cartao?.prontuario || "",
       cemal: item.cartao?.cemal || "",
-      ag_cemal: item.cartao?.ag_cemal || "",
       tovn: item.cartao?.tovn || "",
       imae: item.cartao?.imae || "",
    });
@@ -64,7 +63,6 @@ export default function EditCartaoDrawer({
          setFormData({
             prontuario: item.cartao?.prontuario || "",
             cemal: item.cartao?.cemal || "",
-            ag_cemal: item.cartao?.ag_cemal || "",
             tovn: item.cartao?.tovn || "",
             imae: item.cartao?.imae || "",
          });
@@ -87,7 +85,6 @@ export default function EditCartaoDrawer({
             const updateData: CartaoSaudeUpdate = {
                prontuario: formData.prontuario || null,
                cemal: formData.cemal || null,
-               ag_cemal: formData.ag_cemal || null,
                tovn: formData.tovn || null,
                imae: formData.imae || null,
             };
@@ -101,7 +98,6 @@ export default function EditCartaoDrawer({
                user_id: item.user.id,
                prontuario: formData.prontuario || null,
                cemal: formData.cemal || null,
-               ag_cemal: formData.ag_cemal || null,
                tovn: formData.tovn || null,
                imae: formData.imae || null,
             };
@@ -347,8 +343,15 @@ function DadosTab({
             </div>
          </div>
 
-         {/* Divisor */}
-         <div className="border-t border-gray-200 dark:border-gray-700" />
+         {/* Datas de validade */}
+         <div className="border-t border-gray-200 pt-4 dark:border-gray-700">
+            <h4 className="text-sm font-semibold text-gray-900 dark:text-white">
+               Datas de validade
+            </h4>
+            <p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">
+               Informe o vencimento de cada inspeção — não a data de realização.
+            </p>
+         </div>
 
          {/* Campos de data */}
          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -370,18 +373,6 @@ function DadosTab({
                      antigas
                   </p>
                )}
-            </div>
-            <div>
-               <Label htmlFor="ag_cemal">Agendamento CEMAL</Label>
-               <div className="mt-1">
-                  <TextInput
-                     id="ag_cemal"
-                     name="ag_cemal"
-                     type="date"
-                     value={formData.ag_cemal}
-                     onChange={onChange}
-                  />
-               </div>
             </div>
             <DateField
                label="Visão Noturna (TOVN)"

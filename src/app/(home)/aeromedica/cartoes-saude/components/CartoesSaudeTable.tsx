@@ -51,11 +51,9 @@ const DateCell = memo(function DateCell({
 
 const CemalCell = memo(function CemalCell({
    cemal,
-   agCemal,
    temAta,
 }: {
    cemal: string | null | undefined;
-   agCemal: string | null | undefined;
    temAta: boolean | null;
 }) {
    const status = getDateStatus(cemal);
@@ -70,11 +68,6 @@ const CemalCell = memo(function CemalCell({
                {formatDate(cemal)}
             </span>
          </div>
-         {agCemal && (
-            <span className="text-[11px] text-blue-600">
-               Agendado: {formatDate(agCemal)}
-            </span>
-         )}
          {temAta === false && (
             <span className="text-[11px] font-medium text-amber-600">
                Sem ata anexada
@@ -180,11 +173,7 @@ const CartoesSaudeRow = memo(function CartoesSaudeRow({
             {item.cartao?.prontuario ?? "—"}
          </TableCell>
          <TableCell className="px-4 py-3 whitespace-nowrap">
-            <CemalCell
-               cemal={item.cartao?.cemal}
-               agCemal={item.cartao?.ag_cemal}
-               temAta={item.cemal_tem_ata}
-            />
+            <CemalCell cemal={item.cartao?.cemal} temAta={item.cemal_tem_ata} />
          </TableCell>
          <TableCell className="px-4 py-3 whitespace-nowrap">
             <DateCell dateStr={item.cartao?.tovn} />

@@ -10,7 +10,6 @@ export interface CartaoSaudePublic {
    user_id: number;
    prontuario: string | null;
    cemal: string | null;
-   ag_cemal: string | null;
    tovn: string | null;
    imae: string | null;
 }
@@ -27,7 +26,6 @@ export interface CartaoSaudeCreate {
    user_id: number;
    prontuario: string | null;
    cemal: string | null;
-   ag_cemal: string | null;
    tovn: string | null;
    imae: string | null;
 }
@@ -35,7 +33,6 @@ export interface CartaoSaudeCreate {
 export interface CartaoSaudeUpdate {
    prontuario?: string | null;
    cemal?: string | null;
-   ag_cemal?: string | null;
    tovn?: string | null;
    imae?: string | null;
 }

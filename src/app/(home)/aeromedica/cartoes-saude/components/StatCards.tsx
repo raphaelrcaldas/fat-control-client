@@ -137,7 +137,6 @@ interface StatCardsGridProps {
          empty: number;
       };
    };
-   cemalScheduled: number;
    imaeStats: {
       total: number;
       counts: {
@@ -162,7 +161,6 @@ interface StatCardsGridProps {
 
 export default function StatCardsGrid({
    cemalStats,
-   cemalScheduled,
    imaeStats,
    tovnStats,
 }: StatCardsGridProps) {

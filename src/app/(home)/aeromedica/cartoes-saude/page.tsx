@@ -224,22 +224,19 @@ export default function CartoesSaudePage() {
    }, [updateParams]);
 
    // Stats por campo (iteração única)
-   const { cemalStats, cemalScheduled, tovnStats, imaeStats } = useMemo(() => {
+   const { cemalStats, tovnStats, imaeStats } = useMemo(() => {
       const cemal = { valid: 0, warning: 0, critical: 0, expired: 0, empty: 0 };
       const tovn = { valid: 0, warning: 0, critical: 0, expired: 0, empty: 0 };
       const imae = { valid: 0, warning: 0, critical: 0, expired: 0, empty: 0 };
       let cemalTotal = 0;
       let tovnTotal = 0;
       let imaeTotal = 0;
-      let scheduled = 0;
 
       for (const item of cartoesSaude) {
          const c = item.cartao;
          const cemalStatus = getCemalStatus(item);
          cemal[cemalStatus]++;
          if (cemalStatus !== "empty") cemalTotal++;
-
-         if (c?.ag_cemal) scheduled++;
 
          const tovnStatus = getDateStatus(c?.tovn);
          tovn[tovnStatus]++;
@@ -252,7 +249,6 @@ export default function CartoesSaudePage() {
 
       return {
          cemalStats: { counts: cemal, total: cemalTotal },
-         cemalScheduled: scheduled,
          tovnStats: { counts: tovn, total: tovnTotal },
          imaeStats: { counts: imae, total: imaeTotal },
       };
@@ -279,7 +275,6 @@ export default function CartoesSaudePage() {
          {!isLoading && cartoesSaude.length > 0 && (
             <StatCardsGrid
                cemalStats={cemalStats}
-               cemalScheduled={cemalScheduled}
                imaeStats={imaeStats}
                tovnStats={tovnStats}
             />
