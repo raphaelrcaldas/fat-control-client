@@ -71,7 +71,7 @@ export function TenantRegisterModal({
                      <option value="">Selecione uma organização...</option>
                      {availableOrgs.map((org) => (
                         <option key={org.sigla} value={org.sigla}>
-                           {org.sigla.toUpperCase()} — {org.nome}
+                           {org.sigla.toUpperCase()} — {org.sigla_3}
                         </option>
                      ))}
                   </Select>

@@ -8,7 +8,7 @@ export interface UnidadeOption {
 
 /**
  * Opções de unidade derivadas do diretório de organizações
- * (`GET /organizacoes`), no formato `{ value: sigla, label: nome }`.
+ * (`GET /organizacoes`), no formato `{ value: sigla, label: sigla_3 }`.
  *
  * Substitui a antiga constante estática `unidadeOptions`. A query é
  * cacheada pelo TanStack Query, então múltiplos consumidores compartilham
@@ -17,7 +17,7 @@ export interface UnidadeOption {
 export function useUnidadeOptions(): UnidadeOption[] {
    const { data: orgs = [] } = useOrganizacoes();
    return useMemo(
-      () => orgs.map((o) => ({ value: o.sigla, label: o.nome })),
+      () => orgs.map((o) => ({ value: o.sigla, label: o.sigla_3 ?? "" })),
       [orgs]
    );
 }

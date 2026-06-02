@@ -198,7 +198,7 @@ export default function UserAddRole({
                         </option>
                         {orgs.map((o) => (
                            <option key={o.sigla} value={o.sigla}>
-                              {o.sigla.toUpperCase()} - {o.nome}
+                              {o.sigla.toUpperCase()} - {o.sigla_3}
                            </option>
                         ))}
                      </Select>

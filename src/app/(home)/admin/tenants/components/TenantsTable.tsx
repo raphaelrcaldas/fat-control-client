@@ -53,7 +53,7 @@ export function TenantsTable({
                         </span>
                      </TableCell>
                      <TableCell className="text-gray-600">
-                        {tenant.organizacao.nome}
+                        {tenant.organizacao.sigla_3}
                      </TableCell>
                      <TableCell>
                         <Badge color={tenant.active ? "success" : "gray"}>
