@@ -19,8 +19,8 @@ import {
    FaUserPen,
 } from "react-icons/fa6";
 import { HiRefresh } from "react-icons/hi";
-import type { UserWithRole } from "../../config/types";
-import { getRoleTheme } from "../../config/roleThemes";
+import type { UserWithRole } from "services/routes/security/roles";
+import { getRoleTheme } from "@/constants/admin/roles";
 
 interface UsersTableProps {
    filteredUsers: UserWithRole[];

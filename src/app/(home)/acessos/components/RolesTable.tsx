@@ -8,8 +8,8 @@ import {
    TableRow,
 } from "flowbite-react";
 import { FaUserShield } from "react-icons/fa6";
-import type { RoleDetail } from "../../config/types";
-import { getRoleTheme } from "../../config/roleThemes";
+import type { RoleDetail } from "services/routes/security/roles";
+import { getRoleTheme } from "@/constants/admin/roles";
 
 interface RolesTableProps {
    roles: RoleDetail[];

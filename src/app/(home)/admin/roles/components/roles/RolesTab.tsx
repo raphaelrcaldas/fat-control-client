@@ -24,7 +24,7 @@ import {
    useRemoveRolePermission,
 } from "@/hooks/queries/useSecurity";
 import { useToast } from "@/app/context/toast";
-import { getRoleTheme } from "../../config/roleThemes";
+import { getRoleTheme } from "@/constants/admin/roles";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { TableSkeleton } from "@/components/ui/Skeleton";

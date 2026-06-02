@@ -11,6 +11,71 @@ if (!baseUrl) {
 
 type HttpMethod = "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
 
+/**
+ * Redirects deliberativos disparados por erro do backend.
+ *
+ * Cada regra casa por `status` e, opcionalmente, por um `code` no campo
+ * `message` da resposta. A primeira que casar executa `before?` (efeito
+ * colateral, ex.: limpar token) e navega para `redirect`. Regras sem `code`
+ * são catch-all do status e devem vir DEPOIS das específicas.
+ *
+ * Casos não cobertos ficam a cargo do caller (ex.: 403 de ação/permissão →
+ * ApiResult.ok=false → toast). Escalável: novo caso = nova entrada.
+ */
+interface RedirectRule {
+   status: number;
+   code?: string;
+   redirect: string;
+   before?: () => void;
+}
+
+const REDIRECT_RULES: RedirectRule[] = [
+   // Sessão inválida/expirada → limpa token e volta ao login.
+   {
+      status: 401,
+      redirect: "/",
+      before: () => deleteCookie("token", { path: "/" }),
+   },
+   // Troca de senha pendente (sinalizada pelo middleware do backend).
+   {
+      status: 403,
+      code: "PASSWORD_CHANGE_REQUIRED",
+      redirect: "/change-password",
+   },
+   // Rota proibida no contexto atual (escopo/role) — ver
+   // require_admin/require_system_admin no backend.
+   { status: 403, code: "SCOPE_FORBIDDEN", redirect: "/403" },
+];
+
+/**
+ * Aplica os REDIRECT_RULES à resposta. Retorna true se redirecionou.
+ * Só lê o body quando há regra que depende de código para aquele status.
+ */
+async function handleAuthRedirect(response: Response): Promise<boolean> {
+   if (typeof window === "undefined") return false;
+
+   const candidates = REDIRECT_RULES.filter(
+      (r) => r.status === response.status
+   );
+   if (candidates.length === 0) return false;
+
+   let message: string | undefined;
+   if (candidates.some((r) => r.code)) {
+      const body = await response
+         .clone()
+         .json()
+         .catch(() => null);
+      message = body?.message ?? undefined;
+   }
+
+   const rule = candidates.find((r) => !r.code || r.code === message);
+   if (!rule) return false;
+
+   rule.before?.();
+   window.location.href = rule.redirect;
+   return true;
+}
+
 function getTokenFromCookies(): string | null {
    if (typeof document === "undefined") {
       return null;
@@ -66,25 +131,8 @@ export default async function request<T = any>(
 
    const response = await fetch(fullUrl, options);
 
-   // Interceptor para 401
-   if (response.status === 401 && typeof window !== "undefined") {
-      // Redireciona para a página de login
-      deleteCookie("token", { path: "/" });
-      window.location.href = "/";
-      return response;
-   }
-
-   // Interceptor para 403 — apenas troca de senha pendente.
-   // 403 de RBAC NÃO redireciona; deixa o caller tratar (ex.: ApiResult.ok=false).
-   if (response.status === 403 && typeof window !== "undefined") {
-      const body = await response
-         .clone()
-         .json()
-         .catch(() => null);
-      if (body?.message === "PASSWORD_CHANGE_REQUIRED") {
-         window.location.href = "/change-password";
-      }
-   }
+   // Interceptor único de redirects deliberativos (401/403 + códigos).
+   await handleAuthRedirect(response);
 
    return response;
 }

@@ -3,7 +3,7 @@ import { UsersTable } from "./UsersTable";
 import { RolesTable } from "./RolesTable";
 import UserAddRole from "./userAddRole";
 import UserEditRole, { type EditingRole } from "./UserEditRole";
-import type { UserWithRole, RoleDetail } from "../../config/types";
+import type { UserWithRole, RoleDetail } from "services/routes/security/roles";
 import type { Organizacao } from "services/routes/organizacoes";
 import { deleteUserRole } from "services/routes/security/roles";
 import { devLogin as devLoginApi } from "services/routes/auth";

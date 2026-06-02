@@ -22,6 +22,7 @@ import {
    MdBadge,
    MdSort,
    MdEventAvailable,
+   MdManageAccounts,
 } from "react-icons/md";
 import { FaUsers, FaBuilding, FaSitemap } from "react-icons/fa6";
 import { FaPaperPlane } from "react-icons/fa";
@@ -272,6 +273,18 @@ export const navItems = [
       roles: ["apoio_avancado", "apoio_basico", "dout_avancado", "dout_basico"],
    },
    {
+      // Vínculos usuário→perfil (controle de acesso operacional).
+      // Escopo por org ativa é aplicado no backend: admin de unidade
+      // gerencia só a própria org; admin de sistema, os vínculos de
+      // sistema. Por isso "shared" (visível em ambos os contextos).
+      type: "item",
+      icon: MdManageAccounts,
+      label: "Controle de Acesso",
+      path: "/acessos",
+      scope: "shared",
+      roles: ["admin"],
+   },
+   {
       type: "collapse",
       icon: RiAdminLine,
       label: "Admin",
@@ -290,7 +303,7 @@ export const navItems = [
          },
          {
             icon: GiSecurityGate,
-            label: "Roles",
+            label: "Roles & Permissões",
             path: "/admin/roles",
          },
          {
