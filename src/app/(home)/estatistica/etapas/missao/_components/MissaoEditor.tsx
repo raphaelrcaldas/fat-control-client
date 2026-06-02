@@ -102,9 +102,10 @@ export function MissaoEditor({ mode }: MissaoEditorProps) {
                status: e.status,
                selected: e.localId === draft.selectedLocalId,
                isModified: e.dirty && e.serverId !== null,
+               isNew: mode === "edit" && e.serverId === null,
             };
          }),
-      [draft.etapas, draft.selectedLocalId]
+      [draft.etapas, draft.selectedLocalId, mode]
    );
 
    function handleCancel() {

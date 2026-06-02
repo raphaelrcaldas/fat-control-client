@@ -17,6 +17,7 @@ export type SidebarEtapa = {
    status: EtapaStatus;
    selected: boolean;
    isModified?: boolean;
+   isNew?: boolean;
 };
 
 type Props = {
@@ -100,6 +101,7 @@ export function MissaoSidebar({
                            status={etapa.status}
                            selected={etapa.selected}
                            isModified={etapa.isModified}
+                           isNew={etapa.isNew}
                            onClick={() => onSelectEtapa(etapa.localId)}
                         />
                      </li>
