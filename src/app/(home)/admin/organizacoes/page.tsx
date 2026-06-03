@@ -17,9 +17,11 @@ import type {
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
-import { TableSkeleton } from "@/components/ui/Skeleton";
 import { OrganizacaoFormModal } from "./components/OrganizacaoFormModal";
-import { OrganizacoesTable } from "./components/OrganizacoesTable";
+import {
+   OrganizacoesTable,
+   OrganizacoesTableSkeleton,
+} from "./components/OrganizacoesTable";
 
 export default function OrganizacoesPage() {
    const { push } = useToast();
@@ -148,8 +150,9 @@ export default function OrganizacoesPage() {
 
    if (isLoading) {
       return (
-         <div className="px-2 py-8">
-            <TableSkeleton rows={8} cols={5} />
+         <div className="grid gap-4 p-2">
+            <SectionHeader title="Organizações" />
+            <OrganizacoesTableSkeleton rows={8} />
          </div>
       );
    }

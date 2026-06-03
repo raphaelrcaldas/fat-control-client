@@ -14,6 +14,7 @@ import {
 import { FaTrashCan, FaToggleOn, FaToggleOff } from "react-icons/fa6";
 import type { Tenant } from "services/routes/tenants";
 import { formatDateFull, extractDate } from "@/../utils/dateHandler";
+import { Skeleton } from "@/components/ui/Skeleton";
 
 interface TenantsTableProps {
    tenants: Tenant[];
@@ -96,6 +97,52 @@ export function TenantsTable({
                                  <FaTrashCan className="h-4 w-4" />
                               </Button>
                            </Tooltip>
+                        </div>
+                     </TableCell>
+                  </TableRow>
+               ))}
+            </TableBody>
+         </Table>
+      </div>
+   );
+}
+
+export function TenantsTableSkeleton({ rows = 6 }: { rows?: number }) {
+   return (
+      <div className="overflow-x-auto rounded-xl bg-white shadow-sm ring-1 ring-gray-200">
+         <Table hoverable>
+            <TableHead>
+               <TableRow>
+                  <TableHeadCell>Sigla</TableHeadCell>
+                  <TableHeadCell>Nome</TableHeadCell>
+                  <TableHeadCell className="w-24">Status</TableHeadCell>
+                  <TableHeadCell className="hidden w-32 md:table-cell">
+                     Registrado em
+                  </TableHeadCell>
+                  <TableHeadCell className="w-28">
+                     <span className="sr-only">Ações</span>
+                  </TableHeadCell>
+               </TableRow>
+            </TableHead>
+            <TableBody className="divide-y">
+               {Array.from({ length: rows }).map((_, i) => (
+                  <TableRow key={i} className="bg-white">
+                     <TableCell>
+                        <Skeleton className="h-4 w-16" />
+                     </TableCell>
+                     <TableCell>
+                        <Skeleton className="h-4 w-full max-w-xs" />
+                     </TableCell>
+                     <TableCell>
+                        <Skeleton className="h-5 w-16 rounded-md" />
+                     </TableCell>
+                     <TableCell className="hidden md:table-cell">
+                        <Skeleton className="h-4 w-24" />
+                     </TableCell>
+                     <TableCell>
+                        <div className="flex items-center gap-2">
+                           <Skeleton className="h-9 w-9 rounded-lg" />
+                           <Skeleton className="h-9 w-10" />
                         </div>
                      </TableCell>
                   </TableRow>

@@ -30,7 +30,7 @@ import {
 } from "react-icons/hi";
 import { MdWarning, MdDelete, MdClose } from "react-icons/md";
 import clsx from "clsx";
-import { TableSkeleton } from "@/components/ui/Skeleton";
+import { Skeleton } from "@/components/ui/Skeleton";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { useToast } from "@/app/context/toast";
 
@@ -175,11 +175,9 @@ export default function LogDashboard() {
                </TableHead>
                <TableBody className="divide-y divide-gray-200">
                   {loading ? (
-                     <TableRow className="bg-white">
-                        <TableCell colSpan={5} className="p-4">
-                           <TableSkeleton rows={8} cols={5} />
-                        </TableCell>
-                     </TableRow>
+                     Array.from({ length: 8 }).map((_, i) => (
+                        <LogRowSkeleton key={i} />
+                     ))
                   ) : filteredLogs.length === 0 ? (
                      <TableRow className="bg-white">
                         <TableCell colSpan={5} className="py-12">
@@ -237,6 +235,28 @@ export default function LogDashboard() {
             />
          )}
       </div>
+   );
+}
+
+function LogRowSkeleton() {
+   return (
+      <TableRow className="bg-white">
+         <TableCell>
+            <Skeleton className="h-4 w-32" />
+         </TableCell>
+         <TableCell>
+            <Skeleton className="h-4 w-40" />
+         </TableCell>
+         <TableCell className="hidden md:table-cell">
+            <Skeleton className="h-6 w-16 rounded-full" />
+         </TableCell>
+         <TableCell>
+            <Skeleton className="h-6 w-20 rounded" />
+         </TableCell>
+         <TableCell>
+            <Skeleton className="size-7 rounded" />
+         </TableCell>
+      </TableRow>
    );
 }
 

@@ -11,6 +11,7 @@ import {
 } from "flowbite-react";
 import { FaPenToSquare, FaTrashCan } from "react-icons/fa6";
 import type { Organizacao } from "services/routes/organizacoes";
+import { Skeleton } from "@/components/ui/Skeleton";
 
 interface OrganizacoesTableProps {
    organizacoes: Organizacao[];
@@ -85,6 +86,63 @@ export function OrganizacoesTable({
                            >
                               <FaTrashCan className="h-4 w-4" />
                            </Button>
+                        </div>
+                     </TableCell>
+                  </TableRow>
+               ))}
+            </TableBody>
+         </Table>
+      </div>
+   );
+}
+
+export function OrganizacoesTableSkeleton({ rows = 8 }: { rows?: number }) {
+   return (
+      <div className="overflow-x-auto rounded-xl bg-white shadow-sm ring-1 ring-gray-200">
+         <Table hoverable>
+            <TableHead>
+               <TableRow>
+                  <TableHeadCell>Sigla</TableHeadCell>
+                  <TableHeadCell className="hidden sm:table-cell">
+                     Sigla 2
+                  </TableHeadCell>
+                  <TableHeadCell className="hidden lg:table-cell">
+                     Sigla 3
+                  </TableHeadCell>
+                  <TableHeadCell>Nome</TableHeadCell>
+                  <TableHeadCell className="hidden md:table-cell">
+                     Codinome
+                  </TableHeadCell>
+                  <TableHeadCell className="w-28">
+                     <span className="sr-only">Ações</span>
+                  </TableHeadCell>
+               </TableRow>
+            </TableHead>
+            <TableBody className="divide-y">
+               {Array.from({ length: rows }).map((_, i) => (
+                  <TableRow
+                     key={i}
+                     className="bg-white dark:border-gray-700 dark:bg-gray-800"
+                  >
+                     <TableCell>
+                        <Skeleton className="h-4 w-16" />
+                     </TableCell>
+                     <TableCell className="hidden sm:table-cell">
+                        <Skeleton className="h-3 w-12" />
+                     </TableCell>
+                     <TableCell className="hidden lg:table-cell">
+                        <Skeleton className="h-3 w-12" />
+                     </TableCell>
+                     <TableCell>
+                        <Skeleton className="h-4 w-full max-w-xs" />
+                     </TableCell>
+                     <TableCell className="hidden md:table-cell">
+                        <Skeleton className="h-4 w-24" />
+                     </TableCell>
+                     <TableCell>
+                        <div className="flex items-center gap-2">
+                           <Skeleton className="h-9 w-10" />
+                           <Skeleton className="h-9 w-10" />
                         </div>
                      </TableCell>
                   </TableRow>

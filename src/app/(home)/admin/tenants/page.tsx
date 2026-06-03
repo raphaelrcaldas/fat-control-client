@@ -14,8 +14,7 @@ import type { Tenant } from "services/routes/tenants";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
-import { TableSkeleton } from "@/components/ui/Skeleton";
-import { TenantsTable } from "./components/TenantsTable";
+import { TenantsTable, TenantsTableSkeleton } from "./components/TenantsTable";
 import { TenantRegisterModal } from "./components/TenantRegisterModal";
 
 export default function TenantsPage() {
@@ -110,8 +109,9 @@ export default function TenantsPage() {
 
    if (isLoading) {
       return (
-         <div className="px-2 py-8">
-            <TableSkeleton rows={6} cols={5} />
+         <div className="grid gap-4 p-2">
+            <SectionHeader title="Tenants" />
+            <TenantsTableSkeleton rows={6} />
          </div>
       );
    }

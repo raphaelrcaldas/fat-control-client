@@ -19,8 +19,7 @@ import { SectionHeader } from "@/components/ui/SectionHeader";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import { ResourceFormModal } from "./ResourceFormModal";
-import { ResourcesTable } from "./ResourcesTable";
-import { TableSkeleton } from "@/components/ui/Skeleton";
+import { ResourcesTable, ResourcesTableSkeleton } from "./ResourcesTable";
 
 export default function ResourcesTab() {
    const { push } = useToast();
@@ -158,8 +157,9 @@ export default function ResourcesTab() {
    // Loading state
    if (isLoading) {
       return (
-         <div className="px-2 py-8">
-            <TableSkeleton rows={8} cols={4} />
+         <div className="space-y-4">
+            <SectionHeader title="Recursos" />
+            <ResourcesTableSkeleton rows={8} />
          </div>
       );
    }

@@ -11,6 +11,7 @@ import {
 } from "flowbite-react";
 import { FaPenToSquare, FaTrashCan } from "react-icons/fa6";
 import type { PermissionDetail } from "services/routes/security/resources";
+import { Skeleton } from "@/components/ui/Skeleton";
 
 interface PermissionsTableProps {
    permissions: PermissionDetail[];
@@ -82,6 +83,51 @@ export function PermissionsTable({
                            >
                               <FaTrashCan className="h-4 w-4" />
                            </Button>
+                        </div>
+                     </TableCell>
+                  </TableRow>
+               ))}
+            </TableBody>
+         </Table>
+      </div>
+   );
+}
+
+export function PermissionsTableSkeleton({ rows = 8 }: { rows?: number }) {
+   return (
+      <div className="overflow-x-auto rounded-xl bg-white shadow-sm ring-1 ring-gray-200">
+         <Table hoverable>
+            <TableHead>
+               <TableRow>
+                  <TableHeadCell>Recurso</TableHeadCell>
+                  <TableHeadCell>Acao</TableHeadCell>
+                  <TableHeadCell className="hidden sm:table-cell">
+                     Descricao
+                  </TableHeadCell>
+                  <TableHeadCell className="w-28">
+                     <span className="sr-only">Acoes</span>
+                  </TableHeadCell>
+               </TableRow>
+            </TableHead>
+            <TableBody className="divide-y">
+               {Array.from({ length: rows }).map((_, i) => (
+                  <TableRow
+                     key={i}
+                     className="bg-white dark:border-gray-700 dark:bg-gray-800"
+                  >
+                     <TableCell>
+                        <Skeleton className="h-5 w-20 rounded-md" />
+                     </TableCell>
+                     <TableCell>
+                        <Skeleton className="h-4 w-24" />
+                     </TableCell>
+                     <TableCell className="hidden sm:table-cell">
+                        <Skeleton className="h-4 w-full max-w-sm" />
+                     </TableCell>
+                     <TableCell>
+                        <div className="flex items-center gap-2">
+                           <Skeleton className="h-9 w-10" />
+                           <Skeleton className="h-9 w-10" />
                         </div>
                      </TableCell>
                   </TableRow>

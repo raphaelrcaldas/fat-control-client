@@ -27,7 +27,7 @@ import { useToast } from "@/app/context/toast";
 import { getRoleTheme } from "@/constants/admin/roles";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import { EmptyState } from "@/components/ui/EmptyState";
-import { TableSkeleton } from "@/components/ui/Skeleton";
+import { Skeleton } from "@/components/ui/Skeleton";
 import type { PermissionDetail } from "services/routes/security/roles";
 
 export default function RolesTab() {
@@ -174,11 +174,7 @@ export default function RolesTab() {
    };
 
    if (loadingRoles || loadingPermissions) {
-      return (
-         <div className="px-2 py-8">
-            <TableSkeleton rows={6} cols={3} />
-         </div>
-      );
+      return <RolesListSkeleton />;
    }
 
    if (!roles || roles.length === 0) {
@@ -410,5 +406,32 @@ export default function RolesTab() {
             confirmButtonText="Sim, remover"
          />
       </>
+   );
+}
+
+function RolesListSkeleton({ rows = 6 }: { rows?: number }) {
+   return (
+      <div className="space-y-4">
+         {Array.from({ length: rows }).map((_, i) => (
+            <div
+               key={i}
+               className="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800"
+            >
+               <div className="flex w-full items-center justify-between p-4">
+                  <div className="flex items-center gap-3">
+                     <Skeleton className="h-9 w-9 rounded-lg" />
+                     <div className="space-y-2">
+                        <div className="flex items-center gap-2">
+                           <Skeleton className="h-5 w-24 rounded-md" />
+                           <Skeleton className="h-4 w-20" />
+                        </div>
+                        <Skeleton className="h-4 w-56" />
+                     </div>
+                  </div>
+                  <Skeleton className="h-4 w-4" />
+               </div>
+            </div>
+         ))}
+      </div>
    );
 }

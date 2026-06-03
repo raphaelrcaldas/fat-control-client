@@ -20,8 +20,7 @@ import { SectionHeader } from "@/components/ui/SectionHeader";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import { PermissionFormModal } from "./PermissionFormModal";
-import { PermissionsTable } from "./PermissionsTable";
-import { TableSkeleton } from "@/components/ui/Skeleton";
+import { PermissionsTable, PermissionsTableSkeleton } from "./PermissionsTable";
 
 export default function PermissionsTab() {
    const { push } = useToast();
@@ -184,8 +183,9 @@ export default function PermissionsTab() {
    // Loading state
    if (isLoadingPermissions || isLoadingResources) {
       return (
-         <div className="px-2 py-8">
-            <TableSkeleton rows={8} cols={4} />
+         <div className="space-y-4">
+            <SectionHeader title="Permissoes" />
+            <PermissionsTableSkeleton rows={8} />
          </div>
       );
    }
