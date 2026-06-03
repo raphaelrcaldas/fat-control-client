@@ -14,7 +14,7 @@ import {
 import { useToast } from "@/app/context/toast";
 import { sortByAntiguidadeInPlace } from "utils/sortByAntiguidade";
 import { UsersTab } from "./components/UsersTab";
-import { TableSkeleton } from "@/components/ui/Skeleton";
+import { AcessosSkeleton } from "./components/AcessosSkeleton";
 
 export default function AcessosPage() {
    const [userRoles, setUserRoles] = useState<UserWithRole[] | null>(null);
@@ -63,8 +63,8 @@ export default function AcessosPage() {
 
    if (!userRoles) {
       return (
-         <div className="space-y-6 p-4">
-            <TableSkeleton rows={10} cols={3} />
+         <div className="grid gap-4 p-2">
+            <AcessosSkeleton />
          </div>
       );
    }

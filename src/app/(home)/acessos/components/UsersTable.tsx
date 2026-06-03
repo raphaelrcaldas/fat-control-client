@@ -51,13 +51,21 @@ export const UsersTable = memo(function UsersTable({
    onDeleteRole,
 }: UsersTableProps) {
    return (
-      <div className="overflow-hidden rounded-lg bg-white shadow-md">
+      <div className="overflow-hidden rounded-lg border border-slate-300 bg-white shadow-md">
          <div className="border-b border-gray-200 bg-gray-50 p-4">
             <div className="mb-3 flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center">
-               <h3 className="flex items-center gap-2 text-lg font-semibold text-gray-800">
-                  <FaUsers />
-                  Usuários com Perfis
-               </h3>
+               <div>
+                  <h3 className="flex items-center gap-2 text-lg font-semibold text-gray-800">
+                     <FaUsers className="text-red-600" />
+                     Usuários com Perfis
+                     <span className="rounded-full bg-gray-200 px-2 py-0.5 text-xs font-medium text-gray-600">
+                        {filteredUsers.length}
+                     </span>
+                  </h3>
+                  <p className="mt-0.5 text-sm text-gray-500">
+                     Perfis de acesso atribuídos a cada usuário
+                  </p>
+               </div>
                <div className="flex gap-2">
                   <Tooltip content="Atualizar lista">
                      <Button
@@ -93,6 +101,7 @@ export const UsersTable = memo(function UsersTable({
                   <TableRow>
                      <TableHeadCell>Usuário</TableHeadCell>
                      <TableHeadCell>Perfil</TableHeadCell>
+                     <TableHeadCell>Escopo</TableHeadCell>
                      <TableHeadCell className="text-center">
                         Ações
                      </TableHeadCell>
@@ -101,7 +110,7 @@ export const UsersTable = memo(function UsersTable({
                <TableBody className="divide-y divide-gray-200">
                   {filteredUsers.length === 0 ? (
                      <TableRow>
-                        <TableCell colSpan={3} className="py-12 text-center">
+                        <TableCell colSpan={4} className="py-12 text-center">
                            <div className="flex flex-col items-center gap-2">
                               <FaUsers className="text-5xl text-gray-300" />
                               <p className="font-medium text-gray-600">
@@ -130,10 +139,10 @@ export const UsersTable = memo(function UsersTable({
                            >
                               <TableCell className="font-medium">
                                  <div className="flex items-center gap-3">
-                                    <div className="hidden h-10 w-10 items-center justify-center rounded-full bg-red-600 text-sm font-bold text-white uppercase shadow sm:flex">
+                                    <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-red-600 text-xs font-bold text-white uppercase shadow">
                                        {ur.user.p_g}
                                     </div>
-                                    <span className="uppercase">
+                                    <span className="text-gray-900 uppercase">
                                        {ur.user.nome_guerra}
                                     </span>
                                  </div>
@@ -149,6 +158,17 @@ export const UsersTable = memo(function UsersTable({
                                        </span>
                                     );
                                  })()}
+                              </TableCell>
+                              <TableCell>
+                                 {ur.organizacao_id ? (
+                                    <span className="inline-flex items-center rounded-md bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-700 uppercase">
+                                       {ur.organizacao_id}
+                                    </span>
+                                 ) : (
+                                    <span className="inline-flex items-center rounded-md bg-purple-100 px-2.5 py-1 text-xs font-medium text-purple-700">
+                                       Sistema
+                                    </span>
+                                 )}
                               </TableCell>
                               <TableCell>
                                  <div className="flex justify-center gap-2">

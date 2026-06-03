@@ -1,6 +1,5 @@
 import { memo, useState, useCallback, useMemo } from "react";
 import { UsersTable } from "./UsersTable";
-import { RolesTable } from "./RolesTable";
 import UserAddRole from "./userAddRole";
 import UserEditRole, { type EditingRole } from "./UserEditRole";
 import type { UserWithRole, RoleDetail } from "services/routes/security/roles";
@@ -209,35 +208,28 @@ export const UsersTab = memo(function UsersTab({
             confirmButtonText="Fazer Login"
          />
 
-         <div className="grid gap-4 lg:grid-cols-3">
-            <div className="rounded-md border border-slate-300 lg:col-span-2">
-               <UsersTable
-                  filteredUsers={filteredUsers}
-                  filterName={filterName}
-                  isUpdating={isUpdating}
-                  onFilterChange={setFilterName}
-                  onRefresh={updateUserRoles}
-                  onAddUser={() => setShowAddModal(true)}
-                  onEditRole={onEditRole}
-                  onDevLogin={(userId) => {
-                     setLoginUserId(userId);
-                     setShowLoginModal(true);
-                  }}
-                  onDeleteRole={(userId, organizacaoId, roleId, userName) => {
-                     setDeletingUserRole({
-                        userId,
-                        organizacaoId,
-                        roleId,
-                        userName,
-                     });
-                     setShowDelModal(true);
-                  }}
-               />
-            </div>
-            <div>
-               <RolesTable roles={roles} />
-            </div>
-         </div>
+         <UsersTable
+            filteredUsers={filteredUsers}
+            filterName={filterName}
+            isUpdating={isUpdating}
+            onFilterChange={setFilterName}
+            onRefresh={updateUserRoles}
+            onAddUser={() => setShowAddModal(true)}
+            onEditRole={onEditRole}
+            onDevLogin={(userId) => {
+               setLoginUserId(userId);
+               setShowLoginModal(true);
+            }}
+            onDeleteRole={(userId, organizacaoId, roleId, userName) => {
+               setDeletingUserRole({
+                  userId,
+                  organizacaoId,
+                  roleId,
+                  userName,
+               });
+               setShowDelModal(true);
+            }}
+         />
       </>
    );
 });
