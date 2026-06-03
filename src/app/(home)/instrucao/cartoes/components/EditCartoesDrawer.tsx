@@ -12,18 +12,18 @@ import {
    Select,
 } from "flowbite-react";
 import { HiTrash } from "react-icons/hi";
-import { MdTranslate } from "react-icons/md";
+import { MdBadge } from "react-icons/md";
 import { useToast } from "@/app/context/toast";
-import { useUpsertIdiomas, useDeleteIdiomas } from "@/hooks/queries";
+import { useUpsertCartao, useDeleteCartao } from "@/hooks/queries";
 import type {
-   TripIdiomasOut,
-   IdiomasUpsert,
-} from "services/routes/instrucao/idiomas";
+   TripCartoesOut,
+   CartoesUpsert,
+} from "services/routes/instrucao/cartoes";
 
-interface EditIdiomasDrawerProps {
+interface EditCartoesDrawerProps {
    show: boolean;
    onClose: () => void;
-   item: TripIdiomasOut;
+   item: TripCartoesOut;
 }
 
 const NIVEL_OPTIONS = ["", "A1", "A2", "B1", "B2", "C1", "C2"] as const;
@@ -53,40 +53,42 @@ function Field({
    );
 }
 
-const EditIdiomasDrawer = memo(function EditIdiomasDrawer({
+const EditCartoesDrawer = memo(function EditCartoesDrawer({
    show,
    onClose,
    item,
-}: EditIdiomasDrawerProps) {
+}: EditCartoesDrawerProps) {
    const { push } = useToast();
-   const isEdit = !!item.idiomas;
+   const isEdit = !!item.cartao;
 
-   const upsertMutation = useUpsertIdiomas();
-   const deleteMutation = useDeleteIdiomas();
+   const upsertMutation = useUpsertCartao();
+   const deleteMutation = useDeleteCartao();
    const isLoading = upsertMutation.isPending;
    const isDeleting = deleteMutation.isPending;
 
    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
    const [formData, setFormData] = useState({
-      ptai_validade: item.idiomas?.ptai_validade ?? "",
-      tai_s_validade: item.idiomas?.tai_s_validade ?? "",
-      tai_s1_validade: item.idiomas?.tai_s1_validade ?? "",
-      hab_espanhol: item.idiomas?.hab_espanhol ?? "",
-      val_espanhol: item.idiomas?.val_espanhol ?? "",
-      hab_ingles: item.idiomas?.hab_ingles ?? "",
-      val_ingles: item.idiomas?.val_ingles ?? "",
+      ptai_validade: item.cartao?.ptai_validade ?? "",
+      tai_s_validade: item.cartao?.tai_s_validade ?? "",
+      tai_s1_validade: item.cartao?.tai_s1_validade ?? "",
+      cvi_validade: item.cartao?.cvi_validade ?? "",
+      hab_espanhol: item.cartao?.hab_espanhol ?? "",
+      val_espanhol: item.cartao?.val_espanhol ?? "",
+      hab_ingles: item.cartao?.hab_ingles ?? "",
+      val_ingles: item.cartao?.val_ingles ?? "",
    });
 
    useEffect(() => {
       if (show) {
          setFormData({
-            ptai_validade: item.idiomas?.ptai_validade ?? "",
-            tai_s_validade: item.idiomas?.tai_s_validade ?? "",
-            tai_s1_validade: item.idiomas?.tai_s1_validade ?? "",
-            hab_espanhol: item.idiomas?.hab_espanhol ?? "",
-            val_espanhol: item.idiomas?.val_espanhol ?? "",
-            hab_ingles: item.idiomas?.hab_ingles ?? "",
-            val_ingles: item.idiomas?.val_ingles ?? "",
+            ptai_validade: item.cartao?.ptai_validade ?? "",
+            tai_s_validade: item.cartao?.tai_s_validade ?? "",
+            tai_s1_validade: item.cartao?.tai_s1_validade ?? "",
+            cvi_validade: item.cartao?.cvi_validade ?? "",
+            hab_espanhol: item.cartao?.hab_espanhol ?? "",
+            val_espanhol: item.cartao?.val_espanhol ?? "",
+            hab_ingles: item.cartao?.hab_ingles ?? "",
+            val_ingles: item.cartao?.val_ingles ?? "",
          });
          setShowDeleteConfirm(false);
       }
@@ -101,10 +103,11 @@ const EditIdiomasDrawer = memo(function EditIdiomasDrawer({
 
    const handleSave = async () => {
       try {
-         const data: IdiomasUpsert = {
+         const data: CartoesUpsert = {
             ptai_validade: formData.ptai_validade || null,
             tai_s_validade: formData.tai_s_validade || null,
             tai_s1_validade: formData.tai_s1_validade || null,
+            cvi_validade: formData.cvi_validade || null,
             hab_espanhol: formData.hab_espanhol || null,
             val_espanhol: formData.val_espanhol || null,
             hab_ingles: formData.hab_ingles || null,
@@ -113,14 +116,14 @@ const EditIdiomasDrawer = memo(function EditIdiomasDrawer({
          await upsertMutation.mutateAsync({ trip_id: item.trip_id, data });
          push({
             message: isEdit
-               ? "Idiomas atualizados com sucesso"
-               : "Idiomas cadastrados com sucesso",
+               ? "Cartão atualizado com sucesso"
+               : "Cartão cadastrado com sucesso",
             type: "success",
          });
          onClose();
       } catch (err: unknown) {
          const message =
-            err instanceof Error ? err.message : "Erro ao salvar idiomas";
+            err instanceof Error ? err.message : "Erro ao salvar cartão";
          push({ title: "Erro", message, type: "error" });
       }
    };
@@ -128,11 +131,11 @@ const EditIdiomasDrawer = memo(function EditIdiomasDrawer({
    const handleDelete = async () => {
       try {
          await deleteMutation.mutateAsync(item.trip_id);
-         push({ message: "Idiomas removidos com sucesso", type: "success" });
+         push({ message: "Cartão removido com sucesso", type: "success" });
          onClose();
       } catch (err: unknown) {
          const message =
-            err instanceof Error ? err.message : "Erro ao remover idiomas";
+            err instanceof Error ? err.message : "Erro ao remover cartão";
          push({ title: "Erro", message, type: "error" });
       } finally {
          setShowDeleteConfirm(false);
@@ -146,7 +149,7 @@ const EditIdiomasDrawer = memo(function EditIdiomasDrawer({
                {/* Header personalizado */}
                <div className="flex items-center gap-3">
                   <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-red-600">
-                     <MdTranslate className="h-5 w-5 text-white" />
+                     <MdBadge className="h-5 w-5 text-white" />
                   </div>
                   <div>
                      <p className="text-base font-semibold text-gray-900">
@@ -154,9 +157,7 @@ const EditIdiomasDrawer = memo(function EditIdiomasDrawer({
                         {item.nome_guerra.toUpperCase()}
                      </p>
                      <p className="text-sm font-normal text-gray-400">
-                        {isEdit
-                           ? "Editar habilidades de idioma"
-                           : "Cadastrar habilidades de idioma"}
+                        {isEdit ? "Editar cartão" : "Cadastrar cartão"}
                      </p>
                   </div>
                </div>
@@ -167,7 +168,7 @@ const EditIdiomasDrawer = memo(function EditIdiomasDrawer({
                   {/* Provas e validações */}
                   <div className="rounded-xl border border-gray-100 bg-gray-50 p-4 shadow-md">
                      <SectionTitle>Provas e validações</SectionTitle>
-                     <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+                     <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                         <Field id="ptai_validade" label="PTAI">
                            <TextInput
                               id="ptai_validade"
@@ -194,6 +195,16 @@ const EditIdiomasDrawer = memo(function EditIdiomasDrawer({
                               name="tai_s1_validade"
                               type="date"
                               value={formData.tai_s1_validade}
+                              onChange={handleInput}
+                              sizing="sm"
+                           />
+                        </Field>
+                        <Field id="cvi_validade" label="CVI">
+                           <TextInput
+                              id="cvi_validade"
+                              name="cvi_validade"
+                              type="date"
+                              value={formData.cvi_validade}
                               onChange={handleInput}
                               sizing="sm"
                            />
@@ -315,7 +326,7 @@ const EditIdiomasDrawer = memo(function EditIdiomasDrawer({
             <ModalHeader>Confirmar exclusão</ModalHeader>
             <ModalBody>
                <p className="text-sm text-gray-600">
-                  Remover todas as habilidades de idioma de{" "}
+                  Remover o cartão de{" "}
                   <strong className="font-semibold text-gray-900">
                      {item.nome_guerra.toUpperCase()}
                   </strong>
@@ -345,4 +356,4 @@ const EditIdiomasDrawer = memo(function EditIdiomasDrawer({
    );
 });
 
-export default EditIdiomasDrawer;
+export default EditCartoesDrawer;

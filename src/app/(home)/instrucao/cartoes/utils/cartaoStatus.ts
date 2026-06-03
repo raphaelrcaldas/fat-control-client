@@ -1,4 +1,4 @@
-import type { IdiomStatus } from "../types";
+import type { CartaoStatus } from "../types";
 import { formatDateFull } from "utils/dateHandler";
 
 export function getDiffDays(dateStr: string): number {
@@ -8,9 +8,9 @@ export function getDiffDays(dateStr: string): number {
    return Math.round((date.getTime() - today.getTime()) / 86400000);
 }
 
-export function getIdiomStatus(
+export function getCartaoStatus(
    dateStr: string | null | undefined
-): IdiomStatus {
+): CartaoStatus {
    if (!dateStr) return "empty";
    const diff = getDiffDays(dateStr);
    if (diff < 0) return "danger";
@@ -37,7 +37,7 @@ export interface StatusColors {
    dot: string;
 }
 
-export function getStatusColors(status: IdiomStatus): StatusColors {
+export function getStatusColors(status: CartaoStatus): StatusColors {
    switch (status) {
       case "danger":
          return {

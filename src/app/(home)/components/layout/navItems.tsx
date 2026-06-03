@@ -17,7 +17,6 @@ import {
    MdSecurity,
    MdGroups,
    MdSchool,
-   MdTranslate,
    MdPolicy,
    MdBadge,
    MdSort,
@@ -182,10 +181,10 @@ export const navItems = [
       roles: [],
       children: [
          {
-            icon: MdTranslate,
-            label: "Idiomas",
-            path: "/instrucao/idiomas",
-            resource: "idiomas",
+            icon: MdBadge,
+            label: "Cartões",
+            path: "/instrucao/cartoes",
+            resource: "cartoes",
             permission: "view",
          },
          {

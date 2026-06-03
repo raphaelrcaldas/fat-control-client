@@ -2,15 +2,14 @@
 
 import clsx from "clsx";
 import { memo, useState, useCallback } from "react";
-import type { TripIdiomasOut } from "services/routes/instrucao/idiomas";
-import type { IdiomStatus } from "../types";
+import type { TripCartoesOut } from "services/routes/instrucao/cartoes";
+import type { CartaoStatus } from "../types";
 import {
-   getIdiomStatus,
+   getCartaoStatus,
    getStatusColors,
-   getDiffDays,
    getDaysLabel,
    formatDate,
-} from "../utils/idiomaStatus";
+} from "../utils/cartaoStatus";
 
 // ========================================
 // StatusBadge
@@ -22,7 +21,7 @@ function StatusBadge({
    daysLabel,
 }: {
    label: string;
-   status: IdiomStatus;
+   status: CartaoStatus;
    daysLabel: string;
 }) {
    const colors = getStatusColors(status);
@@ -63,7 +62,7 @@ function FieldRow({
          </div>
       );
    }
-   const status = getIdiomStatus(dateStr);
+   const status = getCartaoStatus(dateStr);
    const colors = getStatusColors(status);
    return (
       <div className="flex items-center justify-between border-b border-gray-100 py-1 last:border-0">
@@ -118,7 +117,7 @@ function LangCard({
    }
 
    const levelIdx = LEVELS.indexOf(level as (typeof LEVELS)[number]);
-   const status = getIdiomStatus(validity);
+   const status = getCartaoStatus(validity);
    const colors = getStatusColors(status);
 
    return (
@@ -166,8 +165,8 @@ function LangCard({
 // ========================================
 
 interface PilotCardProps {
-   pilot: TripIdiomasOut;
-   onEdit: (pilot: TripIdiomasOut) => void;
+   pilot: TripCartoesOut;
+   onEdit: (pilot: TripCartoesOut) => void;
 }
 
 const PilotCard = memo(function PilotCard({ pilot, onEdit }: PilotCardProps) {
@@ -185,8 +184,8 @@ const PilotCard = memo(function PilotCard({ pilot, onEdit }: PilotCardProps) {
       [toggleExpanded]
    );
 
-   const ptaiStatus = getIdiomStatus(pilot.idiomas?.ptai_validade);
-   const taiSStatus = getIdiomStatus(pilot.idiomas?.tai_s_validade);
+   const ptaiStatus = getCartaoStatus(pilot.cartao?.ptai_validade);
+   const taiSStatus = getCartaoStatus(pilot.cartao?.tai_s_validade);
 
    return (
       <div
@@ -211,39 +210,47 @@ const PilotCard = memo(function PilotCard({ pilot, onEdit }: PilotCardProps) {
                   {pilot.p_g.toUpperCase()}
                </div>
 
-               {/* Info */}
-               <div className="min-w-0 flex-1">
-                  <div className="truncate text-sm font-medium text-gray-900">
+               {/* Info — min-w garante que o nome de guerra (fundamental)
+                   nunca seja espremido pelas badges em telas médias. */}
+               <div className="min-w-28 flex-1">
+                  <div className="text-sm font-medium text-gray-900">
                      {pilot.nome_guerra.toUpperCase()}
                   </div>
                </div>
 
-               {/* Badges — visíveis apenas em telas maiores */}
-               <div className="hidden gap-1.5 sm:flex">
+               {/* Badges — visíveis apenas em telas maiores.
+                   min-w-0 + flex-wrap deixam a faixa encolher e quebrar,
+                   preservando o espaço do nome de guerra. */}
+               <div className="hidden min-w-0 flex-wrap justify-end gap-1.5 md:flex">
+                  <StatusBadge
+                     label="CVI"
+                     status={getCartaoStatus(pilot.cartao?.cvi_validade)}
+                     daysLabel={getDaysLabel(pilot.cartao?.cvi_validade)}
+                  />
                   <StatusBadge
                      label="PTAI"
                      status={ptaiStatus}
-                     daysLabel={getDaysLabel(pilot.idiomas?.ptai_validade)}
+                     daysLabel={getDaysLabel(pilot.cartao?.ptai_validade)}
                   />
                   <StatusBadge
                      label="TAI S"
                      status={taiSStatus}
-                     daysLabel={getDaysLabel(pilot.idiomas?.tai_s_validade)}
+                     daysLabel={getDaysLabel(pilot.cartao?.tai_s_validade)}
                   />
                   <StatusBadge
                      label="TAI S1"
-                     status={getIdiomStatus(pilot.idiomas?.tai_s1_validade)}
-                     daysLabel={getDaysLabel(pilot.idiomas?.tai_s1_validade)}
+                     status={getCartaoStatus(pilot.cartao?.tai_s1_validade)}
+                     daysLabel={getDaysLabel(pilot.cartao?.tai_s1_validade)}
                   />
                   <StatusBadge
-                     label={`ESP ${pilot.idiomas?.hab_espanhol ?? "—"}`}
-                     status={getIdiomStatus(pilot.idiomas?.val_espanhol)}
-                     daysLabel={getDaysLabel(pilot.idiomas?.val_espanhol)}
+                     label={`ESP ${pilot.cartao?.hab_espanhol ?? "—"}`}
+                     status={getCartaoStatus(pilot.cartao?.val_espanhol)}
+                     daysLabel={getDaysLabel(pilot.cartao?.val_espanhol)}
                   />
                   <StatusBadge
-                     label={`ING ${pilot.idiomas?.hab_ingles ?? "—"}`}
-                     status={getIdiomStatus(pilot.idiomas?.val_ingles)}
-                     daysLabel={getDaysLabel(pilot.idiomas?.val_ingles)}
+                     label={`ING ${pilot.cartao?.hab_ingles ?? "—"}`}
+                     status={getCartaoStatus(pilot.cartao?.val_ingles)}
+                     daysLabel={getDaysLabel(pilot.cartao?.val_ingles)}
                   />
                </div>
 
@@ -257,31 +264,36 @@ const PilotCard = memo(function PilotCard({ pilot, onEdit }: PilotCardProps) {
             </div>
 
             {/* Badges — visíveis apenas em telas pequenas, abaixo do nome */}
-            <div className="mt-2 flex flex-wrap gap-1.5 pl-12 sm:hidden">
+            <div className="mt-2 flex flex-wrap gap-1.5 pl-12 md:hidden">
+               <StatusBadge
+                  label="CVI"
+                  status={getCartaoStatus(pilot.cartao?.cvi_validade)}
+                  daysLabel={getDaysLabel(pilot.cartao?.cvi_validade)}
+               />
                <StatusBadge
                   label="PTAI"
                   status={ptaiStatus}
-                  daysLabel={getDaysLabel(pilot.idiomas?.ptai_validade)}
+                  daysLabel={getDaysLabel(pilot.cartao?.ptai_validade)}
                />
                <StatusBadge
                   label="TAI S"
                   status={taiSStatus}
-                  daysLabel={getDaysLabel(pilot.idiomas?.tai_s_validade)}
+                  daysLabel={getDaysLabel(pilot.cartao?.tai_s_validade)}
                />
                <StatusBadge
                   label="TAI S1"
-                  status={getIdiomStatus(pilot.idiomas?.tai_s1_validade)}
-                  daysLabel={getDaysLabel(pilot.idiomas?.tai_s1_validade)}
+                  status={getCartaoStatus(pilot.cartao?.tai_s1_validade)}
+                  daysLabel={getDaysLabel(pilot.cartao?.tai_s1_validade)}
                />
                <StatusBadge
-                  label={`ESP ${pilot.idiomas?.hab_espanhol ?? "—"}`}
-                  status={getIdiomStatus(pilot.idiomas?.val_espanhol)}
-                  daysLabel={getDaysLabel(pilot.idiomas?.val_espanhol)}
+                  label={`ESP ${pilot.cartao?.hab_espanhol ?? "—"}`}
+                  status={getCartaoStatus(pilot.cartao?.val_espanhol)}
+                  daysLabel={getDaysLabel(pilot.cartao?.val_espanhol)}
                />
                <StatusBadge
-                  label={`ING ${pilot.idiomas?.hab_ingles ?? "—"}`}
-                  status={getIdiomStatus(pilot.idiomas?.val_ingles)}
-                  daysLabel={getDaysLabel(pilot.idiomas?.val_ingles)}
+                  label={`ING ${pilot.cartao?.hab_ingles ?? "—"}`}
+                  status={getCartaoStatus(pilot.cartao?.val_ingles)}
+                  daysLabel={getDaysLabel(pilot.cartao?.val_ingles)}
                />
             </div>
          </div>
@@ -300,16 +312,20 @@ const PilotCard = memo(function PilotCard({ pilot, onEdit }: PilotCardProps) {
                            Provas e validações
                         </div>
                         <FieldRow
+                           label="CVI"
+                           dateStr={pilot.cartao?.cvi_validade}
+                        />
+                        <FieldRow
                            label="PTAI"
-                           dateStr={pilot.idiomas?.ptai_validade}
+                           dateStr={pilot.cartao?.ptai_validade}
                         />
                         <FieldRow
                            label="TAI S"
-                           dateStr={pilot.idiomas?.tai_s_validade}
+                           dateStr={pilot.cartao?.tai_s_validade}
                         />
                         <FieldRow
                            label="TAI S1"
-                           dateStr={pilot.idiomas?.tai_s1_validade}
+                           dateStr={pilot.cartao?.tai_s1_validade}
                         />
                      </div>
 
@@ -320,13 +336,13 @@ const PilotCard = memo(function PilotCard({ pilot, onEdit }: PilotCardProps) {
                         </div>
                         <LangCard
                            lang="Espanhol"
-                           level={pilot.idiomas?.hab_espanhol ?? null}
-                           validity={pilot.idiomas?.val_espanhol ?? null}
+                           level={pilot.cartao?.hab_espanhol ?? null}
+                           validity={pilot.cartao?.val_espanhol ?? null}
                         />
                         <LangCard
                            lang="Inglês"
-                           level={pilot.idiomas?.hab_ingles ?? null}
-                           validity={pilot.idiomas?.val_ingles ?? null}
+                           level={pilot.cartao?.hab_ingles ?? null}
+                           validity={pilot.cartao?.val_ingles ?? null}
                         />
                         <div className="mt-3 flex justify-end">
                            <button

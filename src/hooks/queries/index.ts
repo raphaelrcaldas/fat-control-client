@@ -25,7 +25,7 @@ export * from "./useTiposMissao";
 export * from "./useCartoesSaude";
 export * from "./useAtas";
 export * from "./useCrm";
-export * from "./useIdiomas";
+export * from "./useCartoes";
 export * from "./usePassaportes";
 export * from "./useMetar";
 export * from "./useSol";

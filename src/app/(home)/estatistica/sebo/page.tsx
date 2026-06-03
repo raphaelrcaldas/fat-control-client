@@ -14,8 +14,13 @@ export const INFO_COLUMNS = [
    "crm",
    "val_pass",
    "val_visa",
+   "cvi",
+   "ptai",
 ] as const;
 export type InfoColumn = (typeof INFO_COLUMNS)[number];
+
+// Colunas disponíveis apenas quando a função selecionada é Piloto.
+export const PILOT_ONLY_COLUMNS: readonly InfoColumn[] = ["cvi", "ptai"];
 
 const defaultInfoCols: Record<InfoColumn, boolean> = {
    cemal: true,
@@ -24,6 +29,8 @@ const defaultInfoCols: Record<InfoColumn, boolean> = {
    crm: true,
    val_pass: false,
    val_visa: false,
+   cvi: false,
+   ptai: false,
 };
 
 function SeboPage() {
@@ -134,6 +141,7 @@ function SeboPage() {
                   setRow={setActiveRow}
                   isLoading={isLoading}
                   infoCols={infoCols}
+                  isPilot={seboFunc === "pil"}
                />
             </div>
 

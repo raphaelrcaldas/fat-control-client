@@ -2,16 +2,16 @@
 
 import { useState } from "react";
 import { Spinner } from "flowbite-react";
-import { useIdiomas } from "@/hooks/queries";
-import { MdTranslate } from "react-icons/md";
-import type { TripIdiomasOut } from "services/routes/instrucao/idiomas";
+import { useCartoes } from "@/hooks/queries";
+import { MdBadge } from "react-icons/md";
+import type { TripCartoesOut } from "services/routes/instrucao/cartoes";
 import PilotCard from "./components/PilotCard";
-import EditIdiomasDrawer from "./components/EditIdiomasDrawer";
+import EditCartoesDrawer from "./components/EditCartoesDrawer";
 
-export default function IdiomasPage() {
-   const [editItem, setEditItem] = useState<TripIdiomasOut | null>(null);
+export default function CartoesPage() {
+   const [editItem, setEditItem] = useState<TripCartoesOut | null>(null);
 
-   const { data = [], isLoading } = useIdiomas();
+   const { data = [], isLoading } = useCartoes();
 
    return (
       <div className="flex flex-col gap-6 p-1">
@@ -19,14 +19,14 @@ export default function IdiomasPage() {
          <div className="rounded-2xl border border-gray-200 bg-white px-6 py-5 shadow-sm">
             <div className="flex items-center gap-4">
                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-red-600 shadow-md">
-                  <MdTranslate className="h-6 w-6 text-white" />
+                  <MdBadge className="h-6 w-6 text-white" />
                </div>
                <div>
                   <h1 className="text-xl font-semibold text-gray-900">
-                     Habilidades de Idioma
+                     Cartões
                   </h1>
                   <p className="text-sm text-gray-500">
-                     Controle de PTAI, TAI e proficiência linguística dos
+                     Controle de PTAI, TAI, CVI e proficiência linguística dos
                      pilotos
                   </p>
                </div>
@@ -59,7 +59,7 @@ export default function IdiomasPage() {
          </div>
 
          {editItem && (
-            <EditIdiomasDrawer
+            <EditCartoesDrawer
                show={!!editItem}
                onClose={() => setEditItem(null)}
                item={editItem}

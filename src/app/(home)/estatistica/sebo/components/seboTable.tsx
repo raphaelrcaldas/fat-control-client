@@ -11,7 +11,7 @@ import {
 import Tooltip from "./tooltip";
 import { minutesToTime, isoDateToString } from "@/../utils/dateHandler";
 import type { SeboTripItem } from "services/routes/estatistica/sebo";
-import type { InfoColumn } from "../page";
+import { INFO_COLUMNS, PILOT_ONLY_COLUMNS, type InfoColumn } from "../page";
 
 interface SeboTableProps {
    trips: SeboTripItem[];
@@ -19,6 +19,7 @@ interface SeboTableProps {
    setRow: (index: number) => void;
    isLoading: boolean;
    infoCols: Record<InfoColumn, boolean>;
+   isPilot: boolean;
 }
 
 const getDaysUntil = (isoDate: string): number => {
@@ -86,8 +87,14 @@ const SeboTable = ({
    setRow,
    isLoading,
    infoCols,
+   isPilot,
 }: SeboTableProps) => {
-   const visibleInfoCount = Object.values(infoCols).filter(Boolean).length;
+   // Coluna visível: ligada no toggle e, se for exclusiva de piloto,
+   // só quando a função selecionada é Piloto.
+   const showCol = (col: InfoColumn): boolean =>
+      infoCols[col] && (isPilot || !PILOT_ONLY_COLUMNS.includes(col));
+
+   const visibleInfoCount = INFO_COLUMNS.filter(showCol).length;
 
    return (
       <div
@@ -144,6 +151,16 @@ const SeboTable = ({
                         VISA
                      </TableHeadCell>
                   )}
+                  {showCol("cvi") && (
+                     <TableHeadCell className="hidden text-center md:table-cell">
+                        CVI
+                     </TableHeadCell>
+                  )}
+                  {showCol("ptai") && (
+                     <TableHeadCell className="hidden text-center md:table-cell">
+                        PTAI
+                     </TableHeadCell>
+                  )}
                   <TableHeadCell className="px-6 text-center">
                      ANO
                   </TableHeadCell>
@@ -194,6 +211,16 @@ const SeboTable = ({
                            </TableCell>
                         )}
                         {infoCols.val_visa && (
+                           <TableCell className="hidden md:table-cell">
+                              <SkeletonCell width="w-16" />
+                           </TableCell>
+                        )}
+                        {showCol("cvi") && (
+                           <TableCell className="hidden md:table-cell">
+                              <SkeletonCell width="w-16" />
+                           </TableCell>
+                        )}
+                        {showCol("ptai") && (
                            <TableCell className="hidden md:table-cell">
                               <SkeletonCell width="w-16" />
                            </TableCell>
@@ -352,6 +379,42 @@ const SeboTable = ({
                                  >
                                     {trip.cartoes.val_visa
                                        ? isoDateToString(trip.cartoes.val_visa)
+                                       : "NIL"}
+                                 </span>
+                              </Tooltip>
+                           </TableCell>
+                        )}
+                        {showCol("cvi") && (
+                           <TableCell className="hidden px-0.5 text-center md:table-cell">
+                              <Tooltip
+                                 content={getDateTooltip(
+                                    trip.cartoes.cvi,
+                                    "CVI"
+                                 )}
+                              >
+                                 <span
+                                    className={getDateColor(trip.cartoes.cvi)}
+                                 >
+                                    {trip.cartoes.cvi
+                                       ? isoDateToString(trip.cartoes.cvi)
+                                       : "NIL"}
+                                 </span>
+                              </Tooltip>
+                           </TableCell>
+                        )}
+                        {showCol("ptai") && (
+                           <TableCell className="hidden px-0.5 text-center md:table-cell">
+                              <Tooltip
+                                 content={getDateTooltip(
+                                    trip.cartoes.ptai,
+                                    "PTAI"
+                                 )}
+                              >
+                                 <span
+                                    className={getDateColor(trip.cartoes.ptai)}
+                                 >
+                                    {trip.cartoes.ptai
+                                       ? isoDateToString(trip.cartoes.ptai)
                                        : "NIL"}
                                  </span>
                               </Tooltip>

@@ -16,6 +16,8 @@ export interface SeboCartoes {
    crm: string | null;
    val_pass: string | null;
    val_visa: string | null;
+   cvi: string | null;
+   ptai: string | null;
 }
 
 export interface SeboTripItem {
@@ -38,7 +40,7 @@ export interface GetSeboParams {
 
 export async function getSebo(
    params: GetSeboParams,
-   signal?: AbortSignal,
+   signal?: AbortSignal
 ): Promise<SeboTripItem[]> {
    const queryParams: Record<string, string> = {
       func: params.func,

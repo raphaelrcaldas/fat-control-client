@@ -1,7 +1,7 @@
 "use client";
 import { useMemo } from "react";
 import { Select } from "flowbite-react";
-import { INFO_COLUMNS, type InfoColumn } from "../page";
+import { INFO_COLUMNS, PILOT_ONLY_COLUMNS, type InfoColumn } from "../page";
 
 const INFO_LABELS: Record<InfoColumn, string> = {
    cemal: "CEMAL",
@@ -10,6 +10,8 @@ const INFO_LABELS: Record<InfoColumn, string> = {
    crm: "CRM",
    val_pass: "PASS",
    val_visa: "VISA",
+   cvi: "CVI",
+   ptai: "PTAI",
 };
 
 interface FilterPanelProps {
@@ -223,7 +225,10 @@ const FilterPanel = ({
                   Cartões
                </label>
                <div className="flex flex-wrap gap-1">
-                  {INFO_COLUMNS.map((col) => (
+                  {INFO_COLUMNS.filter(
+                     (col) =>
+                        seboFunc === "pil" || !PILOT_ONLY_COLUMNS.includes(col)
+                  ).map((col) => (
                      <button
                         key={col}
                         onClick={() =>
