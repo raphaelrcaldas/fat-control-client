@@ -13,7 +13,23 @@ interface ChangePwdSchema {
    confirmPassword: string;
 }
 
-export function ChangePassword() {
+interface ChangePasswordProps {
+   /**
+    * Ação secundária (ex.: voltar ao login no primeiro acesso, ou fechar
+    * quando usado dentro da aplicação). Se omitida, o botão não é renderizado.
+    */
+   onCancel?: () => void;
+   /** Texto do botão secundário. */
+   cancelLabel?: string;
+   /** O que fazer após a troca bem-sucedida. Default: navegar para "/". */
+   onSuccess?: () => void;
+}
+
+export function ChangePassword({
+   onCancel,
+   cancelLabel = "Cancelar",
+   onSuccess,
+}: ChangePasswordProps = {}) {
    const {
       register,
       handleSubmit,
@@ -62,7 +78,11 @@ export function ChangePassword() {
                }
             }
 
-            route.push("/");
+            if (onSuccess) {
+               onSuccess();
+            } else {
+               route.push("/");
+            }
          } else {
             push({
                message: result.message || "Erro ao alterar senha",
@@ -157,6 +177,16 @@ export function ChangePassword() {
                </div>
 
                <div className="flex justify-center gap-3">
+                  {onCancel && (
+                     <Button
+                        type="button"
+                        color="light"
+                        disabled={isLoading}
+                        onClick={onCancel}
+                     >
+                        {cancelLabel}
+                     </Button>
+                  )}
                   <Button type="submit" disabled={isLoading} color="blue">
                      {isLoading ? (
                         <>

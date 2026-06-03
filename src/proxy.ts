@@ -4,6 +4,13 @@ import { generateRandomString, sha256 } from "../utils/auth";
 
 const loginRedirect = process.env.LOGIN_REDIRECT;
 
+// Sessão de troca de senha obrigatória (primeiro login): cookie de curta
+// duração para que, se o usuário desistir e abandonar a aba, a sessão
+// semiautenticada não persista. O escape imediato é o botão "Voltar ao
+// login" na própria tela de troca de senha.
+const FIRST_LOGIN_COOKIE_MAX_AGE = 15 * 60; // 15 minutos
+const SESSION_COOKIE_MAX_AGE = 24 * 60 * 60; // 24 horas
+
 if (process.env.NODE_ENV === "development" && process.env.DEV_TOKEN) {
    var tokenDev = process.env.DEV_TOKEN;
 }
@@ -43,7 +50,9 @@ export async function proxy(request: NextRequest) {
 
          response.cookies.delete("pkce_code_verifier");
          response.cookies.set("token", access_token, {
-            maxAge: 24 * 60 * 60,
+            maxAge: first_login
+               ? FIRST_LOGIN_COOKIE_MAX_AGE
+               : SESSION_COOKIE_MAX_AGE,
             path: "/",
          });
 
@@ -72,7 +81,10 @@ export async function proxy(request: NextRequest) {
 
    const response = NextResponse.next();
    response.cookies.set("token", tokenValue ?? "", {
-      maxAge: 24 * 60 * 60,
+      maxAge:
+         payload?.first_login === true
+            ? FIRST_LOGIN_COOKIE_MAX_AGE
+            : SESSION_COOKIE_MAX_AGE,
       path: "/",
    });
 
