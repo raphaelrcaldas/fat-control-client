@@ -1,20 +1,30 @@
 "use client";
 
 import { useState } from "react";
-import { TextInput, Badge, Spinner } from "flowbite-react";
-import { HiSearch, HiX, HiPlus, HiOfficeBuilding } from "react-icons/hi";
+import { TextInput, Badge, Spinner, Alert, Button } from "flowbite-react";
+import {
+   HiSearch,
+   HiX,
+   HiPlus,
+   HiOfficeBuilding,
+   HiExclamation,
+} from "react-icons/hi";
 import useDebouncedValue from "@/hooks/useDebouncedValue";
-import { useDadosBancarios } from "@/hooks/queries";
+import { useDadosBancarios, useDadosBancariosOrfaos } from "@/hooks/queries";
 import clsx from "clsx";
 import ListDadosBancarios from "./components/listDadosBancarios";
 import DetailDadosBancarios from "./components/detailDadosBancarios";
+import CleanupOrfaosModal from "./components/cleanupOrfaosModal";
 import { RoleBasedRoute } from "../../hooks/useRoleBased";
 
 export default function DadosBancariosPage() {
    const [searchUser, setSearchUser] = useState("");
    const [showCreate, setShowCreate] = useState(false);
+   const [showCleanup, setShowCleanup] = useState(false);
 
    const debouncedSearch = useDebouncedValue(searchUser, 500);
+
+   const { data: orfaos = [] } = useDadosBancariosOrfaos();
 
    const {
       data: dadosBancarios = [],
@@ -133,6 +143,26 @@ export default function DadosBancariosPage() {
             </section>
          )}
 
+         {/* Aviso de registros órfãos */}
+         {orfaos.length > 0 && (
+            <Alert color="warning" icon={HiExclamation} withBorderAccent>
+               <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                  <span>
+                     Existem <strong>{orfaos.length}</strong> registro(s) de
+                     dados bancários de militares desativados que podem ser
+                     limpos.
+                  </span>
+                  <Button
+                     color="yellow"
+                     size="xs"
+                     onClick={() => setShowCleanup(true)}
+                  >
+                     Revisar e limpar
+                  </Button>
+               </div>
+            </Alert>
+         )}
+
          {/* Content Section */}
          <section
             className={clsx(
@@ -171,6 +201,15 @@ export default function DadosBancariosPage() {
             <DetailDadosBancarios
                show={showCreate}
                onClose={() => setShowCreate(false)}
+            />
+         )}
+
+         {/* Modal de limpeza de registros órfãos */}
+         {showCleanup && (
+            <CleanupOrfaosModal
+               show={showCleanup}
+               onClose={() => setShowCleanup(false)}
+               orfaos={orfaos}
             />
          )}
       </div>

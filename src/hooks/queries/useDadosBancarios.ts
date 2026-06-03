@@ -6,9 +6,11 @@ import {
 } from "@tanstack/react-query";
 import {
    getDadosBancarios,
+   getDadosBancariosOrfaos,
    createDadosBancarios,
    updateDadosBancarios,
    deleteDadosBancarios,
+   deleteDadosBancariosOrfaos,
    syncRemuneracaoPortal,
    GetDadosBancariosParams,
    DadosBancariosCreate,
@@ -27,6 +29,7 @@ export const dadosBancariosKeys = {
       [...dadosBancariosKeys.lists(), filters] as const,
    details: () => [...dadosBancariosKeys.all, "detail"] as const,
    detail: (id: number) => [...dadosBancariosKeys.details(), id] as const,
+   orfaos: () => [...dadosBancariosKeys.all, "orfaos"] as const,
 };
 
 // ========================================
@@ -41,6 +44,21 @@ export function useDadosBancarios(params?: GetDadosBancariosParams) {
       queryKey: dadosBancariosKeys.list(params),
       queryFn: async ({ signal }) => {
          const data = await getDadosBancarios(params, signal);
+         return sortByAntiguidade(data);
+      },
+      placeholderData: keepPreviousData,
+      staleTime: 0,
+   });
+}
+
+/**
+ * Lista de dados bancários órfãos (de militares desativados)
+ */
+export function useDadosBancariosOrfaos() {
+   return useQuery({
+      queryKey: dadosBancariosKeys.orfaos(),
+      queryFn: async ({ signal }) => {
+         const data = await getDadosBancariosOrfaos(signal);
          return sortByAntiguidade(data);
       },
       placeholderData: keepPreviousData,
@@ -120,6 +138,33 @@ export function useSyncRemuneracaoPortal() {
          user_id: number;
          mes_ano: string;
       }) => syncRemuneracaoPortal(user_id, mes_ano),
+   });
+}
+
+/**
+ * Remover em lote registros órfãos por seleção parcial
+ */
+export function useDeleteDadosBancariosOrfaos() {
+   const queryClient = useQueryClient();
+
+   return useMutation({
+      mutationFn: async (ids: number[]) => {
+         const result = await deleteDadosBancariosOrfaos(ids);
+         if (!result.ok) {
+            throw new Error(
+               result.message || "Erro ao limpar dados bancários órfãos"
+            );
+         }
+         return result;
+      },
+      onSuccess: () => {
+         queryClient.invalidateQueries({
+            queryKey: dadosBancariosKeys.orfaos(),
+         });
+         queryClient.invalidateQueries({
+            queryKey: dadosBancariosKeys.lists(),
+         });
+      },
    });
 }
 

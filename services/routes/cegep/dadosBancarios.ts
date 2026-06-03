@@ -73,6 +73,21 @@ export async function getDadosBancarios(
    return json.data || [];
 }
 
+// GET - Lista registros órfãos (de militares desativados)
+export async function getDadosBancariosOrfaos(
+   signal?: AbortSignal
+): Promise<DadosBancariosWithUser[]> {
+   const response = await request(
+      "GET",
+      `${dadosBancariosRoute}orfaos`,
+      null,
+      null,
+      signal
+   );
+   const json = (await response.json()) as ApiResponse<DadosBancariosWithUser[]>;
+   return json.data || [];
+}
+
 // GET - Busca dados bancários por ID
 export async function getDadosBancariosById(
    dados_id: number
@@ -119,6 +134,19 @@ export async function deleteDadosBancarios(
 ): Promise<ApiResult<null>> {
    return parseApiResponse<null>(
       await request("DELETE", `${dadosBancariosRoute}${dados_id}`)
+   );
+}
+
+// DELETE - Remove em lote registros órfãos por seleção parcial
+export interface BulkDeleteResponse {
+   deleted: number;
+}
+
+export async function deleteDadosBancariosOrfaos(
+   ids: number[]
+): Promise<ApiResult<BulkDeleteResponse>> {
+   return parseApiResponse<BulkDeleteResponse>(
+      await request("DELETE", `${dadosBancariosRoute}orfaos`, { ids })
    );
 }
 
