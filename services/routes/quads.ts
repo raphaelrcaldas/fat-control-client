@@ -1,6 +1,7 @@
 import request, { parseApiResponse } from "../Api";
 import type { ApiResponse, ApiResult } from "@/types/api";
 import { CrewMember } from "./trips";
+import { UserPublic } from "./users";
 
 const quadsRoute = "ops/quads/";
 
@@ -68,6 +69,45 @@ export async function updateQuad(quad: Quad): Promise<ApiResult<null>> {
 
 export async function deleteQuad(ids: number[]): Promise<ApiResult<null>> {
    return parseApiResponse<null>(await request("DELETE", quadsRoute, { ids }));
+}
+
+// ===========================================================================
+// Quadrinhos órfãos (de tripulantes desativados da org ativa)
+// ===========================================================================
+
+// Espelha TripQuadInfo do backend: id é sempre presente na resposta de
+// órfãos (diferente de CrewMember.id, que é opcional).
+export interface QuadOrfaoTrip {
+   id: number;
+   trig: string;
+   user: UserPublic;
+   func: null;
+}
+
+export interface QuadsOrfaoEntry {
+   trip: QuadOrfaoTrip;
+   quads_count: number;
+}
+
+export interface QuadsOrfaosDeleteResponse {
+   deleted: number;
+   trips: number;
+}
+
+export async function getQuadsOrfaos(
+   signal?: AbortSignal
+): Promise<QuadsOrfaoEntry[]> {
+   const res = await request("GET", `${quadsRoute}orfaos`, null, null, signal);
+   const json = (await res.json()) as ApiResponse<QuadsOrfaoEntry[]>;
+   return json.data || [];
+}
+
+export async function deleteQuadsOrfaos(
+   trip_ids: number[]
+): Promise<ApiResult<QuadsOrfaosDeleteResponse>> {
+   return parseApiResponse<QuadsOrfaosDeleteResponse>(
+      await request("DELETE", `${quadsRoute}orfaos`, { trip_ids })
+   );
 }
 
 export async function getQuadsType(): Promise<QuadTypeGroup[]> {

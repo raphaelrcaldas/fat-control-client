@@ -10,6 +10,7 @@ import { compareByAntiguidade } from "utils/sortByAntiguidade";
 import { useQuads, useQuadsTypes } from "@/hooks/queries";
 import { FUNCOES_PRINCIPAIS, getFuncLabel } from "@/constants";
 import CrewRow from "./components/crewRow";
+import QuadsOrfaosAlert from "./components/quadsOrfaosAlert";
 
 // Constantes para valores configuráveis
 const DEFAULT_PROJ = "kc-390";
@@ -262,6 +263,10 @@ export default function QuadPage() {
                </div>
             </PermBased>
          </div>
+
+         <PermBased resource="quad_ops" requiredPerm="create">
+            <QuadsOrfaosAlert />
+         </PermBased>
 
          <div className="mb-1 flex items-center gap-2 px-2 uppercase">
             <p className="text-2xl font-bold">{groupName}</p>

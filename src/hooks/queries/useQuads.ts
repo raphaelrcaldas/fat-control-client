@@ -8,6 +8,8 @@ import {
    getQuads,
    getQuadById,
    getQuadsType,
+   getQuadsOrfaos,
+   deleteQuadsOrfaos,
    addQuad,
    updateQuad,
    deleteQuad,
@@ -36,6 +38,7 @@ export const quadKeys = {
    details: () => [...quadKeys.all, "detail"] as const,
    detail: (tripId: number, typeId: number) =>
       [...quadKeys.details(), tripId, typeId] as const,
+   orfaos: () => [...quadKeys.all, "orfaos"] as const,
 };
 
 // ========================================
@@ -78,6 +81,19 @@ export function useQuadsTypes() {
    return useQuery({
       queryKey: quadKeys.types(),
       queryFn: () => getQuadsType(),
+      staleTime: 0,
+   });
+}
+
+/**
+ * Lista de quadrinhos órfãos (de tripulantes desativados da org ativa).
+ * A query roda sempre que o componente monta — o componente só deve ser
+ * montado para quem tem permissão de gerenciamento (quad_ops.create).
+ */
+export function useQuadsOrfaos() {
+   return useQuery({
+      queryKey: quadKeys.orfaos(),
+      queryFn: ({ signal }) => getQuadsOrfaos(signal),
       staleTime: 0,
    });
 }
@@ -127,6 +143,30 @@ export function useDeleteQuad() {
       onSuccess: () => {
          queryClient.invalidateQueries({ queryKey: quadKeys.lists() });
          queryClient.invalidateQueries({ queryKey: quadKeys.details() });
+      },
+   });
+}
+
+/**
+ * Limpar quadrinhos órfãos (de tripulantes desativados) por seleção parcial.
+ * Recebe os IDs dos tripulantes a serem limpos.
+ */
+export function useDeleteQuadsOrfaos() {
+   const queryClient = useQueryClient();
+
+   return useMutation({
+      mutationFn: async (trip_ids: number[]) => {
+         const result = await deleteQuadsOrfaos(trip_ids);
+         if (!result.ok) {
+            throw new Error(
+               result.message || "Erro ao limpar quadrinhos órfãos"
+            );
+         }
+         return result;
+      },
+      onSuccess: () => {
+         queryClient.invalidateQueries({ queryKey: quadKeys.orfaos() });
+         queryClient.invalidateQueries({ queryKey: quadKeys.lists() });
       },
    });
 }
