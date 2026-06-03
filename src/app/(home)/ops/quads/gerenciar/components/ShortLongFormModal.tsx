@@ -105,6 +105,7 @@ export function ShortLongFormModal({
                         type="text"
                         placeholder={shortPlaceholder}
                         value={form.short}
+                        maxLength={6}
                         onChange={handleChange}
                         color={errors.short ? "failure" : undefined}
                         autoFocus

@@ -242,7 +242,7 @@ export default function GerenciarQuadsPage() {
             shortLabel="Sigla"
             longLabel="Nome"
             shortPlaceholder="Ex: SOBR"
-            longPlaceholder="Ex: Sobrevivência"
+            longPlaceholder="Ex: Sobreaviso"
             initial={
                groupModal.editing
                   ? {
@@ -261,8 +261,8 @@ export default function GerenciarQuadsPage() {
             title={typeModal.editing ? "Editar tipo" : "Novo tipo"}
             shortLabel="Sigla"
             longLabel="Nome"
-            shortPlaceholder="Ex: PRETO"
-            longPlaceholder="Ex: Sobrevivência preto"
+            shortPlaceholder="Ex: PTO"
+            longPlaceholder="Ex: Sobreaviso preto"
             initial={
                typeModal.editing
                   ? {
