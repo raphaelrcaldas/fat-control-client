@@ -162,9 +162,7 @@ export function useDeleteAtasOrfas() {
    const queryClient = useQueryClient();
 
    return useMutation({
-      mutationFn: async () => {
-         await deleteAtasOrfas();
-      },
+      mutationFn: async (ids: number[]) => deleteAtasOrfas(ids),
       onSuccess: () => {
          queryClient.invalidateQueries({
             queryKey: atasKeys.orfas(),

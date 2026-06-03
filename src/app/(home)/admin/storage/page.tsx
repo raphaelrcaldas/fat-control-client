@@ -1,20 +1,10 @@
 "use client";
 
-import { useState } from "react";
-import { Button } from "flowbite-react";
 import { MdStorage } from "react-icons/md";
-import { HiExclamation, HiTrash } from "react-icons/hi";
-import {
-   useAllBucketsStats,
-   useAtasOrfas,
-   useDeleteAtasOrfas,
-} from "@/hooks/queries";
-import { useToast } from "@/app/context/toast";
+import { useAllBucketsStats } from "@/hooks/queries";
 import { Skeleton } from "@/components/ui/Skeleton";
-import type {
-   BucketStats,
-   AtaOrfaPublic,
-} from "services/routes/aeromedica/atas";
+import type { BucketStats } from "services/routes/aeromedica/atas";
+import { formatSize } from "@/../utils/formatSize";
 
 const MAX_STORAGE_MB = 1024;
 
@@ -39,15 +29,6 @@ function getUsageColor(percent: number) {
       badge: "bg-green-500/10 text-green-600",
       label: "OK",
    };
-}
-
-function formatSize(bytes: number) {
-   if (bytes === 0) return "0 B";
-   const mb = bytes / (1024 * 1024);
-   if (mb >= 1) return `${mb.toFixed(1)} MB`;
-   const kb = bytes / 1024;
-   if (kb >= 1) return `${kb.toFixed(1)} KB`;
-   return `${bytes} B`;
 }
 
 function StorageCard({
@@ -127,121 +108,8 @@ function StorageCard({
    );
 }
 
-function AtasOrfasSection() {
-   const { push } = useToast();
-   const { data: orfas, isLoading } = useAtasOrfas();
-   const deleteMutation = useDeleteAtasOrfas();
-   const [showConfirm, setShowConfirm] = useState(false);
-
-   const handleDelete = async () => {
-      try {
-         await deleteMutation.mutateAsync();
-         push({ message: "Atas órfãs removidas com sucesso", type: "success" });
-      } catch (err: unknown) {
-         const message =
-            err instanceof Error ? err.message : "Erro ao remover atas";
-         push({ title: "Erro", message, type: "error" });
-      } finally {
-         setShowConfirm(false);
-      }
-   };
-
-   if (isLoading || !orfas || orfas.total_atas === 0) return null;
-
-   // Agrupar por usuário
-   const porUsuario = orfas.atas.reduce(
-      (acc, ata) => {
-         const key = ata.user_id;
-         if (!acc[key]) {
-            acc[key] = {
-               nome_guerra: ata.nome_guerra,
-               atas: [],
-               total_size: 0,
-            };
-         }
-         acc[key].atas.push(ata);
-         acc[key].total_size += ata.file_size;
-         return acc;
-      },
-      {} as Record<
-         number,
-         { nome_guerra: string; atas: AtaOrfaPublic[]; total_size: number }
-      >
-   );
-
-   return (
-      <div className="mt-4 rounded-lg border border-amber-300 bg-amber-50 p-4 dark:border-amber-700 dark:bg-amber-900/10">
-         <div className="flex items-start justify-between">
-            <div className="flex items-center gap-2">
-               <HiExclamation className="h-4 w-4 shrink-0 text-amber-600 dark:text-amber-400" />
-               <div>
-                  <p className="text-sm font-semibold text-amber-800 dark:text-amber-300">
-                     {orfas.total_atas} ata(s) de usuários inativos
-                  </p>
-                  <p className="text-xs text-amber-700 dark:text-amber-400">
-                     Ocupando {formatSize(orfas.total_size)}
-                  </p>
-               </div>
-            </div>
-
-            {showConfirm ? (
-               <div className="flex items-center gap-2">
-                  <Button
-                     color="red"
-                     size="xs"
-                     onClick={handleDelete}
-                     disabled={deleteMutation.isPending}
-                  >
-                     {deleteMutation.isPending ? "..." : "Confirmar"}
-                  </Button>
-                  <Button
-                     color="gray"
-                     size="xs"
-                     onClick={() => setShowConfirm(false)}
-                     disabled={deleteMutation.isPending}
-                  >
-                     Cancelar
-                  </Button>
-               </div>
-            ) : (
-               <Button
-                  color="red"
-                  size="xs"
-                  onClick={() => setShowConfirm(true)}
-               >
-                  <HiTrash className="mr-1.5 h-3.5 w-3.5" />
-                  Limpar
-               </Button>
-            )}
-         </div>
-
-         <div className="mt-3 space-y-1.5">
-            {Object.entries(porUsuario).map(([userId, grupo]) => (
-               <div
-                  key={userId}
-                  className="flex items-center justify-between rounded-md bg-white/60 px-3 py-2 dark:bg-gray-800/40"
-               >
-                  <div>
-                     <span className="text-xs font-semibold text-gray-900 uppercase dark:text-white">
-                        {grupo.nome_guerra}
-                     </span>
-                     <span className="ml-2 text-xs text-gray-500 dark:text-gray-400">
-                        {grupo.atas.length} ata(s)
-                     </span>
-                  </div>
-                  <span className="text-xs font-medium text-gray-600 dark:text-gray-300">
-                     {formatSize(grupo.total_size)}
-                  </span>
-               </div>
-            ))}
-         </div>
-      </div>
-   );
-}
-
 function BucketCard({ bucket }: { bucket: BucketStats }) {
    const sizeMB = bucket.total_size / (1024 * 1024);
-   const isAtasBucket = bucket.name === "atas-inspecao";
 
    return (
       <div className="rounded-lg border border-slate-300 bg-white p-5 shadow-sm">
@@ -287,8 +155,6 @@ function BucketCard({ bucket }: { bucket: BucketStats }) {
                />
             </div>
          </div>
-
-         {isAtasBucket && <AtasOrfasSection />}
       </div>
    );
 }

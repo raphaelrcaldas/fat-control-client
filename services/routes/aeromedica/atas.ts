@@ -105,13 +105,18 @@ export async function extrairAta(
 
    if (!response.ok) {
       const json = await response.json();
-      throw new Error(json.message || json.detail || "Erro ao extrair dados da ata");
+      throw new Error(
+         json.message || json.detail || "Erro ao extrair dados da ata"
+      );
    }
 
    const json = (await response.json()) as ApiResponse<AtaExtrairResponse>;
    if (!json.data) throw new Error("Resposta inválida do servidor");
 
-   const errors = json.errors as { nome_ata: string; nome_sistema: string } | null;
+   const errors = json.errors as {
+      nome_ata: string;
+      nome_sistema: string;
+   } | null;
    const nomeConflito: NomeConflito | null =
       json.message === "nome_divergente" && errors
          ? { nomeAta: errors.nome_ata, nomeSistema: errors.nome_sistema }
@@ -143,8 +148,10 @@ export async function uploadAta(
    const params = new URLSearchParams({ user_id: String(userId) });
    params.set("dados_confirmados", "true");
    if (dados.letra_finalidade) params.set("conf_letra", dados.letra_finalidade);
-   if (dados.data_realizacao) params.set("conf_realizacao", dados.data_realizacao);
-   if (dados.validade_inspsau) params.set("conf_validade", dados.validade_inspsau);
+   if (dados.data_realizacao)
+      params.set("conf_realizacao", dados.data_realizacao);
+   if (dados.validade_inspsau)
+      params.set("conf_validade", dados.validade_inspsau);
 
    const response = await fetch(`${atasRoute}?${params}`, {
       method: "POST",
@@ -272,6 +279,10 @@ export interface AtasOrfasResumo {
    atas: AtaOrfaPublic[];
 }
 
+export interface AtasOrfasDeleteResponse {
+   deleted: number;
+}
+
 export async function getAtasOrfas(
    signal?: AbortSignal
 ): Promise<AtasOrfasResumo> {
@@ -294,7 +305,9 @@ export async function getAtasOrfas(
    return json.data;
 }
 
-export async function deleteAtasOrfas(): Promise<void> {
+export async function deleteAtasOrfas(
+   ids: number[]
+): Promise<AtasOrfasDeleteResponse> {
    const token = getTokenFromCookies();
    const headers: HeadersInit = {
       "Content-Type": "application/json",
@@ -306,12 +319,19 @@ export async function deleteAtasOrfas(): Promise<void> {
    const response = await fetch(`${atasRoute}orfas`, {
       method: "DELETE",
       headers,
+      body: JSON.stringify({ ids }),
    });
 
    if (!response.ok) {
       const json = await response.json();
-      throw new Error(json.message || json.detail || "Erro ao limpar atas órfãs");
+      throw new Error(
+         json.message || json.detail || "Erro ao limpar atas órfãs"
+      );
    }
+
+   const json = (await response.json()) as ApiResponse<AtasOrfasDeleteResponse>;
+   if (!json.data) throw new Error("Resposta inválida do servidor");
+   return json.data;
 }
 
 export async function getAllBucketsStats(

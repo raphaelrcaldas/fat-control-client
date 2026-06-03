@@ -18,6 +18,8 @@ import StatCardsGrid from "./components/StatCards";
 import Filters from "./components/Filters";
 import CartoesSaudeTable from "./components/CartoesSaudeTable";
 import EditCartaoDrawer from "./components/EditCartaoDrawer";
+import AtasOrfasAlert from "./components/AtasOrfasAlert";
+import { PermBased } from "../../hooks/usePermBased";
 
 // Helper: parse comma-separated URL param into array
 function parseCommaSeparated(value: string | null): string[] {
@@ -270,6 +272,11 @@ export default function CartoesSaudePage() {
                </p>
             </div>
          </div>
+
+         {/* Atas de usuários inativos (gated por permissão) */}
+         <PermBased resource="cartoes-saude" requiredPerm="create">
+            <AtasOrfasAlert />
+         </PermBased>
 
          {/* Stat Cards */}
          {!isLoading && cartoesSaude.length > 0 && (
