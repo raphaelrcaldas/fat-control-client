@@ -22,6 +22,7 @@ import {
    MdSort,
    MdEventAvailable,
    MdManageAccounts,
+   MdDeleteSweep,
 } from "react-icons/md";
 import { FaUsers, FaBuilding, FaSitemap } from "react-icons/fa6";
 import { FaPaperPlane } from "react-icons/fa";
@@ -314,6 +315,11 @@ export const navItems = [
             icon: MdStorage,
             label: "Storage",
             path: "/admin/storage",
+         },
+         {
+            icon: MdDeleteSweep,
+            label: "Limpeza",
+            path: "/admin/cleanup",
          },
       ],
    },
