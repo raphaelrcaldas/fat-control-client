@@ -29,11 +29,20 @@ export interface CleanupRunResponse {
   executed_at: string;
 }
 
-export async function getCleanupPreview(): Promise<CleanupPreviewResponse> {
-  const res = await request("GET", `${cleanupRoute}preview`);
-  const json = (await res.json()) as ApiResponse<CleanupPreviewResponse>;
-  if (!res.ok) throw new Error(json.message || "Erro ao buscar preview de limpeza");
-  return json.data!;
+export async function getCleanupPreview(
+   signal?: AbortSignal
+): Promise<CleanupPreviewResponse> {
+   const res = await request(
+      "GET",
+      `${cleanupRoute}preview`,
+      null,
+      null,
+      signal
+   );
+   const json = (await res.json()) as ApiResponse<CleanupPreviewResponse>;
+   if (!res.ok)
+      throw new Error(json.message || "Erro ao buscar preview de limpeza");
+   return json.data!;
 }
 
 export async function runCleanup(): Promise<CleanupRunResponse> {

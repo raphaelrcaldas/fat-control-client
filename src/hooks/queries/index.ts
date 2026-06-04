@@ -24,6 +24,7 @@ export * from "./useHorasAnv";
 export * from "./useTiposMissao";
 export * from "./useCartoesSaude";
 export * from "./useAtas";
+export * from "./useCleanup";
 export * from "./useCrm";
 export * from "./useCartoes";
 export * from "./usePassaportes";
