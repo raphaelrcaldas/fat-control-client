@@ -17,6 +17,7 @@ import {
 import { IoMdSearch } from "react-icons/io";
 import { HiArrowLeft } from "react-icons/hi";
 import { useToast } from "@/app/context/toast";
+import { isoStrToDate } from "utils/dateHandler";
 import { UserPublic } from "services/routes/users";
 import { SearchUser } from "src/app/(home)/users/components/searchUser";
 import { useCreateComiss, useUpdateComiss } from "@/hooks/queries";
@@ -89,9 +90,54 @@ export function ComissForm({ comiss, onCancel, onSuccess }: ComissFormProps) {
          errors.push("- Valor da Ajuda de Custo do Encerramento");
    }
 
+   /**
+    * Pre-validacao de UX para o fechamento. A API e a guarda autoritativa;
+    * aqui apenas bloqueamos cedo e explicamos o motivo, evitando o round-trip.
+    *
+    * So roda na edicao (quando temos as missoes carregadas). Na criacao, sem
+    * missoes em maos, deixamos a API decidir.
+    */
+   function verificarFechamento(errors: string[]) {
+      if (status !== "fechado") return;
+      if (!comiss || !("missoes" in comiss)) return;
+
+      if (comiss.completude < 100) {
+         errors.push(
+            `- Completude esta em ${comiss.completude}%; o fechamento exige 100%`
+         );
+      }
+
+      const missoes = comiss.missoes;
+      if (missoes.length === 0) {
+         errors.push("- Nao ha missoes vinculadas para fechar o comissionamento");
+         return;
+      }
+
+      // Ultima missao = maior data de regresso; fechamento deve ser o dia seguinte.
+      const ultimaRegres = missoes.reduce((maisRecente, mis) =>
+         new Date(mis.regres).getTime() > new Date(maisRecente.regres).getTime()
+            ? mis
+            : maisRecente
+      );
+
+      const [ano, mes, dia] = ultimaRegres.regres.split("T")[0].split("-").map(Number);
+      const diaSeguinte = new Date(ano, mes - 1, dia + 1);
+      const esperado = `${diaSeguinte.getFullYear()}-${String(
+         diaSeguinte.getMonth() + 1
+      ).padStart(2, "0")}-${String(diaSeguinte.getDate()).padStart(2, "0")}`;
+
+      if (dataFc !== esperado) {
+         const esperadoBr = isoStrToDate(esperado).toLocaleDateString("pt-br");
+         errors.push(
+            `- Data de fechamento deve ser ${esperadoBr} (dia seguinte a ultima missao)`
+         );
+      }
+   }
+
    async function handleSaveComiss() {
       const errors: string[] = [];
       verificarCampos(errors);
+      verificarFechamento(errors);
       if (errors.length > 0) {
          push({
             title: "Campos obrigatorios",
