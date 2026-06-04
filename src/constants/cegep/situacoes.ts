@@ -21,14 +21,14 @@ export const SITUACAO_CONFIG: Record<SituacaoType, SituacaoConfig> = {
       border: "border-emerald-300",
    },
    d: {
-      label: "Descomissionado",
+      label: "Diária",
       short: "D",
       bg: "bg-red-100",
       text: "text-red-700",
       border: "border-red-300",
    },
    g: {
-      label: "Gestão",
+      label: "Grat Rep",
       short: "G",
       bg: "bg-blue-100",
       text: "text-blue-700",
