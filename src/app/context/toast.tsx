@@ -92,7 +92,7 @@ function ToastItem({
                         {toast.title}
                      </h3>
                   )}
-                  <p className="text-sm text-gray-800 dark:text-gray-100">
+                  <p className="text-sm break-words whitespace-pre-line text-gray-800 dark:text-gray-100">
                      {toast.message}
                   </p>
                </div>
