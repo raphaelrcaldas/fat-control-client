@@ -41,7 +41,7 @@ export function FuncAddModal({ show, onClose, trip }: FuncAddModalProps) {
                {/* Informações do Tripulante */}
                <div className="rounded-lg border border-blue-200 bg-linear-to-r from-blue-50 to-indigo-50 p-3">
                   <h3 className="text-sm font-bold text-gray-800 uppercase">
-                     {`${trip.user.posto.short} ${trip.user.esp} ${trip.user.nome_guerra}`}
+                     {`${trip.user.posto.short} ${trip.user.esp ?? ""} ${trip.user.nome_guerra}`}
                   </h3>
                </div>
 

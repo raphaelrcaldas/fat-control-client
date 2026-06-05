@@ -9,7 +9,7 @@ export interface UserPublic {
    p_g: string;
    posto: PostoGrad;
    quadro: string | null;
-   esp: string;
+   esp: string | null;
    id_fab: string | null;
    nome_guerra: string;
    saram?: string;
@@ -41,7 +41,7 @@ export interface GetUsersParams {
 export interface UserSchema {
    p_g: string;
    quadro: string | null;
-   esp: string;
+   esp: string | null;
    nome_guerra: string;
    nome_completo: string;
    id_fab: string | null;

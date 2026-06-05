@@ -75,7 +75,7 @@ export function TripEditForm({ trip, onClose, onCancel }: TripEditFormProps) {
             <div className="flex items-center justify-between">
                <div>
                   <h3 className="text-lg font-bold text-gray-800 uppercase">
-                     {`${trip.user.posto.short} ${trip.user.esp} ${trip.user.nome_guerra}`}
+                     {`${trip.user.posto.short} ${trip.user.esp ?? ""} ${trip.user.nome_guerra}`}
                   </h3>
                   <p className="mt-1 text-sm text-gray-600 capitalize">
                      {trip.user.nome_completo}

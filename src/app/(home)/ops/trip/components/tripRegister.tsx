@@ -114,7 +114,7 @@ export function TripRegister({
                >
                   <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-center text-base uppercase">
                      <div className="font-semibold text-gray-800">
-                        {`${user.posto.short} ${user.esp} ${user.nome_guerra}`}
+                        {`${user.posto.short} ${user.esp ?? ""} ${user.nome_guerra}`}
                      </div>
                      <div className="mt-1 text-sm text-gray-600 capitalize">
                         {user.nome_completo}

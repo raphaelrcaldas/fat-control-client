@@ -6,15 +6,21 @@
 import { Label, TextInput, Select, Checkbox } from "flowbite-react";
 import { HiMail, HiPhone } from "react-icons/hi";
 import { FaUser, FaShieldAlt } from "react-icons/fa";
+import { Controller, type Control } from "react-hook-form";
 import clsx from "clsx";
 import { postoGradRecords } from "@/constants/militar/postos";
+import { quadroOptions } from "@/constants/militar/quadros";
+import { especialidadeOptions } from "@/constants/militar/especialidades";
+import { SearchableSelect } from "@/components/SearchableSelect";
 import { useUnidadeOptions } from "@/hooks/queries";
 import { onlyLettersKeyDown, onlyNumbersKeyDown } from "./utils";
 import { formatPhone, formatCpf, formatSaram } from "@/constants/formats";
+import type { CreateUserFormData } from "../../schemas/userFormSchema";
 
 interface FormSectionProps {
    register: any;
    errors: any;
+   control?: Control<CreateUserFormData>;
 }
 
 function FieldError({ error }: { error?: any }) {
@@ -150,7 +156,11 @@ export function PersonalDataSection({ register, errors }: FormSectionProps) {
 // Dados Militares
 // ========================================
 
-export function MilitaryDataSection({ register, errors }: FormSectionProps) {
+export function MilitaryDataSection({
+   register,
+   errors,
+   control,
+}: FormSectionProps) {
    const unidadeOptions = useUnidadeOptions();
    const { onChange: saramOnChange, ...saramRest } = register("saram");
    const pgOptions = postoGradRecords.map((pg) => ({
@@ -182,31 +192,38 @@ export function MilitaryDataSection({ register, errors }: FormSectionProps) {
             <FieldError error={errors.p_g} />
          </div>
 
-         <div className="max-w-2xs">
+         <div className="max-w-xs">
             <Label htmlFor="quadro">Quadro</Label>
-            <TextInput
-               id="quadro"
-               {...register("quadro")}
-               autoComplete="off"
-               onKeyDown={onlyLettersKeyDown}
-               className={clsx({
-                  "focus:border-red-500 focus:ring-red-500": errors.quadro,
-               })}
+            <Controller
+               name="quadro"
+               control={control}
+               render={({ field }) => (
+                  <SearchableSelect
+                     options={quadroOptions}
+                     value={field.value || ""}
+                     onChange={field.onChange}
+                     placeholder="Selecione..."
+                     clearable
+                  />
+               )}
             />
             <FieldError error={errors.quadro} />
          </div>
 
-         <div className="max-w-2xs">
+         <div className="max-w-xs">
             <Label htmlFor="esp">Especialidade</Label>
-            <TextInput
-               id="esp"
-               {...register("esp")}
-               autoComplete="off"
-               maxLength={6}
-               onKeyDown={onlyLettersKeyDown}
-               className={clsx({
-                  "focus:border-red-500 focus:ring-red-500": errors.esp,
-               })}
+            <Controller
+               name="esp"
+               control={control}
+               render={({ field }) => (
+                  <SearchableSelect
+                     options={especialidadeOptions}
+                     value={field.value || ""}
+                     onChange={field.onChange}
+                     placeholder="Selecione..."
+                     clearable
+                  />
+               )}
             />
             <FieldError error={errors.esp} />
          </div>

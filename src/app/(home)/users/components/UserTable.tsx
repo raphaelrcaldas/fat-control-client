@@ -42,6 +42,7 @@ export function UserTable({ usuarios, loading }: UserTableProps) {
                <TableRow>
                   <TableHeadCell># ID</TableHeadCell>
                   <TableHeadCell>P/G</TableHeadCell>
+                  <TableHeadCell>Quadro</TableHeadCell>
                   <TableHeadCell>Especialidade</TableHeadCell>
                   <TableHeadCell>Nome de Guerra</TableHeadCell>
                   <TableHeadCell>Nome Completo</TableHeadCell>
@@ -62,7 +63,10 @@ export function UserTable({ usuarios, loading }: UserTableProps) {
                      </TableCell>
                      <TableCell>{user.posto.mid}</TableCell>
                      <TableCell className="text-gray-600 uppercase">
-                        {user.esp}
+                        {user.quadro || "—"}
+                     </TableCell>
+                     <TableCell className="text-gray-600 uppercase">
+                        {user.esp || "—"}
                      </TableCell>
                      <TableCell className="font-medium text-gray-800 capitalize dark:text-white">
                         {user.nome_guerra}

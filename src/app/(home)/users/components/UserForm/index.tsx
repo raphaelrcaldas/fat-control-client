@@ -76,6 +76,7 @@ export function UserForm({ userId, onSuccess }: UserFormProps) {
       handleSubmit,
       reset,
       watch,
+      control,
       formState: { errors },
    } = useForm<CreateUserFormData>({
       defaultValues: defaultUserValues,
@@ -123,6 +124,7 @@ export function UserForm({ userId, onSuccess }: UserFormProps) {
          email_pess: data.email_pess || null,
          id_fab: data.id_fab || null,
          quadro: data.quadro || null,
+         esp: data.esp || null,
       };
 
       try {
@@ -201,7 +203,11 @@ export function UserForm({ userId, onSuccess }: UserFormProps) {
    return (
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
          <PersonalDataSection register={register} errors={errors} />
-         <MilitaryDataSection register={register} errors={errors} />
+         <MilitaryDataSection
+            register={register}
+            errors={errors}
+            control={control}
+         />
 
          <div className="flex justify-end border-t border-gray-200 pt-5">
             <Button

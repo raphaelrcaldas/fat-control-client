@@ -32,6 +32,9 @@ import {
    phoneMaskConfig,
 } from "@/constants/formats";
 import { postoGradRecords } from "@/constants/militar/postos";
+import { quadroOptions } from "@/constants/militar/quadros";
+import { especialidadeOptions } from "@/constants/militar/especialidades";
+import { SearchableSelect } from "@/components/SearchableSelect";
 import {
    useUpdateUser,
    useUnidadeOptions,
@@ -49,7 +52,14 @@ interface UserReadViewProps {
    userId: number;
 }
 
-type FieldType = "text" | "email" | "date" | "number" | "select" | "phone";
+type FieldType =
+   | "text"
+   | "email"
+   | "date"
+   | "number"
+   | "select"
+   | "searchable"
+   | "phone";
 
 interface FieldConfig {
    icon: React.ComponentType<{ className?: string }>;
@@ -230,6 +240,22 @@ function EditableField({
                               </option>
                            ))}
                         </Select>
+                     ) : type === "searchable" && options ? (
+                        <SearchableSelect
+                           sizing="sm"
+                           clearable
+                           value={localValue}
+                           onChange={setLocalValue}
+                           options={
+                              localValue &&
+                              !options.some((o) => o.value === localValue)
+                                 ? [
+                                      { value: localValue, label: localValue },
+                                      ...options,
+                                   ]
+                                 : options
+                           }
+                        />
                      ) : (
                         <TextInput
                            sizing="sm"
@@ -524,6 +550,8 @@ export function UserReadView({ user, userId }: UserReadViewProps) {
                   rawValue={user.quadro || ""}
                   fieldName="quadro"
                   userId={userId}
+                  type="searchable"
+                  options={quadroOptions}
                />
                <EditableField
                   icon={HiStar}
@@ -532,7 +560,8 @@ export function UserReadView({ user, userId }: UserReadViewProps) {
                   rawValue={user.esp || ""}
                   fieldName="esp"
                   userId={userId}
-                  maxLength={6}
+                  type="searchable"
+                  options={especialidadeOptions}
                />
                <EditableField
                   icon={HiIdentification}
