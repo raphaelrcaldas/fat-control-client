@@ -51,6 +51,7 @@ export default function QuadroOperacoes() {
       return {
          data_inicio: toLocalDateStr(currentWeekStart),
          data_fim: toLocalDateStr(end),
+         status_ne: "cancelada",
          per_page: 100,
       };
    }, [currentWeekStart, daysToShow]);
