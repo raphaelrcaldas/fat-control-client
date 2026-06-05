@@ -3,7 +3,7 @@
  * Cada campo pode ser editado individualmente ao clicar no ícone de edição
  */
 
-import { useState } from "react";
+import { createContext, useContext, useEffect, useRef, useState } from "react";
 import { useMask } from "@react-input/mask";
 import { TextInput, Select, Spinner } from "flowbite-react";
 import { FaUser, FaShieldAlt } from "react-icons/fa";
@@ -38,6 +38,7 @@ import {
    useUserPromos,
 } from "@/hooks/queries";
 import { useToast } from "@/app/context/toast";
+import { USER_FIELD_LABELS } from "./userFieldLabels";
 
 // ========================================
 // Tipos
@@ -60,6 +61,23 @@ interface FieldConfig {
    options?: { value: string; label: string }[];
    maxLength?: number;
 }
+
+// ========================================
+// Contexto de foco de campo
+// ========================================
+
+// Permite que o banner de cadastro incompleto role até um campo e abra
+// sua edição. `focusReq` carrega um nonce (`n`) para reagir mesmo a
+// cliques repetidos no mesmo campo.
+interface FieldFocusValue {
+   focusReq: { field: string; n: number } | null;
+   requestFocus: (field: string) => void;
+}
+
+const FieldFocusContext = createContext<FieldFocusValue>({
+   focusReq: null,
+   requestFocus: () => {},
+});
 
 // ========================================
 // Componentes
@@ -102,6 +120,10 @@ function EditableField({
    const [localValue, setLocalValue] = useState(rawValue);
    const updateMutation = useUpdateUser();
    const { push } = useToast();
+   const { focusReq } = useContext(FieldFocusContext);
+   // Último nonce de foco já tratado — evita reabrir a edição quando o
+   // efeito re-roda por mudança de `rawValue` (ex.: refetch após salvar).
+   const lastFocusN = useRef(0);
 
    const saving = updateMutation.isPending;
 
@@ -111,6 +133,16 @@ function EditableField({
       setLocalValue(type === "phone" ? formatPhone(rawValue) : rawValue);
       setEditing(true);
    }
+
+   // Abre a edição apenas quando o banner solicita um NOVO foco neste
+   // campo (nonce inédito), não a cada mudança de valor.
+   useEffect(() => {
+      if (focusReq?.field === fieldName && focusReq.n !== lastFocusN.current) {
+         lastFocusN.current = focusReq.n;
+         setLocalValue(type === "phone" ? formatPhone(rawValue) : rawValue);
+         setEditing(true);
+      }
+   }, [focusReq, fieldName, rawValue, type]);
 
    function cancelEdit() {
       setLocalValue(rawValue);
@@ -157,7 +189,10 @@ function EditableField({
 
    if (editing) {
       return (
-         <div className="flex items-center gap-3 px-5 py-3">
+         <div
+            id={`field-${fieldName}`}
+            className="flex items-center gap-3 px-5 py-3"
+         >
             <div className="shrink-0 rounded-lg bg-blue-100 p-2.5">
                <Icon className="h-4 w-4 text-blue-600" />
             </div>
@@ -234,7 +269,10 @@ function EditableField({
    }
 
    return (
-      <div className="group flex items-center gap-3 px-5 py-3.5">
+      <div
+         id={`field-${fieldName}`}
+         className="group flex items-center gap-3 px-5 py-3.5"
+      >
          <div className="shrink-0 rounded-lg bg-red-100 p-2.5">
             <Icon className="h-4 w-4 text-red-600" />
          </div>
@@ -264,13 +302,18 @@ function ReadOnlyField({
    icon: Icon,
    label,
    value,
+   fieldName,
 }: {
    icon: React.ComponentType<{ className?: string }>;
    label: string;
    value: string;
+   fieldName?: string;
 }) {
    return (
-      <div className="flex items-center gap-3 px-5 py-3.5">
+      <div
+         id={fieldName ? `field-${fieldName}` : undefined}
+         className="flex items-center gap-3 px-5 py-3.5"
+      >
          <div className="shrink-0 rounded-lg bg-red-100 p-2.5">
             <Icon className="h-4 w-4 text-red-600" />
          </div>
@@ -281,6 +324,41 @@ function ReadOnlyField({
             <p className="text-sm leading-tight font-semibold text-gray-900 select-all">
                {value || "—"}
             </p>
+         </div>
+      </div>
+   );
+}
+
+// Aviso (não-bloqueante) de completude de cadastro. A lista de campos
+// pendentes vem pronta do backend (user.campos_pendentes). Cada chip
+// rola até o campo e abre sua edição (quando editável).
+function CadastroIncompletoNotice({ pendentes }: { pendentes: string[] }) {
+   const { requestFocus } = useContext(FieldFocusContext);
+
+   if (pendentes.length === 0) return null;
+
+   return (
+      <div className="flex items-start gap-3 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3">
+         <HiExclamation className="mt-0.5 h-5 w-5 shrink-0 text-amber-500" />
+         <div className="min-w-0 text-sm text-amber-800">
+            <p className="font-semibold">Cadastro incompleto</p>
+            <p className="mt-1 text-amber-700">
+               {pendentes.length === 1
+                  ? "Falta preencher 1 campo. Clique para ir até ele:"
+                  : `Faltam preencher ${pendentes.length} campos. Clique para ir até cada um:`}
+            </p>
+            <div className="mt-2 flex flex-wrap gap-1.5">
+               {pendentes.map((field) => (
+                  <button
+                     key={field}
+                     type="button"
+                     onClick={() => requestFocus(field)}
+                     className="rounded-md border border-amber-300 bg-white px-2.5 py-1 text-xs font-medium text-amber-700 transition-colors hover:bg-amber-100"
+                  >
+                     {USER_FIELD_LABELS[field] ?? field}
+                  </button>
+               ))}
+            </div>
          </div>
       </div>
    );
@@ -353,6 +431,21 @@ function PromoHistoryNotice({ user, userId }: UserReadViewProps) {
 
 export function UserReadView({ user, userId }: UserReadViewProps) {
    const unidadeOptions = useUnidadeOptions();
+   const [focusReq, setFocusReq] = useState<{
+      field: string;
+      n: number;
+   } | null>(null);
+
+   // Rola até o campo e sinaliza (via nonce) para abrir sua edição.
+   function requestFocus(field: string) {
+      setFocusReq((prev) => ({ field, n: (prev?.n ?? 0) + 1 }));
+      requestAnimationFrame(() => {
+         document
+            .getElementById(`field-${field}`)
+            ?.scrollIntoView({ behavior: "smooth", block: "center" });
+      });
+   }
+
    const postoLabel =
       postoGradRecords.find((p) => p.short === user.p_g)?.long || user.p_g;
 
@@ -362,148 +455,152 @@ export function UserReadView({ user, userId }: UserReadViewProps) {
    }));
 
    return (
-      <div className="space-y-5">
-         <PromoHistoryNotice user={user} userId={userId} />
+      <FieldFocusContext.Provider value={{ focusReq, requestFocus }}>
+         <div className="space-y-5">
+            <CadastroIncompletoNotice pendentes={user.campos_pendentes ?? []} />
+            <PromoHistoryNotice user={user} userId={userId} />
 
-         {/* Dados Pessoais */}
-         <SectionCard title="Dados Pessoais" icon={FaUser}>
-            <EditableField
-               icon={HiIdentification}
-               label="Nome Completo"
-               value={user.nome_completo?.toUpperCase()}
-               rawValue={user.nome_completo || ""}
-               fieldName="nome_completo"
-               userId={userId}
-            />
-            <ReadOnlyField
-               icon={HiHashtag}
-               label="CPF"
-               value={formatCpf(user.cpf || "")}
-            />
-            <EditableField
-               icon={HiCalendar}
-               label="Data de Nascimento"
-               value={formatDateFull(user.nasc)}
-               rawValue={user.nasc || ""}
-               fieldName="nasc"
-               userId={userId}
-               type="date"
-            />
-            <EditableField
-               icon={HiPhone}
-               label="Telefone"
-               value={formatPhone(user.telefone || "")}
-               rawValue={user.telefone || ""}
-               fieldName="telefone"
-               userId={userId}
-               type="phone"
-            />
-            <EditableField
-               icon={HiMail}
-               label="Email Pessoal"
-               value={user.email_pess}
-               rawValue={user.email_pess || ""}
-               fieldName="email_pess"
-               userId={userId}
-               type="email"
-            />
-         </SectionCard>
+            {/* Dados Pessoais */}
+            <SectionCard title="Dados Pessoais" icon={FaUser}>
+               <EditableField
+                  icon={HiIdentification}
+                  label="Nome Completo"
+                  value={user.nome_completo?.toUpperCase()}
+                  rawValue={user.nome_completo || ""}
+                  fieldName="nome_completo"
+                  userId={userId}
+               />
+               <ReadOnlyField
+                  icon={HiHashtag}
+                  label="CPF"
+                  value={formatCpf(user.cpf || "")}
+                  fieldName="cpf"
+               />
+               <EditableField
+                  icon={HiCalendar}
+                  label="Data de Nascimento"
+                  value={formatDateFull(user.nasc)}
+                  rawValue={user.nasc || ""}
+                  fieldName="nasc"
+                  userId={userId}
+                  type="date"
+               />
+               <EditableField
+                  icon={HiPhone}
+                  label="Telefone"
+                  value={formatPhone(user.telefone || "")}
+                  rawValue={user.telefone || ""}
+                  fieldName="telefone"
+                  userId={userId}
+                  type="phone"
+               />
+               <EditableField
+                  icon={HiMail}
+                  label="Email Pessoal"
+                  value={user.email_pess}
+                  rawValue={user.email_pess || ""}
+                  fieldName="email_pess"
+                  userId={userId}
+                  type="email"
+               />
+            </SectionCard>
 
-         {/* Dados Militares */}
-         <SectionCard title="Dados Militares" icon={FaShieldAlt}>
-            <EditableField
-               icon={HiStar}
-               label="Posto/Graduação"
-               value={postoLabel.toUpperCase()}
-               rawValue={user.p_g || ""}
-               fieldName="p_g"
-               userId={userId}
-               type="select"
-               options={pgOptions}
-            />
-            <EditableField
-               icon={HiViewGrid}
-               label="Quadro"
-               value={user.quadro?.toUpperCase()}
-               rawValue={user.quadro || ""}
-               fieldName="quadro"
-               userId={userId}
-            />
-            <EditableField
-               icon={HiStar}
-               label="Especialidade"
-               value={user.esp?.toUpperCase()}
-               rawValue={user.esp || ""}
-               fieldName="esp"
-               userId={userId}
-               maxLength={6}
-            />
-            <EditableField
-               icon={HiIdentification}
-               label="Nome de Guerra"
-               value={user.nome_guerra?.toUpperCase()}
-               rawValue={user.nome_guerra || ""}
-               fieldName="nome_guerra"
-               userId={userId}
-            />
-            <EditableField
-               icon={HiOfficeBuilding}
-               label="Unidade"
-               value={
-                  unidadeOptions.find((u) => u.value === user.unidade)?.label ||
-                  user.unidade?.toUpperCase()
-               }
-               rawValue={user.unidade || ""}
-               fieldName="unidade"
-               userId={userId}
-               type="select"
-               options={unidadeOptions}
-            />
-            <EditableField
-               icon={HiHashtag}
-               label="SARAM"
-               value={user.saram ? formatSaram(user.saram) : ""}
-               rawValue={user.saram || ""}
-               fieldName="saram"
-               userId={userId}
-               maxLength={7}
-            />
-            <EditableField
-               icon={HiHashtag}
-               label="ID FAB"
-               value={String(user.id_fab || "")}
-               rawValue={String(user.id_fab || "")}
-               fieldName="id_fab"
-               userId={userId}
-            />
-            <EditableField
-               icon={HiMail}
-               label="Email Zimbra"
-               value={user.email_fab}
-               rawValue={user.email_fab || ""}
-               fieldName="email_fab"
-               userId={userId}
-               type="email"
-            />
-            <EditableField
-               icon={HiCalendar}
-               label="Última Promoção"
-               value={formatDateFull(user.ult_promo)}
-               rawValue={user.ult_promo || ""}
-               fieldName="ult_promo"
-               userId={userId}
-               type="date"
-            />
-            <EditableField
-               icon={HiSortAscending}
-               label="Antiguidade Relativa"
-               value={user.ant_rel ? String(user.ant_rel) : ""}
-               rawValue={user.ant_rel ? String(user.ant_rel) : ""}
-               fieldName="ant_rel"
-               userId={userId}
-               type="number"
-            />
-         </SectionCard>
-      </div>
+            {/* Dados Militares */}
+            <SectionCard title="Dados Militares" icon={FaShieldAlt}>
+               <EditableField
+                  icon={HiStar}
+                  label="Posto/Graduação"
+                  value={postoLabel.toUpperCase()}
+                  rawValue={user.p_g || ""}
+                  fieldName="p_g"
+                  userId={userId}
+                  type="select"
+                  options={pgOptions}
+               />
+               <EditableField
+                  icon={HiViewGrid}
+                  label="Quadro"
+                  value={user.quadro?.toUpperCase()}
+                  rawValue={user.quadro || ""}
+                  fieldName="quadro"
+                  userId={userId}
+               />
+               <EditableField
+                  icon={HiStar}
+                  label="Especialidade"
+                  value={user.esp?.toUpperCase()}
+                  rawValue={user.esp || ""}
+                  fieldName="esp"
+                  userId={userId}
+                  maxLength={6}
+               />
+               <EditableField
+                  icon={HiIdentification}
+                  label="Nome de Guerra"
+                  value={user.nome_guerra?.toUpperCase()}
+                  rawValue={user.nome_guerra || ""}
+                  fieldName="nome_guerra"
+                  userId={userId}
+               />
+               <EditableField
+                  icon={HiOfficeBuilding}
+                  label="Unidade"
+                  value={
+                     unidadeOptions.find((u) => u.value === user.unidade)
+                        ?.label || user.unidade?.toUpperCase()
+                  }
+                  rawValue={user.unidade || ""}
+                  fieldName="unidade"
+                  userId={userId}
+                  type="select"
+                  options={unidadeOptions}
+               />
+               <EditableField
+                  icon={HiHashtag}
+                  label="SARAM"
+                  value={user.saram ? formatSaram(user.saram) : ""}
+                  rawValue={user.saram || ""}
+                  fieldName="saram"
+                  userId={userId}
+                  maxLength={7}
+               />
+               <EditableField
+                  icon={HiHashtag}
+                  label="ID FAB"
+                  value={String(user.id_fab || "")}
+                  rawValue={String(user.id_fab || "")}
+                  fieldName="id_fab"
+                  userId={userId}
+               />
+               <EditableField
+                  icon={HiMail}
+                  label="Email Zimbra"
+                  value={user.email_fab}
+                  rawValue={user.email_fab || ""}
+                  fieldName="email_fab"
+                  userId={userId}
+                  type="email"
+               />
+               <EditableField
+                  icon={HiCalendar}
+                  label="Última Promoção"
+                  value={formatDateFull(user.ult_promo)}
+                  rawValue={user.ult_promo || ""}
+                  fieldName="ult_promo"
+                  userId={userId}
+                  type="date"
+               />
+               <EditableField
+                  icon={HiSortAscending}
+                  label="Antiguidade Relativa"
+                  value={user.ant_rel ? String(user.ant_rel) : ""}
+                  rawValue={user.ant_rel ? String(user.ant_rel) : ""}
+                  fieldName="ant_rel"
+                  userId={userId}
+                  type="number"
+               />
+            </SectionCard>
+         </div>
+      </FieldFocusContext.Provider>
    );
 }

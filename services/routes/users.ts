@@ -59,6 +59,9 @@ export interface UserSchema {
 
 export interface UserFull extends UserSchema {
    posto: PostoGrad;
+   // Campos de cadastro ainda não preenchidos (derivado no backend a
+   // partir das colunas nullable do model User).
+   campos_pendentes: string[];
 }
 
 export interface OrgScope {
