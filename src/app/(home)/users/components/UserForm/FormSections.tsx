@@ -183,6 +183,20 @@ export function MilitaryDataSection({ register, errors }: FormSectionProps) {
          </div>
 
          <div className="max-w-2xs">
+            <Label htmlFor="quadro">Quadro</Label>
+            <TextInput
+               id="quadro"
+               {...register("quadro")}
+               autoComplete="off"
+               onKeyDown={onlyLettersKeyDown}
+               className={clsx({
+                  "focus:border-red-500 focus:ring-red-500": errors.quadro,
+               })}
+            />
+            <FieldError error={errors.quadro} />
+         </div>
+
+         <div className="max-w-2xs">
             <Label htmlFor="esp">Especialidade</Label>
             <TextInput
                id="esp"

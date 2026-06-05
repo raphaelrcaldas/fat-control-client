@@ -8,12 +8,14 @@ import { useToast } from "@/app/context/toast";
 import { PermBased } from "@/app/(home)/hooks/usePermBased";
 import { UserReadView } from "./components/UserReadView";
 import { UserAudit } from "./components/UserAudit";
+import { UserPromotions } from "./components/UserPromotions";
 import { ResetPassword } from "./components/ResetPassword";
 import { DeleteUserModal } from "./components/DeleteUserModal";
 import clsx from "clsx";
 import {
    HiUser,
    HiClipboardList,
+   HiTrendingUp,
    HiKey,
    HiCheckCircle,
    HiXCircle,
@@ -23,6 +25,7 @@ import { MdDelete } from "react-icons/md";
 
 const TABS = [
    { key: "dados", label: "Dados Cadastrais", icon: HiUser },
+   { key: "promocoes", label: "Promoções", icon: HiTrendingUp },
    { key: "historico", label: "Histórico", icon: HiClipboardList },
    { key: "senha", label: "Redefinir Senha", icon: HiKey },
 ] as const;
@@ -217,6 +220,7 @@ export default function UserDetailsPage() {
                {activeTab === "dados" && (
                   <UserReadView user={user} userId={userId} />
                )}
+               {activeTab === "promocoes" && <UserPromotions userId={userId} />}
                {activeTab === "historico" && <UserAudit userId={userId} />}
                {activeTab === "senha" && <ResetPassword userId={userId} />}
             </div>

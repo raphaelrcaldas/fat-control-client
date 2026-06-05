@@ -17,6 +17,7 @@ const USER_FIELD_LABELS: Record<string, string> = {
    nasc: "Data de Nascimento",
    email_pess: "Email Pessoal",
    p_g: "Posto/Graduação",
+   quadro: "Quadro",
    esp: "Especialidade",
    nome_guerra: "Nome de Guerra",
    unidade: "Unidade",

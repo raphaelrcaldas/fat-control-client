@@ -8,6 +8,7 @@ export interface UserPublic {
    id: number;
    p_g: string;
    posto: PostoGrad;
+   quadro: string | null;
    esp: string;
    id_fab: string | null;
    nome_guerra: string;
@@ -18,6 +19,7 @@ export interface UserPublic {
    ult_promo: string | null;
    ant_rel: number | null;
    telefone: string | null;
+   promocoes: UserPromo[];
 }
 
 export interface PaginatedResponse<T> {
@@ -38,6 +40,7 @@ export interface GetUsersParams {
 
 export interface UserSchema {
    p_g: string;
+   quadro: string | null;
    esp: string;
    nome_guerra: string;
    nome_completo: string;
@@ -146,4 +149,45 @@ export async function resetPassword(userId: number): Promise<ApiResult<null>> {
 
 export async function deleteUser(userId: number): Promise<ApiResult<null>> {
    return parseApiResponse<null>(await request("DELETE", usersRoute + userId));
+}
+
+// ========================================
+// Promoções (histórico de carreira)
+// ========================================
+
+export interface UserPromo {
+   id: number;
+   user_id: number;
+   p_g: string;
+   posto: PostoGrad;
+   data_promo: string;
+}
+
+export interface UserPromoCreate {
+   p_g: string;
+   data_promo: string;
+}
+
+export async function getUserPromos(userId: number): Promise<UserPromo[]> {
+   const response = await request("GET", usersRoute + userId + "/promocoes");
+   const json = (await response.json()) as ApiResponse<UserPromo[]>;
+   return json.data || [];
+}
+
+export async function addUserPromo(
+   userId: number,
+   body: UserPromoCreate
+): Promise<ApiResult<UserPromo>> {
+   return parseApiResponse<UserPromo>(
+      await request("POST", usersRoute + userId + "/promocoes", body)
+   );
+}
+
+export async function deleteUserPromo(
+   userId: number,
+   promoId: number
+): Promise<ApiResult<null>> {
+   return parseApiResponse<null>(
+      await request("DELETE", usersRoute + userId + "/promocoes/" + promoId)
+   );
 }

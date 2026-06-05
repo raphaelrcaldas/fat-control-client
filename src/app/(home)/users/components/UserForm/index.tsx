@@ -36,6 +36,7 @@ interface UserFormProps {
 function toFormData(data: any): CreateUserFormData {
    return {
       p_g: data.p_g || "",
+      quadro: (data.quadro || "").toUpperCase(),
       unidade: data.unidade || "",
       esp: (data.esp || "").toUpperCase(),
       nome_guerra: (data.nome_guerra || "").toUpperCase(),
@@ -121,6 +122,7 @@ export function UserForm({ userId, onSuccess }: UserFormProps) {
          email_fab: data.email_fab || null,
          email_pess: data.email_pess || null,
          id_fab: data.id_fab || null,
+         quadro: data.quadro || null,
       };
 
       try {

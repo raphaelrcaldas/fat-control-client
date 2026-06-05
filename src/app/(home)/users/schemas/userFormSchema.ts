@@ -5,6 +5,7 @@ import { validarSaram } from "utils/validators";
 
 export const createUserFormSchema = z.object({
    p_g: z.string().nonempty("Obrigatório").length(2),
+   quadro: z.string().transform(sanitizeText),
    esp: z.string().transform(sanitizeText),
    nome_guerra: z.string().nonempty("Obrigatório").transform(sanitizeText),
    nome_completo: z.string().transform(sanitizeText),
@@ -48,6 +49,7 @@ export type CreateUserFormData = z.infer<typeof createUserFormSchema>;
 
 export const defaultUserValues: CreateUserFormData = {
    p_g: "",
+   quadro: "",
    unidade: "",
    ult_promo: null,
    ant_rel: null,

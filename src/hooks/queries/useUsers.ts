@@ -11,8 +11,12 @@ import {
    updateUser,
    resetPassword,
    deleteUser,
+   getUserPromos,
+   addUserPromo,
+   deleteUserPromo,
    GetUsersParams,
    UserSchema,
+   UserPromoCreate,
 } from "services/routes/users";
 import { getUserActionLogs } from "services/routes/logs";
 
@@ -27,6 +31,7 @@ export const userKeys = {
    details: () => [...userKeys.all, "detail"] as const,
    detail: (id: number) => [...userKeys.details(), id] as const,
    logs: (id: number) => [...userKeys.detail(id), "logs"] as const,
+   promos: (id: number) => [...userKeys.detail(id), "promos"] as const,
 };
 
 // ========================================
@@ -134,6 +139,53 @@ export function useResetPassword() {
       onSuccess: (_, userId) => {
          // Invalida logs pois reset de senha gera log
          queryClient.invalidateQueries({ queryKey: userKeys.logs(userId) });
+      },
+   });
+}
+
+// ========================================
+// Promoções (histórico de carreira)
+// ========================================
+
+/**
+ * Histórico de promoções de um usuário
+ */
+export function useUserPromos(id: number | null | undefined) {
+   return useQuery({
+      queryKey: userKeys.promos(id!),
+      queryFn: () => getUserPromos(id!),
+      enabled: !!id,
+   });
+}
+
+/**
+ * Registrar uma promoção no histórico
+ */
+export function useCreateUserPromo() {
+   const queryClient = useQueryClient();
+
+   return useMutation({
+      mutationFn: ({ id, data }: { id: number; data: UserPromoCreate }) =>
+         addUserPromo(id, data),
+      onSuccess: (_, { id }) => {
+         queryClient.invalidateQueries({ queryKey: userKeys.promos(id) });
+         queryClient.invalidateQueries({ queryKey: userKeys.logs(id) });
+      },
+   });
+}
+
+/**
+ * Remover uma promoção do histórico
+ */
+export function useDeleteUserPromo() {
+   const queryClient = useQueryClient();
+
+   return useMutation({
+      mutationFn: ({ id, promoId }: { id: number; promoId: number }) =>
+         deleteUserPromo(id, promoId),
+      onSuccess: (_, { id }) => {
+         queryClient.invalidateQueries({ queryKey: userKeys.promos(id) });
+         queryClient.invalidateQueries({ queryKey: userKeys.logs(id) });
       },
    });
 }
