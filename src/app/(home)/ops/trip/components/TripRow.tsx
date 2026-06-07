@@ -19,6 +19,9 @@ export function TripRow({ trip }: TripRowProps) {
             {user.posto.mid}
          </TableCell>
          <TableCell className="hidden text-gray-600 uppercase lg:table-cell">
+            {user.quadro}
+         </TableCell>
+         <TableCell className="hidden text-gray-600 uppercase lg:table-cell">
             {user.esp}
          </TableCell>
          <TableCell className="hidden font-medium text-gray-800 capitalize md:table-cell">

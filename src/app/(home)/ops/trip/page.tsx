@@ -243,6 +243,9 @@ export default function TripPage() {
                            <TableRow>
                               <TableHeadCell>P/G</TableHeadCell>
                               <TableHeadCell className="hidden lg:table-cell">
+                                 Quadro
+                              </TableHeadCell>
+                              <TableHeadCell className="hidden lg:table-cell">
                                  Especialidade
                               </TableHeadCell>
                               <TableHeadCell className="hidden md:table-cell">
