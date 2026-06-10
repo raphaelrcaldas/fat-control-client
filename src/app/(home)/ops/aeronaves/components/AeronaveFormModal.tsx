@@ -7,6 +7,7 @@ import {
    ModalBody,
    Button,
    Label,
+   Select,
    TextInput,
    Textarea,
    ToggleSwitch,
@@ -18,6 +19,7 @@ import { useToast } from "@/app/context/toast";
 import {
    useCreateAeronave,
    useUpdateAeronave,
+   useOrgProjetos,
 } from "@/hooks/queries/useAeronaves";
 import {
    aeronaveFormSchema,
@@ -65,6 +67,7 @@ export function AeronaveFormModal({
    const { push } = useToast();
    const createMutation = useCreateAeronave();
    const updateMutation = useUpdateAeronave();
+   const { data: projetos = [] } = useOrgProjetos();
 
    const [formData, setFormData] = useState<AeronaveFormData>(
       defaultAeronaveValues
@@ -80,6 +83,7 @@ export function AeronaveFormModal({
                obs: editingAeronave.obs || null,
                active: editingAeronave.active,
                is_sim: editingAeronave.is_sim,
+               projeto: editingAeronave.proj.id_projeto,
             });
          } else {
             setFormData(defaultAeronaveValues);
@@ -91,13 +95,17 @@ export function AeronaveFormModal({
    const isSubmitting = createMutation.isPending || updateMutation.isPending;
 
    const hasChanges = useMemo(() => {
-      if (!isEditMode) return formData.matricula.length === 4;
+      if (!isEditMode)
+         return (
+            formData.matricula.length === 4 && formData.projeto.length === 2
+         );
       if (!editingAeronave) return false;
       return (
          formData.sit !== editingAeronave.sit ||
          formData.obs !== (editingAeronave.obs || null) ||
          formData.active !== editingAeronave.active ||
-         formData.is_sim !== editingAeronave.is_sim
+         formData.is_sim !== editingAeronave.is_sim ||
+         formData.projeto !== editingAeronave.proj.id_projeto
       );
    }, [formData, editingAeronave, isEditMode]);
 
@@ -145,6 +153,8 @@ export function AeronaveFormModal({
                updateData.active = formData.active;
             if (formData.is_sim !== editingAeronave!.is_sim)
                updateData.is_sim = formData.is_sim;
+            if (formData.projeto !== editingAeronave!.proj.id_projeto)
+               updateData.projeto = formData.projeto;
 
             const res = await updateMutation.mutateAsync({
                matricula: editingAeronave!.matricula,
@@ -165,6 +175,7 @@ export function AeronaveFormModal({
                sit: formData.sit,
                obs: formData.obs || null,
                is_sim: formData.is_sim,
+               projeto: formData.projeto,
             });
 
             push({
@@ -227,6 +238,34 @@ export function AeronaveFormModal({
                            {formData.matricula.length}/4 dígitos
                         </p>
                      )
+                  )}
+               </div>
+
+               {/* Projeto / Modelo */}
+               <div>
+                  <Label
+                     htmlFor="projeto"
+                     className="mb-2 block text-sm font-semibold"
+                  >
+                     Projeto <span className="text-red-500">*</span>
+                  </Label>
+                  <Select
+                     id="projeto"
+                     value={formData.projeto}
+                     onChange={(e) => updateField("projeto", e.target.value)}
+                     color={errors.projeto ? "failure" : "gray"}
+                  >
+                     <option value="">Selecione um projeto</option>
+                     {projetos.map((p) => (
+                        <option key={p.id_projeto} value={p.id_projeto}>
+                           {p.id_projeto} — {p.modelo}
+                        </option>
+                     ))}
+                  </Select>
+                  {errors.projeto && (
+                     <p className="mt-1 text-sm text-red-600">
+                        {errors.projeto}
+                     </p>
                   )}
                </div>
 

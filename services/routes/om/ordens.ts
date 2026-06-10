@@ -111,7 +111,6 @@ export interface OrdemMissaoOut {
    campos_especiais: CampoEspecial[];
    doc_ref: string | null;
    data_saida: string | null;
-   uae: string;
    esf_aer: number;
    created_by: number;
    created_at: string;
@@ -133,7 +132,6 @@ export interface OrdemMissaoList {
    updated_at: string | null;
    doc_ref: string | null;
    data_saida: string | null;
-   uae: string;
    esf_aer: number;
    etapas: EtapaListItem[];
    etiquetas: Etiqueta[];

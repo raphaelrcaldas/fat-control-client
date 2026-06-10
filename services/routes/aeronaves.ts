@@ -3,12 +3,19 @@ import type { ApiPaginatedResponse, ApiResult } from "@/types/api";
 
 const aeronaveRoute = "ops/aeronaves/";
 
+export interface ProjetoAnvOut {
+   id_projeto: string;
+   modelo: string;
+}
+
 export interface AeronavePublic {
    matricula: string;
    active: boolean;
    sit: string;
    obs: string | null;
    is_sim: boolean;
+   projeto: string;
+   proj: ProjetoAnvOut;
    updated_at: string | null;
 }
 
@@ -18,6 +25,7 @@ export interface AeronaveCreate {
    sit: string;
    obs: string | null;
    is_sim?: boolean;
+   projeto: string;
 }
 
 export interface AeronaveUpdate {
@@ -25,6 +33,7 @@ export interface AeronaveUpdate {
    sit?: string;
    obs?: string | null;
    is_sim?: boolean;
+   projeto?: string;
 }
 
 export interface PaginatedResponse<T> {
@@ -100,4 +109,18 @@ export async function updateAeronave(
    return parseApiResponse<AeronavePublic>(
       await request("PUT", aeronaveRoute + matricula, data)
    );
+}
+
+export async function getOrgProjetos(
+   signal?: AbortSignal
+): Promise<ProjetoAnvOut[]> {
+   const response = await request(
+      "GET",
+      aeronaveRoute + "projetos",
+      null,
+      undefined,
+      signal
+   );
+   const json = await response.json();
+   return (json.data as ProjetoAnvOut[]) || [];
 }

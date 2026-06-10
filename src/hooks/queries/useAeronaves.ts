@@ -8,6 +8,7 @@ import {
    getAeronaves,
    createAeronave,
    updateAeronave,
+   getOrgProjetos,
    type GetAeronavesParams,
    type AeronaveCreate,
    type AeronaveUpdate,
@@ -21,6 +22,7 @@ export const aeronaveKeys = {
    details: () => [...aeronaveKeys.all, "detail"] as const,
    detail: (matricula: string) =>
       [...aeronaveKeys.details(), matricula] as const,
+   projetos: () => [...aeronaveKeys.all, "projetos"] as const,
 };
 
 export function useAeronaves(params?: GetAeronavesParams) {
@@ -32,6 +34,15 @@ export function useAeronaves(params?: GetAeronavesParams) {
       // quando muda (create/update/delete) as mutations abaixo
       // invalidam aeronaveKeys.lists() explicitamente. Sem isso,
       // toda página que monta o hook dispara um refetch.
+      staleTime: Infinity,
+   });
+}
+
+export function useOrgProjetos() {
+   return useQuery({
+      queryKey: aeronaveKeys.projetos(),
+      queryFn: ({ signal }) => getOrgProjetos(signal),
+      // Projetos da org mudam raramente (config de system-admin).
       staleTime: Infinity,
    });
 }

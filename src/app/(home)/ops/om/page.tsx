@@ -10,6 +10,7 @@ import { ListaOrdens } from "./components/ListaOrdens";
 import { DeleteOrdemModal } from "./components/DeleteOrdemModal";
 import { useOrdens, useDeleteOrdem } from "@/hooks/queries";
 import { type OrdemMissaoList } from "services/routes/om/ordens";
+import { useAuth } from "@/app/context/auth";
 import { PermBased } from "../../hooks/usePermBased";
 
 const tabsTheme = {
@@ -51,6 +52,7 @@ const TAB_KEY: Record<number, TabKey> = { 0: "aprovadas", 1: "rascunho" };
 
 export default function OrdensMissao() {
    const router = useRouter();
+   const { activeOrg } = useAuth();
    const searchParams = useSearchParams();
 
    // URL search params como fonte de verdade
@@ -349,7 +351,7 @@ export default function OrdensMissao() {
          <DeleteOrdemModal
             isOpen={deleteModalOpen}
             ordemNumero={ordemToDelete?.numero || ""}
-            ordemUae={ordemToDelete?.uae || ""}
+            ordemUae={activeOrg ?? ""}
             ordemDataSaida={ordemToDelete?.data_saida || ""}
             ordemStatus={ordemToDelete?.status}
             onConfirm={confirmDeleteOrdem}

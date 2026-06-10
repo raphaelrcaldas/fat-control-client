@@ -32,6 +32,7 @@ export function AeronaveTable({ aeronaves, onEdit }: AeronaveTableProps) {
             <TableHead>
                <TableRow>
                   <TableHeadCell>Matrícula</TableHeadCell>
+                  <TableHeadCell>Projeto</TableHeadCell>
                   <TableHeadCell>Tipo</TableHeadCell>
                   <TableHeadCell>Situação</TableHeadCell>
                   <TableHeadCell>Observação</TableHeadCell>
@@ -48,6 +49,16 @@ export function AeronaveTable({ aeronaves, onEdit }: AeronaveTableProps) {
                      >
                         <TableCell className="text-base font-bold text-gray-900">
                            {aeronave.matricula}
+                        </TableCell>
+                        <TableCell className="text-center align-middle">
+                           <div className="flex flex-col leading-tight uppercase">
+                              <span className="font-semibold text-gray-900">
+                                 {aeronave.proj.modelo}
+                              </span>
+                              <span className="text-xs text-gray-500">
+                                 {aeronave.proj.id_projeto}
+                              </span>
+                           </div>
                         </TableCell>
                         <TableCell className="text-center align-middle">
                            {aeronave.is_sim ? (

@@ -51,6 +51,7 @@ export interface UserSchema {
    ult_promo: string | null;
    active: boolean;
    nasc: string | null;
+   data_praca: string | null;
    email_pess: string;
    email_fab: string;
    unidade: string;

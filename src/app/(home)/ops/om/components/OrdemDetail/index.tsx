@@ -28,6 +28,7 @@ import { HiTag } from "react-icons/hi";
 import { formatDateForDisplay } from "./utils/ordemUtils";
 import { gerarOrdemMissaoDocx } from "../../utils/exportOrdemMissao";
 import { gerarPedidoLanche } from "../../utils/exportLanche";
+import { useAuth } from "@/app/context/auth";
 import { useToast } from "@/app/context/toast";
 import { PermBased } from "@/app/(home)/hooks/usePermBased";
 
@@ -47,6 +48,7 @@ export function OrdemFormContent({
    isCloning = false,
 }: OrdemFormContentProps) {
    const { push: pushToast } = useToast();
+   const { activeOrg } = useAuth();
    const {
       formData,
       tripulacao,
@@ -186,7 +188,7 @@ export function OrdemFormContent({
 
          const a = document.createElement("a");
          a.href = blobUrl;
-         const fileName = `OM_${ordem.numero}_${ordem.uae}.docx`;
+         const fileName = `OM_${ordem.numero}_${activeOrg ?? ""}.docx`;
          a.download = fileName;
          a.click();
       } catch (error) {
@@ -203,7 +205,7 @@ export function OrdemFormContent({
          }
          setIsExporting(false);
       }
-   }, [ordem, pushToast]);
+   }, [ordem, activeOrg, pushToast]);
 
    const handlePedidoLanche = useCallback(async () => {
       if (!ordem) return;
@@ -227,7 +229,7 @@ export function OrdemFormContent({
 
          const a = document.createElement("a");
          a.href = blobUrl;
-         const fileName = `lanche_${ordem.numero}_${ordem.uae}.docx`;
+         const fileName = `lanche_${ordem.numero}_${activeOrg ?? ""}.docx`;
          a.download = fileName;
          a.click();
       } catch (error) {
@@ -241,7 +243,7 @@ export function OrdemFormContent({
       } finally {
          setIsGeneratingLanche(false);
       }
-   }, [ordem, pushToast]);
+   }, [ordem, activeOrg, pushToast]);
 
    const hasCamposEspeciaisVazios = useMemo(
       () => camposEspeciais.some((c) => !c.valor.trim()),

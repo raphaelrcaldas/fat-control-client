@@ -48,6 +48,7 @@ function toFormData(data: any): CreateUserFormData {
       email_pess: data.email_pess || "",
       telefone: formatPhone(data.telefone || ""),
       nasc: data.nasc ?? null,
+      data_praca: data.data_praca ?? null,
       ult_promo: data.ult_promo ?? null,
       ant_rel: data.ant_rel ?? null,
       active: data.active ?? true,

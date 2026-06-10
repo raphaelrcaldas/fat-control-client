@@ -53,11 +53,15 @@ export function AeronaveCard({ aeronave, onEdit }: AeronaveCardProps) {
                         </span>
                      )}
                   </div>
-                  {!aeronave.active && (
-                     <p className="mt-0.5 text-xs font-medium text-gray-500">
-                        Inativa
-                     </p>
-                  )}
+                  <p className="mt-0.5 text-xs font-medium text-gray-600">
+                     {aeronave.proj.modelo}{" "}
+                     <span className="text-gray-400">
+                        ({aeronave.proj.id_projeto})
+                     </span>
+                     {!aeronave.active && (
+                        <span className="text-gray-500"> · Inativa</span>
+                     )}
+                  </p>
                </div>
             </div>
             <PermBased resource={"aeronaves"} requiredPerm={"update"}>

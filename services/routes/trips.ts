@@ -10,7 +10,6 @@ export interface CrewMember {
    id?: number;
    trig: string;
    user: UserPublic;
-   uae: string;
    active: boolean;
    funcs?: CrewFunc[];
    func?: CrewFunc;

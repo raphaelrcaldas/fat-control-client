@@ -612,6 +612,15 @@ export function UserReadView({ user, userId }: UserReadViewProps) {
                />
                <EditableField
                   icon={HiCalendar}
+                  label="Data de Praça"
+                  value={formatDateFull(user.data_praca)}
+                  rawValue={user.data_praca || ""}
+                  fieldName="data_praca"
+                  userId={userId}
+                  type="date"
+               />
+               <EditableField
+                  icon={HiCalendar}
                   label="Última Promoção"
                   value={formatDateFull(user.ult_promo)}
                   rawValue={user.ult_promo || ""}

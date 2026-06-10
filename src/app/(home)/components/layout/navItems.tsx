@@ -23,6 +23,7 @@ import {
    MdEventAvailable,
    MdManageAccounts,
    MdDeleteSweep,
+   MdFlag,
 } from "react-icons/md";
 import { FaUsers, FaBuilding, FaSitemap } from "react-icons/fa6";
 import { FaPaperPlane } from "react-icons/fa";
@@ -66,6 +67,13 @@ export const navItems = [
             label: "Quadrinhos",
             path: "/ops/quads",
             resource: "quad_ops",
+            permission: "view",
+         },
+         {
+            icon: MdFlag,
+            label: "Operações",
+            path: "/ops/operacoes",
+            resource: "operacoes",
             permission: "view",
          },
          {

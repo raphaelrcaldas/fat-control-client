@@ -315,6 +315,20 @@ export function MilitaryDataSection({
          </div>
 
          <div className="max-w-2xs">
+            <Label htmlFor="data_praca">Data de Praça</Label>
+            <TextInput
+               id="data_praca"
+               type="date"
+               {...register("data_praca")}
+               autoComplete="off"
+               className={clsx({
+                  "focus:border-red-500 focus:ring-red-500": errors.data_praca,
+               })}
+            />
+            <FieldError error={errors.data_praca} />
+         </div>
+
+         <div className="max-w-2xs">
             <Label htmlFor="ult_promo">Última Promoção</Label>
             <TextInput
                id="ult_promo"

@@ -134,7 +134,6 @@ export interface QuadGroupOut {
    id: number;
    short: string;
    long: string;
-   uae: string;
 }
 
 export interface QuadTypeOut {

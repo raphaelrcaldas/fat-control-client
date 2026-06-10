@@ -7,6 +7,7 @@ export const USER_FIELD_LABELS: Record<string, string> = {
    nome_completo: "Nome Completo",
    cpf: "CPF",
    nasc: "Data de Nascimento",
+   data_praca: "Data de Praça",
    email_pess: "Email Pessoal",
    p_g: "Posto/Graduação",
    quadro: "Quadro",
