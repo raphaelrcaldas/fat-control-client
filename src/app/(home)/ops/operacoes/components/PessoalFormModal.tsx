@@ -10,7 +10,8 @@ import {
    TextInput,
    Spinner,
 } from "flowbite-react";
-import { MdPerson, MdSearch } from "react-icons/md";
+import { MdSearch, MdLock, MdSwapHoriz, MdCalendarMonth } from "react-icons/md";
+import { daysInclusive } from "@/../utils/dateHandler";
 import { useToast } from "@/app/context/toast";
 import { SearchUser } from "@/app/(home)/users/components/searchUser";
 import { useAddPessoal, useUpdatePessoal } from "@/hooks/queries/useOperacoes";
@@ -20,11 +21,24 @@ import type {
 } from "services/routes/ops/operacoes";
 import type { UserPublic } from "services/routes/users";
 import {
+   FUNC_VALUES,
+   SIT_VALUES,
    pessoalFormSchema,
-   type PessoalFormData,
+   type FuncOption,
+   type SitOption,
 } from "../schemas/operacaoSchema";
+import { FUNC_STYLE, SIT_LABEL, SIT_STYLE } from "./operacaoUi";
+import { PillSelect } from "./PillSelect";
 
-type FormErrors = Partial<Record<keyof PessoalFormData, string>>;
+interface FormState {
+   user_id: number;
+   func: "" | FuncOption;
+   sit: "" | SitOption;
+   data_ingresso: string;
+   data_regresso: string;
+}
+
+type FormErrors = Partial<Record<keyof FormState, string>>;
 
 interface Props {
    show: boolean;
@@ -33,20 +47,29 @@ interface Props {
    editing: OperacaoPessoalOut | null;
 }
 
+const FUNC_OPTIONS = FUNC_VALUES.map((v) => ({ value: v, label: v }));
+const SIT_OPTIONS = SIT_VALUES.map((v) => ({ value: v, label: SIT_LABEL[v] }));
+
+const EMPTY: FormState = {
+   user_id: 0,
+   func: "",
+   sit: "",
+   data_ingresso: "",
+   data_regresso: "",
+};
+
 export function PessoalFormModal({ show, onClose, op, editing }: Props) {
    const isEdit = !!editing;
    const { push } = useToast();
    const addMutation = useAddPessoal(op.id);
    const updateMutation = useUpdatePessoal(op.id);
 
-   const [userLabel, setUserLabel] = useState("");
-   const [form, setForm] = useState<PessoalFormData>({
-      user_id: 0,
-      func: "",
-      om: "",
-      data_ingresso: op.data_inicio,
-      data_regresso: op.data_fim,
-   });
+   const [militar, setMilitar] = useState<{
+      pg: string;
+      nome: string;
+      sub: string;
+   } | null>(null);
+   const [form, setForm] = useState<FormState>(EMPTY);
    const [errors, setErrors] = useState<FormErrors>({});
    const [showSearch, setShowSearch] = useState(false);
 
@@ -56,30 +79,30 @@ export function PessoalFormModal({ show, onClose, op, editing }: Props) {
          setForm({
             user_id: editing.user.id,
             func: editing.func,
-            om: editing.om,
+            sit: editing.sit,
             data_ingresso: editing.data_ingresso,
             data_regresso: editing.data_regresso,
          });
-         setUserLabel(`${editing.user.p_g} ${editing.user.nome_guerra}`.trim());
+         setMilitar({
+            pg: editing.user.p_g,
+            nome: editing.user.nome_guerra,
+            sub: editing.user.unidade,
+         });
       } else {
          setForm({
-            user_id: 0,
-            func: "",
-            om: "",
+            ...EMPTY,
             data_ingresso: op.data_inicio,
             data_regresso: op.data_fim,
          });
-         setUserLabel("");
+         setMilitar(null);
       }
       setErrors({});
    }, [show, editing, op.data_inicio, op.data_fim]);
 
    const isSubmitting = addMutation.isPending || updateMutation.isPending;
+   const dias = daysInclusive(form.data_ingresso, form.data_regresso);
 
-   function setField<K extends keyof PessoalFormData>(
-      field: K,
-      value: PessoalFormData[K]
-   ) {
+   function setField<K extends keyof FormState>(field: K, value: FormState[K]) {
       setForm((prev) => ({ ...prev, [field]: value }));
       setErrors((prev) => {
          const next = { ...prev };
@@ -90,8 +113,11 @@ export function PessoalFormModal({ show, onClose, op, editing }: Props) {
 
    function onUserSelected(user: UserPublic) {
       setField("user_id", user.id);
-      setUserLabel(`${user.p_g} ${user.nome_guerra}`.trim());
-      if (!form.om) setField("om", user.unidade || "");
+      setMilitar({
+         pg: user.p_g,
+         nome: user.nome_guerra,
+         sub: user.unidade,
+      });
    }
 
    async function handleSubmit(e: React.FormEvent) {
@@ -135,35 +161,58 @@ export function PessoalFormModal({ show, onClose, op, editing }: Props) {
 
    return (
       <>
-         <Modal show={show} size="xl" onClose={onClose} dismissible>
+         <Modal show={show} size="lg" onClose={onClose} dismissible>
             <ModalHeader>
                {isEdit ? "Editar militar" : "Associar militar"}
             </ModalHeader>
             <ModalBody>
-               <form onSubmit={handleSubmit} className="space-y-4">
-                  {/* Militar */}
+               <form onSubmit={handleSubmit} className="space-y-5">
+                  {/* Militar — cartão de seleção */}
                   <div>
                      <Label className="mb-1.5 block text-sm font-semibold">
                         Militar <span className="text-red-500">*</span>
                      </Label>
                      <button
                         type="button"
-                        onClick={() => setShowSearch(true)}
+                        onClick={() => !isEdit && setShowSearch(true)}
                         disabled={isEdit}
-                        className="flex w-full items-center justify-between rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-left text-sm hover:border-gray-400 disabled:cursor-not-allowed disabled:bg-gray-50"
+                        className={`group flex w-full items-center gap-3 rounded-xl border px-3 py-2.5 text-left transition-colors ${
+                           militar
+                              ? "border-slate-200 bg-slate-50"
+                              : "border-dashed border-gray-300 bg-white hover:border-red-300 hover:bg-red-50/30"
+                        } ${isEdit ? "cursor-not-allowed" : "cursor-pointer"}`}
                      >
-                        {userLabel ? (
-                           <span className="flex items-center gap-1.5 font-medium text-gray-800">
-                              <MdPerson className="h-4 w-4 text-red-500" />
-                              {userLabel}
-                           </span>
+                        {militar ? (
+                           <>
+                              <span className="flex h-10 min-w-10 shrink-0 items-center justify-center rounded-full bg-red-600 px-1.5 font-mono text-sm font-bold text-white uppercase">
+                                 {militar.pg}
+                              </span>
+                              <span className="flex min-w-0 flex-1 flex-col">
+                                 <span className="truncate text-sm font-bold text-slate-800 uppercase">
+                                    {militar.nome}
+                                 </span>
+                                 <span className="truncate text-xs text-slate-500 uppercase">
+                                    {militar.sub}
+                                 </span>
+                              </span>
+                              {isEdit ? (
+                                 <MdLock className="h-4 w-4 shrink-0 text-slate-300" />
+                              ) : (
+                                 <span className="flex shrink-0 items-center gap-1 text-xs font-semibold text-red-500 opacity-0 transition-opacity group-hover:opacity-100">
+                                    <MdSwapHoriz className="h-4 w-4" />
+                                    Trocar
+                                 </span>
+                              )}
+                           </>
                         ) : (
-                           <span className="text-gray-400">
-                              Selecionar militar…
-                           </span>
-                        )}
-                        {!isEdit && (
-                           <MdSearch className="h-5 w-5 text-gray-400" />
+                           <>
+                              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gray-100 text-gray-400">
+                                 <MdSearch className="h-5 w-5" />
+                              </span>
+                              <span className="flex-1 text-sm text-gray-400">
+                                 Buscar e selecionar militar…
+                              </span>
+                           </>
                         )}
                      </button>
                      {errors.user_id && (
@@ -173,95 +222,86 @@ export function PessoalFormModal({ show, onClose, op, editing }: Props) {
                      )}
                   </div>
 
-                  {/* Função + OM */}
-                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                     <div>
-                        <Label
-                           htmlFor="func"
-                           className="mb-1.5 block text-sm font-semibold"
-                        >
-                           Função <span className="text-red-500">*</span>
-                        </Label>
-                        <TextInput
-                           id="func"
-                           placeholder="Ex.: Piloto, Apoio logístico"
-                           value={form.func}
-                           onChange={(e) => setField("func", e.target.value)}
-                           color={errors.func ? "failure" : "gray"}
-                        />
-                        {errors.func && (
-                           <p className="mt-1 text-sm text-red-600">
-                              {errors.func}
-                           </p>
-                        )}
-                     </div>
-                     <div>
-                        <Label
-                           htmlFor="om"
-                           className="mb-1.5 block text-sm font-semibold"
-                        >
-                           OM <span className="text-red-500">*</span>
-                        </Label>
-                        <TextInput
-                           id="om"
-                           placeholder="Ex.: 1º/1º GT"
-                           value={form.om}
-                           onChange={(e) => setField("om", e.target.value)}
-                           color={errors.om ? "failure" : "gray"}
-                        />
-                        {errors.om && (
-                           <p className="mt-1 text-sm text-red-600">
-                              {errors.om}
-                           </p>
-                        )}
-                     </div>
-                  </div>
+                  {/* Função — pills com cor própria */}
+                  <PillSelect
+                     label="Função"
+                     required
+                     value={form.func}
+                     options={FUNC_OPTIONS}
+                     styles={FUNC_STYLE}
+                     onChange={(v) => setField("func", v as FuncOption)}
+                     error={errors.func}
+                  />
 
-                  {/* Datas */}
-                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                     <div>
-                        <Label
-                           htmlFor="data_ingresso"
-                           className="mb-1.5 block text-sm font-semibold"
-                        >
-                           Ingresso <span className="text-red-500">*</span>
-                        </Label>
-                        <TextInput
-                           id="data_ingresso"
-                           type="date"
-                           value={form.data_ingresso}
-                           onChange={(e) =>
-                              setField("data_ingresso", e.target.value)
-                           }
-                           color={errors.data_ingresso ? "failure" : "gray"}
-                        />
-                        {errors.data_ingresso && (
-                           <p className="mt-1 text-sm text-red-600">
-                              {errors.data_ingresso}
-                           </p>
+                  {/* Situação financeira — pills (refs de cor do cegep) */}
+                  <PillSelect
+                     label="Situação"
+                     required
+                     value={form.sit}
+                     options={SIT_OPTIONS}
+                     styles={SIT_STYLE}
+                     onChange={(v) => setField("sit", v as SitOption)}
+                     error={errors.sit}
+                  />
+
+                  {/* Período na operação */}
+                  <div className="rounded-xl border border-slate-200 bg-slate-50/60 p-3">
+                     <div className="mb-2 flex items-center justify-between">
+                        <span className="flex items-center gap-1.5 text-xs font-bold tracking-wide text-slate-500 uppercase">
+                           <MdCalendarMonth className="h-4 w-4 text-slate-400" />
+                           Período na operação
+                        </span>
+                        {dias !== null && (
+                           <span className="rounded-full bg-red-100 px-2.5 py-0.5 font-mono text-xs font-bold text-red-700 tabular-nums">
+                              {dias} {dias === 1 ? "dia" : "dias"}
+                           </span>
                         )}
                      </div>
-                     <div>
-                        <Label
-                           htmlFor="data_regresso"
-                           className="mb-1.5 block text-sm font-semibold"
-                        >
-                           Regresso <span className="text-red-500">*</span>
-                        </Label>
-                        <TextInput
-                           id="data_regresso"
-                           type="date"
-                           value={form.data_regresso}
-                           onChange={(e) =>
-                              setField("data_regresso", e.target.value)
-                           }
-                           color={errors.data_regresso ? "failure" : "gray"}
-                        />
-                        {errors.data_regresso && (
-                           <p className="mt-1 text-sm text-red-600">
-                              {errors.data_regresso}
-                           </p>
-                        )}
+                     <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                        <div>
+                           <Label
+                              htmlFor="data_ingresso"
+                              className="mb-1.5 block text-xs font-medium text-slate-500"
+                           >
+                              Ingresso <span className="text-red-500">*</span>
+                           </Label>
+                           <TextInput
+                              id="data_ingresso"
+                              type="date"
+                              value={form.data_ingresso}
+                              onChange={(e) =>
+                                 setField("data_ingresso", e.target.value)
+                              }
+                              color={errors.data_ingresso ? "failure" : "gray"}
+                           />
+                           {errors.data_ingresso && (
+                              <p className="mt-1 text-sm text-red-600">
+                                 {errors.data_ingresso}
+                              </p>
+                           )}
+                        </div>
+                        <div>
+                           <Label
+                              htmlFor="data_regresso"
+                              className="mb-1.5 block text-xs font-medium text-slate-500"
+                           >
+                              Regresso <span className="text-red-500">*</span>
+                           </Label>
+                           <TextInput
+                              id="data_regresso"
+                              type="date"
+                              value={form.data_regresso}
+                              onChange={(e) =>
+                                 setField("data_regresso", e.target.value)
+                              }
+                              color={errors.data_regresso ? "failure" : "gray"}
+                           />
+                           {errors.data_regresso && (
+                              <p className="mt-1 text-sm text-red-600">
+                                 {errors.data_regresso}
+                              </p>
+                           )}
+                        </div>
                      </div>
                   </div>
 

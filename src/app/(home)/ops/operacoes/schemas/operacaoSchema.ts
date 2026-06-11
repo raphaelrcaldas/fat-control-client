@@ -14,6 +14,13 @@ export const STATUS: { value: OperStatus; label: string }[] = [
    { value: "cancelada", label: "Cancelada" },
 ];
 
+export const FUNC_VALUES = ["Tripulante", "Apoio", "Manutenção"] as const;
+// Situação financeira — códigos herdados do cegep (d/g/c).
+export const SIT_VALUES = ["d", "g", "c"] as const;
+
+export type FuncOption = (typeof FUNC_VALUES)[number];
+export type SitOption = (typeof SIT_VALUES)[number];
+
 export const operacaoFormSchema = z
    .object({
       nome: z
@@ -45,16 +52,8 @@ export type OperacaoFormData = z.infer<typeof operacaoFormSchema>;
 export const pessoalFormSchema = z
    .object({
       user_id: z.number().int().positive("Selecione a pessoa"),
-      func: z
-         .string()
-         .trim()
-         .min(1, "Informe a função")
-         .max(80, "Máximo de 80 caracteres"),
-      om: z
-         .string()
-         .trim()
-         .min(1, "Informe a OM")
-         .max(60, "Máximo de 60 caracteres"),
+      func: z.enum(FUNC_VALUES, { error: "Selecione a função" }),
+      sit: z.enum(SIT_VALUES, { error: "Selecione a situação" }),
       data_ingresso: z.string().min(1, "Informe a data de ingresso"),
       data_regresso: z.string().min(1, "Informe a data de regresso"),
    })

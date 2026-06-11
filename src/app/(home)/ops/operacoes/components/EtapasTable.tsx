@@ -85,7 +85,7 @@ export function EtapasTable({ opId, etapas, onAssociar }: Props) {
                   {rows.length} de {etapas.length} · Σ{" "}
                   {minutesToTime(totalTvoo)}
                </span>
-               <PermBased resource="operacoes" requiredPerm="create">
+               <PermBased resource="operacoes.etapa" requiredPerm="create">
                   <Button color="red" size="xs" onClick={onAssociar}>
                      <HiPlus className="mr-1 h-4 w-4" /> Associar etapas
                   </Button>
@@ -199,8 +199,8 @@ export function EtapasTable({ opId, etapas, onAssociar }: Props) {
                            </TableCell>
                            <TableCell className="px-2">
                               <PermBased
-                                 resource="operacoes"
-                                 requiredPerm="create"
+                                 resource="operacoes.etapa"
+                                 requiredPerm="delete"
                               >
                                  <button
                                     type="button"

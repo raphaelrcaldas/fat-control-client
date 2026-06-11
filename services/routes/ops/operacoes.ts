@@ -118,11 +118,14 @@ export interface EtapaCandidata {
    operacao_atual: number | null;
 }
 
+export type FuncPessoal = "Tripulante" | "Apoio" | "Manutenção";
+export type SitPessoal = "d" | "g" | "c";
+
 export interface OperacaoPessoalOut {
    id: number;
    user: UserPublic;
-   func: string;
-   om: string;
+   func: FuncPessoal;
+   sit: SitPessoal;
    data_ingresso: string;
    data_regresso: string;
    dias: number;
@@ -143,8 +146,8 @@ export type OperacaoUpdate = Partial<OperacaoCreate>;
 
 export interface OperacaoPessoalIn {
    user_id: number;
-   func: string;
-   om: string;
+   func: FuncPessoal;
+   sit: SitPessoal;
    data_ingresso: string;
    data_regresso: string;
 }

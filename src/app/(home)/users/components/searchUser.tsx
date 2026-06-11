@@ -202,7 +202,7 @@ export function SearchUser({
                                           : "text-gray-700 group-hover:text-red-900"
                                     }`}
                                  >
-                                    {user.posto.short} {user.esp}{" "}
+                                    {user.posto.short} {user.quadro} {user.esp}{" "}
                                     {user.nome_guerra}
                                  </span>
                                  {isAlreadySelected && (

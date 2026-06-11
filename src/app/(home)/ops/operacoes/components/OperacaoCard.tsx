@@ -35,7 +35,7 @@ export function OperacaoCard({ op }: { op: OperacaoListItem }) {
             {/* Identidade: nome + tipo, depois cidade / status / documento */}
             <div className="flex min-w-0 flex-1 flex-col gap-1.5">
                <div className="flex items-center gap-2">
-                  <h3 className="truncate text-[15px] leading-none font-extrabold tracking-tight text-slate-900 uppercase">
+                  <h3 className="w-28 truncate text-[15px] leading-none font-extrabold tracking-tight text-slate-900 uppercase">
                      {op.nome}
                   </h3>
                   <span
@@ -46,7 +46,7 @@ export function OperacaoCard({ op }: { op: OperacaoListItem }) {
                </div>
 
                <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs leading-none text-slate-500">
-                  <span className="inline-flex items-center gap-1.5 font-semibold">
+                  <span className="inline-flex w-28 shrink-0 items-center gap-1.5 font-semibold">
                      <span className="relative flex h-1.5 w-1.5 shrink-0">
                         {op.status === "andamento" && (
                            <span
@@ -63,30 +63,36 @@ export function OperacaoCard({ op }: { op: OperacaoListItem }) {
                      </span>
                   </span>
 
-                  {op.cidade && (
-                     <span className="inline-flex items-center gap-1 text-slate-400">
-                        <MdLocationOn className="h-3.5 w-3.5 shrink-0" />
-                        <span className="text-slate-500">
+                  {/* Slots sempre renderizados (largura fixa) — colunas
+                      alinhadas entre os cards mesmo sem cidade/documento */}
+                  <span className="inline-flex w-48 shrink-0 items-center gap-1 truncate text-slate-400">
+                     <MdLocationOn className="h-3.5 w-3.5 shrink-0" />
+                     {op.cidade ? (
+                        <span className="truncate text-slate-500">
                            {op.cidade.nome} — {op.cidade.uf}
                         </span>
-                     </span>
-                  )}
+                     ) : (
+                        <span className="text-slate-300">—</span>
+                     )}
+                  </span>
 
-                  {op.documento_referencia && (
-                     <span className="inline-flex max-w-56 items-center gap-1 truncate text-slate-400">
-                        <MdOutlineDescription className="h-3.5 w-3.5 shrink-0" />
+                  <span className="inline-flex w-56 shrink-0 items-center gap-1 truncate text-slate-400">
+                     <MdOutlineDescription className="h-3.5 w-3.5 shrink-0" />
+                     {op.documento_referencia ? (
                         <span className="truncate text-slate-500">
                            {op.documento_referencia}
                         </span>
-                     </span>
-                  )}
+                     ) : (
+                        <span className="text-slate-300">—</span>
+                     )}
+                  </span>
                </div>
             </div>
 
             {/* Painel de dados: período · horas (herói) · etapas/anv */}
             <div className="flex shrink-0 items-center justify-between gap-4 rounded-lg border border-slate-100 bg-slate-50/80 px-3 py-2 md:justify-start">
                {/* Período */}
-               <div className="flex flex-col gap-1">
+               <div className="flex w-44 shrink-0 flex-col gap-1">
                   <span className="font-mono text-[9px] font-bold tracking-[0.2em] text-slate-400 uppercase">
                      Período
                   </span>
@@ -106,7 +112,7 @@ export function OperacaoCard({ op }: { op: OperacaoListItem }) {
                />
 
                {/* Horas — métrica herói */}
-               <div className="flex flex-col gap-1">
+               <div className="flex w-20 shrink-0 flex-col gap-1">
                   <span className="font-mono text-[9px] font-bold tracking-[0.2em] text-slate-400 uppercase">
                      Horas
                   </span>
@@ -126,7 +132,7 @@ export function OperacaoCard({ op }: { op: OperacaoListItem }) {
                />
 
                {/* Etapas / Aeronaves */}
-               <div className="flex flex-col gap-1">
+               <div className="flex w-24 shrink-0 flex-col gap-1">
                   <span className="inline-flex items-center gap-1.5 text-[11px] text-slate-500">
                      <MdLayers className="h-3.5 w-3.5 text-slate-400" />
                      <strong className="text-slate-700 tabular-nums">

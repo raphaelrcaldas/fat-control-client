@@ -196,7 +196,7 @@ export function PermissionFormModal({
                         type="text"
                         value={formData.name}
                         onChange={handleInputChange}
-                        placeholder="ex: create, read, update, delete"
+                        placeholder="ex: create, view, update, delete"
                         color={formErrors.name ? "failure" : undefined}
                         autoFocus={!editingPermission}
                         aria-describedby={

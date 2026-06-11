@@ -1,4 +1,55 @@
-import type { OperStatus, OperTipo } from "services/routes/ops/operacoes";
+import type {
+   FuncPessoal,
+   OperStatus,
+   OperTipo,
+   SitPessoal,
+} from "services/routes/ops/operacoes";
+
+interface PillStyle {
+   /** Cor sólida da pill quando selecionada (segmented control). */
+   active: string;
+   /** Badge de leitura (ring) usado nas tabelas. */
+   badge: string;
+}
+
+/** Cor própria de cada função — paleta distinta da "situação". */
+export const FUNC_STYLE: Record<FuncPessoal, PillStyle> = {
+   Tripulante: {
+      active: "bg-blue-600 text-white shadow-sm",
+      badge: "bg-blue-50 text-blue-700 ring-blue-200",
+   },
+   Apoio: {
+      active: "bg-orange-600 text-white shadow-sm",
+      badge: "bg-orange-50 text-orange-700 ring-orange-200",
+   },
+   Manutenção: {
+      active: "bg-slate-600 text-white shadow-sm",
+      badge: "bg-slate-50 text-slate-700 ring-slate-200",
+   },
+};
+
+/** Rótulo legível da situação financeira (códigos herdados do cegep). */
+export const SIT_LABEL: Record<SitPessoal, string> = {
+   d: "Diária",
+   g: "Grat Rep",
+   c: "Comiss",
+};
+
+/** Situação financeira — semântica de cor herdada do cegep. */
+export const SIT_STYLE: Record<SitPessoal, PillStyle> = {
+   d: {
+      active: "bg-emerald-600 text-white shadow-sm",
+      badge: "bg-emerald-50 text-emerald-700 ring-emerald-200",
+   },
+   g: {
+      active: "bg-amber-500 text-white shadow-sm",
+      badge: "bg-amber-50 text-amber-700 ring-amber-200",
+   },
+   c: {
+      active: "bg-sky-600 text-white shadow-sm",
+      badge: "bg-sky-50 text-sky-700 ring-sky-200",
+   },
+};
 
 export const TIPO_LABEL: Record<OperTipo, string> = {
    operacao: "Operação",

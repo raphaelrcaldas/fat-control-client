@@ -28,6 +28,17 @@ export function isoDateToString(isoDate: string): string {
    return `${day}/${month}/${year}`;
 }
 
+// Dias inclusivos entre duas datas ISO (espelha o backend: fim - inicio + 1).
+// Retorna null se as datas forem inválidas ou o fim anteceder o início.
+export function daysInclusive(isoStart: string, isoEnd: string): number | null {
+   if (!isoStart || !isoEnd) return null;
+   const start = isoStrToDate(isoStart);
+   const end = isoStrToDate(isoEnd);
+   if (isNaN(start.getTime()) || isNaN(end.getTime())) return null;
+   const diff = Math.round((end.getTime() - start.getTime()) / 86_400_000);
+   return diff < 0 ? null : diff + 1;
+}
+
 export function isoDateToShort(isoDate: string): string {
    if (!isoDate) return "";
 
