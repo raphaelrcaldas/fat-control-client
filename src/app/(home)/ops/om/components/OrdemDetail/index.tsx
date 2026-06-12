@@ -355,8 +355,8 @@ export function OrdemFormContent({
                      )}
                      {formData.status === "aprovada" && (
                         <PermBased
-                           resource={"ordem_missao"}
-                           requiredPerm={"aprove"}
+                           resource={"ordem_missao.status"}
+                           requiredPerm={"update"}
                         >
                            <Button
                               color="light"
