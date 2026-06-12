@@ -48,13 +48,13 @@ export function StatCard({
    return (
       <div
          className={clsx(
-            "flex items-center gap-2.5 rounded-xl border px-1.5 py-1 shadow-sm",
+            "flex items-center gap-2.5 rounded border px-1.5 py-1 shadow-sm",
             styles.card
          )}
       >
          <div
             className={clsx(
-               "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg",
+               "flex h-8 w-8 shrink-0 items-center justify-center rounded",
                styles.iconBg
             )}
          >

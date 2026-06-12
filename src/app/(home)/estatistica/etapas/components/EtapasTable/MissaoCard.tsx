@@ -43,9 +43,9 @@ export const MissaoCard = memo(function MissaoCard({
    const hasEtapas = missao.etapas.length > 0;
 
    return (
-      <div className="mx-0.5 overflow-hidden rounded-xl bg-white shadow ring-1 ring-gray-200">
+      <div className="mx-0.5 overflow-hidden rounded bg-white shadow ring-1 ring-gray-300">
          {/* Header da missao */}
-         <div className="flex flex-wrap items-center gap-3 border-b border-slate-200 bg-white px-1.5 py-1">
+         <div className="flex flex-wrap items-center gap-3 border-b border-slate-200 bg-white p-1.5">
             {hasEtapas && (
                <Checkbox
                   color="red"

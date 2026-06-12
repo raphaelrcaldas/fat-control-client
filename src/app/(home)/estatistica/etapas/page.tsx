@@ -52,7 +52,7 @@ export default function EtapasPage() {
 
    return (
       <div className="flex flex-1 flex-col overflow-hidden p-1">
-         <div className="mb-4 shrink-0 rounded-lg border border-gray-200 bg-white shadow-sm">
+         <div className="mb-4 shrink-0 rounded border border-gray-200 bg-white shadow-sm">
             <div className="flex flex-wrap items-center justify-between gap-3 p-4">
                <div className="flex flex-row gap-3">
                   <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-red-600 shadow-md">

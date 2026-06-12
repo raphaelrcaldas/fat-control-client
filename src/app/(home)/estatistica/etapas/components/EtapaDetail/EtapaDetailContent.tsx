@@ -38,11 +38,11 @@ export function EtapaDetailContent({ etapaId }: EtapaDetailContentProps) {
                   #{data.id}
                </span>
                <div className="h-4 w-px bg-red-200" />
-               <div className="flex items-center gap-1.5 rounded-md bg-red-100 px-2.5 py-1 font-medium text-slate-700">
+               <div className="flex items-center gap-1.5 rounded bg-red-100 px-2.5 py-1 font-medium text-slate-700">
                   <HiCalendar className="size-5 text-red-700" />
                   {formatDateFull(data.data)}
                </div>
-               <div className="flex items-center gap-1.5 rounded-md bg-red-100 px-2.5 py-1 font-semibold text-slate-700">
+               <div className="flex items-center gap-1.5 rounded bg-red-100 px-2.5 py-1 font-semibold text-slate-700">
                   <MdAirplanemodeActive className="size-5 text-red-700" />
                   FAB {data.anv}
                </div>
@@ -61,13 +61,13 @@ export function EtapaDetailContent({ etapaId }: EtapaDetailContentProps) {
             {(!data.sagem || !data.parte1) && (
                <div className="mb-5 flex flex-col gap-2">
                   {!data.sagem && (
-                     <div className="flex items-center gap-2 rounded-lg border border-red-300 bg-red-50 px-3 py-2 text-sm font-semibold text-red-800">
+                     <div className="flex items-center gap-2 rounded border border-red-300 bg-red-50 px-3 py-2 text-sm font-semibold text-red-800">
                         <span className="text-base">&#9888;</span>
                         NÃO REGISTRADO NO SAGEM
                      </div>
                   )}
                   {!data.parte1 && (
-                     <div className="flex items-center gap-2 rounded-lg border border-red-300 bg-red-50 px-3 py-2 text-sm font-semibold text-red-800">
+                     <div className="flex items-center gap-2 rounded border border-red-300 bg-red-50 px-3 py-2 text-sm font-semibold text-red-800">
                         <span className="text-base">&#9888;</span>
                         RELATÓRIO NÃO RECOLHIDO
                      </div>
@@ -78,7 +78,7 @@ export function EtapaDetailContent({ etapaId }: EtapaDetailContentProps) {
             <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
                <div className="col-span-2 space-y-5">
                   {data.obs && (
-                     <div className="flex items-start gap-2.5 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
+                     <div className="flex items-start gap-2.5 rounded border border-slate-200 bg-slate-50 px-4 py-3">
                         <HiAnnotation className="mt-0.5 h-4 w-4 shrink-0 text-slate-400" />
                         <p className="text-sm leading-relaxed text-slate-600">
                            {data.obs}

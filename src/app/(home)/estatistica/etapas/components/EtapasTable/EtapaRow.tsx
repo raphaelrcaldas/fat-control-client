@@ -177,7 +177,7 @@ export const EtapaRow = memo(function EtapaRow({
             {anv}
          </TableCell>
          <TableCell className="hidden w-5 font-mono text-slate-400 sm:table-cell">
-            {pousos}
+            {pousos > 1 ? pousos : null}
          </TableCell>
          <TableCell className="hidden w-92 md:table-cell">{oiList}</TableCell>
          <TableCell className="hidden lg:table-cell">

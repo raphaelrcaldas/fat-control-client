@@ -229,7 +229,7 @@ export function EtapasTable({
          <div className="hidden h-4 w-px bg-gray-300 lg:flex" />
 
          <PermBased resource="etp_mis" requiredPerm="create">
-            <div className="hidden items-center gap-2 rounded-md bg-white px-3 py-1.5 shadow lg:flex">
+            <div className="hidden items-center gap-2 rounded border border-slate-200 bg-white px-3 py-1.5 shadow lg:flex">
                <span className="mr-1 text-sm font-medium text-gray-500">
                   SAGEM
                </span>
@@ -248,7 +248,7 @@ export function EtapasTable({
                   <HiX className="inline h-4 w-4" />
                </button>
             </div>
-            <div className="hidden items-center gap-2 rounded-md bg-white px-3 py-1.5 shadow lg:flex">
+            <div className="hidden items-center gap-2 rounded border border-slate-200 bg-white px-3 py-1.5 shadow lg:flex">
                <span className="mr-1 text-sm font-medium text-gray-500">
                   Parte 1
                </span>

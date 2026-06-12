@@ -50,7 +50,7 @@ export function EspecificosList({ pqd, revo, heavyCds }: EspecificosListProps) {
          {pqd.map((p, i) => (
             <div
                key={`pqd-${i}`}
-               className="flex flex-wrap items-center gap-4 rounded-xl border border-purple-200 bg-purple-50/40 p-3 shadow-sm"
+               className="flex flex-wrap items-center gap-4 rounded border border-purple-200 bg-purple-50/40 px-3 py-1.5 shadow-sm"
             >
                <span className="flex h-7 w-7 items-center justify-center rounded-full bg-purple-100 text-purple-600">
                   <GiParachute className="h-4 w-4" />
@@ -67,7 +67,7 @@ export function EspecificosList({ pqd, revo, heavyCds }: EspecificosListProps) {
          {revo.map((r, i) => (
             <div
                key={`revo-${i}`}
-               className="flex flex-wrap items-center gap-4 rounded-xl border border-amber-200 bg-amber-50/40 p-3 shadow-sm"
+               className="flex flex-wrap items-center gap-4 rounded border border-amber-200 bg-amber-50/40 px-3 py-1.5 shadow-sm"
             >
                <span className="flex h-7 w-7 items-center justify-center rounded-full bg-amber-100 text-amber-600">
                   <FaGasPump className="h-4 w-4" />
@@ -86,7 +86,7 @@ export function EspecificosList({ pqd, revo, heavyCds }: EspecificosListProps) {
          {heavyCds.map((h, i) => (
             <div
                key={`hvy-${i}`}
-               className="flex flex-wrap items-center gap-4 rounded-xl border border-red-200 bg-red-50/40 p-3 shadow-sm"
+               className="flex flex-wrap items-center gap-4 rounded border border-red-200 bg-red-50/40 px-3 py-1.5 shadow-sm"
             >
                <span className="flex h-7 w-7 items-center justify-center rounded-full bg-red-100 text-red-600">
                   <HiOutlineCube className="h-4 w-4" />

@@ -26,7 +26,7 @@ export function OIEtapasList({ items }: { items: OIEtapaItem[] }) {
             return (
                <div
                   key={`${oi.esf_aer_id}-${oi.tipo_missao_id}-${oi.reg}`}
-                  className="flex flex-wrap items-center gap-3 rounded-xl border border-gray-200 bg-white p-3 shadow-sm"
+                  className="flex flex-wrap items-center gap-3 rounded border border-gray-200 bg-white p-3 shadow-sm"
                >
                   <div className="flex items-center gap-1.5">
                      <RegIcon
@@ -51,13 +51,13 @@ export function OIEtapasList({ items }: { items: OIEtapaItem[] }) {
 
                   <div className="h-4 w-px bg-gray-200" />
 
-                  <span className="w-16 rounded-md bg-slate-100 px-2 py-1 text-center text-xs font-bold tracking-wider text-slate-800 uppercase">
+                  <span className="w-16 rounded border border-slate-300 bg-slate-100 px-2 py-1 text-center text-xs font-bold tracking-wider text-slate-800 uppercase shadow-sm">
                      {oi.tipo_missao_cod}
                   </span>
 
                   <span
                      className={clsx(
-                        "rounded-lg border px-2.5 py-1 text-xs font-semibold",
+                        "rounded border px-2.5 py-1 text-xs font-semibold shadow-sm",
                         oi.esf_aer.includes("COMAE")
                            ? "border-blue-200 bg-blue-50 text-blue-700"
                            : oi.esf_aer.includes("COMPREP")
