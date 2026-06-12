@@ -18,6 +18,8 @@ import {
    HiDocumentText,
    HiShoppingBag,
    HiBan,
+   HiCheckCircle,
+   HiSave,
 } from "react-icons/hi";
 import clsx from "clsx";
 import type { OrdemMissaoOut, EtapaOut } from "services/routes/om/ordens";
@@ -39,6 +41,11 @@ import { gerarPedidoLanche } from "../../utils/exportLanche";
 import { useAuth } from "@/app/context/auth";
 import { useToast } from "@/app/context/toast";
 import { PermBased } from "@/app/(home)/hooks/usePermBased";
+import {
+   STATUS_CONFIG,
+   getStatusTransitions,
+   type StatusType,
+} from "@/constants/ops/ordens-missao/status";
 
 interface OrdemFormContentProps {
    ordem: OrdemMissaoOut | null;
@@ -49,7 +56,11 @@ interface OrdemFormContentProps {
 }
 
 // Ação pendente de confirmação no modal único de confirmação
-type ConfirmAction = "discard-close" | "discard-cancel" | "cancel-om";
+type ConfirmAction =
+   | "discard-close"
+   | "discard-edit"
+   | "cancel-om"
+   | "approve-om";
 
 // Dispara o download de um blob e revoga a URL após o download iniciar
 // (revogar de imediato pode cancelar o download em alguns browsers)
@@ -92,6 +103,7 @@ export function OrdemFormContent({
       updateCamposEspeciais,
       resetForm,
       handleSubmit,
+      validateForApproval,
       handleElaborar,
       handleCancelar,
       isCancelling,
@@ -150,7 +162,7 @@ export function OrdemFormContent({
 
    const handleCancel = useCallback(() => {
       if (hasChanges) {
-         setConfirmAction("discard-cancel");
+         setConfirmAction("discard-edit");
       } else {
          doCancelEdit();
       }
@@ -170,7 +182,15 @@ export function OrdemFormContent({
       [handleSubmit, pushToast]
    );
 
-   const handleApproveSubmit = useCallback(async () => {
+   // Valida antes de pedir confirmação: erros aparecem de imediato,
+   // sem o usuário confirmar uma aprovação que vai falhar
+   const handleApproveSubmit = useCallback(() => {
+      if (!validateForApproval()) return;
+      setConfirmAction("approve-om");
+   }, [validateForApproval]);
+
+   const confirmApproveOm = useCallback(async () => {
+      setConfirmAction(null);
       const result = await handleElaborar();
       if (result.success) {
          pushToast({
@@ -209,6 +229,18 @@ export function OrdemFormContent({
             onConfirm: confirmCancelOm,
          };
       }
+      if (confirmAction === "approve-om") {
+         return {
+            title: "Aprovar Ordem de Missão",
+            message: hasChanges
+               ? "As alterações pendentes serão salvas e a ordem passará para o status aprovada. Deseja continuar?"
+               : "A ordem passará para o status aprovada. Deseja continuar?",
+            confirmLabel: hasChanges
+               ? "Sim, salvar e aprovar"
+               : "Sim, aprovar OM",
+            onConfirm: confirmApproveOm,
+         };
+      }
       return {
          title: "Descartar alterações",
          message:
@@ -223,7 +255,14 @@ export function OrdemFormContent({
             }
          },
       };
-   }, [confirmAction, confirmCancelOm, doClose, doCancelEdit]);
+   }, [
+      confirmAction,
+      confirmCancelOm,
+      confirmApproveOm,
+      hasChanges,
+      doClose,
+      doCancelEdit,
+   ]);
 
    const handleExportDocx = useCallback(async () => {
       if (!ordem) return;
@@ -350,11 +389,15 @@ export function OrdemFormContent({
       [buildOrdemIdentificacao, ordem]
    );
 
+   // Ações de ciclo de vida disponíveis para o status atual (máquina de estados)
+   const transicoesStatus = getStatusTransitions(formData.status);
+   const statusCfg = STATUS_CONFIG[formData.status as StatusType];
+
    return (
       <div className="flex flex-1 flex-col overflow-hidden rounded border border-gray-200 bg-gray-50 shadow-xl">
          {/* Header Fixo */}
-         <header className="flex shrink-0 items-center justify-between border-b border-gray-200 bg-white px-6 py-4 shadow-sm">
-            <div className="hidden min-w-0 flex-1 items-center gap-4 md:flex">
+         <header className="flex shrink-0 items-center justify-between border-b border-gray-200 bg-white px-4 py-3 shadow-sm md:px-6 md:py-4">
+            <div className="flex min-w-0 flex-1 items-center gap-4">
                <button
                   onClick={handleClose}
                   className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-700"
@@ -362,7 +405,7 @@ export function OrdemFormContent({
                >
                   <HiArrowLeft size={24} />
                </button>
-               <div className="min-w-0">
+               <div className="hidden min-w-0 md:block">
                   <h1 className="truncate text-xl font-semibold text-gray-900">
                      {title} Ordem de Missão
                   </h1>
@@ -382,16 +425,23 @@ export function OrdemFormContent({
                </div>
             </div>
 
-            {/* Badge centralizado */}
-            {isReadOnlyMode && (
+            {/* Badge de status do objeto centralizado */}
+            {statusCfg && (
                <div className="hidden flex-1 justify-center md:flex">
-                  <span className="rounded-lg border border-gray-300 bg-gray-100 px-3 py-1.5 text-xs font-bold tracking-wider text-gray-700 uppercase">
-                     Somente Leitura
+                  <span
+                     className={clsx(
+                        "rounded-full border px-3 py-1.5 text-xs font-bold tracking-wider uppercase",
+                        statusCfg.bg,
+                        statusCfg.text,
+                        statusCfg.border
+                     )}
+                  >
+                     {statusCfg.label}
                   </span>
                </div>
             )}
 
-            <div className="flex flex-1 items-center justify-end gap-3">
+            <div className="flex flex-1 items-center justify-end gap-2 md:gap-3">
                {isReadOnlyMode && (
                   <>
                      {formData.status !== "cancelada" && (
@@ -399,51 +449,86 @@ export function OrdemFormContent({
                            resource={"ordem_missao"}
                            requiredPerm={"update"}
                         >
-                           <Button color="red" onClick={toggleReadOnlyMode}>
-                              <HiPencil className="mr-2" size={16} />
-                              Editar
+                           <Button color="light" onClick={toggleReadOnlyMode}>
+                              <HiPencil className="sm:mr-2" size={16} />
+                              <span className="hidden sm:inline">Editar</span>
                            </Button>
                         </PermBased>
                      )}
-                     {formData.status === "aprovada" && (
+                     {/* Zona de ciclo de vida: transições derivadas do status */}
+                     {transicoesStatus.includes("aprovar") && (
                         <PermBased
                            resource={"ordem_missao.status"}
                            requiredPerm={"update"}
                         >
-                           <Button
-                              color="light"
-                              onClick={handleCancelSubmit}
-                              disabled={isCancelling}
-                           >
-                              {isCancelling ? (
-                                 <>
-                                    <Spinner
-                                       color="failure"
-                                       size="sm"
-                                       className="mr-2"
-                                    />
-                                    Cancelando...
-                                 </>
-                              ) : (
-                                 <>
-                                    <HiBan
-                                       className="mr-2 text-red-500"
-                                       size={16}
-                                    />
-                                    Cancelar OM
-                                 </>
-                              )}
-                           </Button>
+                           <div className="flex items-center gap-3">
+                              <div className="hidden h-8 w-px bg-gray-300 md:block" />
+                              <Button
+                                 color="red"
+                                 onClick={handleApproveSubmit}
+                                 disabled={isApproving}
+                              >
+                                 {isApproving ? (
+                                    <>
+                                       <Spinner
+                                          color="failure"
+                                          size="sm"
+                                          className="sm:mr-2"
+                                       />
+                                       <span className="hidden sm:inline">
+                                          Aprovando...
+                                       </span>
+                                    </>
+                                 ) : (
+                                    <>
+                                       <HiCheckCircle
+                                          className="sm:mr-2"
+                                          size={16}
+                                       />
+                                       <span className="hidden sm:inline">
+                                          Aprovar OM
+                                       </span>
+                                    </>
+                                 )}
+                              </Button>
+                           </div>
                         </PermBased>
                      )}
-                     <Button
-                        color="gray"
-                        onClick={handleClose}
-                        disabled={isSaving || isApproving || isCancelling}
-                     >
-                        <HiX className="mr-2" size={16} />
-                        Fechar
-                     </Button>
+                     {transicoesStatus.includes("cancelar") && (
+                        <PermBased
+                           resource={"ordem_missao.status"}
+                           requiredPerm={"update"}
+                        >
+                           <div className="flex items-center gap-3">
+                              <div className="hidden h-8 w-px bg-gray-300 md:block" />
+                              <Button
+                                 color="red"
+                                 onClick={handleCancelSubmit}
+                                 disabled={isCancelling}
+                              >
+                                 {isCancelling ? (
+                                    <>
+                                       <Spinner
+                                          color="failure"
+                                          size="sm"
+                                          className="sm:mr-2"
+                                       />
+                                       <span className="hidden sm:inline">
+                                          Cancelando...
+                                       </span>
+                                    </>
+                                 ) : (
+                                    <>
+                                       <HiBan className="sm:mr-2" size={16} />
+                                       <span className="hidden sm:inline">
+                                          Cancelar OM
+                                       </span>
+                                    </>
+                                 )}
+                              </Button>
+                           </div>
+                        </PermBased>
+                     )}
                   </>
                )}
 
@@ -454,8 +539,10 @@ export function OrdemFormContent({
                         onClick={handleCancel}
                         disabled={isSaving || isApproving}
                      >
-                        <HiX className="mr-2" size={16} />
-                        Cancelar
+                        <HiX className="sm:mr-2" size={16} />
+                        <span className="hidden sm:inline">
+                           Descartar alterações
+                        </span>
                      </Button>
                      <Button
                         color="light"
@@ -473,20 +560,27 @@ export function OrdemFormContent({
                               <Spinner
                                  color="failure"
                                  size="sm"
-                                 className="mr-2"
+                                 className="sm:mr-2"
                               />
-                              Salvando...
+                              <span className="hidden sm:inline">
+                                 Salvando...
+                              </span>
                            </>
                         ) : (
-                           "Salvar"
+                           <>
+                              <HiSave className="sm:mr-2" size={16} />
+                              <span className="hidden sm:inline">Salvar</span>
+                           </>
                         )}
                      </Button>
-                     {!isCloning &&
-                        (isNew || formData.status === "rascunho") && (
-                           <PermBased
-                              resource={"ordem_missao.status"}
-                              requiredPerm={"update"}
-                           >
+                     {/* Zona de ciclo de vida: transições derivadas do status */}
+                     {!isCloning && transicoesStatus.includes("aprovar") && (
+                        <PermBased
+                           resource={"ordem_missao.status"}
+                           requiredPerm={"update"}
+                        >
+                           <div className="flex items-center gap-3">
+                              <div className="hidden h-8 w-px bg-gray-300 md:block" />
                               <Button
                                  color="red"
                                  type="button"
@@ -502,16 +596,27 @@ export function OrdemFormContent({
                                        <Spinner
                                           color="failure"
                                           size="sm"
-                                          className="mr-2"
+                                          className="sm:mr-2"
                                        />
-                                       Aprovando...
+                                       <span className="hidden sm:inline">
+                                          Aprovando...
+                                       </span>
                                     </>
                                  ) : (
-                                    "Aprovar"
+                                    <>
+                                       <HiCheckCircle
+                                          className="sm:mr-2"
+                                          size={16}
+                                       />
+                                       <span className="hidden sm:inline">
+                                          Aprovar OM
+                                       </span>
+                                    </>
                                  )}
                               </Button>
-                           </PermBased>
-                        )}
+                           </div>
+                        </PermBased>
+                     )}
                   </>
                )}
             </div>
@@ -641,7 +746,7 @@ export function OrdemFormContent({
                            Informacões
                         </h3>
                      </div>
-                     <div className="px-10 py-4">
+                     <div className="px-4 py-4 md:px-10">
                         <OrdemBasicInfo
                            formData={formData}
                            isEditable={isEditable}
@@ -735,7 +840,7 @@ export function OrdemFormContent({
                            )}
                         </div>
                      </div>
-                     <div className="px-10 py-4">
+                     <div className="px-4 py-4 md:px-10">
                         <LabelPicker
                            allLabels={allLabels}
                            selectedLabels={formData.etiquetas || []}

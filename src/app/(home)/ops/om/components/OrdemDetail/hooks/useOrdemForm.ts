@@ -574,6 +574,14 @@ export const useOrdemForm = ({
       }
    };
 
+   // Valida a ordem para aprovação exibindo os erros encontrados;
+   // usado antes de pedir a confirmação do usuário
+   const validateForApproval = (): boolean => {
+      const validation = validateForm();
+      setFormValidationErrors(validation.errors);
+      return validation.isValid;
+   };
+
    // Elaborar (aprovar) ordem
    const handleElaborar = async (): Promise<{ success: boolean }> => {
       const validation = validateForm();
@@ -592,7 +600,15 @@ export const useOrdemForm = ({
          const apiData = prepareApiData(true);
 
          if (shouldGenerateNew) {
-            await createOrdemMutation.mutateAsync(apiData as OrdemMissaoCreate);
+            // O backend sempre cria como rascunho (regra de negócio),
+            // então aprovar exige a transição em um segundo passo
+            const created = await createOrdemMutation.mutateAsync(
+               apiData as OrdemMissaoCreate
+            );
+            await updateOrdemMutation.mutateAsync({
+               id: created.id,
+               data: { status: "aprovada" } as OrdemMissaoUpdate,
+            });
          } else {
             await updateOrdemMutation.mutateAsync({
                id: formData.id,
@@ -666,6 +682,7 @@ export const useOrdemForm = ({
       updateEtiquetas,
       resetForm,
       handleSubmit,
+      validateForApproval,
       handleElaborar,
       handleCancelar,
       isCancelling,

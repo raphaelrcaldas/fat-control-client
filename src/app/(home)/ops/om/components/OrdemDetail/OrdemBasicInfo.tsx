@@ -148,8 +148,8 @@ export const OrdemBasicInfo = memo(function OrdemBasicInfo({
    const isNumeroEditable = isEditable && formData.status === "aprovada";
 
    return (
-      <div className="grid gap-4 md:flex">
-         <div className="w-24">
+      <div className="grid grid-cols-2 gap-4 md:flex">
+         <div className="md:w-24">
             <label
                htmlFor="numero-om"
                className="mb-2 flex items-center gap-1.5 text-xs font-semibold tracking-wide text-gray-600 uppercase"
@@ -175,7 +175,7 @@ export const OrdemBasicInfo = memo(function OrdemBasicInfo({
                className="w-full rounded-lg border-2 border-gray-200 bg-white px-3 py-2.5 text-center font-mono text-gray-900 uppercase transition-all placeholder:text-gray-400 focus:border-red-400 focus:ring-2 focus:ring-red-400 disabled:cursor-not-allowed disabled:opacity-50"
             />
          </div>
-         <div className="flex-1">
+         <div className="col-span-2 md:flex-1">
             <label className="mb-2 flex items-center gap-1.5 text-xs font-semibold tracking-wide text-gray-600 uppercase">
                Documento Referência
             </label>
@@ -205,7 +205,7 @@ export const OrdemBasicInfo = memo(function OrdemBasicInfo({
                </p>
             )}
          </div>
-         <div className="flex-1">
+         <div className="col-span-2 md:flex-1">
             <label className="mb-2 flex items-center gap-1.5 text-xs font-semibold tracking-wide text-gray-600 uppercase">
                Descrição da Missão
                <span className="text-red-500">*</span>
@@ -239,7 +239,7 @@ export const OrdemBasicInfo = memo(function OrdemBasicInfo({
                </p>
             )}
          </div>
-         <div className="w-42">
+         <div className="md:w-42">
             <label className="mb-2 flex items-center gap-1.5 text-xs font-semibold tracking-wide text-gray-600 uppercase">
                Aeronave
                <span className="text-red-500">*</span>
@@ -269,7 +269,7 @@ export const OrdemBasicInfo = memo(function OrdemBasicInfo({
                ))}
             </select>
          </div>
-         <div className="w-fit">
+         <div className="md:w-fit">
             <label className="mb-2 flex items-center gap-1.5 text-xs font-semibold tracking-wide text-gray-600 uppercase">
                Esf. Aéreo
             </label>
@@ -279,7 +279,7 @@ export const OrdemBasicInfo = memo(function OrdemBasicInfo({
                disabled={!isEditable}
                placeholder="00:00"
                className={clsx(
-                  "w-28 rounded-lg border-2 bg-white px-3 py-2.5 text-center font-mono text-gray-900 transition-all placeholder:text-gray-400 focus:ring-2 disabled:cursor-not-allowed disabled:opacity-50",
+                  "w-full rounded-lg border-2 bg-white px-3 py-2.5 text-center font-mono text-gray-900 transition-all placeholder:text-gray-400 focus:ring-2 disabled:cursor-not-allowed disabled:opacity-50 md:w-28",
                   erroEsfAer
                      ? "border-red-300 focus:border-red-400 focus:ring-red-400"
                      : "border-gray-200 focus:border-red-400 focus:ring-red-400"

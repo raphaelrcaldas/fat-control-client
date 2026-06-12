@@ -5,7 +5,7 @@
 
 function SectionSkeleton({ children }: { children: React.ReactNode }) {
    return (
-      <div className="rounded-xl border border-slate-200 bg-white shadow-sm">
+      <div className="border border-slate-200 bg-white shadow-sm">
          <div className="border-b border-slate-200 p-4">
             <div className="flex items-center gap-2">
                <div className="h-4 w-1 rounded-full bg-gray-200" />
@@ -22,18 +22,22 @@ export function OrdemDetailSkeleton() {
       <div
          role="status"
          aria-label="Carregando Ordem de Missão"
-         className="flex flex-1 animate-pulse flex-col overflow-hidden rounded-lg border border-gray-200 bg-gray-50 shadow-xl"
+         className="flex flex-1 animate-pulse flex-col overflow-hidden rounded border border-gray-200 bg-gray-50 shadow-xl"
       >
          {/* Header */}
-         <header className="flex shrink-0 items-center justify-between border-b border-gray-200 bg-white px-6 py-4 shadow-sm">
-            <div className="flex items-center gap-4">
+         <header className="flex shrink-0 items-center justify-between border-b border-gray-200 bg-white px-4 py-3 shadow-sm md:px-6 md:py-4">
+            <div className="flex flex-1 items-center gap-4">
                <div className="h-10 w-10 rounded-lg bg-gray-200" />
-               <div className="space-y-2">
+               <div className="hidden space-y-2 md:block">
                   <div className="h-5 w-56 rounded bg-gray-200" />
                   <div className="h-3.5 w-36 rounded bg-gray-100" />
                </div>
             </div>
-            <div className="flex gap-3">
+            {/* Badge de status central */}
+            <div className="hidden flex-1 justify-center md:flex">
+               <div className="h-7 w-24 rounded-full bg-gray-100" />
+            </div>
+            <div className="flex flex-1 justify-end gap-2 md:gap-3">
                <div className="h-10 w-24 rounded-lg bg-gray-200" />
                <div className="h-10 w-24 rounded-lg bg-gray-100" />
             </div>
@@ -43,12 +47,12 @@ export function OrdemDetailSkeleton() {
             <div className="mx-auto space-y-4 p-4">
                {/* Informações: linha de inputs */}
                <SectionSkeleton>
-                  <div className="grid gap-4 md:flex">
-                     <div className="h-11 w-24 rounded-lg bg-gray-100" />
-                     <div className="h-11 flex-1 rounded-lg bg-gray-100" />
-                     <div className="h-11 flex-1 rounded-lg bg-gray-100" />
-                     <div className="h-11 w-42 rounded-lg bg-gray-100" />
-                     <div className="h-11 w-28 rounded-lg bg-gray-100" />
+                  <div className="grid grid-cols-2 gap-4 md:flex">
+                     <div className="h-11 rounded-lg bg-gray-100 md:w-24" />
+                     <div className="col-span-2 h-11 rounded-lg bg-gray-100 md:flex-1" />
+                     <div className="col-span-2 h-11 rounded-lg bg-gray-100 md:flex-1" />
+                     <div className="h-11 rounded-lg bg-gray-100 md:w-42" />
+                     <div className="h-11 rounded-lg bg-gray-100 md:w-28" />
                   </div>
                </SectionSkeleton>
 

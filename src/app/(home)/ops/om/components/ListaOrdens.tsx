@@ -1,5 +1,6 @@
 import { memo, useMemo, useCallback } from "react";
-import { HiDocumentDuplicate, HiTrash, HiClock } from "react-icons/hi";
+import { HiDocumentDuplicate, HiTrash } from "react-icons/hi";
+import clsx from "clsx";
 import type { OrdemMissaoList, EtapaListItem } from "services/routes/om/ordens";
 import { Label } from "flowbite-react";
 import { extractDate } from "utils/dateHandler";
@@ -61,6 +62,8 @@ const OrdemItem = memo(function OrdemItem({
 }: OrdemItemProps) {
    const resumoRota = useMemo(() => gerarResumoRota(ordem), [ordem]);
 
+   const status = statusConfig[ordem.status as StatusType];
+
    const handleClick = useCallback(() => {
       onOrdemClick(ordem);
    }, [onOrdemClick, ordem]);
@@ -95,36 +98,42 @@ const OrdemItem = memo(function OrdemItem({
       <div
          role="button"
          tabIndex={0}
-         aria-label={`Abrir ordem de missão ${ordem.numero}`}
-         className="cursor-pointer rounded border border-gray-200 bg-white px-4 py-3 shadow transition-all hover:border-red-300 hover:shadow-md focus:border-red-400 focus:ring-2 focus:ring-red-400 focus:outline-none"
+         aria-label={`Abrir ordem de missão ${ordem.numero} — status ${status?.label ?? ordem.status}`}
+         className="relative cursor-pointer overflow-hidden rounded border-y border-r border-gray-200 bg-white py-3 pr-4 pl-5 shadow transition-all hover:border-red-300 hover:shadow-md focus:border-red-400 focus:ring-2 focus:ring-red-400 focus:outline-none"
          onClick={handleClick}
          onKeyDown={handleKeyDown}
       >
-         <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
+         {/* Faixa lateral de status (cor = estado da OM) */}
+         <span
+            aria-hidden
+            title={status?.label ?? ordem.status}
+            className={clsx(
+               "absolute inset-y-0 left-0 w-1.5",
+               status?.accent ?? "bg-gray-300"
+            )}
+         />
+         <div className="flex items-center justify-between gap-2">
+            <div className="flex min-w-0 flex-1 items-center gap-3">
                <div className="flex flex-col gap-1.5 text-center">
-                  <Label className="pointer-events-none text-start text-xs text-gray-500">
+                  <Label className="pointer-events-none hidden text-start text-xs text-gray-500 md:block">
                      Número
                   </Label>
                   <div className="pointer-events-none font-mono text-lg font-semibold text-gray-900">
                      {ordem.numero}
                   </div>
-                  {/* Status compacto no mobile (coluna Status é md+) */}
-                  <span
-                     className={`pointer-events-none rounded-full px-1.5 py-0.5 text-[10px] font-bold uppercase md:hidden ${statusConfig[ordem.status as StatusType]?.bg ?? "bg-gray-100"} ${statusConfig[ordem.status as StatusType]?.text ?? "text-gray-500"}`}
-                  >
-                     {ordem.status}
-                  </span>
                </div>
-               <div className="h-10 w-px bg-gray-200" />
+               <div className="hidden h-10 w-px bg-gray-200 md:block" />
                <div className="hidden w-24 flex-col gap-1.5 text-center md:flex">
                   <Label className="pointer-events-none text-xs text-gray-500">
                      Status
                   </Label>
                   <span
-                     className={`pointer-events-none text-xs font-bold uppercase ${statusConfig[ordem.status as StatusType]?.text ?? "text-gray-500"}`}
+                     className={clsx(
+                        "pointer-events-none text-xs font-bold uppercase",
+                        status?.text ?? "text-gray-500"
+                     )}
                   >
-                     {ordem.status}
+                     {status?.label ?? ordem.status}
                   </span>
                </div>
                <div className="hidden h-10 w-px bg-gray-200 md:block" />
@@ -155,12 +164,12 @@ const OrdemItem = memo(function OrdemItem({
                      </span>
                   )}
                </div>
-               <div className="hidden h-10 w-px bg-gray-200 md:block" />
-               <div className="hidden flex-col gap-1.5 md:flex">
+               <div className="hidden h-10 w-px bg-gray-200 xl:block" />
+               <div className="hidden flex-col gap-1.5 xl:flex">
                   <Label className="pointer-events-none text-xs text-gray-500">
                      Documento Referência
                   </Label>
-                  <p className="pointer-events-none hidden w-48 text-sm sm:block">
+                  <p className="pointer-events-none w-48 truncate text-sm">
                      <span
                         className={
                            ordem.doc_ref ? "text-gray-600" : "text-gray-400"
@@ -170,8 +179,8 @@ const OrdemItem = memo(function OrdemItem({
                      </span>
                   </p>
                </div>
-               <div className="hidden h-10 w-px bg-gray-200 md:block" />
-               <div className="hidden flex-col gap-1.5 md:flex">
+               <div className="hidden h-10 w-px bg-gray-200 lg:block" />
+               <div className="hidden flex-col gap-1.5 lg:flex">
                   <Label className="pointer-events-none text-xs text-gray-500">
                      Descrição
                   </Label>
@@ -213,34 +222,29 @@ const OrdemItem = memo(function OrdemItem({
                   )}
                </div>
             </div>
-            <div className="flex items-center gap-4">
-               <div className="flex items-center gap-1">
-                  <PermBased resource={"ordem_missao"} requiredPerm={"create"}>
+            <div className="flex shrink-0 items-center gap-1">
+               <PermBased resource={"ordem_missao"} requiredPerm={"create"}>
+                  <button
+                     onClick={handleClone}
+                     className="rounded p-2 text-gray-400 transition-colors hover:bg-blue-50 hover:text-blue-500"
+                     title="Clonar missão"
+                     aria-label={`Clonar ordem ${ordem.numero}`}
+                  >
+                     <HiDocumentDuplicate size={20} />
+                  </button>
+               </PermBased>
+               {onDeleteOrdem && ordem.status === "rascunho" && (
+                  <PermBased resource={"ordem_missao"} requiredPerm={"delete"}>
                      <button
-                        onClick={handleClone}
-                        className="rounded-lg p-2 text-gray-400 transition-colors hover:bg-blue-50 hover:text-blue-500"
-                        title="Clonar missão"
-                        aria-label={`Clonar ordem ${ordem.numero}`}
+                        onClick={handleDelete}
+                        className="rounded p-2 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-500"
+                        title="Excluir rascunho"
+                        aria-label={`Excluir rascunho ${ordem.numero}`}
                      >
-                        <HiDocumentDuplicate size={20} />
+                        <HiTrash size={20} />
                      </button>
                   </PermBased>
-                  {onDeleteOrdem && ordem.status === "rascunho" && (
-                     <PermBased
-                        resource={"ordem_missao"}
-                        requiredPerm={"delete"}
-                     >
-                        <button
-                           onClick={handleDelete}
-                           className="rounded-lg p-2 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-500"
-                           title="Excluir rascunho"
-                           aria-label={`Excluir rascunho ${ordem.numero}`}
-                        >
-                           <HiTrash size={20} />
-                        </button>
-                     </PermBased>
-                  )}
-               </div>
+               )}
             </div>
          </div>
       </div>
@@ -287,7 +291,7 @@ export const ListaOrdens = memo(function ListaOrdens({
 
    if (ordens.length === 0) {
       return (
-         <div className="rounded-xl border border-gray-200 bg-white py-16 text-center text-gray-400">
+         <div className="rounded border border-gray-200 bg-white py-16 text-center text-gray-400">
             <p className="mb-4 text-4xl">✈</p>
             {hasActiveFilters ? (
                <>

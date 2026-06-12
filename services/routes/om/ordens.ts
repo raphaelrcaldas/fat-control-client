@@ -1,5 +1,6 @@
 import request from "../../Api";
 import type { ApiPaginatedResponse, ApiResponse } from "@/types/api";
+import type { StatusType } from "@/constants/ops/ordens-missao/status";
 import type { CrewMember } from "../trips";
 
 const omRoute = "ops/om/";
@@ -78,7 +79,7 @@ export interface OrdemMissaoCreate {
    matricula_anv: string;
    tipo: string;
    projeto: string;
-   status: string;
+   status: StatusType;
    campos_especiais: CampoEspecial[];
    doc_ref?: string | null;
    esf_aer: number;
@@ -93,7 +94,7 @@ export interface OrdemMissaoUpdate {
    tipo?: string | null;
    doc_ref?: string | null;
    projeto?: string | null;
-   status?: string | null;
+   status?: StatusType | null;
    campos_especiais?: CampoEspecial[] | null;
    esf_aer?: number | null;
    etapas?: EtapaCreate[] | null;
@@ -107,7 +108,7 @@ export interface OrdemMissaoOut {
    matricula_anv: string;
    tipo: string;
    projeto: string;
-   status: string;
+   status: StatusType;
    campos_especiais: CampoEspecial[];
    doc_ref: string | null;
    data_saida: string | null;
@@ -127,7 +128,7 @@ export interface OrdemMissaoList {
    matricula_anv: string;
    tipo: string;
    projeto: string;
-   status: string;
+   status: StatusType;
    created_at: string;
    updated_at: string | null;
    doc_ref: string | null;
