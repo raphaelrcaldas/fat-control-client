@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import clsx from "clsx";
 import {
    Button,
    Modal,
@@ -11,11 +12,10 @@ import {
    Spinner,
 } from "flowbite-react";
 import {
-   FaPlus,
-   FaXmark,
    FaChevronDown,
-   FaChevronUp,
+   FaPlus,
    FaShieldHalved,
+   FaXmark,
 } from "react-icons/fa6";
 import {
    useRoles,
@@ -24,7 +24,11 @@ import {
    useRemoveRolePermission,
 } from "@/hooks/queries/useSecurity";
 import { useToast } from "@/app/context/toast";
-import { getRoleTheme } from "@/constants/admin/roles";
+import {
+   getRoleTheme,
+   getActionChipTheme,
+   compareActions,
+} from "@/constants/admin/roles";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Skeleton } from "@/components/ui/Skeleton";
@@ -38,13 +42,10 @@ export default function RolesTab() {
       number | null
    >(null);
 
-   const [showRemoveModal, setShowRemoveModal] = useState(false);
-   const [removingPermission, setRemovingPermission] = useState<{
+   const [removing, setRemoving] = useState<{
       roleId: number;
-      permissionId: number;
       roleName: string;
-      permissionResource: string;
-      permissionAction: string;
+      permission: PermissionDetail;
    } | null>(null);
 
    const { data: roles, isLoading: loadingRoles } = useRoles();
@@ -54,16 +55,29 @@ export default function RolesTab() {
    const removeRolePermission = useRemoveRolePermission();
    const { push } = useToast();
 
+   const totalPermissions = allPermissions?.length ?? 0;
+
    const selectedRole = useMemo(() => {
       if (!selectedRoleId || !roles) return null;
       return roles.find((r) => r.id === selectedRoleId) || null;
    }, [selectedRoleId, roles]);
 
-   const availablePermissions = useMemo(() => {
+   // Permissões ainda não concedidas ao perfil, agrupadas por recurso
+   const availablePermissionGroups = useMemo(() => {
       if (!selectedRole || !allPermissions) return [];
-      const currentPermissionIds = selectedRole.permissions.map((p) => p.id);
-      return allPermissions.filter((p) => !currentPermissionIds.includes(p.id));
+      const currentIds = new Set(selectedRole.permissions.map((p) => p.id));
+      const available = allPermissions.filter((p) => !currentIds.has(p.id));
+
+      const grouped = new Map<string, typeof available>();
+      available.forEach((p) => {
+         const group = grouped.get(p.resource) ?? [];
+         group.push(p);
+         grouped.set(p.resource, group);
+      });
+      return [...grouped.entries()].sort(([a], [b]) => a.localeCompare(b));
    }, [selectedRole, allPermissions]);
+
+   const hasAvailablePermissions = availablePermissionGroups.length > 0;
 
    const handleToggleExpand = (roleId: number) => {
       setExpandedRoleId(expandedRoleId === roleId ? null : roleId);
@@ -79,28 +93,6 @@ export default function RolesTab() {
       setShowAddModal(false);
       setSelectedRoleId(null);
       setSelectedPermissionId(null);
-   };
-
-   const handleOpenRemoveModal = (
-      roleId: number,
-      permissionId: number,
-      roleName: string,
-      permissionResource: string,
-      permissionAction: string
-   ) => {
-      setRemovingPermission({
-         roleId,
-         permissionId,
-         roleName,
-         permissionResource,
-         permissionAction,
-      });
-      setShowRemoveModal(true);
-   };
-
-   const handleCloseRemoveModal = () => {
-      setShowRemoveModal(false);
-      setRemovingPermission(null);
    };
 
    const handleAddPermission = async () => {
@@ -131,14 +123,12 @@ export default function RolesTab() {
    };
 
    const handleRemovePermission = async () => {
-      if (!removingPermission) return;
-
-      const { roleId, permissionId } = removingPermission;
+      if (!removing) return;
 
       try {
          const result = await removeRolePermission.mutateAsync({
-            roleId,
-            permissionId,
+            roleId: removing.roleId,
+            permissionId: removing.permission.id,
          });
 
          if (result.ok) {
@@ -146,7 +136,7 @@ export default function RolesTab() {
                type: "success",
                message: result.message || "Permissão removida com sucesso",
             });
-            handleCloseRemoveModal();
+            setRemoving(null);
          } else {
             push({
                type: "error",
@@ -170,7 +160,12 @@ export default function RolesTab() {
          }
          grouped[p.resource].push(p);
       });
-      return grouped;
+      Object.values(grouped).forEach((perms) =>
+         perms.sort((a, b) => compareActions(a.action, b.action))
+      );
+      return Object.fromEntries(
+         Object.entries(grouped).sort(([a], [b]) => a.localeCompare(b))
+      );
    };
 
    if (loadingRoles || loadingPermissions) {
@@ -185,10 +180,16 @@ export default function RolesTab() {
 
    return (
       <>
-         <div className="space-y-4">
+         <div className="space-y-3">
             {roles.map((role) => {
                const theme = getRoleTheme(role.name);
                const isExpanded = expandedRoleId === role.id;
+               const grantedCount = new Set(role.permissions.map((p) => p.id))
+                  .size;
+               const coverage =
+                  totalPermissions > 0
+                     ? Math.round((grantedCount / totalPermissions) * 100)
+                     : 0;
                const groupedPermissions = groupPermissionsByResource(
                   role.permissions
                );
@@ -196,118 +197,167 @@ export default function RolesTab() {
                return (
                   <div
                      key={role.id}
-                     className={`overflow-hidden rounded-lg border bg-white shadow-sm dark:bg-gray-800 ${isExpanded ? "border-gray-300 dark:border-gray-600" : "border-gray-200 dark:border-gray-700"}`}
+                     className={clsx(
+                        "overflow-hidden rounded-xl border bg-white shadow-sm transition-colors dark:bg-gray-800",
+                        isExpanded
+                           ? "border-gray-300 dark:border-gray-600"
+                           : "border-gray-200 dark:border-gray-700"
+                     )}
                   >
                      <button
                         onClick={() => handleToggleExpand(role.id)}
-                        className={`flex w-full items-center justify-between p-4 text-left transition-colors ${theme.hover}`}
+                        aria-expanded={isExpanded}
+                        className={clsx(
+                           "flex w-full items-center gap-4 p-4 text-left transition-colors",
+                           theme.hover
+                        )}
                      >
-                        <div className="flex items-center gap-3">
-                           <div
-                              className={`flex h-9 w-9 items-center justify-center rounded-lg ${theme.bg}`}
+                        <div
+                           className={clsx(
+                              "flex h-10 w-10 shrink-0 items-center justify-center rounded-lg",
+                              theme.bg
+                           )}
+                        >
+                           <FaShieldHalved
+                              className={clsx("h-4 w-4", theme.text)}
+                           />
+                        </div>
+
+                        <div className="min-w-0 flex-1">
+                           <span
+                              className={clsx(
+                                 "inline-flex items-center rounded-md px-2.5 py-0.5 text-sm font-semibold",
+                                 theme.bg,
+                                 theme.text
+                              )}
                            >
-                              <FaShieldHalved
-                                 className={`h-4 w-4 ${theme.text}`}
+                              {theme.label || role.name}
+                           </span>
+                           <p className="mt-1 ml-1 truncate text-sm text-gray-600 dark:text-gray-300">
+                              {role.description}
+                           </p>
+                        </div>
+
+                        <div className="hidden w-40 shrink-0 sm:block">
+                           <div className="flex items-baseline justify-between text-xs">
+                              <span className="font-semibold text-gray-700 tabular-nums dark:text-gray-200">
+                                 {grantedCount}
+                                 <span className="font-normal text-gray-400 dark:text-gray-500">
+                                    /{totalPermissions}
+                                 </span>
+                              </span>
+                              <span className="text-gray-400 dark:text-gray-500">
+                                 {grantedCount === 1
+                                    ? "permissão"
+                                    : "permissões"}
+                              </span>
+                           </div>
+                           <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-gray-100 dark:bg-gray-700">
+                              <div
+                                 className="h-full rounded-full bg-emerald-500 transition-all duration-500 dark:bg-emerald-400"
+                                 style={{ width: `${coverage}%` }}
                               />
                            </div>
-                           <div>
-                              <div className="flex items-center gap-2">
-                                 <span
-                                    className={`inline-flex items-center rounded-md px-2.5 py-0.5 text-xs font-semibold ${theme.bg} ${theme.text}`}
-                                 >
-                                    {theme.label || role.name}
-                                 </span>
-                                 <span className="text-sm text-gray-500 dark:text-gray-400">
-                                    {role.permissions.length}{" "}
-                                    {role.permissions.length === 1
-                                       ? "permissão"
-                                       : "permissões"}
-                                 </span>
-                              </div>
-                              <p className="mt-1 text-sm text-gray-600 dark:text-gray-300">
-                                 {role.description}
-                              </p>
-                           </div>
                         </div>
-                        {isExpanded ? (
-                           <FaChevronUp className="h-4 w-4 text-gray-400" />
-                        ) : (
-                           <FaChevronDown className="h-4 w-4 text-gray-400" />
-                        )}
+
+                        <FaChevronDown
+                           className={clsx(
+                              "h-4 w-4 shrink-0 text-gray-400 transition-transform duration-200",
+                              isExpanded && "rotate-180"
+                           )}
+                        />
                      </button>
 
-                     {isExpanded && (
-                        <div className="border-t border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-900">
-                           <div className="mb-4 flex items-center justify-between">
-                              <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                                 Permissões Atuais
-                              </h3>
-                              <Button
-                                 size="xs"
-                                 color="red"
-                                 onClick={() => handleOpenAddModal(role.id)}
-                              >
-                                 <FaPlus className="mr-2 h-3 w-3" />
-                                 Adicionar Permissão
-                              </Button>
-                           </div>
-
-                           {role.permissions.length === 0 ? (
-                              <p className="text-sm text-gray-500 dark:text-gray-400">
-                                 Nenhuma permissão atribuída a este perfil
-                              </p>
-                           ) : (
-                              <div className="space-y-4">
-                                 {Object.entries(groupedPermissions).map(
-                                    ([resource, permissions]) => (
-                                       <div key={resource}>
-                                          <h4 className="mb-2 text-xs font-semibold tracking-wide text-gray-600 uppercase dark:text-gray-400">
-                                             {resource}
-                                          </h4>
-                                          <div className="space-y-2">
-                                             {permissions.map((permission) => (
-                                                <div
-                                                   key={permission.id}
-                                                   className="flex items-center justify-between rounded-md border border-gray-200 bg-white p-3 dark:border-gray-700 dark:bg-gray-800"
-                                                >
-                                                   <div className="min-w-0 flex-1">
-                                                      <p className="text-sm font-medium text-gray-900 dark:text-white">
-                                                         {permission.action}
-                                                      </p>
-                                                      <p className="text-xs text-gray-500 dark:text-gray-400">
-                                                         {
-                                                            permission.description
-                                                         }
-                                                      </p>
-                                                   </div>
-                                                   <button
-                                                      onClick={() =>
-                                                         handleOpenRemoveModal(
-                                                            role.id,
-                                                            permission.id,
-                                                            role.name,
-                                                            permission.resource,
-                                                            permission.action
-                                                         )
-                                                      }
-                                                      className="ml-3 rounded-md p-1 text-gray-400 transition-colors hover:bg-red-100 hover:text-red-600 dark:hover:bg-red-900/30 dark:hover:text-red-400"
-                                                      aria-label="Remover permissão"
-                                                      disabled={
-                                                         removeRolePermission.isPending
-                                                      }
-                                                   >
-                                                      <FaXmark className="h-4 w-4" />
-                                                   </button>
-                                                </div>
-                                             ))}
-                                          </div>
-                                       </div>
-                                    )
-                                 )}
+                     <div
+                        className={clsx(
+                           "grid transition-[grid-template-rows] duration-300 ease-out motion-reduce:transition-none",
+                           isExpanded ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
+                        )}
+                     >
+                        <div className="overflow-hidden">
+                           <div className="border-t border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-900">
+                              <div className="mb-3 flex items-center justify-between">
+                                 <h3 className="text-xs font-semibold tracking-wide text-gray-500 uppercase dark:text-gray-400">
+                                    Permissões concedidas
+                                 </h3>
+                                 <Button
+                                    size="xs"
+                                    color="red"
+                                    onClick={() => handleOpenAddModal(role.id)}
+                                 >
+                                    <FaPlus className="mr-2 h-3 w-3" />
+                                    Adicionar
+                                 </Button>
                               </div>
-                           )}
+
+                              {role.permissions.length === 0 ? (
+                                 <p className="text-sm text-gray-500 dark:text-gray-400">
+                                    Nenhuma permissão atribuída a este perfil
+                                 </p>
+                              ) : (
+                                 <div className="space-y-2.5">
+                                    {Object.entries(groupedPermissions).map(
+                                       ([resource, permissions]) => (
+                                          <div
+                                             key={resource}
+                                             className="flex flex-col gap-1.5 sm:flex-row sm:items-baseline sm:gap-3"
+                                          >
+                                             <span className="shrink-0 text-xs font-semibold tracking-wide text-gray-500 uppercase sm:w-36 dark:text-gray-400">
+                                                {resource}
+                                             </span>
+                                             <div className="flex flex-wrap gap-1.5">
+                                                {permissions.map(
+                                                   (permission) => {
+                                                      const chip =
+                                                         getActionChipTheme(
+                                                            permission.action
+                                                         );
+                                                      return (
+                                                         <span
+                                                            key={permission.id}
+                                                            title={
+                                                               permission.description
+                                                            }
+                                                            className={clsx(
+                                                               "inline-flex min-w-18 items-center justify-between gap-1 rounded-full border py-0.5 pr-1 pl-2.5 text-sm font-medium",
+                                                               chip.bg,
+                                                               chip.text,
+                                                               chip.border
+                                                            )}
+                                                         >
+                                                            {permission.action}
+                                                            <button
+                                                               onClick={() =>
+                                                                  setRemoving({
+                                                                     roleId:
+                                                                        role.id,
+                                                                     roleName:
+                                                                        theme.label ||
+                                                                        role.name,
+                                                                     permission,
+                                                                  })
+                                                               }
+                                                               className="rounded-full p-0.5 opacity-60 transition-all hover:bg-black/10 hover:opacity-100 dark:hover:bg-white/10"
+                                                               aria-label={`Remover ${permission.resource}.${permission.action}`}
+                                                               disabled={
+                                                                  removeRolePermission.isPending
+                                                               }
+                                                            >
+                                                               <FaXmark className="h-3 w-3" />
+                                                            </button>
+                                                         </span>
+                                                      );
+                                                   }
+                                                )}
+                                             </div>
+                                          </div>
+                                       )
+                                    )}
+                                 </div>
+                              )}
+                           </div>
                         </div>
-                     )}
+                     </div>
                   </div>
                );
             })}
@@ -324,7 +374,11 @@ export default function RolesTab() {
                         </label>
                         <div className="flex items-center gap-2">
                            <span
-                              className={`inline-flex items-center rounded-md px-2.5 py-0.5 text-xs font-semibold ${getRoleTheme(selectedRole.name).bg} ${getRoleTheme(selectedRole.name).text}`}
+                              className={clsx(
+                                 "inline-flex items-center rounded-md px-2.5 py-0.5 text-xs font-semibold",
+                                 getRoleTheme(selectedRole.name).bg,
+                                 getRoleTheme(selectedRole.name).text
+                              )}
                            >
                               {getRoleTheme(selectedRole.name).label ||
                                  selectedRole.name}
@@ -353,13 +407,25 @@ export default function RolesTab() {
                            required
                         >
                            <option value="">Selecione uma permissão</option>
-                           {availablePermissions.map((permission) => (
-                              <option key={permission.id} value={permission.id}>
-                                 {permission.resource} &gt; {permission.action}
-                              </option>
-                           ))}
+                           {availablePermissionGroups.map(
+                              ([resource, permissions]) => (
+                                 <optgroup key={resource} label={resource}>
+                                    {permissions.map((permission) => (
+                                       <option
+                                          key={permission.id}
+                                          value={permission.id}
+                                       >
+                                          {permission.action}
+                                          {permission.description
+                                             ? ` — ${permission.description}`
+                                             : ""}
+                                       </option>
+                                    ))}
+                                 </optgroup>
+                              )
+                           )}
                         </Select>
-                        {availablePermissions.length === 0 && (
+                        {!hasAvailablePermissions && (
                            <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
                               Todas as permissões já foram atribuídas a este
                               perfil
@@ -370,9 +436,6 @@ export default function RolesTab() {
                )}
             </ModalBody>
             <ModalFooter>
-               <Button color="gray" onClick={handleCloseAddModal}>
-                  Cancelar
-               </Button>
                <Button
                   color="red"
                   onClick={handleAddPermission}
@@ -389,19 +452,22 @@ export default function RolesTab() {
                      "Adicionar"
                   )}
                </Button>
+               <Button color="gray" onClick={handleCloseAddModal}>
+                  Cancelar
+               </Button>
             </ModalFooter>
          </Modal>
 
          <ConfirmModal
-            show={showRemoveModal}
+            show={removing !== null}
             title="Remover permissão?"
             description={
-               removingPermission
-                  ? `Remover permissão "${removingPermission.permissionResource} > ${removingPermission.permissionAction}" do perfil ${getRoleTheme(removingPermission.roleName).label || removingPermission.roleName}?`
+               removing
+                  ? `Remover a permissão "${removing.permission.resource}.${removing.permission.action}" do perfil ${removing.roleName}?`
                   : ""
             }
             isLoading={removeRolePermission.isPending}
-            onClose={handleCloseRemoveModal}
+            onClose={() => setRemoving(null)}
             onConfirm={handleRemovePermission}
             confirmButtonText="Sim, remover"
          />
@@ -411,22 +477,21 @@ export default function RolesTab() {
 
 function RolesListSkeleton({ rows = 6 }: { rows?: number }) {
    return (
-      <div className="space-y-4">
+      <div className="space-y-3">
          {Array.from({ length: rows }).map((_, i) => (
             <div
                key={i}
-               className="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800"
+               className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800"
             >
-               <div className="flex w-full items-center justify-between p-4">
-                  <div className="flex items-center gap-3">
-                     <Skeleton className="h-9 w-9 rounded-lg" />
-                     <div className="space-y-2">
-                        <div className="flex items-center gap-2">
-                           <Skeleton className="h-5 w-24 rounded-md" />
-                           <Skeleton className="h-4 w-20" />
-                        </div>
-                        <Skeleton className="h-4 w-56" />
-                     </div>
+               <div className="flex w-full items-center gap-4 p-4">
+                  <Skeleton className="h-10 w-10 rounded-lg" />
+                  <div className="flex-1 space-y-2">
+                     <Skeleton className="h-5 w-32 rounded-md" />
+                     <Skeleton className="h-4 w-56" />
+                  </div>
+                  <div className="hidden w-40 space-y-2 sm:block">
+                     <Skeleton className="h-3 w-full" />
+                     <Skeleton className="h-1.5 w-full rounded-full" />
                   </div>
                   <Skeleton className="h-4 w-4" />
                </div>

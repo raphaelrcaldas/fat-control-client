@@ -6,6 +6,7 @@ import { FaCubes, FaMagnifyingGlass } from "react-icons/fa6";
 import { useToast } from "@/app/context/toast";
 import {
    useResources,
+   usePermissions,
    useCreateResource,
    useUpdateResource,
    useDeleteResource,
@@ -26,6 +27,7 @@ export default function ResourcesTab() {
 
    // Query hooks
    const { data: resources = [], isLoading, error } = useResources();
+   const { data: permissions } = usePermissions();
    const createMutation = useCreateResource();
    const updateMutation = useUpdateResource();
    const deleteMutation = useDeleteResource();
@@ -40,6 +42,15 @@ export default function ResourcesTab() {
       null
    );
    const [searchTerm, setSearchTerm] = useState("");
+
+   const permissionCounts = useMemo(() => {
+      if (!permissions) return undefined;
+      const counts = new Map<string, number>();
+      permissions.forEach((p) => {
+         counts.set(p.resource, (counts.get(p.resource) ?? 0) + 1);
+      });
+      return counts;
+   }, [permissions]);
 
    const filteredResources = useMemo(() => {
       const searchLower = searchTerm.trim().toLowerCase();
@@ -136,7 +147,7 @@ export default function ResourcesTab() {
          if (result.ok) {
             push({
                type: "success",
-               message: result.message || "Recurso excluido com sucesso!",
+               message: result.message || "Recurso excluído com sucesso!",
             });
             handleCloseDeleteModal();
          } else {
@@ -212,8 +223,8 @@ export default function ResourcesTab() {
                }
                description={
                   hasSearch
-                     ? `Nao encontramos resultados para "${searchTerm}"`
-                     : "Crie um recurso para comecar a gerenciar permissoes"
+                     ? `Não encontramos resultados para "${searchTerm}"`
+                     : "Crie um recurso para começar a gerenciar permissões"
                }
                action={
                   hasSearch ? (
@@ -230,6 +241,7 @@ export default function ResourcesTab() {
          ) : (
             <ResourcesTable
                resources={filteredResources}
+               permissionCounts={permissionCounts}
                onEdit={handleOpenEditModal}
                onDelete={handleOpenDeleteModal}
             />
@@ -248,7 +260,7 @@ export default function ResourcesTab() {
             title="Excluir recurso?"
             description={
                deletingResource
-                  ? `O recurso "${deletingResource.name}" sera removido permanentemente. Esta acao nao pode ser desfeita.`
+                  ? `O recurso "${deletingResource.name}" será removido permanentemente. Esta ação não pode ser desfeita.`
                   : undefined
             }
             isLoading={deleteMutation.isPending}

@@ -12,10 +12,12 @@ import {
    Select,
    Spinner,
 } from "flowbite-react";
+import clsx from "clsx";
 import type {
    Resource,
    PermissionDetail,
 } from "services/routes/security/resources";
+import { getActionChipTheme } from "@/constants/admin/roles";
 
 interface PermissionFormData {
    resource_id: number | "";
@@ -33,6 +35,8 @@ interface PermissionFormModalProps {
    show: boolean;
    editingPermission: PermissionDetail | null;
    resources: Resource[];
+   /** Ações já existentes no sistema, oferecidas como chips de preenchimento */
+   actionSuggestions: string[];
    isSaving: boolean;
    onClose: () => void;
    onSubmit: (data: {
@@ -46,6 +50,7 @@ export function PermissionFormModal({
    show,
    editingPermission,
    resources,
+   actionSuggestions,
    isSaving,
    onClose,
    onSubmit,
@@ -86,15 +91,15 @@ export function PermissionFormModal({
       }
 
       if (!formData.name.trim()) {
-         errors.name = "Nome da acao e obrigatorio";
+         errors.name = "Nome da ação é obrigatório";
       } else if (formData.name.trim().length < 2) {
          errors.name = "Nome deve ter pelo menos 2 caracteres";
       }
 
       if (!formData.description.trim()) {
-         errors.description = "Descricao e obrigatoria";
+         errors.description = "Descrição é obrigatória";
       } else if (formData.description.trim().length < 3) {
-         errors.description = "Descricao deve ter pelo menos 3 caracteres";
+         errors.description = "Descrição deve ter pelo menos 3 caracteres";
       }
 
       setFormErrors(errors);
@@ -132,6 +137,11 @@ export function PermissionFormModal({
       }
    };
 
+   const handleSelectAction = (action: string) => {
+      setFormData((prev) => ({ ...prev, name: action }));
+      setFormErrors((prev) => ({ ...prev, name: undefined }));
+   };
+
    const handleClose = () => {
       if (!isSaving) onClose();
    };
@@ -139,7 +149,7 @@ export function PermissionFormModal({
    return (
       <Modal show={show} onClose={handleClose} size="md">
          <ModalHeader>
-            {editingPermission ? "Editar Permissao" : "Nova Permissao"}
+            {editingPermission ? "Editar Permissão" : "Nova Permissão"}
          </ModalHeader>
          <form onSubmit={handleSubmit}>
             <ModalBody>
@@ -183,27 +193,51 @@ export function PermissionFormModal({
                            id="permission-resource-hint"
                            className="mt-1 text-sm text-gray-500 dark:text-gray-400"
                         >
-                           O recurso nao pode ser alterado
+                           O recurso não pode ser alterado
                         </p>
                      )}
                   </div>
 
                   <div>
-                     <Label htmlFor="permission-name">Nome da Acao</Label>
-                     <TextInput
-                        id="permission-name"
-                        name="name"
-                        type="text"
-                        value={formData.name}
-                        onChange={handleInputChange}
-                        placeholder="ex: create, view, update, delete"
-                        color={formErrors.name ? "failure" : undefined}
-                        autoFocus={!editingPermission}
-                        aria-describedby={
-                           formErrors.name ? "permission-name-error" : undefined
-                        }
-                        aria-invalid={!!formErrors.name}
-                     />
+                     <Label>Ação</Label>
+                     {actionSuggestions.length > 0 ? (
+                        <div
+                           role="radiogroup"
+                           aria-label="Ação"
+                           aria-invalid={!!formErrors.name}
+                           className="mt-1.5 grid auto-cols-fr grid-flow-col gap-1 rounded-lg border border-gray-200 bg-gray-50 p-1 dark:border-gray-600 dark:bg-gray-700/40"
+                        >
+                           {actionSuggestions.map((action) => {
+                              const active = formData.name === action;
+                              const chip = getActionChipTheme(action);
+                              return (
+                                 <button
+                                    key={action}
+                                    type="button"
+                                    role="radio"
+                                    aria-checked={active}
+                                    onClick={() => handleSelectAction(action)}
+                                    className={clsx(
+                                       "rounded-md border px-2 py-1.5 text-center font-mono text-sm font-medium transition-colors",
+                                       active
+                                          ? clsx(
+                                               chip.bg,
+                                               chip.text,
+                                               chip.border
+                                            )
+                                          : "border-transparent text-slate-600 hover:bg-white dark:text-slate-300 dark:hover:bg-gray-700"
+                                    )}
+                                 >
+                                    {action}
+                                 </button>
+                              );
+                           })}
+                        </div>
+                     ) : (
+                        <p className="mt-1.5 text-sm text-gray-500 dark:text-gray-400">
+                           Nenhuma ação disponível.
+                        </p>
+                     )}
                      {formErrors.name && (
                         <p
                            id="permission-name-error"
@@ -216,14 +250,14 @@ export function PermissionFormModal({
                   </div>
 
                   <div>
-                     <Label htmlFor="permission-description">Descricao</Label>
+                     <Label htmlFor="permission-description">Descrição</Label>
                      <TextInput
                         id="permission-description"
                         name="description"
                         type="text"
                         value={formData.description}
                         onChange={handleInputChange}
-                        placeholder="Descreva a permissao"
+                        placeholder="Descreva a permissão"
                         color={formErrors.description ? "failure" : undefined}
                         aria-describedby={
                            formErrors.description
@@ -247,17 +281,17 @@ export function PermissionFormModal({
             <ModalFooter>
                <Button
                   type="submit"
-                  color="blue"
+                  color="red"
                   disabled={isSaving}
                   aria-label={
                      editingPermission
-                        ? "Atualizar permissao"
-                        : "Criar permissao"
+                        ? "Atualizar permissão"
+                        : "Criar permissão"
                   }
                >
                   {isSaving ? (
                      <>
-                        <Spinner color="info" size="sm" className="mr-2" />
+                        <Spinner color="failure" size="sm" className="mr-2" />
                         Salvando...
                      </>
                   ) : editingPermission ? (

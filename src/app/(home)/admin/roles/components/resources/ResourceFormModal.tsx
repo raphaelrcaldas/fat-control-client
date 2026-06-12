@@ -59,15 +59,15 @@ export function ResourceFormModal({
       const errors: FormErrors = {};
 
       if (!formData.name.trim()) {
-         errors.name = "Nome e obrigatorio";
+         errors.name = "Nome é obrigatório";
       } else if (formData.name.trim().length < 2) {
          errors.name = "Nome deve ter pelo menos 2 caracteres";
       }
 
       if (!formData.description.trim()) {
-         errors.description = "Descricao e obrigatoria";
+         errors.description = "Descrição é obrigatória";
       } else if (formData.description.trim().length < 3) {
-         errors.description = "Descricao deve ter pelo menos 3 caracteres";
+         errors.description = "Descrição deve ter pelo menos 3 caracteres";
       }
 
       setFormErrors(errors);
@@ -134,12 +134,12 @@ export function ResourceFormModal({
                   </div>
 
                   <div>
-                     <Label htmlFor="resource-description">Descricao</Label>
+                     <Label htmlFor="resource-description">Descrição</Label>
                      <TextInput
                         id="resource-description"
                         name="description"
                         type="text"
-                        placeholder="Digite a descricao do recurso"
+                        placeholder="Digite a descrição do recurso"
                         value={formData.description}
                         onChange={handleInputChange}
                         color={formErrors.description ? "failure" : undefined}
@@ -165,7 +165,7 @@ export function ResourceFormModal({
             <ModalFooter>
                <Button
                   type="submit"
-                  color="blue"
+                  color="red"
                   disabled={isSaving}
                   aria-label={
                      editingResource ? "Atualizar recurso" : "Criar recurso"
@@ -173,7 +173,7 @@ export function ResourceFormModal({
                >
                   {isSaving ? (
                      <>
-                        <Spinner color="info" size="sm" className="mr-2" />
+                        <Spinner color="failure" size="sm" className="mr-2" />
                         Salvando...
                      </>
                   ) : editingResource ? (

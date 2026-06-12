@@ -19,6 +19,7 @@ import type {
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
+import { compareActions } from "@/constants/admin/roles";
 import { PermissionFormModal } from "./PermissionFormModal";
 import { PermissionsTable, PermissionsTableSkeleton } from "./PermissionsTable";
 
@@ -65,6 +66,13 @@ export default function PermissionsTab() {
    }, [permissions, resourceFilter, searchTerm]);
 
    const hasActiveFilter = resourceFilter !== "all" || searchTerm.trim() !== "";
+
+   // Ações já existentes no sistema, oferecidas como chips de preenchimento
+   // rápido ao cadastrar/editar uma permissão
+   const actionSuggestions = useMemo(() => {
+      const unique = [...new Set(permissions.map((p) => p.action))];
+      return unique.sort(compareActions);
+   }, [permissions]);
 
    // Modal handlers
    const handleOpenCreateModal = () => {
@@ -113,13 +121,13 @@ export default function PermissionsTab() {
             if (result.ok) {
                push({
                   type: "success",
-                  message: "Permissao atualizada com sucesso",
+                  message: "Permissão atualizada com sucesso",
                });
                handleCloseFormModal();
             } else {
                push({
                   type: "error",
-                  message: result.message || "Erro ao atualizar permissao",
+                  message: result.message || "Erro ao atualizar permissão",
                });
             }
          } else {
@@ -134,13 +142,13 @@ export default function PermissionsTab() {
             if (result.ok) {
                push({
                   type: "success",
-                  message: "Permissao criada com sucesso",
+                  message: "Permissão criada com sucesso",
                });
                handleCloseFormModal();
             } else {
                push({
                   type: "error",
-                  message: result.message || "Erro ao criar permissao",
+                  message: result.message || "Erro ao criar permissão",
                });
             }
          }
@@ -162,13 +170,13 @@ export default function PermissionsTab() {
          if (result.ok) {
             push({
                type: "success",
-               message: "Permissao excluida com sucesso",
+               message: "Permissão excluída com sucesso",
             });
             handleCloseDeleteModal();
          } else {
             push({
                type: "error",
-               message: result.message || "Erro ao excluir permissao",
+               message: result.message || "Erro ao excluir permissão",
             });
          }
       } catch (error) {
@@ -184,7 +192,7 @@ export default function PermissionsTab() {
    if (isLoadingPermissions || isLoadingResources) {
       return (
          <div className="space-y-4">
-            <SectionHeader title="Permissoes" />
+            <SectionHeader title="Permissões" />
             <PermissionsTableSkeleton rows={8} />
          </div>
       );
@@ -195,7 +203,7 @@ export default function PermissionsTab() {
       return (
          <div className="rounded-lg border border-red-300 bg-red-50 p-4 dark:border-red-800 dark:bg-red-900/20">
             <p className="text-sm text-red-800 dark:text-red-300">
-               Erro ao carregar permissoes. Por favor, tente novamente.
+               Erro ao carregar permissões. Por favor, tente novamente.
             </p>
          </div>
       );
@@ -207,11 +215,11 @@ export default function PermissionsTab() {
             id="permission-search"
             type="text"
             icon={FaMagnifyingGlass}
-            placeholder="Buscar permissoes..."
+            placeholder="Buscar permissões..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full sm:w-48"
-            aria-label="Buscar permissoes"
+            aria-label="Buscar permissões"
          />
          <div className="flex items-center gap-2">
             <FaFilter
@@ -239,13 +247,13 @@ export default function PermissionsTab() {
    return (
       <div className="space-y-4">
          <SectionHeader
-            title="Permissoes"
+            title="Permissões"
             count={filteredPermissions.length}
             countLabel={
-               filteredPermissions.length === 1 ? "permissao" : "permissoes"
+               filteredPermissions.length === 1 ? "permissão" : "permissões"
             }
             onCreateClick={handleOpenCreateModal}
-            createLabel="Nova Permissao"
+            createLabel="Nova Permissão"
          >
             {filterControls}
          </SectionHeader>
@@ -255,13 +263,13 @@ export default function PermissionsTab() {
                icon={FaKey}
                title={
                   hasActiveFilter
-                     ? "Nenhuma permissao encontrada"
-                     : "Nenhuma permissao cadastrada"
+                     ? "Nenhuma permissão encontrada"
+                     : "Nenhuma permissão cadastrada"
                }
                description={
                   hasActiveFilter
                      ? "Nenhum resultado corresponde ao filtro ou busca atuais"
-                     : "Crie uma permissao para comecar a definir o controle de acesso"
+                     : "Crie uma permissão para começar a definir o controle de acesso"
                }
                action={
                   hasActiveFilter ? (
@@ -290,6 +298,7 @@ export default function PermissionsTab() {
             show={showFormModal}
             editingPermission={editingPermission}
             resources={resources}
+            actionSuggestions={actionSuggestions}
             isSaving={createMutation.isPending || updateMutation.isPending}
             onClose={handleCloseFormModal}
             onSubmit={handleSubmit}
@@ -297,10 +306,10 @@ export default function PermissionsTab() {
 
          <ConfirmModal
             show={showDeleteModal}
-            title="Excluir permissao?"
+            title="Excluir permissão?"
             description={
                deletingPermission
-                  ? `A permissao "${deletingPermission.resource}.${deletingPermission.action}" sera removida permanentemente. Esta acao nao pode ser desfeita.`
+                  ? `A permissão "${deletingPermission.resource}.${deletingPermission.action}" será removida permanentemente. Esta ação não pode ser desfeita.`
                   : undefined
             }
             isLoading={deleteMutation.isPending}
