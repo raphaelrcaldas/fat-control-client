@@ -157,7 +157,7 @@ function ComissLogEntry({ log }: { log: ComissLog }) {
 
    return (
       <li className="relative">
-         <span className="absolute -start-[26px] top-[6px] flex h-3 w-3 items-center justify-center rounded-full border border-red-300 bg-red-100" />
+         <span className="absolute -inset-s-6.5 top-1.5 flex h-3 w-3 items-center justify-center rounded-full border border-red-300 bg-red-100" />
          <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
             <div className="flex min-w-0 flex-wrap items-baseline gap-x-2">
                <span className="text-sm font-semibold text-gray-800">
@@ -174,7 +174,7 @@ function ComissLogEntry({ log }: { log: ComissLog }) {
             </time>
          </div>
          {diffs.length > 0 && (
-            <ul className="mt-2 space-y-0.5 text-xs break-words text-gray-600">
+            <ul className="wrap-break-words mt-2 space-y-0.5 text-xs text-gray-600">
                {diffs.map((d) => (
                   <li key={d.field}>
                      <span className="font-medium text-gray-700">

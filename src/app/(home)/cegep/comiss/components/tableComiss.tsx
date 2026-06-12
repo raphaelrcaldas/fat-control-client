@@ -153,7 +153,7 @@ export const TableComiss = memo(function TableComiss({
    };
 
    return (
-      <div className="overflow-x-auto rounded-xl bg-white shadow-sm ring-1 ring-gray-200">
+      <div className="overflow-x-auto rounded bg-white shadow ring-1 ring-slate-200">
          <Table hoverable striped>
             <TableHead>
                <TableRow>

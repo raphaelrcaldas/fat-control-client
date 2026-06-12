@@ -172,31 +172,30 @@ export function ComissPage({ detail, onEdit, onClose }: ComissPageProps) {
          <div className="flex w-full justify-center">
             <div className="flex w-full max-w-7xl flex-col gap-3">
                {/* Header: voltar + nome do militar + exportações */}
-               <div className="relative rounded-xl border border-blue-100 bg-white px-4 py-4 shadow-sm">
-                  {/* Botão voltar — absoluto à esquerda */}
+               <div className="flex items-center gap-2 rounded border border-slate-300 bg-white px-3 py-4 shadow-sm sm:gap-4 sm:px-4">
+                  {/* Botão voltar */}
                   <button
                      onClick={onClose}
-                     className="absolute top-1/2 left-4 flex -translate-y-1/2 items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-900"
+                     className="flex shrink-0 items-center gap-2 rounded-lg px-2 py-2 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-900 sm:px-3"
                   >
                      <HiArrowLeft className="h-4 w-4" />
                      <span className="hidden sm:inline">Voltar</span>
                   </button>
 
-                  {/* Nome do militar — sempre centralizado */}
-                  <div className="text-center">
-                     <h3 className="text-lg font-bold tracking-wide text-gray-900 uppercase">
-                        {comiss.user.posto.mid} {comiss.user.esp}{" "}
-                        {comiss.user.nome_guerra}
+                  {/* Nome do militar — ocupa o centro e trunca */}
+                  <div className="min-w-0 flex-1 text-center">
+                     <h3 className="truncate text-base font-bold tracking-wide text-gray-900 uppercase sm:text-lg">
+                        {comiss.user.posto.mid} {comiss.user.nome_guerra}
                      </h3>
-                     <p className="text-sm text-gray-600 capitalize">
+                     <p className="truncate text-sm text-gray-600 capitalize">
                         {comiss.user.nome_completo} (
                         {formatSaram(comiss.user.saram)})
                      </p>
                   </div>
 
-                  {/* Botões de exportação — absolutos à direita */}
+                  {/* Botões de exportação */}
                   <PermBased resource={"comiss"} requiredPerm={"create"}>
-                     <div className="absolute top-1/2 right-4 flex -translate-y-1/2 gap-2">
+                     <div className="flex shrink-0 gap-2">
                         <Button
                            color="light"
                            onClick={handleExportSheet}
@@ -229,7 +228,7 @@ export function ComissPage({ detail, onEdit, onClose }: ComissPageProps) {
 
                {/* Documentos */}
                <div className="hidden gap-4 md:grid md:grid-cols-3">
-                  <div className="rounded-xl border border-gray-200 bg-white p-4 text-center">
+                  <div className="rounded border border-gray-200 bg-white p-4 text-center shadow-sm">
                      <span className="block text-base font-semibold text-gray-900 uppercase">
                         {comiss.doc_prop}
                      </span>
@@ -237,7 +236,7 @@ export function ComissPage({ detail, onEdit, onClose }: ComissPageProps) {
                         Proposta
                      </span>
                   </div>
-                  <div className="rounded-xl border border-gray-200 bg-white p-4 text-center">
+                  <div className="rounded border border-gray-200 bg-white p-4 text-center shadow-sm">
                      <span className="block text-base font-semibold text-gray-900 uppercase">
                         {comiss.doc_aut}
                      </span>
@@ -245,7 +244,7 @@ export function ComissPage({ detail, onEdit, onClose }: ComissPageProps) {
                         Autorizacao
                      </span>
                   </div>
-                  <div className="rounded-xl border border-gray-200 bg-white p-4 text-center">
+                  <div className="rounded border border-gray-200 bg-white p-4 text-center shadow-sm">
                      <span className="block text-base font-semibold text-gray-900 uppercase">
                         {comiss.doc_enc || "ND"}
                      </span>
@@ -258,7 +257,7 @@ export function ComissPage({ detail, onEdit, onClose }: ComissPageProps) {
                {/* Datas e Valores */}
                <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
                   {/* Abertura */}
-                  <div className="rounded-xl border border-emerald-200 bg-white p-4 shadow-sm">
+                  <div className="rounded border border-emerald-200 bg-white p-4 shadow-sm">
                      <h4 className="mb-1 flex items-center gap-2 text-sm font-semibold text-emerald-800">
                         <div className="h-2 w-2 rounded-full bg-emerald-500" />
                         Abertura
@@ -288,7 +287,7 @@ export function ComissPage({ detail, onEdit, onClose }: ComissPageProps) {
                   </div>
 
                   {/* Fechamento */}
-                  <div className="rounded-xl border border-orange-200 bg-white p-4 shadow-sm">
+                  <div className="rounded border border-orange-200 bg-white p-4 shadow-sm">
                      <h4 className="mb-1 flex items-center gap-2 text-sm font-semibold text-orange-800">
                         <div className="h-2 w-2 rounded-full bg-orange-500" />
                         Fechamento
@@ -322,19 +321,19 @@ export function ComissPage({ detail, onEdit, onClose }: ComissPageProps) {
 
                {/* Status e Informacoes */}
                <div className="grid grid-cols-3 gap-4">
-                  <div className="flex items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+                  <div className="flex items-center justify-center gap-2 rounded border border-slate-200 bg-white p-4 shadow-sm">
                      <span className="text-sm text-gray-600">Status:</span>
                      <span className="text-sm font-semibold text-gray-900 uppercase">
                         {comiss.status}
                      </span>
                   </div>
-                  <div className="flex items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+                  <div className="flex items-center justify-center gap-2 rounded border border-gray-200 bg-white p-4 shadow-sm">
                      <span className="text-sm text-gray-600">Modulo:</span>
                      <span className="text-sm font-semibold text-gray-900 uppercase">
                         {comiss.modulo ? "Sim" : "Nao"}
                      </span>
                   </div>
-                  <div className="flex items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+                  <div className="flex items-center justify-center gap-2 rounded border border-gray-200 bg-white p-4 shadow-sm">
                      <span className="text-sm text-gray-600">Dependente:</span>
                      <span className="text-sm font-semibold text-gray-900 uppercase">
                         {comiss.dep ? "Sim" : "Nao"}
@@ -343,7 +342,7 @@ export function ComissPage({ detail, onEdit, onClose }: ComissPageProps) {
                </div>
 
                {/* Metricas */}
-               <div className="space-y-4 rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+               <div className="space-y-4 rounded border border-slate-300 bg-white p-6 shadow-sm">
                   {!comiss.dias_cumprir && (
                      <div className="flex items-center gap-2 rounded-lg border border-blue-200 bg-blue-50 p-2 text-xs text-blue-800">
                         <IoMdInformationCircleOutline className="size-4 shrink-0 text-blue-600" />
@@ -564,13 +563,13 @@ export function ComissPage({ detail, onEdit, onClose }: ComissPageProps) {
                </div>
 
                {/* Missoes */}
-               <div className="space-y-3 rounded-xl bg-white p-4 shadow-sm">
+               <div className="space-y-3 rounded border border-slate-300 bg-white px-2 py-4 shadow-sm md:px-4">
                   <h4 className="text-sm font-semibold tracking-wide text-gray-700 uppercase">
                      Missoes Relacionadas
                   </h4>
-                  <div className="overflow-hidden rounded-xl border border-gray-200 bg-white">
+                  <div className="overflow-hidden rounded border border-gray-200 bg-white shadow-sm">
                      {comiss.missoes && comiss.missoes.length > 0 ? (
-                        <div className="divide-y divide-gray-100">
+                        <div className="divide-y divide-gray-200">
                            {comiss.missoes.map((m) => (
                               <MissionRow
                                  key={m.id}
@@ -830,52 +829,60 @@ function MissionRow({
    });
 
    return (
-      <div className="flex items-center gap-4 p-4 transition-colors duration-200 hover:bg-gray-50">
-         <div className="w-20 shrink-0">
-            <span className="text-sm font-semibold text-gray-900 uppercase">
-               {mis.tipo_doc} {String(mis.n_doc).padStart(3, "0")}
-            </span>
+      <div className="flex flex-col gap-3 p-4 transition-colors duration-200 hover:bg-gray-50 sm:flex-row sm:items-center sm:gap-4">
+         {/* Linha 1 (mobile): documento + acoes | Desktop: itens viram colunas da linha */}
+         <div className="flex items-center justify-between gap-2 sm:contents">
+            <div className="w-20 shrink-0">
+               <span className="text-sm font-semibold text-gray-900 uppercase">
+                  {mis.tipo_doc} {String(mis.n_doc).padStart(3, "0")}
+               </span>
+            </div>
+            <div className="flex shrink-0 gap-1 sm:order-last">
+               <Button
+                  size="sm"
+                  color="light"
+                  className="transition-colors duration-200 hover:bg-gray-100"
+                  onClick={onShowDetail}
+               >
+                  <IoMdInformationCircleOutline size={18} />
+               </Button>
+               <PermBased resource={"comiss"} requiredPerm={"create"}>
+                  <Button
+                     size="sm"
+                     color="light"
+                     className="transition-colors duration-200 hover:bg-blue-50"
+                     onClick={onNavigate}
+                     title="Abrir missao"
+                  >
+                     <HiExternalLink size={18} />
+                  </Button>
+               </PermBased>
+            </div>
          </div>
+
          <div className="min-w-0 flex-1">
             <span className="block truncate text-sm text-gray-700 uppercase">
                {mis.desc}
             </span>
          </div>
-         <div className="grid shrink-0 gap-2 sm:flex">
-            <span className="rounded bg-emerald-50 px-2 py-1 font-mono text-sm text-gray-600">
-               {ini}
-            </span>
-            <span className="rounded bg-orange-50 px-2 py-1 font-mono text-sm text-gray-600">
-               {fim}
-            </span>
-         </div>
-         <div className="w-24 shrink-0 text-right">
-            <span className="text-sm font-semibold text-gray-900">
-               {diasPrev
-                  ? `${mis.dias} dia${mis.dias > 1 ? "s" : ""}`
-                  : realCurrency(mis.valor_total)}
-            </span>
-         </div>
-         <div className="flex shrink-0 gap-1">
-            <Button
-               size="sm"
-               color="light"
-               className="transition-colors duration-200 hover:bg-gray-100"
-               onClick={onShowDetail}
-            >
-               <IoMdInformationCircleOutline size={18} />
-            </Button>
-            <PermBased resource={"comiss"} requiredPerm={"create"}>
-               <Button
-                  size="sm"
-                  color="light"
-                  className="transition-colors duration-200 hover:bg-blue-50"
-                  onClick={onNavigate}
-                  title="Abrir missao"
-               >
-                  <HiExternalLink size={18} />
-               </Button>
-            </PermBased>
+
+         {/* Linha 2 (mobile): datas + dias/valor | Desktop: itens viram colunas da linha */}
+         <div className="flex items-center justify-between gap-2 sm:contents">
+            <div className="flex shrink-0 gap-2">
+               <span className="rounded border border-current/30 bg-emerald-50 px-2 py-1 font-mono text-sm text-gray-600">
+                  {ini}
+               </span>
+               <span className="rounded border border-current/30 bg-orange-50 px-2 py-1 font-mono text-sm text-gray-600">
+                  {fim}
+               </span>
+            </div>
+            <div className="shrink-0 text-right sm:w-24">
+               <span className="text-sm font-semibold text-gray-900">
+                  {diasPrev
+                     ? `${mis.dias} dia${mis.dias > 1 ? "s" : ""}`
+                     : realCurrency(mis.valor_total)}
+               </span>
+            </div>
          </div>
       </div>
    );

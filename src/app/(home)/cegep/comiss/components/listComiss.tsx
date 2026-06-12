@@ -45,7 +45,7 @@ export function ListComiss({ comiss }: { comiss: ComissList }) {
       >
          <div className="flex flex-row items-center justify-between gap-4 p-4">
             {/* Nome do Militar */}
-            <div className="min-w-[11rem] text-sm font-semibold text-gray-900 uppercase">
+            <div className="min-w-44 text-sm font-semibold text-gray-900 uppercase">
                {user.p_g} {user.nome_guerra}
             </div>
 

@@ -133,7 +133,7 @@ export function ListaPage() {
       <div className="flex flex-col gap-3">
          {/* Header Section */}
          <section className="shrink-0">
-            <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
+            <div className="overflow-hidden rounded border border-gray-200 bg-white shadow">
                <div className="px-5 py-4">
                   <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                      {/* Title Section */}

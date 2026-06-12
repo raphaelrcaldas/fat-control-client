@@ -7,19 +7,25 @@ import {
 import { useRouter } from "next/navigation";
 import { ListaPage } from "./listaPage";
 import { GestaoFiscalPage } from "./gestaoFiscal";
-import { PermBased } from "@/app/(home)/hooks/usePermBased";
+import { PermBased, usePermBased } from "@/app/(home)/hooks/usePermBased";
 
 const TAB_NAMES = ["registros", "gestao_fiscal"] as const;
 
 export default function ComissPage() {
    const router = useRouter();
    const { searchParams, setParams } = useSearchParamsUpdater();
+   const { hasPerm } = usePermBased();
+
+   const canViewFiscal = hasPerm("orcamento", "view");
 
    const activeTabName = getStringParam(searchParams, "tab", "registros");
-   const activeTabIndex = Math.max(
+   const requestedTabIndex = Math.max(
       TAB_NAMES.indexOf(activeTabName as (typeof TAB_NAMES)[number]),
       0
    );
+   // Sem permissao, ignora ?tab=gestao_fiscal e cai em "registros"
+   const activeTabIndex =
+      requestedTabIndex === 1 && !canViewFiscal ? 0 : requestedTabIndex;
 
    function handleTabChange(tabName: string) {
       setParams({
@@ -55,29 +61,31 @@ export default function ComissPage() {
                   </svg>
                   Registros
                </button>
-               <button
-                  onClick={() => handleTabChange("gestao_fiscal")}
-                  className={`flex flex-1 items-center justify-center gap-2 rounded-lg py-2.5 text-sm font-semibold transition-all ${
-                     activeTabIndex === 1
-                        ? "bg-red-50 text-red-700 shadow-sm ring-1 ring-red-100 ring-inset"
-                        : "text-gray-500 hover:bg-gray-50 hover:text-gray-700"
-                  }`}
-               >
-                  <svg
-                     className="h-5 w-5"
-                     fill="none"
-                     stroke="currentColor"
-                     viewBox="0 0 24 24"
+               {canViewFiscal && (
+                  <button
+                     onClick={() => handleTabChange("gestao_fiscal")}
+                     className={`flex flex-1 items-center justify-center gap-2 rounded-lg py-2.5 text-sm font-semibold transition-all ${
+                        activeTabIndex === 1
+                           ? "bg-red-50 text-red-700 shadow-sm ring-1 ring-red-100 ring-inset"
+                           : "text-gray-500 hover:bg-gray-50 hover:text-gray-700"
+                     }`}
                   >
-                     <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
-                     />
-                  </svg>
-                  Gestão Fiscal
-               </button>
+                     <svg
+                        className="h-5 w-5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                     >
+                        <path
+                           strokeLinecap="round"
+                           strokeLinejoin="round"
+                           strokeWidth={2}
+                           d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+                        />
+                     </svg>
+                     Gestão Fiscal
+                  </button>
+               )}
             </div>
 
             {/* Tab Panel Content */}
