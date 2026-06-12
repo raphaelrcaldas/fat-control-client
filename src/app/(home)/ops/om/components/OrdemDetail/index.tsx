@@ -484,8 +484,8 @@ export function OrdemFormContent({
                      {!isCloning &&
                         (isNew || formData.status === "rascunho") && (
                            <PermBased
-                              resource={"ordem_missao"}
-                              requiredPerm={"aprove"}
+                              resource={"ordem_missao.status"}
+                              requiredPerm={"update"}
                            >
                               <Button
                                  color="red"
@@ -589,7 +589,9 @@ export function OrdemFormContent({
                      </div>
                   )}
 
-                  {isReadOnlyMode && (
+                  {/* Exportações indisponíveis em rascunho: o documento só
+                      faz sentido após a ordem ser aprovada */}
+                  {isReadOnlyMode && formData.status !== "rascunho" && (
                      <div className="flex justify-center gap-3">
                         <Button
                            color="light"

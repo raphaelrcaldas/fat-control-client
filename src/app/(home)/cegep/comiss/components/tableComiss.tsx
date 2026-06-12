@@ -31,8 +31,7 @@ type SortKey =
    | "modulo"
    | "previsto"
    | "computado"
-   | "restante"
-   | "missoes_count";
+   | "restante";
 
 export const TableComiss = memo(function TableComiss({
    cmtos,
@@ -167,7 +166,6 @@ export const TableComiss = memo(function TableComiss({
                   {renderHeader("Previsto", "previsto")}
                   {renderHeader("Computado", "computado")}
                   {renderHeader("Restante", "restante")}
-                  {renderHeader("Missões", "missoes_count")}
                </TableRow>
             </TableHead>
             <TableBody className="divide-y divide-gray-200">
@@ -305,12 +303,6 @@ const TableComissRow = memo(function TableComissRow({
          <TableCell className="text-center whitespace-nowrap">
             <span className="font-semibold text-gray-900">{restante}</span>
             <span className="ml-1 text-xs text-gray-500">dias</span>
-         </TableCell>
-
-         <TableCell className="text-center whitespace-nowrap">
-            <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-gray-200 text-xs font-semibold text-gray-700">
-               {comiss.missoes_count}
-            </span>
          </TableCell>
       </TableRow>
    );
