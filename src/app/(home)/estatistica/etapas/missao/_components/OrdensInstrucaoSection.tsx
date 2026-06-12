@@ -76,10 +76,10 @@ export function OrdensInstrucaoSection({
                {oiItems.map((oi) => (
                   <div
                      key={oi.uid}
-                     className="grid grid-cols-[1fr_1fr_auto_80px_auto] items-end gap-3 rounded-lg border border-gray-200 bg-white p-3 pr-4"
+                     className="relative grid grid-cols-2 items-end gap-3 border border-gray-200 bg-white p-3 pr-10 shadow-sm sm:grid-cols-[1fr_1fr_auto_80px_auto] sm:pr-4"
                   >
                      {/* Esforço Aéreo */}
-                     <div className="flex flex-col text-left">
+                     <div className="col-span-2 flex flex-col text-left sm:col-span-1">
                         <Label className={fieldLabelClass}>Esforço Aéreo</Label>
                         <SearchableSelect
                            options={esfAerList.map((e) => ({
@@ -97,7 +97,7 @@ export function OrdensInstrucaoSection({
                         />
                      </div>
                      {/* Tipo Missão */}
-                     <div className="flex flex-col text-left">
+                     <div className="col-span-2 flex flex-col text-left sm:col-span-1">
                         <Label className={fieldLabelClass}>Tipo Missão</Label>
                         <SearchableSelect
                            options={tiposMissaoList.map((t) => ({
@@ -141,7 +141,7 @@ export function OrdensInstrucaoSection({
                                     updateOiItem(oi.uid, { reg: v })
                                  }
                                  className={clsx(
-                                    "flex-1 px-3 py-[7px] text-xs font-bold focus:outline-none",
+                                    "flex-1 px-3 py-1.75 text-xs font-bold focus:outline-none",
                                     oi.reg === v
                                        ? "bg-red-800 text-white"
                                        : "bg-white text-red-500 hover:bg-red-100",
@@ -170,13 +170,14 @@ export function OrdensInstrucaoSection({
                            className="text-center font-mono"
                         />
                      </div>
-                     {/* Excluir */}
-                     <div className="flex h-full items-center justify-center pb-1">
+                     {/* Excluir — absoluto no canto em mobile, coluna própria em sm+ */}
+                     <div className="absolute top-2 right-1.5 sm:static sm:flex sm:h-full sm:items-center sm:justify-center sm:pb-1">
                         <button
                            type="button"
                            onClick={() => removeOiItem(oi.uid)}
                            className="flex h-8 w-8 items-center justify-center rounded-full text-gray-400 hover:bg-red-50 hover:text-red-600"
                            title="Remover OI"
+                           aria-label="Remover Ordem de Instrução"
                         >
                            <HiX className="h-5 w-5" />
                         </button>

@@ -48,7 +48,7 @@ function EtapaSidebarItemBase({
          onClick={onClick}
          aria-current={selected ? "true" : undefined}
          className={clsx(
-            "relative flex w-full flex-col gap-2 overflow-hidden rounded-md border border-gray-200 bg-white p-3 pl-4 text-left transition",
+            "relative flex w-full flex-col gap-2 overflow-hidden border border-gray-200 bg-white p-3 pl-4 text-left shadow transition",
             "hover:border-gray-300 hover:bg-gray-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-500",
             selected && "border-red-200 bg-red-50/40 hover:bg-red-50/60",
             // accent bar — uses pseudo-element via ::before to avoid layout shift

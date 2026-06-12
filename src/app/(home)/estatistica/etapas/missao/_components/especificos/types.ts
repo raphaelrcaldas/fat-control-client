@@ -21,9 +21,9 @@ export interface HeavyCdsBlockProps {
    onRemove: () => void;
 }
 
-/** Classe de label compartilhada pelos campos dos especificos. */
-export const especificoLabelClass =
-   "mb-1 block text-[11px] font-semibold tracking-wide text-gray-500 uppercase";
+/** Label inline (ao lado do controle) compartilhada pelos campos dos especificos. */
+export const inlineLabelClass =
+   "text-xs font-semibold tracking-wide text-gray-500 uppercase";
 
 /**
  * Converte string de input numerico para inteiro no intervalo dado.

@@ -2,7 +2,8 @@
 
 import clsx from "clsx";
 import { GiParachute } from "react-icons/gi";
-import { HiOutlineCube, HiOutlineRefresh, HiPlus } from "react-icons/hi";
+import { HiOutlineCube, HiPlus } from "react-icons/hi";
+import { FaGasPump } from "react-icons/fa";
 import type { IconType } from "react-icons";
 
 import type {
@@ -45,7 +46,7 @@ const ADD_BUTTONS: AddButtonConfig[] = [
    {
       kind: "revo",
       label: "REVO",
-      Icon: HiOutlineRefresh,
+      Icon: FaGasPump,
       className:
          "border-amber-200 bg-amber-50 text-amber-700 hover:bg-amber-100",
    },
@@ -78,7 +79,7 @@ export function EspecificosSection({
                   type="button"
                   onClick={() => addEspecifico(kind)}
                   className={clsx(
-                     "flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-xs font-bold tracking-wide uppercase transition-colors focus:outline-none",
+                     "flex items-center gap-1.5 rounded border px-3 py-1.5 text-xs font-bold tracking-wide uppercase transition-colors focus:outline-none",
                      className
                   )}
                >

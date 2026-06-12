@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
-import { Alert, Button, Spinner } from "flowbite-react";
+import { Alert, Button } from "flowbite-react";
 import { HiArrowLeft, HiRefresh } from "react-icons/hi";
 
 import {
@@ -17,6 +17,7 @@ import {
 } from "../_state/MissaoDraftContext";
 import { emptyDraft } from "../_state/helpers";
 import { MissaoEditor } from "../_components/MissaoEditor";
+import { MissaoEditorSkeleton } from "../_components/MissaoEditorSkeleton";
 
 interface HydrateAndRenderProps {
    missao: MissaoComEtapasDetail;
@@ -76,14 +77,8 @@ export default function EditarMissaoPage() {
       );
    }
 
-   if (isLoading || !data) {
-      return (
-         <div className="flex items-center justify-center px-6 py-16">
-            <Spinner size="lg" color="failure" />
-         </div>
-      );
-   }
-
+   // isError precisa vir antes do guard de loading: com a query em erro,
+   // `data` fica undefined e o guard `!data` seguraria o skeleton para sempre
    if (isError) {
       return (
          <div className="space-y-3 px-6 py-6">
@@ -108,6 +103,10 @@ export default function EditarMissaoPage() {
             </div>
          </div>
       );
+   }
+
+   if (isLoading || !data) {
+      return <MissaoEditorSkeleton />;
    }
 
    return (

@@ -2,7 +2,7 @@
 
 import type { ReactNode } from "react";
 import { Button, Spinner } from "flowbite-react";
-import { HiArrowLeft, HiReply, HiTrash } from "react-icons/hi";
+import { HiArrowLeft, HiMenuAlt2, HiReply, HiTrash } from "react-icons/hi";
 
 type Props = {
    title: string;
@@ -11,9 +11,12 @@ type Props = {
    onSave: () => void;
    onRevert?: () => void;
    onDeleteEtapa?: () => void;
+   // Abre a sidebar de etapas em drawer nas telas < lg
+   onOpenSidebar?: () => void;
    saveLabel?: string;
    isSaving?: boolean;
    dirty?: boolean;
+   saveDisabled?: boolean;
 };
 
 export function MissaoHeader({
@@ -23,9 +26,11 @@ export function MissaoHeader({
    onSave,
    onRevert,
    onDeleteEtapa,
+   onOpenSidebar,
    saveLabel = "Salvar",
    isSaving = false,
    dirty = false,
+   saveDisabled = false,
 }: Props) {
    return (
       <header className="flex w-full flex-col gap-3 border-b border-gray-200 bg-white px-6 py-4">
@@ -39,6 +44,17 @@ export function MissaoHeader({
                      className="mt-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-gray-500 transition hover:bg-gray-100 hover:text-gray-700 focus-visible:outline-2 focus-visible:outline-red-500"
                   >
                      <HiArrowLeft className="h-5 w-5" />
+                  </button>
+               )}
+               {onOpenSidebar && (
+                  <button
+                     type="button"
+                     onClick={onOpenSidebar}
+                     aria-label="Abrir painel de etapas"
+                     title="Etapas da missão"
+                     className="mt-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-gray-500 transition hover:bg-gray-100 hover:text-gray-700 focus-visible:outline-2 focus-visible:outline-red-500 lg:hidden"
+                  >
+                     <HiMenuAlt2 className="h-5 w-5" />
                   </button>
                )}
                <div className="flex min-w-0 flex-col gap-2">
@@ -93,7 +109,12 @@ export function MissaoHeader({
                   color="red"
                   size="sm"
                   onClick={onSave}
-                  disabled={isSaving}
+                  disabled={isSaving || saveDisabled}
+                  title={
+                     saveDisabled
+                        ? "Nenhuma alteração para salvar"
+                        : "Salvar (Ctrl+S)"
+                  }
                >
                   {isSaving ? (
                      <span className="flex items-center gap-2">

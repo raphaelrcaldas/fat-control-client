@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useCallback, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { Drawer } from "flowbite-react";
 
 import {
    useMissaoDraft,
@@ -45,6 +46,8 @@ export function MissaoEditor({ mode }: MissaoEditorProps) {
    const [confirmDialog, setConfirmDialog] = useState<ConfirmDialog | null>(
       null
    );
+   // Drawer da sidebar nas telas < lg (no desktop a sidebar é fixa)
+   const [sidebarOpen, setSidebarOpen] = useState(false);
 
    const { hasPerm } = usePermBased();
    const canSave = hasPerm("etp_mis", "create");
@@ -150,13 +153,17 @@ export function MissaoEditor({ mode }: MissaoEditorProps) {
       });
    }
 
+   // Fechar o drawer junto é inócuo no desktop e necessário no mobile,
+   // onde a sidebar cobre o conteúdo recém-selecionado
    const handleAddEtapa = useCallback(() => {
       dispatch({ type: "ADD_ETAPA" });
+      setSidebarOpen(false);
    }, [dispatch]);
 
    const handleSelectEtapa = useCallback(
       (localId: string) => {
          dispatch({ type: "SELECT_ETAPA", payload: { localId } });
+         setSidebarOpen(false);
       },
       [dispatch]
    );
@@ -177,6 +184,7 @@ export function MissaoEditor({ mode }: MissaoEditorProps) {
    );
 
    const handleDeleteMissao = useCallback(() => {
+      setSidebarOpen(false);
       setConfirmDialog({ kind: "deleteMissao" });
    }, []);
 
@@ -367,11 +375,15 @@ export function MissaoEditor({ mode }: MissaoEditorProps) {
       </div>
    ) : undefined;
 
+   // Em edição sem mudanças, salvar seria um PUT redundante
+   const saveDisabled = mode === "edit" && !dirty;
+
    useEffect(() => {
       function onKey(e: KeyboardEvent) {
          if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "s") {
             e.preventDefault();
             if (
+               !saveDisabled &&
                !saveMutation.isPending &&
                !updateMutation.isPending &&
                !deleteMissaoMutation.isPending
@@ -385,6 +397,7 @@ export function MissaoEditor({ mode }: MissaoEditorProps) {
       // handleSave is stable enough; dependencies via mutations covers re-bind
       // eslint-disable-next-line react-hooks/exhaustive-deps
    }, [
+      saveDisabled,
       saveMutation.isPending,
       updateMutation.isPending,
       deleteMissaoMutation.isPending,
@@ -402,8 +415,26 @@ export function MissaoEditor({ mode }: MissaoEditorProps) {
                ? () => handleRemoveEtapa(selectedEtapa.localId)
                : undefined
          }
+         onOpenSidebar={() => setSidebarOpen(true)}
          dirty={dirty}
          isSaving={saveMutation.isPending || updateMutation.isPending}
+         saveDisabled={saveDisabled}
+      />
+   );
+
+   const sidebarNode = (
+      <MissaoSidebar
+         tituloMissao={missaoLabel}
+         tituloValue={draft.titulo}
+         obsValue={draft.obs}
+         etapas={sidebarEtapas}
+         onAddEtapa={handleAddEtapa}
+         onSelectEtapa={handleSelectEtapa}
+         onTituloChange={handleTituloChange}
+         onObsChange={handleObsChange}
+         onDeleteMissao={
+            mode === "edit" && draft.serverId ? handleDeleteMissao : undefined
+         }
       />
    );
 
@@ -411,23 +442,7 @@ export function MissaoEditor({ mode }: MissaoEditorProps) {
       <>
          <MissaoEditorLayout
             header={headerNode}
-            sidebar={
-               <MissaoSidebar
-                  tituloMissao={missaoLabel}
-                  tituloValue={draft.titulo}
-                  obsValue={draft.obs}
-                  etapas={sidebarEtapas}
-                  onAddEtapa={handleAddEtapa}
-                  onSelectEtapa={handleSelectEtapa}
-                  onTituloChange={handleTituloChange}
-                  onObsChange={handleObsChange}
-                  onDeleteMissao={
-                     mode === "edit" && draft.serverId
-                        ? handleDeleteMissao
-                        : undefined
-                  }
-               />
-            }
+            sidebar={sidebarNode}
             content={
                draft.selectedLocalId == null ? (
                   <EmptyEtapaPlaceholder />
@@ -436,6 +451,17 @@ export function MissaoEditor({ mode }: MissaoEditorProps) {
                )
             }
          />
+         {/* Sidebar em drawer nas telas < lg (no desktop ela é coluna fixa).
+             Conteúdo montado apenas quando aberto para não deixar inputs
+             duplicados focáveis fora da tela */}
+         <Drawer
+            open={sidebarOpen}
+            onClose={() => setSidebarOpen(false)}
+            position="left"
+            className="w-80 p-0 lg:hidden"
+         >
+            {sidebarOpen && sidebarNode}
+         </Drawer>
          {confirmDialogConfig && (
             <ConfirmModal
                show={confirmDialog !== null}

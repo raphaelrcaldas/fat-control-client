@@ -10,7 +10,7 @@ type Props = {
 
 export function MissaoEditorLayout({ header, sidebar, content }: Props) {
    return (
-      <div className="flex h-[calc(100vh-5rem)] min-h-0 flex-col overflow-hidden bg-gray-50">
+      <div className="flex h-[calc(100vh-5rem)] min-h-0 flex-col overflow-hidden border border-slate-200 bg-gray-50 shadow">
          <div className="flex min-h-0">
             <div className="hidden h-full min-h-0 w-88 lg:block">{sidebar}</div>
             <div className="flex min-h-0 w-full flex-col">

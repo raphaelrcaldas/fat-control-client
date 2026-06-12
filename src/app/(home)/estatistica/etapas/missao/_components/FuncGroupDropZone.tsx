@@ -1,10 +1,10 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import clsx from "clsx";
 import { useDroppable } from "@dnd-kit/core";
-import { HiPlus, HiX } from "react-icons/hi";
+import { HiPlus, HiSearch, HiX } from "react-icons/hi";
 import { HiChevronDown } from "react-icons/hi2";
-import { Spinner } from "flowbite-react";
+import { Spinner, TextInput } from "flowbite-react";
 import { useQuery } from "@tanstack/react-query";
 import { MdDragIndicator } from "react-icons/md";
 import {
@@ -76,7 +76,7 @@ function FuncBordoSelect({
             ref={buttonRef}
             type="button"
             onClick={() => setOpen((v) => !v)}
-            className="flex w-12 items-center justify-between rounded border border-gray-300 bg-gray-50 px-1 py-0.5 text-[10px] font-bold text-gray-700 focus:border-red-400 focus:ring-1 focus:ring-red-400 focus:outline-none"
+            className="flex w-12 items-center justify-between border border-gray-300 bg-gray-50 px-1 py-0.5 text-[10px] font-bold text-gray-700 focus:border-red-400 focus:ring-1 focus:ring-red-400 focus:outline-none"
          >
             <span>{value}</span>
             <HiChevronDown className="h-2.5 w-2.5 text-gray-400" />
@@ -148,6 +148,349 @@ const headerColorMap: Record<string, string> = {
    gray: "bg-gray-100 text-gray-600",
 };
 
+const trigColorMap: Record<string, string> = {
+   blue: "text-blue-700",
+   amber: "text-amber-700",
+   emerald: "text-emerald-700",
+   cyan: "text-cyan-700",
+   red: "text-red-700",
+   purple: "text-purple-700",
+   pink: "text-pink-700",
+   gray: "text-gray-600",
+};
+
+// Destaca o trecho do texto que casa com o termo buscado
+function HighlightMatch({ text, term }: { text: string; term: string }) {
+   const trimmed = term.trim();
+   if (!trimmed) return <>{text}</>;
+
+   const idx = text.toLowerCase().indexOf(trimmed.toLowerCase());
+   if (idx === -1) return <>{text}</>;
+
+   return (
+      <>
+         {text.slice(0, idx)}
+         <span className="font-bold text-gray-900">
+            {text.slice(idx, idx + trimmed.length)}
+         </span>
+         {text.slice(idx + trimmed.length)}
+      </>
+   );
+}
+
+interface SearchTrip {
+   id?: number;
+   trig: string;
+   user: { nome_guerra: string; p_g: string };
+}
+
+// Busca de tripulante no padrão do TripulanteSelect (ops/om): botão
+// "Adicionar" que vira campo de busca, com resultados em dropdown via
+// portal — posição fixa fora do fluxo, sem expandir o card da função
+function InlineTripSearch({
+   func,
+   funcLabel,
+   trigClass,
+   assignedIds,
+   onAdd,
+}: {
+   func: FuncType;
+   funcLabel: string;
+   trigClass: string;
+   assignedIds: Set<number>;
+   onAdd: (trip: SearchTrip) => void;
+}) {
+   const [query, setQuery] = useState("");
+   const [isOpen, setIsOpen] = useState(false);
+   const [showSearch, setShowSearch] = useState(false);
+   const [activeIndex, setActiveIndex] = useState(-1);
+   const [dropdownPosition, setDropdownPosition] = useState<{
+      top: number;
+      left: number;
+      width: number;
+   } | null>(null);
+   const containerRef = useRef<HTMLDivElement>(null);
+   const inputRef = useRef<HTMLInputElement>(null);
+   const inputWrapperRef = useRef<HTMLDivElement>(null);
+   const dropdownRef = useRef<HTMLDivElement>(null);
+
+   const debouncedQuery = useDebouncedValue(query, 300);
+   const isQueryShort = debouncedQuery.trim().length < 2;
+
+   const searchParams = {
+      search: debouncedQuery.trim(),
+      per_page: 5,
+      active: true,
+   };
+   const searchQuery = useQuery({
+      queryKey: tripKeys.list(searchParams),
+      queryFn: ({ signal }) => getTrips(searchParams, signal),
+      enabled: !isQueryShort,
+   });
+   const results = useMemo(
+      () => searchQuery.data?.items ?? [],
+      [searchQuery.data]
+   );
+   const isSearching = searchQuery.isFetching;
+
+   // Índices selecionáveis (exclui quem já está atribuído na etapa)
+   const selectableIndexes = useMemo(
+      () =>
+         results
+            .map((trip, index) =>
+               trip.id != null && !assignedIds.has(trip.id) ? index : -1
+            )
+            .filter((index) => index !== -1),
+      [results, assignedIds]
+   );
+
+   // Reseta o destaque do teclado quando os resultados mudam
+   useEffect(() => {
+      setActiveIndex(selectableIndexes.length > 0 ? selectableIndexes[0] : -1);
+   }, [selectableIndexes]);
+
+   // Calcula a posição do dropdown baseado no input; o card da função é
+   // estreito, então garante uma largura mínima legível sem sair da viewport
+   const updateDropdownPosition = useCallback(() => {
+      if (inputWrapperRef.current) {
+         const rect = inputWrapperRef.current.getBoundingClientRect();
+         const width = Math.max(rect.width, 240);
+         const left = Math.min(rect.left, window.innerWidth - width - 8);
+         setDropdownPosition({ top: rect.bottom + 4, left, width });
+      }
+   }, []);
+
+   // Atualiza a posição quando o dropdown abre ou quando há scroll/resize
+   useEffect(() => {
+      if (isOpen) {
+         updateDropdownPosition();
+         window.addEventListener("scroll", updateDropdownPosition, true);
+         window.addEventListener("resize", updateDropdownPosition);
+         return () => {
+            window.removeEventListener("scroll", updateDropdownPosition, true);
+            window.removeEventListener("resize", updateDropdownPosition);
+         };
+      }
+   }, [isOpen, updateDropdownPosition]);
+
+   const closeSearch = useCallback(() => {
+      setIsOpen(false);
+      setShowSearch(false);
+      setQuery("");
+   }, []);
+
+   // Fecha em click fora (considera container e dropdown do portal)
+   useEffect(() => {
+      const handleClickOutside = (event: MouseEvent) => {
+         const target = event.target as Node;
+         const isInsideContainer =
+            containerRef.current && containerRef.current.contains(target);
+         const isInsideDropdown =
+            dropdownRef.current && dropdownRef.current.contains(target);
+
+         if (!isInsideContainer && !isInsideDropdown) {
+            closeSearch();
+         }
+      };
+      document.addEventListener("mousedown", handleClickOutside);
+      return () =>
+         document.removeEventListener("mousedown", handleClickOutside);
+   }, [closeSearch]);
+
+   // Foca o input ao abrir a busca
+   useEffect(() => {
+      if (showSearch && inputRef.current) {
+         inputRef.current.focus();
+      }
+   }, [showSearch]);
+
+   // Mantém a opção ativa visível durante a navegação por teclado
+   useEffect(() => {
+      if (activeIndex < 0 || !dropdownRef.current) return;
+      const option = dropdownRef.current.querySelector(
+         `[data-option-index="${activeIndex}"]`
+      );
+      option?.scrollIntoView({ block: "nearest" });
+   }, [activeIndex]);
+
+   const handleSelect = useCallback(
+      (trip: SearchTrip) => {
+         onAdd(trip);
+         closeSearch();
+      },
+      [onAdd, closeSearch]
+   );
+
+   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+      if (e.key === "Escape") {
+         e.preventDefault();
+         closeSearch();
+         return;
+      }
+
+      if (!isOpen) {
+         if (e.key === "ArrowDown") setIsOpen(true);
+         return;
+      }
+
+      if (selectableIndexes.length === 0) return;
+
+      const currentPos = selectableIndexes.indexOf(activeIndex);
+
+      if (e.key === "ArrowDown") {
+         e.preventDefault();
+         const nextPos = (currentPos + 1) % selectableIndexes.length;
+         setActiveIndex(selectableIndexes[nextPos]);
+      } else if (e.key === "ArrowUp") {
+         e.preventDefault();
+         const prevPos =
+            currentPos <= 0 ? selectableIndexes.length - 1 : currentPos - 1;
+         setActiveIndex(selectableIndexes[prevPos]);
+      } else if (e.key === "Enter") {
+         e.preventDefault();
+         const active = results[activeIndex];
+         if (active) handleSelect(active);
+      }
+   };
+
+   const listboxId = `trip-search-${func}-listbox`;
+
+   if (!showSearch) {
+      return (
+         <button
+            type="button"
+            onClick={() => setShowSearch(true)}
+            className="flex w-full items-center justify-center gap-1 border border-dashed border-gray-300 bg-white/50 py-1 text-xs font-medium text-gray-400 transition-colors hover:border-gray-400 hover:bg-white hover:text-gray-600"
+         >
+            <HiPlus className="h-3.5 w-3.5" />
+            Adicionar
+         </button>
+      );
+   }
+
+   return (
+      <div ref={containerRef}>
+         <div ref={inputWrapperRef} className="relative">
+            <TextInput
+               ref={inputRef}
+               type="text"
+               value={query}
+               onChange={(e) => {
+                  setQuery(e.target.value);
+                  setIsOpen(true);
+               }}
+               onFocus={() => setIsOpen(true)}
+               onKeyDown={handleKeyDown}
+               placeholder="Trigrama ou nome..."
+               icon={HiSearch}
+               sizing="sm"
+               role="combobox"
+               aria-expanded={isOpen}
+               aria-controls={listboxId}
+               aria-autocomplete="list"
+            />
+
+            {isSearching && (
+               <div className="absolute top-1/2 right-3 -translate-y-1/2">
+                  <Spinner size="sm" color="failure" />
+               </div>
+            )}
+         </div>
+
+         {/* Dropdown via portal — não participa do fluxo do card */}
+         {isOpen &&
+            dropdownPosition &&
+            createPortal(
+               <div
+                  ref={dropdownRef}
+                  id={listboxId}
+                  role="listbox"
+                  className="fixed z-9999 max-h-52 overflow-auto rounded-lg border border-gray-200 bg-white shadow-lg"
+                  style={{
+                     top: dropdownPosition.top,
+                     left: dropdownPosition.left,
+                     width: dropdownPosition.width,
+                  }}
+               >
+                  {isQueryShort ? (
+                     <p className="p-3 text-center text-xs text-gray-400">
+                        Digite pelo menos 2 letras para buscar
+                     </p>
+                  ) : isSearching && results.length === 0 ? (
+                     <div className="flex items-center justify-center gap-2 p-3 text-xs text-gray-400">
+                        <Spinner size="sm" color="failure" />
+                        Buscando...
+                     </div>
+                  ) : results.length === 0 ? (
+                     <p className="p-3 text-center text-xs text-gray-500">
+                        Nenhum tripulante encontrado
+                     </p>
+                  ) : (
+                     results.map((trip, index) => {
+                        const isAdded =
+                           trip.id == null || assignedIds.has(trip.id);
+                        const isActive = index === activeIndex;
+
+                        return (
+                           <button
+                              key={trip.id ?? index}
+                              type="button"
+                              role="option"
+                              aria-selected={isActive}
+                              data-option-index={index}
+                              onClick={() => !isAdded && handleSelect(trip)}
+                              onMouseEnter={() =>
+                                 !isAdded && setActiveIndex(index)
+                              }
+                              disabled={isAdded}
+                              title={
+                                 isAdded
+                                    ? "Já atribuído nesta etapa"
+                                    : `Adicionar ${trip.trig} como ${funcLabel}`
+                              }
+                              className={clsx(
+                                 "flex w-full items-center gap-2 border-b border-gray-100 px-3 py-2 text-left last:border-b-0",
+                                 isAdded
+                                    ? "cursor-not-allowed bg-gray-50 opacity-60"
+                                    : isActive
+                                      ? "cursor-pointer bg-gray-100"
+                                      : "cursor-pointer"
+                              )}
+                           >
+                              <span
+                                 className={clsx(
+                                    "w-9 shrink-0 font-mono text-xs font-bold uppercase",
+                                    trigClass
+                                 )}
+                              >
+                                 <HighlightMatch
+                                    text={trip.trig}
+                                    term={debouncedQuery}
+                                 />
+                              </span>
+                              <span className="flex-1 truncate text-xs text-gray-600 uppercase">
+                                 {trip.user.p_g}{" "}
+                                 <HighlightMatch
+                                    text={trip.user.nome_guerra ?? ""}
+                                    term={debouncedQuery}
+                                 />
+                              </span>
+                              {isAdded && (
+                                 <span className="shrink-0 rounded-full bg-gray-200 px-2 py-0.5 text-[10px] font-medium text-gray-500">
+                                    Adicionado
+                                 </span>
+                              )}
+                           </button>
+                        );
+                     })
+                  )}
+               </div>,
+               document.body
+            )}
+      </div>
+   );
+}
+
 export function FuncGroupDropZone({
    func,
    trips,
@@ -181,19 +524,6 @@ export function FuncGroupDropZone({
    const posicoes = getPosicoesByFunc(func);
    const color = config.theme.color;
 
-   // Inline search state
-   const [searchQuery, setSearchQuery] = useState("");
-   const debouncedSearch = useDebouncedValue(searchQuery, 400);
-
-   const searchParams = debouncedSearch
-      ? { search: debouncedSearch, per_page: 5, active: true }
-      : undefined;
-   const { data: tripsData, isFetching: searchingTrips } = useQuery({
-      queryKey: tripKeys.list(searchParams),
-      queryFn: ({ signal }) => getTrips(searchParams!, signal),
-      enabled: !!debouncedSearch,
-   });
-
    const zoneClass = isOver
       ? "border-blue-400 bg-blue-100 ring-2 ring-blue-300"
       : (colorMap[color] ?? "border-gray-200 bg-gray-50");
@@ -201,11 +531,11 @@ export function FuncGroupDropZone({
    return (
       <div
          ref={setNodeRef}
-         className={clsx("flex min-h-20 flex-col rounded-lg border", zoneClass)}
+         className={clsx("flex min-h-20 flex-col border shadow-sm", zoneClass)}
       >
          <div
             className={clsx(
-               "flex items-center justify-between rounded-t-lg px-2 py-1 text-xs font-semibold",
+               "flex items-center justify-between px-2 py-1 text-xs font-semibold",
                headerColorMap[color] ?? "bg-gray-100 text-gray-600"
             )}
          >
@@ -230,72 +560,11 @@ export function FuncGroupDropZone({
          </div>
 
          <div className="flex flex-col gap-1 p-1.5">
-            {/* Inline search */}
-            <div className="relative">
-               <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Buscar..."
-                  className="w-full rounded border border-gray-200 bg-white px-2 py-1 text-xs focus:ring-1 focus:ring-red-300 focus:outline-none"
-               />
-               {searchingTrips && (
-                  <div className="absolute top-1 right-1.5">
-                     <Spinner size="xs" color="failure" />
-                  </div>
-               )}
-            </div>
-
-            {/* Search results */}
-            {debouncedSearch && tripsData && tripsData.items.length > 0 && (
-               <div className="max-h-28 overflow-y-auto rounded border border-gray-200 bg-white shadow-sm">
-                  {tripsData.items.map((trip) => {
-                     const isAdded = assignedIds.has(trip.id!);
-                     return (
-                        <div
-                           key={trip.id}
-                           className="flex items-center gap-1 border-b border-gray-100 px-1.5 py-1 last:border-0"
-                        >
-                           <span className="font-mono text-xs font-semibold text-gray-700 uppercase">
-                              {trip.trig}
-                           </span>
-                           <span className="flex-1 truncate text-xs text-gray-700 uppercase">
-                              {trip.user.p_g} {trip.user.nome_guerra}
-                           </span>
-                           <button
-                              type="button"
-                              onClick={() => {
-                                 if (isAdded) return;
-                                 onAddTrip(trip, func);
-                                 setSearchQuery("");
-                              }}
-                              disabled={isAdded}
-                              className={clsx(
-                                 "rounded p-0.5",
-                                 isAdded
-                                    ? "cursor-default text-gray-300"
-                                    : "text-gray-400 hover:bg-gray-100 hover:text-gray-700"
-                              )}
-                           >
-                              {isAdded ? (
-                                 <span className="text-xs text-green-500">
-                                    ✓
-                                 </span>
-                              ) : (
-                                 <HiPlus className="h-3 w-3" />
-                              )}
-                           </button>
-                        </div>
-                     );
-                  })}
-               </div>
-            )}
-
             {/* Assigned trips */}
             {trips.map((t) => (
                <div
                   key={t.tripId}
-                  className="flex items-center gap-1 rounded border border-white bg-white px-1.5 py-1 text-xs uppercase shadow-sm"
+                  className="flex items-center gap-1 border border-slate-200 bg-white px-1.5 py-1 text-xs uppercase shadow"
                >
                   <MdDragIndicator className="h-3.5 w-3.5 shrink-0 text-gray-300" />
                   <span className="min-w-0 flex-1 truncate font-medium text-gray-700">
@@ -313,7 +582,10 @@ export function FuncGroupDropZone({
                      <span className="shrink-0 text-xs text-gray-400">--</span>
                   )}
                   <button
+                     type="button"
                      onClick={() => onRemove(t.tripId)}
+                     title={`Remover ${t.nomeGuerra}`}
+                     aria-label={`Remover ${t.nomeGuerra} da função ${config.label}`}
                      className="ml-0.5 shrink-0 text-gray-300 hover:text-red-500"
                   >
                      <HiX className="h-3 w-3" />
@@ -321,11 +593,19 @@ export function FuncGroupDropZone({
                </div>
             ))}
 
-            {trips.length === 0 && !debouncedSearch && (
+            {trips.length === 0 && (
                <p className="py-1 text-center text-xs text-gray-400">
-                  Arraste ou busque aqui
+                  Arraste tripulantes para cá
                </p>
             )}
+
+            <InlineTripSearch
+               func={func}
+               funcLabel={config.label}
+               trigClass={trigColorMap[color] ?? "text-gray-600"}
+               assignedIds={assignedIds}
+               onAdd={(trip) => onAddTrip(trip, func)}
+            />
          </div>
       </div>
    );

@@ -11,8 +11,8 @@ type Props = {
 
 export function EtapaSectionCard({ title, badge, action, children }: Props) {
    return (
-      <section className="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
-         <header className="flex flex-wrap items-center justify-between gap-2 border-b border-gray-100 bg-gray-50/60 px-4 py-3">
+      <section className="overflow-hidden border border-gray-200 bg-white shadow-sm">
+         <header className="flex flex-wrap items-center justify-between gap-2 border-b border-gray-300 bg-gray-50/60 px-4 py-3">
             <div className="flex items-center gap-2">
                <span
                   aria-hidden
