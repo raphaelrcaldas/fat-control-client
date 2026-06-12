@@ -19,12 +19,15 @@ interface FiltrosOrdemProps {
    filtros: FiltrosOrdem;
    onFiltrosChange: (filtros: FiltrosOrdem) => void;
    onClearFiltros: () => void;
+   // Valores default de período — não contam como filtro ativo
+   defaultDates?: { dataInicio: string; dataFim: string };
 }
 
 export function FiltrosOrdemComponent({
    filtros,
    onFiltrosChange,
    onClearFiltros,
+   defaultDates,
 }: FiltrosOrdemProps) {
    const [expanded, setExpanded] = useState(false);
    const [allowOverflow, setAllowOverflow] = useState(false);
@@ -43,27 +46,40 @@ export function FiltrosOrdemComponent({
       }
    }, [expanded]);
 
+   // Datas iguais ao default não contam como filtro ativo
+   const isDataInicioCustom =
+      !!filtros.dataInicio && filtros.dataInicio !== defaultDates?.dataInicio;
+   const isDataFimCustom =
+      !!filtros.dataFim && filtros.dataFim !== defaultDates?.dataFim;
+
+   // Fim antes do início retorna lista vazia sem explicação — avisar
+   const intervaloInvalido =
+      !!filtros.dataInicio &&
+      !!filtros.dataFim &&
+      filtros.dataInicio > filtros.dataFim;
+
    // Lista de filtros ativos para badges
    const hasActiveFilters = !!(
       filtros.busca ||
       filtros.status.length > 0 ||
-      filtros.dataInicio ||
-      filtros.dataFim ||
+      isDataInicioCustom ||
+      isDataFimCustom ||
       filtros.etiquetas_ids.length > 0
    );
 
    return (
       <div
          className={clsx(
-            "mb-3 rounded-xl border border-gray-200 bg-white shadow-sm",
+            "mb-3 rounded border border-gray-200 bg-white shadow",
             allowOverflow ? "overflow-visible" : "overflow-hidden"
          )}
       >
-         <button
-            onClick={() => setExpanded(!expanded)}
-            className="flex w-full items-center justify-between rounded-xl p-4 transition-colors"
-         >
-            <div className="flex flex-wrap items-center gap-2">
+         <div className="flex w-full items-center justify-between p-4">
+            <button
+               type="button"
+               onClick={() => setExpanded(!expanded)}
+               className="flex min-w-0 flex-1 flex-wrap items-center gap-2 text-left transition-colors"
+            >
                <span className="text-sm font-bold tracking-wider text-gray-500 uppercase">
                   Filtros
                </span>
@@ -77,7 +93,7 @@ export function FiltrosOrdemComponent({
                         </span>
                      )}
 
-                     {filtros.dataInicio && (
+                     {isDataInicioCustom && (
                         <span className="rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-600">
                            Início:{" "}
                            {new Date(
@@ -86,7 +102,7 @@ export function FiltrosOrdemComponent({
                         </span>
                      )}
 
-                     {filtros.dataFim && (
+                     {isDataFimCustom && (
                         <span className="rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-600">
                            Fim:{" "}
                            {new Date(
@@ -121,24 +137,32 @@ export function FiltrosOrdemComponent({
                      })}
                   </>
                )}
-            </div>
-            <div className="flex items-center gap-3">
-               <span
-                  onClick={(e) => {
-                     e.stopPropagation();
-                     onClearFiltros();
-                  }}
-                  className="cursor-pointer text-xs text-gray-400 transition-colors hover:text-red-600"
-               >
-                  Limpar
-               </span>
-               {expanded ? (
-                  <HiChevronUp className="h-5 w-5 text-gray-400" />
-               ) : (
-                  <HiChevronDown className="h-5 w-5 text-gray-400" />
+            </button>
+            <div className="flex shrink-0 items-center gap-3">
+               {hasActiveFilters && (
+                  <button
+                     type="button"
+                     onClick={onClearFiltros}
+                     className="text-xs text-gray-400 transition-colors hover:text-red-600"
+                  >
+                     Limpar
+                  </button>
                )}
+               <button
+                  type="button"
+                  onClick={() => setExpanded(!expanded)}
+                  aria-label={
+                     expanded ? "Recolher filtros" : "Expandir filtros"
+                  }
+               >
+                  {expanded ? (
+                     <HiChevronUp className="h-5 w-5 text-gray-400" />
+                  ) : (
+                     <HiChevronDown className="h-5 w-5 text-gray-400" />
+                  )}
+               </button>
             </div>
-         </button>
+         </div>
 
          <div
             className={clsx(
@@ -202,13 +226,19 @@ export function FiltrosOrdemComponent({
                      <input
                         type="date"
                         value={filtros.dataInicio}
+                        max={filtros.dataFim || undefined}
                         onChange={(e) =>
                            onFiltrosChange({
                               ...filtros,
                               dataInicio: e.target.value,
                            })
                         }
-                        className="w-full rounded-lg border border-gray-300 bg-gray-50 px-3 py-2.5 text-sm text-gray-900 focus:border-transparent focus:ring-2 focus:ring-red-500"
+                        className={clsx(
+                           "w-full rounded-lg border bg-gray-50 px-3 py-2.5 text-sm text-gray-900 focus:border-transparent focus:ring-2 focus:ring-red-500",
+                           intervaloInvalido
+                              ? "border-red-300"
+                              : "border-gray-300"
+                        )}
                      />
                   </div>
 
@@ -220,14 +250,25 @@ export function FiltrosOrdemComponent({
                      <input
                         type="date"
                         value={filtros.dataFim}
+                        min={filtros.dataInicio || undefined}
                         onChange={(e) =>
                            onFiltrosChange({
                               ...filtros,
                               dataFim: e.target.value,
                            })
                         }
-                        className="w-full rounded-lg border border-gray-300 bg-gray-50 px-3 py-2.5 text-sm text-gray-900 focus:border-transparent focus:ring-2 focus:ring-red-500"
+                        className={clsx(
+                           "w-full rounded-lg border bg-gray-50 px-3 py-2.5 text-sm text-gray-900 focus:border-transparent focus:ring-2 focus:ring-red-500",
+                           intervaloInvalido
+                              ? "border-red-300"
+                              : "border-gray-300"
+                        )}
                      />
+                     {intervaloInvalido && (
+                        <p className="mt-1 text-xs text-red-500">
+                           Data fim anterior à data início
+                        </p>
+                     )}
                   </div>
 
                   {/* Etiquetas - Button-based selector */}

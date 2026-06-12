@@ -160,7 +160,7 @@ export const OrdemEspeciaisDisplay = memo(function OrdemEspeciaisDisplay({
                         <div
                            key={index}
                            className={clsx(
-                              "group relative rounded-lg border bg-white p-4 transition-all hover:shadow-sm",
+                              "group relative border bg-white px-4 py-2.5 shadow-xs transition-all",
                               isDragging
                                  ? "opacity-40"
                                  : isDragOver

@@ -1,16 +1,30 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import useDebouncedValue from "@/hooks/useDebouncedValue";
-import { useRouter, useSearchParams } from "next/navigation";
-import { Tabs, TabItem, Spinner, Pagination } from "flowbite-react";
+import { useRouter } from "next/navigation";
+import { Tabs, TabItem, Pagination, Button } from "flowbite-react";
+import { HiPlus } from "react-icons/hi";
+import clsx from "clsx";
+import {
+   useSearchParamsUpdater,
+   getStringParam,
+   getArrayParam,
+   getNumberArrayParam,
+   serializeArray,
+   serializeNumberArray,
+   serializeString,
+} from "@/hooks/useSearchParamsState";
 import { FiltrosOrdem } from "./types";
 import { FiltrosOrdemComponent } from "./components/FiltrosOrdem";
 import { ListaOrdens } from "./components/ListaOrdens";
+import { ListaOrdensSkeleton } from "./components/ListaOrdensSkeleton";
 import { DeleteOrdemModal } from "./components/DeleteOrdemModal";
 import { useOrdens, useDeleteOrdem } from "@/hooks/queries";
 import { type OrdemMissaoList } from "services/routes/om/ordens";
 import { useAuth } from "@/app/context/auth";
+import { useToast } from "@/app/context/toast";
+import { dateToIso } from "utils/dateHandler";
 import { PermBased } from "../../hooks/usePermBased";
 
 const tabsTheme = {
@@ -30,21 +44,18 @@ const tabsTheme = {
    },
 };
 
+// Datas default em fuso local: 1º de janeiro do ano corrente até hoje + 30 dias
 const getDefaultDates = () => {
    const hoje = new Date();
    const primeiroDiaAno = new Date(hoje.getFullYear(), 0, 1);
    const trintaDiasAFrente = new Date();
    trintaDiasAFrente.setDate(hoje.getDate() + 30);
 
-   const formatDate = (date: Date) => date.toISOString().split("T")[0];
-
    return {
-      dataInicio: formatDate(primeiroDiaAno),
-      dataFim: formatDate(trintaDiasAFrente),
+      dataInicio: dateToIso(primeiroDiaAno),
+      dataFim: dateToIso(trintaDiasAFrente),
    };
 };
-
-const defaultDates = getDefaultDates();
 
 type TabKey = "aprovadas" | "rascunho";
 const TAB_INDEX: Record<TabKey, number> = { aprovadas: 0, rascunho: 1 };
@@ -53,38 +64,62 @@ const TAB_KEY: Record<number, TabKey> = { 0: "aprovadas", 1: "rascunho" };
 export default function OrdensMissao() {
    const router = useRouter();
    const { activeOrg } = useAuth();
-   const searchParams = useSearchParams();
+   const { push: pushToast } = useToast();
+   const { searchParams, setParams } = useSearchParamsUpdater();
 
-   // URL search params como fonte de verdade
+   // O scroll fica no <main> do layout, não na window: ref no topo da página
+   // para a paginação voltar ao início da lista
+   const pageTopRef = useRef<HTMLDivElement>(null);
+
+   // Calculado por mount (não no load do módulo) para não envelhecer numa SPA aberta
+   const [defaultDates] = useState(getDefaultDates);
+
+   // URL search params como fonte de verdade (tab, página e filtros)
    const tabParam = (searchParams.get("tab") as TabKey) || "aprovadas";
    const activeTab = TAB_INDEX[tabParam] ?? 0;
    const currentPage = Number(searchParams.get("page")) || 1;
 
-   const updateParams = useCallback(
-      (updates: Record<string, string | null>) => {
-         const params = new URLSearchParams(searchParams.toString());
-         for (const [key, value] of Object.entries(updates)) {
-            if (value === null) params.delete(key);
-            else params.set(key, value);
-         }
-         router.replace(`?${params.toString()}`, { scroll: false });
-      },
-      [searchParams, router]
+   // Filtros derivados da URL — voltar da página de detalhe ou compartilhar
+   // o link preserva a visão filtrada; datas ausentes caem no default
+   const filtros: FiltrosOrdem = useMemo(
+      () => ({
+         busca: getStringParam(searchParams, "busca"),
+         status: getArrayParam(searchParams, "status"),
+         dataInicio: getStringParam(
+            searchParams,
+            "inicio",
+            defaultDates.dataInicio
+         ),
+         dataFim: getStringParam(searchParams, "fim", defaultDates.dataFim),
+         etiquetas_ids: getNumberArrayParam(searchParams, "etiquetas"),
+      }),
+      [searchParams, defaultDates]
    );
+
+   // Filtros ativos (datas iguais ao default não contam) — controla o empty state
+   const hasActiveFilters = !!(
+      filtros.busca ||
+      filtros.status.length > 0 ||
+      filtros.dataInicio !== defaultDates.dataInicio ||
+      filtros.dataFim !== defaultDates.dataFim ||
+      filtros.etiquetas_ids.length > 0
+   );
+
+   // Busca digitada fica local para resposta imediata; vai à URL com debounce
+   const [buscaInput, setBuscaInput] = useState(filtros.busca);
+   const debouncedBusca = useDebouncedValue(buscaInput, 500);
+
+   useEffect(() => {
+      const current = searchParams.get("busca") ?? "";
+      if (debouncedBusca !== current) {
+         setParams({ busca: debouncedBusca || undefined, page: undefined });
+      }
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+   }, [debouncedBusca]);
 
    // Paginacao derivada da URL
    const pageAprovadas = tabParam === "aprovadas" ? currentPage : 1;
    const pageRascunho = tabParam === "rascunho" ? currentPage : 1;
-
-   // Filtros
-   const [filtros, setFiltros] = useState<FiltrosOrdem>({
-      busca: "",
-      status: [],
-      dataInicio: defaultDates.dataInicio,
-      dataFim: defaultDates.dataFim,
-      etiquetas_ids: [],
-   });
-   const debouncedBusca = useDebouncedValue(filtros.busca, 500);
 
    // Modal de exclusao
    const [deleteModalOpen, setDeleteModalOpen] = useState(false);
@@ -103,7 +138,7 @@ export default function OrdensMissao() {
       ...(filtros.status.length > 0
          ? { status: filtros.status }
          : { status_ne: "rascunho" }),
-      ...(debouncedBusca && { busca: debouncedBusca }),
+      ...(filtros.busca && { busca: filtros.busca }),
       ...(filtros.dataInicio && { data_inicio: filtros.dataInicio }),
       ...(filtros.dataFim && { data_fim: filtros.dataFim }),
       ...(filtros.etiquetas_ids.length > 0 && {
@@ -132,20 +167,6 @@ export default function OrdensMissao() {
       total: ordensRascunhoQuery.data?.total ?? 0,
       pages: ordensRascunhoQuery.data?.pages ?? 1,
    };
-
-   // Reset para pagina 1 quando filtros mudam
-   useEffect(() => {
-      if (currentPage !== 1 && tabParam === "aprovadas") {
-         updateParams({ page: null });
-      }
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-   }, [
-      filtros.status,
-      filtros.dataInicio,
-      filtros.dataFim,
-      debouncedBusca,
-      filtros.etiquetas_ids,
-   ]);
 
    // ========================================
    // Handlers
@@ -176,6 +197,11 @@ export default function OrdensMissao() {
          },
          onError: (err) => {
             console.error("Erro ao excluir ordem:", err);
+            pushToast({
+               type: "error",
+               title: "Erro",
+               message: "Erro ao excluir a ordem. Tente novamente.",
+            });
          },
       });
    };
@@ -186,35 +212,58 @@ export default function OrdensMissao() {
       setOrdemToDelete(null);
    };
 
-   const clearFiltros = () => {
-      setFiltros({
-         busca: "",
-         status: [],
-         dataInicio: defaultDates.dataInicio,
-         dataFim: defaultDates.dataFim,
-         etiquetas_ids: [],
-      });
-   };
+   // Filtros (exceto busca, que é debounced) vão direto para a URL
+   const handleFiltrosChange = (novo: FiltrosOrdem) => {
+      setBuscaInput(novo.busca);
 
-   const handleTabChange = (tab: number) => {
-      const key = TAB_KEY[tab] ?? "aprovadas";
-      updateParams({ tab: key === "aprovadas" ? null : key, page: null });
-      if (filtros.status.length > 0) {
-         setFiltros((prev) => ({ ...prev, status: [] }));
+      const nonBuscaChanged =
+         novo.status !== filtros.status ||
+         novo.dataInicio !== filtros.dataInicio ||
+         novo.dataFim !== filtros.dataFim ||
+         novo.etiquetas_ids !== filtros.etiquetas_ids;
+
+      if (nonBuscaChanged) {
+         setParams({
+            status: serializeArray(novo.status),
+            inicio: serializeString(novo.dataInicio, defaultDates.dataInicio),
+            fim: serializeString(novo.dataFim, defaultDates.dataFim),
+            etiquetas: serializeNumberArray(novo.etiquetas_ids),
+            page: undefined,
+         });
       }
    };
 
-   // Handlers de paginacao
-   const handlePageChangeAprovadas = (page: number) => {
-      updateParams({ page: page === 1 ? null : String(page) });
+   const clearFiltros = () => {
+      setBuscaInput("");
+      setParams({
+         busca: undefined,
+         status: undefined,
+         inicio: undefined,
+         fim: undefined,
+         etiquetas: undefined,
+         page: undefined,
+      });
    };
 
-   const handlePageChangeRascunho = (page: number) => {
-      updateParams({ page: page === 1 ? null : String(page) });
+   // Troca de tab preserva todos os filtros (eles só se aplicam à tab Aprovadas)
+   const handleTabChange = (tab: number) => {
+      const key = TAB_KEY[tab] ?? "aprovadas";
+      setParams({
+         tab: key === "aprovadas" ? undefined : key,
+         page: undefined,
+      });
+   };
+
+   const handlePageChange = (page: number) => {
+      setParams({ page: page === 1 ? undefined : String(page) });
+      pageTopRef.current?.scrollIntoView({
+         behavior: "smooth",
+         block: "start",
+      });
    };
 
    return (
-      <div className="p-2 text-gray-900">
+      <div ref={pageTopRef} className="p-2 text-gray-900">
          <div className="mx-auto">
             {/* Header */}
             <header className="mb-3 flex items-center justify-between">
@@ -227,26 +276,46 @@ export default function OrdensMissao() {
                   </p>
                </div>
                <PermBased resource={"ordem_missao"} requiredPerm={"create"}>
-                  <button
+                  <Button
+                     color="red"
                      onClick={() => router.push("/ops/om/nova")}
-                     className="flex items-center gap-2 rounded-lg bg-red-500 px-5 py-2.5 font-bold text-white shadow hover:bg-red-700"
                   >
-                     <span className="text-lg">+</span>
-                     Nova Ordem de Missão
-                  </button>
+                     <HiPlus className="mr-2 h-4 w-4" />
+                     <span className="hidden sm:inline">
+                        Nova Ordem de Missão
+                     </span>
+                     <span className="sm:hidden">Nova OM</span>
+                  </Button>
                </PermBased>
             </header>
 
-            {/* Erro global */}
-            {ordensAprovadasQuery.isError && (
-               <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-4 text-red-700">
-                  {ordensAprovadasQuery.error?.message ||
-                     "Erro ao carregar ordens"}
+            {/* Erro global (qualquer uma das queries) com retry */}
+            {(ordensAprovadasQuery.isError || ordensRascunhoQuery.isError) && (
+               <div className="mb-4 flex items-center justify-between gap-4 rounded-lg border border-red-200 bg-red-50 p-4 text-red-700">
+                  <span className="min-w-0 text-sm">
+                     {ordensAprovadasQuery.error?.message ||
+                        ordensRascunhoQuery.error?.message ||
+                        "Erro ao carregar ordens"}
+                  </span>
+                  <button
+                     type="button"
+                     onClick={() => {
+                        if (ordensAprovadasQuery.isError)
+                           ordensAprovadasQuery.refetch();
+                        if (ordensRascunhoQuery.isError)
+                           ordensRascunhoQuery.refetch();
+                     }}
+                     className="shrink-0 rounded-lg border border-red-300 px-3 py-1.5 text-sm font-medium transition-colors hover:bg-red-100"
+                  >
+                     Tentar novamente
+                  </button>
                </div>
             )}
 
-            {/* Tabs */}
+            {/* Tabs — key={tabParam} ressincroniza com a URL (voltar/avançar do navegador),
+                já que o Tabs do Flowbite é não-controlado */}
             <Tabs
+               key={tabParam}
                onActiveTabChange={handleTabChange}
                variant="underline"
                theme={tabsTheme}
@@ -257,47 +326,62 @@ export default function OrdensMissao() {
                      <span className="flex items-center gap-2">
                         Aprovadas
                         <span className="rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-600">
-                           {paginationAprovadas.total}
+                           {ordensAprovadasQuery.isLoading
+                              ? "–"
+                              : paginationAprovadas.total}
                         </span>
                      </span>
                   }
                >
                   <FiltrosOrdemComponent
-                     filtros={filtros}
-                     onFiltrosChange={setFiltros}
+                     filtros={{ ...filtros, busca: buscaInput }}
+                     onFiltrosChange={handleFiltrosChange}
                      onClearFiltros={clearFiltros}
+                     defaultDates={defaultDates}
                   />
-                  <p className="mb-3 text-sm text-gray-500">
-                     {paginationAprovadas.total}{" "}
-                     {paginationAprovadas.total === 1
-                        ? "missão encontrada"
-                        : "missões encontradas"}
-                  </p>
-                  {ordensAprovadasQuery.isLoading ? (
-                     <div className="flex items-center justify-center py-12">
-                        <Spinner size="lg" color="failure" />
-                     </div>
+                  {!ordensAprovadasQuery.isError && (
+                     <p className="mb-3 text-sm text-gray-500">
+                        {ordensAprovadasQuery.isLoading
+                           ? "Carregando missões..."
+                           : `${paginationAprovadas.total} ${
+                                paginationAprovadas.total === 1
+                                   ? "missão encontrada"
+                                   : "missões encontradas"
+                             }`}
+                     </p>
+                  )}
+                  {ordensAprovadasQuery.isError ? null : ordensAprovadasQuery.isLoading ? (
+                     <ListaOrdensSkeleton />
                   ) : (
-                     <>
+                     <div
+                        className={clsx(
+                           "transition-opacity",
+                           ordensAprovadasQuery.isPlaceholderData &&
+                              "pointer-events-none opacity-50"
+                        )}
+                     >
                         <ListaOrdens
                            ordens={ordensAprovadas}
                            onOrdemClick={handleOpenOrdem}
                            onCloneOrdem={handleCloneOrdem}
                            onDeleteOrdem={handleDeleteOrdem}
+                           hasActiveFilters={hasActiveFilters}
+                           onClearFiltros={clearFiltros}
+                           onCreateOrdem={() => router.push("/ops/om/nova")}
                         />
                         {paginationAprovadas.pages > 1 && (
                            <div className="mt-4 flex justify-center">
                               <Pagination
                                  currentPage={pageAprovadas}
                                  totalPages={paginationAprovadas.pages}
-                                 onPageChange={handlePageChangeAprovadas}
+                                 onPageChange={handlePageChange}
                                  showIcons
                                  previousLabel="Anterior"
-                                 nextLabel="Proxima"
+                                 nextLabel="Próxima"
                               />
                            </div>
                         )}
-                     </>
+                     </div>
                   )}
                </TabItem>
                <TabItem
@@ -305,43 +389,56 @@ export default function OrdensMissao() {
                   title={
                      <span className="flex items-center gap-2">
                         Rascunhos
-                        <span className="rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-600">
-                           {paginationRascunho.total}
+                        <span className="rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-600">
+                           {ordensRascunhoQuery.isLoading
+                              ? "–"
+                              : paginationRascunho.total}
                         </span>
                      </span>
                   }
                >
-                  <p className="mb-3 text-sm text-gray-500">
-                     {paginationRascunho.total}{" "}
-                     {paginationRascunho.total === 1
-                        ? "rascunho encontrado"
-                        : "rascunhos encontrados"}
-                  </p>
-                  {ordensRascunhoQuery.isLoading ? (
-                     <div className="flex items-center justify-center py-12">
-                        <Spinner size="lg" color="failure" />
-                     </div>
+                  {!ordensRascunhoQuery.isError && (
+                     <p className="mb-3 text-sm text-gray-500">
+                        {ordensRascunhoQuery.isLoading
+                           ? "Carregando rascunhos..."
+                           : `${paginationRascunho.total} ${
+                                paginationRascunho.total === 1
+                                   ? "rascunho encontrado"
+                                   : "rascunhos encontrados"
+                             }`}
+                     </p>
+                  )}
+                  {ordensRascunhoQuery.isError ? null : ordensRascunhoQuery.isLoading ? (
+                     <ListaOrdensSkeleton />
                   ) : (
-                     <>
+                     <div
+                        className={clsx(
+                           "transition-opacity",
+                           ordensRascunhoQuery.isPlaceholderData &&
+                              "pointer-events-none opacity-50"
+                        )}
+                     >
                         <ListaOrdens
                            ordens={ordensRascunho}
                            onOrdemClick={handleOpenOrdem}
                            onCloneOrdem={handleCloneOrdem}
                            onDeleteOrdem={handleDeleteOrdem}
+                           emptyTitle="Nenhum rascunho encontrado"
+                           onCreateOrdem={() => router.push("/ops/om/nova")}
                         />
                         {paginationRascunho.pages > 1 && (
                            <div className="mt-4 flex justify-center">
                               <Pagination
                                  currentPage={pageRascunho}
                                  totalPages={paginationRascunho.pages}
-                                 onPageChange={handlePageChangeRascunho}
+                                 onPageChange={handlePageChange}
                                  showIcons
                                  previousLabel="Anterior"
-                                 nextLabel="Proxima"
+                                 nextLabel="Próxima"
                               />
                            </div>
                         )}
-                     </>
+                     </div>
                   )}
                </TabItem>
             </Tabs>

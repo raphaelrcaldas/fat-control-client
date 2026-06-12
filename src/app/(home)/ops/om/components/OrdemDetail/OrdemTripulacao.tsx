@@ -8,9 +8,6 @@ import {
 } from "@/constants/tripulantes";
 import { TripulanteSelect } from "./TripulanteSelect";
 
-// Re-export CrewMember as TripulanteSearchResult for compatibility
-type TripulanteSearchResult = CrewMember;
-
 // TripulacaoOrdem usando tipos da API diretamente
 interface TripulacaoOrdem {
    pil: CrewMember[];
@@ -32,11 +29,7 @@ interface ValidationErrors {
 
 interface OrdemTripulacaoProps {
    tripulacao: TripulacaoOrdem;
-   projeto: string;
-   onAdd: (
-      funcao: FuncaoTripulante,
-      tripulante: TripulanteSearchResult
-   ) => void;
+   onAdd: (funcao: FuncaoTripulante, tripulante: CrewMember) => void;
    onRemove: (funcao: FuncaoTripulante, tripulanteId: number) => void;
    isEditable: boolean;
    validationErrors?: ValidationErrors;
@@ -57,7 +50,6 @@ const REQUIRED_FUNCOES: Record<
 
 export const OrdemTripulacao = memo(function OrdemTripulacao({
    tripulacao,
-   projeto,
    onAdd,
    onRemove,
    isEditable,
@@ -66,12 +58,16 @@ export const OrdemTripulacao = memo(function OrdemTripulacao({
    // Coletar IDs de tripulantes já selecionados (em qualquer função) para evitar duplicatas
    const selectedIds = useMemo(
       () =>
-         TODAS_FUNCOES.flatMap((funcao) => tripulacao[funcao].map((t) => t.id)),
+         TODAS_FUNCOES.flatMap((funcao) =>
+            tripulacao[funcao]
+               .map((t) => t.id)
+               .filter((id): id is number => id != null)
+         ),
       [tripulacao]
    );
 
    return (
-      <div className="grid gap-2 md:grid-cols-6">
+      <div className="grid items-start gap-3 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-6">
          {TODAS_FUNCOES.map((funcao) => {
             const errorKey = REQUIRED_FUNCOES[funcao];
             const isRequired = errorKey !== null;
@@ -81,7 +77,6 @@ export const OrdemTripulacao = memo(function OrdemTripulacao({
                <TripulanteSelect
                   key={funcao}
                   funcao={funcao}
-                  projeto={projeto}
                   tripulantes={tripulacao[funcao]}
                   onAdd={(tripulante) => onAdd(funcao, tripulante)}
                   onRemove={(tripulanteId) => onRemove(funcao, tripulanteId)}

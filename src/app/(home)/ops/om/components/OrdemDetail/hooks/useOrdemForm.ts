@@ -11,20 +11,10 @@ import type {
 } from "services/routes/om/ordens";
 import { type CrewMember } from "services/routes/trips";
 import { type FuncaoTripulante } from "@/constants/tripulantes";
-import { createDefaultOrdem, createNextEtapa } from "../utils/ordemUtils";
+import { createDefaultOrdem, calcularEsfAer } from "../utils/ordemUtils";
 import { useCreateOrdem, useUpdateOrdem } from "@/hooks/queries";
-import { calcularTempoVooMinutos } from "utils/dateHandler";
+import { minutesToTime } from "utils/dateHandler";
 import { compareByAntiguidade } from "utils/sortByAntiguidade";
-
-// Calcula o esforço aéreo total (soma dos tempos de voo das etapas)
-const calcularEsfAer = (etapas: EtapaOut[]): number => {
-   return etapas.reduce((acc, etapa) => {
-      if (etapa.dt_dep && etapa.dt_arr) {
-         return acc + calcularTempoVooMinutos(etapa.dt_dep, etapa.dt_arr);
-      }
-      return acc;
-   }, 0);
-};
 
 // Local type for tripulacao management (API uses TripulacaoAgrupada)
 interface TripulacaoOrdem {
@@ -79,6 +69,35 @@ interface UseOrdemFormProps {
    onSave: () => void;
 }
 
+// Monta o estado inicial completo do formulário a partir da ordem (ou defaults)
+const buildInitialState = (
+   ordem: OrdemMissaoOut | null,
+   isCloning: boolean
+): {
+   formData: OrdemMissaoOut;
+   tripulacao: TripulacaoOrdem;
+   camposEspeciais: CampoEspecial[];
+} => {
+   let formData: OrdemMissaoOut;
+   if (!ordem) {
+      formData = createDefaultOrdem() as OrdemMissaoOut;
+   } else {
+      // Garantir que esf_aer tenha valor padrão
+      const baseOrdem = { ...ordem, esf_aer: ordem.esf_aer ?? 0 };
+      formData = isCloning
+         ? { ...baseOrdem, id: 0, status: "rascunho" }
+         : baseOrdem;
+   }
+
+   return {
+      formData,
+      tripulacao: ordem?.tripulacao
+         ? convertTripulacaoFromApi(ordem.tripulacao)
+         : createDefaultTripulacao(),
+      camposEspeciais: ordem?.campos_especiais || [],
+   };
+};
+
 export const useOrdemForm = ({
    ordem,
    isNew,
@@ -89,44 +108,20 @@ export const useOrdemForm = ({
    const createOrdemMutation = useCreateOrdem();
    const updateOrdemMutation = useUpdateOrdem();
 
-   const createInitialFormData = (): OrdemMissaoOut => {
-      if (!ordem) return createDefaultOrdem() as OrdemMissaoOut;
-      // Garantir que esf_aer tenha valor padrão
-      const baseOrdem = { ...ordem, esf_aer: ordem.esf_aer ?? 0 };
-      if (isCloning) {
-         return {
-            ...baseOrdem,
-            id: 0,
-            status: "rascunho",
-         };
-      }
-      return baseOrdem;
-   };
-
    const [formData, setFormData] = useState<OrdemMissaoOut>(
-      createInitialFormData()
+      () => buildInitialState(ordem, isCloning).formData
    );
    const [tripulacao, setTripulacao] = useState<TripulacaoOrdem>(
-      ordem?.tripulacao
-         ? convertTripulacaoFromApi(ordem.tripulacao)
-         : createDefaultTripulacao()
+      () => buildInitialState(ordem, isCloning).tripulacao
    );
    const [camposEspeciais, setCamposEspeciais] = useState<CampoEspecial[]>(
-      ordem?.campos_especiais || []
+      () => buildInitialState(ordem, isCloning).camposEspeciais
    );
 
    // Estado para valores originais (detecção de mudanças)
-   const [originalData, setOriginalData] = useState<{
-      formData: OrdemMissaoOut;
-      tripulacao: TripulacaoOrdem;
-      camposEspeciais: CampoEspecial[];
-   }>({
-      formData: createInitialFormData(),
-      tripulacao: ordem?.tripulacao
-         ? convertTripulacaoFromApi(ordem.tripulacao)
-         : createDefaultTripulacao(),
-      camposEspeciais: ordem?.campos_especiais || [],
-   });
+   const [originalData, setOriginalData] = useState(() =>
+      buildInitialState(ordem, isCloning)
+   );
 
    // Estados de loading e erro
    const [isSaving, setIsSaving] = useState(false);
@@ -142,33 +137,16 @@ export const useOrdemForm = ({
 
    // Sincronizar o formData quando a ordem ou isCloning mudar
    useEffect(() => {
-      const baseOrdem = ordem
-         ? { ...ordem, esf_aer: ordem.esf_aer ?? 0 }
-         : null;
-      const initialForm = !baseOrdem
-         ? (createDefaultOrdem() as OrdemMissaoOut)
-         : isCloning
-           ? { ...baseOrdem, id: 0, status: "rascunho" as const }
-           : baseOrdem;
-      const initialTrip = ordem?.tripulacao
-         ? convertTripulacaoFromApi(ordem.tripulacao)
-         : createDefaultTripulacao();
-      const initialCampos = ordem?.campos_especiais || [];
+      const initial = buildInitialState(ordem, isCloning);
 
-      setFormData(initialForm);
-      setTripulacao(initialTrip);
-      setCamposEspeciais(initialCampos);
+      setFormData(initial.formData);
+      setTripulacao(initial.tripulacao);
+      setCamposEspeciais(initial.camposEspeciais);
 
       // Atualizar dados originais para detecção de mudanças
-      setOriginalData({
-         formData: initialForm,
-         tripulacao: initialTrip,
-         camposEspeciais: initialCampos,
-      });
+      setOriginalData(initial);
 
-      if (!ordem) {
-         setIsReadOnlyMode(false);
-      } else if (isCloning) {
+      if (!ordem || isCloning) {
          setIsReadOnlyMode(false);
       } else {
          setIsReadOnlyMode(ordem.status !== "rascunho");
@@ -192,57 +170,14 @@ export const useOrdemForm = ({
       setIsReadOnlyMode((prev) => !prev);
    };
 
-   const handleInsertEtapa = (afterIndex: number) => {
-      if (!isEditable) return;
-      const newEtapas = [...formData.etapas];
-      const currentEtapa = newEtapas[afterIndex];
-      const newEtapa = createNextEtapa(currentEtapa) as EtapaOut;
-      newEtapas.splice(afterIndex + 1, 0, newEtapa);
-      const calculatedEsfAer = calcularEsfAer(newEtapas);
-      setFormData({
-         ...formData,
-         etapas: newEtapas,
-         esf_aer: Math.max(formData.esf_aer ?? 0, calculatedEsfAer),
-      });
-   };
-
    const handleRemoveEtapa = (index: number) => {
       if (!isEditable || formData.etapas.length <= 1) return;
       const newEtapas = formData.etapas.filter((_, i) => i !== index);
       setFormData({
          ...formData,
          etapas: newEtapas,
-         esf_aer: calcularEsfAer(newEtapas),
-      });
-   };
-
-   const handleEtapaChange = (
-      index: number,
-      field: string,
-      value: string | number
-   ) => {
-      if (!isEditable) return;
-      const newEtapas = [...formData.etapas];
-      newEtapas[index] = { ...newEtapas[index], [field]: value };
-
-      // Validacao: se mudou o destino, atualizar a origem da proxima etapa
-      if (field === "dest" && index < newEtapas.length - 1) {
-         newEtapas[index + 1] = {
-            ...newEtapas[index + 1],
-            origem: value as string,
-         };
-      }
-
-      // Recalcular esf_aer se mudou horários
-      const shouldRecalcEsfAer = field === "dt_dep" || field === "dt_arr";
-      const newEsfAer = shouldRecalcEsfAer
-         ? calcularEsfAer(newEtapas)
-         : (formData.esf_aer ?? 0);
-
-      setFormData({
-         ...formData,
-         etapas: newEtapas,
-         esf_aer: newEsfAer,
+         // Preserva esforço alocado manualmente (mesmo critério de add/update)
+         esf_aer: Math.max(formData.esf_aer ?? 0, calcularEsfAer(newEtapas)),
       });
    };
 
@@ -357,14 +292,6 @@ export const useOrdemForm = ({
 
    const validationErrors = getValidationErrors();
 
-   const hasRequiredFields =
-      !validationErrors.tipo &&
-      !validationErrors.matriculaAeronave &&
-      !validationErrors.etapas &&
-      !validationErrors.piloto &&
-      !validationErrors.mecanico &&
-      !validationErrors.loadmaster;
-
    // Funcao para ordenar etapas por data/hora de decolagem
    const sortEtapas = (etapas: EtapaOut[]) => {
       return [...etapas].sort((a, b) => {
@@ -374,27 +301,86 @@ export const useOrdemForm = ({
       });
    };
 
-   // Funcao para verificar se as etapas estao ordenadas
-   const areEtapasOrdered = () => {
-      for (let i = 1; i < formData.etapas.length; i++) {
-         const prevDateTime = formData.etapas[i - 1].dt_dep || "";
-         const currDateTime = formData.etapas[i].dt_dep || "";
-         if (prevDateTime > currDateTime) {
-            return false;
+   // Campos obrigatórios de cada etapa (compartilhado entre rascunho e aprovação)
+   const collectEtapaRequiredErrors = (etapas: EtapaOut[]): string[] => {
+      const errors: string[] = [];
+      etapas.forEach((etapa, index) => {
+         const etapaNum = index + 1;
+
+         if (!etapa.dt_dep) {
+            errors.push(
+               `Etapa ${etapaNum}: Data/hora de decolagem é obrigatória`
+            );
          }
-      }
-      return true;
+         if (!etapa.origem?.trim()) {
+            errors.push(`Etapa ${etapaNum}: Origem é obrigatória`);
+         }
+         if (!etapa.dt_arr) {
+            errors.push(`Etapa ${etapaNum}: Data/hora de pouso é obrigatória`);
+         }
+         if (!etapa.dest?.trim()) {
+            errors.push(`Etapa ${etapaNum}: Destino é obrigatório`);
+         }
+         if (!etapa.alternativa?.trim()) {
+            errors.push(`Etapa ${etapaNum}: Alternativa é obrigatória`);
+         }
+         if (!etapa.tvoo_alt || etapa.tvoo_alt === 0) {
+            errors.push(
+               `Etapa ${etapaNum}: Tempo de voo alternativa é obrigatório`
+            );
+         }
+         if (!etapa.qtd_comb || etapa.qtd_comb === 0) {
+            errors.push(
+               `Etapa ${etapaNum}: Quantidade de combustível é obrigatória`
+            );
+         }
+         if (!etapa.esf_aer?.trim()) {
+            errors.push(`Etapa ${etapaNum}: Esforço aéreo é obrigatório`);
+         }
+      });
+      return errors;
    };
 
-   // Funcao para ordenar etapas manualmente
-   const handleSortEtapas = () => {
-      if (!isEditable) return;
-      const sorted = sortEtapas(formData.etapas);
-      setFormData({
-         ...formData,
-         etapas: sorted,
-         esf_aer: calcularEsfAer(sorted),
-      });
+   // Sobreposicao de horarios entre todas as etapas (compartilhado)
+   const collectOverlapErrors = (etapas: EtapaOut[]): string[] => {
+      const errors: string[] = [];
+      for (let i = 0; i < etapas.length; i++) {
+         for (let j = i + 1; j < etapas.length; j++) {
+            const etapa1 = etapas[i];
+            const etapa2 = etapas[j];
+
+            if (
+               etapa1.dt_dep &&
+               etapa1.dt_arr &&
+               etapa2.dt_dep &&
+               etapa2.dt_arr
+            ) {
+               const dec1 = new Date(etapa1.dt_dep);
+               const pou1 = new Date(etapa1.dt_arr);
+               const dec2 = new Date(etapa2.dt_dep);
+               const pou2 = new Date(etapa2.dt_arr);
+
+               if (dec1 < pou2 && pou1 > dec2) {
+                  errors.push(
+                     `Sobreposição de horários: A Etapa ${i + 1} sobrepõe a Etapa ${j + 1}`
+                  );
+               }
+            }
+         }
+      }
+      return errors;
+   };
+
+   // esf_aer da ordem >= soma do tempo de voo das etapas (compartilhado)
+   const collectEsfAerError = (): string[] => {
+      const somaTempoVooAtual = calcularEsfAer(formData.etapas);
+      const esfAer = formData.esf_aer || 0;
+      if (somaTempoVooAtual > 0 && esfAer < somaTempoVooAtual) {
+         return [
+            `Esforço Aéreo deve ser maior ou igual à soma do tempo de voo das etapas (${minutesToTime(somaTempoVooAtual)})`,
+         ];
+      }
+      return [];
    };
 
    const validateForm = (): { isValid: boolean; errors: string[] } => {
@@ -431,7 +417,7 @@ export const useOrdemForm = ({
          }
       });
 
-      decolagemPeriodos.forEach((indices, periodo) => {
+      decolagemPeriodos.forEach((indices) => {
          if (indices.length > 1) {
             errors.push(
                `Periodos duplicados: As etapas ${indices.join(", ")} possuem a mesma data/hora de decolagem`
@@ -439,65 +425,14 @@ export const useOrdemForm = ({
          }
       });
 
-      // Validar sobreposicao de horarios entre todas as etapas
-      for (let i = 0; i < formData.etapas.length; i++) {
-         for (let j = i + 1; j < formData.etapas.length; j++) {
-            const etapa1 = formData.etapas[i];
-            const etapa2 = formData.etapas[j];
+      errors.push(...collectOverlapErrors(formData.etapas));
+      errors.push(...collectEtapaRequiredErrors(formData.etapas));
 
-            if (
-               etapa1.dt_dep &&
-               etapa1.dt_arr &&
-               etapa2.dt_dep &&
-               etapa2.dt_arr
-            ) {
-               const dec1 = new Date(etapa1.dt_dep);
-               const pou1 = new Date(etapa1.dt_arr);
-               const dec2 = new Date(etapa2.dt_dep);
-               const pou2 = new Date(etapa2.dt_arr);
-
-               if (dec1 < pou2 && pou1 > dec2) {
-                  errors.push(
-                     `Sobreposição de horários: A Etapa ${i + 1} sobrepõe a Etapa ${j + 1}`
-                  );
-               }
-            }
-         }
-      }
-
+      // Validacoes extras exigidas apenas na aprovacao
       formData.etapas.forEach((etapa, index) => {
          const etapaNum = index + 1;
 
-         if (!etapa.origem?.trim()) {
-            errors.push(`Etapa ${etapaNum}: Origem é obrigatória`);
-         }
-         if (!etapa.dest?.trim()) {
-            errors.push(`Etapa ${etapaNum}: Destino é obrigatório`);
-         }
-         if (!etapa.dt_dep) {
-            errors.push(
-               `Etapa ${etapaNum}: Data/hora de decolagem é obrigatória`
-            );
-         }
-         if (!etapa.dt_arr) {
-            errors.push(`Etapa ${etapaNum}: Data/hora de pouso é obrigatória`);
-         }
-         if (!etapa.qtd_comb || etapa.qtd_comb === 0) {
-            errors.push(
-               `Etapa ${etapaNum}: Quantidade de combustível é obrigatória`
-            );
-         }
-         if (!etapa.esf_aer?.trim()) {
-            errors.push(`Etapa ${etapaNum}: Esforço aéreo é obrigatório`);
-         }
-         if (!etapa.alternativa?.trim()) {
-            errors.push(`Etapa ${etapaNum}: Alternativa é obrigatória`);
-         }
-         if (!etapa.tvoo_alt || etapa.tvoo_alt === 0) {
-            errors.push(
-               `Etapa ${etapaNum}: Tempo de voo alternativa é obrigatório`
-            );
-         } else if (etapa.tvoo_alt < 5) {
+         if (etapa.tvoo_alt && etapa.tvoo_alt > 0 && etapa.tvoo_alt < 5) {
             errors.push(
                `Etapa ${etapaNum}: Tempo de voo alternativa mínimo é 5 minutos`
             );
@@ -523,17 +458,7 @@ export const useOrdemForm = ({
          }
       });
 
-      // Validar esf_aer >= soma do tempo de voo calculado das etapas atuais
-      const somaTempoVooAtual = calcularEsfAer(formData.etapas);
-      const esfAer = formData.esf_aer || 0;
-      if (somaTempoVooAtual > 0 && esfAer < somaTempoVooAtual) {
-         const horas = Math.floor(somaTempoVooAtual / 60);
-         const minutos = somaTempoVooAtual % 60;
-         const somaFormatada = `${horas.toString().padStart(2, "0")}:${minutos.toString().padStart(2, "0")}`;
-         errors.push(
-            `Esforço Aéreo deve ser maior ou igual à soma do tempo de voo das etapas (${somaFormatada})`
-         );
-      }
+      errors.push(...collectEsfAerError());
 
       return {
          isValid: errors.length === 0,
@@ -543,80 +468,11 @@ export const useOrdemForm = ({
 
    // Validacao minima para salvar rascunho
    const validateDraft = (): { isValid: boolean; errors: string[] } => {
-      const errors: string[] = [];
-
-      formData.etapas.forEach((etapa, index) => {
-         const etapaNum = index + 1;
-
-         if (!etapa.dt_dep) {
-            errors.push(
-               `Etapa ${etapaNum}: Data/hora de decolagem é obrigatória`
-            );
-         }
-         if (!etapa.origem?.trim()) {
-            errors.push(`Etapa ${etapaNum}: Origem é obrigatória`);
-         }
-         if (!etapa.dt_arr) {
-            errors.push(`Etapa ${etapaNum}: Data/hora de pouso é obrigatória`);
-         }
-         if (!etapa.dest?.trim()) {
-            errors.push(`Etapa ${etapaNum}: Destino é obrigatório`);
-         }
-         if (!etapa.alternativa?.trim()) {
-            errors.push(`Etapa ${etapaNum}: Alternativa é obrigatória`);
-         }
-         if (!etapa.tvoo_alt || etapa.tvoo_alt === 0) {
-            errors.push(
-               `Etapa ${etapaNum}: Tempo de voo alternativa é obrigatório`
-            );
-         }
-         if (!etapa.qtd_comb || etapa.qtd_comb === 0) {
-            errors.push(
-               `Etapa ${etapaNum}: Quantidade de combustível é obrigatória`
-            );
-         }
-         if (!etapa.esf_aer?.trim()) {
-            errors.push(`Etapa ${etapaNum}: Esforço aéreo é obrigatório`);
-         }
-      });
-
-      // Validar sobreposicao de horarios
-      for (let i = 0; i < formData.etapas.length; i++) {
-         for (let j = i + 1; j < formData.etapas.length; j++) {
-            const etapa1 = formData.etapas[i];
-            const etapa2 = formData.etapas[j];
-
-            if (
-               etapa1.dt_dep &&
-               etapa1.dt_arr &&
-               etapa2.dt_dep &&
-               etapa2.dt_arr
-            ) {
-               const dec1 = new Date(etapa1.dt_dep);
-               const pou1 = new Date(etapa1.dt_arr);
-               const dec2 = new Date(etapa2.dt_dep);
-               const pou2 = new Date(etapa2.dt_arr);
-
-               if (dec1 < pou2 && pou1 > dec2) {
-                  errors.push(
-                     `Sobreposição de horários: A Etapa ${i + 1} sobrepõe a Etapa ${j + 1}`
-                  );
-               }
-            }
-         }
-      }
-
-      // Validar esf_aer >= soma do tempo de voo calculado das etapas atuais
-      const somaTempoVooAtual = calcularEsfAer(formData.etapas);
-      const esfAer = formData.esf_aer || 0;
-      if (somaTempoVooAtual > 0 && esfAer < somaTempoVooAtual) {
-         const horas = Math.floor(somaTempoVooAtual / 60);
-         const minutos = somaTempoVooAtual % 60;
-         const somaFormatada = `${horas.toString().padStart(2, "0")}:${minutos.toString().padStart(2, "0")}`;
-         errors.push(
-            `Esforço Aéreo deve ser maior ou igual à soma do tempo de voo das etapas (${somaFormatada})`
-         );
-      }
+      const errors: string[] = [
+         ...collectEtapaRequiredErrors(formData.etapas),
+         ...collectOverlapErrors(formData.etapas),
+         ...collectEsfAerError(),
+      ];
 
       return {
          isValid: errors.length === 0,
@@ -799,11 +655,8 @@ export const useOrdemForm = ({
       error,
       validationErrors,
       formValidationErrors,
-      hasRequiredFields,
       hasChanges,
-      handleInsertEtapa,
       handleRemoveEtapa,
-      handleEtapaChange,
       updateEtapa,
       addEtapa,
       updateFormData,
@@ -816,8 +669,6 @@ export const useOrdemForm = ({
       handleElaborar,
       handleCancelar,
       isCancelling,
-      areEtapasOrdered,
-      handleSortEtapas,
       clearError,
       clearValidationErrors,
    };

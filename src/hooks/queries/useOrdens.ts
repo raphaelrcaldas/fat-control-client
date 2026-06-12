@@ -1,4 +1,9 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+   useQuery,
+   useMutation,
+   useQueryClient,
+   keepPreviousData,
+} from "@tanstack/react-query";
 import {
    listOrdens,
    getOrdem,
@@ -44,6 +49,7 @@ export function useOrdens(filters?: OrdemFilters) {
    return useQuery({
       queryKey: ordemKeys.list(filters),
       queryFn: ({ signal }) => listOrdens(filters, signal),
+      placeholderData: keepPreviousData,
    });
 }
 

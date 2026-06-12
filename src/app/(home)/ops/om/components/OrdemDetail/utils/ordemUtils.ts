@@ -1,33 +1,15 @@
 import type { OrdemMissaoOut, EtapaOut } from "services/routes/om/ordens";
-import { formatDateForDisplay } from "utils/dateHandler";
+import { calcularTempoVooMinutos } from "utils/dateHandler";
 
-// Re-export for components that import from here
-export { formatDateForDisplay };
-
-export const createEmptyEtapa = (): Partial<EtapaOut> => ({
-   dt_dep: "",
-   origem: "",
-   dt_arr: "",
-   dest: "",
-   alternativa: "",
-   tvoo_alt: 0,
-   qtd_comb: 0,
-   esf_aer: "",
-});
-
-export const createEtapaWithOrigem = (
-   origem: string,
-   esforcoAereo: string = ""
-): Partial<EtapaOut> => ({
-   dt_dep: "",
-   origem,
-   dt_arr: "",
-   dest: "",
-   alternativa: "",
-   tvoo_alt: 0,
-   qtd_comb: 0,
-   esf_aer: esforcoAereo,
-});
+// Calcula o esforço aéreo total (soma dos tempos de voo das etapas)
+export const calcularEsfAer = (etapas: EtapaOut[]): number => {
+   return etapas.reduce((acc, etapa) => {
+      if (etapa.dt_dep && etapa.dt_arr) {
+         return acc + calcularTempoVooMinutos(etapa.dt_dep, etapa.dt_arr);
+      }
+      return acc;
+   }, 0);
+};
 
 export const createNextEtapa = (
    referenceEtapa: EtapaOut

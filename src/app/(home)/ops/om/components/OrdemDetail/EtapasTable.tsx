@@ -98,7 +98,7 @@ export const EtapasTable = memo(function EtapasTable({
                )}
             </div>
 
-            <div className="overflow-x-auto rounded-lg border border-gray-200">
+            <div className="overflow-x-auto border border-gray-200 shadow-xs">
                <Table hoverable className="text-center">
                   <TableHead>
                      <TableRow>

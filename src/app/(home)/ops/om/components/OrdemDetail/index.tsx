@@ -1,11 +1,19 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
-import { Button, Spinner, Alert } from "flowbite-react";
+import {
+   Button,
+   Spinner,
+   Alert,
+   Modal,
+   ModalHeader,
+   ModalBody,
+} from "flowbite-react";
 import {
    HiX,
    HiArrowLeft,
    HiExclamationCircle,
+   HiOutlineExclamationCircle,
    HiPencil,
    HiDocumentText,
    HiShoppingBag,
@@ -25,7 +33,7 @@ import { LabelManager } from "../LabelManager";
 import { useEtiquetas } from "@/hooks/queries";
 import { useAeronaves } from "@/hooks/queries/useAeronaves";
 import { HiTag } from "react-icons/hi";
-import { formatDateForDisplay } from "./utils/ordemUtils";
+import { formatDateForDisplay } from "utils/dateHandler";
 import { gerarOrdemMissaoDocx } from "../../utils/exportOrdemMissao";
 import { gerarPedidoLanche } from "../../utils/exportLanche";
 import { useAuth } from "@/app/context/auth";
@@ -38,6 +46,20 @@ interface OrdemFormContentProps {
    onClose: () => void;
    isNew: boolean;
    isCloning?: boolean;
+}
+
+// Ação pendente de confirmação no modal único de confirmação
+type ConfirmAction = "discard-close" | "discard-cancel" | "cancel-om";
+
+// Dispara o download de um blob e revoga a URL após o download iniciar
+// (revogar de imediato pode cancelar o download em alguns browsers)
+function downloadBlob(blob: Blob, fileName: string) {
+   const blobUrl = URL.createObjectURL(blob);
+   const a = document.createElement("a");
+   a.href = blobUrl;
+   a.download = fileName;
+   a.click();
+   setTimeout(() => URL.revokeObjectURL(blobUrl), 10_000);
 }
 
 export function OrdemFormContent({
@@ -61,9 +83,7 @@ export function OrdemFormContent({
       error,
       validationErrors,
       formValidationErrors,
-      handleInsertEtapa,
       handleRemoveEtapa,
-      handleEtapaChange,
       updateEtapa,
       addEtapa,
       updateFormData,
@@ -76,8 +96,6 @@ export function OrdemFormContent({
       handleCancelar,
       isCancelling,
       updateEtiquetas,
-      areEtapasOrdered,
-      handleSortEtapas,
       clearError,
       clearValidationErrors,
       hasChanges,
@@ -104,19 +122,39 @@ export function OrdemFormContent({
    const [editingCampoIndex, setEditingCampoIndex] = useState<number | null>(
       null
    );
+   const [confirmAction, setConfirmAction] = useState<ConfirmAction | null>(
+      null
+   );
    const errorContainerRef = useRef<HTMLDivElement>(null);
 
-   const handleClose = useCallback(() => {
+   const doClose = useCallback(() => {
       resetForm();
       onClose();
    }, [resetForm, onClose]);
 
-   const handleCancel = useCallback(() => {
+   // Guard: não descartar alterações não salvas sem confirmação
+   const handleClose = useCallback(() => {
+      if (hasChanges) {
+         setConfirmAction("discard-close");
+      } else {
+         doClose();
+      }
+   }, [hasChanges, doClose]);
+
+   const doCancelEdit = useCallback(() => {
       resetForm();
       if (isReadOnlyMode === false && !isNew) {
          toggleReadOnlyMode();
       }
    }, [resetForm, isReadOnlyMode, isNew, toggleReadOnlyMode]);
+
+   const handleCancel = useCallback(() => {
+      if (hasChanges) {
+         setConfirmAction("discard-cancel");
+      } else {
+         doCancelEdit();
+      }
+   }, [hasChanges, doCancelEdit]);
 
    const handleSaveSubmit = useCallback(
       async (e: React.FormEvent) => {
@@ -143,14 +181,12 @@ export function OrdemFormContent({
       }
    }, [handleElaborar, pushToast]);
 
-   const handleCancelSubmit = useCallback(async () => {
-      if (
-         !window.confirm(
-            "Tem certeza que deseja cancelar esta Ordem de Missão?"
-         )
-      ) {
-         return;
-      }
+   const handleCancelSubmit = useCallback(() => {
+      setConfirmAction("cancel-om");
+   }, []);
+
+   const confirmCancelOm = useCallback(async () => {
+      setConfirmAction(null);
       const result = await handleCancelar();
       if (result.success) {
          pushToast({
@@ -160,6 +196,34 @@ export function OrdemFormContent({
          });
       }
    }, [handleCancelar, pushToast]);
+
+   // Conteúdo e ação do modal único de confirmação
+   const confirmDialog = useMemo(() => {
+      if (!confirmAction) return null;
+      if (confirmAction === "cancel-om") {
+         return {
+            title: "Cancelar Ordem de Missão",
+            message:
+               "Tem certeza que deseja cancelar esta Ordem de Missão? Esta ação muda o status para cancelada.",
+            confirmLabel: "Sim, cancelar OM",
+            onConfirm: confirmCancelOm,
+         };
+      }
+      return {
+         title: "Descartar alterações",
+         message:
+            "Há alterações não salvas que serão perdidas. Deseja continuar?",
+         confirmLabel: "Sim, descartar",
+         onConfirm: () => {
+            setConfirmAction(null);
+            if (confirmAction === "discard-close") {
+               doClose();
+            } else {
+               doCancelEdit();
+            }
+         },
+      };
+   }, [confirmAction, confirmCancelOm, doClose, doCancelEdit]);
 
    const handleExportDocx = useCallback(async () => {
       if (!ordem) return;
@@ -180,17 +244,10 @@ export function OrdemFormContent({
       }
 
       setIsExporting(true);
-      let blobUrl: string | null = null;
 
       try {
-         const blob = await gerarOrdemMissaoDocx(ordem);
-         blobUrl = URL.createObjectURL(blob);
-
-         const a = document.createElement("a");
-         a.href = blobUrl;
-         const fileName = `OM_${ordem.numero}_${activeOrg ?? ""}.docx`;
-         a.download = fileName;
-         a.click();
+         const blob = await gerarOrdemMissaoDocx(ordem, activeOrg ?? "");
+         downloadBlob(blob, `OM_${ordem.numero}_${activeOrg ?? ""}.docx`);
       } catch (error) {
          console.error("Erro ao exportar Ordem de Missão:", error);
          pushToast({
@@ -200,9 +257,6 @@ export function OrdemFormContent({
                "Erro ao gerar documento DOCX. Por favor, tente novamente.",
          });
       } finally {
-         if (blobUrl) {
-            URL.revokeObjectURL(blobUrl);
-         }
          setIsExporting(false);
       }
    }, [ordem, activeOrg, pushToast]);
@@ -221,17 +275,10 @@ export function OrdemFormContent({
       }
 
       setIsGeneratingLanche(true);
-      let blobUrl: string | null = null;
 
       try {
          const blob = await gerarPedidoLanche(ordem);
-         blobUrl = URL.createObjectURL(blob);
-
-         const a = document.createElement("a");
-         a.href = blobUrl;
-         const fileName = `lanche_${ordem.numero}_${activeOrg ?? ""}.docx`;
-         a.download = fileName;
-         a.click();
+         downloadBlob(blob, `lanche_${ordem.numero}_${activeOrg ?? ""}.docx`);
       } catch (error) {
          console.error("Erro ao gerar pedido de lanche:", error);
          pushToast({
@@ -281,25 +328,30 @@ export function OrdemFormContent({
       return "Editar";
    }, [isCloning, isNew, isEditable]);
 
-   const buildOrdemIdentificacao = (
-      numero: string | null | undefined,
-      data_saida: string | null | undefined
-   ): string => {
-      return numero ? `${numero}/1GT1/${formatDateForDisplay(data_saida)}` : "";
-   };
+   const buildOrdemIdentificacao = useCallback(
+      (
+         numero: string | null | undefined,
+         data_saida: string | null | undefined
+      ): string => {
+         return numero
+            ? `${numero}/${activeOrg ?? ""}/${formatDateForDisplay(data_saida ?? "")}`
+            : "";
+      },
+      [activeOrg]
+   );
 
    const ordemIdentificacao = useMemo(
       () => buildOrdemIdentificacao(formData.numero, formData.data_saida),
-      [formData.numero, formData.data_saida]
+      [buildOrdemIdentificacao, formData.numero, formData.data_saida]
    );
 
    const ordemBasedIdentificacao = useMemo(
       () => buildOrdemIdentificacao(ordem?.numero, ordem?.data_saida),
-      [ordem]
+      [buildOrdemIdentificacao, ordem]
    );
 
    return (
-      <div className="flex flex-1 flex-col overflow-hidden rounded-lg border border-gray-200 bg-gray-50 shadow-xl">
+      <div className="flex flex-1 flex-col overflow-hidden rounded border border-gray-200 bg-gray-50 shadow-xl">
          {/* Header Fixo */}
          <header className="flex shrink-0 items-center justify-between border-b border-gray-200 bg-white px-6 py-4 shadow-sm">
             <div className="hidden min-w-0 flex-1 items-center gap-4 md:flex">
@@ -580,7 +632,7 @@ export function OrdemFormContent({
                   )}
 
                   {/* Secao: Informacoes */}
-                  <div className="rounded-xl border border-slate-200 bg-white shadow-sm">
+                  <div className="border border-slate-200 bg-white shadow-sm">
                      <div className="border-b border-slate-200 p-4">
                         <h3 className="flex items-center gap-2 text-sm font-semibold tracking-wide text-slate-700 uppercase">
                            <div className="h-4 w-1 rounded-full bg-blue-500"></div>
@@ -599,7 +651,7 @@ export function OrdemFormContent({
                   </div>
 
                   {/* Secao: Tripulacao */}
-                  <div className="rounded-xl border border-slate-200 bg-white shadow-sm">
+                  <div className="border border-slate-200 bg-white shadow-sm">
                      <div className="border-b border-slate-200 p-4">
                         <h3 className="flex items-center gap-2 text-sm font-semibold tracking-wide text-slate-700 uppercase">
                            <div className="h-4 w-1 rounded-full bg-green-500"></div>
@@ -609,7 +661,6 @@ export function OrdemFormContent({
                      <div className="p-4">
                         <OrdemTripulacao
                            tripulacao={tripulacao}
-                           projeto={formData.projeto}
                            onAdd={addTripulante}
                            onRemove={removeTripulante}
                            isEditable={isEditable}
@@ -619,7 +670,7 @@ export function OrdemFormContent({
                   </div>
 
                   {/* Secao: Etapas */}
-                  <div className="rounded-xl border border-slate-200 bg-white shadow-sm">
+                  <div className="border border-slate-200 bg-white shadow-sm">
                      <div className="p-4">
                         <EtapasTable
                            etapas={formData.etapas}
@@ -639,7 +690,7 @@ export function OrdemFormContent({
                   </div>
 
                   {/* Secao: Ordens Especiais */}
-                  <div className="rounded-xl border border-slate-200 bg-white shadow-sm">
+                  <div className="border border-slate-200 bg-white shadow-sm">
                      <div className="px-4 py-5">
                         <OrdemEspeciaisDisplay
                            campos={camposEspeciais}
@@ -663,7 +714,7 @@ export function OrdemFormContent({
                   </div>
 
                   {/* Secao: Classificação (Etiquetas) */}
-                  <div className="rounded-xl border border-slate-200 bg-white shadow-sm">
+                  <div className="border border-slate-200 bg-white shadow-sm">
                      <div className="flex items-center justify-between border-b border-slate-200 p-4">
                         <div className="flex items-center gap-4">
                            <h3 className="flex items-center gap-2 text-sm font-semibold tracking-wide text-slate-700 uppercase">
@@ -759,6 +810,38 @@ export function OrdemFormContent({
             }
             campoIndex={editingCampoIndex}
          />
+
+         {/* Modal único de confirmação (descartar alterações / cancelar OM) */}
+         <Modal
+            show={confirmDialog !== null}
+            size="md"
+            onClose={() => setConfirmAction(null)}
+            popup
+         >
+            <ModalHeader />
+            <ModalBody>
+               <div className="text-center">
+                  <HiOutlineExclamationCircle className="mx-auto mb-4 h-14 w-14 text-red-400" />
+                  <h3 className="mb-3 text-lg font-semibold text-gray-900">
+                     {confirmDialog?.title}
+                  </h3>
+                  <p className="mb-5 text-sm text-gray-500">
+                     {confirmDialog?.message}
+                  </p>
+                  <div className="flex justify-center gap-4">
+                     <Button color="red" onClick={confirmDialog?.onConfirm}>
+                        {confirmDialog?.confirmLabel}
+                     </Button>
+                     <Button
+                        color="gray"
+                        onClick={() => setConfirmAction(null)}
+                     >
+                        Voltar
+                     </Button>
+                  </div>
+               </div>
+            </ModalBody>
+         </Modal>
       </div>
    );
 }

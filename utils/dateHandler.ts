@@ -202,14 +202,20 @@ export function formatDateForDisplay(dateStr: string): string {
 }
 
 /**
- * Retorna data de hoje em formato ISO (YYYY-MM-DD) no fuso local
+ * Converte Date para formato ISO (YYYY-MM-DD) no fuso local
  */
-export function todayIso(): string {
-   const d = new Date();
+export function dateToIso(d: Date): string {
    const y = d.getFullYear();
    const m = String(d.getMonth() + 1).padStart(2, "0");
    const day = String(d.getDate()).padStart(2, "0");
    return `${y}-${m}-${day}`;
+}
+
+/**
+ * Retorna data de hoje em formato ISO (YYYY-MM-DD) no fuso local
+ */
+export function todayIso(): string {
+   return dateToIso(new Date());
 }
 
 /**

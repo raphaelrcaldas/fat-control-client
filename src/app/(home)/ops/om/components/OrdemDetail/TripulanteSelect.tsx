@@ -3,23 +3,17 @@
 import { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { createPortal } from "react-dom";
 import clsx from "clsx";
-import { Badge, TextInput } from "flowbite-react";
+import { Spinner, TextInput } from "flowbite-react";
 import { IoSearchSharp, IoClose, IoAdd } from "react-icons/io5";
-import { getTrips, type CrewMember } from "services/routes/trips";
-import {
-   FUNCOES_PRINCIPAIS as TODAS_FUNCOES,
-   FUNC_LABELS_SHORT as FUNCAO_LABELS,
-   type FuncaoTripulante,
-} from "@/constants/tripulantes";
-
-// Re-export CrewMember as TripulanteSearchResult for compatibility
-type TripulanteSearchResult = CrewMember;
+import { type CrewMember } from "services/routes/trips";
+import { useTripSearch } from "@/hooks/queries";
+import useDebouncedValue from "@/hooks/useDebouncedValue";
+import { FUNCOES_CONFIG, type FuncaoTripulante } from "@/constants/tripulantes";
 
 interface TripulanteSelectProps {
    funcao: FuncaoTripulante;
-   projeto: string;
-   tripulantes: TripulanteSearchResult[];
-   onAdd: (tripulante: TripulanteSearchResult) => void;
+   tripulantes: CrewMember[];
+   onAdd: (tripulante: CrewMember) => void;
    onRemove: (tripulanteId: number) => void;
    disabled?: boolean;
    excludeIds?: number[];
@@ -27,9 +21,91 @@ interface TripulanteSelectProps {
    hasError?: boolean;
 }
 
+// Classes estáticas por cor de tema (Tailwind exige classes analisáveis,
+// então o tema de FUNCOES_CONFIG é mapeado aqui em vez de interpolado)
+interface AccentClasses {
+   bar: string;
+   headerText: string;
+   chipBg: string;
+   chipBorder: string;
+   chipText: string;
+   addHover: string;
+}
+
+const ACCENT_CLASSES: Record<string, AccentClasses> = {
+   blue: {
+      bar: "bg-blue-500",
+      headerText: "text-blue-700",
+      chipBg: "bg-blue-50",
+      chipBorder: "border-blue-200",
+      chipText: "text-blue-700",
+      addHover: "hover:border-blue-400 hover:text-blue-600",
+   },
+   amber: {
+      bar: "bg-amber-500",
+      headerText: "text-amber-700",
+      chipBg: "bg-amber-50",
+      chipBorder: "border-amber-200",
+      chipText: "text-amber-700",
+      addHover: "hover:border-amber-400 hover:text-amber-600",
+   },
+   emerald: {
+      bar: "bg-emerald-500",
+      headerText: "text-emerald-700",
+      chipBg: "bg-emerald-50",
+      chipBorder: "border-emerald-200",
+      chipText: "text-emerald-700",
+      addHover: "hover:border-emerald-400 hover:text-emerald-600",
+   },
+   purple: {
+      bar: "bg-purple-500",
+      headerText: "text-purple-700",
+      chipBg: "bg-purple-50",
+      chipBorder: "border-purple-200",
+      chipText: "text-purple-700",
+      addHover: "hover:border-purple-400 hover:text-purple-600",
+   },
+   cyan: {
+      bar: "bg-cyan-500",
+      headerText: "text-cyan-700",
+      chipBg: "bg-cyan-50",
+      chipBorder: "border-cyan-200",
+      chipText: "text-cyan-700",
+      addHover: "hover:border-cyan-400 hover:text-cyan-600",
+   },
+   red: {
+      bar: "bg-red-500",
+      headerText: "text-red-700",
+      chipBg: "bg-red-50",
+      chipBorder: "border-red-200",
+      chipText: "text-red-700",
+      addHover: "hover:border-red-400 hover:text-red-600",
+   },
+};
+
+const DEFAULT_ACCENT = ACCENT_CLASSES.blue;
+
+// Destaca o trecho do texto que casa com o termo buscado
+function HighlightMatch({ text, term }: { text: string; term: string }) {
+   const trimmed = term.trim();
+   if (!trimmed) return <>{text}</>;
+
+   const idx = text.toLowerCase().indexOf(trimmed.toLowerCase());
+   if (idx === -1) return <>{text}</>;
+
+   return (
+      <>
+         {text.slice(0, idx)}
+         <span className="font-bold text-gray-900">
+            {text.slice(idx, idx + trimmed.length)}
+         </span>
+         {text.slice(idx + trimmed.length)}
+      </>
+   );
+}
+
 export function TripulanteSelect({
    funcao,
-   projeto,
    tripulantes,
    onAdd,
    onRemove,
@@ -39,10 +115,9 @@ export function TripulanteSelect({
    hasError = false,
 }: TripulanteSelectProps) {
    const [query, setQuery] = useState("");
-   const [results, setResults] = useState<TripulanteSearchResult[]>([]);
    const [isOpen, setIsOpen] = useState(false);
-   const [isLoading, setIsLoading] = useState(false);
    const [showSearch, setShowSearch] = useState(false);
+   const [activeIndex, setActiveIndex] = useState(-1);
    const [dropdownPosition, setDropdownPosition] = useState<{
       top: number;
       left: number;
@@ -52,7 +127,34 @@ export function TripulanteSelect({
    const inputRef = useRef<HTMLInputElement>(null);
    const inputWrapperRef = useRef<HTMLDivElement>(null);
    const dropdownRef = useRef<HTMLDivElement>(null);
-   const abortControllerRef = useRef<AbortController | null>(null);
+
+   const funcConfig = FUNCOES_CONFIG[funcao];
+   const accent = ACCENT_CLASSES[funcConfig.theme.color] ?? DEFAULT_ACCENT;
+
+   const debouncedQuery = useDebouncedValue(query, 300);
+   const searchQuery = useTripSearch(funcao, debouncedQuery);
+   const results = useMemo(
+      () => searchQuery.data?.items ?? [],
+      [searchQuery.data]
+   );
+   const isSearching = searchQuery.isFetching;
+   const isQueryShort = debouncedQuery.trim().length < 2;
+
+   // Índices selecionáveis (exclui quem já está em alguma função da ordem)
+   const selectableIndexes = useMemo(
+      () =>
+         results
+            .map((trip, index) =>
+               trip.id != null && !excludeIds.includes(trip.id) ? index : -1
+            )
+            .filter((index) => index !== -1),
+      [results, excludeIds]
+   );
+
+   // Reseta o destaque do teclado quando os resultados mudam
+   useEffect(() => {
+      setActiveIndex(selectableIndexes.length > 0 ? selectableIndexes[0] : -1);
+   }, [selectableIndexes]);
 
    // Calcula a posicao do dropdown baseado no input
    const updateDropdownPosition = useCallback(() => {
@@ -79,37 +181,11 @@ export function TripulanteSelect({
       }
    }, [isOpen, updateDropdownPosition]);
 
-   // Debounced search
-   useEffect(() => {
-      if (!query.trim()) {
-         setResults([]);
-         return;
-      }
-
-      const timeoutId = setTimeout(async () => {
-         if (abortControllerRef.current) {
-            abortControllerRef.current.abort();
-         }
-         abortControllerRef.current = new AbortController();
-
-         setIsLoading(true);
-         try {
-            const data = await getTrips(
-               { func: [funcao], search: query, proj: projeto },
-               abortControllerRef.current.signal
-            );
-            setResults(data.items);
-         } catch (error) {
-            if ((error as Error).name !== "AbortError") {
-               console.error("Erro ao buscar tripulantes:", error);
-            }
-         } finally {
-            setIsLoading(false);
-         }
-      }, 300);
-
-      return () => clearTimeout(timeoutId);
-   }, [query, funcao, projeto]);
+   const closeSearch = useCallback(() => {
+      setIsOpen(false);
+      setShowSearch(false);
+      setQuery("");
+   }, []);
 
    // Close dropdown on click outside (considera container e dropdown do portal)
    useEffect(() => {
@@ -121,15 +197,13 @@ export function TripulanteSelect({
             dropdownRef.current && dropdownRef.current.contains(target);
 
          if (!isInsideContainer && !isInsideDropdown) {
-            setIsOpen(false);
-            setShowSearch(false);
-            setQuery("");
+            closeSearch();
          }
       };
       document.addEventListener("mousedown", handleClickOutside);
       return () =>
          document.removeEventListener("mousedown", handleClickOutside);
-   }, []);
+   }, [closeSearch]);
 
    // Focus input when search is shown
    useEffect(() => {
@@ -138,89 +212,139 @@ export function TripulanteSelect({
       }
    }, [showSearch]);
 
-   const handleSelect = (tripulante: TripulanteSearchResult) => {
-      onAdd(tripulante);
-      setQuery("");
-      setResults([]);
-      setIsOpen(false);
-      setShowSearch(false);
+   // Mantém a opção ativa visível durante a navegação por teclado
+   useEffect(() => {
+      if (activeIndex < 0 || !dropdownRef.current) return;
+      const option = dropdownRef.current.querySelector(
+         `[data-option-index="${activeIndex}"]`
+      );
+      option?.scrollIntoView({ block: "nearest" });
+   }, [activeIndex]);
+
+   const handleSelect = useCallback(
+      (tripulante: CrewMember) => {
+         onAdd(tripulante);
+         setQuery("");
+         setIsOpen(false);
+         setShowSearch(false);
+      },
+      [onAdd]
+   );
+
+   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+      if (e.key === "Escape") {
+         e.preventDefault();
+         closeSearch();
+         return;
+      }
+
+      if (!isOpen) {
+         if (e.key === "ArrowDown") setIsOpen(true);
+         return;
+      }
+
+      if (selectableIndexes.length === 0) return;
+
+      const currentPos = selectableIndexes.indexOf(activeIndex);
+
+      if (e.key === "ArrowDown") {
+         e.preventDefault();
+         const nextPos = (currentPos + 1) % selectableIndexes.length;
+         setActiveIndex(selectableIndexes[nextPos]);
+      } else if (e.key === "ArrowUp") {
+         e.preventDefault();
+         const prevPos =
+            currentPos <= 0 ? selectableIndexes.length - 1 : currentPos - 1;
+         setActiveIndex(selectableIndexes[prevPos]);
+      } else if (e.key === "Enter") {
+         e.preventDefault();
+         const active = results[activeIndex];
+         if (active) handleSelect(active);
+      }
    };
-
-   // Ordena resultados: já adicionados primeiro (na ordem do excludeIds), depois os demais
-   const sortedResults = useMemo(() => {
-      return [...results].sort((a, b) => {
-         const aIndex = excludeIds.indexOf(a.id!);
-         const bIndex = excludeIds.indexOf(b.id!);
-         const aIsAdded = aIndex !== -1;
-         const bIsAdded = bIndex !== -1;
-
-         if (aIsAdded && bIsAdded) return aIndex - bIndex;
-         if (aIsAdded) return -1;
-         if (bIsAdded) return 1;
-         return 0;
-      });
-   }, [results, excludeIds]);
 
    // Se não está em modo de edição e não há tripulantes, não renderiza nada
    if (disabled && tripulantes.length === 0) {
       return null;
    }
 
+   const listboxId = `tripulantes-${funcao}-listbox`;
+
    return (
       <div
          ref={containerRef}
          className={clsx(
-            "rounded-lg border bg-white p-3 transition-colors",
-            hasError ? "border-red-300" : "border-gray-300"
+            "overflow-visible border bg-white shadow-sm transition-colors",
+            hasError ? "border-red-300" : "border-gray-200"
          )}
       >
-         <label className="mb-3 flex items-center gap-1.5 text-sm font-semibold text-gray-700">
-            {FUNCAO_LABELS[funcao]}
-            {required && <span className="text-red-500">*</span>}
+         {/* Faixa de função (manifesto) */}
+         <div className="flex items-center justify-between gap-1 border-b border-gray-100 px-3 py-2">
+            <span
+               className={clsx(
+                  "flex items-center gap-1.5 text-xs font-bold tracking-wider uppercase",
+                  accent.headerText
+               )}
+            >
+               <span
+                  className={clsx("h-3.5 w-1 rounded-full", accent.bar)}
+                  aria-hidden="true"
+               />
+               {funcConfig.labelShort}
+               {required && <span className="text-red-500">*</span>}
+            </span>
             {tripulantes.length > 0 && (
-               <Badge color="gray" size="xs">
+               <span className="font-mono text-[11px] font-semibold text-gray-400">
                   {tripulantes.length}
-               </Badge>
+               </span>
             )}
-         </label>
+         </div>
 
-         {tripulantes.length > 0 && (
-            <div className="mb-3 flex flex-col gap-2">
-               {tripulantes.map((trip) => (
-                  <div
-                     key={trip.id}
-                     className="flex justify-between rounded-lg border border-red-200 bg-red-50 px-3 py-1.5"
-                  >
-                     <div className="flex flex-row gap-2">
-                        <span className="hidden items-center font-mono text-sm leading-none font-bold text-red-700 uppercase lg:flex">
-                           {trip.trig}
-                        </span>
-                        <span className="flex items-center text-xs leading-none font-medium text-gray-700 uppercase">
-                           {trip.user.p_g} {trip.user.nome_guerra}
-                        </span>
-                     </div>
-                     {!disabled && (
-                        <button
-                           type="button"
-                           onClick={() => onRemove(trip.id!)}
-                           className="ml-1 text-gray-400 transition-colors hover:text-red-500"
-                        >
-                           <IoClose className="h-4 w-4" />
-                        </button>
+         <div className="flex flex-col gap-1.5 p-2">
+            {/* Tripulantes selecionados */}
+            {tripulantes.map((trip) => (
+               <div
+                  key={trip.id}
+                  className={clsx(
+                     "flex items-center gap-2 rounded border px-2 py-1.5",
+                     accent.chipBg,
+                     accent.chipBorder
+                  )}
+               >
+                  <span
+                     className={clsx(
+                        "hidden font-mono text-xs leading-none font-bold uppercase lg:inline",
+                        accent.chipText
                      )}
-                  </div>
-               ))}
-            </div>
-         )}
+                  >
+                     {trip.trig}
+                  </span>
+                  <span className="min-w-0 flex-1 truncate text-xs leading-none font-medium text-gray-700 uppercase">
+                     {trip.user.p_g} {trip.user.nome_guerra}
+                  </span>
+                  {!disabled && (
+                     <button
+                        type="button"
+                        onClick={() => onRemove(trip.id!)}
+                        aria-label={`Remover ${trip.user.nome_guerra}`}
+                        className="shrink-0 text-gray-400 transition-colors hover:text-red-500"
+                     >
+                        <IoClose className="h-4 w-4" />
+                     </button>
+                  )}
+               </div>
+            ))}
 
-         {/* Botão adicionar ou campo de busca */}
-         {!disabled && (
-            <>
-               {!showSearch ? (
+            {/* Botão adicionar ou campo de busca */}
+            {!disabled &&
+               (!showSearch ? (
                   <button
                      type="button"
                      onClick={() => setShowSearch(true)}
-                     className="flex items-center gap-1.5 text-sm font-medium text-blue-600 hover:text-blue-700"
+                     className={clsx(
+                        "flex w-full items-center justify-center gap-1 rounded-md border border-dashed border-gray-300 py-1.5 text-xs font-medium text-gray-400 transition-colors",
+                        accent.addHover
+                     )}
                   >
                      <IoAdd className="h-4 w-4" />
                      Adicionar
@@ -236,89 +360,117 @@ export function TripulanteSelect({
                            setIsOpen(true);
                         }}
                         onFocus={() => setIsOpen(true)}
-                        placeholder="Buscar por trigrama ou nome..."
+                        onKeyDown={handleKeyDown}
+                        placeholder="Trigrama ou nome..."
                         icon={IoSearchSharp}
                         sizing="sm"
+                        role="combobox"
+                        aria-expanded={isOpen}
+                        aria-controls={listboxId}
+                        aria-autocomplete="list"
                      />
 
-                     {isLoading && (
+                     {isSearching && (
                         <div className="absolute top-1/2 right-3 -translate-y-1/2">
-                           <div className="h-4 w-4 animate-spin rounded-full border-2 border-red-500 border-t-transparent" />
+                           <Spinner size="sm" color="failure" />
                         </div>
                      )}
 
-                     {/* Dropdown renderizado via Portal para evitar corte por overflow do container pai */}
+                     {/* Dropdown via Portal para evitar corte por overflow do container pai */}
                      {isOpen &&
-                        sortedResults.length > 0 &&
                         dropdownPosition &&
                         createPortal(
                            <div
                               ref={dropdownRef}
-                              className="fixed z-9999 max-h-48 overflow-auto rounded-lg border border-gray-200 bg-white shadow-lg"
+                              id={listboxId}
+                              role="listbox"
+                              className="fixed z-9999 max-h-52 overflow-auto rounded-lg border border-gray-200 bg-white shadow-lg"
                               style={{
                                  top: dropdownPosition.top,
                                  left: dropdownPosition.left,
                                  width: dropdownPosition.width,
                               }}
                            >
-                              {sortedResults.map((tripulante) => {
-                                 const isAdded = excludeIds.includes(
-                                    tripulante.id!
-                                 );
-                                 return (
-                                    <button
-                                       key={tripulante.id!}
-                                       type="button"
-                                       onClick={() =>
-                                          !isAdded && handleSelect(tripulante)
-                                       }
-                                       disabled={isAdded}
-                                       className={clsx(
-                                          "flex w-full items-center gap-2 border-b border-gray-100 px-3 py-2 text-left last:border-b-0",
-                                          isAdded
-                                             ? "cursor-not-allowed bg-gray-50 opacity-60"
-                                             : "cursor-pointer hover:bg-gray-50"
-                                       )}
-                                    >
-                                       <span className="flex-1 truncate text-xs text-gray-600 uppercase">
-                                          {tripulante.user.p_g}{" "}
-                                          {tripulante.user.nome_guerra}
-                                       </span>
-                                       {isAdded && (
-                                          <Badge color="gray" size="xs">
-                                             Adicionado
-                                          </Badge>
-                                       )}
-                                    </button>
-                                 );
-                              })}
-                           </div>,
-                           document.body
-                        )}
+                              {isQueryShort ? (
+                                 <p className="p-3 text-center text-xs text-gray-400">
+                                    Digite pelo menos 2 letras para buscar
+                                 </p>
+                              ) : isSearching && results.length === 0 ? (
+                                 <div className="flex items-center justify-center gap-2 p-3 text-xs text-gray-400">
+                                    <Spinner size="sm" color="failure" />
+                                    Buscando...
+                                 </div>
+                              ) : results.length === 0 ? (
+                                 <p className="p-3 text-center text-xs text-gray-500">
+                                    Nenhum tripulante encontrado
+                                 </p>
+                              ) : (
+                                 results.map((tripulante, index) => {
+                                    const isAdded =
+                                       tripulante.id == null ||
+                                       excludeIds.includes(tripulante.id);
+                                    const isActive = index === activeIndex;
 
-                     {/* Mensagem de nenhum resultado via Portal */}
-                     {isOpen &&
-                        query.length >= 2 &&
-                        sortedResults.length === 0 &&
-                        !isLoading &&
-                        dropdownPosition &&
-                        createPortal(
-                           <div
-                              className="fixed z-9999 rounded-lg border border-gray-200 bg-white p-3 text-center text-sm text-gray-500 shadow-lg"
-                              style={{
-                                 top: dropdownPosition.top,
-                                 left: dropdownPosition.left,
-                                 width: dropdownPosition.width,
-                              }}
-                           >
-                              Nenhum tripulante encontrado
+                                    return (
+                                       <button
+                                          key={tripulante.id ?? index}
+                                          type="button"
+                                          role="option"
+                                          aria-selected={isActive}
+                                          data-option-index={index}
+                                          onClick={() =>
+                                             !isAdded &&
+                                             handleSelect(tripulante)
+                                          }
+                                          onMouseEnter={() =>
+                                             !isAdded && setActiveIndex(index)
+                                          }
+                                          disabled={isAdded}
+                                          className={clsx(
+                                             "flex w-full items-center gap-2 border-b border-gray-100 px-3 py-2 text-left last:border-b-0",
+                                             isAdded
+                                                ? "cursor-not-allowed bg-gray-50 opacity-60"
+                                                : isActive
+                                                  ? "cursor-pointer bg-gray-100"
+                                                  : "cursor-pointer"
+                                          )}
+                                       >
+                                          <span
+                                             className={clsx(
+                                                "w-9 shrink-0 font-mono text-xs font-bold uppercase",
+                                                accent.chipText
+                                             )}
+                                          >
+                                             <HighlightMatch
+                                                text={tripulante.trig}
+                                                term={debouncedQuery}
+                                             />
+                                          </span>
+                                          <span className="flex-1 truncate text-xs text-gray-600 uppercase">
+                                             {tripulante.user.p_g}{" "}
+                                             <HighlightMatch
+                                                text={
+                                                   tripulante.user
+                                                      .nome_guerra ?? ""
+                                                }
+                                                term={debouncedQuery}
+                                             />
+                                          </span>
+                                          {isAdded && (
+                                             <span className="shrink-0 rounded-full bg-gray-200 px-2 py-0.5 text-[10px] font-medium text-gray-500">
+                                                Adicionado
+                                             </span>
+                                          )}
+                                       </button>
+                                    );
+                                 })
+                              )}
                            </div>,
                            document.body
                         )}
                   </div>
-               )}
-            </>
-         )}
+               ))}
+         </div>
       </div>
    );
 }

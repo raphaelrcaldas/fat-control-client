@@ -14,6 +14,12 @@ interface ListaOrdensProps {
    onOrdemClick: (ordem: OrdemMissaoList) => void;
    onCloneOrdem: (ordem: OrdemMissaoList) => void;
    onDeleteOrdem?: (ordem: OrdemMissaoList) => void;
+   // Empty state contextual: com filtros ativos oferece limpá-los;
+   // sem filtros oferece criar uma nova ordem
+   emptyTitle?: string;
+   hasActiveFilters?: boolean;
+   onClearFiltros?: () => void;
+   onCreateOrdem?: () => void;
 }
 
 interface OrdemItemProps {
@@ -90,7 +96,7 @@ const OrdemItem = memo(function OrdemItem({
          role="button"
          tabIndex={0}
          aria-label={`Abrir ordem de missão ${ordem.numero}`}
-         className="cursor-pointer rounded-xl border border-gray-200 bg-white px-4 py-3 shadow-sm transition-all hover:border-red-300 hover:shadow-md focus:border-red-400 focus:ring-2 focus:ring-red-400 focus:outline-none"
+         className="cursor-pointer rounded border border-gray-200 bg-white px-4 py-3 shadow transition-all hover:border-red-300 hover:shadow-md focus:border-red-400 focus:ring-2 focus:ring-red-400 focus:outline-none"
          onClick={handleClick}
          onKeyDown={handleKeyDown}
       >
@@ -103,6 +109,12 @@ const OrdemItem = memo(function OrdemItem({
                   <div className="pointer-events-none font-mono text-lg font-semibold text-gray-900">
                      {ordem.numero}
                   </div>
+                  {/* Status compacto no mobile (coluna Status é md+) */}
+                  <span
+                     className={`pointer-events-none rounded-full px-1.5 py-0.5 text-[10px] font-bold uppercase md:hidden ${statusConfig[ordem.status as StatusType]?.bg ?? "bg-gray-100"} ${statusConfig[ordem.status as StatusType]?.text ?? "text-gray-500"}`}
+                  >
+                     {ordem.status}
+                  </span>
                </div>
                <div className="h-10 w-px bg-gray-200" />
                <div className="hidden w-24 flex-col gap-1.5 text-center md:flex">
@@ -176,9 +188,6 @@ const OrdemItem = memo(function OrdemItem({
                <div className="hidden h-10 w-px bg-gray-200 md:block" />
 
                <div className="flex flex-col gap-1.5">
-                  {/* <Label className="pointer-events-none text-xs text-gray-500">
-                     Rota
-                  </Label> */}
                   {Object.keys(resumoRota).length > 0 && (
                      <div className="flex flex-col gap-2">
                         {Object.entries(resumoRota).map(([data, etapas]) => (
@@ -210,7 +219,8 @@ const OrdemItem = memo(function OrdemItem({
                      <button
                         onClick={handleClone}
                         className="rounded-lg p-2 text-gray-400 transition-colors hover:bg-blue-50 hover:text-blue-500"
-                        title="Clonar missao"
+                        title="Clonar missão"
+                        aria-label={`Clonar ordem ${ordem.numero}`}
                      >
                         <HiDocumentDuplicate size={20} />
                      </button>
@@ -224,6 +234,7 @@ const OrdemItem = memo(function OrdemItem({
                            onClick={handleDelete}
                            className="rounded-lg p-2 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-500"
                            title="Excluir rascunho"
+                           aria-label={`Excluir rascunho ${ordem.numero}`}
                         >
                            <HiTrash size={20} />
                         </button>
@@ -241,6 +252,10 @@ export const ListaOrdens = memo(function ListaOrdens({
    onOrdemClick,
    onCloneOrdem,
    onDeleteOrdem,
+   emptyTitle = "Nenhuma ordem de missão encontrada",
+   hasActiveFilters = false,
+   onClearFiltros,
+   onCreateOrdem,
 }: ListaOrdensProps) {
    const sortedOrdens = useMemo(() => {
       return [...ordens].sort((a, b) => {
@@ -251,11 +266,14 @@ export const ListaOrdens = memo(function ListaOrdens({
          if (anoA !== anoB) return anoB - anoA;
 
          // 2. Número da ordem (descendente)
-         // Se for 'auto', tratamos como 0 ou similar
-         const numA =
-            a.numero && a.numero !== "auto" ? parseInt(a.numero, 10) : 0;
-         const numB =
-            b.numero && b.numero !== "auto" ? parseInt(b.numero, 10) : 0;
+         // 'auto' e números não-numéricos (ex: alfanuméricos) são tratados como 0
+         const parseNumero = (numero: string | null | undefined) => {
+            if (!numero || numero === "auto") return 0;
+            const parsed = parseInt(numero, 10);
+            return Number.isNaN(parsed) ? 0 : parsed;
+         };
+         const numA = parseNumero(a.numero);
+         const numB = parseNumero(b.numero);
 
          if (numA !== numB) return numB - numA;
 
@@ -271,10 +289,40 @@ export const ListaOrdens = memo(function ListaOrdens({
       return (
          <div className="rounded-xl border border-gray-200 bg-white py-16 text-center text-gray-400">
             <p className="mb-4 text-4xl">✈</p>
-            <p className="text-lg text-gray-600">
-               Nenhuma ordem de missão encontrada
-            </p>
-            <p className="text-sm">Ajuste os filtros ou crie uma nova ordem</p>
+            {hasActiveFilters ? (
+               <>
+                  <p className="text-lg text-gray-600">
+                     Nenhum resultado para os filtros aplicados
+                  </p>
+                  {onClearFiltros && (
+                     <button
+                        type="button"
+                        onClick={onClearFiltros}
+                        className="mt-3 text-sm font-medium text-red-600 hover:underline"
+                     >
+                        Limpar filtros
+                     </button>
+                  )}
+               </>
+            ) : (
+               <>
+                  <p className="text-lg text-gray-600">{emptyTitle}</p>
+                  {onCreateOrdem && (
+                     <PermBased
+                        resource={"ordem_missao"}
+                        requiredPerm={"create"}
+                     >
+                        <button
+                           type="button"
+                           onClick={onCreateOrdem}
+                           className="mt-3 text-sm font-medium text-red-600 hover:underline"
+                        >
+                           + Criar nova Ordem de Missão
+                        </button>
+                     </PermBased>
+                  )}
+               </>
+            )}
          </div>
       );
    }

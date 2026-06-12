@@ -23,7 +23,7 @@ export function OperacaoCard({ op }: { op: OperacaoListItem }) {
    return (
       <Link
          href={`/ops/operacoes/${op.id}`}
-         className={`group relative flex items-stretch overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition-all duration-200 hover:-translate-y-px hover:border-slate-300 hover:shadow-lg ${STATUS_GLOW[op.status]}`}
+         className={`group relative flex items-stretch overflow-hidden border border-slate-200 bg-white shadow-sm transition-all duration-200 hover:-translate-y-px hover:border-slate-300 hover:shadow-lg ${STATUS_GLOW[op.status]}`}
       >
          {/* Espinha de status — varredura instantânea pela lista */}
          <span
@@ -77,20 +77,20 @@ export function OperacaoCard({ op }: { op: OperacaoListItem }) {
                   </span>
 
                   <span className="inline-flex w-56 shrink-0 items-center gap-1 truncate text-slate-400">
-                     <MdOutlineDescription className="h-3.5 w-3.5 shrink-0" />
-                     {op.documento_referencia ? (
-                        <span className="truncate text-slate-500">
-                           {op.documento_referencia}
-                        </span>
-                     ) : (
-                        <span className="text-slate-300">—</span>
+                     {op.documento_referencia && (
+                        <>
+                           <MdOutlineDescription className="h-3.5 w-3.5 shrink-0" />
+                           <span className="truncate text-slate-500">
+                              {op.documento_referencia}
+                           </span>
+                        </>
                      )}
                   </span>
                </div>
             </div>
 
             {/* Painel de dados: período · horas (herói) · etapas/anv */}
-            <div className="flex shrink-0 items-center justify-between gap-4 rounded-lg border border-slate-100 bg-slate-50/80 px-3 py-2 md:justify-start">
+            <div className="flex shrink-0 items-center justify-between gap-4 rounded border border-slate-300 bg-slate-50/80 px-3 py-2 md:justify-start">
                {/* Período */}
                <div className="flex w-44 shrink-0 flex-col gap-1">
                   <span className="font-mono text-[9px] font-bold tracking-[0.2em] text-slate-400 uppercase">

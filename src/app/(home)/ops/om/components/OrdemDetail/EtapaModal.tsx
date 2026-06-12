@@ -10,7 +10,7 @@ import {
    Label,
    Spinner,
 } from "flowbite-react";
-import { HiLocationMarker, HiClock, HiLightningBolt } from "react-icons/hi";
+import { HiLightningBolt, HiCheckCircle } from "react-icons/hi";
 import { HiPaperAirplane } from "react-icons/hi2";
 import clsx from "clsx";
 import type { EtapaOut } from "services/routes/om/ordens";
@@ -38,10 +38,49 @@ const roundTimeToFiveMinutes = (time: string): string => {
    if (!time) return time;
    const [hours, minutes] = time.split(":").map(Number);
    const roundedMinutes = Math.round(minutes / 5) * 5;
+   // 23:58 não pode virar 00:00 (mudaria de dia silenciosamente): trava em 23:55
+   if (roundedMinutes === 60 && hours === 23) return "23:55";
    const finalMinutes = roundedMinutes === 60 ? 0 : roundedMinutes;
-   const finalHours = roundedMinutes === 60 ? (hours + 1) % 24 : hours;
+   const finalHours = roundedMinutes === 60 ? hours + 1 : hours;
    return `${String(finalHours).padStart(2, "0")}:${String(finalMinutes).padStart(2, "0")}`;
 };
+
+const inputBaseClass =
+   "w-full min-w-0 rounded-lg border bg-white px-2.5 py-2 text-sm text-slate-900 focus:border-transparent focus:ring-2 disabled:cursor-not-allowed disabled:opacity-50";
+
+// Inputs de código ICAO: protagonistas visuais do cartão de rota
+const icaoInputClass =
+   "w-full min-w-0 rounded-lg border bg-white px-2 py-2 text-center font-mono text-xl font-semibold tracking-[0.18em] text-slate-900 uppercase placeholder:font-normal placeholder:tracking-normal placeholder:text-slate-300 focus:border-transparent focus:ring-2";
+
+const sectionTitleClass =
+   "text-xs font-semibold tracking-widest text-slate-500 uppercase";
+
+function FieldError({ children = "Obrigatório" }: { children?: string }) {
+   return <span className="mt-1 block text-xs text-red-500">{children}</span>;
+}
+
+function SuggestionChip({
+   tone,
+   label,
+   value,
+}: {
+   tone: "emerald" | "amber";
+   label: string;
+   value: string;
+}) {
+   return (
+      <span
+         className={clsx(
+            "rounded-full px-2 py-0.5 text-[11px] ring-1",
+            tone === "emerald"
+               ? "bg-emerald-50 text-emerald-700 ring-emerald-200/70"
+               : "bg-amber-50 text-amber-700 ring-amber-200/70"
+         )}
+      >
+         {label}: <span className="font-mono font-semibold">{value}</span>
+      </span>
+   );
+}
 
 export function EtapaModal({
    isOpen,
@@ -59,9 +98,17 @@ export function EtapaModal({
    // Estado local do formulário
    const [formData, setFormData] = useState<Partial<EtapaOut>>({});
 
+   // Campos visitados pelo usuário — erro de obrigatório só aparece após blur,
+   // para o formulário não "nascer" coberto de vermelho
+   const [touched, setTouched] = useState<Record<string, boolean>>({});
+   const markTouched = (field: string) =>
+      setTouched((prev) => ({ ...prev, [field]: true }));
+
    // Inicializar formulário quando modal abre
    useEffect(() => {
       if (!isOpen) return;
+
+      setTouched({});
 
       if (isEditing && etapa) {
          // Modo edição: carregar dados da etapa
@@ -313,580 +360,590 @@ export function EtapaModal({
       onClose();
    };
 
-   const inputBaseClass =
-      "w-full rounded-lg border bg-white px-3 py-2.5 text-sm text-gray-900 focus:border-transparent focus:ring-2 disabled:cursor-not-allowed disabled:opacity-50";
+   // Erros de obrigatoriedade (só após blur do campo)
+   const origemVazia = touched.origem && !formData.origem?.trim();
+   const dtDepVazia = touched.dt_dep && !formData.dt_dep;
+   const destVazio = touched.dest && !formData.dest;
+   const dtArrVazia = touched.dt_arr && !formData.dt_arr;
+   const alternativaVazia = touched.alternativa && !formData.alternativa;
+   const tvooAltVazio =
+      touched.tvoo_alt && (!formData.tvoo_alt || formData.tvoo_alt === 0);
+   const qtdCombVazia =
+      touched.qtd_comb && (!formData.qtd_comb || formData.qtd_comb === 0);
+   const esfAerVazio = touched.esf_aer && !formData.esf_aer?.trim();
+
+   const rotaCompleta = origem.length === 4 && dest.length === 4;
+   const showSuggestionStrip = isLoadingRoute || rotaCompleta;
 
    return (
       <Modal show={isOpen} onClose={onClose} dismissible size="4xl">
          <ModalHeader>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3">
                <HiPaperAirplane className="h-5 w-5 text-amber-500" />
-               {modalTitle}
+               <span>{modalTitle}</span>
+               {rotaCompleta && (
+                  <span className="hidden rounded-md bg-slate-100 px-2 py-0.5 font-mono text-sm font-medium tracking-wider text-slate-500 sm:inline">
+                     {origem} → {dest}
+                  </span>
+               )}
             </div>
          </ModalHeader>
 
          <ModalBody>
-            <div className="space-y-2">
-               {/* Linha 1: Decolagem e Pouso */}
-               <div className="grid gap-3 md:grid-cols-2">
-                  {/* Grupo Decolagem */}
-                  <div className="rounded-xl border border-blue-200 bg-blue-50/30 p-2 md:p-4">
-                     <div className="mb-4 flex items-center gap-2">
-                        <span className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-500 text-xs font-bold text-white">
-                           1
-                        </span>
-                        <h4 className="text-sm font-semibold tracking-wide text-blue-700 uppercase">
-                           Decolagem
-                        </h4>
-                     </div>
-                     <div className="grid grid-cols-7 gap-4">
-                        <div className="col-span-3">
-                           <Label
-                              htmlFor="dt_dep_date"
-                              className="mb-2 block text-xs font-medium text-gray-600"
-                           >
-                              Data
-                           </Label>
-                           <input
-                              type="date"
-                              id="dt_dep_date"
-                              value={dataDecolagem}
-                              onChange={(e) =>
-                                 updateDateTime(
-                                    "dt_dep",
-                                    e.target.value,
-                                    horaDecolagem || "00:00"
-                                 )
-                              }
-                              className={clsx(
-                                 inputBaseClass,
-                                 "w-24 border-gray-300 focus:ring-blue-500"
-                              )}
-                           />
+            <div className="space-y-4">
+               {/* Cartão de rota: o trecho de voo como protagonista */}
+               <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+                  <div className="grid md:grid-cols-[1fr_auto_1fr]">
+                     {/* Decolagem */}
+                     <div className="p-4 md:p-5">
+                        <div className="mb-3 flex items-center gap-2">
+                           <span className="h-2 w-2 rounded-full bg-sky-500" />
+                           <h4 className={sectionTitleClass}>Decolagem</h4>
                         </div>
-                        <div className="col-span-2">
-                           <Label
-                              htmlFor="dt_dep_time"
-                              className="mb-2 block text-xs font-medium text-gray-600"
-                           >
-                              Hora (Z)
-                           </Label>
-                           <input
-                              type="time"
-                              id="dt_dep_time"
-                              value={horaDecolagem}
-                              onChange={(e) =>
-                                 updateDateTime(
-                                    "dt_dep",
-                                    dataDecolagem,
-                                    e.target.value
-                                 )
-                              }
-                              onBlur={(e) => {
-                                 if (!e.target.value) return;
-                                 const rounded = roundTimeToFiveMinutes(
-                                    e.target.value
-                                 );
-                                 if (rounded !== e.target.value) {
-                                    updateDateTime(
-                                       "dt_dep",
-                                       dataDecolagem,
-                                       rounded
+                        <div className="space-y-3">
+                           <div>
+                              <Label
+                                 htmlFor="origem"
+                                 className="mb-1.5 block text-xs font-medium text-slate-500"
+                              >
+                                 Origem <span className="text-red-500">*</span>
+                              </Label>
+                              <input
+                                 type="text"
+                                 id="origem"
+                                 value={formData.origem || ""}
+                                 onChange={(e) => {
+                                    const value = e.target.value.replace(
+                                       /[^a-zA-Z]/g,
+                                       ""
                                     );
-                                 }
-                              }}
-                              step="300"
-                              className={clsx(
-                                 inputBaseClass,
-                                 "border-gray-300 focus:ring-blue-500"
-                              )}
-                           />
-                        </div>
-                        <div className="col-span-2">
-                           <Label
-                              htmlFor="origem"
-                              className="mb-2 block text-xs font-medium text-gray-600"
-                           >
-                              Origem
-                           </Label>
-                           <input
-                              type="text"
-                              id="origem"
-                              value={formData.origem || ""}
-                              onChange={(e) => {
-                                 const value = e.target.value.replace(
-                                    /[^a-zA-Z]/g,
-                                    ""
-                                 );
-                                 userChangedRouteRef.current = true;
-                                 setFormData((prev) => ({
-                                    ...prev,
-                                    origem: value.toUpperCase(),
-                                 }));
-                              }}
-                              placeholder="SBGL"
-                              maxLength={4}
-                              className={clsx(
-                                 inputBaseClass,
-                                 "border-gray-300 text-center font-mono uppercase placeholder:text-gray-400 focus:ring-blue-500"
-                              )}
-                           />
-                        </div>
-                     </div>
-                  </div>
-
-                  {/* Grupo Pouso */}
-                  <div className="rounded-xl border border-green-200 bg-green-50/30 p-2 md:p-4">
-                     <div className="mb-4 flex items-center gap-2">
-                        <span className="flex h-6 w-6 items-center justify-center rounded-full bg-green-500 text-xs font-bold text-white">
-                           2
-                        </span>
-                        <h4 className="text-sm font-semibold tracking-wide text-green-700 uppercase">
-                           Pouso
-                        </h4>
-                     </div>
-                     <div className="grid grid-cols-7 gap-4">
-                        <div className="col-span-3">
-                           <Label
-                              htmlFor="dt_arr_date"
-                              className="mb-2 block text-xs font-medium text-gray-600"
-                           >
-                              Data
-                           </Label>
-                           <input
-                              type="date"
-                              id="dt_arr_date"
-                              value={dataPouso}
-                              min={dataDecolagem}
-                              onChange={(e) =>
-                                 updateDateTime(
-                                    "dt_arr",
-                                    e.target.value,
-                                    horaPouso || "00:00"
-                                 )
-                              }
-                              className={clsx(
-                                 inputBaseClass,
-                                 !formData.dt_arr
-                                    ? "border-red-300 focus:ring-red-500"
-                                    : "border-gray-300 focus:ring-green-500"
-                              )}
-                           />
-                           {!formData.dt_arr && (
-                              <span className="mt-1 text-xs text-red-500">
-                                 Obrigatório
-                              </span>
-                           )}
-                        </div>
-                        <div className="col-span-2">
-                           <Label
-                              htmlFor="dt_arr_time"
-                              className="mb-2 block text-xs font-medium text-gray-600"
-                           >
-                              Hora (Z)
-                           </Label>
-                           <input
-                              type="time"
-                              id="dt_arr_time"
-                              value={horaPouso}
-                              onChange={(e) =>
-                                 updateDateTime(
-                                    "dt_arr",
-                                    dataPouso,
-                                    e.target.value
-                                 )
-                              }
-                              onBlur={(e) => {
-                                 if (!e.target.value) return;
-                                 const rounded = roundTimeToFiveMinutes(
-                                    e.target.value
-                                 );
-                                 if (rounded !== e.target.value) {
-                                    updateDateTime(
-                                       "dt_arr",
-                                       dataPouso,
-                                       rounded
-                                    );
-                                 }
-                              }}
-                              step="300"
-                              className={clsx(
-                                 inputBaseClass,
-                                 "border-gray-300 focus:ring-green-500"
-                              )}
-                           />
-                        </div>
-                        <div className="col-span-2">
-                           <Label
-                              htmlFor="dest"
-                              className="mb-2 block text-xs font-medium text-gray-600"
-                           >
-                              Destino
-                           </Label>
-                           <input
-                              type="text"
-                              id="dest"
-                              value={formData.dest || ""}
-                              onChange={(e) => {
-                                 const value = e.target.value.replace(
-                                    /[^a-zA-Z]/g,
-                                    ""
-                                 );
-                                 userChangedRouteRef.current = true;
-                                 setFormData((prev) => ({
-                                    ...prev,
-                                    dest: value.toUpperCase(),
-                                 }));
-                              }}
-                              placeholder="SBBR"
-                              maxLength={4}
-                              className={clsx(
-                                 inputBaseClass,
-                                 !formData.dest
-                                    ? "border-red-300 text-center font-mono uppercase placeholder:text-gray-400 focus:ring-red-500"
-                                    : "border-gray-300 text-center font-mono uppercase placeholder:text-gray-400 focus:ring-green-500"
-                              )}
-                           />
-                           {!formData.dest && (
-                              <span className="mt-1 text-xs text-red-500">
-                                 Obrigatório
-                              </span>
-                           )}
-                        </div>
-                     </div>
-                  </div>
-               </div>
-
-               {/* Tempo de Voo Calculado + Status da Busca de Rota */}
-               <div className="flex flex-wrap items-center justify-center gap-4">
-                  <div className="flex items-center gap-3 rounded-full border border-gray-200 bg-gray-50 px-6 py-2">
-                     <HiClock className="h-5 w-5 text-gray-500" />
-                     <span className="text-sm font-medium text-gray-600">
-                        Tempo de Voo:
-                     </span>
-                     <span className="font-mono text-lg font-bold text-gray-900">
-                        {tempoVoo}
-                     </span>
-                  </div>
-
-                  {/* Indicador de busca de rota */}
-                  {isLoadingRoute && (
-                     <div className="flex items-center gap-2 rounded-full border border-blue-200 bg-blue-50 px-4 py-2">
-                        <Spinner size="sm" color="info" />
-                        <span className="text-sm text-blue-600">
-                           Buscando dados da rota...
-                        </span>
-                     </div>
-                  )}
-
-                  {/* Indicador de sugestão completa (rota + destino) */}
-                  {!isLoadingRoute &&
-                     suggestionType === "full" &&
-                     routeSuggestion && (
-                        <div className="flex flex-col items-center gap-1.5">
-                           <div className="flex items-center gap-2 rounded-full border border-green-200 bg-green-50 px-4 py-2">
-                              <HiLightningBolt className="h-4 w-4 text-green-500" />
-                              <span className="text-sm font-medium text-green-600">
-                                 Sugestão completa baseada em rota anterior
-                              </span>
+                                    userChangedRouteRef.current = true;
+                                    setFormData((prev) => ({
+                                       ...prev,
+                                       origem: value.toUpperCase(),
+                                    }));
+                                 }}
+                                 onBlur={() => markTouched("origem")}
+                                 placeholder="SBGL"
+                                 maxLength={4}
+                                 className={clsx(
+                                    icaoInputClass,
+                                    origemVazia
+                                       ? "border-red-300 focus:ring-red-500"
+                                       : "border-slate-300 focus:ring-sky-500"
+                                 )}
+                              />
+                              {origemVazia && <FieldError />}
                            </div>
-                           <div className="flex flex-wrap justify-center gap-1">
+                           <div className="grid grid-cols-2 gap-3">
+                              <div>
+                                 <Label
+                                    htmlFor="dt_dep_date"
+                                    className="mb-1.5 block text-xs font-medium text-slate-500"
+                                 >
+                                    Data <span className="text-red-500">*</span>
+                                 </Label>
+                                 <input
+                                    type="date"
+                                    id="dt_dep_date"
+                                    value={dataDecolagem}
+                                    onChange={(e) =>
+                                       updateDateTime(
+                                          "dt_dep",
+                                          e.target.value,
+                                          horaDecolagem || "00:00"
+                                       )
+                                    }
+                                    onBlur={() => markTouched("dt_dep")}
+                                    className={clsx(
+                                       inputBaseClass,
+                                       dtDepVazia
+                                          ? "border-red-300 focus:ring-red-500"
+                                          : "border-slate-300 focus:ring-sky-500"
+                                    )}
+                                 />
+                                 {dtDepVazia && <FieldError />}
+                              </div>
+                              <div>
+                                 <Label
+                                    htmlFor="dt_dep_time"
+                                    className="mb-1.5 block text-xs font-medium text-slate-500"
+                                 >
+                                    Hora (Z)
+                                 </Label>
+                                 <input
+                                    type="time"
+                                    id="dt_dep_time"
+                                    value={horaDecolagem}
+                                    onChange={(e) =>
+                                       updateDateTime(
+                                          "dt_dep",
+                                          dataDecolagem,
+                                          e.target.value
+                                       )
+                                    }
+                                    onBlur={(e) => {
+                                       if (!e.target.value) return;
+                                       const rounded = roundTimeToFiveMinutes(
+                                          e.target.value
+                                       );
+                                       if (rounded !== e.target.value) {
+                                          updateDateTime(
+                                             "dt_dep",
+                                             dataDecolagem,
+                                             rounded
+                                          );
+                                       }
+                                    }}
+                                    step="300"
+                                    className={clsx(
+                                       inputBaseClass,
+                                       "border-slate-300 focus:ring-sky-500"
+                                    )}
+                                 />
+                              </div>
+                           </div>
+                        </div>
+                     </div>
+
+                     {/* Conector: tempo de voo do trecho */}
+                     <div className="flex items-center justify-center border-y border-dashed border-slate-200 bg-slate-50/60 px-6 py-3 md:border-y-0 md:bg-transparent md:px-3 md:py-0">
+                        <div className="flex items-center gap-3 md:flex-col md:gap-1">
+                           <div className="flex items-center gap-1.5">
+                              <span className="hidden w-6 border-t border-dashed border-slate-300 md:block" />
+                              <HiPaperAirplane className="h-4 w-4 rotate-90 text-amber-500 md:rotate-0" />
+                              <span className="hidden w-6 border-t border-dashed border-slate-300 md:block" />
+                           </div>
+                           <span className="font-mono text-2xl font-bold tracking-tight text-slate-900 tabular-nums">
+                              {tempoVoo}
+                           </span>
+                           <span className="text-[10px] font-medium tracking-widest text-slate-400 uppercase">
+                              Tempo de voo
+                           </span>
+                        </div>
+                     </div>
+
+                     {/* Pouso */}
+                     <div className="p-4 md:p-5">
+                        <div className="mb-3 flex items-center gap-2">
+                           <span className="h-2 w-2 rounded-full bg-emerald-500" />
+                           <h4 className={sectionTitleClass}>Pouso</h4>
+                        </div>
+                        <div className="space-y-3">
+                           <div>
+                              <Label
+                                 htmlFor="dest"
+                                 className="mb-1.5 block text-xs font-medium text-slate-500"
+                              >
+                                 Destino <span className="text-red-500">*</span>
+                              </Label>
+                              <input
+                                 type="text"
+                                 id="dest"
+                                 value={formData.dest || ""}
+                                 onChange={(e) => {
+                                    const value = e.target.value.replace(
+                                       /[^a-zA-Z]/g,
+                                       ""
+                                    );
+                                    userChangedRouteRef.current = true;
+                                    setFormData((prev) => ({
+                                       ...prev,
+                                       dest: value.toUpperCase(),
+                                    }));
+                                 }}
+                                 onBlur={() => markTouched("dest")}
+                                 placeholder="SBBR"
+                                 maxLength={4}
+                                 className={clsx(
+                                    icaoInputClass,
+                                    destVazio
+                                       ? "border-red-300 focus:ring-red-500"
+                                       : "border-slate-300 focus:ring-emerald-500"
+                                 )}
+                              />
+                              {destVazio && <FieldError />}
+                           </div>
+                           <div className="grid grid-cols-2 gap-3">
+                              <div>
+                                 <Label
+                                    htmlFor="dt_arr_date"
+                                    className="mb-1.5 block text-xs font-medium text-slate-500"
+                                 >
+                                    Data <span className="text-red-500">*</span>
+                                 </Label>
+                                 <input
+                                    type="date"
+                                    id="dt_arr_date"
+                                    value={dataPouso}
+                                    min={dataDecolagem}
+                                    onChange={(e) =>
+                                       updateDateTime(
+                                          "dt_arr",
+                                          e.target.value,
+                                          horaPouso || "00:00"
+                                       )
+                                    }
+                                    onBlur={() => markTouched("dt_arr")}
+                                    className={clsx(
+                                       inputBaseClass,
+                                       dtArrVazia
+                                          ? "border-red-300 focus:ring-red-500"
+                                          : "border-slate-300 focus:ring-emerald-500"
+                                    )}
+                                 />
+                                 {dtArrVazia && <FieldError />}
+                              </div>
+                              <div>
+                                 <Label
+                                    htmlFor="dt_arr_time"
+                                    className="mb-1.5 block text-xs font-medium text-slate-500"
+                                 >
+                                    Hora (Z)
+                                 </Label>
+                                 <input
+                                    type="time"
+                                    id="dt_arr_time"
+                                    value={horaPouso}
+                                    onChange={(e) =>
+                                       updateDateTime(
+                                          "dt_arr",
+                                          dataPouso,
+                                          e.target.value
+                                       )
+                                    }
+                                    onBlur={(e) => {
+                                       if (!e.target.value) return;
+                                       const rounded = roundTimeToFiveMinutes(
+                                          e.target.value
+                                       );
+                                       if (rounded !== e.target.value) {
+                                          updateDateTime(
+                                             "dt_arr",
+                                             dataPouso,
+                                             rounded
+                                          );
+                                       }
+                                    }}
+                                    step="300"
+                                    className={clsx(
+                                       inputBaseClass,
+                                       "border-slate-300 focus:ring-emerald-500"
+                                    )}
+                                 />
+                              </div>
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+
+                  {/* Faixa de sugestão de rota: integrada ao cartão, sem saltos de layout */}
+                  {showSuggestionStrip && (
+                     <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 border-t border-slate-100 bg-slate-50/70 px-4 py-2.5">
+                        {isLoadingRoute ? (
+                           <>
+                              <Spinner size="sm" color="info" />
+                              <span className="text-xs text-slate-500">
+                                 Buscando dados da rota...
+                              </span>
+                           </>
+                        ) : suggestionType === "full" && routeSuggestion ? (
+                           <>
+                              <span className="flex items-center gap-1.5 text-xs font-medium text-emerald-700">
+                                 <HiLightningBolt className="h-3.5 w-3.5" />
+                                 Sugestão aplicada — rota já voada
+                              </span>
                               {routeSuggestion.alternativa && (
-                                 <span className="rounded-full bg-green-100 px-2.5 py-0.5 text-xs text-green-700">
-                                    Alt:{" "}
-                                    <span className="font-mono font-semibold">
-                                       {routeSuggestion.alternativa}
-                                    </span>
-                                 </span>
+                                 <SuggestionChip
+                                    tone="emerald"
+                                    label="Alt"
+                                    value={routeSuggestion.alternativa}
+                                 />
                               )}
                               {routeSuggestion.tvoo_alt != null && (
-                                 <span className="rounded-full bg-green-100 px-2.5 py-0.5 text-xs text-green-700">
-                                    Tvoo Alt:{" "}
-                                    <span className="font-mono font-semibold">
-                                       {minutesToTime(routeSuggestion.tvoo_alt)}
-                                    </span>
-                                 </span>
+                                 <SuggestionChip
+                                    tone="emerald"
+                                    label="Tvoo Alt"
+                                    value={minutesToTime(
+                                       routeSuggestion.tvoo_alt
+                                    )}
+                                 />
                               )}
                               {routeSuggestion.qtd_comb != null && (
-                                 <span className="rounded-full bg-green-100 px-2.5 py-0.5 text-xs text-green-700">
-                                    Combustível:{" "}
-                                    <span className="font-mono font-semibold">
-                                       {routeSuggestion.qtd_comb.toLocaleString(
-                                          "pt-BR"
-                                       )}
-                                       T
-                                    </span>
-                                 </span>
+                                 <SuggestionChip
+                                    tone="emerald"
+                                    label="Combustível"
+                                    value={`${routeSuggestion.qtd_comb.toLocaleString("pt-BR")}T`}
+                                 />
                               )}
                               {routeSuggestion.tvoo_etp != null &&
                                  routeSuggestion.tvoo_etp > 0 && (
-                                    <span className="rounded-full bg-green-100 px-2.5 py-0.5 text-xs text-green-700">
-                                       Chegada calculada (
-                                       <span className="font-mono font-semibold">
-                                          {minutesToTime(
-                                             routeSuggestion.tvoo_etp
-                                          )}
-                                       </span>
-                                       )
-                                    </span>
+                                    <SuggestionChip
+                                       tone="emerald"
+                                       label="Chegada calculada"
+                                       value={minutesToTime(
+                                          routeSuggestion.tvoo_etp
+                                       )}
+                                    />
                                  )}
-                           </div>
-                        </div>
-                     )}
-
-                  {/* Indicador de sugestão parcial (apenas destino) */}
-                  {!isLoadingRoute &&
-                     suggestionType === "partial" &&
-                     routeSuggestion && (
-                        <div className="flex flex-col items-center gap-1.5">
-                           <div className="flex items-center gap-2 rounded-full border border-amber-200 bg-amber-50 px-4 py-2">
-                              <HiLightningBolt className="h-4 w-4 text-amber-500" />
-                              <span className="text-sm font-medium text-amber-600">
-                                 Sugestão parcial baseada no destino
+                           </>
+                        ) : suggestionType === "partial" && routeSuggestion ? (
+                           <>
+                              <span className="flex items-center gap-1.5 text-xs font-medium text-amber-700">
+                                 <HiLightningBolt className="h-3.5 w-3.5" />
+                                 Sugestão parcial — dados do destino
                               </span>
-                           </div>
-                           <div className="flex flex-wrap justify-center gap-1">
                               {routeSuggestion.alternativa && (
-                                 <span className="rounded-full bg-amber-100 px-2.5 py-0.5 text-xs text-amber-700">
-                                    Alt:{" "}
-                                    <span className="font-mono font-semibold">
-                                       {routeSuggestion.alternativa}
-                                    </span>
-                                 </span>
+                                 <SuggestionChip
+                                    tone="amber"
+                                    label="Alt"
+                                    value={routeSuggestion.alternativa}
+                                 />
                               )}
                               {routeSuggestion.tvoo_alt != null && (
-                                 <span className="rounded-full bg-amber-100 px-2.5 py-0.5 text-xs text-amber-700">
-                                    Tvoo Alt:{" "}
-                                    <span className="font-mono font-semibold">
-                                       {minutesToTime(routeSuggestion.tvoo_alt)}
-                                    </span>
-                                 </span>
+                                 <SuggestionChip
+                                    tone="amber"
+                                    label="Tvoo Alt"
+                                    value={minutesToTime(
+                                       routeSuggestion.tvoo_alt
+                                    )}
+                                 />
                               )}
-                           </div>
-                        </div>
-                     )}
-
-                  {/* Indicador de nenhuma sugestão encontrada */}
-                  {!isLoadingRoute &&
-                     suggestionType === "none" &&
-                     origem.length === 4 &&
-                     dest.length === 4 && (
-                        <div className="flex items-center gap-2 rounded-full border border-gray-200 bg-gray-50 px-4 py-2">
-                           <span className="text-sm text-gray-500">
-                              Nenhuma sugestão encontrada
-                           </span>
-                        </div>
-                     )}
-               </div>
-
-               {/* Linha 2: Alternativa, Combustível, Esforço Aéreo */}
-               <div className="grid grid-cols-2 gap-3 md:grid-cols-9">
-                  {/* Alternativa */}
-                  <div className="rounded-xl border border-amber-200 bg-amber-50/30 p-2 md:col-span-3 md:p-4">
-                     <div className="mb-4 flex items-center gap-2">
-                        <HiLocationMarker className="h-5 w-5 text-amber-500" />
-                        <h4 className="text-sm font-semibold tracking-wide text-amber-700 uppercase">
-                           Alternativa
-                        </h4>
-                     </div>
-                     <div className="grid grid-cols-2 gap-4">
-                        <div>
-                           <Label
-                              htmlFor="alternativa"
-                              className="mb-2 block text-xs font-medium text-gray-600"
-                           >
-                              ICAO <span className="text-red-500">*</span>
-                           </Label>
-                           <input
-                              type="text"
-                              id="alternativa"
-                              value={formData.alternativa || ""}
-                              onChange={(e) => {
-                                 const value = e.target.value.replace(
-                                    /[^a-zA-Z]/g,
-                                    ""
-                                 );
-                                 setFormData((prev) => ({
-                                    ...prev,
-                                    alternativa: value.toUpperCase(),
-                                 }));
-                              }}
-                              placeholder="SBSP"
-                              maxLength={4}
-                              className={clsx(
-                                 inputBaseClass,
-                                 !formData.alternativa
-                                    ? "border-red-300 text-center font-mono uppercase placeholder:text-gray-400 focus:ring-red-500"
-                                    : "border-gray-300 text-center font-mono uppercase placeholder:text-gray-400 focus:ring-amber-500"
-                              )}
-                           />
-                           {!formData.alternativa && (
-                              <span className="mt-1 text-xs text-red-500">
-                                 Obrigatório
-                              </span>
-                           )}
-                        </div>
-                        <div>
-                           <Label
-                              htmlFor="tvoo_alt"
-                              className="mb-2 block text-xs font-medium text-gray-600"
-                           >
-                              T. Voo <span className="text-red-500">*</span>
-                           </Label>
-                           <input
-                              type="time"
-                              id="tvoo_alt"
-                              value={tempoVooAlternativa}
-                              onChange={(e) => {
-                                 const rounded = roundTimeToFiveMinutes(
-                                    e.target.value
-                                 );
-                                 const [hours, minutes] = rounded
-                                    .split(":")
-                                    .map(Number);
-                                 const totalMinutes =
-                                    (hours || 0) * 60 + (minutes || 0);
-                                 setFormData((prev) => ({
-                                    ...prev,
-                                    tvoo_alt: totalMinutes,
-                                 }));
-                              }}
-                              step="300"
-                              className={clsx(
-                                 inputBaseClass,
-                                 !formData.tvoo_alt || formData.tvoo_alt === 0
-                                    ? "border-red-300 focus:ring-red-500"
-                                    : "border-gray-300 focus:ring-amber-500"
-                              )}
-                           />
-                           {(!formData.tvoo_alt || formData.tvoo_alt === 0) && (
-                              <span className="mt-1 text-xs text-red-500">
-                                 Obrigatório
-                              </span>
-                           )}
-                           {erroTempoVooAlternativa && (
-                              <span className="mt-1 text-xs text-red-500">
-                                 {erroTempoVooAlternativa}
-                              </span>
-                           )}
-                        </div>
-                     </div>
-                  </div>
-
-                  {/* Combustível */}
-                  <div className="rounded-xl border border-purple-200 bg-purple-50/30 p-2 md:col-span-2 md:p-4">
-                     <div className="mb-4 flex items-center gap-2">
-                        <span className="flex h-5 w-5 items-center justify-center rounded bg-purple-500 text-xs font-bold text-white">
-                           T
-                        </span>
-                        <h4 className="text-sm font-semibold tracking-wide text-purple-700 uppercase">
-                           Combustível
-                        </h4>
-                     </div>
-                     <div>
-                        <Label
-                           htmlFor="qtd_comb"
-                           className="mb-2 block text-xs font-medium text-gray-600"
-                        >
-                           Quantidade (Toneladas)
-                        </Label>
-                        <input
-                           type="number"
-                           id="qtd_comb"
-                           min="1"
-                           max="30"
-                           value={formData.qtd_comb || ""}
-                           onChange={(e) => {
-                              const value = e.target.value.replace(
-                                 /[^0-9]/g,
-                                 ""
-                              );
-                              if (value === "" || parseInt(value, 10) > 0) {
-                                 setFormData((prev) => ({
-                                    ...prev,
-                                    qtd_comb: value ? parseInt(value, 10) : 0,
-                                 }));
-                              }
-                           }}
-                           placeholder="15"
-                           className={clsx(
-                              inputBaseClass,
-                              !formData.qtd_comb || formData.qtd_comb === 0
-                                 ? "border-red-300 text-center font-mono placeholder:text-gray-400 focus:ring-red-500"
-                                 : "border-gray-300 text-center font-mono placeholder:text-gray-400 focus:ring-purple-500"
-                           )}
-                        />
-                        {(!formData.qtd_comb || formData.qtd_comb === 0) && (
-                           <span className="mt-1 text-xs text-red-500">
-                              Obrigatório
+                           </>
+                        ) : (
+                           <span className="text-xs text-slate-400">
+                              Nenhuma sugestão para esta rota
                            </span>
                         )}
                      </div>
-                  </div>
+                  )}
+               </div>
 
-                  {/* Esforço Aéreo */}
-                  <div className="col-span-2 rounded-xl border border-red-200 bg-red-50/30 p-2 md:col-span-4 md:p-4">
-                     <div className="mb-4 flex items-center gap-2">
-                        <span className="flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs font-bold text-white">
-                           E
-                        </span>
-                        <h4 className="text-sm font-semibold tracking-wide text-red-700 uppercase">
-                           Esforço Aéreo
-                        </h4>
+               {/* Erros de validação de data/hora */}
+               {(erroDataHora || erroTempoVooEtapa) && (
+                  <div className="space-y-1 rounded-lg border border-red-200 bg-red-50 px-3 py-2">
+                     {erroDataHora && (
+                        <p className="text-sm text-red-600">{erroDataHora}</p>
+                     )}
+                     {erroTempoVooEtapa && (
+                        <p className="text-sm text-red-600">
+                           {erroTempoVooEtapa}
+                        </p>
+                     )}
+                  </div>
+               )}
+
+               {/* Cartão de planejamento: alternativa, combustível e esforço aéreo */}
+               <div className="rounded-xl border border-slate-200 bg-white shadow-sm">
+                  <div className="grid divide-y divide-slate-100 md:grid-cols-5 md:divide-x md:divide-y-0">
+                     {/* Alternativa */}
+                     <div className="p-4 md:col-span-2">
+                        <div className="mb-3 flex items-center gap-2">
+                           <span className="h-2 w-2 rounded-full bg-slate-300" />
+                           <h4 className={sectionTitleClass}>Alternativa</h4>
+                        </div>
+                        <div className="grid grid-cols-2 gap-3">
+                           <div>
+                              <Label
+                                 htmlFor="alternativa"
+                                 className="mb-1.5 block text-xs font-medium text-slate-500"
+                              >
+                                 ICAO <span className="text-red-500">*</span>
+                              </Label>
+                              <input
+                                 type="text"
+                                 id="alternativa"
+                                 value={formData.alternativa || ""}
+                                 onChange={(e) => {
+                                    const value = e.target.value.replace(
+                                       /[^a-zA-Z]/g,
+                                       ""
+                                    );
+                                    setFormData((prev) => ({
+                                       ...prev,
+                                       alternativa: value.toUpperCase(),
+                                    }));
+                                 }}
+                                 onBlur={() => markTouched("alternativa")}
+                                 placeholder="SBSP"
+                                 maxLength={4}
+                                 className={clsx(
+                                    inputBaseClass,
+                                    "text-center font-mono uppercase placeholder:text-slate-300",
+                                    alternativaVazia
+                                       ? "border-red-300 focus:ring-red-500"
+                                       : "border-slate-300 focus:ring-sky-500"
+                                 )}
+                              />
+                              {alternativaVazia && <FieldError />}
+                           </div>
+                           <div>
+                              <Label
+                                 htmlFor="tvoo_alt"
+                                 className="mb-1.5 block text-xs font-medium text-slate-500"
+                              >
+                                 T. Voo <span className="text-red-500">*</span>
+                              </Label>
+                              <input
+                                 type="time"
+                                 id="tvoo_alt"
+                                 value={tempoVooAlternativa}
+                                 onChange={(e) => {
+                                    const rounded = roundTimeToFiveMinutes(
+                                       e.target.value
+                                    );
+                                    const [hours, minutes] = rounded
+                                       .split(":")
+                                       .map(Number);
+                                    const totalMinutes =
+                                       (hours || 0) * 60 + (minutes || 0);
+                                    setFormData((prev) => ({
+                                       ...prev,
+                                       tvoo_alt: totalMinutes,
+                                    }));
+                                 }}
+                                 onBlur={() => markTouched("tvoo_alt")}
+                                 step="300"
+                                 className={clsx(
+                                    inputBaseClass,
+                                    tvooAltVazio
+                                       ? "border-red-300 focus:ring-red-500"
+                                       : "border-slate-300 focus:ring-sky-500"
+                                 )}
+                              />
+                              {tvooAltVazio && <FieldError />}
+                              {erroTempoVooAlternativa && (
+                                 <FieldError>
+                                    {erroTempoVooAlternativa}
+                                 </FieldError>
+                              )}
+                           </div>
+                        </div>
                      </div>
-                     <div>
-                        <Label
-                           htmlFor="esf_aer"
-                           className="mb-2 block text-xs font-medium text-gray-600"
-                        >
-                           Descrição
-                        </Label>
-                        <input
-                           type="text"
-                           id="esf_aer"
-                           value={formData.esf_aer || ""}
-                           onChange={(e) =>
-                              setFormData((prev) => ({
-                                 ...prev,
-                                 esf_aer: e.target.value.toUpperCase(),
-                              }))
-                           }
-                           placeholder="ESFORÇO ALOCADO"
-                           className={clsx(
-                              inputBaseClass,
-                              "border-gray-300 uppercase placeholder:text-gray-400 focus:ring-red-500"
-                           )}
-                        />
+
+                     {/* Combustível */}
+                     <div className="p-4 md:col-span-1">
+                        <div className="mb-3 flex items-center gap-2">
+                           <span className="h-2 w-2 rounded-full bg-slate-300" />
+                           <h4 className={sectionTitleClass}>Combustível</h4>
+                        </div>
+                        <div>
+                           <Label
+                              htmlFor="qtd_comb"
+                              className="mb-1.5 block text-xs font-medium text-slate-500"
+                           >
+                              Toneladas <span className="text-red-500">*</span>
+                           </Label>
+                           <input
+                              type="number"
+                              id="qtd_comb"
+                              min="1"
+                              max="30"
+                              value={formData.qtd_comb || ""}
+                              onChange={(e) => {
+                                 const value = e.target.value.replace(
+                                    /[^0-9]/g,
+                                    ""
+                                 );
+                                 if (value === "" || parseInt(value, 10) > 0) {
+                                    setFormData((prev) => ({
+                                       ...prev,
+                                       qtd_comb: value
+                                          ? parseInt(value, 10)
+                                          : 0,
+                                    }));
+                                 }
+                              }}
+                              onBlur={() => markTouched("qtd_comb")}
+                              placeholder="15"
+                              className={clsx(
+                                 inputBaseClass,
+                                 "text-center font-mono placeholder:text-slate-300",
+                                 qtdCombVazia
+                                    ? "border-red-300 focus:ring-red-500"
+                                    : "border-slate-300 focus:ring-sky-500"
+                              )}
+                           />
+                           {qtdCombVazia && <FieldError />}
+                        </div>
+                     </div>
+
+                     {/* Esforço Aéreo */}
+                     <div className="p-4 md:col-span-2">
+                        <div className="mb-3 flex items-center gap-2">
+                           <span className="h-2 w-2 rounded-full bg-slate-300" />
+                           <h4 className={sectionTitleClass}>Esforço Aéreo</h4>
+                        </div>
+                        <div>
+                           <Label
+                              htmlFor="esf_aer"
+                              className="mb-1.5 block text-xs font-medium text-slate-500"
+                           >
+                              Descrição <span className="text-red-500">*</span>
+                           </Label>
+                           <input
+                              type="text"
+                              id="esf_aer"
+                              value={formData.esf_aer || ""}
+                              onChange={(e) =>
+                                 setFormData((prev) => ({
+                                    ...prev,
+                                    esf_aer: e.target.value.toUpperCase(),
+                                 }))
+                              }
+                              onBlur={() => markTouched("esf_aer")}
+                              placeholder="ESFORÇO ALOCADO"
+                              className={clsx(
+                                 inputBaseClass,
+                                 "uppercase placeholder:text-slate-300",
+                                 esfAerVazio
+                                    ? "border-red-300 focus:ring-red-500"
+                                    : "border-slate-300 focus:ring-sky-500"
+                              )}
+                           />
+                           {esfAerVazio && <FieldError />}
+                        </div>
                      </div>
                   </div>
                </div>
-
-               {/* Erros de Validação de Data/Hora */}
-               {erroDataHora && (
-                  <div className="rounded-lg border border-red-200 bg-red-50 p-3">
-                     <span className="text-sm text-red-600">
-                        {erroDataHora}
-                     </span>
-                  </div>
-               )}
-               {erroTempoVooEtapa && (
-                  <div className="rounded-lg border border-red-200 bg-red-50 p-3">
-                     <span className="text-sm text-red-600">
-                        {erroTempoVooEtapa}
-                     </span>
-                  </div>
-               )}
             </div>
          </ModalBody>
 
          <ModalFooter>
-            <div className="flex w-full justify-end gap-3">
-               <Button color="gray" onClick={onClose}>
-                  Cancelar
-               </Button>
-               <Button color="red" onClick={handleSave} disabled={cannotSave}>
-                  {isEditing ? "Salvar Alterações" : "Adicionar Etapa"}
-               </Button>
+            <div className="flex w-full items-center justify-between gap-3">
+               {hasRequiredFieldErrors ? (
+                  <p className="min-w-0 flex-1 truncate text-xs text-slate-400">
+                     <span className="font-medium text-amber-600">
+                        {camposObrigatorios.length}{" "}
+                        {camposObrigatorios.length === 1
+                           ? "pendente"
+                           : "pendentes"}
+                        :
+                     </span>{" "}
+                     {camposObrigatorios.join(", ")}
+                  </p>
+               ) : hasValidationErrors ? (
+                  <p className="min-w-0 flex-1 truncate text-xs text-red-500">
+                     Corrija os erros de data/hora para salvar
+                  </p>
+               ) : (
+                  <p className="flex min-w-0 flex-1 items-center gap-1.5 text-xs font-medium text-emerald-600">
+                     <HiCheckCircle className="h-4 w-4 shrink-0" />
+                     Etapa pronta para salvar
+                  </p>
+               )}
+               <div className="flex shrink-0 gap-3">
+                  <Button color="gray" onClick={onClose}>
+                     Cancelar
+                  </Button>
+                  <Button
+                     color="red"
+                     onClick={handleSave}
+                     disabled={cannotSave}
+                  >
+                     {isEditing ? "Salvar Alterações" : "Adicionar Etapa"}
+                  </Button>
+               </div>
             </div>
          </ModalFooter>
       </Modal>

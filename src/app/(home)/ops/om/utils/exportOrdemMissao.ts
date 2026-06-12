@@ -18,10 +18,12 @@ import {
 /**
  * Gera um arquivo DOCX de Ordem de Missão a partir dos dados fornecidos
  * @param ordem Dados completos da Ordem de Missão (formato API)
+ * @param uae Sigla da unidade aérea ativa (compõe o número da OM)
  * @returns Blob do arquivo DOCX gerado
  */
 export async function gerarOrdemMissaoDocx(
-   ordem: OrdemMissaoOut
+   ordem: OrdemMissaoOut,
+   uae: string
 ): Promise<Blob> {
    try {
       // Carregar o template
@@ -39,7 +41,7 @@ export async function gerarOrdemMissaoDocx(
 
       // Preparar dados para preenchimento
       const dados = {
-         numero_om: formatNumeroOM(ordem).toUpperCase(),
+         numero_om: formatNumeroOM(ordem, uae).toUpperCase(),
          data_missao:
             ordem.etapas.length > 0
                ? formatDateFull(ordem.etapas[0].dt_dep)
@@ -91,11 +93,11 @@ export async function gerarOrdemMissaoDocx(
 /**
  * Formata o número completo da OM (numero/uae/data)
  */
-function formatNumeroOM(ordem: OrdemMissaoOut): string {
+function formatNumeroOM(ordem: OrdemMissaoOut, uae: string): string {
    const dataSaida = ordem.data_saida
       ? formatDateForDisplay(ordem.data_saida)
       : "DDMMYY";
-   return `${ordem.numero}/1GT1/${dataSaida}`;
+   return `${ordem.numero}/${uae}/${dataSaida}`;
 }
 
 /**
@@ -121,7 +123,7 @@ function getCrewGroups(tripulacao: TripulacaoOrdemOut[]) {
    };
 
    const ordemFuncoes = ["pil", "mc", "lm", "tf", "oe", "os"];
-   const grupos = [];
+   const grupos: { grupo: string; crew_member: string }[] = [];
 
    // Agrupar tripulantes por função
    const agrupados: Record<string, TripulacaoOrdemOut[]> = {};
@@ -137,16 +139,16 @@ function getCrewGroups(tripulacao: TripulacaoOrdemOut[]) {
       if (agrupados[funcao] && agrupados[funcao].length > 0) {
          const label = funcaoLabels[funcao] || funcao;
 
-         const gg_crew = agrupados[funcao].map((trip) => {
-            if (trip.tripulante) {
+         const gg_crew = agrupados[funcao]
+            .filter((trip) => trip.tripulante)
+            .map((trip) => {
                const nomeCompleto =
-                  trip.tripulante.user?.nome_completo ||
-                  trip.tripulante.user?.nome_guerra ||
+                  trip.tripulante!.user?.nome_completo ||
+                  trip.tripulante!.user?.nome_guerra ||
                   "";
-               const identificacao = trip.tripulante.user?.id_fab || "N/A";
+               const identificacao = trip.tripulante!.user?.id_fab || "N/A";
                return `${trip.p_g} ${nomeCompleto} - ${identificacao}`.toUpperCase();
-            }
-         });
+            });
 
          grupos.push({
             grupo: label,

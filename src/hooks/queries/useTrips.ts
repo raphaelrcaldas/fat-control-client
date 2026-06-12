@@ -48,6 +48,24 @@ export function useTrips(params?: GetTripsParams) {
 }
 
 /**
+ * Busca de tripulantes por função para comboboxes.
+ * Ativada apenas com 2+ caracteres; mantém resultados anteriores
+ * durante o refetch para evitar flicker do dropdown.
+ */
+export function useTripSearch(funcao: string, search: string) {
+   const term = search.trim();
+
+   return useQuery({
+      queryKey: tripKeys.list({ func: [funcao], search: term }),
+      queryFn: ({ signal }) =>
+         getTrips({ func: [funcao], search: term }, signal),
+      enabled: term.length >= 2,
+      staleTime: 60_000,
+      placeholderData: keepPreviousData,
+   });
+}
+
+/**
  * IDs de usuários que já são tripulantes na org ativa (do token)
  */
 export function useTripUserIds() {

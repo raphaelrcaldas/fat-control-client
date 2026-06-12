@@ -1,9 +1,9 @@
 "use client";
 
 import { useParams, useRouter } from "next/navigation";
-import { Spinner } from "flowbite-react";
 import { useOrdem } from "@/hooks/queries";
 import { OrdemFormContent } from "../components/OrdemDetail";
+import { OrdemDetailSkeleton } from "../components/OrdemDetail/OrdemDetailSkeleton";
 
 export default function OrdemDetailPage() {
    const params = useParams<{ id: string }>();
@@ -12,15 +12,16 @@ export default function OrdemDetailPage() {
    const { data: ordem, isLoading } = useOrdem(ordemId);
 
    const handleNavigateBack = () => {
-      router.back();
+      // Acesso por link direto não tem histórico interno: volta para a lista
+      if (window.history.length > 1) {
+         router.back();
+      } else {
+         router.push("/ops/om");
+      }
    };
 
    if (isLoading) {
-      return (
-         <div className="flex h-96 items-center justify-center">
-            <Spinner size="xl" color="failure" />
-         </div>
-      );
+      return <OrdemDetailSkeleton />;
    }
 
    if (!ordem) {
