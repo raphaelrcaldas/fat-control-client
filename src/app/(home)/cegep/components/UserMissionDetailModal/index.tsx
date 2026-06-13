@@ -1,6 +1,6 @@
 "use client";
 import { Modal, ModalBody, Badge } from "flowbite-react";
-import { HiX, HiCalendar } from "react-icons/hi";
+import { HiX, HiCalendar, HiExclamation } from "react-icons/hi";
 import { MisPntsTable } from "./MisPntsTable";
 import { PagamentoRecord } from "services/routes/cegep/financeiro";
 
@@ -117,6 +117,16 @@ export function UserMissionDetailModal({
             </div>
 
             <ModalBody className="flex-1 overflow-y-auto p-4">
+               {missao.custo_inconsistente && (
+                  <div className="mb-4 flex items-start gap-2 rounded border border-amber-300 bg-amber-50 p-3 text-sm text-amber-800">
+                     <HiExclamation className="mt-0.5 h-5 w-5 shrink-0 text-amber-500" />
+                     <span>
+                        O custo desta missão pode estar desatualizado em
+                        relação a este militar. Reabra e salve a missão para
+                        recalcular os valores.
+                     </span>
+                  </div>
+               )}
                <MisPntsTable
                   pernoites={pnts}
                   acDeslocSede={missao.acrec_desloc}

@@ -2,7 +2,7 @@
 import { memo, useMemo } from "react";
 import { Checkbox, Button, Badge, TableRow, TableCell } from "flowbite-react";
 import { IoMdInformationCircleOutline } from "react-icons/io";
-import { HiExternalLink } from "react-icons/hi";
+import { HiExternalLink, HiExclamation } from "react-icons/hi";
 import { useRouter } from "next/navigation";
 import clsx from "clsx";
 import { PagamentoRecord } from "services/routes/cegep/financeiro";
@@ -139,10 +139,17 @@ export const UserRow = memo(function UserRow({
             </span>
          </TableCell>
          <TableCell className="text-center font-mono text-sm font-bold whitespace-nowrap text-emerald-700">
-            {Number(record.missao.valor_total).toLocaleString("pt-BR", {
-               style: "currency",
-               currency: "BRL",
-            })}
+            <div className="flex items-center justify-center gap-1">
+               {record.missao.custo_inconsistente && (
+                  <span title="Custo possivelmente desatualizado. Reabra e salve a missão para recalcular.">
+                     <HiExclamation className="h-4 w-4 text-amber-500" />
+                  </span>
+               )}
+               {Number(record.missao.valor_total).toLocaleString("pt-BR", {
+                  style: "currency",
+                  currency: "BRL",
+               })}
+            </div>
          </TableCell>
          <TableCell className="text-center">
             <div className="flex items-center justify-center gap-1">

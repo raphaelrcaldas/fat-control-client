@@ -17,7 +17,12 @@ import { ComissWithMiss, DeletePreview } from "services/routes/cegep/comiss";
 import { Missao } from "services/routes/cegep/missoes";
 import { PagamentoRecord } from "services/routes/cegep/financeiro";
 import { RiFileExcel2Fill } from "react-icons/ri";
-import { HiDocumentText, HiExternalLink, HiArrowLeft } from "react-icons/hi";
+import {
+   HiDocumentText,
+   HiExternalLink,
+   HiArrowLeft,
+   HiExclamation,
+} from "react-icons/hi";
 import { useRouter } from "next/navigation";
 import { UserMissionDetailModal } from "../../components/UserMissionDetailModal";
 import { IoMdInformationCircleOutline } from "react-icons/io";
@@ -877,7 +882,12 @@ function MissionRow({
                </span>
             </div>
             <div className="shrink-0 text-right sm:w-24">
-               <span className="text-sm font-semibold text-gray-900">
+               <span className="inline-flex items-center justify-end gap-1 text-sm font-semibold text-gray-900">
+                  {mis.custo_inconsistente && (
+                     <span title="Custo possivelmente desatualizado. Reabra e salve a missão para recalcular.">
+                        <HiExclamation className="h-4 w-4 text-amber-500" />
+                     </span>
+                  )}
                   {diasPrev
                      ? `${mis.dias} dia${mis.dias > 1 ? "s" : ""}`
                      : realCurrency(mis.valor_total)}
