@@ -112,7 +112,13 @@ export async function getCmtoById(
    comissId: number,
    signal?: AbortSignal
 ): Promise<ComissWithMiss> {
-   const response = await request("GET", `${comissRoute}${comissId}`, null, null, signal);
+   const response = await request(
+      "GET",
+      `${comissRoute}${comissId}`,
+      null,
+      null,
+      signal
+   );
    const json = (await response.json()) as ApiResponse<ComissWithMiss>;
    return json.data as ComissWithMiss;
 }
@@ -130,7 +136,7 @@ export async function updateCmto(comiss: Comiss): Promise<ApiResult<null>> {
 export interface DeletePreviewMission {
    id: number;
    tipo_doc: string;
-   n_doc: number;
+   n_doc: string;
    desc: string;
    afast: string;
    regres: string;

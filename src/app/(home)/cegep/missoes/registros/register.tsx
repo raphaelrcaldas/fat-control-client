@@ -12,7 +12,6 @@ import { MultiSelect } from "@/components/MultiSelect";
 import {
    useSearchParamsUpdater,
    getStringParam,
-   getNumberParam,
    getArrayParam,
    getNumberArrayParam,
    serializeArray,
@@ -53,7 +52,7 @@ export function RegisPage() {
 
    // Read filters from URL
    const tipoDoc = getArrayParam(searchParams, "tipo_doc");
-   const nDoc = getNumberParam(searchParams, "n_doc");
+   const nDoc = getStringParam(searchParams, "n_doc");
    const selectedTipo = getArrayParam(searchParams, "tipo");
    const userSearch = getStringParam(searchParams, "user");
    const citySearch = getStringParam(searchParams, "city");
@@ -69,9 +68,7 @@ export function RegisPage() {
    // Local state for text inputs (immediate feedback + debounced URL update)
    const [localUserSearch, setLocalUserSearch] = useState(userSearch);
    const [localCitySearch, setLocalCitySearch] = useState(citySearch);
-   const [localNDoc, setLocalNDoc] = useState<string>(
-      nDoc !== undefined ? String(nDoc) : ""
-   );
+   const [localNDoc, setLocalNDoc] = useState<string>(nDoc);
    const [localDataInicio, setLocalDataInicio] = useState(dataInicio);
    const [localDataFim, setLocalDataFim] = useState(dataFim);
 
@@ -83,7 +80,7 @@ export function RegisPage() {
       setLocalCitySearch(citySearch);
    }, [citySearch]);
    useEffect(() => {
-      setLocalNDoc(nDoc !== undefined ? String(nDoc) : "");
+      setLocalNDoc(nDoc);
    }, [nDoc]);
    useEffect(() => {
       setLocalDataInicio(dataInicio);
@@ -187,7 +184,7 @@ export function RegisPage() {
       page: currentPage,
       per_page: perPage,
       tipo_doc: tipoDoc.length > 0 ? tipoDoc.join(",") : undefined,
-      n_doc: nDoc,
+      n_doc: nDoc || undefined,
       tipo: selectedTipo.length > 0 ? selectedTipo.join(",") : undefined,
       ini: dataInicio || undefined,
       fim: dataFim || undefined,

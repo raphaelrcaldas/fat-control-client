@@ -95,9 +95,7 @@ export const UserRow = memo(function UserRow({
             <span className="tracking-wider text-gray-600 uppercase">
                {record.missao.tipo_doc}
             </span>{" "}
-            <span className="text-gray-900">
-               {String(record.missao.n_doc).padStart(3, "0")}
-            </span>
+            <span className="text-gray-900">{record.missao.n_doc}</span>
          </TableCell>
          <TableCell className="font-medium whitespace-nowrap text-gray-900 uppercase">
             {record.user_mis.p_g} {record.user_mis.user.nome_guerra}

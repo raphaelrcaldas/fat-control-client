@@ -23,7 +23,7 @@ export interface PagamentosFilters {
    page?: number;
    limit?: number;
    tipo_doc?: string[];
-   n_doc?: number;
+   n_doc?: string;
    tipo?: string[];
    sit?: string[];
    user?: string;
@@ -36,7 +36,8 @@ export async function getPgts(
    signal?: AbortSignal
 ): Promise<PaginatedResponse<PagamentoRecord>> {
    const response = await request("GET", financeiroRoute, null, search, signal);
-   const json = (await response.json()) as ApiPaginatedResponse<PagamentoRecord>;
+   const json =
+      (await response.json()) as ApiPaginatedResponse<PagamentoRecord>;
    return {
       items: json.data || [],
       total: json.total,

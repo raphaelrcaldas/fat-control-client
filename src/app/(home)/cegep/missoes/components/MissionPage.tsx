@@ -15,6 +15,7 @@ import { PeriodoSection } from "./sections/PeriodoSection";
 import { ObservacoesSection } from "./sections/ObservacoesSection";
 import { PernoitesSection } from "./sections/PernoitesSection";
 import { MilitaresSection } from "./sections/MilitaresSection";
+import { HiExclamation } from "react-icons/hi";
 
 interface MissionPageProps {
    missao?: Missao | null;
@@ -62,16 +63,27 @@ export function MissionPage({
          )}
 
          <div className="flex w-full justify-center">
-            <div className="flex w-full max-w-7xl flex-col gap-4">
+            <div className="flex w-full max-w-7xl flex-col gap-2">
                <MissionHeader
                   tipoDoc={form.tipoDoc}
                   nDoc={form.nDoc}
                   desc={form.desc}
                   isNew={form.isNew}
+                  cache_inconsistente={missao.custo_inconsistente}
                   onBack={onClose}
                />
 
-               <div className="space-y-6">
+               <div className="space-y-2">
+                  {missao.custo_inconsistente && (
+                     <div className="flex items-start gap-2 rounded border border-red-300 bg-red-50 p-3 text-sm text-red-800">
+                        <HiExclamation className="mt-0.5 h-5 w-5 shrink-0 animate-pulse text-red-500" />
+                        <span>
+                           Integridade comprometida: os parâmetros em cache
+                           desta missão podem estar desatualizados.
+                        </span>
+                     </div>
+                  )}
+
                   <EtiquetasSection
                      etiquetasMissao={form.etiquetasMissao}
                      editMode={form.editMode}

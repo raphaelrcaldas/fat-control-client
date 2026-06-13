@@ -4,8 +4,8 @@ import { SectionWrapper } from "../SectionWrapper";
 interface DocumentoSectionProps {
    tipoDoc: string;
    setTipoDoc: (value: string) => void;
-   nDoc: number | undefined;
-   setNDoc: (value: number | undefined) => void;
+   nDoc: string;
+   setNDoc: (value: string) => void;
    editMode: boolean;
 }
 
@@ -48,14 +48,8 @@ export function DocumentoSection({
                {editMode ? (
                   <TextInput
                      className="w-full"
-                     value={nDoc ?? ""}
-                     onChange={(e) =>
-                        setNDoc(
-                           e.target.value === ""
-                              ? undefined
-                              : Number(e.target.value)
-                        )
-                     }
+                     value={nDoc}
+                     onChange={(e) => setNDoc(e.target.value)}
                      onKeyDown={(e) => {
                         if (
                            !(

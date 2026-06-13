@@ -705,8 +705,7 @@ export function ComissPage({ detail, onEdit, onClose }: ComissPageProps) {
                                     className="flex items-center justify-between border-b border-gray-100 px-3 py-2 text-sm last:border-b-0"
                                  >
                                     <span className="font-medium text-nowrap text-gray-900 uppercase">
-                                       {m.tipo_doc}{" "}
-                                       {String(m.n_doc).padStart(3, "0")}
+                                       {m.tipo_doc} {m.n_doc}
                                     </span>
                                     <span className="truncate px-2 text-left text-gray-600 uppercase">
                                        {m.desc}
@@ -838,15 +837,15 @@ function MissionRow({
          {/* Linha 1 (mobile): documento + acoes | Desktop: itens viram colunas da linha */}
          <div className="flex items-center justify-between gap-2 sm:contents">
             <div className="w-20 shrink-0">
-               <span className="text-sm font-semibold text-gray-900 uppercase">
-                  {mis.tipo_doc} {String(mis.n_doc).padStart(3, "0")}
+               <span className="font-mono text-sm font-semibold text-gray-900 uppercase">
+                  {mis.tipo_doc} {mis.n_doc}
                </span>
             </div>
             <div className="flex shrink-0 gap-1 sm:order-last">
                <Button
                   size="sm"
                   color="light"
-                  className="transition-colors duration-200 hover:bg-gray-100"
+                  className="rounded transition-colors duration-200 hover:bg-gray-100"
                   onClick={onShowDetail}
                >
                   <IoMdInformationCircleOutline size={18} />
@@ -855,7 +854,7 @@ function MissionRow({
                   <Button
                      size="sm"
                      color="light"
-                     className="transition-colors duration-200 hover:bg-blue-50"
+                     className="rounded transition-colors duration-200 hover:bg-blue-50"
                      onClick={onNavigate}
                      title="Abrir missao"
                   >

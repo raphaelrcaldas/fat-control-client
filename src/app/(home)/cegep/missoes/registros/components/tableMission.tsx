@@ -103,7 +103,7 @@ const TableMissionRow = memo(function TableMissionRow({
                   <HiDocumentText className="text-sm text-white" />
                </div>
                <span className="font-mono uppercase">
-                  {missao.tipo_doc} {String(missao.n_doc).padStart(3, "0")}
+                  {missao.tipo_doc} {missao.n_doc}
                </span>
             </div>
          </TableCell>

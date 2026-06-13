@@ -21,6 +21,7 @@ import { isoStrToDate } from "utils/dateHandler";
 import { UserPublic } from "services/routes/users";
 import { SearchUser } from "src/app/(home)/users/components/searchUser";
 import { useCreateComiss, useUpdateComiss } from "@/hooks/queries";
+import { sanitizeLinha } from "utils/sanitize";
 
 interface ComissFormProps {
    comiss?: ComissList | ComissWithMiss;
@@ -154,9 +155,9 @@ export function ComissForm({ comiss, onCancel, onSuccess }: ComissFormProps) {
 
       const comisObj: ComissSchema = {
          user_id: user!.id,
-         doc_prop: docProp,
-         doc_aut: docAut,
-         doc_enc: docEnc,
+         doc_prop: sanitizeLinha(docProp),
+         doc_aut: sanitizeLinha(docAut),
+         doc_enc: docEnc ? sanitizeLinha(docEnc) : null,
          data_ab: dataAb,
          data_fc: dataFc,
          qtd_aj_ab: qtdAjAb,

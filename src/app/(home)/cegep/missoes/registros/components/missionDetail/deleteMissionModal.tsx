@@ -7,7 +7,7 @@ interface DeleteMissionModalProps {
    onConfirm: () => void;
    missionInfo: {
       tipoDoc: string;
-      nDoc: number | undefined;
+      nDoc: string;
       desc: string;
    };
 }

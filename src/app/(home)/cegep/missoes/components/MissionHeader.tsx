@@ -1,10 +1,11 @@
-import { HiArrowLeft } from "react-icons/hi";
+import { HiArrowLeft, HiCheckCircle, HiExclamation } from "react-icons/hi";
 
 interface MissionHeaderProps {
    tipoDoc: string;
-   nDoc: number | undefined;
+   nDoc: string;
    desc: string;
    isNew: boolean;
+   cache_inconsistente: boolean;
    onBack: () => void;
 }
 
@@ -12,11 +13,12 @@ export function MissionHeader({
    tipoDoc,
    nDoc,
    desc,
+   cache_inconsistente,
    isNew,
    onBack,
 }: MissionHeaderProps) {
    return (
-      <div className="flex items-center gap-4 rounded border border-slate-200 bg-white p-4 shadow-sm">
+      <div className="flex items-center gap-4 rounded border border-slate-200 bg-white px-4 py-2.5 shadow-sm">
          <button
             onClick={onBack}
             className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-600 transition-colors hover:bg-slate-200"
@@ -27,9 +29,7 @@ export function MissionHeader({
 
          <div className="min-w-0 flex-1">
             <h2 className="truncate text-xl font-bold text-slate-800 uppercase">
-               {isNew
-                  ? "Nova Missão"
-                  : `${tipoDoc} ${String(nDoc ?? "").padStart(3, "0")}`}
+               {isNew ? "Nova Missão" : `${tipoDoc} ${nDoc}`}
             </h2>
             {!isNew && desc && (
                <p className="truncate text-sm text-slate-500 uppercase">
@@ -37,6 +37,14 @@ export function MissionHeader({
                </p>
             )}
          </div>
+
+         {/* Integridade do cache de custos verificada ao abrir a missão */}
+         {!cache_inconsistente && (
+            <div className="flex items-center gap-1.5 text-xs text-green-600">
+               <HiCheckCircle className="h-4 w-4 shrink-0" />
+               <span>Integridade verificada</span>
+            </div>
+         )}
       </div>
    );
 }

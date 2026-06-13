@@ -10,6 +10,7 @@ import {
    useDeleteMissao,
 } from "@/hooks/queries/useMissoes";
 import { useToast } from "@/app/context/toast";
+import { sanitizeLinha, sanitizeBloco } from "utils/sanitize";
 
 interface UseMissionFormOptions {
    missao?: Missao | null;
@@ -31,7 +32,7 @@ export function useMissionForm({
    const defaultValues = useMemo(
       () => ({
          tipoDoc: missao ? missao.tipo_doc : "",
-         nDoc: missao ? missao.n_doc : undefined,
+         nDoc: missao ? missao.n_doc : "",
          desc: missao ? missao.desc : "",
          afast: missao ? missao.afast : "",
          regres: missao ? missao.regres : "",
@@ -152,7 +153,7 @@ export function useMissionForm({
    function handleValidate() {
       const errors: string[] = [];
       if (!tipoDoc) errors.push("- Tipo da Ordem");
-      if (!nDoc || nDoc === 0) errors.push("- Número do Documento");
+      if (!nDoc) errors.push("- Número do Documento");
       if (!desc) errors.push("- Descrição");
       if (!tipo) errors.push("- Tipo da Missão");
       if (!afast) errors.push("- Data de Afastamento");
@@ -219,9 +220,9 @@ export function useMissionForm({
    function handleSave() {
       if (!handleValidate()) return;
 
-      const pntsWithFragId = missao
-         ? pnts.map((p) => ({ ...p, frag_id: missao.id }))
-         : pnts;
+      const pntsWithFragId = (
+         missao ? pnts.map((p) => ({ ...p, frag_id: missao.id })) : pnts
+      ).map((p) => ({ ...p, obs: sanitizeBloco(p.obs ?? "") }));
 
       const usersWithFragId = missao
          ? mils.map((p) => ({ ...p, frag_id: missao.id }))
@@ -230,14 +231,14 @@ export function useMissionForm({
       const fragMis: Missao = {
          id: missao ? missao.id : undefined,
          tipo_doc: tipoDoc,
-         n_doc: nDoc!,
-         desc,
+         n_doc: nDoc,
+         desc: sanitizeLinha(desc),
          acrec_desloc: acrecDesloc,
          tipo,
          afast,
          regres,
          indenizavel: ind === "ind",
-         obs,
+         obs: sanitizeBloco(obs),
          pernoites: pntsWithFragId,
          users: usersWithFragId,
          etiquetas: etiquetasMissao,

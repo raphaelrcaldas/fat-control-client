@@ -83,7 +83,7 @@ function MissaoLogEntry({ log }: { log: MissaoLog }) {
 
    return (
       <li className="relative">
-         <span className="absolute -start-[26px] top-[6px] flex h-3 w-3 items-center justify-center rounded-full border border-red-300 bg-red-100" />
+         <span className="absolute -inset-s-6.5 top-1.5 flex h-3 w-3 items-center justify-center rounded-full border border-red-300 bg-red-100" />
          <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
             <div className="flex min-w-0 flex-wrap items-baseline gap-x-2">
                <span className="text-sm font-semibold text-gray-800">
@@ -100,7 +100,7 @@ function MissaoLogEntry({ log }: { log: MissaoLog }) {
             </time>
          </div>
          {diffs.length > 0 && (
-            <ul className="mt-2 space-y-0.5 text-xs break-words text-gray-600">
+            <ul className="mt-2 space-y-0.5 text-xs wrap-break-word text-gray-600">
                {diffs.map((d) => (
                   <li key={d.field}>
                      <span className="font-medium text-gray-700">
@@ -170,34 +170,36 @@ export default function MissaoDetailPage() {
    const logs = missao.logs ?? [];
 
    return (
-      <div className="flex flex-col gap-4 lg:flex-row">
-         <MissionPage
-            missao={missao}
-            initialEdit={false}
-            onClose={handleNavigateBack}
-            onClone={handleClone}
-         />
+      <div className="flex flex-col gap-4">
+         <div className="flex flex-col gap-4 lg:flex-row">
+            <MissionPage
+               missao={missao}
+               initialEdit={false}
+               onClose={handleNavigateBack}
+               onClone={handleClone}
+            />
 
-         {/* HISTÓRICO DE AUDITORIA — só renderiza se houver logs */}
-         {logs.length > 0 && (
-            <div className="w-full rounded border border-slate-300 bg-white shadow-sm lg:w-1/3 lg:shrink-0">
-               <div className="border-b border-slate-300 bg-gray-50/50 px-5 py-3">
-                  <h3 className="font-semibold text-gray-800">
-                     Histórico de Alterações
-                  </h3>
-                  <p className="text-xs text-gray-500">
-                     Registro de criações e atualizações desta missão.
-                  </p>
+            {/* HISTÓRICO DE AUDITORIA — só renderiza se houver logs */}
+            {logs.length > 0 && (
+               <div className="w-full rounded border border-slate-200 bg-white shadow-sm lg:w-1/3 lg:shrink-0">
+                  <div className="border-b border-slate-300 bg-gray-50/50 px-5 py-3">
+                     <h3 className="font-semibold text-gray-800">
+                        Histórico de Alterações
+                     </h3>
+                     <p className="text-xs text-gray-500">
+                        Registro de criações e atualizações desta missão.
+                     </p>
+                  </div>
+                  <div className="p-5">
+                     <ol className="relative space-y-4 border-s border-slate-300 ps-5">
+                        {logs.map((log) => (
+                           <MissaoLogEntry key={log.id} log={log} />
+                        ))}
+                     </ol>
+                  </div>
                </div>
-               <div className="p-5">
-                  <ol className="relative space-y-4 border-s border-slate-300 ps-5">
-                     {logs.map((log) => (
-                        <MissaoLogEntry key={log.id} log={log} />
-                     ))}
-                  </ol>
-               </div>
-            </div>
-         )}
+            )}
+         </div>
       </div>
    );
 }
