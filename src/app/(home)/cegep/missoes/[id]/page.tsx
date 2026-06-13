@@ -180,8 +180,8 @@ export default function MissaoDetailPage() {
 
          {/* HISTÓRICO DE AUDITORIA — só renderiza se houver logs */}
          {logs.length > 0 && (
-            <div className="w-full rounded-xl border border-gray-200 bg-white shadow-sm lg:w-1/3 lg:shrink-0">
-               <div className="border-b border-gray-100 bg-gray-50/50 px-5 py-3">
+            <div className="w-full rounded border border-slate-300 bg-white shadow-sm lg:w-1/3 lg:shrink-0">
+               <div className="border-b border-slate-300 bg-gray-50/50 px-5 py-3">
                   <h3 className="font-semibold text-gray-800">
                      Histórico de Alterações
                   </h3>
@@ -190,7 +190,7 @@ export default function MissaoDetailPage() {
                   </p>
                </div>
                <div className="p-5">
-                  <ol className="relative space-y-4 border-s border-gray-200 ps-5">
+                  <ol className="relative space-y-4 border-s border-slate-300 ps-5">
                      {logs.map((log) => (
                         <MissaoLogEntry key={log.id} log={log} />
                      ))}

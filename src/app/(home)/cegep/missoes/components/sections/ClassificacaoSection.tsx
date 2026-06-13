@@ -39,7 +39,7 @@ export function ClassificacaoSection({
                   <div className="inline-block">
                      <span
                         className={clsx(
-                           "inline-flex items-center rounded-lg px-3 py-2 text-sm font-bold tracking-wide text-white uppercase shadow-sm",
+                           "inline-flex items-center rounded px-3 py-2 text-sm font-bold tracking-wide text-white uppercase shadow-sm",
                            {
                               "bg-amber-500": tipo === "opr",
                               "bg-blue-500": tipo === "adm",
@@ -70,7 +70,7 @@ export function ClassificacaoSection({
                   <div className="inline-block">
                      <span
                         className={clsx(
-                           "inline-flex items-center rounded-lg px-4 py-2 text-sm font-bold tracking-wide uppercase shadow-sm",
+                           "inline-flex items-center rounded px-4 py-2 text-sm font-bold tracking-wide uppercase shadow-sm",
                            {
                               "bg-emerald-500 text-white": ind === "ind",
                               "bg-slate-200 text-slate-700": ind === "n_ind",

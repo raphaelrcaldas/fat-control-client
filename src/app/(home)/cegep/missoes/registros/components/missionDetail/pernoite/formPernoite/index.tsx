@@ -157,7 +157,7 @@ export function FormPernoite({
 
    return (
       <Modal size="xl" show={showFormPnt} onClose={onClose} dismissible>
-         <ModalHeader className="border-b-2 border-gray-100">
+         <ModalHeader className="border-b-2 border-slate-300">
             <div className="flex items-center gap-2">
                <span className="text-xl font-bold text-gray-800">
                   {pnt ? "Editar Pernoite" : "Novo Pernoite"}
@@ -166,7 +166,7 @@ export function FormPernoite({
          </ModalHeader>
          <ModalBody className="p-6">
             {/* Informação das datas da missão */}
-            <div className="mb-4 rounded-lg border-2 border-amber-200 bg-linear-to-r from-amber-50 to-orange-50 p-4">
+            <div className="mb-4 rounded border-2 border-amber-200 bg-linear-to-r from-amber-50 to-orange-50 p-4">
                <h4 className="mb-2 text-xs font-semibold tracking-wide text-amber-800 uppercase">
                   Período da Missão
                </h4>
@@ -222,7 +222,7 @@ export function FormPernoite({
 
             <form onSubmit={handleSubmit} className="flex flex-col gap-6">
                {/* Seção de Datas */}
-               <div className="rounded-xl border border-blue-100 bg-linear-to-r from-blue-50 to-indigo-50 p-5">
+               <div className="rounded border border-blue-100 bg-linear-to-r from-blue-50 to-indigo-50 p-5">
                   <h3 className="mb-4 flex items-center gap-2 text-sm font-semibold text-gray-700">
                      <span className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-500 text-xs text-white">
                         1
@@ -235,7 +235,7 @@ export function FormPernoite({
                            Data de Início
                         </label>
                         <input
-                           className="block w-full rounded-lg border-2 border-gray-300 bg-white p-3 text-sm text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
+                           className="block w-full rounded border-2 border-slate-300 bg-white p-3 text-sm text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
                            type="date"
                            value={dataIni}
                            min={afast ? afast.split("T")[0] : ""}
@@ -251,7 +251,7 @@ export function FormPernoite({
                            Data de Fim
                         </label>
                         <input
-                           className="block w-full rounded-lg border-2 border-gray-300 bg-white p-3 text-sm text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
+                           className="block w-full rounded border-2 border-slate-300 bg-white p-3 text-sm text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
                            type="date"
                            value={dataFim}
                            min={afast ? afast.split("T")[0] : ""}
@@ -266,7 +266,7 @@ export function FormPernoite({
                </div>
 
                {/* Seção de Localidade */}
-               <div className="rounded-xl border border-purple-100 bg-linear-to-r from-purple-50 to-pink-50 p-5">
+               <div className="rounded border border-purple-100 bg-linear-to-r from-purple-50 to-pink-50 p-5">
                   <h3 className="mb-4 flex items-center gap-2 text-sm font-semibold text-gray-700">
                      <span className="flex h-6 w-6 items-center justify-center rounded-full bg-purple-500 text-xs text-white">
                         2
@@ -275,7 +275,7 @@ export function FormPernoite({
                   </h3>
                   <div className="flex flex-row items-center justify-between gap-3">
                      {local?.nome ? (
-                        <div className="flex-1 rounded-lg border-2 border-green-300 bg-white px-4 py-3 shadow-sm">
+                        <div className="flex-1 rounded border-2 border-green-300 bg-white px-4 py-3 shadow-sm">
                            <div className="flex items-center gap-2">
                               <span className="h-2 w-2 rounded-full bg-green-500"></span>
                               <span className="text-base font-semibold text-gray-800">
@@ -284,7 +284,7 @@ export function FormPernoite({
                            </div>
                         </div>
                      ) : (
-                        <div className="flex-1 rounded-lg border-2 border-red-300 bg-white px-4 py-3 shadow-sm">
+                        <div className="flex-1 rounded border-2 border-red-300 bg-white px-4 py-3 shadow-sm">
                            <div className="flex items-center gap-2">
                               <span className="h-2 w-2 rounded-full bg-red-500"></span>
                               <span className="text-sm font-medium text-red-600">
@@ -298,7 +298,7 @@ export function FormPernoite({
                         pill
                         onClick={() => setShowSearchLocal(true)}
                         color="purple"
-                        className="shadow-md"
+                        className="shadow-sm"
                      >
                         <IoMdSearch className="size-5" />
                      </Button>
@@ -312,7 +312,7 @@ export function FormPernoite({
                </div>
 
                {/* Seção de Opções */}
-               <div className="rounded-xl border border-green-100 bg-linear-to-r from-green-50 to-emerald-50 p-5">
+               <div className="rounded border border-green-100 bg-linear-to-r from-green-50 to-emerald-50 p-5">
                   <h3 className="mb-4 flex items-center gap-2 text-sm font-semibold text-gray-700">
                      <span className="flex h-6 w-6 items-center justify-center rounded-full bg-green-500 text-xs text-white">
                         3
@@ -321,7 +321,7 @@ export function FormPernoite({
                   </h3>
                   <div className="grid grid-cols-2 gap-4">
                      <div
-                        className="cursor-pointer rounded-lg border-2 border-gray-200 bg-white p-4 hover:border-green-300"
+                        className="cursor-pointer rounded border-2 border-slate-300 bg-white p-4 hover:border-green-300"
                         onClick={() => setAcDesloc(!acDesloc)}
                      >
                         <div className="flex items-center justify-between">
@@ -343,7 +343,7 @@ export function FormPernoite({
                      </div>
 
                      <div
-                        className="cursor-pointer rounded-lg border-2 border-gray-200 bg-white p-4 hover:border-amber-300"
+                        className="cursor-pointer rounded border-2 border-slate-300 bg-white p-4 hover:border-amber-300"
                         onClick={() => setMeiaDiaria(!meiaDiaria)}
                      >
                         <div className="flex items-center justify-between">
@@ -367,7 +367,7 @@ export function FormPernoite({
                </div>
 
                {/* Botões de Ação */}
-               <div className="flex justify-center gap-3 border-t-2 border-gray-100 pt-4">
+               <div className="flex justify-center gap-3 border-t-2 border-slate-300 pt-4">
                   <Button
                      color="gray"
                      className="w-32"

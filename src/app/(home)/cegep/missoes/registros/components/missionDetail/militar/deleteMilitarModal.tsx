@@ -44,7 +44,7 @@ export function DeleteMilitarModal({
                   </div>
 
                   {/* Card com informações do militar */}
-                  <div className="space-y-3 rounded-xl border-2 border-gray-200 bg-linear-to-br from-gray-50 to-gray-100 p-4">
+                  <div className="space-y-3 rounded border-2 border-slate-300 bg-linear-to-br from-gray-50 to-gray-100 p-4">
                      <div className="text-center">
                         <p className="text-lg font-bold text-gray-900 uppercase">
                            <span className="text-blue-600 uppercase">
@@ -61,7 +61,7 @@ export function DeleteMilitarModal({
                   <div className="flex gap-3 pt-2">
                      <Button
                         onClick={() => setShow(false)}
-                        className="flex-1 border-2 border-gray-300 bg-linear-to-r from-gray-100 to-gray-200 text-gray-700 hover:from-gray-200 hover:to-gray-300"
+                        className="flex-1 border-2 border-slate-300 bg-linear-to-r from-gray-100 to-gray-200 text-gray-700 hover:from-gray-200 hover:to-gray-300"
                      >
                         <HiXMark className="mr-2 h-5 w-5" />
                         Cancelar

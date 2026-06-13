@@ -22,7 +22,7 @@ export function DescricaoSection({
                onChange={(e) => setDesc(e.target.value)}
             />
          ) : (
-            <div className="rounded-lg border border-slate-200 bg-white px-4 py-3">
+            <div className="rounded border border-slate-200 bg-white px-4 py-3">
                <p className="text-base font-medium text-slate-800 uppercase">
                   {desc}
                </p>

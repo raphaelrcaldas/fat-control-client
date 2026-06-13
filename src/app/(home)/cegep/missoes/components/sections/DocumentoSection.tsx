@@ -34,7 +34,7 @@ export function DocumentoSection({
                      <option value="os">Ordem de Serviço</option>
                   </Select>
                ) : (
-                  <div className="rounded-lg border border-slate-200 bg-white px-4 py-2">
+                  <div className="rounded border border-slate-200 bg-white px-4 py-2">
                      <span className="text-base font-semibold text-slate-800 uppercase">
                         {tipoDoc}
                      </span>
@@ -74,7 +74,7 @@ export function DocumentoSection({
                      }}
                   />
                ) : (
-                  <div className="rounded-lg border border-slate-200 bg-white px-4 py-2">
+                  <div className="rounded border border-slate-200 bg-white px-4 py-2">
                      <span className="text-base font-semibold text-slate-800">
                         {nDoc}
                      </span>
