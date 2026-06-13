@@ -98,6 +98,9 @@ export interface Missao {
    diarias?: number;
    valor_total?: number;
    qtd_ac?: number;
+   // true quando o cache de custos não cobre o pg+sit lido (valor pode
+   // estar desatualizado — exige recálculo da missão)
+   custo_inconsistente?: boolean;
    etiquetas?: Etiqueta[];
    logs?: MissaoLog[];
 }
