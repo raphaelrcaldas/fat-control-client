@@ -31,10 +31,10 @@ export const CardMission = memo(function CardMission({
    );
 
    return (
-      <div className="relative w-full rounded-2xl border-2 border-gray-100 bg-white p-4 shadow-lg transition-shadow hover:shadow-xl">
+      <div className="relative w-full rounded border-2 border-slate-300 bg-white p-4 shadow-sm transition-shadow hover:shadow-sm">
          {/* Etiquetas no topo do card (somente exibição) */}
          {etiquetas.length > 0 && (
-            <div className="mb-3 flex flex-wrap items-center gap-1.5 border-b border-gray-100 pb-3">
+            <div className="mb-3 flex flex-wrap items-center gap-1.5 border-b border-slate-300 pb-3">
                {etiquetas.map((etiqueta) => (
                   <span
                      key={etiqueta.id}
@@ -51,12 +51,12 @@ export const CardMission = memo(function CardMission({
 
          {/* Header com documento - CLICÁVEL */}
          <div
-            className="-m-2 mb-1 flex cursor-pointer items-center gap-3 rounded-lg p-2 transition-colors hover:bg-gray-50"
+            className="-m-2 mb-1 flex cursor-pointer items-center gap-3 rounded p-2 transition-colors hover:bg-gray-50"
             onClick={() => router.push(`/cegep/missoes/${missao.id}`)}
             title="Clique para ver detalhes da missão"
          >
             <div
-               className={clsx("rounded-lg p-2 shadow-md", {
+               className={clsx("rounded p-2 shadow-sm", {
                   "bg-blue-600": missao.tipo_doc == "om",
                   "bg-orange-600": missao.tipo_doc == "os",
                })}
@@ -80,7 +80,7 @@ export const CardMission = memo(function CardMission({
             {missao.obs && (
                <div
                   className={clsx(
-                     "flex items-start gap-2 rounded-lg border p-3",
+                     "flex items-start gap-2 rounded border p-3",
                      {
                         "border-blue-200 bg-blue-50": missao.tipo_doc == "om",
                         "border-orange-200 bg-orange-50":
@@ -102,7 +102,7 @@ export const CardMission = memo(function CardMission({
 
             {/* Datas de afastamento e regresso */}
             <div className="flex flex-col gap-2">
-               <div className="flex items-center justify-between rounded-xl border-2 border-gray-200 bg-white p-2 shadow-sm">
+               <div className="flex items-center justify-between rounded border-2 border-slate-300 bg-white p-2 shadow-sm">
                   <div className="flex items-center gap-3">
                      <div className="flex flex-col">
                         <span className="text-xs font-medium text-gray-500 uppercase">
@@ -175,7 +175,7 @@ const PernoiteCardMis = memo(function PernoiteCardMis({ pnt }: { pnt: any }) {
    );
 
    return (
-      <div className="flex items-center gap-3 rounded-lg border border-gray-200 bg-white p-1">
+      <div className="flex items-center gap-3 rounded border border-slate-300 bg-white p-1">
          {/* Datas */}
          <div className="flex items-center gap-2 pl-1">
             <div className="flex items-center gap-1.5">

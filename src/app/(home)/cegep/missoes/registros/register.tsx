@@ -282,7 +282,7 @@ export function RegisPage() {
       <div className="flex h-full flex-col overflow-hidden">
          {/* Filters Section */}
          <section className="shrink-0">
-            <div className="rounded-lg border border-gray-200 bg-white p-4">
+            <div className="rounded border border-slate-300 bg-white p-4">
                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7">
                   {/* Tipo da Ordem */}
                   <div>
@@ -398,7 +398,7 @@ export function RegisPage() {
                               debouncedSetDataInicio(newValue);
                            }
                         }}
-                        className="block w-full rounded-lg border border-gray-300 bg-white p-2 text-xs text-gray-900 focus:border-red-500 focus:ring-red-500"
+                        className="block w-full rounded border border-slate-300 bg-white p-2 text-xs text-gray-900 focus:border-red-500 focus:ring-red-500"
                      />
                   </div>
 
@@ -418,14 +418,14 @@ export function RegisPage() {
                               debouncedSetDataFim(newValue);
                            }
                         }}
-                        className="block w-full rounded-lg border border-gray-300 bg-white p-2 text-xs text-gray-900 focus:border-red-500 focus:ring-red-500"
+                        className="block w-full rounded border border-slate-300 bg-white p-2 text-xs text-gray-900 focus:border-red-500 focus:ring-red-500"
                      />
                   </div>
                </div>
 
                {/* Multi-select Etiquetas */}
                {etiquetasDisponiveis.length > 0 && (
-                  <div className="mt-4 border-t border-gray-200 pt-4">
+                  <div className="mt-4 border-t border-slate-300 pt-4">
                      <Label className="mb-2 flex items-center gap-1.5 text-xs text-gray-600">
                         <HiTag className="text-gray-500" />
                         Filtrar por Etiquetas
@@ -637,7 +637,7 @@ export function RegisPage() {
                <div className={clsx(isFetching && "opacity-50")}>
                   {/* Results Grid */}
                   {missoes?.length === 0 ? (
-                     <div className="flex flex-col items-center justify-center rounded-lg border border-gray-200 bg-gray-50 p-8">
+                     <div className="flex flex-col items-center justify-center rounded border border-slate-300 bg-gray-50 p-8">
                         <p className="mb-3 text-sm text-gray-600">
                            Nenhuma missão encontrada
                         </p>
@@ -656,7 +656,7 @@ export function RegisPage() {
                            <h3 className="text-lg font-bold text-gray-800">
                               Registros Encontrados ({total})
                            </h3>
-                           <div className="flex overflow-hidden rounded-lg border border-gray-200">
+                           <div className="flex overflow-hidden rounded border border-slate-300">
                               <button
                                  type="button"
                                  onClick={() => setViewMode("cards")}
@@ -674,7 +674,7 @@ export function RegisPage() {
                                  type="button"
                                  onClick={() => setViewMode("table")}
                                  className={clsx(
-                                    "flex items-center gap-1.5 border-l border-gray-200 px-3 py-1.5 text-sm font-medium transition-colors",
+                                    "flex items-center gap-1.5 border-l border-slate-300 px-3 py-1.5 text-sm font-medium transition-colors",
                                     viewMode === "table"
                                        ? "bg-red-600 text-white"
                                        : "bg-white text-gray-600 hover:bg-gray-50"
@@ -700,7 +700,7 @@ export function RegisPage() {
 
                         {/* Pagination Section */}
                         {missoes && missoes.length > 0 && (
-                           <div className="mt-6 flex flex-col items-center justify-between gap-3 border-t border-gray-200 pt-4 sm:flex-row">
+                           <div className="mt-6 flex flex-col items-center justify-between gap-3 border-t border-slate-300 pt-4 sm:flex-row">
                               <p className="text-sm text-gray-600">
                                  Mostrando{" "}
                                  <span className="font-medium text-gray-900">

@@ -122,9 +122,9 @@ export function FormMilitar({
 
    return (
       <Modal size="lg" show={show} onClose={() => setShow(false)} dismissible>
-         <ModalHeader className="border-b-2 border-gray-100 pb-4">
+         <ModalHeader className="border-b-2 border-slate-300 pb-4">
             <div className="flex items-center gap-3">
-               <div className="rounded-lg bg-linear-to-br from-blue-500 to-blue-600 p-2">
+               <div className="rounded bg-linear-to-br from-blue-500 to-blue-600 p-2">
                   <HiUserCircle className="h-6 w-6 text-white" />
                </div>
                <span className="text-xl font-semibold text-gray-800">
@@ -135,7 +135,7 @@ export function FormMilitar({
          <ModalBody className="p-6">
             <form onSubmit={handleSubmit} className="flex flex-col gap-6">
                {/* Card de Seleção do Militar */}
-               <div className="rounded-2xl border-2 border-slate-200 bg-linear-to-br from-slate-50 to-slate-100 px-3 py-2 shadow-sm">
+               <div className="rounded border-2 border-slate-200 bg-linear-to-br from-slate-50 to-slate-100 px-3 py-2 shadow-sm">
                   <div className="flex flex-col gap-2">
                      <div className="flex items-center justify-between">
                         <Label className="flex items-center gap-2 text-sm font-semibold text-gray-700">
@@ -155,7 +155,7 @@ export function FormMilitar({
 
                      <div className="flex items-center justify-center p-2">
                         {user ? (
-                           <div className="rounded-xl border-2 border-blue-200 bg-white px-6 py-3 shadow-lg">
+                           <div className="rounded border-2 border-blue-200 bg-white px-6 py-3 shadow-sm">
                               <span className="text-base font-semibold text-gray-800 uppercase">
                                  <span className="text-blue-600">
                                     {user.p_g}
@@ -167,7 +167,7 @@ export function FormMilitar({
                               </span>
                            </div>
                         ) : (
-                           <div className="flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-2 text-red-500">
+                           <div className="flex items-center gap-2 rounded border border-red-200 bg-red-50 px-4 py-2 text-red-500">
                               <HiXCircle className="h-5 w-5" />
                               <span className="text-sm font-medium">
                                  Nenhum militar selecionado
@@ -195,7 +195,7 @@ export function FormMilitar({
                      <Select
                         value={pgMis}
                         onChange={(e) => setPgMis(e.target.value)}
-                        className="rounded-lg border-2 border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+                        className="rounded border-2 border-slate-300 focus:border-blue-500 focus:ring-blue-500"
                      >
                         <option value="" disabled>
                            Selecione...
@@ -219,7 +219,7 @@ export function FormMilitar({
                      <Select
                         value={sit}
                         onChange={(e) => setSit(e.target.value)}
-                        className="rounded-lg border-2 border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+                        className="rounded border-2 border-slate-300 focus:border-blue-500 focus:ring-blue-500"
                      >
                         <option disabled value="">
                            Selecione...
@@ -232,7 +232,7 @@ export function FormMilitar({
                </div>
 
                {/* Botões de Ação */}
-               <div className="mt-4 flex justify-center gap-3 border-t-2 border-gray-100 pt-6">
+               <div className="mt-4 flex justify-center gap-3 border-t-2 border-slate-300 pt-6">
                   {userMis && (
                      <Button
                         onClick={handleDeleteClick}

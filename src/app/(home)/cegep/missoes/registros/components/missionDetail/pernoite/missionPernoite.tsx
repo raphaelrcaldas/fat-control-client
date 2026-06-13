@@ -47,9 +47,9 @@ export const MissionPernoite = memo(function MissionPernoite({
          <div
             className={clsx(
                "group relative flex justify-between",
-               "rounded-xl border-2 border-gray-200 bg-linear-to-br from-white to-gray-50 p-4 shadow-sm",
+               "rounded border-2 border-slate-300 bg-linear-to-br from-white to-gray-50 p-4 shadow-sm",
                {
-                  "cursor-pointer hover:border-blue-300 hover:shadow-lg": edit,
+                  "cursor-pointer hover:border-blue-300 hover:shadow-sm": edit,
                }
             )}
             onClick={editPntShow}

@@ -452,7 +452,7 @@ export function FilterPage({ active }: { active: boolean }) {
             <button
                type="button"
                onClick={() => setShowFilters(!showFilters)}
-               className="flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"
+               className="flex items-center gap-2 rounded border border-slate-300 bg-white px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"
             >
                <HiFilter />
                <span className="w-11">
@@ -474,7 +474,7 @@ export function FilterPage({ active }: { active: boolean }) {
             )}
          >
             <div className="overflow-hidden">
-               <div className="rounded-lg border border-gray-200 bg-white px-4 py-3">
+               <div className="rounded border border-slate-300 bg-white px-4 py-3">
                   <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7">
                      {/* Tipo da Ordem */}
                      <div>
@@ -601,7 +601,7 @@ export function FilterPage({ active }: { active: boolean }) {
                                  }
                               }
                            }}
-                           className="block w-full rounded-lg border border-gray-300 bg-white p-2 text-xs text-gray-900 focus:border-red-500 focus:ring-red-500"
+                           className="block w-full rounded border border-slate-300 bg-white p-2 text-xs text-gray-900 focus:border-red-500 focus:ring-red-500"
                         />
                      </div>
 
@@ -629,7 +629,7 @@ export function FilterPage({ active }: { active: boolean }) {
                                  }
                               }
                            }}
-                           className="block w-full rounded-lg border border-gray-300 bg-white p-2 text-xs text-gray-900 focus:border-red-500 focus:ring-red-500"
+                           className="block w-full rounded border border-slate-300 bg-white p-2 text-xs text-gray-900 focus:border-red-500 focus:ring-red-500"
                         />
                      </div>
                   </div>
@@ -639,7 +639,7 @@ export function FilterPage({ active }: { active: boolean }) {
 
          {/* Results Section */}
          <section className="relative">
-            <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-lg">
+            <div className="overflow-hidden rounded border border-slate-300 bg-white shadow-sm">
                {/* Loading inicial (sem dados) */}
                {isLoading && !misRecords ? (
                   <div className="flex flex-col items-center justify-center gap-4 p-16">
@@ -650,7 +650,7 @@ export function FilterPage({ active }: { active: boolean }) {
                   </div>
                ) : misRecords && misRecords.length > 0 ? (
                   <div>
-                     <div className="flex flex-wrap items-center justify-between gap-3 border-b border-gray-200 bg-gray-50 px-3 py-0.5">
+                     <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-300 bg-gray-50 px-3 py-0.5">
                         <div className="flex items-center gap-4">
                            <div className="flex items-center gap-2">
                               <Checkbox
@@ -666,7 +666,7 @@ export function FilterPage({ active }: { active: boolean }) {
 
                            <div
                               className={clsx(
-                                 "rounded-lg border border-green-300 bg-green-50 px-2 py-1.5 shadow transition",
+                                 "rounded border border-green-300 bg-green-50 px-2 py-1.5 shadow-sm transition",
                                  selectedIds.length > 0
                                     ? "translate-y-0 opacity-100"
                                     : "pointer-events-none translate-y-full opacity-0"
@@ -794,7 +794,7 @@ export function FilterPage({ active }: { active: boolean }) {
                         </Table>
                      </div>
                      {totalPages > 1 && (
-                        <div className="flex justify-center border-t border-gray-200 bg-gray-50 px-6 py-4">
+                        <div className="flex justify-center border-t border-slate-300 bg-gray-50 px-6 py-4">
                            <Pagination
                               currentPage={currentPage}
                               totalPages={totalPages}

@@ -25,7 +25,7 @@ export function MissionActionBar({
    onDelete,
 }: MissionActionBarProps) {
    return (
-      <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+      <div className="rounded border border-slate-200 bg-white p-4 shadow-sm">
          <div className="flex w-full justify-center gap-3">
             {!editMode ? (
                <>

@@ -23,7 +23,7 @@ export function ObservacoesSection({
                className="w-full"
             />
          ) : (
-            <div className="min-h-25 rounded-lg border border-slate-200 bg-white px-4 py-3">
+            <div className="min-h-25 rounded border border-slate-200 bg-white px-4 py-3">
                {obs ? (
                   <p className="whitespace-pre-wrap text-slate-700">{obs}</p>
                ) : (

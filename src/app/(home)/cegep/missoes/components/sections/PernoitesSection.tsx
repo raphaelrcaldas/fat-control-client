@@ -29,7 +29,7 @@ export function PernoitesSection({
    return (
       <SectionWrapper title="Pernoites">
          {pnts.length === 0 && (
-            <div className="flex items-center justify-center rounded-lg border border-slate-200 bg-white px-4 py-8">
+            <div className="flex items-center justify-center rounded border border-slate-200 bg-white px-4 py-8">
                <p className="text-sm text-slate-400 italic">
                   Nenhum pernoite adicionado
                </p>

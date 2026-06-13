@@ -30,14 +30,14 @@ export const MissionMilitar = memo(function MissionMilitar({
       <>
          <div
             className={clsx(
-               "group relative flex items-center gap-3 rounded-xl border-2 px-2 py-1 shadow-sm select-none",
+               "group relative flex items-center gap-3 rounded border-2 px-2 py-1 shadow-sm select-none",
                config.bgColor,
                config.borderColor,
                {
                   "cursor-pointer": edit,
                   [config.hoverBg]: edit,
                   [config.hoverBorder]: edit,
-                  "hover:shadow-md": edit,
+                  "hover:shadow-sm": edit,
                }
             )}
             onClick={handleClick}

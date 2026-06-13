@@ -20,7 +20,7 @@ export function DeleteMissionModal({
 }: DeleteMissionModalProps) {
    return (
       <Modal size="lg" show={show} onClose={onClose} dismissible>
-         <ModalHeader className="border-b-2 border-red-100 bg-linear-to-r from-red-50 to-orange-50">
+         <ModalHeader className="border-b-2 border-slate-300 bg-linear-to-r from-red-50 to-orange-50">
             <div className="flex items-center gap-3">
                <div className="rounded-full bg-red-500 p-2">
                   <MdWarning className="size-6 text-white" />
@@ -44,7 +44,7 @@ export function DeleteMissionModal({
                </div>
 
                {/* Informações da missão */}
-               <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
+               <div className="rounded border border-slate-300 bg-gray-50 p-4">
                   <h4 className="mb-3 text-sm font-semibold text-gray-700">
                      Detalhes da Missão:
                   </h4>

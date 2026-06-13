@@ -32,7 +32,7 @@ export default function MissPage() {
          <div className="mx-auto p-1">
             {/* Header Section */}
             <div className="mb-4">
-               <div className="flex items-center justify-between rounded-2xl border border-red-100 bg-white p-4 shadow-xl">
+               <div className="flex items-center justify-between rounded border border-slate-300 bg-white p-4 shadow-sm">
                   <div>
                      <h1 className="mb-1 text-2xl font-bold text-red-600">
                         Gestão de Missões
@@ -44,7 +44,7 @@ export default function MissPage() {
                   <button
                      type="button"
                      onClick={() => router.push("/cegep/missoes/new")}
-                     className="flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-red-700"
+                     className="flex items-center gap-2 rounded bg-red-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-red-700"
                   >
                      <svg
                         className="h-4 w-4"
@@ -65,7 +65,7 @@ export default function MissPage() {
             </div>
 
             {/* Tabs Section */}
-            <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow">
+            <div className="overflow-hidden rounded border border-slate-300 bg-white shadow-sm">
                <Tabs
                   aria-label="Tabs de missões"
                   onActiveTabChange={handleTabChange}
@@ -124,14 +124,14 @@ export default function MissPage() {
             .tabs-container [role="tablist"] {
                background: #f8fafc;
                padding: 0.5rem;
-               border-radius: 1rem 1rem 0 0;
-               border-bottom: 2px solid #e2e8f0;
+               border-radius: 0.25rem 0.25rem 0 0;
+               border-bottom: 1px solid #cbd5e1;
             }
 
             .tabs-container [role="tab"] {
                font-weight: 600;
                transition: background-color 0.3s ease;
-               border-radius: 0.75rem;
+               border-radius: 0.25rem;
                padding: 0.75rem 1.5rem;
             }
 
@@ -142,7 +142,7 @@ export default function MissPage() {
             .tabs-container [role="tab"][aria-selected="true"] {
                background: #dc2626;
                color: white;
-               box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+               box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
             }
 
             .tabs-container [role="tabpanel"] {

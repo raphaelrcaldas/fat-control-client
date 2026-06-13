@@ -44,7 +44,7 @@ export function ValidationModal({
                   {errors.map((error, index) => (
                      <div
                         key={index}
-                        className="flex items-start gap-3 rounded-lg border border-amber-200 bg-amber-50 p-3"
+                        className="flex items-start gap-3 rounded border border-amber-200 bg-amber-50 p-3"
                      >
                         <div className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-amber-100">
                            <span className="text-xs font-bold text-amber-700">

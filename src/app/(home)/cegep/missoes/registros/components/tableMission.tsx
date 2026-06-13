@@ -21,7 +21,7 @@ export const TableMission = memo(function TableMission({
    missoes,
 }: TableMissionProps) {
    return (
-      <div className="overflow-x-auto rounded-xl border border-gray-300 bg-white shadow-sm">
+      <div className="overflow-x-auto rounded border border-slate-300 bg-white shadow-sm">
          <Table
             hoverable
             theme={{
@@ -139,13 +139,13 @@ const TableMissionRow = memo(function TableMissionRow({
                   {cidades.slice(0, 2).map((cidade) => (
                      <span
                         key={cidade}
-                        className="inline-block max-w-42 truncate rounded border border-slate-300 bg-gray-100 px-1.5 py-0.5 text-xs font-medium text-gray-700 uppercase shadow"
+                        className="inline-block max-w-42 truncate rounded border border-slate-300 bg-gray-100 px-1.5 py-0.5 text-xs font-medium text-gray-700 uppercase shadow-sm"
                      >
                         {cidade}
                      </span>
                   ))}
                   {cidades.length > 2 && (
-                     <span className="inline-block rounded border border-slate-300 bg-gray-100 px-1.5 py-0.5 text-xs font-medium text-gray-700 shadow">
+                     <span className="inline-block rounded border border-slate-300 bg-gray-100 px-1.5 py-0.5 text-xs font-medium text-gray-700 shadow-sm">
                         +{cidades.length - 2}
                      </span>
                   )}
