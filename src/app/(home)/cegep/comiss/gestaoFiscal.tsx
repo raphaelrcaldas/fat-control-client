@@ -1,4 +1,5 @@
 import { useComissSummary } from "@/hooks/queries";
+import type { ComissList } from "services/routes/cegep/comiss";
 const formatCurrency = (val: number) =>
    new Intl.NumberFormat("pt-BR", {
       style: "currency",
@@ -31,7 +32,25 @@ import { PermBased } from "@/app/(home)/hooks/usePermBased";
 import { HiChevronUp, HiChevronDown, HiSelector } from "react-icons/hi";
 import clsx from "clsx";
 
-type SortKey = "militar" | "data_ab" | "data_fc" | "status" | "completude";
+type SortKey =
+   | "militar"
+   | "data_ab"
+   | "data_fc"
+   | "valor_ab"
+   | "valor_fc"
+   | "impacto"
+   | "status"
+   | "completude";
+
+// Impacto: parcela do valor que efetivamente recai sobre o ano fiscal exibido
+// (abertura conta se abriu no ano; fechamento conta se fechou no ano).
+function computeImpacto(c: ComissList, ano: number): number {
+   const anoAb = new Date(c.data_ab).getFullYear();
+   const anoFc = c.data_fc ? new Date(c.data_fc).getFullYear() : null;
+   return (
+      (anoAb === ano ? c.valor_aj_ab : 0) + (anoFc === ano ? c.valor_aj_fc : 0)
+   );
+}
 
 export function GestaoFiscalPage() {
    const currentY = new Date().getFullYear();
@@ -70,8 +89,21 @@ export function GestaoFiscalPage() {
             return sortConfig.direction === "asc" ? cmp : -cmp;
          }
 
-         aValue = a[sortConfig.key];
-         bValue = b[sortConfig.key];
+         const getValue = (c: ComissList) => {
+            switch (sortConfig.key) {
+               case "valor_ab":
+                  return c.valor_aj_ab;
+               case "valor_fc":
+                  return c.valor_aj_fc;
+               case "impacto":
+                  return computeImpacto(c, ano);
+               default:
+                  return c[sortConfig.key as keyof ComissList];
+            }
+         };
+
+         aValue = getValue(a);
+         bValue = getValue(b);
 
          if (aValue === bValue) return 0;
          if (aValue == null) return sortConfig.direction === "asc" ? 1 : -1;
@@ -82,7 +114,7 @@ export function GestaoFiscalPage() {
          return 0;
       });
       return sortableItems;
-   }, [data?.comissionamentos, sortConfig]);
+   }, [data?.comissionamentos, sortConfig, ano]);
 
    const requestSort = (key: SortKey) => {
       let direction: "asc" | "desc" = "asc";
@@ -183,7 +215,7 @@ export function GestaoFiscalPage() {
             <>
                {/* EMPTY STATE — sem orçamento cadastrado para o ano */}
                {!data.orcamento_id && (
-                  <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-gray-300 bg-gray-50 py-10 text-center">
+                  <div className="flex flex-col items-center gap-3 rounded border border-dashed border-gray-300 bg-gray-50 py-10 text-center">
                      <FaRegMoneyBillAlt className="h-8 w-8 text-gray-300" />
                      <p className="text-sm font-medium text-gray-600">
                         Nenhum orçamento cadastrado para {ano}.
@@ -202,9 +234,9 @@ export function GestaoFiscalPage() {
 
                {/* DASHBOARD CARDS — só exibe quando há orçamento */}
                {data.orcamento_id && (
-                  <div className="mt-2 grid grid-cols-1 gap-6 md:grid-cols-3">
+                  <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
                      {/* ORÇAMENTO TOTAL */}
-                     <div className="group relative overflow-hidden rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+                     <div className="group relative overflow-hidden rounded border border-gray-200 bg-white p-5 shadow-sm">
                         {/* Glass decor */}
                         <div className="pointer-events-none absolute -top-6 -right-6 h-24 w-24 rounded-full bg-red-50 opacity-60 transition-transform group-hover:scale-110"></div>
                         <div className="mb-2 flex items-start justify-between">
@@ -277,7 +309,7 @@ export function GestaoFiscalPage() {
                      </div>
 
                      {/* FECHAMENTOS */}
-                     <div className="group relative overflow-hidden rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+                     <div className="group relative overflow-hidden rounded border border-gray-200 bg-white p-5 shadow-sm">
                         {/* Glass decor */}
                         <div className="pointer-events-none absolute -top-6 -right-6 h-24 w-24 rounded-full bg-red-50 opacity-60 transition-transform group-hover:scale-110"></div>
                         <div className="mb-2 flex items-start justify-between">
@@ -351,7 +383,7 @@ export function GestaoFiscalPage() {
                      </div>
 
                      {/* ABERTURAS */}
-                     <div className="group relative overflow-hidden rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+                     <div className="group relative overflow-hidden rounded border border-gray-200 bg-white p-5 shadow-sm">
                         {/* Glass decor */}
                         <div className="pointer-events-none absolute -top-6 -right-6 h-24 w-24 rounded-full bg-red-50 opacity-60 transition-transform group-hover:scale-110"></div>
                         <div className="mb-2 flex items-start justify-between">
@@ -402,7 +434,7 @@ export function GestaoFiscalPage() {
                )}
 
                {/* TABELA DE REGISTROS DO ANO */}
-               <div className="mt-8 overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-200">
+               <div className="overflow-hidden rounded bg-white shadow-sm ring-1 ring-gray-200">
                   <div className="border-b border-gray-100 bg-gray-50/50 px-5 py-3">
                      <h3 className="font-semibold text-gray-800">
                         Comissionamentos que compõem o período (
@@ -416,6 +448,9 @@ export function GestaoFiscalPage() {
                               {renderHeader("Militar", "militar", "left")}
                               {renderHeader("Abertura", "data_ab")}
                               {renderHeader("Fechamento", "data_fc")}
+                              {renderHeader("Valor Ab.", "valor_ab")}
+                              {renderHeader("Valor Fc.", "valor_fc")}
+                              {renderHeader("Impacto", "impacto")}
                               {renderHeader("Status", "status")}
                               {renderHeader("Completude", "completude")}
                            </TableRow>
@@ -426,6 +461,7 @@ export function GestaoFiscalPage() {
                               const anoFc = c.data_fc
                                  ? new Date(c.data_fc).getFullYear()
                                  : null;
+                              const impacto = computeImpacto(c, ano);
 
                               return (
                                  <TableRow
@@ -448,10 +484,7 @@ export function GestaoFiscalPage() {
                                                 "font-normal text-slate-400 opacity-60 grayscale"
                                           )}
                                        >
-                                          <div>{formatDateFull(c.data_ab)}</div>
-                                          <div className="text-[11px] text-gray-400">
-                                             {formatCurrency(c.valor_aj_ab)}
-                                          </div>
+                                          {formatDateFull(c.data_ab)}
                                        </div>
                                     </TableCell>
                                     <TableCell className="text-center whitespace-nowrap">
@@ -462,17 +495,35 @@ export function GestaoFiscalPage() {
                                                 "font-normal text-slate-400 opacity-60 grayscale"
                                           )}
                                        >
-                                          <div>
-                                             {c.data_fc
-                                                ? formatDateFull(c.data_fc)
-                                                : "-"}
-                                          </div>
-                                          <div className="text-[11px] text-gray-400">
-                                             {c.valor_aj_fc > 0
-                                                ? formatCurrency(c.valor_aj_fc)
-                                                : ""}
-                                          </div>
+                                          {c.data_fc
+                                             ? formatDateFull(c.data_fc)
+                                             : "-"}
                                        </div>
+                                    </TableCell>
+                                    <TableCell className="text-center whitespace-nowrap">
+                                       <span
+                                          className={clsx(
+                                             anoAb !== ano &&
+                                                "text-slate-400 opacity-60 grayscale"
+                                          )}
+                                       >
+                                          {formatCurrency(c.valor_aj_ab)}
+                                       </span>
+                                    </TableCell>
+                                    <TableCell className="text-center whitespace-nowrap">
+                                       <span
+                                          className={clsx(
+                                             anoFc !== ano &&
+                                                "text-slate-400 opacity-60 grayscale"
+                                          )}
+                                       >
+                                          {c.valor_aj_fc > 0
+                                             ? formatCurrency(c.valor_aj_fc)
+                                             : "-"}
+                                       </span>
+                                    </TableCell>
+                                    <TableCell className="text-center font-semibold whitespace-nowrap text-gray-900">
+                                       {formatCurrency(impacto)}
                                     </TableCell>
                                     <TableCell className="text-center whitespace-nowrap">
                                        <div className="flex justify-center">
@@ -516,7 +567,7 @@ export function GestaoFiscalPage() {
                            {sortedComissionamentos.length === 0 && (
                               <TableRow>
                                  <TableCell
-                                    colSpan={5}
+                                    colSpan={8}
                                     className="py-8 text-center text-gray-500"
                                  >
                                     Nenhum dado orçamentário registrado neste

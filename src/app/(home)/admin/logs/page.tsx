@@ -105,7 +105,7 @@ export default function LogDashboard() {
    return (
       <div className="grid gap-4 p-2">
          {/* Header com título e estatísticas */}
-         <div className="rounded-lg bg-white px-5 py-4 shadow-md">
+         <div className="rounded bg-white px-5 py-4 shadow ring-1 ring-gray-200">
             <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                <div>
                   <h2 className="text-2xl font-semibold text-gray-800">Logs</h2>
@@ -114,7 +114,7 @@ export default function LogDashboard() {
                      {lastUpdate.toLocaleTimeString("pt-BR")}
                   </p>
                </div>
-               <div className="flex items-center gap-3">
+               <div className="flex items-center justify-between gap-3 md:justify-end">
                   <Badge color="red" size="lg">
                      {filteredLogs.length}{" "}
                      {filteredLogs.length === 1 ? "registro" : "registros"}
@@ -122,7 +122,7 @@ export default function LogDashboard() {
                   <button
                      onClick={fetchLogs}
                      disabled={loading}
-                     className="flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2 font-semibold text-white transition-colors hover:bg-red-700 disabled:bg-red-400"
+                     className="flex items-center justify-center gap-2 rounded-lg bg-red-600 px-4 py-2 font-semibold text-white transition-colors hover:bg-red-700 disabled:bg-red-400"
                   >
                      <HiRefresh className={loading ? "animate-spin" : ""} />
                      Atualizar
@@ -132,7 +132,7 @@ export default function LogDashboard() {
          </div>
 
          {/* Filtros */}
-         <div className="rounded-lg border border-slate-300 bg-white p-4 shadow-md">
+         <div className="rounded bg-white p-4 shadow-sm ring-1 ring-gray-200">
             <div className="mb-3 flex items-center gap-2">
                <HiFilter className="text-gray-600" />
                <h3 className="font-medium text-gray-700">Filtros</h3>
@@ -160,7 +160,7 @@ export default function LogDashboard() {
          </div>
 
          {/* Tabela */}
-         <div className="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-200">
+         <div className="overflow-x-auto rounded bg-white shadow-sm ring-1 ring-gray-200">
             <Table hoverable theme={{ head: { cell: { base: "bg-white" } } }}>
                <TableHead>
                   <TableRow>
@@ -245,7 +245,10 @@ function LogRowSkeleton() {
             <Skeleton className="h-4 w-32" />
          </TableCell>
          <TableCell>
-            <Skeleton className="h-4 w-40" />
+            <div className="flex flex-col gap-1">
+               <Skeleton className="h-4 w-40" />
+               <Skeleton className="h-6 w-16 rounded-full md:hidden" />
+            </div>
          </TableCell>
          <TableCell className="hidden md:table-cell">
             <Skeleton className="h-6 w-16 rounded-full" />
@@ -296,11 +299,17 @@ function LogRow({
 
    return (
       <TableRow className="bg-white transition-colors hover:bg-gray-50">
-         <TableCell className="font-mono text-sm">{timestamp}</TableCell>
+         <TableCell className="font-mono text-sm whitespace-nowrap">
+            {timestamp}
+         </TableCell>
          <TableCell>
-            <span className="font-medium uppercase">
-               {log.user.p_g} {log.user.nome_guerra}
-            </span>
+            <div className="flex flex-col gap-1">
+               <span className="font-medium uppercase">
+                  {log.user.p_g} {log.user.nome_guerra}
+               </span>
+               {/* Badge de ação inline no mobile (coluna "Ação" oculta) */}
+               <span className="md:hidden">{getActionBadge(log.action)}</span>
+            </div>
          </TableCell>
          <TableCell className="hidden md:table-cell">
             {getActionBadge(log.action)}

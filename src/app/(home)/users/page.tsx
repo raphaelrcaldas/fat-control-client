@@ -202,7 +202,7 @@ export default function UsersPage() {
             </div>
          </div>
 
-         <div className="relative overflow-hidden bg-white shadow-md sm:rounded-lg">
+         <div className="relative overflow-hidden rounded border border-slate-200 bg-white shadow">
             {/* Barra de Busca e Filtros */}
             <div className="flex flex-col gap-3 p-4 md:flex-row">
                {/* Busca */}

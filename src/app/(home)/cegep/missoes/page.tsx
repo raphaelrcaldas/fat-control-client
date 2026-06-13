@@ -38,7 +38,7 @@ export default function MissPage() {
                         Gestão de Missões
                      </h1>
                      <p className="text-gray-600">
-                        Controle completo de registros e pagamentos de missões
+                        Controle registros e pagamentos de missões
                      </p>
                   </div>
                   <button

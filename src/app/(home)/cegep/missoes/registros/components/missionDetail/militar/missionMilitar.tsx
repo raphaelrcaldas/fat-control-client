@@ -30,7 +30,7 @@ export const MissionMilitar = memo(function MissionMilitar({
       <>
          <div
             className={clsx(
-               "group relative flex items-center gap-3 rounded border-2 px-2 py-1 shadow-sm select-none",
+               "group relative flex items-center gap-3 rounded-md border-2 px-2 py-1 shadow-sm select-none",
                config.bgColor,
                config.borderColor,
                {
@@ -57,7 +57,7 @@ export const MissionMilitar = memo(function MissionMilitar({
                )}
                <div
                   className={clsx(
-                     "flex items-center gap-1 text-xs font-medium uppercase",
+                     "flex items-center gap-1 text-xs font-medium uppercase truncate",
                      config.textColor
                   )}
                >

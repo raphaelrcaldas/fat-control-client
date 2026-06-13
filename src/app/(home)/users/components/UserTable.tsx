@@ -27,7 +27,7 @@ export function UserTable({ usuarios, loading }: UserTableProps) {
    return (
       <div
          className={clsx(
-            "mx-2 hidden min-h-100 overflow-x-auto rounded-xl border border-gray-300 bg-white shadow-sm transition-opacity duration-200 md:block",
+            "mx-2 hidden min-h-100 overflow-x-auto rounded border border-gray-200 bg-white shadow-sm transition-opacity duration-200 md:block",
             loading ? "opacity-50" : "opacity-100"
          )}
       >

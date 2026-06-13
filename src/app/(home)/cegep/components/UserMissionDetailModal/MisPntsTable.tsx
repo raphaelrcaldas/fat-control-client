@@ -25,15 +25,7 @@ export function MisPntsTable({
 }: MisPntsTableProps) {
    return (
       <div>
-         {/* Header */}
-         <div className="mb-2 flex items-center gap-3">
-            <div className="flex h-7 w-7 items-center justify-center rounded-full bg-red-100 text-red-600">
-               <FaBed className="text-lg" />
-            </div>
-            <h2 className="text-lg font-bold text-gray-800">Pernoites</h2>
-         </div>
-
-         <div className="overflow-x-auto rounded-lg border border-gray-200 shadow-md">
+         <div className="overflow-x-auto rounded border border-gray-200 shadow-md">
             <Table
                className="text-center"
                theme={{
@@ -152,7 +144,7 @@ export function MisPntsTable({
 
          {/* Footer com totais */}
          <div className="mt-4 grid grid-cols-1 gap-3 md:grid-cols-3">
-            <div className="rounded-lg border border-red-200 bg-linear-to-r from-red-50 to-red-100 p-3 shadow-sm">
+            <div className="rounded border border-red-200 bg-red-100 p-3 shadow-sm">
                <div className="flex items-center justify-between">
                   <span className="text-xs font-medium text-gray-600">
                      Total de Dias
@@ -167,7 +159,7 @@ export function MisPntsTable({
                </div>
             </div>
 
-            <div className="rounded-lg border border-green-200 bg-linear-to-r from-green-50 to-emerald-100 p-3 shadow-sm">
+            <div className="rounded border border-green-300 bg-emerald-100 p-3 shadow-sm">
                <div className="flex items-center justify-between">
                   <span className="text-xs font-medium text-gray-600">
                      Acresc. Desloc. Sede
@@ -186,7 +178,7 @@ export function MisPntsTable({
                </div>
             </div>
 
-            <div className="rounded-lg bg-linear-to-r from-red-400 to-red-600 p-3 shadow-md">
+            <div className="rounded bg-red-600 p-3 shadow-md">
                <div className="flex items-center justify-between">
                   <span className="text-xs font-semibold text-white uppercase">
                      Valor Total

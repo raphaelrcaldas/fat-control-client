@@ -37,10 +37,10 @@ export default function ComissPage() {
       <div className="flex h-full flex-col bg-gray-50">
          <div className="mx-auto w-full p-1">
             {/* Custom Tabs Navigation Header */}
-            <div className="mb-4 flex rounded-xl border border-gray-200 bg-white p-1 shadow-sm">
+            <div className="mb-2 flex rounded border border-gray-200 bg-white p-1 shadow-sm">
                <button
                   onClick={() => handleTabChange("registros")}
-                  className={`flex flex-1 items-center justify-center gap-2 rounded-lg py-2.5 text-sm font-semibold transition-all ${
+                  className={`flex flex-1 items-center justify-center gap-2 rounded py-2.5 text-sm font-semibold transition-all ${
                      activeTabIndex === 0
                         ? "bg-red-50 text-red-700 shadow-sm ring-1 ring-red-100 ring-inset"
                         : "text-gray-500 hover:bg-gray-50 hover:text-gray-700"
@@ -64,7 +64,7 @@ export default function ComissPage() {
                {canViewFiscal && (
                   <button
                      onClick={() => handleTabChange("gestao_fiscal")}
-                     className={`flex flex-1 items-center justify-center gap-2 rounded-lg py-2.5 text-sm font-semibold transition-all ${
+                     className={`flex flex-1 items-center justify-center gap-2 rounded py-2.5 text-sm font-semibold transition-all ${
                         activeTabIndex === 1
                            ? "bg-red-50 text-red-700 shadow-sm ring-1 ring-red-100 ring-inset"
                            : "text-gray-500 hover:bg-gray-50 hover:text-gray-700"

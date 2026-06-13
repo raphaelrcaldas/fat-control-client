@@ -35,7 +35,7 @@ export function PeriodoSection({
                   {editMode ? (
                      <DateTimePicker value={afast} setValue={setAfast} />
                   ) : (
-                     <div className="flex items-center gap-3 rounded border border-yellow-300 bg-linear-to-r from-yellow-100 to-yellow-200 px-4 py-3 shadow-sm">
+                     <div className="flex items-center gap-3 rounded border border-yellow-300 bg-yellow-100 px-4 py-3 font-mono shadow-sm">
                         <FaPlaneDeparture className="text-lg text-yellow-700" />
                         <span className="font-semibold text-slate-800">
                            {new Date(afast).toLocaleDateString("pt-BR", {
@@ -58,7 +58,7 @@ export function PeriodoSection({
                   {editMode ? (
                      <DateTimePicker value={regres} setValue={setRegres} />
                   ) : (
-                     <div className="flex items-center gap-3 rounded border border-yellow-300 bg-linear-to-r from-yellow-100 to-yellow-200 px-4 py-3 shadow-sm">
+                     <div className="flex items-center gap-3 rounded border border-yellow-300 bg-yellow-100 px-4 py-3 font-mono shadow-sm">
                         <FaPlaneArrival className="text-lg text-yellow-700" />
                         <span className="font-semibold text-slate-800">
                            {new Date(regres).toLocaleDateString("pt-BR", {
