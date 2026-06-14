@@ -1,15 +1,15 @@
+import clsx from "clsx";
 import { Button } from "flowbite-react";
 import { CrewIndispList } from "services/routes/indisps";
-import { useIndispModalActions } from "../../context/indispModalContext";
-import { computeIndispStatus } from "../../utils/indispStatus";
-import clsx from "clsx";
+import { useIndispModalActions } from "../context/indispModalContext";
+import { computeIndispStatus } from "../utils/indispStatus";
 
 type IndispCellProps = {
    dateRef: Date;
    tripData: CrewIndispList;
 };
 
-export default function IndispCell({ dateRef, tripData }: IndispCellProps) {
+export function IndispCell({ dateRef, tripData }: IndispCellProps) {
    const { open } = useIndispModalActions();
 
    const { color, canOpen } = computeIndispStatus(tripData, dateRef);
@@ -30,8 +30,6 @@ export default function IndispCell({ dateRef, tripData }: IndispCellProps) {
          aria-label={
             canOpen ? "Abrir detalhes de indisponibilidade" : "Disponível"
          }
-      >
-         {""}
-      </Button>
+      />
    );
 }

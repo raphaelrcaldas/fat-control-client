@@ -111,6 +111,14 @@ export function getWeekStart(date: Date): Date {
    return d;
 }
 
+/**
+ * Início do dia (00:00 no fuso local) como timestamp em ms.
+ * Útil para comparar datas ignorando a hora.
+ */
+export function startOfDay(d: Date): number {
+   return new Date(d.getFullYear(), d.getMonth(), d.getDate()).valueOf();
+}
+
 // --- Helpers para datetime ISO (usados em OM) ---
 
 /**
@@ -303,6 +311,26 @@ export function isoToMonthInput(isoDate: string | null | undefined): string {
 export function monthInputToIso(monthValue: string): string {
    if (!monthValue) return "";
    return `${monthValue}-01`;
+}
+
+/**
+ * Formata ISO datetime para DD/MM HH:mm (horário local), sem ano.
+ * Mesma normalização de fuso de formatDateTime (trata naive como UTC).
+ */
+export function formatDateTimeShort(
+   isoDatetime: string | null | undefined
+): string {
+   if (!isoDatetime) return "";
+   const normalized = isoDatetime.endsWith("Z")
+      ? isoDatetime
+      : isoDatetime + "Z";
+   const date = new Date(normalized);
+   if (isNaN(date.getTime())) return "";
+   const day = String(date.getDate()).padStart(2, "0");
+   const month = String(date.getMonth() + 1).padStart(2, "0");
+   const hours = String(date.getHours()).padStart(2, "0");
+   const minutes = String(date.getMinutes()).padStart(2, "0");
+   return `${day}/${month} ${hours}:${minutes}`;
 }
 
 /**

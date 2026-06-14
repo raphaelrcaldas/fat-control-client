@@ -32,3 +32,4 @@ export * from "./useMetar";
 export * from "./useSol";
 export * from "./useRotaer";
 export * from "./useEscala";
+export * from "./useLogs";

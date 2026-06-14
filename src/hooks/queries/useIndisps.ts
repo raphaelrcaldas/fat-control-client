@@ -22,7 +22,8 @@ export const indispKeys = {
    all: ["indisps"] as const,
    lists: () => [...indispKeys.all, "list"] as const,
    list: (filters?: IndispFilters) => [...indispKeys.lists(), filters] as const,
-   byFunc: (func: string) => [...indispKeys.all, "func", func] as const,
+   byFunc: (func: string, from?: string, to?: string) =>
+      [...indispKeys.all, "func", func, from, to] as const,
    byUser: (userId: number, filters?: IndispFilters) =>
       [...indispKeys.all, "user", userId, filters] as const,
 };
@@ -32,16 +33,18 @@ export const indispKeys = {
 // ========================================
 
 /**
- * Lista indisponibilidades por funcao e UAE
+ * Lista indisponibilidades por funcao e UAE dentro da janela [dateFrom, dateTo].
  * Usado na tabela principal (page.tsx)
+ * - A janela e estavel durante a sessao, entao a key e estavel e a busca
+ *   acontece uma unica vez por funcao (a navegacao e client-side).
  * - staleTime: 0 = dados sempre stale, refetch em toda mudanca
  * - placeholderData: keepPreviousData = mantem dados anteriores durante fetch
  * - refetchOnMount: 'always' = sempre refetch ao montar
  */
-export function useCrewIndisps(func: string) {
+export function useCrewIndisps(func: string, dateFrom: string, dateTo: string) {
    return useQuery({
-      queryKey: indispKeys.byFunc(func),
-      queryFn: ({ signal }) => getCrewIndisps(func, signal),
+      queryKey: indispKeys.byFunc(func, dateFrom, dateTo),
+      queryFn: ({ signal }) => getCrewIndisps(func, dateFrom, dateTo, signal),
       staleTime: 0,
       refetchOnMount: "always",
       placeholderData: keepPreviousData,

@@ -46,13 +46,15 @@ export interface IndispFilters {
 
 export async function getCrewIndisps(
    func: string,
+   dateFrom: string,
+   dateTo: string,
    signal?: AbortSignal
 ): Promise<CrewIndispList[]> {
    const response = await request(
       "GET",
       indispRoute,
       null,
-      { funcao: func },
+      { funcao: func, date_from: dateFrom, date_to: dateTo },
       signal
    );
    const json = (await response.json()) as ApiResponse<CrewIndispList[]>;

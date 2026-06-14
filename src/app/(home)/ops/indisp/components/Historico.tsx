@@ -54,7 +54,7 @@ export function Historico({
    if (!hasContent && !isLoading) return null;
 
    return (
-      <div className="mt-6 border-t border-gray-200 pt-4">
+      <div className="mt-6 border-t border-slate-200 pt-4">
          <h4 className="mb-3 flex items-center gap-2 font-semibold text-gray-700">
             <span>📝</span> {title}
          </h4>

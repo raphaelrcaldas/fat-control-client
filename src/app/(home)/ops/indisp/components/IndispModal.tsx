@@ -6,9 +6,9 @@ import { CrewIndispList } from "services/routes/indisps";
 import {
    useIndispModalActions,
    useIndispModalState,
-} from "../../context/indispModalContext";
-import { computeIndispStatus } from "../../utils/indispStatus";
-import IndispDetails from "./details";
+} from "../context/indispModalContext";
+import { computeIndispStatus } from "../utils/indispStatus";
+import IndispDetails from "./IndispDetails";
 
 type IndispModalProps = {
    indisps: CrewIndispList[] | undefined;

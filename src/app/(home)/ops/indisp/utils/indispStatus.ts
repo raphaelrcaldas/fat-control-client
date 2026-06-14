@@ -1,15 +1,27 @@
-import { dateIsIn, isoStrToDate } from "utils/dateHandler";
+import { dateIsIn, isoStrToDate, startOfDay } from "utils/dateHandler";
 import {
    CrewIndisp,
    CrewIndispList,
    IndispType,
 } from "services/routes/indisps";
-import { indispsOptions, getIndisp } from "../components/options";
+import {
+   INDISP_OPTIONS,
+   getIndispOption,
+} from "@/constants/ops/indisponibilidades";
 
-export const MIN_DESADAPTA_MS = 45 * 24 * 60 * 60 * 1000; // 45 dias
+export const MIN_DESADAPTA_DAYS = 45;
 
-export const startOfDay = (d: Date) =>
-   new Date(d.getFullYear(), d.getMonth(), d.getDate()).valueOf();
+/**
+ * Dias decorridos (em dias inteiros) desde o último voo até a data de
+ * referência, ignorando a hora. `null` quando não há data válida.
+ */
+export function daysSinceLastFlight(
+   ultVoo: Date | null,
+   dateRef: Date
+): number | null {
+   if (!(ultVoo instanceof Date) || isNaN(ultVoo.getTime())) return null;
+   return Math.floor((startOfDay(dateRef) - startOfDay(ultVoo)) / 86_400_000);
+}
 
 export function filterIndispsForDate(
    indisps: IndispType[],
@@ -28,18 +40,22 @@ export function isCemalValid(cemal: Date | null, dateRef: Date): boolean {
    );
 }
 
+export function isElegivelDesadapta(trip: CrewIndisp): boolean {
+   return (
+      trip?.func?.func !== "oe" &&
+      trip?.func?.func !== "os" &&
+      trip?.func?.oper !== "al"
+   );
+}
+
 export function isDesadaptado(
    ultVoo: Date | null,
    dateRef: Date,
    trip: CrewIndisp
 ): boolean {
-   if (!(ultVoo instanceof Date) || isNaN(ultVoo.getTime())) return false;
-   const diff = startOfDay(dateRef) - startOfDay(ultVoo);
+   const days = daysSinceLastFlight(ultVoo, dateRef);
    return (
-      diff >= MIN_DESADAPTA_MS &&
-      trip?.func?.func !== "oe" &&
-      trip?.func?.func !== "os" &&
-      trip?.func?.oper !== "al"
+      days !== null && days >= MIN_DESADAPTA_DAYS && isElegivelDesadapta(trip)
    );
 }
 
@@ -48,9 +64,9 @@ export function getStatusColor(
    hasValidCemal: boolean,
    desadaptado: boolean
 ): string {
-   for (const option of indispsOptions) {
+   for (const option of INDISP_OPTIONS) {
       if (filteredIndisps.some((i) => i.mtv == option.value)) {
-         return getIndisp(option.value)?.color?.button ?? "bg-slate-500";
+         return getIndispOption(option.value)?.color?.button ?? "bg-slate-500";
       }
    }
    if (!hasValidCemal) return "bg-purple-600 enabled:hover:bg-purple-800";

@@ -95,7 +95,7 @@ export function HistoricoItem({
 
    return (
       <div
-         className={`rounded-lg border ${config.borderColor} ${config.bgColor} p-3 text-sm shadow`}
+         className={`rounded border ${config.borderColor} ${config.bgColor} p-3 text-sm shadow`}
       >
          <div className="mb-1 flex items-center justify-between">
             <span className={`font-medium ${config.textColor}`}>
