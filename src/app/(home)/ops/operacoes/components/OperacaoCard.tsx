@@ -23,7 +23,7 @@ export function OperacaoCard({ op }: { op: OperacaoListItem }) {
    return (
       <Link
          href={`/ops/operacoes/${op.id}`}
-         className={`group relative flex items-stretch overflow-hidden border border-slate-200 bg-white shadow-sm transition-all duration-200 hover:-translate-y-px hover:border-slate-300 hover:shadow-lg ${STATUS_GLOW[op.status]}`}
+         className={`group relative flex items-stretch overflow-hidden rounded border border-slate-200 bg-white shadow-sm transition-all duration-200 hover:-translate-y-px hover:border-slate-300 hover:shadow-md ${STATUS_GLOW[op.status]}`}
       >
          {/* Espinha de status — varredura instantânea pela lista */}
          <span

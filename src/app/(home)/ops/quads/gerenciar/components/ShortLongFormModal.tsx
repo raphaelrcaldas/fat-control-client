@@ -138,10 +138,10 @@ export function ShortLongFormModal({
                </div>
             </ModalBody>
             <ModalFooter>
-               <Button type="submit" color="blue" disabled={isSaving}>
+               <Button type="submit" color="red" disabled={isSaving}>
                   {isSaving ? (
                      <>
-                        <Spinner color="info" size="sm" className="mr-2" />
+                        <Spinner color="failure" size="sm" className="mr-2" />
                         Salvando...
                      </>
                   ) : initial ? (

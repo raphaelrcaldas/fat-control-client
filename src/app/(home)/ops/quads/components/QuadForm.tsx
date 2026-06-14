@@ -30,7 +30,7 @@ interface QuadFormProps {
    setShow: (show: boolean) => void;
 }
 
-export default function QuadForm({ trip, quad, show, setShow }: QuadFormProps) {
+export function QuadForm({ trip, quad, show, setShow }: QuadFormProps) {
    const defaultValues = useMemo(
       () => ({
          value: quad?.value ?? "",
@@ -196,44 +196,40 @@ export default function QuadForm({ trip, quad, show, setShow }: QuadFormProps) {
             root: {
                base: "fixed inset-x-0 top-0 z-50 h-screen overflow-y-auto overflow-x-hidden md:inset-0 md:h-full",
                show: {
-                  on: "flex bg-slate-900/60 backdrop-blur-sm",
+                  on: "flex bg-slate-900/50",
                   off: "hidden",
                },
             },
             content: {
                base: "relative h-full w-full p-4 md:h-auto",
-               inner: "relative flex max-h-[90dvh] flex-col overflow-hidden rounded-2xl border border-slate-200/70 bg-white shadow-xl dark:border-slate-700/60 dark:bg-slate-900",
+               inner: "relative flex max-h-[90dvh] flex-col overflow-hidden rounded border border-slate-200 bg-white shadow dark:border-slate-700 dark:bg-slate-900",
             },
          }}
       >
-         {/* Cabeçalho moderno com gradiente sutil */}
-         <div className="relative overflow-hidden border-b border-slate-200/70 bg-linear-to-br from-red-600 via-red-500 to-rose-500 px-5 py-4 dark:border-slate-700/60">
-            <div className="pointer-events-none absolute -top-8 -right-8 h-28 w-28 rounded-full bg-white/15 blur-2xl" />
-            <div className="pointer-events-none absolute -bottom-10 -left-6 h-24 w-24 rounded-full bg-white/10 blur-2xl" />
-            <div className="relative flex items-center justify-between">
-               <div className="flex items-center gap-3">
-                  <div className="flex size-10 items-center justify-center rounded-xl border border-white/25 bg-white/15 backdrop-blur-sm">
-                     <HiOutlineClipboardList className="size-5 text-white" />
-                  </div>
-                  <div>
-                     <h3 className="text-base leading-tight font-semibold text-white">
-                        {quad ? "Atualizar Quadrinho" : "Adicionar Quadrinho"}
-                     </h3>
-                     <p className="font-semibold text-white/90 uppercase">
-                        {`${trip?.user?.p_g} ${trip?.user?.nome_guerra}` ||
-                           "Tripulante"}
-                     </p>
-                  </div>
+         {/* Cabeçalho */}
+         <div className="flex items-center justify-between border-b border-slate-200 px-5 py-4 dark:border-slate-700">
+            <div className="flex items-center gap-3">
+               <div className="flex size-10 items-center justify-center rounded-md bg-red-600 shadow">
+                  <HiOutlineClipboardList className="size-5 text-white" />
                </div>
-               <button
-                  type="button"
-                  onClick={cleanAndClose}
-                  aria-label="Fechar"
-                  className="flex size-8 items-center justify-center rounded-lg text-white/90 transition-colors hover:bg-white/15 focus:ring-2 focus:ring-white/40 focus:outline-none"
-               >
-                  <HiX className="size-4" />
-               </button>
+               <div>
+                  <h3 className="text-base leading-tight font-semibold text-gray-800 dark:text-white">
+                     {quad ? "Atualizar Quadrinho" : "Adicionar Quadrinho"}
+                  </h3>
+                  <p className="text-sm font-semibold text-gray-500 uppercase dark:text-slate-400">
+                     {`${trip?.user?.p_g} ${trip?.user?.nome_guerra}` ||
+                        "Tripulante"}
+                  </p>
+               </div>
             </div>
+            <button
+               type="button"
+               onClick={cleanAndClose}
+               aria-label="Fechar"
+               className="flex size-8 items-center justify-center rounded text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600 focus:ring-2 focus:ring-gray-300 focus:outline-none dark:hover:bg-slate-800"
+            >
+               <HiX className="size-4" />
+            </button>
          </div>
 
          <ModalBody className="p-0!">
@@ -249,7 +245,7 @@ export default function QuadForm({ trip, quad, show, setShow }: QuadFormProps) {
                      <div
                         role="tablist"
                         aria-label="Tipo de Entrada"
-                        className="relative grid grid-cols-2 rounded-xl border border-slate-200/70 bg-slate-100/70 p-1 backdrop-blur-sm dark:border-slate-700/60 dark:bg-slate-800/60"
+                        className="relative grid grid-cols-2 rounded border border-slate-200 bg-slate-100 p-1 dark:border-slate-700 dark:bg-slate-800"
                      >
                         {(
                            [
@@ -266,7 +262,7 @@ export default function QuadForm({ trip, quad, show, setShow }: QuadFormProps) {
                                  aria-selected={active}
                                  onClick={() => setInputType(id)}
                                  className={clsx(
-                                    "relative z-10 flex items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-colors duration-150",
+                                    "relative z-10 flex items-center justify-center gap-2 rounded px-3 py-2 text-sm font-medium transition-colors duration-150",
                                     active
                                        ? "bg-white text-red-600 shadow-sm dark:bg-slate-900 dark:text-red-400"
                                        : "text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100"
@@ -322,8 +318,8 @@ export default function QuadForm({ trip, quad, show, setShow }: QuadFormProps) {
                                  sizing="md"
                               />
                               {dateCount > 0 && (
-                                 <div className="flex items-center gap-2 rounded-lg border border-red-100 bg-red-50/80 px-3 py-2 backdrop-blur-sm dark:border-red-900/40 dark:bg-red-950/40">
-                                    <span className="inline-flex size-5 items-center justify-center rounded-md bg-red-500 text-[11px] font-bold text-white">
+                                 <div className="flex items-center gap-2 rounded border border-red-100 bg-red-50 px-3 py-2 dark:border-red-900/40 dark:bg-red-950/40">
+                                    <span className="inline-flex size-5 items-center justify-center rounded bg-red-500 text-[11px] font-bold text-white">
                                        {dateCount}
                                     </span>
                                     <span className="text-xs font-medium text-red-700 dark:text-red-300">
@@ -379,7 +375,7 @@ export default function QuadForm({ trip, quad, show, setShow }: QuadFormProps) {
                </div>
             </div>
 
-            <div className="sticky bottom-0 flex gap-3 border-t border-slate-200/70 bg-white/80 px-5 py-4 backdrop-blur-md dark:border-slate-700/60 dark:bg-slate-900/80">
+            <div className="sticky bottom-0 flex gap-3 border-t border-slate-200 bg-white px-5 py-4 dark:border-slate-700 dark:bg-slate-900">
                <Button
                   color="gray"
                   onClick={cleanAndClose}
@@ -392,11 +388,11 @@ export default function QuadForm({ trip, quad, show, setShow }: QuadFormProps) {
                   color="red"
                   onClick={handleSubmit}
                   disabled={loading || !isFormValid()}
-                  className="flex-1 bg-linear-to-r from-red-600 to-rose-500 enabled:hover:from-red-700 enabled:hover:to-rose-600"
+                  className="flex-1"
                >
                   {loading ? (
                      <div className="flex items-center gap-2">
-                        <Spinner size="sm" color="" />
+                        <Spinner size="sm" color="failure" />
                         <span>Salvando...</span>
                      </div>
                   ) : quad ? (

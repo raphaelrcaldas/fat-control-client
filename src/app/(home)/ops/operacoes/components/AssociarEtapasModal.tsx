@@ -110,7 +110,7 @@ export function AssociarEtapasModal({ show, onClose, op }: Props) {
             </span>
          </ModalHeader>
          <ModalBody>
-            <div className="mb-3 flex flex-wrap items-center justify-between gap-2 rounded-lg border border-slate-200 bg-slate-50 px-4 py-3">
+            <div className="mb-3 flex flex-wrap items-center justify-between gap-2 rounded border border-slate-200 bg-slate-50 px-4 py-3">
                <h3 className="text-lg leading-tight font-bold text-slate-800">
                   {op.nome}
                </h3>
@@ -168,11 +168,25 @@ export function AssociarEtapasModal({ show, onClose, op }: Props) {
 
             <div className="h-[38vh]">
                {isLoading ? (
-                  <div className="flex h-full items-center justify-center">
-                     <Spinner color="failure" size="xl" />
+                  <div className="h-full overflow-hidden rounded border border-slate-300 shadow">
+                     <div className="animate-pulse divide-y divide-slate-100">
+                        {Array.from({ length: 7 }).map((_, i) => (
+                           <div
+                              key={i}
+                              className="grid grid-cols-6 items-center gap-2 px-3 py-2.5"
+                           >
+                              <div className="h-4 w-4 rounded bg-slate-200" />
+                              <div className="mx-auto h-3.5 w-16 rounded bg-slate-100" />
+                              <div className="mx-auto h-3.5 w-20 rounded bg-slate-200" />
+                              <div className="mx-auto h-3.5 w-20 rounded bg-slate-100" />
+                              <div className="mx-auto h-3.5 w-12 rounded bg-slate-200" />
+                              <div className="mx-auto h-3.5 w-14 rounded bg-slate-100" />
+                           </div>
+                        ))}
+                     </div>
                   </div>
                ) : lista.length === 0 ? (
-                  <div className="flex h-full flex-col items-center justify-center rounded-lg border border-dashed border-slate-300 bg-slate-50 px-4 text-center">
+                  <div className="flex h-full flex-col items-center justify-center rounded border border-dashed border-slate-300 bg-slate-50 px-4 text-center">
                      <p className="text-sm font-semibold text-slate-600">
                         Nenhuma etapa candidata no período
                      </p>

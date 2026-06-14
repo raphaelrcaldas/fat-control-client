@@ -4,7 +4,7 @@ import { useState, useEffect, useMemo, useRef } from "react";
 import useDebouncedValue from "@/hooks/useDebouncedValue";
 import { useRouter } from "next/navigation";
 import { Tabs, TabItem, Pagination, Button } from "flowbite-react";
-import { HiPlus } from "react-icons/hi";
+import { HiPlus, HiOutlineClipboardList } from "react-icons/hi";
 import clsx from "clsx";
 import {
    useSearchParamsUpdater,
@@ -30,12 +30,12 @@ import { PermBased } from "../../hooks/usePermBased";
 const tabsTheme = {
    tablist: {
       tabitem: {
-         base: "flex items-center justify-center rounded-t-lg p-4 text-sm font-medium first:ml-0 focus:outline-none focus:ring-0 disabled:cursor-not-allowed disabled:text-gray-400",
+         base: "flex items-center justify-center rounded-t p-4 text-sm font-medium first:ml-0 focus:outline-none focus:ring-0 disabled:cursor-not-allowed disabled:text-gray-400",
          variant: {
             underline: {
-               base: "rounded-t-lg",
+               base: "rounded-t",
                active: {
-                  on: "active rounded-t-lg border-b-2 border-red-500 text-red-500",
+                  on: "active rounded-t border-b-2 border-red-500 text-red-500",
                   off: "border-b-2 border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-600",
                },
             },
@@ -263,35 +263,50 @@ export default function OrdensMissao() {
    };
 
    return (
-      <div ref={pageTopRef} className="p-2 text-gray-900">
+      <div ref={pageTopRef} className="text-gray-900">
          <div className="mx-auto">
-            {/* Header */}
-            <header className="mb-3 flex items-center justify-between">
-               <div>
-                  <h1 className="text-xl font-semibold text-gray-900">
-                     Ordens de Missão
-                  </h1>
-                  <p className="text-sm text-gray-500">
-                     Gerenciamento de Ordens
-                  </p>
+            {/* Masthead — referência canônica (ver ops/operacoes) */}
+            <header className="relative mb-5 overflow-hidden rounded border border-slate-200 bg-white px-5 py-4 shadow-sm sm:px-6 sm:py-5">
+               {/* Espinha vermelha — ecoa a espinha dos cards */}
+               <span
+                  aria-hidden
+                  className="absolute top-0 left-0 h-full w-1 bg-red-600"
+               />
+
+               <div className="relative flex flex-wrap items-center justify-between gap-4">
+                  <div className="flex min-w-0 items-center gap-4">
+                     <div className="grid h-12 w-12 shrink-0 place-items-center rounded-md bg-red-50 text-red-600 ring-1 ring-red-100 ring-inset">
+                        <HiOutlineClipboardList className="h-6 w-6" />
+                     </div>
+                     <div className="min-w-0">
+                        <span className="block font-mono text-[10px] font-bold tracking-[0.3em] text-red-500 uppercase">
+                           Gestão Operacional
+                        </span>
+                        <h1 className="text-2xl leading-none font-extrabold tracking-tight text-slate-900 sm:text-[28px]">
+                           Ordens de Missão
+                        </h1>
+                     </div>
+                  </div>
+
+                  <PermBased resource={"ordem_missao"} requiredPerm={"create"}>
+                     <Button
+                        color="red"
+                        onClick={() => router.push("/ops/om/nova")}
+                        className="font-semibold whitespace-nowrap"
+                     >
+                        <HiPlus className="mr-2 h-4 w-4" />
+                        <span className="hidden sm:inline">
+                           Nova Ordem de Missão
+                        </span>
+                        <span className="sm:hidden">Nova OM</span>
+                     </Button>
+                  </PermBased>
                </div>
-               <PermBased resource={"ordem_missao"} requiredPerm={"create"}>
-                  <Button
-                     color="red"
-                     onClick={() => router.push("/ops/om/nova")}
-                  >
-                     <HiPlus className="mr-2 h-4 w-4" />
-                     <span className="hidden sm:inline">
-                        Nova Ordem de Missão
-                     </span>
-                     <span className="sm:hidden">Nova OM</span>
-                  </Button>
-               </PermBased>
             </header>
 
             {/* Erro global (qualquer uma das queries) com retry */}
             {(ordensAprovadasQuery.isError || ordensRascunhoQuery.isError) && (
-               <div className="mb-4 flex items-center justify-between gap-4 rounded-lg border border-red-200 bg-red-50 p-4 text-red-700">
+               <div className="mb-4 flex items-center justify-between gap-4 rounded border border-red-200 bg-red-50 p-4 text-red-700">
                   <span className="min-w-0 text-sm">
                      {ordensAprovadasQuery.error?.message ||
                         ordensRascunhoQuery.error?.message ||
@@ -305,7 +320,7 @@ export default function OrdensMissao() {
                         if (ordensRascunhoQuery.isError)
                            ordensRascunhoQuery.refetch();
                      }}
-                     className="shrink-0 rounded-lg border border-red-300 px-3 py-1.5 text-sm font-medium transition-colors hover:bg-red-100"
+                     className="shrink-0 rounded border border-red-300 px-3 py-1.5 text-sm font-medium transition-colors hover:bg-red-100"
                   >
                      Tentar novamente
                   </button>

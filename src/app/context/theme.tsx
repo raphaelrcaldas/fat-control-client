@@ -12,6 +12,9 @@ const whiteInputColors = {
 };
 
 const customTheme = createTheme({
+   button: {
+      base: "rounded-md",
+   },
    modal: {
       root: { show: { on: "backdrop-blur-xs" } },
       header: { base: "border-gray-300" },

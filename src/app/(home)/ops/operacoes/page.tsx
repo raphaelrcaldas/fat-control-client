@@ -66,25 +66,16 @@ export default function OperacoesPage() {
    return (
       <div className="flex flex-col">
          {/* Masthead — claro, mesma linguagem tática dos cards */}
-         <header className="relative mb-5 overflow-hidden rounded-2xl border border-slate-200 bg-white px-5 py-4 shadow-sm sm:px-6 sm:py-5">
-            {/* Brilho radial vermelho, bem sutil, no canto superior direito */}
-            <div
-               aria-hidden
-               className="pointer-events-none absolute inset-0"
-               style={{
-                  background:
-                     "radial-gradient(55% 130% at 95% -30%, rgba(239,68,68,0.07), transparent 60%)",
-               }}
-            />
+         <header className="relative mb-5 overflow-hidden rounded border border-slate-200 bg-white px-5 py-4 shadow-sm sm:px-6 sm:py-5">
             {/* Espinha vermelha — ecoa a espinha dos cards */}
             <span
                aria-hidden
-               className="absolute top-0 left-0 h-full w-1 bg-linear-to-b from-red-500 to-red-600"
+               className="absolute top-0 left-0 h-full w-1 bg-red-600"
             />
 
             <div className="relative flex flex-wrap items-center justify-between gap-4">
                <div className="flex min-w-0 items-center gap-4">
-                  <div className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-red-50 text-red-600 ring-1 ring-red-100 ring-inset">
+                  <div className="grid h-12 w-12 shrink-0 place-items-center rounded-md bg-red-50 text-red-600 ring-1 ring-red-100 ring-inset">
                      <TbPlaneInflight className="h-6 w-6" />
                   </div>
                   <div className="min-w-0">
@@ -138,7 +129,7 @@ export default function OperacoesPage() {
          {showSkeleton ? (
             <OperacoesSkeleton />
          ) : items.length === 0 ? (
-            <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50 px-4 py-16 text-center">
+            <div className="rounded border border-dashed border-slate-300 bg-slate-50 px-4 py-16 text-center">
                <p className="text-sm font-semibold text-slate-600">
                   Nenhuma operação encontrada
                </p>

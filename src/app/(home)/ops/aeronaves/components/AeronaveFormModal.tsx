@@ -284,15 +284,17 @@ export function AeronaveFormModal({
                               type="button"
                               onClick={() => updateField("sit", s.value)}
                               className={clsx(
-                                 "flex items-center gap-2.5 rounded-lg border-2 p-3 text-left transition-all",
+                                 "flex items-center gap-2.5 rounded border-2 p-3 text-left transition-all",
                                  isSelected
                                     ? `${SIT_SELECTED[s.value]} shadow-sm`
-                                    : "border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50"
+                                    : "border-slate-200 bg-white hover:border-slate-300 hover:bg-gray-50"
                               )}
                            >
-                              <Icon
-                                 className={`h-5 w-5 shrink-0 ${SIT_COLORS[s.value]}`}
-                              />
+                              <div className="flex size-9 shrink-0 items-center justify-center rounded-md bg-white shadow">
+                                 <Icon
+                                    className={`h-5 w-5 ${SIT_COLORS[s.value]}`}
+                                 />
+                              </div>
                               <div>
                                  <p
                                     className={`text-sm font-medium ${isSelected ? "text-gray-900" : "text-gray-700"}`}
@@ -332,7 +334,7 @@ export function AeronaveFormModal({
                )}
 
                {/* Configurações */}
-               <div className="space-y-3 rounded-lg border border-gray-100 bg-gray-50 p-3">
+               <div className="space-y-3 rounded border border-slate-200 bg-gray-50 p-3">
                   <p className="text-xs font-semibold tracking-wide text-gray-500 uppercase">
                      Configurações
                   </p>
@@ -351,7 +353,7 @@ export function AeronaveFormModal({
                </div>
 
                {/* Botões */}
-               <div className="flex justify-center gap-3 border-t border-gray-200 pt-4">
+               <div className="flex justify-center gap-3 border-t border-slate-200 pt-4">
                   <Button
                      color="gray"
                      onClick={onClose}

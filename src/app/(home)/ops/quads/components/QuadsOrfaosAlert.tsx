@@ -102,7 +102,7 @@ function CleanupModal({ show, onClose, orfaos }: CleanupModalProps) {
                Selecione os tripulantes cujos quadrinhos deseja remover. Estes
                estão atualmente desativados.
             </p>
-            <div className="overflow-x-auto rounded-md border border-slate-200 shadow">
+            <div className="overflow-x-auto rounded border border-slate-200 shadow">
                <Table hoverable>
                   <TableHead>
                      <TableRow>
@@ -181,7 +181,7 @@ function CleanupModal({ show, onClose, orfaos }: CleanupModalProps) {
    );
 }
 
-export default function QuadsOrfaosAlert() {
+export function QuadsOrfaosAlert() {
    const { data: orfaos = [] } = useQuadsOrfaos();
    const [showModal, setShowModal] = useState(false);
 

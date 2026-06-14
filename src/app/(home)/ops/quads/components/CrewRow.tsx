@@ -1,9 +1,9 @@
 "use client";
 import { useState } from "react";
 import { PermBased } from "@/app/(home)/hooks/usePermBased";
-import { QuadsTrip } from "./quadsTrip";
-import QuadForm from "./quadForm";
-import { QuadPopover } from "./quadPopover";
+import { QuadsTrip } from "./QuadsTrip";
+import { QuadForm } from "./QuadForm";
+import { QuadPopover } from "./QuadPopover";
 import { CrewQuadRes } from "services/routes/quads";
 import { VscAdd } from "react-icons/vsc";
 
@@ -13,11 +13,7 @@ interface CrewRowProps {
    typeName: string;
 }
 
-export default function CrewRow({
-   tripQuadRes,
-   groupName,
-   typeName,
-}: CrewRowProps) {
+export function CrewRow({ tripQuadRes, groupName, typeName }: CrewRowProps) {
    const [showForm, setShowForm] = useState(false);
 
    return (

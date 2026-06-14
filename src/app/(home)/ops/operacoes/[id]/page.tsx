@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { Spinner } from "flowbite-react";
 import clsx from "clsx";
 import { MdInsights, MdLayers, MdGroups } from "react-icons/md";
 import { useToast } from "@/app/context/toast";
@@ -18,6 +17,7 @@ import { KpiGrid } from "../components/KpiGrid";
 import { EsforcoCard } from "../components/EsforcoCard";
 import { SeboCard } from "../components/SeboCard";
 import { EtapasTable } from "../components/EtapasTable";
+import { EtapasTableSkeleton } from "../components/EtapasTableSkeleton";
 import { PessoalTable } from "../components/PessoalTable";
 import { OperacaoFormModal } from "../components/OperacaoFormModal";
 import { AssociarEtapasModal } from "../components/AssociarEtapasModal";
@@ -77,7 +77,7 @@ export default function OperacaoDetailPage() {
       const notFound =
          error instanceof OperacaoFetchError && error.status === 404;
       return (
-         <div className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-12 text-center">
+         <div className="rounded border border-rose-200 bg-rose-50 px-4 py-12 text-center">
             <p className="text-sm font-semibold text-rose-700">
                {notFound
                   ? "Operação não encontrada"
@@ -148,9 +148,7 @@ export default function OperacaoDetailPage() {
 
          {activeTab === "etapas" &&
             (loadingEtapas ? (
-               <div className="flex items-center justify-center rounded-xl border border-slate-200 bg-white py-16">
-                  <Spinner color="failure" size="lg" />
-               </div>
+               <EtapasTableSkeleton />
             ) : (
                <EtapasTable
                   opId={op.id}

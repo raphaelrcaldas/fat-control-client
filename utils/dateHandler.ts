@@ -99,6 +99,18 @@ export function datasIguais(data1: Date, data2: Date) {
    );
 }
 
+/**
+ * Retorna o início da semana (segunda-feira, 00:00) da data informada
+ */
+export function getWeekStart(date: Date): Date {
+   const d = new Date(date);
+   const day = d.getDay();
+   const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+   d.setDate(diff);
+   d.setHours(0, 0, 0, 0);
+   return d;
+}
+
 // --- Helpers para datetime ISO (usados em OM) ---
 
 /**

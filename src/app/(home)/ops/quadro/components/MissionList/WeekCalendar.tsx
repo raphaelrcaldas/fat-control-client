@@ -7,7 +7,7 @@ import {
    type StatusType,
 } from "@/constants/ops/ordens-missao/status";
 import { Spinner } from "flowbite-react";
-import { extractDate, extractTime } from "utils/dateHandler";
+import { dateToIso, extractDate, extractTime } from "utils/dateHandler";
 import type { AeronavePublic } from "services/routes/aeronaves";
 import clsx from "clsx";
 import { usePermBased } from "@/app/(home)/hooks/usePermBased";
@@ -19,13 +19,6 @@ const SIT_COLORS: Record<string, string> = {
    IN: "bg-red-400",
    IS: "bg-gray-400",
 };
-
-function toLocalDateStr(date: Date): string {
-   const y = date.getFullYear();
-   const m = String(date.getMonth() + 1).padStart(2, "0");
-   const d = String(date.getDate()).padStart(2, "0");
-   return `${y}-${m}-${d}`;
-}
 
 interface WeekCalendarProps {
    ordens: OrdemMissaoList[];
@@ -84,7 +77,7 @@ function AeronaveCell({
    ordens: OrdemMissaoList[];
 }) {
    const router = useRouter();
-   const dateStr = toLocalDateStr(date);
+   const dateStr = dateToIso(date);
    const etapas = getEtapasDoDia(ordens, matricula, dateStr);
 
    return (
@@ -96,7 +89,7 @@ function AeronaveCell({
             return (
                <div
                   key={`${etapa.omId}-${idx}`}
-                  className={`cursor-pointer truncate rounded-md border px-1.5 py-0.5 text-center font-mono text-sm font-semibold shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md ${statusCfg.bg} ${statusCfg.text} ${statusCfg.border}`}
+                  className={`cursor-pointer truncate rounded border px-1.5 py-0.5 text-center font-mono text-sm font-semibold shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md ${statusCfg.bg} ${statusCfg.text} ${statusCfg.border}`}
                   title={`OM ${etapa.omNumero} — ${etapa.omTipo}`}
                   onClick={() => router.push(`/ops/om/${etapa.omId}`)}
                >
@@ -141,7 +134,7 @@ export default function WeekCalendar({
    };
 
    const weekDays = getWeekDays();
-   const today = toLocalDateStr(new Date());
+   const today = dateToIso(new Date());
 
    return (
       <div className="min-h-screen text-gray-900">
@@ -151,7 +144,7 @@ export default function WeekCalendar({
                <div className="flex items-center gap-2">
                   <button
                      onClick={() => onNavigateWeek(-1)}
-                     className="rounded-lg bg-white/60 px-3 py-1.5 text-sm font-semibold text-slate-600 shadow-sm backdrop-blur-sm transition-all hover:bg-white/90 hover:text-slate-800 hover:shadow"
+                     className="rounded bg-white/60 px-3 py-1.5 text-sm font-semibold text-slate-600 shadow-sm backdrop-blur-sm transition-all hover:bg-white/90 hover:text-slate-800 hover:shadow"
                   >
                      ← Anterior
                   </button>
@@ -173,7 +166,7 @@ export default function WeekCalendar({
                   </span>
                   <button
                      onClick={() => onNavigateWeek(1)}
-                     className="rounded-lg bg-white/60 px-3 py-1.5 text-sm font-semibold text-slate-600 shadow-sm backdrop-blur-sm transition-all hover:bg-white/90 hover:text-slate-800 hover:shadow"
+                     className="rounded bg-white/60 px-3 py-1.5 text-sm font-semibold text-slate-600 shadow-sm backdrop-blur-sm transition-all hover:bg-white/90 hover:text-slate-800 hover:shadow"
                   >
                      Próxima →
                   </button>
@@ -183,14 +176,14 @@ export default function WeekCalendar({
 
          {/* Calendário */}
          <div
-            className={`relative overflow-x-auto rounded-xl border border-slate-200 shadow duration-200 ${isFetching && !isLoading ? "opacity-50" : ""}`}
+            className={`relative overflow-x-auto rounded border border-slate-200 shadow duration-200 ${isFetching && !isLoading ? "opacity-50" : ""}`}
          >
             <table className="w-full table-fixed border-collapse">
                <thead>
                   <tr className="bg-white">
                      <th className="w-16 border-r border-b border-slate-200/60 bg-white/30 sm:w-24"></th>
                      {weekDays.map((day, idx) => {
-                        const dateStr = toLocalDateStr(day);
+                        const dateStr = dateToIso(day);
                         const isToday = dateStr === today;
 
                         return (
@@ -232,7 +225,7 @@ export default function WeekCalendar({
                               className={clsx(
                                  "flex flex-col items-center justify-center gap-1.5 p-1",
                                  canEditAeronave &&
-                                    "cursor-pointer rounded-lg transition-colors hover:bg-white/60 hover:shadow-sm"
+                                    "cursor-pointer rounded transition-colors hover:bg-white/60 hover:shadow-sm"
                               )}
                               onClick={
                                  canEditAeronave
@@ -307,12 +300,6 @@ export default function WeekCalendar({
                   </tr> */}
                </tbody>
             </table>
-
-            {isLoading && ordens.length === 0 && (
-               <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/50 py-12 backdrop-blur-sm">
-                  <Spinner color="failure" size="xl" />
-               </div>
-            )}
          </div>
 
          {/* Legenda */}

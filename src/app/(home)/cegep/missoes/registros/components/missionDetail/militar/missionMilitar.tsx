@@ -57,7 +57,7 @@ export const MissionMilitar = memo(function MissionMilitar({
                )}
                <div
                   className={clsx(
-                     "flex items-center gap-1 text-xs font-medium uppercase truncate",
+                     "flex items-center gap-1 truncate text-xs font-medium uppercase",
                      config.textColor
                   )}
                >

@@ -15,13 +15,14 @@ import {
    Spinner,
 } from "flowbite-react";
 import { useState, useCallback, useMemo, useRef, useEffect } from "react";
-import { isoDateToString } from "utils/dateHandler";
 import { useQuadsContext } from "@/app/(home)/context/quads";
 import { CrewMember } from "services/routes/trips";
 import { Quad } from "services/routes/quads";
-import QuadForm from "./quadForm";
+import { QuadForm } from "./QuadForm";
+import { quadDisplayValue } from "../utils/quadDisplay";
 import { FaRegTrashCan } from "react-icons/fa6";
 import { FaEdit, FaPlus } from "react-icons/fa";
+import { HiOutlineClipboardList } from "react-icons/hi";
 import { useToast } from "@/app/context/toast";
 import { PermBased } from "@/app/(home)/hooks/usePermBased";
 import { useQuadsByTrip, useDeleteQuad } from "@/hooks/queries";
@@ -39,6 +40,9 @@ interface QuadRowProps {
    selected: boolean;
    onToggleSelect: (id: number) => void;
 }
+
+const QUAD_CHECKBOX_CLASS =
+   "size-5 cursor-pointer rounded border-2 border-gray-500 text-red-600 ring-offset-1 checked:border-red-600 focus:ring-2 focus:ring-red-500 focus:ring-offset-2";
 
 export function QuadsTrip({
    trip,
@@ -164,20 +168,8 @@ export function QuadsTrip({
          >
             <ModalHeader>
                <div className="flex items-center gap-2">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-red-600">
-                     <svg
-                        className="h-6 w-6 text-white"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                     >
-                        <path
-                           strokeLinecap="round"
-                           strokeLinejoin="round"
-                           strokeWidth={2}
-                           d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                        />
-                     </svg>
+                  <div className="flex h-10 w-10 items-center justify-center rounded-md bg-red-600 shadow">
+                     <HiOutlineClipboardList className="h-6 w-6 text-white" />
                   </div>
                   <span className="text-xl font-bold text-gray-800">
                      Quadrinhos
@@ -185,7 +177,7 @@ export function QuadsTrip({
                </div>
             </ModalHeader>
             <ModalBody>
-               <div className="mb-2 rounded-xl border border-red-200 bg-red-100 p-4">
+               <div className="mb-2 rounded border border-red-200 bg-red-100 p-4">
                   <div className="text-center uppercase">
                      <h2 className="text-lg font-bold text-gray-900">
                         {userName}
@@ -193,7 +185,7 @@ export function QuadsTrip({
                   </div>
                </div>
 
-               <div className="mb-4 rounded-lg border border-gray-200 bg-gray-50 p-2">
+               <div className="mb-4 rounded border border-slate-200 bg-gray-50 p-2">
                   <div className="text-center">
                      <p className="mb-1 flex items-center justify-center gap-1 text-xs font-semibold text-gray-500 uppercase">
                         {groupName.toLowerCase().includes("internacional") && (
@@ -208,7 +200,7 @@ export function QuadsTrip({
                </div>
 
                <div
-                  className={`mb-3 flex items-center justify-between rounded-lg border border-red-300 bg-red-50 px-3 py-2 shadow-sm transition-opacity duration-150 ${
+                  className={`mb-3 flex items-center justify-between rounded border border-red-300 bg-red-50 px-3 py-2 shadow-sm transition-opacity duration-150 ${
                      quads.length > 0 && selectedIds.size > 0
                         ? "opacity-100"
                         : "invisible opacity-0"
@@ -225,7 +217,7 @@ export function QuadsTrip({
                   </button>
                </div>
 
-               <div className="h-96 overflow-y-auto rounded-xl bg-white shadow-sm ring-1 ring-gray-200">
+               <div className="h-96 overflow-y-auto rounded bg-white shadow-sm ring-1 ring-slate-200">
                   {loading ? (
                      <LoadingState />
                   ) : quads.length > 0 ? (
@@ -260,7 +252,7 @@ export function QuadsTrip({
                                           ? "Desmarcar todos"
                                           : "Selecionar todos"
                                     }
-                                    className="size-5 cursor-pointer rounded border-2 border-gray-500 text-red-600 ring-offset-1 checked:border-red-600 focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+                                    className={QUAD_CHECKBOX_CLASS}
                                  />
                               </TableHeadCell>
                               <TableHeadCell>Valor</TableHeadCell>
@@ -338,7 +330,7 @@ export function QuadsTrip({
 function QuadRow({ quad, trip, selected, onToggleSelect }: QuadRowProps) {
    const [showForm, setShowForm] = useState(false);
 
-   const displayValue = quad.value ? isoDateToString(quad.value) : "LASTRO";
+   const displayValue = quadDisplayValue(quad);
    const canEdit = Boolean(quad.value);
 
    return (
@@ -350,7 +342,7 @@ function QuadRow({ quad, trip, selected, onToggleSelect }: QuadRowProps) {
                   onChange={() =>
                      quad.id !== undefined && onToggleSelect(quad.id)
                   }
-                  className="size-5 cursor-pointer rounded border-2 border-gray-500 text-red-600 ring-offset-1 checked:border-red-600 focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+                  className={QUAD_CHECKBOX_CLASS}
                />
             </TableCell>
             <TableCell className="text-center font-semibold">
@@ -362,7 +354,7 @@ function QuadRow({ quad, trip, selected, onToggleSelect }: QuadRowProps) {
                      {canEdit && (
                         <button
                            onClick={() => setShowForm(true)}
-                           className="cursor-pointer rounded-md p-2 text-blue-500 transition-all duration-200 hover:bg-blue-500 hover:text-white active:scale-95"
+                           className="cursor-pointer rounded p-2 text-blue-500 transition-all duration-200 hover:bg-blue-500 hover:text-white active:scale-95"
                            aria-label="Editar quadrinho"
                         >
                            <FaEdit className="size-5" />
@@ -387,11 +379,34 @@ function QuadRow({ quad, trip, selected, onToggleSelect }: QuadRowProps) {
 
 function LoadingState() {
    return (
-      <div className="flex h-full flex-col items-center justify-center gap-3 p-4">
-         <Spinner size="lg" color="failure" />
-         <p className="text-sm text-gray-600 dark:text-gray-400">
-            Carregando quadrinhos...
-         </p>
+      <div className="divide-y divide-slate-200">
+         {/* Cabeçalho (espelha checkbox / Valor / Ações) */}
+         <div className="flex items-center gap-2 px-4 py-3">
+            <div className="w-10">
+               <div className="h-5 w-5 animate-pulse rounded bg-slate-200" />
+            </div>
+            <div className="flex flex-1 justify-center">
+               <div className="h-3 w-12 animate-pulse rounded bg-slate-200" />
+            </div>
+            <div className="flex flex-1 justify-center">
+               <div className="h-3 w-12 animate-pulse rounded bg-slate-200" />
+            </div>
+         </div>
+
+         {/* Linhas */}
+         {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className="flex min-h-11 items-center gap-2 px-4 py-2">
+               <div className="w-10">
+                  <div className="h-5 w-5 animate-pulse rounded bg-slate-200" />
+               </div>
+               <div className="flex flex-1 justify-center">
+                  <div className="h-4 w-10 animate-pulse rounded bg-slate-200" />
+               </div>
+               <div className="flex flex-1 justify-center">
+                  <div className="h-8 w-8 animate-pulse rounded bg-slate-100" />
+               </div>
+            </div>
+         ))}
       </div>
    );
 }
@@ -400,19 +415,7 @@ function EmptyState() {
    return (
       <div className="flex flex-col items-center justify-center px-4 py-12">
          <div className="mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-gray-100">
-            <svg
-               className="h-10 w-10 text-gray-400"
-               fill="none"
-               stroke="currentColor"
-               viewBox="0 0 24 24"
-            >
-               <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-               />
-            </svg>
+            <HiOutlineClipboardList className="h-10 w-10 text-gray-400" />
          </div>
          <h3 className="mb-2 text-lg font-semibold text-gray-700">
             Nenhum quadrinho encontrado

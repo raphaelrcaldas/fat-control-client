@@ -221,7 +221,7 @@ export function OperacaoFormModal({ show, onClose, editing }: Props) {
                      <button
                         type="button"
                         onClick={() => setShowCidade(true)}
-                        className="flex w-full items-center justify-between rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-left text-sm hover:border-gray-400"
+                        className="flex w-full items-center justify-between rounded border border-gray-300 bg-white px-3 py-2.5 text-left text-sm hover:border-gray-400"
                      >
                         {cidadeLabel ? (
                            <span className="flex items-center gap-1.5 font-medium text-gray-800">

@@ -31,8 +31,8 @@ export function QuadsGroupCard({
    onEditFuncs,
 }: QuadsGroupCardProps) {
    return (
-      <div className="rounded-xl bg-white shadow-sm ring-1 ring-gray-200">
-         <div className="flex items-center justify-between gap-3 border-b border-gray-100 px-4 py-3">
+      <div className="rounded bg-white shadow-sm ring-1 ring-slate-200">
+         <div className="flex items-center justify-between gap-3 border-b border-slate-200 px-4 py-3">
             <div className="min-w-0">
                <h3 className="truncate text-lg font-semibold text-gray-900 uppercase">
                   {group.long}
@@ -61,7 +61,7 @@ export function QuadsGroupCard({
             </div>
          </div>
 
-         <div className="divide-y divide-gray-100">
+         <div className="divide-y divide-slate-200">
             {group.types.length === 0 ? (
                <p className="px-4 py-3 text-sm text-gray-400">
                   Nenhum tipo cadastrado neste grupo.
@@ -88,7 +88,7 @@ export function QuadsGroupCard({
                               type.funcs_list.map((func) => (
                                  <span
                                     key={func}
-                                    className="inline-flex items-center rounded-full bg-red-50 px-2 py-0.5 text-xs font-medium text-red-700"
+                                    className="inline-flex items-center rounded bg-red-50 px-2 py-0.5 text-xs font-medium text-red-700"
                                  >
                                     {getFuncLabel(func as FuncType, true)}
                                  </span>
@@ -128,7 +128,7 @@ export function QuadsGroupCard({
             )}
          </div>
 
-         <div className="border-t border-gray-100 px-4 py-3">
+         <div className="border-t border-slate-200 px-4 py-3">
             <Button
                color="light"
                size="sm"

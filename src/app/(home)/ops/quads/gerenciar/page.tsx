@@ -180,7 +180,7 @@ export default function GerenciarQuadsPage() {
       return (
          <div className="grid gap-4 p-2">
             {backLink}
-            <div className="rounded-lg border border-red-300 bg-red-50 p-4">
+            <div className="rounded border border-red-300 bg-red-50 p-4">
                <p className="text-sm text-red-800">
                   Erro ao carregar quadrinhos. Por favor, tente novamente.
                </p>

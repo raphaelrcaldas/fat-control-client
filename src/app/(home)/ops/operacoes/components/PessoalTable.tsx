@@ -9,7 +9,6 @@ import {
    TableRow,
    TableCell,
    Button,
-   Spinner,
 } from "flowbite-react";
 import {
    HiPlus,
@@ -132,8 +131,21 @@ export function PessoalTable({ op }: { op: OperacaoDetail }) {
          </header>
 
          {isLoading ? (
-            <div className="flex items-center justify-center py-12">
-               <Spinner color="failure" size="lg" />
+            <div className="animate-pulse divide-y divide-slate-100">
+               {Array.from({ length: 6 }).map((_, i) => (
+                  <div
+                     key={i}
+                     className="grid grid-cols-7 items-center gap-2 px-4 py-3"
+                  >
+                     <div className="h-3.5 w-32 rounded bg-slate-200" />
+                     <div className="mx-auto h-5 w-24 rounded bg-slate-100" />
+                     <div className="mx-auto h-5 w-10 rounded-md bg-slate-100" />
+                     <div className="mx-auto h-3.5 w-16 rounded bg-slate-100" />
+                     <div className="mx-auto h-3.5 w-16 rounded bg-slate-100" />
+                     <div className="mx-auto h-3.5 w-8 rounded bg-slate-200" />
+                     <div className="ml-auto h-4 w-10 rounded bg-slate-100" />
+                  </div>
+               ))}
             </div>
          ) : lista.length === 0 ? (
             <p className="px-4 py-12 text-center text-sm text-slate-400">

@@ -125,7 +125,7 @@ export function OperacoesFilters({
          </div>
 
          {/* Deck de controles — superfície única que rima com o card */}
-         <div className="flex flex-wrap items-center gap-x-3 gap-y-2 rounded-xl border border-slate-200 bg-slate-50/70 p-2">
+         <div className="flex flex-wrap items-center gap-x-3 gap-y-2 rounded border border-slate-200 bg-slate-50/70 p-2">
             {/* Busca (largura fixa para não reflowar o deck) */}
             <div className="w-full sm:w-72">
                <TextInput

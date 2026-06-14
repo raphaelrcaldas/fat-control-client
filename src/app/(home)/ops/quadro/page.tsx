@@ -6,31 +6,14 @@ import { listOrdens } from "services/routes/om/ordens";
 import { ordemKeys } from "@/hooks/queries/useOrdens";
 import { useAeronaves } from "@/hooks/queries/useAeronaves";
 import { useDaysToShow } from "@/hooks/useDaysToShow";
+import { dateToIso, getWeekStart, isoStrToDate } from "utils/dateHandler";
 import WeekCalendar from "./components/MissionList/WeekCalendar";
-
-function getWeekStart(date: Date): Date {
-   const d = new Date(date);
-   const day = d.getDay();
-   const diff = d.getDate() - day + (day === 0 ? -6 : 1);
-   d.setDate(diff);
-   d.setHours(0, 0, 0, 0);
-   return d;
-}
-
-function toLocalDateStr(date: Date): string {
-   const y = date.getFullYear();
-   const m = String(date.getMonth() + 1).padStart(2, "0");
-   const d = String(date.getDate()).padStart(2, "0");
-   return `${y}-${m}-${d}`;
-}
+import { WeekCalendarSkeleton } from "./components/MissionList/WeekCalendarSkeleton";
 
 function parseInicioParam(value: string | null): Date {
    if (value) {
-      const parsed = new Date(value + "T00:00:00");
-      if (!isNaN(parsed.getTime())) {
-         parsed.setHours(0, 0, 0, 0);
-         return parsed;
-      }
+      const parsed = isoStrToDate(value);
+      if (!isNaN(parsed.getTime())) return parsed;
    }
    return getWeekStart(new Date());
 }
@@ -49,8 +32,8 @@ export default function QuadroOperacoes() {
       const end = new Date(currentWeekStart);
       end.setDate(end.getDate() + daysToShow - 1);
       return {
-         data_inicio: toLocalDateStr(currentWeekStart),
-         data_fim: toLocalDateStr(end),
+         data_inicio: dateToIso(currentWeekStart),
+         data_fim: dateToIso(end),
          status_ne: "cancelada",
          per_page: 100,
       };
@@ -82,11 +65,15 @@ export default function QuadroOperacoes() {
          const newDate = new Date(currentWeekStart);
          newDate.setDate(newDate.getDate() + direction * daysToShow);
          const params = new URLSearchParams(searchParams);
-         params.set("inicio", toLocalDateStr(newDate));
+         params.set("inicio", dateToIso(newDate));
          router.push(`?${params.toString()}`);
       },
       [currentWeekStart, daysToShow, searchParams, router]
    );
+
+   if (isLoading) {
+      return <WeekCalendarSkeleton daysToShow={daysToShow} />;
+   }
 
    return (
       <WeekCalendar
