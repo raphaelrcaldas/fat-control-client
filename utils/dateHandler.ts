@@ -119,6 +119,16 @@ export function startOfDay(d: Date): number {
    return new Date(d.getFullYear(), d.getMonth(), d.getDate()).valueOf();
 }
 
+/**
+ * Dias a partir de hoje até a data ISO (YYYY-MM-DD).
+ * Negativo = data no passado, 0 = hoje. Compara apenas o dia (ignora horas).
+ */
+export function daysUntil(isoDate: string): number {
+   const target = startOfDay(isoStrToDate(isoDate));
+   const today = startOfDay(new Date());
+   return Math.round((target - today) / 86_400_000);
+}
+
 // --- Helpers para datetime ISO (usados em OM) ---
 
 /**

@@ -1,212 +1,109 @@
 "use client";
-import { useState, useMemo, useCallback } from "react";
-import { FUNCOES_CONFIG, type FuncType } from "@/constants/tripulantes/funcoes";
-import { useSebo } from "@/hooks/queries";
-import { usePersistedState } from "@/hooks/usePersistedState";
-import FilterPanel from "./components/filterPanel";
-import SeboTable from "./components/seboTable";
-import SeboChart from "./components/seboChart";
+import { useEffect, useState } from "react";
+import { TbChartBar } from "react-icons/tb";
+import clsx from "clsx";
+import FilterPanel from "./components/FilterPanel";
+import { SeboTable } from "./components/SeboTable";
+import SeboChart from "./components/SeboChart";
+import { SeboSkeleton } from "./components/SeboSkeleton";
+import { useSeboFilters } from "./hooks/useSeboFilters";
 
-export const INFO_COLUMNS = [
-   "cemal",
-   "tovn",
-   "imae",
-   "crm",
-   "val_pass",
-   "val_visa",
-   "cvi",
-   "ptai",
-] as const;
-export type InfoColumn = (typeof INFO_COLUMNS)[number];
-
-// Colunas disponíveis apenas quando a função selecionada é Piloto.
-export const PILOT_ONLY_COLUMNS: readonly InfoColumn[] = ["cvi", "ptai"];
-
-const defaultInfoCols: Record<InfoColumn, boolean> = {
-   cemal: true,
-   tovn: true,
-   imae: true,
-   crm: true,
-   val_pass: false,
-   val_visa: false,
-   cvi: false,
-   ptai: false,
-};
-
-function SeboPage() {
+export default function SeboPage() {
+   const f = useSeboFilters();
    const [activeRow, setActiveRow] = useState(0);
 
-   const [opIn, setOpIn] = usePersistedState("estatistica.seboOpIn", true);
-   const [opOp, setOpOp] = usePersistedState("estatistica.seboOpOp", true);
-   const [opAl, setOpAl] = usePersistedState("estatistica.seboOpAl", false);
+   // O dataset muda (filtros/ano) => a seleção por índice volta ao topo,
+   // evitando destacar a pessoa errada.
+   useEffect(() => {
+      setActiveRow(0);
+   }, [f.trips]);
 
-   const [infoCols, setInfoCols] = usePersistedState<
-      Record<InfoColumn, boolean>
-   >("estatistica.seboInfoCols", defaultInfoCols);
-
-   const [seboFunc, setSeboFuncRaw] = usePersistedState(
-      "estatistica.seboFunc",
-      "mc"
-   );
-
-   const [soO3, setSoO3] = useState(false);
-   const [ano, setAno] = useState(() => new Date().getFullYear());
-
-   const setSeboFunc = useCallback(
-      (value: string) => {
-         setSeboFuncRaw(value);
-         setSoO3(false);
-         setActiveRow(0);
-      },
-      [setSeboFuncRaw]
-   );
-
-   // Build oper array from toggle states to send to the API
-   const operParams = useMemo(() => {
-      const oper: string[] = [];
-      if (opIn) oper.push("in");
-      if (opOp) oper.push("op");
-      if (opAl) oper.push("al");
-      return oper;
-   }, [opIn, opOp, opAl]);
-
-   // Quando todos os filtros estao ativos, nao enviar oper (retorna todos)
-   const allActive = opIn && opOp && opAl;
-
-   // func_bordo: derivado das posições da função selecionada
-   const funcBordo = useMemo(() => {
-      if (seboFunc === "pil") {
-         // pilotos: toggle OE filtra apenas O3; default exclui O3
-         if (soO3) return ["O3"];
-         return FUNCOES_CONFIG.pil.posicoes
-            .filter((p) => p.codigo !== "O3")
-            .map((p) => p.codigo);
-      }
-      const funcType = seboFunc as FuncType;
-      const config =
-         funcType in FUNCOES_CONFIG ? FUNCOES_CONFIG[funcType] : null;
-      if (!config || config.posicoes.length === 0) return undefined;
-      return config.posicoes.map((p) => p.codigo);
-   }, [seboFunc, soO3]);
-
-   const { data: rawTrips, isLoading } = useSebo({
-      func: seboFunc,
-      oper: allActive || operParams.length === 0 ? undefined : operParams,
-      func_bordo: funcBordo,
-      ano,
-   });
-
-   // Sort by h_ano DESC (most hours first)
-   const sortedTrips = useMemo(() => {
-      if (!rawTrips) return [];
-      return [...rawTrips].sort((a, b) => b.voo.h_ano - a.voo.h_ano);
-   }, [rawTrips]);
+   const isRefetching = !f.isLoading && f.isFetching;
+   const hasData = f.trips.length > 0;
 
    return (
-      <div className="min-h-screen bg-gray-50 p-2">
-         {/* Header Section */}
-         <div className="mb-3">
-            <h1 className="mb-2 text-3xl font-bold text-gray-800">
-               Pau de Sebo
-            </h1>
-         </div>
+      <div className="flex flex-col">
+         {/* Masthead — linguagem tática padrão do sistema */}
+         <header className="relative mb-5 overflow-hidden rounded border border-slate-200 bg-white px-5 py-4 shadow-sm sm:px-6 sm:py-5">
+            <span
+               aria-hidden
+               className="absolute top-0 left-0 h-full w-1 bg-red-600"
+            />
 
-         {/* Filter Panel */}
+            <div className="relative flex min-w-0 items-center gap-4">
+               <div className="grid h-12 w-12 shrink-0 place-items-center rounded-md bg-red-50 text-red-600 ring-1 ring-red-100 ring-inset">
+                  <TbChartBar className="h-6 w-6" />
+               </div>
+               <div className="min-w-0">
+                  <span className="block font-mono text-[10px] font-bold tracking-[0.3em] text-red-500 uppercase">
+                     1º/1º GT · Estatística
+                  </span>
+                  <h1 className="text-2xl leading-none font-extrabold tracking-tight text-slate-900 sm:text-[28px]">
+                     Pau de Sebo
+                  </h1>
+               </div>
+            </div>
+         </header>
+
          <FilterPanel
-            seboFunc={seboFunc}
-            setSeboFunc={setSeboFunc}
-            opIn={opIn}
-            setOpIn={setOpIn}
-            opOp={opOp}
-            setOpOp={setOpOp}
-            opAl={opAl}
-            setOpAl={setOpAl}
-            soO3={soO3}
-            setSoO3={setSoO3}
-            ano={ano}
-            setAno={setAno}
-            totalResults={sortedTrips.length}
-            isLoading={isLoading}
-            infoCols={infoCols}
-            setInfoCols={setInfoCols}
+            seboFunc={f.seboFunc}
+            setSeboFunc={f.setSeboFunc}
+            opIn={f.opIn}
+            setOpIn={f.setOpIn}
+            opOp={f.opOp}
+            setOpOp={f.setOpOp}
+            opAl={f.opAl}
+            setOpAl={f.setOpAl}
+            soO3={f.soO3}
+            setSoO3={f.setSoO3}
+            ano={f.ano}
+            setAno={f.setAno}
+            totalResults={f.trips.length}
+            isLoading={f.isLoading}
+            infoCols={f.infoCols}
+            setInfoCols={f.setInfoCols}
          />
 
-         {/* Content Flex Layout */}
-         <div className="mt-3 flex flex-col gap-3 xl:flex-row">
-            {/* Table Section - Width auto (only necessary) */}
-            <div className="w-auto">
-               <SeboTable
-                  trips={sortedTrips}
-                  activeRow={activeRow}
-                  setRow={setActiveRow}
-                  isLoading={isLoading}
-                  infoCols={infoCols}
-                  isPilot={seboFunc === "pil"}
-               />
+         {f.isLoading ? (
+            <SeboSkeleton />
+         ) : !hasData ? (
+            <div className="mt-3 rounded border border-dashed border-slate-300 bg-slate-50 px-4 py-16 text-center">
+               <p className="text-sm font-semibold text-slate-600">
+                  Nenhum resultado encontrado
+               </p>
+               <p className="mt-1 text-xs text-slate-400">
+                  Ajuste os filtros para encontrar o que precisa.
+               </p>
             </div>
+         ) : (
+            <div
+               className={clsx(
+                  "mt-3 flex flex-col gap-3 transition-opacity duration-200 xl:flex-row",
+                  isRefetching && "pointer-events-none opacity-50"
+               )}
+            >
+               {/* Tabela — largura apenas do necessário */}
+               <div className="w-auto">
+                  <SeboTable
+                     trips={f.trips}
+                     activeRow={activeRow}
+                     setRow={setActiveRow}
+                     infoCols={f.infoCols}
+                     isPilot={f.seboFunc === "pil"}
+                  />
+               </div>
 
-            {/* Chart Section - Occupies remaining space */}
-            {(isLoading || sortedTrips.length > 0) && (
+               {/* Gráfico — ocupa o espaço restante */}
                <div className="flex-1">
-                  <div className="sticky top-4 rounded-xl bg-white p-4 shadow-lg">
-                     {isLoading ? (
-                        <>
-                           <div className="mb-4 flex gap-3">
-                              <div className="h-16 flex-1 animate-pulse rounded-lg bg-gray-200" />
-                              <div className="h-16 flex-1 animate-pulse rounded-lg bg-gray-200" />
-                              <div className="h-16 flex-1 animate-pulse rounded-lg bg-gray-200" />
-                           </div>
-                           <div className="h-95 animate-pulse rounded-lg bg-gray-200" />
-                        </>
-                     ) : (
-                        <>
-                           <h3 className="mb-4 text-lg font-semibold text-gray-800">
-                              Grafico de Horas de Voo
-                           </h3>
-                           <SeboChart
-                              data={sortedTrips.map((trip) => trip.voo.h_ano)}
-                              categories={sortedTrips.map((trip) =>
-                                 trip.trig.toUpperCase()
-                              )}
-                              activeRow={activeRow}
-                              trips={sortedTrips}
-                           />
-                        </>
-                     )}
+                  <div className="sticky top-4 rounded border border-slate-200 bg-white p-4 shadow-sm">
+                     <h3 className="mb-4 text-lg font-semibold text-slate-800">
+                        Gráfico de Horas de Voo
+                     </h3>
+                     <SeboChart trips={f.trips} activeRow={activeRow} />
                   </div>
                </div>
-            )}
-         </div>
-
-         {/* Empty State */}
-         {!isLoading && sortedTrips.length === 0 && (
-            <div className="mt-12 text-center">
-               <div className="mb-4 inline-flex h-16 w-16 items-center justify-center rounded-full bg-gray-200">
-                  <svg
-                     className="h-8 w-8 text-gray-400"
-                     fill="none"
-                     stroke="currentColor"
-                     viewBox="0 0 24 24"
-                  >
-                     <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                     />
-                  </svg>
-               </div>
-               <h3 className="mb-2 text-lg font-medium text-gray-900">
-                  Nenhum resultado encontrado
-               </h3>
-               <p className="text-gray-600">
-                  Tente ajustar os filtros ou a busca para encontrar o que
-                  precisa.
-               </p>
             </div>
          )}
       </div>
    );
 }
-
-export default SeboPage;

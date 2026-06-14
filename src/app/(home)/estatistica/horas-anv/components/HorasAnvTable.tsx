@@ -1,151 +1,205 @@
 "use client";
 
 import { Fragment } from "react";
-import {
-   Table,
-   TableHead,
-   TableHeadCell,
-   TableBody,
-   TableRow,
-   TableCell,
-} from "flowbite-react";
 import clsx from "clsx";
 import { minutesToTime } from "@/../utils/dateHandler";
 import type { AnvHorasResponse } from "services/routes/estatistica/horasAnv";
-
-const MONTH_LABELS = [
-   "jan",
-   "fev",
-   "mar",
-   "abr",
-   "mai",
-   "jun",
-   "jul",
-   "ago",
-   "set",
-   "out",
-   "nov",
-   "dez",
-];
+import { MONTH_LABELS } from "../constants";
 
 interface HorasAnvTableProps {
    data: AnvHorasResponse;
+   anoRef: number;
 }
 
-export function HorasAnvTable({ data }: HorasAnvTableProps) {
+/** Larguras fixas por subcoluna — mantêm todos os meses uniformes,
+ *  com ou sem dados. */
+const HV_W = "w-18";
+const PSO_W = "w-8";
+
+/** Mini-legenda HV/Pou alinhada às duas subcolunas de cada mês. */
+function PairLegend() {
    return (
-      <div className="overflow-x-auto rounded-lg border border-gray-200 bg-white">
-         <Table
-            theme={{
-               root: {
-                  base: "text-center whitespace-nowrap text-base",
-               },
-               body: { cell: { base: "px-1.5 py-1" } },
-               head: { cell: { base: "px-1.5 py-1.5 bg-gray-200" } },
-            }}
-         >
-            <TableHead>
-               <TableRow>
-                  <TableHeadCell className="border-r border-gray-300 font-bold">
-                     ANV
-                  </TableHeadCell>
-                  {MONTH_LABELS.map((m) => (
-                     <TableHeadCell
-                        key={m}
+      <div className="mt-0.5 flex font-mono text-[9px] tracking-wide text-slate-400">
+         <span className={clsx(HV_W, "text-center")}>HV</span>
+         <span className={clsx(PSO_W, "text-center")}>PSO</span>
+      </div>
+   );
+}
+
+/** Célula numérica: mostra o valor ou um traço sutil quando zerado. */
+function NumCell({
+   value,
+   active,
+   col,
+   className,
+}: {
+   value: string | number;
+   active: boolean;
+   col: "hv" | "pso";
+   className?: string;
+}) {
+   return (
+      <td
+         className={clsx(
+            "px-0.5 py-1.5 tabular-nums",
+            col === "hv" ? HV_W : PSO_W,
+            active ? "text-slate-700" : "text-slate-300",
+            className
+         )}
+      >
+         {active ? value : "–"}
+      </td>
+   );
+}
+
+export function HorasAnvTable({ data, anoRef }: HorasAnvTableProps) {
+   const currentDate = new Date();
+   const highlightMonth =
+      anoRef === currentDate.getFullYear() ? currentDate.getMonth() : -1;
+
+   return (
+      <div>
+         <div className="max-h-[70vh] overflow-auto rounded border border-slate-200 bg-white shadow-sm">
+            <table className="w-full border-collapse text-center text-sm whitespace-nowrap">
+               <thead>
+                  <tr>
+                     <th className="sticky top-0 left-0 z-30 border-r border-slate-300 bg-slate-100 px-3 py-2 font-bold text-slate-700">
+                        ANV
+                     </th>
+                     {MONTH_LABELS.map((m, i) => (
+                        <th
+                           key={m}
+                           colSpan={2}
+                           className={clsx(
+                              "sticky top-0 z-20 border-l border-slate-200 px-0 py-1.5 align-top",
+                              i === highlightMonth
+                                 ? "bg-red-50 text-red-700"
+                                 : "bg-slate-100 text-slate-600"
+                           )}
+                        >
+                           <span className="text-xs font-bold tracking-wide uppercase">
+                              {m}
+                           </span>
+                           <PairLegend />
+                        </th>
+                     ))}
+                     <th
                         colSpan={2}
-                        className="border-x border-gray-300"
+                        className="sticky top-0 z-20 border-l border-slate-300 bg-slate-200 px-0 py-1.5 align-top font-bold text-slate-700"
                      >
-                        {m}
-                     </TableHeadCell>
-                  ))}
-                  <TableHeadCell
-                     colSpan={2}
-                     className="border-l border-gray-300 font-bold"
-                  >
-                     TOTAL
-                  </TableHeadCell>
-               </TableRow>
-            </TableHead>
+                        <span className="text-xs font-bold tracking-wide uppercase">
+                           Total
+                        </span>
+                        <PairLegend />
+                     </th>
+                  </tr>
+               </thead>
 
-            <TableBody className="divide-y">
-               {data.items.map((item) => (
-                  <TableRow key={item.matricula} className="hover:bg-gray-50">
-                     <TableCell className="border-r border-gray-300 font-bold text-gray-800">
-                        {item.matricula}
-                     </TableCell>
-                     {item.meses.map((mes, i) => {
-                        const hasData = mes.tvoo > 0 || mes.pousos > 0;
-                        return (
-                           <Fragment key={i}>
-                              <TableCell
-                                 className={clsx(
-                                    hasData
-                                       ? "font-semibold text-gray-700"
-                                       : "text-gray-300"
-                                 )}
-                              >
-                                 {minutesToTime(mes.tvoo)}
-                              </TableCell>
-                              <TableCell
-                                 className={clsx(
-                                    "border-r border-gray-200",
-                                    hasData
-                                       ? "font-semibold text-gray-700"
-                                       : "text-gray-300"
-                                 )}
-                              >
-                                 {mes.pousos}
-                              </TableCell>
-                           </Fragment>
-                        );
-                     })}
-                     <TableCell
+               <tbody className="divide-y divide-slate-100">
+                  {data.items.map((item) => (
+                     <tr key={item.matricula} className="group">
+                        <td className="sticky left-0 z-10 border-r border-slate-300 bg-white px-3 py-1.5 font-bold text-slate-800 group-hover:bg-slate-50">
+                           {item.matricula}
+                        </td>
+                        {item.meses.map((mes, i) => {
+                           const active = mes.tvoo > 0 || mes.pousos > 0;
+                           const isHL = i === highlightMonth;
+                           return (
+                              <Fragment key={i}>
+                                 <NumCell
+                                    value={minutesToTime(mes.tvoo)}
+                                    active={active && mes.tvoo > 0}
+                                    col="hv"
+                                    className={clsx(
+                                       "border-l border-slate-100",
+                                       isHL
+                                          ? "bg-red-50/60"
+                                          : "group-hover:bg-slate-50"
+                                    )}
+                                 />
+                                 <NumCell
+                                    value={mes.pousos}
+                                    active={active && mes.pousos > 0}
+                                    col="pso"
+                                    className={clsx(
+                                       isHL
+                                          ? "bg-red-50/60"
+                                          : "group-hover:bg-slate-50"
+                                    )}
+                                 />
+                              </Fragment>
+                           );
+                        })}
+                        <NumCell
+                           value={minutesToTime(item.total_tvoo)}
+                           active={item.total_tvoo > 0}
+                           col="hv"
+                           className="border-l border-slate-300 bg-slate-50 group-hover:bg-slate-100"
+                        />
+                        <NumCell
+                           value={item.total_pousos}
+                           active={item.total_pousos > 0}
+                           col="pso"
+                           className="bg-slate-50 group-hover:bg-slate-100"
+                        />
+                     </tr>
+                  ))}
+
+                  {/* Linha TOTAL */}
+                  <tr className="font-bold text-slate-800">
+                     <td className="sticky left-0 z-10 border-t border-r border-slate-300 bg-slate-200 px-3 py-1.5">
+                        TOTAL
+                     </td>
+                     {data.total_meses.map((mes, i) => (
+                        <Fragment key={i}>
+                           <td
+                              className={clsx(
+                                 "border-t border-l border-slate-300 px-0.5 py-1.5 tabular-nums",
+                                 HV_W,
+                                 i === highlightMonth
+                                    ? "bg-red-100 text-red-800"
+                                    : "bg-slate-200"
+                              )}
+                           >
+                              {mes.tvoo > 0 ? minutesToTime(mes.tvoo) : "–"}
+                           </td>
+                           <td
+                              className={clsx(
+                                 "border-t border-slate-300 px-0.5 py-1.5 tabular-nums",
+                                 PSO_W,
+                                 i === highlightMonth
+                                    ? "bg-red-100 text-red-800"
+                                    : "bg-slate-200"
+                              )}
+                           >
+                              {mes.pousos > 0 ? mes.pousos : "–"}
+                           </td>
+                        </Fragment>
+                     ))}
+                     <td
                         className={clsx(
-                           "bg-gray-50 font-semibold",
-                           item.total_tvoo > 0
-                              ? "text-gray-800"
-                              : "text-gray-300"
+                           "border-t border-l border-slate-300 bg-slate-300 px-0.5 py-1.5 tabular-nums",
+                           HV_W
                         )}
                      >
-                        {minutesToTime(item.total_tvoo)}
-                     </TableCell>
-                     <TableCell
+                        {minutesToTime(data.total_tvoo)}
+                     </td>
+                     <td
                         className={clsx(
-                           "bg-gray-50 font-semibold",
-                           item.total_pousos > 0
-                              ? "text-gray-800"
-                              : "text-gray-300"
+                           "border-t border-slate-300 bg-slate-300 px-0.5 py-1.5 tabular-nums",
+                           PSO_W
                         )}
                      >
-                        {item.total_pousos}
-                     </TableCell>
-                  </TableRow>
-               ))}
+                        {data.total_pousos}
+                     </td>
+                  </tr>
+               </tbody>
+            </table>
+         </div>
 
-               {/* TOTAL row */}
-               <TableRow className="font-semibold text-gray-800">
-                  <TableCell className="border-r border-gray-300 bg-gray-200">
-                     TOTAL
-                  </TableCell>
-                  {data.total_meses.map((mes, i) => (
-                     <Fragment key={i}>
-                        <TableCell className="bg-gray-200">
-                           {minutesToTime(mes.tvoo)}
-                        </TableCell>
-                        <TableCell className="border-r border-gray-200 bg-gray-200">
-                           {mes.pousos}
-                        </TableCell>
-                     </Fragment>
-                  ))}
-                  <TableCell className="bg-gray-200">
-                     {minutesToTime(data.total_tvoo)}
-                  </TableCell>
-                  <TableCell className="bg-gray-200">
-                     {data.total_pousos}
-                  </TableCell>
-               </TableRow>
-            </TableBody>
-         </Table>
+         <p className="mt-2 px-1 font-mono text-[11px] tracking-wide text-slate-400">
+            HV = horas de voo (HH:MM) · PSO = nº de pousos
+         </p>
       </div>
    );
 }
