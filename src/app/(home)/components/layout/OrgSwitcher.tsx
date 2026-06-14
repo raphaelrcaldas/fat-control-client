@@ -48,7 +48,7 @@ export function OrgSwitcher() {
                path: "/",
             });
             getQueryClient().clear();
-            window.location.reload();
+            window.location.assign("/");
          } else {
             push({
                type: "error",
