@@ -1,6 +1,6 @@
 import clsx from "clsx";
 import { MdMedicalServices, MdEventBusy } from "react-icons/md";
-import type { BlockReason } from "../utils/buildEscala";
+import type { BlockReason } from "../types";
 
 interface BlockReasonsListProps {
    reasons: BlockReason[];

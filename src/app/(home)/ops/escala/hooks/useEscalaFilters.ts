@@ -3,7 +3,7 @@ import { useEffect, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { usePersistedState } from "@/hooks/usePersistedState";
 import type { EscalaSort } from "services/routes/ops/escala";
-import type { EscalaFiltersState } from "../components/EscalaFilters";
+import type { EscalaFiltersState } from "../types";
 
 const STORAGE_KEY = "escala.filters";
 const VALID_SORTS: EscalaSort[] = ["horas_voo", "quads_asc"];

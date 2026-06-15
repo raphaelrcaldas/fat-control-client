@@ -21,7 +21,7 @@ interface AeronaveTableProps {
 
 export function AeronaveTable({ aeronaves, onEdit }: AeronaveTableProps) {
    return (
-      <div className="hidden overflow-x-auto rounded-xl border border-gray-300 bg-white shadow-md md:block">
+      <div className="hidden overflow-x-auto rounded border border-slate-200 bg-white shadow-sm md:block">
          <Table
             hoverable
             className="text-center"
@@ -113,7 +113,7 @@ export function AeronaveTable({ aeronaves, onEdit }: AeronaveTableProps) {
                            >
                               <button
                                  onClick={() => onEdit(aeronave)}
-                                 className="rounded-lg p-1.5 text-gray-500 transition-colors hover:bg-blue-50 hover:text-blue-600"
+                                 className="rounded p-1.5 text-gray-500 transition-colors hover:bg-blue-50 hover:text-blue-600"
                                  title="Editar"
                                  aria-label={`Editar aeronave ${aeronave.matricula}`}
                               >

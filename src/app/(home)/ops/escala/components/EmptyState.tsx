@@ -2,7 +2,7 @@ import { MdEventAvailable } from "react-icons/md";
 
 export function EmptyState() {
    return (
-      <div className="flex min-h-[40vh] flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-slate-300 bg-white/50 px-6 py-12 text-center">
+      <div className="flex min-h-[40vh] flex-col items-center justify-center gap-3 rounded border border-dashed border-slate-300 bg-white/50 px-6 py-12 text-center">
          <div className="grid h-14 w-14 place-items-center rounded-full border border-slate-200 bg-white shadow-inner">
             <MdEventAvailable className="text-2xl text-slate-400" />
          </div>
@@ -23,7 +23,7 @@ export function EmptyState() {
 
 export function NoResultsState() {
    return (
-      <div className="flex flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-slate-300 bg-white/60 px-6 py-10 text-center">
+      <div className="flex flex-col items-center justify-center gap-2 rounded border border-dashed border-slate-300 bg-white/60 px-6 py-10 text-center">
          <p className="font-mono text-[10px] font-bold tracking-[0.3em] text-slate-400 uppercase">
             Sem retorno
          </p>

@@ -1,8 +1,11 @@
+"use client";
+import { useState } from "react";
 import clsx from "clsx";
+import { HiChevronDown } from "react-icons/hi";
 import { getFuncColors, getFuncLabel } from "@/constants";
 import type { FuncType } from "@/constants/tripulantes/funcoes";
 import { TripCard } from "./TripCard";
-import type { SectionBucket } from "../utils/buildEscala";
+import type { SectionBucket } from "../types";
 
 interface FuncSectionProps {
    bucket: SectionBucket;
@@ -13,14 +16,13 @@ export function FuncSection({ bucket, index }: FuncSectionProps) {
    const funcKey = bucket.func as FuncType;
    const colors = getFuncColors(funcKey);
    const label = getFuncLabel(funcKey);
-   const short = getFuncLabel(funcKey, true);
    const efetivos = bucket.disponiveis.length;
    const inop = bucket.indisponiveis.length;
 
    return (
       <section
          className={clsx(
-            "relative flex w-full flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm sm:w-68 sm:shrink-0 sm:grow-0",
+            "relative flex w-full flex-col overflow-hidden rounded border border-slate-200 bg-white shadow-sm sm:w-68 sm:shrink-0 sm:grow-0",
             "transition-shadow hover:shadow-md"
          )}
       >
@@ -78,6 +80,8 @@ export function FuncSection({ bucket, index }: FuncSectionProps) {
                accent="bg-rose-500"
                empty="Nenhum tripulante indisponível"
                muted
+               collapsible
+               defaultOpen={false}
             >
                {bucket.indisponiveis.map((status, i) => (
                   <TripCard
@@ -99,6 +103,8 @@ interface SubListProps {
    empty: string;
    children: React.ReactNode;
    muted?: boolean;
+   collapsible?: boolean;
+   defaultOpen?: boolean;
 }
 
 function SubList({
@@ -108,33 +114,61 @@ function SubList({
    empty,
    children,
    muted,
+   collapsible = false,
+   defaultOpen = true,
 }: SubListProps) {
+   const [open, setOpen] = useState(collapsible ? defaultOpen : true);
+
+   const headerInner = (
+      <>
+         <span className={clsx("inline-block h-2 w-2 rounded-full", accent)} />
+         <h3 className="text-[11px] font-bold tracking-[0.22em] text-slate-700 uppercase">
+            {title}
+         </h3>
+         <span className="font-mono text-[10px] text-slate-400 tabular-nums">
+            {String(count).padStart(2, "0")}
+         </span>
+         <div className="ml-1 h-px flex-1 bg-slate-200" />
+         {collapsible && (
+            <HiChevronDown
+               className={clsx(
+                  "shrink-0 text-sm text-slate-400 transition-transform",
+                  open && "rotate-180"
+               )}
+               aria-hidden="true"
+            />
+         )}
+      </>
+   );
+
    return (
       <div>
-         <div className="mb-2 flex items-center gap-2">
-            <span
-               className={clsx("inline-block h-2 w-2 rounded-full", accent)}
-            />
-            <h3 className="text-[11px] font-bold tracking-[0.22em] text-slate-700 uppercase">
-               {title}
-            </h3>
-            <span className="font-mono text-[10px] text-slate-400 tabular-nums">
-               {String(count).padStart(2, "0")}
-            </span>
-            <div className="ml-1 h-px flex-1 bg-slate-200" />
-         </div>
-         {count === 0 ? (
-            <p
-               className={clsx(
-                  "rounded-md border border-dashed border-slate-200 bg-slate-50/50 px-3 py-3 text-center text-xs italic",
-                  muted ? "text-slate-400" : "text-slate-500"
-               )}
+         {collapsible ? (
+            <button
+               type="button"
+               onClick={() => setOpen((v) => !v)}
+               aria-expanded={open}
+               className="mb-2 flex w-full items-center gap-2 text-left transition-colors hover:text-slate-900"
             >
-               {empty}
-            </p>
+               {headerInner}
+            </button>
          ) : (
-            <div className="flex flex-col gap-1.5">{children}</div>
+            <div className="mb-2 flex items-center gap-2">{headerInner}</div>
          )}
+
+         {open &&
+            (count === 0 ? (
+               <p
+                  className={clsx(
+                     "rounded-md border border-dashed border-slate-200 bg-slate-50/50 px-3 py-3 text-center text-xs italic",
+                     muted ? "text-slate-400" : "text-slate-500"
+                  )}
+               >
+                  {empty}
+               </p>
+            ) : (
+               <div className="flex flex-col gap-1.5">{children}</div>
+            ))}
       </div>
    );
 }

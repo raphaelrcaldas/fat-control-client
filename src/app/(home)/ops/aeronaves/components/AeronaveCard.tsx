@@ -21,7 +21,7 @@ export function AeronaveCard({ aeronave, onEdit }: AeronaveCardProps) {
    return (
       <div
          className={clsx(
-            "rounded-lg border border-gray-200 shadow-sm",
+            "rounded border border-slate-200 shadow-sm",
             aeronave.active ? "bg-white" : "bg-gray-50/60"
          )}
       >
@@ -29,7 +29,7 @@ export function AeronaveCard({ aeronave, onEdit }: AeronaveCardProps) {
             <div className="flex min-w-0 items-center gap-3">
                <span
                   className={clsx(
-                     "inline-flex w-12 shrink-0 items-center justify-center rounded-md py-1 text-sm font-bold tracking-wide text-white",
+                     "inline-flex w-12 shrink-0 items-center justify-center rounded py-1 text-sm font-bold tracking-wide text-white",
                      SIT_COLORS[aeronave.sit]
                   )}
                >
@@ -67,7 +67,7 @@ export function AeronaveCard({ aeronave, onEdit }: AeronaveCardProps) {
             <PermBased resource={"aeronaves"} requiredPerm={"update"}>
                <button
                   onClick={() => onEdit(aeronave)}
-                  className="rounded-md p-1.5 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-700"
+                  className="rounded p-1.5 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-700"
                   aria-label={`Editar aeronave ${aeronave.matricula}`}
                >
                   <HiPencil className="h-4 w-4" />
@@ -76,7 +76,7 @@ export function AeronaveCard({ aeronave, onEdit }: AeronaveCardProps) {
          </div>
 
          {aeronave.obs && (
-            <div className="border-t border-gray-100 px-4 py-2.5">
+            <div className="border-t border-slate-100 px-4 py-2.5">
                <p className="text-sm whitespace-pre-line text-gray-600">
                   {aeronave.obs}
                </p>

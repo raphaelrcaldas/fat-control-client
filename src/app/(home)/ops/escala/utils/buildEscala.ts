@@ -2,64 +2,14 @@ import {
    isCemalValid,
    isDesadaptado,
 } from "@/app/(home)/ops/indisp/utils/indispStatus";
-import {
-   formatPeriodo,
-   formatPeriodoSemAno,
-   isoStrToDate,
-} from "utils/dateHandler";
+import { formatPeriodoSemAno, isoStrToDate } from "utils/dateHandler";
 import type {
    EscalaFuncSection,
    EscalaTripEntry,
 } from "services/routes/ops/escala";
-
-export interface BlockReason {
-   kind: "cemal" | "indisp";
-   label: string;
-   detail?: string;
-}
-
-export interface TripStatus {
-   trip: EscalaTripEntry;
-   isDesadaptado: boolean;
-   dsvDias: number | null;
-   cemalValid: boolean;
-   isAvailable: boolean;
-   reasons: BlockReason[];
-}
-
-export interface SectionBucket {
-   func: string;
-   total: number;
-   disponiveis: TripStatus[];
-   indisponiveis: TripStatus[];
-}
+import type { BlockReason, SectionBucket, TripStatus } from "../types";
 
 const MS_DIA = 24 * 60 * 60 * 1000;
-
-function indispLabel(mtv: string): string {
-   switch (mtv) {
-      case "svc":
-         return "Serviço";
-      case "sde":
-         return "Saúde";
-      case "rep":
-         return "Representação";
-      case "fer":
-         return "Férias";
-      case "lic":
-         return "Licença";
-      case "mis":
-         return "Missão";
-      case "odm":
-         return "Ordem de Missão";
-      case "pes":
-         return "Particular";
-      case "ins":
-         return "CEMAL";
-      default:
-         return mtv.toUpperCase();
-   }
-}
 
 function buildTripStatus(trip: EscalaTripEntry, dateRef: Date): TripStatus {
    const cemal = trip.cemal_date ? isoStrToDate(trip.cemal_date) : null;
@@ -118,8 +68,4 @@ export function buildBuckets(
          indisponiveis: statuses.filter((s) => !s.isAvailable),
       };
    });
-}
-
-export function formatRangeLabel(date_start: string, date_end: string): string {
-   return formatPeriodo(date_start, date_end);
 }

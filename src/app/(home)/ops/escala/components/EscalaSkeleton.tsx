@@ -20,10 +20,10 @@ export function EscalaSkeleton({
 
 function ColumnSkeleton({ cardsPerSubList }: { cardsPerSubList: number }) {
    return (
-      <section className="relative flex w-full flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm sm:w-56 sm:shrink-0 sm:grow-0">
+      <section className="relative flex w-full flex-col overflow-hidden rounded border border-slate-200 bg-white shadow-sm sm:w-68 sm:shrink-0 sm:grow-0">
          <div className="absolute inset-y-0 left-0 w-1.5 bg-slate-200" />
 
-         <header className="flex items-end justify-between gap-3 border-b border-slate-200 px-5 py-3 pl-7">
+         <header className="flex flex-wrap items-end justify-between gap-3 border-b border-slate-200 px-5 py-3 pl-7">
             <div className="flex items-center gap-2">
                <div className="h-3 w-5 animate-pulse rounded bg-slate-200" />
                <div className="h-4 w-20 animate-pulse rounded bg-slate-200" />
@@ -77,7 +77,7 @@ function CardSkeleton({ muted = false }: { muted?: boolean }) {
    return (
       <div
          className={clsx(
-            "flex items-start justify-between gap-2 rounded-lg border border-slate-200 bg-white p-3",
+            "flex items-start justify-between gap-2 rounded border border-slate-200 bg-white p-3",
             muted && "opacity-70"
          )}
       >

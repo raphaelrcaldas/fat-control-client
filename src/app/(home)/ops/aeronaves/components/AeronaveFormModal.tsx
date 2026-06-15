@@ -45,17 +45,17 @@ const SIT_ICONS: Record<string, React.ElementType> = {
 };
 
 const SIT_COLORS: Record<string, string> = {
-   DI: "text-green-500",
-   DO: "text-yellow-500",
+   DI: "text-emerald-500",
+   DO: "text-orange-500",
    IN: "text-red-500",
-   IS: "text-blue-500",
+   IS: "text-gray-500",
 };
 
 const SIT_SELECTED: Record<string, string> = {
-   DI: "border-green-500 bg-green-50",
-   DO: "border-yellow-500 bg-yellow-50",
+   DI: "border-emerald-500 bg-emerald-50",
+   DO: "border-orange-500 bg-orange-50",
    IN: "border-red-500 bg-red-50",
-   IS: "border-blue-500 bg-blue-50",
+   IS: "border-gray-400 bg-gray-50",
 };
 
 export function AeronaveFormModal({
@@ -309,29 +309,36 @@ export function AeronaveFormModal({
                   {errors.sit && (
                      <p className="mt-1 text-sm text-red-600">{errors.sit}</p>
                   )}
-               </div>
 
-               {/* Observação - visible when sit != DI */}
-               {formData.sit !== "DI" && (
-                  <div>
-                     <Label
-                        htmlFor="obs"
-                        className="mb-2 block text-sm font-semibold"
-                     >
-                        Observação / Restrição
-                     </Label>
-                     <Textarea
-                        id="obs"
-                        className="placeholder:text-slate-400"
-                        placeholder="Descreva a restrição ou observação..."
-                        rows={3}
-                        value={formData.obs || ""}
-                        onChange={(e) =>
-                           updateField("obs", e.target.value || null)
-                        }
-                     />
+                  {/* Observação - expande suavemente quando sit != DI */}
+                  <div
+                     className={clsx(
+                        "grid transition-all duration-300 ease-in-out",
+                        formData.sit !== "DI"
+                           ? "mt-4 grid-rows-[1fr] opacity-100"
+                           : "grid-rows-[0fr] opacity-0"
+                     )}
+                  >
+                     <div className="min-h-0 overflow-hidden">
+                        <Label
+                           htmlFor="obs"
+                           className="mb-2 block text-sm font-semibold"
+                        >
+                           Observação / Restrição
+                        </Label>
+                        <Textarea
+                           id="obs"
+                           className="placeholder:text-slate-400"
+                           placeholder="Descreva a restrição ou observação..."
+                           rows={3}
+                           value={formData.obs || ""}
+                           onChange={(e) =>
+                              updateField("obs", e.target.value || null)
+                           }
+                        />
+                     </div>
                   </div>
-               )}
+               </div>
 
                {/* Configurações */}
                <div className="space-y-3 rounded border border-slate-200 bg-gray-50 p-3">

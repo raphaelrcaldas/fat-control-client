@@ -57,7 +57,7 @@ export function SituacaoSummary({ aeronaves }: SituacaoSummaryProps) {
    return (
       <div className="mb-4 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5">
          {/* Total */}
-         <div className="flex items-center justify-between rounded-lg border border-gray-200 bg-white px-3 py-2.5">
+         <div className="flex items-center justify-between rounded border border-slate-200 bg-white px-3 py-2.5 shadow-sm">
             <div className="min-w-0">
                <p className="text-[11px] font-medium tracking-wide text-gray-500 uppercase">
                   Ativas
@@ -80,7 +80,7 @@ export function SituacaoSummary({ aeronaves }: SituacaoSummaryProps) {
             return (
                <div
                   key={item.sit}
-                  className="relative flex items-center justify-between overflow-hidden rounded-lg border border-gray-200 bg-white px-3 py-2.5"
+                  className="relative flex items-center justify-between overflow-hidden rounded border border-slate-200 bg-white px-3 py-2.5 shadow-sm"
                >
                   <span
                      className={`absolute top-0 bottom-0 left-0 w-1 ${item.accent}`}

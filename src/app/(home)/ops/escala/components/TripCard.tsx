@@ -2,7 +2,7 @@ import clsx from "clsx";
 import { BlockReasonsList } from "./BlockReasonsList";
 import { DesadaptadoBadge } from "./DesadaptadoBadge";
 import { minutesToTime } from "@/../utils/dateHandler";
-import type { TripStatus } from "../utils/buildEscala";
+import type { TripStatus } from "../types";
 
 interface TripCardProps {
    status: TripStatus;
@@ -15,7 +15,7 @@ export function TripCard({ status, index }: TripCardProps) {
    return (
       <article
          className={clsx(
-            "relative flex flex-col rounded-lg border bg-white p-3 transition-shadow",
+            "relative flex flex-col rounded border bg-white p-3 transition-shadow",
             isAvailable
                ? "border-slate-400 shadow-sm hover:shadow-md"
                : "border-slate-400/50 bg-slate-50/70 opacity-80"
