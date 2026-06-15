@@ -10,6 +10,19 @@ export type { DateStatus } from "@/utils/dateStatus";
 import { getDateStatus } from "@/utils/dateStatus";
 import type { DateStatus } from "@/utils/dateStatus";
 
+/**
+ * Rótulos com o threshold explícito — usados nos campos do formulário, onde
+ * informar a janela de dias é útil. Difere do `label` curto de getStatusConfig
+ * (usado em badges/cards), por isso vive aqui de forma centralizada.
+ */
+export const STATUS_LABELS: Record<DateStatus, string> = {
+   valid: "Em dia",
+   warning: "Atenção (< 90 dias)",
+   critical: "Crítico (< 30 dias)",
+   expired: "Vencido",
+   empty: "Sem data",
+};
+
 const PRIORITY: Record<DateStatus, number> = {
    expired: 4,
    critical: 3,

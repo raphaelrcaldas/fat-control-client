@@ -8,6 +8,14 @@ import { FaPassport } from "react-icons/fa";
 import clsx from "clsx";
 import type { DateStatus } from "@/utils/dateStatus";
 import { getStatusConfig } from "../utils/dateStatus";
+import type { CountableStatus, PassaporteStats } from "../types";
+
+const COUNTABLE: CountableStatus[] = [
+   "valid",
+   "warning",
+   "critical",
+   "expired",
+];
 
 // ========================================
 // StatCard
@@ -15,37 +23,21 @@ import { getStatusConfig } from "../utils/dateStatus";
 
 interface StatCardProps {
    icon: React.ComponentType<{ className?: string }>;
-   iconColor: string;
-   iconBg: string;
    label: string;
-   total: number;
-   counts: {
-      valid: number;
-      warning: number;
-      critical: number;
-      expired: number;
-   };
-   urgent: number;
+   stats: PassaporteStats;
 }
 
-function StatCard({
-   icon: Icon,
-   iconColor,
-   iconBg,
-   label,
-   total,
-   counts,
-   urgent,
-}: StatCardProps) {
-   const statuses: DateStatus[] = ["valid", "warning", "critical", "expired"];
+function StatCard({ icon: Icon, label, stats }: StatCardProps) {
+   const { total, counts } = stats;
+   const urgent = counts.expired + counts.critical;
 
    return (
-      <div className="overflow-hidden rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+      <div className="overflow-hidden rounded border border-slate-200 bg-white p-5 shadow-sm">
          {/* Header */}
          <div className="mb-4 flex items-center justify-between">
             <div className="flex items-center gap-3">
-               <div className={clsx("rounded-xl p-2.5", iconBg)}>
-                  <Icon className={clsx("h-5 w-5", iconColor)} />
+               <div className="rounded-md bg-red-50 p-2.5">
+                  <Icon className="h-5 w-5 text-red-600" />
                </div>
                <div>
                   <h3 className="text-sm font-bold text-gray-800">{label}</h3>
@@ -64,9 +56,9 @@ function StatCard({
 
          {/* Counters */}
          <div className="grid grid-cols-4 gap-2">
-            {statuses.map((s) => {
+            {COUNTABLE.map((s: DateStatus) => {
                const cfg = getStatusConfig(s);
-               const count = counts[s];
+               const count = counts[s as CountableStatus];
                const pct = total > 0 ? Math.round((count / total) * 100) : 0;
                return (
                   <div key={s} className="text-center">
@@ -112,24 +104,8 @@ function StatCard({
 // ========================================
 
 interface StatCardsGridProps {
-   passaporteStats: {
-      total: number;
-      counts: {
-         valid: number;
-         warning: number;
-         critical: number;
-         expired: number;
-      };
-   };
-   visaStats: {
-      total: number;
-      counts: {
-         valid: number;
-         warning: number;
-         critical: number;
-         expired: number;
-      };
-   };
+   passaporteStats: PassaporteStats;
+   visaStats: PassaporteStats;
 }
 
 const StatCardsGrid = memo(function StatCardsGrid({
@@ -140,23 +116,13 @@ const StatCardsGrid = memo(function StatCardsGrid({
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
          <StatCard
             icon={FaPassport}
-            iconColor="text-red-600"
-            iconBg="bg-red-50"
             label="Passaporte"
-            total={passaporteStats.total}
-            counts={passaporteStats.counts}
-            urgent={
-               passaporteStats.counts.expired + passaporteStats.counts.critical
-            }
+            stats={passaporteStats}
          />
          <StatCard
             icon={HiIdentification}
-            iconColor="text-red-600"
-            iconBg="bg-red-50"
             label="Visto Americano"
-            total={visaStats.total}
-            counts={visaStats.counts}
-            urgent={visaStats.counts.expired + visaStats.counts.critical}
+            stats={visaStats}
          />
       </div>
    );

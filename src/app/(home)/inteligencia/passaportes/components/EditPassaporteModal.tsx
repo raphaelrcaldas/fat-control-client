@@ -1,6 +1,6 @@
 "use client";
 
-import { memo, useState, useEffect } from "react";
+import { memo, useState } from "react";
 import {
    Modal,
    ModalHeader,
@@ -13,26 +13,17 @@ import {
 } from "flowbite-react";
 import { HiPhone, HiTrash } from "react-icons/hi";
 import clsx from "clsx";
+import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import { useToast } from "@/app/context/toast";
 import { formatPhone, formatSaram } from "@/constants/formats";
 import { useUpsertPassaporte, useDeletePassaporte } from "@/hooks/queries";
-import type {
-   TripPassaporteOut,
-   PassaporteUpsert,
-} from "services/routes/inteligencia/passaportes";
-import { getDateStatus, getStatusConfig } from "../utils/dateStatus";
-
-// ========================================
-// Status labels
-// ========================================
-
-const statusLabels = {
-   valid: "Em dia",
-   warning: "Atencao (< 90 dias)",
-   critical: "Critico (< 30 dias)",
-   expired: "Vencido",
-   empty: "Sem data",
-} as const;
+import type { TripPassaporteOut } from "services/routes/inteligencia/passaportes";
+import {
+   getDateStatus,
+   getStatusConfig,
+   STATUS_LABELS,
+} from "../utils/dateStatus";
+import { usePassaporteForm } from "../hooks/usePassaporteForm";
 
 // ========================================
 // ValidadeDateField
@@ -71,7 +62,7 @@ function ValidadeDateField({
          <div className="mt-1 flex items-center gap-1.5">
             <Icon className={clsx("h-4 w-4", config.color)} />
             <span className={clsx("text-xs font-medium", config.color)}>
-               {statusLabels[status]}
+               {STATUS_LABELS[status]}
             </span>
          </div>
       </div>
@@ -79,20 +70,20 @@ function ValidadeDateField({
 }
 
 // ========================================
-// EditPassaporteDrawer
+// EditPassaporteModal
 // ========================================
 
-interface EditPassaporteDrawerProps {
+interface EditPassaporteModalProps {
    show: boolean;
    onClose: () => void;
    item: TripPassaporteOut;
 }
 
-const EditPassaporteDrawer = memo(function EditPassaporteDrawer({
+const EditPassaporteModal = memo(function EditPassaporteModal({
    show,
    onClose,
    item,
-}: EditPassaporteDrawerProps) {
+}: EditPassaporteModalProps) {
    const { push } = useToast();
    const isEdit = !!item.passaporte;
 
@@ -103,77 +94,23 @@ const EditPassaporteDrawer = memo(function EditPassaporteDrawer({
    const isDeleting = deleteMutation.isPending;
 
    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-   const [formData, setFormData] = useState({
-      passaporte: item.passaporte?.passaporte || "",
-      data_expedicao_passaporte:
-         item.passaporte?.data_expedicao_passaporte || "",
-      validade_passaporte: item.passaporte?.validade_passaporte || "",
-      visa: item.passaporte?.visa || "",
-      data_expedicao_visa: item.passaporte?.data_expedicao_visa || "",
-      validade_visa: item.passaporte?.validade_visa || "",
-   });
-
-   useEffect(() => {
-      if (show) {
-         setFormData({
-            passaporte: item.passaporte?.passaporte || "",
-            data_expedicao_passaporte:
-               item.passaporte?.data_expedicao_passaporte || "",
-            validade_passaporte: item.passaporte?.validade_passaporte || "",
-            visa: item.passaporte?.visa || "",
-            data_expedicao_visa: item.passaporte?.data_expedicao_visa || "",
-            validade_visa: item.passaporte?.validade_visa || "",
-         });
-         setShowDeleteConfirm(false);
-      }
-   }, [show, item]);
-
-   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-      const { name, value } = e.target;
-      setFormData((prev) => ({ ...prev, [name]: value }));
-   };
+   const { formData, handleChange, validate, buildPayload } = usePassaporteForm(
+      item,
+      show
+   );
 
    const handleSave = async () => {
-      if (
-         formData.data_expedicao_passaporte &&
-         formData.validade_passaporte &&
-         formData.data_expedicao_passaporte > formData.validade_passaporte
-      ) {
-         push({
-            title: "Erro",
-            message:
-               "Data de expedição do passaporte não pode ser maior que a validade",
-            type: "error",
-         });
-         return;
-      }
-      if (
-         formData.data_expedicao_visa &&
-         formData.validade_visa &&
-         formData.data_expedicao_visa > formData.validade_visa
-      ) {
-         push({
-            title: "Erro",
-            message:
-               "Data de expedição do visto não pode ser maior que a validade",
-            type: "error",
-         });
+      const error = validate();
+      if (error) {
+         push({ title: "Erro", message: error, type: "error" });
          return;
       }
 
       try {
-         const data: PassaporteUpsert = {
-            passaporte: formData.passaporte || null,
-            data_expedicao_passaporte:
-               formData.data_expedicao_passaporte || null,
-            validade_passaporte: formData.validade_passaporte || null,
-            visa: formData.visa || null,
-            data_expedicao_visa: formData.data_expedicao_visa || null,
-            validade_visa: formData.validade_visa || null,
-         };
-
-         await upsertMutation.mutateAsync({ trip_id: item.trip_id, data });
-
+         await upsertMutation.mutateAsync({
+            trip_id: item.trip_id,
+            data: buildPayload(),
+         });
          push({
             message: isEdit
                ? "Passaporte atualizado com sucesso"
@@ -210,8 +147,8 @@ const EditPassaporteDrawer = memo(function EditPassaporteDrawer({
             </ModalHeader>
             <ModalBody>
                <div className="space-y-6">
-                  {/* Informacoes do militar */}
-                  <div className="rounded-lg border bg-gray-50 p-4">
+                  {/* Informações do militar */}
+                  <div className="rounded border border-slate-200 bg-gray-50 p-4">
                      <p className="text-sm font-semibold text-gray-900 uppercase">
                         {item.p_g} {item.nome_guerra}
                      </p>
@@ -234,7 +171,7 @@ const EditPassaporteDrawer = memo(function EditPassaporteDrawer({
                   </div>
 
                   {/* Grupo Passaporte */}
-                  <fieldset className="rounded-lg border border-gray-300 p-4 shadow">
+                  <fieldset className="rounded border border-slate-200 p-4 shadow">
                      <legend className="px-2 text-sm font-semibold text-gray-700 uppercase">
                         Passaporte
                      </legend>
@@ -278,7 +215,7 @@ const EditPassaporteDrawer = memo(function EditPassaporteDrawer({
                   </fieldset>
 
                   {/* Grupo Visa */}
-                  <fieldset className="rounded-lg border border-gray-300 p-4 shadow">
+                  <fieldset className="rounded border border-slate-200 p-4 shadow">
                      <legend className="px-2 text-sm font-semibold text-gray-700 uppercase">
                         Visa
                      </legend>
@@ -365,39 +302,18 @@ const EditPassaporteDrawer = memo(function EditPassaporteDrawer({
             </ModalFooter>
          </Modal>
 
-         <Modal
+         <ConfirmModal
             show={showDeleteConfirm}
+            title="Confirmar Exclusão"
+            description={`Remover o passaporte de ${item.p_g} ${item.nome_guerra}? Esta ação não pode ser desfeita.`}
+            isLoading={isDeleting}
             onClose={() => setShowDeleteConfirm(false)}
-            size="md"
-         >
-            <ModalHeader>Confirmar Exclusão</ModalHeader>
-            <ModalBody>
-               <p className="text-gray-700">
-                  Tem certeza que deseja remover o passaporte de{" "}
-                  <strong className="uppercase">
-                     {item.p_g} {item.nome_guerra}
-                  </strong>
-                  ?
-               </p>
-               <p className="mt-2 text-sm text-gray-500">
-                  Esta ação não pode ser desfeita.
-               </p>
-            </ModalBody>
-            <ModalFooter>
-               <Button
-                  color="gray"
-                  onClick={() => setShowDeleteConfirm(false)}
-                  disabled={isDeleting}
-               >
-                  Cancelar
-               </Button>
-               <Button color="red" onClick={handleDelete} disabled={isDeleting}>
-                  {isDeleting ? "Removendo..." : "Remover"}
-               </Button>
-            </ModalFooter>
-         </Modal>
+            onConfirm={handleDelete}
+            confirmButtonText="Remover"
+            icon={HiTrash}
+         />
       </>
    );
 });
 
-export default EditPassaporteDrawer;
+export default EditPassaporteModal;

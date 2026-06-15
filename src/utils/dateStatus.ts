@@ -30,6 +30,7 @@ export function getStatusConfig(status: DateStatus) {
             bg: "bg-green-50",
             border: "border-green-200",
             barColor: "green" as const,
+            dot: "bg-green-500",
             icon: MdCheckCircle,
             label: "Regular",
          };
@@ -39,6 +40,7 @@ export function getStatusConfig(status: DateStatus) {
             bg: "bg-yellow-50",
             border: "border-yellow-200",
             barColor: "yellow" as const,
+            dot: "bg-yellow-400",
             icon: MdWarning,
             label: "Atenção",
          };
@@ -48,6 +50,7 @@ export function getStatusConfig(status: DateStatus) {
             bg: "bg-orange-50",
             border: "border-orange-200",
             barColor: "red" as const,
+            dot: "bg-orange-500",
             icon: MdError,
             label: "Crítico",
          };
@@ -57,6 +60,7 @@ export function getStatusConfig(status: DateStatus) {
             bg: "bg-red-50",
             border: "border-red-200",
             barColor: "red" as const,
+            dot: "bg-red-500",
             icon: MdCancel,
             label: "Vencido",
          };
@@ -66,6 +70,7 @@ export function getStatusConfig(status: DateStatus) {
             bg: "bg-gray-50",
             border: "border-gray-200",
             barColor: "gray" as const,
+            dot: "bg-gray-300",
             icon: MdRemoveCircleOutline,
             label: "Sem data",
          };

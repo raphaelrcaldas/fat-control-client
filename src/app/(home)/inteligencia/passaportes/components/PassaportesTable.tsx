@@ -8,7 +8,6 @@ import {
    TableBody,
    TableRow,
    TableCell,
-   Spinner,
 } from "flowbite-react";
 import { HiChevronUp, HiChevronDown } from "react-icons/hi";
 import { FaPassport } from "react-icons/fa";
@@ -104,18 +103,6 @@ const SortableHeader = memo(function SortableHeader({
 });
 
 // ========================================
-// Dot color map
-// ========================================
-
-const DOT_COLORS = {
-   valid: "bg-green-500",
-   warning: "bg-yellow-400",
-   critical: "bg-orange-500",
-   expired: "bg-red-500",
-   empty: "bg-gray-300",
-} as const;
-
-// ========================================
 // PassaporteRow
 // ========================================
 
@@ -130,7 +117,7 @@ const PassaporteRow = memo(function PassaporteRow({
       item.passaporte?.validade_passaporte,
       item.passaporte?.validade_visa
    );
-   const dotColor = DOT_COLORS[worst];
+   const config = getStatusConfig(worst);
 
    return (
       <TableRow
@@ -140,12 +127,12 @@ const PassaporteRow = memo(function PassaporteRow({
          }
          tabIndex={0}
          role="button"
-         className="cursor-pointer border-b border-gray-200 font-mono transition-colors hover:bg-red-50"
+         className="cursor-pointer border-b border-slate-200 font-mono transition-colors hover:bg-red-50"
       >
          <TableCell className="w-10 px-3 py-3">
             <span
-               className={clsx("inline-block h-3 w-3 rounded-full", dotColor)}
-               aria-label={`Status: ${worst}`}
+               className={clsx("inline-block h-3 w-3 rounded-full", config.dot)}
+               aria-label={`Status: ${config.label}`}
             />
          </TableCell>
          <TableCell className="px-4 py-3 font-medium whitespace-nowrap text-gray-900 uppercase">
@@ -166,7 +153,6 @@ const PassaporteRow = memo(function PassaporteRow({
                {item.passaporte?.visa || "---"}
             </span>
          </TableCell>
-
          <TableCell className="px-4 py-3 whitespace-nowrap">
             <DateCell dateStr={item.passaporte?.validade_visa} />
          </TableCell>
@@ -180,7 +166,6 @@ const PassaporteRow = memo(function PassaporteRow({
 
 interface PassaportesTableProps {
    data: TripPassaporteOut[];
-   isLoading: boolean;
    sortField: SortField | null;
    sortDirection: SortDirection;
    onSort: (field: SortField) => void;
@@ -191,7 +176,6 @@ interface PassaportesTableProps {
 
 const PassaportesTable = memo(function PassaportesTable({
    data,
-   isLoading,
    sortField,
    sortDirection,
    onSort,
@@ -199,14 +183,6 @@ const PassaportesTable = memo(function PassaportesTable({
    hasActiveFilters,
    onClearFilters,
 }: PassaportesTableProps) {
-   if (isLoading) {
-      return (
-         <div className="flex h-64 items-center justify-center">
-            <Spinner color="failure" size="xl" />
-         </div>
-      );
-   }
-
    if (data.length === 0) {
       return (
          <div className="flex h-64 flex-col items-center justify-center">
@@ -229,7 +205,7 @@ const PassaportesTable = memo(function PassaportesTable({
    return (
       <div className="overflow-x-auto">
          <Table hoverable>
-            <TableHead className="border-b border-gray-200 bg-gray-50 text-xs text-gray-700 uppercase">
+            <TableHead className="border-b border-slate-200 bg-gray-50 text-xs text-gray-700 uppercase">
                <TableRow>
                   <TableHeadCell className="w-10 px-3 py-3" />
                   <SortableHeader

@@ -12,6 +12,7 @@ import {
    FUNC_LABELS,
 } from "@/constants/tripulantes/funcoes";
 import type { StatusFilter } from "../types";
+import { getStatusConfig } from "../utils/dateStatus";
 
 const PG_OPTIONS = postoGradRecords.map((pg) => ({
    value: pg.short,
@@ -22,6 +23,15 @@ const FUNC_OPTIONS = FUNCOES_PRINCIPAIS.map((f) => ({
    value: f,
    label: FUNC_LABELS[f],
 }));
+
+// Chips de status (cores vêm de getStatusConfig — fonte única).
+const STATUS_FILTERS: { value: Exclude<StatusFilter, "all">; label: string }[] =
+   [
+      { value: "expired", label: "Vencidos" },
+      { value: "critical", label: "Críticos" },
+      { value: "warning", label: "Atenção" },
+      { value: "valid", label: "Regular" },
+   ];
 
 function FilterButton({
    active,
@@ -39,10 +49,10 @@ function FilterButton({
          type="button"
          onClick={onClick}
          className={clsx(
-            "inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-sm font-medium transition-all",
+            "inline-flex items-center gap-1.5 rounded border px-3 py-1.5 text-sm font-medium transition-all",
             active
                ? "border-blue-700 bg-blue-700 text-white"
-               : "border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
+               : "border-slate-200 bg-white text-gray-700 hover:bg-gray-50"
          )}
       >
          {dot && <span className={clsx("h-2 w-2 rounded-full", dot)} />}
@@ -109,11 +119,11 @@ const Filters = memo(function Filters({
                options={FUNC_OPTIONS}
                selected={filterFunc}
                onChange={onFilterFuncChange}
-               placeholder="Funcao"
+               placeholder="Função"
                className="w-44"
             />
 
-            <div className="flex items-center gap-1 rounded-lg border border-gray-300 bg-white p-0.5">
+            <div className="flex items-center gap-1 rounded border border-slate-200 bg-white p-0.5">
                <FilterButton
                   active={statusFilter === "all"}
                   onClick={() => onStatusFilterChange("all")}
@@ -121,39 +131,21 @@ const Filters = memo(function Filters({
                   <MdFilterList className="h-3.5 w-3.5" />
                   Todos
                </FilterButton>
-               <FilterButton
-                  active={statusFilter === "expired"}
-                  onClick={() => onStatusFilterChange("expired")}
-                  dot="bg-red-500"
-               >
-                  Vencidos
-               </FilterButton>
-               <FilterButton
-                  active={statusFilter === "critical"}
-                  onClick={() => onStatusFilterChange("critical")}
-                  dot="bg-orange-500"
-               >
-                  Criticos
-               </FilterButton>
-               <FilterButton
-                  active={statusFilter === "warning"}
-                  onClick={() => onStatusFilterChange("warning")}
-                  dot="bg-yellow-400"
-               >
-                  Atencao
-               </FilterButton>
-               <FilterButton
-                  active={statusFilter === "valid"}
-                  onClick={() => onStatusFilterChange("valid")}
-                  dot="bg-green-500"
-               >
-                  Regular
-               </FilterButton>
+               {STATUS_FILTERS.map(({ value, label }) => (
+                  <FilterButton
+                     key={value}
+                     active={statusFilter === value}
+                     onClick={() => onStatusFilterChange(value)}
+                     dot={getStatusConfig(value).dot}
+                  >
+                     {label}
+                  </FilterButton>
+               ))}
             </div>
          </div>
 
          {!isLoading && (
-            <div className="flex items-center justify-between border-t border-gray-200 bg-gray-50 px-4 py-2 text-sm">
+            <div className="flex items-center justify-between border-t border-slate-200 bg-gray-50 px-4 py-2 text-sm">
                <div className="flex items-center gap-4">
                   <span className="text-gray-600">
                      Exibindo{" "}
