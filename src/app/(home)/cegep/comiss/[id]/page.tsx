@@ -174,7 +174,7 @@ function ComissLogEntry({ log }: { log: ComissLog }) {
             </time>
          </div>
          {diffs.length > 0 && (
-            <ul className="wrap-break-words mt-2 space-y-0.5 text-xs text-gray-600">
+            <ul className="mt-2 space-y-0.5 text-xs wrap-break-word text-gray-600">
                {diffs.map((d) => (
                   <li key={d.field}>
                      <span className="font-medium text-gray-700">
