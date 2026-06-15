@@ -1,62 +1,71 @@
 "use client";
 
+import clsx from "clsx";
 import { useState } from "react";
-import { Spinner } from "flowbite-react";
+import { Button } from "flowbite-react";
 import { useCartoes } from "@/hooks/queries";
-import { MdBadge } from "react-icons/md";
 import type { TripCartoesOut } from "services/routes/instrucao/cartoes";
+import CartoesMasthead from "./components/CartoesMasthead";
 import PilotCard from "./components/PilotCard";
+import PilotCardSkeleton from "./components/PilotCardSkeleton";
 import EditCartoesDrawer from "./components/EditCartoesDrawer";
+
+const SKELETON_ROWS = 8;
 
 export default function CartoesPage() {
    const [editItem, setEditItem] = useState<TripCartoesOut | null>(null);
 
-   const { data = [], isLoading } = useCartoes();
+   const {
+      data = [],
+      isLoading,
+      isError,
+      error,
+      refetch,
+      isFetching,
+   } = useCartoes();
 
    return (
-      <div className="flex flex-col gap-6 p-1">
-         {/* Header */}
-         <div className="rounded-2xl border border-gray-200 bg-white px-6 py-5 shadow-sm">
-            <div className="flex items-center gap-4">
-               <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-red-600 shadow-md">
-                  <MdBadge className="h-6 w-6 text-white" />
-               </div>
-               <div>
-                  <h1 className="text-xl font-semibold text-gray-900">
-                     Cartões
-                  </h1>
-                  <p className="text-sm text-gray-500">
-                     Controle de PTAI, TAI, CVI e proficiência linguística dos
-                     pilotos
-                  </p>
-               </div>
-               {!isLoading && (
-                  <div className="ml-auto flex items-center gap-1.5 rounded-lg bg-red-100 px-3 py-1.5">
-                     <span className="text-lg font-semibold text-red-800">
-                        {data.length}
-                     </span>
-                     <span className="text-xs text-red-500">pilotos</span>
-                  </div>
-               )}
-            </div>
-         </div>
+      <div className="flex flex-col gap-5">
+         <CartoesMasthead count={isLoading ? null : data.length} />
 
-         {/* Grid de pilotos */}
-         <div className="flex flex-col gap-1.5">
-            {isLoading ? (
-               <div className="flex justify-center py-16">
-                  <Spinner color="failure" size="lg" />
+         {isLoading ? (
+            <div className="flex flex-col gap-1.5">
+               {Array.from({ length: SKELETON_ROWS }).map((_, i) => (
+                  <PilotCardSkeleton key={i} />
+               ))}
+            </div>
+         ) : isError ? (
+            <div className="rounded border border-rose-200 bg-rose-50 px-4 py-12 text-center">
+               <p className="text-sm font-semibold text-rose-800">
+                  Não foi possível carregar os cartões
+               </p>
+               <p className="mt-1 text-xs text-rose-600">
+                  {(error as Error)?.message ?? "Tente novamente."}
+               </p>
+               <div className="mt-4 flex justify-center">
+                  <Button color="red" size="sm" onClick={() => refetch()}>
+                     Tentar novamente
+                  </Button>
                </div>
-            ) : data.length === 0 ? (
-               <div className="py-16 text-center text-sm text-gray-400">
-                  Nenhum piloto encontrado.
-               </div>
-            ) : (
-               data.map((p) => (
+            </div>
+         ) : data.length === 0 ? (
+            <div className="rounded border border-dashed border-slate-300 bg-slate-50 px-4 py-16 text-center">
+               <p className="text-sm font-semibold text-slate-600">
+                  Nenhum piloto encontrado
+               </p>
+            </div>
+         ) : (
+            <div
+               className={clsx(
+                  "flex flex-col gap-1.5 transition-opacity",
+                  isFetching && "opacity-50"
+               )}
+            >
+               {data.map((p) => (
                   <PilotCard key={p.trip_id} pilot={p} onEdit={setEditItem} />
-               ))
-            )}
-         </div>
+               ))}
+            </div>
+         )}
 
          {editItem && (
             <EditCartoesDrawer

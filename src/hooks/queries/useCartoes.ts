@@ -1,9 +1,4 @@
-import {
-   useQuery,
-   useMutation,
-   useQueryClient,
-   keepPreviousData,
-} from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
    getCartoes,
    upsertCartao,
@@ -20,7 +15,6 @@ export function useCartoes() {
    return useQuery({
       queryKey: cartoesKeys.lists(),
       queryFn: ({ signal }) => getCartoes(signal),
-      placeholderData: keepPreviousData,
       staleTime: 5 * 60_000,
    });
 }
