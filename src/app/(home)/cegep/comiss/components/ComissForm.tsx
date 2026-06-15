@@ -43,7 +43,7 @@ export function ComissForm({ comiss, onCancel, onSuccess }: ComissFormProps) {
          user: comiss ? comiss.user : null,
          docProp: comiss ? comiss.doc_prop : "",
          docAut: comiss ? comiss.doc_aut : "",
-         docEnc: comiss ? comiss.doc_enc : "",
+         docEnc: comiss ? (comiss.doc_enc ?? "") : "",
          dataAb: comiss ? comiss.data_ab : "",
          qtdAjAb: comiss ? comiss.qtd_aj_ab : 0,
          valAjAb: comiss ? comiss.valor_aj_ab : 0,

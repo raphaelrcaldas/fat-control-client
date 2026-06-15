@@ -76,6 +76,8 @@ export interface ComissWithMiss extends Comiss {
    vals_comp: number;
    modulo: boolean;
    completude: number;
+   missoes_count: number;
+   cache_inconsistente: boolean;
    logs: ComissLog[];
 }
 

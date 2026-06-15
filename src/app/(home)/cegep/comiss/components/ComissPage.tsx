@@ -231,6 +231,18 @@ export function ComissPage({ detail, onEdit, onClose }: ComissPageProps) {
                   </PermBased>
                </div>
 
+               {/* Integridade dos valores computados (verificada no backend) */}
+               {comiss.cache_inconsistente && (
+                  <div className="flex items-start gap-2 rounded border border-red-300 bg-red-50 p-3 text-sm text-red-800">
+                     <HiExclamation className="mt-0.5 h-5 w-5 shrink-0 animate-pulse text-red-500" />
+                     <span>
+                        Integridade comprometida: os valores computados deste
+                        comissionamento podem estar desatualizados. Reabra e
+                        salve as missões afetadas para recalcular.
+                     </span>
+                  </div>
+               )}
+
                {/* Documentos */}
                <div className="hidden gap-4 md:grid md:grid-cols-3">
                   <div className="rounded border border-gray-200 bg-white p-4 text-center shadow-sm">
