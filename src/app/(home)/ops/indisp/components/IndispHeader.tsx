@@ -14,7 +14,6 @@ export function IndispHeader() {
                <HiUserGroup className="h-5 w-5" />
             </div>
             <div>
-               
                <h1 className="text-xl leading-none font-extrabold tracking-tight text-slate-900 sm:text-2xl">
                   Indisponibilidades
                </h1>

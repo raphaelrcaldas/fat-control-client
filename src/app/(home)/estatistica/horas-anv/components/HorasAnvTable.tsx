@@ -13,18 +13,8 @@ interface HorasAnvTableProps {
 
 /** Larguras fixas por subcoluna — mantêm todos os meses uniformes,
  *  com ou sem dados. */
-const HV_W = "w-18";
-const PSO_W = "w-8";
-
-/** Mini-legenda HV/Pou alinhada às duas subcolunas de cada mês. */
-function PairLegend() {
-   return (
-      <div className="mt-0.5 flex font-mono text-[9px] tracking-wide text-slate-400">
-         <span className={clsx(HV_W, "text-center")}>HV</span>
-         <span className={clsx(PSO_W, "text-center")}>PSO</span>
-      </div>
-   );
-}
+const HV_W = "min-w-18";
+const PSO_W = "min-w-8";
 
 /** Célula numérica: mostra o valor ou um traço sutil quando zerado. */
 function NumCell({
@@ -62,8 +52,12 @@ export function HorasAnvTable({ data, anoRef }: HorasAnvTableProps) {
          <div className="max-h-[70vh] overflow-auto rounded border border-slate-200 bg-white shadow-sm">
             <table className="w-full border-collapse text-center text-sm whitespace-nowrap">
                <thead>
+                  {/* Linha 1: nome do mês cobrindo as duas subcolunas (HV/PSO) */}
                   <tr>
-                     <th className="sticky top-0 left-0 z-30 border-r border-slate-300 bg-slate-100 px-3 py-2 font-bold text-slate-700">
+                     <th
+                        rowSpan={2}
+                        className="sticky top-0 left-0 z-30 h-7 border-r border-b border-slate-300 bg-slate-100 px-3 align-middle font-bold text-slate-700"
+                     >
                         ANV
                      </th>
                      {MONTH_LABELS.map((m, i) => (
@@ -71,7 +65,7 @@ export function HorasAnvTable({ data, anoRef }: HorasAnvTableProps) {
                            key={m}
                            colSpan={2}
                            className={clsx(
-                              "sticky top-0 z-20 border-l border-slate-200 px-0 py-1.5 align-top",
+                              "sticky top-0 z-20 h-7 border-l border-slate-200 px-0",
                               i === highlightMonth
                                  ? "bg-red-50 text-red-700"
                                  : "bg-slate-100 text-slate-600"
@@ -80,17 +74,64 @@ export function HorasAnvTable({ data, anoRef }: HorasAnvTableProps) {
                            <span className="text-xs font-bold tracking-wide uppercase">
                               {m}
                            </span>
-                           <PairLegend />
                         </th>
                      ))}
                      <th
                         colSpan={2}
-                        className="sticky top-0 z-20 border-l border-slate-300 bg-slate-200 px-0 py-1.5 align-top font-bold text-slate-700"
+                        className="sticky top-0 z-20 h-7 border-l border-slate-300 bg-slate-200 px-0 font-bold text-slate-700"
                      >
                         <span className="text-xs font-bold tracking-wide uppercase">
                            Total
                         </span>
-                        <PairLegend />
+                     </th>
+                  </tr>
+
+                  {/* Linha 2: subcolunas HV/PSO — th reais, alinhados às células */}
+                  <tr className="font-mono text-[9px] tracking-wide">
+                     {MONTH_LABELS.map((m, i) => {
+                        const isHL = i === highlightMonth;
+                        return (
+                           <Fragment key={m}>
+                              <th
+                                 className={clsx(
+                                    "sticky top-7 z-20 border-b border-l border-slate-100 px-0.5 pb-1 font-normal",
+                                    HV_W,
+                                    isHL
+                                       ? "bg-red-50 text-red-700"
+                                       : "bg-slate-100 text-slate-400"
+                                 )}
+                              >
+                                 HV
+                              </th>
+                              <th
+                                 className={clsx(
+                                    "sticky top-7 z-20 border-b border-slate-100 px-0.5 pb-1 font-normal",
+                                    PSO_W,
+                                    isHL
+                                       ? "bg-red-50 text-red-700"
+                                       : "bg-slate-100 text-slate-400"
+                                 )}
+                              >
+                                 PSO
+                              </th>
+                           </Fragment>
+                        );
+                     })}
+                     <th
+                        className={clsx(
+                           "sticky top-7 z-20 border-b border-l border-slate-300 bg-slate-200 px-0.5 pb-1 font-normal text-slate-500",
+                           HV_W
+                        )}
+                     >
+                        HV
+                     </th>
+                     <th
+                        className={clsx(
+                           "sticky top-7 z-20 border-b border-slate-300 bg-slate-200 px-0.5 pb-1 font-normal text-slate-500",
+                           PSO_W
+                        )}
+                     >
+                        PSO
                      </th>
                   </tr>
                </thead>

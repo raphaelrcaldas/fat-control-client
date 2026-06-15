@@ -6,8 +6,8 @@ const STAT_CARDS = [0, 1, 2, 3];
 const TABLE_ROWS = [0, 1, 2, 3, 4, 5];
 
 /** Larguras fixas por subcoluna — espelham HorasAnvTable (HV_W / PSO_W). */
-const HV_W = "w-18";
-const PSO_W = "w-8";
+const HV_W = "min-w-18";
+const PSO_W = "min-w-8";
 
 /** Mini-legenda HV/PSO — chrome estático idêntico ao da tabela real. */
 function PairLegend() {
