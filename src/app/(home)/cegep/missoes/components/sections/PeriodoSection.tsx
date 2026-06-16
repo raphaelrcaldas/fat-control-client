@@ -3,6 +3,7 @@ import { FaPlaneDeparture, FaPlaneArrival } from "react-icons/fa";
 import { DateTimePicker } from "@/app/(home)/components/dateTimePicker";
 import clsx from "clsx";
 import { SectionWrapper } from "../SectionWrapper";
+import { formatNaiveDateTime } from "utils/dateHandler";
 
 interface PeriodoSectionProps {
    afast: string;
@@ -38,13 +39,7 @@ export function PeriodoSection({
                      <div className="flex items-center gap-3 rounded border border-yellow-300 bg-yellow-100 px-4 py-3 font-mono shadow-sm">
                         <FaPlaneDeparture className="text-lg text-yellow-700" />
                         <span className="font-semibold text-slate-800">
-                           {new Date(afast).toLocaleDateString("pt-BR", {
-                              year: "numeric",
-                              month: "numeric",
-                              day: "numeric",
-                              hour: "2-digit",
-                              minute: "2-digit",
-                           })}
+                           {formatNaiveDateTime(afast)}
                         </span>
                      </div>
                   )}
@@ -61,13 +56,7 @@ export function PeriodoSection({
                      <div className="flex items-center gap-3 rounded border border-yellow-300 bg-yellow-100 px-4 py-3 font-mono shadow-sm">
                         <FaPlaneArrival className="text-lg text-yellow-700" />
                         <span className="font-semibold text-slate-800">
-                           {new Date(regres).toLocaleDateString("pt-BR", {
-                              year: "numeric",
-                              month: "numeric",
-                              day: "numeric",
-                              hour: "2-digit",
-                              minute: "2-digit",
-                           })}
+                           {formatNaiveDateTime(regres)}
                         </span>
                      </div>
                   )}

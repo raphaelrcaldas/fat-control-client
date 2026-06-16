@@ -2,7 +2,7 @@ import { memo, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { Missao } from "services/routes/cegep/missoes";
 import clsx from "clsx";
-import { isoStrToDate, DATE_FORMAT_EXTENDED } from "utils/dateHandler";
+import { isoStrToDate, formatNaiveDateTime } from "utils/dateHandler";
 import { MdDescription } from "react-icons/md";
 import { HiDocumentText, HiTag } from "react-icons/hi2";
 import { MissionMilitar } from "./missionDetail/militar/missionMilitar";
@@ -18,14 +18,8 @@ export const CardMission = memo(function CardMission({
 
    const { ini, fim } = useMemo(
       () => ({
-         ini: new Date(missao.afast).toLocaleDateString(
-            "pt-BR",
-            DATE_FORMAT_EXTENDED
-         ),
-         fim: new Date(missao.regres).toLocaleDateString(
-            "pt-BR",
-            DATE_FORMAT_EXTENDED
-         ),
+         ini: formatNaiveDateTime(missao.afast),
+         fim: formatNaiveDateTime(missao.regres),
       }),
       [missao.afast, missao.regres]
    );

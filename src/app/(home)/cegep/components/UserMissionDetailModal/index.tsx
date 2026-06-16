@@ -3,6 +3,7 @@ import { Modal, ModalBody, Badge } from "flowbite-react";
 import { HiX, HiCalendar, HiExclamation, HiCheckCircle } from "react-icons/hi";
 import { MisPntsTable } from "./MisPntsTable";
 import { PagamentoRecord } from "services/routes/cegep/financeiro";
+import { formatNaiveDateTime } from "utils/dateHandler";
 
 interface UserMissionDetailModalProps {
    show: boolean;
@@ -20,21 +21,8 @@ export function UserMissionDetailModal({
    const { user_mis, missao } = record;
    const pnts = missao.pernoites || [];
 
-   const afast = new Date(missao.afast).toLocaleDateString("pt-BR", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "2-digit",
-      hour: "2-digit",
-      minute: "2-digit",
-   });
-
-   const regres = new Date(missao.regres).toLocaleDateString("pt-BR", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "2-digit",
-      hour: "2-digit",
-      minute: "2-digit",
-   });
+   const afast = formatNaiveDateTime(missao.afast);
+   const regres = formatNaiveDateTime(missao.regres);
 
    const getStatusConfig = (sit: string) => {
       const configs = {

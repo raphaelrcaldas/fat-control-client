@@ -28,6 +28,39 @@ export function isoDateToString(isoDate: string): string {
    return `${day}/${month}/${year}`;
 }
 
+/**
+ * Formata uma data/datetime ISO "naive" (sem fuso) para DD/MM/YY usando
+ * APENAS parsing de string — totalmente imune a fuso horário.
+ *
+ * Use para campos `timestamp without time zone` do backend cujo valor é
+ * hora-de-parede local (ex.: missão `afast`/`regres`, gerados pelo
+ * DateTimePicker como `YYYY-MM-DDTHH:MM:SS` sem `Z`). Parsear esses valores
+ * com `new Date()` + `getUTC*` (como `isoDateToString`) desloca o dia quando
+ * há hora próxima da meia-noite; aqui o dia exibido é sempre exatamente o
+ * dia armazenado. Aceita "YYYY-MM-DD" e "YYYY-MM-DDTHH:MM:SS".
+ */
+export function formatNaiveDate(iso: string | null | undefined): string {
+   if (!iso) return "";
+   const [year, month, day] = iso.split("T")[0].split("-");
+   if (!year || !month || !day) return "";
+   return `${day.padStart(2, "0")}/${month.padStart(2, "0")}/${year.slice(-2)}`;
+}
+
+/**
+ * Como `formatNaiveDate`, mas inclui a hora: "DD/MM/YY HH:MM" — parsing por
+ * string puro, imune a fuso. Use para exibir datetime naive do backend com a
+ * hora-de-parede local (ex.: missão `afast`/`regres`). Se não houver hora na
+ * string, retorna só a data. Aceita "YYYY-MM-DDTHH:MM[:SS]" e "YYYY-MM-DD".
+ */
+export function formatNaiveDateTime(iso: string | null | undefined): string {
+   if (!iso) return "";
+   const [datePart, timePart = ""] = iso.split("T");
+   const date = formatNaiveDate(datePart);
+   if (!date) return "";
+   const hm = timePart.slice(0, 5); // "HH:MM"
+   return hm ? `${date} ${hm}` : date;
+}
+
 // Dias inclusivos entre duas datas ISO (espelha o backend: fim - inicio + 1).
 // Retorna null se as datas forem inválidas ou o fim anteceder o início.
 export function daysInclusive(isoStart: string, isoEnd: string): number | null {

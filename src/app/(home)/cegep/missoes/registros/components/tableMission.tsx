@@ -10,7 +10,7 @@ import {
 } from "flowbite-react";
 import { Missao } from "services/routes/cegep/missoes";
 import clsx from "clsx";
-import { DATE_FORMAT_EXTENDED } from "utils/dateHandler";
+import { formatNaiveDateTime } from "utils/dateHandler";
 import { HiDocumentText, HiTag } from "react-icons/hi2";
 
 interface TableMissionProps {
@@ -65,14 +65,8 @@ const TableMissionRow = memo(function TableMissionRow({
 
    const { ini, fim } = useMemo(
       () => ({
-         ini: new Date(missao.afast).toLocaleDateString(
-            "pt-BR",
-            DATE_FORMAT_EXTENDED
-         ),
-         fim: new Date(missao.regres).toLocaleDateString(
-            "pt-BR",
-            DATE_FORMAT_EXTENDED
-         ),
+         ini: formatNaiveDateTime(missao.afast),
+         fim: formatNaiveDateTime(missao.regres),
       }),
       [missao.afast, missao.regres]
    );

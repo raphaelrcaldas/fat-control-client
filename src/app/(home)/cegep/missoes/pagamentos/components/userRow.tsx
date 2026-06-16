@@ -6,6 +6,7 @@ import { HiExternalLink, HiExclamation } from "react-icons/hi";
 import { useRouter } from "next/navigation";
 import clsx from "clsx";
 import { PagamentoRecord } from "services/routes/cegep/financeiro";
+import { formatNaiveDateTime } from "utils/dateHandler";
 
 interface UserRowProps {
    record: PagamentoRecord;
@@ -50,22 +51,8 @@ export const UserRow = memo(function UserRow({
 
    const { afast, regres } = useMemo(
       () => ({
-         afast:
-            new Date(record.missao.afast).toLocaleDateString("pt-BR", {
-               day: "2-digit",
-               month: "2-digit",
-               year: "2-digit",
-               hour: "2-digit",
-               minute: "2-digit",
-            }) || "N/A",
-         regres:
-            new Date(record.missao.regres).toLocaleDateString("pt-BR", {
-               day: "2-digit",
-               month: "2-digit",
-               year: "2-digit",
-               hour: "2-digit",
-               minute: "2-digit",
-            }) || "N/A",
+         afast: formatNaiveDateTime(record.missao.afast) || "N/A",
+         regres: formatNaiveDateTime(record.missao.regres) || "N/A",
       }),
       [record.missao.afast, record.missao.regres]
    );
