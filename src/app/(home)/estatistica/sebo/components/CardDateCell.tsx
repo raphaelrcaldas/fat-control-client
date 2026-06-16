@@ -11,8 +11,11 @@ interface CardDateCellProps {
 /** Célula de validade de cartão: badge colorido por proximidade do vencimento + tooltip. */
 export function CardDateCell({ iso, label }: CardDateCellProps) {
    return (
-      <TableCell className="hidden px-0.5 text-center md:table-cell">
-         <Tooltip content={getDateTooltip(iso, label)}>
+      <TableCell className="px-0.5 text-center">
+         <Tooltip
+            content={getDateTooltip(iso, label)}
+            theme={{ target: "mx-auto w-fit" }}
+         >
             <span className={getDateBadgeClasses(iso)}>
                {iso ? isoDateToString(iso) : "NIL"}
             </span>

@@ -22,9 +22,9 @@ export default function SeboPage() {
    const hasData = f.trips.length > 0;
 
    return (
-      <div className="flex flex-col">
+      <div className="flex flex-col space-y-2">
          {/* Masthead — linguagem tática padrão do sistema */}
-         <header className="relative mb-5 overflow-hidden rounded border border-slate-200 bg-white px-5 py-4 shadow-sm sm:px-6 sm:py-5">
+         <header className="relative overflow-hidden rounded border border-slate-200 bg-white px-5 py-4 shadow-sm sm:px-6 sm:py-5">
             <span
                aria-hidden
                className="absolute top-0 left-0 h-full w-1 bg-red-600"
@@ -58,8 +58,6 @@ export default function SeboPage() {
             setSoO3={f.setSoO3}
             ano={f.ano}
             setAno={f.setAno}
-            totalResults={f.trips.length}
-            isLoading={f.isLoading}
             infoCols={f.infoCols}
             setInfoCols={f.setInfoCols}
          />
@@ -67,7 +65,7 @@ export default function SeboPage() {
          {f.isLoading ? (
             <SeboSkeleton />
          ) : !hasData ? (
-            <div className="mt-3 rounded border border-dashed border-slate-300 bg-slate-50 px-4 py-16 text-center">
+            <div className="rounded border border-dashed border-slate-300 bg-slate-50 px-4 py-16 text-center">
                <p className="text-sm font-semibold text-slate-600">
                   Nenhum resultado encontrado
                </p>
@@ -78,7 +76,7 @@ export default function SeboPage() {
          ) : (
             <div
                className={clsx(
-                  "mt-3 flex flex-col gap-3 transition-opacity duration-200 xl:flex-row",
+                  "flex flex-col gap-3 transition-opacity duration-200 xl:flex-row",
                   isRefetching && "pointer-events-none opacity-50"
                )}
             >
@@ -94,7 +92,7 @@ export default function SeboPage() {
                </div>
 
                {/* Gráfico — ocupa o espaço restante */}
-               <div className="flex-1">
+               <div className="hidden flex-1 xl:block">
                   <div className="sticky top-4 rounded border border-slate-200 bg-white p-4 shadow-sm">
                      <h3 className="mb-4 text-lg font-semibold text-slate-800">
                         Gráfico de Horas de Voo

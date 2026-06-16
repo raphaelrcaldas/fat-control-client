@@ -46,13 +46,13 @@ export function SeboTable({
          <Table hoverable theme={{ head: { cell: { base: "bg-white" } } }}>
             <TableHead>
                <TableRow>
-                  <TableHeadCell className="hidden text-center 2xl:table-cell">
+                  <TableHeadCell className="hidden text-center lg:table-cell">
                      PG
                   </TableHeadCell>
-                  <TableHeadCell className="hidden min-w-40 text-center 2xl:table-cell">
+                  <TableHeadCell className="hidden min-w-40 text-center lg:table-cell">
                      NOME DE GUERRA
                   </TableHeadCell>
-                  <TableHeadCell className="px-4 text-center">
+                  <TableHeadCell className="sticky left-0 z-20 bg-white px-4 text-center lg:hidden">
                      TRIG
                   </TableHeadCell>
                   <TableHeadCell className="px-4 text-center">OP</TableHeadCell>
@@ -60,10 +60,7 @@ export function SeboTable({
                      DSV
                   </TableHeadCell>
                   {visibleCols.map((col) => (
-                     <TableHeadCell
-                        key={col.key}
-                        className="hidden text-center md:table-cell"
-                     >
+                     <TableHeadCell key={col.key} className="text-center">
                         {col.label}
                      </TableHeadCell>
                   ))}
@@ -78,19 +75,26 @@ export function SeboTable({
                      key={trip.trip_id}
                      onClick={() => setRow(index)}
                      className={clsx(
-                        "cursor-pointer border-l-4 transition-colors",
+                        "group cursor-pointer border-l-4 transition-colors",
                         index === activeRow
                            ? "border-l-red-500 bg-red-50! hover:bg-red-100!"
                            : "border-l-transparent"
                      )}
                   >
-                     <TableCell className="hidden px-0.5 text-center font-semibold text-slate-700 2xl:table-cell">
+                     <TableCell className="hidden px-0.5 text-center font-semibold text-slate-700 lg:table-cell">
                         {trip.p_g}
                      </TableCell>
-                     <TableCell className="hidden px-0.5 text-center font-semibold text-nowrap text-slate-800 2xl:table-cell">
+                     <TableCell className="hidden px-0.5 text-center font-semibold text-nowrap text-slate-800 lg:table-cell">
                         {trip.nome_guerra}
                      </TableCell>
-                     <TableCell className="px-0.5 text-center font-bold text-slate-900">
+                     <TableCell
+                        className={clsx(
+                           "sticky left-0 z-10 px-0.5 text-center font-bold text-slate-900 transition-colors lg:hidden",
+                           index === activeRow
+                              ? "bg-red-50 group-hover:bg-red-100"
+                              : "bg-white group-hover:bg-gray-50"
+                        )}
+                     >
                         {trip.trig}
                      </TableCell>
                      <TableCell className="px-0.5 text-center">
@@ -99,7 +103,10 @@ export function SeboTable({
                         </span>
                      </TableCell>
                      <TableCell className="px-0.5 text-center">
-                        <Tooltip content={getDsvTooltip(trip.voo.data_ult_voo)}>
+                        <Tooltip
+                           content={getDsvTooltip(trip.voo.data_ult_voo)}
+                           theme={{ target: "mx-auto w-fit" }}
+                        >
                            <span className={getDsvBadgeClasses(trip.voo.dsv)}>
                               {trip.voo.dsv !== null ? trip.voo.dsv : "—"}
                            </span>

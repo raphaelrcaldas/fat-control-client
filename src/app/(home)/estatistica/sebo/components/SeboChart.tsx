@@ -1,5 +1,6 @@
 "use client";
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, useState } from "react";
+import { Label } from "flowbite-react";
 import Chart from "react-apexcharts";
 import { minutesToTime } from "@/../utils/dateHandler";
 import type { SeboTripItem } from "services/routes/estatistica/sebo";
@@ -16,6 +17,9 @@ const COLOR_ACTIVE = "#dc2626"; // red-600
 const COLOR_AXIS = "#64748b"; // slate-500
 
 export default function SeboChart({ trips, activeRow }: SeboChartProps) {
+   // Margem (%) da zona de tolerância em torno da média — ajustável pelo usuário.
+   const [margin, setMargin] = useState(25);
+
    const data = useMemo(() => trips.map((t) => t.voo.h_ano), [trips]);
    const categories = useMemo(
       () => trips.map((t) => t.trig.toUpperCase()),
@@ -108,12 +112,12 @@ export default function SeboChart({ trips, activeRow }: SeboChartProps) {
                   },
                },
                {
-                  y: media + (25 * media) / 100,
-                  y2: media - (25 * media) / 100,
+                  y: media + (margin * media) / 100,
+                  y2: media - (margin * media) / 100,
                   fillColor: "#fbbf24",
                   opacity: 0.2,
                   label: {
-                     text: "±25%",
+                     text: `±${margin}%`,
                      style: {
                         color: "#92400e",
                         background: "#fef3c7",
@@ -125,12 +129,38 @@ export default function SeboChart({ trips, activeRow }: SeboChartProps) {
          },
          grid: { borderColor: "#e2e8f0", strokeDashArray: 3 },
       }),
-      [barColors, categories, customTooltip, media]
+      [barColors, categories, customTooltip, media, margin]
    );
 
    return (
       <div className="space-y-4">
          {stats && <SeboStatCards stats={stats} />}
+
+         {/* Controle da zona de tolerância */}
+         <div className="flex items-center gap-3 text-sm">
+            <Label
+               htmlFor="sebo-margin"
+               className="font-medium whitespace-nowrap text-slate-700"
+            >
+               Zona de tolerância
+            </Label>
+            <input
+               id="sebo-margin"
+               type="range"
+               min={0}
+               max={100}
+               step={5}
+               value={margin}
+               onChange={(e) => setMargin(Number(e.target.value))}
+               className="sebo-range flex-1"
+               style={{
+                  background: `linear-gradient(to right, #dc2626 ${margin}%, #e2e8f0 ${margin}%)`,
+               }}
+            />
+            <span className="w-12 text-right font-semibold text-slate-900 tabular-nums">
+               ±{margin}%
+            </span>
+         </div>
 
          <Chart
             options={options}
@@ -152,7 +182,7 @@ export default function SeboChart({ trips, activeRow }: SeboChartProps) {
             </div>
             <div className="flex items-center gap-2">
                <div className="h-3 w-3 rounded border border-yellow-400 bg-yellow-100" />
-               <span>Zona ±25%</span>
+               <span>Zona ±{margin}%</span>
             </div>
          </div>
       </div>
