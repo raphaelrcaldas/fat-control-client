@@ -66,7 +66,7 @@ export function newOiItem(esfAerId: number | null = null): DraftOIItem {
 }
 
 export function newPqd(): DraftPqd {
-   return { uid: crypto.randomUUID(), tipo: "VTC", qtd: 1 };
+   return { uid: crypto.randomUUID(), tipo: "LV", qtd: 1 };
 }
 
 export function newRevo(): DraftRevo {

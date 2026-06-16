@@ -41,7 +41,7 @@ const ADD_BUTTONS: AddButtonConfig[] = [
       label: "PQD",
       Icon: GiParachute,
       className:
-         "border-purple-200 bg-purple-50 text-purple-700 hover:bg-purple-100",
+         "border-green-200 bg-green-50 text-green-700 hover:bg-green-100",
    },
    {
       kind: "revo",
