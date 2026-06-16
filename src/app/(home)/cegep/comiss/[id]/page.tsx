@@ -2,9 +2,9 @@
 
 import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { Spinner } from "flowbite-react";
 import { useComissDetail } from "@/hooks/queries";
 import { ComissPage } from "../components/ComissPage";
+import { ComissPageSkeleton } from "../components/ComissPageSkeleton";
 import { ComissForm } from "../components/ComissForm";
 import { formatDateTime, isoDateToString } from "@/../utils/dateHandler";
 import type {
@@ -69,11 +69,7 @@ export default function ComissDetailPage() {
    };
 
    if (isLoading) {
-      return (
-         <div className="flex h-96 items-center justify-center">
-            <Spinner size="xl" color="failure" />
-         </div>
-      );
+      return <ComissPageSkeleton />;
    }
 
    if (!comiss) {
@@ -103,7 +99,7 @@ export default function ComissDetailPage() {
    }
 
    return (
-      <div className="flex flex-col gap-4 lg:flex-row">
+      <div className="flex flex-col gap-4">
          <ComissPage
             detail={comiss}
             onEdit={() => setIsEditMode(true)}
@@ -112,21 +108,24 @@ export default function ComissDetailPage() {
 
          {/* HISTÓRICO DE AUDITORIA */}
          {comiss.logs.length > 0 && (
-            <div className="w-full rounded-xl border border-gray-200 bg-white shadow-sm lg:w-1/3 lg:shrink-0">
-               <div className="border-b border-gray-100 bg-gray-50/50 px-5 py-3">
-                  <h3 className="font-semibold text-gray-800">
-                     Histórico de Alterações
-                  </h3>
-                  <p className="text-xs text-gray-500">
-                     Registro de criações e atualizações deste comissionamento.
-                  </p>
-               </div>
-               <div className="p-5">
-                  <ol className="relative space-y-4 border-s border-gray-200 ps-5">
-                     {comiss.logs.map((log) => (
-                        <ComissLogEntry key={log.id} log={log} />
-                     ))}
-                  </ol>
+            <div className="flex w-full justify-center">
+               <div className="w-full max-w-7xl rounded border border-slate-200 bg-white shadow-sm">
+                  <div className="border-b border-gray-100 bg-gray-50/50 px-5 py-3">
+                     <h3 className="font-semibold text-gray-800">
+                        Histórico de Alterações
+                     </h3>
+                     <p className="text-xs text-gray-500">
+                        Registro de criações e atualizações deste
+                        comissionamento.
+                     </p>
+                  </div>
+                  <div className="p-5">
+                     <ol className="relative space-y-4 border-s border-gray-200 ps-5">
+                        {comiss.logs.map((log) => (
+                           <ComissLogEntry key={log.id} log={log} />
+                        ))}
+                     </ol>
+                  </div>
                </div>
             </div>
          )}

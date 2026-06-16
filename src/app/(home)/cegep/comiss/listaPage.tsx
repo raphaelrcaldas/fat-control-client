@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
-import { Label, Select, TextInput, Badge, Spinner } from "flowbite-react";
+import { Label, Select, TextInput, Badge } from "flowbite-react";
 import { TableComiss } from "./components/tableComiss";
+import { TableComissSkeleton } from "./components/TableComissSkeleton";
 import { RoleBasedRoute } from "../../hooks/useRoleBased";
 
 import { HiFilter, HiX } from "react-icons/hi";
@@ -509,12 +510,7 @@ export function ListaPage() {
          {/* Content Section */}
          <div className="min-h-50 flex-1">
             {loading ? (
-               <div className="flex flex-col items-center justify-center gap-4 py-16">
-                  <Spinner color="failure" size="xl" />
-                  <p className="text-sm font-medium text-gray-600">
-                     Carregando comissionamentos...
-                  </p>
-               </div>
+               <TableComissSkeleton />
             ) : cmtos.length === 0 ? (
                <div className="flex flex-col items-center justify-center px-4 py-16">
                   <div className="mb-4 rounded-full bg-gray-50 p-6">
