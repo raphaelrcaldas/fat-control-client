@@ -18,16 +18,16 @@ const PQD_TIPOS: { v: PqdTipo; l: string }[] = [
 
 export function PqdBlock({ item, index, onChange, onRemove }: PqdBlockProps) {
    return (
-      <div className="inline-flex flex-wrap items-center gap-6 rounded border border-purple-200 bg-purple-50/40 px-3 py-1.5 shadow-sm">
+      <div className="inline-flex flex-wrap items-center gap-6 rounded border border-green-200 bg-green-50/40 px-3 py-1.5 shadow-sm">
          {/* Cabeçalho */}
          <div className="inline-flex items-center gap-2">
-            <span className="flex h-7 w-7 items-center justify-center rounded bg-purple-100 text-purple-600">
+            <span className="flex h-7 w-7 items-center justify-center rounded bg-green-100 text-green-600">
                <GiParachute className="h-4 w-4" />
             </span>
             <span className="text-sm font-semibold text-gray-800">
                Lançamento PQD
             </span>
-            <span className="rounded-full bg-purple-100 px-2 py-0.5 text-[10px] font-bold text-purple-700">
+            <span className="rounded-full bg-green-100 px-2 py-0.5 text-[10px] font-bold text-green-700">
                #{index + 1}
             </span>
          </div>
@@ -35,7 +35,7 @@ export function PqdBlock({ item, index, onChange, onRemove }: PqdBlockProps) {
          {/* Tipo */}
          <div className="inline-flex items-center gap-2">
             <Label className={inlineLabelClass}>Tipo</Label>
-            <div className="flex overflow-hidden rounded-md border border-purple-200">
+            <div className="flex overflow-hidden rounded-md border border-green-200">
                {PQD_TIPOS.map(({ v, l }, i) => (
                   <button
                      key={v}
@@ -44,9 +44,9 @@ export function PqdBlock({ item, index, onChange, onRemove }: PqdBlockProps) {
                      className={clsx(
                         "w-14 px-2 py-1.75 text-xs font-bold focus:outline-none",
                         item.tipo === v
-                           ? "bg-purple-700 text-white"
-                           : "bg-white text-purple-600 hover:bg-purple-100",
-                        i !== 0 && "border-l border-purple-200"
+                           ? "bg-green-700 text-white"
+                           : "bg-white text-green-600 hover:bg-green-100",
+                        i !== 0 && "border-l border-green-200"
                      )}
                   >
                      {l}

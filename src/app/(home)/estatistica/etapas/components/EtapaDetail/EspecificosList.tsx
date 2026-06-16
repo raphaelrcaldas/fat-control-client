@@ -50,15 +50,15 @@ export function EspecificosList({ pqd, revo, heavyCds }: EspecificosListProps) {
          {pqd.map((p, i) => (
             <div
                key={`pqd-${i}`}
-               className="flex flex-wrap items-center gap-4 rounded border border-purple-200 bg-purple-50/40 px-3 py-1.5 shadow-sm"
+               className="flex flex-wrap items-center gap-4 rounded border border-green-200 bg-green-50/40 px-3 py-1.5 shadow-sm"
             >
-               <span className="flex h-7 w-7 items-center justify-center rounded-full bg-purple-100 text-purple-600">
+               <span className="flex h-7 w-7 items-center justify-center rounded-full bg-green-100 text-green-600">
                   <GiParachute className="h-4 w-4" />
                </span>
-               <span className="text-sm font-semibold text-purple-800">
+               <span className="text-sm font-semibold text-green-800">
                   PQD
                </span>
-               <div className="h-6 w-px bg-purple-200" />
+               <div className="h-6 w-px bg-green-200" />
                <Field label="Tipo" value={PQD_LABEL[p.tipo] ?? p.tipo} />
                <Field label="Qtd" value={p.qtd} />
             </div>
