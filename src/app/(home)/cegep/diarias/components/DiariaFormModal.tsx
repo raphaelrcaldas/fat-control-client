@@ -13,14 +13,9 @@ import {
 } from "flowbite-react";
 import clsx from "clsx";
 import type { DiariaFormData } from "../types";
-import type { DiariaFormErrors } from "../schemas";
-import { formatDate } from "../utils";
-import {
-   GRUPO_CIDADE_LABELS,
-   GRUPO_CIDADE_DESCRICAO,
-   GRUPO_PG_LABELS,
-   GRUPO_PG_DESCRICAO,
-} from "@/constants/cegep/diarias";
+import type { DiariaFormErrors } from "../schemas/diariaFormSchema";
+import { formatDiariaDate } from "../utils";
+import { GRUPO_CIDADE_LABELS, GRUPO_PG_LABELS } from "../labels";
 
 interface DiariaFormModalProps {
    show: boolean;
@@ -31,6 +26,8 @@ interface DiariaFormModalProps {
    errors: DiariaFormErrors;
    uniqueGruposCidade: number[];
    uniqueGruposPg: number[];
+   descricaoCidade: Record<number, string>;
+   descricaoPg: Record<number, string>;
    onClose: () => void;
    onSubmit: (e: React.FormEvent) => Promise<void>;
    onFieldChange: (field: keyof DiariaFormData, value: string | number) => void;
@@ -45,6 +42,8 @@ export function DiariaFormModal({
    errors,
    uniqueGruposCidade,
    uniqueGruposPg,
+   descricaoCidade,
+   descricaoPg,
    onClose,
    onSubmit,
    onFieldChange,
@@ -83,7 +82,7 @@ export function DiariaFormModal({
                            </HelperText>
                         ) : (
                            <HelperText color="gray">
-                              {GRUPO_CIDADE_DESCRICAO[formData.grupo_cid] ||
+                              {descricaoCidade[formData.grupo_cid] ||
                                  "Selecione um grupo"}
                            </HelperText>
                         )}
@@ -111,7 +110,7 @@ export function DiariaFormModal({
                            </HelperText>
                         ) : (
                            <HelperText color="gray">
-                              {GRUPO_PG_DESCRICAO[formData.grupo_pg] ||
+                              {descricaoPg[formData.grupo_pg] ||
                                  "Selecione um grupo"}
                            </HelperText>
                         )}
@@ -167,7 +166,7 @@ export function DiariaFormModal({
                         </HelperText>
                      ) : formData.data_inicio ? (
                         <HelperText color="gray">
-                           {formatDate(formData.data_inicio)}
+                           {formatDiariaDate(formData.data_inicio)}
                         </HelperText>
                      ) : null}
                   </div>
@@ -191,7 +190,7 @@ export function DiariaFormModal({
                         </HelperText>
                      ) : formData.data_fim ? (
                         <HelperText color="gray">
-                           {formatDate(formData.data_fim)}
+                           {formatDiariaDate(formData.data_fim)}
                         </HelperText>
                      ) : (
                         <HelperText color="gray">

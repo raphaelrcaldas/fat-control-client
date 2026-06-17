@@ -1,15 +1,15 @@
 "use client";
 
-import { Spinner, Checkbox, Label } from "flowbite-react";
-import { GRUPO_PG_LABELS } from "@/constants/cegep/diarias";
-import { useDiarias, useDiariaForm } from "./hooks";
-import {
-   DiariaHeader,
-   DiariaMobileCard,
-   DiariaTable,
-   DiariaFormModal,
-   DeleteConfirmModal,
-} from "./components";
+import clsx from "clsx";
+import { GRUPO_PG_LABELS } from "./labels";
+import { useDiarias } from "./hooks/useDiarias";
+import { useDiariaForm } from "./hooks/useDiariaForm";
+import { DiariaHeader } from "./components/DiariaHeader";
+import { DiariaMobileCard } from "./components/DiariaMobileCard";
+import { DiariaTable } from "./components/DiariaTable";
+import { DiariaFormModal } from "./components/DiariaFormModal";
+import { DeleteConfirmModal } from "./components/DeleteConfirmModal";
+import { DiariaSkeleton } from "./components/DiariaSkeleton";
 
 export default function DiariasPage() {
    const {
@@ -22,6 +22,8 @@ export default function DiariasPage() {
       cidadesByGrupo,
       uniqueGruposCidade,
       uniqueGruposPg,
+      descricaoCidade,
+      descricaoPg,
    } = useDiarias();
 
    const {
@@ -43,107 +45,90 @@ export default function DiariasPage() {
       updateField,
    } = useDiariaForm();
 
-   const loading = isLoading;
    const errorMessage = error?.message || null;
 
    return (
-      <div className="flex w-full flex-1 flex-col overflow-hidden bg-gray-50">
-         {/* Header */}
+      <div className="flex flex-col">
          <DiariaHeader
-            loading={loading}
-            error={errorMessage}
-            valoresCount={valores?.length || 0}
-            gruposCount={uniqueGruposCidade.length}
+            onlyActive={onlyActive}
+            onOnlyActiveChange={setOnlyActive}
             onCreateClick={handleOpenCreateModal}
          />
 
-         {/* Content */}
-         <div
-            className={`h-full rounded-lg border border-gray-200 bg-white shadow-sm ${
-               isFetching && !loading ? "opacity-50" : ""
-            }`}
-         >
-            {loading ? (
-               <div className="flex h-64 flex-col items-center justify-center">
-                  <Spinner size="xl" color="failure" />
-                  <p className="mt-4 text-gray-600">Carregando diarias...</p>
-               </div>
-            ) : (
-               <div className="max-h-[calc(100vh-150px)] overflow-y-auto p-4">
-                  {/* Filtro */}
-                  <div className="mb-4 flex w-fit items-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2">
-                     <Checkbox
-                        id="onlyActive"
-                        checked={onlyActive}
-                        onChange={(e) => setOnlyActive(e.target.checked)}
-                        color="red"
-                     />
-                     <Label
-                        htmlFor="onlyActive"
-                        className="cursor-pointer text-sm font-medium text-gray-700"
+         {errorMessage && (
+            <div className="mb-3 rounded-md border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-800">
+               {errorMessage}
+            </div>
+         )}
+
+         {!isLoading && (
+            <p className="mb-2 text-xs font-medium text-slate-400">
+               {valores?.length || 0} valor(es) · {uniqueGruposCidade.length}{" "}
+               grupo(s) de cidade
+            </p>
+         )}
+
+         {isLoading ? (
+            <DiariaSkeleton />
+         ) : (
+            <div
+               className={clsx(
+                  "space-y-3 transition-opacity",
+                  isFetching && "opacity-50"
+               )}
+            >
+               {uniqueGruposPg.map((grupoNum) => {
+                  const valoresGrupo = (valores || []).filter(
+                     (v) => v.grupo_pg === grupoNum
+                  );
+
+                  return (
+                     <div
+                        key={grupoNum}
+                        className="rounded border border-slate-200 bg-slate-50 p-4"
                      >
-                        Somente vigentes
-                     </Label>
-                  </div>
+                        <div className="mb-3">
+                           <span className="font-medium text-gray-700">
+                              {GRUPO_PG_LABELS[grupoNum] || `Grupo ${grupoNum}`}
+                           </span>
+                        </div>
 
-                  {/* Cards por grupo de P/G */}
-                  <div className="space-y-3">
-                     {uniqueGruposPg.map((grupoNum) => {
-                        const valoresGrupo = (valores || []).filter(
-                           (v) => v.grupo_pg === grupoNum
-                        );
-
-                        return (
-                           <div
-                              key={grupoNum}
-                              className="rounded-lg border border-gray-200 bg-gray-50 p-4"
-                           >
-                              <div className="mb-3">
-                                 <span className="font-medium text-gray-700">
-                                    {GRUPO_PG_LABELS[grupoNum] ||
-                                       `Grupo ${grupoNum}`}
-                                 </span>
-                              </div>
-
-                              {valoresGrupo.length === 0 ? (
-                                 <p className="text-sm text-gray-500">
-                                    Nenhum valor cadastrado
-                                 </p>
-                              ) : (
-                                 <>
-                                    {/* Mobile: Cards */}
-                                    <div className="space-y-2 md:hidden">
-                                       {valoresGrupo.map((valor) => (
-                                          <DiariaMobileCard
-                                             key={valor.id}
-                                             valor={valor}
-                                             cidades={
-                                                cidadesByGrupo.get(
-                                                   valor.grupo_cid
-                                                ) || []
-                                             }
-                                             onEdit={handleOpenModal}
-                                             onDelete={handleOpenDeleteModal}
-                                          />
-                                       ))}
-                                    </div>
-
-                                    {/* Desktop: Tabela */}
-                                    <DiariaTable
-                                       valores={valoresGrupo}
-                                       cidadesByGrupo={cidadesByGrupo}
+                        {valoresGrupo.length === 0 ? (
+                           <p className="text-sm text-gray-500">
+                              Nenhum valor cadastrado
+                           </p>
+                        ) : (
+                           <>
+                              {/* Mobile: Cards */}
+                              <div className="space-y-2 md:hidden">
+                                 {valoresGrupo.map((valor) => (
+                                    <DiariaMobileCard
+                                       key={valor.id}
+                                       valor={valor}
+                                       cidades={
+                                          cidadesByGrupo.get(valor.grupo_cid) ||
+                                          []
+                                       }
                                        onEdit={handleOpenModal}
                                        onDelete={handleOpenDeleteModal}
                                     />
-                                 </>
-                              )}
-                           </div>
-                        );
-                     })}
-                  </div>
-               </div>
-            )}
-         </div>
+                                 ))}
+                              </div>
+
+                              {/* Desktop: Tabela */}
+                              <DiariaTable
+                                 valores={valoresGrupo}
+                                 cidadesByGrupo={cidadesByGrupo}
+                                 onEdit={handleOpenModal}
+                                 onDelete={handleOpenDeleteModal}
+                              />
+                           </>
+                        )}
+                     </div>
+                  );
+               })}
+            </div>
+         )}
 
          {/* Edit/Create Modal */}
          <DiariaFormModal
@@ -155,6 +140,8 @@ export default function DiariasPage() {
             errors={errors}
             uniqueGruposCidade={uniqueGruposCidade}
             uniqueGruposPg={uniqueGruposPg}
+            descricaoCidade={descricaoCidade}
+            descricaoPg={descricaoPg}
             onClose={handleCloseModal}
             onSubmit={handleSubmit}
             onFieldChange={updateField}

@@ -9,7 +9,10 @@ import {
 } from "@/hooks/queries";
 import { type DiariaValorPublic } from "services/routes/cegep/diarias";
 import { type DiariaFormData, INITIAL_FORM_DATA } from "../types";
-import { diariaFormSchema, type DiariaFormErrors } from "../schemas";
+import {
+   diariaFormSchema,
+   type DiariaFormErrors,
+} from "../schemas/diariaFormSchema";
 
 interface UseDiariaFormReturn {
    // Modal state

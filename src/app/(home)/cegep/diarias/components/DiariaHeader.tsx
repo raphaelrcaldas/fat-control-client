@@ -1,52 +1,71 @@
 "use client";
 
-import { Alert, Button } from "flowbite-react";
-import { HiCurrencyDollar, HiExclamation, HiPlus } from "react-icons/hi";
+import { Button, Checkbox, Label } from "flowbite-react";
+import { HiCurrencyDollar, HiPlus } from "react-icons/hi";
+import { PermBased } from "../../../hooks/usePermBased";
 
 interface DiariaHeaderProps {
-   loading: boolean;
-   error: string | null;
-   valoresCount: number;
-   gruposCount: number;
+   onlyActive: boolean;
+   onOnlyActiveChange: (value: boolean) => void;
    onCreateClick: () => void;
 }
 
 export function DiariaHeader({
-   loading,
-   error,
-   valoresCount,
-   gruposCount,
+   onlyActive,
+   onOnlyActiveChange,
    onCreateClick,
 }: DiariaHeaderProps) {
    return (
-      <div className="mb-4 rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
-         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex items-center gap-3">
-               <div className="rounded-lg bg-red-100 p-2">
-                  <HiCurrencyDollar className="h-6 w-6 text-red-600" />
+      <header className="relative mb-5 overflow-hidden rounded border border-slate-200 bg-white px-5 py-4 shadow-sm sm:px-6 sm:py-5">
+         {/* Espinha vermelha — ecoa a identidade do módulo */}
+         <span
+            aria-hidden
+            className="absolute top-0 left-0 h-full w-1 bg-red-600"
+         />
+
+         <div className="relative flex flex-wrap items-center justify-between gap-4">
+            <div className="flex min-w-0 items-center gap-4">
+               <div className="grid h-12 w-12 shrink-0 place-items-center rounded-md bg-red-50 text-red-600 ring-1 ring-red-100 ring-inset">
+                  <HiCurrencyDollar className="h-6 w-6" />
                </div>
-               <div>
-                  <h5 className="text-lg font-semibold text-gray-900">
-                     Gestao de Diarias
-                  </h5>
-                  <p className="text-sm text-gray-500">
-                     {loading
-                        ? "Carregando..."
-                        : `${valoresCount} valor(es) | ${gruposCount} grupo(s) de cidades`}
-                  </p>
+               <div className="min-w-0">
+                  <span className="block font-mono text-[10px] font-bold tracking-[0.3em] text-red-500 uppercase">
+                     CEGEP
+                  </span>
+                  <h1 className="text-2xl leading-none font-extrabold tracking-tight text-slate-900 sm:text-[28px]">
+                     Diárias
+                  </h1>
                </div>
             </div>
-            <Button color="red" onClick={onCreateClick}>
-               <HiPlus className="mr-2 h-4 w-4" />
-               Nova Diaria
-            </Button>
-         </div>
 
-         {error && (
-            <Alert color="failure" icon={HiExclamation} className="mt-4">
-               <span className="font-medium">Erro!</span> {error}
-            </Alert>
-         )}
-      </div>
+            <div className="flex items-center gap-4">
+               <div className="flex items-center gap-2">
+                  <Checkbox
+                     id="onlyActive"
+                     checked={onlyActive}
+                     onChange={(e) => onOnlyActiveChange(e.target.checked)}
+                     color="red"
+                  />
+                  <Label
+                     htmlFor="onlyActive"
+                     className="cursor-pointer text-sm font-medium text-gray-700"
+                  >
+                     Somente vigentes
+                  </Label>
+               </div>
+
+               <PermBased resource="diarias" requiredPerm="create">
+                  <Button
+                     color="red"
+                     onClick={onCreateClick}
+                     className="font-semibold whitespace-nowrap"
+                  >
+                     <HiPlus className="mr-2 h-4 w-4" />
+                     Nova Diária
+                  </Button>
+               </PermBased>
+            </div>
+         </div>
+      </header>
    );
 }

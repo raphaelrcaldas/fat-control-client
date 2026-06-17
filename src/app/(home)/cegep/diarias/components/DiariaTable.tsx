@@ -1,10 +1,20 @@
 "use client";
 
+import {
+   Table,
+   TableHead,
+   TableHeadCell,
+   TableBody,
+   TableRow,
+   TableCell,
+   Tooltip,
+} from "flowbite-react";
 import { HiPencil, HiTrash } from "react-icons/hi";
+import { PermBased } from "../../../hooks/usePermBased";
 import type { DiariaValorPublic, GrupoCidadePublic } from "../types";
 import {
    formatCurrency,
-   formatDate,
+   formatDiariaDate,
    getStatusBadge,
    getCidadeDisplayName,
 } from "../utils";
@@ -23,19 +33,21 @@ export function DiariaTable({
    onDelete,
 }: DiariaTableProps) {
    return (
-      <div className="hidden overflow-x-auto md:block">
-         <table className="w-full text-left text-sm text-gray-600">
-            <thead className="border-b border-gray-200 bg-white text-xs text-gray-700 uppercase">
-               <tr>
-                  <th className="px-3 py-2">Grupo Cidade</th>
-                  <th className="px-3 py-2">Valor</th>
-                  <th className="px-3 py-2">Inicio</th>
-                  <th className="px-3 py-2">Fim</th>
-                  <th className="px-3 py-2">Status</th>
-                  <th className="px-3 py-2"></th>
-               </tr>
-            </thead>
-            <tbody>
+      <div className="hidden overflow-x-auto rounded border border-slate-200 bg-white shadow-sm md:block">
+         <Table hoverable>
+            <TableHead>
+               <TableRow>
+                  <TableHeadCell>Grupo Cidade</TableHeadCell>
+                  <TableHeadCell className="text-center">Valor</TableHeadCell>
+                  <TableHeadCell className="text-center">Início</TableHeadCell>
+                  <TableHeadCell className="text-center">Fim</TableHeadCell>
+                  <TableHeadCell className="text-center">Status</TableHeadCell>
+                  <TableHeadCell className="w-24">
+                     <span className="sr-only">Ações</span>
+                  </TableHeadCell>
+               </TableRow>
+            </TableHead>
+            <TableBody className="divide-y">
                {valores.map((valor) => {
                   const cidades = cidadesByGrupo.get(valor.grupo_cid) || [];
                   const cidadeNome = getCidadeDisplayName(
@@ -44,50 +56,63 @@ export function DiariaTable({
                   );
 
                   return (
-                     <tr
-                        key={valor.id}
-                        className="border-b border-gray-100 bg-white hover:bg-gray-50"
-                     >
-                        <td className="px-3 py-2">
-                           <span className="text-gray-700">{cidadeNome}</span>
-                        </td>
-                        <td className="px-3 py-2">
-                           <span className="font-mono font-semibold text-green-600">
-                              {formatCurrency(valor.valor)}
-                           </span>
-                        </td>
-                        <td className="px-3 py-2 font-mono text-gray-600">
-                           {formatDate(valor.data_inicio)}
-                        </td>
-                        <td className="px-3 py-2 font-mono text-gray-600">
-                           {formatDate(valor.data_fim)}
-                        </td>
-                        <td className="px-3 py-2">
-                           {getStatusBadge(valor.status)}
-                        </td>
-                        <td className="px-3 py-2">
-                           <div className="flex gap-2">
-                              <button
-                                 onClick={() => onEdit(valor)}
-                                 className="text-gray-600 hover:text-blue-600"
-                                 aria-label="Editar"
-                              >
-                                 <HiPencil className="h-5 w-5" />
-                              </button>
-                              <button
-                                 onClick={() => onDelete(valor.id)}
-                                 className="text-gray-600 hover:text-red-600"
-                                 aria-label="Excluir"
-                              >
-                                 <HiTrash className="h-5 w-5" />
-                              </button>
+                     <TableRow key={valor.id} className="bg-white">
+                        <TableCell className="text-gray-700">
+                           {cidadeNome}
+                        </TableCell>
+                        <TableCell className="text-center font-mono font-semibold text-green-600">
+                           {formatCurrency(valor.valor)}
+                        </TableCell>
+                        <TableCell className="text-center font-mono text-gray-600">
+                           {formatDiariaDate(valor.data_inicio)}
+                        </TableCell>
+                        <TableCell className="text-center font-mono text-gray-600">
+                           {formatDiariaDate(valor.data_fim)}
+                        </TableCell>
+                        <TableCell>
+                           <div className="flex justify-center">
+                              {getStatusBadge(valor.status)}
                            </div>
-                        </td>
-                     </tr>
+                        </TableCell>
+                        <TableCell>
+                           <div className="flex items-center justify-end gap-1">
+                              <PermBased
+                                 resource="diarias"
+                                 requiredPerm="update"
+                              >
+                                 <Tooltip content="Editar valor">
+                                    <button
+                                       type="button"
+                                       onClick={() => onEdit(valor)}
+                                       className="rounded p-2 text-gray-400 transition-colors hover:bg-slate-100 hover:text-slate-700"
+                                       aria-label="Editar valor de diária"
+                                    >
+                                       <HiPencil className="h-4 w-4" />
+                                    </button>
+                                 </Tooltip>
+                              </PermBased>
+                              <PermBased
+                                 resource="diarias"
+                                 requiredPerm="delete"
+                              >
+                                 <Tooltip content="Excluir valor">
+                                    <button
+                                       type="button"
+                                       onClick={() => onDelete(valor.id)}
+                                       className="rounded p-2 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-600"
+                                       aria-label="Excluir valor de diária"
+                                    >
+                                       <HiTrash className="h-4 w-4" />
+                                    </button>
+                                 </Tooltip>
+                              </PermBased>
+                           </div>
+                        </TableCell>
+                     </TableRow>
                   );
                })}
-            </tbody>
-         </table>
+            </TableBody>
+         </Table>
       </div>
    );
 }

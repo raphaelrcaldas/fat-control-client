@@ -10,6 +10,8 @@ import {
    createDiariaValor,
    updateDiariaValor,
    deleteDiariaValor,
+   getGruposCidade,
+   getGruposPg,
    type DiariaValorPublic,
    type DiariaValorCreate,
    type DiariaValorUpdate,
@@ -32,6 +34,14 @@ export const diariaValorKeys = {
       [...diariaValorKeys.lists(), filters] as const,
    details: () => [...diariaValorKeys.all, "detail"] as const,
    detail: (id: number) => [...diariaValorKeys.details(), id] as const,
+};
+
+export const gruposCidadeKeys = {
+   all: ["grupos-cidade"] as const,
+};
+
+export const gruposPgKeys = {
+   all: ["grupos-pg"] as const,
 };
 
 // ========================================
@@ -62,6 +72,28 @@ export function useDiariaValor(id: number | null | undefined) {
       queryKey: diariaValorKeys.detail(id!),
       queryFn: () => getDiariaValorById(id!),
       enabled: !!id,
+   });
+}
+
+/**
+ * Grupos de cidade (dados de referencia do banco)
+ */
+export function useGruposCidade() {
+   return useQuery({
+      queryKey: gruposCidadeKeys.all,
+      queryFn: () => getGruposCidade(),
+      staleTime: 1000 * 60 * 60, // referencia, muda raramente
+   });
+}
+
+/**
+ * Grupos de P/G (dados de referencia do banco)
+ */
+export function useGruposPg() {
+   return useQuery({
+      queryKey: gruposPgKeys.all,
+      queryFn: () => getGruposPg(),
+      staleTime: 1000 * 60 * 60, // referencia, muda raramente
    });
 }
 

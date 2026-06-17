@@ -1,4 +1,5 @@
 import { Badge } from "flowbite-react";
+import { formatDateFull } from "@/../utils/dateHandler";
 
 /**
  * Formats a number as Brazilian Real currency
@@ -11,12 +12,11 @@ export const formatCurrency = (value: number): string => {
 };
 
 /**
- * Formats a date string to Brazilian locale format
+ * Exibe uma data ISO de diária (DD/MM/YYYY) com fallback para vazio.
+ * Delega a formatação ao dateHandler central.
  */
-export const formatDate = (dateStr: string | null): string => {
-   if (!dateStr) return "-";
-   return new Date(dateStr + "T00:00:00").toLocaleDateString("pt-BR");
-};
+export const formatDiariaDate = (dateStr: string | null): string =>
+   dateStr ? formatDateFull(dateStr) : "-";
 
 /**
  * Returns a status badge component based on the status string
