@@ -5,7 +5,7 @@
  */
 
 import { useState } from "react";
-import { Select, Spinner } from "flowbite-react";
+import { Button, Label, Select, Spinner, TextInput } from "flowbite-react";
 import { HiPlus, HiTrash, HiArrowUp } from "react-icons/hi";
 import { postoGradRecords } from "@/constants/militar/postos";
 import {
@@ -58,13 +58,17 @@ function AddPromoForm({ userId }: { userId: number }) {
    return (
       <form
          onSubmit={handleSubmit}
-         className="flex flex-col gap-3 rounded-lg border border-gray-200 bg-gray-50 p-4 sm:flex-row sm:items-end"
+         className="flex flex-col gap-3 rounded border border-slate-200 bg-gray-50 p-4 sm:flex-row sm:items-end"
       >
          <div className="flex-1">
-            <label className="mb-1 block text-xs font-medium tracking-wide text-gray-500 uppercase">
+            <Label
+               htmlFor="promo-pg"
+               className="mb-1 block text-xs font-medium tracking-wide text-gray-500 uppercase"
+            >
                Graduação
-            </label>
+            </Label>
             <Select
+               id="promo-pg"
                sizing="sm"
                value={pg}
                onChange={(e) => setPg(e.target.value)}
@@ -80,30 +84,36 @@ function AddPromoForm({ userId }: { userId: number }) {
             </Select>
          </div>
          <div className="flex-1">
-            <label className="mb-1 block text-xs font-medium tracking-wide text-gray-500 uppercase">
+            <Label
+               htmlFor="promo-data"
+               className="mb-1 block text-xs font-medium tracking-wide text-gray-500 uppercase"
+            >
                Data da Promoção
-            </label>
-            <input
+            </Label>
+            <TextInput
+               id="promo-data"
                type="date"
+               sizing="sm"
                value={data}
                onChange={(e) => setData(e.target.value)}
-               className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2 text-sm text-gray-900 focus:border-red-500 focus:ring-1 focus:ring-red-500 focus:outline-none"
             />
          </div>
-         <button
+         <Button
             type="submit"
+            color="red"
+            size="sm"
             disabled={createPromo.isPending}
-            className="flex h-9.5 shrink-0 items-center justify-center gap-1.5 rounded-lg bg-red-600 px-4 text-sm font-medium text-white transition-colors hover:bg-red-700 disabled:cursor-wait disabled:opacity-60"
+            className="shrink-0"
          >
             {createPromo.isPending ? (
                <Spinner size="sm" color="failure" />
             ) : (
                <>
-                  <HiPlus className="h-4 w-4" />
+                  <HiPlus className="mr-1.5 h-4 w-4" />
                   Adicionar
                </>
             )}
-         </button>
+         </Button>
       </form>
    );
 }
@@ -143,7 +153,7 @@ function PromoRow({
 
    return (
       <div className="group flex items-center gap-3 px-5 py-3.5">
-         <div className="shrink-0 rounded-lg bg-red-100 p-2.5">
+         <div className="shrink-0 rounded-md bg-red-100 p-2.5">
             <HiArrowUp className="h-4 w-4 text-red-600" />
          </div>
          <div className="min-w-0 flex-1">
@@ -199,8 +209,8 @@ export function UserPromotions({ userId }: { userId: number }) {
       <div className="space-y-5">
          {canManage && <AddPromoForm userId={userId} />}
 
-         <div className="rounded-lg border border-gray-200 bg-white">
-            <div className="border-b border-gray-100 px-5 py-3">
+         <div className="rounded border border-slate-200 bg-white">
+            <div className="border-b border-slate-100 px-5 py-3">
                <h2 className="flex items-center gap-2 text-sm font-bold text-gray-900">
                   <HiArrowUp className="h-4 w-4 text-red-600" />
                   Progressão de Carreira
@@ -211,7 +221,7 @@ export function UserPromotions({ userId }: { userId: number }) {
                   Nenhuma promoção registrada para este militar.
                </p>
             ) : (
-               <div className="divide-y divide-gray-100">
+               <div className="divide-y divide-slate-100">
                   {promos.map((promo) => (
                      <PromoRow
                         key={promo.id}

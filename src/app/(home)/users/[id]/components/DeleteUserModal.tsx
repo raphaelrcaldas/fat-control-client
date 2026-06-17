@@ -32,7 +32,7 @@ export function DeleteUserModal({
          </ModalHeader>
          <ModalBody className="p-6">
             <div className="flex flex-col gap-6">
-               <div className="rounded-r-lg border-l-4 border-red-500 bg-red-50 p-4">
+               <div className="rounded-r border-l-4 border-red-500 bg-red-50 p-4">
                   <p className="font-medium text-gray-800">
                      Tem certeza que deseja excluir este usuário?
                   </p>
@@ -42,7 +42,7 @@ export function DeleteUserModal({
                   </p>
                </div>
 
-               <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
+               <div className="rounded border border-slate-200 bg-gray-50 p-4">
                   <h4 className="mb-3 text-sm font-semibold text-gray-700">
                      Detalhes do Usuário:
                   </h4>

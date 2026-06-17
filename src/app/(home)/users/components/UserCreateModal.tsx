@@ -26,7 +26,13 @@ export function UserCreateModal({ show, setShow }: UserCreateModalProps) {
    };
 
    return (
-      <Modal show={show} size="4xl" onClose={handleClose} dismissible>
+      <Modal
+         theme={{ body: { base: "p-3 md:p-5" } }}
+         show={show}
+         size="3xl"
+         onClose={handleClose}
+         dismissible
+      >
          <ModalHeader>Cadastrar novo usuário</ModalHeader>
          <ModalBody>
             <UserForm userId={null} onSuccess={handleClose} />

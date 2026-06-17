@@ -79,7 +79,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
                   />
 
                   {/* Conteúdo */}
-                  <main className="flex-1 overflow-auto p-2">
+                  <main className="flex-1 overflow-auto p-1 md:p-2">
                      <PageTransition key={pathname}>{children}</PageTransition>
                   </main>
                </div>

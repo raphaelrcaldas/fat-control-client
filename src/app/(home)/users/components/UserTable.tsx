@@ -1,6 +1,7 @@
 "use client";
 
 import {
+   Button,
    Table,
    TableHead,
    TableBody,
@@ -17,20 +18,14 @@ import clsx from "clsx";
 
 interface UserTableProps {
    usuarios: UserPublic[];
-   loading: boolean;
 }
 
-export function UserTable({ usuarios, loading }: UserTableProps) {
+export function UserTable({ usuarios }: UserTableProps) {
    const router = useRouter();
    const unidadeOptions = useUnidadeOptions();
 
    return (
-      <div
-         className={clsx(
-            "mx-2 hidden min-h-100 overflow-x-auto rounded border border-gray-200 bg-white shadow-sm transition-opacity duration-200 md:block",
-            loading ? "opacity-50" : "opacity-100"
-         )}
-      >
+      <div className="mx-2 hidden min-h-100 overflow-x-auto rounded border border-slate-200 bg-white shadow-sm md:block">
          <Table
             hoverable
             theme={{
@@ -40,7 +35,6 @@ export function UserTable({ usuarios, loading }: UserTableProps) {
          >
             <TableHead>
                <TableRow>
-                  <TableHeadCell># ID</TableHeadCell>
                   <TableHeadCell>P/G</TableHeadCell>
                   <TableHeadCell>Quadro</TableHeadCell>
                   <TableHeadCell>Especialidade</TableHeadCell>
@@ -58,9 +52,6 @@ export function UserTable({ usuarios, loading }: UserTableProps) {
             <TableBody className="divide-y">
                {usuarios.map((user) => (
                   <TableRow key={user.id}>
-                     <TableCell className="font-mono text-gray-400">
-                        {user.id}
-                     </TableCell>
                      <TableCell>{user.posto.mid}</TableCell>
                      <TableCell className="text-gray-600 uppercase">
                         {user.quadro || "—"}
@@ -98,12 +89,13 @@ export function UserTable({ usuarios, loading }: UserTableProps) {
                         </div>
                      </TableCell>
                      <TableCell className="text-center">
-                        <button
-                           className="text-sm font-medium text-cyan-600 hover:underline"
+                        <Button
+                           color="light"
+                           size="xs"
                            onClick={() => router.push(`/users/${user.id}`)}
                         >
                            Detalhes
-                        </button>
+                        </Button>
                      </TableCell>
                   </TableRow>
                ))}

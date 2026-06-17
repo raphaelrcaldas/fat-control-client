@@ -16,7 +16,7 @@ export function UserCard({ user }: UserCardProps) {
    const unidadeOptions = useUnidadeOptions();
 
    return (
-      <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm transition-shadow duration-150 hover:shadow-md">
+      <div className="rounded border border-slate-200 bg-white p-4 shadow-sm transition-shadow duration-150 hover:shadow-md">
          <div className="mb-3 flex items-start justify-between">
             <div className="flex items-center gap-2">
                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-red-100">
@@ -43,15 +43,15 @@ export function UserCard({ user }: UserCardProps) {
             </Button>
          </div>
 
-         <div className="grid grid-cols-4 gap-2 border-t border-gray-100 pt-3">
+         <div className="grid grid-cols-4 gap-2 border-t border-slate-100 pt-3">
             <div>
-               <p className="mb-1 text-xs text-gray-500">P/G</p>
+               <p className="mb-1 text-xs text-gray-500">Quadro</p>
                <Badge color="gray" className="text-xs capitalize">
-                  {user.posto.mid}
+                  {user.quadro}
                </Badge>
             </div>
             <div>
-               <p className="mb-1 text-xs text-gray-500">Especialidade</p>
+               <p className="mb-1 text-xs text-gray-500">Esp</p>
                <Badge color="gray" className="text-xs uppercase">
                   {user.esp}
                </Badge>

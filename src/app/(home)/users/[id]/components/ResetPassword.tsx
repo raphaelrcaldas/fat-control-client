@@ -9,7 +9,7 @@ import {
    HiShieldCheck,
 } from "react-icons/hi";
 
-export function ResetPassword({ userId }) {
+export function ResetPassword({ userId }: { userId: number }) {
    const [isLoading, setIsLoading] = useState(false);
    const [showConfirm, setShowConfirm] = useState(false);
    const [resetSuccess, setResetSuccess] = useState(false);
@@ -110,7 +110,7 @@ export function ResetPassword({ userId }) {
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
          {/* Coluna esquerda: informações */}
          <div className="space-y-4">
-            <div className="rounded-lg border border-blue-200 bg-blue-50 p-5">
+            <div className="rounded border border-blue-200 bg-blue-50 p-5">
                <div className="flex items-start gap-3">
                   <HiShieldCheck className="mt-0.5 h-6 w-6 shrink-0 text-blue-600" />
                   <div>
@@ -125,7 +125,7 @@ export function ResetPassword({ userId }) {
                </div>
             </div>
 
-            <div className="rounded-lg border border-yellow-200 bg-yellow-50 p-5">
+            <div className="rounded border border-yellow-200 bg-yellow-50 p-5">
                <div className="flex items-start gap-2">
                   <HiExclamation className="mt-0.5 h-5 w-5 shrink-0 text-yellow-600" />
                   <div className="text-sm text-yellow-800">
@@ -143,7 +143,7 @@ export function ResetPassword({ userId }) {
          </div>
 
          {/* Coluna direita: ação */}
-         <div className="rounded-lg border border-gray-200 p-8 text-center">
+         <div className="rounded border border-slate-200 p-8 text-center">
             <div className="mb-4 inline-flex rounded-full bg-gray-100 p-4">
                <HiKey className="h-12 w-12 text-gray-600" />
             </div>

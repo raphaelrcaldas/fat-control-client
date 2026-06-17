@@ -202,7 +202,7 @@ export function UserForm({ userId, onSuccess }: UserFormProps) {
    }
 
    return (
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
          <PersonalDataSection register={register} errors={errors} />
          <MilitaryDataSection
             register={register}

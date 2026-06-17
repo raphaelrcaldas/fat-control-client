@@ -1,25 +1,23 @@
 "use client";
 
-import { Button, Select, TextInput, Spinner } from "flowbite-react";
+import { useState } from "react";
+import { Button, Label, Select, TextInput } from "flowbite-react";
 import { HiSearch, HiUserAdd, HiUsers } from "react-icons/hi";
+import clsx from "clsx";
 import { Pagination } from "@/components/Pagination";
 import { MultiSelect } from "@/components/MultiSelect";
-import { useState, useCallback, useEffect } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
-import useDebouncedValue from "@/hooks/useDebouncedValue";
+import { SearchableSelect } from "@/components/SearchableSelect";
 import { postoGradRecords } from "services/routes/postos";
+import { quadroOptions } from "@/constants/militar/quadros";
+import { especialidadeOptions } from "@/constants/militar/especialidades";
+import { useUsers, useUnidadeOptions } from "@/hooks/queries";
 import { UserCreateModal } from "./components/UserCreateModal";
 import { UserTable } from "./components/UserTable";
 import { UserCard } from "./components/UserCard";
-import { useUsers } from "@/hooks/queries";
+import { UsersListSkeleton } from "./components/UsersListSkeleton";
+import { useUsersFilters, PER_PAGE_OPTIONS } from "./hooks/useUsersFilters";
 
-const PER_PAGE_OPTIONS = [25, 50, 100];
-
-const DEFAULT_PER_PAGE = 25;
-const DEFAULT_PAGE = 1;
-const DEFAULT_ACTIVE = ["true"];
-
-// Opções para os MultiSelects
+// Opções dos MultiSelects
 const PG_OPTIONS = postoGradRecords.map((pg) => ({
    value: pg.short,
    label: pg.mid,
@@ -30,226 +28,131 @@ const STATUS_OPTIONS = [
    { value: "false", label: "Inativo" },
 ];
 
-// Helper: Converte filterActive array para boolean | undefined
-function getActiveFilter(active: string[]): boolean | undefined {
-   if (active.length === 0 || active.length === 2) return undefined;
-   if (active.includes("true")) return true;
-   if (active.includes("false")) return false;
-   return undefined;
-}
-
-// Helper: Parse comma-separated param into array (empty string = empty array)
-function parseCommaSeparated(value: string | null): string[] {
-   if (!value) return [];
-   return value.split(",").filter(Boolean);
-}
-
 export default function UsersPage() {
-   const searchParams = useSearchParams();
-   const router = useRouter();
+   const {
+      filterName,
+      filterPG,
+      filterQuadro,
+      filterEsp,
+      filterUnidade,
+      filterActive,
+      currentPage,
+      perPage,
+      hasFilters,
+      queryParams,
+      setSearch,
+      setPG,
+      setQuadro,
+      setEsp,
+      setUnidade,
+      setActive,
+      setPage,
+      setPerPage,
+   } = useUsersFilters();
 
-   // --- Read URL params ---
-   const urlSearch = searchParams.get("search") ?? "";
-   const filterPG = parseCommaSeparated(searchParams.get("pg"));
-   const filterActive =
-      searchParams.get("active") !== null
-         ? parseCommaSeparated(searchParams.get("active"))
-         : DEFAULT_ACTIVE;
-   const currentPage = Number(searchParams.get("page")) || DEFAULT_PAGE;
-   const perPage = Number(searchParams.get("per_page")) || DEFAULT_PER_PAGE;
-
-   // --- Local state for search input (immediate typing feedback) ---
-   const [filterName, setFilterName] = useState(urlSearch);
+   const unidadeOptions = useUnidadeOptions();
    const [showCreateModal, setShowCreateModal] = useState(false);
 
-   const debouncedFilter = useDebouncedValue(filterName, 350);
-
-   // --- URL update helper ---
-   const updateParams = useCallback(
-      (updates: Record<string, string | undefined>, resetPage = true) => {
-         const params = new URLSearchParams(searchParams.toString());
-
-         // Apply updates
-         for (const [key, value] of Object.entries(updates)) {
-            if (value === undefined || value === "") {
-               params.delete(key);
-            } else {
-               params.set(key, value);
-            }
-         }
-
-         // Reset page to 1 when filters change
-         if (resetPage) {
-            params.delete("page");
-         }
-
-         // Clean defaults from URL
-         if (params.get("per_page") === String(DEFAULT_PER_PAGE)) {
-            params.delete("per_page");
-         }
-         if (params.get("page") === String(DEFAULT_PAGE)) {
-            params.delete("page");
-         }
-         // active=true is the default, so remove it from URL
-         if (params.get("active") === "true") {
-            params.delete("active");
-         }
-
-         const qs = params.toString();
-         router.replace(qs ? `?${qs}` : "?", { scroll: false });
-      },
-      [searchParams, router]
-   );
-
-   // --- Sync debounced search to URL ---
-   useEffect(() => {
-      // Only sync if debounced value differs from what's in the URL
-      if (debouncedFilter !== urlSearch) {
-         updateParams({ search: debouncedFilter || undefined });
-      }
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-   }, [debouncedFilter]);
-
-   // --- Sync URL search param back to local input when navigating back ---
-   useEffect(() => {
-      // When the URL search param changes externally (e.g. back navigation),
-      // update the local input only if the debounced value already matches
-      // (meaning the user is not actively typing)
-      if (urlSearch !== filterName && urlSearch !== debouncedFilter) {
-         setFilterName(urlSearch);
-      }
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-   }, [urlSearch]);
-
-   // --- Filter change handlers ---
-   const handleSearchChange = useCallback((value: string) => {
-      setFilterName(value);
-      // URL sync happens via the debounced effect above
-   }, []);
-
-   const handlePGChange = useCallback(
-      (values: string[]) => {
-         updateParams({ pg: values.length > 0 ? values.join(",") : undefined });
-      },
-      [updateParams]
-   );
-
-   const handleActiveChange = useCallback(
-      (values: string[]) => {
-         // Encode as comma-separated; empty array means "all" (no filter)
-         // Default is ["true"], so "true" gets cleaned from URL by updateParams
-         updateParams({
-            active: values.length === 0 ? "" : values.join(","),
-         });
-      },
-      [updateParams]
-   );
-
-   const handlePageChange = useCallback(
-      (page: number) => {
-         updateParams(
-            { page: page > DEFAULT_PAGE ? String(page) : undefined },
-            false
-         );
-      },
-      [updateParams]
-   );
-
-   const handlePerPageChange = useCallback(
-      (value: number) => {
-         updateParams({
-            per_page: value !== DEFAULT_PER_PAGE ? String(value) : undefined,
-         });
-      },
-      [updateParams]
-   );
-
-   // React Query - busca usuários com filtros
-   const {
-      data,
-      isLoading: loading,
-      isFetching,
-   } = useUsers({
-      page: currentPage,
-      per_page: perPage,
-      search: debouncedFilter || undefined,
-      p_g: filterPG.length > 0 ? filterPG.join(",") : undefined,
-      active: getActiveFilter(filterActive),
-   });
+   const { data, isLoading, isFetching } = useUsers(queryParams);
 
    const usuarios = data?.items ?? [];
    const totalPages = data?.pages ?? 1;
    const totalUsers = data?.total ?? 0;
 
-   const hasFilters =
-      debouncedFilter || filterPG.length > 0 || filterActive.length > 0;
-
-   const showLoadingOverlay = loading || isFetching;
+   // keepPreviousData: na 1ª carga mostra skeleton; no refetch esmaece o
+   // conteúdo anterior sem overlay (regra de refetch suave).
+   const softLoading = isFetching && !isLoading;
 
    return (
-      <div className="h-full w-full overflow-auto p-1">
-         {/* Header da Página */}
-         <div className="mb-4 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-               <div className="rounded-lg bg-red-100 p-2">
-                  <HiUsers className="h-6 w-6 text-red-600" />
+      <div className="flex flex-col space-y-2">
+         {/* Masthead */}
+         <header className="relative overflow-hidden rounded border border-slate-200 bg-white px-5 py-4 shadow-sm sm:px-6 sm:py-5">
+            <span
+               aria-hidden
+               className="absolute top-0 left-0 h-full w-1 bg-red-600"
+            />
+            <div className="relative flex flex-wrap items-center justify-between gap-4">
+               <div className="flex min-w-0 items-center gap-4">
+                  <div className="grid h-12 w-12 shrink-0 place-items-center rounded-md bg-red-50 text-red-600 ring-1 ring-red-100 ring-inset">
+                     <HiUsers className="h-6 w-6" />
+                  </div>
+                  <div className="min-w-0">
+                     <h1 className="text-2xl leading-none font-extrabold tracking-tight text-slate-900 sm:text-[28px]">
+                        Usuários
+                     </h1>
+                  </div>
                </div>
-               <div>
-                  <h1 className="text-xl font-semibold text-gray-900">
-                     Usuários
-                  </h1>
-               </div>
-            </div>
-         </div>
 
-         <div className="relative overflow-hidden rounded border border-slate-200 bg-white shadow">
+               <Button
+                  color="red"
+                  onClick={() => setShowCreateModal(true)}
+                  className="font-semibold whitespace-nowrap"
+               >
+                  <HiUserAdd className="mr-2 h-4 w-4" />
+                  Novo Usuário
+               </Button>
+            </div>
+         </header>
+
+         <div className="overflow-hidden rounded border border-slate-200 bg-white shadow">
             {/* Barra de Busca e Filtros */}
             <div className="flex flex-col gap-3 p-4 md:flex-row">
-               {/* Busca */}
                <div className="flex-1">
                   <TextInput
                      icon={HiSearch}
                      placeholder="Buscar por nome de guerra ou nome completo..."
                      value={filterName}
-                     onChange={(e) => handleSearchChange(e.target.value)}
+                     onChange={(e) => setSearch(e.target.value)}
                      sizing="md"
                   />
                </div>
 
-               {/* Filtros */}
-               <div className="flex gap-2">
-                  {/* Filtro P/G */}
+               <div className="flex flex-wrap gap-2">
                   <MultiSelect
                      options={PG_OPTIONS}
                      selected={filterPG}
-                     onChange={handlePGChange}
+                     onChange={setPG}
                      placeholder="Todos P/G"
-                     className="w-48"
+                     className="w-44"
                   />
-
-                  {/* Filtro Status */}
+                  <SearchableSelect
+                     options={quadroOptions}
+                     value={filterQuadro}
+                     onChange={setQuadro}
+                     placeholder="Todos Quadros"
+                     clearable
+                     className="w-44"
+                  />
+                  <SearchableSelect
+                     options={especialidadeOptions}
+                     value={filterEsp}
+                     onChange={setEsp}
+                     placeholder="Todas Especialidades"
+                     clearable
+                     className="w-44"
+                  />
+                  <SearchableSelect
+                     options={unidadeOptions}
+                     value={filterUnidade}
+                     onChange={setUnidade}
+                     placeholder="Todas Unidades"
+                     clearable
+                     className="w-44"
+                  />
                   <MultiSelect
                      options={STATUS_OPTIONS}
                      selected={filterActive}
-                     onChange={handleActiveChange}
+                     onChange={setActive}
                      placeholder="Todos Status"
-                     className="w-48"
+                     className="w-44"
                   />
-
-                  {/* Botão Novo Usuário */}
-                  <Button
-                     color="red"
-                     onClick={() => setShowCreateModal(true)}
-                     className="whitespace-nowrap"
-                  >
-                     <HiUserAdd className="mr-2 h-4 w-4" />
-                     Novo Usuário
-                  </Button>
                </div>
             </div>
 
             {/* Conteúdo */}
-            {!loading && usuarios.length === 0 ? (
+            {isLoading ? (
+               <UsersListSkeleton rows={perPage <= 25 ? 25 : 50} />
+            ) : usuarios.length === 0 ? (
                <div className="flex h-64 flex-col items-center justify-center">
                   <div className="mb-4 rounded-full bg-gray-100 p-4">
                      <HiUsers className="h-12 w-12 text-gray-400" />
@@ -275,26 +178,17 @@ export default function UsersPage() {
                   )}
                </div>
             ) : (
-               <div className="relative">
-                  {/* Loading Overlay */}
-                  {showLoadingOverlay && (
-                     <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/60 backdrop-blur-[1px]">
-                        <div className="flex flex-col items-center gap-3 rounded-lg bg-white px-6 py-4 shadow-lg">
-                           <Spinner size="lg" color="failure" />
-                           <p className="text-sm text-gray-600">
-                              Carregando usuários...
-                           </p>
-                        </div>
-                     </div>
+               <div
+                  className={clsx(
+                     "transition-opacity duration-200",
+                     softLoading ? "opacity-50" : "opacity-100"
                   )}
-
+               >
                   {/* Tabela Desktop */}
-                  <UserTable usuarios={usuarios} loading={showLoadingOverlay} />
+                  <UserTable usuarios={usuarios} />
 
                   {/* Cards Mobile */}
-                  <div
-                     className={`space-y-3 p-4 md:hidden ${showLoadingOverlay ? "opacity-50" : "opacity-100"} transition-opacity duration-200`}
-                  >
+                  <div className="space-y-2 p-2 md:hidden">
                      {usuarios.map((user) => (
                         <UserCard key={user.id} user={user} />
                      ))}
@@ -302,7 +196,10 @@ export default function UsersPage() {
 
                   {/* Footer com Paginação */}
                   <nav
-                     className={`flex flex-col items-start justify-between space-y-3 p-4 md:flex-row md:items-center md:space-y-0 ${showLoadingOverlay ? "pointer-events-none opacity-50" : "opacity-100"} transition-opacity duration-200`}
+                     className={clsx(
+                        "flex flex-col items-start justify-between space-y-3 p-4 md:flex-row md:items-center md:space-y-0",
+                        softLoading && "pointer-events-none"
+                     )}
                      aria-label="Navegação da tabela"
                   >
                      <div className="flex items-center gap-4">
@@ -318,18 +215,18 @@ export default function UsersPage() {
                            </span>
                         </span>
                         <div className="flex items-center gap-2">
-                           <label
+                           <Label
                               htmlFor="perPage"
                               className="text-sm text-gray-500"
                            >
                               Por página:
-                           </label>
+                           </Label>
                            <Select
                               id="perPage"
                               sizing="sm"
                               value={perPage}
                               onChange={(e) =>
-                                 handlePerPageChange(Number(e.target.value))
+                                 setPerPage(Number(e.target.value))
                               }
                               className="w-20"
                            >
@@ -345,7 +242,7 @@ export default function UsersPage() {
                         <Pagination
                            currentPage={currentPage}
                            totalPages={totalPages}
-                           onPageChange={handlePageChange}
+                           onPageChange={setPage}
                         />
                      )}
                   </nav>

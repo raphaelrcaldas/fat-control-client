@@ -6,7 +6,15 @@
 import { Label, TextInput, Select, Checkbox } from "flowbite-react";
 import { HiMail, HiPhone } from "react-icons/hi";
 import { FaUser, FaShieldAlt } from "react-icons/fa";
-import { Controller, type Control } from "react-hook-form";
+import {
+   Controller,
+   type Control,
+   type FieldError as RhfFieldError,
+   type FieldErrors,
+   type FieldErrorsImpl,
+   type Merge,
+   type UseFormRegister,
+} from "react-hook-form";
 import clsx from "clsx";
 import { postoGradRecords } from "@/constants/militar/postos";
 import { quadroOptions } from "@/constants/militar/quadros";
@@ -15,42 +23,25 @@ import { SearchableSelect } from "@/components/SearchableSelect";
 import { useUnidadeOptions } from "@/hooks/queries";
 import { onlyLettersKeyDown, onlyNumbersKeyDown } from "./utils";
 import { formatPhone, formatCpf, formatSaram } from "@/constants/formats";
+import { SectionCard } from "../SectionCard";
 import type { CreateUserFormData } from "../../schemas/userFormSchema";
 
 interface FormSectionProps {
-   register: any;
-   errors: any;
+   register: UseFormRegister<CreateUserFormData>;
+   errors: FieldErrors<CreateUserFormData>;
    control?: Control<CreateUserFormData>;
 }
 
-function FieldError({ error }: { error?: any }) {
+type AnyFieldError =
+   | RhfFieldError
+   | Merge<RhfFieldError, FieldErrorsImpl<Record<string, unknown>>>;
+
+function FieldError({ error }: { error?: AnyFieldError }) {
    if (!error) return null;
    return (
       <span className="text-xs text-red-600">
          {typeof error?.message === "string" ? error.message : "Campo inválido"}
       </span>
-   );
-}
-
-function SectionCard({
-   title,
-   icon: Icon,
-   children,
-}: {
-   title: string;
-   icon: React.ComponentType<{ className?: string }>;
-   children: React.ReactNode;
-}) {
-   return (
-      <div className="rounded-lg border border-gray-200 bg-white">
-         <div className="border-b border-gray-100 px-5 py-3">
-            <h2 className="flex items-center gap-2 text-sm font-bold text-gray-900">
-               <Icon className="h-4 w-4 text-red-600" />
-               {title}
-            </h2>
-         </div>
-         <div className="space-y-3 p-5">{children}</div>
-      </div>
    );
 }
 
@@ -357,7 +348,7 @@ export function MilitaryDataSection({
             <FieldError error={errors.ant_rel} />
          </div>
 
-         <div className="flex items-center gap-2 rounded-lg bg-gray-50 p-3">
+         <div className="flex items-center gap-2 rounded bg-gray-50 p-3">
             <Checkbox
                id="active"
                className="size-5"

@@ -33,6 +33,9 @@ export interface PaginatedResponse<T> {
 export interface GetUsersParams {
    search?: string;
    p_g?: string;
+   quadro?: string;
+   esp?: string;
+   unidade?: string;
    active?: boolean;
    page?: number;
    per_page?: number;
@@ -96,6 +99,9 @@ export async function getUsers(
       ? {
            ...(params.search && { search: params.search }),
            ...(params.p_g && { p_g: params.p_g }),
+           ...(params.quadro && { quadro: params.quadro }),
+           ...(params.esp && { esp: params.esp }),
+           ...(params.unidade && { unidade: params.unidade }),
            ...(params.active !== undefined && {
               active: params.active.toString(),
            }),
