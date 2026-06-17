@@ -7,7 +7,7 @@ import {
    TableBody,
    TableRow,
    TableCell,
-   Button,
+   Tooltip,
 } from "flowbite-react";
 import { FaPenToSquare, FaTrashCan } from "react-icons/fa6";
 import type { Organizacao } from "services/routes/organizacoes";
@@ -25,7 +25,7 @@ export function OrganizacoesTable({
    onDelete,
 }: OrganizacoesTableProps) {
    return (
-      <div className="overflow-x-auto rounded-xl bg-white shadow-sm ring-1 ring-gray-200">
+      <div className="overflow-x-auto rounded border border-slate-200 bg-white shadow-sm">
          <Table hoverable>
             <TableHead>
                <TableRow>
@@ -40,52 +40,51 @@ export function OrganizacoesTable({
                   <TableHeadCell className="hidden md:table-cell">
                      Codinome
                   </TableHeadCell>
-                  <TableHeadCell className="w-28">
+                  <TableHeadCell className="w-24">
                      <span className="sr-only">Ações</span>
                   </TableHeadCell>
                </TableRow>
             </TableHead>
             <TableBody className="divide-y">
                {organizacoes.map((org) => (
-                  <TableRow
-                     key={org.sigla}
-                     className="bg-white dark:border-gray-700 dark:bg-gray-800"
-                  >
+                  <TableRow key={org.sigla} className="bg-white">
                      <TableCell>
-                        <span className="font-medium text-gray-900 dark:text-white">
+                        <span className="font-medium text-gray-900">
                            {org.sigla}
                         </span>
                      </TableCell>
-                     <TableCell className="hidden font-mono text-xs text-gray-500 sm:table-cell dark:text-gray-400">
+                     <TableCell className="hidden font-mono text-xs text-gray-500 sm:table-cell">
                         {org.sigla_2 || "—"}
                      </TableCell>
-                     <TableCell className="hidden font-mono text-xs text-gray-500 lg:table-cell dark:text-gray-400">
+                     <TableCell className="hidden font-mono text-xs text-gray-500 lg:table-cell">
                         {org.sigla_3 || "—"}
                      </TableCell>
-                     <TableCell className="text-gray-600 dark:text-gray-300">
-                        {org.nome}
-                     </TableCell>
-                     <TableCell className="hidden text-gray-600 md:table-cell dark:text-gray-300">
+                     <TableCell className="text-gray-600">{org.nome}</TableCell>
+                     <TableCell className="hidden text-gray-600 md:table-cell">
                         {org.alias || "—"}
                      </TableCell>
                      <TableCell>
-                        <div className="flex items-center gap-2">
-                           <Button
-                              color="light"
-                              size="sm"
-                              onClick={() => onEdit(org)}
-                              aria-label={`Editar organização ${org.sigla}`}
-                           >
-                              <FaPenToSquare className="h-4 w-4" />
-                           </Button>
-                           <Button
-                              color="red"
-                              size="sm"
-                              onClick={() => onDelete(org)}
-                              aria-label={`Excluir organização ${org.sigla}`}
-                           >
-                              <FaTrashCan className="h-4 w-4" />
-                           </Button>
+                        <div className="flex items-center justify-end gap-1">
+                           <Tooltip content="Editar organização">
+                              <button
+                                 type="button"
+                                 onClick={() => onEdit(org)}
+                                 className="rounded p-2 text-gray-400 transition-colors hover:bg-slate-100 hover:text-slate-700"
+                                 aria-label={`Editar organização ${org.sigla}`}
+                              >
+                                 <FaPenToSquare className="h-4 w-4" />
+                              </button>
+                           </Tooltip>
+                           <Tooltip content="Excluir organização">
+                              <button
+                                 type="button"
+                                 onClick={() => onDelete(org)}
+                                 className="rounded p-2 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-600"
+                                 aria-label={`Excluir organização ${org.sigla}`}
+                              >
+                                 <FaTrashCan className="h-4 w-4" />
+                              </button>
+                           </Tooltip>
                         </div>
                      </TableCell>
                   </TableRow>
@@ -98,7 +97,7 @@ export function OrganizacoesTable({
 
 export function OrganizacoesTableSkeleton({ rows = 8 }: { rows?: number }) {
    return (
-      <div className="overflow-x-auto rounded-xl bg-white shadow-sm ring-1 ring-gray-200">
+      <div className="overflow-x-auto rounded border border-slate-200 bg-white shadow-sm">
          <Table hoverable>
             <TableHead>
                <TableRow>
@@ -113,17 +112,14 @@ export function OrganizacoesTableSkeleton({ rows = 8 }: { rows?: number }) {
                   <TableHeadCell className="hidden md:table-cell">
                      Codinome
                   </TableHeadCell>
-                  <TableHeadCell className="w-28">
+                  <TableHeadCell className="w-24">
                      <span className="sr-only">Ações</span>
                   </TableHeadCell>
                </TableRow>
             </TableHead>
             <TableBody className="divide-y">
                {Array.from({ length: rows }).map((_, i) => (
-                  <TableRow
-                     key={i}
-                     className="bg-white dark:border-gray-700 dark:bg-gray-800"
-                  >
+                  <TableRow key={i} className="bg-white">
                      <TableCell>
                         <Skeleton className="h-4 w-16" />
                      </TableCell>
@@ -140,9 +136,9 @@ export function OrganizacoesTableSkeleton({ rows = 8 }: { rows?: number }) {
                         <Skeleton className="h-4 w-24" />
                      </TableCell>
                      <TableCell>
-                        <div className="flex items-center gap-2">
-                           <Skeleton className="h-9 w-10" />
-                           <Skeleton className="h-9 w-10" />
+                        <div className="flex items-center justify-end gap-1">
+                           <Skeleton className="h-8 w-8 rounded" />
+                           <Skeleton className="h-8 w-8 rounded" />
                         </div>
                      </TableCell>
                   </TableRow>

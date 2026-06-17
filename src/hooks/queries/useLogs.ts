@@ -1,5 +1,10 @@
-import { useQuery } from "@tanstack/react-query";
-import { getUserActionLogs } from "services/routes/logs";
+import {
+   keepPreviousData,
+   useMutation,
+   useQuery,
+   useQueryClient,
+} from "@tanstack/react-query";
+import { deleteUserActionLog, getUserActionLogs } from "services/routes/logs";
 
 interface UserActionLogFilters {
    user_id?: number;
@@ -37,5 +42,23 @@ export function useUserActionLogs(
       queryFn: () => getUserActionLogs(filters),
       enabled,
       staleTime: 30_000,
+      placeholderData: keepPreviousData,
+   });
+}
+
+// ========================================
+// Mutations
+// ========================================
+
+/**
+ * Exclui um log de ação de usuário e invalida a listagem.
+ */
+export function useDeleteUserActionLog() {
+   const queryClient = useQueryClient();
+   return useMutation({
+      mutationFn: (id: number) => deleteUserActionLog(id),
+      onSuccess: () => {
+         queryClient.invalidateQueries({ queryKey: logKeys.all });
+      },
    });
 }

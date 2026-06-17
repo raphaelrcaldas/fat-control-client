@@ -154,7 +154,7 @@ export function PermissionFormModal({
          <form onSubmit={handleSubmit}>
             <ModalBody>
                <div className="space-y-4">
-                  <div>
+                  <div className="space-y-1">
                      <Label htmlFor="permission-resource">Recurso</Label>
                      <Select
                         id="permission-resource"
@@ -182,7 +182,7 @@ export function PermissionFormModal({
                      {formErrors.resource_id && (
                         <p
                            id="permission-resource-error"
-                           className="mt-1 text-sm text-red-600"
+                           className="text-sm text-red-600"
                            role="alert"
                         >
                            {formErrors.resource_id}
@@ -191,21 +191,21 @@ export function PermissionFormModal({
                      {editingPermission && (
                         <p
                            id="permission-resource-hint"
-                           className="mt-1 text-sm text-gray-500 dark:text-gray-400"
+                           className="text-sm text-gray-500"
                         >
                            O recurso não pode ser alterado
                         </p>
                      )}
                   </div>
 
-                  <div>
+                  <div className="space-y-1.5">
                      <Label>Ação</Label>
                      {actionSuggestions.length > 0 ? (
                         <div
                            role="radiogroup"
                            aria-label="Ação"
                            aria-invalid={!!formErrors.name}
-                           className="mt-1.5 grid auto-cols-fr grid-flow-col gap-1 rounded-lg border border-gray-200 bg-gray-50 p-1 dark:border-gray-600 dark:bg-gray-700/40"
+                           className="grid auto-cols-fr grid-flow-col gap-1 rounded border border-slate-200 bg-gray-50 p-1"
                         >
                            {actionSuggestions.map((action) => {
                               const active = formData.name === action;
@@ -225,7 +225,7 @@ export function PermissionFormModal({
                                                chip.text,
                                                chip.border
                                             )
-                                          : "border-transparent text-slate-600 hover:bg-white dark:text-slate-300 dark:hover:bg-gray-700"
+                                          : "border-transparent text-slate-600 hover:bg-white"
                                     )}
                                  >
                                     {action}
@@ -234,14 +234,14 @@ export function PermissionFormModal({
                            })}
                         </div>
                      ) : (
-                        <p className="mt-1.5 text-sm text-gray-500 dark:text-gray-400">
+                        <p className="text-sm text-gray-500">
                            Nenhuma ação disponível.
                         </p>
                      )}
                      {formErrors.name && (
                         <p
                            id="permission-name-error"
-                           className="mt-1 text-sm text-red-600"
+                           className="text-sm text-red-600"
                            role="alert"
                         >
                            {formErrors.name}
@@ -249,7 +249,7 @@ export function PermissionFormModal({
                      )}
                   </div>
 
-                  <div>
+                  <div className="space-y-1">
                      <Label htmlFor="permission-description">Descrição</Label>
                      <TextInput
                         id="permission-description"
@@ -269,7 +269,7 @@ export function PermissionFormModal({
                      {formErrors.description && (
                         <p
                            id="permission-description-error"
-                           className="mt-1 text-sm text-red-600"
+                           className="text-sm text-red-600"
                            role="alert"
                         >
                            {formErrors.description}

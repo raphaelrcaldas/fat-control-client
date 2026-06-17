@@ -178,8 +178,8 @@ export default function ResourcesTab() {
    // Error state
    if (error) {
       return (
-         <div className="rounded-lg border border-red-300 bg-red-50 p-4 dark:border-red-800 dark:bg-red-900/20">
-            <p className="text-sm text-red-800 dark:text-red-300">
+         <div className="rounded border border-red-300 bg-red-50 p-4">
+            <p className="text-sm text-red-800">
                Erro ao carregar recursos. Por favor, tente novamente.
             </p>
          </div>

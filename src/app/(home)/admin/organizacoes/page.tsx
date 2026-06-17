@@ -1,8 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { TextInput } from "flowbite-react";
-import { FaBuilding, FaMagnifyingGlass } from "react-icons/fa6";
+import { useState } from "react";
+import { FaBuilding } from "react-icons/fa6";
 import { useToast } from "@/app/context/toast";
 import {
    useOrganizacoes,
@@ -14,9 +13,9 @@ import type {
    Organizacao,
    OrganizacaoCreate,
 } from "services/routes/organizacoes";
-import { SectionHeader } from "@/components/ui/SectionHeader";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
+import { OrganizacoesHeader } from "./components/OrganizacoesHeader";
 import { OrganizacaoFormModal } from "./components/OrganizacaoFormModal";
 import {
    OrganizacoesTable,
@@ -35,20 +34,6 @@ export default function OrganizacoesPage() {
    const [showDeleteModal, setShowDeleteModal] = useState(false);
    const [editingOrg, setEditingOrg] = useState<Organizacao | null>(null);
    const [deletingOrg, setDeletingOrg] = useState<Organizacao | null>(null);
-   const [searchTerm, setSearchTerm] = useState("");
-
-   const filteredOrgs = useMemo(() => {
-      const searchLower = searchTerm.trim().toLowerCase();
-      if (!searchLower) return organizacoes;
-      return organizacoes.filter(
-         (org) =>
-            org.sigla.toLowerCase().includes(searchLower) ||
-            (org.sigla_2?.toLowerCase().includes(searchLower) ?? false) ||
-            (org.sigla_3?.toLowerCase().includes(searchLower) ?? false) ||
-            org.nome.toLowerCase().includes(searchLower) ||
-            (org.alias?.toLowerCase().includes(searchLower) ?? false)
-      );
-   }, [organizacoes, searchTerm]);
 
    const handleOpenCreateModal = () => {
       setEditingOrg(null);
@@ -150,8 +135,8 @@ export default function OrganizacoesPage() {
 
    if (isLoading) {
       return (
-         <div className="grid gap-4 p-2">
-            <SectionHeader title="Organizações" />
+         <div className="space-y-2">
+            <OrganizacoesHeader onCreate={handleOpenCreateModal} />
             <OrganizacoesTableSkeleton rows={8} />
          </div>
       );
@@ -159,71 +144,33 @@ export default function OrganizacoesPage() {
 
    if (error) {
       return (
-         <div className="rounded-lg border border-red-300 bg-red-50 p-4 dark:border-red-800 dark:bg-red-900/20">
-            <p className="text-sm text-red-800 dark:text-red-300">
-               Erro ao carregar organizações. Por favor, tente novamente.
-            </p>
+         <div className="space-y-2">
+            <OrganizacoesHeader onCreate={handleOpenCreateModal} />
+            <div className="rounded border border-red-300 bg-red-50 p-4">
+               <p className="text-sm text-red-800">
+                  Erro ao carregar organizações. Por favor, tente novamente.
+               </p>
+            </div>
          </div>
       );
    }
 
-   const hasSearch = searchTerm.trim() !== "";
-
-   const searchControl = (
-      <TextInput
-         id="org-search"
-         type="text"
-         icon={FaMagnifyingGlass}
-         placeholder="Buscar organizações..."
-         value={searchTerm}
-         onChange={(e) => setSearchTerm(e.target.value)}
-         className="w-full sm:w-64"
-         aria-label="Buscar organizações"
-      />
-   );
-
    return (
-      <div className="grid gap-4 p-2">
-         <SectionHeader
-            title="Organizações"
-            count={filteredOrgs.length}
-            countLabel={
-               filteredOrgs.length === 1 ? "organização" : "organizações"
-            }
-            onCreateClick={handleOpenCreateModal}
-            createLabel="Nova Organização"
-         >
-            {searchControl}
-         </SectionHeader>
+      <div className="space-y-2">
+         <OrganizacoesHeader
+            count={organizacoes.length}
+            onCreate={handleOpenCreateModal}
+         />
 
-         {filteredOrgs.length === 0 ? (
+         {organizacoes.length === 0 ? (
             <EmptyState
                icon={FaBuilding}
-               title={
-                  hasSearch
-                     ? "Nenhuma organização encontrada"
-                     : "Nenhuma organização cadastrada"
-               }
-               description={
-                  hasSearch
-                     ? `Não encontramos resultados para "${searchTerm}"`
-                     : "Cadastre uma organização para começar"
-               }
-               action={
-                  hasSearch ? (
-                     <button
-                        type="button"
-                        onClick={() => setSearchTerm("")}
-                        className="text-sm text-blue-600 hover:underline"
-                     >
-                        Limpar busca
-                     </button>
-                  ) : undefined
-               }
+               title="Nenhuma organização cadastrada"
+               description="Cadastre uma organização para começar"
             />
          ) : (
             <OrganizacoesTable
-               organizacoes={filteredOrgs}
+               organizacoes={organizacoes}
                onEdit={handleOpenEditModal}
                onDelete={handleOpenDeleteModal}
             />

@@ -2,6 +2,8 @@
  * Configuração de temas para roles/perfis de usuário
  */
 
+import type { PermissionDetail } from "services/routes/security/roles";
+
 export interface RoleTheme {
    bg: string;
    text: string;
@@ -181,4 +183,26 @@ function getActionSortIndex(action: string): number {
 export function compareActions(a: string, b: string): number {
    const diff = getActionSortIndex(a) - getActionSortIndex(b);
    return diff !== 0 ? diff : a.localeCompare(b);
+}
+
+/**
+ * Agrupa permissões por recurso (deduplicando por id), ordena as ações de cada
+ * grupo pela semântica CRUD (compareActions) e os recursos alfabeticamente.
+ */
+export function groupPermissionsByResource(
+   permissions: PermissionDetail[]
+): Record<string, PermissionDetail[]> {
+   const seen = new Set<number>();
+   const grouped: Record<string, PermissionDetail[]> = {};
+   permissions.forEach((p) => {
+      if (seen.has(p.id)) return;
+      seen.add(p.id);
+      (grouped[p.resource] ??= []).push(p);
+   });
+   Object.values(grouped).forEach((perms) =>
+      perms.sort((a, b) => compareActions(a.action, b.action))
+   );
+   return Object.fromEntries(
+      Object.entries(grouped).sort(([a], [b]) => a.localeCompare(b))
+   );
 }

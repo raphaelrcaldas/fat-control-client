@@ -27,7 +27,7 @@ export function ResourcesTable({
    onDelete,
 }: ResourcesTableProps) {
    return (
-      <div className="overflow-x-auto rounded-xl bg-white shadow-sm ring-1 ring-gray-200 dark:bg-gray-800 dark:ring-gray-700">
+      <div className="overflow-x-auto rounded border border-slate-200 bg-white shadow-sm">
          <Table hoverable>
             <TableHead>
                <TableRow>
@@ -49,26 +49,25 @@ export function ResourcesTable({
                   const count = permissionCounts?.get(resource.name) ?? 0;
 
                   return (
-                     <TableRow
-                        key={resource.id}
-                        className="bg-white dark:border-gray-700 dark:bg-gray-800"
-                     >
-                        <TableCell className="font-mono text-xs text-gray-500 dark:text-gray-400">
+                     <TableRow key={resource.id} className="bg-white">
+                        <TableCell className="font-mono text-xs text-gray-500">
                            {resource.id}
                         </TableCell>
                         <TableCell>
-                           <span className="inline-flex items-center rounded-md bg-gray-100 px-2 py-0.5 font-mono text-xs font-medium text-gray-800 dark:bg-gray-700 dark:text-gray-200">
-                              {resource.name}
-                           </span>
-                           {/* Show description inline on mobile */}
-                           <p
-                              className="mt-1 text-xs text-gray-500 sm:hidden dark:text-gray-400"
-                              aria-hidden="true"
-                           >
-                              {resource.description}
-                           </p>
+                           <div className="space-y-1">
+                              <span className="inline-flex items-center rounded-md bg-gray-100 px-2 py-0.5 font-mono text-xs font-medium text-gray-800">
+                                 {resource.name}
+                              </span>
+                              {/* Descrição inline no mobile */}
+                              <p
+                                 className="text-xs text-gray-500 sm:hidden"
+                                 aria-hidden="true"
+                              >
+                                 {resource.description}
+                              </p>
+                           </div>
                         </TableCell>
-                        <TableCell className="hidden text-gray-600 sm:table-cell dark:text-gray-300">
+                        <TableCell className="hidden text-gray-600 sm:table-cell">
                            {resource.description}
                         </TableCell>
                         <TableCell className="hidden whitespace-nowrap md:table-cell">
@@ -78,8 +77,8 @@ export function ResourcesTable({
                               <span
                                  className={
                                     count === 0
-                                       ? "text-xs text-gray-400 dark:text-gray-500"
-                                       : "text-sm text-gray-700 tabular-nums dark:text-gray-200"
+                                       ? "text-xs text-gray-400"
+                                       : "text-sm text-gray-700 tabular-nums"
                                  }
                               >
                                  {count === 0
@@ -92,14 +91,14 @@ export function ResourcesTable({
                            <div className="flex items-center justify-end gap-1">
                               <button
                                  onClick={() => onEdit(resource)}
-                                 className="rounded-lg p-2 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-700 dark:hover:bg-gray-700 dark:hover:text-gray-200"
+                                 className="rounded p-2 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-700"
                                  aria-label={`Editar recurso ${resource.name}`}
                               >
                                  <FaPenToSquare className="h-4 w-4" />
                               </button>
                               <button
                                  onClick={() => onDelete(resource)}
-                                 className="rounded-lg p-2 text-gray-400 transition-colors hover:bg-red-100 hover:text-red-600 dark:hover:bg-red-900/30 dark:hover:text-red-400"
+                                 className="rounded p-2 text-gray-400 transition-colors hover:bg-red-100 hover:text-red-600"
                                  aria-label={`Excluir recurso ${resource.name}`}
                               >
                                  <FaTrashCan className="h-4 w-4" />
@@ -117,7 +116,7 @@ export function ResourcesTable({
 
 export function ResourcesTableSkeleton({ rows = 8 }: { rows?: number }) {
    return (
-      <div className="overflow-x-auto rounded-xl bg-white shadow-sm ring-1 ring-gray-200 dark:bg-gray-800 dark:ring-gray-700">
+      <div className="overflow-x-auto rounded border border-slate-200 bg-white shadow-sm">
          <Table hoverable>
             <TableHead>
                <TableRow>
@@ -136,10 +135,7 @@ export function ResourcesTableSkeleton({ rows = 8 }: { rows?: number }) {
             </TableHead>
             <TableBody className="divide-y">
                {Array.from({ length: rows }).map((_, i) => (
-                  <TableRow
-                     key={i}
-                     className="bg-white dark:border-gray-700 dark:bg-gray-800"
-                  >
+                  <TableRow key={i} className="bg-white">
                      <TableCell>
                         <Skeleton className="h-3 w-6" />
                      </TableCell>
@@ -154,8 +150,8 @@ export function ResourcesTableSkeleton({ rows = 8 }: { rows?: number }) {
                      </TableCell>
                      <TableCell>
                         <div className="flex items-center justify-end gap-1">
-                           <Skeleton className="h-8 w-8 rounded-lg" />
-                           <Skeleton className="h-8 w-8 rounded-lg" />
+                           <Skeleton className="h-8 w-8 rounded" />
+                           <Skeleton className="h-8 w-8 rounded" />
                         </div>
                      </TableCell>
                   </TableRow>

@@ -11,9 +11,9 @@ import {
    useOrganizacoes,
 } from "@/hooks/queries";
 import type { Tenant } from "services/routes/tenants";
-import { SectionHeader } from "@/components/ui/SectionHeader";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
+import { TenantsHeader } from "./components/TenantsHeader";
 import { TenantsTable, TenantsTableSkeleton } from "./components/TenantsTable";
 import { TenantRegisterModal } from "./components/TenantRegisterModal";
 
@@ -109,8 +109,8 @@ export default function TenantsPage() {
 
    if (isLoading) {
       return (
-         <div className="grid gap-4 p-2">
-            <SectionHeader title="Tenants" />
+         <div className="space-y-2">
+            <TenantsHeader onRegister={() => setShowRegisterModal(true)} />
             <TenantsTableSkeleton rows={6} />
          </div>
       );
@@ -118,22 +118,22 @@ export default function TenantsPage() {
 
    if (error) {
       return (
-         <div className="rounded-lg border border-red-300 bg-red-50 p-4">
-            <p className="text-sm text-red-800">
-               Erro ao carregar tenants. Por favor, tente novamente.
-            </p>
+         <div className="space-y-2">
+            <TenantsHeader onRegister={() => setShowRegisterModal(true)} />
+            <div className="rounded border border-red-300 bg-red-50 p-4">
+               <p className="text-sm text-red-800">
+                  Erro ao carregar tenants. Por favor, tente novamente.
+               </p>
+            </div>
          </div>
       );
    }
 
    return (
-      <div className="grid gap-4 p-2">
-         <SectionHeader
-            title="Tenants"
+      <div className="space-y-2">
+         <TenantsHeader
             count={tenants.length}
-            countLabel={tenants.length === 1 ? "tenant" : "tenants"}
-            onCreateClick={() => setShowRegisterModal(true)}
-            createLabel="Registrar Tenant"
+            onRegister={() => setShowRegisterModal(true)}
          />
 
          {tenants.length === 0 ? (

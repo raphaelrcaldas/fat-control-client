@@ -7,11 +7,11 @@ import {
    TableBody,
    TableRow,
    TableCell,
-   Button,
-   Badge,
+   ToggleSwitch,
    Tooltip,
 } from "flowbite-react";
-import { FaTrashCan, FaToggleOn, FaToggleOff } from "react-icons/fa6";
+import { FaTrashCan } from "react-icons/fa6";
+import clsx from "clsx";
 import type { Tenant } from "services/routes/tenants";
 import { formatDateFull, extractDate } from "@/../utils/dateHandler";
 import { Skeleton } from "@/components/ui/Skeleton";
@@ -30,17 +30,17 @@ export function TenantsTable({
    onDelete,
 }: TenantsTableProps) {
    return (
-      <div className="overflow-x-auto rounded-xl bg-white shadow-sm ring-1 ring-gray-200">
+      <div className="overflow-x-auto rounded border border-slate-200 bg-white shadow-sm">
          <Table hoverable>
             <TableHead>
                <TableRow>
-                  <TableHeadCell>Sigla</TableHeadCell>
-                  <TableHeadCell>Nome</TableHeadCell>
-                  <TableHeadCell className="w-24">Status</TableHeadCell>
-                  <TableHeadCell className="hidden w-32 md:table-cell">
+                  <TableHeadCell className="w-24">Sigla</TableHeadCell>
+                  <TableHeadCell className="w-40">Nome</TableHeadCell>
+                  <TableHeadCell className="w-36">Status</TableHeadCell>
+                  <TableHeadCell className="hidden w-36 whitespace-nowrap md:table-cell">
                      Registrado em
                   </TableHeadCell>
-                  <TableHeadCell className="w-28">
+                  <TableHeadCell className="w-16">
                      <span className="sr-only">Ações</span>
                   </TableHeadCell>
                </TableRow>
@@ -57,45 +57,39 @@ export function TenantsTable({
                         {tenant.organizacao.sigla_3}
                      </TableCell>
                      <TableCell>
-                        <Badge color={tenant.active ? "success" : "gray"}>
-                           {tenant.active ? "Ativo" : "Inativo"}
-                        </Badge>
+                        <ToggleSwitch
+                           checked={tenant.active}
+                           onChange={() => onToggleActive(tenant)}
+                           disabled={isUpdating}
+                           color="success"
+                           label={tenant.active ? "Ativo" : "Inativo"}
+                           className={clsx(
+                              "[&_span]:text-sm [&_span]:font-medium",
+                              tenant.active
+                                 ? "[&_span]:text-gray-700"
+                                 : "[&_span]:text-gray-400"
+                           )}
+                           aria-label={
+                              tenant.active
+                                 ? `Desativar tenant ${tenant.organizacao.sigla}`
+                                 : `Ativar tenant ${tenant.organizacao.sigla}`
+                           }
+                        />
                      </TableCell>
                      <TableCell className="hidden text-gray-500 md:table-cell">
                         {formatDateFull(extractDate(tenant.created_at))}
                      </TableCell>
                      <TableCell>
-                        <div className="flex items-center gap-2">
-                           <Tooltip
-                              content={tenant.active ? "Desativar" : "Ativar"}
-                           >
+                        <div className="flex items-center justify-end">
+                           <Tooltip content="Descadastrar tenant">
                               <button
                                  type="button"
-                                 onClick={() => onToggleActive(tenant)}
-                                 disabled={isUpdating}
-                                 className="rounded-lg p-2 text-gray-600 hover:bg-gray-100 disabled:opacity-50"
-                                 aria-label={
-                                    tenant.active
-                                       ? `Desativar tenant ${tenant.organizacao.sigla}`
-                                       : `Ativar tenant ${tenant.organizacao.sigla}`
-                                 }
-                              >
-                                 {tenant.active ? (
-                                    <FaToggleOn className="size-5 text-green-600" />
-                                 ) : (
-                                    <FaToggleOff className="size-5" />
-                                 )}
-                              </button>
-                           </Tooltip>
-                           <Tooltip content="Descadastrar tenant">
-                              <Button
-                                 color="red"
-                                 size="sm"
                                  onClick={() => onDelete(tenant)}
+                                 className="rounded p-2 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-600"
                                  aria-label={`Descadastrar tenant ${tenant.organizacao.sigla}`}
                               >
                                  <FaTrashCan className="h-4 w-4" />
-                              </Button>
+                              </button>
                            </Tooltip>
                         </div>
                      </TableCell>
@@ -109,17 +103,17 @@ export function TenantsTable({
 
 export function TenantsTableSkeleton({ rows = 6 }: { rows?: number }) {
    return (
-      <div className="overflow-x-auto rounded-xl bg-white shadow-sm ring-1 ring-gray-200">
+      <div className="overflow-x-auto rounded border border-slate-200 bg-white shadow-sm">
          <Table hoverable>
             <TableHead>
                <TableRow>
-                  <TableHeadCell>Sigla</TableHeadCell>
-                  <TableHeadCell>Nome</TableHeadCell>
-                  <TableHeadCell className="w-24">Status</TableHeadCell>
-                  <TableHeadCell className="hidden w-32 md:table-cell">
+                  <TableHeadCell className="w-24">Sigla</TableHeadCell>
+                  <TableHeadCell className="w-40">Nome</TableHeadCell>
+                  <TableHeadCell className="w-36">Status</TableHeadCell>
+                  <TableHeadCell className="hidden w-36 whitespace-nowrap md:table-cell">
                      Registrado em
                   </TableHeadCell>
-                  <TableHeadCell className="w-28">
+                  <TableHeadCell className="w-16">
                      <span className="sr-only">Ações</span>
                   </TableHeadCell>
                </TableRow>
@@ -134,15 +128,17 @@ export function TenantsTableSkeleton({ rows = 6 }: { rows?: number }) {
                         <Skeleton className="h-4 w-full max-w-xs" />
                      </TableCell>
                      <TableCell>
-                        <Skeleton className="h-5 w-16 rounded-md" />
+                        <div className="flex items-center gap-2">
+                           <Skeleton className="h-5 w-9 rounded-full" />
+                           <Skeleton className="h-4 w-12" />
+                        </div>
                      </TableCell>
                      <TableCell className="hidden md:table-cell">
                         <Skeleton className="h-4 w-24" />
                      </TableCell>
                      <TableCell>
-                        <div className="flex items-center gap-2">
-                           <Skeleton className="h-9 w-9 rounded-lg" />
-                           <Skeleton className="h-9 w-10" />
+                        <div className="flex items-center justify-end">
+                           <Skeleton className="h-8 w-8 rounded" />
                         </div>
                      </TableCell>
                   </TableRow>

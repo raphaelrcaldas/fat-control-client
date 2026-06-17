@@ -106,7 +106,7 @@ export function ResourceFormModal({
          <form onSubmit={handleSubmit}>
             <ModalBody>
                <div className="space-y-4">
-                  <div>
+                  <div className="space-y-1">
                      <Label htmlFor="resource-name">Nome</Label>
                      <TextInput
                         id="resource-name"
@@ -125,7 +125,7 @@ export function ResourceFormModal({
                      {formErrors.name && (
                         <p
                            id="resource-name-error"
-                           className="mt-1 text-sm text-red-600"
+                           className="text-sm text-red-600"
                            role="alert"
                         >
                            {formErrors.name}
@@ -133,7 +133,7 @@ export function ResourceFormModal({
                      )}
                   </div>
 
-                  <div>
+                  <div className="space-y-1">
                      <Label htmlFor="resource-description">Descrição</Label>
                      <TextInput
                         id="resource-description"
@@ -153,7 +153,7 @@ export function ResourceFormModal({
                      {formErrors.description && (
                         <p
                            id="resource-description-error"
-                           className="mt-1 text-sm text-red-600"
+                           className="text-sm text-red-600"
                            role="alert"
                         >
                            {formErrors.description}

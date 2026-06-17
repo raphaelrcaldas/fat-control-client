@@ -11,6 +11,7 @@ import {
    TextInput,
    Spinner,
 } from "flowbite-react";
+import { FaBuilding, FaCheck, FaHashtag, FaIdCard } from "react-icons/fa6";
 import type {
    Organizacao,
    OrganizacaoCreate,
@@ -128,132 +129,158 @@ export function OrganizacaoFormModal({
    };
 
    return (
-      <Modal show={show} onClose={handleClose} size="md">
-         <ModalHeader>
-            {editingOrg ? "Editar Organização" : "Nova Organização"}
+      <Modal show={show} onClose={handleClose} size="lg">
+         <ModalHeader className="border-b border-slate-200">
+            <div className="flex items-center gap-3">
+               <div className="grid h-10 w-10 shrink-0 place-items-center rounded-md bg-red-50 text-red-600 ring-1 ring-red-100 ring-inset">
+                  <FaBuilding className="size-5" />
+               </div>
+               <div>
+                  <span className="block text-lg font-bold text-slate-900">
+                     {editingOrg ? "Editar Organização" : "Nova Organização"}
+                  </span>
+                  <span className="block text-sm font-normal text-gray-500">
+                     {editingOrg
+                        ? "Atualize os dados da organização no diretório."
+                        : "Cadastre uma organização no diretório."}
+                  </span>
+               </div>
+            </div>
          </ModalHeader>
          <form onSubmit={handleSubmit}>
             <ModalBody>
-               <div className="space-y-4">
-                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-                     <div>
-                        <Label htmlFor="org-sigla">Sigla (código)</Label>
-                        <TextInput
-                           id="org-sigla"
-                           name="sigla"
-                           type="text"
-                           placeholder="Ex: 11gt"
-                           value={formData.sigla}
-                           onChange={handleInputChange}
-                           color={formErrors.sigla ? "failure" : undefined}
-                           autoFocus={!editingOrg}
-                           disabled={!!editingOrg}
-                           aria-invalid={!!formErrors.sigla}
-                        />
-                        {formErrors.sigla ? (
-                           <p
-                              className="mt-1 text-sm text-red-600"
-                              role="alert"
-                           >
-                              {formErrors.sigla}
-                           </p>
-                        ) : (
-                           editingOrg && (
-                              <p className="mt-1 text-xs text-gray-500">
-                                 Identificador fixo após a criação.
+               <div className="space-y-6">
+                  <section className="space-y-3">
+                     <div className="flex items-center gap-2 border-b border-slate-100 pb-2">
+                        <FaHashtag className="size-3.5 text-gray-400" />
+                        <h4 className="text-sm font-semibold text-gray-700">
+                           Siglas
+                        </h4>
+                     </div>
+                     <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                        <div className="space-y-1">
+                           <Label htmlFor="org-sigla">Sigla (código)</Label>
+                           <TextInput
+                              id="org-sigla"
+                              name="sigla"
+                              type="text"
+                              placeholder="Ex: 11gt"
+                              value={formData.sigla}
+                              onChange={handleInputChange}
+                              color={formErrors.sigla ? "failure" : undefined}
+                              autoFocus={!editingOrg}
+                              disabled={!!editingOrg}
+                              aria-invalid={!!formErrors.sigla}
+                           />
+                           {formErrors.sigla ? (
+                              <p className="text-sm text-red-600" role="alert">
+                                 {formErrors.sigla}
                               </p>
-                           )
-                        )}
+                           ) : (
+                              editingOrg && (
+                                 <p className="text-xs text-gray-500">
+                                    Identificador fixo após a criação.
+                                 </p>
+                              )
+                           )}
+                        </div>
+
+                        <div className="space-y-1">
+                           <Label htmlFor="org-sigla-2">
+                              Sigla 2 (opcional)
+                           </Label>
+                           <TextInput
+                              id="org-sigla-2"
+                              name="sigla_2"
+                              type="text"
+                              placeholder="Ex: 1gt1"
+                              value={formData.sigla_2}
+                              onChange={handleInputChange}
+                              color={formErrors.sigla_2 ? "failure" : undefined}
+                              aria-invalid={!!formErrors.sigla_2}
+                           />
+                           {formErrors.sigla_2 && (
+                              <p className="text-sm text-red-600" role="alert">
+                                 {formErrors.sigla_2}
+                              </p>
+                           )}
+                        </div>
+
+                        <div className="space-y-1">
+                           <Label htmlFor="org-sigla-3">
+                              Sigla 3 (opcional)
+                           </Label>
+                           <TextInput
+                              id="org-sigla-3"
+                              name="sigla_3"
+                              type="text"
+                              placeholder="Ex: 1º/1º GT"
+                              value={formData.sigla_3}
+                              onChange={handleInputChange}
+                              color={formErrors.sigla_3 ? "failure" : undefined}
+                              aria-invalid={!!formErrors.sigla_3}
+                           />
+                           {formErrors.sigla_3 && (
+                              <p className="text-sm text-red-600" role="alert">
+                                 {formErrors.sigla_3}
+                              </p>
+                           )}
+                        </div>
+                     </div>
+                  </section>
+
+                  <section className="space-y-3">
+                     <div className="flex items-center gap-2 border-b border-slate-100 pb-2">
+                        <FaIdCard className="size-3.5 text-gray-400" />
+                        <h4 className="text-sm font-semibold text-gray-700">
+                           Identificação
+                        </h4>
                      </div>
 
-                     <div>
-                        <Label htmlFor="org-sigla-2">Sigla 2 (opcional)</Label>
+                     <div className="space-y-1">
+                        <Label htmlFor="org-nome">Nome</Label>
                         <TextInput
-                           id="org-sigla-2"
-                           name="sigla_2"
+                           id="org-nome"
+                           name="nome"
                            type="text"
-                           placeholder="Ex: 1gt1"
-                           value={formData.sigla_2}
+                           placeholder="Nome completo da organização"
+                           value={formData.nome}
                            onChange={handleInputChange}
-                           color={formErrors.sigla_2 ? "failure" : undefined}
-                           aria-invalid={!!formErrors.sigla_2}
+                           color={formErrors.nome ? "failure" : undefined}
+                           aria-invalid={!!formErrors.nome}
                         />
-                        {formErrors.sigla_2 && (
-                           <p
-                              className="mt-1 text-sm text-red-600"
-                              role="alert"
-                           >
-                              {formErrors.sigla_2}
+                        {formErrors.nome && (
+                           <p className="text-sm text-red-600" role="alert">
+                              {formErrors.nome}
                            </p>
                         )}
                      </div>
 
-                     <div>
-                        <Label htmlFor="org-sigla-3">Sigla 3 (opcional)</Label>
+                     <div className="space-y-1">
+                        <Label htmlFor="org-alias">Codinome (opcional)</Label>
                         <TextInput
-                           id="org-sigla-3"
-                           name="sigla_3"
+                           id="org-alias"
+                           name="alias"
                            type="text"
-                           placeholder="Ex: 1º/1º GT"
-                           value={formData.sigla_3}
+                           placeholder="Ex: Esquadrão Pelicano"
+                           value={formData.alias}
                            onChange={handleInputChange}
-                           color={formErrors.sigla_3 ? "failure" : undefined}
-                           aria-invalid={!!formErrors.sigla_3}
+                           color={formErrors.alias ? "failure" : undefined}
+                           aria-invalid={!!formErrors.alias}
                         />
-                        {formErrors.sigla_3 && (
-                           <p
-                              className="mt-1 text-sm text-red-600"
-                              role="alert"
-                           >
-                              {formErrors.sigla_3}
+                        {formErrors.alias && (
+                           <p className="text-sm text-red-600" role="alert">
+                              {formErrors.alias}
                            </p>
                         )}
                      </div>
-                  </div>
-
-                  <div>
-                     <Label htmlFor="org-nome">Nome</Label>
-                     <TextInput
-                        id="org-nome"
-                        name="nome"
-                        type="text"
-                        placeholder="Nome completo da organização"
-                        value={formData.nome}
-                        onChange={handleInputChange}
-                        color={formErrors.nome ? "failure" : undefined}
-                        aria-invalid={!!formErrors.nome}
-                     />
-                     {formErrors.nome && (
-                        <p className="mt-1 text-sm text-red-600" role="alert">
-                           {formErrors.nome}
-                        </p>
-                     )}
-                  </div>
-
-                  <div>
-                     <Label htmlFor="org-alias">Codinome (opcional)</Label>
-                     <TextInput
-                        id="org-alias"
-                        name="alias"
-                        type="text"
-                        placeholder="Ex: Esquadrão Pelicano"
-                        value={formData.alias}
-                        onChange={handleInputChange}
-                        color={formErrors.alias ? "failure" : undefined}
-                        aria-invalid={!!formErrors.alias}
-                     />
-                     {formErrors.alias && (
-                        <p className="mt-1 text-sm text-red-600" role="alert">
-                           {formErrors.alias}
-                        </p>
-                     )}
-                  </div>
+                  </section>
                </div>
             </ModalBody>
-            <ModalFooter>
+            <ModalFooter className="border-t border-slate-200">
                <Button
                   type="submit"
-                  color="blue"
+                  color="red"
                   disabled={isSaving}
                   aria-label={
                      editingOrg ? "Atualizar organização" : "Criar organização"
@@ -261,13 +288,14 @@ export function OrganizacaoFormModal({
                >
                   {isSaving ? (
                      <>
-                        <Spinner color="info" size="sm" className="mr-2" />
+                        <Spinner color="failure" size="sm" className="mr-2" />
                         Salvando...
                      </>
-                  ) : editingOrg ? (
-                     "Atualizar"
                   ) : (
-                     "Criar"
+                     <>
+                        <FaCheck className="mr-2 size-4" />
+                        {editingOrg ? "Atualizar" : "Criar"}
+                     </>
                   )}
                </Button>
                <Button color="gray" onClick={onClose} disabled={isSaving}>
