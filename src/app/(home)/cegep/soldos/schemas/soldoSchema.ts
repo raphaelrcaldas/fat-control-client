@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { todayIso } from "@/../utils/dateHandler";
 
 export const soldoFormSchema = z
    .object({
@@ -20,9 +21,16 @@ export const soldoFormSchema = z
 
 export type SoldoFormData = z.infer<typeof soldoFormSchema>;
 
-export const defaultSoldoValues: SoldoFormData = {
-   pg: "",
-   data_inicio: new Date().toISOString().split("T")[0],
-   data_fim: null,
-   valor: 0,
-};
+/**
+ * Valores iniciais do formulário. É uma factory (não constante de módulo) para
+ * que `data_inicio` use a data de hoje no fuso local no momento do reset, em vez
+ * de congelar no carregamento do bundle. Data via dateHandler (sem off-by-one).
+ */
+export function makeDefaultSoldoValues(): SoldoFormData {
+   return {
+      pg: "",
+      data_inicio: todayIso(),
+      data_fim: null,
+      valor: 0,
+   };
+}

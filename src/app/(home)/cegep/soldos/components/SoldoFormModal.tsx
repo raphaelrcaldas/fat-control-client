@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -18,24 +18,24 @@ import { SoldoPublic } from "services/routes/cegep/soldos";
 import {
    soldoFormSchema,
    SoldoFormData,
-   defaultSoldoValues,
+   makeDefaultSoldoValues,
 } from "../schemas/soldoSchema";
 
 interface SoldoFormModalProps {
    show: boolean;
    editingSoldo: SoldoPublic | null;
+   submitting: boolean;
    onClose: () => void;
-   onSubmit: (data: SoldoFormData) => Promise<void>;
+   onSubmit: (data: SoldoFormData) => Promise<boolean>;
 }
 
 export default function SoldoFormModal({
    show,
    editingSoldo,
+   submitting,
    onClose,
    onSubmit,
 }: SoldoFormModalProps) {
-   const [loading, setLoading] = useState(false);
-
    const {
       register,
       handleSubmit,
@@ -43,7 +43,7 @@ export default function SoldoFormModal({
       formState: { errors, isDirty },
    } = useForm<SoldoFormData>({
       resolver: zodResolver(soldoFormSchema),
-      defaultValues: defaultSoldoValues,
+      defaultValues: makeDefaultSoldoValues(),
    });
 
    useEffect(() => {
@@ -55,22 +55,17 @@ export default function SoldoFormModal({
             valor: editingSoldo.valor,
          });
       } else {
-         reset(defaultSoldoValues);
+         reset(makeDefaultSoldoValues());
       }
    }, [editingSoldo, reset]);
 
    const handleFormSubmit = async (data: SoldoFormData) => {
-      setLoading(true);
-      try {
-         await onSubmit(data);
-         reset(defaultSoldoValues);
-      } finally {
-         setLoading(false);
-      }
+      const ok = await onSubmit(data);
+      if (ok) reset(makeDefaultSoldoValues());
    };
 
    const handleClose = () => {
-      reset(defaultSoldoValues);
+      reset(makeDefaultSoldoValues());
       onClose();
    };
 
@@ -87,9 +82,9 @@ export default function SoldoFormModal({
                onSubmit={handleSubmit(handleFormSubmit)}
                className="space-y-4"
             >
-               {/* Posto/Graduacao */}
+               {/* Posto/Graduação */}
                <div>
-                  <Label htmlFor="pg">Posto/Graduacao *</Label>
+                  <Label htmlFor="pg">Posto/Graduação *</Label>
                   <Select
                      id="pg"
                      {...register("pg")}
@@ -130,7 +125,7 @@ export default function SoldoFormModal({
                {/* Datas */}
                <div className="grid grid-cols-2 gap-4">
                   <div>
-                     <Label htmlFor="data_inicio">Data de Inicio *</Label>
+                     <Label htmlFor="data_inicio">Data de Início *</Label>
                      <TextInput
                         id="data_inicio"
                         type="date"
@@ -153,20 +148,26 @@ export default function SoldoFormModal({
                   </div>
                </div>
 
-               {/* Botoes */}
-               <div className="flex justify-end gap-3 border-t border-gray-200 pt-4">
-                  <Button color="gray" onClick={handleClose} disabled={loading}>
+               {/* Botões */}
+               <div className="flex justify-end gap-3 border-t border-slate-200 pt-4">
+                  <Button
+                     color="gray"
+                     onClick={handleClose}
+                     disabled={submitting}
+                  >
                      Cancelar
                   </Button>
                   <Button
                      color="red"
                      type="submit"
-                     disabled={loading || (editingSoldo && !isDirty)}
+                     disabled={
+                        submitting || (Boolean(editingSoldo) && !isDirty)
+                     }
                   >
-                     {loading
+                     {submitting
                         ? "Salvando..."
                         : editingSoldo
-                          ? "Salvar Alteracoes"
+                          ? "Salvar Alterações"
                           : "Cadastrar"}
                   </Button>
                </div>
