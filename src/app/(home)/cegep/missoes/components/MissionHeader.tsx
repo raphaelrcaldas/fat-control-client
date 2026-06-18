@@ -5,7 +5,7 @@ interface MissionHeaderProps {
    nDoc: string;
    desc: string;
    isNew: boolean;
-   cache_inconsistente: boolean;
+   cache_inconsistente?: boolean;
    onBack: () => void;
 }
 
@@ -38,8 +38,9 @@ export function MissionHeader({
             )}
          </div>
 
-         {/* Integridade do cache de custos verificada ao abrir a missão */}
-         {!cache_inconsistente && (
+         {/* Integridade do cache de custos verificada ao abrir a missão.
+             Missão nova ainda não foi persistida, logo não há o que verificar. */}
+         {!isNew && !cache_inconsistente && (
             <div className="flex items-center gap-1.5 text-xs text-green-600">
                <HiCheckCircle className="h-4 w-4 shrink-0" />
                <span>Integridade verificada</span>

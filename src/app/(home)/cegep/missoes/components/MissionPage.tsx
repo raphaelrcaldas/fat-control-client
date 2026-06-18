@@ -69,12 +69,12 @@ export function MissionPage({
                   nDoc={form.nDoc}
                   desc={form.desc}
                   isNew={form.isNew}
-                  cache_inconsistente={missao.custo_inconsistente}
+                  cache_inconsistente={missao?.custo_inconsistente}
                   onBack={onClose}
                />
 
                <div className="space-y-2">
-                  {missao.custo_inconsistente && (
+                  {missao?.custo_inconsistente && (
                      <div className="flex items-start gap-2 rounded border border-red-300 bg-red-50 p-3 text-sm text-red-800">
                         <HiExclamation className="mt-0.5 h-5 w-5 shrink-0 animate-pulse text-red-500" />
                         <span>
