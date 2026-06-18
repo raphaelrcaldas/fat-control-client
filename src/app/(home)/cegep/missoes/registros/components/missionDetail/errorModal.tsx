@@ -16,10 +16,10 @@ export function ErrorModal({
 }: ErrorModalProps) {
    return (
       <Modal size="lg" show={show} onClose={onClose} dismissible>
-         <ModalHeader className="border-b-2 border-slate-300 bg-linear-to-r from-red-50 to-orange-50">
+         <ModalHeader className="border-b border-slate-200">
             <div className="flex items-center gap-3">
-               <div className="rounded-full bg-red-500 p-2">
-                  <MdError className="size-6 text-white" />
+               <div className="rounded-md bg-red-100 p-2 shadow-sm">
+                  <MdError className="size-6 text-red-600" />
                </div>
                <span className="text-xl font-bold text-gray-800">
                   {errorTitle}
@@ -29,7 +29,7 @@ export function ErrorModal({
          <ModalBody className="p-6">
             <div className="flex flex-col gap-6">
                {/* Mensagem de erro */}
-               <div className="rounded-r-lg border-l-4 border-red-500 bg-red-50 p-4">
+               <div className="rounded border-l-4 border-red-500 bg-red-50 p-4">
                   <p className="text-sm font-medium whitespace-pre-wrap text-gray-800">
                      {errorMessage}
                   </p>

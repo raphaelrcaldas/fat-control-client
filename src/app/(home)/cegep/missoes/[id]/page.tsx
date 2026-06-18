@@ -1,10 +1,10 @@
 "use client";
 
 import { useParams, useRouter } from "next/navigation";
-import { Spinner } from "flowbite-react";
 import { useMissao } from "@/hooks/queries/useMissoes";
 import { MissionPage } from "../components/MissionPage";
-import { formatDateTime } from "@/../utils/dateHandler";
+import { MissionPageSkeleton } from "../components/MissionPageSkeleton";
+import { formatDateTime, formatNaiveDate } from "@/../utils/dateHandler";
 import type {
    MissaoLog,
    MissaoLogSnapshot,
@@ -42,16 +42,8 @@ function formatFieldValue(
    if (value === null || value === undefined) return "—";
    if (BOOL_FIELDS.has(field)) return value ? "Sim" : "Não";
    if (DATE_FIELDS.has(field)) {
-      // ISO datetime → DD/MM/YYYY
-      const s = String(value);
-      const d = new Date(s.endsWith("Z") ? s : s + "Z");
-      if (isNaN(d.getTime())) return s;
-      return d.toLocaleDateString("pt-BR", {
-         day: "2-digit",
-         month: "2-digit",
-         year: "numeric",
-         timeZone: "UTC",
-      });
+      // afast/regres são datetime naive — formatação string-pura (fuso-safe)
+      return formatNaiveDate(String(value)) || String(value);
    }
    if (field === "tipo_doc") return String(value).toUpperCase();
    if (field === "tipo") return String(value).toUpperCase();
@@ -146,11 +138,7 @@ export default function MissaoDetailPage() {
    };
 
    if (isLoading) {
-      return (
-         <div className="flex h-96 items-center justify-center">
-            <Spinner size="xl" color="failure" />
-         </div>
-      );
+      return <MissionPageSkeleton />;
    }
 
    if (!missao) {
@@ -182,7 +170,7 @@ export default function MissaoDetailPage() {
             {/* HISTÓRICO DE AUDITORIA — só renderiza se houver logs */}
             {logs.length > 0 && (
                <div className="w-full rounded border border-slate-200 bg-white shadow-sm lg:w-1/3 lg:shrink-0">
-                  <div className="border-b border-slate-300 bg-gray-50/50 px-5 py-3">
+                  <div className="border-b border-slate-200 bg-gray-50/50 px-5 py-3">
                      <h3 className="font-semibold text-gray-800">
                         Histórico de Alterações
                      </h3>
@@ -191,7 +179,7 @@ export default function MissaoDetailPage() {
                      </p>
                   </div>
                   <div className="p-5">
-                     <ol className="relative space-y-4 border-s border-slate-300 ps-5">
+                     <ol className="relative space-y-4 border-s border-slate-200 ps-5">
                         {logs.map((log) => (
                            <MissaoLogEntry key={log.id} log={log} />
                         ))}

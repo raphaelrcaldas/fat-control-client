@@ -1,9 +1,9 @@
 "use client";
 
 import { useSearchParams, useRouter } from "next/navigation";
-import { Spinner } from "flowbite-react";
 import { useMissao } from "@/hooks/queries/useMissoes";
 import { MissionPage } from "../components/MissionPage";
+import { MissionPageSkeleton } from "../components/MissionPageSkeleton";
 import { useMemo } from "react";
 import { Missao } from "services/routes/cegep/missoes";
 
@@ -24,11 +24,7 @@ export default function NovaMissaoPage() {
    };
 
    if (cloneFromId > 0 && isLoading) {
-      return (
-         <div className="flex h-96 items-center justify-center">
-            <Spinner size="xl" color="failure" />
-         </div>
-      );
+      return <MissionPageSkeleton />;
    }
 
    return (

@@ -122,10 +122,10 @@ export function FormMilitar({
 
    return (
       <Modal size="lg" show={show} onClose={() => setShow(false)} dismissible>
-         <ModalHeader className="border-b-2 border-slate-300 pb-4">
+         <ModalHeader className="border-b border-slate-200">
             <div className="flex items-center gap-3">
-               <div className="rounded bg-linear-to-br from-blue-500 to-blue-600 p-2">
-                  <HiUserCircle className="h-6 w-6 text-white" />
+               <div className="rounded-md bg-blue-100 p-2 shadow-sm">
+                  <HiUserCircle className="h-6 w-6 text-blue-600" />
                </div>
                <span className="text-xl font-semibold text-gray-800">
                   {userMis ? "Editar Militar" : "Adicionar Militar"}
@@ -135,7 +135,7 @@ export function FormMilitar({
          <ModalBody className="p-6">
             <form onSubmit={handleSubmit} className="flex flex-col gap-6">
                {/* Card de Seleção do Militar */}
-               <div className="rounded border-2 border-slate-200 bg-linear-to-br from-slate-50 to-slate-100 px-3 py-2 shadow-sm">
+               <div className="rounded border border-slate-200 bg-slate-50 px-3 py-2 shadow-sm">
                   <div className="flex flex-col gap-2">
                      <div className="flex items-center justify-between">
                         <Label className="flex items-center gap-2 text-sm font-semibold text-gray-700">
@@ -144,9 +144,9 @@ export function FormMilitar({
                         </Label>
                         <Button
                            pill
+                           color="blue"
                            onClick={() => setShowUserSearch(true)}
                            size="sm"
-                           className="bg-linear-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700"
                         >
                            <IoMdSearch className="mr-2 h-4 w-4" />
                            Buscar
@@ -155,7 +155,7 @@ export function FormMilitar({
 
                      <div className="flex items-center justify-center p-2">
                         {user ? (
-                           <div className="rounded border-2 border-blue-200 bg-white px-6 py-3 shadow-sm">
+                           <div className="rounded border border-blue-200 bg-white px-6 py-3 shadow-sm">
                               <span className="text-base font-semibold text-gray-800 uppercase">
                                  <span className="text-blue-600">
                                     {user.p_g}
@@ -195,7 +195,6 @@ export function FormMilitar({
                      <Select
                         value={pgMis}
                         onChange={(e) => setPgMis(e.target.value)}
-                        className="rounded border-2 border-slate-300 focus:border-blue-500 focus:ring-blue-500"
                      >
                         <option value="" disabled>
                            Selecione...
@@ -219,7 +218,6 @@ export function FormMilitar({
                      <Select
                         value={sit}
                         onChange={(e) => setSit(e.target.value)}
-                        className="rounded border-2 border-slate-300 focus:border-blue-500 focus:ring-blue-500"
                      >
                         <option disabled value="">
                            Selecione...
@@ -232,11 +230,12 @@ export function FormMilitar({
                </div>
 
                {/* Botões de Ação */}
-               <div className="mt-4 flex justify-center gap-3 border-t-2 border-slate-300 pt-6">
+               <div className="mt-4 flex justify-center gap-3 border-t border-slate-200 pt-6">
                   {userMis && (
                      <Button
+                        color="red"
                         onClick={handleDeleteClick}
-                        className="min-w-32 bg-linear-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700"
+                        className="min-w-32"
                      >
                         <HiTrash className="mr-2 h-4 w-4" />
                         Excluir
@@ -244,8 +243,9 @@ export function FormMilitar({
                   )}
                   <Button
                      type="submit"
+                     color="green"
                      disabled={!isChanged}
-                     className="min-w-32 bg-linear-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 disabled:from-gray-300 disabled:to-gray-400"
+                     className="min-w-32"
                   >
                      <HiCheckCircle className="mr-2 h-4 w-4" />
                      Salvar

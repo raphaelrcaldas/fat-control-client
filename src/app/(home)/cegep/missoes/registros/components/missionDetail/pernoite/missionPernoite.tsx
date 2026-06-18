@@ -4,8 +4,8 @@ import { Pernoite } from "services/routes/cegep/missoes";
 import { FormPernoite } from "./formPernoite";
 import { useState } from "react";
 import clsx from "clsx";
-import { isoStrToDate } from "utils/dateHandler";
-import { MdCalendarToday, MdLocationOn, MdAttachMoney } from "react-icons/md";
+import { formatDayMonthShort } from "utils/dateHandler";
+import { MdCalendarToday } from "react-icons/md";
 
 interface MissionPernoiteProps {
    pnt: Pernoite;
@@ -26,15 +26,8 @@ export const MissionPernoite = memo(function MissionPernoite({
 }: MissionPernoiteProps) {
    const [showFormPnt, setShowFormPnt] = useState<boolean>(false);
 
-   const dataIni = isoStrToDate(pnt.data_ini).toLocaleDateString("pt-br", {
-      day: "2-digit",
-      month: "short",
-   });
-
-   const dataFim = isoStrToDate(pnt.data_fim).toLocaleDateString("pt-br", {
-      day: "2-digit",
-      month: "short",
-   });
+   const dataIni = formatDayMonthShort(pnt.data_ini);
+   const dataFim = formatDayMonthShort(pnt.data_fim);
 
    function editPntShow(): void {
       if (edit) {
@@ -47,7 +40,7 @@ export const MissionPernoite = memo(function MissionPernoite({
          <div
             className={clsx(
                "group relative flex justify-between",
-               "rounded-md border-2 border-slate-200 bg-white px-3 py-2 shadow-sm",
+               "rounded border border-slate-200 bg-white px-3 py-2 shadow-sm",
                {
                   "cursor-pointer hover:border-blue-300": edit,
                }
@@ -75,7 +68,7 @@ export const MissionPernoite = memo(function MissionPernoite({
             <div className="flex items-center justify-center gap-2">
                {pnt.acrec_desloc && (
                   <Tooltip content="Acréscimo Deslocamento">
-                     <span className="flex items-center gap-1 rounded-md bg-green-500 px-3 py-1 text-xs font-semibold text-white shadow-sm">
+                     <span className="flex items-center gap-1 rounded bg-green-500 px-3 py-1 text-xs font-semibold text-white shadow-sm">
                         AC
                      </span>
                   </Tooltip>
@@ -83,7 +76,7 @@ export const MissionPernoite = memo(function MissionPernoite({
 
                {pnt.meia_diaria && (
                   <Tooltip content="Meia Diária">
-                     <span className="flex items-center gap-1 rounded-md bg-amber-500 px-3 py-1 text-xs font-semibold text-white shadow-sm">
+                     <span className="flex items-center gap-1 rounded bg-amber-500 px-3 py-1 text-xs font-semibold text-white shadow-sm">
                         MD
                      </span>
                   </Tooltip>
