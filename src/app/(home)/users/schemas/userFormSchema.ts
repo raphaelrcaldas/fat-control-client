@@ -5,8 +5,8 @@ import { validarSaram } from "utils/validators";
 
 export const createUserFormSchema = z.object({
    p_g: z.string().nonempty("Obrigatório").length(2),
-   quadro: z.string().transform(sanitizeText),
-   esp: z.string().transform(sanitizeText),
+   quadro: z.string().transform((v) => v.trim().toUpperCase()),
+   esp: z.string().transform((v) => v.trim().toUpperCase()),
    nome_guerra: z.string().nonempty("Obrigatório").transform(sanitizeText),
    nome_completo: z.string().transform(sanitizeText),
    unidade: z.string().nonempty("Obrigatório"),
