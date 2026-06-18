@@ -1,16 +1,11 @@
 import { useComissSummary } from "@/hooks/queries";
 import type { ComissList } from "services/routes/cegep/comiss";
-const formatCurrency = (val: number) =>
-   new Intl.NumberFormat("pt-BR", {
-      style: "currency",
-      currency: "BRL",
-   }).format(val);
 import {
    Badge,
    Button,
+   Label,
    Progress,
    Select,
-   Spinner,
    Table,
    TableBody,
    TableCell,
@@ -26,11 +21,15 @@ import {
 } from "react-icons/fa";
 import { HiOutlineAdjustments } from "react-icons/hi";
 import { useState, useMemo } from "react";
-import { formatDateFull } from "@/../utils/dateHandler";
+import { formatDateFull, isoStrToDate } from "@/../utils/dateHandler";
+import { realCurrency } from "utils/financeiro";
 import { compareByAntiguidade } from "utils/sortByAntiguidade";
 import { PermBased } from "@/app/(home)/hooks/usePermBased";
 import { HiChevronUp, HiChevronDown, HiSelector } from "react-icons/hi";
 import clsx from "clsx";
+import { GestaoFiscalCard } from "./components/GestaoFiscalCard";
+import { GestaoFiscalSkeleton } from "./components/GestaoFiscalSkeleton";
+import { ComissSubheader } from "./components/ComissSubheader";
 
 type SortKey =
    | "militar"
@@ -45,8 +44,8 @@ type SortKey =
 // Impacto: parcela do valor que efetivamente recai sobre o ano fiscal exibido
 // (abertura conta se abriu no ano; fechamento conta se fechou no ano).
 function computeImpacto(c: ComissList, ano: number): number {
-   const anoAb = new Date(c.data_ab).getFullYear();
-   const anoFc = c.data_fc ? new Date(c.data_fc).getFullYear() : null;
+   const anoAb = isoStrToDate(c.data_ab).getFullYear();
+   const anoFc = c.data_fc ? isoStrToDate(c.data_fc).getFullYear() : null;
    return (
       (anoAb === ano ? c.valor_aj_ab : 0) + (anoFc === ano ? c.valor_aj_fc : 0)
    );
@@ -72,11 +71,8 @@ export function GestaoFiscalPage() {
 
    const sortedComissionamentos = useMemo(() => {
       if (!data?.comissionamentos) return [];
-      let sortableItems = [...data.comissionamentos];
+      const sortableItems = [...data.comissionamentos];
       sortableItems.sort((a, b) => {
-         let aValue: any;
-         let bValue: any;
-
          if (sortConfig.key === "militar") {
             const cmp =
                !a.user && !b.user
@@ -102,8 +98,8 @@ export function GestaoFiscalPage() {
             }
          };
 
-         aValue = getValue(a);
-         bValue = getValue(b);
+         const aValue = getValue(a);
+         const bValue = getValue(b);
 
          if (aValue === bValue) return 0;
          if (aValue == null) return sortConfig.direction === "asc" ? 1 : -1;
@@ -133,7 +129,7 @@ export function GestaoFiscalPage() {
       return (
          <TableHeadCell
             className={clsx(
-               "group cursor-pointer bg-gray-50 transition-colors select-none hover:bg-gray-100",
+               "group cursor-pointer bg-slate-50 transition-colors select-none hover:bg-slate-100",
                align === "center" ? "text-center!" : "text-left!"
             )}
             style={{ textAlign: align }}
@@ -149,7 +145,7 @@ export function GestaoFiscalPage() {
                         <HiChevronDown className="h-4 w-4 text-red-600" />
                      )
                   ) : (
-                     <HiSelector className="h-4 w-4 text-gray-400 opacity-0 transition-opacity group-hover:opacity-100" />
+                     <HiSelector className="h-4 w-4 text-slate-400 opacity-0 transition-opacity group-hover:opacity-100" />
                   )}
                </span>
             </span>
@@ -158,66 +154,69 @@ export function GestaoFiscalPage() {
    };
 
    return (
-      <div className="animate-fadeIn flex flex-col gap-4">
-         {/* CABEÇALHO */}
-         <div className="flex flex-col border-b border-gray-100 py-2 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-               <h2 className="text-xl font-bold text-gray-900">
-                  Gestão Fiscal de Comissionamentos
-               </h2>
-               <p className="text-sm text-gray-500">
-                  Acompanhamento e controle orçamentário anual.
-               </p>
-            </div>
-            <div className="mt-4 flex items-center gap-3 sm:mt-0">
-               <div className="flex items-center gap-2">
-                  <label className="text-sm font-medium text-gray-600">
-                     Exercício
-                  </label>
-                  <Select
-                     sizing="sm"
-                     value={ano}
-                     onChange={(e) => setAno(Number(e.target.value))}
-                     className="min-w-28 shadow-sm"
-                  >
-                     {yearsRange.map((y) => (
-                        <option key={y} value={y}>
-                           {y}
-                        </option>
-                     ))}
-                  </Select>
-               </div>
-               <PermBased resource="orcamento" requiredPerm="create">
-                  <Button
-                     size="sm"
-                     color="red"
-                     onClick={() =>
-                        router.push(`/cegep/comiss/orcamento?ano=${ano}`)
-                     }
-                     title="Editar teto orçamentário"
-                  >
-                     <HiOutlineAdjustments className="mr-2 h-4 w-4" />
-                     Editar Teto
-                  </Button>
-               </PermBased>
-            </div>
-         </div>
+      <div className="flex flex-col gap-2">
+         {/* Subheader da aba — renderizado de cara (shell imediato) */}
+         <ComissSubheader
+            actions={
+               <>
+                  <div className="flex items-center gap-2">
+                     <Label
+                        htmlFor="exercicio"
+                        className="text-sm text-slate-600"
+                     >
+                        Exercício
+                     </Label>
+                     <Select
+                        id="exercicio"
+                        sizing="sm"
+                        value={ano}
+                        onChange={(e) => setAno(Number(e.target.value))}
+                        className="min-w-28"
+                     >
+                        {yearsRange.map((y) => (
+                           <option key={y} value={y}>
+                              {y}
+                           </option>
+                        ))}
+                     </Select>
+                  </div>
+                  <PermBased resource="orcamento" requiredPerm="create">
+                     <Button
+                        size="sm"
+                        color="red"
+                        onClick={() =>
+                           router.push(`/cegep/comiss/orcamento?ano=${ano}`)
+                        }
+                        title="Editar teto orçamentário"
+                     >
+                        <HiOutlineAdjustments className="mr-2 h-4 w-4" />
+                        Editar Teto
+                     </Button>
+                  </PermBased>
+               </>
+            }
+         >
+            <h2 className="text-base font-semibold text-slate-900">
+               Gestão Fiscal
+            </h2>
+            <p className="text-sm text-slate-500">
+               Acompanhamento e controle orçamentário anual.
+            </p>
+         </ComissSubheader>
 
          {isLoading ? (
-            <div className="flex justify-center py-20">
-               <Spinner size="xl" color="failure" />
-            </div>
+            <GestaoFiscalSkeleton />
          ) : !data ? (
-            <div className="flex justify-center py-20 text-gray-500">
+            <div className="flex justify-center py-20 text-slate-500">
                Erro ao carregar dados orçamentários.
             </div>
          ) : (
             <>
                {/* EMPTY STATE — sem orçamento cadastrado para o ano */}
                {!data.orcamento_id && (
-                  <div className="flex flex-col items-center gap-3 rounded border border-dashed border-gray-300 bg-gray-50 py-10 text-center">
-                     <FaRegMoneyBillAlt className="h-8 w-8 text-gray-300" />
-                     <p className="text-sm font-medium text-gray-600">
+                  <div className="flex flex-col items-center gap-3 rounded border border-dashed border-slate-300 bg-slate-50 py-10 text-center">
+                     <FaRegMoneyBillAlt className="h-8 w-8 text-slate-300" />
+                     <p className="text-sm font-medium text-slate-600">
                         Nenhum orçamento cadastrado para {ano}.
                      </p>
                      <Button
@@ -234,209 +233,29 @@ export function GestaoFiscalPage() {
 
                {/* DASHBOARD CARDS — só exibe quando há orçamento */}
                {data.orcamento_id && (
-                  <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
-                     {/* ORÇAMENTO TOTAL */}
-                     <div className="group relative overflow-hidden rounded border border-gray-200 bg-white p-5 shadow-sm">
-                        {/* Glass decor */}
-                        <div className="pointer-events-none absolute -top-6 -right-6 h-24 w-24 rounded-full bg-red-50 opacity-60 transition-transform group-hover:scale-110"></div>
-                        <div className="mb-2 flex items-start justify-between">
-                           <span className="block text-xs font-bold tracking-wider text-gray-500 uppercase">
-                              Orçamento Total (Ano)
-                           </span>
-                           <FaRegMoneyBillAlt className="text-gray-400" />
-                        </div>
-                        <div className="mb-4 text-3xl font-extrabold text-gray-900 drop-shadow-sm">
-                           {formatCurrency(data.total.orcamento)}
-                        </div>
-                        <div className="mb-1 flex justify-between text-sm text-gray-500">
-                           <span>Consumido / Previsto</span>
-                           <div className="flex gap-1 font-semibold text-gray-700">
-                              <span className="text-green-600">
-                                 {Math.round(
-                                    (data.total.soma / data.total.orcamento) *
-                                       100
-                                 )}
-                                 %
-                              </span>
-                              {data.total.previsao ? (
-                                 <span className="text-yellow-500">
-                                    {Math.round(
-                                       (data.total.previsao /
-                                          data.total.orcamento) *
-                                          100
-                                    )}
-                                    %
-                                 </span>
-                              ) : null}
-                           </div>
-                        </div>
-                        <div className="flex h-2.5 w-full overflow-hidden rounded-full bg-gray-100">
-                           <div
-                              className="h-full rounded-l-full bg-green-500"
-                              style={{
-                                 width: `${(data.total.soma / data.total.orcamento) * 100}%`,
-                              }}
-                           ></div>
-                           {data.total.previsao ? (
-                              <div
-                                 className="h-full bg-yellow-400"
-                                 style={{
-                                    width: `${(data.total.previsao / data.total.orcamento) * 100}%`,
-                                 }}
-                              ></div>
-                           ) : null}
-                        </div>
-                        <div className="mt-3 flex gap-4 text-[10px] font-bold tracking-wide uppercase">
-                           <div className="flex items-center gap-1.5 text-green-700">
-                              <span className="h-2 w-2 rounded-full bg-green-500"></span>
-                              Pago {formatCurrency(data.total.soma)}
-                           </div>
-                           <div className="flex items-center gap-1.5 text-yellow-700">
-                              <span className="h-2 w-2 rounded-full bg-yellow-400"></span>
-                              Previsto{" "}
-                              {formatCurrency(data.total.previsao || 0)}
-                           </div>
-                           <div className="ml-auto flex items-center gap-1.5 text-blue-700">
-                              <span className="h-2 w-2 rounded-full bg-blue-500"></span>
-                              Disponível{" "}
-                              {formatCurrency(
-                                 data.total.orcamento -
-                                    data.total.soma -
-                                    (data.total.previsao || 0)
-                              )}
-                           </div>
-                        </div>
-                     </div>
-
-                     {/* FECHAMENTOS */}
-                     <div className="group relative overflow-hidden rounded border border-gray-200 bg-white p-5 shadow-sm">
-                        {/* Glass decor */}
-                        <div className="pointer-events-none absolute -top-6 -right-6 h-24 w-24 rounded-full bg-red-50 opacity-60 transition-transform group-hover:scale-110"></div>
-                        <div className="mb-2 flex items-start justify-between">
-                           <span className="block text-xs font-bold tracking-wider text-gray-500 uppercase">
-                              Fechamentos (Términos)
-                           </span>
-                           <FaPlaneArrival className="text-gray-400" />
-                        </div>
-                        <div className="mb-4 text-3xl font-extrabold text-gray-900 drop-shadow-sm">
-                           {formatCurrency(data.fechamento.orcamento)}
-                        </div>
-                        <div className="mb-1 flex justify-between text-sm text-gray-500">
-                           <span>Consumido / Previsto</span>
-                           <div className="flex gap-1 font-semibold text-gray-700">
-                              <span className="text-green-600">
-                                 {Math.round(
-                                    (data.fechamento.soma /
-                                       data.fechamento.orcamento) *
-                                       100
-                                 )}
-                                 %
-                              </span>
-                              {data.fechamento.previsao ? (
-                                 <span className="text-yellow-500">
-                                    {Math.round(
-                                       (data.fechamento.previsao /
-                                          data.fechamento.orcamento) *
-                                          100
-                                    )}
-                                    %
-                                 </span>
-                              ) : null}
-                           </div>
-                        </div>
-                        <div className="flex h-2.5 w-full overflow-hidden rounded-full bg-gray-100">
-                           <div
-                              className="h-full rounded-l-full bg-green-500"
-                              style={{
-                                 width: `${(data.fechamento.soma / data.fechamento.orcamento) * 100}%`,
-                              }}
-                           ></div>
-                           {data.fechamento.previsao ? (
-                              <div
-                                 className="h-full bg-yellow-400"
-                                 style={{
-                                    width: `${(data.fechamento.previsao / data.fechamento.orcamento) * 100}%`,
-                                 }}
-                              ></div>
-                           ) : null}
-                        </div>
-                        <div className="mt-3 flex gap-4 text-[10px] font-bold tracking-wide uppercase">
-                           <div className="flex items-center gap-1.5 text-green-700">
-                              <span className="h-2 w-2 rounded-full bg-green-500"></span>
-                              Pago {formatCurrency(data.fechamento.soma)}
-                           </div>
-                           <div className="flex items-center gap-1.5 text-yellow-700">
-                              <span className="h-2 w-2 rounded-full bg-yellow-400"></span>
-                              Previsto{" "}
-                              {formatCurrency(data.fechamento.previsao || 0)}
-                           </div>
-                           <div className="ml-auto flex items-center gap-1.5 text-blue-700">
-                              <span className="h-2 w-2 rounded-full bg-blue-500"></span>
-                              Disponível{" "}
-                              {formatCurrency(
-                                 data.fechamento.orcamento -
-                                    data.fechamento.soma -
-                                    (data.fechamento.previsao || 0)
-                              )}
-                           </div>
-                        </div>
-                     </div>
-
-                     {/* ABERTURAS */}
-                     <div className="group relative overflow-hidden rounded border border-gray-200 bg-white p-5 shadow-sm">
-                        {/* Glass decor */}
-                        <div className="pointer-events-none absolute -top-6 -right-6 h-24 w-24 rounded-full bg-red-50 opacity-60 transition-transform group-hover:scale-110"></div>
-                        <div className="mb-2 flex items-start justify-between">
-                           <span className="block text-xs font-bold tracking-wider text-gray-500 uppercase">
-                              Aberturas (Inícios)
-                           </span>
-                           <FaPlaneDeparture className="text-gray-400" />
-                        </div>
-                        <div className="mb-4 text-3xl font-extrabold text-gray-900 drop-shadow-sm">
-                           {formatCurrency(data.abertura.orcamento)}
-                        </div>
-                        <div className="mb-1 flex justify-between text-sm text-gray-500">
-                           <span>Consumido / Previsto</span>
-                           <div className="flex gap-1 font-semibold text-gray-700">
-                              <span className="text-green-600">
-                                 {Math.round(
-                                    (data.abertura.soma /
-                                       data.abertura.orcamento) *
-                                       100
-                                 )}
-                                 %
-                              </span>
-                           </div>
-                        </div>
-                        <div className="flex h-2.5 w-full overflow-hidden rounded-full bg-gray-100">
-                           <div
-                              className="h-full rounded-full bg-green-500"
-                              style={{
-                                 width: `${(data.abertura.soma / data.abertura.orcamento) * 100}%`,
-                              }}
-                           ></div>
-                        </div>
-                        <div className="mt-3 flex justify-between text-[10px] font-bold tracking-wide uppercase">
-                           <div className="flex items-center gap-1.5 text-green-700">
-                              <span className="h-2 w-2 rounded-full bg-green-500"></span>
-                              Pago {formatCurrency(data.abertura.soma)}
-                           </div>
-                           <div className="ml-auto flex items-center gap-1.5 text-blue-700">
-                              <span className="h-2 w-2 rounded-full bg-blue-500"></span>
-                              Disponível{" "}
-                              {formatCurrency(
-                                 data.abertura.orcamento - data.abertura.soma
-                              )}
-                           </div>
-                        </div>
-                     </div>
+                  <div className="grid grid-cols-1 gap-2 md:grid-cols-3">
+                     <GestaoFiscalCard
+                        label="Orçamento Total (Ano)"
+                        icon={<FaRegMoneyBillAlt />}
+                        stats={data.total}
+                     />
+                     <GestaoFiscalCard
+                        label="Fechamentos (Términos)"
+                        icon={<FaPlaneArrival />}
+                        stats={data.fechamento}
+                     />
+                     <GestaoFiscalCard
+                        label="Aberturas (Inícios)"
+                        icon={<FaPlaneDeparture />}
+                        stats={data.abertura}
+                     />
                   </div>
                )}
 
                {/* TABELA DE REGISTROS DO ANO */}
-               <div className="overflow-hidden rounded bg-white shadow-sm ring-1 ring-gray-200">
-                  <div className="border-b border-gray-100 bg-gray-50/50 px-5 py-3">
-                     <h3 className="font-semibold text-gray-800">
+               <div className="overflow-hidden rounded bg-white shadow-sm ring-1 ring-slate-200">
+                  <div className="border-b border-slate-100 bg-slate-50/50 px-5 py-3">
+                     <h3 className="font-semibold text-slate-800">
                         Comissionamentos que compõem o período (
                         {data.comissionamentos.length})
                      </h3>
@@ -455,11 +274,13 @@ export function GestaoFiscalPage() {
                               {renderHeader("Completude", "completude")}
                            </TableRow>
                         </TableHead>
-                        <TableBody className="divide-y divide-gray-200">
+                        <TableBody className="divide-y divide-slate-200">
                            {sortedComissionamentos.map((c) => {
-                              const anoAb = new Date(c.data_ab).getFullYear();
+                              const anoAb = isoStrToDate(
+                                 c.data_ab
+                              ).getFullYear();
                               const anoFc = c.data_fc
-                                 ? new Date(c.data_fc).getFullYear()
+                                 ? isoStrToDate(c.data_fc).getFullYear()
                                  : null;
                               const impacto = computeImpacto(c, ano);
 
@@ -471,7 +292,7 @@ export function GestaoFiscalPage() {
                                        router.push(`/cegep/comiss/${c.id}`)
                                     }
                                  >
-                                    <TableCell className="font-medium whitespace-nowrap text-gray-900">
+                                    <TableCell className="font-medium whitespace-nowrap text-slate-900">
                                        <div className="uppercase">
                                           {c.user?.p_g} {c.user?.nome_guerra}
                                        </div>
@@ -507,7 +328,7 @@ export function GestaoFiscalPage() {
                                                 "text-slate-400 opacity-60 grayscale"
                                           )}
                                        >
-                                          {formatCurrency(c.valor_aj_ab)}
+                                          {realCurrency(c.valor_aj_ab)}
                                        </span>
                                     </TableCell>
                                     <TableCell className="text-center whitespace-nowrap">
@@ -518,12 +339,12 @@ export function GestaoFiscalPage() {
                                           )}
                                        >
                                           {c.valor_aj_fc > 0
-                                             ? formatCurrency(c.valor_aj_fc)
+                                             ? realCurrency(c.valor_aj_fc)
                                              : "-"}
                                        </span>
                                     </TableCell>
-                                    <TableCell className="text-center font-semibold whitespace-nowrap text-gray-900">
-                                       {formatCurrency(impacto)}
+                                    <TableCell className="text-center font-semibold whitespace-nowrap text-slate-900">
+                                       {realCurrency(impacto)}
                                     </TableCell>
                                     <TableCell className="text-center whitespace-nowrap">
                                        <div className="flex justify-center">
@@ -543,7 +364,7 @@ export function GestaoFiscalPage() {
                                     </TableCell>
                                     <TableCell className="text-center whitespace-nowrap">
                                        <div className="inline-flex flex-col items-center gap-1">
-                                          <span className="text-xs font-bold text-gray-700">
+                                          <span className="text-xs font-bold text-slate-700">
                                              {c.completude}%
                                           </span>
                                           <div className="w-20">
@@ -568,7 +389,7 @@ export function GestaoFiscalPage() {
                               <TableRow>
                                  <TableCell
                                     colSpan={8}
-                                    className="py-8 text-center text-gray-500"
+                                    className="py-8 text-center text-slate-500"
                                  >
                                     Nenhum dado orçamentário registrado neste
                                     ano de exercício.

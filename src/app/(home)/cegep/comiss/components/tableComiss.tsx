@@ -10,8 +10,9 @@ import {
    TableCell,
    Progress,
    Label,
+   Badge,
 } from "flowbite-react";
-import { isoStrToDate } from "utils/dateHandler";
+import { isoDateToString } from "utils/dateHandler";
 import clsx from "clsx";
 import { ComissList } from "services/routes/cegep/comiss";
 import { useRouter } from "next/navigation";
@@ -188,14 +189,8 @@ const TableComissRow = memo(function TableComissRow({
 
    const { dataAbertura, dataFechamento } = useMemo(
       () => ({
-         dataAbertura: isoStrToDate(comiss.data_ab).toLocaleDateString(
-            "pt-br",
-            { day: "2-digit", month: "2-digit", year: "2-digit" }
-         ),
-         dataFechamento: isoStrToDate(comiss.data_fc).toLocaleDateString(
-            "pt-br",
-            { day: "2-digit", month: "2-digit", year: "2-digit" }
-         ),
+         dataAbertura: isoDateToString(comiss.data_ab),
+         dataFechamento: isoDateToString(comiss.data_fc),
       }),
       [comiss.data_ab, comiss.data_fc]
    );
@@ -253,16 +248,11 @@ const TableComissRow = memo(function TableComissRow({
          </TableCell>
 
          <TableCell className="text-center whitespace-nowrap">
-            <span
-               className={clsx(
-                  "inline-flex items-center rounded-lg px-2.5 py-1 text-xs font-medium",
-                  comiss.dias_cumprir
-                     ? "bg-blue-100 text-blue-700"
-                     : "bg-green-100 text-green-700"
-               )}
-            >
-               {comiss.dias_cumprir ? "Periodo" : "Comparativo"}
-            </span>
+            <div className="flex justify-center">
+               <Badge color={comiss.dias_cumprir ? "info" : "success"}>
+                  {comiss.dias_cumprir ? "Periodo" : "Comparativo"}
+               </Badge>
+            </div>
          </TableCell>
 
          <TableCell>
@@ -278,16 +268,11 @@ const TableComissRow = memo(function TableComissRow({
             </div>
          </TableCell>
          <TableCell className="text-center whitespace-nowrap">
-            <span
-               className={clsx(
-                  "inline-flex items-center rounded-lg px-2.5 py-1 text-xs font-medium",
-                  comiss.modulo
-                     ? "bg-emerald-100 text-emerald-700"
-                     : "bg-red-100 text-red-700"
-               )}
-            >
-               {comiss.modulo ? "Sim" : "Não"}
-            </span>
+            <div className="flex justify-center">
+               <Badge color={comiss.modulo ? "success" : "failure"}>
+                  {comiss.modulo ? "Sim" : "Não"}
+               </Badge>
+            </div>
          </TableCell>
 
          <TableCell className="text-center whitespace-nowrap">

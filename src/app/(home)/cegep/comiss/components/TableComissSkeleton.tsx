@@ -71,7 +71,7 @@ export function TableComissSkeleton({ rows = 18 }: TableComissSkeletonProps) {
                      </TableCell>
                      {/* Tipo */}
                      <TableCell>
-                        <Bar className="mx-auto h-5 w-20 rounded-lg" />
+                        <Bar className="mx-auto h-5 w-20" />
                      </TableCell>
                      {/* Progresso */}
                      <TableCell>
@@ -82,7 +82,7 @@ export function TableComissSkeleton({ rows = 18 }: TableComissSkeletonProps) {
                      </TableCell>
                      {/* Módulo */}
                      <TableCell>
-                        <Bar className="mx-auto h-5 w-12 rounded-lg" />
+                        <Bar className="mx-auto h-5 w-12" />
                      </TableCell>
                      {/* Previsto */}
                      <TableCell>

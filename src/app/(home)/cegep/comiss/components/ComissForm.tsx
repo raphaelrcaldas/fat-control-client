@@ -15,13 +15,14 @@ import {
    Comiss as ComissSchema,
 } from "services/routes/cegep/comiss";
 import { IoMdSearch } from "react-icons/io";
-import { HiArrowLeft } from "react-icons/hi";
+import { FaSave } from "react-icons/fa";
 import { useToast } from "@/app/context/toast";
-import { isoStrToDate } from "utils/dateHandler";
+import { isoStrToDate, dateToIso, formatDateFull } from "utils/dateHandler";
 import { UserPublic } from "services/routes/users";
 import { SearchUser } from "src/app/(home)/users/components/searchUser";
 import { useCreateComiss, useUpdateComiss } from "@/hooks/queries";
 import { sanitizeLinha } from "utils/sanitize";
+import { ComissDetailHeader } from "./detail/ComissDetailHeader";
 
 interface ComissFormProps {
    comiss?: ComissList | ComissWithMiss;
@@ -123,17 +124,12 @@ export function ComissForm({ comiss, onCancel, onSuccess }: ComissFormProps) {
             : maisRecente
       );
 
-      const [ano, mes, dia] = ultimaRegres.regres
-         .split("T")[0]
-         .split("-")
-         .map(Number);
-      const diaSeguinte = new Date(ano, mes - 1, dia + 1);
-      const esperado = `${diaSeguinte.getFullYear()}-${String(
-         diaSeguinte.getMonth() + 1
-      ).padStart(2, "0")}-${String(diaSeguinte.getDate()).padStart(2, "0")}`;
+      const diaSeguinte = isoStrToDate(ultimaRegres.regres.split("T")[0]);
+      diaSeguinte.setDate(diaSeguinte.getDate() + 1);
+      const esperado = dateToIso(diaSeguinte);
 
       if (dataFc !== esperado) {
-         const esperadoBr = isoStrToDate(esperado).toLocaleDateString("pt-br");
+         const esperadoBr = formatDateFull(esperado);
          errors.push(
             `- Data de fechamento deve ser ${esperadoBr} (dia seguinte a ultima missao)`
          );
@@ -200,24 +196,41 @@ export function ComissForm({ comiss, onCancel, onSuccess }: ComissFormProps) {
 
    return (
       <div className="flex w-full justify-center">
-         <div className="flex w-full max-w-7xl flex-col gap-6">
-            {/* Header */}
-            <div className="flex items-center justify-between rounded-xl bg-white p-4 shadow-sm">
-               <button
-                  onClick={onCancel}
-                  className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-900"
-               >
-                  <HiArrowLeft className="h-4 w-4" />
-                  {comiss ? "Cancelar" : "Voltar"}
-               </button>
-               <h2 className="text-lg font-bold text-gray-900">
-                  {comiss ? "Editar" : "Adicionar"} Comissionamento
-               </h2>
-               <div className="w-20" />
-            </div>
+         <div className="w-full max-w-7xl space-y-2">
+            {/* Barra de comando superior */}
+            <ComissDetailHeader
+               title={`${comiss ? "Editar" : "Adicionar"} Comissionamento`}
+               onClose={onCancel}
+               actions={
+                  <Button
+                     color="red"
+                     size="sm"
+                     onClick={handleSaveComiss}
+                     disabled={isLoading}
+                  >
+                     {isLoading ? (
+                        <>
+                           <Spinner
+                              size="sm"
+                              color="failure"
+                              className="sm:mr-2"
+                           />
+                           <span className="hidden sm:inline">Salvando...</span>
+                        </>
+                     ) : (
+                        <>
+                           <FaSave className="size-4 sm:mr-2" />
+                           <span className="hidden sm:inline">
+                              {comiss ? "Salvar" : "Adicionar"}
+                           </span>
+                        </>
+                     )}
+                  </Button>
+               }
+            />
 
             {/* Selecao de Militar */}
-            <div className="flex items-center justify-center gap-3 rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+            <div className="flex items-center justify-center gap-3 rounded border border-slate-200 bg-white p-4 shadow-sm">
                {user ? (
                   <div className="space-y-1 text-center">
                      <span className="block font-semibold text-gray-900 uppercase">
@@ -252,7 +265,7 @@ export function ComissForm({ comiss, onCancel, onSuccess }: ComissFormProps) {
             />
 
             {/* Documentos */}
-            <div className="space-y-3 rounded-xl bg-white p-4 shadow-sm">
+            <div className="space-y-3 rounded border border-slate-200 bg-white p-4 shadow-sm">
                <h4 className="text-sm font-semibold tracking-wide text-gray-700 uppercase">
                   Documentos
                </h4>
@@ -307,7 +320,7 @@ export function ComissForm({ comiss, onCancel, onSuccess }: ComissFormProps) {
             {/* Datas e Valores */}
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                {/* Abertura */}
-               <div className="rounded-xl border border-emerald-200 bg-white p-5 shadow-sm">
+               <div className="rounded border border-emerald-200 bg-white p-5 shadow-sm">
                   <h4 className="mb-4 flex items-center gap-2 text-sm font-semibold text-emerald-800">
                      <div className="h-2 w-2 rounded-full bg-emerald-500" />
                      Abertura
@@ -358,7 +371,7 @@ export function ComissForm({ comiss, onCancel, onSuccess }: ComissFormProps) {
                </div>
 
                {/* Fechamento */}
-               <div className="rounded-xl border border-orange-200 bg-white p-5 shadow-sm">
+               <div className="rounded border border-orange-200 bg-white p-5 shadow-sm">
                   <h4 className="mb-4 flex items-center gap-2 text-sm font-semibold text-orange-800">
                      <div className="h-2 w-2 rounded-full bg-orange-500" />
                      Fechamento
@@ -411,7 +424,7 @@ export function ComissForm({ comiss, onCancel, onSuccess }: ComissFormProps) {
             </div>
 
             {/* Configuracoes Adicionais */}
-            <div className="space-y-3 rounded-xl bg-white p-4 shadow-sm">
+            <div className="space-y-3 rounded border border-slate-200 bg-white p-4 shadow-sm">
                <h4 className="text-sm font-semibold tracking-wide text-gray-700 uppercase">
                   Configuracoes
                </h4>
@@ -461,7 +474,7 @@ export function ComissForm({ comiss, onCancel, onSuccess }: ComissFormProps) {
                      <div className="flex items-center gap-2">
                         <Checkbox
                            id="dep"
-                           color="blue"
+                           color="red"
                            className="h-5 w-5"
                            checked={dep}
                            onChange={(e) => setDep(e.target.checked)}
@@ -472,30 +485,6 @@ export function ComissForm({ comiss, onCancel, onSuccess }: ComissFormProps) {
                      </div>
                   </div>
                </div>
-            </div>
-
-            {/* Botoes */}
-            <div className="flex justify-center gap-3 rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
-               <Button color="gray" onClick={onCancel} disabled={isLoading}>
-                  Cancelar
-               </Button>
-               <Button
-                  className="px-6"
-                  color="blue"
-                  onClick={handleSaveComiss}
-                  disabled={isLoading}
-               >
-                  {isLoading ? (
-                     <div className="flex items-center gap-2">
-                        <Spinner size="sm" color="failure" />
-                        <span>Salvando...</span>
-                     </div>
-                  ) : comiss ? (
-                     "Salvar Alteracoes"
-                  ) : (
-                     "Adicionar Comissionamento"
-                  )}
-               </Button>
             </div>
          </div>
       </div>

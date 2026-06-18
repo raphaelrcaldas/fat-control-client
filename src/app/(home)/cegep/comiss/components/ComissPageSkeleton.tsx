@@ -25,17 +25,23 @@ export function ComissPageSkeleton() {
    return (
       <div className="flex w-full justify-center">
          <div className="flex w-full max-w-7xl flex-col gap-3">
-            {/* Header: voltar + nome + exportações */}
-            <div className="flex items-center gap-2 rounded border border-slate-300 bg-white px-3 py-4 shadow-sm sm:gap-4 sm:px-4">
-               <Bar className="h-9 w-9 shrink-0 sm:w-24" />
-               <div className="flex min-w-0 flex-1 flex-col items-center gap-1.5">
-                  <Bar className="h-5 w-48 max-w-full" />
-                  <FaintBar className="h-3.5 w-64 max-w-full" />
+            {/* Barra de comando: voltar + titulo + acoes */}
+            <div className="flex items-center justify-between gap-3 rounded border border-slate-200 bg-white px-3 py-2.5 shadow-sm sm:px-4">
+               <div className="flex items-center gap-3">
+                  <Bar className="h-9 w-9 shrink-0" />
+                  <Bar className="h-5 w-40" />
                </div>
                <div className="hidden shrink-0 gap-2 sm:flex">
-                  <Bar className="h-10 w-28" />
-                  <Bar className="h-10 w-28" />
+                  <Bar className="h-8 w-24" />
+                  <Bar className="h-8 w-24" />
+                  <Bar className="h-8 w-20" />
                </div>
+            </div>
+
+            {/* Identidade do militar — card independente */}
+            <div className="flex flex-col items-center gap-1.5 rounded border border-slate-200 bg-white px-4 py-3 shadow-sm">
+               <Bar className="h-5 w-48 max-w-full" />
+               <FaintBar className="h-3.5 w-64 max-w-full" />
             </div>
 
             {/* Documentos */}

@@ -1,25 +1,15 @@
 "use client";
 
 import { useMemo } from "react";
-import { isoStrToDate } from "utils/dateHandler";
+import { isoDateToString } from "utils/dateHandler";
 import { realCurrency } from "utils/financeiro";
 import { ComissWithMiss } from "services/routes/cegep/comiss";
 
 export function ComissDatasValores({ comiss }: { comiss: ComissWithMiss }) {
    const { dataAbertura, dataFechamento } = useMemo(
       () => ({
-         dataAbertura: isoStrToDate(comiss.data_ab).toLocaleDateString(
-            "pt-br",
-            {
-               day: "2-digit",
-               month: "2-digit",
-               year: "2-digit",
-            }
-         ),
-         dataFechamento: isoStrToDate(comiss.data_fc).toLocaleDateString(
-            "pt-br",
-            { day: "2-digit", month: "2-digit", year: "2-digit" }
-         ),
+         dataAbertura: isoDateToString(comiss.data_ab),
+         dataFechamento: isoDateToString(comiss.data_fc),
       }),
       [comiss.data_ab, comiss.data_fc]
    );

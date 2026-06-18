@@ -37,7 +37,7 @@ export function MissionRow({
                <Button
                   size="sm"
                   color="light"
-                  className="rounded transition-colors duration-200 hover:bg-gray-100"
+                  className="transition-colors duration-200 hover:bg-gray-100"
                   onClick={onShowDetail}
                >
                   <IoMdInformationCircleOutline size={18} />
@@ -46,7 +46,7 @@ export function MissionRow({
                   <Button
                      size="sm"
                      color="light"
-                     className="rounded transition-colors duration-200 hover:bg-blue-50"
+                     className="transition-colors duration-200 hover:bg-slate-100"
                      onClick={onNavigate}
                      title="Abrir missao"
                   >

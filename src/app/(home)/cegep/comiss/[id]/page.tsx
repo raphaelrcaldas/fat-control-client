@@ -7,16 +7,11 @@ import { ComissPage } from "../components/ComissPage";
 import { ComissPageSkeleton } from "../components/ComissPageSkeleton";
 import { ComissForm } from "../components/ComissForm";
 import { formatDateTime, isoDateToString } from "@/../utils/dateHandler";
+import { realCurrency } from "utils/financeiro";
 import type {
    ComissLog,
    ComissLogSnapshot,
 } from "services/routes/cegep/comiss";
-
-const formatCurrency = (val: number) =>
-   new Intl.NumberFormat("pt-BR", {
-      style: "currency",
-      currency: "BRL",
-   }).format(val);
 
 const ACTION_LABEL: Record<string, string> = {
    create: "Criação",
@@ -50,7 +45,7 @@ function formatFieldValue(
    value: unknown
 ): string {
    if (value === null || value === undefined) return "—";
-   if (MONEY_FIELDS.has(field)) return formatCurrency(value as number);
+   if (MONEY_FIELDS.has(field)) return realCurrency(value as number);
    if (DATE_FIELDS.has(field)) return isoDateToString(value as string);
    if (BOOL_FIELDS.has(field)) return value ? "Sim" : "Não";
    return String(value);

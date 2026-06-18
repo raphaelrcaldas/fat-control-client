@@ -21,13 +21,9 @@ import {
    useUpdateOrcamento,
 } from "@/hooks/queries/useOrcamento";
 import { formatDateTime } from "@/../utils/dateHandler";
+import { realCurrency } from "utils/financeiro";
 import type { OrcamentoLog } from "services/routes/cegep/orcamento";
-
-const formatCurrency = (val: number) =>
-   new Intl.NumberFormat("pt-BR", {
-      style: "currency",
-      currency: "BRL",
-   }).format(val);
+import { OrcamentoFormSkeleton } from "./OrcamentoFormSkeleton";
 
 // Converte um inteiro de centavos para "1.234.567,89" (pt-BR com separadores)
 function formatCents(cents: number): string {
@@ -180,7 +176,7 @@ export default function OrcamentoAnualPage() {
 
    return (
       <div className="flex w-full justify-center">
-         <div className="animate-fadeIn flex w-full max-w-7xl flex-col gap-6">
+         <div className="flex w-full max-w-7xl flex-col gap-6">
             {/* BREADCRUMB */}
             <div className="flex items-center gap-2 text-sm text-gray-600">
                <button
@@ -208,13 +204,11 @@ export default function OrcamentoAnualPage() {
             </div>
 
             {/* CARD DE EDIÇÃO */}
-            <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+            <div className="rounded border border-slate-200 bg-white p-6 shadow-sm">
                {isLoading ? (
-                  <div className="flex justify-center py-20">
-                     <Spinner size="xl" color="failure" />
-                  </div>
+                  <OrcamentoFormSkeleton />
                ) : (
-                  <>
+                  <div className="space-y-6">
                      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                         {/* ANO */}
                         <div>
@@ -275,81 +269,83 @@ export default function OrcamentoAnualPage() {
                         </div>
                      </div>
 
-                     <hr className="my-6 border-gray-100" />
+                     <hr className="border-gray-100" />
 
-                     <h3 className="mb-3 text-sm font-semibold text-gray-800">
-                        Distribuição de Cotas
-                     </h3>
+                     <div>
+                        <h3 className="mb-3 text-sm font-semibold text-gray-800">
+                           Distribuição de Cotas
+                        </h3>
 
-                     <div className="rounded-lg bg-gray-50 p-4">
-                        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                           <div>
-                              <Label
-                                 htmlFor="abertura"
-                                 className="text-xs font-bold tracking-wider text-gray-500 uppercase"
-                              >
-                                 Cota para Aberturas
-                              </Label>
-                              <div className="relative mt-1">
-                                 <span className="absolute top-1/2 left-3 -translate-y-1/2 text-sm text-gray-500">
-                                    R$
-                                 </span>
-                                 <TextInput
-                                    id="abertura"
-                                    inputMode="numeric"
-                                    value={formatCents(aberturaCents)}
-                                    onChange={(e) =>
-                                       handleMoneyChange(
-                                          setAberturaCents,
-                                          e.target.value
-                                       )
-                                    }
-                                    className="[&_input]:pl-10 [&_input]:text-right"
-                                    placeholder="0,00"
-                                 />
+                        <div className="rounded bg-slate-50 p-4">
+                           <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                              <div>
+                                 <Label
+                                    htmlFor="abertura"
+                                    className="text-xs font-bold tracking-wider text-gray-500 uppercase"
+                                 >
+                                    Cota para Aberturas
+                                 </Label>
+                                 <div className="relative mt-1">
+                                    <span className="absolute top-1/2 left-3 -translate-y-1/2 text-sm text-gray-500">
+                                       R$
+                                    </span>
+                                    <TextInput
+                                       id="abertura"
+                                       inputMode="numeric"
+                                       value={formatCents(aberturaCents)}
+                                       onChange={(e) =>
+                                          handleMoneyChange(
+                                             setAberturaCents,
+                                             e.target.value
+                                          )
+                                       }
+                                       className="[&_input]:pl-10 [&_input]:text-right"
+                                       placeholder="0,00"
+                                    />
+                                 </div>
+                                 <p className="mt-1 text-xs text-gray-500">
+                                    Alocação sugerida: {Math.round(pctAb)}%
+                                 </p>
                               </div>
-                              <p className="mt-1 text-xs text-gray-500">
-                                 Alocação sugerida: {Math.round(pctAb)}%
-                              </p>
-                           </div>
 
-                           <div>
-                              <Label
-                                 htmlFor="fechamento"
-                                 className="text-xs font-bold tracking-wider text-gray-500 uppercase"
-                              >
-                                 Cota para Fechamentos
-                              </Label>
-                              <div className="relative mt-1">
-                                 <span className="absolute top-1/2 left-3 -translate-y-1/2 text-sm text-gray-500">
-                                    R$
-                                 </span>
-                                 <TextInput
-                                    id="fechamento"
-                                    inputMode="numeric"
-                                    value={formatCents(fechamentoCents)}
-                                    onChange={(e) =>
-                                       handleMoneyChange(
-                                          setFechamentoCents,
-                                          e.target.value
-                                       )
-                                    }
-                                    className="[&_input]:pl-10 [&_input]:text-right"
-                                    placeholder="0,00"
-                                 />
+                              <div>
+                                 <Label
+                                    htmlFor="fechamento"
+                                    className="text-xs font-bold tracking-wider text-gray-500 uppercase"
+                                 >
+                                    Cota para Fechamentos
+                                 </Label>
+                                 <div className="relative mt-1">
+                                    <span className="absolute top-1/2 left-3 -translate-y-1/2 text-sm text-gray-500">
+                                       R$
+                                    </span>
+                                    <TextInput
+                                       id="fechamento"
+                                       inputMode="numeric"
+                                       value={formatCents(fechamentoCents)}
+                                       onChange={(e) =>
+                                          handleMoneyChange(
+                                             setFechamentoCents,
+                                             e.target.value
+                                          )
+                                       }
+                                       className="[&_input]:pl-10 [&_input]:text-right"
+                                       placeholder="0,00"
+                                    />
+                                 </div>
+                                 <p className="mt-1 text-xs text-gray-500">
+                                    Alocação sugerida: {Math.round(pctFc)}%
+                                 </p>
                               </div>
-                              <p className="mt-1 text-xs text-gray-500">
-                                 Alocação sugerida: {Math.round(pctFc)}%
-                              </p>
                            </div>
                         </div>
                      </div>
 
                      {/* BARRA DE ALOCAÇÃO */}
-                     <div className="mt-6 space-y-2">
+                     <div className="space-y-2">
                         <div className="flex justify-between text-sm">
                            <span className="text-gray-600">
-                              Total Distribuído: {formatCurrency(distribuido)}
+                              Total Distribuído: {realCurrency(distribuido)}
                            </span>
                            <span
                               className={clsx(
@@ -378,14 +374,14 @@ export default function OrcamentoAnualPage() {
                         {!isBalanced && totalNum > 0 && (
                            <p className="text-xs font-medium text-red-600">
                               {diff > 0
-                                 ? `Faltam ${formatCurrency(diff)} para atingir o teto.`
-                                 : `Excedeu o teto em ${formatCurrency(-diff)}.`}
+                                 ? `Faltam ${realCurrency(diff)} para atingir o teto.`
+                                 : `Excedeu o teto em ${realCurrency(-diff)}.`}
                            </p>
                         )}
                      </div>
 
                      {/* AÇÕES */}
-                     <div className="mt-6 flex justify-end gap-2">
+                     <div className="flex justify-end gap-2">
                         <Button
                            color="gray"
                            onClick={() =>
@@ -410,12 +406,12 @@ export default function OrcamentoAnualPage() {
                            )}
                         </Button>
                      </div>
-                  </>
+                  </div>
                )}
             </div>
 
             {/* HISTÓRICO */}
-            <div className="rounded-xl border border-gray-200 bg-white shadow-sm">
+            <div className="rounded border border-slate-200 bg-white shadow-sm">
                <div className="border-b border-gray-100 bg-gray-50/50 px-5 py-3">
                   <h3 className="font-semibold text-gray-800">
                      Histórico de Alterações
@@ -446,22 +442,6 @@ export default function OrcamentoAnualPage() {
                   )}
                </div>
             </div>
-
-            <style jsx global>{`
-               @keyframes fadeIn {
-                  from {
-                     opacity: 0;
-                     transform: translateY(5px);
-                  }
-                  to {
-                     opacity: 1;
-                     transform: translateY(0);
-                  }
-               }
-               .animate-fadeIn {
-                  animation: fadeIn 0.3s ease-out;
-               }
-            `}</style>
          </div>
       </div>
    );
@@ -515,16 +495,16 @@ function OrcamentoLogEntry({ log }: { log: OrcamentoLog }) {
                      {d.before !== undefined ? (
                         <>
                            <span className="text-red-600 line-through">
-                              {formatCurrency(d.before)}
+                              {realCurrency(d.before)}
                            </span>{" "}
                            <span className="text-gray-400">→</span>{" "}
                            <span className="text-green-700">
-                              {formatCurrency(d.after ?? 0)}
+                              {realCurrency(d.after ?? 0)}
                            </span>
                         </>
                      ) : (
                         <span className="text-green-700">
-                           {formatCurrency(d.after ?? 0)}
+                           {realCurrency(d.after ?? 0)}
                         </span>
                      )}
                   </li>

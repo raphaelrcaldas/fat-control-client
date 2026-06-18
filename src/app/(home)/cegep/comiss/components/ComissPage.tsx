@@ -7,9 +7,13 @@ import { ComissWithMiss } from "services/routes/cegep/comiss";
 import { Missao } from "services/routes/cegep/missoes";
 import { PagamentoRecord } from "services/routes/cegep/financeiro";
 import { MdOutlineEdit, MdDeleteOutline } from "react-icons/md";
+import { HiDocumentText, HiExclamation } from "react-icons/hi";
+import { RiFileExcel2Fill } from "react-icons/ri";
 import { RoleBasedRoute } from "@/app/(home)/hooks/useRoleBased";
+import { PermBased } from "@/app/(home)/hooks/usePermBased";
 import { UserMissionDetailModal } from "../../components/UserMissionDetailModal";
-import { ComissHeader } from "./detail/ComissHeader";
+import { ComissDetailHeader } from "./detail/ComissDetailHeader";
+import { ComissMilitarCard } from "./detail/ComissMilitarCard";
 import { ComissDocumentos } from "./detail/ComissDocumentos";
 import { ComissDatasValores } from "./detail/ComissDatasValores";
 import { ComissStatusCards } from "./detail/ComissStatusCards";
@@ -36,6 +40,8 @@ export function ComissPage({ detail, onEdit, onClose }: ComissPageProps) {
    const { exportSheet, exportDocx } = useComissExport(comiss);
    const del = useComissDelete(comiss, onClose);
 
+   const semMissoes = !comiss.missoes?.length;
+
    const handleShowDetail = (m: Missao) => {
       setSelectedMission({
          user_mis: {
@@ -53,13 +59,75 @@ export function ComissPage({ detail, onEdit, onClose }: ComissPageProps) {
       <>
          <div className="flex w-full justify-center">
             <div className="flex w-full max-w-7xl flex-col gap-3">
-               <ComissHeader
-                  comiss={comiss}
-                  isBusy={del.isDeleting}
+               {/* Barra de comando superior */}
+               <ComissDetailHeader
+                  title="Comissionamento"
                   onClose={onClose}
-                  onExportSheet={exportSheet}
-                  onExportDocx={exportDocx}
+                  actions={
+                     <>
+                        <PermBased resource={"comiss"} requiredPerm={"create"}>
+                           <Button
+                              color="light"
+                              size="sm"
+                              onClick={exportSheet}
+                              disabled={semMissoes || del.isDeleting}
+                           >
+                              <RiFileExcel2Fill className="size-4 text-green-600 sm:mr-2" />
+                              <span className="hidden sm:inline">Planilha</span>
+                           </Button>
+                           <Button
+                              color="light"
+                              size="sm"
+                              onClick={exportDocx}
+                              disabled={semMissoes || del.isDeleting}
+                           >
+                              <HiDocumentText className="size-4 text-blue-600 sm:mr-2" />
+                              <span className="hidden sm:inline">Apostila</span>
+                           </Button>
+                        </PermBased>
+                        <RoleBasedRoute requiredRoles={["apoio_avancado"]}>
+                           <div className="hidden h-6 w-px bg-slate-200 sm:block" />
+                           <Button
+                              color="red"
+                              size="sm"
+                              onClick={onEdit}
+                              disabled={del.isDeleting}
+                           >
+                              <MdOutlineEdit className="size-4 sm:mr-2" />
+                              <span className="hidden sm:inline">Editar</span>
+                           </Button>
+                           <Button
+                              color="light"
+                              size="sm"
+                              onClick={del.open}
+                              disabled={del.isDeleting}
+                           >
+                              <span className="flex items-center gap-2 text-red-600">
+                                 <MdDeleteOutline className="size-4" />
+                                 <span className="hidden sm:inline">
+                                    Excluir
+                                 </span>
+                              </span>
+                           </Button>
+                        </RoleBasedRoute>
+                     </>
+                  }
                />
+
+               {/* Identidade do militar — independente */}
+               <ComissMilitarCard comiss={comiss} />
+
+               {/* Integridade dos valores computados (verificada no backend) */}
+               {comiss.cache_inconsistente && (
+                  <div className="flex items-start gap-2 rounded border border-red-300 bg-red-50 p-3 text-sm text-red-800">
+                     <HiExclamation className="mt-0.5 h-5 w-5 shrink-0 animate-pulse text-red-500" />
+                     <span>
+                        Integridade comprometida: os valores computados deste
+                        comissionamento podem estar desatualizados. Reabra e
+                        salve as missões afetadas para recalcular.
+                     </span>
+                  </div>
+               )}
 
                <ComissDocumentos
                   docProp={comiss.doc_prop}
@@ -84,34 +152,6 @@ export function ComissPage({ detail, onEdit, onClose }: ComissPageProps) {
                      router.push(`/cegep/missoes/${missaoId}`)
                   }
                />
-
-               {/* Botoes de Acao */}
-               <RoleBasedRoute requiredRoles={["apoio_avancado"]}>
-                  <div className="flex w-full items-center justify-center gap-3 rounded border border-gray-200 bg-white p-4 shadow-sm">
-                     <Button
-                        color="blue"
-                        onClick={onEdit}
-                        disabled={del.isDeleting}
-                        className="transition-all duration-200 hover:scale-105 hover:shadow-md active:scale-95"
-                     >
-                        <div className="flex items-center gap-2">
-                           <MdOutlineEdit size={18} />
-                           <span>Editar</span>
-                        </div>
-                     </Button>
-                     <Button
-                        color="red"
-                        onClick={del.open}
-                        disabled={del.isDeleting}
-                        className="transition-all duration-200 hover:scale-105 hover:shadow-md active:scale-95"
-                     >
-                        <div className="flex items-center gap-2">
-                           <MdDeleteOutline size={18} />
-                           <span>Excluir</span>
-                        </div>
-                     </Button>
-                  </div>
-               </RoleBasedRoute>
             </div>
          </div>
 
