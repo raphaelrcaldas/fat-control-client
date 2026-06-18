@@ -72,6 +72,34 @@ export function daysInclusive(isoStart: string, isoEnd: string): number | null {
    return diff < 0 ? null : diff + 1;
 }
 
+const MESES_ABREV = [
+   "jan",
+   "fev",
+   "mar",
+   "abr",
+   "mai",
+   "jun",
+   "jul",
+   "ago",
+   "set",
+   "out",
+   "nov",
+   "dez",
+];
+
+/**
+ * Formata data ISO (YYYY-MM-DD) para "DD mmm" (ex.: "11 abr"), parsing por
+ * string puro — imune a fuso. Use para exibir datas curtas com mês abreviado.
+ */
+export function formatDayMonthShort(iso: string | null | undefined): string {
+   if (!iso) return "";
+   const [, month, day] = iso.split("T")[0].split("-");
+   if (!month || !day) return "";
+   const mes = MESES_ABREV[parseInt(month, 10) - 1];
+   if (!mes) return "";
+   return `${day.padStart(2, "0")} ${mes}`;
+}
+
 export function isoDateToShort(isoDate: string): string {
    if (!isoDate) return "";
 

@@ -1,9 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Label, TextInput, Badge, Spinner } from "flowbite-react";
+import { Label, TextInput, Badge, Button } from "flowbite-react";
 import { CardMission } from "./components/cardMission";
 import { TableMission } from "./components/tableMission";
+import { RegistrosSkeleton } from "./components/RegistrosSkeleton";
 import { useMissoes } from "@/hooks/queries/useMissoes";
 import { useEtiquetasMissoes } from "@/hooks/queries/useEtiquetasMissoes";
 import { usePersistedState } from "@/hooks/usePersistedState";
@@ -30,22 +31,20 @@ import {
    HiTag,
    HiViewGrid,
    HiViewList,
+   HiFilter,
 } from "react-icons/hi";
+import { dateToIso, todayIso, formatDateFull } from "@/../utils/dateHandler";
 import clsx from "clsx";
 
 function getDefaultIni(): string {
    const d = new Date();
    d.setDate(d.getDate() - 60);
-   return d.toISOString().split("T")[0];
-}
-
-function getDefaultFim(): string {
-   return new Date().toISOString().split("T")[0];
+   return dateToIso(d);
 }
 
 const perPage = 20;
 const defaultIni = getDefaultIni();
-const defaultFim = getDefaultFim();
+const defaultFim = todayIso();
 
 export function RegisPage() {
    const { searchParams, setParams } = useSearchParamsUpdater();
@@ -63,6 +62,10 @@ export function RegisPage() {
    const [viewMode, setViewMode] = usePersistedState<"cards" | "table">(
       "missoes-view-mode",
       "cards"
+   );
+   const [filtersExpanded, setFiltersExpanded] = usePersistedState<boolean>(
+      "missoes-filtros-expanded",
+      true
    );
 
    // Local state for text inputs (immediate feedback + debounced URL update)
@@ -200,16 +203,17 @@ export function RegisPage() {
    const totalPages = data?.pages ?? 1;
    const total = data?.total ?? 0;
 
-   const hasActiveFilters = !!(
-      tipoDoc.length > 0 ||
-      nDoc ||
-      selectedTipo.length > 0 ||
-      userSearch ||
-      citySearch ||
-      dataInicio !== defaultIni ||
-      dataFim !== defaultFim ||
-      selectedEtiquetaIds.length > 0
-   );
+   const activeFilterCount =
+      tipoDoc.length +
+      (nDoc ? 1 : 0) +
+      selectedTipo.length +
+      (userSearch ? 1 : 0) +
+      (citySearch ? 1 : 0) +
+      (dataInicio !== defaultIni ? 1 : 0) +
+      (dataFim !== defaultFim ? 1 : 0) +
+      selectedEtiquetaIds.length;
+
+   const hasActiveFilters = activeFilterCount > 0;
 
    const clearFilters = () => {
       setParams({
@@ -276,197 +280,208 @@ export function RegisPage() {
    }
 
    return (
-      <div className="flex h-full flex-col overflow-hidden">
-         {/* Filters Section */}
-         <section className="shrink-0">
-            <div className="rounded border border-slate-300 bg-white p-4">
-               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7">
-                  {/* Tipo da Ordem */}
-                  <div>
-                     <Label className="mb-1.5 flex items-center gap-1.5 text-xs text-gray-600">
-                        <HiDocumentText className="text-gray-500" />
-                        Tipo da Ordem
-                     </Label>
-                     <MultiSelect
-                        options={[
-                           { value: "om", label: "Missão" },
-                           { value: "os", label: "Serviço" },
-                        ]}
-                        selected={tipoDoc}
-                        onChange={setTipoDoc}
-                        placeholder="Selecione..."
-                        sizing="sm"
-                     />
-                  </div>
+      <div className="flex h-full flex-col gap-2 overflow-hidden">
+         {/* Filters Section — painel colapsável (transição grid-rows, igual Pagamentos) */}
+         <section
+            className={clsx(
+               "order-2 grid shrink-0 transition-[grid-template-rows] duration-300 ease-in-out",
+               filtersExpanded ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
+            )}
+         >
+            <div className="overflow-hidden">
+               <div className="rounded border border-slate-200 bg-white px-4 py-3">
+                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7">
+                     {/* Tipo da Ordem */}
+                     <div>
+                        <Label className="mb-1.5 flex items-center gap-1.5 text-xs text-gray-600">
+                           <HiDocumentText className="text-gray-500" />
+                           Tipo da Ordem
+                        </Label>
+                        <MultiSelect
+                           options={[
+                              { value: "om", label: "Missão" },
+                              { value: "os", label: "Serviço" },
+                           ]}
+                           selected={tipoDoc}
+                           onChange={setTipoDoc}
+                           placeholder="Selecione..."
+                           sizing="sm"
+                        />
+                     </div>
 
-                  {/* Nº da Ordem */}
-                  <div>
-                     <Label className="mb-1.5 flex items-center gap-1.5 text-xs text-gray-600">
-                        <HiHashtag className="text-gray-500" />
-                        Nº da Ordem
-                     </Label>
-                     <TextInput
-                        type="text"
-                        value={localNDoc}
-                        onChange={(e) => handleNDocChange(e.target.value)}
-                        onKeyDown={(e) => {
-                           if (
-                              !(
-                                 (e.key >= "0" && e.key <= "9") ||
-                                 [
-                                    "Backspace",
-                                    "Tab",
-                                    "Delete",
-                                    "ArrowLeft",
-                                    "ArrowRight",
-                                 ].includes(e.key)
-                              )
-                           ) {
-                              e.preventDefault();
+                     {/* Nº da Ordem */}
+                     <div>
+                        <Label className="mb-1.5 flex items-center gap-1.5 text-xs text-gray-600">
+                           <HiHashtag className="text-gray-500" />
+                           Nº da Ordem
+                        </Label>
+                        <TextInput
+                           type="text"
+                           value={localNDoc}
+                           onChange={(e) => handleNDocChange(e.target.value)}
+                           onKeyDown={(e) => {
+                              if (
+                                 !(
+                                    (e.key >= "0" && e.key <= "9") ||
+                                    [
+                                       "Backspace",
+                                       "Tab",
+                                       "Delete",
+                                       "ArrowLeft",
+                                       "ArrowRight",
+                                    ].includes(e.key)
+                                 )
+                              ) {
+                                 e.preventDefault();
+                              }
+                           }}
+                           placeholder="Número"
+                           sizing="sm"
+                        />
+                     </div>
+
+                     {/* Tipo de Missão */}
+                     <div>
+                        <Label className="mb-1.5 flex items-center gap-1.5 text-xs text-gray-600">
+                           <HiClipboardList className="text-gray-500" />
+                           Tipo de Missão
+                        </Label>
+                        <MultiSelect
+                           options={[
+                              { value: "tal", label: "TAL" },
+                              { value: "adm", label: "ADM" },
+                              { value: "opr", label: "OPR" },
+                           ]}
+                           selected={selectedTipo}
+                           onChange={setSelectedTipo}
+                           placeholder="Selecione..."
+                           sizing="sm"
+                        />
+                     </div>
+
+                     {/* Militar */}
+                     <div>
+                        <Label className="mb-1.5 flex items-center gap-1.5 text-xs text-gray-600">
+                           <HiUser className="text-gray-500" />
+                           Militar
+                        </Label>
+                        <TextInput
+                           type="text"
+                           value={localUserSearch}
+                           onChange={(e) =>
+                              handleUserSearchChange(e.target.value)
                            }
-                        }}
-                        placeholder="Número"
-                        sizing="sm"
-                     />
-                  </div>
+                           placeholder="Nome de guerra"
+                           sizing="sm"
+                        />
+                     </div>
 
-                  {/* Tipo de Missão */}
-                  <div>
-                     <Label className="mb-1.5 flex items-center gap-1.5 text-xs text-gray-600">
-                        <HiClipboardList className="text-gray-500" />
-                        Tipo de Missão
-                     </Label>
-                     <MultiSelect
-                        options={[
-                           { value: "tal", label: "TAL" },
-                           { value: "adm", label: "ADM" },
-                           { value: "opr", label: "OPR" },
-                        ]}
-                        selected={selectedTipo}
-                        onChange={setSelectedTipo}
-                        placeholder="Selecione..."
-                        sizing="sm"
-                     />
-                  </div>
-
-                  {/* Militar */}
-                  <div>
-                     <Label className="mb-1.5 flex items-center gap-1.5 text-xs text-gray-600">
-                        <HiUser className="text-gray-500" />
-                        Militar
-                     </Label>
-                     <TextInput
-                        type="text"
-                        value={localUserSearch}
-                        onChange={(e) => handleUserSearchChange(e.target.value)}
-                        placeholder="Nome de guerra"
-                        sizing="sm"
-                     />
-                  </div>
-
-                  {/* Cidade */}
-                  <div>
-                     <Label className="mb-1.5 flex items-center gap-1.5 text-xs text-gray-600">
-                        <HiLocationMarker className="text-gray-500" />
-                        Cidade
-                     </Label>
-                     <TextInput
-                        type="text"
-                        value={localCitySearch}
-                        onChange={(e) => handleCitySearchChange(e.target.value)}
-                        placeholder="Município"
-                        sizing="sm"
-                     />
-                  </div>
-
-                  {/* Data Afastamento */}
-                  <div>
-                     <Label className="mb-1.5 flex items-center gap-1.5 text-xs text-gray-600">
-                        <HiCalendar className="text-gray-500" />
-                        Afastamento
-                     </Label>
-                     <input
-                        type="date"
-                        value={localDataInicio}
-                        onChange={(e) => {
-                           const newValue = e.target.value;
-                           setLocalDataInicio(newValue);
-                           if (isValidDate(newValue)) {
-                              debouncedSetDataInicio(newValue);
+                     {/* Cidade */}
+                     <div>
+                        <Label className="mb-1.5 flex items-center gap-1.5 text-xs text-gray-600">
+                           <HiLocationMarker className="text-gray-500" />
+                           Cidade
+                        </Label>
+                        <TextInput
+                           type="text"
+                           value={localCitySearch}
+                           onChange={(e) =>
+                              handleCitySearchChange(e.target.value)
                            }
-                        }}
-                        className="block w-full rounded border border-slate-300 bg-white p-2 text-xs text-gray-900 focus:border-red-500 focus:ring-red-500"
-                     />
-                  </div>
+                           placeholder="Município"
+                           sizing="sm"
+                        />
+                     </div>
 
-                  {/* Data Regresso */}
-                  <div>
-                     <Label className="mb-1.5 flex items-center gap-1.5 text-xs text-gray-600">
-                        <HiCalendar className="text-gray-500" />
-                        Regresso
-                     </Label>
-                     <input
-                        type="date"
-                        value={localDataFim}
-                        onChange={(e) => {
-                           const newValue = e.target.value;
-                           setLocalDataFim(newValue);
-                           if (isValidDate(newValue)) {
-                              debouncedSetDataFim(newValue);
-                           }
-                        }}
-                        className="block w-full rounded border border-slate-300 bg-white p-2 text-xs text-gray-900 focus:border-red-500 focus:ring-red-500"
-                     />
-                  </div>
-               </div>
+                     {/* Data Afastamento */}
+                     <div>
+                        <Label className="mb-1.5 flex items-center gap-1.5 text-xs text-gray-600">
+                           <HiCalendar className="text-gray-500" />
+                           Afastamento
+                        </Label>
+                        <TextInput
+                           type="date"
+                           sizing="sm"
+                           value={localDataInicio}
+                           onChange={(e) => {
+                              const newValue = e.target.value;
+                              setLocalDataInicio(newValue);
+                              if (isValidDate(newValue)) {
+                                 debouncedSetDataInicio(newValue);
+                              }
+                           }}
+                        />
+                     </div>
 
-               {/* Multi-select Etiquetas */}
-               {etiquetasDisponiveis.length > 0 && (
-                  <div className="mt-4 border-t border-slate-300 pt-4">
-                     <Label className="mb-2 flex items-center gap-1.5 text-xs text-gray-600">
-                        <HiTag className="text-gray-500" />
-                        Filtrar por Etiquetas
-                     </Label>
-                     <div className="flex flex-wrap gap-2">
-                        {etiquetasDisponiveis.map((etiqueta, index) => {
-                           const isSelected = selectedEtiquetaIds.includes(
-                              etiqueta.id!
-                           );
-                           return (
-                              <button
-                                 key={etiqueta.id ?? `etiqueta-${index}`}
-                                 onClick={() => toggleEtiqueta(etiqueta.id!)}
-                                 className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ${
-                                    isSelected
-                                       ? "text-white shadow-sm"
-                                       : "border border-dashed"
-                                 }`}
-                                 style={
-                                    isSelected
-                                       ? {
-                                            backgroundColor: etiqueta.cor,
-                                         }
-                                       : {
-                                            borderColor: etiqueta.cor,
-                                            color: etiqueta.cor,
-                                            backgroundColor: `${etiqueta.cor}10`,
-                                         }
-                                 }
-                              >
-                                 <HiTag className="h-3 w-3" />
-                                 {etiqueta.nome}
-                                 {isSelected && <HiX className="h-3 w-3" />}
-                              </button>
-                           );
-                        })}
+                     {/* Data Regresso */}
+                     <div>
+                        <Label className="mb-1.5 flex items-center gap-1.5 text-xs text-gray-600">
+                           <HiCalendar className="text-gray-500" />
+                           Regresso
+                        </Label>
+                        <TextInput
+                           type="date"
+                           sizing="sm"
+                           value={localDataFim}
+                           onChange={(e) => {
+                              const newValue = e.target.value;
+                              setLocalDataFim(newValue);
+                              if (isValidDate(newValue)) {
+                                 debouncedSetDataFim(newValue);
+                              }
+                           }}
+                        />
                      </div>
                   </div>
-               )}
+
+                  {/* Multi-select Etiquetas */}
+                  {etiquetasDisponiveis.length > 0 && (
+                     <div className="mt-4 border-t border-slate-200 pt-4">
+                        <Label className="mb-2 flex items-center gap-1.5 text-xs text-gray-600">
+                           <HiTag className="text-gray-500" />
+                           Filtrar por Etiquetas
+                        </Label>
+                        <div className="flex flex-wrap gap-2">
+                           {etiquetasDisponiveis.map((etiqueta, index) => {
+                              const isSelected = selectedEtiquetaIds.includes(
+                                 etiqueta.id!
+                              );
+                              return (
+                                 <button
+                                    key={etiqueta.id ?? `etiqueta-${index}`}
+                                    onClick={() => toggleEtiqueta(etiqueta.id!)}
+                                    className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ${
+                                       isSelected
+                                          ? "text-white shadow-sm"
+                                          : "border border-dashed"
+                                    }`}
+                                    style={
+                                       isSelected
+                                          ? {
+                                               backgroundColor: etiqueta.cor,
+                                            }
+                                          : {
+                                               borderColor: etiqueta.cor,
+                                               color: etiqueta.cor,
+                                               backgroundColor: `${etiqueta.cor}10`,
+                                            }
+                                    }
+                                 >
+                                    <HiTag className="h-3 w-3" />
+                                    {etiqueta.nome}
+                                    {isSelected && <HiX className="h-3 w-3" />}
+                                 </button>
+                              );
+                           })}
+                        </div>
+                     </div>
+                  )}
+               </div>
             </div>
          </section>
 
-         {/* Active Filters Tags */}
-         <section className="my-2 shrink-0">
+         {/* Linha de filtros ativos (esquerda) + toggle (direita) — igual Pagamentos */}
+         <section className="order-1 flex shrink-0 items-center justify-between gap-3">
             <div className="flex flex-wrap items-center gap-2">
                <span className="text-xs font-medium text-gray-600">
                   Filtros ativos:
@@ -552,12 +567,7 @@ export function RegisPage() {
                <Badge color="red">
                   <div className="flex items-center gap-1.5">
                      <HiCalendar className="h-3 w-3" />
-                     <span>
-                        Afastamento:{" "}
-                        {new Date(dataInicio + "T00:00:00").toLocaleDateString(
-                           "pt-BR"
-                        )}
-                     </span>
+                     <span>Afastamento: {formatDateFull(dataInicio)}</span>
                      {dataInicio !== defaultIni && (
                         <button
                            onClick={removeDataInicio}
@@ -572,12 +582,7 @@ export function RegisPage() {
                <Badge color="red">
                   <div className="flex items-center gap-1.5">
                      <HiCalendar className="h-3 w-3" />
-                     <span>
-                        Regresso:{" "}
-                        {new Date(dataFim + "T00:00:00").toLocaleDateString(
-                           "pt-BR"
-                        )}
-                     </span>
+                     <span>Regresso: {formatDateFull(dataFim)}</span>
                      {dataFim !== defaultFim && (
                         <button
                            onClick={removeDataFim}
@@ -621,20 +626,38 @@ export function RegisPage() {
                   </button>
                )}
             </div>
+            <Button
+               color="light"
+               size="sm"
+               onClick={() => setFiltersExpanded((v) => !v)}
+               className="shrink-0"
+            >
+               <HiFilter className="mr-2 h-4 w-4" />
+               <span className="w-11 text-left">
+                  {filtersExpanded ? "Ocultar" : "Filtros"}
+               </span>
+               {activeFilterCount > 0 && (
+                  <Badge color="gray" size="sm" className="ml-2">
+                     {activeFilterCount}
+                  </Badge>
+               )}
+            </Button>
          </section>
 
          {/* Results Section */}
-         <section className="flex-1">
+         <section className="order-3 flex-1">
             {isLoading && !missoes ? (
-               <div className="flex min-h-75 flex-col items-center justify-center gap-2 p-8">
-                  <Spinner size="lg" color="failure" />
-                  <p className="text-sm text-gray-500">Carregando...</p>
-               </div>
+               <RegistrosSkeleton viewMode={viewMode} />
             ) : (
-               <div className={clsx(isFetching && "opacity-50")}>
+               <div
+                  className={clsx(
+                     "transition-opacity",
+                     isFetching && "opacity-50"
+                  )}
+               >
                   {/* Results Grid */}
                   {missoes?.length === 0 ? (
-                     <div className="flex flex-col items-center justify-center rounded border border-slate-300 bg-gray-50 p-8">
+                     <div className="flex flex-col items-center justify-center rounded border border-slate-200 bg-gray-50 p-8">
                         <p className="mb-3 text-sm text-gray-600">
                            Nenhuma missão encontrada
                         </p>
@@ -648,12 +671,12 @@ export function RegisPage() {
                         )}
                      </div>
                   ) : (
-                     <div>
-                        <div className="mb-4 flex items-center justify-between">
+                     <div className="space-y-4">
+                        <div className="flex items-center justify-between">
                            <h3 className="text-lg font-bold text-gray-800">
                               Registros Encontrados ({total})
                            </h3>
-                           <div className="flex overflow-hidden rounded border border-slate-300">
+                           <div className="flex overflow-hidden rounded border border-slate-200">
                               <button
                                  type="button"
                                  onClick={() => setViewMode("cards")}
@@ -671,7 +694,7 @@ export function RegisPage() {
                                  type="button"
                                  onClick={() => setViewMode("table")}
                                  className={clsx(
-                                    "flex items-center gap-1.5 border-l border-slate-300 px-3 py-1.5 text-sm font-medium transition-colors",
+                                    "flex items-center gap-1.5 border-l border-slate-200 px-3 py-1.5 text-sm font-medium transition-colors",
                                     viewMode === "table"
                                        ? "bg-red-600 text-white"
                                        : "bg-white text-gray-600 hover:bg-gray-50"
@@ -697,7 +720,7 @@ export function RegisPage() {
 
                         {/* Pagination Section */}
                         {missoes && missoes.length > 0 && (
-                           <div className="mt-6 flex flex-col items-center justify-between gap-3 border-t border-slate-300 pt-4 sm:flex-row">
+                           <div className="flex flex-col items-center justify-between gap-3 border-t border-slate-200 pt-4 sm:flex-row">
                               <p className="text-sm text-gray-600">
                                  Mostrando{" "}
                                  <span className="font-medium text-gray-900">

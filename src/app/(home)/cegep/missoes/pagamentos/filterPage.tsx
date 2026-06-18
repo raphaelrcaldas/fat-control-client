@@ -7,7 +7,7 @@ import {
    Select,
    Checkbox,
    Badge,
-   Spinner,
+   Button,
    Table,
    TableHead,
    TableHeadCell,
@@ -17,6 +17,7 @@ import {
 import { Pagination } from "@/components/Pagination";
 import { MultiSelect } from "@/components/MultiSelect";
 import { UserRow } from "./components/userRow";
+import { PagamentosSkeleton } from "./components/PagamentosSkeleton";
 import { UserMissionDetailModal } from "../../components/UserMissionDetailModal";
 import { usePagamentos } from "@/hooks/queries/usePagamentos";
 import { PagamentoRecord } from "services/routes/cegep/financeiro";
@@ -40,20 +41,17 @@ import {
    HiCalendar,
    HiTag,
 } from "react-icons/hi";
+import { dateToIso, todayIso, formatDateFull } from "@/../utils/dateHandler";
 import { clsx } from "clsx";
 
 function getDefaultIni(): string {
    const d = new Date();
    d.setDate(d.getDate() - 60);
-   return d.toISOString().split("T")[0];
-}
-
-function getDefaultFim(): string {
-   return new Date().toISOString().split("T")[0];
+   return dateToIso(d);
 }
 
 const defaultIni = getDefaultIni();
-const defaultFim = getDefaultFim();
+const defaultFim = todayIso();
 
 export function FilterPage({ active }: { active: boolean }) {
    const [showFilters, setShowFilters] = useState(false);
@@ -400,12 +398,7 @@ export function FilterPage({ active }: { active: boolean }) {
                <Badge color="red">
                   <div className="flex items-center gap-1.5">
                      <HiCalendar className="h-3 w-3" />
-                     <span>
-                        Afastamento:{" "}
-                        {new Date(dataInicio + "T00:00:00").toLocaleDateString(
-                           "pt-BR"
-                        )}
-                     </span>
+                     <span>Afastamento: {formatDateFull(dataInicio)}</span>
                      {dataInicio !== defaultIni && (
                         <button
                            onClick={removeDataInicio}
@@ -420,12 +413,7 @@ export function FilterPage({ active }: { active: boolean }) {
                <Badge color="red">
                   <div className="flex items-center gap-1.5">
                      <HiCalendar className="h-3 w-3" />
-                     <span>
-                        Regresso:{" "}
-                        {new Date(dataFim + "T00:00:00").toLocaleDateString(
-                           "pt-BR"
-                        )}
-                     </span>
+                     <span>Regresso: {formatDateFull(dataFim)}</span>
                      {dataFim !== defaultFim && (
                         <button
                            onClick={removeDataFim}
@@ -446,21 +434,22 @@ export function FilterPage({ active }: { active: boolean }) {
                   </button>
                )}
             </div>
-            <button
-               type="button"
+            <Button
+               color="light"
+               size="sm"
                onClick={() => setShowFilters(!showFilters)}
-               className="flex items-center gap-2 rounded border border-slate-300 bg-white px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"
+               className="shrink-0"
             >
-               <HiFilter />
-               <span className="w-11">
+               <HiFilter className="mr-2 h-4 w-4" />
+               <span className="w-11 text-left">
                   {showFilters ? "Ocultar" : "Filtros"}
                </span>
                {hasActiveFilters && (
-                  <Badge color="gray" size="sm">
+                  <Badge color="gray" size="sm" className="ml-2">
                      {activeFiltersCount}
                   </Badge>
                )}
-            </button>
+            </Button>
          </section>
 
          {/* Filters Section */}
@@ -471,7 +460,7 @@ export function FilterPage({ active }: { active: boolean }) {
             )}
          >
             <div className="overflow-hidden">
-               <div className="rounded border border-slate-300 bg-white px-4 py-3">
+               <div className="rounded border border-slate-200 bg-white px-4 py-3">
                   <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7">
                      {/* Tipo da Ordem */}
                      <div>
@@ -583,8 +572,9 @@ export function FilterPage({ active }: { active: boolean }) {
                            <HiCalendar className="text-gray-500" />
                            Afastamento
                         </Label>
-                        <input
+                        <TextInput
                            type="date"
+                           sizing="sm"
                            value={localDataInicio}
                            max={localDataFim || undefined}
                            onChange={(e) => {
@@ -598,7 +588,6 @@ export function FilterPage({ active }: { active: boolean }) {
                                  }
                               }
                            }}
-                           className="block w-full rounded border border-slate-300 bg-white p-2 text-xs text-gray-900 focus:border-red-500 focus:ring-red-500"
                         />
                      </div>
 
@@ -608,8 +597,9 @@ export function FilterPage({ active }: { active: boolean }) {
                            <HiCalendar className="text-gray-500" />
                            Regresso
                         </Label>
-                        <input
+                        <TextInput
                            type="date"
+                           sizing="sm"
                            value={localDataFim}
                            min={localDataInicio || undefined}
                            onChange={(e) => {
@@ -626,7 +616,6 @@ export function FilterPage({ active }: { active: boolean }) {
                                  }
                               }
                            }}
-                           className="block w-full rounded border border-slate-300 bg-white p-2 text-xs text-gray-900 focus:border-red-500 focus:ring-red-500"
                         />
                      </div>
                   </div>
@@ -636,18 +625,13 @@ export function FilterPage({ active }: { active: boolean }) {
 
          {/* Results Section */}
          <section className="relative">
-            <div className="overflow-hidden rounded border border-slate-300 bg-white shadow-sm">
+            <div className="overflow-hidden rounded border border-slate-200 bg-white shadow-sm">
                {/* Loading inicial (sem dados) */}
                {isLoading && !misRecords ? (
-                  <div className="flex flex-col items-center justify-center gap-4 p-16">
-                     <Spinner size="xl" color="failure" />
-                     <p className="text-lg font-medium text-gray-600">
-                        Carregando registros...
-                     </p>
-                  </div>
+                  <PagamentosSkeleton rows={itemsPerPage} />
                ) : misRecords && misRecords.length > 0 ? (
                   <div>
-                     <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-300 bg-gray-50 px-3 py-0.5">
+                     <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 bg-gray-50 px-3 py-0.5">
                         <div className="flex items-center gap-4">
                            <div className="flex items-center gap-2">
                               <Checkbox
@@ -722,15 +706,10 @@ export function FilterPage({ active }: { active: boolean }) {
                      {/* Área dos registros com spinner */}
                      <div
                         className={clsx(
-                           "relative overflow-x-auto",
+                           "overflow-x-auto transition-opacity",
                            isFetching && "opacity-50"
                         )}
                      >
-                        {isFetching && (
-                           <div className="absolute inset-0 z-10 flex items-center justify-center">
-                              <Spinner size="xl" color="failure" />
-                           </div>
-                        )}
                         <Table
                            hoverable
                            theme={{
@@ -791,7 +770,7 @@ export function FilterPage({ active }: { active: boolean }) {
                         </Table>
                      </div>
                      {totalPages > 1 && (
-                        <div className="flex justify-center border-t border-slate-300 bg-gray-50 px-6 py-4">
+                        <div className="flex justify-center border-t border-slate-200 bg-gray-50 px-6 py-4">
                            <Pagination
                               currentPage={currentPage}
                               totalPages={totalPages}
@@ -801,12 +780,7 @@ export function FilterPage({ active }: { active: boolean }) {
                      )}
                   </div>
                ) : isLoading ? (
-                  <div className="flex flex-col items-center justify-center gap-4 p-16">
-                     <Spinner size="xl" color="failure" />
-                     <p className="text-lg font-medium text-gray-600">
-                        Carregando registros...
-                     </p>
-                  </div>
+                  <PagamentosSkeleton rows={itemsPerPage} />
                ) : (
                   <div className="flex flex-col items-center justify-center gap-4 p-16">
                      <div className="flex h-20 w-20 items-center justify-center rounded-full bg-gray-100">

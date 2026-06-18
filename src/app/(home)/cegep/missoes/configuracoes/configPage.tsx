@@ -26,6 +26,7 @@ import {
    HiCheck,
    HiExclamation,
 } from "react-icons/hi";
+import { ConfiguracoesSkeleton } from "./ConfiguracoesSkeleton";
 
 export function ConfigPage() {
    // React Query hooks
@@ -96,9 +97,9 @@ export function ConfigPage() {
    };
 
    return (
-      <div className="flex h-full flex-col">
+      <div className="flex h-full flex-col gap-4">
          {/* Header */}
-         <section className="mb-4 shrink-0">
+         <section className="shrink-0">
             <div className="flex items-center justify-between">
                <div>
                   <h5 className="text-xl font-semibold text-gray-800">
@@ -115,11 +116,9 @@ export function ConfigPage() {
          {/* Seção de Etiquetas */}
          <section className="flex-1">
             {loading ? (
-               <div className="flex items-center justify-center py-12">
-                  <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-purple-600"></div>
-               </div>
+               <ConfiguracoesSkeleton />
             ) : (
-               <div className="rounded border border-slate-300 bg-white p-4">
+               <div className="rounded border border-slate-200 bg-white p-4">
                   <div className="mb-4 flex items-center justify-between">
                      <div className="flex items-center gap-2">
                         <HiTag className="h-5 w-5 text-purple-600" />
@@ -130,13 +129,10 @@ export function ConfigPage() {
                            {etiquetas.length}
                         </Badge>
                      </div>
-                     <button
-                        onClick={openCreateModal}
-                        className="flex items-center gap-1.5 rounded bg-purple-600 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-purple-700"
-                     >
-                        <HiPlus className="h-3 w-3" />
+                     <Button color="purple" size="xs" onClick={openCreateModal}>
+                        <HiPlus className="mr-1.5 h-3 w-3" />
                         Nova Etiqueta
-                     </button>
+                     </Button>
                   </div>
 
                   {/* Lista de Etiquetas */}
@@ -144,7 +140,7 @@ export function ConfigPage() {
                      {etiquetas.map((etiqueta, index) => (
                         <div
                            key={etiqueta.id ?? `etiqueta-${index}`}
-                           className="flex items-center justify-between rounded border border-slate-300 bg-white p-2.5 transition-all hover:border-slate-300"
+                           className="flex items-center justify-between rounded border border-slate-200 bg-white p-2.5 transition-all hover:border-slate-200"
                         >
                            <div className="flex items-center gap-3">
                               <span
@@ -245,7 +241,7 @@ export function ConfigPage() {
                   </p>
                </div>
             </ModalBody>
-            <ModalFooter className="border-t border-slate-300 bg-gray-50">
+            <ModalFooter className="border-t border-slate-200 bg-gray-50">
                <div className="flex w-full justify-end gap-3">
                   <Button
                      color="gray"
@@ -277,7 +273,7 @@ export function ConfigPage() {
             <ModalBody>
                <div className="space-y-4">
                   {/* Preview Area */}
-                  <div className="flex flex-col items-center rounded border border-slate-300 bg-gray-50 py-4">
+                  <div className="flex flex-col items-center rounded border border-slate-200 bg-gray-50 py-4">
                      <span className="mb-2 text-xs font-medium text-gray-500">
                         PREVIEW
                      </span>
@@ -326,7 +322,7 @@ export function ConfigPage() {
                      <Label className="mb-1.5 flex text-sm font-medium text-gray-700">
                         Cor
                      </Label>
-                     <div className="flex flex-wrap gap-2 rounded border border-slate-300 bg-gray-50 p-3">
+                     <div className="flex flex-wrap gap-2 rounded border border-slate-200 bg-gray-50 p-3">
                         {coresPredefinidas.map((cor) => {
                            const isSelected = formData.cor === cor;
                            return (

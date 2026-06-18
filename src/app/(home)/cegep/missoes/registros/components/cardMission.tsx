@@ -2,7 +2,7 @@ import { memo, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { Missao } from "services/routes/cegep/missoes";
 import clsx from "clsx";
-import { isoStrToDate, formatNaiveDateTime } from "utils/dateHandler";
+import { formatNaiveDateTime, formatDayMonthShort } from "utils/dateHandler";
 import { MdDescription } from "react-icons/md";
 import { HiDocumentText, HiTag } from "react-icons/hi2";
 import { MissionMilitar } from "./missionDetail/militar/missionMilitar";
@@ -25,10 +25,10 @@ export const CardMission = memo(function CardMission({
    );
 
    return (
-      <div className="relative w-full rounded-md border-2 border-slate-200 bg-white p-4 shadow transition-shadow hover:shadow-sm">
+      <div className="relative w-full rounded border border-slate-200 bg-white p-4 shadow-sm transition-shadow hover:shadow">
          {/* Etiquetas no topo do card (somente exibição) */}
          {etiquetas.length > 0 && (
-            <div className="mb-3 flex flex-wrap items-center gap-1.5 border-b border-slate-300 pb-3">
+            <div className="mb-3 flex flex-wrap items-center gap-1.5 border-b border-slate-200 pb-3">
                {etiquetas.map((etiqueta) => (
                   <span
                      key={etiqueta.id}
@@ -92,7 +92,7 @@ export const CardMission = memo(function CardMission({
 
             {/* Datas de afastamento e regresso */}
             <div className="flex flex-col gap-2">
-               <div className="flex items-center justify-between rounded-md border-2 border-slate-200 bg-white p-2 shadow-sm">
+               <div className="flex items-center justify-between rounded border border-slate-200 bg-white p-2 shadow-sm">
                   <div className="flex items-center gap-3">
                      <div className="flex flex-col">
                         <span className="text-xs font-medium text-gray-500 uppercase">
@@ -152,14 +152,8 @@ export const CardMission = memo(function CardMission({
 const PernoiteCardMis = memo(function PernoiteCardMis({ pnt }: { pnt: any }) {
    const { dataIni, dataFim } = useMemo(
       () => ({
-         dataIni: isoStrToDate(pnt.data_ini).toLocaleDateString("pt-br", {
-            day: "2-digit",
-            month: "short",
-         }),
-         dataFim: isoStrToDate(pnt.data_fim).toLocaleDateString("pt-br", {
-            day: "2-digit",
-            month: "short",
-         }),
+         dataIni: formatDayMonthShort(pnt.data_ini),
+         dataFim: formatDayMonthShort(pnt.data_fim),
       }),
       [pnt.data_ini, pnt.data_fim]
    );
