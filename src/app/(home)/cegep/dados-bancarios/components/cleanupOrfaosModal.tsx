@@ -103,7 +103,7 @@ export default function CleanupOrfaosModal({
                Selecione os registros que deseja remover. Estes pertencem a
                militares atualmente desativados.
             </p>
-            <div className="overflow-x-auto rounded-md border border-slate-200 shadow">
+            <div className="overflow-x-auto rounded border border-slate-200 shadow-sm">
                <Table hoverable>
                   <TableHead>
                      <TableRow>

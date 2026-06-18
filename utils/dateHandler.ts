@@ -357,6 +357,24 @@ export function monthInputToIso(monthValue: string): string {
 }
 
 /**
+ * Separa um valor de mês ("YYYY-MM") em ano e mês.
+ */
+export function splitMonthInput(monthValue: string): {
+   ano: string;
+   mes: string;
+} {
+   const [ano = "", mes = ""] = (monthValue || "").split("-");
+   return { ano, mes };
+}
+
+/**
+ * Junta ano e mês num valor de mês ("YYYY-MM"); retorna "" se algum faltar.
+ */
+export function joinMonthInput(ano: string, mes: string): string {
+   return ano && mes ? `${ano}-${mes}` : "";
+}
+
+/**
  * Formata ISO datetime para DD/MM HH:mm (horário local), sem ano.
  * Mesma normalização de fuso de formatDateTime (trata naive como UTC).
  */
