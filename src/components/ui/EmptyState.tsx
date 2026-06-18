@@ -17,7 +17,7 @@ export function EmptyState({
    action,
 }: EmptyStateProps) {
    return (
-      <div className="rounded-lg border border-gray-200 bg-white p-8 text-center dark:border-gray-700 dark:bg-gray-800">
+      <div className="rounded border border-slate-200 bg-white p-8 text-center shadow-sm dark:border-gray-700 dark:bg-gray-800">
          <Icon className="mx-auto mb-4 h-12 w-12 text-gray-400 dark:text-gray-500" />
          <h3 className="font-medium text-gray-600 dark:text-gray-300">
             {title}

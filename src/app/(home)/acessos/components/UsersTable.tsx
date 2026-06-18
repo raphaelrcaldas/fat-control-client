@@ -1,5 +1,6 @@
 import { memo } from "react";
 import {
+   Button,
    Table,
    TableBody,
    TableCell,
@@ -7,28 +8,27 @@ import {
    TableHeadCell,
    TableRow,
    TextInput,
-   Button,
    Tooltip,
 } from "flowbite-react";
 import {
-   FaUsers,
-   FaPlus,
-   FaMagnifyingGlass,
    FaArrowRightToBracket,
+   FaMagnifyingGlass,
    FaRegTrashCan,
    FaUserPen,
+   FaUsers,
 } from "react-icons/fa6";
 import { HiRefresh } from "react-icons/hi";
 import type { UserWithRole } from "services/routes/security/roles";
-import { getRoleTheme } from "@/constants/admin/roles";
+import { RoleBadge } from "./RoleBadge";
+import { ScopeBadge } from "./ScopeBadge";
 
 interface UsersTableProps {
    filteredUsers: UserWithRole[];
    filterName: string;
+   currentUserId: number | null;
    isUpdating: boolean;
    onFilterChange: (value: string) => void;
    onRefresh: () => void;
-   onAddUser: () => void;
    onEditRole: (ur: UserWithRole) => void;
    onDevLogin: (userId: number) => void;
    onDeleteRole: (
@@ -42,57 +42,30 @@ interface UsersTableProps {
 export const UsersTable = memo(function UsersTable({
    filteredUsers,
    filterName,
+   currentUserId,
    isUpdating,
    onFilterChange,
    onRefresh,
-   onAddUser,
    onEditRole,
    onDevLogin,
    onDeleteRole,
 }: UsersTableProps) {
    return (
-      <div className="overflow-hidden rounded-lg border border-slate-300 bg-white shadow-md">
-         <div className="border-b border-gray-200 bg-gray-50 p-4">
-            <div className="mb-3 flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center">
-               <div>
-                  <h3 className="flex items-center gap-2 text-lg font-semibold text-gray-800">
-                     <FaUsers className="text-red-600" />
-                     Usuários com Perfis
-                     <span className="rounded-full bg-gray-200 px-2 py-0.5 text-xs font-medium text-gray-600">
-                        {filteredUsers.length}
-                     </span>
-                  </h3>
-                  <p className="mt-0.5 text-sm text-gray-500">
-                     Perfis de acesso atribuídos a cada usuário
-                  </p>
-               </div>
-               <div className="flex gap-2">
-                  <Tooltip content="Atualizar lista">
-                     <Button
-                        size="sm"
-                        color="light"
-                        onClick={onRefresh}
-                        disabled={isUpdating}
-                     >
-                        <HiRefresh
-                           className={isUpdating ? "animate-spin" : ""}
-                        />
-                     </Button>
-                  </Tooltip>
-                  <Button size="sm" color="red" onClick={onAddUser}>
-                     <FaPlus className="mr-2" />
-                     Adicionar
-                  </Button>
-               </div>
-            </div>
-
+      <div className="overflow-hidden rounded border border-slate-200 bg-white shadow-sm">
+         {/* Toolbar: busca + atualizar */}
+         <div className="flex items-center gap-2 border-b border-slate-200 bg-slate-50 p-4">
             <TextInput
                icon={FaMagnifyingGlass}
-               className="w-full"
+               className="flex-1"
                value={filterName}
                onChange={(e) => onFilterChange(e.target.value)}
                placeholder="Buscar por nome, posto ou perfil..."
             />
+            <Tooltip content="Atualizar lista">
+               <Button color="light" onClick={onRefresh} disabled={isUpdating}>
+                  <HiRefresh className={isUpdating ? "animate-spin" : ""} />
+               </Button>
+            </Tooltip>
          </div>
 
          <div className="overflow-x-auto">
@@ -107,7 +80,7 @@ export const UsersTable = memo(function UsersTable({
                      </TableHeadCell>
                   </TableRow>
                </TableHead>
-               <TableBody className="divide-y divide-gray-200">
+               <TableBody className="divide-y divide-slate-200">
                   {filteredUsers.length === 0 ? (
                      <TableRow>
                         <TableCell colSpan={4} className="py-12 text-center">
@@ -119,12 +92,13 @@ export const UsersTable = memo(function UsersTable({
                                     : "Nenhum usuário cadastrado"}
                               </p>
                               {filterName && (
-                                 <button
+                                 <Button
+                                    size="xs"
+                                    color="light"
                                     onClick={() => onFilterChange("")}
-                                    className="text-sm text-blue-600 hover:underline"
                                  >
                                     Limpar filtro
-                                 </button>
+                                 </Button>
                               )}
                            </div>
                         </TableCell>
@@ -132,6 +106,7 @@ export const UsersTable = memo(function UsersTable({
                   ) : (
                      filteredUsers.map((ur) => {
                         const userName = `${ur.user.p_g} ${ur.user.nome_guerra}`;
+                        const isSelf = ur.user.id === currentUserId;
                         return (
                            <TableRow
                               key={`${ur.user.id}-${ur.organizacao_id ?? "sys"}`}
@@ -148,49 +123,45 @@ export const UsersTable = memo(function UsersTable({
                                  </div>
                               </TableCell>
                               <TableCell>
-                                 {(() => {
-                                    const colors = getRoleTheme(ur.role.name);
-                                    return (
-                                       <span
-                                          className={`inline-flex items-center rounded-full px-3 py-1.5 text-sm font-medium uppercase ${colors.bg} ${colors.text}`}
-                                       >
-                                          {ur.role.name}
-                                       </span>
-                                    );
-                                 })()}
+                                 <RoleBadge roleName={ur.role.name} />
                               </TableCell>
                               <TableCell>
-                                 {ur.organizacao_id ? (
-                                    <span className="inline-flex items-center rounded-md bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-700 uppercase">
-                                       {ur.organizacao_id}
-                                    </span>
-                                 ) : (
-                                    <span className="inline-flex items-center rounded-md bg-purple-100 px-2.5 py-1 text-xs font-medium text-purple-700">
-                                       Sistema
-                                    </span>
-                                 )}
+                                 <ScopeBadge
+                                    organizacaoId={ur.organizacao_id}
+                                 />
                               </TableCell>
                               <TableCell>
                                  <div className="flex justify-center gap-2">
                                     <Tooltip content="Editar perfil">
-                                       <button
+                                       <Button
+                                          size="xs"
+                                          color="light"
                                           onClick={() => onEditRole(ur)}
                                           disabled={isUpdating}
-                                          className="rounded-lg p-2 text-gray-600 hover:bg-gray-100 disabled:opacity-50"
                                        >
-                                          <FaUserPen className="size-4" />
-                                       </button>
+                                          <FaUserPen className="size-4 text-gray-600" />
+                                       </Button>
                                     </Tooltip>
                                     <Tooltip content="Login como usuário">
-                                       <button
+                                       <Button
+                                          size="xs"
+                                          color="light"
                                           onClick={() => onDevLogin(ur.user.id)}
-                                          className="rounded-lg p-2 text-blue-600 hover:bg-blue-100"
                                        >
-                                          <FaArrowRightToBracket className="size-4" />
-                                       </button>
+                                          <FaArrowRightToBracket className="size-4 text-blue-600" />
+                                       </Button>
                                     </Tooltip>
-                                    <Tooltip content="Remover perfil">
-                                       <button
+                                    <Tooltip
+                                       content={
+                                          isSelf
+                                             ? "Você não pode remover o próprio acesso"
+                                             : "Remover perfil"
+                                       }
+                                    >
+                                       <Button
+                                          size="xs"
+                                          color="light"
+                                          disabled={isSelf}
                                           onClick={() =>
                                              onDeleteRole(
                                                 ur.user.id,
@@ -199,10 +170,9 @@ export const UsersTable = memo(function UsersTable({
                                                 userName
                                              )
                                           }
-                                          className="rounded-lg p-2 text-red-600 hover:bg-red-100"
                                        >
-                                          <FaRegTrashCan className="size-4" />
-                                       </button>
+                                          <FaRegTrashCan className="size-4 text-red-600" />
+                                       </Button>
                                     </Tooltip>
                                  </div>
                               </TableCell>

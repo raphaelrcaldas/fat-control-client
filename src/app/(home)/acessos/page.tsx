@@ -1,81 +1,45 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
-import {
-   getUsersRoles,
-   getRoles,
-   type UserWithRole,
-   type RoleDetail,
-} from "services/routes/security/roles";
-import {
-   getOrganizacoes,
-   type Organizacao,
-} from "services/routes/organizacoes";
-import { useToast } from "@/app/context/toast";
-import { sortByAntiguidadeInPlace } from "utils/sortByAntiguidade";
-import { UsersTab } from "./components/UsersTab";
+import { useState } from "react";
+import { useUsersRoles, useRoles } from "@/hooks/queries/useRoles";
+import { useTenants } from "@/hooks/queries/useTenants";
+import { AcessosHeader } from "./components/AcessosHeader";
 import { AcessosSkeleton } from "./components/AcessosSkeleton";
+import { UsersTab } from "./components/UsersTab";
+import UserAddRole from "./components/UserAddRole";
 
 export default function AcessosPage() {
-   const [userRoles, setUserRoles] = useState<UserWithRole[] | null>(null);
-   const [roles, setRoles] = useState<RoleDetail[]>([]);
-   const [orgs, setOrgs] = useState<Organizacao[]>([]);
+   const { data: userRoles, isPending, isFetching, refetch } = useUsersRoles();
+   const { data: roles = [] } = useRoles();
+   const { data: tenants = [] } = useTenants();
 
-   const { push } = useToast();
-
-   const refreshUserRoles = useCallback(async () => {
-      try {
-         const data = await getUsersRoles();
-         sortByAntiguidadeInPlace(data);
-         setUserRoles(data);
-      } catch {
-         push({
-            type: "error",
-            message: "Erro ao carregar vínculos de acesso",
-         });
-      }
-   }, [push]);
-
-   useEffect(() => {
-      const loadData = async () => {
-         try {
-            const [usersRolesData, rolesData, orgsData] = await Promise.all([
-               getUsersRoles(),
-               getRoles(),
-               getOrganizacoes(),
-            ]);
-
-            sortByAntiguidadeInPlace(usersRolesData);
-            setUserRoles(usersRolesData);
-            setRoles(rolesData);
-            setOrgs(orgsData);
-         } catch {
-            push({
-               type: "error",
-               message: "Erro ao carregar dados",
-            });
-         }
-      };
-
-      loadData();
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-   }, []);
-
-   if (!userRoles) {
-      return (
-         <div className="grid gap-4 p-2">
-            <AcessosSkeleton />
-         </div>
-      );
-   }
+   const [showAddModal, setShowAddModal] = useState(false);
 
    return (
-      <div className="grid gap-4 p-2">
-         <UsersTab
-            userRoles={userRoles}
+      <div className="space-y-2">
+         <AcessosHeader
+            count={userRoles?.length}
+            onAdd={() => setShowAddModal(true)}
+         />
+
+         {isPending || !userRoles ? (
+            <AcessosSkeleton />
+         ) : (
+            <UsersTab
+               userRoles={userRoles}
+               roles={roles}
+               tenants={tenants}
+               isFetching={isFetching}
+               onRefresh={() => refetch()}
+            />
+         )}
+
+         <UserAddRole
+            show={showAddModal}
+            setShow={setShowAddModal}
             roles={roles}
-            orgs={orgs}
-            onRefreshUsers={refreshUserRoles}
+            tenants={tenants}
+            existingUserIds={userRoles?.map((ur) => ur.user.id) ?? []}
          />
       </div>
    );
