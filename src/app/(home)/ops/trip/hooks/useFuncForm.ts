@@ -49,7 +49,7 @@ export function useFuncForm({
          if (data.oper !== "al" && !dataOpValue) {
             push({
                type: "error",
-               message: "Data operacional e obrigatoria para operacionais.",
+               message: "Data operacional é obrigatória para operacionais.",
             });
             return;
          }
@@ -62,12 +62,12 @@ export function useFuncForm({
          };
 
          const successMessage = editingFunc
-            ? "Funcao atualizada com sucesso."
-            : "Funcao adicionada com sucesso.";
+            ? "Função atualizada com sucesso."
+            : "Função adicionada com sucesso.";
 
          const errorMessage = editingFunc
-            ? "Erro ao atualizar funcao."
-            : "Erro ao adicionar funcao.";
+            ? "Erro ao atualizar função."
+            : "Erro ao adicionar função.";
 
          const mutationOptions = {
             onSuccess: (result: { ok: boolean; message: string | null }) => {

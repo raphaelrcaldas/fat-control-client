@@ -28,19 +28,19 @@ export function FuncDeleteModal({
                onClose();
                push({
                   type: "success",
-                  message: result.message || "Funcao excluida com sucesso.",
+                  message: result.message || "Função excluída com sucesso.",
                });
             } else {
                push({
                   type: "error",
-                  message: result.message || "Erro ao excluir funcao.",
+                  message: result.message || "Erro ao excluir função.",
                });
             }
          },
          onError: (err: any) => {
             push({
                type: "error",
-               message: err?.message || "Erro ao excluir funcao.",
+               message: err?.message || "Erro ao excluir função.",
             });
          },
       });
@@ -54,19 +54,19 @@ export function FuncDeleteModal({
                <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-red-100">
                   <FaTrash className="h-7 w-7 text-red-600" />
                </div>
-               <h3 className="mb-3 text-lg font-semibold text-gray-800">
-                  Excluir Funcao
+               <h3 className="mb-3 text-lg font-semibold text-slate-800">
+                  Excluir Função
                </h3>
                {deletingFunc && (
                   <div className="mb-5 space-y-2">
-                     <p className="text-sm text-gray-600">
-                        Tem certeza que deseja excluir a funcao:
+                     <p className="text-sm text-slate-600">
+                        Tem certeza que deseja excluir a função:
                      </p>
-                     <div className="rounded-lg border border-gray-200 bg-gray-50 p-3">
-                        <p className="text-base font-bold text-gray-800 uppercase">
+                     <div className="rounded border border-slate-200 bg-slate-50 p-3">
+                        <p className="text-base font-bold text-slate-800 uppercase">
                            {deletingFunc.func}
                         </p>
-                        <p className="mt-1 text-sm text-gray-600">
+                        <p className="mt-1 text-sm text-slate-600">
                            Operacionalidade:{" "}
                            <span className="font-semibold uppercase">
                               {deletingFunc.oper}
@@ -74,7 +74,7 @@ export function FuncDeleteModal({
                         </p>
                      </div>
                      <p className="mt-3 text-sm font-medium text-red-600">
-                        Esta acao nao pode ser desfeita.
+                        Esta ação não pode ser desfeita.
                      </p>
                   </div>
                )}

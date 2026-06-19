@@ -11,7 +11,11 @@ import {
 import { FaSave } from "react-icons/fa";
 import { useFuncForm } from "../../hooks/useFuncForm";
 import { isFuncAvailable } from "../../utils/checkFuncAvailability";
-import { OPER_LABELS } from "@/constants/tripulantes";
+import {
+   TODAS_FUNCOES,
+   getFuncLabel,
+   OPER_LABELS,
+} from "@/constants/tripulantes";
 import type { Trip, CrewFunc } from "../../types/trip.types";
 
 type FuncEditModalProps = {
@@ -46,9 +50,9 @@ export function FuncEditModal({
          <ModalBody>
             <form onSubmit={onFormSubmit} className="space-y-4">
                {/* Informações do Tripulante */}
-               <div className="rounded-lg border border-blue-200 bg-linear-to-r from-blue-50 to-indigo-50 p-3">
-                  <h3 className="text-sm font-bold text-gray-800 uppercase">
-                     {`${trip.user.posto.short} ${trip.user.esp ?? ""} ${trip.user.nome_guerra}`}
+               <div className="rounded border border-red-200 bg-red-50 p-3">
+                  <h3 className="text-sm font-bold text-slate-800 uppercase">
+                     {`${trip.user.posto.short} ${trip.user.quadro ?? ""} ${trip.user.esp ?? ""} ${trip.user.nome_guerra}`}
                   </h3>
                </div>
 
@@ -65,40 +69,17 @@ export function FuncEditModal({
                         })}
                         color={errors.func ? "failure" : "gray"}
                      >
-                        {isFuncAvailable(
-                           "pil",
-                           trip.funcs || [],
-                           editingFunc.id
-                        ) && <option value="pil">PIL - Piloto</option>}
-                        {isFuncAvailable(
-                           "mc",
-                           trip.funcs || [],
-                           editingFunc.id
-                        ) && <option value="mc">MC - Mecânico</option>}
-                        {isFuncAvailable(
-                           "lm",
-                           trip.funcs || [],
-                           editingFunc.id
-                        ) && <option value="lm">LM - Loadmaster</option>}
-                        {isFuncAvailable(
-                           "oe",
-                           trip.funcs || [],
-                           editingFunc.id
-                        ) && (
-                           <option value="oe">
-                              OE - Operador de Equipamentos
+                        {TODAS_FUNCOES.filter((func) =>
+                           isFuncAvailable(
+                              func,
+                              trip.funcs || [],
+                              editingFunc.id
+                           )
+                        ).map((func) => (
+                           <option key={func} value={func}>
+                              {func.toUpperCase()} - {getFuncLabel(func)}
                            </option>
-                        )}
-                        {isFuncAvailable(
-                           "os",
-                           trip.funcs || [],
-                           editingFunc.id
-                        ) && <option value="os">OS - Observador SAR</option>}
-                        {isFuncAvailable(
-                           "tf",
-                           trip.funcs || [],
-                           editingFunc.id
-                        ) && <option value="tf">TF - Comissário</option>}
+                        ))}
                      </Select>
                      {errors.func && (
                         <p className="text-sm text-red-600">
@@ -189,11 +170,11 @@ export function FuncEditModal({
                </div>
 
                {/* Botões de Ação */}
-               <div className="flex justify-center gap-3 border-t border-gray-200 pt-2">
+               <div className="flex justify-center gap-3 border-t border-slate-200 pt-2">
                   <Button color="gray" onClick={onClose} disabled={submitting}>
                      Cancelar
                   </Button>
-                  <Button type="submit" disabled={submitting} color="blue">
+                  <Button type="submit" disabled={submitting} color="red">
                      {submitting ? (
                         <div className="flex items-center gap-2">
                            <Spinner size="sm" color="failure" />

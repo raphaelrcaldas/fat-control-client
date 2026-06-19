@@ -71,13 +71,13 @@ export function TripEditForm({ trip, onClose, onCancel }: TripEditFormProps) {
    return (
       <form onSubmit={handleSubmit} className="space-y-5">
          {/* Informações do Usuário */}
-         <div className="rounded-lg border border-blue-200 bg-linear-to-r from-blue-50 to-indigo-50 p-4">
+         <div className="rounded border border-red-200 bg-red-50 p-4">
             <div className="flex items-center justify-between">
                <div>
-                  <h3 className="text-lg font-bold text-gray-800 uppercase">
-                     {`${trip.user.posto.short} ${trip.user.esp ?? ""} ${trip.user.nome_guerra}`}
+                  <h3 className="text-lg font-bold text-slate-800 uppercase">
+                     {`${trip.user.posto.short} ${trip.user.quadro ?? ""} ${trip.user.esp ?? ""} ${trip.user.nome_guerra}`}
                   </h3>
-                  <p className="mt-1 text-sm text-gray-600 capitalize">
+                  <p className="mt-1 text-sm text-slate-600 capitalize">
                      {trip.user.nome_completo}
                   </p>
                </div>
@@ -98,7 +98,7 @@ export function TripEditForm({ trip, onClose, onCancel }: TripEditFormProps) {
          </div>
 
          {/* Formulário de Edição */}
-         <div className="grid grid-cols-2 gap-4 rounded-lg border border-gray-200 bg-gray-50 p-4">
+         <div className="grid grid-cols-2 gap-4 rounded border border-slate-200 bg-slate-50 p-4">
             <div className="flex flex-col gap-2">
                <Label htmlFor="trig" className="text-sm font-semibold">
                   Trigrama <span className="text-red-500">*</span>
@@ -129,7 +129,7 @@ export function TripEditForm({ trip, onClose, onCancel }: TripEditFormProps) {
                   <Checkbox
                      id="active"
                      className="size-5"
-                     color="blue"
+                     color="red"
                      {...register("active")}
                   />
                   <Label htmlFor="active" className="cursor-pointer">
@@ -140,28 +140,22 @@ export function TripEditForm({ trip, onClose, onCancel }: TripEditFormProps) {
          </div>
 
          {/* Lista de Funções */}
-         <div className="mt-5">
-            <FuncList
-               funcs={trip.funcs || []}
-               onAdd={handleShowAddFunc}
-               onEdit={handleShowEditFunc}
-               onDelete={handleShowDeleteFunc}
-            />
-         </div>
+         <FuncList
+            funcs={trip.funcs || []}
+            onAdd={handleShowAddFunc}
+            onEdit={handleShowEditFunc}
+            onDelete={handleShowDeleteFunc}
+         />
 
          {/* Botões de Ação */}
-         <div className="flex justify-center gap-3 border-t border-gray-200 pt-2">
+         <div className="flex justify-center gap-3 border-t border-slate-200 pt-2">
             <Button color="gray" onClick={onCancel} disabled={submitting}>
                Cancelar
             </Button>
-            <Button
-               type="submit"
-               disabled={submitting || !isDirty}
-               color="blue"
-            >
+            <Button type="submit" disabled={submitting || !isDirty} color="red">
                {submitting ? (
                   <div className="flex items-center gap-2">
-                     <Spinner size="sm" color="default" />
+                     <Spinner size="sm" color="failure" />
                      <span>Salvando...</span>
                   </div>
                ) : (

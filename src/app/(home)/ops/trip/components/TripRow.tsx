@@ -14,20 +14,20 @@ export function TripRow({ trip }: TripRowProps) {
    const tripFuncs = trip.funcs || [];
 
    return (
-      <TableRow className="">
-         <TableCell className="text-gray-700 capitalize">
+      <TableRow>
+         <TableCell className="text-slate-700 capitalize">
             {user.posto.mid}
          </TableCell>
-         <TableCell className="hidden text-gray-600 uppercase lg:table-cell">
+         <TableCell className="hidden text-slate-600 uppercase lg:table-cell">
             {user.quadro}
          </TableCell>
-         <TableCell className="hidden text-gray-600 uppercase lg:table-cell">
+         <TableCell className="hidden text-slate-600 uppercase lg:table-cell">
             {user.esp}
          </TableCell>
-         <TableCell className="hidden font-medium text-gray-800 capitalize md:table-cell">
+         <TableCell className="hidden font-medium text-slate-800 capitalize md:table-cell">
             {user.nome_guerra}
          </TableCell>
-         <TableCell className="hidden text-gray-800 capitalize md:table-cell">
+         <TableCell className="hidden text-slate-800 capitalize md:table-cell">
             {user.nome_completo}
          </TableCell>
          <TableCell className="text-center font-medium text-red-600 uppercase">
@@ -53,12 +53,12 @@ export function TripRow({ trip }: TripRowProps) {
                <span
                   className={clsx(
                      "size-3 rounded-full",
-                     trip.active ? "bg-green-600" : "bg-gray-400"
+                     trip.active ? "bg-green-600" : "bg-slate-400"
                   )}
                ></span>
                <span
                   className={clsx(
-                     trip.active ? "text-green-600" : "text-gray-500"
+                     trip.active ? "text-green-600" : "text-slate-500"
                   )}
                >
                   {trip.active ? "Ativo" : "Inativo"}

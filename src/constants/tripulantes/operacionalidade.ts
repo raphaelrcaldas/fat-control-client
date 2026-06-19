@@ -60,6 +60,26 @@ export const TODOS_NIVEIS_OPER: OperType[] = Object.keys(
 // =============================================================================
 
 /**
+ * Classes Tailwind de badge por cor de tema (mapeamento estático para o
+ * Tailwind não purgar). Fonte única para colorir o nível de operacionalidade.
+ */
+const OPER_BADGE_CLASSES: Record<string, string> = {
+   red: "bg-red-100 text-red-700",
+   emerald: "bg-emerald-100 text-emerald-700",
+   amber: "bg-amber-100 text-amber-700",
+   cyan: "bg-cyan-100 text-cyan-700",
+};
+
+/**
+ * Retorna as classes de cor (bg + text) de um nível de operacionalidade,
+ * derivadas do tema em OPER_CONFIG.
+ */
+export function getOperColorClasses(oper: OperType): string {
+   const color = OPER_CONFIG[oper].theme.color;
+   return OPER_BADGE_CLASSES[color] ?? "bg-gray-100 text-gray-700";
+}
+
+/**
  * Retorna o label de um nível de operacionalidade
  */
 export function getOperLabel(oper: OperType): string {

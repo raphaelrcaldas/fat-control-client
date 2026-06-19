@@ -10,7 +10,6 @@ import {
    TableBody,
    TableRow,
    TableHeadCell,
-   Spinner,
 } from "flowbite-react";
 import { HiSearch, HiUserGroup, HiX } from "react-icons/hi";
 import { Pagination } from "@/components/Pagination";
@@ -18,6 +17,7 @@ import { postoGradRecords } from "services/routes/postos";
 import { FUNC_LABELS_SHORT, OPER_LABELS } from "@/constants/tripulantes";
 import { SearchUser } from "./components/searchUserTrip";
 import { TripRow } from "./components/TripRow";
+import { TripTableSkeleton } from "./components/TripTableSkeleton";
 import { MultiSelect } from "@/components/MultiSelect";
 import { PermBased } from "../../hooks/usePermBased";
 import useDebouncedValue from "@/hooks/useDebouncedValue";
@@ -76,25 +76,39 @@ export default function TripPage() {
       filters.active !== true;
 
    return (
-      <div className="h-full w-full overflow-auto p-1">
-         {/* Header da Página */}
-         <div className="mb-4 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-               <div className="rounded-lg bg-red-100 p-2">
-                  <HiUserGroup className="h-6 w-6 text-red-600" />
+      <div className="flex flex-col space-y-2">
+         {/* Masthead — padrão canônico do sistema */}
+         <header className="relative overflow-hidden rounded border border-slate-200 bg-white px-5 py-4 shadow-sm sm:px-6 sm:py-5">
+            <span
+               aria-hidden
+               className="absolute top-0 left-0 h-full w-1 bg-red-600"
+            />
+
+            <div className="relative flex flex-wrap items-center justify-between gap-4">
+               <div className="flex min-w-0 items-center gap-4">
+                  <div className="grid h-12 w-12 shrink-0 place-items-center rounded-md bg-red-50 text-red-600 ring-1 ring-red-100 ring-inset">
+                     <HiUserGroup className="h-6 w-6" />
+                  </div>
+                  <div className="min-w-0">
+                     <span className="block font-mono text-[10px] font-bold tracking-[0.3em] text-red-500 uppercase">
+                        Gestão Operacional
+                     </span>
+                     <h1 className="text-2xl leading-none font-extrabold tracking-tight text-slate-900 sm:text-[28px]">
+                        Tripulantes
+                     </h1>
+                  </div>
                </div>
-               <div>
-                  <h1 className="text-xl font-semibold text-gray-900">
-                     Tripulantes
-                  </h1>
-               </div>
+
+               <PermBased resource={"trips"} requiredPerm={"create"}>
+                  <SearchUser />
+               </PermBased>
             </div>
-         </div>
+         </header>
 
          {/* Card da Tabela */}
-         <div className="relative overflow-hidden bg-white shadow-md sm:rounded-lg">
+         <div className="relative overflow-hidden rounded border border-slate-200 bg-white shadow-sm">
             {/* Barra de Busca e Filtros */}
-            <div className="border-b border-gray-200 p-4">
+            <div className="border-b border-slate-200 p-4">
                {/* Linha 1: Busca + Toggle + Adicionar */}
                <div className="flex flex-col gap-3 md:flex-row md:items-center">
                   {/* Busca */}
@@ -171,17 +185,11 @@ export default function TripPage() {
                         Inativos
                      </Button>
                   </div>
-
-                  {/* Botão Adicionar */}
-                  <PermBased resource={"trips"} requiredPerm={"create"}>
-                     <SearchUser />
-                  </PermBased>
                </div>
 
-               {/* Linha 2: Filtros Avançados */}
-               <div className="mt-3 flex flex-wrap items-center gap-3">
-                  {/* Limpar Filtros */}
-                  {hasActiveFilters && (
+               {/* Limpar Filtros */}
+               {hasActiveFilters && (
+                  <div className="mt-3 flex flex-wrap items-center gap-3">
                      <Button
                         color="red"
                         size="sm"
@@ -191,22 +199,21 @@ export default function TripPage() {
                         <HiX className="mr-1 h-4 w-4" />
                         Limpar Filtros
                      </Button>
-                  )}
-               </div>
+                  </div>
+               )}
             </div>
 
             {/* Conteúdo */}
-            {!loading && trips.length === 0 ? (
-               <div className="flex h-64 flex-col items-center justify-center">
-                  <div className="mb-4 rounded-full bg-gray-100 p-4">
-                     <HiUserGroup className="h-12 w-12 text-gray-400" />
-                  </div>
-                  <h3 className="mb-2 text-lg font-semibold text-gray-900">
+            {loading ? (
+               <TripTableSkeleton />
+            ) : trips.length === 0 ? (
+               <div className="flex h-64 flex-col items-center justify-center px-4 text-center">
+                  <h3 className="mb-2 text-lg font-semibold text-slate-700">
                      {hasActiveFilters
                         ? "Nenhum tripulante encontrado"
                         : "Nenhum tripulante cadastrado"}
                   </h3>
-                  <p className="mb-4 max-w-md text-center text-gray-500">
+                  <p className="mb-4 max-w-md text-sm text-slate-500">
                      {hasActiveFilters
                         ? "Não encontramos resultados com os filtros aplicados. Tente ajustar os filtros."
                         : "Comece adicionando o primeiro tripulante ao sistema."}
@@ -223,21 +230,11 @@ export default function TripPage() {
                   )}
                </div>
             ) : (
-               <div className="relative">
-                  {/* Loading Overlay - isFetching inclui paginacao e refetch */}
-                  {isFetching && (
-                     <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/60 backdrop-blur-[1px]">
-                        <div className="flex flex-col items-center gap-3 rounded-lg bg-white px-6 py-4 shadow-lg">
-                           <Spinner color="failure" size="lg" />
-                           <p className="text-sm text-gray-600">
-                              Carregando tripulantes...
-                           </p>
-                        </div>
-                     </div>
-                  )}
-
-                  {/* Tabela */}
-                  <div className="min-h-96 overflow-x-auto">
+               <div>
+                  {/* Refetch suave: mantém os dados e esmaece (keepPreviousData) */}
+                  <div
+                     className={`min-h-96 overflow-x-auto transition-opacity duration-200 ${isFetching ? "opacity-50" : "opacity-100"}`}
+                  >
                      <Table hoverable>
                         <TableHead>
                            <TableRow>
@@ -260,7 +257,7 @@ export default function TripPage() {
                               <TableHeadCell className="text-center">
                                  Funções
                               </TableHeadCell>
-                              <TableHeadCell className="text-center">
+                              <TableHeadCell className="hidden text-center md:table-cell">
                                  Status
                               </TableHeadCell>
                               <TableHeadCell>
@@ -268,7 +265,7 @@ export default function TripPage() {
                               </TableHeadCell>
                            </TableRow>
                         </TableHead>
-                        <TableBody className="divide-y">
+                        <TableBody className="divide-y divide-slate-100">
                            {trips.map((trip) => (
                               <TripRow key={trip.id} trip={trip} />
                            ))}
@@ -282,21 +279,21 @@ export default function TripPage() {
                      aria-label="Navegação da tabela"
                   >
                      <div className="flex items-center gap-4">
-                        <span className="text-sm font-normal text-gray-500">
+                        <span className="text-sm font-normal text-slate-500">
                            Mostrando{" "}
-                           <span className="font-semibold text-gray-900">
+                           <span className="font-semibold text-slate-900">
                               {(currentPage - 1) * perPage + 1}-
                               {Math.min(currentPage * perPage, totalTrips)}
                            </span>{" "}
                            de{" "}
-                           <span className="font-semibold text-gray-900">
+                           <span className="font-semibold text-slate-900">
                               {totalTrips}
                            </span>
                         </span>
                         <div className="flex items-center gap-2">
                            <label
                               htmlFor="perPage"
-                              className="text-sm text-gray-500"
+                              className="text-sm text-slate-500"
                            >
                               Por página:
                            </label>

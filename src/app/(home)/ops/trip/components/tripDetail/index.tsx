@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import { Modal, ModalBody, ModalHeader } from "flowbite-react";
+import { Button, Modal, ModalBody, ModalHeader } from "flowbite-react";
 import { TripEditForm } from "./TripEditForm";
 import type { Trip } from "../../types/trip.types";
 
@@ -15,12 +15,9 @@ export function TripDetail({ trip }: TripDetailProps) {
 
    return (
       <div>
-         <button
-            className="text-sm font-medium text-cyan-600 hover:underline"
-            onClick={handleShow}
-         >
+         <Button color="light" size="xs" onClick={handleShow}>
             Detalhes
-         </button>
+         </Button>
 
          <Modal show={show} onClose={handleClose} size="lg" dismissible>
             <ModalHeader>Editar Tripulante</ModalHeader>

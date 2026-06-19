@@ -96,13 +96,10 @@ export function TripRegister({
    return (
       <>
          {externalShow === undefined && (
-            <button
-               className="flex items-center gap-2 rounded-lg bg-red-700 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-red-800 focus:ring-4 focus:ring-red-300"
-               onClick={() => setInternalShow(true)}
-            >
-               <HiUserAdd className="size-5" />
+            <Button color="red" onClick={() => setInternalShow(true)}>
+               <HiUserAdd className="mr-2 size-5" />
                <span>Adicionar</span>
-            </button>
+            </Button>
          )}
 
          <Modal show={show} size="md" onClose={closeModal} dismissible>
@@ -112,19 +109,19 @@ export function TripRegister({
                   onSubmit={handleSubmit(registerTrip)}
                   className="space-y-4"
                >
-                  <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-center text-base uppercase">
-                     <div className="font-semibold text-gray-800">
-                        {`${user.posto.short} ${user.esp ?? ""} ${user.nome_guerra}`}
+                  <div className="rounded border border-red-200 bg-red-50 p-4 text-center text-base uppercase">
+                     <div className="font-semibold text-slate-800">
+                        {`${user.posto.short} ${user.quadro ?? ""} ${user.esp ?? ""} ${user.nome_guerra}`}
                      </div>
-                     <div className="mt-1 text-sm text-gray-600 capitalize">
+                     <div className="mt-1 text-sm text-slate-600 capitalize">
                         {user.nome_completo}
                      </div>
-                     <div className="mt-1 text-sm font-semibold text-gray-500">
+                     <div className="mt-1 text-sm font-semibold text-slate-500">
                         {user.unidade}
                      </div>
                   </div>
 
-                  <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
+                  <div className="rounded border border-slate-200 bg-slate-50 p-4">
                      <div className="flex flex-col gap-2">
                         <Label htmlFor="trig" className="text-sm font-semibold">
                            Trigrama <span className="text-red-500">*</span>
@@ -147,7 +144,7 @@ export function TripRegister({
                            }}
                         />
                         {errors.trig && (
-                           <p className="text-xs text-gray-500">
+                           <p className="mt-1 text-sm text-red-600">
                               {errors.trig?.message}
                            </p>
                         )}
