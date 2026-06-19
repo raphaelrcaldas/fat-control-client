@@ -176,8 +176,8 @@ export function QuadsTrip({
                   </span>
                </div>
             </ModalHeader>
-            <ModalBody>
-               <div className="mb-2 rounded border border-red-200 bg-red-100 p-4">
+            <ModalBody className="space-y-2">
+               <div className="rounded border border-red-200 bg-red-100 p-4">
                   <div className="text-center uppercase">
                      <h2 className="text-lg font-bold text-gray-900">
                         {userName}
@@ -185,7 +185,7 @@ export function QuadsTrip({
                   </div>
                </div>
 
-               <div className="mb-4 rounded border border-slate-200 bg-gray-50 p-2">
+               <div className="rounded border border-slate-200 bg-gray-50 p-2">
                   <div className="text-center">
                      <p className="mb-1 flex items-center justify-center gap-1 text-xs font-semibold text-gray-500 uppercase">
                         {groupName.toLowerCase().includes("internacional") && (
@@ -200,7 +200,7 @@ export function QuadsTrip({
                </div>
 
                <div
-                  className={`mb-3 flex items-center justify-between rounded border border-red-300 bg-red-50 px-3 py-2 shadow-sm transition-opacity duration-150 ${
+                  className={`flex items-center justify-between rounded border border-red-300 bg-red-50 px-3 py-2 shadow-sm transition-opacity duration-150 ${
                      quads.length > 0 && selectedIds.size > 0
                         ? "opacity-100"
                         : "invisible opacity-0"
@@ -279,7 +279,7 @@ export function QuadsTrip({
                   )}
                </div>
 
-               <div className="mt-4 flex items-center justify-center gap-2">
+               <div className="flex items-center justify-center gap-2">
                   <PermBased resource={"quad_ops"} requiredPerm={"create"}>
                      {selectedIds.size > 0 && (
                         <Button

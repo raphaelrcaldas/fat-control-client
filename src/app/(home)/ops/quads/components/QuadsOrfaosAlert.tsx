@@ -191,12 +191,7 @@ export function QuadsOrfaosAlert() {
 
    return (
       <>
-         <Alert
-            color="warning"
-            icon={HiExclamation}
-            withBorderAccent
-            className="mb-2"
-         >
+         <Alert color="warning" icon={HiExclamation} withBorderAccent>
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                <span>
                   Existem <strong>{orfaos.length}</strong> tripulante(s)

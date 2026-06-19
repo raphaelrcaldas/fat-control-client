@@ -39,9 +39,9 @@ export default function AeronavesPage() {
    };
 
    return (
-      <div className="flex flex-col">
+      <div className="space-y-2">
          {/* Masthead — referência canônica (ops/operacoes) */}
-         <header className="relative mb-5 overflow-hidden rounded border border-slate-200 bg-white px-5 py-4 shadow-sm sm:px-6 sm:py-5">
+         <header className="relative overflow-hidden rounded border border-slate-200 bg-white px-5 py-4 shadow-sm sm:px-6 sm:py-5">
             {/* Espinha vermelha — ecoa a espinha dos cards */}
             <span
                aria-hidden
@@ -101,7 +101,7 @@ export default function AeronavesPage() {
          ) : (
             <div
                className={clsx(
-                  "transition-opacity duration-200",
+                  "space-y-2 transition-opacity duration-200",
                   isFetching ? "opacity-50" : "opacity-100"
                )}
             >

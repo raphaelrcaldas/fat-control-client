@@ -55,7 +55,7 @@ export function SituacaoSummary({ aeronaves }: SituacaoSummaryProps) {
    }));
 
    return (
-      <div className="mb-4 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5">
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5">
          {/* Total */}
          <div className="flex items-center justify-between rounded border border-slate-200 bg-white px-3 py-2.5 shadow-sm">
             <div className="min-w-0">

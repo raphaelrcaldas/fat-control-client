@@ -1,10 +1,7 @@
 "use client";
-import Link from "next/link";
-import { Select, Radio, Label, Button } from "flowbite-react";
-import { FaSliders } from "react-icons/fa6";
+import { Select, Radio, Label } from "flowbite-react";
 import { QuadTypeGroup } from "services/routes/quads";
 import { FUNCOES_PRINCIPAIS, getFuncLabel } from "@/constants";
-import { PermBased } from "@/app/(home)/hooks/usePermBased";
 import { QuadOrdem } from "../utils/sortQuads";
 
 interface QuadsToolbarProps {
@@ -33,7 +30,7 @@ export function QuadsToolbar({
    loadingTypes,
 }: QuadsToolbarProps) {
    return (
-      <div className="mb-2 flex gap-4 rounded border border-slate-200 bg-white px-2 py-3 shadow">
+      <div className="flex gap-4 rounded border border-slate-200 bg-white px-2 py-3 shadow">
          <div className="grid text-center">
             <Label>Função</Label>
             <Select
@@ -134,15 +131,6 @@ export function QuadsToolbar({
                <Label htmlFor="reduz">Reduzida</Label>
             </div>
          </div>
-
-         <PermBased resource="quad_ops" requiredPerm="create">
-            <div className="ml-auto flex items-center">
-               <Button as={Link} href="/ops/quads/gerenciar" color="light">
-                  <FaSliders className="mr-2 h-4 w-4" />
-                  Gerenciar
-               </Button>
-            </div>
-         </PermBased>
       </div>
    );
 }

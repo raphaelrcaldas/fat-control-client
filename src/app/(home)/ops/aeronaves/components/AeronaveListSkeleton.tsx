@@ -21,9 +21,9 @@ interface AeronaveListSkeletonProps {
 
 export function AeronaveListSkeleton({ rows = 6 }: AeronaveListSkeletonProps) {
    return (
-      <div>
+      <div className="space-y-2">
          {/* Resumo por situação */}
-         <div className="mb-4 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5">
+         <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5">
             {SUMMARY_CARDS.map((card) => (
                <div
                   key={card}

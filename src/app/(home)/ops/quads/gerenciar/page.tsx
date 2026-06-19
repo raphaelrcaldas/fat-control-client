@@ -169,16 +169,12 @@ export default function GerenciarQuadsPage() {
    }
 
    if (isLoading) {
-      return (
-         <div className="px-2 py-8">
-            <TableSkeleton rows={6} cols={3} />
-         </div>
-      );
+      return <TableSkeleton rows={6} cols={3} />;
    }
 
    if (error) {
       return (
-         <div className="grid gap-4 p-2">
+         <div className="space-y-2">
             {backLink}
             <div className="rounded border border-red-300 bg-red-50 p-4">
                <p className="text-sm text-red-800">
@@ -193,7 +189,7 @@ export default function GerenciarQuadsPage() {
    const isSavingType = createType.isPending || updateType.isPending;
 
    return (
-      <div className="grid gap-4 p-2">
+      <div className="space-y-2">
          <div className="flex items-center gap-3">{backLink}</div>
 
          <SectionHeader
@@ -212,7 +208,7 @@ export default function GerenciarQuadsPage() {
                description="Cadastre um grupo para começar a estruturar os quadrinhos."
             />
          ) : (
-            <div className="grid gap-4">
+            <div className="space-y-2">
                {groups.map((group) => (
                   <QuadsGroupCard
                      key={group.id}
