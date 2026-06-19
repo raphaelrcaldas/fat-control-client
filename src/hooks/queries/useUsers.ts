@@ -51,6 +51,28 @@ export function useUsers(params?: GetUsersParams) {
 }
 
 /**
+ * Busca de usuários para comboboxes/modais de seleção.
+ * Ativada apenas com 2+ caracteres; mantém resultados anteriores
+ * durante o refetch para evitar flicker (keepPreviousData).
+ */
+export function useUserSearch(search: string) {
+   const term = search.trim();
+   const params: GetUsersParams = {
+      search: term,
+      active: true,
+      per_page: 10,
+   };
+
+   return useQuery({
+      queryKey: userKeys.list(params),
+      queryFn: ({ signal }) => getUsers(params, signal),
+      enabled: term.length >= 2,
+      staleTime: 60_000,
+      placeholderData: keepPreviousData,
+   });
+}
+
+/**
  * Detalhes completos de um usuário
  */
 export function useUser(id: number | null | undefined) {

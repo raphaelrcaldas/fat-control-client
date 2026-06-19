@@ -3,14 +3,17 @@ import {
    ModalHeader,
    ModalBody,
    TextInput,
-   Button,
    Spinner,
 } from "flowbite-react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { FaCheckCircle, FaSearch } from "react-icons/fa";
 import { IoMdSearch } from "react-icons/io";
 import { HiOutlineUserGroup, HiExclamationCircle } from "react-icons/hi";
-import { getUsers, UserPublic } from "services/routes/users";
+import useDebouncedValue from "@/hooks/useDebouncedValue";
+import { useUserSearch } from "@/hooks/queries";
+import type { UserPublic } from "services/routes/users";
+
+const MIN_CHARS = 2;
 
 export function SearchUser({
    show,
@@ -23,46 +26,28 @@ export function SearchUser({
    setUser: (user: UserPublic) => void;
    userIdsIgnr?: number[];
 }) {
-   const [users, setUsers] = useState<UserPublic[]>([]);
-   const [searchUser, setSearchUser] = useState("");
-   const [isLoading, setIsLoading] = useState(false);
-   const [hasSearched, setHasSearched] = useState(false);
-   const [error, setError] = useState<string | null>(null);
+   const [query, setQuery] = useState("");
+   const debounced = useDebouncedValue(query, 350);
+   const term = debounced.trim();
+   const hasQuery = term.length >= MIN_CHARS;
 
-   async function searchUsers() {
-      const searchData = searchUser.trim();
-      if (searchData === "") {
-         setError("Por favor, digite um nome para buscar");
-         return;
-      }
+   const { data, isFetching, isError } = useUserSearch(term);
 
-      setIsLoading(true);
-      setError(null);
-      setHasSearched(true);
+   // Disponíveis primeiro, já cadastrados ao fim.
+   const users = useMemo(() => {
+      const items = data?.items ?? [];
+      if (!userIdsIgnr?.length) return items;
+      const ignr = new Set(userIdsIgnr);
+      return [
+         ...items.filter((u) => !ignr.has(u.id)),
+         ...items.filter((u) => ignr.has(u.id)),
+      ];
+   }, [data, userIdsIgnr]);
 
-      try {
-         const response = await getUsers({
-            search: searchUser,
-            per_page: 10,
-            active: true,
-         });
-         const ignrSet = new Set(userIdsIgnr);
-         const available = response.items.filter((u) => !ignrSet.has(u.id));
-         const ignored = response.items.filter((u) => ignrSet.has(u.id));
-         setUsers([...available, ...ignored]);
-      } catch (err) {
-         setError("Erro ao buscar usuários. Tente novamente.");
-         setUsers([]);
-      } finally {
-         setIsLoading(false);
-      }
-   }
+   const loading = isFetching && hasQuery;
 
    function onClose() {
-      setSearchUser("");
-      setUsers([]);
-      setHasSearched(false);
-      setError(null);
+      setQuery("");
       setShow(false);
    }
 
@@ -72,87 +57,65 @@ export function SearchUser({
    }
 
    return (
-      <Modal size="md" show={show} onClose={onClose} dismissible>
+      <Modal size="lg" show={show} onClose={onClose} dismissible>
          <ModalHeader>Buscar Militar</ModalHeader>
          <ModalBody>
             <div className="space-y-3">
-               <div>
-                  <div className="flex flex-row gap-2">
-                     <TextInput
-                        placeholder="Insira o nome do militar"
-                        className="flex-1"
-                        value={searchUser}
-                        onChange={(e) => {
-                           setSearchUser(e.target.value);
-                           if (error) setError(null);
-                        }}
-                        onKeyDown={(e) => {
-                           if (
-                              !e.key.match(/^[a-zA-ZÀ-ÿ\s]$/) &&
-                              e.key !== "Backspace" &&
-                              e.key !== "ArrowLeft" &&
-                              e.key !== "ArrowRight" &&
-                              e.key !== "Tab" &&
-                              e.key !== "Delete" &&
-                              e.key !== "Home" &&
-                              e.key !== "End"
-                           ) {
-                              e.preventDefault();
-                           }
-
-                           if (e.key === "Enter") {
-                              searchUsers();
-                           }
-                        }}
-                        color={error ? "failure" : "gray"}
-                        autoFocus
-                     />
-                     <Button
-                        onClick={searchUsers}
-                        disabled={isLoading}
-                        color="red"
-                        className="px-4"
-                     >
-                        {isLoading ? (
-                           <Spinner size="sm" color="gray" />
-                        ) : (
-                           <IoMdSearch className="size-5" />
-                        )}
-                     </Button>
-                  </div>
-                  {error && (
-                     <div className="mt-1 flex items-center gap-1 text-sm text-red-600">
-                        <HiExclamationCircle className="size-4" />
-                        <span>{error}</span>
+               {/* Campo de busca — busca automática conforme digita */}
+               <div className="relative">
+                  <TextInput
+                     icon={IoMdSearch}
+                     placeholder="Digite o nome do militar"
+                     value={query}
+                     onChange={(e) => setQuery(e.target.value)}
+                     onKeyDown={(e) => {
+                        if (
+                           e.key.length === 1 &&
+                           !e.key.match(/[a-zA-ZÀ-ÿ\s]/)
+                        ) {
+                           e.preventDefault();
+                        }
+                     }}
+                     autoFocus
+                     autoComplete="off"
+                  />
+                  {loading && (
+                     <div className="absolute inset-y-0 right-3 flex items-center">
+                        <Spinner size="sm" color="failure" />
                      </div>
                   )}
                </div>
 
-               <div className="relative flex h-80 flex-col overflow-y-auto rounded-lg border border-gray-200 bg-gray-50 px-4 transition-all duration-300">
-                  {isLoading ? (
-                     <div className="animate-in fade-in absolute inset-0 flex flex-col items-center justify-center gap-3 bg-gray-50 duration-200">
-                        <Spinner size="lg" color="failure" />
-                        <span className="text-sm text-gray-500">
-                           Buscando militares...
-                        </span>
-                     </div>
-                  ) : !hasSearched ? (
-                     <div className="animate-in fade-in absolute inset-0 flex flex-col items-center justify-center gap-3 text-gray-400 duration-200">
-                        <FaSearch className="size-12 opacity-30" />
-                        <span className="text-center text-sm">
-                           Digite o nome do militar e clique em buscar
-                        </span>
-                     </div>
+               {/* Painel de resultados */}
+               <div className="h-80 overflow-y-auto rounded border border-slate-200 bg-slate-50">
+                  {!hasQuery ? (
+                     <EmptyState
+                        icon={<FaSearch className="size-10 opacity-25" />}
+                        text={`Digite ao menos ${MIN_CHARS} letras para buscar`}
+                     />
+                  ) : isError ? (
+                     <EmptyState
+                        icon={
+                           <HiExclamationCircle className="size-10 text-red-400" />
+                        }
+                        text="Erro ao buscar militares. Tente novamente."
+                     />
+                  ) : loading && users.length === 0 ? (
+                     <SearchUserSkeleton />
                   ) : users.length === 0 ? (
-                     <div className="animate-in fade-in absolute inset-0 flex flex-col items-center justify-center gap-3 text-gray-400 duration-200">
-                        <HiExclamationCircle className="size-12 opacity-30" />
-                        <span className="text-center text-sm">
-                           Nenhum militar encontrado com esse nome
-                        </span>
-                     </div>
+                     <EmptyState
+                        icon={
+                           <HiExclamationCircle className="size-10 opacity-25" />
+                        }
+                        text="Nenhum militar encontrado com esse nome"
+                     />
                   ) : (
-                     <div className="animate-in fade-in slide-in-from-top-0 space-y-1 duration-300">
-                        <div className="sticky top-0 z-10 -mx-4 mb-3 flex items-center gap-2 border-b border-gray-200 bg-gray-50 px-4 py-2 text-xs text-gray-600">
+                     <div
+                        className={`transition-opacity duration-200 ${
+                           isFetching ? "opacity-50" : "opacity-100"
+                        }`}
+                     >
+                        <div className="sticky top-0 z-10 flex items-center gap-2 border-b border-slate-200 bg-slate-50 px-4 py-2 text-xs font-medium text-slate-500">
                            <HiOutlineUserGroup className="size-4" />
                            <span>
                               {users.length} militar
@@ -160,64 +123,77 @@ export function SearchUser({
                               {users.length !== 1 ? "s" : ""}
                            </span>
                         </div>
-                        {users.map((user, index) => {
-                           const isAlreadySelected = userIdsIgnr?.some(
-                              (id) => id === user.id
-                           );
-                           return (
-                              <div
-                                 key={user.id}
-                                 onClick={() =>
-                                    !isAlreadySelected && onSetUser(user)
-                                 }
-                                 className={`group animate-in fade-in slide-in-from-left-1 flex flex-row items-center gap-3 rounded border-b border-gray-200 p-3 transition-colors duration-200 last:border-b-0 ${
-                                    isAlreadySelected
-                                       ? "cursor-not-allowed bg-gray-100 opacity-60"
-                                       : "cursor-pointer hover:border-blue-200 hover:bg-blue-50"
-                                 }`}
-                                 style={{ animationDelay: `${index * 30}ms` }}
-                                 role="button"
-                                 tabIndex={isAlreadySelected ? -1 : 0}
-                                 onKeyDown={(e) => {
-                                    if (
-                                       !isAlreadySelected &&
-                                       (e.key === "Enter" || e.key === " ")
-                                    ) {
-                                       e.preventDefault();
-                                       onSetUser(user);
-                                    }
-                                 }}
-                              >
-                                 <FaCheckCircle
-                                    className={`size-5 shrink-0 ${
-                                       isAlreadySelected
-                                          ? "text-gray-400"
-                                          : "text-red-500 group-hover:text-red-700"
-                                    }`}
-                                 />
-                                 <span
-                                    className={`flex-1 text-sm font-medium uppercase ${
-                                       isAlreadySelected
-                                          ? "text-gray-500"
-                                          : "text-gray-700 group-hover:text-red-900"
-                                    }`}
-                                 >
-                                    {user.posto.short} {user.quadro} {user.esp}{" "}
-                                    {user.nome_guerra}
-                                 </span>
-                                 {isAlreadySelected && (
-                                    <span className="rounded-full bg-gray-200 px-2 py-1 text-xs text-gray-500">
-                                       Já cadastrado
-                                    </span>
-                                 )}
-                              </div>
-                           );
-                        })}
+                        <ul className="divide-y divide-slate-100">
+                           {users.map((user) => {
+                              const disabled = userIdsIgnr?.includes(user.id);
+                              return (
+                                 <li key={user.id}>
+                                    <button
+                                       type="button"
+                                       disabled={disabled}
+                                       onClick={() => onSetUser(user)}
+                                       className="group flex w-full items-center gap-3 px-4 py-3 text-left transition-colors enabled:hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50"
+                                    >
+                                       <FaCheckCircle
+                                          className={`size-4 shrink-0 ${
+                                             disabled
+                                                ? "text-slate-300"
+                                                : "text-red-500 group-hover:text-red-700"
+                                          }`}
+                                       />
+                                       <span className="flex-1 text-sm font-medium text-slate-700 uppercase group-hover:text-red-900">
+                                          {user.posto.short} {user.quadro}{" "}
+                                          {user.esp} {user.nome_guerra}
+                                       </span>
+                                       {disabled && (
+                                          <span className="rounded-full bg-slate-200 px-2 py-0.5 text-xs font-medium text-slate-500">
+                                             Já cadastrado
+                                          </span>
+                                       )}
+                                    </button>
+                                 </li>
+                              );
+                           })}
+                        </ul>
                      </div>
                   )}
                </div>
             </div>
          </ModalBody>
       </Modal>
+   );
+}
+
+// Larguras fixas para variar as linhas sem flicker/hydration mismatch.
+const SKELETON_WIDTHS = ["w-48", "w-40", "w-56", "w-44", "w-52", "w-36"];
+
+/** Skeleton que espelha a lista de resultados (header de contagem + linhas). */
+function SearchUserSkeleton() {
+   return (
+      <div>
+         <div className="sticky top-0 z-10 flex items-center gap-2 border-b border-slate-200 bg-slate-50 px-4 py-2">
+            <div className="size-4 animate-pulse rounded-full bg-slate-200" />
+            <div className="h-3 w-32 animate-pulse rounded bg-slate-200" />
+         </div>
+         <ul className="divide-y divide-slate-100">
+            {SKELETON_WIDTHS.map((w, i) => (
+               <li key={i} className="flex items-center gap-3 px-4 py-3">
+                  <div className="size-4 shrink-0 animate-pulse rounded-full bg-slate-200" />
+                  <div
+                     className={`h-3.5 animate-pulse rounded bg-slate-200 ${w}`}
+                  />
+               </li>
+            ))}
+         </ul>
+      </div>
+   );
+}
+
+function EmptyState({ icon, text }: { icon: React.ReactNode; text: string }) {
+   return (
+      <div className="flex h-full flex-col items-center justify-center gap-3 px-4 text-center text-slate-400">
+         {icon}
+         <span className="text-sm">{text}</span>
+      </div>
    );
 }
