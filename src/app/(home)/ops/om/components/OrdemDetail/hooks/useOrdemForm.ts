@@ -77,6 +77,7 @@ const buildInitialState = (
    formData: OrdemMissaoOut;
    tripulacao: TripulacaoOrdem;
    camposEspeciais: CampoEspecial[];
+   esfAerManual: boolean;
 } => {
    let formData: OrdemMissaoOut;
    if (!ordem) {
@@ -89,12 +90,20 @@ const buildInitialState = (
          : baseOrdem;
    }
 
+   // Considera "override manual" quando o esf_aer salvo é maior que a soma do
+   // tempo de voo das etapas (o usuário alocou esforço extra deliberadamente).
+   // Caso contrário, o esf_aer é tratado como derivado e recalculado a cada
+   // mudança nas etapas (inclusive para baixo).
+   const esfAerManual =
+      (formData.esf_aer ?? 0) > calcularEsfAer(formData.etapas ?? []);
+
    return {
       formData,
       tripulacao: ordem?.tripulacao
          ? convertTripulacaoFromApi(ordem.tripulacao)
          : createDefaultTripulacao(),
       camposEspeciais: ordem?.campos_especiais || [],
+      esfAerManual,
    };
 };
 
@@ -116,6 +125,11 @@ export const useOrdemForm = ({
    );
    const [camposEspeciais, setCamposEspeciais] = useState<CampoEspecial[]>(
       () => buildInitialState(ordem, isCloning).camposEspeciais
+   );
+   // Flag de override: true quando o usuário editou o esf_aer manualmente.
+   // Enquanto false, o esf_aer espelha exatamente a soma das etapas.
+   const [esfAerManual, setEsfAerManual] = useState<boolean>(
+      () => buildInitialState(ordem, isCloning).esfAerManual
    );
 
    // Estado para valores originais (detecção de mudanças)
@@ -142,6 +156,7 @@ export const useOrdemForm = ({
       setFormData(initial.formData);
       setTripulacao(initial.tripulacao);
       setCamposEspeciais(initial.camposEspeciais);
+      setEsfAerManual(initial.esfAerManual);
 
       // Atualizar dados originais para detecção de mudanças
       setOriginalData(initial);
@@ -170,14 +185,23 @@ export const useOrdemForm = ({
       setIsReadOnlyMode((prev) => !prev);
    };
 
+   // Resolve o esf_aer da OM ao gerenciar etapas:
+   // - sem override manual: espelha exatamente a soma das etapas (recalcula
+   //   inclusive para baixo ao remover/encurtar etapas);
+   // - com override manual: preserva o valor alocado, apenas elevando-o ao
+   //   mínimo (soma das etapas) para nunca violar a regra esf_aer >= soma.
+   const resolveEsfAer = (newEtapas: EtapaOut[]): number => {
+      const soma = calcularEsfAer(newEtapas);
+      return esfAerManual ? Math.max(formData.esf_aer ?? 0, soma) : soma;
+   };
+
    const handleRemoveEtapa = (index: number) => {
       if (!isEditable || formData.etapas.length <= 1) return;
       const newEtapas = formData.etapas.filter((_, i) => i !== index);
       setFormData({
          ...formData,
          etapas: newEtapas,
-         // Preserva esforço alocado manualmente (mesmo critério de add/update)
-         esf_aer: Math.max(formData.esf_aer ?? 0, calcularEsfAer(newEtapas)),
+         esf_aer: resolveEsfAer(newEtapas),
       });
    };
 
@@ -195,11 +219,10 @@ export const useOrdemForm = ({
          };
       }
 
-      const calculatedEsfAer = calcularEsfAer(newEtapas);
       setFormData({
          ...formData,
          etapas: newEtapas,
-         esf_aer: Math.max(formData.esf_aer ?? 0, calculatedEsfAer),
+         esf_aer: resolveEsfAer(newEtapas),
       });
    };
 
@@ -207,16 +230,20 @@ export const useOrdemForm = ({
    const addEtapa = (etapa: EtapaOut) => {
       if (!isEditable) return;
       const newEtapas = [...formData.etapas, etapa];
-      const calculatedEsfAer = calcularEsfAer(newEtapas);
       setFormData({
          ...formData,
          etapas: newEtapas,
-         esf_aer: Math.max(formData.esf_aer ?? 0, calculatedEsfAer),
+         esf_aer: resolveEsfAer(newEtapas),
       });
    };
 
    const updateFormData = (updates: Partial<OrdemMissaoOut>) => {
       if (!isEditable) return;
+      // Edição manual do esf_aer marca o override, congelando o recálculo
+      // automático a partir das etapas.
+      if ("esf_aer" in updates) {
+         setEsfAerManual(true);
+      }
       setFormData({ ...formData, ...updates });
    };
 
@@ -246,16 +273,11 @@ export const useOrdemForm = ({
    };
 
    const resetForm = () => {
-      const baseData = ordem
-         ? { ...ordem, esf_aer: ordem.esf_aer ?? 0 }
-         : createDefaultOrdem();
-      setFormData(baseData as OrdemMissaoOut);
-      setTripulacao(
-         ordem?.tripulacao
-            ? convertTripulacaoFromApi(ordem.tripulacao)
-            : createDefaultTripulacao()
-      );
-      setCamposEspeciais(ordem?.campos_especiais || []);
+      const initial = buildInitialState(ordem, isCloning);
+      setFormData(initial.formData);
+      setTripulacao(initial.tripulacao);
+      setCamposEspeciais(initial.camposEspeciais);
+      setEsfAerManual(initial.esfAerManual);
       setError(null);
       setFormValidationErrors([]);
    };
