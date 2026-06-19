@@ -384,7 +384,7 @@ export function TripulanteSelect({
                               ref={dropdownRef}
                               id={listboxId}
                               role="listbox"
-                              className="fixed z-9999 max-h-52 overflow-auto rounded-lg border border-gray-200 bg-white shadow-lg"
+                              className="fixed z-9999 max-h-52 overflow-auto rounded border border-gray-200 bg-white shadow-lg"
                               style={{
                                  top: dropdownPosition.top,
                                  left: dropdownPosition.left,

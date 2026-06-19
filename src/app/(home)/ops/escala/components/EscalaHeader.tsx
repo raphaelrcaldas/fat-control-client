@@ -2,7 +2,7 @@ import { MdEventAvailable } from "react-icons/md";
 
 export function EscalaHeader() {
    return (
-      <header className="relative mb-5 overflow-hidden rounded border border-slate-200 bg-white px-5 py-4 shadow-sm sm:px-6 sm:py-5">
+      <header className="relative overflow-hidden rounded border border-slate-200 bg-white px-5 py-4 shadow-sm sm:px-6 sm:py-5">
          <span
             aria-hidden
             className="absolute top-0 left-0 h-full w-1 bg-red-600"

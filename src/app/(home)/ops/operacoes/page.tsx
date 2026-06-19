@@ -64,9 +64,9 @@ export default function OperacoesPage() {
    const showSkeleton = isLoading || (isFetching && !data);
 
    return (
-      <div className="flex flex-col">
+      <div className="flex flex-col space-y-2">
          {/* Masthead — claro, mesma linguagem tática dos cards */}
-         <header className="relative mb-5 overflow-hidden rounded border border-slate-200 bg-white px-5 py-4 shadow-sm sm:px-6 sm:py-5">
+         <header className="relative overflow-hidden rounded border border-slate-200 bg-white px-5 py-4 shadow-sm sm:px-6 sm:py-5">
             {/* Espinha vermelha — ecoa a espinha dos cards */}
             <span
                aria-hidden
@@ -112,13 +112,13 @@ export default function OperacoesPage() {
          />
 
          {error && (
-            <div className="mb-3 rounded-md border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-800">
+            <div className="rounded-md border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-800">
                {(error as Error).message}
             </div>
          )}
 
          {!showSkeleton && (
-            <p className="mb-2 text-xs font-medium text-slate-400">
+            <p className="text-xs font-medium text-slate-400">
                {items.length}{" "}
                {items.length === 1
                   ? "operação encontrada"

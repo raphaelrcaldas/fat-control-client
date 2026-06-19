@@ -52,7 +52,7 @@ function EscalaView() {
    const showSkeleton = isParamsReady && isLoading && !data;
 
    return (
-      <div className="flex flex-col">
+      <div className="flex flex-col space-y-2">
          <EscalaHeader />
 
          <EscalaFilters
@@ -62,7 +62,7 @@ function EscalaView() {
          />
 
          {error && (
-            <div className="mb-3 rounded-md border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-800">
+            <div className="rounded-md border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-800">
                {(error as Error).message}
             </div>
          )}

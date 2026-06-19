@@ -18,7 +18,7 @@ export function EscalaFilters({
    isFetching = false,
 }: EscalaFiltersProps) {
    return (
-      <div className="mb-4 rounded border border-slate-200 bg-white shadow-sm">
+      <div className="rounded border border-slate-200 bg-white shadow-sm">
          <div className="flex items-center gap-3 border-b border-slate-200 px-4 py-2">
             <span className="font-mono text-[10px] font-bold tracking-[0.3em] text-slate-400 uppercase">
                Briefing

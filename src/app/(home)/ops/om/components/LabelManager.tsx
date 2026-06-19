@@ -138,7 +138,7 @@ export function LabelManager({
             <ModalBody>
                <div className="flex flex-col gap-6">
                   {/* Form */}
-                  <div className="rounded-xl border border-gray-100 bg-gray-50 p-4 shadow-inner">
+                  <div className="rounded border border-gray-100 bg-gray-50 p-4 shadow-inner">
                      <div className="mb-4 flex items-center justify-between">
                         <h3 className="text-sm font-bold text-gray-700">
                            {editingId ? "Editar Etiqueta" : "Nova Etiqueta"}
@@ -185,7 +185,7 @@ export function LabelManager({
                                           cor: e.target.value,
                                        })
                                     }
-                                    className="h-10 w-full cursor-pointer rounded-lg border border-gray-300 p-0.5"
+                                    className="h-10 w-full cursor-pointer rounded border border-gray-300 p-0.5"
                                  />
                               </div>
                            </div>
@@ -236,7 +236,7 @@ export function LabelManager({
                               {labels.map((label) => (
                                  <div
                                     key={label.id}
-                                    className="transition-hover flex items-center justify-between rounded-lg border border-gray-100 bg-white p-2.5 shadow-sm hover:border-red-100 hover:shadow-md"
+                                    className="transition-hover flex items-center justify-between rounded border border-gray-100 bg-white p-2.5 shadow-sm hover:border-red-100 hover:shadow-md"
                                  >
                                     <div className="flex items-center gap-3">
                                        <div

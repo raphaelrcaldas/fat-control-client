@@ -64,7 +64,7 @@ export function OrdemEspecialModal({
    };
 
    const inputBaseClass =
-      "w-full rounded-lg border bg-white px-3 py-2.5 text-sm text-gray-900 focus:border-transparent focus:ring-2 disabled:cursor-not-allowed disabled:opacity-50";
+      "w-full rounded border bg-white px-3 py-2.5 text-sm text-gray-900 focus:border-transparent focus:ring-2 disabled:cursor-not-allowed disabled:opacity-50";
 
    return (
       <Modal show={isOpen} onClose={onClose} dismissible size="lg">

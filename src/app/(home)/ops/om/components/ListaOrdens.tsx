@@ -99,7 +99,7 @@ const OrdemItem = memo(function OrdemItem({
          role="button"
          tabIndex={0}
          aria-label={`Abrir ordem de missão ${ordem.numero} — status ${status?.label ?? ordem.status}`}
-         className="relative cursor-pointer overflow-hidden rounded border-y border-r border-gray-200 bg-white py-3 pr-4 pl-5 shadow transition-all hover:border-red-300 hover:shadow-md focus:border-red-400 focus:ring-2 focus:ring-red-400 focus:outline-none"
+         className="relative cursor-pointer overflow-hidden rounded border-y border-r border-gray-200 bg-white py-3 pr-4 pl-5 shadow transition-all hover:border-red-300 hover:shadow-md focus:outline-none focus-visible:border-red-400 focus-visible:shadow-md focus-visible:ring-2 focus-visible:ring-red-400/50 focus-visible:ring-offset-2"
          onClick={handleClick}
          onKeyDown={handleKeyDown}
       >

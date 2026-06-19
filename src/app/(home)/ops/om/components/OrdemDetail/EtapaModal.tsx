@@ -46,11 +46,11 @@ const roundTimeToFiveMinutes = (time: string): string => {
 };
 
 const inputBaseClass =
-   "w-full min-w-0 rounded-lg border bg-white px-2.5 py-2 text-sm text-slate-900 focus:border-transparent focus:ring-2 disabled:cursor-not-allowed disabled:opacity-50";
+   "w-full min-w-0 rounded border bg-white px-2.5 py-2 text-sm text-slate-900 focus:border-transparent focus:ring-2 disabled:cursor-not-allowed disabled:opacity-50";
 
 // Inputs de código ICAO: protagonistas visuais do cartão de rota
 const icaoInputClass =
-   "w-full min-w-0 rounded-lg border bg-white px-2 py-2 text-center font-mono text-xl font-semibold tracking-[0.18em] text-slate-900 uppercase placeholder:font-normal placeholder:tracking-normal placeholder:text-slate-300 focus:border-transparent focus:ring-2";
+   "w-full min-w-0 rounded border bg-white px-2 py-2 text-center font-mono text-xl font-semibold tracking-[0.18em] text-slate-900 uppercase placeholder:font-normal placeholder:tracking-normal placeholder:text-slate-300 focus:border-transparent focus:ring-2";
 
 const sectionTitleClass =
    "text-xs font-semibold tracking-widest text-slate-500 uppercase";
@@ -392,7 +392,7 @@ export function EtapaModal({
          <ModalBody>
             <div className="space-y-4">
                {/* Cartão de rota: o trecho de voo como protagonista */}
-               <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+               <div className="overflow-hidden rounded border border-slate-200 bg-white shadow-sm">
                   <div className="grid md:grid-cols-[1fr_auto_1fr]">
                      {/* Decolagem */}
                      <div className="p-4 md:p-5">
@@ -721,7 +721,7 @@ export function EtapaModal({
 
                {/* Erros de validação de data/hora */}
                {(erroDataHora || erroTempoVooEtapa) && (
-                  <div className="space-y-1 rounded-lg border border-red-200 bg-red-50 px-3 py-2">
+                  <div className="space-y-1 rounded border border-red-200 bg-red-50 px-3 py-2">
                      {erroDataHora && (
                         <p className="text-sm text-red-600">{erroDataHora}</p>
                      )}
@@ -734,7 +734,7 @@ export function EtapaModal({
                )}
 
                {/* Cartão de planejamento: alternativa, combustível e esforço aéreo */}
-               <div className="rounded-xl border border-slate-200 bg-white shadow-sm">
+               <div className="rounded border border-slate-200 bg-white shadow-sm">
                   <div className="grid divide-y divide-slate-100 md:grid-cols-5 md:divide-x md:divide-y-0">
                      {/* Alternativa */}
                      <div className="p-4 md:col-span-2">

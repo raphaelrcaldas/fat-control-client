@@ -144,7 +144,7 @@ export const OrdemEspeciaisDisplay = memo(function OrdemEspeciaisDisplay({
 
             {/* Lista de campos em cards */}
             {campos.length === 0 ? (
-               <div className="rounded-lg border border-gray-200 bg-gray-50 py-8 text-center">
+               <div className="rounded border border-gray-200 bg-gray-50 py-8 text-center">
                   <p className="text-sm text-gray-500">
                      Nenhuma ordem especial cadastrada
                   </p>
@@ -217,7 +217,7 @@ export const OrdemEspeciaisDisplay = memo(function OrdemEspeciaisDisplay({
                                     <button
                                        type="button"
                                        onClick={() => onEditCampo(index)}
-                                       className="rounded-lg p-1.5 text-gray-400 transition-colors hover:bg-purple-50 hover:text-purple-600"
+                                       className="rounded p-1.5 text-gray-400 transition-colors hover:bg-purple-50 hover:text-purple-600"
                                        title="Editar"
                                     >
                                        <HiPencil className="h-4 w-4" />
@@ -225,7 +225,7 @@ export const OrdemEspeciaisDisplay = memo(function OrdemEspeciaisDisplay({
                                     <button
                                        type="button"
                                        onClick={() => handleDeleteClick(index)}
-                                       className="rounded-lg p-1.5 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-500"
+                                       className="rounded p-1.5 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-500"
                                        title="Excluir"
                                     >
                                        <HiTrash className="h-4 w-4" />
@@ -258,7 +258,7 @@ export const OrdemEspeciaisDisplay = memo(function OrdemEspeciaisDisplay({
                   {/* Detalhes do campo */}
                   {deleteConfirmIndex !== null &&
                      campos[deleteConfirmIndex] && (
-                        <div className="mb-5 rounded-lg bg-gray-50 p-3 text-left">
+                        <div className="mb-5 rounded bg-gray-50 p-3 text-left">
                            <div className="text-sm">
                               <span className="font-semibold text-purple-700 uppercase">
                                  {campos[deleteConfirmIndex].label}

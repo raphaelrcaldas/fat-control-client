@@ -195,7 +195,7 @@ export const EtapasTable = memo(function EtapasTable({
                                                 onClick={() =>
                                                    onEditEtapa(index)
                                                 }
-                                                className="rounded-lg p-1.5 text-gray-500 transition-colors hover:bg-blue-100 hover:text-blue-600"
+                                                className="rounded p-1.5 text-gray-500 transition-colors hover:bg-blue-100 hover:text-blue-600"
                                                 aria-label={`Editar etapa ${index + 1}`}
                                              >
                                                 <HiPencil className="h-4 w-4" />
@@ -208,7 +208,7 @@ export const EtapasTable = memo(function EtapasTable({
                                                    onClick={() =>
                                                       handleDeleteClick(index)
                                                    }
-                                                   className="rounded-lg p-1.5 text-gray-500 transition-colors hover:bg-red-100 hover:text-red-600"
+                                                   className="rounded p-1.5 text-gray-500 transition-colors hover:bg-red-100 hover:text-red-600"
                                                    aria-label={`Excluir etapa ${index + 1}`}
                                                 >
                                                    <HiTrash className="h-4 w-4" />
@@ -246,7 +246,7 @@ export const EtapasTable = memo(function EtapasTable({
                   {/* Detalhes da etapa */}
                   {deleteConfirmIndex !== null &&
                      etapas[deleteConfirmIndex] && (
-                        <div className="mb-5 rounded-lg bg-gray-50 p-3 text-left font-mono">
+                        <div className="mb-5 rounded bg-gray-50 p-3 text-left font-mono">
                            <div className="grid grid-cols-2 gap-2">
                               <div>
                                  <span className="text-xs text-gray-500">

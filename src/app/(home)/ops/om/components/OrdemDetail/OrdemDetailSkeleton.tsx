@@ -27,7 +27,7 @@ export function OrdemDetailSkeleton() {
          {/* Header */}
          <header className="flex shrink-0 items-center justify-between border-b border-gray-200 bg-white px-4 py-3 shadow-sm md:px-6 md:py-4">
             <div className="flex flex-1 items-center gap-4">
-               <div className="h-10 w-10 rounded-lg bg-gray-200" />
+               <div className="h-10 w-10 rounded bg-gray-200" />
                <div className="hidden space-y-2 md:block">
                   <div className="h-5 w-56 rounded bg-gray-200" />
                   <div className="h-3.5 w-36 rounded bg-gray-100" />
@@ -38,8 +38,8 @@ export function OrdemDetailSkeleton() {
                <div className="h-7 w-24 rounded-full bg-gray-100" />
             </div>
             <div className="flex flex-1 justify-end gap-2 md:gap-3">
-               <div className="h-10 w-24 rounded-lg bg-gray-200" />
-               <div className="h-10 w-24 rounded-lg bg-gray-100" />
+               <div className="h-10 w-24 rounded bg-gray-200" />
+               <div className="h-10 w-24 rounded bg-gray-100" />
             </div>
          </header>
 
@@ -48,11 +48,11 @@ export function OrdemDetailSkeleton() {
                {/* Informações: linha de inputs */}
                <SectionSkeleton>
                   <div className="grid grid-cols-2 gap-4 md:flex">
-                     <div className="h-11 rounded-lg bg-gray-100 md:w-24" />
-                     <div className="col-span-2 h-11 rounded-lg bg-gray-100 md:flex-1" />
-                     <div className="col-span-2 h-11 rounded-lg bg-gray-100 md:flex-1" />
-                     <div className="h-11 rounded-lg bg-gray-100 md:w-42" />
-                     <div className="h-11 rounded-lg bg-gray-100 md:w-28" />
+                     <div className="h-11 rounded bg-gray-100 md:w-24" />
+                     <div className="col-span-2 h-11 rounded bg-gray-100 md:flex-1" />
+                     <div className="col-span-2 h-11 rounded bg-gray-100 md:flex-1" />
+                     <div className="h-11 rounded bg-gray-100 md:w-42" />
+                     <div className="h-11 rounded bg-gray-100 md:w-28" />
                   </div>
                </SectionSkeleton>
 
@@ -62,7 +62,7 @@ export function OrdemDetailSkeleton() {
                      {Array.from({ length: 6 }).map((_, i) => (
                         <div
                            key={i}
-                           className="space-y-2 rounded-lg border border-gray-200 bg-white p-3"
+                           className="space-y-2 rounded border border-gray-200 bg-white p-3"
                         >
                            <div className="h-3 w-16 rounded bg-gray-200" />
                            <div className="h-7 rounded-md bg-gray-100" />
@@ -85,8 +85,8 @@ export function OrdemDetailSkeleton() {
                {/* Ordens Especiais: cards */}
                <SectionSkeleton>
                   <div className="space-y-3">
-                     <div className="h-14 rounded-lg bg-gray-100" />
-                     <div className="h-14 rounded-lg bg-gray-100" />
+                     <div className="h-14 rounded bg-gray-100" />
+                     <div className="h-14 rounded bg-gray-100" />
                   </div>
                </SectionSkeleton>
 

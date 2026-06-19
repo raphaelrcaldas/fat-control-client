@@ -264,9 +264,9 @@ export default function OrdensMissao() {
 
    return (
       <div ref={pageTopRef} className="text-gray-900">
-         <div className="mx-auto">
+         <div className="mx-auto space-y-2">
             {/* Masthead — referência canônica (ver ops/operacoes) */}
-            <header className="relative mb-5 overflow-hidden rounded border border-slate-200 bg-white px-5 py-4 shadow-sm sm:px-6 sm:py-5">
+            <header className="relative overflow-hidden rounded border border-slate-200 bg-white px-5 py-4 shadow-sm sm:px-6 sm:py-5">
                {/* Espinha vermelha — ecoa a espinha dos cards */}
                <span
                   aria-hidden
@@ -306,7 +306,7 @@ export default function OrdensMissao() {
 
             {/* Erro global (qualquer uma das queries) com retry */}
             {(ordensAprovadasQuery.isError || ordensRascunhoQuery.isError) && (
-               <div className="mb-4 flex items-center justify-between gap-4 rounded border border-red-200 bg-red-50 p-4 text-red-700">
+               <div className="flex items-center justify-between gap-4 rounded border border-red-200 bg-red-50 p-4 text-red-700">
                   <span className="min-w-0 text-sm">
                      {ordensAprovadasQuery.error?.message ||
                         ordensRascunhoQuery.error?.message ||
@@ -348,56 +348,58 @@ export default function OrdensMissao() {
                      </span>
                   }
                >
-                  <FiltrosOrdemComponent
-                     filtros={{ ...filtros, busca: buscaInput }}
-                     onFiltrosChange={handleFiltrosChange}
-                     onClearFiltros={clearFiltros}
-                     defaultDates={defaultDates}
-                  />
-                  {!ordensAprovadasQuery.isError && (
-                     <p className="mb-3 text-sm text-gray-500">
-                        {ordensAprovadasQuery.isLoading
-                           ? "Carregando missões..."
-                           : `${paginationAprovadas.total} ${
-                                paginationAprovadas.total === 1
-                                   ? "missão encontrada"
-                                   : "missões encontradas"
-                             }`}
-                     </p>
-                  )}
-                  {ordensAprovadasQuery.isError ? null : ordensAprovadasQuery.isLoading ? (
-                     <ListaOrdensSkeleton />
-                  ) : (
-                     <div
-                        className={clsx(
-                           "transition-opacity",
-                           ordensAprovadasQuery.isPlaceholderData &&
-                              "pointer-events-none opacity-50"
-                        )}
-                     >
-                        <ListaOrdens
-                           ordens={ordensAprovadas}
-                           onOrdemClick={handleOpenOrdem}
-                           onCloneOrdem={handleCloneOrdem}
-                           onDeleteOrdem={handleDeleteOrdem}
-                           hasActiveFilters={hasActiveFilters}
-                           onClearFiltros={clearFiltros}
-                           onCreateOrdem={() => router.push("/ops/om/nova")}
-                        />
-                        {paginationAprovadas.pages > 1 && (
-                           <div className="mt-4 flex justify-center">
-                              <Pagination
-                                 currentPage={pageAprovadas}
-                                 totalPages={paginationAprovadas.pages}
-                                 onPageChange={handlePageChange}
-                                 showIcons
-                                 previousLabel="Anterior"
-                                 nextLabel="Próxima"
-                              />
-                           </div>
-                        )}
-                     </div>
-                  )}
+                  <div className="space-y-2">
+                     <FiltrosOrdemComponent
+                        filtros={{ ...filtros, busca: buscaInput }}
+                        onFiltrosChange={handleFiltrosChange}
+                        onClearFiltros={clearFiltros}
+                        defaultDates={defaultDates}
+                     />
+                     {!ordensAprovadasQuery.isError && (
+                        <p className="text-sm text-gray-500">
+                           {ordensAprovadasQuery.isLoading
+                              ? "Carregando missões..."
+                              : `${paginationAprovadas.total} ${
+                                   paginationAprovadas.total === 1
+                                      ? "missão encontrada"
+                                      : "missões encontradas"
+                                }`}
+                        </p>
+                     )}
+                     {ordensAprovadasQuery.isError ? null : ordensAprovadasQuery.isLoading ? (
+                        <ListaOrdensSkeleton />
+                     ) : (
+                        <div
+                           className={clsx(
+                              "transition-opacity",
+                              ordensAprovadasQuery.isPlaceholderData &&
+                                 "pointer-events-none opacity-50"
+                           )}
+                        >
+                           <ListaOrdens
+                              ordens={ordensAprovadas}
+                              onOrdemClick={handleOpenOrdem}
+                              onCloneOrdem={handleCloneOrdem}
+                              onDeleteOrdem={handleDeleteOrdem}
+                              hasActiveFilters={hasActiveFilters}
+                              onClearFiltros={clearFiltros}
+                              onCreateOrdem={() => router.push("/ops/om/nova")}
+                           />
+                           {paginationAprovadas.pages > 1 && (
+                              <div className="mt-4 flex justify-center">
+                                 <Pagination
+                                    currentPage={pageAprovadas}
+                                    totalPages={paginationAprovadas.pages}
+                                    onPageChange={handlePageChange}
+                                    showIcons
+                                    previousLabel="Anterior"
+                                    nextLabel="Próxima"
+                                 />
+                              </div>
+                           )}
+                        </div>
+                     )}
+                  </div>
                </TabItem>
                <TabItem
                   active={activeTab === 1}
@@ -412,49 +414,51 @@ export default function OrdensMissao() {
                      </span>
                   }
                >
-                  {!ordensRascunhoQuery.isError && (
-                     <p className="mb-3 text-sm text-gray-500">
-                        {ordensRascunhoQuery.isLoading
-                           ? "Carregando rascunhos..."
-                           : `${paginationRascunho.total} ${
-                                paginationRascunho.total === 1
-                                   ? "rascunho encontrado"
-                                   : "rascunhos encontrados"
-                             }`}
-                     </p>
-                  )}
-                  {ordensRascunhoQuery.isError ? null : ordensRascunhoQuery.isLoading ? (
-                     <ListaOrdensSkeleton />
-                  ) : (
-                     <div
-                        className={clsx(
-                           "transition-opacity",
-                           ordensRascunhoQuery.isPlaceholderData &&
-                              "pointer-events-none opacity-50"
-                        )}
-                     >
-                        <ListaOrdens
-                           ordens={ordensRascunho}
-                           onOrdemClick={handleOpenOrdem}
-                           onCloneOrdem={handleCloneOrdem}
-                           onDeleteOrdem={handleDeleteOrdem}
-                           emptyTitle="Nenhum rascunho encontrado"
-                           onCreateOrdem={() => router.push("/ops/om/nova")}
-                        />
-                        {paginationRascunho.pages > 1 && (
-                           <div className="mt-4 flex justify-center">
-                              <Pagination
-                                 currentPage={pageRascunho}
-                                 totalPages={paginationRascunho.pages}
-                                 onPageChange={handlePageChange}
-                                 showIcons
-                                 previousLabel="Anterior"
-                                 nextLabel="Próxima"
-                              />
-                           </div>
-                        )}
-                     </div>
-                  )}
+                  <div className="space-y-2">
+                     {!ordensRascunhoQuery.isError && (
+                        <p className="text-sm text-gray-500">
+                           {ordensRascunhoQuery.isLoading
+                              ? "Carregando rascunhos..."
+                              : `${paginationRascunho.total} ${
+                                   paginationRascunho.total === 1
+                                      ? "rascunho encontrado"
+                                      : "rascunhos encontrados"
+                                }`}
+                        </p>
+                     )}
+                     {ordensRascunhoQuery.isError ? null : ordensRascunhoQuery.isLoading ? (
+                        <ListaOrdensSkeleton />
+                     ) : (
+                        <div
+                           className={clsx(
+                              "transition-opacity",
+                              ordensRascunhoQuery.isPlaceholderData &&
+                                 "pointer-events-none opacity-50"
+                           )}
+                        >
+                           <ListaOrdens
+                              ordens={ordensRascunho}
+                              onOrdemClick={handleOpenOrdem}
+                              onCloneOrdem={handleCloneOrdem}
+                              onDeleteOrdem={handleDeleteOrdem}
+                              emptyTitle="Nenhum rascunho encontrado"
+                              onCreateOrdem={() => router.push("/ops/om/nova")}
+                           />
+                           {paginationRascunho.pages > 1 && (
+                              <div className="mt-4 flex justify-center">
+                                 <Pagination
+                                    currentPage={pageRascunho}
+                                    totalPages={paginationRascunho.pages}
+                                    onPageChange={handlePageChange}
+                                    showIcons
+                                    previousLabel="Anterior"
+                                    nextLabel="Próxima"
+                                 />
+                              </div>
+                           )}
+                        </div>
+                     )}
+                  </div>
                </TabItem>
             </Tabs>
          </div>

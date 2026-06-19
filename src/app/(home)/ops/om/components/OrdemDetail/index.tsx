@@ -400,7 +400,7 @@ export function OrdemFormContent({
             <div className="flex min-w-0 flex-1 items-center gap-4">
                <button
                   onClick={handleClose}
-                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-700"
+                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-700"
                   title="Voltar"
                >
                   <HiArrowLeft size={24} />
@@ -534,16 +534,23 @@ export function OrdemFormContent({
 
                {isEditable && (
                   <>
-                     <Button
-                        color="gray"
-                        onClick={handleCancel}
-                        disabled={isSaving || isApproving}
-                     >
-                        <HiX className="sm:mr-2" size={16} />
-                        <span className="hidden sm:inline">
-                           Descartar alterações
-                        </span>
-                     </Button>
+                     {/* "Descartar alterações" só aparece quando há mudanças reais.
+                        Sem mudanças, numa OM existente o botão vira "Cancelar" (apenas
+                        sai do modo de edição, sem confirmação). Numa OM nova/clonada sem
+                        mudanças não há nada a descartar — sair é pelo botão voltar do
+                        cabeçalho. */}
+                     {(hasChanges || (!isNew && !isCloning)) && (
+                        <Button
+                           color="gray"
+                           onClick={handleCancel}
+                           disabled={isSaving || isApproving}
+                        >
+                           <HiX className="sm:mr-2" size={16} />
+                           <span className="hidden sm:inline">
+                              {hasChanges ? "Descartar alterações" : "Cancelar"}
+                           </span>
+                        </Button>
+                     )}
                      <Button
                         color="light"
                         type="submit"

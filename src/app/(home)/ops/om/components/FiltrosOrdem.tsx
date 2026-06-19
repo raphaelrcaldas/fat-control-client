@@ -70,7 +70,7 @@ export function FiltrosOrdemComponent({
    return (
       <div
          className={clsx(
-            "mb-3 rounded border border-gray-200 bg-white shadow",
+            "rounded border border-gray-200 bg-white shadow",
             allowOverflow ? "overflow-visible" : "overflow-hidden"
          )}
       >
@@ -193,7 +193,7 @@ export function FiltrosOrdemComponent({
                               busca: e.target.value,
                            })
                         }
-                        className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-2.5 text-gray-900 placeholder-gray-400 focus:border-transparent focus:ring-2 focus:ring-red-500"
+                        className="w-full rounded border border-gray-300 bg-gray-50 px-4 py-2.5 text-gray-900 placeholder-gray-400 focus:border-transparent focus:ring-2 focus:ring-red-500"
                      />
                   </div>
 
@@ -234,7 +234,7 @@ export function FiltrosOrdemComponent({
                            })
                         }
                         className={clsx(
-                           "w-full rounded-lg border bg-gray-50 px-3 py-2.5 text-sm text-gray-900 focus:border-transparent focus:ring-2 focus:ring-red-500",
+                           "w-full rounded border bg-gray-50 px-3 py-2.5 text-sm text-gray-900 focus:border-transparent focus:ring-2 focus:ring-red-500",
                            intervaloInvalido
                               ? "border-red-300"
                               : "border-gray-300"
@@ -258,7 +258,7 @@ export function FiltrosOrdemComponent({
                            })
                         }
                         className={clsx(
-                           "w-full rounded-lg border bg-gray-50 px-3 py-2.5 text-sm text-gray-900 focus:border-transparent focus:ring-2 focus:ring-red-500",
+                           "w-full rounded border bg-gray-50 px-3 py-2.5 text-sm text-gray-900 focus:border-transparent focus:ring-2 focus:ring-red-500",
                            intervaloInvalido
                               ? "border-red-300"
                               : "border-gray-300"
