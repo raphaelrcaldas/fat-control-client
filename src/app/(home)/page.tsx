@@ -9,10 +9,12 @@ import { formatDateTime } from "@/../utils/dateHandler";
 export default function HomeApp() {
    const { user, role, userPg, userId } = useAuth();
    const [currentTime, setCurrentTime] = useState(new Date());
+   const [mounted, setMounted] = useState(false);
    const [lastLogin, setLastLogin] = useState<string | null>(null);
    const [isFirstAccess, setIsFirstAccess] = useState(false);
 
    useEffect(() => {
+      setMounted(true);
       const timer = setInterval(() => {
          setCurrentTime(new Date());
       }, 1000);
@@ -48,20 +50,20 @@ export default function HomeApp() {
    };
 
    return (
-      <div className="mx-auto w-full max-w-2/3">
+      <div className="mx-auto w-full max-w-2xl lg:max-w-3xl">
          {/* Welcome Card */}
-         <div className="rounded border border-slate-200 bg-white p-6 shadow-sm md:p-8">
-            <div className="flex flex-col items-center gap-6 md:flex-row md:items-start">
+         <div className="rounded border border-slate-200 bg-white p-5 shadow-sm sm:p-6 md:p-8">
+            <div className="flex flex-col items-center gap-5 sm:flex-row sm:items-start sm:gap-6">
                {/* Avatar */}
                <div className="rounded-full bg-linear-to-br from-red-500 to-red-600 p-1">
                   <div className="rounded-full bg-white p-1">
-                     <FaUserCircle className="h-20 w-20 text-red-500 md:h-24 md:w-24" />
+                     <FaUserCircle className="h-16 w-16 text-red-500 sm:h-20 sm:w-20 md:h-24 md:w-24" />
                   </div>
                </div>
 
                {/* User Info */}
-               <div className="flex-1 text-center md:text-left">
-                  <h1 className="mb-2 text-xl text-gray-800">
+               <div className="min-w-0 flex-1 text-center sm:text-left">
+                  <h1 className="mb-2 text-lg text-gray-800 sm:text-xl">
                      {getGreeting()},{" "}
                      <span className="font-bold uppercase">
                         {userId == 239
@@ -70,13 +72,13 @@ export default function HomeApp() {
                      </span>
                      !
                   </h1>
-                  <p className="mb-4 text-gray-600">
+                  <p className="mb-4 text-sm text-gray-600 sm:text-base">
                      Seja bem-vindo ao FATCONTROL
                   </p>
 
-                  <div className="flex flex-wrap justify-center gap-3 md:justify-start">
-                     <div className="flex items-center gap-2 rounded bg-red-50 px-4 py-2">
-                        <FaShieldAlt className="text-red-500" />
+                  <div className="flex flex-wrap justify-center gap-2 sm:justify-start sm:gap-3">
+                     <div className="flex items-center gap-2 rounded bg-red-50 px-3 py-2 sm:px-4">
+                        <FaShieldAlt className="shrink-0 text-red-500" />
                         <span className="text-sm font-medium text-gray-700">
                            Perfil:{" "}
                            <span className="font-semibold uppercase">
@@ -84,15 +86,17 @@ export default function HomeApp() {
                            </span>
                         </span>
                      </div>
-                     <div className="flex items-center gap-2 rounded bg-blue-50 px-4 py-2">
-                        <FaClock className="text-blue-500" />
-                        <span className="font-mono text-sm text-gray-700">
-                           {currentTime.toLocaleTimeString("pt-BR")}
+                     <div className="flex items-center gap-2 rounded bg-blue-50 px-3 py-2 sm:px-4">
+                        <FaClock className="shrink-0 text-blue-500" />
+                        <span className="font-mono text-sm text-gray-700 tabular-nums">
+                           {mounted
+                              ? currentTime.toLocaleTimeString("pt-BR")
+                              : "--:--:--"}
                         </span>
                      </div>
                      {(lastLogin || isFirstAccess) && (
-                        <div className="flex items-center gap-2 rounded bg-green-50 px-4 py-2">
-                           <FaHistory className="text-green-500" />
+                        <div className="flex items-center gap-2 rounded bg-green-50 px-3 py-2 sm:px-4">
+                           <FaHistory className="shrink-0 text-green-500" />
                            <span className="text-sm font-medium text-gray-700">
                               {isFirstAccess ? (
                                  "Primeiro acesso"
