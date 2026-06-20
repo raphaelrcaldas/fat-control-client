@@ -8,7 +8,7 @@ import {
    TableBody,
    TableRow,
    TableCell,
-   Spinner,
+   Button,
 } from "flowbite-react";
 import { HiChevronUp, HiChevronDown } from "react-icons/hi";
 import { MdHealthAndSafety } from "react-icons/md";
@@ -102,6 +102,13 @@ const SortableHeader = memo(function SortableHeader({
       <TableHeadCell
          className="cursor-pointer px-4 py-3 font-semibold transition-colors select-none hover:text-gray-900"
          onClick={() => onSort(field)}
+         aria-sort={
+            isActive
+               ? direction === "asc"
+                  ? "ascending"
+                  : "descending"
+               : "none"
+         }
       >
          <div className="flex items-center gap-1">
             <span>{label}</span>
@@ -157,7 +164,12 @@ const CartoesSaudeRow = memo(function CartoesSaudeRow({
    return (
       <TableRow
          onClick={() => onClick(item)}
-         className="cursor-pointer border-b border-gray-200 transition-colors hover:bg-gray-50"
+         onKeyDown={(e) =>
+            (e.key === "Enter" || e.key === " ") && onClick(item)
+         }
+         tabIndex={0}
+         role="button"
+         className="cursor-pointer border-b border-slate-200 transition-colors hover:bg-gray-50"
       >
          <TableCell className="w-10 px-3 py-3">
             <span
@@ -191,7 +203,6 @@ const CartoesSaudeRow = memo(function CartoesSaudeRow({
 
 interface CartoesSaudeTableProps {
    data: UserCartaoSaude[];
-   isLoading: boolean;
    sortField: SortField | null;
    sortDirection: SortDirection;
    onSort: (field: SortField) => void;
@@ -202,7 +213,6 @@ interface CartoesSaudeTableProps {
 
 export default function CartoesSaudeTable({
    data,
-   isLoading,
    sortField,
    sortDirection,
    onSort,
@@ -210,14 +220,6 @@ export default function CartoesSaudeTable({
    hasActiveFilters,
    onClearFilters,
 }: CartoesSaudeTableProps) {
-   if (isLoading) {
-      return (
-         <div className="flex h-64 items-center justify-center">
-            <Spinner color="failure" size="xl" />
-         </div>
-      );
-   }
-
    if (data.length === 0) {
       return (
          <div className="flex h-64 flex-col items-center justify-center">
@@ -226,12 +228,14 @@ export default function CartoesSaudeTable({
                Nenhum resultado encontrado
             </p>
             {hasActiveFilters && (
-               <button
+               <Button
+                  size="xs"
+                  color="light"
                   onClick={onClearFilters}
-                  className="mt-2 text-sm text-red-600 hover:text-red-700"
+                  className="mt-2"
                >
                   Limpar filtros
-               </button>
+               </Button>
             )}
          </div>
       );
@@ -240,7 +244,7 @@ export default function CartoesSaudeTable({
    return (
       <div className="overflow-x-auto">
          <Table hoverable>
-            <TableHead className="border-b border-gray-200 bg-gray-50 text-xs text-gray-700 uppercase">
+            <TableHead className="border-b border-slate-200 bg-gray-50 text-xs text-gray-700 uppercase">
                <TableRow>
                   <TableHeadCell className="w-10 px-3 py-3" />
                   <SortableHeader

@@ -98,7 +98,7 @@ function CleanupModal({ show, onClose, atas }: CleanupModalProps) {
                Selecione as atas que deseja remover. Pertencem a militares
                atualmente inativos.
             </p>
-            <div className="overflow-x-auto rounded-md border border-slate-200 shadow">
+            <div className="overflow-x-auto rounded border border-slate-200 shadow">
                <Table hoverable>
                   <TableHead>
                      <TableRow>
@@ -184,12 +184,7 @@ export default function AtasOrfasAlert() {
 
    return (
       <>
-         <Alert
-            color="warning"
-            icon={HiExclamation}
-            withBorderAccent
-            className="mb-2"
-         >
+         <Alert color="warning" icon={HiExclamation} withBorderAccent>
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                <span>
                   Existem <strong>{orfas.total_atas}</strong> ata(s) de

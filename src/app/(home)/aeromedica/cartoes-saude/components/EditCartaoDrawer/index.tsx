@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
    Modal,
    ModalHeader,
@@ -9,9 +9,10 @@ import {
    Button,
    Label,
    TextInput,
+   Tabs,
+   TabItem,
 } from "flowbite-react";
 import { HiPhone, HiTrash } from "react-icons/hi";
-import clsx from "clsx";
 import { useToast } from "@/app/context/toast";
 import {
    useCreateCartaoSaude,
@@ -58,6 +59,17 @@ export default function EditCartaoDrawer({
       imae: item.cartao?.imae || "",
    });
 
+   // Flowbite Tabs e nao-controlado (le `active` apenas no mount). Resetamos a
+   // aba para "dados" de forma SINCRONA ao (re)abrir o drawer ou trocar de
+   // militar, antes do render dos tabs, para que o footer (que depende de
+   // activeTab) e a aba visivel nao dessincronizem.
+   const openKeyRef = useRef<string | null>(null);
+   const openKey = show ? String(item.user.id) : null;
+   if (openKey !== openKeyRef.current) {
+      openKeyRef.current = openKey;
+      if (show && activeTab !== "dados") setActiveTab("dados");
+   }
+
    useEffect(() => {
       if (show) {
          setFormData({
@@ -67,7 +79,6 @@ export default function EditCartaoDrawer({
             imae: item.cartao?.imae || "",
          });
          setShowDeleteConfirm(false);
-         setActiveTab("dados");
       }
       // Depende de user.id (nao do objeto item inteiro) para que uma
       // invalidacao de cache nao resete o form enquanto o drawer esta aberto.
@@ -149,34 +160,37 @@ export default function EditCartaoDrawer({
                {isEdit ? "Editar Cartão de Saúde" : "Cadastrar Cartão de Saúde"}
             </ModalHeader>
             <ModalBody>
-               <div className="h-140 space-y-6">
+               <div className="h-140 space-y-4">
                   {/* Informações do militar */}
                   <MilitarInfo item={item} />
 
                   {/* Tabs */}
-                  <TabButtons
-                     activeTab={activeTab}
-                     onTabChange={setActiveTab}
-                  />
-
-                  {/* Tab Content */}
-                  {activeTab === "dados" ? (
-                     <DadosTab
-                        item={item}
-                        formData={formData}
-                        onChange={handleChange}
-                     />
-                  ) : (
-                     <AtasTab
-                        userId={item.user.id}
-                        onCemalUpdated={(cemal) =>
-                           setFormData((prev) => ({
-                              ...prev,
-                              cemal,
-                           }))
-                        }
-                     />
-                  )}
+                  <Tabs
+                     aria-label="Seções do cartão de saúde"
+                     variant="underline"
+                     onActiveTabChange={(idx) =>
+                        setActiveTab(idx === 0 ? "dados" : "atas")
+                     }
+                  >
+                     <TabItem active={activeTab === "dados"} title="Dados">
+                        <DadosTab
+                           item={item}
+                           formData={formData}
+                           onChange={handleChange}
+                        />
+                     </TabItem>
+                     <TabItem active={activeTab === "atas"} title="Atas">
+                        {/* Mantém o fetch de atas lazy: só monta quando a aba está ativa */}
+                        {activeTab === "atas" && (
+                           <AtasTab
+                              userId={item.user.id}
+                              onCemalUpdated={(cemal) =>
+                                 setFormData((prev) => ({ ...prev, cemal }))
+                              }
+                           />
+                        )}
+                     </TabItem>
+                  </Tabs>
                </div>
             </ModalBody>
             {activeTab === "dados" && (
@@ -261,7 +275,7 @@ export default function EditCartaoDrawer({
 
 function MilitarInfo({ item }: { item: UserCartaoSaude }) {
    return (
-      <div className="rounded-lg border bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-700">
+      <div className="rounded border border-slate-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-700">
          <p className="text-sm font-semibold text-gray-900 uppercase dark:text-white">
             {item.user.posto.mid} {item.user.nome_guerra}
          </p>
@@ -283,39 +297,6 @@ function MilitarInfo({ item }: { item: UserCartaoSaude }) {
    );
 }
 
-function TabButtons({
-   activeTab,
-   onTabChange,
-}: {
-   activeTab: "dados" | "atas";
-   onTabChange: (tab: "dados" | "atas") => void;
-}) {
-   const tabClass = (tab: "dados" | "atas") =>
-      clsx(
-         "px-4 py-2 text-sm font-medium transition-colors",
-         activeTab === tab
-            ? "border-b-2 border-blue-600 text-blue-600 dark:border-blue-400 dark:text-blue-400"
-            : "text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
-      );
-
-   return (
-      <div className="flex gap-2 border-b border-gray-200 dark:border-gray-700">
-         <button
-            className={tabClass("dados")}
-            onClick={() => onTabChange("dados")}
-         >
-            Dados
-         </button>
-         <button
-            className={tabClass("atas")}
-            onClick={() => onTabChange("atas")}
-         >
-            Atas
-         </button>
-      </div>
-   );
-}
-
 function DadosTab({
    item,
    formData,
@@ -326,7 +307,7 @@ function DadosTab({
    onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }) {
    return (
-      <>
+      <div className="space-y-6">
          {/* Prontuário */}
          <div>
             <Label htmlFor="prontuario">Nº do Prontuário</Label>
@@ -387,6 +368,6 @@ function DadosTab({
                onChange={onChange}
             />
          </div>
-      </>
+      </div>
    );
 }

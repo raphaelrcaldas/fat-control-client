@@ -3,6 +3,7 @@
 import { useState, useMemo, useCallback, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { MdHealthAndSafety } from "react-icons/md";
+import clsx from "clsx";
 import useDebouncedValue from "@/hooks/useDebouncedValue";
 import { useCartoesSaude } from "@/hooks/queries";
 import type { UserCartaoSaude } from "services/routes/aeromedica/cartoesSaude";
@@ -15,8 +16,10 @@ import type {
 import { getCemalStatus, getDateStatus } from "./utils/dateStatus";
 import { compareByAntiguidade } from "utils/sortByAntiguidade";
 import StatCardsGrid from "./components/StatCards";
+import StatCardsSkeleton from "./components/StatCardsSkeleton";
 import Filters from "./components/Filters";
 import CartoesSaudeTable from "./components/CartoesSaudeTable";
+import CartoesSaudeTableSkeleton from "./components/CartoesSaudeTableSkeleton";
 import EditCartaoDrawer from "./components/EditCartaoDrawer";
 import AtasOrfasAlert from "./components/AtasOrfasAlert";
 import { PermBased } from "../../hooks/usePermBased";
@@ -257,21 +260,29 @@ export default function CartoesSaudePage() {
    }, [cartoesSaude]);
 
    return (
-      <div className="flex flex-col gap-4 p-1">
-         {/* Header */}
-         <div className="flex items-center gap-3">
-            <div className="rounded-lg bg-red-100 p-2">
-               <MdHealthAndSafety className="h-6 w-6 text-red-600" />
+      <div className="flex flex-col space-y-2">
+         {/* Masthead */}
+         <header className="relative overflow-hidden rounded border border-slate-200 bg-white px-5 py-4 shadow-sm sm:px-6 sm:py-5">
+            <span
+               aria-hidden
+               className="absolute top-0 left-0 h-full w-1 bg-red-600"
+            />
+            <div className="relative flex flex-wrap items-center justify-between gap-4">
+               <div className="flex min-w-0 items-center gap-4">
+                  <div className="grid h-12 w-12 shrink-0 place-items-center rounded-md bg-red-50 text-red-600 ring-1 ring-red-100 ring-inset">
+                     <MdHealthAndSafety className="h-6 w-6" />
+                  </div>
+                  <div className="min-w-0">
+                     <span className="block font-mono text-[10px] font-bold tracking-[0.3em] text-red-500 uppercase">
+                        Aeromédica
+                     </span>
+                     <h1 className="text-2xl leading-none font-extrabold tracking-tight text-slate-900 sm:text-[28px]">
+                        Cartões de Saúde
+                     </h1>
+                  </div>
+               </div>
             </div>
-            <div>
-               <h1 className="text-xl font-semibold text-gray-900">
-                  Cartões de Saúde
-               </h1>
-               <p className="text-sm text-gray-500">
-                  Controle de validade das inspeções
-               </p>
-            </div>
-         </div>
+         </header>
 
          {/* Atas de usuários inativos (gated por permissão) */}
          <PermBased resource="cartoes-saude" requiredPerm="create">
@@ -279,16 +290,27 @@ export default function CartoesSaudePage() {
          </PermBased>
 
          {/* Stat Cards */}
-         {!isLoading && cartoesSaude.length > 0 && (
-            <StatCardsGrid
-               cemalStats={cemalStats}
-               imaeStats={imaeStats}
-               tovnStats={tovnStats}
-            />
+         {isLoading ? (
+            <StatCardsSkeleton />
+         ) : (
+            cartoesSaude.length > 0 && (
+               <div
+                  className={clsx(
+                     "transition-opacity",
+                     isFetching && "opacity-50"
+                  )}
+               >
+                  <StatCardsGrid
+                     cemalStats={cemalStats}
+                     imaeStats={imaeStats}
+                     tovnStats={tovnStats}
+                  />
+               </div>
+            )
          )}
 
          {/* Filtros + Tabela */}
-         <div className="relative overflow-hidden bg-white shadow-md sm:rounded-lg">
+         <div className="relative overflow-hidden rounded border border-slate-200 bg-white shadow-sm">
             <Filters
                searchUser={searchUser}
                onSearchChange={setSearchUser}
@@ -308,16 +330,26 @@ export default function CartoesSaudePage() {
                onClearFilters={clearFilters}
             />
 
-            <CartoesSaudeTable
-               data={sortedData}
-               isLoading={isLoading}
-               sortField={sortField}
-               sortDirection={sortDirection}
-               onSort={handleSort}
-               onRowClick={handleRowClick}
-               hasActiveFilters={hasActiveFilters}
-               onClearFilters={clearFilters}
-            />
+            {isLoading ? (
+               <CartoesSaudeTableSkeleton />
+            ) : (
+               <div
+                  className={clsx(
+                     "transition-opacity",
+                     isFetching && "pointer-events-none opacity-50"
+                  )}
+               >
+                  <CartoesSaudeTable
+                     data={sortedData}
+                     sortField={sortField}
+                     sortDirection={sortDirection}
+                     onSort={handleSort}
+                     onRowClick={handleRowClick}
+                     hasActiveFilters={hasActiveFilters}
+                     onClearFilters={clearFilters}
+                  />
+               </div>
+            )}
          </div>
 
          {/* Edit Drawer */}

@@ -241,7 +241,7 @@ export default function AtasTab({
                ))}
 
                {atas.length > 1 && (
-                  <div className="flex items-start gap-2 rounded-lg bg-blue-50 px-3 py-2.5 dark:bg-blue-900/20">
+                  <div className="flex items-start gap-2 rounded bg-blue-50 px-3 py-2.5 dark:bg-blue-900/20">
                      <HiInformationCircle className="mt-0.5 h-4 w-4 shrink-0 text-blue-500 dark:text-blue-400" />
                      <p className="text-xs text-blue-700 dark:text-blue-300">
                         Considere excluir atas antigas para liberar espaço de
@@ -287,8 +287,8 @@ function ManualForm({
       <div
          className={
             isSuccess
-               ? "rounded-lg border border-green-300 bg-green-50 p-4 dark:border-green-700 dark:bg-green-900/20"
-               : "rounded-lg border border-amber-300 bg-amber-50 p-4 dark:border-amber-700 dark:bg-amber-900/20"
+               ? "rounded border border-green-300 bg-green-50 p-4 dark:border-green-700 dark:bg-green-900/20"
+               : "rounded border border-amber-300 bg-amber-50 p-4 dark:border-amber-700 dark:bg-amber-900/20"
          }
       >
          <div className="flex items-start gap-3">
@@ -338,7 +338,7 @@ function ManualForm({
          {/* Alerta de nome divergente inline */}
          {nomeConflito && (
             <div className="mt-3 space-y-2">
-               <div className="rounded-md bg-white/60 px-3 py-2 dark:bg-gray-800/40">
+               <div className="rounded bg-white/60 px-3 py-2 dark:bg-gray-800/40">
                   <span className="text-xs text-amber-600 dark:text-amber-400">
                      Nome na ata
                   </span>
@@ -346,7 +346,7 @@ function ManualForm({
                      {nomeConflito.nomeAta}
                   </p>
                </div>
-               <div className="rounded-md bg-white/60 px-3 py-2 dark:bg-gray-800/40">
+               <div className="rounded bg-white/60 px-3 py-2 dark:bg-gray-800/40">
                   <span className="text-xs text-amber-600 dark:text-amber-400">
                      Nome no sistema
                   </span>
@@ -451,7 +451,7 @@ function AtaCard({
    onConfirmToggle: (show: boolean) => void;
 }) {
    return (
-      <div className="rounded-lg border border-gray-200 bg-white p-3 dark:border-gray-700 dark:bg-gray-800">
+      <div className="rounded border border-slate-200 bg-white p-3 dark:border-gray-700 dark:bg-gray-800">
          <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
                <span className="text-lg font-bold text-gray-700 dark:text-gray-300">
@@ -479,35 +479,38 @@ function AtaCard({
                   href={ata.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="rounded-lg p-2 text-blue-600 hover:bg-blue-50 dark:text-blue-400 dark:hover:bg-gray-700"
+                  className="rounded p-2 text-blue-600 hover:bg-blue-50 dark:text-blue-400 dark:hover:bg-gray-700"
                   title="Visualizar PDF"
                >
                   <HiExternalLink className="h-4 w-4" />
                </a>
                {showConfirm ? (
                   <div className="flex gap-1">
-                     <button
-                        className="rounded-md bg-red-600 px-2.5 py-1 text-xs font-medium text-white hover:bg-red-700"
+                     <Button
+                        size="xs"
+                        color="red"
                         onClick={onDelete}
                         disabled={isDeleting}
                      >
                         {isDeleting ? "..." : "Sim"}
-                     </button>
-                     <button
-                        className="rounded-md bg-gray-200 px-2.5 py-1 text-xs font-medium hover:bg-gray-300 dark:bg-gray-600 dark:hover:bg-gray-500"
+                     </Button>
+                     <Button
+                        size="xs"
+                        color="light"
                         onClick={() => onConfirmToggle(false)}
                      >
                         Não
-                     </button>
+                     </Button>
                   </div>
                ) : (
-                  <button
-                     className="rounded-lg p-2 text-gray-400 hover:bg-red-50 hover:text-red-600 dark:hover:bg-gray-700 dark:hover:text-red-400"
+                  <Button
+                     size="xs"
+                     color="light"
                      onClick={() => onConfirmToggle(true)}
                      title="Excluir"
                   >
                      <HiTrash className="h-4 w-4" />
-                  </button>
+                  </Button>
                )}
             </div>
          </div>

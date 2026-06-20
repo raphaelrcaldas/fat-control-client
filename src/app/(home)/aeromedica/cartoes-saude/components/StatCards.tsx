@@ -48,11 +48,11 @@ function StatCard({
    ];
 
    return (
-      <div className="overflow-hidden rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+      <div className="overflow-hidden rounded border border-slate-200 bg-white p-5 shadow-sm">
          {/* Header */}
          <div className="mb-4 flex items-center justify-between">
             <div className="flex items-center gap-3">
-               <div className={clsx("rounded-xl p-2.5", iconBg)}>
+               <div className={clsx("rounded-md p-2.5", iconBg)}>
                   <Icon className={clsx("h-5 w-5", iconColor)} />
                </div>
                <div>

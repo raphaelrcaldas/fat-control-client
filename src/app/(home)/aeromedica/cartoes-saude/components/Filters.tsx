@@ -1,6 +1,6 @@
 "use client";
 
-import { TextInput, Spinner } from "flowbite-react";
+import { TextInput, Spinner, Button } from "flowbite-react";
 import { HiSearch, HiX } from "react-icons/hi";
 import { MdFlightTakeoff, MdPeopleAlt, MdFilterList } from "react-icons/md";
 import clsx from "clsx";
@@ -44,19 +44,18 @@ function FilterButton({
    dot?: string;
 }) {
    return (
-      <button
+      <Button
+         type="button"
+         size="xs"
+         color={active ? "blue" : "light"}
          onClick={onClick}
-         className={clsx(
-            "inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-sm font-medium transition-all",
-            active
-               ? "border-red-600 bg-red-600 text-white"
-               : "border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
-         )}
       >
-         {Icon && <Icon className="h-3.5 w-3.5" />}
-         {dot && <span className={clsx("h-2 w-2 rounded-full", dot)} />}
-         {children}
-      </button>
+         <span className="flex items-center gap-1.5">
+            {Icon && <Icon className="h-3.5 w-3.5" />}
+            {dot && <span className={clsx("h-2 w-2 rounded-full", dot)} />}
+            {children}
+         </span>
+      </Button>
    );
 }
 
@@ -134,7 +133,7 @@ export default function Filters({
             />
 
             {/* Tripulante */}
-            <div className="flex items-center gap-1 rounded-lg border border-gray-300 bg-white p-0.5">
+            <div className="flex items-center gap-1 rounded border border-slate-200 bg-white p-0.5">
                <FilterButton
                   active={tripFilter === "all"}
                   onClick={() => onTripFilterChange("all")}
@@ -159,7 +158,7 @@ export default function Filters({
             </div>
 
             {/* Status */}
-            <div className="flex items-center gap-1 rounded-lg border border-gray-300 bg-white p-0.5">
+            <div className="flex items-center gap-1 rounded border border-slate-200 bg-white p-0.5">
                <FilterButton
                   active={statusFilter === "all"}
                   onClick={() => onStatusFilterChange("all")}
@@ -207,7 +206,7 @@ export default function Filters({
 
          {/* Stats bar */}
          {!isLoading && (
-            <div className="flex items-center justify-between border-t border-gray-200 bg-gray-50 px-4 py-2 text-sm">
+            <div className="flex items-center justify-between border-t border-slate-200 bg-gray-50 px-4 py-2 text-sm">
                <div className="flex items-center gap-4">
                   <span className="text-gray-600">
                      Exibindo{" "}
@@ -218,13 +217,15 @@ export default function Filters({
                   {isFetching && <Spinner color="failure" size="sm" />}
                </div>
                {hasActiveFilters && (
-                  <button
+                  <Button
+                     type="button"
+                     size="xs"
+                     color="light"
                      onClick={onClearFilters}
-                     className="flex items-center gap-1 text-red-600 hover:text-red-700"
                   >
-                     <HiX className="h-4 w-4" />
-                     <span>Limpar filtros</span>
-                  </button>
+                     <HiX className="mr-1.5 h-4 w-4" />
+                     Limpar filtros
+                  </Button>
                )}
             </div>
          )}
