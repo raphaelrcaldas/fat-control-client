@@ -14,7 +14,7 @@ import {
 const BAR_WIDTHS = ["w-40", "w-24", "w-32", "w-24", "w-32"] as const;
 
 export default function PassaportesTableSkeleton({
-   rows = 8,
+   rows = 15,
 }: {
    rows?: number;
 }) {
@@ -27,7 +27,7 @@ export default function PassaportesTableSkeleton({
                   {BAR_WIDTHS.map((w, i) => (
                      <TableHeadCell key={i} className="px-4 py-3">
                         <div
-                           className={`h-3 ${w} animate-pulse rounded bg-slate-200`}
+                           className={`h-5 ${w} animate-pulse rounded bg-slate-200`}
                         />
                      </TableHeadCell>
                   ))}
@@ -42,7 +42,7 @@ export default function PassaportesTableSkeleton({
                      {BAR_WIDTHS.map((w, c) => (
                         <TableCell key={c} className="px-4 py-3">
                            <div
-                              className={`h-4 ${w} animate-pulse rounded bg-slate-200`}
+                              className={`h-5 ${w} animate-pulse rounded bg-slate-200`}
                            />
                         </TableCell>
                      ))}

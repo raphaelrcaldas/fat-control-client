@@ -51,8 +51,10 @@ function FilterButton({
          color={active ? "blue" : "light"}
          onClick={onClick}
       >
-         {dot && <span className={clsx("mr-1.5 h-2 w-2 rounded-full", dot)} />}
-         {children}
+         <span className="flex items-center gap-1.5">
+            {dot && <span className={clsx("h-2 w-2 rounded-full", dot)} />}
+            {children}
+         </span>
       </Button>
    );
 }
@@ -124,7 +126,7 @@ const Filters = memo(function Filters({
                   active={statusFilter === "all"}
                   onClick={() => onStatusFilterChange("all")}
                >
-                  <MdFilterList className="mr-1.5 h-3.5 w-3.5" />
+                  <MdFilterList className="h-3.5 w-3.5" />
                   Todos
                </FilterButton>
                {STATUS_FILTERS.map(({ value, label }) => (
