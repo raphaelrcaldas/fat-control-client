@@ -235,7 +235,10 @@ export default function TripPage() {
                   <div
                      className={`min-h-96 overflow-x-auto transition-opacity duration-200 ${isFetching ? "opacity-50" : "opacity-100"}`}
                   >
-                     <Table hoverable>
+                     <Table
+                        hoverable
+                        theme={{ body: { cell: { base: "py-1" } } }}
+                     >
                         <TableHead>
                            <TableRow>
                               <TableHeadCell>P/G</TableHeadCell>
