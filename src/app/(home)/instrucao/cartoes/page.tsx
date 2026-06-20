@@ -8,7 +8,7 @@ import type { TripCartoesOut } from "services/routes/instrucao/cartoes";
 import CartoesMasthead from "./components/CartoesMasthead";
 import PilotCard from "./components/PilotCard";
 import PilotCardSkeleton from "./components/PilotCardSkeleton";
-import EditCartoesDrawer from "./components/EditCartoesDrawer";
+import EditCartoesModal from "./components/EditCartoesModal";
 
 const SKELETON_ROWS = 8;
 
@@ -25,7 +25,7 @@ export default function CartoesPage() {
    } = useCartoes();
 
    return (
-      <div className="flex flex-col gap-5">
+      <div className="flex flex-col space-y-2">
          <CartoesMasthead count={isLoading ? null : data.length} />
 
          {isLoading ? (
@@ -68,7 +68,7 @@ export default function CartoesPage() {
          )}
 
          {editItem && (
-            <EditCartoesDrawer
+            <EditCartoesModal
                show={!!editItem}
                onClose={() => setEditItem(null)}
                item={editItem}

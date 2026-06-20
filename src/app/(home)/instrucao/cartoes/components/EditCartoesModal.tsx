@@ -11,14 +11,14 @@ import {
 } from "flowbite-react";
 import { HiTrash } from "react-icons/hi";
 import { MdBadge } from "react-icons/md";
+import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import type { TripCartoesOut } from "services/routes/instrucao/cartoes";
 import { useCartaoForm } from "../hooks/useCartaoForm";
 import SectionTitle from "./SectionTitle";
 import Field from "./Field";
 import LangFieldGroup from "./LangFieldGroup";
-import DeleteCartaoConfirmModal from "./DeleteCartaoConfirmModal";
 
-interface EditCartoesDrawerProps {
+interface EditCartoesModalProps {
    show: boolean;
    onClose: () => void;
    item: TripCartoesOut;
@@ -31,11 +31,11 @@ const PROVA_FIELDS = [
    { name: "cvi_validade", label: "CVI" },
 ] as const;
 
-export default function EditCartoesDrawer({
+export default function EditCartoesModal({
    show,
    onClose,
    item,
-}: EditCartoesDrawerProps) {
+}: EditCartoesModalProps) {
    const {
       formData,
       handleInput,
@@ -150,12 +150,15 @@ export default function EditCartoesDrawer({
             </ModalFooter>
          </Modal>
 
-         <DeleteCartaoConfirmModal
+         <ConfirmModal
             show={showDeleteConfirm}
+            title="Confirmar exclusão"
+            description={`Remover o cartão de ${item.nome_guerra.toUpperCase()}? Esta ação não pode ser desfeita.`}
+            isLoading={isDeleting}
             onClose={() => setShowDeleteConfirm(false)}
             onConfirm={handleConfirmDelete}
-            isDeleting={isDeleting}
-            nomeGuerra={item.nome_guerra}
+            confirmButtonText="Remover"
+            icon={HiTrash}
          />
       </>
    );
