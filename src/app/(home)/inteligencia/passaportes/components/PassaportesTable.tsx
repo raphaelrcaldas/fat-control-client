@@ -8,6 +8,7 @@ import {
    TableBody,
    TableRow,
    TableCell,
+   Button,
 } from "flowbite-react";
 import { HiChevronUp, HiChevronDown } from "react-icons/hi";
 import { FaPassport } from "react-icons/fa";
@@ -191,12 +192,14 @@ const PassaportesTable = memo(function PassaportesTable({
                Nenhum resultado encontrado
             </p>
             {hasActiveFilters && (
-               <button
+               <Button
+                  size="xs"
+                  color="light"
                   onClick={onClearFilters}
-                  className="mt-2 text-sm text-red-600 hover:text-red-700"
+                  className="mt-2"
                >
                   Limpar filtros
-               </button>
+               </Button>
             )}
          </div>
       );

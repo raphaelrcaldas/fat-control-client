@@ -8,6 +8,7 @@ import type { TripPassaporteOut } from "services/routes/inteligencia/passaportes
 import { usePassaportesFilters } from "./hooks/usePassaportesFilters";
 import { usePassaportesView } from "./hooks/usePassaportesView";
 import StatCardsGrid from "./components/StatCards";
+import StatCardsSkeleton from "./components/StatCardsSkeleton";
 import Filters from "./components/Filters";
 import PassaportesTable from "./components/PassaportesTable";
 import PassaportesTableSkeleton from "./components/PassaportesTableSkeleton";
@@ -44,12 +45,10 @@ export default function PassaportesPage() {
       setSelectedItem(null);
    }, []);
 
-   const showStats = !isLoading && passaportesData.length > 0;
-
    return (
-      <div className="flex flex-col">
+      <div className="flex flex-col space-y-2">
          {/* Masthead */}
-         <header className="relative mb-5 overflow-hidden rounded border border-slate-200 bg-white px-5 py-4 shadow-sm sm:px-6 sm:py-5">
+         <header className="relative overflow-hidden rounded border border-slate-200 bg-white px-5 py-4 shadow-sm sm:px-6 sm:py-5">
             <span
                aria-hidden
                className="absolute top-0 left-0 h-full w-1 bg-red-600"
@@ -72,18 +71,22 @@ export default function PassaportesPage() {
          </header>
 
          {/* Stat Cards */}
-         {showStats && (
-            <div
-               className={clsx(
-                  "mb-4 transition-opacity",
-                  isFetching && "opacity-50"
-               )}
-            >
-               <StatCardsGrid
-                  passaporteStats={passaporteStats}
-                  visaStats={visaStats}
-               />
-            </div>
+         {isLoading ? (
+            <StatCardsSkeleton />
+         ) : (
+            passaportesData.length > 0 && (
+               <div
+                  className={clsx(
+                     "transition-opacity",
+                     isFetching && "opacity-50"
+                  )}
+               >
+                  <StatCardsGrid
+                     passaporteStats={passaporteStats}
+                     visaStats={visaStats}
+                  />
+               </div>
+            )
          )}
 
          {/* Filtros + Tabela */}

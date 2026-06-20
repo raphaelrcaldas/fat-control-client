@@ -1,14 +1,17 @@
-// Skeleton que espelha PassaportesTable (mesmas 6 colunas + cabeçalho),
-// para zero layout-shift quando os dados chegam.
+// Skeleton que espelha PassaportesTable (mesmos componentes Flowbite e
+// classes de célula), para zero layout-shift quando os dados chegam.
 
-const COLS = [
-   "w-10", // dot
-   "w-40", // militar
-   "w-24", // nº passaporte
-   "w-32", // validade passaporte
-   "w-24", // nº visa
-   "w-32", // validade visa
-] as const;
+import {
+   Table,
+   TableHead,
+   TableHeadCell,
+   TableBody,
+   TableRow,
+   TableCell,
+} from "flowbite-react";
+
+// Larguras dos blocos por coluna de dados (a 1ª coluna é o dot de status).
+const BAR_WIDTHS = ["w-40", "w-24", "w-32", "w-24", "w-32"] as const;
 
 export default function PassaportesTableSkeleton({
    rows = 8,
@@ -17,37 +20,36 @@ export default function PassaportesTableSkeleton({
 }) {
    return (
       <div className="overflow-x-auto">
-         <table className="w-full text-left text-sm">
-            <thead className="border-b border-slate-200 bg-gray-50">
-               <tr>
-                  {COLS.map((w, i) => (
-                     <th key={i} className="px-4 py-3">
-                        {i > 0 && (
-                           <div
-                              className={`h-3 ${w} animate-pulse rounded bg-slate-200`}
-                           />
-                        )}
-                     </th>
+         <Table>
+            <TableHead className="border-b border-slate-200 bg-gray-50 text-xs text-gray-700 uppercase">
+               <TableRow>
+                  <TableHeadCell className="w-10 px-3 py-3" />
+                  {BAR_WIDTHS.map((w, i) => (
+                     <TableHeadCell key={i} className="px-4 py-3">
+                        <div
+                           className={`h-3 ${w} animate-pulse rounded bg-slate-200`}
+                        />
+                     </TableHeadCell>
                   ))}
-               </tr>
-            </thead>
-            <tbody>
+               </TableRow>
+            </TableHead>
+            <TableBody>
                {Array.from({ length: rows }).map((_, r) => (
-                  <tr key={r} className="border-b border-slate-200">
-                     <td className="w-10 px-3 py-3">
+                  <TableRow key={r} className="border-b border-slate-200">
+                     <TableCell className="w-10 px-3 py-3">
                         <div className="h-3 w-3 animate-pulse rounded-full bg-slate-200" />
-                     </td>
-                     {COLS.slice(1).map((w, c) => (
-                        <td key={c} className="px-4 py-3">
+                     </TableCell>
+                     {BAR_WIDTHS.map((w, c) => (
+                        <TableCell key={c} className="px-4 py-3">
                            <div
                               className={`h-4 ${w} animate-pulse rounded bg-slate-200`}
                            />
-                        </td>
+                        </TableCell>
                      ))}
-                  </tr>
+                  </TableRow>
                ))}
-            </tbody>
-         </table>
+            </TableBody>
+         </Table>
       </div>
    );
 }

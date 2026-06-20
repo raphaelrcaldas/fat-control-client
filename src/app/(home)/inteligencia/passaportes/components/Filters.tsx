@@ -1,7 +1,7 @@
 "use client";
 
 import { memo } from "react";
-import { TextInput, Spinner } from "flowbite-react";
+import { TextInput, Spinner, Button } from "flowbite-react";
 import { HiSearch, HiX } from "react-icons/hi";
 import { MdFilterList } from "react-icons/md";
 import clsx from "clsx";
@@ -45,19 +45,15 @@ function FilterButton({
    dot?: string;
 }) {
    return (
-      <button
+      <Button
          type="button"
+         size="xs"
+         color={active ? "blue" : "light"}
          onClick={onClick}
-         className={clsx(
-            "inline-flex items-center gap-1.5 rounded border px-3 py-1.5 text-sm font-medium transition-all",
-            active
-               ? "border-blue-700 bg-blue-700 text-white"
-               : "border-slate-200 bg-white text-gray-700 hover:bg-gray-50"
-         )}
       >
-         {dot && <span className={clsx("h-2 w-2 rounded-full", dot)} />}
+         {dot && <span className={clsx("mr-1.5 h-2 w-2 rounded-full", dot)} />}
          {children}
-      </button>
+      </Button>
    );
 }
 
@@ -128,7 +124,7 @@ const Filters = memo(function Filters({
                   active={statusFilter === "all"}
                   onClick={() => onStatusFilterChange("all")}
                >
-                  <MdFilterList className="h-3.5 w-3.5" />
+                  <MdFilterList className="mr-1.5 h-3.5 w-3.5" />
                   Todos
                </FilterButton>
                {STATUS_FILTERS.map(({ value, label }) => (
@@ -156,14 +152,15 @@ const Filters = memo(function Filters({
                   {isFetching && <Spinner color="failure" size="sm" />}
                </div>
                {hasActiveFilters && (
-                  <button
+                  <Button
                      type="button"
+                     size="xs"
+                     color="light"
                      onClick={onClearFilters}
-                     className="flex items-center gap-1 text-blue-700 hover:text-blue-800"
                   >
-                     <HiX className="h-4 w-4" />
-                     <span>Limpar filtros</span>
-                  </button>
+                     <HiX className="mr-1.5 h-4 w-4" />
+                     Limpar filtros
+                  </Button>
                )}
             </div>
          )}
