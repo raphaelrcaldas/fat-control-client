@@ -12,6 +12,14 @@ export interface DuplaPilot {
    func_bordo: string;
 }
 
+/** Resultado de busca de tripulante (vindo da API de trips) já normalizado. */
+export interface CrewSearchResult {
+   id: number;
+   trig: string;
+   nome_guerra: string;
+   p_g: string;
+}
+
 export interface Dupla {
    key: string;
    pilots: DuplaPilot[];

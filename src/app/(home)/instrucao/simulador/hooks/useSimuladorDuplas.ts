@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useEffect } from "react";
 import { useEtapas } from "@/hooks/queries";
 import type { MissaoComEtapas } from "services/routes/estatistica/etapas";
 import type { Dupla, DuplaPilot, PendingDupla } from "../types";
@@ -78,11 +78,17 @@ export function useSimuladorDuplas(anoRef: number) {
    const [pendingDuplas, setPendingDuplas] = useState<PendingDupla[]>([]);
    const [selectedKey, setSelectedKey] = useState<string | null>(null);
 
-   const { data, isLoading, isError } = useEtapas({
+   const { data, isLoading, isFetching, isError } = useEtapas({
       is_simulador: true,
       data_ini: `${anoRef}-01-01`,
       data_fim: `${anoRef}-12-31`,
    });
+
+   // Pendings são otimismo local de um ano específico; ao trocar o ano de
+   // referência, descarta-as para não vazar uma "dupla fantasma" no ano errado.
+   useEffect(() => {
+      setPendingDuplas([]);
+   }, [anoRef]);
 
    const apiDuplas = useMemo(() => buildDuplasFromApi(data ?? []), [data]);
 
@@ -121,6 +127,7 @@ export function useSimuladorDuplas(anoRef: number) {
       selectedKey,
       setSelectedKey,
       isLoading,
+      isFetching,
       isError,
       handleDuplaCreated,
       removePending,

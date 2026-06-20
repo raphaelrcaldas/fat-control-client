@@ -38,12 +38,13 @@ export const tripKeys = {
 /**
  * Lista paginada de tripulantes com filtros
  */
-export function useTrips(params?: GetTripsParams) {
+export function useTrips(params?: GetTripsParams, enabled = true) {
    return useQuery({
       queryKey: tripKeys.list(params),
       queryFn: ({ signal }) => getTrips(params ?? {}, signal),
       placeholderData: keepPreviousData,
       staleTime: 0,
+      enabled,
    });
 }
 

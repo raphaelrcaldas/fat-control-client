@@ -32,8 +32,8 @@ export default function DuplasSidebar({
    });
 
    return (
-      <div className="flex w-70 shrink-0 flex-col border-r border-gray-200 bg-white">
-         <div className="border-b border-gray-200 px-4 py-3">
+      <div className="flex w-70 shrink-0 flex-col border-r border-slate-200 bg-white">
+         <div className="border-b border-slate-200 px-4 py-3">
             <div className="mb-2 flex items-center justify-between">
                <p className="font-mono text-xs font-semibold tracking-widest text-gray-400 uppercase">
                   Duplas

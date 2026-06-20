@@ -21,7 +21,7 @@ export default function ConfirmDeleteModal({
          <ModalHeader />
          <ModalBody>
             <div className="text-center">
-               <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-100">
+               <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-md bg-red-100">
                   <MdFlightTakeoff className="h-6 w-6 text-red-600" />
                </div>
                <h3 className="mb-2 text-lg font-semibold text-gray-900">

@@ -1,22 +1,18 @@
 "use client";
 
-import { useState, useEffect, useMemo, useCallback, useRef } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import {
    Modal,
    ModalBody,
    ModalHeader,
    ModalFooter,
    Button,
-   TextInput,
-   Spinner,
 } from "flowbite-react";
-import { HiPlus, HiX, HiSearch, HiUserGroup } from "react-icons/hi";
+import { HiX, HiUserGroup } from "react-icons/hi";
 import { useToast } from "@/app/context/toast";
 import { useCreateMissao } from "@/hooks/queries/useEtapas";
-import { useTrips } from "@/hooks/queries/useTrips";
-import type { GetTripsParams } from "services/routes/trips";
-
-import { MAX_PILOTOS, type DuplaPilot } from "../types";
+import { MAX_PILOTOS, type DuplaPilot, type CrewSearchResult } from "../types";
+import PilotSearchInput from "./PilotSearchInput";
 
 interface CreateDuplaModalProps {
    show: boolean;
@@ -33,80 +29,33 @@ export default function CreateDuplaModal({
    const createMissao = useCreateMissao();
 
    const [pilots, setPilots] = useState<DuplaPilot[]>([]);
-   const [tripSearch, setTripSearch] = useState("");
-   const [searchOpen, setSearchOpen] = useState(false);
-   const searchRef = useRef<HTMLDivElement>(null);
-
-   // Close dropdown on outside click
-   useEffect(() => {
-      function handleClickOutside(e: MouseEvent) {
-         if (
-            searchRef.current &&
-            !searchRef.current.contains(e.target as Node)
-         ) {
-            setSearchOpen(false);
-         }
-      }
-      document.addEventListener("mousedown", handleClickOutside);
-      return () =>
-         document.removeEventListener("mousedown", handleClickOutside);
-   }, []);
-
-   const searchParams: GetTripsParams | undefined = useMemo(
-      () =>
-         tripSearch.length >= 2
-            ? { search: tripSearch, func: ["pil"], per_page: 10, active: true }
-            : undefined,
-      [tripSearch]
-   );
-
-   const { data: tripsData, isLoading: loadingTrips } = useTrips(searchParams);
 
    const assignedIds = useMemo(
       () => new Set(pilots.map((p) => p.trip_id)),
       [pilots]
    );
 
-   const searchResults = useMemo(
-      () => (tripsData?.items ?? []).filter((t) => !assignedIds.has(t.id!)),
-      [tripsData, assignedIds]
-   );
-
-   // Reset on open
+   // Reset ao abrir
    useEffect(() => {
-      if (show) {
-         setPilots([]);
-         setTripSearch("");
-         setSearchOpen(false);
-      }
+      if (show) setPilots([]);
    }, [show]);
 
-   const addPilot = useCallback(
-      (crew: {
-         id: number;
-         trig: string;
-         nome_guerra: string;
-         p_g: string;
-      }) => {
-         setPilots((prev) => {
-            if (prev.length >= MAX_PILOTOS) return prev;
-            return [
-               ...prev,
-               {
-                  trip_id: crew.id,
-                  trig: crew.trig,
-                  nome_guerra: crew.nome_guerra,
-                  p_g: crew.p_g,
-                  func: "pil",
-                  func_bordo: prev.length === 0 ? "1P" : "2P",
-               },
-            ];
-         });
-         setTripSearch("");
-         setSearchOpen(false);
-      },
-      []
-   );
+   const addPilot = useCallback((crew: CrewSearchResult) => {
+      setPilots((prev) => {
+         if (prev.length >= MAX_PILOTOS) return prev;
+         return [
+            ...prev,
+            {
+               trip_id: crew.id,
+               trig: crew.trig,
+               nome_guerra: crew.nome_guerra,
+               p_g: crew.p_g,
+               func: "pil",
+               func_bordo: prev.length === 0 ? "1P" : "2P",
+            },
+         ];
+      });
+   }, []);
 
    const removePilot = useCallback((tripId: number) => {
       setPilots((prev) => prev.filter((p) => p.trip_id !== tripId));
@@ -149,7 +98,7 @@ export default function CreateDuplaModal({
       <Modal show={show} size="lg" onClose={onClose} dismissible>
          <ModalHeader>
             <div className="flex items-center gap-3">
-               <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-red-600">
+               <div className="flex h-9 w-9 items-center justify-center rounded-md bg-red-600">
                   <HiUserGroup className="h-5 w-5 text-white" />
                </div>
                <div>
@@ -164,7 +113,7 @@ export default function CreateDuplaModal({
          </ModalHeader>
 
          <ModalBody>
-            <div className="overflow-visible rounded-xl border border-gray-100 bg-gray-50 p-4 shadow-md">
+            <div className="overflow-visible rounded border border-slate-200 bg-gray-50 p-4 shadow-sm">
                <div className="mb-3 flex items-center justify-between">
                   <p className="text-[11px] font-semibold tracking-widest text-gray-600 uppercase">
                      Pilotos
@@ -174,62 +123,13 @@ export default function CreateDuplaModal({
                   </span>
                </div>
 
-               {/* Busca */}
                {pilots.length < MAX_PILOTOS && (
-                  <div ref={searchRef} className="relative mb-3">
-                     <TextInput
-                        icon={HiSearch}
+                  <div className="mb-3">
+                     <PilotSearchInput
+                        assignedIds={assignedIds}
+                        onSelect={addPilot}
                         placeholder="Buscar piloto por trigrama ou nome..."
-                        value={tripSearch}
-                        onChange={(e) => {
-                           setTripSearch(e.target.value);
-                           setSearchOpen(true);
-                        }}
-                        onFocus={() => setSearchOpen(true)}
-                        sizing="sm"
-                        className="uppercase"
                      />
-
-                     {searchOpen && tripSearch.length >= 2 && (
-                        <div className="absolute z-10 mt-1 max-h-48 w-full overflow-y-auto rounded-lg border border-gray-200 bg-white shadow-lg">
-                           {loadingTrips ? (
-                              <div className="flex justify-center py-3">
-                                 <Spinner size="sm" color="failure" />
-                              </div>
-                           ) : searchResults.length === 0 ? (
-                              <p className="px-3 py-2 text-sm text-gray-400 uppercase">
-                                 Nenhum piloto encontrado.
-                              </p>
-                           ) : (
-                              searchResults.map((crew) => (
-                                 <button
-                                    key={crew.id}
-                                    type="button"
-                                    onClick={() =>
-                                       addPilot({
-                                          id: crew.id!,
-                                          trig: crew.trig,
-                                          nome_guerra: crew.user.nome_guerra,
-                                          p_g: crew.user.p_g,
-                                       })
-                                    }
-                                    className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm uppercase hover:bg-gray-100"
-                                 >
-                                    <HiPlus className="h-4 w-4 shrink-0 text-green-500" />
-                                    <span className="text-gray-500">
-                                       {crew.user.p_g}
-                                    </span>
-                                    <span className="font-medium text-gray-800">
-                                       {crew.user.nome_guerra}
-                                    </span>
-                                    <span className="font-mono text-xs text-gray-400">
-                                       ({crew.trig})
-                                    </span>
-                                 </button>
-                              ))
-                           )}
-                        </div>
-                     )}
                   </div>
                )}
 
@@ -240,7 +140,7 @@ export default function CreateDuplaModal({
                      return pilot ? (
                         <div
                            key={pilot.trip_id}
-                           className="flex items-center gap-3 rounded-lg border border-red-200 bg-red-50/60 px-4 py-3 uppercase"
+                           className="flex items-center gap-3 rounded border border-red-200 bg-red-50/60 px-4 py-3 uppercase"
                         >
                            <div className="min-w-0 flex-1">
                               <p className="text-sm font-semibold text-gray-900">
@@ -258,7 +158,7 @@ export default function CreateDuplaModal({
                      ) : (
                         <div
                            key={`empty-${i}`}
-                           className="flex items-center justify-center rounded-lg border-2 border-dashed border-gray-200 px-4 py-4 text-xs text-gray-400"
+                           className="flex items-center justify-center rounded border-2 border-dashed border-slate-200 px-4 py-4 text-xs text-gray-400"
                         >
                            {i === 0 ? "1º Piloto" : "2º Piloto (opcional)"}
                         </div>
