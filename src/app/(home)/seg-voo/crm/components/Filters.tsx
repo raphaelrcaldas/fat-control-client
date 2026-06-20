@@ -1,7 +1,7 @@
 "use client";
 
 import { memo } from "react";
-import { TextInput, Spinner } from "flowbite-react";
+import { TextInput, Spinner, Button } from "flowbite-react";
 import { HiSearch, HiX } from "react-icons/hi";
 import { MdFilterList } from "react-icons/md";
 import clsx from "clsx";
@@ -11,6 +11,7 @@ import {
    FUNCOES_PRINCIPAIS,
    FUNC_LABELS,
 } from "@/constants/tripulantes/funcoes";
+import { getStatusConfig } from "@/utils/dateStatus";
 import type { StatusFilter } from "../types";
 
 const PG_OPTIONS = postoGradRecords.map((pg) => ({
@@ -22,6 +23,15 @@ const FUNC_OPTIONS = FUNCOES_PRINCIPAIS.map((f) => ({
    value: f,
    label: FUNC_LABELS[f],
 }));
+
+// Chips de status (cores vêm de getStatusConfig — fonte única).
+const STATUS_FILTERS: { value: Exclude<StatusFilter, "all">; label: string }[] =
+   [
+      { value: "expired", label: "Vencidos" },
+      { value: "critical", label: "Críticos" },
+      { value: "warning", label: "Atenção" },
+      { value: "valid", label: "Regular" },
+   ];
 
 function FilterButton({
    active,
@@ -35,19 +45,17 @@ function FilterButton({
    dot?: string;
 }) {
    return (
-      <button
+      <Button
          type="button"
+         size="xs"
+         color={active ? "blue" : "light"}
          onClick={onClick}
-         className={clsx(
-            "inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-sm font-medium transition-all",
-            active
-               ? "border-red-800 bg-red-800 text-white"
-               : "border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
-         )}
       >
-         {dot && <span className={clsx("h-2 w-2 rounded-full", dot)} />}
-         {children}
-      </button>
+         <span className="flex items-center gap-1.5">
+            {dot && <span className={clsx("h-2 w-2 rounded-full", dot)} />}
+            {children}
+         </span>
+      </Button>
    );
 }
 
@@ -113,7 +121,7 @@ const Filters = memo(function Filters({
                className="w-44"
             />
 
-            <div className="flex items-center gap-1 rounded-lg border border-gray-300 bg-white p-0.5">
+            <div className="flex items-center gap-1 rounded border border-slate-200 bg-white p-0.5">
                <FilterButton
                   active={statusFilter === "all"}
                   onClick={() => onStatusFilterChange("all")}
@@ -121,39 +129,21 @@ const Filters = memo(function Filters({
                   <MdFilterList className="h-3.5 w-3.5" />
                   Todos
                </FilterButton>
-               <FilterButton
-                  active={statusFilter === "expired"}
-                  onClick={() => onStatusFilterChange("expired")}
-                  dot="bg-red-500"
-               >
-                  Vencidos
-               </FilterButton>
-               <FilterButton
-                  active={statusFilter === "critical"}
-                  onClick={() => onStatusFilterChange("critical")}
-                  dot="bg-orange-500"
-               >
-                  Críticos
-               </FilterButton>
-               <FilterButton
-                  active={statusFilter === "warning"}
-                  onClick={() => onStatusFilterChange("warning")}
-                  dot="bg-yellow-400"
-               >
-                  Atenção
-               </FilterButton>
-               <FilterButton
-                  active={statusFilter === "valid"}
-                  onClick={() => onStatusFilterChange("valid")}
-                  dot="bg-green-500"
-               >
-                  Regular
-               </FilterButton>
+               {STATUS_FILTERS.map(({ value, label }) => (
+                  <FilterButton
+                     key={value}
+                     active={statusFilter === value}
+                     onClick={() => onStatusFilterChange(value)}
+                     dot={getStatusConfig(value).dot}
+                  >
+                     {label}
+                  </FilterButton>
+               ))}
             </div>
          </div>
 
          {!isLoading && (
-            <div className="flex items-center justify-between border-t border-gray-200 bg-gray-50 px-4 py-2 text-sm">
+            <div className="flex items-center justify-between border-t border-slate-200 bg-gray-50 px-4 py-2 text-sm">
                <div className="flex items-center gap-4">
                   <span className="text-gray-600">
                      Exibindo{" "}
@@ -164,14 +154,15 @@ const Filters = memo(function Filters({
                   {isFetching && <Spinner color="failure" size="sm" />}
                </div>
                {hasActiveFilters && (
-                  <button
+                  <Button
                      type="button"
+                     size="xs"
+                     color="light"
                      onClick={onClearFilters}
-                     className="flex items-center gap-1 text-red-800 hover:text-red-900"
                   >
-                     <HiX className="h-4 w-4" />
-                     <span>Limpar filtros</span>
-                  </button>
+                     <HiX className="mr-1.5 h-4 w-4" />
+                     Limpar filtros
+                  </Button>
                )}
             </div>
          )}

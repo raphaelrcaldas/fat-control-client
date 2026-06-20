@@ -1,170 +1,132 @@
 "use client";
 
-import { useState, useMemo, useCallback } from "react";
-import useDebouncedValue from "@/hooks/useDebouncedValue";
+import { useCallback, useState } from "react";
+import { MdGroups } from "react-icons/md";
+import clsx from "clsx";
 import { useCrm } from "@/hooks/queries";
 import type { TripCrmOut } from "services/routes/seg-voo/crm";
-import type { SortField, SortDirection, StatusFilter } from "./types";
-import { getDateStatus } from "@/utils/dateStatus";
+import { useCrmFilters } from "./hooks/useCrmFilters";
+import { useCrmView } from "./hooks/useCrmView";
 import StatCards from "./components/StatCards";
+import StatCardsSkeleton from "./components/StatCardsSkeleton";
 import Filters from "./components/Filters";
 import CrmTable from "./components/CrmTable";
-import EditCrmDrawer from "./components/EditCrmDrawer";
+import CrmTableSkeleton from "./components/CrmTableSkeleton";
+import EditCrmModal from "./components/EditCrmModal";
 
 export default function CrmPage() {
-   const [search, setSearch] = useState("");
-   const [filterPG, setFilterPG] = useState<string[]>([]);
-   const [filterFunc, setFilterFunc] = useState<string[]>([]);
-   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
-   const [sortField, setSortField] = useState<SortField | null>(null);
-   const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
-   const [selectedTripId, setSelectedTripId] = useState<number | null>(null);
-   const [showDrawer, setShowDrawer] = useState(false);
-
-   const debouncedSearch = useDebouncedValue(search, 400);
+   const filters = useCrmFilters();
 
    const {
       data: crmData = [],
       isLoading,
       isFetching,
-   } = useCrm({
-      p_g: filterPG.length > 0 ? filterPG.join(",") : undefined,
-      funcao: filterFunc.length > 0 ? filterFunc.join(",") : undefined,
-   });
+   } = useCrm(filters.queryParams);
 
-   const filteredBySearch = useMemo(() => {
-      if (!debouncedSearch) return crmData;
-      const q = debouncedSearch.toLowerCase();
-      return crmData.filter(
-         (item) =>
-            item.nome_guerra.toLowerCase().includes(q) ||
-            (item.nome_completo?.toLowerCase().includes(q) ?? false)
-      );
-   }, [crmData, debouncedSearch]);
+   const { sortedData, stats } = useCrmView(crmData, filters);
 
-   const filteredByStatus = useMemo(() => {
-      if (statusFilter === "all") return filteredBySearch;
-      return filteredBySearch.filter(
-         (item) => getDateStatus(item.crm?.data_validade) === statusFilter
-      );
-   }, [filteredBySearch, statusFilter]);
-
-   const sortedData = useMemo(() => {
-      if (!sortField) return filteredByStatus;
-
-      const sorted = [...filteredByStatus];
-      sorted.sort((a, b) => {
-         let comparison = 0;
-         switch (sortField) {
-            case "militar":
-               comparison = `${a.p_g} ${a.nome_guerra}`.localeCompare(
-                  `${b.p_g} ${b.nome_guerra}`
-               );
-               break;
-            case "validade": {
-               const dateA = a.crm?.data_validade || "";
-               const dateB = b.crm?.data_validade || "";
-               comparison = dateA.localeCompare(dateB);
-               break;
-            }
-         }
-         return sortDirection === "asc" ? comparison : -comparison;
-      });
-      return sorted;
-   }, [filteredByStatus, sortField, sortDirection]);
-
-   const handleSort = useCallback(
-      (field: SortField) => {
-         if (sortField === field) {
-            if (sortDirection === "desc") {
-               setSortField(null);
-               setSortDirection("asc");
-            } else {
-               setSortDirection("desc");
-            }
-         } else {
-            setSortField(field);
-            setSortDirection("asc");
-         }
-      },
-      [sortField, sortDirection]
-   );
-
-   const selectedItem = useMemo(
-      () => crmData.find((item) => item.trip_id === selectedTripId) ?? null,
-      [crmData, selectedTripId]
-   );
+   // Snapshot estável do item ao abrir — desacopla o modal de crmData,
+   // evitando que um refetch em background desmonte o modal ou resete o form.
+   const [selectedItem, setSelectedItem] = useState<TripCrmOut | null>(null);
+   const [showModal, setShowModal] = useState(false);
 
    const handleRowClick = useCallback((item: TripCrmOut) => {
-      setSelectedTripId(item.trip_id);
-      setShowDrawer(true);
+      setSelectedItem(item);
+      setShowModal(true);
    }, []);
 
-   const handleCloseDrawer = useCallback(() => {
-      setShowDrawer(false);
-      setSelectedTripId(null);
-   }, []);
-
-   const hasActiveFilters =
-      !!debouncedSearch ||
-      filterPG.length > 0 ||
-      filterFunc.length > 0 ||
-      statusFilter !== "all";
-
-   const clearFilters = useCallback(() => {
-      setSearch("");
-      setFilterPG([]);
-      setFilterFunc([]);
-      setStatusFilter("all");
+   const handleCloseModal = useCallback(() => {
+      setShowModal(false);
+      setSelectedItem(null);
    }, []);
 
    return (
-      <div className="flex flex-col gap-4 p-1">
-         <div className="rounded-2xl border border-red-100 bg-white p-4 shadow shadow-red-100">
-            <h1 className="mb-1 text-2xl font-bold text-red-900">
-               CRM — Crew Resource Management
-            </h1>
-            <p className="text-xs font-bold tracking-[0.2em] text-red-400 uppercase">
-               O Homem · O Meio · A Máquina
-            </p>
-         </div>
+      <div className="flex flex-col space-y-2">
+         {/* Masthead */}
+         <header className="relative overflow-hidden rounded border border-slate-200 bg-white px-5 py-4 shadow-sm sm:px-6 sm:py-5">
+            <span
+               aria-hidden
+               className="absolute top-0 left-0 h-full w-1 bg-red-600"
+            />
+            <div className="relative flex flex-wrap items-center justify-between gap-4">
+               <div className="flex min-w-0 items-center gap-4">
+                  <div className="grid h-12 w-12 shrink-0 place-items-center rounded-md bg-red-50 text-red-600 ring-1 ring-red-100 ring-inset">
+                     <MdGroups className="h-6 w-6" />
+                  </div>
+                  <div className="min-w-0">
+                     <span className="block font-mono text-[10px] font-bold tracking-[0.3em] text-red-500 uppercase">
+                        Segurança de Voo
+                     </span>
+                     <h1 className="text-2xl leading-none font-extrabold tracking-tight text-slate-900 sm:text-[28px]">
+                        CRM
+                     </h1>
+                  </div>
+               </div>
+            </div>
+         </header>
 
-         {!isLoading && crmData.length > 0 && <StatCards data={crmData} />}
+         {/* Stat Cards */}
+         {isLoading ? (
+            <StatCardsSkeleton />
+         ) : (
+            crmData.length > 0 && (
+               <div
+                  className={clsx(
+                     "transition-opacity",
+                     isFetching && "opacity-50"
+                  )}
+               >
+                  <StatCards stats={stats} />
+               </div>
+            )
+         )}
 
-         <div className="relative overflow-hidden bg-white shadow-md sm:rounded-lg">
+         {/* Filtros + Tabela */}
+         <div className="relative overflow-hidden rounded border border-slate-200 bg-white shadow-sm">
             <Filters
-               search={search}
-               onSearchChange={setSearch}
-               filterPG={filterPG}
-               onFilterPGChange={setFilterPG}
-               filterFunc={filterFunc}
-               onFilterFuncChange={setFilterFunc}
-               statusFilter={statusFilter}
-               onStatusFilterChange={setStatusFilter}
+               search={filters.search}
+               onSearchChange={filters.setSearch}
+               filterPG={filters.filterPG}
+               onFilterPGChange={filters.setFilterPG}
+               filterFunc={filters.filterFunc}
+               onFilterFuncChange={filters.setFilterFunc}
+               statusFilter={filters.statusFilter}
+               onStatusFilterChange={filters.setStatusFilter}
                totalCount={crmData.length}
                filteredCount={sortedData.length}
                isLoading={isLoading}
                isFetching={isFetching}
-               hasActiveFilters={hasActiveFilters}
-               onClearFilters={clearFilters}
+               hasActiveFilters={filters.hasActiveFilters}
+               onClearFilters={filters.clearFilters}
             />
 
-            <CrmTable
-               data={sortedData}
-               isLoading={isLoading}
-               sortField={sortField}
-               sortDirection={sortDirection}
-               onSort={handleSort}
-               onRowClick={handleRowClick}
-               hasActiveFilters={hasActiveFilters}
-               onClearFilters={clearFilters}
-            />
+            {isLoading ? (
+               <CrmTableSkeleton />
+            ) : (
+               <div
+                  className={clsx(
+                     "transition-opacity",
+                     isFetching && "pointer-events-none opacity-50"
+                  )}
+               >
+                  <CrmTable
+                     data={sortedData}
+                     sortField={filters.sortField}
+                     sortDirection={filters.sortDirection}
+                     onSort={filters.handleSort}
+                     onRowClick={handleRowClick}
+                     hasActiveFilters={filters.hasActiveFilters}
+                     onClearFilters={filters.clearFilters}
+                  />
+               </div>
+            )}
          </div>
 
-         {showDrawer && selectedItem && (
-            <EditCrmDrawer
-               show={showDrawer}
-               onClose={handleCloseDrawer}
+         {/* Edit Modal */}
+         {showModal && selectedItem && (
+            <EditCrmModal
+               show={showModal}
+               onClose={handleCloseModal}
                item={selectedItem}
             />
          )}

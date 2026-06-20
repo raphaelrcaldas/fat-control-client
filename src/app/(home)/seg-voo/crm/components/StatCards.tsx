@@ -2,54 +2,58 @@
 
 import { memo } from "react";
 import { Badge, Progress } from "flowbite-react";
-import { MdWarning } from "react-icons/md";
+import { MdGroups, MdWarning } from "react-icons/md";
 import clsx from "clsx";
 import type { DateStatus } from "@/utils/dateStatus";
-import { getDateStatus, getStatusConfig } from "@/utils/dateStatus";
-import type { TripCrmOut } from "services/routes/seg-voo/crm";
+import { getStatusConfig } from "@/utils/dateStatus";
+import type { CrmStats } from "../types";
 
-interface StatCardProps {
-   total: number;
-   counts: {
-      valid: number;
-      warning: number;
-      critical: number;
-      expired: number;
-      empty: number;
-   };
+// Inclui "empty" (militar sem CRM cadastrado) — relevante operacionalmente.
+const STATUSES: DateStatus[] = [
+   "valid",
+   "warning",
+   "critical",
+   "expired",
+   "empty",
+];
+
+interface StatCardsProps {
+   stats: CrmStats;
 }
 
-function StatCard({ total, counts }: StatCardProps) {
-   const statuses: DateStatus[] = [
-      "valid",
-      "warning",
-      "critical",
-      "expired",
-      "empty",
-   ];
+const StatCards = memo(function StatCards({ stats }: StatCardsProps) {
+   const { total, counts } = stats;
+   const urgent = counts.expired + counts.critical;
 
    return (
-      <div className="w-full max-w-md overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
-         {/* Indicadores de validade */}
-         <div className="p-5">
-            <div className="mb-3 flex items-center justify-between">
-               <p className="w-full text-center text-xs text-gray-500">
-                  {total} militares
-               </p>
-               {counts.expired + counts.critical > 0 && (
+      <div className="flex justify-center">
+         <div className="w-full max-w-md overflow-hidden rounded border border-slate-200 bg-white p-5 shadow-sm">
+            {/* Header */}
+            <div className="mb-4 flex items-center justify-between">
+               <div className="flex items-center gap-3">
+                  <div className="rounded-md bg-red-50 p-2.5">
+                     <MdGroups className="h-5 w-5 text-red-600" />
+                  </div>
+                  <div>
+                     <h3 className="text-sm font-bold text-gray-800">CRM</h3>
+                     <p className="text-[11px] text-gray-400">
+                        {total} militares
+                     </p>
+                  </div>
+               </div>
+               {urgent > 0 && (
                   <Badge color="failure" size="sm">
                      <span className="flex items-center gap-1">
                         <MdWarning className="h-3 w-3" />
-                        <span className="font-bold">
-                           {counts.expired + counts.critical}
-                        </span>
+                        <span className="font-bold">{urgent}</span>
                      </span>
                   </Badge>
                )}
             </div>
 
+            {/* Counters */}
             <div className="grid grid-cols-5 gap-2">
-               {statuses.map((s) => {
+               {STATUSES.map((s) => {
                   const cfg = getStatusConfig(s);
                   const count = counts[s];
                   const pct = total > 0 ? Math.round((count / total) * 100) : 0;
@@ -91,27 +95,6 @@ function StatCard({ total, counts }: StatCardProps) {
                })}
             </div>
          </div>
-      </div>
-   );
-}
-
-interface StatCardsProps {
-   data: TripCrmOut[];
-}
-
-const StatCards = memo(function StatCards({ data }: StatCardsProps) {
-   const counts = { valid: 0, warning: 0, critical: 0, expired: 0, empty: 0 };
-
-   for (const item of data) {
-      const status = getDateStatus(item.crm?.data_validade);
-      counts[status]++;
-   }
-
-   const total = data.length;
-
-   return (
-      <div className="flex justify-center">
-         <StatCard total={total} counts={counts} />
       </div>
    );
 });

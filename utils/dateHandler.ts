@@ -310,6 +310,20 @@ export function todayIso(): string {
 }
 
 /**
+ * Soma (ou subtrai, com `years` negativo) anos a uma data ISO (YYYY-MM-DD)
+ * usando apenas o calendário local — imune a fuso, ao contrário de
+ * `new Date(iso).toISOString()`, que pode deslocar o dia. Retorna "" se a
+ * entrada for vazia ou inválida.
+ */
+export function addYearsIso(iso: string, years: number): string {
+   if (!iso) return "";
+   const d = isoStrToDate(iso.split("T")[0]);
+   if (isNaN(d.getTime())) return "";
+   d.setFullYear(d.getFullYear() + years);
+   return dateToIso(d);
+}
+
+/**
  * Formata período entre duas datas ISO (YYYY-MM-DD):
  *   - mesma data: "DD/MM/YY"
  *   - intervalo: "DD/MM → DD/MM/YY"

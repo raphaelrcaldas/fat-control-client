@@ -8,7 +8,7 @@ import {
    TableBody,
    TableRow,
    TableCell,
-   Spinner,
+   Button,
 } from "flowbite-react";
 import { HiChevronUp, HiChevronDown } from "react-icons/hi";
 import { MdGroups } from "react-icons/md";
@@ -29,14 +29,6 @@ const SimpleDateCell = memo(function SimpleDateCell({
 }) {
    return <span className="text-sm text-gray-700">{formatDate(dateStr)}</span>;
 });
-
-const DOT_COLORS = {
-   valid: "bg-green-500",
-   warning: "bg-yellow-400",
-   critical: "bg-orange-500",
-   expired: "bg-red-500",
-   empty: "bg-gray-300",
-} as const;
 
 const DateCell = memo(function DateCell({
    dateStr,
@@ -83,6 +75,13 @@ const SortableHeader = memo(function SortableHeader({
       <TableHeadCell
          className="cursor-pointer px-4 py-3 font-semibold transition-colors select-none hover:text-gray-900"
          onClick={() => onSort(field)}
+         aria-sort={
+            isActive
+               ? direction === "asc"
+                  ? "ascending"
+                  : "descending"
+               : "none"
+         }
       >
          <div className="flex items-center gap-1">
             <span>{label}</span>
@@ -117,7 +116,7 @@ const CrmRow = memo(function CrmRow({
    onClick: (item: TripCrmOut) => void;
 }) {
    const status = getDateStatus(item.crm?.data_validade);
-   const dotColor = DOT_COLORS[status];
+   const config = getStatusConfig(status);
 
    return (
       <TableRow
@@ -127,11 +126,12 @@ const CrmRow = memo(function CrmRow({
          }
          tabIndex={0}
          role="button"
-         className="cursor-pointer border-b border-gray-200 transition-colors hover:bg-red-50"
+         className="cursor-pointer border-b border-slate-200 transition-colors hover:bg-red-50"
       >
          <TableCell className="w-10 px-3 py-3">
             <span
-               className={clsx("inline-block h-3 w-3 rounded-full", dotColor)}
+               className={clsx("inline-block h-3 w-3 rounded-full", config.dot)}
+               aria-label={`Status: ${config.label}`}
             />
          </TableCell>
          <TableCell className="px-4 py-3 font-medium whitespace-nowrap text-gray-900 uppercase">
@@ -151,7 +151,6 @@ const CrmRow = memo(function CrmRow({
 
 interface CrmTableProps {
    data: TripCrmOut[];
-   isLoading: boolean;
    sortField: SortField | null;
    sortDirection: SortDirection;
    onSort: (field: SortField) => void;
@@ -162,7 +161,6 @@ interface CrmTableProps {
 
 const CrmTable = memo(function CrmTable({
    data,
-   isLoading,
    sortField,
    sortDirection,
    onSort,
@@ -170,14 +168,6 @@ const CrmTable = memo(function CrmTable({
    hasActiveFilters,
    onClearFilters,
 }: CrmTableProps) {
-   if (isLoading) {
-      return (
-         <div className="flex h-64 items-center justify-center">
-            <Spinner color="failure" size="xl" />
-         </div>
-      );
-   }
-
    if (data.length === 0) {
       return (
          <div className="flex h-64 flex-col items-center justify-center">
@@ -186,12 +176,14 @@ const CrmTable = memo(function CrmTable({
                Nenhum resultado encontrado
             </p>
             {hasActiveFilters && (
-               <button
+               <Button
+                  size="xs"
+                  color="light"
                   onClick={onClearFilters}
-                  className="mt-2 text-sm text-sky-600 hover:text-sky-700"
+                  className="mt-2"
                >
                   Limpar filtros
-               </button>
+               </Button>
             )}
          </div>
       );
@@ -200,7 +192,7 @@ const CrmTable = memo(function CrmTable({
    return (
       <div className="overflow-x-auto">
          <Table hoverable>
-            <TableHead className="border-b border-gray-200 bg-gray-50 text-xs text-gray-700 uppercase">
+            <TableHead className="border-b border-slate-200 bg-gray-50 text-xs text-gray-700 uppercase">
                <TableRow>
                   <TableHeadCell className="w-10 px-3 py-3" />
                   <SortableHeader
