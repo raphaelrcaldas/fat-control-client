@@ -193,7 +193,7 @@ export function FiltrosOrdemComponent({
                               busca: e.target.value,
                            })
                         }
-                        className="w-full rounded border border-gray-300 bg-gray-50 px-4 py-2.5 text-gray-900 placeholder-gray-400 focus:border-transparent focus:ring-2 focus:ring-red-500"
+                        className="w-full rounded border border-gray-300 bg-gray-50 px-3 py-2.5 text-sm text-gray-900 placeholder-gray-400 focus:border-transparent focus:ring-2 focus:ring-red-500"
                      />
                   </div>
 
