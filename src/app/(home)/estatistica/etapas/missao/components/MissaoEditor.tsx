@@ -1,8 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Drawer } from "flowbite-react";
 
 import {
@@ -12,14 +11,12 @@ import {
 import { selectEtapaTotals } from "../context/selectors";
 import { isDirty } from "../context/serialization";
 import { useToast } from "@/app/context/toast";
-import { usePermBased } from "@/app/(home)/hooks/usePermBased";
 import { formatDateFull } from "@/../utils/dateHandler";
 
-import { etapaKeys } from "@/hooks/queries/useEtapas";
-import { deleteMissaoComEtapas } from "services/routes/estatistica/etapas";
 import { ConfirmModal } from "@/components/ConfirmModal";
-import { useSaveMissaoDraft } from "../hooks/useSaveMissaoDraft";
-import { useUpdateMissaoDraft } from "../hooks/useUpdateMissaoDraft";
+import { useMissaoActions } from "../hooks/useMissaoActions";
+import { useConfirmDialog } from "../hooks/useConfirmDialog";
+import { useSaveShortcut } from "../hooks/useSaveShortcut";
 import { useUnsavedChangesGuard } from "../hooks/useUnsavedChangesGuard";
 import { MissaoEditorLayout } from "./MissaoEditorLayout";
 import { MissaoHeader } from "./MissaoHeader";
@@ -32,50 +29,41 @@ interface MissaoEditorProps {
    mode: "new" | "edit";
 }
 
-type ConfirmDialog =
-   | { kind: "cancel" }
-   | { kind: "revert" }
-   | { kind: "removeEtapa"; localId: string }
-   | { kind: "deleteMissao" };
-
 export function MissaoEditor({ mode }: MissaoEditorProps) {
    const draft = useMissaoDraft();
    const dispatch = useMissaoDraftDispatch();
    const router = useRouter();
    const { push } = useToast();
 
-   const [confirmDialog, setConfirmDialog] = useState<ConfirmDialog | null>(
-      null
-   );
    // Drawer da sidebar nas telas < lg (no desktop a sidebar é fixa)
    const [sidebarOpen, setSidebarOpen] = useState(false);
 
-   const { hasPerm } = usePermBased();
-   const canSave = hasPerm("etp_mis", "create");
-
-   const saveMutation = useSaveMissaoDraft();
-   const updateMutation = useUpdateMissaoDraft();
-
-   const queryClient = useQueryClient();
-   const deleteMissaoMutation = useMutation({
-      mutationFn: () => deleteMissaoComEtapas(draft.serverId!),
-      onSuccess: () => {
-         queryClient.invalidateQueries({ queryKey: etapaKeys.all });
-         router.push("/estatistica/etapas");
-      },
-      onError: (err: Error) => {
-         push({
-            type: "error",
-            title: "Erro ao excluir",
-            message: err.message ?? "Falha ao excluir missão",
-         });
-      },
-   });
+   const { saveMutation, updateMutation, deleteMutation, handleSave } =
+      useMissaoActions({ draft, mode });
+   const {
+      dialog: confirmDialog,
+      open: openConfirm,
+      close: closeConfirm,
+      confirm: confirmAction,
+      config: confirmConfig,
+   } = useConfirmDialog({ deleteMutation });
 
    const dirty = isDirty(draft);
 
    useUnsavedChangesGuard({
       enabled: dirty && !saveMutation.isPending && !updateMutation.isPending,
+   });
+
+   // Em edição sem mudanças, salvar seria um PUT redundante
+   const saveDisabled = mode === "edit" && !dirty;
+
+   useSaveShortcut({
+      onSave: handleSave,
+      disabled:
+         saveDisabled ||
+         saveMutation.isPending ||
+         updateMutation.isPending ||
+         deleteMutation.isPending,
    });
 
    const missaoLabel =
@@ -114,44 +102,10 @@ export function MissaoEditor({ mode }: MissaoEditorProps) {
 
    function handleCancel() {
       if (dirty) {
-         setConfirmDialog({ kind: "cancel" });
+         openConfirm({ kind: "cancel" });
          return;
       }
       router.back();
-   }
-
-   function handleSave() {
-      if (!canSave) {
-         push({
-            title: "Sem permissão",
-            message: "Você não tem permissão para salvar missões.",
-            type: "warning",
-         });
-         return;
-      }
-      if (draft.etapas.length === 0) {
-         push({
-            title: "Erro",
-            message: "A missão precisa ter pelo menos 1 etapa.",
-            type: "error",
-         });
-         return;
-      }
-      if (mode === "edit") {
-         updateMutation.mutate(draft, {
-            onSuccess: () => {
-               dispatch({ type: "RECOMPUTE_SNAPSHOT" });
-               router.push("/estatistica/etapas");
-            },
-         });
-         return;
-      }
-      saveMutation.mutate(draft, {
-         onSuccess: () => {
-            dispatch({ type: "RECOMPUTE_SNAPSHOT" });
-            router.push("/estatistica/etapas");
-         },
-      });
    }
 
    // Fechar o drawer junto é inócuo no desktop e necessário no mobile,
@@ -179,112 +133,19 @@ export function MissaoEditor({ mode }: MissaoEditorProps) {
             });
             return;
          }
-         setConfirmDialog({ kind: "removeEtapa", localId });
+         openConfirm({ kind: "removeEtapa", localId });
       },
-      [draft.etapas.length, push]
+      [draft.etapas.length, push, openConfirm]
    );
 
    const handleDeleteMissao = useCallback(() => {
       setSidebarOpen(false);
-      setConfirmDialog({ kind: "deleteMissao" });
-   }, []);
+      openConfirm({ kind: "deleteMissao" });
+   }, [openConfirm]);
 
    const handleRevert = useCallback(() => {
-      setConfirmDialog({ kind: "revert" });
-   }, []);
-
-   const handleConfirmDialog = useCallback(() => {
-      if (!confirmDialog) return;
-      if (confirmDialog.kind === "cancel") {
-         setConfirmDialog(null);
-         router.back();
-         return;
-      }
-      if (confirmDialog.kind === "revert") {
-         dispatch({ type: "REVERT_DRAFT" });
-         setConfirmDialog(null);
-         return;
-      }
-      if (confirmDialog.kind === "removeEtapa") {
-         dispatch({
-            type: "REMOVE_ETAPA",
-            payload: { localId: confirmDialog.localId },
-         });
-         setConfirmDialog(null);
-         return;
-      }
-      if (confirmDialog.kind === "deleteMissao") {
-         deleteMissaoMutation.mutate(undefined, {
-            onSettled: () => setConfirmDialog(null),
-         });
-      }
-   }, [confirmDialog, dispatch, router, deleteMissaoMutation]);
-
-   const closeConfirmDialog = useCallback(() => {
-      if (deleteMissaoMutation.isPending) return;
-      setConfirmDialog(null);
-   }, [deleteMissaoMutation.isPending]);
-
-   const confirmDialogConfig = useMemo(() => {
-      if (!confirmDialog) return null;
-      if (confirmDialog.kind === "cancel") {
-         return {
-            title: "Sair sem salvar?",
-            message: (
-               <>
-                  <p>Há mudanças não salvas nesta missão.</p>
-                  <p className="mt-1 text-sm font-medium text-red-600">
-                     Se sair agora, todas as alterações serão perdidas.
-                  </p>
-               </>
-            ),
-            confirmLabel: "Sair sem salvar",
-         };
-      }
-      if (confirmDialog.kind === "revert") {
-         return {
-            title: "Desfazer alterações?",
-            message: (
-               <>
-                  <p>
-                     Todas as alterações feitas desde a última carga serão
-                     descartadas.
-                  </p>
-                  <p className="mt-1 text-sm font-medium text-red-600">
-                     Esta ação não pode ser desfeita.
-                  </p>
-               </>
-            ),
-            confirmLabel: "Desfazer",
-         };
-      }
-      if (confirmDialog.kind === "removeEtapa") {
-         return {
-            title: "Remover etapa?",
-            message: (
-               <>
-                  <p>Esta etapa será removida da missão.</p>
-                  <p className="mt-1 text-sm font-medium text-red-600">
-                     Esta ação não pode ser desfeita.
-                  </p>
-               </>
-            ),
-            confirmLabel: "Remover",
-         };
-      }
-      return {
-         title: "Excluir missão?",
-         message: (
-            <>
-               <p>A missão e TODAS as suas etapas serão excluídas.</p>
-               <p className="mt-1 text-sm font-medium text-red-600">
-                  Esta ação não pode ser desfeita.
-               </p>
-            </>
-         ),
-         confirmLabel: "Excluir",
-      };
-   }, [confirmDialog]);
+      openConfirm({ kind: "revert" });
+   }, [openConfirm]);
 
    const handleTituloChange = useCallback(
       (value: string) => {
@@ -376,34 +237,6 @@ export function MissaoEditor({ mode }: MissaoEditorProps) {
       </div>
    ) : undefined;
 
-   // Em edição sem mudanças, salvar seria um PUT redundante
-   const saveDisabled = mode === "edit" && !dirty;
-
-   useEffect(() => {
-      function onKey(e: KeyboardEvent) {
-         if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "s") {
-            e.preventDefault();
-            if (
-               !saveDisabled &&
-               !saveMutation.isPending &&
-               !updateMutation.isPending &&
-               !deleteMissaoMutation.isPending
-            ) {
-               handleSave();
-            }
-         }
-      }
-      window.addEventListener("keydown", onKey);
-      return () => window.removeEventListener("keydown", onKey);
-      // handleSave is stable enough; dependencies via mutations covers re-bind
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-   }, [
-      saveDisabled,
-      saveMutation.isPending,
-      updateMutation.isPending,
-      deleteMissaoMutation.isPending,
-   ]);
-
    const headerNode = (
       <MissaoHeader
          title={headerTitle}
@@ -463,17 +296,17 @@ export function MissaoEditor({ mode }: MissaoEditorProps) {
          >
             {sidebarOpen && sidebarNode}
          </Drawer>
-         {confirmDialogConfig && (
+         {confirmConfig && (
             <ConfirmModal
                show={confirmDialog !== null}
-               onClose={closeConfirmDialog}
-               onConfirm={handleConfirmDialog}
-               title={confirmDialogConfig.title}
-               message={confirmDialogConfig.message}
-               confirmLabel={confirmDialogConfig.confirmLabel}
+               onClose={closeConfirm}
+               onConfirm={confirmAction}
+               title={confirmConfig.title}
+               message={confirmConfig.message}
+               confirmLabel={confirmConfig.confirmLabel}
                isLoading={
                   confirmDialog?.kind === "deleteMissao" &&
-                  deleteMissaoMutation.isPending
+                  deleteMutation.isPending
                }
             />
          )}
