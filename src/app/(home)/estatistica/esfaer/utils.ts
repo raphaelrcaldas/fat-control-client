@@ -36,6 +36,16 @@ export function formatMinutes(minutes: number): string {
    return minutesToTime(minutes);
 }
 
+/**
+ * Formats a signed difference in minutes as "+HH:mm" / "-HH:mm".
+ * Zero is rendered as "00:00" without a sign.
+ */
+export function formatSignedMinutes(value: number): string {
+   if (value === 0) return minutesToTime(0);
+   const sign = value > 0 ? "+" : "-";
+   return `${sign}${minutesToTime(Math.abs(value))}`;
+}
+
 export interface EsfAerImportRow {
    tipo: string;
    modelo: string;

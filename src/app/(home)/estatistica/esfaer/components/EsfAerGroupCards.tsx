@@ -34,7 +34,7 @@ export function EsfAerGroupCards({ groups }: EsfAerGroupCardsProps) {
                <div
                   key={group.label}
                   className={clsx(
-                     "rounded-lg border-t-4 bg-white p-4 shadow-sm",
+                     "rounded border-t-4 bg-white p-4 shadow-sm",
                      styles.border
                   )}
                >

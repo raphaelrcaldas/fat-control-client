@@ -28,13 +28,17 @@ export function EsfAerTable({
    totalMesesVoados,
 }: EsfAerTableProps) {
    return (
-      <div className="w-full overflow-x-auto rounded-lg border border-gray-200 bg-white font-mono">
+      <div className="w-full overflow-x-auto rounded border border-slate-200 bg-white font-mono">
          <Table
             striped
             theme={{
                root: { base: "text-sm text-center" },
-               body: { cell: { base: "px-3" } },
-               head: { cell: { base: "px-3 bg-gray-200" } },
+               body: { cell: { base: "p-2" } },
+               head: {
+                  cell: {
+                     base: "p-2 bg-slate-100 border-b border-slate-300 text-sm",
+                  },
+               },
             }}
          >
             <TableHead>
@@ -42,7 +46,7 @@ export function EsfAerTable({
                   <TableHeadCell>Esforço Aéreo</TableHeadCell>
                   <TableHeadCell>ALOCADO</TableHeadCell>
                   <TableHeadCell>VOADO</TableHeadCell>
-                  <TableHeadCell className="border-r border-gray-300">
+                  <TableHeadCell className="border-r border-slate-300">
                      SALDO
                   </TableHeadCell>
                   {MONTH_LABELS.map((m) => (
@@ -52,7 +56,7 @@ export function EsfAerTable({
             </TableHead>
             <TableBody className="divide-y">
                {items.map((item) => (
-                  <TableRow key={item.id} className="hover:bg-gray-200">
+                  <TableRow key={item.id} className="hover:bg-slate-200">
                      <TableCell className={getDescricaoStyles(item.descricao)}>
                         {item.descricao}
                      </TableCell>
@@ -61,14 +65,14 @@ export function EsfAerTable({
                      </TableCell>
                      <TableCell
                         className={clsx({
-                           "text-gray-300": item.voado === 0,
+                           "text-slate-300": item.voado === 0,
                         })}
                      >
                         {minutesToTime(item.voado)}
                      </TableCell>
                      <TableCell
                         className={clsx(
-                           "border-r border-gray-300 font-semibold text-gray-800",
+                           "border-r border-slate-300 font-semibold text-slate-800",
                            {
                               "text-green-600": item.saldo > 0,
                               "text-red-600": item.saldo < 0,
@@ -92,19 +96,19 @@ export function EsfAerTable({
                ))}
 
                {/* Footer / Total row */}
-               <TableRow className="font-semibold text-gray-800">
-                  <TableCell className="bg-gray-300">TOTAL</TableCell>
-                  <TableCell className="bg-gray-300">
+               <TableRow className="font-semibold text-slate-800">
+                  <TableCell className="bg-slate-300">TOTAL</TableCell>
+                  <TableCell className="bg-slate-300">
                      {minutesToTime(totalAlocado)}
                   </TableCell>
-                  <TableCell className="bg-gray-300">
+                  <TableCell className="bg-slate-300">
                      {minutesToTime(totalVoado)}
                   </TableCell>
-                  <TableCell className="border-r border-gray-300 bg-gray-300">
+                  <TableCell className="border-r border-slate-300 bg-slate-300">
                      {formatMinutes(totalSaldo)}
                   </TableCell>
                   {totalMesesVoados.map((val, i) => (
-                     <TableCell key={MONTH_LABELS[i]} className="bg-gray-300">
+                     <TableCell key={MONTH_LABELS[i]} className="bg-slate-300">
                         {minutesToTime(val)}
                      </TableCell>
                   ))}

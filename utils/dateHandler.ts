@@ -479,3 +479,17 @@ export function formatDateTimeFull(
    const seconds = String(date.getSeconds()).padStart(2, "0");
    return `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`;
 }
+
+/**
+ * Retorna o instante atual formatado como "DD/MM/YYYY HH:MM" (horário local).
+ * Use para carimbar "verificado em" em telas/exports.
+ */
+export function nowDateTimeBR(): string {
+   const now = new Date();
+   const day = String(now.getDate()).padStart(2, "0");
+   const month = String(now.getMonth() + 1).padStart(2, "0");
+   const year = now.getFullYear();
+   const hours = String(now.getHours()).padStart(2, "0");
+   const minutes = String(now.getMinutes()).padStart(2, "0");
+   return `${day}/${month}/${year} ${hours}:${minutes}`;
+}

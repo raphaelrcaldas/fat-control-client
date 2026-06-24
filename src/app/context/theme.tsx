@@ -11,6 +11,18 @@ const whiteInputColors = {
    gray: "bg-white border-gray-300 text-gray-900 placeholder-gray-500 focus:border-primary-500 focus:ring-primary-500",
 };
 
+/**
+ * Bases default que precisam ser ZERADAS antes do merge (não apenas
+ * sobrescritas), pois trazem utilitários com modificadores que o twMerge não
+ * consegue anular numa simples sobreposição. Ver comentário em `table` abaixo.
+ */
+const clearTheme = {
+   table: {
+      head: { cell: { base: true } },
+      body: { cell: { base: true } },
+   },
+};
+
 const customTheme = createTheme({
    button: {
       base: "rounded-md",
@@ -28,7 +40,9 @@ const customTheme = createTheme({
       },
    },
    table: {
-      body: { cell: { base: "py-2" } },
+      root: { shadow: "hidden" },
+      head: { cell: { base: "bg-gray-50 px-6 py-3 dark:bg-gray-700" } },
+      body: { base: "", cell: { base: "px-6 py-2" } },
       row: { base: "border-gray-200 bg-white" },
    },
    textInput: {
@@ -53,7 +67,11 @@ interface FlowbiteThemeProviderProps {
 export function FlowbiteThemeProvider({
    children,
 }: FlowbiteThemeProviderProps) {
-   return <ThemeProvider theme={customTheme}>{children}</ThemeProvider>;
+   return (
+      <ThemeProvider theme={customTheme} clearTheme={clearTheme}>
+         {children}
+      </ThemeProvider>
+   );
 }
 
 export default FlowbiteThemeProvider;

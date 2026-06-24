@@ -10,7 +10,7 @@ import clsx from "clsx";
 import { minutesToTime } from "@/../utils/dateHandler";
 import type { EsfAerResumoItem } from "services/routes/estatistica/esfAer";
 import { MONTH_LABELS } from "../constants";
-import { getDescricaoStyles } from "../utils";
+import { formatSignedMinutes, getDescricaoStyles } from "../utils";
 
 interface DiffMonth {
    index: number;
@@ -46,11 +46,6 @@ function getDiffItems(items: EsfAerResumoItem[]): DiffItem[] {
    return result;
 }
 
-function formatDiff(value: number): string {
-   const sign = value > 0 ? "+" : "-";
-   return `${sign}${minutesToTime(Math.abs(value))}`;
-}
-
 interface EsfAerAlertTableProps {
    items: EsfAerResumoItem[];
 }
@@ -61,7 +56,7 @@ export function EsfAerAlertTable({ items }: EsfAerAlertTableProps) {
    if (diffItems.length === 0) return null;
 
    return (
-      <div className="hidden w-1/2 overflow-x-auto rounded-lg border border-amber-300 bg-amber-50 md:block">
+      <div className="hidden w-1/2 overflow-x-auto rounded border border-amber-300 bg-amber-50 shadow-sm md:block">
          <div className="flex items-center justify-center gap-2 border-b border-amber-300 px-4 py-2">
             <svg
                className="h-5 w-5 text-amber-500"
@@ -126,7 +121,7 @@ export function EsfAerAlertTable({ items }: EsfAerAlertTableProps) {
                               "text-red-600": m.diff < 0,
                            })}
                         >
-                           {formatDiff(m.diff)}
+                           {formatSignedMinutes(m.diff)}
                         </TableCell>
                      </TableRow>
                   ))
