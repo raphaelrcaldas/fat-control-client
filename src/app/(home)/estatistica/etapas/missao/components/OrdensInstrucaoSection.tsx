@@ -124,7 +124,7 @@ export function OrdensInstrucaoSection({
                         >
                            Regime
                         </Label>
-                        <div className="flex overflow-hidden rounded border border-gray-300">
+                        <div className="flex h-8.5 overflow-hidden rounded border border-gray-300">
                            {(
                               [
                                  { v: "d", l: "D" },
@@ -139,7 +139,7 @@ export function OrdensInstrucaoSection({
                                     updateOiItem(oi.uid, { reg: v })
                                  }
                                  className={clsx(
-                                    "flex-1 px-3 py-1.75 text-xs font-bold focus:outline-none",
+                                    "flex flex-1 items-center justify-center px-3 text-xs font-bold focus:outline-none",
                                     oi.reg === v
                                        ? "bg-red-800 text-white"
                                        : "bg-white text-red-500 hover:bg-red-100",
