@@ -10,13 +10,13 @@ import {
 import {
    useMissaoDraft,
    useMissaoDraftDispatch,
-} from "../_state/MissaoDraftContext";
+} from "../context/MissaoDraftContext";
 import {
    buildPoolFromDraft,
    calcTvoo,
    selectEspecificosValid,
    selectEtapaTotals,
-} from "../_state/helpers";
+} from "../context/helpers";
 import type {
    DraftAssignedTrip,
    DraftEtapa,
@@ -27,7 +27,7 @@ import type {
    DraftRevo,
    EspecificoKind,
    EtapaFormData,
-} from "../_state/types";
+} from "../context/types";
 
 const FIELD_LIMITS = {
    pousos: { min: 0, max: 20, label: "Pousos" },

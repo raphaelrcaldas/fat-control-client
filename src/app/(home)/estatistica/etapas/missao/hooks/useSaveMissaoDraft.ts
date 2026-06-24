@@ -5,17 +5,17 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/app/context/toast";
 import { etapaKeys } from "@/hooks/queries/useEtapas";
 import {
-   updateMissaoWithEtapas,
+   createMissaoWithEtapas,
    type EtapaCreateNestedPayload,
-   type EtapaUpdateNestedPayload,
-   type MissaoComEtapasDetail,
-   type MissaoComEtapasUpdatePayload,
+   type MissaoComEtapasCreatePayload,
+   type MissaoPublic,
 } from "services/routes/estatistica/etapas";
 
-import { selectEtapaTotals } from "../_state/helpers";
-import type { DraftEtapa, MissaoDraft } from "../_state/types";
+import { selectEtapaTotals } from "../context/helpers";
+import type { DraftEtapa, MissaoDraft } from "../context/types";
 
 function toHHmmss(value: string): string {
+   // Garante HH:mm:ss; aceita HH:mm e completa com :00
    if (!value) return value;
    return value.length === 5 ? `${value}:00` : value;
 }
@@ -26,7 +26,7 @@ function nullIfEmpty(value: string | null | undefined): string | null {
    return trimmed.length === 0 ? null : trimmed;
 }
 
-function buildEtapaNested(etapa: DraftEtapa): EtapaCreateNestedPayload {
+function mapEtapa(etapa: DraftEtapa): EtapaCreateNestedPayload {
    const totals = selectEtapaTotals(etapa);
    return {
       data: etapa.form.data,
@@ -70,67 +70,36 @@ function buildEtapaNested(etapa: DraftEtapa): EtapaCreateNestedPayload {
    };
 }
 
-function buildPayload(draft: MissaoDraft): MissaoComEtapasUpdatePayload {
-   const currentServerIds = new Set(
-      draft.etapas
-         .filter((e) => e.serverId !== null)
-         .map((e) => e.serverId as number)
-   );
-   const delete_ids = draft.initialEtapaServerIds.filter(
-      (id) => !currentServerIds.has(id)
-   );
-
-   const update: EtapaUpdateNestedPayload[] = draft.etapas
-      .filter((e) => e.serverId !== null && e.dirty)
-      .map((e) => ({ id: e.serverId as number, ...buildEtapaNested(e) }));
-
-   const create: EtapaCreateNestedPayload[] = draft.etapas
-      .filter((e) => e.serverId === null)
-      .map(buildEtapaNested);
-
+export function buildMissaoPayload(
+   draft: MissaoDraft
+): MissaoComEtapasCreatePayload {
    return {
-      titulo: draft.titulo,
-      obs: draft.obs,
-      delete_ids,
-      update,
-      create,
+      titulo: nullIfEmpty(draft.titulo),
+      obs: nullIfEmpty(draft.obs),
+      is_simulador: draft.is_simulador,
+      etapas: draft.etapas.map(mapEtapa),
    };
 }
 
-type UpdateContext = { missaoId: number };
-
-export function useUpdateMissaoDraft() {
+export function useSaveMissaoDraft() {
    const queryClient = useQueryClient();
    const { push } = useToast();
 
-   return useMutation<
-      MissaoComEtapasDetail | null,
-      Error,
-      MissaoDraft,
-      UpdateContext
-   >({
+   return useMutation<MissaoPublic, Error, MissaoDraft>({
       mutationFn: async (draft) => {
-         if (!draft.serverId) {
-            throw new Error("ID da missão necessário para edição");
-         }
-         const result = await updateMissaoWithEtapas(
-            draft.serverId,
-            buildPayload(draft)
-         );
-         if (!result.ok) {
+         const payload = buildMissaoPayload(draft);
+         const result = await createMissaoWithEtapas(payload);
+         if (!result.ok || !result.data) {
             throw new Error(result.message ?? "Falha ao salvar missão");
          }
-         return result.data ?? null;
+         return result.data;
       },
-      onSuccess: (data, draft) => {
-         if (data && draft.serverId) {
-            queryClient.setQueryData(["missao", draft.serverId], data);
-         }
+      onSuccess: () => {
          queryClient.invalidateQueries({ queryKey: etapaKeys.all });
          push({
             type: "success",
             title: "Sucesso",
-            message: "Missão atualizada com sucesso",
+            message: "Missão criada com sucesso",
          });
       },
       onError: (err) => {

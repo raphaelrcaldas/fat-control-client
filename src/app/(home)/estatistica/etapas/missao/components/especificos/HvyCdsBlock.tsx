@@ -4,7 +4,7 @@ import clsx from "clsx";
 import { Label, TextInput } from "flowbite-react";
 import { HiOutlineCube, HiX } from "react-icons/hi";
 
-import type { HeavyCdsTipo } from "../../_state/types";
+import type { HeavyCdsTipo } from "../../context/types";
 
 import {
    inlineLabelClass,

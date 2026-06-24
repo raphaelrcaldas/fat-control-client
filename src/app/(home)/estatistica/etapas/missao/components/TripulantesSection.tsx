@@ -15,7 +15,7 @@ import {
    getFuncLabel,
 } from "@/constants/tripulantes/funcoes";
 import type { FuncType } from "@/constants/tripulantes/funcoes";
-import type { DraftAssignedTrip, DraftPoolTrip } from "../_state/types";
+import type { DraftAssignedTrip, DraftPoolTrip } from "../context/types";
 import { FuncGroupDropZone } from "./FuncGroupDropZone";
 
 function DraggablePoolChip({ trip }: { trip: DraftPoolTrip }) {

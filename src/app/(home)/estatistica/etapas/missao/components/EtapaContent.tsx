@@ -2,12 +2,12 @@
 
 import { useEffect, useState } from "react";
 
-import { useEtapaEditor } from "../_hooks/useEtapaEditor";
-import { useDndContext } from "../_hooks/useDndContext";
+import { useEtapaEditor } from "../hooks/useEtapaEditor";
+import { useDndContext } from "../hooks/useDndContext";
 import {
    useMissaoDraft,
    useMissaoDraftDispatch,
-} from "../_state/MissaoDraftContext";
+} from "../context/MissaoDraftContext";
 import { useAeronaves } from "@/hooks/queries/useAeronaves";
 import { useEsfAerList } from "@/hooks/queries/useEsfAer";
 import { useTiposMissao } from "@/hooks/queries/useTiposMissao";

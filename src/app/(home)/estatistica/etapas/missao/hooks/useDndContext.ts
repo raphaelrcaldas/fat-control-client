@@ -18,7 +18,11 @@ import {
    type FuncType,
 } from "@/constants/tripulantes/funcoes";
 
-import type { Action, DraftAssignedTrip, DraftPoolTrip } from "../_state/types";
+import type {
+   Action,
+   DraftAssignedTrip,
+   DraftPoolTrip,
+} from "../context/types";
 
 interface UseDndContextParams {
    selectedLocalId: string | null;

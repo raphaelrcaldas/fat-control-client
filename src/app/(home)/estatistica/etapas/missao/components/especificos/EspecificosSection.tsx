@@ -11,7 +11,7 @@ import type {
    DraftPqd,
    DraftRevo,
    EspecificoKind,
-} from "../../_state/types";
+} from "../../context/types";
 
 import { HvyCdsBlock } from "./HvyCdsBlock";
 import { PqdBlock } from "./PqdBlock";

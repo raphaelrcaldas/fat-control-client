@@ -15,7 +15,7 @@ import type { FuncType, PosicaoABordo } from "@/constants/tripulantes/funcoes";
 import { tripKeys } from "@/hooks/queries/useTrips";
 import { getTrips } from "services/routes/trips";
 import useDebouncedValue from "@/hooks/useDebouncedValue";
-import type { DraftAssignedTrip } from "../_state/types";
+import type { DraftAssignedTrip } from "../context/types";
 
 function FuncBordoSelect({
    value,

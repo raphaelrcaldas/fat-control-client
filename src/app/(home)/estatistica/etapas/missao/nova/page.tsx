@@ -1,8 +1,8 @@
 "use client";
 
-import { MissaoDraftProvider } from "../_state/MissaoDraftContext";
-import { emptyDraft } from "../_state/helpers";
-import { MissaoEditor } from "../_components/MissaoEditor";
+import { MissaoDraftProvider } from "../context/MissaoDraftContext";
+import { emptyDraft } from "../context/helpers";
+import { MissaoEditor } from "../components/MissaoEditor";
 
 export default function NovaMissaoPage() {
    return (

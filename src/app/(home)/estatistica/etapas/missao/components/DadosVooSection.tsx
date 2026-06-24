@@ -7,7 +7,7 @@ import {
    ToggleSwitch,
 } from "flowbite-react";
 import { minutesToTime } from "@/../utils/dateHandler";
-import type { EtapaFormData } from "../_state/types";
+import type { EtapaFormData } from "../context/types";
 
 interface DadosVooSectionProps {
    formData: EtapaFormData;

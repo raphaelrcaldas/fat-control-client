@@ -3,7 +3,7 @@ import { HiPlus, HiX } from "react-icons/hi";
 import { Button, Label, TextInput } from "flowbite-react";
 import { minutesToTime, timeToMinutes } from "@/../utils/dateHandler";
 import { SearchableSelect } from "@/components/SearchableSelect";
-import type { DraftOIItem } from "../_state/types";
+import type { DraftOIItem } from "../context/types";
 
 interface OrdensInstrucaoSectionProps {
    oiItems: DraftOIItem[];

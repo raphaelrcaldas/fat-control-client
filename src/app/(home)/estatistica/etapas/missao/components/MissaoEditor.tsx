@@ -8,8 +8,8 @@ import { Drawer } from "flowbite-react";
 import {
    useMissaoDraft,
    useMissaoDraftDispatch,
-} from "../_state/MissaoDraftContext";
-import { isDirty, selectEtapaTotals } from "../_state/helpers";
+} from "../context/MissaoDraftContext";
+import { isDirty, selectEtapaTotals } from "../context/helpers";
 import { useToast } from "@/app/context/toast";
 import { usePermBased } from "@/app/(home)/hooks/usePermBased";
 import { formatDateFull } from "@/../utils/dateHandler";
@@ -17,9 +17,9 @@ import { formatDateFull } from "@/../utils/dateHandler";
 import { etapaKeys } from "@/hooks/queries/useEtapas";
 import { deleteMissaoComEtapas } from "services/routes/estatistica/etapas";
 import { ConfirmModal } from "@/components/ConfirmModal";
-import { useSaveMissaoDraft } from "../_hooks/useSaveMissaoDraft";
-import { useUpdateMissaoDraft } from "../_hooks/useUpdateMissaoDraft";
-import { useUnsavedChangesGuard } from "../_hooks/useUnsavedChangesGuard";
+import { useSaveMissaoDraft } from "../hooks/useSaveMissaoDraft";
+import { useUpdateMissaoDraft } from "../hooks/useUpdateMissaoDraft";
+import { useUnsavedChangesGuard } from "../hooks/useUnsavedChangesGuard";
 import { MissaoEditorLayout } from "./MissaoEditorLayout";
 import { MissaoHeader } from "./MissaoHeader";
 import { MissaoSidebar, type SidebarEtapa } from "./MissaoSidebar";

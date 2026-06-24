@@ -5,7 +5,7 @@ import { Label, TextInput } from "flowbite-react";
 import { GiParachute } from "react-icons/gi";
 import { HiX } from "react-icons/hi";
 
-import type { PqdTipo } from "../../_state/types";
+import type { PqdTipo } from "../../context/types";
 
 import { inlineLabelClass, parseIntOrNull, type PqdBlockProps } from "./types";
 

@@ -1,4 +1,4 @@
-import type { DraftHeavyCds, DraftPqd, DraftRevo } from "../../_state/types";
+import type { DraftHeavyCds, DraftPqd, DraftRevo } from "../../context/types";
 
 export interface PqdBlockProps {
    item: DraftPqd;

@@ -14,10 +14,10 @@ import {
 import {
    MissaoDraftProvider,
    useMissaoDraftDispatch,
-} from "../_state/MissaoDraftContext";
-import { emptyDraft } from "../_state/helpers";
-import { MissaoEditor } from "../_components/MissaoEditor";
-import { MissaoEditorSkeleton } from "../_components/MissaoEditorSkeleton";
+} from "../context/MissaoDraftContext";
+import { emptyDraft } from "../context/helpers";
+import { MissaoEditor } from "../components/MissaoEditor";
+import { MissaoEditorSkeleton } from "../components/MissaoEditorSkeleton";
 
 interface HydrateAndRenderProps {
    missao: MissaoComEtapasDetail;
