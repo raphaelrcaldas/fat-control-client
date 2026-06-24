@@ -315,6 +315,33 @@ export async function getEtiquetas(signal?: AbortSignal): Promise<Etiqueta[]> {
    return json.data || [];
 }
 
+export interface CidadePernoite extends Cidade {
+   usos: number;
+   mais_usada: boolean;
+}
+
+const cidadesPernoiteRoute = missoesRoute + "pernoites/cidades";
+
+export const cidadePernoiteKeys = {
+   all: ["pernoite-cidades"] as const,
+   search: (term: string) => [...cidadePernoiteKeys.all, term] as const,
+};
+
+export async function getCidadesPernoite(
+   search: string,
+   signal?: AbortSignal
+): Promise<CidadePernoite[]> {
+   const response = await request(
+      "GET",
+      cidadesPernoiteRoute,
+      null,
+      { search },
+      signal
+   );
+   const json = (await response.json()) as ApiResponse<CidadePernoite[]>;
+   return json.data || [];
+}
+
 export async function createUpdateEtiqueta(
    etiqueta: Etiqueta
 ): Promise<Etiqueta> {

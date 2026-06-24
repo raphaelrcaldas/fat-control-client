@@ -11,7 +11,11 @@ import { IoMdSearch } from "react-icons/io";
 import { HiArrowRight } from "react-icons/hi";
 import { useState, useMemo } from "react";
 import { Cidade } from "services/routes/cities";
-import { Pernoite } from "services/routes/cegep/missoes";
+import {
+   cidadePernoiteKeys,
+   getCidadesPernoite,
+   Pernoite,
+} from "services/routes/cegep/missoes";
 import { SearchLocal } from "@/components/location/SearchLocal";
 import { DeletePernoiteModal } from "../deletePernoiteModal";
 import { formatNaiveDate } from "utils/dateHandler";
@@ -294,6 +298,9 @@ export function FormPernoite({
                      show={showSearchLocal}
                      setShow={setShowSearchLocal}
                      setLocal={setLocal}
+                     fetcher={getCidadesPernoite}
+                     queryKey={cidadePernoiteKeys.search}
+                     allowEmpty
                   />
                </div>
 
