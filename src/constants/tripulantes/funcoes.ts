@@ -267,6 +267,14 @@ export function getPosicoesByFunc(func: FuncType): PosicaoABordo[] {
 }
 
 /**
+ * Código padrão de função a bordo para uma função: primeira posição disponível
+ * ou, na falta, as duas primeiras letras da função em maiúsculas.
+ */
+export function defaultFuncBordo(func: FuncType): string {
+   return getPosicoesByFunc(func)[0]?.codigo ?? func.toUpperCase().slice(0, 2);
+}
+
+/**
  * Retorna o label de uma posição a bordo
  */
 export function getPosicaoLabel(

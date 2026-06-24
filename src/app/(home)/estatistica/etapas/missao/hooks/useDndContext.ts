@@ -14,7 +14,7 @@ import {
 } from "@dnd-kit/core";
 
 import {
-   getPosicoesByFunc,
+   defaultFuncBordo,
    type FuncType,
 } from "@/constants/tripulantes/funcoes";
 
@@ -92,10 +92,6 @@ export function useDndContext({
          }
 
          // Trip coming from the pool → add as a new assignment.
-         const posicoes = getPosicoesByFunc(targetFunc);
-         const defaultFuncBordo =
-            posicoes[0]?.codigo ?? targetFunc.toUpperCase().slice(0, 2);
-
          const assigned: DraftAssignedTrip = {
             tripId: trip.tripId,
             trig: trip.trig,
@@ -105,7 +101,7 @@ export function useDndContext({
             ult_promo: trip.ult_promo,
             ant_rel: trip.ant_rel,
             func: targetFunc,
-            funcBordo: defaultFuncBordo,
+            funcBordo: defaultFuncBordo(targetFunc),
          };
 
          dispatch({

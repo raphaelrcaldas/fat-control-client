@@ -3,7 +3,7 @@
 import { useCallback, useMemo } from "react";
 
 import {
-   getPosicoesByFunc,
+   defaultFuncBordo,
    type FuncType,
 } from "@/constants/tripulantes/funcoes";
 
@@ -242,17 +242,13 @@ export function useEtapaEditor(localId: string): UseEtapaEditorResult {
          if (tripId == null) return;
          if (assignedIds.has(tripId)) return;
 
-         const posicoes = getPosicoesByFunc(func);
-         const defaultFuncBordo =
-            posicoes[0]?.codigo ?? func.toUpperCase().slice(0, 2);
-
          const assigned: DraftAssignedTrip = {
             tripId,
             trig: trip.trig,
             nomeGuerra: trip.user.nome_guerra,
             pGraduacao: trip.user.p_g,
             func,
-            funcBordo: defaultFuncBordo,
+            funcBordo: defaultFuncBordo(func),
          };
 
          dispatch({
