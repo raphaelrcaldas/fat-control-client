@@ -41,7 +41,7 @@ export function PillSelect({
             role="radiogroup"
             aria-label={label}
             className={clsx(
-               "grid auto-cols-fr grid-flow-col gap-1 rounded-lg border p-1",
+               "grid auto-cols-fr grid-flow-col gap-1 rounded border p-1",
                error
                   ? "border-red-400 bg-red-50/40"
                   : "border-gray-200 bg-gray-50"

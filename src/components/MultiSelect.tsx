@@ -92,7 +92,7 @@ export function MultiSelect({
    const dropdownContent = isOpen && (
       <div
          ref={dropdownRef}
-         className="fixed z-9999 max-h-60 overflow-auto rounded-lg border border-gray-300 bg-white shadow-xl"
+         className="fixed z-9999 max-h-60 overflow-auto rounded border border-gray-300 bg-white shadow-xl"
          style={{
             top: dropdownPosition.top,
             left: dropdownPosition.left,
@@ -167,7 +167,7 @@ export function MultiSelect({
             type="button"
             onClick={toggleDropdown}
             style={{ transform: "translateZ(0)" }}
-            className={`flex w-full items-center justify-between gap-2 rounded-lg border bg-white ${SIZING_CLASSES[sizing]} focus:border-red-500 focus:ring-2 focus:ring-red-500 focus:outline-none ${
+            className={`flex w-full items-center justify-between gap-2 rounded border bg-white ${SIZING_CLASSES[sizing]} focus:border-red-500 focus:ring-2 focus:ring-red-500 focus:outline-none ${
                selected.length > 0
                   ? "border-red-300 bg-red-50 text-gray-900 hover:bg-red-100"
                   : "border-gray-300 text-gray-900 hover:bg-gray-50"

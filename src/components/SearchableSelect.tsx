@@ -114,7 +114,7 @@ export function SearchableSelect({
    const dropdownContent = isOpen && (
       <div
          ref={dropdownRef}
-         className="fixed z-9999 overflow-hidden rounded-lg border border-gray-300 bg-white shadow-xl"
+         className="fixed z-9999 overflow-hidden rounded border border-gray-300 bg-white shadow-xl"
          style={{
             top: dropdownPosition.top,
             left: dropdownPosition.left,
@@ -165,7 +165,7 @@ export function SearchableSelect({
             onClick={toggleDropdown}
             style={{ transform: "translateZ(0)" }}
             className={clsx(
-               "flex w-full cursor-pointer items-center justify-between gap-2 rounded-lg border bg-white focus:border-red-500 focus:ring-2 focus:ring-red-500 focus:outline-none",
+               "flex w-full cursor-pointer items-center justify-between gap-2 rounded border bg-white focus:border-red-500 focus:ring-2 focus:ring-red-500 focus:outline-none",
                SIZING_CLASSES[sizing],
                value
                   ? "border-gray-300 text-gray-900 hover:bg-gray-50"

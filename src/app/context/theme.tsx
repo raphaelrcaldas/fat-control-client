@@ -46,12 +46,23 @@ const customTheme = createTheme({
       row: { base: "border-gray-200 bg-white" },
    },
    textInput: {
-      field: { input: { colors: whiteInputColors } },
+      field: {
+         input: {
+            colors: whiteInputColors,
+            withAddon: { on: "rounded-r", off: "rounded" },
+         },
+      },
    },
    select: {
-      field: { select: { colors: whiteInputColors } },
+      field: {
+         select: {
+            colors: whiteInputColors,
+            withAddon: { on: "rounded-r", off: "rounded" },
+         },
+      },
    },
    textarea: {
+      base: "rounded",
       colors: whiteInputColors,
    },
 });
