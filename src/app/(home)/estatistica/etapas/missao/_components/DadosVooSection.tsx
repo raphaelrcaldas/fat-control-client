@@ -168,7 +168,7 @@ export function DadosVooSection({
                   <Label className={fieldLabelClass}>Tempo</Label>
                   <div
                      className={clsx(
-                        "flex h-8.5 items-center justify-center rounded-md border px-3 font-mono text-xs",
+                        "flex h-8.5 items-center justify-center rounded border px-3 font-mono text-sm",
                         crossesDay
                            ? "border-red-300 bg-red-50 text-red-700"
                            : tvoo > 0 && tvooValid
@@ -220,27 +220,27 @@ export function DadosVooSection({
                   {formData.destino === "ROTA" &&
                      formData.pousos !== 0 &&
                      !errors.pousos && (
-                        <p className="mt-1 rounded bg-amber-100 px-1 py-0.5 text-xs font-medium text-amber-700">
-                           (ROTA) Pousos &gt; 0?
+                        <p className="mt-1 rounded border bg-amber-100 px-1 py-0.5 text-center text-xs font-medium text-amber-700">
+                           (ROTA) Pousos &gt; 0 ?
                         </p>
                      )}
                </div>
-               <div className="flex h-8.5 flex-col items-center justify-end">
+               <div className="flex flex-col items-center justify-end">
                   <Label className={fieldLabelClass}>Sagem</Label>
                   <ToggleSwitch
                      checked={formData.sagem}
                      onChange={(v) => setField("sagem", v)}
                      color="red"
-                     sizing="sm"
+                     sizing="md"
                   />
                </div>
-               <div className="flex h-8.5 flex-col items-center justify-end">
+               <div className="flex flex-col items-center justify-end">
                   <Label className={fieldLabelClass}>Parte 1</Label>
                   <ToggleSwitch
                      checked={formData.parte1}
                      onChange={(v) => setField("parte1", v)}
                      color="red"
-                     sizing="sm"
+                     sizing="md"
                   />
                </div>
             </div>

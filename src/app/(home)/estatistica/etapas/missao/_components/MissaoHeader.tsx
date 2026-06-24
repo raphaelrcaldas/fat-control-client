@@ -108,6 +108,7 @@ export function MissaoHeader({
                <Button
                   color="red"
                   size="sm"
+                  className="w-32"
                   onClick={onSave}
                   disabled={isSaving || saveDisabled}
                   title={

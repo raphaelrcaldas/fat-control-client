@@ -38,7 +38,7 @@ export function OrdensInstrucaoSection({
                {oiItems.length > 0 && (
                   <span
                      className={clsx(
-                        "rounded-full px-2.5 py-1 text-xs font-bold tracking-wide uppercase",
+                        "rounded px-2.5 py-1 text-xs font-bold tracking-wide uppercase",
                         oiValid
                            ? "bg-green-100 text-green-700 ring-1 ring-green-300"
                            : "bg-amber-100 text-amber-700 ring-1 ring-amber-300"
@@ -126,7 +126,7 @@ export function OrdensInstrucaoSection({
                         >
                            Regime
                         </Label>
-                        <div className="flex overflow-hidden rounded-md border border-gray-300">
+                        <div className="flex overflow-hidden rounded border border-gray-300">
                            {(
                               [
                                  { v: "d", l: "D" },

@@ -29,9 +29,11 @@ function DraggablePoolChip({ trip }: { trip: DraftPoolTrip }) {
       <div
          ref={setNodeRef}
          className={clsx(
-            "w-fit cursor-grab items-center rounded px-3 py-1 text-center font-mono text-sm font-semibold uppercase",
+            "w-fit cursor-grab items-center rounded border px-3 py-1 text-center font-mono text-sm font-semibold uppercase",
             isDragging ? "opacity-30" : "",
-            colors ? colors.badge : "bg-gray-100 text-gray-600"
+            colors
+               ? colors.badge
+               : "border-gray-500/20 bg-gray-100 text-gray-600"
          )}
          {...listeners}
          {...attributes}
