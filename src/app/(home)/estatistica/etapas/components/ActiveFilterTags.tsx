@@ -49,7 +49,7 @@ export function ActiveFilterTags({
    onClearAll,
 }: ActiveFilterTagsProps) {
    return (
-      <div className="mb-3 flex shrink-0 flex-wrap items-center gap-2">
+      <div className="mb-1 ml-1 flex shrink-0 flex-wrap items-center gap-2">
          <span className="text-xs font-medium text-gray-600">
             Filtros ativos:
          </span>

@@ -1,6 +1,6 @@
 "use client";
 
-import { Button, Badge, Select, Spinner } from "flowbite-react";
+import { Button, Badge, Select } from "flowbite-react";
 import { MdBarChart } from "react-icons/md";
 import {
    HiFilter,
@@ -14,6 +14,7 @@ import Link from "next/link";
 import { Pagination } from "@/components/Pagination";
 import { useState, useCallback } from "react";
 import { EtapasTable } from "./components/EtapasTable/EtapasTable";
+import { EtapasTableSkeleton } from "./components/EtapasTable/EtapasTableSkeleton";
 import { EtapasFilterPanel } from "./components/EtapasFilterPanel";
 import { ActiveFilterTags } from "./components/ActiveFilterTags";
 import { MissaoDeleteModal } from "./components/MissaoDeleteModal";
@@ -197,16 +198,7 @@ export default function EtapasPage() {
          />
 
          <div className="relative flex-1 overflow-auto">
-            {filters.loading && (
-               <div className="flex h-64 items-center justify-center">
-                  <div className="flex flex-col items-center gap-3">
-                     <Spinner size="lg" color="failure" />
-                     <p className="text-sm text-gray-600">
-                        Carregando etapas...
-                     </p>
-                  </div>
-               </div>
-            )}
+            {filters.loading && <EtapasTableSkeleton grouped={groupByMissao} />}
 
             {!filters.loading &&
                (groupByMissao

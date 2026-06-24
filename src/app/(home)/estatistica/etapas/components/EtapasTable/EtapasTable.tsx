@@ -280,11 +280,11 @@ export function EtapasTable({
    );
 
    return (
-      <div className="space-y-3">
+      <div className="space-y-2">
          {grouped ? (
             <>
                {/* Selecionar tudo da pagina + ações em massa */}
-               <div className="ml-2 flex h-10 flex-wrap items-center gap-2 px-1">
+               <div className="ml-1 flex h-10 flex-wrap items-center gap-2 px-1">
                   <Checkbox
                      id="select-all-etapas"
                      color="red"

@@ -43,7 +43,7 @@ export const MissaoCard = memo(function MissaoCard({
    const hasEtapas = missao.etapas.length > 0;
 
    return (
-      <div className="mx-0.5 overflow-hidden rounded bg-white shadow ring-1 ring-gray-300">
+      <div className="mx-0.5 overflow-hidden rounded border border-gray-300 bg-white shadow">
          {/* Header da missao */}
          <div className="flex flex-wrap items-center gap-3 border-b border-slate-200 bg-white p-1.5">
             {hasEtapas && (

@@ -14,9 +14,9 @@ export function MissaoEditorSkeleton() {
             {/* Sidebar */}
             <div className="hidden h-full w-88 flex-col border-r border-gray-200 bg-gray-50 lg:flex">
                <div className="flex flex-col gap-3 border-b border-gray-200 bg-white p-4">
-                  <div className="h-9 w-full rounded-md bg-gray-100" />
-                  <div className="h-12 w-full rounded-md bg-gray-100" />
-                  <div className="h-9 w-full rounded-lg bg-gray-200" />
+                  <div className="h-9 w-full rounded-md bg-slate-100" />
+                  <div className="h-12 w-full rounded-md bg-slate-100" />
+                  <div className="h-9 w-full rounded bg-slate-200" />
                </div>
                <div className="flex flex-col gap-2 p-3">
                   {Array.from({ length: 4 }).map((_, i) => (
@@ -25,15 +25,15 @@ export function MissaoEditorSkeleton() {
                         className="flex flex-col gap-2 border border-gray-200 bg-white p-3 pl-4 shadow"
                      >
                         <div className="flex items-center justify-between">
-                           <div className="h-4 w-32 rounded bg-gray-200" />
-                           <div className="h-3 w-12 rounded bg-gray-100" />
+                           <div className="h-4 w-32 rounded bg-slate-200" />
+                           <div className="h-3 w-12 rounded bg-slate-100" />
                         </div>
                         <div className="flex items-center justify-between">
-                           <div className="h-3 w-24 rounded bg-gray-100" />
-                           <div className="h-4 w-12 rounded bg-gray-200" />
+                           <div className="h-3 w-24 rounded bg-slate-100" />
+                           <div className="h-4 w-12 rounded bg-slate-200" />
                         </div>
                         <div className="flex justify-end">
-                           <div className="h-4 w-16 rounded-full bg-gray-100" />
+                           <div className="h-4 w-16 rounded-full bg-slate-100" />
                         </div>
                      </div>
                   ))}
@@ -44,15 +44,15 @@ export function MissaoEditorSkeleton() {
             <div className="flex min-h-0 w-full flex-col">
                <div className="flex items-center justify-between border-b border-gray-200 bg-white px-6 py-4">
                   <div className="flex items-center gap-3">
-                     <div className="h-9 w-9 rounded-full bg-gray-100" />
+                     <div className="h-9 w-9 rounded-full bg-slate-100" />
                      <div className="flex flex-col gap-2">
-                        <div className="h-7 w-40 rounded bg-gray-200" />
-                        <div className="h-4 w-64 rounded bg-gray-100" />
+                        <div className="h-7 w-40 rounded bg-slate-200" />
+                        <div className="h-4 w-64 rounded bg-slate-100" />
                      </div>
                   </div>
                   <div className="flex items-center gap-2">
-                     <div className="h-9 w-28 rounded-lg bg-gray-100" />
-                     <div className="h-9 w-20 rounded-lg bg-gray-200" />
+                     <div className="h-9 w-28 rounded bg-slate-100" />
+                     <div className="h-9 w-20 rounded bg-slate-200" />
                   </div>
                </div>
                <div className="flex-1 overflow-hidden py-5">
@@ -69,8 +69,8 @@ export function MissaoEditorSkeleton() {
                            <div className="grid grid-cols-2 gap-4 p-4 sm:grid-cols-4">
                               {Array.from({ length: 4 }).map((_, j) => (
                                  <div key={j} className="flex flex-col gap-1.5">
-                                    <div className="h-3 w-16 rounded bg-gray-100" />
-                                    <div className="h-8 w-full rounded-md bg-gray-100" />
+                                    <div className="h-3 w-16 rounded bg-slate-100" />
+                                    <div className="h-8 w-full rounded-md bg-slate-100" />
                                  </div>
                               ))}
                            </div>
