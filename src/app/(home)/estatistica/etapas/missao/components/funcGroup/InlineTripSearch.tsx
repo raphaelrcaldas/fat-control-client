@@ -1,184 +1,18 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import clsx from "clsx";
-import { useDroppable } from "@dnd-kit/core";
-import { HiPlus, HiSearch, HiX } from "react-icons/hi";
-import { HiChevronDown } from "react-icons/hi2";
+import { HiPlus, HiSearch } from "react-icons/hi";
 import { Spinner, TextInput } from "flowbite-react";
 import { useQuery } from "@tanstack/react-query";
-import { MdDragIndicator } from "react-icons/md";
-import {
-   FUNCOES_CONFIG,
-   getPosicoesByFunc,
-} from "@/constants/tripulantes/funcoes";
-import type { FuncType, PosicaoABordo } from "@/constants/tripulantes/funcoes";
+import type { FuncType } from "@/constants/tripulantes/funcoes";
 import { tripKeys } from "@/hooks/queries/useTrips";
 import { getTrips } from "services/routes/trips";
 import useDebouncedValue from "@/hooks/useDebouncedValue";
-import type { DraftAssignedTrip } from "../context/types";
 
-function FuncBordoSelect({
-   value,
-   options,
-   onChange,
-}: {
-   value: string;
-   options: PosicaoABordo[];
-   onChange: (codigo: string) => void;
-}) {
-   const [open, setOpen] = useState(false);
-   const [pos, setPos] = useState<{ top: number; right: number } | null>(null);
-   const buttonRef = useRef<HTMLButtonElement>(null);
-   const dropdownRef = useRef<HTMLUListElement>(null);
+import { usePortalDropdown } from "../../hooks/usePortalDropdown";
+import { HighlightMatch } from "./HighlightMatch";
 
-   useEffect(() => {
-      if (!open) return;
-      const btn = buttonRef.current;
-      if (!btn) return;
-
-      function reposition() {
-         if (!btn) return;
-         const rect = btn.getBoundingClientRect();
-         setPos({
-            top: rect.bottom + 2,
-            right: window.innerWidth - rect.right,
-         });
-      }
-      reposition();
-
-      function handleOutside(e: MouseEvent) {
-         const target = e.target as Node;
-         if (btn?.contains(target)) return;
-         if (dropdownRef.current?.contains(target)) return;
-         setOpen(false);
-      }
-      function handleEscape(e: KeyboardEvent) {
-         if (e.key === "Escape") setOpen(false);
-      }
-      function handleClose() {
-         setOpen(false);
-      }
-      document.addEventListener("mousedown", handleOutside);
-      document.addEventListener("keydown", handleEscape);
-      window.addEventListener("scroll", handleClose, true);
-      window.addEventListener("resize", handleClose);
-      return () => {
-         document.removeEventListener("mousedown", handleOutside);
-         document.removeEventListener("keydown", handleEscape);
-         window.removeEventListener("scroll", handleClose, true);
-         window.removeEventListener("resize", handleClose);
-      };
-   }, [open]);
-
-   return (
-      <div className="relative shrink-0">
-         <button
-            ref={buttonRef}
-            type="button"
-            onClick={() => setOpen((v) => !v)}
-            className="flex w-12 items-center justify-between border border-gray-300 bg-gray-50 px-1 py-0.5 text-[10px] font-bold text-gray-700 focus:border-red-400 focus:ring-1 focus:ring-red-400 focus:outline-none"
-         >
-            <span>{value}</span>
-            <HiChevronDown className="h-2.5 w-2.5 text-gray-400" />
-         </button>
-         {open &&
-            pos &&
-            createPortal(
-               <ul
-                  ref={dropdownRef}
-                  role="listbox"
-                  style={{
-                     position: "fixed",
-                     top: pos.top,
-                     right: pos.right,
-                  }}
-                  className="z-50 min-w-12 overflow-hidden rounded border border-gray-200 bg-white shadow-lg"
-               >
-                  {options.map((p) => {
-                     const selected = p.codigo === value;
-                     return (
-                        <li key={p.codigo}>
-                           <button
-                              type="button"
-                              role="option"
-                              aria-selected={selected}
-                              onClick={() => {
-                                 onChange(p.codigo);
-                                 setOpen(false);
-                              }}
-                              title={p.label}
-                              className={clsx(
-                                 "block w-full px-2 py-1 text-left text-[10px] font-bold uppercase",
-                                 selected
-                                    ? "bg-red-50 text-red-700"
-                                    : "text-gray-700 hover:bg-gray-100"
-                              )}
-                           >
-                              {p.codigo}
-                           </button>
-                        </li>
-                     );
-                  })}
-               </ul>,
-               document.body
-            )}
-      </div>
-   );
-}
-
-const colorMap: Record<string, string> = {
-   blue: "border-blue-200 bg-blue-50",
-   amber: "border-amber-200 bg-amber-50",
-   emerald: "border-emerald-200 bg-emerald-50",
-   cyan: "border-cyan-200 bg-cyan-50",
-   red: "border-red-200 bg-red-50",
-   purple: "border-purple-200 bg-purple-50",
-   pink: "border-pink-200 bg-pink-50",
-   gray: "border-gray-200 bg-gray-50",
-};
-
-const headerColorMap: Record<string, string> = {
-   blue: "bg-blue-100 text-blue-700",
-   amber: "bg-amber-100 text-amber-700",
-   emerald: "bg-emerald-100 text-emerald-700",
-   cyan: "bg-cyan-100 text-cyan-700",
-   red: "bg-red-100 text-red-700",
-   purple: "bg-purple-100 text-purple-700",
-   pink: "bg-pink-100 text-pink-700",
-   gray: "bg-gray-100 text-gray-600",
-};
-
-const trigColorMap: Record<string, string> = {
-   blue: "text-blue-700",
-   amber: "text-amber-700",
-   emerald: "text-emerald-700",
-   cyan: "text-cyan-700",
-   red: "text-red-700",
-   purple: "text-purple-700",
-   pink: "text-pink-700",
-   gray: "text-gray-600",
-};
-
-// Destaca o trecho do texto que casa com o termo buscado
-function HighlightMatch({ text, term }: { text: string; term: string }) {
-   const trimmed = term.trim();
-   if (!trimmed) return <>{text}</>;
-
-   const idx = text.toLowerCase().indexOf(trimmed.toLowerCase());
-   if (idx === -1) return <>{text}</>;
-
-   return (
-      <>
-         {text.slice(0, idx)}
-         <span className="font-bold text-gray-900">
-            {text.slice(idx, idx + trimmed.length)}
-         </span>
-         {text.slice(idx + trimmed.length)}
-      </>
-   );
-}
-
-interface SearchTrip {
+export interface SearchTrip {
    id?: number;
    trig: string;
    user: { nome_guerra: string; p_g: string };
@@ -187,7 +21,7 @@ interface SearchTrip {
 // Busca de tripulante no padrão do TripulanteSelect (ops/om): botão
 // "Adicionar" que vira campo de busca, com resultados em dropdown via
 // portal — posição fixa fora do fluxo, sem expandir o card da função
-function InlineTripSearch({
+export function InlineTripSearch({
    func,
    funcLabel,
    trigClass,
@@ -204,11 +38,6 @@ function InlineTripSearch({
    const [isOpen, setIsOpen] = useState(false);
    const [showSearch, setShowSearch] = useState(false);
    const [activeIndex, setActiveIndex] = useState(-1);
-   const [dropdownPosition, setDropdownPosition] = useState<{
-      top: number;
-      left: number;
-      width: number;
-   } | null>(null);
    const containerRef = useRef<HTMLDivElement>(null);
    const inputRef = useRef<HTMLInputElement>(null);
    const inputWrapperRef = useRef<HTMLDivElement>(null);
@@ -251,27 +80,15 @@ function InlineTripSearch({
 
    // Calcula a posição do dropdown baseado no input; o card da função é
    // estreito, então garante uma largura mínima legível sem sair da viewport
-   const updateDropdownPosition = useCallback(() => {
-      if (inputWrapperRef.current) {
-         const rect = inputWrapperRef.current.getBoundingClientRect();
+   const dropdownPosition = usePortalDropdown({
+      open: isOpen,
+      anchorRef: inputWrapperRef,
+      compute: (rect) => {
          const width = Math.max(rect.width, 240);
          const left = Math.min(rect.left, window.innerWidth - width - 8);
-         setDropdownPosition({ top: rect.bottom + 4, left, width });
-      }
-   }, []);
-
-   // Atualiza a posição quando o dropdown abre ou quando há scroll/resize
-   useEffect(() => {
-      if (isOpen) {
-         updateDropdownPosition();
-         window.addEventListener("scroll", updateDropdownPosition, true);
-         window.addEventListener("resize", updateDropdownPosition);
-         return () => {
-            window.removeEventListener("scroll", updateDropdownPosition, true);
-            window.removeEventListener("resize", updateDropdownPosition);
-         };
-      }
-   }, [isOpen, updateDropdownPosition]);
+         return { top: rect.bottom + 4, left, width };
+      },
+   });
 
    const closeSearch = useCallback(() => {
       setIsOpen(false);
@@ -487,126 +304,6 @@ function InlineTripSearch({
                </div>,
                document.body
             )}
-      </div>
-   );
-}
-
-export function FuncGroupDropZone({
-   func,
-   trips,
-   onFuncBordoChange,
-   onRemoveAll,
-   onRemove,
-   onAddTrip,
-   assignedIds,
-}: {
-   func: FuncType;
-   trips: DraftAssignedTrip[];
-   onFuncBordoChange: (tripId: number, funcBordo: string) => void;
-   onRemoveAll: () => void;
-   onRemove: (tripId: number) => void;
-   onAddTrip: (
-      trip: {
-         id?: number;
-         trig: string;
-         user: { nome_guerra: string; p_g: string };
-      },
-      func: FuncType
-   ) => void;
-   assignedIds: Set<number>;
-}) {
-   const { isOver, setNodeRef } = useDroppable({
-      id: `group-${func}`,
-      data: { targetFunc: func },
-   });
-
-   const config = FUNCOES_CONFIG[func];
-   const posicoes = getPosicoesByFunc(func);
-   const color = config.theme.color;
-
-   const zoneClass = isOver
-      ? "border-blue-400 bg-blue-100 ring-2 ring-blue-300"
-      : (colorMap[color] ?? "border-gray-200 bg-gray-50");
-
-   return (
-      <div
-         ref={setNodeRef}
-         className={clsx("flex min-h-20 flex-col border shadow-sm", zoneClass)}
-      >
-         <div
-            className={clsx(
-               "flex items-center justify-between px-2 py-1 text-xs font-semibold",
-               headerColorMap[color] ?? "bg-gray-100 text-gray-600"
-            )}
-         >
-            <span>
-               {config.label}
-               {trips.length > 0 && (
-                  <span className="ml-1 font-normal opacity-70">
-                     ({trips.length})
-                  </span>
-               )}
-            </span>
-            {trips.length > 0 && (
-               <button
-                  type="button"
-                  onClick={onRemoveAll}
-                  className="rounded p-0.5 opacity-60 hover:opacity-100"
-                  title="Limpar todos"
-               >
-                  <HiX className="h-3 w-3" />
-               </button>
-            )}
-         </div>
-
-         <div className="flex flex-col gap-1 p-1.5">
-            {/* Assigned trips */}
-            {trips.map((t) => (
-               <div
-                  key={t.tripId}
-                  className="flex items-center gap-1 border border-slate-200 bg-white px-1.5 py-1 text-xs uppercase shadow"
-               >
-                  <MdDragIndicator className="h-3.5 w-3.5 shrink-0 text-gray-300" />
-                  <span className="min-w-0 flex-1 truncate font-medium text-gray-700">
-                     {t.pGraduacao} {t.nomeGuerra}
-                  </span>
-                  {posicoes.length > 0 ? (
-                     <FuncBordoSelect
-                        value={t.funcBordo}
-                        options={posicoes}
-                        onChange={(codigo) =>
-                           onFuncBordoChange(t.tripId, codigo)
-                        }
-                     />
-                  ) : (
-                     <span className="shrink-0 text-xs text-gray-400">--</span>
-                  )}
-                  <button
-                     type="button"
-                     onClick={() => onRemove(t.tripId)}
-                     title={`Remover ${t.nomeGuerra}`}
-                     aria-label={`Remover ${t.nomeGuerra} da função ${config.label}`}
-                     className="ml-0.5 shrink-0 text-gray-300 hover:text-red-500"
-                  >
-                     <HiX className="h-3 w-3" />
-                  </button>
-               </div>
-            ))}
-
-            {trips.length === 0 && (
-               <p className="py-1 text-center text-xs text-gray-400">
-                  Arraste tripulantes para cá
-               </p>
-            )}
-
-            <InlineTripSearch
-               func={func}
-               funcLabel={config.label}
-               trigClass={trigColorMap[color] ?? "text-gray-600"}
-               assignedIds={assignedIds}
-               onAdd={(trip) => onAddTrip(trip, func)}
-            />
-         </div>
       </div>
    );
 }

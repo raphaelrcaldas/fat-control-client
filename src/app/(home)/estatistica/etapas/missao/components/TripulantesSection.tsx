@@ -16,7 +16,7 @@ import {
 } from "@/constants/tripulantes/funcoes";
 import type { FuncType } from "@/constants/tripulantes/funcoes";
 import type { DraftAssignedTrip, DraftPoolTrip } from "../context/types";
-import { FuncGroupDropZone } from "./FuncGroupDropZone";
+import { FuncGroupDropZone } from "./funcGroup/FuncGroupDropZone";
 
 function DraggablePoolChip({ trip }: { trip: DraftPoolTrip }) {
    const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
