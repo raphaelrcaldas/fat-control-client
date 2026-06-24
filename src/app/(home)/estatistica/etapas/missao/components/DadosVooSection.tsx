@@ -4,19 +4,11 @@ import { minutesToTime } from "@/../utils/dateHandler";
 
 import { toIcao, toNivelDigits } from "../context/format";
 import { isRotaPousoSuspeito } from "../context/selectors";
-import type { EtapaFormData } from "../context/types";
+import type { EtapaFormGroup } from "../hooks/useEtapaEditor";
 import { FormField } from "./FormField";
 
 interface DadosVooSectionProps {
-   formData: EtapaFormData;
-   setField: <K extends keyof EtapaFormData>(
-      key: K,
-      value: EtapaFormData[K]
-   ) => void;
-   errors: Partial<Record<keyof EtapaFormData, string>>;
-   tvoo: number;
-   tvooValid: boolean;
-   crossesDay: boolean;
+   form: EtapaFormGroup;
    aeronavesList: Array<{ matricula: string }>;
 }
 
@@ -31,15 +23,8 @@ const complementares = [
    { key: "lub", label: "Lub (L)", min: 0, max: 9999.9, step: 0.1 },
 ] as const;
 
-export function DadosVooSection({
-   formData,
-   setField,
-   errors,
-   tvoo,
-   tvooValid,
-   crossesDay,
-   aeronavesList,
-}: DadosVooSectionProps) {
+export function DadosVooSection({ form, aeronavesList }: DadosVooSectionProps) {
+   const { formData, setField, errors, tvoo, tvooValid, crossesDay } = form;
    return (
       <section className="space-y-6">
          {/* Bloco 1: Identificação do Voo */}

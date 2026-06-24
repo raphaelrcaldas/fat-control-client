@@ -6,26 +6,15 @@ import { HiOutlineCube, HiPlus } from "react-icons/hi";
 import { FaGasPump } from "react-icons/fa";
 import type { IconType } from "react-icons";
 
-import type {
-   DraftHeavyCds,
-   DraftPqd,
-   DraftRevo,
-   EspecificoKind,
-} from "../../context/types";
+import type { EspecificoKind } from "../../context/types";
+import type { EtapaEspecificosGroup } from "../../hooks/useEtapaEditor";
 
 import { HvyCdsBlock } from "./HvyCdsBlock";
 import { PqdBlock } from "./PqdBlock";
 import { RevoBlock } from "./RevoBlock";
 
 interface EspecificosSectionProps {
-   pqd: DraftPqd[];
-   revo: DraftRevo[];
-   heavyCds: DraftHeavyCds[];
-   addEspecifico: (kind: EspecificoKind) => void;
-   removeEspecifico: (kind: EspecificoKind, uid: string) => void;
-   updatePqd: (uid: string, patch: Partial<DraftPqd>) => void;
-   updateRevo: (uid: string, patch: Partial<DraftRevo>) => void;
-   updateHeavyCds: (uid: string, patch: Partial<DraftHeavyCds>) => void;
+   especificos: EtapaEspecificosGroup;
 }
 
 interface AddButtonConfig {
@@ -58,16 +47,17 @@ const ADD_BUTTONS: AddButtonConfig[] = [
    },
 ];
 
-export function EspecificosSection({
-   pqd,
-   revo,
-   heavyCds,
-   addEspecifico,
-   removeEspecifico,
-   updatePqd,
-   updateRevo,
-   updateHeavyCds,
-}: EspecificosSectionProps) {
+export function EspecificosSection({ especificos }: EspecificosSectionProps) {
+   const {
+      pqd,
+      revo,
+      heavyCds,
+      addEspecifico,
+      removeEspecifico,
+      updatePqd,
+      updateRevo,
+      updateHeavyCds,
+   } = especificos;
    const total = pqd.length + revo.length + heavyCds.length;
 
    return (

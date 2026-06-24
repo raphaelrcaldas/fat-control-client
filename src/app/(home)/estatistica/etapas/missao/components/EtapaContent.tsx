@@ -29,42 +29,12 @@ export function EtapaContent({ localId }: EtapaContentProps) {
    const draft = useMissaoDraft();
    const dispatch = useMissaoDraftDispatch();
 
-   const editor = useEtapaEditor(localId);
-   const {
-      etapa,
-      formData,
-      setField,
-      errors,
-      tvoo,
-      tvooValid,
-      crossesDay,
-      oiItems,
-      addOiItem,
-      removeOiItem,
-      updateOiItem,
-      oiTotalTvoo,
-      oiValid,
-      poolTrips,
-      assignedTrips,
-      assignedIds,
-      removeAllFromFunc,
-      removeFromGroup,
-      updateFuncBordo,
-      addTripToGroup,
-      pqd,
-      revo,
-      heavyCds,
-      addEspecifico,
-      removeEspecifico,
-      updatePqd,
-      updateRevo,
-      updateHeavyCds,
-   } = editor;
+   const { etapa, form, oi, trips, especificos } = useEtapaEditor(localId);
 
    const { sensors, activeTrip, handleDragStart, handleDragEnd } =
       useDndContext({
          selectedLocalId: localId,
-         assignedTrips,
+         assignedTrips: trips.assignedTrips,
          dispatch,
       });
 
@@ -112,26 +82,13 @@ export function EtapaContent({ localId }: EtapaContentProps) {
          )}
 
          <EtapaSectionCard title="Dados do Voo">
-            <DadosVooSection
-               formData={formData}
-               setField={setField}
-               errors={errors}
-               tvoo={tvoo}
-               tvooValid={tvooValid}
-               crossesDay={crossesDay}
-               aeronavesList={aeronavesList}
-            />
+            <DadosVooSection form={form} aeronavesList={aeronavesList} />
          </EtapaSectionCard>
 
          <EtapaSectionCard title="Ordens de Instrução">
             <OrdensInstrucaoSection
-               oiItems={oiItems}
-               addOiItem={addOiItem}
-               removeOiItem={removeOiItem}
-               updateOiItem={updateOiItem}
-               oiTotalTvoo={oiTotalTvoo}
-               oiValid={oiValid}
-               tvoo={tvoo}
+               oi={oi}
+               tvoo={form.tvoo}
                esfAerList={esfAerList}
                tiposMissaoList={tiposMissaoList}
             />
@@ -139,13 +96,7 @@ export function EtapaContent({ localId }: EtapaContentProps) {
 
          <EtapaSectionCard title="Tripulantes">
             <TripulantesSection
-               poolTrips={poolTrips}
-               assignedTrips={assignedTrips}
-               assignedIds={assignedIds}
-               updateFuncBordo={updateFuncBordo}
-               removeAllFromFunc={removeAllFromFunc}
-               removeFromGroup={removeFromGroup}
-               addTripToGroup={addTripToGroup}
+               trips={trips}
                sensors={sensors}
                activeTrip={activeTrip}
                handleDragStart={handleDragStart}
@@ -154,16 +105,7 @@ export function EtapaContent({ localId }: EtapaContentProps) {
          </EtapaSectionCard>
 
          <EtapaSectionCard title="Específicos da Missão">
-            <EspecificosSection
-               pqd={pqd}
-               revo={revo}
-               heavyCds={heavyCds}
-               addEspecifico={addEspecifico}
-               removeEspecifico={removeEspecifico}
-               updatePqd={updatePqd}
-               updateRevo={updateRevo}
-               updateHeavyCds={updateHeavyCds}
-            />
+            <EspecificosSection especificos={especificos} />
          </EtapaSectionCard>
       </>
    );

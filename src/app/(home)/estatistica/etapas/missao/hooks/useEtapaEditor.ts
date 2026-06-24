@@ -16,7 +16,6 @@ import {
    calcTvoo,
    selectEtapaTotals,
 } from "../context/selectors";
-import { selectEspecificosValid } from "../context/validators";
 import type {
    DraftAssignedTrip,
    DraftEtapa,
@@ -47,10 +46,7 @@ interface AddTripInput {
    user: { nome_guerra: string; p_g: string };
 }
 
-export interface UseEtapaEditorResult {
-   etapa: DraftEtapa;
-
-   // Form
+export interface EtapaFormGroup {
    formData: EtapaFormData;
    setField: <K extends keyof EtapaFormData>(
       key: K,
@@ -60,16 +56,18 @@ export interface UseEtapaEditorResult {
    tvooValid: boolean;
    crossesDay: boolean;
    errors: FormErrors;
+}
 
-   // OIs
+export interface EtapaOiGroup {
    oiItems: DraftOIItem[];
    addOiItem: () => void;
    removeOiItem: (uid: string) => void;
    updateOiItem: (uid: string, patch: Partial<DraftOIItem>) => void;
    oiTotalTvoo: number;
    oiValid: boolean;
+}
 
-   // Tripulantes
+export interface EtapaTripsGroup {
    poolTrips: DraftPoolTrip[];
    assignedTrips: DraftAssignedTrip[];
    assignedIds: Set<number>;
@@ -77,8 +75,9 @@ export interface UseEtapaEditorResult {
    removeFromGroup: (tripId: number) => void;
    updateFuncBordo: (tripId: number, funcBordo: string) => void;
    addTripToGroup: (trip: AddTripInput, func: FuncType) => void;
+}
 
-   // Especificos
+export interface EtapaEspecificosGroup {
    pqd: DraftPqd[];
    revo: DraftRevo[];
    heavyCds: DraftHeavyCds[];
@@ -87,9 +86,14 @@ export interface UseEtapaEditorResult {
    updatePqd: (uid: string, patch: Partial<DraftPqd>) => void;
    updateRevo: (uid: string, patch: Partial<DraftRevo>) => void;
    updateHeavyCds: (uid: string, patch: Partial<DraftHeavyCds>) => void;
+}
 
-   // Validation
-   validate: () => boolean;
+export interface UseEtapaEditorResult {
+   etapa: DraftEtapa;
+   form: EtapaFormGroup;
+   oi: EtapaOiGroup;
+   trips: EtapaTripsGroup;
+   especificos: EtapaEspecificosGroup;
 }
 
 function deriveErrors(form: EtapaFormData, crossesDay: boolean): FormErrors {
@@ -296,53 +300,42 @@ export function useEtapaEditor(localId: string): UseEtapaEditorResult {
       [dispatch, localId]
    );
 
-   // Imperative validation (mirrors original useEtapaForm.validate()).
-   // Parte do liveErrors (limites + atravessa-dia) e adiciona os obrigatorios
-   // de submit; o erro de atravessa-dia ja vem de liveErrors, nao precisa repetir.
-   const validate = useCallback((): boolean => {
-      const errs: FormErrors = { ...liveErrors };
-      if (!formData.data) errs.data = "Informe a data";
-      if (!formData.origem || formData.origem.length !== 4)
-         errs.origem = "Codigo ICAO deve ter 4 caracteres";
-      if (!formData.destino || formData.destino.length !== 4)
-         errs.destino = "Codigo ICAO deve ter 4 caracteres";
-      if (!formData.dep) errs.dep = "Informe a hora de decolagem";
-      if (!formData.arr) errs.arr = "Informe a hora de pouso";
-      if (!formData.anv) errs.anv = "Selecione a aeronave";
-
-      const baseOk = Object.keys(errs).length === 0;
-      return baseOk && tvooValid && oiValid && selectEspecificosValid(etapa);
-   }, [etapa, formData, liveErrors, oiValid, tvooValid]);
-
    return {
       etapa,
-      formData,
-      setField,
-      tvoo,
-      tvooValid,
-      crossesDay,
-      errors: liveErrors,
-      oiItems,
-      addOiItem,
-      removeOiItem,
-      updateOiItem,
-      oiTotalTvoo: oiTvooSum,
-      oiValid,
-      poolTrips,
-      assignedTrips,
-      assignedIds,
-      removeAllFromFunc,
-      removeFromGroup,
-      updateFuncBordo,
-      addTripToGroup,
-      pqd: etapa.pqd,
-      revo: etapa.revo,
-      heavyCds: etapa.heavyCds,
-      addEspecifico,
-      removeEspecifico,
-      updatePqd,
-      updateRevo,
-      updateHeavyCds,
-      validate,
+      form: {
+         formData,
+         setField,
+         tvoo,
+         tvooValid,
+         crossesDay,
+         errors: liveErrors,
+      },
+      oi: {
+         oiItems,
+         addOiItem,
+         removeOiItem,
+         updateOiItem,
+         oiTotalTvoo: oiTvooSum,
+         oiValid,
+      },
+      trips: {
+         poolTrips,
+         assignedTrips,
+         assignedIds,
+         removeAllFromFunc,
+         removeFromGroup,
+         updateFuncBordo,
+         addTripToGroup,
+      },
+      especificos: {
+         pqd: etapa.pqd,
+         revo: etapa.revo,
+         heavyCds: etapa.heavyCds,
+         addEspecifico,
+         removeEspecifico,
+         updatePqd,
+         updateRevo,
+         updateHeavyCds,
+      },
    };
 }

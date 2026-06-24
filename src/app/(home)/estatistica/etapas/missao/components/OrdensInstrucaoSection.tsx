@@ -3,15 +3,10 @@ import { HiPlus, HiX } from "react-icons/hi";
 import { Button, Label, TextInput } from "flowbite-react";
 import { minutesToTime, timeToMinutes } from "@/../utils/dateHandler";
 import { SearchableSelect } from "@/components/SearchableSelect";
-import type { DraftOIItem } from "../context/types";
+import type { EtapaOiGroup } from "../hooks/useEtapaEditor";
 
 interface OrdensInstrucaoSectionProps {
-   oiItems: DraftOIItem[];
-   addOiItem: () => void;
-   removeOiItem: (uid: string) => void;
-   updateOiItem: (uid: string, patch: Partial<DraftOIItem>) => void;
-   oiTotalTvoo: number;
-   oiValid: boolean;
+   oi: EtapaOiGroup;
    tvoo: number;
    esfAerList: Array<{ id: number; descricao: string }>;
    tiposMissaoList: Array<{ id: number; cod: string; desc: string }>;
@@ -21,16 +16,19 @@ const fieldLabelClass =
    "mb-1 block text-xs font-semibold tracking-wide text-gray-500 uppercase";
 
 export function OrdensInstrucaoSection({
-   oiItems,
-   addOiItem,
-   removeOiItem,
-   updateOiItem,
-   oiTotalTvoo,
-   oiValid,
+   oi,
    tvoo,
    esfAerList,
    tiposMissaoList,
 }: OrdensInstrucaoSectionProps) {
+   const {
+      oiItems,
+      addOiItem,
+      removeOiItem,
+      updateOiItem,
+      oiTotalTvoo,
+      oiValid,
+   } = oi;
    return (
       <section className="space-y-3">
          <div className="flex items-center justify-between">

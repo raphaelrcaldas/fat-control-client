@@ -14,8 +14,8 @@ import {
    getFuncColors,
    getFuncLabel,
 } from "@/constants/tripulantes/funcoes";
-import type { FuncType } from "@/constants/tripulantes/funcoes";
-import type { DraftAssignedTrip, DraftPoolTrip } from "../context/types";
+import type { DraftPoolTrip } from "../context/types";
+import type { EtapaTripsGroup } from "../hooks/useEtapaEditor";
 import { FuncGroupDropZone } from "./funcGroup/FuncGroupDropZone";
 
 function DraggablePoolChip({ trip }: { trip: DraftPoolTrip }) {
@@ -44,20 +44,7 @@ function DraggablePoolChip({ trip }: { trip: DraftPoolTrip }) {
 }
 
 interface TripulantesSectionProps {
-   poolTrips: DraftPoolTrip[];
-   assignedTrips: DraftAssignedTrip[];
-   assignedIds: Set<number>;
-   updateFuncBordo: (tripId: number, funcBordo: string) => void;
-   removeAllFromFunc: (func: FuncType) => void;
-   removeFromGroup: (tripId: number) => void;
-   addTripToGroup: (
-      trip: {
-         id?: number;
-         trig: string;
-         user: { nome_guerra: string; p_g: string };
-      },
-      func: FuncType
-   ) => void;
+   trips: EtapaTripsGroup;
    sensors: SensorDescriptor<object>[];
    activeTrip: DraftPoolTrip | null;
    handleDragStart: (event: DragStartEvent) => void;
@@ -65,18 +52,21 @@ interface TripulantesSectionProps {
 }
 
 export function TripulantesSection({
-   poolTrips,
-   assignedTrips,
-   assignedIds,
-   updateFuncBordo,
-   removeAllFromFunc,
-   removeFromGroup,
-   addTripToGroup,
+   trips,
    sensors,
    activeTrip,
    handleDragStart,
    handleDragEnd,
 }: TripulantesSectionProps) {
+   const {
+      poolTrips,
+      assignedTrips,
+      assignedIds,
+      updateFuncBordo,
+      removeAllFromFunc,
+      removeFromGroup,
+      addTripToGroup,
+   } = trips;
    // Portal o DragOverlay para document.body — o PageTransition wrapper
    // usa `transform` (CSS), o que faz `position: fixed` (usado pelo
    // overlay do dnd-kit) virar relativo a ele em vez da viewport, e
