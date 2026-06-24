@@ -1,13 +1,7 @@
-import {
-   DEFAULT_ETAPA_FORM,
-   buildDraftFromServer,
-   buildLastEtapaSeed,
-   emptyDraft,
-   newEspecifico,
-   newOiItem,
-   selectStatusByEtapa,
-   serializeDraft,
-} from "./helpers";
+import { DEFAULT_ETAPA_FORM, newEspecifico, newOiItem } from "./factories";
+import { buildLastEtapaSeed, selectStatusByEtapa } from "./selectors";
+import { serializeDraft } from "./serialization";
+import { buildDraftFromServer, emptyDraft } from "./serverMappers";
 import type {
    Action,
    DraftEtapa,

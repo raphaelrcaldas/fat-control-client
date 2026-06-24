@@ -1,13 +1,11 @@
 import clsx from "clsx";
-import {
-   Label,
-   Select,
-   Textarea,
-   TextInput,
-   ToggleSwitch,
-} from "flowbite-react";
+import { Select, Textarea, TextInput, ToggleSwitch } from "flowbite-react";
 import { minutesToTime } from "@/../utils/dateHandler";
+
+import { toIcao, toNivelDigits } from "../context/format";
+import { isRotaPousoSuspeito } from "../context/selectors";
 import type { EtapaFormData } from "../context/types";
+import { FormField } from "./FormField";
 
 interface DadosVooSectionProps {
    formData: EtapaFormData;
@@ -22,13 +20,16 @@ interface DadosVooSectionProps {
    aeronavesList: Array<{ matricula: string }>;
 }
 
-const fieldLabelClass =
-   "mb-1 block text-xs font-semibold tracking-wide text-gray-500 uppercase";
-
-const errorTextClass = "mt-1 text-xs font-medium text-red-600";
-
 const groupHeadingClass =
    "mb-3 text-xs font-semibold tracking-wider text-gray-400 uppercase";
+
+const complementares = [
+   { key: "tow", label: "TOW (kg)", min: 1, max: 2147483647, step: 1 },
+   { key: "pax", label: "PAX", min: 0, max: 32767, step: 1 },
+   { key: "carga", label: "Carga (kg)", min: 0, max: 32767, step: 1 },
+   { key: "comb", label: "Comb (L)", min: 1, max: 32767, step: 1 },
+   { key: "lub", label: "Lub (L)", min: 0, max: 9999.9, step: 0.1 },
+] as const;
 
 export function DadosVooSection({
    formData,
@@ -44,10 +45,7 @@ export function DadosVooSection({
          {/* Bloco 1: Identificação do Voo */}
          <div>
             <div className="grid grid-cols-1 gap-4 text-left sm:grid-cols-2 lg:grid-cols-4">
-               <div>
-                  <Label htmlFor="data" className={fieldLabelClass}>
-                     Data
-                  </Label>
+               <FormField label="Data" htmlFor="data" error={errors.data}>
                   <TextInput
                      id="data"
                      type="date"
@@ -56,14 +54,8 @@ export function DadosVooSection({
                      color={errors.data ? "failure" : "gray"}
                      sizing="sm"
                   />
-                  {errors.data && (
-                     <p className={errorTextClass}>{errors.data}</p>
-                  )}
-               </div>
-               <div>
-                  <Label htmlFor="anv" className={fieldLabelClass}>
-                     Aeronave
-                  </Label>
+               </FormField>
+               <FormField label="Aeronave" htmlFor="anv" error={errors.anv}>
                   <Select
                      id="anv"
                      value={formData.anv}
@@ -78,21 +70,14 @@ export function DadosVooSection({
                         </option>
                      ))}
                   </Select>
-                  {errors.anv && <p className={errorTextClass}>{errors.anv}</p>}
-               </div>
-               <div>
-                  <Label htmlFor="origem" className={fieldLabelClass}>
-                     Origem
-                  </Label>
+               </FormField>
+               <FormField label="Origem" htmlFor="origem" error={errors.origem}>
                   <TextInput
                      id="origem"
                      type="text"
                      value={formData.origem}
                      onChange={(e) =>
-                        setField(
-                           "origem",
-                           e.target.value.toUpperCase().slice(0, 4)
-                        )
+                        setField("origem", toIcao(e.target.value))
                      }
                      placeholder="SBGR"
                      maxLength={4}
@@ -100,23 +85,18 @@ export function DadosVooSection({
                      sizing="sm"
                      className="font-mono uppercase"
                   />
-                  {errors.origem && (
-                     <p className={errorTextClass}>{errors.origem}</p>
-                  )}
-               </div>
-               <div>
-                  <Label htmlFor="destino" className={fieldLabelClass}>
-                     Destino
-                  </Label>
+               </FormField>
+               <FormField
+                  label="Destino"
+                  htmlFor="destino"
+                  error={errors.destino}
+               >
                   <TextInput
                      id="destino"
                      type="text"
                      value={formData.destino}
                      onChange={(e) =>
-                        setField(
-                           "destino",
-                           e.target.value.toUpperCase().slice(0, 4)
-                        )
+                        setField("destino", toIcao(e.target.value))
                      }
                      placeholder="SBSP"
                      maxLength={4}
@@ -124,20 +104,14 @@ export function DadosVooSection({
                      sizing="sm"
                      className="font-mono uppercase"
                   />
-                  {errors.destino && (
-                     <p className={errorTextClass}>{errors.destino}</p>
-                  )}
-               </div>
+               </FormField>
             </div>
          </div>
 
          {/* Bloco 2: Cronologia e Parâmetros da Etapa */}
          <div>
             <div className="grid grid-cols-2 items-start gap-4 text-left sm:grid-cols-3 lg:grid-cols-6">
-               <div>
-                  <Label htmlFor="dep" className={fieldLabelClass}>
-                     Decolagem
-                  </Label>
+               <FormField label="Decolagem" htmlFor="dep" error={errors.dep}>
                   <TextInput
                      id="dep"
                      type="time"
@@ -147,12 +121,8 @@ export function DadosVooSection({
                      sizing="sm"
                      className="font-mono"
                   />
-                  {errors.dep && <p className={errorTextClass}>{errors.dep}</p>}
-               </div>
-               <div>
-                  <Label htmlFor="arr" className={fieldLabelClass}>
-                     Pouso
-                  </Label>
+               </FormField>
+               <FormField label="Pouso" htmlFor="arr" error={errors.arr}>
                   <TextInput
                      id="arr"
                      type="time"
@@ -162,10 +132,8 @@ export function DadosVooSection({
                      sizing="sm"
                      className="font-mono"
                   />
-                  {errors.arr && <p className={errorTextClass}>{errors.arr}</p>}
-               </div>
-               <div>
-                  <Label className={fieldLabelClass}>Tempo</Label>
+               </FormField>
+               <FormField label="Tempo">
                   <div
                      className={clsx(
                         "flex h-8.5 items-center justify-center rounded border px-3 font-mono text-sm",
@@ -197,11 +165,20 @@ export function DadosVooSection({
                         "—"
                      )}
                   </div>
-               </div>
-               <div>
-                  <Label htmlFor="pousos" className={fieldLabelClass}>
-                     Qtd. Pousos
-                  </Label>
+               </FormField>
+               <FormField
+                  label="Qtd. Pousos"
+                  htmlFor="pousos"
+                  error={errors.pousos}
+                  footer={
+                     isRotaPousoSuspeito(formData.destino, formData.pousos) &&
+                     !errors.pousos && (
+                        <p className="mt-1 rounded border bg-amber-100 px-1 py-0.5 text-center text-xs font-medium text-amber-700">
+                           (ROTA) Pousos &gt; 0 ?
+                        </p>
+                     )
+                  }
+               >
                   <TextInput
                      id="pousos"
                      type="number"
@@ -214,90 +191,42 @@ export function DadosVooSection({
                      color={errors.pousos ? "failure" : "gray"}
                      sizing="sm"
                   />
-                  {errors.pousos && (
-                     <p className={errorTextClass}>{errors.pousos}</p>
-                  )}
-                  {formData.destino === "ROTA" &&
-                     formData.pousos !== 0 &&
-                     !errors.pousos && (
-                        <p className="mt-1 rounded border bg-amber-100 px-1 py-0.5 text-center text-xs font-medium text-amber-700">
-                           (ROTA) Pousos &gt; 0 ?
-                        </p>
-                     )}
-               </div>
-               <div className="flex flex-col items-center justify-end">
-                  <Label className={fieldLabelClass}>Sagem</Label>
+               </FormField>
+               <FormField
+                  label="Sagem"
+                  className="flex flex-col items-center justify-end"
+               >
                   <ToggleSwitch
                      checked={formData.sagem}
                      onChange={(v) => setField("sagem", v)}
                      color="red"
                      sizing="md"
                   />
-               </div>
-               <div className="flex flex-col items-center justify-end">
-                  <Label className={fieldLabelClass}>Parte 1</Label>
+               </FormField>
+               <FormField
+                  label="Parte 1"
+                  className="flex flex-col items-center justify-end"
+               >
                   <ToggleSwitch
                      checked={formData.parte1}
                      onChange={(v) => setField("parte1", v)}
                      color="red"
                      sizing="md"
                   />
-               </div>
+               </FormField>
             </div>
          </div>
 
          {/* Bloco 3: Dados Complementares */}
          <div>
             <div className="grid grid-cols-2 gap-4 text-left sm:grid-cols-3 lg:grid-cols-6">
-               {(
-                  [
-                     {
-                        key: "tow",
-                        label: "TOW (kg)",
-                        min: 1,
-                        max: 2147483647,
-                        step: 1,
-                     },
-                     {
-                        key: "pax",
-                        label: "PAX",
-                        min: 0,
-                        max: 32767,
-                        step: 1,
-                     },
-                     {
-                        key: "carga",
-                        label: "Carga (kg)",
-                        min: 0,
-                        max: 32767,
-                        step: 1,
-                     },
-                     {
-                        key: "comb",
-                        label: "Comb (L)",
-                        min: 1,
-                        max: 32767,
-                        step: 1,
-                     },
-                     {
-                        key: "lub",
-                        label: "Lub (L)",
-                        min: 0,
-                        max: 9999.9,
-                        step: 0.1,
-                     },
-                  ] as Array<{
-                     key: "tow" | "pax" | "carga" | "comb" | "lub";
-                     label: string;
-                     min: number;
-                     max: number;
-                     step: number;
-                  }>
-               ).map(({ key, label, min, max, step }) => (
-                  <div key={key}>
-                     <Label htmlFor={key} className={fieldLabelClass}>
-                        {label}
-                     </Label>
+               {complementares.map(({ key, label, min, max, step }) => (
+                  <FormField
+                     key={key}
+                     label={label}
+                     htmlFor={key}
+                     error={errors[key]}
+                  >
                      <TextInput
                         id={key}
                         type="number"
@@ -320,15 +249,9 @@ export function DadosVooSection({
                         color={errors[key] ? "failure" : "gray"}
                         sizing="sm"
                      />
-                     {errors[key] && (
-                        <p className={errorTextClass}>{errors[key]}</p>
-                     )}
-                  </div>
+                  </FormField>
                ))}
-               <div>
-                  <Label htmlFor="nivel" className={fieldLabelClass}>
-                     Nível (FL)
-                  </Label>
+               <FormField label="Nível (FL)" htmlFor="nivel">
                   <TextInput
                      id="nivel"
                      type="text"
@@ -336,12 +259,9 @@ export function DadosVooSection({
                      maxLength={3}
                      placeholder="000"
                      value={formData.nivel}
-                     onChange={(e) => {
-                        const digits = e.target.value
-                           .replace(/\D/g, "")
-                           .slice(0, 3);
-                        setField("nivel", digits);
-                     }}
+                     onChange={(e) =>
+                        setField("nivel", toNivelDigits(e.target.value))
+                     }
                      onBlur={() => {
                         if (formData.nivel)
                            setField("nivel", formData.nivel.padStart(3, "0"));
@@ -349,15 +269,17 @@ export function DadosVooSection({
                      sizing="sm"
                      className="text-center font-mono tracking-widest"
                   />
-               </div>
+               </FormField>
             </div>
          </div>
 
          {/* Observações */}
-         <div className="text-left">
-            <Label htmlFor="obs" className={groupHeadingClass}>
-               Observações
-            </Label>
+         <FormField
+            label="Observações"
+            htmlFor="obs"
+            className="text-left"
+            labelClassName={groupHeadingClass}
+         >
             <Textarea
                id="obs"
                rows={2}
@@ -366,7 +288,7 @@ export function DadosVooSection({
                placeholder="Adicione notas breves ou discrepâncias sobre o trecho operado..."
                className="w-full resize-y"
             />
-         </div>
+         </FormField>
       </section>
    );
 }

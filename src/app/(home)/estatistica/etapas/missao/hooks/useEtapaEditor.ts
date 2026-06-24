@@ -14,9 +14,9 @@ import {
 import {
    buildPoolFromDraft,
    calcTvoo,
-   selectEspecificosValid,
    selectEtapaTotals,
-} from "../context/helpers";
+} from "../context/selectors";
+import { selectEspecificosValid } from "../context/validators";
 import type {
    DraftAssignedTrip,
    DraftEtapa,
@@ -92,11 +92,7 @@ export interface UseEtapaEditorResult {
    validate: () => boolean;
 }
 
-function deriveErrors(
-   form: EtapaFormData,
-   tvoo: number,
-   crossesDay: boolean
-): FormErrors {
+function deriveErrors(form: EtapaFormData, crossesDay: boolean): FormErrors {
    const errs: FormErrors = {};
 
    if (form.dep && form.arr && crossesDay) {
@@ -117,7 +113,6 @@ function deriveErrors(
       }
    }
 
-   void tvoo;
    return errs;
 }
 
@@ -163,8 +158,8 @@ export function useEtapaEditor(localId: string): UseEtapaEditorResult {
 
    // Live errors derived from current form state
    const liveErrors = useMemo(
-      () => deriveErrors(formData, tvoo, crossesDay),
-      [formData, tvoo, crossesDay]
+      () => deriveErrors(formData, crossesDay),
+      [formData, crossesDay]
    );
 
    // OI totals — selectEtapaTotals encapsulates the canonical rule
@@ -301,7 +296,9 @@ export function useEtapaEditor(localId: string): UseEtapaEditorResult {
       [dispatch, localId]
    );
 
-   // Imperative validation (mirrors original useEtapaForm.validate())
+   // Imperative validation (mirrors original useEtapaForm.validate()).
+   // Parte do liveErrors (limites + atravessa-dia) e adiciona os obrigatorios
+   // de submit; o erro de atravessa-dia ja vem de liveErrors, nao precisa repetir.
    const validate = useCallback((): boolean => {
       const errs: FormErrors = { ...liveErrors };
       if (!formData.data) errs.data = "Informe a data";
@@ -311,14 +308,11 @@ export function useEtapaEditor(localId: string): UseEtapaEditorResult {
          errs.destino = "Codigo ICAO deve ter 4 caracteres";
       if (!formData.dep) errs.dep = "Informe a hora de decolagem";
       if (!formData.arr) errs.arr = "Informe a hora de pouso";
-      else if (crossesDay)
-         errs.arr =
-            "Etapa nao pode atravessar o dia. Use 00:00 como fim do dia.";
       if (!formData.anv) errs.anv = "Selecione a aeronave";
 
       const baseOk = Object.keys(errs).length === 0;
       return baseOk && tvooValid && oiValid && selectEspecificosValid(etapa);
-   }, [crossesDay, etapa, formData, liveErrors, oiValid, tvooValid]);
+   }, [etapa, formData, liveErrors, oiValid, tvooValid]);
 
    return {
       etapa,

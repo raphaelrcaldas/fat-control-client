@@ -3,13 +3,12 @@
 import {
    createContext,
    useContext,
-   useMemo,
    useReducer,
    type Dispatch,
    type ReactNode,
 } from "react";
 
-import { emptyDraft } from "./helpers";
+import { emptyDraft } from "./serverMappers";
 import { missaoDraftReducer } from "./reducer";
 import type { Action, MissaoDraft } from "./types";
 
@@ -31,12 +30,10 @@ export function MissaoDraftProvider({
       (init) => init ?? emptyDraft()
    );
 
-   // Dispatch is stable; memoize to keep reference identity explicit.
-   const stableDispatch = useMemo(() => dispatch, [dispatch]);
-
+   // dispatch do useReducer ja e estavel entre renders.
    return (
       <MissaoDraftStateContext.Provider value={state}>
-         <MissaoDraftDispatchContext.Provider value={stableDispatch}>
+         <MissaoDraftDispatchContext.Provider value={dispatch}>
             {children}
          </MissaoDraftDispatchContext.Provider>
       </MissaoDraftStateContext.Provider>

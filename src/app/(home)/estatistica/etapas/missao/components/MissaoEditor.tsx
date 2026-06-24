@@ -9,7 +9,8 @@ import {
    useMissaoDraft,
    useMissaoDraftDispatch,
 } from "../context/MissaoDraftContext";
-import { isDirty, selectEtapaTotals } from "../context/helpers";
+import { selectEtapaTotals } from "../context/selectors";
+import { isDirty } from "../context/serialization";
 import { useToast } from "@/app/context/toast";
 import { usePermBased } from "@/app/(home)/hooks/usePermBased";
 import { formatDateFull } from "@/../utils/dateHandler";

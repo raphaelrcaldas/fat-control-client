@@ -5,7 +5,7 @@ import {
    type MissaoComEtapasUpdatePayload,
 } from "services/routes/estatistica/etapas";
 
-import { selectEtapaTotals } from "./helpers";
+import { selectEtapaTotals } from "./selectors";
 import type { DraftEtapa, MissaoDraft } from "./types";
 
 export function toHHmmss(value: string): string {
