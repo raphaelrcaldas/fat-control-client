@@ -76,7 +76,7 @@ function InnerTableSkeleton({ rows }: { rows: number }) {
          <Table
             className="text-center"
             theme={{
-               body: { cell: { base: "px-1 py-1 align-middle" } },
+               body: { cell: { base: "px-1 py-1.5 align-middle" } },
             }}
          >
             <TableBody className="divide-y">
