@@ -8,7 +8,7 @@ import {
    FUNC_ORDER,
    getFuncColors,
 } from "@/constants/tripulantes/funcoes";
-import { Checkbox, TableCell, TableRow } from "flowbite-react";
+import { Button, Checkbox, TableCell, TableRow } from "flowbite-react";
 import {
    isoDateToString,
    isoDateToShort,
@@ -179,33 +179,37 @@ export const EtapaRow = memo(function EtapaRow({
          <TableCell className="hidden w-5 font-mono text-slate-400 sm:table-cell">
             {pousos > 1 ? pousos : null}
          </TableCell>
-         <TableCell className="hidden w-92 md:table-cell">{oiList}</TableCell>
+         <TableCell className="hidden w-80 md:table-cell">{oiList}</TableCell>
          <TableCell className="hidden lg:table-cell">
             {tripBadges.length > 0 ? (
-               <div className="flex flex-wrap items-center gap-1">
+               <div className="flex flex-wrap items-center gap-0.5">
                   {tripBadges}
                </div>
             ) : (
                <span className="text-gray-300">&mdash;</span>
             )}
          </TableCell>
-         <TableCell className="w-12 px-0 sm:w-14">
-            <div className="flex items-center gap-0.5">
-               <button
+         <TableCell className="w-12 px-2 sm:w-14">
+            <div className="flex items-center gap-1">
+               <Button
+                  size="xs"
+                  color="light"
                   onClick={() => onDetailEtapa(id)}
-                  className="rounded-lg px-1 py-2 text-slate-400 transition-colors hover:bg-white/60 hover:text-indigo-600 hover:shadow-sm"
                   title="Detalhes da etapa"
+                  className="p-1.5"
                >
-                  <HiEye className="h-4 w-4" />
-               </button>
+                  <HiEye className="size-4" />
+               </Button>
                <PermBased resource="etp_mis" requiredPerm="create">
-                  <button
+                  <Button
+                     size="xs"
+                     color="light"
                      onClick={() => onEditEtapa(id)}
-                     className="rounded-lg px-1 py-2 text-slate-400 transition-colors hover:bg-white/60 hover:text-emerald-600 hover:shadow-sm"
                      title="Editar etapa"
+                     className="p-1.5"
                   >
-                     <HiPencilAlt className="h-4 w-4" />
-                  </button>
+                     <HiPencilAlt className="size-4" />
+                  </Button>
                </PermBased>
             </div>
          </TableCell>

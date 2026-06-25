@@ -229,40 +229,38 @@ export function EtapasTable({
          <div className="hidden h-4 w-px bg-gray-300 lg:flex" />
 
          <PermBased resource="etp_mis" requiredPerm="create">
-            <div className="hidden items-center gap-2 rounded border border-slate-200 bg-white px-3 py-1.5 shadow lg:flex">
-               <span className="mr-1 text-sm font-medium text-gray-500">
-                  SAGEM
-               </span>
+            <div className="hidden items-center gap-2 rounded border border-slate-200 bg-white px-2 py-1 shadow lg:flex">
+               <span className="text-sm font-medium text-gray-500">SAGEM</span>
                <button
                   onClick={() => handleBulkUpdate("sagem", true)}
                   disabled={bulkUpdate.isPending}
-                  className="rounded bg-emerald-50 px-1.5 py-0.5 text-sm font-semibold text-emerald-700 shadow hover:bg-emerald-100 disabled:opacity-50"
+                  className="rounded border border-emerald-200 bg-emerald-50 px-1.5 py-0.5 text-sm font-semibold text-emerald-700 shadow hover:bg-emerald-100 disabled:opacity-50"
                >
                   <HiCheck className="inline h-4 w-4" />
                </button>
                <button
                   onClick={() => handleBulkUpdate("sagem", false)}
                   disabled={bulkUpdate.isPending}
-                  className="rounded bg-amber-50 px-1.5 py-0.5 text-sm font-semibold text-amber-700 shadow hover:bg-amber-100 disabled:opacity-50"
+                  className="rounded border border-amber-200 bg-amber-50 px-1.5 py-0.5 text-sm font-semibold text-amber-700 shadow hover:bg-amber-100 disabled:opacity-50"
                >
                   <HiX className="inline h-4 w-4" />
                </button>
             </div>
-            <div className="hidden items-center gap-2 rounded border border-slate-200 bg-white px-3 py-1.5 shadow lg:flex">
-               <span className="mr-1 text-sm font-medium text-gray-500">
+            <div className="hidden items-center gap-2 rounded border border-slate-200 bg-white px-2 py-1 shadow lg:flex">
+               <span className="text-sm font-medium text-gray-500">
                   Parte 1
                </span>
                <button
                   onClick={() => handleBulkUpdate("parte1", true)}
                   disabled={bulkUpdate.isPending}
-                  className="rounded bg-emerald-50 px-1.5 py-0.5 text-sm font-semibold text-emerald-700 shadow hover:bg-emerald-100 disabled:opacity-50"
+                  className="rounded border border-emerald-200 bg-emerald-50 px-1.5 py-0.5 text-sm font-semibold text-emerald-700 shadow hover:bg-emerald-100 disabled:opacity-50"
                >
                   <HiCheck className="inline h-4 w-4" />
                </button>
                <button
                   onClick={() => handleBulkUpdate("parte1", false)}
                   disabled={bulkUpdate.isPending}
-                  className="rounded bg-amber-50 px-1.5 py-0.5 text-sm font-semibold text-amber-700 shadow hover:bg-amber-100 disabled:opacity-50"
+                  className="rounded border border-amber-200 bg-amber-50 px-1.5 py-0.5 text-sm font-semibold text-amber-700 shadow hover:bg-amber-100 disabled:opacity-50"
                >
                   <HiX className="inline h-4 w-4" />
                </button>
@@ -284,7 +282,7 @@ export function EtapasTable({
          {grouped ? (
             <>
                {/* Selecionar tudo da pagina + ações em massa */}
-               <div className="ml-1 flex h-10 flex-wrap items-center gap-2 px-1">
+               <div className="ml-1 flex h-9 flex-wrap items-center gap-2 px-1">
                   <Checkbox
                      id="select-all-etapas"
                      color="red"

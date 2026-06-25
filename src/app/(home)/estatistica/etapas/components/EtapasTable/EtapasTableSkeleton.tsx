@@ -60,7 +60,7 @@ function EtapaRowSkeleton() {
                <Bar className="h-5 w-10 bg-slate-100" />
             </div>
          </TableCell>
-         <TableCell className="px-1 sm:w-14">
+         <TableCell className="px-2 sm:w-14">
             <div className="flex items-center gap-1">
                <Bar className="size-6 bg-slate-100" />
                <Bar className="size-6 bg-slate-100" />

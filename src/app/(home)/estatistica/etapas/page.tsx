@@ -117,6 +117,7 @@ export default function EtapasPage() {
                   <Button
                      color="light"
                      size="sm"
+                     className="w-32"
                      disabled={selectedIds.size === 0}
                      onClick={() => setShowExportModal(true)}
                   >
