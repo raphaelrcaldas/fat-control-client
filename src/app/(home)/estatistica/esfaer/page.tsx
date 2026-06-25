@@ -53,7 +53,7 @@ export default function EsfAerPage() {
          ) : (
             <div
                className={clsx(
-                  "grid justify-items-center gap-4 overflow-hidden transition-opacity duration-200",
+                  "grid justify-items-center gap-2 overflow-hidden transition-opacity duration-200",
                   isRefetching && "pointer-events-none opacity-50"
                )}
             >

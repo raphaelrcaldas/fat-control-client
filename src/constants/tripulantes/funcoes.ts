@@ -33,11 +33,7 @@ export const FUNCOES_CONFIG: Record<FuncType, FuncConfig> = {
          { codigo: "2P", label: "2º Piloto", descricao: "Copiloto" },
          { codigo: "IN", label: "Instrutor", descricao: "Piloto instrutor" },
          { codigo: "AL", label: "Aluno", descricao: "Piloto em instrução" },
-         {
-            codigo: "O3",
-            label: "Operador",
-            descricao: "Operador de equipamentos",
-         },
+         { codigo: "O3", label: "OE-3", descricao: "OE-3" },
       ],
    },
    mc: {
@@ -79,15 +75,11 @@ export const FUNCOES_CONFIG: Record<FuncType, FuncConfig> = {
       ],
    },
    oe: {
-      label: "Operador de Equipamentos",
+      label: "OE-3",
       labelShort: "OE-3",
       theme: { color: "cyan", badge: "cyan" },
       posicoes: [
-         {
-            codigo: "O3",
-            label: "Operador",
-            descricao: "Operador de equipamentos",
-         },
+         { codigo: "O3", label: "Operador", descricao: "OE-3 operacional" },
          { codigo: "I3", label: "Instrutor", descricao: "OE instrutor" },
          { codigo: "A3", label: "Aluno", descricao: "OE em instrução" },
       ],

@@ -29,7 +29,7 @@ function DraggablePoolChip({ trip }: { trip: DraftPoolTrip }) {
       <div
          ref={setNodeRef}
          className={clsx(
-            "w-fit cursor-grab items-center rounded border px-3 py-1 text-center font-mono text-sm font-semibold uppercase",
+            "cursor-grab items-center rounded border px-2.5 py-1 text-center font-mono text-sm font-semibold uppercase",
             isDragging ? "opacity-30" : "",
             colors
                ? colors.badge
@@ -118,21 +118,21 @@ export function TripulantesSection({
             onDragEnd={handleDragEnd}
          >
             {poolByFunc.length > 0 && (
-               <div className="rounded-lg border border-dashed border-gray-300 bg-gray-50 p-2.5">
-                  <p className="mb-1.5 text-xs font-semibold tracking-wide text-gray-500 uppercase">
+               <div className="rounded border border-dashed border-slate-400 bg-slate-50 px-2 pt-2 pb-1 shadow-sm">
+                  <p className="mb-1 text-xs font-semibold tracking-wide text-gray-500 uppercase">
                      Pool da Missão — arraste para atribuir função
                   </p>
-                  <div className="flex flex-col gap-1.5">
+                  <div className="flex flex-col divide-y divide-slate-300">
                      {poolByFunc.map(({ funcKey, trips }) => {
                         return (
                            <div
                               key={funcKey}
-                              className="flex items-center gap-1.5"
+                              className="flex items-center gap-1.5 py-1"
                            >
-                              <span className="w-10 shrink-0 text-center text-xs font-semibold text-gray-500 uppercase">
+                              <span className="w-8 shrink-0 text-center text-sm font-semibold text-gray-500 uppercase">
                                  {funcKey}
                               </span>
-                              <div className="flex flex-wrap gap-1.5">
+                              <div className="flex flex-wrap gap-1">
                                  {trips.map((trip) => (
                                     <DraggablePoolChip
                                        key={trip.tripId}

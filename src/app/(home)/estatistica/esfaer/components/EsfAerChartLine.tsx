@@ -115,13 +115,15 @@ export function EsfAerChartLine({
    );
 
    return (
-      <div className="rounded border border-slate-200 bg-white p-4 shadow-sm">
-         <Chart
-            options={chartOptions}
-            series={chartSeries}
-            type="line"
-            height={320}
-         />
+      <div className="flex h-full flex-col rounded border border-slate-200 bg-white p-4 shadow-sm">
+         <div className="min-h-[320px] flex-1">
+            <Chart
+               options={chartOptions}
+               series={chartSeries}
+               type="line"
+               height="100%"
+            />
+         </div>
       </div>
    );
 }
