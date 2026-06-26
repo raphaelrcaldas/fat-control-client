@@ -3,7 +3,7 @@
 import { MdStorage } from "react-icons/md";
 import { formatSize } from "@/../utils/formatSize";
 import { Skeleton } from "@/components/ui/Skeleton";
-import type { BucketStats } from "services/routes/aeromedica/atas";
+import type { BucketStats } from "services/routes/storage";
 
 interface BucketCardProps {
    bucket: BucketStats;

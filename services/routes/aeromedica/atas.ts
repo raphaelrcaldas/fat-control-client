@@ -53,23 +53,6 @@ export interface AtaUpdateData {
    validade_inspsau: string | null;
 }
 
-export interface StorageStats {
-   total_size: number;
-   total_objects: number;
-}
-
-export interface BucketStats {
-   name: string;
-   total_size: number;
-   total_objects: number;
-}
-
-export interface AllBucketsStats {
-   total_size: number;
-   total_objects: number;
-   buckets: BucketStats[];
-}
-
 export interface NomeConflito {
    nomeAta: string;
    nomeSistema: string;
@@ -239,28 +222,6 @@ export async function deleteAta(ataId: number): Promise<void> {
    }
 }
 
-export async function getStorageStats(
-   signal?: AbortSignal
-): Promise<StorageStats> {
-   const token = getTokenFromCookies();
-   const headers: HeadersInit = {
-      "Content-Type": "application/json",
-   };
-   if (token) {
-      headers["Authorization"] = `Bearer ${token}`;
-   }
-
-   const response = await fetch(`${atasRoute}storage/stats`, {
-      method: "GET",
-      headers,
-      signal,
-   });
-
-   const json = (await response.json()) as ApiResponse<StorageStats>;
-   if (!json.data) throw new Error("Resposta inválida do servidor");
-   return json.data;
-}
-
 // Atas órfãs (usuários inativos)
 
 export interface AtaOrfaPublic {
@@ -330,28 +291,6 @@ export async function deleteAtasOrfas(
    }
 
    const json = (await response.json()) as ApiResponse<AtasOrfasDeleteResponse>;
-   if (!json.data) throw new Error("Resposta inválida do servidor");
-   return json.data;
-}
-
-export async function getAllBucketsStats(
-   signal?: AbortSignal
-): Promise<AllBucketsStats> {
-   const token = getTokenFromCookies();
-   const headers: HeadersInit = {
-      "Content-Type": "application/json",
-   };
-   if (token) {
-      headers["Authorization"] = `Bearer ${token}`;
-   }
-
-   const response = await fetch(`${atasRoute}storage/all`, {
-      method: "GET",
-      headers,
-      signal,
-   });
-
-   const json = (await response.json()) as ApiResponse<AllBucketsStats>;
    if (!json.data) throw new Error("Resposta inválida do servidor");
    return json.data;
 }

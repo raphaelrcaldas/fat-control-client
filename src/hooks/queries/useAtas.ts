@@ -5,8 +5,6 @@ import {
    getAtasByUser,
    updateAta,
    deleteAta,
-   getStorageStats,
-   getAllBucketsStats,
    getAtasOrfas,
    deleteAtasOrfas,
 } from "services/routes/aeromedica/atas";
@@ -15,6 +13,7 @@ import type {
    DadosConfirmados,
 } from "services/routes/aeromedica/atas";
 import { cartoesSaudeKeys } from "./useCartoesSaude";
+import { storageKeys } from "./useStorage";
 
 // ========================================
 // Query Keys
@@ -23,8 +22,6 @@ import { cartoesSaudeKeys } from "./useCartoesSaude";
 export const atasKeys = {
    all: ["atas"] as const,
    byUser: (userId: number) => [...atasKeys.all, "user", userId] as const,
-   storageStats: () => [...atasKeys.all, "storage-stats"] as const,
-   allBucketsStats: () => [...atasKeys.all, "all-buckets-stats"] as const,
    orfas: () => [...atasKeys.all, "orfas"] as const,
 };
 
@@ -40,26 +37,6 @@ export function useAtasByUser(userId: number | undefined) {
       },
       enabled: !!userId,
       staleTime: 5 * 60_000,
-   });
-}
-
-export function useStorageStats() {
-   return useQuery({
-      queryKey: atasKeys.storageStats(),
-      queryFn: async ({ signal }) => {
-         return getStorageStats(signal);
-      },
-      staleTime: 60_000,
-   });
-}
-
-export function useAllBucketsStats() {
-   return useQuery({
-      queryKey: atasKeys.allBucketsStats(),
-      queryFn: async ({ signal }) => {
-         return getAllBucketsStats(signal);
-      },
-      staleTime: 60_000,
    });
 }
 
@@ -148,7 +125,7 @@ export function useDeleteAta() {
             queryKey: atasKeys.all,
          });
          queryClient.invalidateQueries({
-            queryKey: atasKeys.storageStats(),
+            queryKey: storageKeys.all,
          });
          // cemal_tem_ata e total_atas podem mudar
          queryClient.invalidateQueries({
@@ -168,7 +145,7 @@ export function useDeleteAtasOrfas() {
             queryKey: atasKeys.orfas(),
          });
          queryClient.invalidateQueries({
-            queryKey: atasKeys.allBucketsStats(),
+            queryKey: storageKeys.allBuckets(),
          });
       },
    });
