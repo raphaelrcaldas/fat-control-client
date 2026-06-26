@@ -14,6 +14,7 @@ import {
 import { HiPhone, HiTrash } from "react-icons/hi";
 import clsx from "clsx";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
+import { PermBased, usePermBased } from "@/app/(home)/hooks/usePermBased";
 import { useToast } from "@/app/context/toast";
 import { formatPhone, formatSaram } from "@/constants/formats";
 import { useUpsertPassaporte, useDeletePassaporte } from "@/hooks/queries";
@@ -35,12 +36,14 @@ function ValidadeDateField({
    value,
    onChange,
    min,
+   disabled,
 }: {
    label: string;
    name: string;
    value: string;
    onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
    min?: string;
+   disabled?: boolean;
 }) {
    const status = getDateStatus(value || null);
    const config = getStatusConfig(status);
@@ -57,6 +60,7 @@ function ValidadeDateField({
                value={value}
                onChange={onChange}
                min={min || undefined}
+               disabled={disabled}
             />
          </div>
          <div className="mt-1 flex items-center gap-1.5">
@@ -85,7 +89,13 @@ const EditPassaporteModal = memo(function EditPassaporteModal({
    item,
 }: EditPassaporteModalProps) {
    const { push } = useToast();
+   const { hasPerm } = usePermBased();
    const isEdit = !!item.passaporte;
+
+   // Só-view abre o modal em modo leitura: sem a permissão de gravar
+   // (update ao editar, create ao cadastrar) os campos ficam desabilitados.
+   const canSave = hasPerm("passaportes", isEdit ? "update" : "create");
+   const readOnly = !canSave;
 
    const upsertMutation = useUpsertPassaporte();
    const deleteMutation = useDeletePassaporte();
@@ -148,16 +158,16 @@ const EditPassaporteModal = memo(function EditPassaporteModal({
             <ModalBody>
                <div className="space-y-6">
                   {/* Informações do militar */}
-                  <div className="rounded border border-slate-200 bg-gray-50 p-4">
+                  <div className="space-y-1 rounded border border-slate-200 bg-gray-50 p-4">
                      <p className="text-sm font-semibold text-gray-900 uppercase">
                         {item.p_g} {item.nome_guerra}
                      </p>
                      {item.nome_completo && (
-                        <p className="mt-1 text-sm text-gray-500 uppercase">
+                        <p className="text-sm text-gray-500 uppercase">
                            {item.nome_completo}
                         </p>
                      )}
-                     <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-sm text-gray-500">
+                     <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-gray-500">
                         {item.saram && (
                            <span>SARAM: {formatSaram(item.saram)}</span>
                         )}
@@ -186,6 +196,7 @@ const EditPassaporteModal = memo(function EditPassaporteModal({
                                  placeholder="----"
                                  value={formData.passaporte}
                                  onChange={handleChange}
+                                 disabled={readOnly}
                               />
                            </div>
                         </div>
@@ -201,6 +212,7 @@ const EditPassaporteModal = memo(function EditPassaporteModal({
                                  value={formData.data_expedicao_passaporte}
                                  onChange={handleChange}
                                  max={formData.validade_passaporte || undefined}
+                                 disabled={readOnly}
                               />
                            </div>
                         </div>
@@ -210,6 +222,7 @@ const EditPassaporteModal = memo(function EditPassaporteModal({
                            value={formData.validade_passaporte}
                            onChange={handleChange}
                            min={formData.data_expedicao_passaporte}
+                           disabled={readOnly}
                         />
                      </div>
                   </fieldset>
@@ -230,6 +243,7 @@ const EditPassaporteModal = memo(function EditPassaporteModal({
                                  placeholder="----"
                                  value={formData.visa}
                                  onChange={handleChange}
+                                 disabled={readOnly}
                               />
                            </div>
                         </div>
@@ -245,6 +259,7 @@ const EditPassaporteModal = memo(function EditPassaporteModal({
                                  value={formData.data_expedicao_visa}
                                  onChange={handleChange}
                                  max={formData.validade_visa || undefined}
+                                 disabled={readOnly}
                               />
                            </div>
                         </div>
@@ -254,6 +269,7 @@ const EditPassaporteModal = memo(function EditPassaporteModal({
                            value={formData.validade_visa}
                            onChange={handleChange}
                            min={formData.data_expedicao_visa}
+                           disabled={readOnly}
                         />
                      </div>
                   </fieldset>
@@ -263,14 +279,16 @@ const EditPassaporteModal = memo(function EditPassaporteModal({
                <div className="flex w-full justify-between">
                   <div>
                      {isEdit && (
-                        <Button
-                           color="red"
-                           onClick={() => setShowDeleteConfirm(true)}
-                           disabled={isLoading}
-                        >
-                           <HiTrash className="mr-2" />
-                           Deletar
-                        </Button>
+                        <PermBased resource="passaportes" requiredPerm="delete">
+                           <Button
+                              color="red"
+                              onClick={() => setShowDeleteConfirm(true)}
+                              disabled={isLoading}
+                           >
+                              <HiTrash className="mr-2" />
+                              Deletar
+                           </Button>
+                        </PermBased>
                      )}
                   </div>
                   <div className="flex gap-2">
@@ -279,24 +297,29 @@ const EditPassaporteModal = memo(function EditPassaporteModal({
                         onClick={onClose}
                         disabled={isLoading}
                      >
-                        Cancelar
+                        {readOnly ? "Fechar" : "Cancelar"}
                      </Button>
-                     <Button
-                        color="blue"
-                        onClick={handleSave}
-                        disabled={isLoading}
+                     <PermBased
+                        resource="passaportes"
+                        requiredPerm={isEdit ? "update" : "create"}
                      >
-                        {isLoading ? (
-                           <div className="flex items-center gap-2">
-                              <Spinner size="sm" color="info" />
-                              <span>Salvando...</span>
-                           </div>
-                        ) : isEdit ? (
-                           "Atualizar"
-                        ) : (
-                           "Cadastrar"
-                        )}
-                     </Button>
+                        <Button
+                           color="blue"
+                           onClick={handleSave}
+                           disabled={isLoading}
+                        >
+                           {isLoading ? (
+                              <div className="flex items-center gap-2">
+                                 <Spinner size="sm" color="info" />
+                                 <span>Salvando...</span>
+                              </div>
+                           ) : isEdit ? (
+                              "Atualizar"
+                           ) : (
+                              "Cadastrar"
+                           )}
+                        </Button>
+                     </PermBased>
                   </div>
                </div>
             </ModalFooter>

@@ -210,12 +210,14 @@ export const navItems = [
       icon: MdPolicy,
       label: "Inteligência",
       scope: "tenant",
-      roles: ["inteligencia"],
+      roles: [],
       children: [
          {
             icon: MdBadge,
             label: "Passaportes",
             path: "/inteligencia/passaportes",
+            resource: "passaportes",
+            permission: "view",
          },
       ],
    },
