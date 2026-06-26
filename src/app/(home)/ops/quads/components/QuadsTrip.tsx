@@ -280,7 +280,7 @@ export function QuadsTrip({
                </div>
 
                <div className="flex items-center justify-center gap-2">
-                  <PermBased resource={"quad_ops"} requiredPerm={"create"}>
+                  <PermBased resource={"quad_ops"} requiredPerm={"delete"}>
                      {selectedIds.size > 0 && (
                         <Button
                            color="gray"
@@ -301,7 +301,7 @@ export function QuadsTrip({
                         </Button>
                      )}
                   </PermBased>
-                  <PermBased resource={"quad"} requiredPerm={"create"}>
+                  <PermBased resource={"quad_ops"} requiredPerm={"create"}>
                      <Button
                         color="red"
                         onClick={() => setShowForm(true)}
@@ -350,7 +350,7 @@ function QuadRow({ quad, trip, selected, onToggleSelect }: QuadRowProps) {
             </TableCell>
             <TableCell>
                <div className="flex items-center justify-center gap-2">
-                  <PermBased resource={"quad_ops"} requiredPerm={"create"}>
+                  <PermBased resource={"quad_ops"} requiredPerm={"update"}>
                      {canEdit && (
                         <button
                            onClick={() => setShowForm(true)}
