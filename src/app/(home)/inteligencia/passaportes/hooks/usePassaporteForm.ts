@@ -41,9 +41,18 @@ export function usePassaporteForm(item: TripPassaporteOut, show: boolean) {
    const [formData, setFormData] = useState<PassaporteFormData>(() =>
       buildInitialFormData(item)
    );
+   // Snapshot do estado inicial — base para detectar alterações (dirty).
+   // Reseta junto com o formData, na mesma identidade estável [show, trip_id].
+   const [initialData, setInitialData] = useState<PassaporteFormData>(() =>
+      buildInitialFormData(item)
+   );
 
    useEffect(() => {
-      if (show) setFormData(buildInitialFormData(item));
+      if (show) {
+         const initial = buildInitialFormData(item);
+         setFormData(initial);
+         setInitialData(initial);
+      }
       // eslint-disable-next-line react-hooks/exhaustive-deps
    }, [show, item.trip_id]);
 
@@ -61,5 +70,10 @@ export function usePassaporteForm(item: TripPassaporteOut, show: boolean) {
 
    const buildPayload = () => toPayload(formData);
 
-   return { formData, handleChange, validate, buildPayload };
+   // Há alteração real frente ao estado carregado? Compara campo a campo.
+   const isDirty = (
+      Object.keys(formData) as Array<keyof PassaporteFormData>
+   ).some((key) => formData[key] !== initialData[key]);
+
+   return { formData, handleChange, validate, buildPayload, isDirty };
 }

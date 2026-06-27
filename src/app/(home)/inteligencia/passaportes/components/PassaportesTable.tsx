@@ -36,7 +36,7 @@ const DateCell = memo(function DateCell({
    const Icon = config.icon;
 
    return (
-      <div className="flex items-center gap-1.5">
+      <div className="flex items-center justify-center gap-1.5">
          <Icon className={clsx("h-4 w-4 shrink-0", config.color)} />
          <span className={clsx("text-sm font-medium", config.color)}>
             {formatDate(dateStr)}
@@ -55,6 +55,7 @@ interface SortableHeaderProps {
    currentSort: SortField | null;
    direction: SortDirection;
    onSort: (field: SortField) => void;
+   center?: boolean;
 }
 
 const SortableHeader = memo(function SortableHeader({
@@ -63,6 +64,7 @@ const SortableHeader = memo(function SortableHeader({
    currentSort,
    direction,
    onSort,
+   center,
 }: SortableHeaderProps) {
    const isActive = currentSort === field;
 
@@ -78,7 +80,12 @@ const SortableHeader = memo(function SortableHeader({
                : "none"
          }
       >
-         <div className="flex items-center gap-1">
+         <div
+            className={clsx(
+               "flex items-center gap-1",
+               center && "justify-center"
+            )}
+         >
             <span>{label}</span>
             <div className="flex flex-col">
                <HiChevronUp
@@ -141,7 +148,7 @@ const PassaporteRow = memo(function PassaporteRow({
                {item.p_g} {item.nome_guerra}
             </p>
          </TableCell>
-         <TableCell className="px-4 py-3 whitespace-nowrap">
+         <TableCell className="px-4 py-3 text-center whitespace-nowrap">
             <span className="text-sm font-semibold text-gray-700">
                {item.passaporte?.passaporte || "---"}
             </span>
@@ -149,7 +156,7 @@ const PassaporteRow = memo(function PassaporteRow({
          <TableCell className="px-4 py-3 whitespace-nowrap">
             <DateCell dateStr={item.passaporte?.validade_passaporte} />
          </TableCell>
-         <TableCell className="px-4 py-3 whitespace-nowrap">
+         <TableCell className="px-4 py-3 text-center whitespace-nowrap">
             <span className="text-sm font-semibold text-gray-700">
                {item.passaporte?.visa || "---"}
             </span>
@@ -218,7 +225,7 @@ const PassaportesTable = memo(function PassaportesTable({
                      direction={sortDirection}
                      onSort={onSort}
                   />
-                  <TableHeadCell className="px-4 py-3 font-semibold">
+                  <TableHeadCell className="px-4 py-3 text-center font-semibold">
                      Nº Passaporte
                   </TableHeadCell>
                   <SortableHeader
@@ -227,8 +234,9 @@ const PassaportesTable = memo(function PassaportesTable({
                      currentSort={sortField}
                      direction={sortDirection}
                      onSort={onSort}
+                     center
                   />
-                  <TableHeadCell className="px-4 py-3 font-semibold">
+                  <TableHeadCell className="px-4 py-3 text-center font-semibold">
                      Nº VISA
                   </TableHeadCell>
                   <SortableHeader
@@ -237,6 +245,7 @@ const PassaportesTable = memo(function PassaportesTable({
                      currentSort={sortField}
                      direction={sortDirection}
                      onSort={onSort}
+                     center
                   />
                </TableRow>
             </TableHead>

@@ -4,20 +4,51 @@ import {
    useQueryClient,
    keepPreviousData,
 } from "@tanstack/react-query";
+import type { QueryClient } from "@tanstack/react-query";
 import {
    getPassaportes,
    upsertPassaporte,
    deletePassaporte,
+   uploadPassaporteImagem,
+   deletePassaporteImagem,
+   getImagensOrfas,
+   deleteImagensOrfas,
    PassaporteUpsert,
    GetPassaportesParams,
+   PassaportePublic,
+   TripPassaporteOut,
 } from "services/routes/inteligencia/passaportes";
+import { storageKeys } from "./useStorage";
+
+type TipoImagem = "passaporte" | "visa";
 
 export const passaportesKeys = {
    all: ["passaportes"] as const,
    lists: () => [...passaportesKeys.all, "list"] as const,
    list: (params?: GetPassaportesParams) =>
       [...passaportesKeys.lists(), params] as const,
+   orfas: () => [...passaportesKeys.all, "imagens-orfas"] as const,
 };
+
+/**
+ * Atualização cirúrgica do cache: as operações de imagem afetam apenas um
+ * tripulante e a lista nem exibe imagens, então em vez de invalidar (refetch
+ * da lista inteira) só substituímos o `passaporte` daquela linha em todas as
+ * listas em cache, com o registro atualizado que o backend devolve.
+ */
+function patchPassaporteInLists(
+   queryClient: QueryClient,
+   tripId: number,
+   passaporte: PassaportePublic
+) {
+   queryClient.setQueriesData<TripPassaporteOut[]>(
+      { queryKey: passaportesKeys.lists() },
+      (old) =>
+         old?.map((item) =>
+            item.trip_id === tripId ? { ...item, passaporte } : item
+         )
+   );
+}
 
 export function usePassaportes(params?: GetPassaportesParams) {
    return useQuery({
@@ -64,6 +95,58 @@ export function useDeletePassaporte() {
       },
       onSuccess: () => {
          queryClient.invalidateQueries({ queryKey: passaportesKeys.lists() });
+      },
+   });
+}
+
+export function useUploadPassaporteImagem() {
+   const queryClient = useQueryClient();
+
+   return useMutation({
+      mutationFn: ({
+         trip_id,
+         tipo,
+         file,
+      }: {
+         trip_id: number;
+         tipo: TipoImagem;
+         file: File;
+      }) => uploadPassaporteImagem(trip_id, tipo, file),
+      onSuccess: (passaporte, { trip_id }) => {
+         patchPassaporteInLists(queryClient, trip_id, passaporte);
+      },
+   });
+}
+
+export function useDeletePassaporteImagem() {
+   const queryClient = useQueryClient();
+
+   return useMutation({
+      mutationFn: ({ trip_id, tipo }: { trip_id: number; tipo: TipoImagem }) =>
+         deletePassaporteImagem(trip_id, tipo),
+      onSuccess: (passaporte, { trip_id }) => {
+         patchPassaporteInLists(queryClient, trip_id, passaporte);
+      },
+   });
+}
+
+export function useImagensOrfas() {
+   return useQuery({
+      queryKey: passaportesKeys.orfas(),
+      queryFn: ({ signal }) => getImagensOrfas(signal),
+      staleTime: 60_000,
+   });
+}
+
+export function useDeleteImagensOrfas() {
+   const queryClient = useQueryClient();
+
+   return useMutation({
+      mutationFn: (user_ids: number[]) => deleteImagensOrfas(user_ids),
+      onSuccess: () => {
+         queryClient.invalidateQueries({ queryKey: passaportesKeys.orfas() });
+         queryClient.invalidateQueries({ queryKey: passaportesKeys.lists() });
+         queryClient.invalidateQueries({ queryKey: storageKeys.all });
       },
    });
 }
