@@ -12,6 +12,7 @@ import {
 import { HiCloudDownload, HiTrash } from "react-icons/hi";
 import { DadosBancariosWithUser } from "services/routes/cegep/dadosBancarios";
 import { ConfirmModal } from "@/components/ConfirmModal";
+import { PermBased } from "@/app/(home)/hooks/usePermBased";
 import { useDadosBancariosForm } from "../hooks/useDadosBancariosForm";
 import { BANCOS_BRASILEIROS } from "../constants/bancos";
 import { UserSelector } from "./UserSelector";
@@ -223,14 +224,19 @@ export default function DetailDadosBancarios({
                <div className="flex w-full justify-between">
                   <div>
                      {isEdit && (
-                        <Button
-                           color="red"
-                           onClick={() => setShowDeleteConfirm(true)}
-                           disabled={isLoading}
+                        <PermBased
+                           resource="dados_bancarios"
+                           requiredPerm="delete"
                         >
-                           <HiTrash className="mr-2" />
-                           Deletar
-                        </Button>
+                           <Button
+                              color="red"
+                              onClick={() => setShowDeleteConfirm(true)}
+                              disabled={isLoading}
+                           >
+                              <HiTrash className="mr-2" />
+                              Deletar
+                           </Button>
+                        </PermBased>
                      )}
                   </div>
                   <div className="flex gap-2">
@@ -241,13 +247,22 @@ export default function DetailDadosBancarios({
                      >
                         Cancelar
                      </Button>
-                     <Button color="blue" onClick={save} disabled={isLoading}>
-                        {isLoading
-                           ? "Salvando..."
-                           : isEdit
-                             ? "Atualizar"
-                             : "Cadastrar"}
-                     </Button>
+                     <PermBased
+                        resource="dados_bancarios"
+                        requiredPerm={isEdit ? "update" : "create"}
+                     >
+                        <Button
+                           color="blue"
+                           onClick={save}
+                           disabled={isLoading}
+                        >
+                           {isLoading
+                              ? "Salvando..."
+                              : isEdit
+                                ? "Atualizar"
+                                : "Cadastrar"}
+                        </Button>
+                     </PermBased>
                   </div>
                </div>
             </ModalFooter>

@@ -77,7 +77,7 @@ export function DiariaTable({
                         <TableCell>
                            <div className="flex items-center justify-end gap-1">
                               <PermBased
-                                 resource="diarias"
+                                 resource="diaria"
                                  requiredPerm="update"
                               >
                                  <Tooltip content="Editar valor">
@@ -92,7 +92,7 @@ export function DiariaTable({
                                  </Tooltip>
                               </PermBased>
                               <PermBased
-                                 resource="diarias"
+                                 resource="diaria"
                                  requiredPerm="delete"
                               >
                                  <Tooltip content="Excluir valor">

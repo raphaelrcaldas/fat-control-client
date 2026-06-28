@@ -36,7 +36,7 @@ export function DiariaMobileCard({
                </p>
             </div>
             <div className="flex gap-1">
-               <PermBased resource="diarias" requiredPerm="update">
+               <PermBased resource="diaria" requiredPerm="update">
                   <Tooltip content="Editar valor">
                      <button
                         type="button"
@@ -48,7 +48,7 @@ export function DiariaMobileCard({
                      </button>
                   </Tooltip>
                </PermBased>
-               <PermBased resource="diarias" requiredPerm="delete">
+               <PermBased resource="diaria" requiredPerm="delete">
                   <Tooltip content="Excluir valor">
                      <button
                         type="button"

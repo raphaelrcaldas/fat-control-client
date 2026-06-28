@@ -1,5 +1,6 @@
 import { Button } from "flowbite-react";
 import { HiPlus, HiCurrencyDollar } from "react-icons/hi";
+import { PermBased } from "../../../hooks/usePermBased";
 
 interface SoldosMastheadProps {
    onCreate: () => void;
@@ -33,15 +34,17 @@ export default function SoldosMasthead({
                </div>
             </div>
 
-            <Button
-               color="red"
-               onClick={onCreate}
-               disabled={disabled}
-               className="font-semibold whitespace-nowrap"
-            >
-               <HiPlus className="mr-2 h-4 w-4" />
-               Novo Soldo
-            </Button>
+            <PermBased resource="soldo" requiredPerm="create">
+               <Button
+                  color="red"
+                  onClick={onCreate}
+                  disabled={disabled}
+                  className="font-semibold whitespace-nowrap"
+               >
+                  <HiPlus className="mr-2 h-4 w-4" />
+                  Novo Soldo
+               </Button>
+            </PermBased>
          </div>
       </header>
    );

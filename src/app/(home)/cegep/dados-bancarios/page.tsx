@@ -13,6 +13,7 @@ import ListDadosBancarios from "./components/listDadosBancarios";
 import ListDadosBancariosSkeleton from "./components/ListDadosBancariosSkeleton";
 import DetailDadosBancarios from "./components/detailDadosBancarios";
 import CleanupOrfaosModal from "./components/cleanupOrfaosModal";
+import { PermBased } from "@/app/(home)/hooks/usePermBased";
 
 export default function DadosBancariosPage() {
    const [searchUser, setSearchUser] = useState("");
@@ -55,10 +56,12 @@ export default function DadosBancariosPage() {
             />
          )}
 
-         <OrfaosAlert
-            count={orfaos.length}
-            onReview={() => setShowCleanup(true)}
-         />
+         <PermBased resource="dados_bancarios" requiredPerm="delete">
+            <OrfaosAlert
+               count={orfaos.length}
+               onReview={() => setShowCleanup(true)}
+            />
+         </PermBased>
 
          <section
             className={clsx(

@@ -1,5 +1,6 @@
 import { Button, Spinner } from "flowbite-react";
 import { FaRegClone } from "react-icons/fa";
+import { PermBased } from "@/app/(home)/hooks/usePermBased";
 
 interface MissionActionBarProps {
    editMode: boolean;
@@ -29,30 +30,36 @@ export function MissionActionBar({
          <div className="flex w-full justify-center gap-3">
             {!editMode ? (
                <>
-                  <Button
-                     color="blue"
-                     onClick={onEdit}
-                     className="px-6 py-2.5 font-semibold"
-                  >
-                     Editar
-                  </Button>
-                  {onClone && (
+                  <PermBased resource="missoes_cegep" requiredPerm="create">
                      <Button
-                        color="gray"
-                        onClick={onClone}
+                        color="blue"
+                        onClick={onEdit}
                         className="px-6 py-2.5 font-semibold"
                      >
-                        <FaRegClone className="mr-2" />
-                        Clonar
+                        Editar
                      </Button>
+                  </PermBased>
+                  {onClone && (
+                     <PermBased resource="missoes_cegep" requiredPerm="create">
+                        <Button
+                           color="gray"
+                           onClick={onClone}
+                           className="px-6 py-2.5 font-semibold"
+                        >
+                           <FaRegClone className="mr-2" />
+                           Clonar
+                        </Button>
+                     </PermBased>
                   )}
-                  <Button
-                     color="red"
-                     onClick={onDelete}
-                     className="px-6 py-2.5 font-semibold"
-                  >
-                     Deletar
-                  </Button>
+                  <PermBased resource="missoes_cegep" requiredPerm="delete">
+                     <Button
+                        color="red"
+                        onClick={onDelete}
+                        className="px-6 py-2.5 font-semibold"
+                     >
+                        Deletar
+                     </Button>
+                  </PermBased>
                </>
             ) : (
                <>
@@ -65,23 +72,25 @@ export function MissionActionBar({
                         Cancelar
                      </Button>
                   )}
-                  <Button
-                     onClick={onSave}
-                     color="blue"
-                     disabled={!isChanged || isLoading}
-                     className="px-8 py-2.5 font-semibold disabled:cursor-not-allowed disabled:opacity-50"
-                  >
-                     {isLoading ? (
-                        <div className="flex items-center gap-2">
-                           <Spinner size="sm" color="failure" />
-                           <span>Salvando...</span>
-                        </div>
-                     ) : isNew ? (
-                        "Criar Missão"
-                     ) : (
-                        "Salvar Alterações"
-                     )}
-                  </Button>
+                  <PermBased resource="missoes_cegep" requiredPerm="create">
+                     <Button
+                        onClick={onSave}
+                        color="blue"
+                        disabled={!isChanged || isLoading}
+                        className="px-8 py-2.5 font-semibold disabled:cursor-not-allowed disabled:opacity-50"
+                     >
+                        {isLoading ? (
+                           <div className="flex items-center gap-2">
+                              <Spinner size="sm" color="failure" />
+                              <span>Salvando...</span>
+                           </div>
+                        ) : isNew ? (
+                           "Criar Missão"
+                        ) : (
+                           "Salvar Alterações"
+                        )}
+                     </Button>
+                  </PermBased>
                </>
             )}
          </div>

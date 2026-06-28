@@ -9,6 +9,7 @@ import { FilterPage } from "./pagamentos/filterPage";
 import { ConfigPage } from "./configuracoes/configPage";
 import { useSearchParamsUpdater } from "@/hooks/useSearchParamsState";
 import { useRouter } from "next/navigation";
+import { PermBased } from "@/app/(home)/hooks/usePermBased";
 
 const TAB_NAMES = ["registros", "pagamentos", "configuracoes"] as const;
 
@@ -76,14 +77,16 @@ export default function MissPage() {
                   </div>
                </div>
 
-               <Button
-                  color="red"
-                  onClick={() => router.push("/cegep/missoes/new")}
-                  className="font-semibold whitespace-nowrap"
-               >
-                  <HiPlus className="mr-2 h-4 w-4" />
-                  Nova Missão
-               </Button>
+               <PermBased resource="missoes_cegep" requiredPerm="create">
+                  <Button
+                     color="red"
+                     onClick={() => router.push("/cegep/missoes/new")}
+                     className="font-semibold whitespace-nowrap"
+                  >
+                     <HiPlus className="mr-2 h-4 w-4" />
+                     Nova Missão
+                  </Button>
+               </PermBased>
             </div>
          </header>
 

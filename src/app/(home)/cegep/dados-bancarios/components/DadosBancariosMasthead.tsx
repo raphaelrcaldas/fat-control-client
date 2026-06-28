@@ -1,6 +1,6 @@
 import { Button } from "flowbite-react";
 import { HiOfficeBuilding, HiPlus } from "react-icons/hi";
-import { RoleBasedRoute } from "@/app/(home)/hooks/useRoleBased";
+import { PermBased } from "@/app/(home)/hooks/usePermBased";
 
 interface DadosBancariosMastheadProps {
    onCreate: () => void;
@@ -34,7 +34,7 @@ export function DadosBancariosMasthead({
                </div>
             </div>
 
-            <RoleBasedRoute requiredRoles={["apoio_avancado"]}>
+            <PermBased resource="dados_bancarios" requiredPerm="create">
                <Button
                   color="red"
                   onClick={onCreate}
@@ -43,7 +43,7 @@ export function DadosBancariosMasthead({
                   <HiPlus className="mr-2 h-4 w-4" />
                   Cadastrar
                </Button>
-            </RoleBasedRoute>
+            </PermBased>
          </div>
       </header>
    );

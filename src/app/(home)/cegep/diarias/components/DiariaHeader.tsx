@@ -54,7 +54,7 @@ export function DiariaHeader({
                   </Label>
                </div>
 
-               <PermBased resource="diarias" requiredPerm="create">
+               <PermBased resource="diaria" requiredPerm="create">
                   <Button
                      color="red"
                      onClick={onCreateClick}
