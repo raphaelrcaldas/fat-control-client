@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Drawer } from "flowbite-react";
 
@@ -37,6 +37,7 @@ export function MissaoEditor({ mode }: MissaoEditorProps) {
 
    // Drawer da sidebar nas telas < lg (no desktop a sidebar é fixa)
    const [sidebarOpen, setSidebarOpen] = useState(false);
+   const contentRef = useRef<HTMLElement>(null);
 
    const { saveMutation, updateMutation, deleteMutation, handleSave } =
       useMissaoActions({ draft, mode });
@@ -112,6 +113,7 @@ export function MissaoEditor({ mode }: MissaoEditorProps) {
    // onde a sidebar cobre o conteúdo recém-selecionado
    const handleAddEtapa = useCallback(() => {
       dispatch({ type: "ADD_ETAPA" });
+      contentRef.current?.scrollTo({ top: 0 });
       setSidebarOpen(false);
    }, [dispatch]);
 
@@ -277,6 +279,7 @@ export function MissaoEditor({ mode }: MissaoEditorProps) {
          <MissaoEditorLayout
             header={headerNode}
             sidebar={sidebarNode}
+            contentRef={contentRef}
             content={
                draft.selectedLocalId == null ? (
                   <EmptyEtapaPlaceholder />
