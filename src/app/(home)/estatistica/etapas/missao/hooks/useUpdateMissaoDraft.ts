@@ -4,12 +4,14 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import { useToast } from "@/app/context/toast";
 import { etapaKeys } from "@/hooks/queries/useEtapas";
+import { ApiError } from "services/Api";
 import {
    updateMissaoWithEtapas,
    type MissaoComEtapasDetail,
 } from "services/routes/estatistica/etapas";
 
 import { buildUpdatePayload } from "../context/missaoPayload";
+import { formatSaveError } from "../context/saveErrors";
 import type { MissaoDraft } from "../context/types";
 
 type UpdateContext = { missaoId: number };
@@ -33,7 +35,10 @@ export function useUpdateMissaoDraft() {
             buildUpdatePayload(draft)
          );
          if (!result.ok) {
-            throw new Error(result.message ?? "Falha ao salvar missão");
+            throw new ApiError(
+               result.message ?? "Falha ao salvar missão",
+               result.errors
+            );
          }
          return result.data ?? null;
       },
@@ -48,12 +53,9 @@ export function useUpdateMissaoDraft() {
             message: "Missão atualizada com sucesso",
          });
       },
-      onError: (err) => {
-         push({
-            type: "error",
-            title: "Erro ao salvar",
-            message: err.message ?? "Falha ao salvar missão",
-         });
+      onError: (err, draft) => {
+         const { title, message } = formatSaveError(err, draft);
+         push({ type: "error", title, message, duration: 12000 });
       },
    });
 }

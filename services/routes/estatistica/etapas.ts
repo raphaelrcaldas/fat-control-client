@@ -328,9 +328,10 @@ export async function bulkUpdateEtapas(
          ok: false,
          data: null,
          message: `Falha ao atualizar ${failed.length} de ${payload.ids.length} etapas`,
+         errors: null,
       };
    }
-   return { ok: true, data: null, message: null };
+   return { ok: true, data: null, message: null, errors: null };
 }
 
 // ─── Export ───────────────────────────────────────────────────────────────

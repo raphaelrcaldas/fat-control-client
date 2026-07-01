@@ -14,7 +14,15 @@ type Toast = {
    title?: string;
    message: string;
    type?: "info" | "success" | "warning" | "error";
+   /**
+    * Duracao em ms ate o auto-fechamento. Padrao 6000. Use `0` para um toast
+    * persistente (fica ate o usuario fechar) — util para listas de erro de
+    * validacao que o usuario precisa ler enquanto corrige os campos.
+    */
+   duration?: number;
 };
+
+const DEFAULT_DURATION = 6000;
 
 type ToastContextValue = {
    toasts: Toast[];
@@ -65,6 +73,8 @@ function ToastItem({
    const [isExiting, setIsExiting] = useState(false);
    const config = toastConfig[toast.type || "info"];
    const Icon = config.icon;
+   const duration = toast.duration ?? DEFAULT_DURATION;
+   const persistent = duration <= 0;
 
    const handleRemove = () => {
       setIsExiting(true);
@@ -106,15 +116,17 @@ function ToastItem({
                </button>
             </div>
 
-            {/* Progress bar */}
-            <div className="absolute right-0 bottom-0 left-0 h-1 bg-gray-200 dark:bg-gray-700">
-               <div
-                  className={`h-full ${config.progress} animate-toast-progress`}
-                  style={{
-                     animation: "toast-progress 6s linear forwards",
-                  }}
-               />
-            </div>
+            {/* Progress bar (oculta em toasts persistentes) */}
+            {!persistent && (
+               <div className="absolute right-0 bottom-0 left-0 h-1 bg-gray-200 dark:bg-gray-700">
+                  <div
+                     className={`h-full ${config.progress} animate-toast-progress`}
+                     style={{
+                        animation: `toast-progress ${duration}ms linear forwards`,
+                     }}
+                  />
+               </div>
+            )}
          </div>
       </div>
    );
@@ -128,10 +140,14 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
       const toast: Toast = { id, ...t };
       setToasts((s) => [toast, ...s]);
 
-      // Auto-remove after 6s
-      setTimeout(() => {
-         setToasts((s) => s.filter((x) => x.id !== id));
-      }, 6000);
+      // Auto-remove apos `duration` ms; `0`/negativo = persistente (so fecha
+      // no clique do usuario).
+      const duration = t.duration ?? DEFAULT_DURATION;
+      if (duration > 0) {
+         setTimeout(() => {
+            setToasts((s) => s.filter((x) => x.id !== id));
+         }, duration);
+      }
    }, []);
 
    const remove = useCallback((id: string) => {

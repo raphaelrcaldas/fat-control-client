@@ -279,62 +279,53 @@ export function EtapasTable({
 
    return (
       <div className="space-y-2">
-         {grouped ? (
-            <>
-               {/* Selecionar tudo da pagina + ações em massa */}
-               <div className="ml-1 flex h-9 flex-wrap items-center gap-2 px-1">
-                  <Checkbox
-                     id="select-all-etapas"
-                     color="red"
-                     checked={allSelected}
-                     ref={(el) => {
-                        if (el) el.indeterminate = someSelected;
-                     }}
-                     onChange={onToggleAll}
-                     className="cursor-pointer"
-                  />
-                  <Label
-                     htmlFor="select-all-etapas"
-                     className="cursor-pointer text-sm font-medium text-gray-600"
-                  >
-                     Selecionar todas as etapas da pagina
-                  </Label>
-                  {selectionActions}
-               </div>
+         {/* Selecionar tudo da pagina + ações em massa */}
+         <div className="ml-1 flex h-9 flex-wrap items-center gap-2 px-1">
+            <Checkbox
+               id="select-all-etapas"
+               color="red"
+               checked={allSelected}
+               ref={(el) => {
+                  if (el) el.indeterminate = someSelected;
+               }}
+               onChange={onToggleAll}
+               className="cursor-pointer"
+            />
+            <Label
+               htmlFor="select-all-etapas"
+               className="cursor-pointer text-sm font-medium text-gray-600"
+            >
+               Selecionar todas as etapas da pagina
+            </Label>
+            {selectionActions}
+         </div>
 
-               {missoes.map((missao) => (
-                  <MissaoCard
-                     key={missao.id}
-                     missao={missao}
-                     loading={loading}
-                     selectedIds={selectedIds}
-                     onToggleEtapa={onToggleEtapa}
-                     onToggleMissao={onToggleMissao}
-                     onDetailEtapa={handleDetailEtapa}
-                     onEditEtapa={handleEditEtapaGrouped}
-                     onDeleteMissao={onDeleteMissao}
-                  />
-               ))}
-            </>
-         ) : (
-            <>
-               {selectionActions && (
-                  <div className="flex flex-wrap items-center gap-2 px-1">
-                     {selectionActions}
-                  </div>
-               )}
-               <EtapasFlatTable
-                  etapas={flatEtapas}
+         {grouped ? (
+            missoes.map((missao) => (
+               <MissaoCard
+                  key={missao.id}
+                  missao={missao}
                   loading={loading}
                   selectedIds={selectedIds}
                   onToggleEtapa={onToggleEtapa}
-                  onToggleAll={onToggleAll}
-                  allSelected={allSelected}
-                  someSelected={someSelected}
+                  onToggleMissao={onToggleMissao}
                   onDetailEtapa={handleDetailEtapa}
-                  onEditEtapa={handleEditEtapaFlat}
+                  onEditEtapa={handleEditEtapaGrouped}
+                  onDeleteMissao={onDeleteMissao}
                />
-            </>
+            ))
+         ) : (
+            <EtapasFlatTable
+               etapas={flatEtapas}
+               loading={loading}
+               selectedIds={selectedIds}
+               onToggleEtapa={onToggleEtapa}
+               onToggleAll={onToggleAll}
+               allSelected={allSelected}
+               someSelected={someSelected}
+               onDetailEtapa={handleDetailEtapa}
+               onEditEtapa={handleEditEtapaFlat}
+            />
          )}
 
          {detailState && (

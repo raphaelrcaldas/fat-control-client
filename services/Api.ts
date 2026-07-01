@@ -145,5 +145,22 @@ export async function parseApiResponse<T = unknown>(
       ok: response.ok,
       data: json.data ?? null,
       message: json.message ?? null,
+      errors: json.errors ?? null,
    };
+}
+
+/**
+ * Erro de API que preserva o dict `errors` (campo -> mensagem) enviado pelo
+ * backend em ApiErrorResponse. As mutations lancam esta classe para que o
+ * `onError` acesse os erros de campo estruturados (ex.: validacao 422) alem da
+ * mensagem de topo. Handlers que so leem `.message` continuam funcionando.
+ */
+export class ApiError extends Error {
+   readonly errors: Record<string, unknown> | null;
+
+   constructor(message: string, errors: Record<string, unknown> | null = null) {
+      super(message);
+      this.name = "ApiError";
+      this.errors = errors;
+   }
 }

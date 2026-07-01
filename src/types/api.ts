@@ -24,4 +24,5 @@ export interface ApiResult<T = unknown> {
    ok: boolean;
    data: T | null;
    message: string | null;
+   errors: Record<string, unknown> | null;
 }
