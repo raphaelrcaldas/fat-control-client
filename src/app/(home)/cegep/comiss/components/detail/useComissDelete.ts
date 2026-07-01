@@ -37,16 +37,6 @@ export function useComissDelete(comiss: ComissWithMiss, onDeleted: () => void) {
          confirm ? { id: comiss.id, confirm: true } : { id: comiss.id },
          {
             onSuccess: (result) => {
-               if (!result.ok) {
-                  push({
-                     title: "Erro",
-                     message:
-                        result.message || "Erro ao excluir comissionamento",
-                     type: "error",
-                  });
-                  return;
-               }
-
                // 1ª fase: backend devolveu preview das missões afetadas.
                if (!confirm && result.data) {
                   setDeletePreview(result.data);

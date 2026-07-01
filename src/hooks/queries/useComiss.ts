@@ -14,6 +14,7 @@ import {
    ComissFilters,
    Comiss,
 } from "services/routes/cegep/comiss";
+import { ApiError } from "services/Api";
 
 // ========================================
 // Query Keys - Centralizadas
@@ -68,7 +69,16 @@ export function useCreateComiss() {
    const queryClient = useQueryClient();
 
    return useMutation({
-      mutationFn: (data: Comiss) => createCmto(data),
+      mutationFn: async (data: Comiss) => {
+         const result = await createCmto(data);
+         if (!result.ok) {
+            throw new ApiError(
+               result.message ?? "Erro ao salvar o comissionamento",
+               result.errors
+            );
+         }
+         return result;
+      },
       onSuccess: () => {
          queryClient.invalidateQueries({ queryKey: comissKeys.lists() });
          queryClient.invalidateQueries({
@@ -85,7 +95,16 @@ export function useUpdateComiss() {
    const queryClient = useQueryClient();
 
    return useMutation({
-      mutationFn: (data: Comiss) => updateCmto(data),
+      mutationFn: async (data: Comiss) => {
+         const result = await updateCmto(data);
+         if (!result.ok) {
+            throw new ApiError(
+               result.message ?? "Erro ao salvar o comissionamento",
+               result.errors
+            );
+         }
+         return result;
+      },
       onSuccess: (_, data) => {
          if (data.id) {
             queryClient.invalidateQueries({
@@ -109,8 +128,22 @@ export function useDeleteComiss() {
    const queryClient = useQueryClient();
 
    return useMutation({
-      mutationFn: ({ id, confirm }: { id: number; confirm?: boolean }) =>
-         deleteCmto(id, confirm),
+      mutationFn: async ({
+         id,
+         confirm,
+      }: {
+         id: number;
+         confirm?: boolean;
+      }) => {
+         const result = await deleteCmto(id, confirm);
+         if (!result.ok) {
+            throw new ApiError(
+               result.message ?? "Erro ao excluir comissionamento",
+               result.errors
+            );
+         }
+         return result;
+      },
       onSuccess: (result) => {
          if (!result.data) {
             queryClient.invalidateQueries({ queryKey: comissKeys.lists() });

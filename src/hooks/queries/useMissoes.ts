@@ -12,6 +12,7 @@ import {
    MissoesRequest,
    Missao,
 } from "services/routes/cegep/missoes";
+import { ApiError } from "services/Api";
 import { comissKeys } from "./useComiss";
 
 // ========================================
@@ -65,7 +66,16 @@ export function useCreateUpdateMissao() {
    const queryClient = useQueryClient();
 
    return useMutation({
-      mutationFn: (data: Missao) => createUpdateFragMis(data),
+      mutationFn: async (data: Missao) => {
+         const result = await createUpdateFragMis(data);
+         if (!result.ok) {
+            throw new ApiError(
+               result.message ?? "Erro ao salvar missão",
+               result.errors
+            );
+         }
+         return result;
+      },
       onSuccess: async (response, data) => {
          queryClient.invalidateQueries({ queryKey: missaoKeys.lists() });
          queryClient.invalidateQueries({
@@ -89,7 +99,16 @@ export function useDeleteMissao() {
    const queryClient = useQueryClient();
 
    return useMutation({
-      mutationFn: (id: number) => deleteFragMis(id),
+      mutationFn: async (id: number) => {
+         const result = await deleteFragMis(id);
+         if (!result.ok) {
+            throw new ApiError(
+               result.message ?? "Erro ao deletar missão",
+               result.errors
+            );
+         }
+         return result;
+      },
       onSuccess: () => {
          // Invalida todas as listas de missoes
          queryClient.invalidateQueries({ queryKey: missaoKeys.lists() });

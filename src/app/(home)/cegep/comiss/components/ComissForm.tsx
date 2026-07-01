@@ -23,6 +23,7 @@ import { SearchUser } from "src/app/(home)/users/components/searchUser";
 import { useCreateComiss, useUpdateComiss } from "@/hooks/queries";
 import { sanitizeLinha } from "utils/sanitize";
 import { ComissDetailHeader } from "./detail/ComissDetailHeader";
+import { formatComissSaveError } from "../comissErrors";
 
 interface ComissFormProps {
    comiss?: ComissList | ComissWithMiss;
@@ -145,6 +146,7 @@ export function ComissForm({ comiss, onCancel, onSuccess }: ComissFormProps) {
             title: "Campos obrigatorios",
             message: errors.join("\n"),
             type: "error",
+            duration: 12000,
          });
          return;
       }
@@ -170,26 +172,18 @@ export function ComissForm({ comiss, onCancel, onSuccess }: ComissFormProps) {
 
       mutation.mutate(comisObj, {
          onSuccess: (result) => {
-            if (result.ok) {
-               push({
-                  message: result.message || "Salvo com sucesso",
-                  type: "success",
-               });
-               onSuccess?.();
-            } else {
-               push({
-                  title: "Erro",
-                  message: result.message || "Erro ao salvar o comissionamento",
-                  type: "error",
-               });
-            }
-         },
-         onError: (err: Error) => {
             push({
-               title: "Erro",
-               message: err?.message || "Erro ao salvar o comissionamento",
-               type: "error",
+               message: result.message || "Salvo com sucesso",
+               type: "success",
             });
+            onSuccess?.();
+         },
+         onError: (err) => {
+            const { title, message } = formatComissSaveError(
+               err,
+               "Erro ao salvar o comissionamento"
+            );
+            push({ title, message, type: "error", duration: 12000 });
          },
       });
    }

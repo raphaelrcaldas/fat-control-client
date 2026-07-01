@@ -11,6 +11,7 @@ import {
 } from "@/hooks/queries/useMissoes";
 import { useToast } from "@/app/context/toast";
 import { sanitizeLinha, sanitizeBloco } from "utils/sanitize";
+import { formatMissaoSaveError } from "../missaoErrors";
 
 interface UseMissionFormOptions {
    missao?: Missao | null;
@@ -246,22 +247,17 @@ export function useMissionForm({
 
       createUpdateMutation.mutate(fragMis, {
          onSuccess: (result) => {
-            if (result.ok) {
-               push({
-                  message: result.message || "Missão salva com sucesso",
-                  type: "success",
-               });
-               setEditMode(false);
-               onClose();
-            } else {
-               setErrorMessage(
-                  result.message || "Erro desconhecido ao salvar missão"
-               );
-               setShowErrorModal(true);
-            }
+            push({
+               message: result.message || "Missão salva com sucesso",
+               type: "success",
+            });
+            setEditMode(false);
+            onClose();
          },
-         onError: (err: any) => {
-            setErrorMessage(err?.message || "Erro ao salvar missão");
+         onError: (err) => {
+            setErrorMessage(
+               formatMissaoSaveError(err, "Erro ao salvar missão")
+            );
             setShowErrorModal(true);
          },
       });
@@ -272,21 +268,16 @@ export function useMissionForm({
 
       deleteMutation.mutate(missao.id, {
          onSuccess: (result) => {
-            if (result.ok) {
-               push({
-                  message: result.message || "Missão excluída com sucesso",
-                  type: "success",
-               });
-               onClose();
-            } else {
-               setErrorMessage(
-                  result.message || "Erro desconhecido ao deletar missão"
-               );
-               setShowErrorModal(true);
-            }
+            push({
+               message: result.message || "Missão excluída com sucesso",
+               type: "success",
+            });
+            onClose();
          },
-         onError: (err: any) => {
-            setErrorMessage(err?.message || "Erro ao deletar missão");
+         onError: (err) => {
+            setErrorMessage(
+               formatMissaoSaveError(err, "Erro ao deletar missão")
+            );
             setShowErrorModal(true);
          },
       });

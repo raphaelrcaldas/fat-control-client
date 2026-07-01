@@ -1,5 +1,7 @@
 import { ApiError } from "services/Api";
 
+import { translatePydanticMessage } from "@/../utils/apiErrors";
+
 import type { MissaoDraft } from "./types";
 
 /**
@@ -82,26 +84,6 @@ function buildResolvers(draft: MissaoDraft): EtapaResolvers {
    };
 }
 
-/** Traduz as mensagens mais comuns do Pydantic v2 para PT-BR curto. */
-function translatePydantic(msg: string): string {
-   const m = msg.toLowerCase();
-   if (m.includes("field required")) return "obrigatório";
-   if (m.includes("should be a valid") || m.includes("valid")) {
-      return "valor inválido";
-   }
-   if (m.includes("greater than or equal")) {
-      const n = msg.match(/-?\d+(\.\d+)?/)?.[0];
-      return n ? `deve ser ≥ ${n}` : "valor muito baixo";
-   }
-   if (m.includes("less than or equal")) {
-      const n = msg.match(/-?\d+(\.\d+)?/)?.[0];
-      return n ? `deve ser ≤ ${n}` : "valor muito alto";
-   }
-   if (m.includes("greater than")) return "valor muito baixo";
-   if (m.includes("less than")) return "valor muito alto";
-   return msg;
-}
-
 /** Constroi o rotulo do campo (com indice nested quando houver). */
 function humanizeField(segs: string[]): string {
    if (segs.length === 0) return "";
@@ -132,12 +114,18 @@ function humanizeKey(key: string, resolvers: EtapaResolvers): string {
       return fieldLabel ? `${etapaLabel} · ${fieldLabel}` : etapaLabel;
    }
 
+   // Sem segmento util (ex.: erro de model_validator na raiz, `loc=("body",)`)
+   // -> sem rotulo; a propria mensagem carrega o contexto (ex.: "etapa[0]:").
+   if (!head) return "";
+
    return MISSAO_FIELD_LABELS[head] ?? head;
 }
 
 /**
- * Substitui os tokens de etapa nas mensagens de erro de negocio por "Etapa N".
- * A ordem importa: `update[..](id=X)` antes de `update[..]` cru.
+ * Substitui os tokens de etapa nas mensagens de erro por "Etapa N". Os tokens
+ * aparecem tanto em erros de negocio do router (`update[i](id=X)`) quanto em
+ * mensagens de model_validator do Pydantic (`etapa[i]`, `update[i]`,
+ * `create[i]`). A ordem importa: a variante com `(id=X)` vem antes da crua.
  */
 function humanizeBusinessMessage(
    msg: string,
@@ -147,6 +135,10 @@ function humanizeBusinessMessage(
       .replace(/update\[\d+\]\(id=(\d+)\)/g, (_, id) => {
          const n = resolvers.fromServerId(Number(id));
          return n != null ? `Etapa ${n}` : `Etapa (#${id})`;
+      })
+      .replace(/update\[(\d+)\]/g, (_, i) => {
+         const n = resolvers.fromUpdate(Number(i));
+         return n != null ? `Etapa ${n}` : "Etapa";
       })
       .replace(/create\[(\d+)\]/g, (_, i) => {
          const n = resolvers.fromCreate(Number(i));
@@ -178,10 +170,15 @@ export function formatSaveError(
    ) {
       const lines = Object.entries(err.errors).map(([key, raw]) => {
          const label = humanizeKey(key, resolvers);
-         const detail = translatePydantic(
-            typeof raw === "string" ? raw : String(raw)
+         // A mensagem pode embutir tokens de etapa (`etapa[0]`, `update[0]`)
+         // quando vem de um model_validator de raiz — humaniza tambem.
+         const detail = humanizeBusinessMessage(
+            translatePydanticMessage(
+               typeof raw === "string" ? raw : String(raw)
+            ),
+            resolvers
          );
-         return `• ${label}: ${detail}`;
+         return label ? `• ${label}: ${detail}` : `• ${detail}`;
       });
       return {
          title: err.message || "Erro de validação",
