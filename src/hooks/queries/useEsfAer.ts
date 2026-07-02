@@ -16,7 +16,8 @@ import {
 export const esfAerKeys = {
    all: ["esfAer"] as const,
    list: () => [...esfAerKeys.all, "list"] as const,
-   resumo: (anoRef: number) => [...esfAerKeys.all, "resumo", anoRef] as const,
+   resumo: (anoRef: number, simulador: boolean) =>
+      [...esfAerKeys.all, "resumo", anoRef, simulador] as const,
 };
 
 export function useEsfAerList() {
@@ -29,10 +30,10 @@ export function useEsfAerList() {
    });
 }
 
-export function useEsfAerResumo(anoRef: number) {
+export function useEsfAerResumo(anoRef: number, simulador: boolean) {
    return useQuery<EsfAerResumoResponse>({
-      queryKey: esfAerKeys.resumo(anoRef),
-      queryFn: ({ signal }) => getEsfAerResumo(anoRef, signal),
+      queryKey: esfAerKeys.resumo(anoRef, simulador),
+      queryFn: ({ signal }) => getEsfAerResumo(anoRef, simulador, signal),
       placeholderData: keepPreviousData,
    });
 }

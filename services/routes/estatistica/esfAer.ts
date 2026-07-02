@@ -87,13 +87,17 @@ export async function updateEsfAer(
 
 export async function getEsfAerResumo(
    anoRef: number,
+   simulador: boolean,
    signal?: AbortSignal
 ): Promise<EsfAerResumoResponse> {
    const response = await request(
       "GET",
       esfAerRoute,
       null,
-      { ano_ref: anoRef },
+      {
+         ano_ref: anoRef,
+         simulador: simulador ? "true" : "false",
+      },
       signal
    );
    const json = (await response.json()) as ApiResponse<EsfAerResumoResponse>;
