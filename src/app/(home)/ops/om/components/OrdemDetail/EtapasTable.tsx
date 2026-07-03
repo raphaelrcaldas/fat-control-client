@@ -9,12 +9,9 @@ import {
    TableCell,
    TableHeadCell,
    Tooltip,
-   Modal,
-   ModalHeader,
-   ModalBody,
-   Button,
 } from "flowbite-react";
-import { HiPencil, HiTrash, HiPlus, HiExclamationCircle } from "react-icons/hi";
+import { HiPencil, HiTrash, HiPlus } from "react-icons/hi";
+import { ConfirmModal } from "@/components/ConfirmModal";
 import type { EtapaOut } from "services/routes/om/ordens";
 import {
    extractTime,
@@ -114,18 +111,18 @@ export const EtapasTable = memo(function EtapasTable({
                         <TableHeadCell>T. Alt</TableHeadCell>
                         <TableHeadCell className="">Comb (T)</TableHeadCell>
                         <TableHeadCell>Esforço Aéreo</TableHeadCell>
-                        <TableHeadCell className="w-20">
-                           {isEditable && (
+                        {isEditable && (
+                           <TableHeadCell className="w-20">
                               <span className="sr-only">Ações</span>
-                           )}
-                        </TableHeadCell>
+                           </TableHeadCell>
+                        )}
                      </TableRow>
                   </TableHead>
                   <TableBody className="divide-y">
                      {etapas.length === 0 ? (
                         <TableRow>
                            <TableCell
-                              colSpan={13}
+                              colSpan={isEditable ? 13 : 12}
                               className="py-8 text-center text-gray-500"
                            >
                               <div className="flex flex-col items-center gap-2">
@@ -228,25 +225,21 @@ export const EtapasTable = memo(function EtapasTable({
          </div>
 
          {/* Modal de confirmação de exclusão */}
-         <Modal
+         <ConfirmModal
             show={deleteConfirmIndex !== null}
-            size="md"
             onClose={handleCancelDelete}
-            popup
-         >
-            <ModalHeader />
-            <ModalBody>
-               <div className="text-center">
-                  <HiExclamationCircle className="mx-auto mb-4 h-14 w-14 text-red-400" />
-                  <h3 className="mb-3 text-lg font-semibold text-gray-900">
-                     Excluir Etapa #
-                     {deleteConfirmIndex !== null ? deleteConfirmIndex + 1 : ""}
-                  </h3>
-
+            onConfirm={handleConfirmDelete}
+            title={`Excluir Etapa #${
+               deleteConfirmIndex !== null ? deleteConfirmIndex + 1 : ""
+            }`}
+            confirmLabel="Sim, excluir"
+            iconColor="text-red-400"
+            message={
+               <>
                   {/* Detalhes da etapa */}
                   {deleteConfirmIndex !== null &&
                      etapas[deleteConfirmIndex] && (
-                        <div className="mb-5 rounded bg-gray-50 p-3 text-left font-mono">
+                        <div className="mb-4 rounded bg-gray-50 p-3 text-left font-mono text-sm">
                            <div className="grid grid-cols-2 gap-2">
                               <div>
                                  <span className="text-xs text-gray-500">
@@ -293,21 +286,12 @@ export const EtapasTable = memo(function EtapasTable({
                            </div>
                         </div>
                      )}
-
-                  <p className="mb-5 text-sm text-gray-500">
+                  <p className="text-sm text-gray-500">
                      Tem certeza que deseja excluir esta etapa?
                   </p>
-                  <div className="flex justify-center gap-4">
-                     <Button color="red" onClick={handleConfirmDelete}>
-                        Sim, excluir
-                     </Button>
-                     <Button color="gray" onClick={handleCancelDelete}>
-                        Cancelar
-                     </Button>
-                  </div>
-               </div>
-            </ModalBody>
-         </Modal>
+               </>
+            }
+         />
       </>
    );
 });

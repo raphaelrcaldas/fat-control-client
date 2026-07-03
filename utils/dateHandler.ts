@@ -239,6 +239,20 @@ export function minutesToTime(minutes: number): string {
 }
 
 /**
+ * Arredonda hora (HH:mm) para o múltiplo de 5 minutos mais próximo.
+ * 23:58 não vira 00:00 (mudaria de dia silenciosamente): trava em 23:55.
+ */
+export function roundTimeToFiveMinutes(time: string): string {
+   if (!time) return time;
+   const [hours, minutes] = time.split(":").map(Number);
+   const roundedMinutes = Math.round(minutes / 5) * 5;
+   if (roundedMinutes === 60 && hours === 23) return "23:55";
+   const finalMinutes = roundedMinutes === 60 ? 0 : roundedMinutes;
+   const finalHours = roundedMinutes === 60 ? hours + 1 : hours;
+   return `${String(finalHours).padStart(2, "0")}:${String(finalMinutes).padStart(2, "0")}`;
+}
+
+/**
  * Calcula tempo de voo entre dois datetimes ISO
  * Retorna minutos
  */

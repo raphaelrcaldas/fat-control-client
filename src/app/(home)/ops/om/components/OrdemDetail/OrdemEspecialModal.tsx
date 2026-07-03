@@ -39,9 +39,15 @@ export function OrdemEspecialModal({
       valor: "",
    });
 
+   // Erro de obrigatório só aparece após o campo ser visitado (blur),
+   // para o formulário não "nascer" vermelho — mesmo padrão do EtapaModal
+   const [valorTouched, setValorTouched] = useState(false);
+
    // Inicializar formulário quando modal abre
    useEffect(() => {
       if (!isOpen) return;
+
+      setValorTouched(false);
 
       if (isEditing && campo) {
          setFormData({ ...campo });
@@ -52,6 +58,7 @@ export function OrdemEspecialModal({
 
    // Validação
    const isValorEmpty = !formData.valor.trim();
+   const showValorError = valorTouched && isValorEmpty;
    const cannotSave = isValorEmpty;
 
    const handleSave = () => {
@@ -123,15 +130,16 @@ export function OrdemEspecialModal({
                      }
                      placeholder="Digite o valor do campo..."
                      rows={4}
+                     onBlur={() => setValorTouched(true)}
                      className={clsx(
                         inputBaseClass,
                         "resize-none",
-                        isValorEmpty
+                        showValorError
                            ? "border-red-300 focus:ring-red-500"
                            : "border-gray-300 focus:ring-purple-500"
                      )}
                   />
-                  {isValorEmpty && (
+                  {showValorError && (
                      <span className="mt-1 text-xs text-red-500">
                         Obrigatório
                      </span>

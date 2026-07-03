@@ -8,9 +8,8 @@ import {
    ModalFooter,
    Button,
    Label,
-   Spinner,
 } from "flowbite-react";
-import { HiLightningBolt, HiCheckCircle } from "react-icons/hi";
+import { HiCheckCircle } from "react-icons/hi";
 import { HiPaperAirplane } from "react-icons/hi2";
 import clsx from "clsx";
 import type { EtapaOut } from "services/routes/om/ordens";
@@ -19,10 +18,20 @@ import {
    extractTime,
    toIsoDatetime,
    minutesToTime,
+   roundTimeToFiveMinutes,
    calcularTempoVooMinutos,
 } from "utils/dateHandler";
 import { createNextEtapa } from "./utils/ordemUtils";
-import { useRouteSuggestion } from "@/hooks/queries";
+import {
+   getErroDataHora,
+   getErroTempoVooMinimo,
+   getErroTvooAltMinimo,
+   getEtapaCamposFaltantes,
+   isEtapaFieldMissing,
+} from "./utils/ordemValidation";
+import { DateTimeField, FieldError, inputBaseClass } from "./DateTimeField";
+import { RouteSuggestionStrip } from "./RouteSuggestionStrip";
+import { useRouteSuggestionAutofill } from "./hooks/useRouteSuggestionAutofill";
 
 interface EtapaModalProps {
    isOpen: boolean;
@@ -33,54 +42,12 @@ interface EtapaModalProps {
    referenceEtapa?: EtapaOut; // Etapa de referência para pré-preencher nova etapa
 }
 
-// Arredonda hora para múltiplo de 5 minutos
-const roundTimeToFiveMinutes = (time: string): string => {
-   if (!time) return time;
-   const [hours, minutes] = time.split(":").map(Number);
-   const roundedMinutes = Math.round(minutes / 5) * 5;
-   // 23:58 não pode virar 00:00 (mudaria de dia silenciosamente): trava em 23:55
-   if (roundedMinutes === 60 && hours === 23) return "23:55";
-   const finalMinutes = roundedMinutes === 60 ? 0 : roundedMinutes;
-   const finalHours = roundedMinutes === 60 ? hours + 1 : hours;
-   return `${String(finalHours).padStart(2, "0")}:${String(finalMinutes).padStart(2, "0")}`;
-};
-
-const inputBaseClass =
-   "w-full min-w-0 rounded border bg-white px-2.5 py-2 text-sm text-slate-900 focus:border-transparent focus:ring-2 disabled:cursor-not-allowed disabled:opacity-50";
-
 // Inputs de código ICAO: protagonistas visuais do cartão de rota
 const icaoInputClass =
    "w-full min-w-0 rounded border bg-white px-2 py-2 text-center font-mono text-xl font-semibold tracking-[0.18em] text-slate-900 uppercase placeholder:font-normal placeholder:tracking-normal placeholder:text-slate-300 focus:border-transparent focus:ring-2";
 
 const sectionTitleClass =
    "text-xs font-semibold tracking-widest text-slate-500 uppercase";
-
-function FieldError({ children = "Obrigatório" }: { children?: string }) {
-   return <span className="mt-1 block text-xs text-red-500">{children}</span>;
-}
-
-function SuggestionChip({
-   tone,
-   label,
-   value,
-}: {
-   tone: "emerald" | "amber";
-   label: string;
-   value: string;
-}) {
-   return (
-      <span
-         className={clsx(
-            "rounded-full px-2 py-0.5 text-[11px] ring-1",
-            tone === "emerald"
-               ? "bg-emerald-50 text-emerald-700 ring-emerald-200/70"
-               : "bg-amber-50 text-amber-700 ring-amber-200/70"
-         )}
-      >
-         {label}: <span className="font-mono font-semibold">{value}</span>
-      </span>
-   );
-}
 
 export function EtapaModal({
    isOpen,
@@ -145,103 +112,22 @@ export function EtapaModal({
       return minutesToTime(minutes);
    }, [formData.dt_dep, formData.dt_arr]);
 
-   // Busca sugestão de rota baseada em missões anteriores
+   // Sugestão de rota baseada em missões anteriores, com auto-preenchimento
+   // (lógica no hook useRouteSuggestionAutofill)
    const origem = formData.origem || "";
    const dest = formData.dest || "";
-   const { data: routeSuggestion, isFetching: isLoadingRoute } =
-      useRouteSuggestion(origem, dest);
-
-   // Tipo de sugestão aplicada: 'none', 'full' (rota completa) ou 'partial' (apenas destino)
-   const [suggestionType, setSuggestionType] = useState<
-      "none" | "full" | "partial"
-   >("none");
-
-   // Flag para rastrear se o usuário mudou a rota manualmente (evita sobrescrever dados ao abrir modal)
-   const userChangedRouteRef = useRef(false);
-
-   // Resetar estado quando origem ou dest mudam
-   const prevRouteRef = useRef<string>("");
-   useEffect(() => {
-      const routeKey = `${origem}-${dest}`;
-      if (prevRouteRef.current !== routeKey) {
-         prevRouteRef.current = routeKey;
-         setSuggestionType("none");
-      }
-   }, [origem, dest]);
-
-   // Auto-preencher quando encontrar sugestão de rota
-   useEffect(() => {
-      if (origem.length !== 4 || dest.length !== 4) return;
-
-      // Em modo edição, só aplicar sugestão se usuário mudou a rota manualmente
-      if (isEditing && !userChangedRouteRef.current) {
-         return;
-      }
-
-      // Se não há sugestão, manter suggestionType como 'none'
-      if (!routeSuggestion) {
-         return;
-      }
-
-      // Guard contra respostas stale de queries anteriores
-      // Para sugestão parcial, origem é null (esperado), verificar só dest
-      if (routeSuggestion.dest !== dest) {
-         return;
-      }
-      if (routeSuggestion.has_route_data && routeSuggestion.origem !== origem) {
-         return;
-      }
-
-      // Determinar tipo de sugestão baseado nas flags
-      if (
-         routeSuggestion.has_route_data &&
-         routeSuggestion.has_destination_data
-      ) {
-         setSuggestionType("full");
-      } else if (routeSuggestion.has_destination_data) {
-         setSuggestionType("partial");
-      } else {
-         setSuggestionType("none");
-         return;
-      }
-
-      // Aplicar sugestão
-      setFormData((prev) => {
-         let newDtArr = prev.dt_arr;
-
-         // Calcular dt_arr apenas se temos dados da rota completa
-         if (
-            prev.dt_dep &&
-            routeSuggestion.tvoo_etp &&
-            routeSuggestion.tvoo_etp > 0
-         ) {
-            const depDate = new Date(prev.dt_dep);
-            const arrDate = new Date(
-               depDate.getTime() + routeSuggestion.tvoo_etp * 60 * 1000
-            );
-            newDtArr = arrDate.toISOString();
-         }
-
-         return {
-            ...prev,
-            // Sempre aplicar dados do destino se disponíveis
-            alternativa: routeSuggestion.alternativa ?? prev.alternativa,
-            tvoo_alt: routeSuggestion.tvoo_alt ?? prev.tvoo_alt,
-            // Apenas aplicar dados da rota se disponíveis
-            qtd_comb: routeSuggestion.qtd_comb ?? prev.qtd_comb,
-            dt_arr: newDtArr,
-         };
-      });
-   }, [routeSuggestion, isEditing, origem, dest]);
-
-   // Resetar refs e flags quando modal fecha
-   useEffect(() => {
-      if (!isOpen) {
-         prevRouteRef.current = "";
-         setSuggestionType("none");
-         userChangedRouteRef.current = false;
-      }
-   }, [isOpen]);
+   const {
+      routeSuggestion,
+      isLoadingRoute,
+      suggestionType,
+      markUserChangedRoute,
+   } = useRouteSuggestionAutofill({
+      isOpen,
+      isEditing,
+      origem,
+      dest,
+      setFormData,
+   });
 
    // Ref para ler valores de pouso dentro dos effects sem torná-los deps.
    // Evita que digitação em dt_arr dispare auto-ajuste e sobrescreva o valor parcial.
@@ -282,58 +168,25 @@ export function EtapaModal({
       }
    }, [dataDecolagem, horaDecolagem]);
 
-   // Validações
-   const erroDataHora = useMemo(() => {
-      if (!formData.dt_dep || !formData.dt_arr) return null;
-      const decolagem = new Date(formData.dt_dep);
-      const pouso = new Date(formData.dt_arr);
-      if (decolagem >= pouso) {
-         return "A data/hora de decolagem deve ser anterior a data/hora de pouso.";
-      }
-      return null;
-   }, [formData.dt_dep, formData.dt_arr]);
+   // Validações (regras compartilhadas em utils/ordemValidation —
+   // mesma fonte usada pelo useOrdemForm na validação agregada)
+   const erroDataHora = useMemo(() => getErroDataHora(formData), [formData]);
 
-   const erroTempoVooEtapa = useMemo(() => {
-      if (!formData.dt_dep || !formData.dt_arr) return null;
-      const minutes = calcularTempoVooMinutos(formData.dt_dep, formData.dt_arr);
-      if (minutes > 0 && minutes < 5) {
-         return `Tempo de voo mínimo é 5 minutos (calculado: ${minutes} min).`;
-      }
-      return null;
-   }, [formData.dt_dep, formData.dt_arr]);
+   const erroTempoVooEtapa = useMemo(
+      () => getErroTempoVooMinimo(formData),
+      [formData]
+   );
 
-   const erroTempoVooAlternativa = useMemo(() => {
-      if (!formData.tvoo_alt || formData.tvoo_alt === 0) return null;
-      if (formData.tvoo_alt > 0 && formData.tvoo_alt < 5) {
-         return "Tempo de voo alternativa mínimo é 5 minutos.";
-      }
-      return null;
-   }, [formData.tvoo_alt]);
+   const erroTempoVooAlternativa = useMemo(
+      () => getErroTvooAltMinimo(formData.tvoo_alt),
+      [formData.tvoo_alt]
+   );
 
-   // Validação de campos obrigatórios
-   const camposObrigatorios = useMemo(() => {
-      const erros: string[] = [];
-      if (!formData.dt_dep) erros.push("Data/hora de decolagem");
-      if (!formData.origem?.trim()) erros.push("Origem");
-      if (!formData.dt_arr) erros.push("Data/hora de pouso");
-      if (!formData.dest) erros.push("Destino");
-      if (!formData.alternativa) erros.push("Alternativa");
-      if (!formData.tvoo_alt || formData.tvoo_alt === 0)
-         erros.push("Tempo de voo alternativa");
-      if (!formData.qtd_comb || formData.qtd_comb === 0)
-         erros.push("Quantidade de combustível");
-      if (!formData.esf_aer?.trim()) erros.push("Esforço aéreo");
-      return erros;
-   }, [
-      formData.dt_dep,
-      formData.origem,
-      formData.dt_arr,
-      formData.dest,
-      formData.alternativa,
-      formData.tvoo_alt,
-      formData.qtd_comb,
-      formData.esf_aer,
-   ]);
+   // Validação de campos obrigatórios (rótulos para o rodapé)
+   const camposObrigatorios = useMemo(
+      () => getEtapaCamposFaltantes(formData),
+      [formData]
+   );
 
    const hasValidationErrors = !!(
       erroDataHora ||
@@ -361,16 +214,19 @@ export function EtapaModal({
    };
 
    // Erros de obrigatoriedade (só após blur do campo)
-   const origemVazia = touched.origem && !formData.origem?.trim();
-   const dtDepVazia = touched.dt_dep && !formData.dt_dep;
-   const destVazio = touched.dest && !formData.dest;
-   const dtArrVazia = touched.dt_arr && !formData.dt_arr;
-   const alternativaVazia = touched.alternativa && !formData.alternativa;
+   const origemVazia =
+      touched.origem && isEtapaFieldMissing(formData, "origem");
+   const dtDepVazia = touched.dt_dep && isEtapaFieldMissing(formData, "dt_dep");
+   const destVazio = touched.dest && isEtapaFieldMissing(formData, "dest");
+   const dtArrVazia = touched.dt_arr && isEtapaFieldMissing(formData, "dt_arr");
+   const alternativaVazia =
+      touched.alternativa && isEtapaFieldMissing(formData, "alternativa");
    const tvooAltVazio =
-      touched.tvoo_alt && (!formData.tvoo_alt || formData.tvoo_alt === 0);
+      touched.tvoo_alt && isEtapaFieldMissing(formData, "tvoo_alt");
    const qtdCombVazia =
-      touched.qtd_comb && (!formData.qtd_comb || formData.qtd_comb === 0);
-   const esfAerVazio = touched.esf_aer && !formData.esf_aer?.trim();
+      touched.qtd_comb && isEtapaFieldMissing(formData, "qtd_comb");
+   const esfAerVazio =
+      touched.esf_aer && isEtapaFieldMissing(formData, "esf_aer");
 
    const rotaCompleta = origem.length === 4 && dest.length === 4;
    const showSuggestionStrip = isLoadingRoute || rotaCompleta;
@@ -417,7 +273,7 @@ export function EtapaModal({
                                        /[^a-zA-Z]/g,
                                        ""
                                     );
-                                    userChangedRouteRef.current = true;
+                                    markUserChangedRoute();
                                     setFormData((prev) => ({
                                        ...prev,
                                        origem: value.toUpperCase(),
@@ -435,74 +291,17 @@ export function EtapaModal({
                               />
                               {origemVazia && <FieldError />}
                            </div>
-                           <div className="grid grid-cols-2 gap-3">
-                              <div>
-                                 <Label
-                                    htmlFor="dt_dep_date"
-                                    className="mb-1.5 block text-xs font-medium text-slate-500"
-                                 >
-                                    Data <span className="text-red-500">*</span>
-                                 </Label>
-                                 <input
-                                    type="date"
-                                    id="dt_dep_date"
-                                    value={dataDecolagem}
-                                    onChange={(e) =>
-                                       updateDateTime(
-                                          "dt_dep",
-                                          e.target.value,
-                                          horaDecolagem || "00:00"
-                                       )
-                                    }
-                                    onBlur={() => markTouched("dt_dep")}
-                                    className={clsx(
-                                       inputBaseClass,
-                                       dtDepVazia
-                                          ? "border-red-300 focus:ring-red-500"
-                                          : "border-slate-300 focus:ring-sky-500"
-                                    )}
-                                 />
-                                 {dtDepVazia && <FieldError />}
-                              </div>
-                              <div>
-                                 <Label
-                                    htmlFor="dt_dep_time"
-                                    className="mb-1.5 block text-xs font-medium text-slate-500"
-                                 >
-                                    Hora (Z)
-                                 </Label>
-                                 <input
-                                    type="time"
-                                    id="dt_dep_time"
-                                    value={horaDecolagem}
-                                    onChange={(e) =>
-                                       updateDateTime(
-                                          "dt_dep",
-                                          dataDecolagem,
-                                          e.target.value
-                                       )
-                                    }
-                                    onBlur={(e) => {
-                                       if (!e.target.value) return;
-                                       const rounded = roundTimeToFiveMinutes(
-                                          e.target.value
-                                       );
-                                       if (rounded !== e.target.value) {
-                                          updateDateTime(
-                                             "dt_dep",
-                                             dataDecolagem,
-                                             rounded
-                                          );
-                                       }
-                                    }}
-                                    step="300"
-                                    className={clsx(
-                                       inputBaseClass,
-                                       "border-slate-300 focus:ring-sky-500"
-                                    )}
-                                 />
-                              </div>
-                           </div>
+                           <DateTimeField
+                              idPrefix="dt_dep"
+                              date={dataDecolagem}
+                              time={horaDecolagem}
+                              focusRingClass="focus:ring-sky-500"
+                              dateMissing={!!dtDepVazia}
+                              onChange={(date, time) =>
+                                 updateDateTime("dt_dep", date, time)
+                              }
+                              onDateBlur={() => markTouched("dt_dep")}
+                           />
                         </div>
                      </div>
 
@@ -546,7 +345,7 @@ export function EtapaModal({
                                        /[^a-zA-Z]/g,
                                        ""
                                     );
-                                    userChangedRouteRef.current = true;
+                                    markUserChangedRoute();
                                     setFormData((prev) => ({
                                        ...prev,
                                        dest: value.toUpperCase(),
@@ -564,158 +363,29 @@ export function EtapaModal({
                               />
                               {destVazio && <FieldError />}
                            </div>
-                           <div className="grid grid-cols-2 gap-3">
-                              <div>
-                                 <Label
-                                    htmlFor="dt_arr_date"
-                                    className="mb-1.5 block text-xs font-medium text-slate-500"
-                                 >
-                                    Data <span className="text-red-500">*</span>
-                                 </Label>
-                                 <input
-                                    type="date"
-                                    id="dt_arr_date"
-                                    value={dataPouso}
-                                    min={dataDecolagem}
-                                    onChange={(e) =>
-                                       updateDateTime(
-                                          "dt_arr",
-                                          e.target.value,
-                                          horaPouso || "00:00"
-                                       )
-                                    }
-                                    onBlur={() => markTouched("dt_arr")}
-                                    className={clsx(
-                                       inputBaseClass,
-                                       dtArrVazia
-                                          ? "border-red-300 focus:ring-red-500"
-                                          : "border-slate-300 focus:ring-emerald-500"
-                                    )}
-                                 />
-                                 {dtArrVazia && <FieldError />}
-                              </div>
-                              <div>
-                                 <Label
-                                    htmlFor="dt_arr_time"
-                                    className="mb-1.5 block text-xs font-medium text-slate-500"
-                                 >
-                                    Hora (Z)
-                                 </Label>
-                                 <input
-                                    type="time"
-                                    id="dt_arr_time"
-                                    value={horaPouso}
-                                    onChange={(e) =>
-                                       updateDateTime(
-                                          "dt_arr",
-                                          dataPouso,
-                                          e.target.value
-                                       )
-                                    }
-                                    onBlur={(e) => {
-                                       if (!e.target.value) return;
-                                       const rounded = roundTimeToFiveMinutes(
-                                          e.target.value
-                                       );
-                                       if (rounded !== e.target.value) {
-                                          updateDateTime(
-                                             "dt_arr",
-                                             dataPouso,
-                                             rounded
-                                          );
-                                       }
-                                    }}
-                                    step="300"
-                                    className={clsx(
-                                       inputBaseClass,
-                                       "border-slate-300 focus:ring-emerald-500"
-                                    )}
-                                 />
-                              </div>
-                           </div>
+                           <DateTimeField
+                              idPrefix="dt_arr"
+                              date={dataPouso}
+                              time={horaPouso}
+                              minDate={dataDecolagem}
+                              focusRingClass="focus:ring-emerald-500"
+                              dateMissing={!!dtArrVazia}
+                              onChange={(date, time) =>
+                                 updateDateTime("dt_arr", date, time)
+                              }
+                              onDateBlur={() => markTouched("dt_arr")}
+                           />
                         </div>
                      </div>
                   </div>
 
                   {/* Faixa de sugestão de rota: integrada ao cartão, sem saltos de layout */}
                   {showSuggestionStrip && (
-                     <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 border-t border-slate-100 bg-slate-50/70 px-4 py-2.5">
-                        {isLoadingRoute ? (
-                           <>
-                              <Spinner size="sm" color="info" />
-                              <span className="text-xs text-slate-500">
-                                 Buscando dados da rota...
-                              </span>
-                           </>
-                        ) : suggestionType === "full" && routeSuggestion ? (
-                           <>
-                              <span className="flex items-center gap-1.5 text-xs font-medium text-emerald-700">
-                                 <HiLightningBolt className="h-3.5 w-3.5" />
-                                 Sugestão aplicada — rota já voada
-                              </span>
-                              {routeSuggestion.alternativa && (
-                                 <SuggestionChip
-                                    tone="emerald"
-                                    label="Alt"
-                                    value={routeSuggestion.alternativa}
-                                 />
-                              )}
-                              {routeSuggestion.tvoo_alt != null && (
-                                 <SuggestionChip
-                                    tone="emerald"
-                                    label="Tvoo Alt"
-                                    value={minutesToTime(
-                                       routeSuggestion.tvoo_alt
-                                    )}
-                                 />
-                              )}
-                              {routeSuggestion.qtd_comb != null && (
-                                 <SuggestionChip
-                                    tone="emerald"
-                                    label="Combustível"
-                                    value={`${routeSuggestion.qtd_comb.toLocaleString("pt-BR")}T`}
-                                 />
-                              )}
-                              {routeSuggestion.tvoo_etp != null &&
-                                 routeSuggestion.tvoo_etp > 0 && (
-                                    <SuggestionChip
-                                       tone="emerald"
-                                       label="Chegada calculada"
-                                       value={minutesToTime(
-                                          routeSuggestion.tvoo_etp
-                                       )}
-                                    />
-                                 )}
-                           </>
-                        ) : suggestionType === "partial" && routeSuggestion ? (
-                           <>
-                              <span className="flex items-center gap-1.5 text-xs font-medium text-amber-700">
-                                 <HiLightningBolt className="h-3.5 w-3.5" />
-                                 Sugestão parcial — dados do destino
-                              </span>
-                              {routeSuggestion.alternativa && (
-                                 <SuggestionChip
-                                    tone="amber"
-                                    label="Alt"
-                                    value={routeSuggestion.alternativa}
-                                 />
-                              )}
-                              {routeSuggestion.tvoo_alt != null && (
-                                 <SuggestionChip
-                                    tone="amber"
-                                    label="Tvoo Alt"
-                                    value={minutesToTime(
-                                       routeSuggestion.tvoo_alt
-                                    )}
-                                 />
-                              )}
-                           </>
-                        ) : (
-                           <span className="text-xs text-slate-400">
-                              Nenhuma sugestão para esta rota
-                           </span>
-                        )}
-                     </div>
+                     <RouteSuggestionStrip
+                        isLoading={isLoadingRoute}
+                        suggestionType={suggestionType}
+                        suggestion={routeSuggestion}
+                     />
                   )}
                </div>
 

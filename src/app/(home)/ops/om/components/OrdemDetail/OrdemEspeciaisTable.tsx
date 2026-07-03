@@ -1,10 +1,10 @@
 "use client";
 
 import { memo, useState, useRef, useCallback } from "react";
-import { Modal, ModalHeader, ModalBody, Button } from "flowbite-react";
-import { HiPencil, HiTrash, HiPlus, HiExclamationCircle } from "react-icons/hi";
+import { HiPencil, HiTrash, HiPlus } from "react-icons/hi";
 import clsx from "clsx";
 import type { CampoEspecial } from "services/routes/om/ordens";
+import { ConfirmModal } from "@/components/ConfirmModal";
 
 interface OrdemEspeciaisDisplayProps {
    campos: CampoEspecial[];
@@ -241,24 +241,19 @@ export const OrdemEspeciaisDisplay = memo(function OrdemEspeciaisDisplay({
          </div>
 
          {/* Modal de confirmação de exclusão */}
-         <Modal
+         <ConfirmModal
             show={deleteConfirmIndex !== null}
-            size="md"
             onClose={handleCancelDelete}
-            popup
-         >
-            <ModalHeader />
-            <ModalBody>
-               <div className="text-center">
-                  <HiExclamationCircle className="mx-auto mb-4 h-14 w-14 text-red-400" />
-                  <h3 className="mb-3 text-lg font-semibold text-gray-900">
-                     Excluir Ordem Especial
-                  </h3>
-
+            onConfirm={handleConfirmDelete}
+            title="Excluir Ordem Especial"
+            confirmLabel="Sim, excluir"
+            iconColor="text-red-400"
+            message={
+               <>
                   {/* Detalhes do campo */}
                   {deleteConfirmIndex !== null &&
                      campos[deleteConfirmIndex] && (
-                        <div className="mb-5 rounded bg-gray-50 p-3 text-left">
+                        <div className="mb-4 rounded bg-gray-50 p-3 text-left">
                            <div className="text-sm">
                               <span className="font-semibold text-purple-700 uppercase">
                                  {campos[deleteConfirmIndex].label}
@@ -269,21 +264,12 @@ export const OrdemEspeciaisDisplay = memo(function OrdemEspeciaisDisplay({
                            </div>
                         </div>
                      )}
-
-                  <p className="mb-5 text-sm text-gray-500">
+                  <p className="text-sm text-gray-500">
                      Tem certeza que deseja excluir este campo?
                   </p>
-                  <div className="flex justify-center gap-4">
-                     <Button color="red" onClick={handleConfirmDelete}>
-                        Sim, excluir
-                     </Button>
-                     <Button color="gray" onClick={handleCancelDelete}>
-                        Cancelar
-                     </Button>
-                  </div>
-               </div>
-            </ModalBody>
-         </Modal>
+               </>
+            }
+         />
       </>
    );
 });

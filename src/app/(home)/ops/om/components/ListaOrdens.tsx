@@ -1,4 +1,5 @@
 import { memo, useMemo, useCallback } from "react";
+import Link from "next/link";
 import { HiDocumentDuplicate, HiTrash } from "react-icons/hi";
 import clsx from "clsx";
 import type { OrdemMissaoList, EtapaListItem } from "services/routes/om/ordens";
@@ -12,7 +13,6 @@ import { PermBased } from "@/app/(home)/hooks/usePermBased";
 
 interface ListaOrdensProps {
    ordens: OrdemMissaoList[];
-   onOrdemClick: (ordem: OrdemMissaoList) => void;
    onCloneOrdem: (ordem: OrdemMissaoList) => void;
    onDeleteOrdem?: (ordem: OrdemMissaoList) => void;
    // Empty state contextual: com filtros ativos oferece limpá-los;
@@ -25,7 +25,6 @@ interface ListaOrdensProps {
 
 interface OrdemItemProps {
    ordem: OrdemMissaoList;
-   onOrdemClick: (ordem: OrdemMissaoList) => void;
    onCloneOrdem: (ordem: OrdemMissaoList) => void;
    onDeleteOrdem?: (ordem: OrdemMissaoList) => void;
 }
@@ -56,7 +55,6 @@ function gerarResumoRota(
 // Componente memoizado para cada item da lista
 const OrdemItem = memo(function OrdemItem({
    ordem,
-   onOrdemClick,
    onCloneOrdem,
    onDeleteOrdem,
 }: OrdemItemProps) {
@@ -64,45 +62,16 @@ const OrdemItem = memo(function OrdemItem({
 
    const status = statusConfig[ordem.status as StatusType];
 
-   const handleClick = useCallback(() => {
-      onOrdemClick(ordem);
-   }, [onOrdemClick, ordem]);
+   const handleClone = useCallback(() => {
+      onCloneOrdem(ordem);
+   }, [onCloneOrdem, ordem]);
 
-   const handleKeyDown = useCallback(
-      (e: React.KeyboardEvent) => {
-         if (e.key === "Enter" || e.key === " ") {
-            e.preventDefault();
-            onOrdemClick(ordem);
-         }
-      },
-      [onOrdemClick, ordem]
-   );
-
-   const handleClone = useCallback(
-      (e: React.MouseEvent) => {
-         e.stopPropagation();
-         onCloneOrdem(ordem);
-      },
-      [onCloneOrdem, ordem]
-   );
-
-   const handleDelete = useCallback(
-      (e: React.MouseEvent) => {
-         e.stopPropagation();
-         onDeleteOrdem?.(ordem);
-      },
-      [onDeleteOrdem, ordem]
-   );
+   const handleDelete = useCallback(() => {
+      onDeleteOrdem?.(ordem);
+   }, [onDeleteOrdem, ordem]);
 
    return (
-      <div
-         role="button"
-         tabIndex={0}
-         aria-label={`Abrir ordem de missão ${ordem.numero} — status ${status?.label ?? ordem.status}`}
-         className="relative cursor-pointer overflow-hidden rounded border-y border-r border-gray-200 bg-white py-3 pr-4 pl-5 shadow transition-all hover:border-red-300 hover:shadow-md focus:outline-none focus-visible:border-red-400 focus-visible:shadow-md focus-visible:ring-2 focus-visible:ring-red-400/50 focus-visible:ring-offset-2"
-         onClick={handleClick}
-         onKeyDown={handleKeyDown}
-      >
+      <div className="relative overflow-hidden rounded border-y border-r border-gray-200 bg-white py-3 pr-4 pl-5 shadow transition-all focus-within:border-red-400 focus-within:shadow-md hover:border-red-300 hover:shadow-md">
          {/* Faixa lateral de status (cor = estado da OM) */}
          <span
             aria-hidden
@@ -111,6 +80,13 @@ const OrdemItem = memo(function OrdemItem({
                "absolute inset-y-0 left-0 w-1.5",
                status?.accent ?? "bg-gray-300"
             )}
+         />
+         {/* Stretched link: o card inteiro é um link real (prefetch, abrir em
+             nova aba, navegação por teclado); as ações ficam acima com z-10 */}
+         <Link
+            href={`/ops/om/${ordem.id}`}
+            aria-label={`Abrir ordem de missão ${ordem.numero} — status ${status?.label ?? ordem.status}`}
+            className="absolute inset-0 rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-red-400/50 focus-visible:ring-offset-2"
          />
          <div className="flex items-center justify-between gap-2">
             <div className="flex min-w-0 flex-1 items-center gap-3">
@@ -222,7 +198,7 @@ const OrdemItem = memo(function OrdemItem({
                   )}
                </div>
             </div>
-            <div className="flex shrink-0 items-center gap-1">
+            <div className="relative z-10 flex shrink-0 items-center gap-1">
                <PermBased resource={"ordem_missao"} requiredPerm={"create"}>
                   <button
                      onClick={handleClone}
@@ -253,7 +229,6 @@ const OrdemItem = memo(function OrdemItem({
 
 export const ListaOrdens = memo(function ListaOrdens({
    ordens,
-   onOrdemClick,
    onCloneOrdem,
    onDeleteOrdem,
    emptyTitle = "Nenhuma ordem de missão encontrada",
@@ -263,9 +238,11 @@ export const ListaOrdens = memo(function ListaOrdens({
 }: ListaOrdensProps) {
    const sortedOrdens = useMemo(() => {
       return [...ordens].sort((a, b) => {
-         // 1. Ano da data_saida (descendente)
-         const anoA = a.data_saida ? new Date(a.data_saida).getFullYear() : 0;
-         const anoB = b.data_saida ? new Date(b.data_saida).getFullYear() : 0;
+         // 1. Ano da data_saida (descendente) — parse por string: new Date()
+         // interpretaria "YYYY-MM-DD" como UTC e deslocaria 1º de janeiro
+         // para o ano anterior no fuso local
+         const anoA = a.data_saida ? Number(a.data_saida.slice(0, 4)) : 0;
+         const anoB = b.data_saida ? Number(b.data_saida.slice(0, 4)) : 0;
 
          if (anoA !== anoB) return anoB - anoA;
 
@@ -337,7 +314,6 @@ export const ListaOrdens = memo(function ListaOrdens({
             <OrdemItem
                key={ordem.id}
                ordem={ordem}
-               onOrdemClick={onOrdemClick}
                onCloneOrdem={onCloneOrdem}
                onDeleteOrdem={onDeleteOrdem}
             />

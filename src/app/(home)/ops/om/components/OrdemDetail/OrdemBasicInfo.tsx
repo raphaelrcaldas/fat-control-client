@@ -5,7 +5,10 @@ import clsx from "clsx";
 import type { OrdemMissaoOut } from "services/routes/om/ordens";
 import type { AeronavePublic } from "services/routes/aeronaves";
 import { minutesToTime, timeToMinutes } from "utils/dateHandler";
-import { calcularEsfAer } from "./utils/ordemUtils";
+import {
+   getEsfAerMinimoViolado,
+   type OrdemValidationFlags,
+} from "./utils/ordemValidation";
 
 /**
  * Componente de input para tempo no formato HH:MM
@@ -101,20 +104,11 @@ function TimeInput({
    );
 }
 
-interface ValidationErrors {
-   tipo: boolean;
-   matriculaAeronave: boolean;
-   etapas: boolean;
-   piloto: boolean;
-   mecanico: boolean;
-   loadmaster: boolean;
-}
-
 interface OrdemBasicInfoProps {
    formData: OrdemMissaoOut;
    isEditable: boolean;
    onUpdate: (updates: Partial<OrdemMissaoOut>) => void;
-   validationErrors?: ValidationErrors;
+   validationErrors?: OrdemValidationFlags;
    aeronaves: AeronavePublic[];
 }
 
@@ -125,20 +119,17 @@ export const OrdemBasicInfo = memo(function OrdemBasicInfo({
    validationErrors,
    aeronaves,
 }: OrdemBasicInfoProps) {
-   // Calcular o somatório de tempo de voo das etapas a partir de dt_dep/dt_arr atuais
-   const somaTempoVooEtapas = useMemo(
-      () => calcularEsfAer(formData.etapas ?? []),
-      [formData.etapas]
-   );
-
-   // Validar se esf_aer é menor que o somatório de tempo de voo
+   // esf_aer >= soma do tempo de voo das etapas (regra compartilhada
+   // em utils/ordemValidation, mesma do useOrdemForm)
    const erroEsfAer = useMemo(() => {
-      const esfAer = formData.esf_aer || 0;
-      if (somaTempoVooEtapas > 0 && esfAer < somaTempoVooEtapas) {
-         return `Mínimo: ${minutesToTime(somaTempoVooEtapas)} (soma das etapas)`;
-      }
-      return null;
-   }, [formData.esf_aer, somaTempoVooEtapas]);
+      const minimo = getEsfAerMinimoViolado(
+         formData.esf_aer || 0,
+         formData.etapas ?? []
+      );
+      return minimo !== null
+         ? `Mínimo: ${minutesToTime(minimo)} (soma das etapas)`
+         : null;
+   }, [formData.esf_aer, formData.etapas]);
 
    /**
     * Regra de negócio: O número da OM só pode ser editado em ordens aprovadas.

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { TextInput } from "flowbite-react";
 import { HiChevronDown, HiChevronUp, HiTag, HiX } from "react-icons/hi";
 import clsx from "clsx";
 import { FiltrosOrdem } from "../types";
@@ -11,6 +12,7 @@ import {
 } from "@/constants/ops/ordens-missao/status";
 import { useEtiquetas } from "@/hooks/queries";
 import { MultiSelect } from "@/components/MultiSelect";
+import { formatDateFull } from "utils/dateHandler";
 
 // Status disponíveis para filtro (sem rascunho, pois tem tab própria)
 const statusOptionsAprovadas = statusOptions.filter((s) => s !== "rascunho");
@@ -32,7 +34,7 @@ export function FiltrosOrdemComponent({
    const [expanded, setExpanded] = useState(false);
    const [allowOverflow, setAllowOverflow] = useState(false);
 
-   // TanStack Query - cache automatico, staleTime de 5 min
+   // TanStack Query - cache automatico
    const etiquetasQuery = useEtiquetas();
    const allLabels = etiquetasQuery.data ?? [];
 
@@ -95,19 +97,13 @@ export function FiltrosOrdemComponent({
 
                      {isDataInicioCustom && (
                         <span className="rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-600">
-                           Início:{" "}
-                           {new Date(
-                              filtros.dataInicio + "T00:00:00"
-                           ).toLocaleDateString("pt-BR")}
+                           Início: {formatDateFull(filtros.dataInicio)}
                         </span>
                      )}
 
                      {isDataFimCustom && (
                         <span className="rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-600">
-                           Fim:{" "}
-                           {new Date(
-                              filtros.dataFim + "T00:00:00"
-                           ).toLocaleDateString("pt-BR")}
+                           Fim: {formatDateFull(filtros.dataFim)}
                         </span>
                      )}
 
@@ -183,7 +179,7 @@ export function FiltrosOrdemComponent({
                      <label className="mb-1 block text-xs font-medium text-gray-500">
                         Busca
                      </label>
-                     <input
+                     <TextInput
                         type="text"
                         placeholder="Número, ICAO, descrição ou nome de guerra..."
                         value={filtros.busca}
@@ -193,7 +189,6 @@ export function FiltrosOrdemComponent({
                               busca: e.target.value,
                            })
                         }
-                        className="w-full rounded border border-gray-300 bg-gray-50 px-3 py-2.5 text-sm text-gray-900 placeholder-gray-400 focus:border-transparent focus:ring-2 focus:ring-red-500"
                      />
                   </div>
 
@@ -223,7 +218,7 @@ export function FiltrosOrdemComponent({
                      <label className="mb-1 block text-xs font-medium text-gray-500">
                         Data Início
                      </label>
-                     <input
+                     <TextInput
                         type="date"
                         value={filtros.dataInicio}
                         max={filtros.dataFim || undefined}
@@ -233,12 +228,7 @@ export function FiltrosOrdemComponent({
                               dataInicio: e.target.value,
                            })
                         }
-                        className={clsx(
-                           "w-full rounded border bg-gray-50 px-3 py-2.5 text-sm text-gray-900 focus:border-transparent focus:ring-2 focus:ring-red-500",
-                           intervaloInvalido
-                              ? "border-red-300"
-                              : "border-gray-300"
-                        )}
+                        color={intervaloInvalido ? "failure" : "gray"}
                      />
                   </div>
 
@@ -247,7 +237,7 @@ export function FiltrosOrdemComponent({
                      <label className="mb-1 block text-xs font-medium text-gray-500">
                         Data Fim
                      </label>
-                     <input
+                     <TextInput
                         type="date"
                         value={filtros.dataFim}
                         min={filtros.dataInicio || undefined}
@@ -257,12 +247,7 @@ export function FiltrosOrdemComponent({
                               dataFim: e.target.value,
                            })
                         }
-                        className={clsx(
-                           "w-full rounded border bg-gray-50 px-3 py-2.5 text-sm text-gray-900 focus:border-transparent focus:ring-2 focus:ring-red-500",
-                           intervaloInvalido
-                              ? "border-red-300"
-                              : "border-gray-300"
-                        )}
+                        color={intervaloInvalido ? "failure" : "gray"}
                      />
                      {intervaloInvalido && (
                         <p className="mt-1 text-xs text-red-500">

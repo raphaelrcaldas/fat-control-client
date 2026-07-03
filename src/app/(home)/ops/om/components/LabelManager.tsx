@@ -11,27 +11,20 @@ import {
    Label,
    Spinner,
 } from "flowbite-react";
-import {
-   HiPlus,
-   HiTrash,
-   HiPencil,
-   HiCheck,
-   HiX,
-   HiExclamationCircle,
-} from "react-icons/hi";
+import { HiPlus, HiTrash, HiPencil, HiCheck, HiX } from "react-icons/hi";
+import { ConfirmModal } from "@/components/ConfirmModal";
 import type { Etiqueta } from "services/routes/om/ordens";
 import {
-   createEtiqueta,
-   updateEtiqueta,
-   deleteEtiqueta,
-} from "services/routes/om/etiquetas";
+   useCreateEtiqueta,
+   useUpdateEtiqueta,
+   useDeleteEtiquetaOrdem,
+} from "@/hooks/queries";
 import { useToast } from "@/app/context/toast";
 
 type LabelManagerProps = {
    isOpen: boolean;
    onClose: () => void;
    labels: Etiqueta[];
-   onRefresh: () => void;
    onLabelDeleted?: (id: number) => void;
 };
 
@@ -39,11 +32,9 @@ export function LabelManager({
    isOpen,
    onClose,
    labels,
-   onRefresh,
    onLabelDeleted,
 }: LabelManagerProps) {
    const { push: pushToast } = useToast();
-   const [isLoading, setIsLoading] = useState(false);
    const [editingId, setEditingId] = useState<number | null>(null);
    const [deletingId, setDeletingId] = useState<number | null>(null);
    const [formData, setFormData] = useState({
@@ -51,6 +42,17 @@ export function LabelManager({
       cor: "#ef4444",
       descricao: "",
    });
+
+   // Mutations TanStack: invalidam a lista de etiquetas automaticamente
+   // (o antigo callback onRefresh ficou desnecessário)
+   const createMutation = useCreateEtiqueta();
+   const updateMutation = useUpdateEtiqueta();
+   const deleteMutation = useDeleteEtiquetaOrdem();
+
+   const isLoading =
+      createMutation.isPending ||
+      updateMutation.isPending ||
+      deleteMutation.isPending;
 
    const resetForm = () => {
       setFormData({ nome: "", cor: "#ef4444", descricao: "" });
@@ -60,15 +62,16 @@ export function LabelManager({
    const handleSave = async () => {
       if (!formData.nome || !formData.cor) return;
 
-      setIsLoading(true);
       try {
          if (editingId) {
-            await updateEtiqueta(editingId, formData);
+            await updateMutation.mutateAsync({
+               id: editingId,
+               data: formData,
+            });
          } else {
-            await createEtiqueta(formData);
+            await createMutation.mutateAsync(formData);
          }
          resetForm();
-         onRefresh();
          pushToast({
             type: "success",
             title: "Sucesso",
@@ -83,8 +86,6 @@ export function LabelManager({
             title: "Erro",
             message: "Erro ao salvar etiqueta. Tente novamente.",
          });
-      } finally {
-         setIsLoading(false);
       }
    };
 
@@ -104,11 +105,9 @@ export function LabelManager({
    const handleConfirmDelete = async () => {
       if (!deletingId) return;
 
-      setIsLoading(true);
       try {
-         await deleteEtiqueta(deletingId);
+         await deleteMutation.mutateAsync(deletingId);
          onLabelDeleted?.(deletingId);
-         onRefresh();
          pushToast({
             type: "success",
             title: "Sucesso",
@@ -122,7 +121,6 @@ export function LabelManager({
             message: "Erro ao excluir etiqueta. Tente novamente.",
          });
       } finally {
-         setIsLoading(false);
          setDeletingId(null);
       }
    };
@@ -283,45 +281,21 @@ export function LabelManager({
          </Modal>
 
          {/* Modal de Confirmação de Exclusão */}
-         <Modal
+         <ConfirmModal
             show={deletingId !== null}
             onClose={handleCancelDelete}
-            size="sm"
-            popup
-         >
-            <ModalHeader />
-            <ModalBody>
-               <div className="text-center">
-                  <HiExclamationCircle className="mx-auto mb-4 h-14 w-14 text-red-400" />
-                  <h3 className="mb-5 text-lg font-normal text-gray-500">
-                     Tem certeza que deseja excluir esta etiqueta?
-                  </h3>
-                  <div className="flex justify-center gap-4">
-                     <Button
-                        color="red"
-                        onClick={handleConfirmDelete}
-                        disabled={isLoading}
-                     >
-                        {isLoading ? (
-                           <Spinner
-                              size="sm"
-                              color="failure"
-                              className="mr-2"
-                           />
-                        ) : null}
-                        Sim, excluir
-                     </Button>
-                     <Button
-                        color="gray"
-                        onClick={handleCancelDelete}
-                        disabled={isLoading}
-                     >
-                        Cancelar
-                     </Button>
-                  </div>
-               </div>
-            </ModalBody>
-         </Modal>
+            onConfirm={handleConfirmDelete}
+            title="Excluir Etiqueta"
+            confirmLabel="Sim, excluir"
+            iconColor="text-red-400"
+            isLoading={isLoading}
+            message={
+               <p className="text-sm text-gray-500">
+                  Tem certeza que deseja excluir esta etiqueta? Ela será
+                  removida de todas as Ordens de Missão que a utilizam.
+               </p>
+            }
+         />
       </>
    );
 }

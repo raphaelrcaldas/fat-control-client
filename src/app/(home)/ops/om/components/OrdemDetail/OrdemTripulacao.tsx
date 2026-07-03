@@ -7,38 +7,21 @@ import {
    type FuncaoTripulante,
 } from "@/constants/tripulantes";
 import { TripulanteSelect } from "./TripulanteSelect";
-
-// TripulacaoOrdem usando tipos da API diretamente
-interface TripulacaoOrdem {
-   pil: CrewMember[];
-   mc: CrewMember[];
-   lm: CrewMember[];
-   tf: CrewMember[];
-   oe: CrewMember[];
-   os: CrewMember[];
-}
-
-interface ValidationErrors {
-   tipo: boolean;
-   matriculaAeronave: boolean;
-   etapas: boolean;
-   piloto: boolean;
-   mecanico: boolean;
-   loadmaster: boolean;
-}
+import { type TripulacaoOrdem } from "./utils/ordemFormUtils";
+import { type OrdemValidationFlags } from "./utils/ordemValidation";
 
 interface OrdemTripulacaoProps {
    tripulacao: TripulacaoOrdem;
    onAdd: (funcao: FuncaoTripulante, tripulante: CrewMember) => void;
    onRemove: (funcao: FuncaoTripulante, tripulanteId: number) => void;
    isEditable: boolean;
-   validationErrors?: ValidationErrors;
+   validationErrors?: OrdemValidationFlags;
 }
 
 // Funcoes obrigatorias com mapeamento para os erros de validacao
 const REQUIRED_FUNCOES: Record<
    FuncaoTripulante,
-   keyof ValidationErrors | null
+   keyof OrdemValidationFlags | null
 > = {
    pil: "piloto",
    mc: "mecanico",

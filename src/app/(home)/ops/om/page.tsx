@@ -2,8 +2,15 @@
 
 import { useState, useEffect, useMemo, useRef } from "react";
 import useDebouncedValue from "@/hooks/useDebouncedValue";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Tabs, TabItem, Pagination, Button } from "flowbite-react";
+import {
+   Tabs,
+   TabItem,
+   Pagination,
+   Button,
+   type TabsRef,
+} from "flowbite-react";
 import { HiPlus, HiOutlineClipboardList } from "react-icons/hi";
 import clsx from "clsx";
 import {
@@ -25,6 +32,7 @@ import { type OrdemMissaoList } from "services/routes/om/ordens";
 import { useAuth } from "@/app/context/auth";
 import { useToast } from "@/app/context/toast";
 import { dateToIso } from "utils/dateHandler";
+import { saveOmListUrl } from "./utils/omListUrl";
 import { PermBased } from "../../hooks/usePermBased";
 
 const tabsTheme = {
@@ -71,6 +79,10 @@ export default function OrdensMissao() {
    // para a paginação voltar ao início da lista
    const pageTopRef = useRef<HTMLDivElement>(null);
 
+   // Ref imperativa do Tabs (não-controlado no Flowbite): permite ressincronizar
+   // com a URL sem remontar o componente inteiro via key={tabParam}
+   const tabsRef = useRef<TabsRef>(null);
+
    // Calculado por mount (não no load do módulo) para não envelhecer numa SPA aberta
    const [defaultDates] = useState(getDefaultDates);
 
@@ -116,6 +128,29 @@ export default function OrdensMissao() {
       }
       // eslint-disable-next-line react-hooks/exhaustive-deps
    }, [debouncedBusca]);
+
+   // Ressincroniza o input quando a URL muda por fora (voltar/avançar do
+   // navegador). Não briga com a digitação: quando a mudança veio do
+   // próprio debounce, filtros.busca === debouncedBusca e nada é feito.
+   useEffect(() => {
+      if (filtros.busca !== debouncedBusca) {
+         setBuscaInput(filtros.busca);
+      }
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+   }, [filtros.busca]);
+
+   // Ressincroniza a tab quando a URL muda por fora (voltar/avançar).
+   // setActiveTab dispara onActiveTabChange, mas o guard de handleTabChange
+   // ignora a chamada quando a tab já corresponde à URL (sem loop).
+   useEffect(() => {
+      tabsRef.current?.setActiveTab(activeTab);
+   }, [activeTab]);
+
+   // Memoriza a URL atual da lista (tab/página/filtros) para os botões
+   // "voltar" das telas de detalhe/clonagem/nova (ver utils/omListUrl)
+   useEffect(() => {
+      saveOmListUrl(window.location.pathname + window.location.search);
+   }, [searchParams]);
 
    // Paginacao derivada da URL
    const pageAprovadas = tabParam === "aprovadas" ? currentPage : 1;
@@ -171,10 +206,6 @@ export default function OrdensMissao() {
    // ========================================
    // Handlers
    // ========================================
-
-   const handleOpenOrdem = (ordem: OrdemMissaoList) => {
-      router.push(`/ops/om/${ordem.id}`);
-   };
 
    const handleCloneOrdem = (ordem: OrdemMissaoList) => {
       router.push(`/ops/om/${ordem.id}/clonar`);
@@ -248,6 +279,9 @@ export default function OrdensMissao() {
    // Troca de tab preserva todos os filtros (eles só se aplicam à tab Aprovadas)
    const handleTabChange = (tab: number) => {
       const key = TAB_KEY[tab] ?? "aprovadas";
+      // Também dispara quando a ressincronização via ref chama setActiveTab:
+      // se a tab já é a da URL, não há nada a atualizar
+      if (key === tabParam) return;
       setParams({
          tab: key === "aprovadas" ? undefined : key,
          page: undefined,
@@ -289,9 +323,11 @@ export default function OrdensMissao() {
                   </div>
 
                   <PermBased resource={"ordem_missao"} requiredPerm={"create"}>
+                     {/* Link real: prefetch do Next e abrir em nova aba */}
                      <Button
+                        as={Link}
+                        href="/ops/om/nova"
                         color="red"
-                        onClick={() => router.push("/ops/om/nova")}
                         className="font-semibold whitespace-nowrap"
                      >
                         <HiPlus className="mr-2 h-4 w-4" />
@@ -312,25 +348,27 @@ export default function OrdensMissao() {
                         ordensRascunhoQuery.error?.message ||
                         "Erro ao carregar ordens"}
                   </span>
-                  <button
-                     type="button"
+                  <Button
+                     color="light"
+                     size="sm"
+                     className="shrink-0"
                      onClick={() => {
                         if (ordensAprovadasQuery.isError)
                            ordensAprovadasQuery.refetch();
                         if (ordensRascunhoQuery.isError)
                            ordensRascunhoQuery.refetch();
                      }}
-                     className="shrink-0 rounded border border-red-300 px-3 py-1.5 text-sm font-medium transition-colors hover:bg-red-100"
                   >
                      Tentar novamente
-                  </button>
+                  </Button>
                </div>
             )}
 
-            {/* Tabs — key={tabParam} ressincroniza com a URL (voltar/avançar do navegador),
-                já que o Tabs do Flowbite é não-controlado */}
+            {/* Tabs não-controlado do Flowbite: ressincronização com a URL
+                (voltar/avançar) via tabsRef.setActiveTab no effect acima —
+                sem remontar filtros e listas a cada troca */}
             <Tabs
-               key={tabParam}
+               ref={tabsRef}
                onActiveTabChange={handleTabChange}
                variant="underline"
                theme={tabsTheme}
@@ -378,7 +416,6 @@ export default function OrdensMissao() {
                         >
                            <ListaOrdens
                               ordens={ordensAprovadas}
-                              onOrdemClick={handleOpenOrdem}
                               onCloneOrdem={handleCloneOrdem}
                               onDeleteOrdem={handleDeleteOrdem}
                               hasActiveFilters={hasActiveFilters}
@@ -438,7 +475,6 @@ export default function OrdensMissao() {
                         >
                            <ListaOrdens
                               ordens={ordensRascunho}
-                              onOrdemClick={handleOpenOrdem}
                               onCloneOrdem={handleCloneOrdem}
                               onDeleteOrdem={handleDeleteOrdem}
                               emptyTitle="Nenhum rascunho encontrado"
