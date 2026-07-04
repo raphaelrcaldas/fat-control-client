@@ -7,23 +7,22 @@ import { useEtapas, useEtapasFlat } from "@/hooks/queries";
 import { useAeronaves } from "@/hooks/queries/useAeronaves";
 import { useEsfAerList } from "@/hooks/queries/useEsfAer";
 import { useTiposMissao } from "@/hooks/queries/useTiposMissao";
+import { dateToIso, todayIso } from "@/../utils/dateHandler";
 
 const PER_PAGE_OPTIONS = [25, 50, 100, 200, 400];
 const DEFAULT_PER_PAGE = 25;
 const DEFAULT_PAGE = 1;
 
-function toISODate(date: Date): string {
-   return date.toISOString().slice(0, 10);
-}
-
+// Fuso local (dateHandler), não UTC: após ~21h em UTC-3, toISOString()
+// devolveria "amanhã" e deslocaria a janela de 30 dias em um dia.
 function getDefaultDataIni(): string {
    const d = new Date();
    d.setDate(d.getDate() - 30);
-   return toISODate(d);
+   return dateToIso(d);
 }
 
 function getDefaultDataFim(): string {
-   return toISODate(new Date());
+   return todayIso();
 }
 
 export { PER_PAGE_OPTIONS, DEFAULT_PER_PAGE };
@@ -308,13 +307,17 @@ export function useEtapasFilters(grouped = true) {
       ? missoes.reduce((acc, m) => acc + m.etapas.length, 0)
       : (flatQuery.data?.total ?? 0);
 
+   // Datas só contam como filtro quando o usuário sai do intervalo default
+   // (a janela padrão é sempre semeada na URL — contá-la inflaria o badge).
+   const dataIniActive = urlDataIni !== getDefaultDataIni();
+   const dataFimActive = urlDataFim !== getDefaultDataFim();
    const activeFilterCount =
       (urlAnv.length > 0 ? 1 : 0) +
       (urlTipoMissao.length > 0 ? 1 : 0) +
       [urlOrigem, urlDestino, urlTrip, urlEsfAer].filter(Boolean).length +
       (urlTrip && urlFuncao ? 1 : 0) +
-      (urlDataIni ? 1 : 0) +
-      (urlDataFim ? 1 : 0);
+      (dataIniActive ? 1 : 0) +
+      (dataFimActive ? 1 : 0);
 
    const hasActiveFilters = activeFilterCount > 0;
    const isRefetching = !loading && isFetching;

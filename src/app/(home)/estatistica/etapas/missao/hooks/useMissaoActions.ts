@@ -68,6 +68,24 @@ export function useMissaoActions({ draft, mode }: UseMissaoActionsArgs) {
          });
          return;
       }
+      // Salvar uma etapa fora de "ok" descartaria OIs incompletas e
+      // zeraria específicos inválidos silenciosamente (ver buildEtapaNested).
+      // Bloqueia e aponta quais etapas revisar.
+      const invalidas = draft.etapas
+         .map((e, i) => ({ num: i + 1, status: e.status }))
+         .filter((e) => e.status !== "ok");
+      if (invalidas.length > 0) {
+         push({
+            title: "Etapas incompletas",
+            message:
+               `Revise a(s) etapa(s) ${invalidas
+                  .map((e) => e.num)
+                  .join(", ")} antes de salvar. Confira dados do voo, ` +
+               "soma das OIs e campos dos específicos.",
+            type: "error",
+         });
+         return;
+      }
       const onSuccess = () => {
          dispatch({ type: "RECOMPUTE_SNAPSHOT" });
          router.push("/estatistica/etapas");

@@ -4,12 +4,6 @@ import { Table, TableBody } from "flowbite-react";
 import type { EtapaItem } from "services/routes/estatistica/etapas";
 import { EtapaRow } from "./EtapaRow";
 
-interface HeaderCheckboxProps {
-   checked: boolean;
-   indeterminate: boolean;
-   onChange: () => void;
-}
-
 export interface EtapasInnerTableProps {
    etapas: EtapaItem[];
    loading: boolean;
@@ -17,7 +11,6 @@ export interface EtapasInnerTableProps {
    onToggleEtapa: (id: number) => void;
    onDetailEtapa: (id: number) => void;
    onEditEtapa: (id: number) => void;
-   headerCheckbox?: HeaderCheckboxProps;
 }
 
 export function EtapasInnerTable({

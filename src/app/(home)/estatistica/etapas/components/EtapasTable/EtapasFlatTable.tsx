@@ -8,9 +8,6 @@ export interface EtapasFlatTableProps {
    loading: boolean;
    selectedIds: Set<number>;
    onToggleEtapa: (id: number) => void;
-   onToggleAll: () => void;
-   allSelected: boolean;
-   someSelected: boolean;
    onDetailEtapa: (id: number) => void;
    onEditEtapa: (id: number) => void;
 }
@@ -20,9 +17,6 @@ export function EtapasFlatTable({
    loading,
    selectedIds,
    onToggleEtapa,
-   onToggleAll,
-   allSelected,
-   someSelected,
    onDetailEtapa,
    onEditEtapa,
 }: EtapasFlatTableProps) {
@@ -35,11 +29,6 @@ export function EtapasFlatTable({
             onToggleEtapa={onToggleEtapa}
             onDetailEtapa={onDetailEtapa}
             onEditEtapa={onEditEtapa}
-            headerCheckbox={{
-               checked: allSelected,
-               indeterminate: someSelected,
-               onChange: onToggleAll,
-            }}
          />
       </div>
    );

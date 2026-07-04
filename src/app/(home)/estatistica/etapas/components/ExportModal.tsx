@@ -72,7 +72,7 @@ export function ExportModal({ show, onClose, selectedIds }: ExportModalProps) {
    async function handleExport() {
       setIsExporting(true);
       try {
-         const blob = await exportEtapas({
+         const { blob, filename } = await exportEtapas({
             ids: [...selectedIds],
             ...columns,
          });
@@ -84,7 +84,9 @@ export function ExportModal({ show, onClose, selectedIds }: ExportModalProps) {
          const dd = String(now.getDate()).padStart(2, "0");
          const mm = String(now.getMonth() + 1).padStart(2, "0");
          const yyyy = now.getFullYear();
-         a.download = `etapas_1_1_GT_${dd}${mm}${yyyy}.xlsx`;
+         // O servidor nomeia o arquivo com a org ativa (Content-Disposition);
+         // fallback neutro quando o header não estiver disponível.
+         a.download = filename ?? `etapas_${dd}${mm}${yyyy}.xlsx`;
          a.click();
          URL.revokeObjectURL(url);
 

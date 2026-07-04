@@ -167,8 +167,14 @@ export const EtapasFilterPanel = memo(function EtapasFilterPanel({
                   <Select
                      value={filterFuncao}
                      onChange={(e) => onFuncaoChange(e.target.value)}
+                     disabled={!filterTrip}
+                     title={
+                        filterTrip
+                           ? "Restringe a busca à função selecionada"
+                           : "Digite um trigrama ou nome para filtrar por função"
+                     }
                      sizing="sm"
-                     className="[&_select]:w-16 [&_select]:rounded-none [&_select]:border-0 [&_select]:border-r [&_select]:border-gray-300 [&_select]:bg-transparent [&_select]:shadow-none [&_select]:focus:border-gray-300 [&_select]:focus:ring-0"
+                     className="[&_select]:w-16 [&_select]:rounded-none [&_select]:border-0 [&_select]:border-r [&_select]:border-gray-300 [&_select]:bg-transparent [&_select]:shadow-none [&_select]:focus:border-gray-300 [&_select]:focus:ring-0 [&_select]:disabled:cursor-not-allowed [&_select]:disabled:opacity-50"
                   >
                      <option value="">--</option>
                      {TODAS_FUNCOES.map((f) => (

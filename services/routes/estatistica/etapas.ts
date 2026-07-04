@@ -349,15 +349,38 @@ export interface ExportEtapasPayload {
    tripulantes: boolean;
 }
 
+export interface ExportEtapasResult {
+   blob: Blob;
+   filename: string | null;
+}
+
+function parseContentDispositionFilename(header: string | null): string | null {
+   if (!header) return null;
+   // filename*=UTF-8''... tem prioridade sobre filename="..."
+   const star = header.match(/filename\*=(?:UTF-8'')?([^;]+)/i);
+   if (star?.[1]) {
+      try {
+         return decodeURIComponent(star[1].trim().replace(/^"|"$/g, ""));
+      } catch {
+         // formato inesperado — cai para o filename simples
+      }
+   }
+   const simple = header.match(/filename="?([^";]+)"?/i);
+   return simple?.[1]?.trim() ?? null;
+}
+
 export async function exportEtapas(
    payload: ExportEtapasPayload
-): Promise<Blob> {
+): Promise<ExportEtapasResult> {
    const response = await request("POST", `${etapasRoute}export`, payload);
    if (!response.ok) {
       const json = await response.json();
       throw new Error(json.message || "Erro ao exportar etapas");
    }
-   return response.blob();
+   const filename = parseContentDispositionFilename(
+      response.headers.get("content-disposition")
+   );
+   return { blob: await response.blob(), filename };
 }
 
 // ─── Missão CRUD ───────────────────────────────────────────────────────────

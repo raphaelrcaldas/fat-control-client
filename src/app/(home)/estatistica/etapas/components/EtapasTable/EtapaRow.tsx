@@ -100,9 +100,9 @@ export const EtapaRow = memo(function EtapaRow({
          return <span className="text-gray-300">&mdash;</span>;
       return (
          <ul>
-            {oi_etapas.map((oi) => (
+            {oi_etapas.map((oi, i) => (
                <li
-                  key={`${oi.esf_aer_id}-${oi.tipo_missao_id}-${oi.reg}`}
+                  key={`${oi.esf_aer_id}-${oi.tipo_missao_id}-${oi.reg}-${i}`}
                   className="flex items-center justify-center gap-1.5 text-xs font-medium"
                >
                   <span

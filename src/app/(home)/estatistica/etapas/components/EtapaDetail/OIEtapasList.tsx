@@ -19,13 +19,13 @@ export function OIEtapasList({ items }: { items: OIEtapaItem[] }) {
 
    return (
       <div className="space-y-2">
-         {items.map((oi) => {
+         {items.map((oi, i) => {
             const reg = REG_CONFIG[oi.reg];
             const RegIcon = reg?.icon ?? HiSun;
 
             return (
                <div
-                  key={`${oi.esf_aer_id}-${oi.tipo_missao_id}-${oi.reg}`}
+                  key={`${oi.esf_aer_id}-${oi.tipo_missao_id}-${oi.reg}-${i}`}
                   className="flex flex-wrap items-center gap-3 rounded border border-gray-200 bg-white p-3 shadow-sm"
                >
                   <div className="flex items-center gap-1.5">

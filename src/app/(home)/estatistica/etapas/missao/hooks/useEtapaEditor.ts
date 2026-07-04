@@ -28,7 +28,11 @@ import type {
    EtapaFormData,
 } from "../context/types";
 
-const FIELD_LIMITS = {
+// Envelopes operacionais (mais restritos que os limites duros do banco, que
+// funcionam como rede de seguranca). Fonte unica: alimenta tanto os avisos de
+// validacao (deriveErrors) quanto os atributos min/max dos inputs, evitando
+// divergencia entre o que o campo aceita e o que a validacao acusa.
+export const FIELD_LIMITS = {
    pousos: { min: 0, max: 20, label: "Pousos" },
    tow: { min: 52000, max: 87000, label: "TOW" },
    pax: { min: 0, max: 84, label: "PAX" },

@@ -4,7 +4,7 @@ import { minutesToTime } from "@/../utils/dateHandler";
 
 import { toIcao, toNivelDigits } from "../context/format";
 import { isRotaPousoSuspeito } from "../context/selectors";
-import type { EtapaFormGroup } from "../hooks/useEtapaEditor";
+import { FIELD_LIMITS, type EtapaFormGroup } from "../hooks/useEtapaEditor";
 import { FormField } from "./FormField";
 
 interface DadosVooSectionProps {
@@ -15,12 +15,13 @@ interface DadosVooSectionProps {
 const groupHeadingClass =
    "mb-3 text-xs font-semibold tracking-wider text-gray-400 uppercase";
 
+// min/max vêm de FIELD_LIMITS (fonte única); aqui só rótulo e passo.
 const complementares = [
-   { key: "tow", label: "TOW (kg)", min: 1, max: 2147483647, step: 1 },
-   { key: "pax", label: "PAX", min: 0, max: 32767, step: 1 },
-   { key: "carga", label: "Carga (kg)", min: 0, max: 32767, step: 1 },
-   { key: "comb", label: "Comb (L)", min: 1, max: 32767, step: 1 },
-   { key: "lub", label: "Lub (L)", min: 0, max: 9999.9, step: 0.1 },
+   { key: "tow", label: "TOW (kg)", step: 1 },
+   { key: "pax", label: "PAX", step: 1 },
+   { key: "carga", label: "Carga (kg)", step: 1 },
+   { key: "comb", label: "Comb (L)", step: 1 },
+   { key: "lub", label: "Lub (L)", step: 0.1 },
 ] as const;
 
 export function DadosVooSection({ form, aeronavesList }: DadosVooSectionProps) {
@@ -167,8 +168,8 @@ export function DadosVooSection({ form, aeronavesList }: DadosVooSectionProps) {
                   <TextInput
                      id="pousos"
                      type="number"
-                     min={0}
-                     max={32767}
+                     min={FIELD_LIMITS.pousos.min}
+                     max={FIELD_LIMITS.pousos.max}
                      value={formData.pousos}
                      onChange={(e) =>
                         setField("pousos", parseInt(e.target.value) || 0)
@@ -205,7 +206,7 @@ export function DadosVooSection({ form, aeronavesList }: DadosVooSectionProps) {
          {/* Bloco 3: Dados Complementares */}
          <div>
             <div className="grid grid-cols-2 gap-4 text-left sm:grid-cols-3 lg:grid-cols-6">
-               {complementares.map(({ key, label, min, max, step }) => (
+               {complementares.map(({ key, label, step }) => (
                   <FormField
                      key={key}
                      label={label}
@@ -215,8 +216,8 @@ export function DadosVooSection({ form, aeronavesList }: DadosVooSectionProps) {
                      <TextInput
                         id={key}
                         type="number"
-                        min={min}
-                        max={max}
+                        min={FIELD_LIMITS[key].min}
+                        max={FIELD_LIMITS[key].max}
                         step={step ?? 1}
                         value={formData[key] ?? ""}
                         onChange={(e) => {

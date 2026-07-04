@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Badge, Checkbox, Label, Spinner } from "flowbite-react";
 import {
@@ -85,23 +85,6 @@ export function EtapasTable({
       return map;
    }, [grouped, missoes, flatEtapas]);
 
-   const missaoByEtapaId = useMemo(() => {
-      if (grouped) return null;
-      const map = new Map<number, MissaoComEtapas>();
-      for (const e of flatEtapas) {
-         if (!map.has(e.missao_id)) {
-            map.set(e.missao_id, {
-               id: e.missao_id,
-               titulo: (e as EtapaFlatItem).missao_titulo,
-               obs: null,
-               is_simulador: false,
-               etapas: flatEtapas.filter((fe) => fe.missao_id === e.missao_id),
-            });
-         }
-      }
-      return map;
-   }, [grouped, flatEtapas]);
-
    // Stable callback: open detail by id
    const handleDetailEtapa = useCallback(
       (id: number) => {
@@ -147,6 +130,13 @@ export function EtapasTable({
    // ── Bulk update ──────────────────────────────────────────────
    const bulkUpdate = useBulkUpdateEtapas();
    const [bulkFeedback, setBulkFeedback] = useState<string | null>(null);
+   const feedbackTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+   useEffect(
+      () => () => {
+         if (feedbackTimerRef.current) clearTimeout(feedbackTimerRef.current);
+      },
+      []
+   );
 
    const totalTvoo = useMemo(() => {
       const allEtapas = grouped ? missoes.flatMap((m) => m.etapas) : flatEtapas;
@@ -179,14 +169,19 @@ export function EtapasTable({
                      setBulkFeedback(
                         `${label} ${value ? "marcado" : "desmarcado"} em ${ids.length} etapa(s)`
                      );
-                     setTimeout(() => setBulkFeedback(null), 3000);
+                     if (feedbackTimerRef.current)
+                        clearTimeout(feedbackTimerRef.current);
+                     feedbackTimerRef.current = setTimeout(
+                        () => setBulkFeedback(null),
+                        3000
+                     );
                      onClearSelection?.();
                   }
                },
             }
          );
       },
-      [selectedIds, bulkUpdate]
+      [selectedIds, bulkUpdate, onClearSelection]
    );
 
    if (!loading && !hasData) {
@@ -320,9 +315,6 @@ export function EtapasTable({
                loading={loading}
                selectedIds={selectedIds}
                onToggleEtapa={onToggleEtapa}
-               onToggleAll={onToggleAll}
-               allSelected={allSelected}
-               someSelected={someSelected}
                onDetailEtapa={handleDetailEtapa}
                onEditEtapa={handleEditEtapaFlat}
             />
