@@ -18,6 +18,7 @@ import {
 } from "services/routes/cegep/missoes";
 import { SearchLocal } from "@/components/location/SearchLocal";
 import { DeletePernoiteModal } from "../deletePernoiteModal";
+import { ValidationModal } from "../../../../../components/ValidationModal";
 import { formatNaiveDate } from "utils/dateHandler";
 
 export function FormPernoite({
@@ -39,6 +40,7 @@ export function FormPernoite({
 }) {
    const [showSearchLocal, setShowSearchLocal] = useState(false);
    const [showDeleteModal, setShowDeleteModal] = useState(false);
+   const [validationErrors, setValidationErrors] = useState<string[]>([]);
 
    // Valores padrões do pernoite
    const defaultValues = useMemo(
@@ -74,6 +76,7 @@ export function FormPernoite({
       setDataIni("");
       setDataFim("");
       setAcDesloc(false);
+      setMeiaDiaria(false);
       setObs("");
       setShowFormPnt(false);
    }
@@ -111,7 +114,7 @@ export function FormPernoite({
       }
 
       if (errors.length > 0) {
-         alert("Preencha corretamente:\n" + errors.join("\n"));
+         setValidationErrors(errors);
          return;
       }
 
@@ -151,15 +154,11 @@ export function FormPernoite({
    }
 
    function confirmDelete() {
-      setPnts(
-         pnts.filter((p) => {
-            const checkIni = p.data_ini !== dataIni;
-            const checkFim = p.data_fim !== dataFim;
-            const checkLocal = p.cidade.codigo !== local?.codigo;
-            // Mantém apenas os que NÃO são iguais ao alvo
-            return checkIni || checkFim || checkLocal;
-         })
-      );
+      // Remove pela referência do pernoite aberto no form — comparar pelos
+      // campos do estado apagaria o item errado (ou nenhum) caso o usuário
+      // tenha editado as datas/cidade antes de clicar em Excluir.
+      if (!pnt) return;
+      setPnts(pnts.filter((p) => p !== pnt));
       onClose();
    }
 
@@ -392,6 +391,12 @@ export function FormPernoite({
                </div>
             </form>
          </ModalBody>
+
+         <ValidationModal
+            show={validationErrors.length > 0}
+            errors={validationErrors}
+            onClose={() => setValidationErrors([])}
+         />
 
          <DeletePernoiteModal
             show={showDeleteModal}

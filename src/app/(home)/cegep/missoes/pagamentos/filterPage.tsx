@@ -180,20 +180,21 @@ export function FilterPage({ active }: { active: boolean }) {
    }
 
    // React Query para buscar pagamentos
-   const { data, isLoading, isFetching } = usePagamentos(
-      {
-         page: currentPage,
-         limit: itemsPerPage,
-         tipo_doc: tipoDoc?.length ? tipoDoc : undefined,
-         n_doc: nDoc || undefined,
-         tipo: selectedTipo?.length ? selectedTipo : undefined,
-         sit: selectedSit?.length ? selectedSit : undefined,
-         user: userSearch?.toLowerCase() || undefined,
-         ini: dataInicio || undefined,
-         fim: dataFim || undefined,
-      },
-      { enabled: active }
-   );
+   const { data, isLoading, isFetching, isError, error, refetch } =
+      usePagamentos(
+         {
+            page: currentPage,
+            limit: itemsPerPage,
+            tipo_doc: tipoDoc?.length ? tipoDoc : undefined,
+            n_doc: nDoc || undefined,
+            tipo: selectedTipo?.length ? selectedTipo : undefined,
+            sit: selectedSit?.length ? selectedSit : undefined,
+            user: userSearch?.toLowerCase() || undefined,
+            ini: dataInicio || undefined,
+            fim: dataFim || undefined,
+         },
+         { enabled: active }
+      );
 
    const misRecords = data?.items ?? null;
    const totalRecords = data?.total ?? 0;
@@ -491,18 +492,16 @@ export function FilterPage({ active }: { active: boolean }) {
                            value={localNDoc}
                            onChange={(e) => handleNDocChange(e.target.value)}
                            onKeyDown={(e) => {
-                              if (
-                                 !(
-                                    (e.key >= "0" && e.key <= "9") ||
-                                    [
-                                       "Backspace",
-                                       "Tab",
-                                       "Delete",
-                                       "ArrowLeft",
-                                       "ArrowRight",
-                                    ].includes(e.key)
-                                 )
-                              ) {
+                              if (!(
+                                 (e.key >= "0" && e.key <= "9") ||
+                                 [
+                                    "Backspace",
+                                    "Tab",
+                                    "Delete",
+                                    "ArrowLeft",
+                                    "ArrowRight",
+                                 ].includes(e.key)
+                              )) {
                                  e.preventDefault();
                               }
                            }}
@@ -629,6 +628,20 @@ export function FilterPage({ active }: { active: boolean }) {
                {/* Loading inicial (sem dados) */}
                {isLoading && !misRecords ? (
                   <PagamentosSkeleton rows={itemsPerPage} />
+               ) : isError && !misRecords ? (
+                  <div className="flex flex-col items-center justify-center gap-3 p-16">
+                     <p className="text-sm font-medium text-red-800">
+                        Erro ao carregar os pagamentos
+                     </p>
+                     <p className="text-xs text-red-600">
+                        {error instanceof Error
+                           ? error.message
+                           : "Falha na comunicação com o servidor"}
+                     </p>
+                     <Button color="red" size="sm" onClick={() => refetch()}>
+                        Tentar novamente
+                     </Button>
+                  </div>
                ) : misRecords && misRecords.length > 0 ? (
                   <div>
                      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 bg-gray-50 px-3 py-0.5">

@@ -16,7 +16,21 @@ export default function NovaMissaoPage() {
 
    const clonedMissao = useMemo<Missao | null>(() => {
       if (!cloneSource) return null;
-      return { ...cloneSource, id: undefined, users: [] };
+      // Limpa tudo que pertence ao registro original: ids/frag_id dos
+      // pernoites, custos em cache, flag de integridade e histórico.
+      return {
+         ...cloneSource,
+         id: undefined,
+         users: [],
+         pernoites: (cloneSource.pernoites ?? []).map((p) => ({
+            ...p,
+            id: undefined,
+            frag_id: undefined,
+            custo: undefined,
+         })),
+         custo_inconsistente: false,
+         logs: [],
+      };
    }, [cloneSource]);
 
    const handleNavigateBack = () => {

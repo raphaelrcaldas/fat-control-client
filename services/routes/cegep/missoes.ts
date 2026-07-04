@@ -312,6 +312,11 @@ export async function getEtiquetas(signal?: AbortSignal): Promise<Etiqueta[]> {
       signal
    );
    const json = (await response.json()) as ApiResponse<Etiqueta[]>;
+   if (!response.ok) {
+      throw new Error(
+         json.message || `Erro ao buscar etiquetas (${response.status})`
+      );
+   }
    return json.data || [];
 }
 
@@ -339,6 +344,11 @@ export async function getCidadesPernoite(
       signal
    );
    const json = (await response.json()) as ApiResponse<CidadePernoite[]>;
+   if (!response.ok) {
+      throw new Error(
+         json.message || `Erro ao buscar cidades (${response.status})`
+      );
+   }
    return json.data || [];
 }
 

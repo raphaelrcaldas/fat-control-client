@@ -183,7 +183,7 @@ export function RegisPage() {
    const { data: etiquetasDisponiveis = [] } = useEtiquetasMissoes();
 
    // React Query para buscar missoes
-   const { data, isLoading, isFetching } = useMissoes({
+   const { data, isLoading, isFetching, isError, error, refetch } = useMissoes({
       page: currentPage,
       per_page: perPage,
       tipo_doc: tipoDoc.length > 0 ? tipoDoc.join(",") : undefined,
@@ -320,18 +320,16 @@ export function RegisPage() {
                            value={localNDoc}
                            onChange={(e) => handleNDocChange(e.target.value)}
                            onKeyDown={(e) => {
-                              if (
-                                 !(
-                                    (e.key >= "0" && e.key <= "9") ||
-                                    [
-                                       "Backspace",
-                                       "Tab",
-                                       "Delete",
-                                       "ArrowLeft",
-                                       "ArrowRight",
-                                    ].includes(e.key)
-                                 )
-                              ) {
+                              if (!(
+                                 (e.key >= "0" && e.key <= "9") ||
+                                 [
+                                    "Backspace",
+                                    "Tab",
+                                    "Delete",
+                                    "ArrowLeft",
+                                    "ArrowRight",
+                                 ].includes(e.key)
+                              )) {
                                  e.preventDefault();
                               }
                            }}
@@ -648,6 +646,20 @@ export function RegisPage() {
          <section className="order-3 flex-1">
             {isLoading && !missoes ? (
                <RegistrosSkeleton viewMode={viewMode} />
+            ) : isError && !missoes ? (
+               <div className="flex flex-col items-center justify-center gap-3 rounded border border-red-200 bg-red-50 p-8">
+                  <p className="text-sm font-medium text-red-800">
+                     Erro ao carregar as missões
+                  </p>
+                  <p className="text-xs text-red-600">
+                     {error instanceof Error
+                        ? error.message
+                        : "Falha na comunicação com o servidor"}
+                  </p>
+                  <Button color="red" size="sm" onClick={() => refetch()}>
+                     Tentar novamente
+                  </Button>
+               </div>
             ) : (
                <div
                   className={clsx(

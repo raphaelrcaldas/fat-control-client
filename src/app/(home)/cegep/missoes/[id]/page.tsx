@@ -127,7 +127,13 @@ export default function MissaoDetailPage() {
    const params = useParams<{ id: string }>();
    const router = useRouter();
    const missaoId = Number(params.id);
-   const { data: missao, isLoading } = useMissao(missaoId);
+   const {
+      data: missao,
+      isLoading,
+      isError,
+      error,
+      refetch,
+   } = useMissao(missaoId);
 
    const handleNavigateBack = () => {
       router.back();
@@ -139,6 +145,32 @@ export default function MissaoDetailPage() {
 
    if (isLoading) {
       return <MissionPageSkeleton />;
+   }
+
+   if (isError) {
+      return (
+         <div className="flex h-96 flex-col items-center justify-center gap-4">
+            <p className="text-lg text-gray-500">
+               {error instanceof Error
+                  ? error.message
+                  : "Erro ao carregar a missão."}
+            </p>
+            <div className="flex items-center gap-4">
+               <button
+                  onClick={() => refetch()}
+                  className="text-sm font-medium text-red-600 hover:underline"
+               >
+                  Tentar novamente
+               </button>
+               <button
+                  onClick={handleNavigateBack}
+                  className="text-sm font-medium text-gray-600 hover:underline"
+               >
+                  Voltar
+               </button>
+            </div>
+         </div>
+      );
    }
 
    if (!missao) {

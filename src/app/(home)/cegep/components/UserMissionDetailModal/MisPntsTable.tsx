@@ -87,11 +87,11 @@ export function MisPntsTable({
                               </div>
                            </TableCell>
                            <TableCell className="font-mono">
-                              {pnt.custo.dias}
+                              {pnt.custo?.dias ?? 0}
                            </TableCell>
                            <TableCell>
                               <div className="flex flex-col items-center gap-1 font-mono">
-                                 {pnt.custo.vals.map((val, i) => {
+                                 {(pnt.custo?.vals ?? []).map((val, i) => {
                                     const qtd = Number(val.qtd).toFixed(1);
                                     const valor = Number(
                                        val.valor
@@ -126,13 +126,12 @@ export function MisPntsTable({
                            </TableCell>
                            <TableCell>
                               <span className="rounded-lg border border-current/30 bg-green-50 px-3 py-1 font-mono font-bold text-green-700">
-                                 {Number(pnt.custo.subtotal).toLocaleString(
-                                    "pt-BR",
-                                    {
-                                       style: "currency",
-                                       currency: "BRL",
-                                    }
-                                 )}
+                                 {Number(
+                                    pnt.custo?.subtotal ?? 0
+                                 ).toLocaleString("pt-BR", {
+                                    style: "currency",
+                                    currency: "BRL",
+                                 })}
                               </span>
                            </TableCell>
                         </TableRow>

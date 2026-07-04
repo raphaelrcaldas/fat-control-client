@@ -346,7 +346,8 @@ export function useMissionForm({
 
       // Contexto
       missao,
-      isNew: !missao,
+      // Clone chega como objeto sem id — continua sendo missão nova
+      isNew: !missao?.id,
    };
 }
 

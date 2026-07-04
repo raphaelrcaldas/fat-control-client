@@ -17,6 +17,7 @@ import {
    useDeleteEtiqueta,
 } from "@/hooks/queries/useEtiquetasMissoes";
 import { Etiqueta, coresPredefinidas } from "services/routes/cegep/missoes";
+import { useToast } from "@/app/context/toast";
 import {
    HiX,
    HiTag,
@@ -33,6 +34,7 @@ export function ConfigPage() {
    const { data: etiquetas = [], isLoading: loading } = useEtiquetasMissoes();
    const createUpdateMutation = useCreateUpdateEtiqueta();
    const deleteMutation = useDeleteEtiqueta();
+   const { push } = useToast();
 
    const [isModalOpen, setIsModalOpen] = useState(false);
    const [isEditing, setIsEditing] = useState(false);
@@ -64,11 +66,20 @@ export function ConfigPage() {
    const handleSaveEtiqueta = () => {
       if (!formData.nome) return;
 
+      const onError = (err: unknown) => {
+         push({
+            message:
+               err instanceof Error ? err.message : "Erro ao salvar etiqueta",
+            type: "error",
+         });
+      };
+
       if (isEditing && formData.id) {
          createUpdateMutation.mutate(formData as Etiqueta, {
             onSuccess: () => {
                setIsModalOpen(false);
             },
+            onError,
          });
       } else {
          createUpdateMutation.mutate(
@@ -81,6 +92,7 @@ export function ConfigPage() {
                onSuccess: () => {
                   setIsModalOpen(false);
                },
+               onError,
             }
          );
       }
@@ -92,6 +104,15 @@ export function ConfigPage() {
       deleteMutation.mutate(etiquetaToDelete.id, {
          onSuccess: () => {
             setEtiquetaToDelete(null);
+         },
+         onError: (err) => {
+            push({
+               message:
+                  err instanceof Error
+                     ? err.message
+                     : "Erro ao excluir etiqueta",
+               type: "error",
+            });
          },
       });
    };

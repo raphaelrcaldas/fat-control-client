@@ -17,6 +17,7 @@ import { useState, useMemo, useEffect } from "react";
 import { SearchUser } from "../../../../../../users/components/searchUser";
 import { UserMission } from "services/routes/cegep/missoes";
 import { DeleteMilitarModal } from "./deleteMilitarModal";
+import { ValidationModal } from "../../../../components/ValidationModal";
 import { postoGradRecords } from "services/routes/postos";
 
 type FormMilitarProps = {
@@ -36,6 +37,7 @@ export function FormMilitar({
 }: FormMilitarProps) {
    const [showUserSearch, setShowUserSearch] = useState(false);
    const [showDeleteModal, setShowDeleteModal] = useState(false);
+   const [validationErrors, setValidationErrors] = useState<string[]>([]);
    // Valores padrões do militar
    const defaultValues = useMemo(
       () => ({
@@ -77,12 +79,13 @@ export function FormMilitar({
    function handleSubmit(e: HandleSubmitEvent): void {
       e.preventDefault();
 
-      let errors = [];
+      const errors: string[] = [];
       if (!user) errors.push("- Selecione um militar");
+      if (!pgMis) errors.push("- Selecione o posto/graduação");
       if (!sit) errors.push("- Selecione a situação");
 
       if (errors.length > 0) {
-         alert("Preencha corretamente:\n" + errors.join("\n"));
+         setValidationErrors(errors);
          return;
       }
 
@@ -253,6 +256,12 @@ export function FormMilitar({
                </div>
             </form>
          </ModalBody>
+
+         <ValidationModal
+            show={validationErrors.length > 0}
+            errors={validationErrors}
+            onClose={() => setValidationErrors([])}
+         />
 
          {/* Modal de Confirmação de Exclusão */}
          {userMis && (

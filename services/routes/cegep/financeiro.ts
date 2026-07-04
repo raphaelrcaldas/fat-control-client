@@ -38,6 +38,11 @@ export async function getPgts(
    const response = await request("GET", financeiroRoute, null, search, signal);
    const json =
       (await response.json()) as ApiPaginatedResponse<PagamentoRecord>;
+   if (!response.ok) {
+      throw new Error(
+         json.message || `Erro ao buscar pagamentos (${response.status})`
+      );
+   }
    return {
       items: json.data || [],
       total: json.total,
