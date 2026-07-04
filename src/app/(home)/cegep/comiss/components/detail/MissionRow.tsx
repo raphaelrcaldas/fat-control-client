@@ -80,8 +80,8 @@ export function MissionRow({
                      </span>
                   )}
                   {diasPrev
-                     ? `${mis.dias} dia${mis.dias > 1 ? "s" : ""}`
-                     : realCurrency(mis.valor_total)}
+                     ? `${mis.dias ?? 0} dia${(mis.dias ?? 0) > 1 ? "s" : ""}`
+                     : realCurrency(mis.valor_total ?? 0)}
                </span>
             </div>
          </div>

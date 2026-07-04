@@ -10,9 +10,9 @@ export function ComissDocumentos({
    docEnc,
 }: ComissDocumentosProps) {
    return (
-      <div className="hidden gap-4 md:grid md:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
          <DocCard valor={docProp} label="Proposta" />
-         <DocCard valor={docAut} label="Autorizacao" />
+         <DocCard valor={docAut} label="Autorização" />
          <DocCard valor={docEnc || "ND"} label="Encerramento" />
       </div>
    );
@@ -20,7 +20,7 @@ export function ComissDocumentos({
 
 function DocCard({ valor, label }: { valor: string; label: string }) {
    return (
-      <div className="rounded border border-gray-200 bg-white p-4 text-center shadow-sm">
+      <div className="rounded border border-slate-200 bg-white p-4 text-center shadow-sm">
          <span className="block text-base font-semibold text-gray-900 uppercase">
             {valor}
          </span>

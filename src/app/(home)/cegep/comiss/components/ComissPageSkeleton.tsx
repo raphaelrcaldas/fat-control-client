@@ -45,11 +45,11 @@ export function ComissPageSkeleton() {
             </div>
 
             {/* Documentos */}
-            <div className="hidden gap-4 md:grid md:grid-cols-3">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                {Array.from({ length: 3 }).map((_, i) => (
                   <div
                      key={i}
-                     className="flex flex-col items-center gap-2 rounded border border-gray-200 bg-white p-4 shadow-sm"
+                     className="flex flex-col items-center gap-2 rounded border border-slate-200 bg-white p-4 shadow-sm"
                   >
                      <Bar className="h-5 w-24" />
                      <FaintBar className="h-3 w-16" />

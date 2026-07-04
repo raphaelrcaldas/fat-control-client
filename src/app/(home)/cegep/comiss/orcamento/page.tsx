@@ -24,6 +24,8 @@ import { formatDateTime } from "@/../utils/dateHandler";
 import { realCurrency } from "utils/financeiro";
 import type { OrcamentoLog } from "services/routes/cegep/orcamento";
 import { OrcamentoFormSkeleton } from "./OrcamentoFormSkeleton";
+import { usePermBased } from "@/app/(home)/hooks/usePermBased";
+import { getDefaultFiscalYear, getFiscalYears } from "../fiscalYears";
 
 // Converte um inteiro de centavos para "1.234.567,89" (pt-BR com separadores)
 function formatCents(cents: number): string {
@@ -49,18 +51,15 @@ export default function OrcamentoAnualPage() {
    const router = useRouter();
    const searchParams = useSearchParams();
    const { push } = useToast();
+   const { hasPerm } = usePermBased();
+   const canEdit = hasPerm("orcamento", "create");
 
-   const currentY = new Date().getFullYear();
-   const yearsRange = useMemo(() => {
-      const base = Array.from({ length: 6 }, (_, i) => 2026 + i);
-      if (!base.includes(currentY) && currentY >= 2026) base.unshift(currentY);
-      return base;
-   }, [currentY]);
+   const yearsRange = useMemo(() => getFiscalYears(), []);
 
    const anoParam = Number(searchParams.get("ano"));
    const initialAno = yearsRange.includes(anoParam)
       ? anoParam
-      : Math.max(2026, currentY);
+      : getDefaultFiscalYear();
 
    const [ano, setAno] = useState<number>(initialAno);
    // Estado dos valores armazenado em centavos (inteiro) para mascara precisa
@@ -172,6 +171,32 @@ export default function OrcamentoAnualPage() {
    function handleMoneyChange(setter: (n: number) => void, raw: string) {
       setter(parseDigitsToCents(raw));
       setIsDirty(true);
+   }
+
+   if (!canEdit) {
+      return (
+         <div className="flex w-full justify-center">
+            <div className="flex w-full max-w-7xl flex-col gap-4">
+               <div className="flex items-center gap-2 text-sm text-gray-600">
+                  <button
+                     type="button"
+                     onClick={() =>
+                        router.push("/cegep/comiss?tab=gestao_fiscal")
+                     }
+                     className="inline-flex items-center gap-1 font-medium text-red-700 hover:underline"
+                  >
+                     <HiArrowLeft className="h-4 w-4" />
+                     Gestão Fiscal
+                  </button>
+               </div>
+               <div className="rounded border border-slate-200 bg-white p-10 text-center shadow-sm">
+                  <p className="text-sm font-medium text-gray-700">
+                     Você não tem permissão para editar o teto orçamentário.
+                  </p>
+               </div>
+            </div>
+         </div>
+      );
    }
 
    return (

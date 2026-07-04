@@ -1,7 +1,10 @@
 "use client";
 
-import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import {
+   useSearchParamsUpdater,
+   getStringParam,
+} from "@/hooks/useSearchParamsState";
 import { useComissDetail } from "@/hooks/queries";
 import { ComissPage } from "../components/ComissPage";
 import { ComissPageSkeleton } from "../components/ComissPageSkeleton";
@@ -55,12 +58,17 @@ export default function ComissDetailPage() {
    const params = useParams<{ id: string }>();
    const router = useRouter();
    const comissId = Number(params.id);
-   const [isEditMode, setIsEditMode] = useState(false);
+
+   // Modo de edição vive na URL (?edit=1) para sobreviver ao F5/compartilhamento.
+   const { searchParams, setParams } = useSearchParamsUpdater();
+   const isEditMode = getStringParam(searchParams, "edit") === "1";
+   const openEdit = () => setParams({ edit: "1" });
+   const closeEdit = () => setParams({ edit: undefined });
 
    const { data: comiss, isLoading } = useComissDetail(comissId);
 
    const handleNavigateBack = () => {
-      router.back();
+      router.push("/cegep/comiss");
    };
 
    if (isLoading) {
@@ -71,7 +79,7 @@ export default function ComissDetailPage() {
       return (
          <div className="flex h-96 flex-col items-center justify-center gap-4">
             <p className="text-lg text-gray-500">
-               Comissionamento nao encontrado.
+               Comissionamento não encontrado.
             </p>
             <button
                onClick={handleNavigateBack}
@@ -87,8 +95,8 @@ export default function ComissDetailPage() {
       return (
          <ComissForm
             comiss={comiss}
-            onCancel={() => setIsEditMode(false)}
-            onSuccess={() => setIsEditMode(false)}
+            onCancel={closeEdit}
+            onSuccess={closeEdit}
          />
       );
    }
@@ -97,7 +105,7 @@ export default function ComissDetailPage() {
       <div className="flex flex-col gap-4">
          <ComissPage
             detail={comiss}
-            onEdit={() => setIsEditMode(true)}
+            onEdit={openEdit}
             onClose={handleNavigateBack}
          />
 
@@ -145,7 +153,10 @@ function ComissLogEntry({ log }: { log: ComissLog }) {
       ) as (keyof ComissLogSnapshot)[]) {
          const b = before ? before[field] : undefined;
          const a = after[field];
-         if (b !== a) diffs.push({ field, before: b, after: a });
+         if (b === a) continue;
+         // Na criação (sem `before`), campos opcionais vazios não são mudança.
+         if (!before && (a === null || a === undefined)) continue;
+         diffs.push({ field, before: b, after: a });
       }
    }
 

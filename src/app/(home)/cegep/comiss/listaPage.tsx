@@ -37,6 +37,13 @@ const PG_OPTIONS = postoGradRecords.map((pg) => ({
    label: pg.mid,
 }));
 
+// Rótulos da situação, usados no subtítulo e nas tags de filtro ativo.
+const STATUS_LABELS: Record<string, string> = {
+   aberto: "Abertos",
+   fechado: "Fechados",
+   todos: "Abertos e fechados",
+};
+
 export function ListaPage() {
    const router = useRouter();
    const { searchParams, setParams } = useSearchParamsUpdater();
@@ -70,15 +77,20 @@ export function ListaPage() {
 
    const [filtersExpanded, setFiltersExpanded] = useState(false);
 
-   // Animação suave do painel de filtros
+   // Animação suave do painel de filtros. Um ResizeObserver mantém a altura
+   // correta mesmo quando o grid de filtros quebra em mais linhas no resize.
    const filtersRef = useRef<HTMLDivElement>(null);
    const [filtersHeight, setFiltersHeight] = useState(0);
 
    useEffect(() => {
-      if (filtersRef.current) {
-         setFiltersHeight(filtersRef.current.scrollHeight);
-      }
-   }, [filtersExpanded, filterPG, filterTipo, filterModulo]);
+      const el = filtersRef.current;
+      if (!el) return;
+      const update = () => setFiltersHeight(el.scrollHeight);
+      update();
+      const ro = new ResizeObserver(update);
+      ro.observe(el);
+      return () => ro.disconnect();
+   }, []);
 
    // Handlers de filtros -> URL
    const setStatusComis = useCallback(
@@ -183,7 +195,7 @@ export function ListaPage() {
                           ? "comissionamento"
                           : "comissionamentos"
                     }`
-                  : "Abertos e fechados"}
+                  : (STATUS_LABELS[statusComis] ?? STATUS_LABELS.aberto)}
             </p>
          </ComissSubheader>
 
@@ -202,7 +214,7 @@ export function ListaPage() {
 
                {statusComis !== "aberto" && (
                   <FilterTag onRemove={() => setStatusComis("aberto")}>
-                     Situação: Fechado
+                     Situação: {STATUS_LABELS[statusComis] ?? statusComis}
                   </FilterTag>
                )}
 
@@ -233,6 +245,7 @@ export function ListaPage() {
                )}
 
                <button
+                  type="button"
                   onClick={clearFilters}
                   className="text-xs text-slate-500 underline hover:text-slate-700"
                >
@@ -257,6 +270,7 @@ export function ListaPage() {
                      </h6>
                      {hasActiveFilters && (
                         <button
+                           type="button"
                            onClick={clearFilters}
                            className="flex items-center gap-1.5 rounded px-3 py-1.5 text-xs text-slate-600 hover:bg-slate-100 hover:text-slate-800"
                         >
@@ -293,6 +307,7 @@ export function ListaPage() {
                         >
                            <option value="aberto">Aberto</option>
                            <option value="fechado">Fechado</option>
+                           <option value="todos">Todos</option>
                         </Select>
                      </div>
 
@@ -357,8 +372,9 @@ export function ListaPage() {
                      Nenhum comissionamento encontrado
                   </h3>
                   <p className="text-sm text-slate-500">
-                     Tente ajustar os filtros ou adicione um novo
-                     comissionamento
+                     {hasActiveFilters
+                        ? "Tente ajustar ou limpar os filtros ativos"
+                        : "Ainda não há comissionamentos cadastrados"}
                   </p>
                </div>
             ) : (
@@ -402,7 +418,12 @@ function FilterTag({
       <Badge color="failure">
          <div className="flex items-center gap-1.5">
             <span>{children}</span>
-            <button onClick={onRemove} className="ml-1 hover:text-red-600">
+            <button
+               type="button"
+               aria-label="Remover filtro"
+               onClick={onRemove}
+               className="ml-1 hover:text-red-600"
+            >
                <HiX className="h-3 w-3" />
             </button>
          </div>

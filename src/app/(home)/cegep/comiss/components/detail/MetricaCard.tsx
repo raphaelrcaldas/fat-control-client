@@ -1,12 +1,20 @@
 "use client";
 
 import { Popover } from "flowbite-react";
+import clsx from "clsx";
 import { realCurrency } from "utils/financeiro";
 import { DIARIA_MINIMA, MetricaConfig } from "./metricas";
 
 /** Uma célula da grade de métricas. Substitui os 3 Popovers duplicados. */
 export function MetricaCard({ config }: { config: MetricaConfig }) {
    const { label, hasPopover } = config;
+   const negativo = hasPopover
+      ? (config.valor ?? 0) < 0
+      : (config.dias ?? 0) < 0;
+   const valorClass = clsx(
+      "font-bold",
+      negativo ? "text-red-600" : "text-gray-900"
+   );
 
    return (
       <div className="text-center">
@@ -15,7 +23,7 @@ export function MetricaCard({ config }: { config: MetricaConfig }) {
                content={<PopoverContent label={label} valor={config.valor!} />}
                trigger="hover"
             >
-               <div className="cursor-help font-bold text-gray-900">
+               <div className={clsx("cursor-help", valorClass)}>
                   {realCurrency(config.valor!)}
                   <div className="text-xs font-normal text-gray-500">
                      ~{(config.valor! / DIARIA_MINIMA).toFixed(1)} dias
@@ -23,7 +31,7 @@ export function MetricaCard({ config }: { config: MetricaConfig }) {
                </div>
             </Popover>
          ) : (
-            <div className="font-bold text-gray-900">
+            <div className={valorClass}>
                <span>
                   {config.dias}
                   <span className="ml-1 text-sm font-normal text-gray-500">

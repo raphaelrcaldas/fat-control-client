@@ -93,12 +93,16 @@ export async function getCmtos(
    filters?: ComissFilters,
    signal?: AbortSignal
 ): Promise<ComissList[]> {
+   // "todos" = sem filtro de status: o backend retorna abertos + fechados
+   // quando a query `status` vem vazia.
+   const status =
+      filters?.status === "todos" ? "" : (filters?.status ?? "aberto");
    const response = await request(
       "GET",
       comissRoute,
       null,
       {
-         status: filters?.status ?? "aberto",
+         status,
          search: filters?.search ?? "",
          pg: filters?.pg?.length ? filters.pg.join(",") : "",
          tipo: filters?.tipo ?? "",

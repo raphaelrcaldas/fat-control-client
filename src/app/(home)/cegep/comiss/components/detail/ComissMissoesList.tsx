@@ -20,11 +20,11 @@ export function ComissMissoesList({
    return (
       <div className="space-y-3 rounded border border-slate-300 bg-white px-2 py-4 shadow-sm md:px-4">
          <h4 className="text-sm font-semibold tracking-wide text-gray-700 uppercase">
-            Missoes Relacionadas
+            Missões Relacionadas
          </h4>
-         <div className="overflow-hidden rounded border border-gray-200 bg-white shadow-sm">
+         <div className="overflow-hidden rounded border border-slate-200 bg-white shadow-sm">
             {missoes.length > 0 ? (
-               <div className="divide-y divide-gray-200">
+               <div className="divide-y divide-slate-200">
                   {missoes.map((m) => (
                      <MissionRow
                         key={m.id}
@@ -37,7 +37,7 @@ export function ComissMissoesList({
                </div>
             ) : (
                <div className="p-8 text-center text-sm text-gray-500">
-                  Nenhuma missao adicionada
+                  Nenhuma missão adicionada
                </div>
             )}
          </div>

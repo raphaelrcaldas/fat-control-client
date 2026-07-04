@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import {
    useSearchParamsUpdater,
    getStringParam,
@@ -24,8 +25,13 @@ export default function ComissPage() {
       0
    );
    // Sem permissao, ignora ?tab=gestao_fiscal e cai em "registros"
-   const activeTabIndex =
-      requestedTabIndex === 1 && !canViewFiscal ? 0 : requestedTabIndex;
+   const deniedFiscalTab = requestedTabIndex === 1 && !canViewFiscal;
+   const activeTabIndex = deniedFiscalTab ? 0 : requestedTabIndex;
+
+   // Limpa o ?tab proibido da URL para não deixar o estado inconsistente.
+   useEffect(() => {
+      if (deniedFiscalTab) setParams({ tab: undefined });
+   }, [deniedFiscalTab, setParams]);
 
    function handleTabChange(tabName: string) {
       setParams({
@@ -99,6 +105,7 @@ function TabButton({ active, icon, label, onClick }: TabButtonProps) {
    return (
       <button
          type="button"
+         aria-pressed={active}
          onClick={onClick}
          className={clsx(
             "flex flex-1 items-center justify-center gap-2 rounded py-2.5 text-sm font-semibold transition-colors",

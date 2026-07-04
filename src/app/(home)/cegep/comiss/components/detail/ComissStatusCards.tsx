@@ -17,14 +17,14 @@ export function ComissStatusCards({
             borderClass="border-slate-200"
          />
          <StatusCard
-            label="Modulo"
-            valor={modulo ? "Sim" : "Nao"}
-            borderClass="border-gray-200"
+            label="Módulo"
+            valor={modulo ? "Sim" : "Não"}
+            borderClass="border-slate-200"
          />
          <StatusCard
             label="Dependente"
-            valor={dep ? "Sim" : "Nao"}
-            borderClass="border-gray-200"
+            valor={dep ? "Sim" : "Não"}
+            borderClass="border-slate-200"
          />
       </div>
    );

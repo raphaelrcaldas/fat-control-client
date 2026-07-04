@@ -38,7 +38,7 @@ export function DeleteComissModal({
 
                <div className="mb-6 space-y-3">
                   <p className="text-base text-gray-600">
-                     Voce está prestes a excluir o comissionamento de:
+                     Você está prestes a excluir o comissionamento de:
                   </p>
                   <div className="rounded border border-gray-200 bg-gray-50 p-4">
                      <p className="text-lg font-bold text-gray-900 uppercase">
@@ -88,7 +88,7 @@ export function DeleteComissModal({
 
                   <div className="flex items-center justify-center gap-2 text-sm font-medium text-red-600">
                      <HiExclamation className="h-5 w-5" />
-                     Esta acão não pode ser desfeita
+                     Esta ação não pode ser desfeita
                   </div>
                </div>
 
@@ -105,7 +105,7 @@ export function DeleteComissModal({
                            <span>Excluindo...</span>
                         </div>
                      ) : deletePreview ? (
-                        `Confirmar exclusao de ${deletePreview.missoes_count} missao(oes)`
+                        `Excluir comissionamento e ${deletePreview.missoes_count} missão(ões)`
                      ) : (
                         "Sim, excluir"
                      )}

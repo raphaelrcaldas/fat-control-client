@@ -80,17 +80,26 @@ export function ComissForm({ comiss, onCancel, onSuccess }: ComissFormProps) {
 
    function verificarCampos(errors: string[]) {
       if (!user) errors.push("- Militar");
+      if (status !== "aberto" && status !== "fechado") errors.push("- Status");
       if (docProp === "") errors.push("- Documento Proposta");
-      if (docAut === "") errors.push("- Documento Autorizacao");
+      if (docAut === "") errors.push("- Documento Autorização");
       if (dataAb === "") errors.push("- Data de Abertura");
-      if (dataFc === "") errors.push("- Data de Encerramento");
+      if (dataFc === "") errors.push("- Data de Fechamento");
+      // Datas ISO (YYYY-MM-DD) comparam lexicograficamente = cronologicamente.
+      if (dataAb && dataFc && dataFc < dataAb)
+         errors.push(
+            "- Data de fechamento não pode ser anterior à de abertura"
+         );
       if (qtdAjAb === 0)
          errors.push("- Quantidade da Ajuda de Custo da Abertura");
       if (qtdAjFc === 0)
-         errors.push("- Quantidade da Ajuda de Custo do Encerramento");
+         errors.push("- Quantidade da Ajuda de Custo do Fechamento");
+      if (qtdAjAb < 0 || qtdAjAb > 2 || qtdAjFc < 0 || qtdAjFc > 2)
+         errors.push("- Quantidade de ajuda deve estar entre 0 e 2");
       if (valAjAb === 0) errors.push("- Valor da Ajuda de Custo da Abertura");
-      if (valAjFc === 0)
-         errors.push("- Valor da Ajuda de Custo do Encerramento");
+      if (valAjFc === 0) errors.push("- Valor da Ajuda de Custo do Fechamento");
+      if (valAjAb < 0 || valAjFc < 0)
+         errors.push("- Valores não podem ser negativos");
    }
 
    /**
@@ -106,14 +115,14 @@ export function ComissForm({ comiss, onCancel, onSuccess }: ComissFormProps) {
 
       if (comiss.completude < 100) {
          errors.push(
-            `- Completude esta em ${comiss.completude}%; o fechamento exige 100%`
+            `- Completude está em ${comiss.completude}%; o fechamento exige 100%`
          );
       }
 
       const missoes = comiss.missoes;
       if (missoes.length === 0) {
          errors.push(
-            "- Nao ha missoes vinculadas para fechar o comissionamento"
+            "- Não há missões vinculadas para fechar o comissionamento"
          );
          return;
       }
@@ -132,7 +141,7 @@ export function ComissForm({ comiss, onCancel, onSuccess }: ComissFormProps) {
       if (dataFc !== esperado) {
          const esperadoBr = formatDateFull(esperado);
          errors.push(
-            `- Data de fechamento deve ser ${esperadoBr} (dia seguinte a ultima missao)`
+            `- Data de fechamento deve ser ${esperadoBr} (dia seguinte à última missão)`
          );
       }
    }
@@ -143,7 +152,7 @@ export function ComissForm({ comiss, onCancel, onSuccess }: ComissFormProps) {
       verificarFechamento(errors);
       if (errors.length > 0) {
          push({
-            title: "Campos obrigatorios",
+            title: "Campos obrigatórios",
             message: errors.join("\n"),
             type: "error",
             duration: 12000,
@@ -284,7 +293,7 @@ export function ComissForm({ comiss, onCancel, onSuccess }: ComissFormProps) {
                         htmlFor="doc-aut"
                         className="mb-2 block text-sm font-medium text-gray-700"
                      >
-                        Autorizacao
+                        Autorização
                      </Label>
                      <TextInput
                         id="doc-aut"
@@ -420,7 +429,7 @@ export function ComissForm({ comiss, onCancel, onSuccess }: ComissFormProps) {
             {/* Configuracoes Adicionais */}
             <div className="space-y-3 rounded border border-slate-200 bg-white p-4 shadow-sm">
                <h4 className="text-sm font-semibold tracking-wide text-gray-700 uppercase">
-                  Configuracoes
+                  Configurações
                </h4>
                <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                   <div>
@@ -474,7 +483,7 @@ export function ComissForm({ comiss, onCancel, onSuccess }: ComissFormProps) {
                            onChange={(e) => setDep(e.target.checked)}
                         />
                         <span className="text-sm text-gray-600">
-                           {dep ? "Sim" : "Nao"}
+                           {dep ? "Sim" : "Não"}
                         </span>
                      </div>
                   </div>

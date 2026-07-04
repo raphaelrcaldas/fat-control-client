@@ -22,8 +22,12 @@ export function GestaoFiscalCard({
 
    const pct = (v: number) =>
       orcamento > 0 ? Math.round((v / orcamento) * 100) : 0;
-   const width = (v: number) => (orcamento > 0 ? (v / orcamento) * 100 : 0);
+   // Clamp em [0, 100] para as barras não estourarem o trilho quando o
+   // consumido/previsto ultrapassa o orçamento.
+   const width = (v: number) =>
+      orcamento > 0 ? Math.min(100, Math.max(0, (v / orcamento) * 100)) : 0;
    const disponivel = orcamento - soma - previsao;
+   const excedido = disponivel < 0;
 
    return (
       <div className="rounded border border-slate-200 bg-white p-5 shadow-sm">
@@ -39,7 +43,7 @@ export function GestaoFiscalCard({
          </div>
 
          <div className="mb-1 flex justify-between text-sm text-slate-500">
-            <span>Consumido / Previsto</span>
+            <span>{temPrevisao ? "Consumido / Previsto" : "Consumido"}</span>
             <div className="flex gap-1 font-semibold text-slate-700">
                <span className="text-green-600">{pct(soma)}%</span>
                {temPrevisao && (
@@ -71,11 +75,12 @@ export function GestaoFiscalCard({
                </LegendItem>
             )}
             <LegendItem
-               dotClass="bg-blue-500"
-               textClass="text-blue-700"
+               dotClass={excedido ? "bg-red-500" : "bg-blue-500"}
+               textClass={excedido ? "text-red-700" : "text-blue-700"}
                className="ml-auto"
             >
-               Disponível {realCurrency(disponivel)}
+               {excedido ? "Excedido" : "Disponível"}{" "}
+               {realCurrency(Math.abs(disponivel))}
             </LegendItem>
          </div>
       </div>

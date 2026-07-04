@@ -10,7 +10,6 @@ import {
    TableBody,
    TableCell,
    TableHead,
-   TableHeadCell,
    TableRow,
 } from "flowbite-react";
 import { useRouter } from "next/navigation";
@@ -25,11 +24,16 @@ import { formatDateFull, isoStrToDate } from "@/../utils/dateHandler";
 import { realCurrency } from "utils/financeiro";
 import { compareByAntiguidade } from "utils/sortByAntiguidade";
 import { PermBased } from "@/app/(home)/hooks/usePermBased";
-import { HiChevronUp, HiChevronDown, HiSelector } from "react-icons/hi";
 import clsx from "clsx";
 import { GestaoFiscalCard } from "./components/GestaoFiscalCard";
 import { GestaoFiscalSkeleton } from "./components/GestaoFiscalSkeleton";
 import { ComissSubheader } from "./components/ComissSubheader";
+import {
+   SortableHeadCell,
+   compareValues,
+   useSortConfig,
+} from "./components/sortableTable";
+import { getDefaultFiscalYear, getFiscalYears } from "./fiscalYears";
 
 type SortKey =
    | "militar"
@@ -52,22 +56,17 @@ function computeImpacto(c: ComissList, ano: number): number {
 }
 
 export function GestaoFiscalPage() {
-   const currentY = new Date().getFullYear();
-   const yearsRange = Array.from(
-      { length: 5 },
-      (_, i) => currentY - 1 + i
-   ).filter((y) => y >= 2026);
-   if (!yearsRange.includes(currentY)) yearsRange.unshift(currentY);
+   const yearsRange = useMemo(() => getFiscalYears(), []);
 
-   const [ano, setAno] = useState<number>(Math.max(2026, currentY));
+   const [ano, setAno] = useState<number>(getDefaultFiscalYear());
    const router = useRouter();
 
-   const { data, isLoading } = useComissSummary(ano);
+   const { data, isLoading, isFetching } = useComissSummary(ano);
 
-   const [sortConfig, setSortConfig] = useState<{
-      key: SortKey;
-      direction: "asc" | "desc";
-   }>({ key: "data_ab", direction: "desc" });
+   const { sortConfig, requestSort } = useSortConfig<SortKey>({
+      key: "data_ab",
+      direction: "desc",
+   });
 
    const sortedComissionamentos = useMemo(() => {
       if (!data?.comissionamentos) return [];
@@ -98,60 +97,24 @@ export function GestaoFiscalPage() {
             }
          };
 
-         const aValue = getValue(a);
-         const bValue = getValue(b);
-
-         if (aValue === bValue) return 0;
-         if (aValue == null) return sortConfig.direction === "asc" ? 1 : -1;
-         if (bValue == null) return sortConfig.direction === "asc" ? -1 : 1;
-
-         if (aValue < bValue) return sortConfig.direction === "asc" ? -1 : 1;
-         if (aValue > bValue) return sortConfig.direction === "asc" ? 1 : -1;
-         return 0;
+         return compareValues(getValue(a), getValue(b), sortConfig.direction);
       });
       return sortableItems;
    }, [data?.comissionamentos, sortConfig, ano]);
-
-   const requestSort = (key: SortKey) => {
-      let direction: "asc" | "desc" = "asc";
-      if (sortConfig.key === key && sortConfig.direction === "asc") {
-         direction = "desc";
-      }
-      setSortConfig({ key, direction });
-   };
 
    const renderHeader = (
       label: string,
       sortKey: SortKey,
       align: "left" | "center" = "center"
-   ) => {
-      const isActive = sortConfig.key === sortKey;
-      return (
-         <TableHeadCell
-            className={clsx(
-               "group cursor-pointer bg-slate-50 transition-colors select-none hover:bg-slate-100",
-               align === "center" ? "text-center!" : "text-left!"
-            )}
-            style={{ textAlign: align }}
-            onClick={() => requestSort(sortKey)}
-         >
-            <span className="relative inline-flex items-center justify-center">
-               <span>{label}</span>
-               <span className="absolute -right-5 flex h-full items-center">
-                  {isActive ? (
-                     sortConfig.direction === "asc" ? (
-                        <HiChevronUp className="h-4 w-4 text-red-600" />
-                     ) : (
-                        <HiChevronDown className="h-4 w-4 text-red-600" />
-                     )
-                  ) : (
-                     <HiSelector className="h-4 w-4 text-slate-400 opacity-0 transition-opacity group-hover:opacity-100" />
-                  )}
-               </span>
-            </span>
-         </TableHeadCell>
-      );
-   };
+   ) => (
+      <SortableHeadCell
+         label={label}
+         sortKey={sortKey}
+         sortConfig={sortConfig}
+         onSort={requestSort}
+         align={align}
+      />
+   );
 
    return (
       <div className="flex flex-col gap-2">
@@ -211,7 +174,12 @@ export function GestaoFiscalPage() {
                Erro ao carregar dados orçamentários.
             </div>
          ) : (
-            <>
+            <div
+               className={clsx(
+                  "flex flex-col gap-2 transition-opacity",
+                  isFetching && "opacity-50"
+               )}
+            >
                {/* EMPTY STATE — sem orçamento cadastrado para o ano */}
                {!data.orcamento_id && (
                   <div className="flex flex-col items-center gap-3 rounded border border-dashed border-slate-300 bg-slate-50 py-10 text-center">
@@ -219,15 +187,17 @@ export function GestaoFiscalPage() {
                      <p className="text-sm font-medium text-slate-600">
                         Nenhum orçamento cadastrado para {ano}.
                      </p>
-                     <Button
-                        size="sm"
-                        color="red"
-                        onClick={() =>
-                           router.push(`/cegep/comiss/orcamento?ano=${ano}`)
-                        }
-                     >
-                        Cadastrar Teto Orçamentário
-                     </Button>
+                     <PermBased resource="orcamento" requiredPerm="create">
+                        <Button
+                           size="sm"
+                           color="red"
+                           onClick={() =>
+                              router.push(`/cegep/comiss/orcamento?ano=${ano}`)
+                           }
+                        >
+                           Cadastrar Teto Orçamentário
+                        </Button>
+                     </PermBased>
                   </div>
                )}
 
@@ -284,13 +254,25 @@ export function GestaoFiscalPage() {
                                  : null;
                               const impacto = computeImpacto(c, ano);
 
+                              const abrir = () =>
+                                 router.push(`/cegep/comiss/${c.id}`);
+
                               return (
                                  <TableRow
                                     key={c.id}
-                                    className="cursor-pointer bg-white"
-                                    onClick={() =>
-                                       router.push(`/cegep/comiss/${c.id}`)
-                                    }
+                                    role="button"
+                                    tabIndex={0}
+                                    aria-label={`Abrir comissionamento de ${
+                                       c.user?.nome_guerra ?? "militar"
+                                    }`}
+                                    className="cursor-pointer bg-white focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-inset"
+                                    onClick={abrir}
+                                    onKeyDown={(e) => {
+                                       if (e.key === "Enter" || e.key === " ") {
+                                          e.preventDefault();
+                                          abrir();
+                                       }
+                                    }}
                                  >
                                     <TableCell className="font-medium whitespace-nowrap text-slate-900">
                                        <div className="uppercase">
@@ -400,7 +382,7 @@ export function GestaoFiscalPage() {
                      </Table>
                   </div>
                </div>
-            </>
+            </div>
          )}
       </div>
    );

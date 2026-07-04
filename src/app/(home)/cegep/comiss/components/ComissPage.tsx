@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Button } from "flowbite-react";
+import { Button, Spinner } from "flowbite-react";
 import { ComissWithMiss } from "services/routes/cegep/comiss";
 import { Missao } from "services/routes/cegep/missoes";
 import { PagamentoRecord } from "services/routes/cegep/financeiro";
@@ -37,7 +37,7 @@ export function ComissPage({ detail, onEdit, onClose }: ComissPageProps) {
    const [selectedMission, setSelectedMission] =
       useState<PagamentoRecord | null>(null);
 
-   const { exportSheet, exportDocx } = useComissExport(comiss);
+   const { exportSheet, exportDocx, exporting } = useComissExport(comiss);
    const del = useComissDelete(comiss, onClose);
 
    const semMissoes = !comiss.missoes?.length;
@@ -70,18 +70,42 @@ export function ComissPage({ detail, onEdit, onClose }: ComissPageProps) {
                               color="light"
                               size="sm"
                               onClick={exportSheet}
-                              disabled={semMissoes || del.isDeleting}
+                              disabled={
+                                 semMissoes ||
+                                 del.isDeleting ||
+                                 exporting !== null
+                              }
                            >
-                              <RiFileExcel2Fill className="size-4 text-green-600 sm:mr-2" />
+                              {exporting === "sheet" ? (
+                                 <Spinner
+                                    size="sm"
+                                    color="success"
+                                    className="sm:mr-2"
+                                 />
+                              ) : (
+                                 <RiFileExcel2Fill className="size-4 text-green-600 sm:mr-2" />
+                              )}
                               <span className="hidden sm:inline">Planilha</span>
                            </Button>
                            <Button
                               color="light"
                               size="sm"
                               onClick={exportDocx}
-                              disabled={semMissoes || del.isDeleting}
+                              disabled={
+                                 semMissoes ||
+                                 del.isDeleting ||
+                                 exporting !== null
+                              }
                            >
-                              <HiDocumentText className="size-4 text-blue-600 sm:mr-2" />
+                              {exporting === "docx" ? (
+                                 <Spinner
+                                    size="sm"
+                                    color="info"
+                                    className="sm:mr-2"
+                                 />
+                              ) : (
+                                 <HiDocumentText className="size-4 text-blue-600 sm:mr-2" />
+                              )}
                               <span className="hidden sm:inline">Apostila</span>
                            </Button>
                         </PermBased>

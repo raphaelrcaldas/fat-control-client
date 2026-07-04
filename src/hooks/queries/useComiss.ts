@@ -163,5 +163,6 @@ export function useComissSummary(ano: number) {
       queryKey: [...comissKeys.all, "summary", ano] as const,
       queryFn: ({ signal }) => getComissSummary(ano, signal),
       enabled: !!ano,
+      placeholderData: keepPreviousData,
    });
 }

@@ -43,7 +43,7 @@ export function TableComissSkeleton({ rows = 18 }: TableComissSkeletonProps) {
                      <TableHeadCell
                         key={label}
                         className={
-                           i === 0 ? "bg-white" : "bg-white text-center"
+                           i === 0 ? "bg-slate-50" : "bg-slate-50 text-center"
                         }
                      >
                         {label}

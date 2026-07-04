@@ -36,7 +36,13 @@ export function ComissMetricas({ comiss }: { comiss: ComissWithMiss }) {
             <Progress
                progress={comiss.completude}
                size="lg"
-               color={comiss.modulo ? "green" : "red"}
+               color={
+                  comiss.status === "fechado"
+                     ? "gray"
+                     : comiss.modulo
+                       ? "green"
+                       : "red"
+               }
             />
          </div>
       </div>
