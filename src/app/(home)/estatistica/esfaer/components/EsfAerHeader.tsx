@@ -1,8 +1,9 @@
 "use client";
 
 import { Button, Checkbox, Label, Select } from "flowbite-react";
+import Link from "next/link";
 import { HiOutlineUpload } from "react-icons/hi";
-import { TbChartAreaLine } from "react-icons/tb";
+import { TbChartAreaLine, TbHistory } from "react-icons/tb";
 import { YEAR_OPTIONS } from "../constants";
 import { PermBased } from "../../../hooks/usePermBased";
 
@@ -44,6 +45,17 @@ export function EsfAerHeader({
             </div>
 
             <div className="flex flex-wrap items-center gap-4">
+               <Button
+                  as={Link}
+                  href="/estatistica/esfaer/historico"
+                  color="light"
+                  size="sm"
+                  className="font-semibold whitespace-nowrap"
+               >
+                  <TbHistory className="mr-2 h-4 w-4" />
+                  Histórico
+               </Button>
+
                <div className="flex items-center gap-1.5">
                   <Checkbox
                      id="showSimulador"

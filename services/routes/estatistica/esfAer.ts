@@ -85,6 +85,78 @@ export async function updateEsfAer(
    );
 }
 
+/**
+ * Tipos do endpoint `GET estatistica/esfaer/historico?ano_ref=`.
+ * Unidade de tempo SEMPRE em minutos (formatar com `minutesToTime`).
+ *
+ * `grupo` é string livre (coluna real do backend) — a lista de grupos é
+ * DERIVADA dos dados (ver `deriveGrupos` em `historico/utils.ts`) e grupos
+ * desconhecidos recebem cor/paleta de fallback (`historico/constants.ts`).
+ */
+
+export interface HistPoint {
+   /** Data ISO da mudança, "YYYY-MM-DD". */
+   data: string;
+   /** Esforço alocado vigente a partir desta data, em MINUTOS. */
+   alocado: number;
+   /** Variação em relação ao ponto anterior, em MINUTOS (criação = alocado). */
+   delta: number;
+}
+
+export interface HistPrograma {
+   esfaer_id: number;
+   /** Descrição completa do programa (ex.: "COMAE PEO SPMAS FAB-TAL"). */
+   descricao: string;
+   /**
+    * Nome curto de exibição (ex.: "FAB-TAL", "SAR-OPS"). O endpoint real deve
+    * fornecê-lo (ou derivá-lo no backend); não é confiável derivar da
+    * `descricao` na UI. Use sempre `nome` para rótulos de série/lista/legenda.
+    */
+   nome: string;
+   /** Grupo do programa (string livre vinda do backend, ex.: "COMAE"). */
+   grupo: string;
+   /** Último alocado vigente da timeline, em MINUTOS. */
+   atual: number;
+   timeline: HistPoint[];
+}
+
+export interface EsfAerHistorico {
+   ano_ref: number;
+   programas: HistPrograma[];
+   total: {
+      /** Soma dos `atual` de todos os programas, em MINUTOS. */
+      atual: number;
+      /** Timeline carry-forward do total (união das datas de mudança). */
+      timeline: HistPoint[];
+   };
+}
+
+/**
+ * Busca o histórico de esforço aéreo de um ano de referência, no mesmo
+ * padrão de `getEsfAerResumo`: envelope `ApiResponse` + fallback vazio
+ * quando `data` vier ausente.
+ */
+export async function getEsfAerHistorico(
+   anoRef: number,
+   signal?: AbortSignal
+): Promise<EsfAerHistorico> {
+   const response = await request(
+      "GET",
+      `${esfAerRoute}historico`,
+      null,
+      { ano_ref: anoRef },
+      signal
+   );
+   const json = (await response.json()) as ApiResponse<EsfAerHistorico>;
+   return (
+      json.data ?? {
+         ano_ref: anoRef,
+         programas: [],
+         total: { atual: 0, timeline: [] },
+      }
+   );
+}
+
 export async function getEsfAerResumo(
    anoRef: number,
    simulador: boolean,

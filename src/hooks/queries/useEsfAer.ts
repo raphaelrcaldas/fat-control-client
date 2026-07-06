@@ -5,9 +5,11 @@ import {
    keepPreviousData,
 } from "@tanstack/react-query";
 import {
+   getEsfAerHistorico,
    getEsfAerList,
    getEsfAerResumo,
    updateEsfAer,
+   type EsfAerHistorico,
    type EsfAerItem,
    type EsfAerResumoResponse,
    type EsfAerUpdateRequest,
@@ -18,6 +20,8 @@ export const esfAerKeys = {
    list: () => [...esfAerKeys.all, "list"] as const,
    resumo: (anoRef: number, simulador: boolean) =>
       [...esfAerKeys.all, "resumo", anoRef, simulador] as const,
+   historico: (anoRef: number) =>
+      [...esfAerKeys.all, "historico", anoRef] as const,
 };
 
 export function useEsfAerList() {
@@ -34,6 +38,14 @@ export function useEsfAerResumo(anoRef: number, simulador: boolean) {
    return useQuery<EsfAerResumoResponse>({
       queryKey: esfAerKeys.resumo(anoRef, simulador),
       queryFn: ({ signal }) => getEsfAerResumo(anoRef, simulador, signal),
+      placeholderData: keepPreviousData,
+   });
+}
+
+export function useEsfAerHistorico(anoRef: number) {
+   return useQuery<EsfAerHistorico>({
+      queryKey: esfAerKeys.historico(anoRef),
+      queryFn: ({ signal }) => getEsfAerHistorico(anoRef, signal),
       placeholderData: keepPreviousData,
    });
 }
