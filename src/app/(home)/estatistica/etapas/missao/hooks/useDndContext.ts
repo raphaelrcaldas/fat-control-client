@@ -51,8 +51,7 @@ export function useDndContext({
 
    const handleDragStart = useCallback((event: DragStartEvent) => {
       const data = event.active.data.current as
-         | { trip?: DraftPoolTrip }
-         | undefined;
+         { trip?: DraftPoolTrip } | undefined;
       if (data?.trip) setActiveTrip(data.trip);
    }, []);
 
@@ -64,11 +63,9 @@ export function useDndContext({
          if (!over || !selectedLocalId) return;
 
          const activeData = active.data.current as
-            | { trip?: DraftPoolTrip }
-            | undefined;
+            { trip?: DraftPoolTrip } | undefined;
          const overData = over.data.current as
-            | { targetFunc?: FuncType }
-            | undefined;
+            { targetFunc?: FuncType } | undefined;
 
          const trip = activeData?.trip;
          const targetFunc = overData?.targetFunc;

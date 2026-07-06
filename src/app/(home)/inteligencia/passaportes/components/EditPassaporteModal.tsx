@@ -12,12 +12,18 @@ import {
    Spinner,
 } from "flowbite-react";
 import { HiPhone, HiTrash } from "react-icons/hi";
+import {
+   HiOutlineClipboardDocument,
+   HiOutlineClipboardDocumentCheck,
+} from "react-icons/hi2";
 import { FaPassport } from "react-icons/fa";
 import clsx from "clsx";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import { PermBased, usePermBased } from "@/app/(home)/hooks/usePermBased";
 import { useToast } from "@/app/context/toast";
 import { formatPhone, formatSaram } from "@/constants/formats";
+import { formatPgDisplay } from "@/constants/militar/postos";
+import { formatDateFull } from "@/../utils/dateHandler";
 import { useUpsertPassaporte, useDeletePassaporte } from "@/hooks/queries";
 import type { TripPassaporteOut } from "services/routes/inteligencia/passaportes";
 import {
@@ -212,8 +218,33 @@ const EditPassaporteModal = memo(function EditPassaporteModal({
    const isDeleting = deleteMutation.isPending;
 
    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+   const [copied, setCopied] = useState(false);
    const { formData, handleChange, validate, buildPayload, isDirty } =
       usePassaporteForm(item, show);
+
+   // Copia a mesma linha de identidade exibida no span de contato acima:
+   // campos não-vazios seguidos do bloco (PASSAP · VAL · NASC), em maiúsculas.
+   const handleCopy = async () => {
+      const identidade = [
+         formatPgDisplay(item.p_g) || "—",
+         item.quadro || "—",
+         item.esp || "—",
+         item.nome_completo || "—",
+      ].join(" ");
+      const texto =
+         `${identidade} (PASSAP ${formData.passaporte || "—"} VAL ${formatDateFull(formData.validade_passaporte) || "—"} NASC ${formatDateFull(item.nasc) || "—"})`.toUpperCase();
+      try {
+         await navigator.clipboard.writeText(texto);
+         setCopied(true);
+         setTimeout(() => setCopied(false), 2000);
+      } catch {
+         push({
+            title: "Erro",
+            message: "Não foi possível copiar os dados",
+            type: "error",
+         });
+      }
+   };
 
    const handleSave = async () => {
       const error = validate();
@@ -260,43 +291,62 @@ const EditPassaporteModal = memo(function EditPassaporteModal({
          <Modal show={show} onClose={onClose} size="2xl" dismissible>
             {/* Cabeçalho-dossiê: identidade do militar como título */}
             <ModalHeader>
-               <span className="flex items-center gap-3">
-                  <span className="grid h-10 w-10 shrink-0 place-items-center rounded-md bg-red-50 text-red-600 ring-1 ring-red-100 ring-inset">
-                     <FaPassport className="h-5 w-5" />
-                  </span>
-                  <span className="block min-w-0">
-                     <span className="block font-mono text-[10px] font-bold tracking-[0.3em] text-red-500 uppercase">
-                        Inteligência · Documentos
+               <div className="flex w-full items-center justify-between gap-2">
+                  <span className="flex min-w-0 items-center gap-3">
+                     <span className="grid h-10 w-10 shrink-0 place-items-center rounded-md bg-red-50 text-red-600 ring-1 ring-red-100 ring-inset">
+                        <FaPassport className="h-5 w-5" />
                      </span>
-                     <span className="block truncate text-lg leading-tight font-extrabold tracking-tight text-slate-900 uppercase">
-                        {item.p_g} {item.nome_guerra}
+                     <span className="grid min-w-0 gap-1">
+                        <span className="block font-mono text-[10px] font-bold tracking-[0.3em] text-red-500 uppercase">
+                           Inteligência · Documentos
+                        </span>
+                        <span className="block truncate text-lg leading-tight font-extrabold tracking-tight text-slate-900 uppercase">
+                           {formatPgDisplay(item.p_g)} {item.nome_guerra}
+                        </span>
                      </span>
                   </span>
-               </span>
+               </div>
             </ModalHeader>
-            <ModalBody>
-               <div className="space-y-4">
-                  {/* Meta do militar — linha enxuta, sem caixa */}
-                  {(item.nome_completo || item.saram || item.telefone) && (
-                     <div className="flex flex-wrap items-center gap-x-3 gap-y-1 border-b border-slate-200 pb-3 text-sm text-gray-500">
-                        {item.nome_completo && (
-                           <span className="font-medium text-gray-700 uppercase">
-                              {item.nome_completo}
-                           </span>
+            <ModalBody className="py-2">
+               <div className="space-y-2">
+                  {/* Contato do militar — linha enxuta, sem caixa */}
+                  <div className="flex gap-1 rounded border border-slate-300 bg-slate-100 p-2">
+                     <span className="flex flex-wrap items-center gap-x-0.5 gap-y-0.5 text-sm text-slate-500 uppercase">
+                        <span>{formatPgDisplay(item.p_g) || "—"}</span>
+                        <span>{item.quadro || "—"}</span>
+                        <span>{item.esp || "—"}</span>
+                        <span>{item.nome_completo || "—"}</span>
+                        <span className="text-slate-400">
+                           (
+                           <span className="font-semibold text-slate-500">
+                              PASSAP
+                           </span>{" "}
+                           {formData.passaporte || "—"}{" "}
+                           <span className="font-semibold text-slate-500">
+                              VAL
+                           </span>{" "}
+                           {formatDateFull(formData.validade_passaporte) || "—"}{" "}
+                           <span className="font-semibold text-slate-500">
+                              NASC
+                           </span>{" "}
+                           {formatDateFull(item.nasc) || "—"})
+                        </span>
+                     </span>
+                     <Button
+                        color={copied ? "green" : "light"}
+                        size="xs"
+                        onClick={handleCopy}
+                        title="Copiar dados"
+                        aria-label="Copiar dados do militar"
+                        className="shrink-0"
+                     >
+                        {copied ? (
+                           <HiOutlineClipboardDocumentCheck className="h-4 w-4" />
+                        ) : (
+                           <HiOutlineClipboardDocument className="h-4 w-4" />
                         )}
-                        {item.saram && (
-                           <span className="font-mono tabular-nums">
-                              SARAM {formatSaram(item.saram)}
-                           </span>
-                        )}
-                        {item.telefone && (
-                           <span className="inline-flex items-center gap-1">
-                              <HiPhone className="h-3.5 w-3.5" />
-                              {formatPhone(item.telefone)}
-                           </span>
-                        )}
-                     </div>
-                  )}
+                     </Button>
+                  </div>
 
                   {/* Documento — Passaporte */}
                   <DocumentSection

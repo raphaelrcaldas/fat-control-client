@@ -3,15 +3,7 @@
  */
 
 export type IndispType =
-   | "svc"
-   | "sde"
-   | "rep"
-   | "fer"
-   | "lic"
-   | "mis"
-   | "odm"
-   | "pes"
-   | "ins";
+   "svc" | "sde" | "rep" | "fer" | "lic" | "mis" | "odm" | "pes" | "ins";
 
 export interface IndispOption {
    value: IndispType;

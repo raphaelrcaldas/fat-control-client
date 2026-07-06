@@ -51,18 +51,16 @@ export function DocumentoSection({
                      value={nDoc}
                      onChange={(e) => setNDoc(e.target.value)}
                      onKeyDown={(e) => {
-                        if (
-                           !(
-                              (e.key >= "0" && e.key <= "9") ||
-                              [
-                                 "Backspace",
-                                 "Tab",
-                                 "Delete",
-                                 "ArrowLeft",
-                                 "ArrowRight",
-                              ].includes(e.key)
-                           )
-                        ) {
+                        if (!(
+                           (e.key >= "0" && e.key <= "9") ||
+                           [
+                              "Backspace",
+                              "Tab",
+                              "Delete",
+                              "ArrowLeft",
+                              "ArrowRight",
+                           ].includes(e.key)
+                        )) {
                            e.preventDefault();
                         }
                      }}

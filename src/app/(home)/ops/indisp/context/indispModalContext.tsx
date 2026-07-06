@@ -12,8 +12,7 @@ import {
 import { CrewIndisp, IndispType } from "services/routes/indisps";
 
 export type IndispModalState =
-   | { status: "closed" }
-   | { status: "open"; tripId: number; dateRef: Date };
+   { status: "closed" } | { status: "open"; tripId: number; dateRef: Date };
 
 /** Alvo do formulário global (null = fechado). */
 export type IndispFormTarget = {

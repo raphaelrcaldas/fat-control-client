@@ -1,12 +1,5 @@
 export type InfoColumn =
-   | "cemal"
-   | "tovn"
-   | "imae"
-   | "crm"
-   | "val_pass"
-   | "val_visa"
-   | "cvi"
-   | "ptai";
+   "cemal" | "tovn" | "imae" | "crm" | "val_pass" | "val_visa" | "cvi" | "ptai";
 
 export interface InfoColumnConfig {
    key: InfoColumn;

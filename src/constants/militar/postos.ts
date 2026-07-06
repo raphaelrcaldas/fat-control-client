@@ -134,6 +134,15 @@ export const postoGradRecords: PostoGrad[] = [
 ];
 
 /**
+ * Formata o short de p_g para exibição, agrupando os três graus de sargento
+ * (1º/2º/3º) sob o rótulo genérico "sgt". Demais graduações são inalteradas.
+ */
+export function formatPgDisplay(pg?: string | null): string {
+   if (!pg) return "";
+   return ["1s", "2s", "3s"].includes(pg.toLowerCase()) ? "sgt" : pg;
+}
+
+/**
  * Busca um posto/graduação pelo short code
  */
 export function getPostoByShort(short: string): PostoGrad | undefined {

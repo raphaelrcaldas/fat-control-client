@@ -16,13 +16,7 @@ import { useToast } from "@/app/context/toast";
 import { FieldFocusContext } from "./FieldFocusContext";
 
 export type FieldType =
-   | "text"
-   | "email"
-   | "date"
-   | "number"
-   | "select"
-   | "searchable"
-   | "phone";
+   "text" | "email" | "date" | "number" | "select" | "searchable" | "phone";
 
 export interface FieldConfig {
    icon: React.ComponentType<{ className?: string }>;

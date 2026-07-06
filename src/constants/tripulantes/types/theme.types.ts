@@ -5,14 +5,7 @@
 
 /** Cores disponíveis no Tailwind (subset usado no projeto) */
 export type ThemeColor =
-   | "blue"
-   | "cyan"
-   | "amber"
-   | "emerald"
-   | "red"
-   | "purple"
-   | "pink"
-   | "gray";
+   "blue" | "cyan" | "amber" | "emerald" | "red" | "purple" | "pink" | "gray";
 
 /** Cores de Badge do Flowbite React */
 export type BadgeColor =

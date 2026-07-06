@@ -30,8 +30,11 @@ export interface TripPassaporteOut {
    trip_id: number;
    user_id: number;
    p_g: string;
+   quadro: string | null;
+   esp: string | null;
    nome_guerra: string;
    nome_completo: string | null;
+   nasc: string | null;
    saram: string | null;
    telefone: string | null;
    passaporte: PassaportePublic | null;

@@ -132,8 +132,7 @@ export default function AerodromoFormModal({
    };
 
    const baseAereaErrors = errors.base_aerea as
-      | { nome?: { message?: string }; sigla?: { message?: string } }
-      | undefined;
+      { nome?: { message?: string }; sigla?: { message?: string } } | undefined;
 
    return (
       <Modal show={show} onClose={handleClose} size="xl" dismissible>
