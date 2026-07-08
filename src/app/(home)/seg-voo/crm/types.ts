@@ -2,7 +2,8 @@ import type { DateStatus } from "@/utils/dateStatus";
 
 export type SortField = "militar" | "validade";
 export type SortDirection = "asc" | "desc";
-export type StatusFilter = "all" | "expired" | "critical" | "warning" | "valid";
+export type StatusFilter =
+   "all" | "expired" | "critical" | "warning" | "valid" | "empty";
 
 /**
  * Contagens por status para o StatCard. Diferente de passaportes, o CRM inclui

@@ -121,9 +121,12 @@ const CrmRow = memo(function CrmRow({
    return (
       <TableRow
          onClick={() => onClick(item)}
-         onKeyDown={(e) =>
-            (e.key === "Enter" || e.key === " ") && onClick(item)
-         }
+         onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+               e.preventDefault();
+               onClick(item);
+            }
+         }}
          tabIndex={0}
          role="button"
          className="cursor-pointer border-b border-slate-200 transition-colors hover:bg-red-50"

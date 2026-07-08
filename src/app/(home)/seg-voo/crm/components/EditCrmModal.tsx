@@ -38,6 +38,12 @@ const EditCrmModal = memo(function EditCrmModal({
    const isLoading = upsertMutation.isPending || deleteMutation.isPending;
    const isDeleting = deleteMutation.isPending;
 
+   // Bloqueia fechar (backdrop/Esc/X) enquanto uma mutação está em voo,
+   // coerente com os botões desabilitados.
+   const handleClose = () => {
+      if (!isLoading) onClose();
+   };
+
    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
    const { formData, handleChange, validate, buildPayload } = useCrmForm(
       item,
@@ -86,7 +92,7 @@ const EditCrmModal = memo(function EditCrmModal({
 
    return (
       <>
-         <Modal show={show} onClose={onClose} size="md" dismissible>
+         <Modal show={show} onClose={handleClose} size="md" dismissible>
             <ModalHeader>{isEdit ? "Editar CRM" : "Cadastrar CRM"}</ModalHeader>
             <ModalBody>
                <div className="space-y-6">

@@ -12,8 +12,9 @@ function emptyCounts(): StatusCounts {
  * Derivações de UI sobre a lista de CRM:
  * - `sortedData`: aplica busca textual, filtro de status e ordenação,
  *   todos client-side.
- * - `stats`: contagens por status (inclui "empty") sobre a lista completa,
- *   não afetadas pela busca/filtro/sort.
+ * - `stats`: contagens por status (inclui "empty") sobre a lista recebida
+ *   (já filtrada por P/G e Função no servidor), não afetadas pela busca,
+ *   filtro de status ou ordenação client-side.
  */
 export function useCrmView(data: TripCrmOut[], filters: CrmFiltersApi) {
    const { debouncedSearch, statusFilter, sortField, sortDirection } = filters;

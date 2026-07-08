@@ -31,6 +31,7 @@ const STATUS_FILTERS: { value: Exclude<StatusFilter, "all">; label: string }[] =
       { value: "critical", label: "Críticos" },
       { value: "warning", label: "Atenção" },
       { value: "valid", label: "Regular" },
+      { value: "empty", label: "Sem data" },
    ];
 
 function FilterButton({
@@ -48,7 +49,7 @@ function FilterButton({
       <Button
          type="button"
          size="xs"
-         color={active ? "blue" : "light"}
+         color={active ? "red" : "light"}
          onClick={onClick}
       >
          <span className="flex items-center gap-1.5">
@@ -98,7 +99,7 @@ const Filters = memo(function Filters({
             <div className="min-w-0 flex-1">
                <TextInput
                   icon={HiSearch}
-                  placeholder="Buscar por nome de guerra..."
+                  placeholder="Buscar por nome..."
                   value={search}
                   onChange={(e) => onSearchChange(e.target.value)}
                   sizing="md"
@@ -142,30 +143,37 @@ const Filters = memo(function Filters({
             </div>
          </div>
 
-         {!isLoading && (
-            <div className="flex items-center justify-between border-t border-slate-200 bg-gray-50 px-4 py-2 text-sm">
-               <div className="flex items-center gap-4">
-                  <span className="text-gray-600">
-                     Exibindo{" "}
-                     <strong className="text-gray-900">{filteredCount}</strong>{" "}
-                     de <strong className="text-gray-900">{totalCount}</strong>{" "}
-                     militares
-                  </span>
-                  {isFetching && <Spinner color="failure" size="sm" />}
-               </div>
-               {hasActiveFilters && (
-                  <Button
-                     type="button"
-                     size="xs"
-                     color="light"
-                     onClick={onClearFilters}
-                  >
-                     <HiX className="mr-1.5 h-4 w-4" />
-                     Limpar filtros
-                  </Button>
-               )}
-            </div>
-         )}
+         <div className="flex min-h-[41px] items-center justify-between border-t border-slate-200 bg-gray-50 px-4 py-2 text-sm">
+            {isLoading ? (
+               <div className="h-4 w-40 animate-pulse rounded bg-slate-200" />
+            ) : (
+               <>
+                  <div className="flex items-center gap-4">
+                     <span className="text-gray-600">
+                        Exibindo{" "}
+                        <strong className="text-gray-900">
+                           {filteredCount}
+                        </strong>{" "}
+                        de{" "}
+                        <strong className="text-gray-900">{totalCount}</strong>{" "}
+                        militares
+                     </span>
+                     {isFetching && <Spinner color="failure" size="sm" />}
+                  </div>
+                  {hasActiveFilters && (
+                     <Button
+                        type="button"
+                        size="xs"
+                        color="light"
+                        onClick={onClearFilters}
+                     >
+                        <HiX className="mr-1.5 h-4 w-4" />
+                        Limpar filtros
+                     </Button>
+                  )}
+               </>
+            )}
+         </div>
       </>
    );
 });

@@ -13,8 +13,8 @@ export const VALIDADE_ANOS = 2;
  */
 export const STATUS_LABELS: Record<DateStatus, string> = {
    valid: "Em dia",
-   warning: "Atenção (< 90 dias)",
-   critical: "Crítico (< 30 dias)",
+   warning: "Atenção (≤ 90 dias)",
+   critical: "Crítico (≤ 30 dias)",
    expired: "Vencido",
    empty: "Sem data",
 };

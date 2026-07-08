@@ -48,6 +48,9 @@ export async function getCrm(
       signal
    );
    const result = await parseApiResponse<TripCrmOut[]>(response);
+   if (!result.ok) {
+      throw new Error(result.message || "Erro ao carregar CRM");
+   }
    return result.data ?? [];
 }
 

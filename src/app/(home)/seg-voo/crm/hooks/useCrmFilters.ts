@@ -14,8 +14,10 @@ export function useCrmFilters() {
    const [filterPG, setFilterPG] = useState<string[]>([]);
    const [filterFunc, setFilterFunc] = useState<string[]>([]);
    const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
-   const [sortField, setSortField] = useState<SortField | null>(null);
-   const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
+   const [sort, setSort] = useState<{
+      field: SortField | null;
+      direction: SortDirection;
+   }>({ field: null, direction: "asc" });
 
    const debouncedSearch = useDebouncedValue(search, 400);
 
@@ -28,24 +30,16 @@ export function useCrmFilters() {
    );
 
    const handleSort = useCallback((field: SortField) => {
-      setSortField((prevField) => {
-         if (prevField !== field) {
-            setSortDirection("asc");
-            return field;
-         }
+      setSort((prev) => {
+         if (prev.field !== field) return { field, direction: "asc" };
          // mesmo campo: asc -> desc -> sem ordenação
-         let reset = false;
-         setSortDirection((prevDir) => {
-            if (prevDir === "asc") return "desc";
-            reset = true;
-            return "asc";
-         });
-         return reset ? null : field;
+         if (prev.direction === "asc") return { field, direction: "desc" };
+         return { field: null, direction: "asc" };
       });
    }, []);
 
    const hasActiveFilters =
-      !!debouncedSearch ||
+      !!search ||
       filterPG.length > 0 ||
       filterFunc.length > 0 ||
       statusFilter !== "all";
@@ -67,8 +61,8 @@ export function useCrmFilters() {
       setFilterFunc,
       statusFilter,
       setStatusFilter,
-      sortField,
-      sortDirection,
+      sortField: sort.field,
+      sortDirection: sort.direction,
       handleSort,
       queryParams,
       hasActiveFilters,
