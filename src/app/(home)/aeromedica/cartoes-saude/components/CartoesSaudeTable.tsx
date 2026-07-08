@@ -164,9 +164,13 @@ const CartoesSaudeRow = memo(function CartoesSaudeRow({
    return (
       <TableRow
          onClick={() => onClick(item)}
-         onKeyDown={(e) =>
-            (e.key === "Enter" || e.key === " ") && onClick(item)
-         }
+         onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+               // Espaço rolaria a página; prevenimos e acionamos a linha.
+               e.preventDefault();
+               onClick(item);
+            }
+         }}
          tabIndex={0}
          role="button"
          className="cursor-pointer border-b border-slate-200 transition-colors hover:bg-gray-50"

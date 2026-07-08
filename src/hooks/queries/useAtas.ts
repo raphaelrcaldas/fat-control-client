@@ -3,15 +3,11 @@ import {
    extrairAta,
    uploadAta,
    getAtasByUser,
-   updateAta,
    deleteAta,
    getAtasOrfas,
    deleteAtasOrfas,
 } from "services/routes/aeromedica/atas";
-import type {
-   AtaUpdateData,
-   DadosConfirmados,
-} from "services/routes/aeromedica/atas";
+import type { DadosConfirmados } from "services/routes/aeromedica/atas";
 import { cartoesSaudeKeys } from "./useCartoesSaude";
 import { storageKeys } from "./useStorage";
 
@@ -85,29 +81,9 @@ export function useUploadAta() {
          queryClient.invalidateQueries({
             queryKey: cartoesSaudeKeys.lists(),
          });
-      },
-   });
-}
-
-export function useUpdateAta() {
-   const queryClient = useQueryClient();
-
-   return useMutation({
-      mutationFn: async ({
-         ataId,
-         data,
-      }: {
-         ataId: number;
-         data: AtaUpdateData;
-      }) => {
-         return updateAta(ataId, data);
-      },
-      onSuccess: () => {
+         // O upload adiciona bytes ao bucket: atualiza as stats de storage.
          queryClient.invalidateQueries({
-            queryKey: atasKeys.all,
-         });
-         queryClient.invalidateQueries({
-            queryKey: cartoesSaudeKeys.lists(),
+            queryKey: storageKeys.all,
          });
       },
    });

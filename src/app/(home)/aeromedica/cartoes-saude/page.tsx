@@ -134,7 +134,12 @@ export default function CartoesSaudePage() {
             case "imae": {
                const dateA = a.cartao?.[sortField] || "";
                const dateB = b.cartao?.[sortField] || "";
-               comparison = dateA.localeCompare(dateB);
+               // Datas ausentes vão sempre para o fim, independente da
+               // direção — não competem na ordenação cronológica.
+               if (!dateA && !dateB) comparison = 0;
+               else if (!dateA) return 1;
+               else if (!dateB) return -1;
+               else comparison = dateA.localeCompare(dateB);
                break;
             }
          }
@@ -284,8 +289,8 @@ export default function CartoesSaudePage() {
             </div>
          </header>
 
-         {/* Atas de usuários inativos (gated por permissão) */}
-         <PermBased resource="cartoes-saude" requiredPerm="create">
+         {/* Atas de usuários inativos (gated por permissão de remoção) */}
+         <PermBased resource="cartoes-saude" requiredPerm="delete">
             <AtasOrfasAlert />
          </PermBased>
 

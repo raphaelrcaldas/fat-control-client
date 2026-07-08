@@ -32,7 +32,7 @@ export default function AtasTab({
    const { push } = useToast();
    const fileInputRef = useRef<HTMLInputElement>(null);
 
-   const { data: atas, isLoading } = useAtasByUser(userId);
+   const { data: atas, isLoading, isError } = useAtasByUser(userId);
    const extrairMutation = useExtrairAta();
    const uploadMutation = useUploadAta();
    const deleteMutation = useDeleteAta();
@@ -76,6 +76,8 @@ export default function AtasTab({
             message: "Apenas PDFs são permitidos",
             type: "error",
          });
+         // Sem reset, reescolher o mesmo arquivo não dispara onChange.
+         resetFileInput();
          return;
       }
 
@@ -85,6 +87,7 @@ export default function AtasTab({
             message: "Arquivo excede 10 MB",
             type: "error",
          });
+         resetFileInput();
          return;
       }
 
@@ -221,6 +224,10 @@ export default function AtasTab({
             <div className="flex justify-center py-8">
                <Spinner color="failure" size="lg" />
             </div>
+         ) : isError ? (
+            <p className="py-4 text-center text-sm text-red-600 dark:text-red-400">
+               Não foi possível carregar as atas. Tente novamente.
+            </p>
          ) : !atas || atas.length === 0 ? (
             <p className="py-4 text-center text-sm text-gray-500 dark:text-gray-400">
                Nenhuma ata cadastrada
@@ -232,7 +239,10 @@ export default function AtasTab({
                      key={ata.id}
                      ata={ata}
                      showConfirm={showDeleteAtaConfirm === ata.id}
-                     isDeleting={deleteMutation.isPending}
+                     isDeleting={
+                        deleteMutation.isPending &&
+                        showDeleteAtaConfirm === ata.id
+                     }
                      onDelete={() => handleDeleteAta(ata.id)}
                      onConfirmToggle={(show) =>
                         setShowDeleteAtaConfirm(show ? ata.id : null)

@@ -1,8 +1,12 @@
-import { baseUrl } from "../../Api";
+import request, { baseUrl, parseApiResponse, ApiError } from "../../Api";
 import type { ApiResponse } from "@/types/api";
 import { aeromedicaRoute } from ".";
 
-const atasRoute = baseUrl + aeromedicaRoute + "atas/";
+// Caminho relativo (sem baseUrl) para o helper `request`, que já prefixa a
+// baseUrl e injeta auth/tratamento de 401. Os endpoints multipart
+// (extrair/upload) usam `fetch` cru e por isso precisam da URL absoluta.
+const atasPath = aeromedicaRoute + "atas/";
+const atasUrl = baseUrl + atasPath;
 
 function getTokenFromCookies(): string | null {
    if (typeof document === "undefined") return null;
@@ -47,12 +51,6 @@ export interface AtaExtrairResponse {
    extracao_vazia: boolean;
 }
 
-export interface AtaUpdateData {
-   letra_finalidade: string | null;
-   data_realizacao: string | null;
-   validade_inspsau: string | null;
-}
-
 export interface NomeConflito {
    nomeAta: string;
    nomeSistema: string;
@@ -80,7 +78,7 @@ export async function extrairAta(
 
    const params = new URLSearchParams({ user_id: String(userId) });
 
-   const response = await fetch(`${atasRoute}extrair?${params}`, {
+   const response = await fetch(`${atasUrl}extrair?${params}`, {
       method: "POST",
       headers,
       body: formData,
@@ -136,7 +134,7 @@ export async function uploadAta(
    if (dados.validade_inspsau)
       params.set("conf_validade", dados.validade_inspsau);
 
-   const response = await fetch(`${atasRoute}?${params}`, {
+   const response = await fetch(`${atasUrl}?${params}`, {
       method: "POST",
       headers,
       body: formData,
@@ -156,69 +154,27 @@ export async function getAtasByUser(
    userId: number,
    signal?: AbortSignal
 ): Promise<AtaInspecaoWithUrl[]> {
-   const token = getTokenFromCookies();
-   const headers: HeadersInit = {
-      "Content-Type": "application/json",
-   };
-   if (token) {
-      headers["Authorization"] = `Bearer ${token}`;
+   const parsed = await parseApiResponse<AtaInspecaoWithUrl[]>(
+      await request("GET", `${atasPath}user/${userId}`, null, null, signal)
+   );
+   if (!parsed.ok) {
+      throw new ApiError(
+         parsed.message || "Erro ao carregar atas",
+         parsed.errors
+      );
    }
-
-   const response = await fetch(`${atasRoute}user/${userId}`, {
-      method: "GET",
-      headers,
-      signal,
-   });
-
-   const json = (await response.json()) as ApiResponse<AtaInspecaoWithUrl[]>;
-   return json.data || [];
-}
-
-export async function updateAta(
-   ataId: number,
-   data: AtaUpdateData
-): Promise<AtaInspecaoPublic> {
-   const token = getTokenFromCookies();
-   const headers: HeadersInit = {
-      "Content-Type": "application/json",
-   };
-   if (token) {
-      headers["Authorization"] = `Bearer ${token}`;
-   }
-
-   const response = await fetch(`${atasRoute}${ataId}`, {
-      method: "PATCH",
-      headers,
-      body: JSON.stringify(data),
-   });
-
-   if (!response.ok) {
-      const json = await response.json();
-      throw new Error(json.message || json.detail || "Erro ao atualizar ata");
-   }
-
-   const json = (await response.json()) as ApiResponse<AtaInspecaoPublic>;
-   if (!json.data) throw new Error("Resposta inválida do servidor");
-   return json.data;
+   return parsed.data ?? [];
 }
 
 export async function deleteAta(ataId: number): Promise<void> {
-   const token = getTokenFromCookies();
-   const headers: HeadersInit = {
-      "Content-Type": "application/json",
-   };
-   if (token) {
-      headers["Authorization"] = `Bearer ${token}`;
-   }
-
-   const response = await fetch(`${atasRoute}${ataId}`, {
-      method: "DELETE",
-      headers,
-   });
-
-   if (!response.ok) {
-      const json = await response.json();
-      throw new Error(json.message || json.detail || "Erro ao deletar ata");
+   const parsed = await parseApiResponse<null>(
+      await request("DELETE", `${atasPath}${ataId}`)
+   );
+   if (!parsed.ok) {
+      throw new ApiError(
+         parsed.message || "Erro ao deletar ata",
+         parsed.errors
+      );
    }
 }
 
@@ -247,50 +203,29 @@ export interface AtasOrfasDeleteResponse {
 export async function getAtasOrfas(
    signal?: AbortSignal
 ): Promise<AtasOrfasResumo> {
-   const token = getTokenFromCookies();
-   const headers: HeadersInit = {
-      "Content-Type": "application/json",
-   };
-   if (token) {
-      headers["Authorization"] = `Bearer ${token}`;
+   const parsed = await parseApiResponse<AtasOrfasResumo>(
+      await request("GET", `${atasPath}orfas`, null, null, signal)
+   );
+   if (!parsed.ok || !parsed.data) {
+      throw new ApiError(
+         parsed.message || "Erro ao carregar atas órfãs",
+         parsed.errors
+      );
    }
-
-   const response = await fetch(`${atasRoute}orfas`, {
-      method: "GET",
-      headers,
-      signal,
-   });
-
-   const json = (await response.json()) as ApiResponse<AtasOrfasResumo>;
-   if (!json.data) throw new Error("Resposta inválida do servidor");
-   return json.data;
+   return parsed.data;
 }
 
 export async function deleteAtasOrfas(
    ids: number[]
 ): Promise<AtasOrfasDeleteResponse> {
-   const token = getTokenFromCookies();
-   const headers: HeadersInit = {
-      "Content-Type": "application/json",
-   };
-   if (token) {
-      headers["Authorization"] = `Bearer ${token}`;
-   }
-
-   const response = await fetch(`${atasRoute}orfas`, {
-      method: "DELETE",
-      headers,
-      body: JSON.stringify({ ids }),
-   });
-
-   if (!response.ok) {
-      const json = await response.json();
-      throw new Error(
-         json.message || json.detail || "Erro ao limpar atas órfãs"
+   const parsed = await parseApiResponse<AtasOrfasDeleteResponse>(
+      await request("DELETE", `${atasPath}orfas`, { ids })
+   );
+   if (!parsed.ok || !parsed.data) {
+      throw new ApiError(
+         parsed.message || "Erro ao limpar atas órfãs",
+         parsed.errors
       );
    }
-
-   const json = (await response.json()) as ApiResponse<AtasOrfasDeleteResponse>;
-   if (!json.data) throw new Error("Resposta inválida do servidor");
-   return json.data;
+   return parsed.data;
 }

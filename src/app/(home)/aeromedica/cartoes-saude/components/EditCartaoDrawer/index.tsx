@@ -128,6 +128,23 @@ export default function EditCartaoDrawer({
             err instanceof Error
                ? err.message
                : "Erro ao salvar cartão de saúde";
+
+         // Race: anexar uma ata (aba Atas) já cria o cartão no servidor.
+         // Se o usuário clicar "Cadastrar" antes do refetch atualizar o
+         // item para modo edição, o backend responde 400 de duplicata.
+         // Tratamos como aviso (o cartão existe) e fechamos — reabrir já
+         // mostra o cartão em modo edição.
+         if (!isEdit && /já existe|ja existe/i.test(message)) {
+            push({
+               message:
+                  "O cartão já foi criado ao anexar a ata. Reabra para" +
+                  " editar os demais campos.",
+               type: "info",
+            });
+            onClose();
+            return;
+         }
+
          push({ title: "Erro", message, type: "error" });
       }
    };

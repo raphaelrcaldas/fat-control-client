@@ -107,7 +107,7 @@ export default function Filters({
             <div className="min-w-0 flex-1">
                <TextInput
                   icon={HiSearch}
-                  placeholder="Buscar por nome, posto..."
+                  placeholder="Buscar por nome de guerra ou completo..."
                   value={searchUser}
                   onChange={(e) => onSearchChange(e.target.value)}
                   sizing="md"

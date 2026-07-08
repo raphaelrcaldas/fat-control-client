@@ -13,7 +13,6 @@ import {
    CartaoSaudeCreate,
    CartaoSaudeUpdate,
 } from "services/routes/aeromedica/cartoesSaude";
-import { sortByAntiguidade } from "utils/sortByAntiguidade";
 
 // ========================================
 // Query Keys - Centralizadas
@@ -35,11 +34,10 @@ export const cartoesSaudeKeys = {
  */
 export function useCartoesSaude(params?: GetCartoesSaudeParams) {
    return useQuery({
+      // O backend já ordena por antiguidade (posto.ant, ult_promo, ant_rel,
+      // id) com NULLS LAST — não reordenar no cliente para não divergir.
       queryKey: cartoesSaudeKeys.list(params),
-      queryFn: async ({ signal }) => {
-         const data = await getCartoesSaude(params, signal);
-         return sortByAntiguidade(data);
-      },
+      queryFn: ({ signal }) => getCartoesSaude(params, signal),
       placeholderData: keepPreviousData,
       staleTime: 5 * 60_000,
    });

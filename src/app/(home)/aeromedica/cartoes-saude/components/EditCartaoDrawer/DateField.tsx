@@ -4,8 +4,8 @@ import { getDateStatus, getStatusConfig } from "../../utils/dateStatus";
 
 const statusLabels = {
    valid: "Em dia",
-   warning: "Atenção (< 90 dias)",
-   critical: "Crítico (< 30 dias)",
+   warning: "Atenção (≤ 90 dias)",
+   critical: "Crítico (≤ 30 dias)",
    expired: "Vencido",
    empty: "Sem data",
 } as const;
