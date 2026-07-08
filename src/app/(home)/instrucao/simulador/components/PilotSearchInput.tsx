@@ -66,20 +66,13 @@ export default function PilotSearchInput({
                      <button
                         key={crew.id}
                         type="button"
-                        onClick={() =>
-                           handleSelect({
-                              id: crew.id!,
-                              trig: crew.trig,
-                              nome_guerra: crew.user.nome_guerra,
-                              p_g: crew.user.p_g,
-                           })
-                        }
+                        onClick={() => handleSelect(crew)}
                         className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm uppercase hover:bg-gray-100"
                      >
                         <HiPlus className="h-4 w-4 shrink-0 text-green-500" />
-                        <span className="text-gray-500">{crew.user.p_g}</span>
+                        <span className="text-gray-500">{crew.p_g}</span>
                         <span className="font-medium text-gray-800">
-                           {crew.user.nome_guerra}
+                           {crew.nome_guerra}
                         </span>
                         <span className="font-mono text-xs text-gray-400">
                            ({crew.trig})

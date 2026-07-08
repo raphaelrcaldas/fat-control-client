@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo, useRef } from "react";
 import { useTrips } from "@/hooks/queries/useTrips";
 import type { GetTripsParams } from "services/routes/trips";
+import type { CrewSearchResult } from "../types";
 
 /**
  * Busca de pilotos para os dropdowns do simulador. Encapsula o estado do
@@ -39,8 +40,17 @@ export function usePilotSearch(assignedIds: Set<number>) {
       !!searchParams
    );
 
-   const searchResults = useMemo(
-      () => (tripsData?.items ?? []).filter((t) => !assignedIds.has(t.id!)),
+   // Normaliza para CrewSearchResult e descarta itens sem id ou já atribuídos.
+   const searchResults = useMemo<CrewSearchResult[]>(
+      () =>
+         (tripsData?.items ?? [])
+            .filter((t) => t.id != null && !assignedIds.has(t.id))
+            .map((t) => ({
+               id: t.id!,
+               trig: t.trig,
+               nome_guerra: t.user.nome_guerra,
+               p_g: t.user.p_g,
+            })),
       [tripsData, assignedIds]
    );
 

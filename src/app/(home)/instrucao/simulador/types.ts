@@ -27,6 +27,10 @@ export interface Dupla {
    missaoId: number;
 }
 
+/**
+ * Dupla criada localmente. Enquanto `missaoId` for negativo, e um draft ainda
+ * nao persistido no banco; a missao real so nasce junto da primeira sessao.
+ */
 export interface PendingDupla {
    key: string;
    missaoId: number;

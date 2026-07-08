@@ -22,23 +22,35 @@ interface AddSessaoModalProps {
    show: boolean;
    onClose: () => void;
    missaoId: number;
+   anoRef: number;
    pilots: DuplaPilot[];
    editEtapa?: EtapaItem | null;
    onDelete?: (etapa: EtapaItem) => void;
+   onPersistDraft?: (newMissaoId: number) => void;
 }
 
 export default function AddSessaoModal({
    show,
    onClose,
    missaoId,
+   anoRef,
    pilots,
    editEtapa = null,
    onDelete,
+   onPersistDraft,
 }: AddSessaoModalProps) {
    const isOrphan = pilots.length === 0;
    const [confirmDelete, setConfirmDelete] = useState(false);
 
-   const form = useSessaoForm({ show, missaoId, pilots, editEtapa, onClose });
+   const form = useSessaoForm({
+      show,
+      missaoId,
+      anoRef,
+      pilots,
+      editEtapa,
+      onClose,
+      onPersistDraft,
+   });
    const { isEditMode } = form;
 
    const pilotNames =
@@ -94,7 +106,7 @@ export default function AddSessaoModal({
                            onAdd={form.addPilot}
                            onRemove={form.removePilot}
                            onUpdateFuncBordo={form.updateFuncBordo}
-                           showSearch={isOrphan || isEditMode}
+                           showSearch={isOrphan}
                         />
                      </div>
 

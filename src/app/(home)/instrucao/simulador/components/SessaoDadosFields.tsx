@@ -20,12 +20,15 @@ export default function SessaoDadosFields({ form }: { form: SessaoForm }) {
       tvoo,
       tvooValid,
       crossesDay,
+      depArrEqual,
+      dateOutOfYear,
    } = form;
 
+   const tvooInvalid = crossesDay || depArrEqual;
    const tvooColor =
       !dep || !arr
          ? "border-slate-200 bg-gray-50 text-gray-400"
-         : crossesDay
+         : tvooInvalid
            ? "border-red-200 bg-red-50 text-red-700"
            : tvooValid
              ? "border-green-200 bg-green-50 text-green-700"
@@ -41,8 +44,14 @@ export default function SessaoDadosFields({ form }: { form: SessaoForm }) {
                   value={data}
                   onChange={(e) => setData(e.target.value)}
                   sizing="sm"
+                  color={dateOutOfYear ? "failure" : undefined}
                   required
                />
+               {dateOutOfYear && (
+                  <span className="mt-1 text-xs text-red-600">
+                     Fora do ano de referência
+                  </span>
+               )}
             </Field>
             <Field id="ses-origem" label="Origem">
                <TextInput
@@ -112,22 +121,34 @@ export default function SessaoDadosFields({ form }: { form: SessaoForm }) {
                <div
                   className={`flex items-center justify-center rounded border px-3 py-1.5 font-mono text-sm font-bold ${tvooColor}`}
                >
-                  {crossesDay
-                     ? "ATRAVESSA DIA"
-                     : dep && arr
-                       ? minutesToTime(tvoo)
-                       : "—"}
+                  {depArrEqual
+                     ? "DEP = ARR"
+                     : crossesDay
+                       ? "ATRAVESSA DIA"
+                       : dep && arr
+                         ? minutesToTime(tvoo)
+                         : "—"}
                </div>
+               {depArrEqual && (
+                  <span className="text-xs text-red-600">
+                     Decolagem e pouso iguais
+                  </span>
+               )}
                {crossesDay && (
                   <span className="text-xs text-red-600">
                      Use 00:00 como fim do dia
                   </span>
                )}
-               {dep && arr && !crossesDay && !tvooValid && tvoo > 0 && (
-                  <span className="text-xs text-amber-600">
-                     Múltiplo de 5 min
-                  </span>
-               )}
+               {dep &&
+                  arr &&
+                  !crossesDay &&
+                  !depArrEqual &&
+                  !tvooValid &&
+                  tvoo > 0 && (
+                     <span className="text-xs text-amber-600">
+                        Múltiplo de 5 min
+                     </span>
+                  )}
             </div>
          </div>
       </div>

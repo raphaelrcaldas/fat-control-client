@@ -8,6 +8,7 @@ import {
    bulkUpdateEtapas,
    createEtapa,
    createMissao,
+   createMissaoWithEtapas,
    deleteEtapa,
    deleteMissao,
    getEtapaDetail,
@@ -19,6 +20,7 @@ import {
    type EtapaCreatePayload,
    type EtapaUpdatePayload,
    type GetEtapasParams,
+   type MissaoComEtapasCreatePayload,
    type MissaoCreate,
    type MissaoUpdate,
 } from "services/routes/estatistica/etapas";
@@ -91,6 +93,23 @@ export function useCreateMissao() {
       mutationFn: (data: MissaoCreate) => createMissao(data),
       onSuccess: () => {
          queryClient.invalidateQueries({ queryKey: etapaKeys.all });
+      },
+   });
+}
+
+/**
+ * Cria uma missao ja com suas etapas de forma atomica. Usado pelo simulador
+ * para persistir a dupla apenas junto da primeira sessao (evita missao orfa).
+ */
+export function useCreateMissaoWithEtapas() {
+   const queryClient = useQueryClient();
+   return useMutation({
+      mutationFn: (data: MissaoComEtapasCreatePayload) =>
+         createMissaoWithEtapas(data),
+      onSuccess: () => {
+         queryClient.invalidateQueries({ queryKey: etapaKeys.all });
+         queryClient.invalidateQueries({ queryKey: esfAerKeys.all });
+         queryClient.invalidateQueries({ queryKey: seboKeys.all });
       },
    });
 }

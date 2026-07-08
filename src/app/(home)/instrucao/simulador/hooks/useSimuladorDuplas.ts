@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback, useEffect } from "react";
+import { useState, useMemo, useCallback, useEffect, useRef } from "react";
 import { useEtapas } from "@/hooks/queries";
 import type { MissaoComEtapas } from "services/routes/estatistica/etapas";
 import type { Dupla, DuplaPilot, PendingDupla } from "../types";
@@ -77,6 +77,9 @@ function mergeDuplas(apiDuplas: Dupla[], pending: PendingDupla[]): Dupla[] {
 export function useSimuladorDuplas(anoRef: number) {
    const [pendingDuplas, setPendingDuplas] = useState<PendingDupla[]>([]);
    const [selectedKey, setSelectedKey] = useState<string | null>(null);
+   // Ids temporarios (negativos) para duplas ainda nao persistidas no banco.
+   // A missao real so e criada junto da primeira sessao (ver persistDraft).
+   const draftIdRef = useRef(-1);
 
    const { data, isLoading, isFetching, isError } = useEtapas({
       is_simulador: true,
@@ -102,20 +105,34 @@ export function useSimuladorDuplas(anoRef: number) {
       [duplas, selectedKey]
    );
 
-   const handleDuplaCreated = useCallback(
-      (missaoId: number, pilots: DuplaPilot[]) => {
-         const sorted = [...pilots].sort((a, b) => a.trip_id - b.trip_id);
-         const key = String(missaoId);
+   // Cria uma dupla apenas no estado local (draft). Nada e gravado no banco
+   // ate a primeira sessao ser salva — evita missao orfa sem etapas.
+   const handleDuplaCreated = useCallback((pilots: DuplaPilot[]) => {
+      const sorted = [...pilots].sort((a, b) => a.trip_id - b.trip_id);
+      const draftId = draftIdRef.current;
+      draftIdRef.current -= 1;
+      const key = String(draftId);
 
-         setPendingDuplas((prev) => {
-            if (prev.some((p) => p.missaoId === missaoId)) return prev;
-            return [...prev, { key, missaoId, pilots: sorted }];
-         });
+      setPendingDuplas((prev) => [
+         ...prev,
+         { key, missaoId: draftId, pilots: sorted },
+      ]);
+      setSelectedKey(key);
+   }, []);
 
-         setSelectedKey(key);
-      },
-      []
-   );
+   // Ao salvar a primeira sessao de um draft, a missao real e criada. Converte
+   // o pending para o id real e move a selecao, sem flicker de "sem dupla".
+   const persistDraft = useCallback((draftId: number, newMissaoId: number) => {
+      const newKey = String(newMissaoId);
+      setPendingDuplas((prev) =>
+         prev.map((p) =>
+            p.missaoId === draftId
+               ? { ...p, key: newKey, missaoId: newMissaoId }
+               : p
+         )
+      );
+      setSelectedKey(newKey);
+   }, []);
 
    const removePending = useCallback((missaoId: number) => {
       setPendingDuplas((prev) => prev.filter((p) => p.missaoId !== missaoId));
@@ -130,6 +147,7 @@ export function useSimuladorDuplas(anoRef: number) {
       isFetching,
       isError,
       handleDuplaCreated,
+      persistDraft,
       removePending,
    };
 }

@@ -84,5 +84,10 @@ export function useSimuladorActions({
       [deleteMissaoMutation, push, selectedKey, setSelectedKey, removePending]
    );
 
-   return { deleteSessao, deleteDupla };
+   return {
+      deleteSessao,
+      deleteDupla,
+      isDeletingDupla: deleteMissaoMutation.isPending,
+      isDeletingSessao: deleteEtapaMutation.isPending,
+   };
 }

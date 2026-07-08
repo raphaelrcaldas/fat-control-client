@@ -1,9 +1,9 @@
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { useToast } from "@/app/context/toast";
 import {
    useCreateEtapa,
    useUpdateEtapa,
-   useEtapaDetail,
+   useCreateMissaoWithEtapas,
 } from "@/hooks/queries/useEtapas";
 import { useEsfAerList } from "@/hooks/queries/useEsfAer";
 import { useTiposMissao } from "@/hooks/queries/useTiposMissao";
@@ -19,10 +19,15 @@ import {
 
 interface UseSessaoFormArgs {
    show: boolean;
+   /** Negativo = dupla ainda em draft (missao criada junto da 1ª sessao). */
    missaoId: number;
+   /** Ano de referencia da tela — a sessao deve cair dentro dele. */
+   anoRef: number;
    pilots: DuplaPilot[];
    editEtapa: EtapaItem | null;
    onClose: () => void;
+   /** Chamado com o id real quando a 1ª sessao de um draft cria a missao. */
+   onPersistDraft?: (newMissaoId: number) => void;
 }
 
 /**
@@ -32,19 +37,21 @@ interface UseSessaoFormArgs {
 export function useSessaoForm({
    show,
    missaoId,
+   anoRef,
    pilots,
    editEtapa,
    onClose,
+   onPersistDraft,
 }: UseSessaoFormArgs) {
    const isEditMode = editEtapa !== null;
+   // Draft: dupla local sem missao no banco; a 1ª sessao cria missao + etapa.
+   const isDraft = !isEditMode && missaoId < 0;
    const { push } = useToast();
    const createEtapa = useCreateEtapa();
    const updateEtapa = useUpdateEtapa();
+   const createMissaoWithEtapas = useCreateMissaoWithEtapas();
    const { data: esfAerData, isLoading: loadingEsfAer } = useEsfAerList();
    const { data: tiposMissaoData, isLoading: loadingTipos } = useTiposMissao();
-   const { data: etapaDetail, isLoading: loadingDetail } = useEtapaDetail(
-      isEditMode ? editEtapa.id : null
-   );
 
    // Estado do formulário
    const [data, setData] = useState("");
@@ -92,23 +99,33 @@ export function useSessaoForm({
 
    const tvoo = useMemo(() => computeTvoo(dep, arr), [dep, arr]);
    const tvooValid = tvoo >= 5 && tvoo % 5 === 0;
-   const crossesDay = !!dep && !!arr && tvoo === 0;
+   // DEP == ARR (duração zero) é diferente de "atravessa o dia" (ARR < DEP).
+   const depArrEqual = !!dep && !!arr && dep === arr;
+   const crossesDay = !!dep && !!arr && !depArrEqual && tvoo === 0;
+   // A sessão precisa cair dentro do ano de referência exibido na tela; senão
+   // some da listagem (filtro data_ini/data_fim) e parece que não foi salva.
+   const dateOutOfYear = !!data && data.slice(0, 4) !== String(anoRef);
 
-   // Default de tipo de missão (apenas criação)
+   // Default de tipo de missão quando nenhum está selecionado (criação ou
+   // edição de etapa legada sem OI) — garante um valor válido para submeter.
    useEffect(() => {
-      if (
-         tiposMissaoData &&
-         tiposMissaoData.length > 0 &&
-         !tipoMissaoId &&
-         !isEditMode
-      ) {
+      if (tiposMissaoData && tiposMissaoData.length > 0 && !tipoMissaoId) {
          setTipoMissaoId(tiposMissaoData[0].id);
       }
-   }, [tiposMissaoData, tipoMissaoId, isEditMode]);
+   }, [tiposMissaoData, tipoMissaoId]);
 
-   // Popula / reseta o formulário ao abrir
+   // Popula / reseta o formulário. Roda apenas na ABERTURA e ao trocar a etapa
+   // alvo — não a cada refetch (que muda `pilots`/`tiposMissaoData`), o que
+   // apagaria o que o usuário está digitando com o modal aberto.
+   const initKeyRef = useRef<string | null>(null);
    useEffect(() => {
-      if (!show) return;
+      if (!show) {
+         initKeyRef.current = null;
+         return;
+      }
+      const key = isEditMode ? `edit-${editEtapa.id}` : "new";
+      if (initKeyRef.current === key) return;
+      initKeyRef.current = key;
 
       if (isEditMode) {
          setData(editEtapa.data);
@@ -116,6 +133,7 @@ export function useSessaoForm({
          setDestino(editEtapa.destino);
          setDep(formatTime(editEtapa.dep));
          setArr(formatTime(editEtapa.arr));
+         setPousos(editEtapa.pousos);
          setReg(editEtapa.oi_etapas[0]?.reg ?? "d");
          setTipoMissaoId(editEtapa.oi_etapas[0]?.tipo_missao_id ?? null);
          setSessionPilots(
@@ -143,17 +161,15 @@ export function useSessaoForm({
       }
    }, [show, isEditMode, editEtapa, tiposMissaoData, pilots]);
 
-   // Pousos vêm do detalhe (modo edição)
-   useEffect(() => {
-      if (isEditMode && etapaDetail) setPousos(etapaDetail.pousos);
-   }, [isEditMode, etapaDetail]);
-
-   const isPending = createEtapa.isPending || updateEtapa.isPending;
-   const isLoadingData =
-      loadingEsfAer || loadingTipos || (isEditMode && loadingDetail);
+   const isPending =
+      createEtapa.isPending ||
+      updateEtapa.isPending ||
+      createMissaoWithEtapas.isPending;
+   const isLoadingData = loadingEsfAer || loadingTipos;
 
    const canSubmit = Boolean(
       data &&
+      !dateOutOfYear &&
       origem.length === 4 &&
       destino.length === 4 &&
       dep &&
@@ -183,7 +199,10 @@ export function useSessaoForm({
                tvoo,
             },
          ];
-         const payload = {
+         // Campos comuns a criar/editar. sagem/parte1/obs ficam de fora: na
+         // edição, enviá-los sobrescreveria (o backend usa exclude_unset); na
+         // criação, são adicionados explicitamente abaixo.
+         const commonPayload = {
             data,
             origem: origem.toUpperCase(),
             destino: destino.toUpperCase(),
@@ -192,9 +211,6 @@ export function useSessaoForm({
             tvoo,
             anv: SIM_ANV,
             pousos,
-            sagem: false,
-            parte1: false,
-            obs: null,
             tripulantes,
             oi_etapas: oiEtapas,
          };
@@ -203,7 +219,7 @@ export function useSessaoForm({
             if (isEditMode) {
                const res = await updateEtapa.mutateAsync({
                   id: editEtapa.id,
-                  data: payload,
+                  data: commonPayload,
                });
                push({
                   title: res.ok ? "Sucesso!" : "Erro",
@@ -211,10 +227,45 @@ export function useSessaoForm({
                   type: res.ok ? "success" : "error",
                });
                if (res.ok) onClose();
+            } else if (isDraft) {
+               const res = await createMissaoWithEtapas.mutateAsync({
+                  titulo: "Simulador",
+                  obs: null,
+                  is_simulador: true,
+                  etapas: [
+                     {
+                        ...commonPayload,
+                        tow: null,
+                        pax: null,
+                        carga: null,
+                        comb: null,
+                        lub: null,
+                        nivel: null,
+                        sagem: false,
+                        parte1: false,
+                        obs: null,
+                        pqd: [],
+                        revo: [],
+                        heavy_cds: [],
+                     },
+                  ],
+               });
+               push({
+                  title: res.ok ? "Sucesso!" : "Erro",
+                  message: res.message ?? "Dupla e sessão criadas",
+                  type: res.ok ? "success" : "error",
+               });
+               if (res.ok && res.data) {
+                  onPersistDraft?.(res.data.id);
+                  onClose();
+               }
             } else {
                const res = await createEtapa.mutateAsync({
                   missao_id: missaoId,
-                  ...payload,
+                  ...commonPayload,
+                  sagem: false,
+                  parte1: false,
+                  obs: null,
                });
                push({
                   title: res.ok ? "Sucesso!" : "Erro",
@@ -248,10 +299,13 @@ export function useSessaoForm({
          arr,
          pousos,
          isEditMode,
+         isDraft,
          editEtapa,
          missaoId,
          updateEtapa,
          createEtapa,
+         createMissaoWithEtapas,
+         onPersistDraft,
          push,
          onClose,
       ]
@@ -284,6 +338,8 @@ export function useSessaoForm({
       tvoo,
       tvooValid,
       crossesDay,
+      depArrEqual,
+      dateOutOfYear,
       canSubmit,
       isPending,
       isLoadingData,

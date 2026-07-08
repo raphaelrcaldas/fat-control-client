@@ -9,15 +9,13 @@ import {
    Button,
 } from "flowbite-react";
 import { HiX, HiUserGroup } from "react-icons/hi";
-import { useToast } from "@/app/context/toast";
-import { useCreateMissao } from "@/hooks/queries/useEtapas";
 import { MAX_PILOTOS, type DuplaPilot, type CrewSearchResult } from "../types";
 import PilotSearchInput from "./PilotSearchInput";
 
 interface CreateDuplaModalProps {
    show: boolean;
    onClose: () => void;
-   onCreated: (missaoId: number, pilots: DuplaPilot[]) => void;
+   onCreated: (pilots: DuplaPilot[]) => void;
 }
 
 export default function CreateDuplaModal({
@@ -25,9 +23,6 @@ export default function CreateDuplaModal({
    onClose,
    onCreated,
 }: CreateDuplaModalProps) {
-   const { push } = useToast();
-   const createMissao = useCreateMissao();
-
    const [pilots, setPilots] = useState<DuplaPilot[]>([]);
 
    const assignedIds = useMemo(
@@ -61,37 +56,12 @@ export default function CreateDuplaModal({
       setPilots((prev) => prev.filter((p) => p.trip_id !== tripId));
    }, []);
 
-   async function handleCreate() {
+   function handleCreate() {
       if (pilots.length === 0) return;
-
-      try {
-         const res = await createMissao.mutateAsync({
-            titulo: "Simulador",
-            is_simulador: true,
-         });
-         if (!res.ok || !res.data) {
-            push({
-               title: "Erro",
-               message: res.message ?? "Erro ao criar dupla",
-               type: "error",
-            });
-            return;
-         }
-
-         onCreated(res.data.id, pilots);
-         push({
-            title: "Sucesso!",
-            message: "Dupla criada. Adicione sessões de simulador.",
-            type: "success",
-         });
-         onClose();
-      } catch (err) {
-         push({
-            title: "Erro",
-            message: err instanceof Error ? err.message : "Erro ao criar dupla",
-            type: "error",
-         });
-      }
+      // A dupla nasce apenas no estado local; a missao so e gravada quando a
+      // primeira sessao for salva (evita missao orfa sem etapas).
+      onCreated(pilots);
+      onClose();
    }
 
    return (
@@ -176,9 +146,9 @@ export default function CreateDuplaModal({
                <Button
                   color="blue"
                   onClick={handleCreate}
-                  disabled={pilots.length === 0 || createMissao.isPending}
+                  disabled={pilots.length === 0}
                >
-                  {createMissao.isPending ? "Criando..." : "Criar Dupla"}
+                  Criar Dupla
                </Button>
             </div>
          </ModalFooter>

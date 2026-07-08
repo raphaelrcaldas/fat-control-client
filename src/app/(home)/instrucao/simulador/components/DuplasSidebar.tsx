@@ -26,8 +26,11 @@ export default function DuplasSidebar({
    const filtered = duplas.filter((d) => {
       if (!search) return true;
       if (d.pilots.length === 0) return true;
-      return d.pilots.some((p) =>
-         p.nome_guerra.toLowerCase().includes(search.toLowerCase())
+      const term = search.toLowerCase();
+      return d.pilots.some(
+         (p) =>
+            p.nome_guerra.toLowerCase().includes(term) ||
+            p.trig.toLowerCase().includes(term)
       );
    });
 

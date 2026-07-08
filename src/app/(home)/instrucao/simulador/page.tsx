@@ -34,10 +34,11 @@ export default function SimuladorPage() {
       isFetching,
       isError,
       handleDuplaCreated,
+      persistDraft,
       removePending,
    } = useSimuladorDuplas(anoRef);
 
-   const { deleteSessao, deleteDupla } = useSimuladorActions({
+   const { deleteSessao, deleteDupla, isDeletingDupla } = useSimuladorActions({
       selectedKey,
       setSelectedKey,
       removePending,
@@ -115,6 +116,7 @@ export default function SimuladorPage() {
                         onAddSessao={handleAddSessao}
                         onDeleteDupla={deleteDupla}
                         onSessaoClick={handleSessaoClick}
+                        isDeletingDupla={isDeletingDupla}
                      />
                   </div>
                </div>
@@ -136,9 +138,13 @@ export default function SimuladorPage() {
                   setEditingEtapa(null);
                }}
                missaoId={selectedDupla.missaoId}
+               anoRef={anoRef}
                pilots={selectedDupla.pilots}
                editEtapa={editingEtapa}
                onDelete={handleDeleteSessao}
+               onPersistDraft={(newMissaoId) =>
+                  persistDraft(selectedDupla.missaoId, newMissaoId)
+               }
             />
          )}
       </div>
