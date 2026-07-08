@@ -43,6 +43,9 @@ export async function getCartoes(
 ): Promise<TripCartoesOut[]> {
    const response = await request("GET", cartoesRoute, null, null, signal);
    const result = await parseApiResponse<TripCartoesOut[]>(response);
+   if (!result.ok) {
+      throw new Error(result.message || "Erro ao carregar cartões");
+   }
    return result.data ?? [];
 }
 

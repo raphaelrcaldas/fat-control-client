@@ -13,7 +13,8 @@ import { HiTrash } from "react-icons/hi";
 import { MdBadge } from "react-icons/md";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import type { TripCartoesOut } from "services/routes/instrucao/cartoes";
-import { useCartaoForm } from "../hooks/useCartaoForm";
+import { useCartaoForm, type CartaoFormState } from "../hooks/useCartaoForm";
+import { PROVA_FIELDS } from "../cartoes.config";
 import SectionTitle from "./SectionTitle";
 import Field from "./Field";
 import LangFieldGroup from "./LangFieldGroup";
@@ -23,13 +24,6 @@ interface EditCartoesModalProps {
    onClose: () => void;
    item: TripCartoesOut;
 }
-
-const PROVA_FIELDS = [
-   { name: "ptai_validade", label: "PTAI" },
-   { name: "tai_s_validade", label: "TAI S" },
-   { name: "tai_s1_validade", label: "TAI S1" },
-   { name: "cvi_validade", label: "CVI" },
-] as const;
 
 export default function EditCartoesModal({
    show,
@@ -48,6 +42,14 @@ export default function EditCartoesModal({
 
    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
+   const busy = isSaving || isDeleting;
+
+   // Bloqueia ESC / clique no backdrop (dismissible) enquanto grava ou remove,
+   // evitando fechar o modal com a mutation em andamento.
+   const handleClose = () => {
+      if (!busy) onClose();
+   };
+
    const handleConfirmDelete = async () => {
       await handleDelete();
       setShowDeleteConfirm(false);
@@ -55,7 +57,7 @@ export default function EditCartoesModal({
 
    return (
       <>
-         <Modal show={show} onClose={onClose} size="lg" dismissible>
+         <Modal show={show} onClose={handleClose} size="lg" dismissible>
             <ModalHeader>
                <div className="flex items-center gap-3">
                   <div className="flex h-9 w-9 items-center justify-center rounded-md bg-red-600">
@@ -79,18 +81,22 @@ export default function EditCartoesModal({
                   <div className="rounded border border-slate-200 bg-gray-50 p-4 shadow-sm">
                      <SectionTitle>Provas e validações</SectionTitle>
                      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-                        {PROVA_FIELDS.map((f) => (
-                           <Field key={f.name} id={f.name} label={f.label}>
-                              <TextInput
-                                 id={f.name}
-                                 name={f.name}
-                                 type="date"
-                                 value={formData[f.name]}
-                                 onChange={handleInput}
-                                 sizing="sm"
-                              />
-                           </Field>
-                        ))}
+                        {PROVA_FIELDS.map((f) => {
+                           const name =
+                              `${f.key}_validade` as keyof CartaoFormState;
+                           return (
+                              <Field key={f.key} id={name} label={f.label}>
+                                 <TextInput
+                                    id={name}
+                                    name={name}
+                                    type="date"
+                                    value={formData[name]}
+                                    onChange={handleInput}
+                                    sizing="sm"
+                                 />
+                              </Field>
+                           );
+                        })}
                      </div>
                   </div>
 
@@ -131,7 +137,7 @@ export default function EditCartoesModal({
                      <span />
                   )}
                   <div className="flex gap-2">
-                     <Button color="gray" onClick={onClose} disabled={isSaving}>
+                     <Button color="gray" onClick={handleClose} disabled={busy}>
                         Cancelar
                      </Button>
                      <Button

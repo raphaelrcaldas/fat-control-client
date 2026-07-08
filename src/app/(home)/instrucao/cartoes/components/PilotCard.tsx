@@ -5,7 +5,7 @@ import { memo, useState, useCallback } from "react";
 import { Button } from "flowbite-react";
 import { HiChevronRight, HiPencil } from "react-icons/hi";
 import type { TripCartoesOut } from "services/routes/instrucao/cartoes";
-import { CARTAO_FIELDS, PROVA_FIELDS, LANG_FIELDS } from "../cartoes.config";
+import { PROVA_FIELDS, LANG_FIELDS } from "../cartoes.config";
 import { getCartaoStatus, getDaysLabel } from "../utils/cartaoStatus";
 import StatusBadge from "./StatusBadge";
 import FieldRow from "./FieldRow";
@@ -33,23 +33,38 @@ const PilotCard = memo(function PilotCard({ pilot, onEdit }: PilotCardProps) {
 
    const cartao = pilot.cartao;
 
-   // Faixa de badges — mesma lista nas duas quebras (desktop / mobile).
-   const badges = CARTAO_FIELDS.map((f) => {
-      const validade = f.validade(cartao);
-      return (
-         <StatusBadge
-            key={f.key}
-            label={f.badgeLabel(cartao)}
-            status={getCartaoStatus(validade)}
-            daysLabel={getDaysLabel(validade)}
-         />
-      );
-   });
+   // Faixa de badges — provas seguidas dos idiomas, mesma lista nas duas
+   // quebras (desktop / mobile). Deriva das mesmas fontes do corpo expandido.
+   const badges = [
+      ...PROVA_FIELDS.map((f) => {
+         const validade = f.validade(cartao);
+         return (
+            <StatusBadge
+               key={f.key}
+               label={f.label}
+               status={getCartaoStatus(validade)}
+               daysLabel={getDaysLabel(validade)}
+            />
+         );
+      }),
+      ...LANG_FIELDS.map((f) => {
+         const validade = f.validity(cartao);
+         const level = f.level(cartao);
+         return (
+            <StatusBadge
+               key={f.key}
+               label={`${f.abbr} ${level ?? "—"}`}
+               status={getCartaoStatus(validade)}
+               daysLabel={getDaysLabel(validade)}
+            />
+         );
+      }),
+   ];
 
    return (
       <div
          className={clsx(
-            "cursor-pointer rounded border bg-white px-3 py-2 transition-all",
+            "rounded border bg-white px-3 py-2 transition-all",
             isExpanded ? "border-red-300 shadow" : "border-slate-200 shadow-sm"
          )}
       >
@@ -60,6 +75,7 @@ const PilotCard = memo(function PilotCard({ pilot, onEdit }: PilotCardProps) {
             aria-expanded={isExpanded}
             onClick={toggleExpanded}
             onKeyDown={handleKeyDown}
+            className="cursor-pointer"
          >
             <div className="flex items-center gap-3">
                {/* Avatar */}
@@ -113,7 +129,7 @@ const PilotCard = memo(function PilotCard({ pilot, onEdit }: PilotCardProps) {
                         {PROVA_FIELDS.map((f) => (
                            <FieldRow
                               key={f.key}
-                              label={f.fieldLabel}
+                              label={f.label}
                               dateStr={f.validade(cartao)}
                            />
                         ))}
@@ -124,14 +140,16 @@ const PilotCard = memo(function PilotCard({ pilot, onEdit }: PilotCardProps) {
                         <div className="mb-2 text-sm font-medium tracking-wider text-gray-500 uppercase">
                            Habilidades linguísticas
                         </div>
-                        {LANG_FIELDS.map((f) => (
-                           <LangCard
-                              key={f.key}
-                              lang={f.lang}
-                              level={f.level(cartao)}
-                              validity={f.validity(cartao)}
-                           />
-                        ))}
+                        <div className="space-y-2">
+                           {LANG_FIELDS.map((f) => (
+                              <LangCard
+                                 key={f.key}
+                                 lang={f.lang}
+                                 level={f.level(cartao)}
+                                 validity={f.validity(cartao)}
+                              />
+                           ))}
+                        </div>
                         <div className="mt-3 flex justify-end">
                            <Button
                               size="xs"

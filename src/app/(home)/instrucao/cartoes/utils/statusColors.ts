@@ -33,7 +33,7 @@ export function getStatusColors(status: CartaoStatus): StatusColors {
             badgeBorder: "#97C459",
             dot: "#639922",
          };
-      default:
+      case "empty":
          return {
             text: "#6b7280",
             badgeBg: "#f3f4f6",

@@ -35,11 +35,11 @@ export default function CartoesPage() {
                ))}
             </div>
          ) : isError ? (
-            <div className="rounded border border-rose-200 bg-rose-50 px-4 py-12 text-center">
-               <p className="text-sm font-semibold text-rose-800">
+            <div className="rounded border border-red-200 bg-red-50 px-4 py-12 text-center">
+               <p className="text-sm font-semibold text-red-800">
                   Não foi possível carregar os cartões
                </p>
-               <p className="mt-1 text-xs text-rose-600">
+               <p className="mt-1 text-xs text-red-600">
                   {(error as Error)?.message ?? "Tente novamente."}
                </p>
                <div className="mt-4 flex justify-center">

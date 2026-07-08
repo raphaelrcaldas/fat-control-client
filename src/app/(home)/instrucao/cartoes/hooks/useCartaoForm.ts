@@ -6,7 +6,7 @@ import type {
    CartoesUpsert,
 } from "services/routes/instrucao/cartoes";
 
-interface CartaoFormState {
+export interface CartaoFormState {
    ptai_validade: string;
    tai_s_validade: string;
    tai_s1_validade: string;
@@ -64,6 +64,17 @@ export function useCartaoForm(item: TripCartoesOut, onClose: () => void) {
             hab_ingles: formData.hab_ingles || null,
             val_ingles: formData.val_ingles || null,
          };
+         // Evita persistir um cartão totalmente vazio (todos os campos null),
+         // que criaria um registro sem conteúdo mas marcado como cadastrado.
+         const hasAnyValue = Object.values(data).some((v) => v !== null);
+         if (!hasAnyValue) {
+            push({
+               title: "Atenção",
+               message: "Preencha ao menos um campo para salvar.",
+               type: "error",
+            });
+            return;
+         }
          await upsertMutation.mutateAsync({ trip_id: item.trip_id, data });
          push({
             message: isEdit

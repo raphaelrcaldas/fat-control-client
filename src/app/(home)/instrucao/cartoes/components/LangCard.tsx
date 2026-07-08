@@ -25,9 +25,12 @@ export default function LangCard({
    level: string | null;
    validity: string | null;
 }) {
-   if (!level) {
+   // "Não cadastrado" só quando não há nível NEM validade. Se existe validade
+   // (mesmo sem nível), o card ainda a exibe — espelha a badge colapsada, que
+   // mostra a validade independentemente do nível.
+   if (!level && !validity) {
       return (
-         <div className="mb-2 rounded bg-gray-50 px-3 py-2.5">
+         <div className="rounded bg-gray-50 px-3 py-2.5">
             <div className="text-xs font-medium text-gray-700">{lang}</div>
             <div className="mt-0.5 text-[11px] text-gray-400">
                Não cadastrado
@@ -36,24 +39,28 @@ export default function LangCard({
       );
    }
 
-   const levelIdx = LEVELS.indexOf(level as (typeof LEVELS)[number]);
+   const levelIdx = level
+      ? LEVELS.indexOf(level as (typeof LEVELS)[number])
+      : -1;
    const status = getCartaoStatus(validity);
    const colors = getStatusColors(status);
 
    return (
-      <div className="mb-2 rounded bg-gray-50 px-3 py-2.5">
+      <div className="rounded bg-gray-50 px-3 py-2.5">
          <div className="mb-1 flex items-center justify-between">
             <span className="text-xs font-medium text-gray-700">{lang}</span>
-            <span
-               className="rounded px-1.5 py-0.5 text-[11px] font-medium"
-               style={{
-                  backgroundColor: colors.badgeBg,
-                  border: `0.5px solid ${colors.badgeBorder}`,
-                  color: colors.text,
-               }}
-            >
-               {level}
-            </span>
+            {level && (
+               <span
+                  className="rounded px-1.5 py-0.5 text-[11px] font-medium"
+                  style={{
+                     backgroundColor: colors.badgeBg,
+                     border: `0.5px solid ${colors.badgeBorder}`,
+                     color: colors.text,
+                  }}
+               >
+                  {level}
+               </span>
+            )}
          </div>
          <div className="mb-1 flex gap-1">
             {PIP_POSITION_COLORS.map((color, i) => (
