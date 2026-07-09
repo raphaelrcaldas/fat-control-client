@@ -13,10 +13,12 @@ import { HiUserAdd } from "react-icons/hi";
 import { useCreateTrip } from "@/hooks/queries";
 import { useToast } from "@/app/context/toast";
 import { UserPublic } from "services/routes/users";
+import type { CreateTripData } from "services/routes/trips";
 import {
    isValidTrigramaKey,
    trigramaValidationRules,
 } from "../utils/validateTrigrama";
+import { FuncFields } from "./FuncFields";
 import type { TripRegisterFormFields } from "../types/trip.types";
 
 type TripRegisterProps = {
@@ -40,14 +42,19 @@ export function TripRegister({
       register,
       handleSubmit,
       reset,
+      watch,
       formState: { errors },
    } = useForm<TripRegisterFormFields>({
       defaultValues: {
          user_id: user.id,
          active: true,
          trig: "",
+         proj: "kc-390",
+         data_op: "",
       },
    });
+
+   const currentOper = watch("oper");
 
    useEffect(() => {
       if (show) {
@@ -55,6 +62,8 @@ export function TripRegister({
             user_id: user.id,
             active: true,
             trig: "",
+            proj: "kc-390",
+            data_op: "",
          });
       }
    }, [show, user.id, reset]);
@@ -69,7 +78,17 @@ export function TripRegister({
    }
 
    async function registerTrip(data: TripRegisterFormFields) {
-      createTripMutation.mutate(data, {
+      const payload: CreateTripData = {
+         user_id: data.user_id,
+         active: data.active,
+         trig: data.trig,
+         func: data.func,
+         oper: data.oper,
+         proj: data.proj,
+         data_op: data.data_op?.trim() || null,
+      };
+
+      createTripMutation.mutate(payload, {
          onSuccess: (result) => {
             if (result.ok) {
                push({
@@ -102,7 +121,7 @@ export function TripRegister({
             </Button>
          )}
 
-         <Modal show={show} size="md" onClose={closeModal} dismissible>
+         <Modal show={show} size="lg" onClose={closeModal} dismissible>
             <ModalHeader>Cadastrar Tripulante</ModalHeader>
             <ModalBody>
                <form
@@ -149,6 +168,17 @@ export function TripRegister({
                            </p>
                         )}
                      </div>
+                  </div>
+
+                  <div className="rounded border border-slate-200 bg-slate-50 p-4">
+                     <h4 className="mb-3 text-sm font-semibold text-slate-700">
+                        Função do Tripulante
+                     </h4>
+                     <FuncFields
+                        register={register}
+                        errors={errors}
+                        currentOper={currentOper}
+                     />
                   </div>
 
                   <div className="flex justify-center gap-3 pt-2">

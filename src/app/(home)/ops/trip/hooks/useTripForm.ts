@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useUpdateTrip } from "@/hooks/queries";
 import { useToast } from "@/app/context/toast";
+import type { UpdateTripData } from "services/routes/trips";
 import type { TripFormFields, Trip } from "../types/trip.types";
 
 type UseTripFormParams = {
@@ -17,11 +18,16 @@ export function useTripForm({ trip, onClose }: UseTripFormParams) {
       register,
       handleSubmit,
       reset,
+      watch,
       formState: { errors, isDirty },
    } = useForm<TripFormFields>({
       defaultValues: {
          trig: trip.trig,
          active: trip.active,
+         func: trip.func,
+         oper: trip.oper,
+         proj: trip.proj,
+         data_op: trip.data_op ?? "",
       },
    });
 
@@ -29,8 +35,14 @@ export function useTripForm({ trip, onClose }: UseTripFormParams) {
       reset({
          trig: trip.trig.toUpperCase(),
          active: trip.active,
+         func: trip.func,
+         oper: trip.oper,
+         proj: trip.proj,
+         data_op: trip.data_op ?? "",
       });
    }, [trip, reset]);
+
+   const currentOper = watch("oper");
 
    const onSubmit = async (data: TripFormFields) => {
       if (!trip.id) {
@@ -41,10 +53,17 @@ export function useTripForm({ trip, onClose }: UseTripFormParams) {
          return;
       }
 
-      data.trig = data.trig.toLowerCase();
+      const payload: UpdateTripData = {
+         trig: data.trig.toLowerCase(),
+         active: data.active,
+         func: data.func,
+         oper: data.oper,
+         proj: data.proj,
+         data_op: data.data_op?.trim() || null,
+      };
 
       updateTripMutation.mutate(
-         { id: trip.id, data },
+         { id: trip.id, data: payload },
          {
             onSuccess: (result) => {
                if (result.ok) {
@@ -77,6 +96,7 @@ export function useTripForm({ trip, onClose }: UseTripFormParams) {
       errors,
       isDirty,
       submitting: updateTripMutation.isPending,
+      currentOper,
       reset,
    };
 }

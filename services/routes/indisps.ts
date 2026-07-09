@@ -8,7 +8,10 @@ export interface CrewIndisp {
    trig: string;
    id: number;
    user: UserPublic;
-   func: { func: string; oper: string; proj: string };
+   func: string;
+   oper: string;
+   proj: string;
+   data_op: string | null;
    cemal: string | null;
    data_ult_voo: string | null;
 }

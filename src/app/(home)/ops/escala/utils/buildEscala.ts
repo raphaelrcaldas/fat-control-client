@@ -16,7 +16,8 @@ function buildTripStatus(trip: EscalaTripEntry, dateRef: Date): TripStatus {
    const ultVoo = trip.data_ult_voo ? isoStrToDate(trip.data_ult_voo) : null;
 
    const tripForDesadaptado = {
-      func: { func: trip.func, oper: trip.oper ?? "" },
+      func: trip.func,
+      oper: trip.oper ?? "",
    } as Parameters<typeof isDesadaptado>[2];
 
    const desadapt = isDesadaptado(ultVoo, dateRef, tripForDesadaptado);

@@ -24,18 +24,18 @@ export {
 } from "../../src/constants/tripulantes/projetos";
 
 // Interfaces de API (mantidas aqui por serem específicas de API)
-import type { FuncType, OperType, ProjType } from "../../src/constants/tripulantes";
+import type {
+   FuncType,
+   OperType,
+   ProjType,
+} from "../../src/constants/tripulantes";
 
-export interface CrewFunc {
-   id?: number;
-   trip_id?: number;
-   func: FuncType;
-   oper: OperType;
-   proj: ProjType;
-   data_op: string | null;
-}
-
-export interface CreateCrewFunc {
+/**
+ * Campos da função única (1:1) do tripulante. Vivem diretamente no
+ * tripulante (colunas `func`/`oper`/`proj`/`data_op`), não em entidade
+ * separada.
+ */
+export interface TripFuncFields {
    func: FuncType;
    oper: OperType;
    proj: ProjType;

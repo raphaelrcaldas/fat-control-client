@@ -11,9 +11,7 @@ export type QuadOrdem = "opr" | "mil";
  * jogando esses registros para o início da ordenação operacional.
  */
 function dataOpTime(member: CrewMember): number {
-   return member.func?.data_op
-      ? isoStrToDate(member.func.data_op).getTime()
-      : 0;
+   return member.data_op ? isoStrToDate(member.data_op).getTime() : 0;
 }
 
 /**

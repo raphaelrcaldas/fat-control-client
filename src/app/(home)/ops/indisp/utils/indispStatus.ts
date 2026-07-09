@@ -41,11 +41,7 @@ export function isCemalValid(cemal: Date | null, dateRef: Date): boolean {
 }
 
 export function isElegivelDesadapta(trip: CrewIndisp): boolean {
-   return (
-      trip?.func?.func !== "oe" &&
-      trip?.func?.func !== "os" &&
-      trip?.func?.oper !== "al"
-   );
+   return trip?.func !== "oe" && trip?.func !== "os" && trip?.oper !== "al";
 }
 
 export function isDesadaptado(

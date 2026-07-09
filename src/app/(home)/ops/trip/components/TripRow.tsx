@@ -1,4 +1,4 @@
-import { Badge, TableRow, TableCell } from "flowbite-react";
+import { TableRow, TableCell } from "flowbite-react";
 import { TripDetail } from "./tripDetail";
 import { FuncTripRow } from "./FuncTripRow";
 import { PermBased } from "@/app/(home)/hooks/usePermBased";
@@ -11,7 +11,6 @@ type TripRowProps = {
 
 export function TripRow({ trip }: TripRowProps) {
    const user = trip.user;
-   const tripFuncs = trip.funcs || [];
 
    return (
       <TableRow>
@@ -34,19 +33,9 @@ export function TripRow({ trip }: TripRowProps) {
             {trip.trig}
          </TableCell>
          <TableCell className="text-center uppercase">
-            {tripFuncs.length < 1 ? (
-               <div className="flex justify-center">
-                  <Badge color="failure" size="sm">
-                     Sem Função Cadastrada
-                  </Badge>
-               </div>
-            ) : (
-               <div className="flex flex-wrap justify-center gap-1">
-                  {tripFuncs.map((f) => (
-                     <FuncTripRow key={f.id} func={f} />
-                  ))}
-               </div>
-            )}
+            <div className="flex justify-center">
+               <FuncTripRow func={trip.func} oper={trip.oper} />
+            </div>
          </TableCell>
          <TableCell className="hidden text-center md:table-cell">
             <div className="inline-flex items-center gap-1.5 text-sm">

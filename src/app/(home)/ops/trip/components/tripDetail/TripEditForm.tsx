@@ -1,4 +1,3 @@
-import { useState, useCallback } from "react";
 import {
    Label,
    TextInput,
@@ -14,11 +13,8 @@ import {
    isValidTrigramaKey,
    trigramaValidationRules,
 } from "../../utils/validateTrigrama";
-import { FuncList } from "./FuncList";
-import { FuncAddModal } from "./FuncAddModal";
-import { FuncEditModal } from "./FuncEditModal";
-import { FuncDeleteModal } from "./FuncDeleteModal";
-import type { Trip, CrewFunc } from "../../types/trip.types";
+import { FuncFields } from "../FuncFields";
+import type { Trip } from "../../types/trip.types";
 
 type TripEditFormProps = {
    trip: Trip;
@@ -27,46 +23,8 @@ type TripEditFormProps = {
 };
 
 export function TripEditForm({ trip, onClose, onCancel }: TripEditFormProps) {
-   const { register, handleSubmit, errors, isDirty, submitting } = useTripForm({
-      trip,
-      onClose,
-   });
-
-   const [showAddFunc, setShowAddFunc] = useState(false);
-   const [showEditFunc, setShowEditFunc] = useState(false);
-   const [showDeleteFunc, setShowDeleteFunc] = useState(false);
-   const [editingFunc, setEditingFunc] = useState<CrewFunc | null>(null);
-   const [deletingFunc, setDeletingFunc] = useState<CrewFunc | null>(null);
-
-   const handleShowAddFunc = useCallback(() => {
-      setShowAddFunc(true);
-      setEditingFunc(null);
-   }, []);
-
-   const handleCloseAddFunc = useCallback(() => {
-      setShowAddFunc(false);
-      setEditingFunc(null);
-   }, []);
-
-   const handleShowEditFunc = useCallback((func: CrewFunc) => {
-      setEditingFunc(func);
-      setShowEditFunc(true);
-   }, []);
-
-   const handleCloseEditFunc = useCallback(() => {
-      setShowEditFunc(false);
-      setEditingFunc(null);
-   }, []);
-
-   const handleShowDeleteFunc = useCallback((func: CrewFunc) => {
-      setDeletingFunc(func);
-      setShowDeleteFunc(true);
-   }, []);
-
-   const handleCloseDeleteFunc = useCallback(() => {
-      setShowDeleteFunc(false);
-      setDeletingFunc(null);
-   }, []);
+   const { register, handleSubmit, errors, isDirty, submitting, currentOper } =
+      useTripForm({ trip, onClose });
 
    return (
       <form onSubmit={handleSubmit} className="space-y-5">
@@ -139,13 +97,17 @@ export function TripEditForm({ trip, onClose, onCancel }: TripEditFormProps) {
             </div>
          </div>
 
-         {/* Lista de Funções */}
-         <FuncList
-            funcs={trip.funcs || []}
-            onAdd={handleShowAddFunc}
-            onEdit={handleShowEditFunc}
-            onDelete={handleShowDeleteFunc}
-         />
+         {/* Função do Tripulante (1:1) */}
+         <div className="rounded border border-slate-200 bg-slate-50 p-4">
+            <h4 className="mb-3 text-sm font-semibold text-slate-700">
+               Função do Tripulante
+            </h4>
+            <FuncFields
+               register={register}
+               errors={errors}
+               currentOper={currentOper}
+            />
+         </div>
 
          {/* Botões de Ação */}
          <div className="flex justify-center gap-3 border-t border-slate-200 pt-2">
@@ -166,28 +128,6 @@ export function TripEditForm({ trip, onClose, onCancel }: TripEditFormProps) {
                )}
             </Button>
          </div>
-
-         {/* Modais de Funções */}
-         <FuncAddModal
-            show={showAddFunc}
-            onClose={handleCloseAddFunc}
-            trip={trip}
-         />
-
-         {editingFunc && (
-            <FuncEditModal
-               show={showEditFunc}
-               onClose={handleCloseEditFunc}
-               trip={trip}
-               editingFunc={editingFunc}
-            />
-         )}
-
-         <FuncDeleteModal
-            show={showDeleteFunc}
-            onClose={handleCloseDeleteFunc}
-            deletingFunc={deletingFunc}
-         />
       </form>
    );
 }

@@ -16,8 +16,8 @@ export function IndispTable({
    controls,
    legend,
 }: IndispTableProps) {
-   const principais = indisps.filter((item) => item.trip.func.oper !== "al");
-   const alunos = indisps.filter((item) => item.trip.func.oper === "al");
+   const principais = indisps.filter((item) => item.trip.oper !== "al");
+   const alunos = indisps.filter((item) => item.trip.oper === "al");
    // "Hoje" calculado uma vez e propagado (evita new Date() por célula/coluna).
    const today = new Date();
 

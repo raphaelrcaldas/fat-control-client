@@ -4,15 +4,13 @@ import type { ApiPaginatedResponse, ApiResult } from "@/types/api";
 const tripRoute = "ops/trips/";
 
 import { UserPublic } from "./users";
-import { CrewFunc, CreateCrewFunc } from "./funcs";
+import { TripFuncFields } from "./funcs";
 
-export interface CrewMember {
+export interface CrewMember extends TripFuncFields {
    id?: number;
    trig: string;
    user: UserPublic;
    active: boolean;
-   funcs?: CrewFunc[];
-   func?: CrewFunc;
 }
 
 export interface SearchTripsParams {
@@ -40,15 +38,15 @@ export interface PaginatedTripsResponse {
    pages: number;
 }
 
-export interface CreateTripData {
+export interface CreateTripData extends TripFuncFields {
    user_id: number;
    active: boolean;
    trig: string;
 }
 
-export interface UpdateTripData {
-   trig?: string;
-   active?: boolean;
+export interface UpdateTripData extends TripFuncFields {
+   trig: string;
+   active: boolean;
 }
 
 export async function getTrips(
@@ -97,29 +95,5 @@ export async function updateTrip(
 ): Promise<ApiResult<null>> {
    return parseApiResponse<null>(
       await request("PUT", tripRoute + tripId, trip)
-   );
-}
-
-export async function addCrewFunc(
-   tripId: number,
-   funcData: CreateCrewFunc
-): Promise<ApiResult<null>> {
-   return parseApiResponse<null>(
-      await request("POST", `${tripRoute}func/?trip_id=${tripId}`, funcData)
-   );
-}
-
-export async function updateCrewFunc(
-   funcId: number,
-   funcData: CreateCrewFunc
-): Promise<ApiResult<null>> {
-   return parseApiResponse<null>(
-      await request("PUT", `${tripRoute}func/${funcId}`, funcData)
-   );
-}
-
-export async function deleteCrewFunc(funcId: number): Promise<ApiResult<null>> {
-   return parseApiResponse<null>(
-      await request("DELETE", `${tripRoute}func/${funcId}`)
    );
 }

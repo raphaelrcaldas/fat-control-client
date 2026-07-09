@@ -9,14 +9,10 @@ import {
    getTripUserIds,
    addTrip,
    updateTrip,
-   addCrewFunc,
-   updateCrewFunc,
-   deleteCrewFunc,
    GetTripsParams,
    CreateTripData,
    UpdateTripData,
 } from "services/routes/trips";
-import { CreateCrewFunc } from "services/routes/funcs";
 
 // ========================================
 // Query Keys - Centralizadas
@@ -106,62 +102,6 @@ export function useUpdateTrip() {
          updateTrip(id, data),
       onSuccess: (_, { id }) => {
          queryClient.invalidateQueries({ queryKey: tripKeys.detail(id) });
-         queryClient.invalidateQueries({ queryKey: tripKeys.lists() });
-      },
-   });
-}
-
-/**
- * Adicionar funcao a um tripulante
- */
-export function useAddCrewFunc() {
-   const queryClient = useQueryClient();
-
-   return useMutation({
-      mutationFn: ({
-         tripId,
-         data,
-      }: {
-         tripId: number;
-         data: CreateCrewFunc;
-      }) => addCrewFunc(tripId, data),
-      onSuccess: (_, { tripId }) => {
-         queryClient.invalidateQueries({ queryKey: tripKeys.detail(tripId) });
-         queryClient.invalidateQueries({ queryKey: tripKeys.lists() });
-      },
-   });
-}
-
-/**
- * Atualizar funcao de tripulante
- */
-export function useUpdateCrewFunc() {
-   const queryClient = useQueryClient();
-
-   return useMutation({
-      mutationFn: ({
-         funcId,
-         data,
-      }: {
-         funcId: number;
-         data: CreateCrewFunc;
-      }) => updateCrewFunc(funcId, data),
-      onSuccess: () => {
-         // Invalida todas as listas pois nao sabemos qual trip foi afetado
-         queryClient.invalidateQueries({ queryKey: tripKeys.lists() });
-      },
-   });
-}
-
-/**
- * Deletar funcao de tripulante
- */
-export function useDeleteCrewFunc() {
-   const queryClient = useQueryClient();
-
-   return useMutation({
-      mutationFn: (funcId: number) => deleteCrewFunc(funcId),
-      onSuccess: () => {
          queryClient.invalidateQueries({ queryKey: tripKeys.lists() });
       },
    });

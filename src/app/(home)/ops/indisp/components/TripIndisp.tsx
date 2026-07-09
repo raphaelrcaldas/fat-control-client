@@ -49,7 +49,7 @@ export const TripIndisp = ({
             aria-label={`Ver indisponibilidades de ${trip.trig}`}
          >
             {trip.trig}
-            {trip.func.oper === "in" && (
+            {trip.oper === "in" && (
                <div
                   className="absolute -inset-e-1 -top-1 size-3 rounded-full bg-red-400"
                   aria-label="Instrutor"

@@ -75,13 +75,13 @@ export async function deleteQuad(ids: number[]): Promise<ApiResult<null>> {
 // Quadrinhos órfãos (de tripulantes desativados da org ativa)
 // ===========================================================================
 
-// Espelha TripQuadInfo do backend: id é sempre presente na resposta de
-// órfãos (diferente de CrewMember.id, que é opcional).
+// Espelha QuadOrfaoTripInfo do backend: id é sempre presente na resposta
+// de órfãos (diferente de CrewMember.id, que é opcional) e não há campos
+// de função (tripulante desativado).
 export interface QuadOrfaoTrip {
    id: number;
    trig: string;
    user: UserPublic;
-   func: null;
 }
 
 export interface QuadsOrfaoEntry {
