@@ -14,7 +14,7 @@ import {
 } from "flowbite-react";
 import { HiCurrencyDollar } from "react-icons/hi";
 import { postoGradRecords } from "services/routes/postos";
-import { SoldoPublic } from "services/routes/cegep/soldos";
+import { SoldoPublic } from "services/routes/admin/soldos";
 import {
    soldoFormSchema,
    SoldoFormData,

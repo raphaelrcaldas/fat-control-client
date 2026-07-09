@@ -1,4 +1,4 @@
-import { SoldoPublic } from "services/routes/cegep/soldos";
+import { SoldoPublic } from "services/routes/admin/soldos";
 import SoldoTableDesktop from "./SoldoTableDesktop";
 import SoldoCardList from "./SoldoCardList";
 

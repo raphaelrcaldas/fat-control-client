@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { Alert } from "flowbite-react";
 import { HiExclamation } from "react-icons/hi";
 import { useSoldos } from "@/hooks/queries";
-import { SoldoPublic } from "services/routes/cegep/soldos";
+import { SoldoPublic } from "services/routes/admin/soldos";
 import { SoldoFormData } from "./schemas/soldoSchema";
 import { sortSoldosByAnt } from "./helpers/soldoHelpers";
 import { useSoldosFilters } from "./hooks/useSoldosFilters";

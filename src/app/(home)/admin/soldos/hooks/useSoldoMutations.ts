@@ -4,7 +4,7 @@ import {
    useUpdateSoldo,
    useDeleteSoldo,
 } from "@/hooks/queries";
-import { SoldoPublic } from "services/routes/cegep/soldos";
+import { SoldoPublic } from "services/routes/admin/soldos";
 import { SoldoFormData } from "../schemas/soldoSchema";
 import { resolveMid } from "../helpers/soldoHelpers";
 

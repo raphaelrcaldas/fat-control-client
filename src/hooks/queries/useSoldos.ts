@@ -14,7 +14,7 @@ import {
    type SoldoPublic,
    type SoldoCreate,
    type SoldoUpdate,
-} from "services/routes/cegep/soldos";
+} from "services/routes/admin/soldos";
 
 // ========================================
 // Query Keys - Centralizadas

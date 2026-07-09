@@ -7,7 +7,7 @@ import {
    useUpdateDiariaValor,
    useDeleteDiariaValor,
 } from "@/hooks/queries";
-import { type DiariaValorPublic } from "services/routes/cegep/diarias";
+import { type DiariaValorPublic } from "services/routes/admin/diarias";
 import { type DiariaFormData, INITIAL_FORM_DATA } from "../types";
 import {
    diariaFormSchema,

@@ -1,6 +1,5 @@
 import request from "../../Api";
 import type { ApiResponse } from "@/types/api";
-import { cegepRoute } from ".";
 
 // ============================================
 // TIPOS - Grupos (fonte: banco via API)
@@ -28,7 +27,7 @@ export interface GrupoPgPublic {
    circulo: string | null;
 }
 
-const diariasRoute = cegepRoute + "diarias/";
+const diariasRoute = "admin/diarias/";
 
 // ============================================
 // INTERFACES DE API - Valores

@@ -1,8 +1,7 @@
 import request from "../../Api";
 import type { ApiResponse } from "@/types/api";
-import { cegepRoute } from ".";
 
-const soldosRoute = cegepRoute + "soldos/";
+const soldosRoute = "admin/soldos/";
 
 export interface PostoGradSimple {
    short: string;
@@ -42,9 +41,7 @@ export interface SoldoStats {
 }
 
 // GET - Retorna estatisticas dos soldos
-export async function getSoldoStats(
-   circulo?: string
-): Promise<SoldoStats> {
+export async function getSoldoStats(circulo?: string): Promise<SoldoStats> {
    const params: Record<string, string> = {};
 
    if (circulo && circulo.trim() !== "") {
@@ -58,7 +55,9 @@ export async function getSoldoStats(
       Object.keys(params).length > 0 ? params : null
    );
 
-   const json = (await response.json().catch(() => ({}))) as ApiResponse<SoldoStats>;
+   const json = (await response
+      .json()
+      .catch(() => ({}))) as ApiResponse<SoldoStats>;
 
    if (!response.ok) {
       throw new Error(json.message || "Erro ao buscar estatisticas");
@@ -89,7 +88,9 @@ export async function getSoldos(
       Object.keys(params).length > 0 ? params : null
    );
 
-   const json = (await response.json().catch(() => ({}))) as ApiResponse<SoldoPublic[]>;
+   const json = (await response.json().catch(() => ({}))) as ApiResponse<
+      SoldoPublic[]
+   >;
 
    if (!response.ok) {
       throw new Error(json.message || "Erro ao buscar soldos");
@@ -102,7 +103,9 @@ export async function getSoldos(
 export async function getSoldoById(soldo_id: number): Promise<SoldoPublic> {
    const response = await request("GET", `${soldosRoute}${soldo_id}`);
 
-   const json = (await response.json().catch(() => ({}))) as ApiResponse<SoldoPublic>;
+   const json = (await response
+      .json()
+      .catch(() => ({}))) as ApiResponse<SoldoPublic>;
 
    if (!response.ok) {
       throw new Error(json.message || "Soldo nao encontrado");

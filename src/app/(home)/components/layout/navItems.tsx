@@ -256,20 +256,6 @@ export const navItems = [
             resource: "dados_bancarios",
             permission: "view",
          },
-         {
-            icon: MdAttachMoney,
-            label: "Soldos",
-            path: "/cegep/soldos",
-            resource: "soldo",
-            permission: "view",
-         },
-         {
-            icon: MdMoney,
-            label: "Diárias",
-            path: "/cegep/diarias",
-            resource: "diaria",
-            permission: "view",
-         },
       ],
    },
    {
@@ -325,6 +311,16 @@ export const navItems = [
             icon: MdStorage,
             label: "Storage",
             path: "/admin/storage",
+         },
+         {
+            icon: MdAttachMoney,
+            label: "Soldos",
+            path: "/admin/soldos",
+         },
+         {
+            icon: MdMoney,
+            label: "Diárias",
+            path: "/admin/diarias",
          },
          {
             icon: MdDeleteSweep,

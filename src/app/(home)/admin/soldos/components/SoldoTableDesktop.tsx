@@ -8,7 +8,7 @@ import {
    TableRow,
 } from "flowbite-react";
 import { formatNaiveDate } from "@/../utils/dateHandler";
-import { SoldoPublic } from "services/routes/cegep/soldos";
+import { SoldoPublic } from "services/routes/admin/soldos";
 import {
    formatCurrency,
    getCirculoColor,

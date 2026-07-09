@@ -10,7 +10,7 @@ import {
 import type {
    GrupoCidadePublic,
    GrupoPgPublic,
-} from "services/routes/cegep/diarias";
+} from "services/routes/admin/diarias";
 
 interface UseDiariasReturn {
    // Data

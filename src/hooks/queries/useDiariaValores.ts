@@ -15,7 +15,7 @@ import {
    type DiariaValorPublic,
    type DiariaValorCreate,
    type DiariaValorUpdate,
-} from "services/routes/cegep/diarias";
+} from "services/routes/admin/diarias";
 
 // ========================================
 // Query Keys - Centralizadas

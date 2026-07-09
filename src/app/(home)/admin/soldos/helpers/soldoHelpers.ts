@@ -1,6 +1,6 @@
 import { daysUntil } from "@/../utils/dateHandler";
 import { postoGradRecords, CIRCULO_LABELS } from "services/routes/postos";
-import { SoldoPublic } from "services/routes/cegep/soldos";
+import { SoldoPublic } from "services/routes/admin/soldos";
 
 export type SoldoStatus = "vigente" | "proximo" | "anterior";
 

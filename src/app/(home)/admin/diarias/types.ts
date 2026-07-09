@@ -2,7 +2,7 @@ import type {
    DiariaValorPublic,
    GrupoCidadePublic,
    GrupoPgPublic,
-} from "services/routes/cegep/diarias";
+} from "services/routes/admin/diarias";
 
 // Re-export types from service for convenience
 export type { DiariaValorPublic, GrupoCidadePublic, GrupoPgPublic };

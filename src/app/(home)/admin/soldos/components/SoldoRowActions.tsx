@@ -1,5 +1,5 @@
 import { HiPencil, HiTrash } from "react-icons/hi";
-import { SoldoPublic } from "services/routes/cegep/soldos";
+import { SoldoPublic } from "services/routes/admin/soldos";
 import { PermBased } from "../../../hooks/usePermBased";
 
 interface SoldoRowActionsProps {
