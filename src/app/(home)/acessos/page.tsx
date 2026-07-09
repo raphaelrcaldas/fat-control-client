@@ -39,7 +39,7 @@ export default function AcessosPage() {
             setShow={setShowAddModal}
             roles={roles}
             tenants={tenants}
-            existingUserIds={userRoles?.map((ur) => ur.user.id) ?? []}
+            existingRoles={userRoles ?? []}
          />
       </div>
    );

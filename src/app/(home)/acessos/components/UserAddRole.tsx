@@ -3,7 +3,7 @@
 import { Alert, Button, Select } from "flowbite-react";
 import { FaCheckCircle, FaSearch, FaTimes, FaUserPlus } from "react-icons/fa";
 import { SearchUser } from "src/app/(home)/users/components/searchUser";
-import { type Role } from "services/routes/security/roles";
+import { type Role, type UserWithRole } from "services/routes/security/roles";
 import { UserPublic } from "services/routes/users";
 import type { Tenant } from "services/routes/tenants";
 import { RoleModalShell } from "./RoleModalShell";
@@ -15,13 +15,13 @@ export default function UserAddRole({
    setShow,
    roles,
    tenants,
-   existingUserIds,
+   existingRoles,
 }: {
    show: boolean;
    setShow: (s: boolean) => void;
    roles: Role[];
    tenants: Tenant[];
-   existingUserIds: number[];
+   existingRoles: UserWithRole[];
 }) {
    const form = useAddRoleForm({
       roles,
@@ -49,6 +49,12 @@ export default function UserAddRole({
       isFormValid,
       isSaving,
    } = form;
+
+   // O vínculo é único por (usuário, org): só bloqueia na busca quem já
+   // tem perfil na org de destino selecionada (não em qualquer org).
+   const ignoredUserIds = existingRoles
+      .filter((ur) => ur.organizacao_id === selectedOrg)
+      .map((ur) => ur.user.id);
 
    return (
       <RoleModalShell
@@ -195,7 +201,7 @@ export default function UserAddRole({
             show={showSearch}
             setShow={setShowSearch}
             setUser={(u: UserPublic) => form.pickUser(u)}
-            userIdsIgnr={existingUserIds}
+            userIdsIgnr={ignoredUserIds}
          />
       </RoleModalShell>
    );
