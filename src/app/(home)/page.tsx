@@ -66,9 +66,7 @@ export default function HomeApp() {
                   <h1 className="mb-2 text-lg text-gray-800 sm:text-xl">
                      {getGreeting()},{" "}
                      <span className="font-bold uppercase">
-                        {userId == 239
-                           ? "Gordo Mizerável"
-                           : `${userPg} ${user}`}
+                        {`${userPg} ${user}`}
                      </span>
                      !
                   </h1>
