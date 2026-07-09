@@ -35,7 +35,6 @@ export interface GetUsersParams {
    p_g?: string;
    quadro?: string;
    esp?: string;
-   unidade?: string;
    active?: boolean;
    page?: number;
    per_page?: number;
@@ -57,12 +56,14 @@ export interface UserSchema {
    data_praca: string | null;
    email_pess: string;
    email_fab: string;
-   unidade: string;
    ant_rel: number | null;
 }
 
 export interface UserFull extends UserSchema {
    posto: PostoGrad;
+   // Unidade é leitura-apenas: definida na criação (org ativa) e não
+   // enviada no payload de criação/atualização. Espelha o backend.
+   unidade: string;
    // Campos de cadastro ainda não preenchidos (derivado no backend a
    // partir das colunas nullable do model User).
    campos_pendentes: string[];
@@ -102,7 +103,6 @@ export async function getUsers(
            ...(params.p_g && { p_g: params.p_g }),
            ...(params.quadro && { quadro: params.quadro }),
            ...(params.esp && { esp: params.esp }),
-           ...(params.unidade && { unidade: params.unidade }),
            ...(params.active !== undefined && {
               active: params.active.toString(),
            }),

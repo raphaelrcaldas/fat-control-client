@@ -46,6 +46,7 @@ export function LogsTable({
                <TableRow>
                   <TableHeadCell>Data/Hora</TableHeadCell>
                   <TableHeadCell>Usuário</TableHeadCell>
+                  <TableHeadCell>Unidade</TableHeadCell>
                   <TableHeadCell className="hidden md:table-cell">
                      Ação
                   </TableHeadCell>
@@ -58,7 +59,7 @@ export function LogsTable({
                   <LogsTableSkeleton />
                ) : logs.length === 0 ? (
                   <TableRow className="bg-white">
-                     <TableCell colSpan={5} className="py-12">
+                     <TableCell colSpan={6} className="py-12">
                         <EmptyState
                            icon={HiClipboardList}
                            title={

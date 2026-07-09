@@ -162,18 +162,16 @@ export function UserReadView({ user, userId }: UserReadViewProps) {
                   fieldName="nome_guerra"
                   userId={userId}
                />
-               <EditableField
+               <ReadOnlyField
                   icon={HiOfficeBuilding}
                   label="Unidade"
                   value={
                      unidadeOptions.find((u) => u.value === user.unidade)
-                        ?.label || user.unidade?.toUpperCase()
+                        ?.label ||
+                     user.unidade?.toUpperCase() ||
+                     ""
                   }
-                  rawValue={user.unidade || ""}
                   fieldName="unidade"
-                  userId={userId}
-                  type="select"
-                  options={unidadeOptions}
                />
                <EditableField
                   icon={HiHashtag}

@@ -9,7 +9,6 @@ export const createUserFormSchema = z.object({
    esp: z.string().transform((v) => v.trim().toUpperCase()),
    nome_guerra: z.string().nonempty("Obrigatório").transform(sanitizeText),
    nome_completo: z.string().transform(sanitizeText),
-   unidade: z.string().nonempty("Obrigatório"),
    saram: z
       .string()
       .refine(
@@ -51,7 +50,6 @@ export type CreateUserFormData = z.infer<typeof createUserFormSchema>;
 export const defaultUserValues: CreateUserFormData = {
    p_g: "",
    quadro: "",
-   unidade: "",
    ult_promo: null,
    ant_rel: null,
    nasc: null,

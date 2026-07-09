@@ -37,7 +37,6 @@ function toFormData(data: any): CreateUserFormData {
    return {
       p_g: data.p_g || "",
       quadro: (data.quadro || "").toUpperCase(),
-      unidade: data.unidade || "",
       esp: (data.esp || "").toUpperCase(),
       nome_guerra: (data.nome_guerra || "").toUpperCase(),
       nome_completo: (data.nome_completo || "").toUpperCase(),

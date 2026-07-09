@@ -37,7 +37,6 @@ export interface UsersFilters {
    filterPG: string[];
    filterQuadro: string;
    filterEsp: string;
-   filterUnidade: string;
    filterActive: string[];
    currentPage: number;
    perPage: number;
@@ -47,7 +46,6 @@ export interface UsersFilters {
    setPG: (values: string[]) => void;
    setQuadro: (value: string) => void;
    setEsp: (value: string) => void;
-   setUnidade: (value: string) => void;
    setActive: (values: string[]) => void;
    setPage: (page: number) => void;
    setPerPage: (value: number) => void;
@@ -62,7 +60,6 @@ export function useUsersFilters(): UsersFilters {
    const filterPG = parseCommaSeparated(searchParams.get("pg"));
    const filterQuadro = searchParams.get("quadro") ?? "";
    const filterEsp = searchParams.get("esp") ?? "";
-   const filterUnidade = searchParams.get("unidade") ?? "";
    const filterActive =
       searchParams.get("active") !== null
          ? parseCommaSeparated(searchParams.get("active"))
@@ -153,13 +150,6 @@ export function useUsersFilters(): UsersFilters {
       [updateParams]
    );
 
-   const setUnidade = useCallback(
-      (value: string) => {
-         updateParams({ unidade: value || undefined });
-      },
-      [updateParams]
-   );
-
    const setActive = useCallback(
       (values: string[]) => {
          updateParams({ active: values.length === 0 ? "" : values.join(",") });
@@ -191,7 +181,6 @@ export function useUsersFilters(): UsersFilters {
       filterPG.length > 0 ||
       filterQuadro ||
       filterEsp ||
-      filterUnidade ||
       filterActive.length > 0
    );
 
@@ -202,7 +191,6 @@ export function useUsersFilters(): UsersFilters {
       p_g: filterPG.length > 0 ? filterPG.join(",") : undefined,
       quadro: filterQuadro || undefined,
       esp: filterEsp || undefined,
-      unidade: filterUnidade || undefined,
       active: getActiveFilter(filterActive),
    };
 
@@ -211,7 +199,6 @@ export function useUsersFilters(): UsersFilters {
       filterPG,
       filterQuadro,
       filterEsp,
-      filterUnidade,
       filterActive,
       currentPage,
       perPage,
@@ -221,7 +208,6 @@ export function useUsersFilters(): UsersFilters {
       setPG,
       setQuadro,
       setEsp,
-      setUnidade,
       setActive,
       setPage,
       setPerPage,

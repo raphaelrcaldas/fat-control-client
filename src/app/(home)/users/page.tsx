@@ -10,7 +10,7 @@ import { SearchableSelect } from "@/components/SearchableSelect";
 import { postoGradRecords } from "services/routes/postos";
 import { quadroOptions } from "@/constants/militar/quadros";
 import { especialidadeOptions } from "@/constants/militar/especialidades";
-import { useUsers, useUnidadeOptions } from "@/hooks/queries";
+import { useUsers } from "@/hooks/queries";
 import { UserCreateModal } from "./components/UserCreateModal";
 import { UserTable } from "./components/UserTable";
 import { UserCard } from "./components/UserCard";
@@ -34,7 +34,6 @@ export default function UsersPage() {
       filterPG,
       filterQuadro,
       filterEsp,
-      filterUnidade,
       filterActive,
       currentPage,
       perPage,
@@ -44,13 +43,11 @@ export default function UsersPage() {
       setPG,
       setQuadro,
       setEsp,
-      setUnidade,
       setActive,
       setPage,
       setPerPage,
    } = useUsersFilters();
 
-   const unidadeOptions = useUnidadeOptions();
    const [showCreateModal, setShowCreateModal] = useState(false);
 
    const { data, isLoading, isFetching } = useUsers(queryParams);
@@ -128,14 +125,6 @@ export default function UsersPage() {
                      value={filterEsp}
                      onChange={setEsp}
                      placeholder="Todas Especialidades"
-                     clearable
-                     className="w-44"
-                  />
-                  <SearchableSelect
-                     options={unidadeOptions}
-                     value={filterUnidade}
-                     onChange={setUnidade}
-                     placeholder="Todas Unidades"
                      clearable
                      className="w-44"
                   />

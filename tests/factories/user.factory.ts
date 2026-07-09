@@ -48,7 +48,6 @@ export const UserFactory = {
          esp: "INF",
          nome_guerra: `USER${id}`,
          nome_completo: `USUARIO TESTE ${id}`,
-         unidade: "bagl",
          saram: generateValidSaram(id),
          id_fab: String(100000 + id).slice(-6),
          cpf: generateValidCpf(),

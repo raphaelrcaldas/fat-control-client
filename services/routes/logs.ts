@@ -7,6 +7,7 @@ export interface LogUser {
    id: number;
    p_g: string;
    nome_guerra: string;
+   unidade: string;
 }
 
 export interface UserActionLog {
@@ -41,7 +42,7 @@ export async function getUserActionLogs(
    });
 
    const res = await request("GET", `${logsRoute}user-actions`, null, params);
-   const json = await res.json() as ApiResponse<UserActionLog[]>;
+   const json = (await res.json()) as ApiResponse<UserActionLog[]>;
 
    if (!res.ok) {
       throw new Error(json.message || "Erro ao buscar logs de usuário");

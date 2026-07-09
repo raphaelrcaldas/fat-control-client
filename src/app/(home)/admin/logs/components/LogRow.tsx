@@ -59,6 +59,9 @@ export function LogRow({ log, onDeleteClick }: LogRowProps) {
                </span>
             </div>
          </TableCell>
+         <TableCell className="font-medium text-gray-600 uppercase">
+            {log.user.unidade}
+         </TableCell>
          <TableCell className="hidden md:table-cell">
             <ActionBadge action={log.action} />
          </TableCell>

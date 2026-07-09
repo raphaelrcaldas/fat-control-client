@@ -20,7 +20,6 @@ import { postoGradRecords } from "@/constants/militar/postos";
 import { quadroOptions } from "@/constants/militar/quadros";
 import { especialidadeOptions } from "@/constants/militar/especialidades";
 import { SearchableSelect } from "@/components/SearchableSelect";
-import { useUnidadeOptions } from "@/hooks/queries";
 import { onlyLettersKeyDown, onlyNumbersKeyDown } from "./utils";
 import { formatPhone, formatCpf, formatSaram } from "@/constants/formats";
 import { SectionCard } from "../SectionCard";
@@ -152,7 +151,6 @@ export function MilitaryDataSection({
    errors,
    control,
 }: FormSectionProps) {
-   const unidadeOptions = useUnidadeOptions();
    const { onChange: saramOnChange, ...saramRest } = register("saram");
    const pgOptions = postoGradRecords.map((pg) => ({
       value: pg.short,
@@ -231,28 +229,6 @@ export function MilitaryDataSection({
                })}
             />
             <FieldError error={errors.nome_guerra} />
-         </div>
-
-         <div className="max-w-2xs">
-            <Label htmlFor="unidade">Unidade</Label>
-            <Select
-               id="unidade"
-               defaultValue=""
-               {...register("unidade")}
-               className={clsx({
-                  "focus:border-red-500 focus:ring-red-500": errors.unidade,
-               })}
-            >
-               <option value="" disabled>
-                  Selecione...
-               </option>
-               {unidadeOptions.map((opt) => (
-                  <option key={opt.value} value={opt.value}>
-                     {opt.label}
-                  </option>
-               ))}
-            </Select>
-            <FieldError error={errors.unidade} />
          </div>
 
          <div className="max-w-2xs">

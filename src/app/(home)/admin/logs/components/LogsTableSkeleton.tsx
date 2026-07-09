@@ -15,6 +15,9 @@ function LogRowSkeleton() {
                <Skeleton className="h-6 w-16 rounded-full md:hidden" />
             </div>
          </TableCell>
+         <TableCell>
+            <Skeleton className="h-4 w-12" />
+         </TableCell>
          <TableCell className="hidden md:table-cell">
             <Skeleton className="h-6 w-16 rounded-full" />
          </TableCell>
