@@ -16,6 +16,7 @@ import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import { TenantsHeader } from "./components/TenantsHeader";
 import { TenantsTable, TenantsTableSkeleton } from "./components/TenantsTable";
 import { TenantRegisterModal } from "./components/TenantRegisterModal";
+import { TenantConfigModal } from "./components/TenantConfigModal";
 
 export default function TenantsPage() {
    const { push } = useToast();
@@ -29,6 +30,11 @@ export default function TenantsPage() {
    const [showRegisterModal, setShowRegisterModal] = useState(false);
    const [showDeleteModal, setShowDeleteModal] = useState(false);
    const [deletingTenant, setDeletingTenant] = useState<Tenant | null>(null);
+   // Guarda só o id: o tenant exibido é derivado da lista, para o modal
+   // refletir o dado fresco após atualizar tema/brasão.
+   const [configId, setConfigId] = useState<string | null>(null);
+   const configTenant =
+      tenants.find((t) => t.organizacao_id === configId) ?? null;
 
    // Organizações do diretório que ainda não são tenants
    const availableOrgs = useMemo(() => {
@@ -147,6 +153,7 @@ export default function TenantsPage() {
                tenants={tenants}
                isUpdating={updateMutation.isPending}
                onToggleActive={handleToggleActive}
+               onConfig={(tenant) => setConfigId(tenant.organizacao_id)}
                onDelete={(tenant) => {
                   setDeletingTenant(tenant);
                   setShowDeleteModal(true);
@@ -160,6 +167,12 @@ export default function TenantsPage() {
             isSaving={createMutation.isPending}
             onClose={() => setShowRegisterModal(false)}
             onSubmit={handleRegister}
+         />
+
+         <TenantConfigModal
+            show={configTenant !== null}
+            tenant={configTenant}
+            onClose={() => setConfigId(null)}
          />
 
          <ConfirmModal

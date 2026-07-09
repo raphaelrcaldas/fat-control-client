@@ -76,7 +76,7 @@ async function handleAuthRedirect(response: Response): Promise<boolean> {
    return true;
 }
 
-function getTokenFromCookies(): string | null {
+export function getTokenFromCookies(): string | null {
    if (typeof document === "undefined") {
       return null;
    }

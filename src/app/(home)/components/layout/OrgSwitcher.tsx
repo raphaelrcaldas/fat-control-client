@@ -6,6 +6,7 @@ import { FaBuilding, FaCheck, FaChevronDown } from "react-icons/fa6";
 import { useAuth } from "@/app/context/auth";
 import { switchOrg } from "services/routes/auth";
 import { getQueryClient } from "@/lib/queryClient";
+import { normalizeOrgTheme, ORG_THEME_COOKIE } from "@/lib/orgTheme";
 import { useToast } from "@/app/context/toast";
 import type { OrgScope } from "services/routes/users";
 
@@ -47,6 +48,12 @@ export function OrgSwitcher() {
                maxAge: 24 * 60 * 60,
                path: "/",
             });
+            // Grava o tema da nova org antes do reload: o SSR já estampa a
+            // cor certa no <html>, sem flash.
+            setCookie(ORG_THEME_COOKIE, normalizeOrgTheme(org.tema), {
+               maxAge: 24 * 60 * 60,
+               path: "/",
+            });
             getQueryClient().clear();
             window.location.assign("/");
          } else {
@@ -67,7 +74,7 @@ export function OrgSwitcher() {
    if (orgs.length === 1) {
       return (
          <div className="flex items-center gap-2 rounded-lg bg-white/60 px-3 py-1.5 text-sm font-semibold text-gray-700 shadow-sm">
-            <FaBuilding className="text-red-600" />
+            <FaBuilding className="text-primary-600" />
             {orgLabel(current)}
          </div>
       );
@@ -83,7 +90,7 @@ export function OrgSwitcher() {
             aria-haspopup="listbox"
             aria-expanded={isOpen}
          >
-            <FaBuilding className="text-red-600" />
+            <FaBuilding className="text-primary-600" />
             {orgLabel(current)}
             <FaChevronDown
                className={`h-3 w-3 transition-transform ${isOpen ? "rotate-180" : ""}`}
@@ -107,7 +114,7 @@ export function OrgSwitcher() {
                         onClick={() => handleSwitch(org)}
                         className={`flex w-full items-center justify-between px-3 py-2 text-left text-sm hover:bg-gray-50 ${
                            isActive
-                              ? "font-semibold text-red-600"
+                              ? "text-primary-600 font-semibold"
                               : "text-gray-700"
                         }`}
                         role="option"

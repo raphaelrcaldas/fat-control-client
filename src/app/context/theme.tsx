@@ -26,6 +26,13 @@ const clearTheme = {
 const customTheme = createTheme({
    button: {
       base: "rounded-md",
+      // Ação de marca tematizada por org (data-org-theme). Espelha o color
+      // `red` do Flowbite trocando a escala por `primary-*`. Usar em botões de
+      // ação primária/de marca; `color="red"` fica reservado a perigo/exclusão.
+      color: {
+         primary:
+            "bg-primary-700 text-white hover:bg-primary-800 focus:ring-primary-300 dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800",
+      },
    },
    modal: {
       root: { show: { on: "backdrop-blur-xs" } },
@@ -35,7 +42,7 @@ const customTheme = createTheme({
       pages: {
          selector: {
             active:
-               "bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700",
+               "bg-primary-50 text-primary-600 hover:bg-primary-100 hover:text-primary-700",
          },
       },
    },

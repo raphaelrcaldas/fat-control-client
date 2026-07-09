@@ -152,7 +152,7 @@ export default function SidebarWithFooter({
             {/* Footer com info do usuário */}
             <div className="shrink-0 border-t border-gray-200 bg-gray-50 px-2 py-4">
                <div className="flex items-center gap-2">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-red-600 text-sm font-bold text-white uppercase">
+                  <div className="bg-primary-600 flex h-10 w-10 items-center justify-center rounded-full text-sm font-bold text-white uppercase">
                      {userPg}
                   </div>
                   <div className="min-w-0 flex-1">

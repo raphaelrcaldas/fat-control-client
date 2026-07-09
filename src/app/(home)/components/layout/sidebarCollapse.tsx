@@ -48,7 +48,7 @@ export default function SidebarCollapse({
             onClick={() => setIsOpen(!isOpen)}
             className={`flex w-full items-center justify-between gap-3 rounded-lg px-4 py-3 transition-colors duration-200 ${
                hasActiveChild
-                  ? "bg-red-50 text-red-700"
+                  ? "bg-primary-50 text-primary-700"
                   : "text-gray-700 hover:bg-gray-100"
             } `}
          >

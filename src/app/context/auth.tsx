@@ -1,8 +1,9 @@
 "use client";
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { deleteCookie } from "cookies-next";
+import { deleteCookie, setCookie } from "cookies-next";
 import { getMe, type OrgScope } from "services/routes/users";
 import { AppLoadingScreen } from "src/app/(home)/components/appLoadingScreen";
+import { normalizeOrgTheme, ORG_THEME_COOKIE } from "@/lib/orgTheme";
 import PermDenied from "../components/permDenied";
 
 interface PermType {
@@ -80,6 +81,25 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
          cancelled = true;
       };
    }, [retryNonce]);
+
+   // Reconcilia o tema da org ativa com o que o SSR estampou no <html>.
+   // No 1º login (sem cookie ainda) o SSR usa o default; aqui aplicamos o
+   // tema real e persistimos o cookie para os próximos carregamentos. A troca
+   // de org já grava o cookie antes do reload (ver OrgSwitcher), então este
+   // efeito só corrige o boot inicial.
+   useEffect(() => {
+      if (loading) return;
+      const tema = normalizeOrgTheme(
+         orgs.find((o) => o.organizacao_id === activeOrg)?.tema
+      );
+      if (document.documentElement.getAttribute("data-org-theme") !== tema) {
+         document.documentElement.setAttribute("data-org-theme", tema);
+      }
+      setCookie(ORG_THEME_COOKIE, tema, {
+         maxAge: 24 * 60 * 60,
+         path: "/",
+      });
+   }, [loading, activeOrg, orgs]);
 
    if (loading) {
       return <AppLoadingScreen />;

@@ -10,6 +10,7 @@ const tenantRoute = "tenants/";
 export const TenantSchema = z.object({
    organizacao_id: z.string(),
    active: z.boolean(),
+   tema: z.string(),
    created_at: z.string(),
    organizacao: OrganizacaoSchema,
 });
@@ -20,8 +21,10 @@ export interface TenantCreate {
    organizacao_id: string;
 }
 
+// Atualização parcial: envia apenas os campos alterados (active e/ou tema).
 export interface TenantUpdate {
-   active: boolean;
+   active?: boolean;
+   tema?: string;
 }
 
 // API Services
