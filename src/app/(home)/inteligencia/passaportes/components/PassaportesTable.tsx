@@ -10,7 +10,7 @@ import {
    TableCell,
    Button,
 } from "flowbite-react";
-import { HiChevronUp, HiChevronDown } from "react-icons/hi";
+import { HiChevronUp, HiChevronDown, HiPhotograph } from "react-icons/hi";
 import { FaPassport } from "react-icons/fa";
 import clsx from "clsx";
 import type { TripPassaporteOut } from "services/routes/inteligencia/passaportes";
@@ -41,6 +41,39 @@ const DateCell = memo(function DateCell({
          <span className={clsx("text-sm font-medium", config.color)}>
             {formatDate(dateStr)}
          </span>
+      </div>
+   );
+});
+
+// ========================================
+// NumeroCell
+// ========================================
+
+/**
+ * Célula do número do documento (passaporte ou visto) com um indicador de
+ * imagem anexada. O ícone só aparece quando há `url` (signed URL) — que só
+ * vem preenchida para quem tem `passaporte.image.view`, então a ausência
+ * nunca é exibida como "sem imagem" para quem não pode ver.
+ */
+const NumeroCell = memo(function NumeroCell({
+   numero,
+   url,
+}: {
+   numero: string | null | undefined;
+   url: string | null | undefined;
+}) {
+   return (
+      <div className="flex items-center justify-center gap-1.5">
+         <span className="text-sm font-semibold text-gray-700">
+            {numero || "---"}
+         </span>
+         {url && (
+            <HiPhotograph
+               className="h-4 w-4 shrink-0 text-emerald-600"
+               title="Imagem anexada"
+               aria-label="Imagem anexada"
+            />
+         )}
       </div>
    );
 });
@@ -149,17 +182,19 @@ const PassaporteRow = memo(function PassaporteRow({
             </p>
          </TableCell>
          <TableCell className="px-4 py-3 text-center whitespace-nowrap">
-            <span className="text-sm font-semibold text-gray-700">
-               {item.passaporte?.passaporte || "---"}
-            </span>
+            <NumeroCell
+               numero={item.passaporte?.passaporte}
+               url={item.passaporte?.passaporte_url}
+            />
          </TableCell>
          <TableCell className="px-4 py-3 whitespace-nowrap">
             <DateCell dateStr={item.passaporte?.validade_passaporte} />
          </TableCell>
          <TableCell className="px-4 py-3 text-center whitespace-nowrap">
-            <span className="text-sm font-semibold text-gray-700">
-               {item.passaporte?.visa || "---"}
-            </span>
+            <NumeroCell
+               numero={item.passaporte?.visa}
+               url={item.passaporte?.visa_url}
+            />
          </TableCell>
          <TableCell className="px-4 py-3 whitespace-nowrap">
             <DateCell dateStr={item.passaporte?.validade_visa} />
