@@ -4,6 +4,8 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import { useToast } from "@/app/context/toast";
 import { etapaKeys } from "@/hooks/queries/useEtapas";
+import { esfAerKeys } from "@/hooks/queries/useEsfAer";
+import { seboKeys } from "@/hooks/queries/useSebo";
 import { ApiError } from "services/Api";
 import {
    updateMissaoWithEtapas,
@@ -47,6 +49,8 @@ export function useUpdateMissaoDraft() {
             queryClient.setQueryData(["missao", draft.serverId], data);
          }
          queryClient.invalidateQueries({ queryKey: etapaKeys.all });
+         queryClient.invalidateQueries({ queryKey: esfAerKeys.all });
+         queryClient.invalidateQueries({ queryKey: seboKeys.all });
          push({
             type: "success",
             title: "Sucesso",

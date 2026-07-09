@@ -171,6 +171,7 @@ export function useBulkUpdateEtapas() {
       mutationFn: (payload: BulkUpdatePayload) => bulkUpdateEtapas(payload),
       onSuccess: () => {
          queryClient.invalidateQueries({ queryKey: etapaKeys.all });
+         queryClient.invalidateQueries({ queryKey: esfAerKeys.all });
          queryClient.invalidateQueries({ queryKey: seboKeys.all });
       },
    });
