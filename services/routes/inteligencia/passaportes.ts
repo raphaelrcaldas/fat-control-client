@@ -120,7 +120,7 @@ export async function uploadPassaporteImagem(
    return json.data;
 }
 
-export interface ImagemOrfa {
+export interface PassaporteOrfao {
    user_id: number;
    p_g: string;
    nome_guerra: string;
@@ -129,32 +129,37 @@ export interface ImagemOrfa {
    tem_visa: boolean;
 }
 
-export interface ImagensOrfasResumo {
+export interface PassaportesOrfaosResumo {
+   total_registros: number;
    total_imagens: number;
-   total_militares: number;
-   itens: ImagemOrfa[];
+   itens: PassaporteOrfao[];
 }
 
-export async function getImagensOrfas(
+export interface PassaportesOrfaosDeleteResponse {
+   registros: number;
+   imagens: number;
+}
+
+export async function getPassaportesOrfaos(
    signal?: AbortSignal
-): Promise<ImagensOrfasResumo> {
+): Promise<PassaportesOrfaosResumo> {
    const response = await request(
       "GET",
-      `${passaportesRoute}imagens/orfas`,
+      `${passaportesRoute}orfaos`,
       null,
       null,
       signal
    );
-   const result = await parseApiResponse<ImagensOrfasResumo>(response);
+   const result = await parseApiResponse<PassaportesOrfaosResumo>(response);
    if (!result.data) throw new Error("Resposta inválida do servidor");
    return result.data;
 }
 
-export async function deleteImagensOrfas(
+export async function deletePassaportesOrfaos(
    user_ids: number[]
-): Promise<{ deleted: number }> {
-   const result = await parseApiResponse<{ deleted: number }>(
-      await request("DELETE", `${passaportesRoute}imagens/orfas`, { user_ids })
+): Promise<PassaportesOrfaosDeleteResponse> {
+   const result = await parseApiResponse<PassaportesOrfaosDeleteResponse>(
+      await request("DELETE", `${passaportesRoute}orfaos`, { user_ids })
    );
    if (!result.data) throw new Error("Resposta inválida do servidor");
    return result.data;

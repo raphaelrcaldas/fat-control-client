@@ -4,8 +4,6 @@ import {
    uploadAta,
    getAtasByUser,
    deleteAta,
-   getAtasOrfas,
-   deleteAtasOrfas,
 } from "services/routes/aeromedica/atas";
 import type { DadosConfirmados } from "services/routes/aeromedica/atas";
 import { cartoesSaudeKeys } from "./useCartoesSaude";
@@ -18,7 +16,6 @@ import { storageKeys } from "./useStorage";
 export const atasKeys = {
    all: ["atas"] as const,
    byUser: (userId: number) => [...atasKeys.all, "user", userId] as const,
-   orfas: () => [...atasKeys.all, "orfas"] as const,
 };
 
 // ========================================
@@ -33,16 +30,6 @@ export function useAtasByUser(userId: number | undefined) {
       },
       enabled: !!userId,
       staleTime: 5 * 60_000,
-   });
-}
-
-export function useAtasOrfas() {
-   return useQuery({
-      queryKey: atasKeys.orfas(),
-      queryFn: async ({ signal }) => {
-         return getAtasOrfas(signal);
-      },
-      staleTime: 60_000,
    });
 }
 
@@ -106,22 +93,6 @@ export function useDeleteAta() {
          // cemal_tem_ata e total_atas podem mudar
          queryClient.invalidateQueries({
             queryKey: cartoesSaudeKeys.lists(),
-         });
-      },
-   });
-}
-
-export function useDeleteAtasOrfas() {
-   const queryClient = useQueryClient();
-
-   return useMutation({
-      mutationFn: async (ids: number[]) => deleteAtasOrfas(ids),
-      onSuccess: () => {
-         queryClient.invalidateQueries({
-            queryKey: atasKeys.orfas(),
-         });
-         queryClient.invalidateQueries({
-            queryKey: storageKeys.allBuckets(),
          });
       },
    });

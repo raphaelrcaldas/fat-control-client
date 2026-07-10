@@ -3,12 +3,15 @@ import {
    getCartoes,
    upsertCartao,
    deleteCartao,
+   getCartoesOrfaos,
+   deleteCartoesOrfaos,
    CartoesUpsert,
 } from "services/routes/instrucao/cartoes";
 
 export const cartoesKeys = {
    all: ["cartoes"] as const,
    lists: () => [...cartoesKeys.all, "list"] as const,
+   orfaos: () => [...cartoesKeys.all, "orfaos"] as const,
 };
 
 export function useCartoes() {
@@ -16,6 +19,24 @@ export function useCartoes() {
       queryKey: cartoesKeys.lists(),
       queryFn: ({ signal }) => getCartoes(signal),
       staleTime: 5 * 60_000,
+   });
+}
+
+export function useCartoesOrfaos() {
+   return useQuery({
+      queryKey: cartoesKeys.orfaos(),
+      queryFn: ({ signal }) => getCartoesOrfaos(signal),
+   });
+}
+
+export function useDeleteCartoesOrfaos() {
+   const queryClient = useQueryClient();
+
+   return useMutation({
+      mutationFn: async (user_ids: number[]) => deleteCartoesOrfaos(user_ids),
+      onSuccess: () => {
+         queryClient.invalidateQueries({ queryKey: cartoesKeys.orfaos() });
+      },
    });
 }
 

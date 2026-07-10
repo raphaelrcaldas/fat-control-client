@@ -21,7 +21,7 @@ import Filters from "./components/Filters";
 import CartoesSaudeTable from "./components/CartoesSaudeTable";
 import CartoesSaudeTableSkeleton from "./components/CartoesSaudeTableSkeleton";
 import EditCartaoDrawer from "./components/EditCartaoDrawer";
-import AtasOrfasAlert from "./components/AtasOrfasAlert";
+import OrfaosAlert from "./components/OrfaosAlert";
 import { PermBased } from "../../hooks/usePermBased";
 
 // Helper: parse comma-separated URL param into array
@@ -289,9 +289,9 @@ export default function CartoesSaudePage() {
             </div>
          </header>
 
-         {/* Atas de usuários inativos (gated por permissão de remoção) */}
+         {/* Documentos de usuários inativos (gated por permissão de remoção) */}
          <PermBased resource="cartoes-saude" requiredPerm="delete">
-            <AtasOrfasAlert />
+            <OrfaosAlert />
          </PermBased>
 
          {/* Stat Cards */}

@@ -13,7 +13,7 @@ import Filters from "./components/Filters";
 import PassaportesTable from "./components/PassaportesTable";
 import PassaportesTableSkeleton from "./components/PassaportesTableSkeleton";
 import EditPassaporteModal from "./components/EditPassaporteModal";
-import ImagensOrfasAlert from "./components/ImagensOrfasAlert";
+import OrfaosAlert from "./components/OrfaosAlert";
 import { PermBased } from "@/app/(home)/hooks/usePermBased";
 
 export default function PassaportesPage() {
@@ -72,9 +72,9 @@ export default function PassaportesPage() {
             </div>
          </header>
 
-         {/* Limpeza de imagens de militares inativos (só quem pode remover) */}
-         <PermBased resource="passaporte.image" requiredPerm="delete">
-            <ImagensOrfasAlert />
+         {/* Limpeza de registros de militares inativos (só quem pode remover) */}
+         <PermBased resource="passaportes" requiredPerm="delete">
+            <OrfaosAlert />
          </PermBased>
 
          {/* Stat Cards */}

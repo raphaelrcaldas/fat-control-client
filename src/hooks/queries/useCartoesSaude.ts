@@ -9,10 +9,13 @@ import {
    createCartaoSaude,
    updateCartaoSaude,
    deleteCartaoSaude,
+   getOrfaosAeromedica,
+   deleteOrfaosAeromedica,
    GetCartoesSaudeParams,
    CartaoSaudeCreate,
    CartaoSaudeUpdate,
 } from "services/routes/aeromedica/cartoesSaude";
+import { storageKeys } from "./useStorage";
 
 // ========================================
 // Query Keys - Centralizadas
@@ -23,6 +26,7 @@ export const cartoesSaudeKeys = {
    lists: () => [...cartoesSaudeKeys.all, "list"] as const,
    list: (filters?: GetCartoesSaudeParams) =>
       [...cartoesSaudeKeys.lists(), filters] as const,
+   orfaos: () => [...cartoesSaudeKeys.all, "orfaos"] as const,
 };
 
 // ========================================
@@ -40,6 +44,16 @@ export function useCartoesSaude(params?: GetCartoesSaudeParams) {
       queryFn: ({ signal }) => getCartoesSaude(params, signal),
       placeholderData: keepPreviousData,
       staleTime: 5 * 60_000,
+   });
+}
+
+/**
+ * Documentos aeromédicos (cartão + atas) de militares inativos
+ */
+export function useOrfaosAeromedica() {
+   return useQuery({
+      queryKey: cartoesSaudeKeys.orfaos(),
+      queryFn: ({ signal }) => getOrfaosAeromedica(signal),
    });
 }
 
@@ -118,6 +132,28 @@ export function useDeleteCartaoSaude() {
       onSuccess: () => {
          queryClient.invalidateQueries({
             queryKey: cartoesSaudeKeys.lists(),
+         });
+      },
+   });
+}
+
+/**
+ * Limpar documentos aeromédicos órfãos: apaga cartão E atas dos
+ * militares inativos selecionados (PDFs saem do bucket junto).
+ */
+export function useDeleteOrfaosAeromedica() {
+   const queryClient = useQueryClient();
+
+   return useMutation({
+      mutationFn: async (user_ids: number[]) =>
+         deleteOrfaosAeromedica(user_ids),
+      onSuccess: () => {
+         queryClient.invalidateQueries({
+            queryKey: cartoesSaudeKeys.orfaos(),
+         });
+         // A remoção das atas libera bytes do bucket aeromedica.
+         queryClient.invalidateQueries({
+            queryKey: storageKeys.all,
          });
       },
    });

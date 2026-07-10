@@ -11,8 +11,8 @@ import {
    deletePassaporte,
    uploadPassaporteImagem,
    deletePassaporteImagem,
-   getImagensOrfas,
-   deleteImagensOrfas,
+   getPassaportesOrfaos,
+   deletePassaportesOrfaos,
    PassaporteUpsert,
    GetPassaportesParams,
    PassaportePublic,
@@ -27,7 +27,7 @@ export const passaportesKeys = {
    lists: () => [...passaportesKeys.all, "list"] as const,
    list: (params?: GetPassaportesParams) =>
       [...passaportesKeys.lists(), params] as const,
-   orfas: () => [...passaportesKeys.all, "imagens-orfas"] as const,
+   orfaos: () => [...passaportesKeys.all, "orfaos"] as const,
 };
 
 /**
@@ -130,21 +130,21 @@ export function useDeletePassaporteImagem() {
    });
 }
 
-export function useImagensOrfas() {
+export function usePassaportesOrfaos() {
    return useQuery({
-      queryKey: passaportesKeys.orfas(),
-      queryFn: ({ signal }) => getImagensOrfas(signal),
+      queryKey: passaportesKeys.orfaos(),
+      queryFn: ({ signal }) => getPassaportesOrfaos(signal),
       staleTime: 60_000,
    });
 }
 
-export function useDeleteImagensOrfas() {
+export function useDeletePassaportesOrfaos() {
    const queryClient = useQueryClient();
 
    return useMutation({
-      mutationFn: (user_ids: number[]) => deleteImagensOrfas(user_ids),
+      mutationFn: (user_ids: number[]) => deletePassaportesOrfaos(user_ids),
       onSuccess: () => {
-         queryClient.invalidateQueries({ queryKey: passaportesKeys.orfas() });
+         queryClient.invalidateQueries({ queryKey: passaportesKeys.orfaos() });
          queryClient.invalidateQueries({ queryKey: passaportesKeys.lists() });
          queryClient.invalidateQueries({ queryKey: storageKeys.all });
       },

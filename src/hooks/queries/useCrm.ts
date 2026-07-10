@@ -8,6 +8,8 @@ import {
    getCrm,
    upsertCrm,
    deleteCrm,
+   getCrmOrfaos,
+   deleteCrmOrfaos,
    CrmUpsert,
    GetCrmParams,
 } from "services/routes/seg-voo/crm";
@@ -16,6 +18,7 @@ export const crmKeys = {
    all: ["crm"] as const,
    lists: () => [...crmKeys.all, "list"] as const,
    list: (params?: GetCrmParams) => [...crmKeys.lists(), params] as const,
+   orfaos: () => [...crmKeys.all, "orfaos"] as const,
 };
 
 export function useCrm(params?: GetCrmParams) {
@@ -63,6 +66,24 @@ export function useDeleteCrm() {
       },
       onSuccess: () => {
          queryClient.invalidateQueries({ queryKey: crmKeys.lists() });
+      },
+   });
+}
+
+export function useCrmOrfaos() {
+   return useQuery({
+      queryKey: crmKeys.orfaos(),
+      queryFn: ({ signal }) => getCrmOrfaos(signal),
+   });
+}
+
+export function useDeleteCrmOrfaos() {
+   const queryClient = useQueryClient();
+
+   return useMutation({
+      mutationFn: async (user_ids: number[]) => deleteCrmOrfaos(user_ids),
+      onSuccess: () => {
+         queryClient.invalidateQueries({ queryKey: crmKeys.orfaos() });
       },
    });
 }

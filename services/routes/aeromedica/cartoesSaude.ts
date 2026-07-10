@@ -1,4 +1,4 @@
-import request, { parseApiResponse } from "../../Api";
+import request, { parseApiResponse, ApiError } from "../../Api";
 import type { ApiResponse, ApiResult } from "@/types/api";
 import { UserPublic } from "../users";
 import { aeromedicaRoute } from ".";
@@ -105,4 +105,59 @@ export async function deleteCartaoSaude(
    return parseApiResponse<null>(
       await request("DELETE", `${cartoesSaudeRoute}${cartao_id}`)
    );
+}
+
+export interface OrfaoAeromedicaPublic {
+   user_id: number;
+   p_g: string;
+   nome_guerra: string;
+   nome_completo: string | null;
+   tem_cartao: boolean;
+   total_atas: number;
+   atas_size: number;
+}
+
+export interface OrfaosAeromedicaResumo {
+   total_militares: number;
+   total_cartoes: number;
+   total_atas: number;
+   atas_size: number;
+   itens: OrfaoAeromedicaPublic[];
+}
+
+export interface OrfaosAeromedicaDeleteResponse {
+   cartoes: number;
+   atas: number;
+}
+
+// GET - Documentos aeromédicos (cartão + atas) de militares inativos
+export async function getOrfaosAeromedica(
+   signal?: AbortSignal
+): Promise<OrfaosAeromedicaResumo> {
+   const parsed = await parseApiResponse<OrfaosAeromedicaResumo>(
+      await request("GET", `${cartoesSaudeRoute}orfaos`, null, null, signal)
+   );
+   if (!parsed.ok || !parsed.data) {
+      throw new ApiError(
+         parsed.message || "Erro ao carregar documentos órfãos",
+         parsed.errors
+      );
+   }
+   return parsed.data;
+}
+
+// DELETE - Remove cartão E atas dos militares inativos selecionados
+export async function deleteOrfaosAeromedica(
+   user_ids: number[]
+): Promise<OrfaosAeromedicaDeleteResponse> {
+   const parsed = await parseApiResponse<OrfaosAeromedicaDeleteResponse>(
+      await request("DELETE", `${cartoesSaudeRoute}orfaos`, { user_ids })
+   );
+   if (!parsed.ok || !parsed.data) {
+      throw new ApiError(
+         parsed.message || "Erro ao limpar documentos órfãos",
+         parsed.errors
+      );
+   }
+   return parsed.data;
 }

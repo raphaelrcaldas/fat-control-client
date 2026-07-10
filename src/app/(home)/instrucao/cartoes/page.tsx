@@ -9,6 +9,7 @@ import CartoesMasthead from "./components/CartoesMasthead";
 import PilotCard from "./components/PilotCard";
 import PilotCardSkeleton from "./components/PilotCardSkeleton";
 import EditCartoesModal from "./components/EditCartoesModal";
+import OrfaosAlert from "./components/OrfaosAlert";
 
 const SKELETON_ROWS = 8;
 
@@ -27,6 +28,8 @@ export default function CartoesPage() {
    return (
       <div className="flex flex-col space-y-2">
          <CartoesMasthead count={isLoading ? null : data.length} />
+
+         <OrfaosAlert />
 
          {isLoading ? (
             <div className="flex flex-col gap-1.5">

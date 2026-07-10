@@ -13,6 +13,7 @@ import Filters from "./components/Filters";
 import CrmTable from "./components/CrmTable";
 import CrmTableSkeleton from "./components/CrmTableSkeleton";
 import EditCrmModal from "./components/EditCrmModal";
+import OrfaosAlert from "./components/OrfaosAlert";
 
 export default function CrmPage() {
    const filters = useCrmFilters();
@@ -64,6 +65,8 @@ export default function CrmPage() {
                </div>
             </div>
          </header>
+
+         <OrfaosAlert />
 
          {/* Stat Cards */}
          {isLoading ? (

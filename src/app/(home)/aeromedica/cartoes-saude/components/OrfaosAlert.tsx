@@ -1,15 +1,14 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useState, useEffect, useMemo } from "react";
 import {
    Alert,
-   Badge,
-   Button,
-   Checkbox,
    Modal,
    ModalHeader,
    ModalBody,
    ModalFooter,
+   Button,
+   Checkbox,
    Table,
    TableHead,
    TableHeadCell,
@@ -17,21 +16,25 @@ import {
    TableRow,
    TableCell,
 } from "flowbite-react";
-import { HiExclamation, HiTrash } from "react-icons/hi";
+import { HiCheck, HiExclamation, HiTrash } from "react-icons/hi";
 import clsx from "clsx";
-import type { ImagemOrfa } from "services/routes/inteligencia/passaportes";
+import type { OrfaoAeromedicaPublic } from "services/routes/aeromedica/cartoesSaude";
 import { useToast } from "@/app/context/toast";
-import { useImagensOrfas, useDeleteImagensOrfas } from "@/hooks/queries";
+import {
+   useOrfaosAeromedica,
+   useDeleteOrfaosAeromedica,
+} from "@/hooks/queries";
+import { formatSize } from "@/../utils/formatSize";
 
 interface CleanupModalProps {
    show: boolean;
    onClose: () => void;
-   itens: ImagemOrfa[];
+   itens: OrfaoAeromedicaPublic[];
 }
 
 function CleanupModal({ show, onClose, itens }: CleanupModalProps) {
    const { push } = useToast();
-   const deleteMutation = useDeleteImagensOrfas();
+   const deleteMutation = useDeleteOrfaosAeromedica();
    const isDeleting = deleteMutation.isPending;
 
    const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
@@ -56,30 +59,30 @@ function CleanupModal({ show, onClose, itens }: CleanupModalProps) {
       );
    };
 
-   const toggleOne = (id: number) => {
+   const toggleOne = (userId: number) => {
       setSelectedIds((prev) => {
          const next = new Set(prev);
-         if (next.has(id)) {
-            next.delete(id);
+         if (next.has(userId)) {
+            next.delete(userId);
          } else {
-            next.add(id);
+            next.add(userId);
          }
          return next;
       });
    };
 
    const handleCleanup = async () => {
-      const ids = Array.from(selectedIds);
-      if (ids.length === 0) return;
+      const userIds = Array.from(selectedIds);
+      if (userIds.length === 0) return;
 
       try {
-         const result = await deleteMutation.mutateAsync(ids);
-         const deleted = result.deleted;
+         const result = await deleteMutation.mutateAsync(userIds);
+         const total = result.cartoes + result.atas;
          push({
-            message: deleted
-               ? `${deleted} imagem(ns) removida(s)`
-               : "Nenhuma imagem removida (lista pode estar desatualizada)",
-            type: deleted ? "success" : "info",
+            message: total
+               ? `${result.cartoes} cartão(ões) e ${result.atas} ata(s) removido(s)`
+               : "Nada foi removido (lista pode estar desatualizada)",
+            type: total ? "success" : "info",
          });
          onClose();
       } catch (err: unknown) {
@@ -88,7 +91,7 @@ function CleanupModal({ show, onClose, itens }: CleanupModalProps) {
             message:
                err instanceof Error
                   ? err.message
-                  : "Erro ao limpar imagens órfãs",
+                  : "Erro ao limpar documentos órfãos",
             type: "error",
          });
       }
@@ -96,11 +99,11 @@ function CleanupModal({ show, onClose, itens }: CleanupModalProps) {
 
    return (
       <Modal show={show} onClose={onClose} size="3xl" dismissible>
-         <ModalHeader>Limpar imagens de militares inativos</ModalHeader>
+         <ModalHeader>Limpar documentos de militares inativos</ModalHeader>
          <ModalBody>
-            <p className="mb-4 text-sm text-gray-600">
-               Selecione os militares cujas imagens de passaporte/visto deseja
-               remover. Pertencem a militares atualmente inativos.
+            <p className="mb-4 text-sm text-gray-600 dark:text-gray-400">
+               Selecione os militares. A exclusão remove o cartão de saúde e
+               todas as atas de inspeção do militar de uma vez.
             </p>
             <div className="overflow-x-auto rounded border border-slate-200 shadow">
                <Table hoverable>
@@ -115,7 +118,8 @@ function CleanupModal({ show, onClose, itens }: CleanupModalProps) {
                            />
                         </TableHeadCell>
                         <TableHeadCell>Militar</TableHeadCell>
-                        <TableHeadCell>Imagens</TableHeadCell>
+                        <TableHeadCell>Cartão</TableHeadCell>
+                        <TableHeadCell>Atas</TableHeadCell>
                      </TableRow>
                   </TableHead>
                   <TableBody>
@@ -123,7 +127,7 @@ function CleanupModal({ show, onClose, itens }: CleanupModalProps) {
                         <TableRow
                            key={item.user_id}
                            className={clsx(
-                              "bg-white",
+                              "bg-white dark:border-gray-700 dark:bg-gray-800",
                               isDeleting
                                  ? "cursor-not-allowed"
                                  : "cursor-pointer"
@@ -137,21 +141,26 @@ function CleanupModal({ show, onClose, itens }: CleanupModalProps) {
                                  checked={selectedIds.has(item.user_id)}
                                  onChange={() => toggleOne(item.user_id)}
                                  disabled={isDeleting}
-                                 aria-label={`Selecionar ${item.nome_guerra}`}
+                                 aria-label={`Selecionar documentos de ${item.nome_guerra}`}
                               />
                            </TableCell>
-                           <TableCell className="font-medium whitespace-nowrap text-gray-900 uppercase">
+                           <TableCell className="font-medium whitespace-nowrap text-gray-900 uppercase dark:text-white">
                               {item.p_g} {item.nome_guerra}
                            </TableCell>
-                           <TableCell>
-                              <div className="flex gap-1.5">
-                                 {item.tem_passaporte && (
-                                    <Badge color="gray">Passaporte</Badge>
-                                 )}
-                                 {item.tem_visa && (
-                                    <Badge color="gray">Visto</Badge>
-                                 )}
-                              </div>
+                           <TableCell className="whitespace-nowrap text-gray-700 dark:text-gray-300">
+                              {item.tem_cartao ? (
+                                 <HiCheck
+                                    className="h-4 w-4 text-green-600"
+                                    aria-label="Tem cartão"
+                                 />
+                              ) : (
+                                 <span className="text-gray-400">—</span>
+                              )}
+                           </TableCell>
+                           <TableCell className="whitespace-nowrap text-gray-700 dark:text-gray-300">
+                              {item.total_atas > 0
+                                 ? `${item.total_atas} (${formatSize(item.atas_size)})`
+                                 : "—"}
                            </TableCell>
                         </TableRow>
                      ))}
@@ -161,7 +170,7 @@ function CleanupModal({ show, onClose, itens }: CleanupModalProps) {
          </ModalBody>
          <ModalFooter>
             <div className="flex w-full items-center justify-between">
-               <span className="text-sm text-gray-600">
+               <span className="text-sm text-gray-600 dark:text-gray-400">
                   {selectedIds.size} de {itens.length} selecionado(s)
                </span>
                <div className="flex gap-2">
@@ -183,17 +192,22 @@ function CleanupModal({ show, onClose, itens }: CleanupModalProps) {
    );
 }
 
-/**
- * Alerta de limpeza: ao abrir a página, verifica se há imagens de
- * passaporte/visto pertencentes a militares inativos e oferece a limpeza.
- * Só montado para quem tem `passaporte.image.delete` (ver gate na página).
- */
-export default function ImagensOrfasAlert() {
-   const { data: orfas, isLoading } = useImagensOrfas();
+export default function OrfaosAlert() {
+   const { data: orfaos, isLoading } = useOrfaosAeromedica();
    const [showModal, setShowModal] = useState(false);
 
-   if (isLoading || !orfas || orfas.total_imagens === 0) {
+   if (isLoading || !orfaos || orfaos.total_militares === 0) {
       return null;
+   }
+
+   const partes = [];
+   if (orfaos.total_cartoes > 0) {
+      partes.push(`${orfaos.total_cartoes} cartão(ões) de saúde`);
+   }
+   if (orfaos.total_atas > 0) {
+      partes.push(
+         `${orfaos.total_atas} ata(s) ocupando ${formatSize(orfaos.atas_size)}`
+      );
    }
 
    return (
@@ -201,9 +215,8 @@ export default function ImagensOrfasAlert() {
          <Alert color="warning" icon={HiExclamation} withBorderAccent>
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                <span>
-                  Existem <strong>{orfas.total_imagens}</strong> imagem(ns) de{" "}
-                  <strong>{orfas.total_militares}</strong> militar(es)
-                  inativo(s).
+                  <strong>{orfaos.total_militares}</strong> militar(es)
+                  inativo(s) com documentos aeromédicos: {partes.join(" e ")}.
                </span>
                <Button
                   color="yellow"
@@ -218,7 +231,7 @@ export default function ImagensOrfasAlert() {
          <CleanupModal
             show={showModal}
             onClose={() => setShowModal(false)}
-            itens={orfas.itens}
+            itens={orfaos.itens}
          />
       </>
    );
