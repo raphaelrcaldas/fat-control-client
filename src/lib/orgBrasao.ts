@@ -7,6 +7,7 @@
 // em `public/brasoes/<sigla>.<ext>` e registre a sigla aqui.
 const BRASOES: Record<string, string> = {
    "11gt": "/brasoes/11gt.jpg",
+   "12gt": "/brasoes/12gt.jpg",
 };
 
 /** Caminho do brasão estático da org, ou null quando não há brasão. */
