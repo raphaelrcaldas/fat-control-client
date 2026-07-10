@@ -16,6 +16,7 @@ import type { Tenant } from "services/routes/tenants";
 import { formatDateFull, extractDate } from "@/../utils/dateHandler";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { THEME_META, normalizeOrgTheme } from "@/lib/orgTheme";
+import { brasaoUrl } from "@/lib/orgBrasao";
 
 interface TenantsTableProps {
    tenants: Tenant[];
@@ -55,15 +56,16 @@ export function TenantsTable({
             <TableBody className="divide-y">
                {tenants.map((tenant) => {
                   const tema = normalizeOrgTheme(tenant.tema);
-                  const { brasao_url: brasaoUrl, sigla } = tenant.organizacao;
+                  const { sigla } = tenant.organizacao;
+                  const brasao = brasaoUrl(sigla);
                   return (
                      <TableRow key={tenant.organizacao_id} className="bg-white">
                         <TableCell>
                            <div className="flex h-9 w-9 items-center justify-center overflow-hidden rounded border border-slate-200 bg-slate-50">
-                              {brasaoUrl ? (
+                              {brasao ? (
                                  // eslint-disable-next-line @next/next/no-img-element
                                  <img
-                                    src={brasaoUrl}
+                                    src={brasao}
                                     alt={`Brasão de ${sigla.toUpperCase()}`}
                                     className="h-full w-full object-contain"
                                  />
@@ -119,7 +121,7 @@ export function TenantsTable({
                         </TableCell>
                         <TableCell>
                            <div className="flex items-center justify-end gap-1">
-                              <Tooltip content="Aparência (tema e brasão)">
+                              <Tooltip content="Aparência (tema)">
                                  <button
                                     type="button"
                                     onClick={() => onConfig(tenant)}

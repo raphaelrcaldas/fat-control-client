@@ -4,12 +4,9 @@ import {
    createOrganizacao,
    updateOrganizacao,
    deleteOrganizacao,
-   uploadBrasao,
-   deleteBrasao,
    type OrganizacaoCreate,
    type OrganizacaoUpdate,
 } from "services/routes/organizacoes";
-import { tenantKeys } from "./useTenants";
 
 // ========================================
 // Query Keys
@@ -72,31 +69,5 @@ export function useDeleteOrganizacao() {
       onSuccess: () => {
          queryClient.invalidateQueries({ queryKey: organizacaoKeys.list() });
       },
-   });
-}
-
-// O brasão aparece tanto na lista de organizações quanto embutido em
-// `tenant.organizacao`, então ambas as caches são invalidadas.
-function invalidateOrgAndTenants(
-   queryClient: ReturnType<typeof useQueryClient>
-) {
-   queryClient.invalidateQueries({ queryKey: organizacaoKeys.list() });
-   queryClient.invalidateQueries({ queryKey: tenantKeys.list() });
-}
-
-export function useUploadBrasao() {
-   const queryClient = useQueryClient();
-   return useMutation({
-      mutationFn: ({ sigla, file }: { sigla: string; file: File }) =>
-         uploadBrasao(sigla, file),
-      onSuccess: () => invalidateOrgAndTenants(queryClient),
-   });
-}
-
-export function useDeleteBrasao() {
-   const queryClient = useQueryClient();
-   return useMutation({
-      mutationFn: (sigla: string) => deleteBrasao(sigla),
-      onSuccess: () => invalidateOrgAndTenants(queryClient),
    });
 }

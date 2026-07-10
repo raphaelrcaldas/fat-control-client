@@ -4,7 +4,7 @@ import { HiMenuAlt1 } from "react-icons/hi";
 import { MdClose } from "react-icons/md";
 import { OrgSwitcher } from "./OrgSwitcher";
 import { useAuth } from "@/app/context/auth";
-import { useOrganizacoes } from "@/hooks/queries/useOrganizacoes";
+import { brasaoUrl } from "@/lib/orgBrasao";
 
 interface NavbarProps {
    onToggleSidebar: () => void;
@@ -16,11 +16,9 @@ export default function Navbar({
    isSidebarOpen,
 }: NavbarProps) {
    const { activeOrg } = useAuth();
-   const { data: orgs } = useOrganizacoes();
-   // Logo do shell herda o brasão da org ativa; sem brasão (ou escopo
-   // Sistema) o shell fica só com o wordmark FATCONTROL, sem fallback.
-   const brasaoUrl =
-      orgs?.find((o) => o.sigla === activeOrg)?.brasao_url ?? null;
+   // Logo do shell herda o brasão estático da org ativa; sem brasão (ou
+   // escopo Sistema) o shell fica só com o wordmark FATCONTROL, sem fallback.
+   const brasao = brasaoUrl(activeOrg);
 
    return (
       <nav className="to-primary-100 fixed top-0 right-0 left-0 z-50 flex h-16 items-center justify-between bg-linear-to-r from-white px-4 shadow-lg">
@@ -40,10 +38,10 @@ export default function Navbar({
 
             {/* Logo */}
             <div className="flex items-center gap-2">
-               {brasaoUrl && (
+               {brasao && (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
-                     src={brasaoUrl}
+                     src={brasao}
                      alt={`Brasão ${activeOrg?.toUpperCase() ?? ""}`.trim()}
                      className="h-10 w-10 rounded object-contain shadow-md"
                   />
