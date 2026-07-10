@@ -193,7 +193,7 @@ export const navItems = [
             icon: MdBadge,
             label: "Cartões",
             path: "/instrucao/cartoes",
-            resource: "cartoes",
+            resource: "instrucao-cartoes",
             permission: "view",
          },
          {

@@ -18,6 +18,7 @@ import { PROVA_FIELDS } from "../cartoes.config";
 import SectionTitle from "./SectionTitle";
 import Field from "./Field";
 import LangFieldGroup from "./LangFieldGroup";
+import { PermBased } from "../../../hooks/usePermBased";
 
 interface EditCartoesModalProps {
    show: boolean;
@@ -123,16 +124,21 @@ export default function EditCartoesModal({
             <ModalFooter>
                <div className="flex w-full items-center justify-between">
                   {isEdit ? (
-                     <Button
-                        color="red"
-                        outline
-                        size="sm"
-                        onClick={() => setShowDeleteConfirm(true)}
-                        disabled={isSaving}
+                     <PermBased
+                        resource="instrucao-cartoes"
+                        requiredPerm="delete"
                      >
-                        <HiTrash className="mr-1.5 h-4 w-4" />
-                        Remover cadastro
-                     </Button>
+                        <Button
+                           color="red"
+                           outline
+                           size="sm"
+                           onClick={() => setShowDeleteConfirm(true)}
+                           disabled={isSaving}
+                        >
+                           <HiTrash className="mr-1.5 h-4 w-4" />
+                           Remover cadastro
+                        </Button>
+                     </PermBased>
                   ) : (
                      <span />
                   )}
@@ -140,17 +146,22 @@ export default function EditCartoesModal({
                      <Button color="gray" onClick={handleClose} disabled={busy}>
                         Cancelar
                      </Button>
-                     <Button
-                        color="red"
-                        onClick={handleSave}
-                        disabled={isSaving}
+                     <PermBased
+                        resource="instrucao-cartoes"
+                        requiredPerm={isEdit ? "update" : "create"}
                      >
-                        {isSaving
-                           ? "Salvando..."
-                           : isEdit
-                             ? "Atualizar"
-                             : "Cadastrar"}
-                     </Button>
+                        <Button
+                           color="red"
+                           onClick={handleSave}
+                           disabled={isSaving}
+                        >
+                           {isSaving
+                              ? "Salvando..."
+                              : isEdit
+                                ? "Atualizar"
+                                : "Cadastrar"}
+                        </Button>
+                     </PermBased>
                   </div>
                </div>
             </ModalFooter>

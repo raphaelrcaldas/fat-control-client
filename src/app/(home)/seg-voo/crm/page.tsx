@@ -14,6 +14,7 @@ import CrmTable from "./components/CrmTable";
 import CrmTableSkeleton from "./components/CrmTableSkeleton";
 import EditCrmModal from "./components/EditCrmModal";
 import OrfaosAlert from "./components/OrfaosAlert";
+import { PermBased } from "../../hooks/usePermBased";
 
 export default function CrmPage() {
    const filters = useCrmFilters();
@@ -66,7 +67,10 @@ export default function CrmPage() {
             </div>
          </header>
 
-         <OrfaosAlert />
+         {/* Documentos de inativos (gated por permissão de remoção) */}
+         <PermBased resource="crm" requiredPerm="delete">
+            <OrfaosAlert />
+         </PermBased>
 
          {/* Stat Cards */}
          {isLoading ? (

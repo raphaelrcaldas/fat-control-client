@@ -17,6 +17,7 @@ import { useUpsertCrm, useDeleteCrm } from "@/hooks/queries";
 import type { TripCrmOut } from "services/routes/seg-voo/crm";
 import { SimpleDateField, ValidadeDateField } from "./crmDateFields";
 import { useCrmForm } from "../hooks/useCrmForm";
+import { PermBased } from "../../../hooks/usePermBased";
 
 interface EditCrmModalProps {
    show: boolean;
@@ -142,14 +143,16 @@ const EditCrmModal = memo(function EditCrmModal({
                <div className="flex w-full justify-between">
                   <div>
                      {isEdit && (
-                        <Button
-                           color="red"
-                           onClick={() => setShowDeleteConfirm(true)}
-                           disabled={isLoading}
-                        >
-                           <HiTrash className="mr-2" />
-                           Deletar
-                        </Button>
+                        <PermBased resource="crm" requiredPerm="delete">
+                           <Button
+                              color="red"
+                              onClick={() => setShowDeleteConfirm(true)}
+                              disabled={isLoading}
+                           >
+                              <HiTrash className="mr-2" />
+                              Deletar
+                           </Button>
+                        </PermBased>
                      )}
                   </div>
                   <div className="flex gap-2">
@@ -160,22 +163,27 @@ const EditCrmModal = memo(function EditCrmModal({
                      >
                         Cancelar
                      </Button>
-                     <Button
-                        color="red"
-                        onClick={handleSave}
-                        disabled={isLoading}
+                     <PermBased
+                        resource="crm"
+                        requiredPerm={isEdit ? "update" : "create"}
                      >
-                        {isLoading ? (
-                           <div className="flex items-center gap-2">
-                              <Spinner size="sm" color="failure" />
-                              <span>Salvando...</span>
-                           </div>
-                        ) : isEdit ? (
-                           "Atualizar"
-                        ) : (
-                           "Cadastrar"
-                        )}
-                     </Button>
+                        <Button
+                           color="red"
+                           onClick={handleSave}
+                           disabled={isLoading}
+                        >
+                           {isLoading ? (
+                              <div className="flex items-center gap-2">
+                                 <Spinner size="sm" color="failure" />
+                                 <span>Salvando...</span>
+                              </div>
+                           ) : isEdit ? (
+                              "Atualizar"
+                           ) : (
+                              "Cadastrar"
+                           )}
+                        </Button>
+                     </PermBased>
                   </div>
                </div>
             </ModalFooter>
