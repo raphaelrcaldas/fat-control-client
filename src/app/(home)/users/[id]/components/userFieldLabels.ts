@@ -1,11 +1,13 @@
 /**
  * Mapa de nomes de campo da API → labels amigáveis.
- * Fonte única usada na auditoria (UserAudit) e nos avisos de
- * completude de cadastro (UserReadView).
+ * Fonte única usada na auditoria (UserAudit), nos avisos de completude
+ * de cadastro (UserReadView) e na humanização dos erros de validação da
+ * API (userErrors).
  */
 export const USER_FIELD_LABELS: Record<string, string> = {
    nome_completo: "Nome Completo",
    cpf: "CPF",
+   telefone: "Telefone",
    nasc: "Data de Nascimento",
    data_praca: "Data de Praça",
    email_pess: "Email Pessoal",

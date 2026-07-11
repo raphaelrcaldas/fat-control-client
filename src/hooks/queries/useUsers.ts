@@ -15,10 +15,12 @@ import {
    addUserPromo,
    deleteUserPromo,
    GetUsersParams,
-   UserSchema,
+   UserCreate,
+   UserUpdate,
    UserPromoCreate,
 } from "services/routes/users";
 import { getUserActionLogs } from "services/routes/logs";
+import { ApiError } from "services/Api";
 
 // ========================================
 // Query Keys - Centralizadas
@@ -103,13 +105,25 @@ export function useUserLogs(id: number | null | undefined) {
 // ========================================
 
 /**
- * Criar novo usuário
+ * Criar novo usuário.
+ *
+ * Falha vira `ApiError` para preservar o dict `errors` do 422 (campo →
+ * mensagem), consumido em `userErrors` para marcar os inputs do formulário.
  */
 export function useCreateUser() {
    const queryClient = useQueryClient();
 
    return useMutation({
-      mutationFn: (data: UserSchema) => addUser(data),
+      mutationFn: async (data: UserCreate) => {
+         const result = await addUser(data);
+         if (!result.ok) {
+            throw new ApiError(
+               result.message ?? "Erro ao cadastrar usuário",
+               result.errors
+            );
+         }
+         return result;
+      },
       onSuccess: () => {
          // Invalida todas as listas de usuários
          queryClient.invalidateQueries({ queryKey: userKeys.lists() });
@@ -118,14 +132,22 @@ export function useCreateUser() {
 }
 
 /**
- * Atualizar usuário existente
+ * Atualizar usuário existente (PATCH parcial; ver useCreateUser sobre o erro).
  */
 export function useUpdateUser() {
    const queryClient = useQueryClient();
 
    return useMutation({
-      mutationFn: ({ id, data }: { id: number; data: Partial<UserSchema> }) =>
-         updateUser(id, data),
+      mutationFn: async ({ id, data }: { id: number; data: UserUpdate }) => {
+         const result = await updateUser(id, data);
+         if (!result.ok) {
+            throw new ApiError(
+               result.message ?? "Erro ao atualizar usuário",
+               result.errors
+            );
+         }
+         return result;
+      },
       onSuccess: (_, { id }) => {
          // Invalida o detalhe específico, lista e logs
          queryClient.invalidateQueries({ queryKey: userKeys.detail(id) });

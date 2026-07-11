@@ -8,11 +8,12 @@ import { useContext, useEffect, useRef, useState } from "react";
 import { useMask } from "@react-input/mask";
 import { TextInput, Select, Spinner } from "flowbite-react";
 import { HiPencil, HiCheck, HiX } from "react-icons/hi";
-import type { UserSchema } from "services/routes/users";
+import type { UserUpdate } from "services/routes/users";
 import { formatPhone, phoneMaskConfig } from "@/constants/formats";
 import { SearchableSelect } from "@/components/SearchableSelect";
 import { useUpdateUser } from "@/hooks/queries";
 import { useToast } from "@/app/context/toast";
+import { formatUserSaveError } from "../../userErrors";
 import { FieldFocusContext } from "./FieldFocusContext";
 
 export type FieldType =
@@ -21,7 +22,7 @@ export type FieldType =
 export interface FieldConfig {
    icon: React.ComponentType<{ className?: string }>;
    label: string;
-   fieldName: keyof UserSchema;
+   fieldName: keyof UserUpdate;
    value: string | null | undefined;
    rawValue: string;
    type?: FieldType;
@@ -87,22 +88,18 @@ export function EditableField({
       }
 
       try {
-         const result = await updateMutation.mutateAsync({
+         await updateMutation.mutateAsync({
             id: userId,
-            data: { [fieldName]: newVal } as Partial<UserSchema>,
+            data: { [fieldName]: newVal } as UserUpdate,
          });
 
-         if (result.ok) {
-            push({ message: `${label} atualizado`, type: "success" });
-            setEditing(false);
-         } else {
-            push({
-               message: result.message || "Erro ao atualizar",
-               type: "error",
-            });
-         }
-      } catch (err: any) {
-         push({ message: err?.message || "Erro ao atualizar", type: "error" });
+         push({ message: `${label} atualizado`, type: "success" });
+         setEditing(false);
+      } catch (err: unknown) {
+         push({
+            message: formatUserSaveError(err, "Erro ao atualizar"),
+            type: "error",
+         });
       }
    }
 

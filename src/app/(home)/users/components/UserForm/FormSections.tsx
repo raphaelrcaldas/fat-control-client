@@ -29,6 +29,8 @@ interface FormSectionProps {
    register: UseFormRegister<CreateUserFormData>;
    errors: FieldErrors<CreateUserFormData>;
    control?: Control<CreateUserFormData>;
+   /** O militar nasce ativo — o status só é editável depois de cadastrado. */
+   showActive?: boolean;
 }
 
 type AnyFieldError =
@@ -150,6 +152,7 @@ export function MilitaryDataSection({
    register,
    errors,
    control,
+   showActive = false,
 }: FormSectionProps) {
    const { onChange: saramOnChange, ...saramRest } = register("saram");
    const pgOptions = postoGradRecords.map((pg) => ({
@@ -160,7 +163,7 @@ export function MilitaryDataSection({
    return (
       <SectionCard title="Dados Militares" icon={FaShieldAlt}>
          <div className="max-w-2xs">
-            <Label htmlFor="p_g">Posto/Graduação</Label>
+            <Label htmlFor="p_g">Posto/Graduação *</Label>
             <Select
                id="p_g"
                defaultValue=""
@@ -218,7 +221,7 @@ export function MilitaryDataSection({
          </div>
 
          <div className="max-w-xs">
-            <Label htmlFor="nome_guerra">Nome de Guerra</Label>
+            <Label htmlFor="nome_guerra">Nome de Guerra *</Label>
             <TextInput
                id="nome_guerra"
                {...register("nome_guerra")}
@@ -232,7 +235,7 @@ export function MilitaryDataSection({
          </div>
 
          <div className="max-w-2xs">
-            <Label htmlFor="saram">SARAM</Label>
+            <Label htmlFor="saram">SARAM *</Label>
             <TextInput
                id="saram"
                {...saramRest}
@@ -324,17 +327,19 @@ export function MilitaryDataSection({
             <FieldError error={errors.ant_rel} />
          </div>
 
-         <div className="flex items-center gap-2 rounded bg-gray-50 p-3">
-            <Checkbox
-               id="active"
-               className="size-5"
-               color="red"
-               {...register("active")}
-            />
-            <Label htmlFor="active" className="cursor-pointer">
-               Usuário ativo
-            </Label>
-         </div>
+         {showActive && (
+            <div className="flex items-center gap-2 rounded bg-gray-50 p-3">
+               <Checkbox
+                  id="active"
+                  className="size-5"
+                  color="red"
+                  {...register("active")}
+               />
+               <Label htmlFor="active" className="cursor-pointer">
+                  Usuário ativo
+               </Label>
+            </div>
+         )}
       </SectionCard>
    );
 }

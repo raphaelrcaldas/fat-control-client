@@ -13,7 +13,7 @@ export interface UserPublic {
    id_fab: string | null;
    nome_guerra: string;
    saram?: string;
-   nome_completo: string;
+   nome_completo: string | null;
    unidade: string;
    active: boolean;
    ult_promo: string | null;
@@ -40,30 +40,40 @@ export interface GetUsersParams {
    per_page?: number;
 }
 
-export interface UserSchema {
+/**
+ * Payload de cadastro (POST /users) — espelha `UserSchema` do backend: só
+ * p_g, nome_guerra e saram são obrigatórios (colunas NOT NULL do model); o
+ * resto é opcional e viaja como `null` quando em branco.
+ *
+ * `active` fica de fora: o militar nasce ativo e o status só muda via update.
+ */
+export interface UserCreate {
    p_g: string;
+   nome_guerra: string;
+   saram: string;
    quadro: string | null;
    esp: string | null;
-   nome_guerra: string;
-   nome_completo: string;
+   nome_completo: string | null;
    id_fab: string | null;
-   saram: string;
-   cpf: string;
+   cpf: string | null;
    telefone: string | null;
    ult_promo: string | null;
-   active: boolean;
    nasc: string | null;
    data_praca: string | null;
-   email_pess: string;
-   email_fab: string;
+   email_pess: string | null;
+   email_fab: string | null;
    ant_rel: number | null;
 }
 
-export interface UserFull extends UserSchema {
+/** Payload de atualização (PUT /users/{id}): parcial, mais o status. */
+export type UserUpdate = Partial<UserCreate & { active: boolean }>;
+
+export interface UserFull extends UserCreate {
    posto: PostoGrad;
    // Unidade é leitura-apenas: definida na criação (org ativa) e não
    // enviada no payload de criação/atualização. Espelha o backend.
    unidade: string;
+   active: boolean;
    // Campos de cadastro ainda não preenchidos (derivado no backend a
    // partir das colunas nullable do model User).
    campos_pendentes: string[];

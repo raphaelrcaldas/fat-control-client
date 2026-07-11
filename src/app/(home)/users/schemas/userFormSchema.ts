@@ -3,19 +3,25 @@ import { cpf } from "cpf-cnpj-validator";
 import { sanitizeText } from "utils/textFormat";
 import { validarSaram } from "utils/validators";
 
+/**
+ * Espelha `UserSchema` (api/fcontrol_api/schemas/users.py): só p_g,
+ * nome_guerra e saram são obrigatórios — as colunas NOT NULL do model.
+ * Todos os demais aceitam vazio e viajam como null no payload.
+ */
 export const createUserFormSchema = z.object({
    p_g: z.string().nonempty("Obrigatório").length(2),
-   quadro: z.string().transform((v) => v.trim().toUpperCase()),
-   esp: z.string().transform((v) => v.trim().toUpperCase()),
    nome_guerra: z.string().nonempty("Obrigatório").transform(sanitizeText),
-   nome_completo: z.string().transform(sanitizeText),
    saram: z
       .string()
+      .nonempty("Obrigatório")
       .refine(
          (v) => v.replace(/\D/g, "").length === 7,
          "SARAM deve ter 7 dígitos"
       )
       .refine(validarSaram, "SARAM inválido"),
+   quadro: z.string().transform((v) => v.trim().toUpperCase()),
+   esp: z.string().transform((v) => v.trim().toUpperCase()),
+   nome_completo: z.string().transform(sanitizeText),
    id_fab: z.union([
       z.literal(""),
       z
@@ -41,7 +47,17 @@ export const createUserFormSchema = z.object({
    nasc: z.nullable(z.string()),
    data_praca: z.nullable(z.string()),
    ult_promo: z.nullable(z.string()),
-   ant_rel: z.nullable(z.coerce.number().gt(0)),
+   // Input numérico em branco chega como "" — sem o preprocess o coerce o
+   // transformaria em 0 e o campo (opcional) reprovaria no gt(0).
+   ant_rel: z.preprocess(
+      (v) => (v === "" || v === null || v === undefined ? null : v),
+      z.nullable(
+         z.coerce
+            .number("Deve ser um número")
+            .int("Deve ser um número inteiro")
+            .gt(0, "Deve ser maior que zero")
+      )
+   ),
    active: z.boolean(),
 });
 

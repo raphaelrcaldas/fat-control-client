@@ -6,6 +6,7 @@ import { Button, Spinner } from "flowbite-react";
 import { useUser, useUpdateUser, useDeleteUser } from "@/hooks/queries";
 import { useToast } from "@/app/context/toast";
 import { PermBased } from "@/app/(home)/hooks/usePermBased";
+import { formatUserSaveError } from "../userErrors";
 import { UserReadView } from "./components/UserReadView";
 import { UserAudit } from "./components/UserAudit";
 import { UserPromotions } from "./components/UserPromotions";
@@ -69,23 +70,19 @@ export default function UserDetailsPage() {
       if (!user) return;
       const newStatus = !user.active;
       try {
-         const result = await updateUser.mutateAsync({
+         await updateUser.mutateAsync({
             id: userId,
             data: { active: newStatus },
          });
-         if (result.ok) {
-            push({
-               message: `Usuário ${newStatus ? "ativado" : "desativado"}`,
-               type: "success",
-            });
-         } else {
-            push({
-               message: result.message || "Erro ao alterar status",
-               type: "error",
-            });
-         }
-      } catch {
-         push({ message: "Erro ao alterar status", type: "error" });
+         push({
+            message: `Usuário ${newStatus ? "ativado" : "desativado"}`,
+            type: "success",
+         });
+      } catch (err: unknown) {
+         push({
+            message: formatUserSaveError(err, "Erro ao alterar status"),
+            type: "error",
+         });
       }
    }
 
