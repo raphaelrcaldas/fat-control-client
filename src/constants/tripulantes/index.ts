@@ -4,4 +4,3 @@ export * from "./types";
 // Configurações e helpers
 export * from "./funcoes";
 export * from "./operacionalidade";
-export * from "./projetos";

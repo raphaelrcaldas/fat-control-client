@@ -1,9 +1,4 @@
-import type {
-   FuncType,
-   OperType,
-   ProjType,
-   TripFuncFields,
-} from "services/routes/funcs";
+import type { FuncType, OperType, TripFuncFields } from "services/routes/funcs";
 import type { CrewMember } from "services/routes/trips";
 
 export type Trip = CrewMember;
@@ -13,7 +8,7 @@ export type TripFormFields = {
    active: boolean;
    func: FuncType;
    oper: OperType;
-   proj: ProjType;
+   proj: string;
    data_op: string;
 };
 
@@ -23,8 +18,8 @@ export type TripRegisterFormFields = {
    trig: string;
    func: FuncType;
    oper: OperType;
-   proj: ProjType;
+   proj: string;
    data_op: string;
 };
 
-export type { FuncType, OperType, ProjType, TripFuncFields };
+export type { FuncType, OperType, TripFuncFields };

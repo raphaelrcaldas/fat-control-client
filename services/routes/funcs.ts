@@ -16,28 +16,20 @@ export {
    getOperLabel,
 } from "../../src/constants/tripulantes/operacionalidade";
 
-export {
-   PROJETOS,
-   type ProjType,
-   PROJ_LABELS,
-   getProjLabel,
-} from "../../src/constants/tripulantes/projetos";
-
 // Interfaces de API (mantidas aqui por serem específicas de API)
-import type {
-   FuncType,
-   OperType,
-   ProjType,
-} from "../../src/constants/tripulantes";
+import type { FuncType, OperType } from "../../src/constants/tripulantes";
 
 /**
  * Campos da função única (1:1) do tripulante. Vivem diretamente no
  * tripulante (colunas `func`/`oper`/`proj`/`data_op`), não em entidade
  * separada.
+ *
+ * `proj` é o `modelo` do projeto (FK para `projetos_anvs.modelo`): catálogo
+ * dinâmico por org, obtido em `GET /aeronaves/projetos`.
  */
 export interface TripFuncFields {
    func: FuncType;
    oper: OperType;
-   proj: ProjType;
+   proj: string;
    data_op: string | null;
 }

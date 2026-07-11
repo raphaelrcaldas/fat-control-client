@@ -4,9 +4,8 @@ import {
    TODAS_FUNCOES,
    getFuncLabel,
    OPER_LABELS,
-   PROJETOS,
-   PROJ_LABELS,
 } from "@/constants/tripulantes";
+import { useOrgProjetos } from "@/hooks/queries/useAeronaves";
 
 type FuncFieldsProps = {
    register: UseFormRegister<any>;
@@ -18,8 +17,13 @@ type FuncFieldsProps = {
  * Campos da função única (1:1) do tripulante: func, oper, proj e data_op.
  * Compartilhado entre o cadastro e a edição de tripulante — a função deixou
  * de ser entidade separada e passou a viver no próprio tripulante.
+ *
+ * `proj` é FK para `projetos_anvs.modelo` e as opções são os projetos
+ * operados pela org ativa (tenant_projetos), não uma lista fixa.
  */
 export function FuncFields({ register, errors, currentOper }: FuncFieldsProps) {
+   const { data: projetos = [], isLoading: loadingProjetos } = useOrgProjetos();
+
    return (
       <div className="grid grid-cols-2 gap-4">
          <div className="flex flex-col gap-2">
@@ -76,13 +80,16 @@ export function FuncFields({ register, errors, currentOper }: FuncFieldsProps) {
             </Label>
             <Select
                id="proj"
-               disabled
+               disabled={loadingProjetos}
                {...register("proj", { required: "Projeto é obrigatório" })}
                color={errors.proj ? "failure" : "gray"}
             >
-               {PROJETOS.map((proj) => (
-                  <option key={proj} value={proj}>
-                     {PROJ_LABELS[proj]}
+               <option value="">
+                  {loadingProjetos ? "Carregando..." : "Selecione"}
+               </option>
+               {projetos.map((projeto) => (
+                  <option key={projeto.id_projeto} value={projeto.modelo}>
+                     {projeto.modelo.toUpperCase()}
                   </option>
                ))}
             </Select>

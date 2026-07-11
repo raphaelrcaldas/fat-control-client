@@ -49,7 +49,7 @@ export function TripRegister({
          user_id: user.id,
          active: true,
          trig: "",
-         proj: "kc-390",
+         proj: "",
          data_op: "",
       },
    });
@@ -62,7 +62,7 @@ export function TripRegister({
             user_id: user.id,
             active: true,
             trig: "",
-            proj: "kc-390",
+            proj: "",
             data_op: "",
          });
       }

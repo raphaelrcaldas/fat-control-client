@@ -16,8 +16,6 @@ import { QuadsToolbar } from "./components/QuadsToolbar";
 import { QuadsBoard } from "./components/QuadsBoard";
 import { QuadsOrfaosAlert } from "./components/QuadsOrfaosAlert";
 
-const DEFAULT_PROJ = "kc-390";
-
 export default function QuadPage() {
    const [ordem, setOrdem] = usePersistedState<QuadOrdem>("quads.ordem", "opr");
 
@@ -26,11 +24,11 @@ export default function QuadPage() {
 
    const { data: quadsType = [], isLoading: loadingTypes } = useQuadsTypes();
 
+   // Sem `proj`: o quadro cobre todos os projetos operados pela org ativa.
    const params = useMemo(
       () => ({
          funcao: quadFunc,
          tipo_quad: quadType,
-         proj: DEFAULT_PROJ,
       }),
       [quadFunc, quadType]
    );
