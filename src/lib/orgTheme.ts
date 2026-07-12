@@ -9,6 +9,14 @@
 export const ORG_THEME_COOKIE = "org_theme";
 export const DEFAULT_ORG_THEME = "red";
 
+/**
+ * Tema usado quando a org ativa ainda é desconhecida (1ª carga de uma sessão
+ * nova, antes do /users/me responder — não há cookie para o SSR estampar).
+ * Neutro de propósito: pintar de vermelho seria vestir a marca de uma org
+ * específica em quem talvez nem seja dela.
+ */
+export const NEUTRAL_ORG_THEME: OrgTheme = "slate";
+
 export const ORG_THEMES = [
    "red",
    "blue",
@@ -48,6 +56,9 @@ export function isOrgTheme(
 }
 
 /** Normaliza um valor arbitrário para um tema válido (fallback = default). */
-export function normalizeOrgTheme(value: string | null | undefined): OrgTheme {
-   return isOrgTheme(value) ? value : DEFAULT_ORG_THEME;
+export function normalizeOrgTheme(
+   value: string | null | undefined,
+   fallback: OrgTheme = DEFAULT_ORG_THEME
+): OrgTheme {
+   return isOrgTheme(value) ? value : fallback;
 }

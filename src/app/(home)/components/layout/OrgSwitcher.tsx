@@ -6,6 +6,11 @@ import { FaBuilding, FaCheck, FaChevronDown } from "react-icons/fa6";
 import { useAuth } from "@/app/context/auth";
 import { switchOrg } from "services/routes/auth";
 import { getQueryClient } from "@/lib/queryClient";
+import {
+   DEFAULT_ORG_BRAND,
+   ORG_BRAND_COOKIE,
+   serializeOrgBrand,
+} from "@/lib/orgBrand";
 import { normalizeOrgTheme, ORG_THEME_COOKIE } from "@/lib/orgTheme";
 import { useToast } from "@/app/context/toast";
 import type { OrgScope } from "services/routes/users";
@@ -48,12 +53,22 @@ export function OrgSwitcher() {
                maxAge: 24 * 60 * 60,
                path: "/",
             });
-            // Grava o tema da nova org antes do reload: o SSR já estampa a
-            // cor certa no <html>, sem flash.
-            setCookie(ORG_THEME_COOKIE, normalizeOrgTheme(org.tema), {
-               maxAge: 24 * 60 * 60,
-               path: "/",
-            });
+            // Grava tema e identidade da nova org antes do reload: o SSR já
+            // estampa a cor e o texto certos, sem flash.
+            const cookieOptions = { maxAge: 24 * 60 * 60, path: "/" };
+            setCookie(
+               ORG_THEME_COOKIE,
+               normalizeOrgTheme(org.tema),
+               cookieOptions
+            );
+            setCookie(
+               ORG_BRAND_COOKIE,
+               serializeOrgBrand({
+                  nome: org.nome || DEFAULT_ORG_BRAND.nome,
+                  saudacao: org.saudacao || "",
+               }),
+               cookieOptions
+            );
             getQueryClient().clear();
             window.location.assign("/");
          } else {

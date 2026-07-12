@@ -11,6 +11,7 @@ export const TenantSchema = z.object({
    organizacao_id: z.string(),
    active: z.boolean(),
    tema: z.string(),
+   saudacao: z.string(),
    created_at: z.string(),
    organizacao: OrganizacaoSchema,
 });
@@ -21,10 +22,12 @@ export interface TenantCreate {
    organizacao_id: string;
 }
 
-// Atualização parcial: envia apenas os campos alterados (active e/ou tema).
+// Atualização parcial: envia apenas os campos alterados. `saudacao: ""` limpa
+// o lema (a coluna é NOT NULL; o backend ignora null = "não alterar").
 export interface TenantUpdate {
    active?: boolean;
    tema?: string;
+   saudacao?: string;
 }
 
 // API Services

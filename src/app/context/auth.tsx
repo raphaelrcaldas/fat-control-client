@@ -3,7 +3,16 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 import { deleteCookie, setCookie } from "cookies-next";
 import { getMe, type OrgScope } from "services/routes/users";
 import { AppLoadingScreen } from "src/app/(home)/components/appLoadingScreen";
-import { normalizeOrgTheme, ORG_THEME_COOKIE } from "@/lib/orgTheme";
+import {
+   DEFAULT_ORG_BRAND,
+   ORG_BRAND_COOKIE,
+   serializeOrgBrand,
+} from "@/lib/orgBrand";
+import {
+   NEUTRAL_ORG_THEME,
+   normalizeOrgTheme,
+   ORG_THEME_COOKIE,
+} from "@/lib/orgTheme";
 import PermDenied from "../components/permDenied";
 
 interface PermType {
@@ -82,23 +91,28 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       };
    }, [retryNonce]);
 
-   // Reconcilia o tema da org ativa com o que o SSR estampou no <html>.
-   // No 1º login (sem cookie ainda) o SSR usa o default; aqui aplicamos o
-   // tema real e persistimos o cookie para os próximos carregamentos. A troca
-   // de org já grava o cookie antes do reload (ver OrgSwitcher), então este
-   // efeito só corrige o boot inicial.
+   // Reconcilia tema e identidade (nome/saudação) da org ativa com o que o SSR
+   // estampou. No 1º login (sem cookie ainda) o SSR usa os defaults; aqui
+   // aplicamos os valores reais e persistimos os cookies para os próximos
+   // carregamentos. A troca de org já grava ambos antes do reload (ver
+   // OrgSwitcher), então este efeito só corrige o boot inicial.
    useEffect(() => {
       if (loading) return;
-      const tema = normalizeOrgTheme(
-         orgs.find((o) => o.organizacao_id === activeOrg)?.tema
-      );
+      const org = orgs.find((o) => o.organizacao_id === activeOrg);
+      const tema = normalizeOrgTheme(org?.tema, NEUTRAL_ORG_THEME);
       if (document.documentElement.getAttribute("data-org-theme") !== tema) {
          document.documentElement.setAttribute("data-org-theme", tema);
       }
-      setCookie(ORG_THEME_COOKIE, tema, {
-         maxAge: 24 * 60 * 60,
-         path: "/",
-      });
+      const cookieOptions = { maxAge: 24 * 60 * 60, path: "/" };
+      setCookie(ORG_THEME_COOKIE, tema, cookieOptions);
+      setCookie(
+         ORG_BRAND_COOKIE,
+         serializeOrgBrand({
+            nome: org?.nome || DEFAULT_ORG_BRAND.nome,
+            saudacao: org?.saudacao || "",
+         }),
+         cookieOptions
+      );
    }, [loading, activeOrg, orgs]);
 
    if (loading) {

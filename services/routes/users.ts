@@ -85,6 +85,7 @@ export interface OrgScope {
    nome: string | null;
    role: string;
    tema: string;
+   saudacao: string;
 }
 
 export interface UserMe {
