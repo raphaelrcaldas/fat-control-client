@@ -1,20 +1,28 @@
 /**
  * Tamanho dos alvos interativos (Lei de Fitts).
  *
- * WCAG 2.2 (2.5.8) exige 24x24 CSS px; 44x44 e o alvo confortavel de dedo. Um
- * icone-botao de 16px so e clicavel por quem tem mouse e paciencia — e este
- * sistema roda em tablet no hangar.
+ * A regua segue o ponteiro, nao o tamanho da tela: no dedo cobramos 44x44 (o
+ * alvo confortavel — este sistema roda em tablet no hangar); no mouse, o minimo
+ * do WCAG 2.2 (2.5.8), 24x24. Cobrar 44px no desktop inflaria o shell e mataria
+ * a densidade, que num sistema operacional e qualidade e nao defeito.
+ *
+ * Por isso os breakpoints de toque rodam com `hasTouch` (ver browserSession):
+ * o que medimos aqui e a mesma condicao que a pagina ve em
+ * `@media (pointer: coarse)`.
  */
-export function createTouchTargetsCollector({ minSizePx, wcagMinPx }) {
+export function createTouchTargetsCollector({ coarseMinPx, fineMinPx }) {
    const INTERACTIVE =
       "a[href], button, input, select, textarea, [role=button], [role=link], [role=tab], [role=checkbox], [tabindex]:not([tabindex='-1'])";
 
    return {
       name: "touchTargets",
 
-      collect: ({ page }) =>
-         page.evaluate(
-            ({ selector, minSizePx, wcagMinPx }) => {
+      collect: ({ page, breakpoint }) => {
+         const coarse = Boolean(breakpoint.touch);
+         const minSizePx = coarse ? coarseMinPx : fineMinPx;
+
+         return page.evaluate(
+            ({ selector, minSizePx, coarse }) => {
                const { selectorOf, visibleElements } = window.__audit;
                const small = [];
 
@@ -30,38 +38,34 @@ export function createTouchTargetsCollector({ minSizePx, wcagMinPx }) {
                      selector: selectorOf(el),
                      width: Math.round(rect.width),
                      height: Math.round(rect.height),
-                     violatesWcag: minSide < wcagMinPx,
-                     label: (
-                        el.getAttribute("aria-label") ??
-                        el.textContent ??
-                        ""
-                     )
+                     label: (el.getAttribute("aria-label") ?? el.textContent ?? "")
                         .trim()
                         .slice(0, 40),
                   });
                }
 
                return {
+                  pointer: coarse ? "coarse (dedo)" : "fine (mouse)",
+                  minSizePx,
                   total: small.length,
-                  wcagViolations: small.filter((t) => t.violatesWcag).length,
                   items: small.slice(0, 20),
                };
             },
-            { selector: INTERACTIVE, minSizePx, wcagMinPx }
-         ),
+            { selector: INTERACTIVE, minSizePx, coarse },
+         );
+      },
 
       render: (data) => ({
          rows: [
-            [`Alvos abaixo de ${minSizePx}x${minSizePx}px`, data.total],
-            [`Abaixo do minimo WCAG (${wcagMinPx}px)`, data.wcagViolations],
+            ["Ponteiro", data.pointer],
+            [`Alvos abaixo de ${data.minSizePx}px`, data.total],
          ],
          sections: data.items.length
             ? [
                  {
-                    title: "Alvos pequenos",
+                    title: `Alvos abaixo do minimo para ${data.pointer} (${data.minSizePx}px)`,
                     items: data.items.map(
-                       (t) =>
-                          `\`${t.selector}\` — ${t.width}x${t.height}px${t.violatesWcag ? " **(reprova WCAG 2.5.8)**" : ""} — "${t.label}"`
+                       (t) => `\`${t.selector}\` — ${t.width}x${t.height}px — "${t.label}"`,
                     ),
                  },
               ]

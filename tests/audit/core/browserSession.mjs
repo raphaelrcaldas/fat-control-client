@@ -40,6 +40,9 @@ export class BrowserSession {
    async open(breakpoint) {
       const context = await this.#browser.newContext({
          viewport: { width: breakpoint.width, height: breakpoint.height },
+         // Ponteiro grosso: faz `pointer: coarse` valer, como num tablet real.
+         hasTouch: Boolean(breakpoint.touch),
+         isMobile: Boolean(breakpoint.touch),
       });
 
       if (this.token) {
@@ -56,11 +59,16 @@ export class BrowserSession {
 
       await page.goto(this.url, { waitUntil: "networkidle", timeout: 45000 });
 
-      // O overlay do dev server nao existe em producao, mas polui tudo que
-      // medimos: entra no screenshot, no DOM e na navegacao por Tab. Escondido,
-      // some das tres medicoes de uma vez.
+      // Instrumentacao de dev (overlay do Next, devtools do TanStack Query) nao
+      // existe em producao, mas polui tudo que medimos: entra no screenshot, no
+      // DOM e na navegacao por Tab — o botao do devtools chegava a ser contado
+      // como "alvo pequeno". Escondida, some das tres medicoes de uma vez.
       await page.addStyleTag({
-         content: "nextjs-portal { display: none !important; }",
+         content: `
+            nextjs-portal,
+            .tsqd-open-btn-container,
+            .tsqd-parent-container { display: none !important; }
+         `,
       });
 
       await page.evaluate(installDomUtils);

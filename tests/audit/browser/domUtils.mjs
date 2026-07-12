@@ -65,6 +65,17 @@ export function installDomUtils() {
       };
    };
 
+   /**
+    * 1rem em px. NAO assumir 16: o `client` usa `html {font-size:14px}`, entao a
+    * escala inteira do Tailwind encolhe (um `p-2` rende 7px, nao 8px). Grade e
+    * raio precisam ser medidos em rem, senao acusamos a tela toda de estar fora
+    * do sistema quando ela so esta noutra base.
+    */
+   const rootFontSize = parseFloat(
+      getComputedStyle(document.documentElement).fontSize,
+   );
+   const toRem = (value) => Math.round((value / rootFontSize) * 10000) / 10000;
+
    window.__audit = {
       px,
       isVisible,
@@ -72,5 +83,7 @@ export function installDomUtils() {
       ownText,
       visibleElements,
       counter,
+      rootFontSize,
+      toRem,
    };
 }
