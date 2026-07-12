@@ -50,14 +50,14 @@ export default function HomeApp() {
    };
 
    return (
-      <div className="mx-auto w-full max-w-2xl lg:max-w-3xl">
+      <div className="mx-auto w-full max-w-2xl sm:max-w-3xl lg:max-w-4xl">
          {/* Welcome Card */}
          <div className="rounded border border-slate-200 bg-white p-5 shadow-sm sm:p-6 md:p-8">
             <div className="flex flex-col items-center gap-5 sm:flex-row sm:items-start sm:gap-6">
                {/* Avatar */}
-               <div className="rounded-full bg-linear-to-br from-red-500 to-red-600 p-1">
+               <div className="from-primary-500 to-primary-600 rounded-full bg-linear-to-br p-1">
                   <div className="rounded-full bg-white p-1">
-                     <FaUserCircle className="h-16 w-16 text-red-500 sm:h-20 sm:w-20 md:h-24 md:w-24" />
+                     <FaUserCircle className="text-primary-500 h-16 w-16 sm:h-20 sm:w-20 md:h-24 md:w-24" />
                   </div>
                </div>
 
@@ -74,9 +74,11 @@ export default function HomeApp() {
                      Seja bem-vindo ao FATCONTROL
                   </p>
 
-                  <div className="flex flex-wrap justify-center gap-2 sm:justify-start sm:gap-3">
-                     <div className="flex items-center gap-2 rounded bg-red-50 px-3 py-2 sm:px-4">
-                        <FaShieldAlt className="shrink-0 text-red-500" />
+                  {/* Chips em uma única linha enquanto couber: nowrap interno
+                      evita que um chip quebre e force o wrap do conjunto. */}
+                  <div className="flex flex-wrap justify-center gap-2 sm:justify-start">
+                     <div className="bg-primary-50 flex items-center gap-2 rounded px-3 py-1.5 whitespace-nowrap">
+                        <FaShieldAlt className="text-primary-500 shrink-0" />
                         <span className="text-sm font-medium text-gray-700">
                            Perfil:{" "}
                            <span className="font-semibold uppercase">
@@ -84,7 +86,7 @@ export default function HomeApp() {
                            </span>
                         </span>
                      </div>
-                     <div className="flex items-center gap-2 rounded bg-blue-50 px-3 py-2 sm:px-4">
+                     <div className="flex items-center gap-2 rounded bg-blue-50 px-3 py-1.5 whitespace-nowrap">
                         <FaClock className="shrink-0 text-blue-500" />
                         <span className="font-mono text-sm text-gray-700 tabular-nums">
                            {mounted
@@ -93,7 +95,7 @@ export default function HomeApp() {
                         </span>
                      </div>
                      {(lastLogin || isFirstAccess) && (
-                        <div className="flex items-center gap-2 rounded bg-green-50 px-3 py-2 sm:px-4">
+                        <div className="flex items-center gap-2 rounded bg-green-50 px-3 py-1.5 whitespace-nowrap">
                            <FaHistory className="shrink-0 text-green-500" />
                            <span className="text-sm font-medium text-gray-700">
                               {isFirstAccess ? (
