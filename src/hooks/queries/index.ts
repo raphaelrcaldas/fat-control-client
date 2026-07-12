@@ -3,6 +3,7 @@ export * from "./useUsers";
 export * from "./useOrganizacoes";
 export * from "./useUnidadeOptions";
 export * from "./useTenants";
+export * from "./useConfig";
 export * from "./useOrdens";
 export * from "./useTrips";
 export * from "./useIndisps";

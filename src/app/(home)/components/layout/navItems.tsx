@@ -24,6 +24,7 @@ import {
    MdManageAccounts,
    MdDeleteSweep,
    MdFlag,
+   MdSettings,
 } from "react-icons/md";
 import { FaUsers, FaBuilding, FaSitemap } from "react-icons/fa6";
 import { FaPaperPlane } from "react-icons/fa";
@@ -278,6 +279,16 @@ export const navItems = [
       label: "Controle de Acesso",
       path: "/acessos",
       scope: "shared",
+      roles: ["admin"],
+   },
+   {
+      // Config da própria organização (org ativa): gerida pelo admin do
+      // tenant, não pelo admin de sistema — por isso scope "tenant".
+      type: "item",
+      icon: MdSettings,
+      label: "Configurações",
+      path: "/config",
+      scope: "tenant",
       roles: ["admin"],
    },
    {

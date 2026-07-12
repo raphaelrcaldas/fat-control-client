@@ -14,33 +14,68 @@ import {
    minutesToTime,
    formatDateForDisplay,
 } from "utils/dateHandler";
+import { brasaoUrl } from "@/lib/orgBrasao";
+import { linhaAssinatura, type CargoTitular } from "services/routes/config";
 
 /**
- * Gera um arquivo DOCX de Ordem de Missão a partir dos dados fornecidos
+ * Gera um arquivo DOCX de Ordem de Missão a partir dos dados fornecidos.
+ * Cabeçalho e rodapé herdam da organização ativa: o brasão (asset estático de
+ * `orgBrasao.ts`, substituído dentro do zip do template), o nome da unidade
+ * (`{nome_org}`) e os titulares dos cargos que assinam (`{ass_*}`/`{label_*}`).
  * @param ordem Dados completos da Ordem de Missão (formato API)
  * @param uae Sigla da unidade aérea ativa (compõe o número da OM)
+ * @param nomeOrg Nome da organização ativa (linha do cabeçalho)
+ * @param cargos Titulares dos cargos da org (rodapé de assinaturas)
  * @returns Blob do arquivo DOCX gerado
  */
 export async function gerarOrdemMissaoDocx(
    ordem: OrdemMissaoOut,
-   uae: string
+   uae: string,
+   nomeOrg: string,
+   cargos: CargoTitular[]
 ): Promise<Blob> {
+   // Sem brasão registrado não há como montar o cabeçalho — bloquear
+   const brasaoPath = brasaoUrl(uae);
+   if (!brasaoPath) {
+      throw new Error(`Organização "${uae}" sem brasão registrado`);
+   }
+
    try {
-      // Carregar o template
-      const response = await fetch("/templates/om.docx");
+      // Carregar o template e o brasão da org ativa
+      const [response, brasaoResponse] = await Promise.all([
+         fetch("/templates/om.docx"),
+         fetch(brasaoPath),
+      ]);
       if (!response.ok) {
          throw new Error("Erro ao carregar template om.docx");
       }
+      if (!brasaoResponse.ok) {
+         throw new Error(`Erro ao carregar brasão ${brasaoPath}`);
+      }
       const arrayBuffer = await response.arrayBuffer();
+      const brasaoBuffer = await brasaoResponse.arrayBuffer();
 
       const zip = new PizZip(arrayBuffer);
+
+      // O template embute o brasão como word/media/image1.jpeg (referenciado
+      // nos headers); trocar os bytes preserva posição e dimensões. Os
+      // brasões de public/brasoes/ devem manter JPEG 150x200 (proporção 3:4).
+      zip.file("word/media/image1.jpeg", brasaoBuffer);
       const doc = new Docxtemplater(zip, {
          paragraphLoop: true,
          linebreaks: true,
       });
 
       // Preparar dados para preenchimento
+      const cmt = cargos.find((c) => c.cargo === "comandante");
+      const ops = cargos.find((c) => c.cargo === "chefe-operacoes");
+
       const dados = {
+         nome_org: nomeOrg.toUpperCase(),
+         ass_cmt: cmt ? linhaAssinatura(cmt) : "",
+         label_cmt: cmt?.label ?? "",
+         ass_ops: ops ? linhaAssinatura(ops) : "",
+         label_ops: ops?.label ?? "",
          numero_om: formatNumeroOM(ordem, uae).toUpperCase(),
          data_missao:
             ordem.etapas.length > 0
