@@ -54,3 +54,6 @@ CLAUDE.md
 /blob-report/
 /playwright/.cache/
 .e2e_token
+
+# Saida da auditoria de UI (tests/audit)
+.audit/

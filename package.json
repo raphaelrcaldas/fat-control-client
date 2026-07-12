@@ -12,7 +12,8 @@
       "lint": "next lint",
       "format": "prettier --write \"src/**/*.{js,ts,jsx,tsx}\"",
       "test:e2e": "playwright test",
-      "test:e2e:ui": "playwright test --ui"
+      "test:e2e:ui": "playwright test --ui",
+      "audit:ui": "node tests/audit/audit.mjs"
    },
    "keywords": [],
    "author": "",
@@ -48,6 +49,7 @@
       "zod": "^4.1.12"
    },
    "devDependencies": {
+      "@axe-core/playwright": "^4.12.1",
       "@playwright/test": "^1.49.1",
       "@tanstack/react-query-devtools": "^5.91.2",
       "@types/node": "^24.10.0",
