@@ -28,7 +28,9 @@ export default function Navbar({
          aria-label="Barra superior"
          className="to-primary-100 fixed top-0 right-0 left-0 z-50 flex h-16 items-center justify-between bg-linear-to-r from-white px-4 shadow-lg"
       >
-         <div className="flex items-center gap-3">
+         {/* min-w-0: deixa o bloco da marca ceder espaço ao OrgSwitcher em vez
+             de empurrá-lo — em 360px os dois somavam a viewport inteira. */}
+         <div className="flex min-w-0 items-center gap-2 sm:gap-3">
             {/* Alvo de 44px só em ponteiro grosso (dedo). No mouse a precisão é
                 outra — o mínimo WCAG ali é 24px — e inflar o shell no desktop
                 custaria densidade sem ganho. Em px, e não rem: a raiz é 87.5%. */}
@@ -66,7 +68,7 @@ export default function Navbar({
                      </div>
                   )
                )}
-               <span className="block text-2xl font-bold text-gray-800">
+               <span className="block truncate text-xl font-bold text-gray-800 sm:text-2xl">
                   FAT<span className="text-primary-600">CONTROL</span>
                </span>
             </div>

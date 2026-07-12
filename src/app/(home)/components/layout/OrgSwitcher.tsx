@@ -1,8 +1,10 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
+import clsx from "clsx";
 import { setCookie } from "cookies-next";
-import { FaBuilding, FaCheck, FaChevronDown } from "react-icons/fa6";
+import { FaBuilding, FaCheck } from "react-icons/fa6";
+import { Dropdown, DropdownHeader, DropdownItem } from "flowbite-react";
 import { useAuth } from "@/app/context/auth";
 import { switchOrg } from "services/routes/auth";
 import { getQueryClient } from "@/lib/queryClient";
@@ -22,27 +24,13 @@ function orgLabel(org: OrgScope): string {
 export function OrgSwitcher() {
    const { activeOrg, orgs } = useAuth();
    const { push } = useToast();
-   const [isOpen, setIsOpen] = useState(false);
    const [isSwitching, setIsSwitching] = useState(false);
-   const ref = useRef<HTMLDivElement>(null);
-
-   useEffect(() => {
-      function handleClickOutside(e: MouseEvent) {
-         if (ref.current && !ref.current.contains(e.target as Node)) {
-            setIsOpen(false);
-         }
-      }
-      document.addEventListener("mousedown", handleClickOutside);
-      return () =>
-         document.removeEventListener("mousedown", handleClickOutside);
-   }, []);
 
    if (!orgs || orgs.length === 0) return null;
 
    const current = orgs.find((o) => o.organizacao_id === activeOrg) ?? orgs[0];
 
    async function handleSwitch(org: OrgScope) {
-      setIsOpen(false);
       if (org.organizacao_id === activeOrg) return;
 
       setIsSwitching(true);
@@ -88,7 +76,7 @@ export function OrgSwitcher() {
    // Vínculo único: apenas exibe o escopo atual (sem dropdown)
    if (orgs.length === 1) {
       return (
-         <div className="flex items-center gap-2 rounded bg-white/60 px-3 py-1.5 text-sm font-semibold text-gray-700 shadow-sm">
+         <div className="ml-2 flex shrink-0 items-center gap-2 rounded bg-white/60 px-3 py-1.5 text-sm font-semibold text-gray-700 shadow-sm">
             <FaBuilding className="text-primary-600" />
             {orgLabel(current)}
          </div>
@@ -96,58 +84,56 @@ export function OrgSwitcher() {
    }
 
    return (
-      <div className="relative" ref={ref}>
-         <button
-            type="button"
-            onClick={() => setIsOpen((o) => !o)}
+      // shrink-0 + ml-2: o switcher nunca é comprimido pela marca — quem cede
+      // espaço na navbar estreita é o wordmark (min-w-0/truncate no navbar).
+      <div className="ml-2 shrink-0">
+         <Dropdown
+            label={
+               <span className="flex items-center gap-2 font-semibold">
+                  <FaBuilding className="text-primary-600" />
+                  {orgLabel(current)}
+               </span>
+            }
+            color="light"
+            size="sm"
             disabled={isSwitching}
-            className="focus-visible:ring-primary-600 flex items-center gap-2 rounded bg-white/70 px-3 py-1.5 text-sm font-semibold text-gray-700 shadow-sm transition-colors hover:bg-white focus-visible:ring-2 focus-visible:outline-none disabled:opacity-60 pointer-coarse:min-h-[44px]"
-            aria-haspopup="listbox"
-            aria-expanded={isOpen}
-            aria-label={`Organização ativa: ${orgLabel(current)}. Trocar organização`}
+            dismissOnClick
+            className="pointer-coarse:min-h-[44px]"
          >
-            <FaBuilding className="text-primary-600" />
-            {orgLabel(current)}
-            <FaChevronDown
-               className={`h-3 w-3 transition-transform ${isOpen ? "rotate-180" : ""}`}
-            />
-         </button>
-
-         {isOpen && (
-            <div
-               className="absolute right-0 z-50 mt-1 w-56 overflow-hidden rounded border border-gray-200 bg-white shadow-lg"
-               role="listbox"
-            >
-               <div className="border-b border-gray-100 px-3 py-2 text-xs font-semibold tracking-wide text-gray-400 uppercase">
+            <DropdownHeader>
+               <span className="text-xs font-semibold tracking-wide text-gray-400 uppercase">
                   Organização ativa
-               </div>
-               {orgs.map((org) => {
-                  const isActive = org.organizacao_id === activeOrg;
-                  return (
-                     <button
-                        key={org.organizacao_id ?? "sistema"}
-                        type="button"
-                        onClick={() => handleSwitch(org)}
-                        className={`flex w-full items-center justify-between px-3 py-2 text-left text-sm hover:bg-gray-50 ${
-                           isActive
-                              ? "text-primary-600 font-semibold"
-                              : "text-gray-700"
-                        }`}
-                        role="option"
-                        aria-selected={isActive}
-                     >
-                        <span className="flex flex-col">
+               </span>
+            </DropdownHeader>
+            {orgs.map((org) => {
+               const isActive = org.organizacao_id === activeOrg;
+               return (
+                  <DropdownItem
+                     key={org.organizacao_id ?? "sistema"}
+                     onClick={() => handleSwitch(org)}
+                  >
+                     <span className="flex w-full items-center justify-between gap-4">
+                        <span
+                           className={clsx(
+                              "flex flex-col text-left",
+                              isActive
+                                 ? "text-primary-600 font-semibold"
+                                 : "text-gray-700"
+                           )}
+                        >
                            <span>{orgLabel(org)}</span>
-                           <span className="text-xs text-gray-400 uppercase">
+                           <span className="text-xs font-normal text-gray-400 uppercase">
                               {org.role}
                            </span>
                         </span>
-                        {isActive && <FaCheck className="h-3 w-3" />}
-                     </button>
-                  );
-               })}
-            </div>
-         )}
+                        {isActive && (
+                           <FaCheck className="text-primary-600 h-3 w-3 shrink-0" />
+                        )}
+                     </span>
+                  </DropdownItem>
+               );
+            })}
+         </Dropdown>
       </div>
    );
 }
