@@ -6,11 +6,15 @@ export function AppLoadingScreen() {
    const { nome, saudacao } = useOrgBrand();
 
    return (
-      <div className="grid min-h-full flex-1 content-center justify-items-center bg-linear-to-br from-gray-50 to-gray-100">
-         <div className="animate-fade-in relative mx-8 grid w-full max-w-md justify-items-center rounded border border-slate-200 bg-white p-10 shadow">
+      <div className="mx-4 grid min-h-full flex-1 content-center justify-items-center bg-linear-to-br from-gray-50 to-gray-100">
+         {/* mx-* precisa estar aqui, no container externo. Num filho `w-full`
+             dentro de `justify-items-center`, a margem do proprio filho e
+             ignorada pelo grid (confirmado medindo boxLeft/width no browser:
+             com `mx-8` so no card, ele tocava as duas bordas da viewport). */}
+         <div className="animate-fade-in relative grid w-full max-w-md justify-items-center rounded border border-slate-200 bg-white px-6 py-8 shadow">
             {/* Identidade da org ativa (nome + lema), com animação de pulse suave */}
             <div className="animate-pulse-subtle mb-6 text-center">
-               <h3 className="mb-2 text-2xl font-bold tracking-tight text-gray-800 md:text-3xl">
+               <h3 className="mb-2 text-xl font-bold tracking-tight text-gray-800 md:text-2xl">
                   {nome}
                </h3>
                {saudacao && (

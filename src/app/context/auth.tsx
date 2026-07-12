@@ -4,8 +4,8 @@ import { deleteCookie, setCookie } from "cookies-next";
 import { getMe, type OrgScope } from "services/routes/users";
 import { AppLoadingScreen } from "src/app/(home)/components/appLoadingScreen";
 import {
-   DEFAULT_ORG_BRAND,
    ORG_BRAND_COOKIE,
+   orgBrandFrom,
    serializeOrgBrand,
 } from "@/lib/orgBrand";
 import {
@@ -107,10 +107,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       setCookie(ORG_THEME_COOKIE, tema, cookieOptions);
       setCookie(
          ORG_BRAND_COOKIE,
-         serializeOrgBrand({
-            nome: org?.nome || DEFAULT_ORG_BRAND.nome,
-            saudacao: org?.saudacao || "",
-         }),
+         serializeOrgBrand(orgBrandFrom(org)),
          cookieOptions
       );
    }, [loading, activeOrg, orgs]);

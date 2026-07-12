@@ -18,11 +18,36 @@ export interface OrgBrand {
 
 export const DEFAULT_ORG_BRAND: OrgBrand = {
    nome: "FATCONTROL",
-   saudacao: "",
+   // Placeholder do estado sem cookie (org ainda desconhecida). Org conhecida
+   // sem lema viaja como "" no cookie e não mostra saudação nenhuma.
+   saudacao: "Carregando",
 };
 
 export function serializeOrgBrand(brand: OrgBrand): string {
    return JSON.stringify(brand);
+}
+
+/**
+ * Marca a gravar no cookie para um escopo. Regra única para os dois pontos de
+ * gravação (AuthProvider no boot e OrgSwitcher na troca): org real usa
+ * nome + lema; escopo Sistema (organizacao_id null) cai na marca genérica
+ * inteira — inclusive o placeholder "Carregando", que sem isso só apareceria
+ * na primeira visita sem cookie.
+ */
+export function orgBrandFrom(
+   org:
+      | {
+           organizacao_id: string | null;
+           nome?: string | null;
+           saudacao?: string | null;
+        }
+      | undefined
+): OrgBrand {
+   if (!org?.organizacao_id) return DEFAULT_ORG_BRAND;
+   return {
+      nome: org.nome?.trim() || DEFAULT_ORG_BRAND.nome,
+      saudacao: org.saudacao || "",
+   };
 }
 
 /**

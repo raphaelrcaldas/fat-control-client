@@ -3,14 +3,14 @@
 import { useState } from "react";
 import clsx from "clsx";
 import { setCookie } from "cookies-next";
-import { FaBuilding, FaCheck } from "react-icons/fa6";
+import { FaBuilding, FaCheck, FaChevronDown } from "react-icons/fa6";
 import { Dropdown, DropdownHeader, DropdownItem } from "flowbite-react";
 import { useAuth } from "@/app/context/auth";
 import { switchOrg } from "services/routes/auth";
 import { getQueryClient } from "@/lib/queryClient";
 import {
-   DEFAULT_ORG_BRAND,
    ORG_BRAND_COOKIE,
+   orgBrandFrom,
    serializeOrgBrand,
 } from "@/lib/orgBrand";
 import { normalizeOrgTheme, ORG_THEME_COOKIE } from "@/lib/orgTheme";
@@ -51,10 +51,7 @@ export function OrgSwitcher() {
             );
             setCookie(
                ORG_BRAND_COOKIE,
-               serializeOrgBrand({
-                  nome: org.nome || DEFAULT_ORG_BRAND.nome,
-                  saudacao: org.saudacao || "",
-               }),
+               serializeOrgBrand(orgBrandFrom(org)),
                cookieOptions
             );
             getQueryClient().clear();
@@ -88,17 +85,27 @@ export function OrgSwitcher() {
       // espaço na navbar estreita é o wordmark (min-w-0/truncate no navbar).
       <div className="ml-2 shrink-0">
          <Dropdown
-            label={
-               <span className="flex items-center gap-2 font-semibold">
-                  <FaBuilding className="text-primary-600" />
-                  {orgLabel(current)}
-               </span>
-            }
-            color="light"
-            size="sm"
-            disabled={isSwitching}
             dismissOnClick
-            className="pointer-coarse:min-h-[44px]"
+            renderTrigger={() => (
+               // Alvo de toque de 44px no dedo, mas TRANSPARENTE: quem cresce
+               // no mobile é o botão (área clicável), não o pill visual — que
+               // mantém a mesma altura compacta do desktop. Visual idêntico ao
+               // badge de vínculo único, + chevron como affordance de menu.
+               <button
+                  type="button"
+                  disabled={isSwitching}
+                  className="group flex items-center focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-60 pointer-coarse:min-h-[44px]"
+               >
+                  <span className="group-focus-visible:ring-primary-600 flex items-center gap-2 rounded bg-white/60 px-3 py-1.5 text-sm font-semibold text-gray-700 shadow-sm transition-colors group-hover:bg-white group-focus-visible:ring-2">
+                     <FaBuilding className="text-primary-600" />
+                     {orgLabel(current)}
+                     <FaChevronDown
+                        className="h-3 w-3 text-gray-400"
+                        aria-hidden
+                     />
+                  </span>
+               </button>
+            )}
          >
             <DropdownHeader>
                <span className="text-xs font-semibold tracking-wide text-gray-400 uppercase">
