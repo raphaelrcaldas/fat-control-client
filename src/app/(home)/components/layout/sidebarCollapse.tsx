@@ -46,11 +46,12 @@ export default function SidebarCollapse({
          {/* Botão do collapse */}
          <button
             onClick={() => setIsOpen(!isOpen)}
-            className={`flex w-full items-center justify-between gap-3 rounded-lg px-4 py-3 transition-colors duration-200 ${
+            className={`focus-visible:ring-primary-600 flex w-full items-center justify-between gap-3 rounded px-4 py-3 transition-colors duration-200 focus-visible:ring-2 focus-visible:outline-none pointer-coarse:min-h-[44px] ${
                hasActiveChild
                   ? "bg-primary-50 text-primary-700"
                   : "text-gray-700 hover:bg-gray-100"
             } `}
+            aria-expanded={isOpen}
          >
             <div className="flex items-center gap-3">
                <Icon className="h-5 w-5 shrink-0" />

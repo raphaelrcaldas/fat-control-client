@@ -88,7 +88,7 @@ export function OrgSwitcher() {
    // Vínculo único: apenas exibe o escopo atual (sem dropdown)
    if (orgs.length === 1) {
       return (
-         <div className="flex items-center gap-2 rounded-lg bg-white/60 px-3 py-1.5 text-sm font-semibold text-gray-700 shadow-sm">
+         <div className="flex items-center gap-2 rounded bg-white/60 px-3 py-1.5 text-sm font-semibold text-gray-700 shadow-sm">
             <FaBuilding className="text-primary-600" />
             {orgLabel(current)}
          </div>
@@ -101,9 +101,10 @@ export function OrgSwitcher() {
             type="button"
             onClick={() => setIsOpen((o) => !o)}
             disabled={isSwitching}
-            className="flex items-center gap-2 rounded-lg bg-white/70 px-3 py-1.5 text-sm font-semibold text-gray-700 shadow-sm transition-colors hover:bg-white disabled:opacity-60"
+            className="focus-visible:ring-primary-600 flex items-center gap-2 rounded bg-white/70 px-3 py-1.5 text-sm font-semibold text-gray-700 shadow-sm transition-colors hover:bg-white focus-visible:ring-2 focus-visible:outline-none disabled:opacity-60 pointer-coarse:min-h-[44px]"
             aria-haspopup="listbox"
             aria-expanded={isOpen}
+            aria-label={`Organização ativa: ${orgLabel(current)}. Trocar organização`}
          >
             <FaBuilding className="text-primary-600" />
             {orgLabel(current)}
@@ -114,7 +115,7 @@ export function OrgSwitcher() {
 
          {isOpen && (
             <div
-               className="absolute right-0 z-50 mt-1 w-56 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-lg"
+               className="absolute right-0 z-50 mt-1 w-56 overflow-hidden rounded border border-gray-200 bg-white shadow-lg"
                role="listbox"
             >
                <div className="border-b border-gray-100 px-3 py-2 text-xs font-semibold tracking-wide text-gray-400 uppercase">

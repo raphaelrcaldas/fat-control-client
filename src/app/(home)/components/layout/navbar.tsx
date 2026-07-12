@@ -24,13 +24,19 @@ export default function Navbar({
    const isSistema = activeOrg === null;
 
    return (
-      <nav className="to-primary-100 fixed top-0 right-0 left-0 z-50 flex h-16 items-center justify-between bg-linear-to-r from-white px-4 shadow-lg">
+      <nav
+         aria-label="Barra superior"
+         className="to-primary-100 fixed top-0 right-0 left-0 z-50 flex h-16 items-center justify-between bg-linear-to-r from-white px-4 shadow-lg"
+      >
          <div className="flex items-center gap-3">
-            {/* Botão menu */}
+            {/* Alvo de 44px só em ponteiro grosso (dedo). No mouse a precisão é
+                outra — o mínimo WCAG ali é 24px — e inflar o shell no desktop
+                custaria densidade sem ganho. Em px, e não rem: a raiz é 87.5%. */}
             <button
                onClick={onToggleSidebar}
-               className="hover:bg-primary-100 rounded-lg p-2 transition-colors focus:outline-none"
+               className="hover:bg-primary-100 focus-visible:ring-primary-600 flex items-center justify-center rounded transition-colors focus-visible:ring-2 focus-visible:outline-none pointer-coarse:min-h-[44px] pointer-coarse:min-w-[44px]"
                aria-label={isSidebarOpen ? "Fechar menu" : "Abrir menu"}
+               aria-expanded={isSidebarOpen}
             >
                {isSidebarOpen ? (
                   <MdClose className="text-primary-600 h-7 w-7" />

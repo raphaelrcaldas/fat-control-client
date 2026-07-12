@@ -119,7 +119,10 @@ export default function SidebarWithFooter({
             )}
          >
             {/* Área de navegação com scroll */}
-            <nav className="flex-1 space-y-1 overflow-y-auto p-1">
+            <nav
+               aria-label="Navegação principal"
+               className="flex-1 space-y-1 overflow-y-auto p-1"
+            >
                {filteredNavItems.map((item, index) => {
                   if (item.type === "item") {
                      return (
@@ -164,12 +167,14 @@ export default function SidebarWithFooter({
                      </div>
                   </div>
                   <Button
-                     className="p-1"
+                     className="p-1 pointer-coarse:min-h-[44px] pointer-coarse:min-w-[44px]"
                      onClick={handleLogout}
                      color="alternative"
                      disabled={isLoggingOut}
+                     aria-label="Sair"
+                     title="Sair"
                   >
-                     <PiSignOut size={21} />
+                     <PiSignOut size={21} aria-hidden />
                   </Button>
                </div>
             </div>

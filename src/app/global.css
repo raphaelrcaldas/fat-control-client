@@ -239,7 +239,11 @@
 }
 
 html {
-   font-size: 14px;
+   /* Densidade do sistema: 1rem = 14px na configuracao padrao do navegador
+      (16px x 87.5%). Em porcentagem, e nao em `px`, de proposito: `px` cravado
+      anula a preferencia de tamanho de fonte de quem enxerga mal e aumentou a
+      fonte no navegador — com `%`, a escala inteira acompanha essa preferencia. */
+   font-size: 87.5%;
 }
 
 body {
