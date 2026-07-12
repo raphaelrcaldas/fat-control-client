@@ -58,7 +58,7 @@ export default defineConfig({
       },
       {
          command:
-            "cd ../api && ./scripts/e2e_db_setup.sh && export DATABASE_URL='postgresql+asyncpg://postgres:e2e_password@localhost:5433/fcontrol_e2e' && stdbuf -oL poetry run task run 2>&1 | stdbuf -oL sed \"s/^/\\x1b[32m[API]\\x1b[0m /\"",
+            "cd ../api && ./scripts/e2e_db_setup.sh && export DATABASE_URL='postgresql+asyncpg://postgres:e2e_password@localhost:5433/fcontrol_e2e' && stdbuf -oL uv run task run 2>&1 | stdbuf -oL sed \"s/^/\\x1b[32m[API]\\x1b[0m /\"",
          url: "http://localhost:8000/docs",
          reuseExistingServer: !process.env.CI,
          timeout: 180 * 1000,
