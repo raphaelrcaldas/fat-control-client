@@ -18,7 +18,7 @@ function LegendItem({ swatch, label }: { swatch: string; label: string }) {
 
 export function ColorLegend() {
    return (
-      <div className="flex shrink-0 flex-wrap justify-center gap-x-2 gap-y-1 border-b border-slate-200 bg-white p-2 text-xs">
+      <div className="hidden shrink-0 flex-wrap justify-center gap-x-2 gap-y-1 border-b border-slate-200 bg-white p-2 text-xs sm:flex">
          {INDISP_OPTIONS.map((option) => (
             <LegendItem
                key={option.value}
