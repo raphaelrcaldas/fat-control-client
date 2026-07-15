@@ -50,10 +50,18 @@ export default function HomeApp() {
    };
 
    return (
-      <div className="mx-auto w-full max-w-2xl sm:max-w-3xl lg:max-w-4xl">
+      // px-3: no mobile o padding do layout (p-1 = 3,5px) não dá respiro; aqui
+      // soma ~1rem, mesma folga da tela de carregamento. Some no sm+, onde o
+      // mx-auto + max-w já garante margem.
+      <div className="mx-auto w-full max-w-2xl px-3 pt-2 sm:max-w-3xl sm:px-0 sm:pt-6 lg:max-w-4xl">
          {/* Welcome Card */}
-         <div className="rounded border border-slate-200 bg-white p-5 shadow-sm sm:p-6 md:p-8">
-            <div className="flex flex-col items-center gap-5 sm:flex-row sm:items-start sm:gap-6">
+         <div className="relative overflow-hidden rounded border border-slate-200 bg-white p-5 shadow-sm sm:p-6 md:p-8">
+            {/* Espinha lateral tematizada — ecoa a linguagem dos cards/Masthead */}
+            <span
+               aria-hidden
+               className="bg-primary-600 absolute top-0 left-0 h-full w-1"
+            />
+            <div className="relative flex flex-col items-center gap-5 sm:flex-row sm:items-start sm:gap-6">
                {/* Avatar */}
                <div className="from-primary-500 to-primary-600 rounded-full bg-linear-to-br p-1">
                   <div className="rounded-full bg-white p-1">
@@ -63,7 +71,7 @@ export default function HomeApp() {
 
                {/* User Info */}
                <div className="min-w-0 flex-1 text-center sm:text-left">
-                  <h1 className="mb-2 text-lg text-gray-800 sm:text-xl">
+                  <h1 className="mb-2 text-xl tracking-tight text-gray-800 sm:text-2xl">
                      {getGreeting()},{" "}
                      <span className="font-bold uppercase">
                         {`${userPg} ${user}`}
