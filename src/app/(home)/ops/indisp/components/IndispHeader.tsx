@@ -2,19 +2,22 @@ import { HiUserGroup } from "react-icons/hi";
 
 export function IndispHeader() {
    return (
-      <header className="relative mb-2 shrink-0 overflow-hidden rounded border border-slate-200 bg-white px-4 py-6 shadow-sm">
-         {/* Espinha vermelha — identidade do módulo (ver masthead canônico) */}
+      <header className="relative shrink-0 overflow-hidden rounded border border-slate-200 bg-white px-5 py-4 shadow-sm sm:px-6 sm:py-5">
+         {/* Espinha — identidade do módulo (ver masthead canônico) */}
          <span
             aria-hidden
-            className="absolute top-0 left-0 h-full w-1 bg-red-600"
+            className="bg-primary-600 absolute top-0 left-0 h-full w-1"
          />
 
-         <div className="relative flex items-center gap-3">
-            <div className="grid h-11 w-11 shrink-0 place-items-center rounded-md bg-red-50 text-red-600 ring-1 ring-red-100 ring-inset">
-               <HiUserGroup className="h-5 w-5" />
+         <div className="relative flex items-center gap-4">
+            <div className="bg-primary-50 text-primary-600 ring-primary-100 grid h-12 w-12 shrink-0 place-items-center rounded-md ring-1 ring-inset">
+               <HiUserGroup className="h-6 w-6" />
             </div>
             <div>
-               <h1 className="text-xl leading-none font-extrabold tracking-tight text-slate-900 sm:text-2xl">
+               <span className="text-primary-600 block font-mono text-[10px] font-bold tracking-[0.3em] uppercase">
+                  Operações
+               </span>
+               <h1 className="text-2xl leading-none font-extrabold tracking-tight text-slate-900 sm:text-[28px]">
                   Indisponibilidades
                </h1>
             </div>

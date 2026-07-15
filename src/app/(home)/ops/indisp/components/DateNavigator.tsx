@@ -1,6 +1,6 @@
 "use client";
 
-import { Tooltip } from "flowbite-react";
+import { Button, Tooltip } from "flowbite-react";
 import {
    HiChevronLeft,
    HiChevronRight,
@@ -16,7 +16,7 @@ interface DateNavigatorProps {
 }
 
 const navBtn =
-   "rounded p-2 text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-800 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-gray-600";
+   "inline-flex items-center justify-center rounded p-2 text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-800 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-gray-600 pointer-coarse:min-h-[44px] pointer-coarse:min-w-[44px]";
 
 export function DateNavigator({
    onShift,
@@ -48,13 +48,15 @@ export function DateNavigator({
                </button>
             </Tooltip>
 
-            <button
+            <Button
+               color="primary"
+               size="sm"
                onClick={onToday}
-               className="mx-1 rounded bg-red-600 px-4 py-2 font-medium text-white shadow-sm transition-colors hover:bg-red-700"
+               className="mx-1 font-medium"
                aria-label="Ir para hoje"
             >
                Hoje
-            </button>
+            </Button>
 
             <Tooltip content="Próximo dia">
                <button

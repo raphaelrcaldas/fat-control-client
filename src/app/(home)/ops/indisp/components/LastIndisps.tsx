@@ -13,9 +13,9 @@ export function LastIndisps({ indisps }: { indisps: CrewIndispList[] }) {
 
    return (
       <div className="h-fit w-fit rounded border border-slate-200 bg-white p-3 shadow">
-         <h3 className="mb-3 border-b border-slate-200 pb-2 text-center text-base font-bold whitespace-nowrap text-gray-900">
+         <h2 className="mb-3 border-b border-slate-200 pb-2 text-center text-base font-bold whitespace-nowrap text-gray-900">
             Últimas Atualizações
-         </h3>
+         </h2>
 
          <div className="flex flex-col gap-0.5">
             {lastIndisps.map((item, idx) => (
@@ -88,7 +88,7 @@ function LastIndispRow({
             {dateEnd}
          </span>
 
-         <span className="w-24 shrink-0 text-center font-mono text-xs whitespace-nowrap text-gray-500">
+         <span className="w-24 shrink-0 text-center font-mono text-[11px] whitespace-nowrap text-slate-600">
             {lastChangeDate}
          </span>
 

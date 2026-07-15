@@ -11,6 +11,8 @@ export interface IndispOption {
    color: {
       button: string;
       bg: string;
+      /** Cor da sigla estampada na célula — garante contraste AA (≥4.5:1) sobre `button`. */
+      sigla: string;
    };
 }
 
@@ -21,38 +23,44 @@ export const INDISP_OPTIONS: IndispOption[] = [
       color: {
          button: "bg-amber-400 enabled:hover:bg-amber-700",
          bg: "bg-amber-200",
+         // Matiz claro: branco nunca passa AA sobre amber — sigla escura.
+         sigla: "text-amber-950",
       },
    },
    {
       value: "sde",
       label: "Saúde",
       color: {
-         button: "bg-red-500 enabled:hover:bg-red-800",
+         button: "bg-red-600 enabled:hover:bg-red-800",
          bg: "bg-red-100",
+         sigla: "text-white",
       },
    },
    {
       value: "rep",
       label: "Representação",
       color: {
-         button: "bg-red-500 enabled:hover:bg-red-800",
-         bg: "bg-red-100",
+         button: "bg-fuchsia-600 enabled:hover:bg-fuchsia-800",
+         bg: "bg-fuchsia-100",
+         sigla: "text-white",
       },
    },
    {
       value: "fer",
       label: "Férias",
       color: {
-         button: "bg-red-500 enabled:hover:bg-red-800",
-         bg: "bg-red-100",
+         button: "bg-teal-700 enabled:hover:bg-teal-900",
+         bg: "bg-teal-100",
+         sigla: "text-white",
       },
    },
    {
       value: "lic",
       label: "Licença",
       color: {
-         button: "bg-red-500 enabled:hover:bg-red-800",
-         bg: "bg-red-100",
+         button: "bg-indigo-600 enabled:hover:bg-indigo-800",
+         bg: "bg-indigo-100",
+         sigla: "text-white",
       },
    },
    {
@@ -61,6 +69,8 @@ export const INDISP_OPTIONS: IndispOption[] = [
       color: {
          button: "bg-orange-500 enabled:hover:bg-orange-800",
          bg: "bg-orange-100",
+         // Matiz claro: branco nunca passa AA sobre orange — sigla escura.
+         sigla: "text-orange-950",
       },
    },
    {
@@ -69,6 +79,7 @@ export const INDISP_OPTIONS: IndispOption[] = [
       color: {
          button: "bg-rose-700 enabled:hover:bg-rose-900",
          bg: "bg-rose-200",
+         sigla: "text-white",
       },
    },
    {
@@ -77,14 +88,16 @@ export const INDISP_OPTIONS: IndispOption[] = [
       color: {
          button: "bg-blue-700 enabled:hover:bg-blue-800",
          bg: "bg-blue-200",
+         sigla: "text-white",
       },
    },
    {
       value: "ins",
       label: "CEMAL",
       color: {
-         button: "bg-red-500 enabled:hover:bg-red-800",
-         bg: "bg-red-100",
+         button: "bg-pink-600 enabled:hover:bg-pink-800",
+         bg: "bg-pink-100",
+         sigla: "text-white",
       },
    },
 ];

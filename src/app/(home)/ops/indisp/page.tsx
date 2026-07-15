@@ -2,6 +2,7 @@
 
 import { ReactNode } from "react";
 import clsx from "clsx";
+import { Button } from "flowbite-react";
 import { usePersistedState } from "@/hooks/usePersistedState";
 import { useCrewIndisps } from "@/hooks/queries";
 import { FUNC_LABELS_SHORT, FUNCOES_PRINCIPAIS } from "@/constants/tripulantes";
@@ -42,7 +43,7 @@ export default function IndispPage() {
 
    return (
       <IndispModalProvider>
-         <div className="flex flex-1 flex-col overflow-hidden">
+         <div className="flex flex-1 flex-col space-y-2 overflow-hidden">
             <IndispHeader />
 
             <IndispContent
@@ -52,6 +53,7 @@ export default function IndispPage() {
                indisps={indisps}
                dates={dates}
                onRetry={refetch}
+               onToday={goToday}
                controls={
                   <IndispControls
                      func={indispFunc}
@@ -78,6 +80,7 @@ interface IndispContentProps {
    indisps: CrewIndispList[] | undefined;
    dates: Date[];
    onRetry: () => void;
+   onToday: () => void;
    controls: ReactNode;
 }
 
@@ -88,6 +91,7 @@ function IndispContent({
    indisps,
    dates,
    onRetry,
+   onToday,
    controls,
 }: IndispContentProps) {
    // 1. Primeira carga — espelha o layout de conteúdo (tabela + painel lateral).
@@ -138,9 +142,17 @@ function IndispContent({
                <p className="text-sm font-semibold text-slate-600">
                   Nenhuma indisponibilidade para esta função
                </p>
-               <p className="mt-1 text-xs text-slate-400">
+               <p className="mt-1 text-xs text-slate-600">
                   Troque a função ou o período para ver os registros.
                </p>
+               <Button
+                  color="light"
+                  size="sm"
+                  onClick={onToday}
+                  className="mt-4"
+               >
+                  Voltar para hoje
+               </Button>
             </div>
          </div>
       );

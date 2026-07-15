@@ -48,7 +48,7 @@ function ThMonth({
          className={clsx(
             "px-1 py-2 text-center text-sm font-bold transition-colors",
             {
-               "bg-red-400 text-white": isWeekend && !isToday,
+               "bg-red-100 text-red-800": isWeekend && !isToday,
                "bg-yellow-400 text-gray-900 shadow-md": isToday,
                "bg-gray-300 text-gray-600": isPast && !isToday && !isWeekend,
                "bg-white text-gray-900": !isPast && !isToday && !isWeekend,
@@ -73,7 +73,9 @@ export function IndispTableHeader({
    return (
       <thead className="sticky top-0 z-10 bg-white">
          <tr>
-            <th scope="col" />
+            <th scope="col">
+               <span className="sr-only">Tripulante</span>
+            </th>
             {dates.map((day, index) => (
                <ThWeek
                   key={index}
@@ -83,7 +85,9 @@ export function IndispTableHeader({
             ))}
          </tr>
          <tr>
-            <th scope="col" />
+            <th scope="col">
+               <span className="sr-only">Tripulante</span>
+            </th>
             {dates.map((day, index) => (
                <ThMonth
                   key={index}
