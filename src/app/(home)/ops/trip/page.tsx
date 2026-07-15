@@ -1,7 +1,9 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import clsx from "clsx";
 import {
+   Badge,
    Select,
    TextInput,
    Button,
@@ -11,7 +13,7 @@ import {
    TableRow,
    TableHeadCell,
 } from "flowbite-react";
-import { HiSearch, HiUserGroup, HiX } from "react-icons/hi";
+import { HiFilter, HiSearch, HiUserGroup, HiX } from "react-icons/hi";
 import { Pagination } from "@/components/Pagination";
 import { postoGradRecords } from "services/routes/postos";
 import { FUNC_LABELS_SHORT, OPER_LABELS } from "@/constants/tripulantes";
@@ -75,22 +77,27 @@ export default function TripPage() {
       filters.name !== "" ||
       filters.active !== true;
 
+   // Disclosure dos selects no mobile; abre se a URL já traz filtro ativo
+   const advancedFilterCount =
+      filters.p_g.length + filters.func.length + filters.oper.length;
+   const [filtersOpen, setFiltersOpen] = useState(advancedFilterCount > 0);
+
    return (
       <div className="flex flex-col space-y-2">
          {/* Masthead — padrão canônico do sistema */}
          <header className="relative overflow-hidden rounded border border-slate-200 bg-white px-5 py-4 shadow-sm sm:px-6 sm:py-5">
             <span
                aria-hidden
-               className="absolute top-0 left-0 h-full w-1 bg-red-600"
+               className="bg-primary-600 absolute top-0 left-0 h-full w-1"
             />
 
             <div className="relative flex flex-wrap items-center justify-between gap-4">
                <div className="flex min-w-0 items-center gap-4">
-                  <div className="grid h-12 w-12 shrink-0 place-items-center rounded-md bg-red-50 text-red-600 ring-1 ring-red-100 ring-inset">
+                  <div className="bg-primary-50 text-primary-600 ring-primary-100 grid h-12 w-12 shrink-0 place-items-center rounded-md ring-1 ring-inset">
                      <HiUserGroup className="h-6 w-6" />
                   </div>
                   <div className="min-w-0">
-                     <span className="block font-mono text-[10px] font-bold tracking-[0.3em] text-red-500 uppercase">
+                     <span className="text-primary-600 block font-mono text-[10px] font-bold tracking-[0.3em] uppercase">
                         Gestão Operacional
                      </span>
                      <h1 className="text-2xl leading-none font-extrabold tracking-tight text-slate-900 sm:text-[28px]">
@@ -111,74 +118,100 @@ export default function TripPage() {
             <div className="border-b border-slate-200 p-4">
                {/* Linha 1: Busca + Toggle + Adicionar */}
                <div className="flex flex-col gap-3 md:flex-row md:items-center">
-                  {/* Busca */}
-                  <div className="flex-1">
-                     <TextInput
-                        icon={HiSearch}
-                        placeholder="Buscar por trigrama, nome de guerra ou nome completo..."
-                        value={filterName}
-                        onChange={(e) => setFilterName(e.target.value)}
-                     />
-                  </div>
-
-                  {/* Filtro P/G */}
-                  <div className="w-44">
-                     <MultiSelect
-                        options={postoGradRecords.map((posto) => ({
-                           value: posto.short,
-                           label: posto.mid,
-                        }))}
-                        selected={filters.p_g}
-                        onChange={(values) => updateFilter("p_g", values)}
-                        placeholder="Posto/Graduação"
-                     />
-                  </div>
-
-                  {/* Filtro Função */}
-                  <div className="w-44">
-                     <MultiSelect
-                        options={Object.entries(FUNC_LABELS_SHORT).map(
-                           ([key, value]) => ({
-                              value: key,
-                              label: value,
-                           })
+                  {/* Busca + disclosure dos filtros (mobile) */}
+                  <div className="flex flex-1 gap-3">
+                     <div className="flex-1">
+                        <TextInput
+                           icon={HiSearch}
+                           placeholder="Buscar por trigrama, nome de guerra ou nome completo..."
+                           value={filterName}
+                           onChange={(e) => setFilterName(e.target.value)}
+                        />
+                     </div>
+                     <Button
+                        color="light"
+                        className="shrink-0 md:hidden"
+                        onClick={() => setFiltersOpen((open) => !open)}
+                        aria-expanded={filtersOpen}
+                        aria-controls="trip-filters"
+                     >
+                        <HiFilter className="mr-1 h-4 w-4" />
+                        Filtros
+                        {advancedFilterCount > 0 && (
+                           <Badge color="primary" className="ml-1.5">
+                              {advancedFilterCount}
+                           </Badge>
                         )}
-                        selected={filters.func}
-                        onChange={(values) =>
-                           updateFilter("func", values as FuncType[])
-                        }
-                        placeholder="Função"
-                     />
+                     </Button>
                   </div>
 
-                  {/* Filtro Operacionalidade */}
-                  <div className="w-48">
-                     <MultiSelect
-                        options={Object.entries(OPER_LABELS).map(
-                           ([key, value]) => ({
-                              value: key,
-                              label: value,
-                           })
-                        )}
-                        selected={filters.oper}
-                        onChange={(values) =>
-                           updateFilter("oper", values as OperType[])
-                        }
-                        placeholder="Operacionalidade"
-                     />
+                  {/* Selects — recolhíveis no mobile, inline no desktop */}
+                  <div
+                     id="trip-filters"
+                     className={clsx(
+                        "flex-col gap-3 md:contents",
+                        filtersOpen ? "flex" : "hidden"
+                     )}
+                  >
+                     {/* Filtro P/G */}
+                     <div className="w-full md:w-44">
+                        <MultiSelect
+                           options={postoGradRecords.map((posto) => ({
+                              value: posto.short,
+                              label: posto.mid,
+                           }))}
+                           selected={filters.p_g}
+                           onChange={(values) => updateFilter("p_g", values)}
+                           placeholder="Posto/Graduação"
+                        />
+                     </div>
+
+                     {/* Filtro Função */}
+                     <div className="w-full md:w-44">
+                        <MultiSelect
+                           options={Object.entries(FUNC_LABELS_SHORT).map(
+                              ([key, value]) => ({
+                                 value: key,
+                                 label: value,
+                              })
+                           )}
+                           selected={filters.func}
+                           onChange={(values) =>
+                              updateFilter("func", values as FuncType[])
+                           }
+                           placeholder="Função"
+                        />
+                     </div>
+
+                     {/* Filtro Operacionalidade */}
+                     <div className="w-full md:w-48">
+                        <MultiSelect
+                           options={Object.entries(OPER_LABELS).map(
+                              ([key, value]) => ({
+                                 value: key,
+                                 label: value,
+                              })
+                           )}
+                           selected={filters.oper}
+                           onChange={(values) =>
+                              updateFilter("oper", values as OperType[])
+                           }
+                           placeholder="Operacionalidade"
+                        />
+                     </div>
                   </div>
 
                   {/* Toggle Ativo/Inativo */}
                   <div className="flex gap-1">
                      <Button
-                        color={filters.active ? "green" : "light"}
+                        color={filters.active ? "primary" : "light"}
                         size="sm"
                         onClick={() => updateFilter("active", true)}
                      >
                         Ativos
                      </Button>
                      <Button
-                        color={!filters.active ? "gray" : "light"}
+                        color={!filters.active ? "primary" : "light"}
                         size="sm"
                         onClick={() => updateFilter("active", false)}
                      >
@@ -191,7 +224,7 @@ export default function TripPage() {
                {hasActiveFilters && (
                   <div className="mt-3 flex flex-wrap items-center gap-3">
                      <Button
-                        color="red"
+                        color="light"
                         size="sm"
                         outline
                         onClick={handleClearFilters}
@@ -208,25 +241,29 @@ export default function TripPage() {
                <TripTableSkeleton />
             ) : trips.length === 0 ? (
                <div className="flex h-64 flex-col items-center justify-center px-4 text-center">
-                  <h3 className="mb-2 text-lg font-semibold text-slate-700">
+                  <h2 className="mb-2 text-lg font-semibold text-slate-700">
                      {hasActiveFilters
                         ? "Nenhum tripulante encontrado"
                         : "Nenhum tripulante cadastrado"}
-                  </h3>
+                  </h2>
                   <p className="mb-4 max-w-md text-sm text-slate-500">
                      {hasActiveFilters
                         ? "Não encontramos resultados com os filtros aplicados. Tente ajustar os filtros."
                         : "Comece adicionando o primeiro tripulante ao sistema."}
                   </p>
-                  {hasActiveFilters && (
+                  {hasActiveFilters ? (
                      <Button
-                        color="red"
+                        color="light"
                         size="xs"
                         outline
                         onClick={handleClearFilters}
                      >
                         Limpar Filtros
                      </Button>
+                  ) : (
+                     <PermBased resource={"trips"} requiredPerm={"create"}>
+                        <SearchUser />
+                     </PermBased>
                   )}
                </div>
             ) : (
@@ -237,15 +274,20 @@ export default function TripPage() {
                   >
                      <Table
                         hoverable
-                        theme={{ body: { cell: { base: "py-1" } } }}
+                        theme={{
+                           head: { cell: { base: "px-3 sm:px-6" } },
+                           body: { cell: { base: "px-3 py-1 sm:px-6" } },
+                        }}
                      >
                         <TableHead>
                            <TableRow>
-                              <TableHeadCell>P/G</TableHeadCell>
-                              <TableHeadCell className="hidden lg:table-cell">
+                              <TableHeadCell className="w-20">
+                                 P/G
+                              </TableHeadCell>
+                              <TableHeadCell className="hidden w-24 lg:table-cell">
                                  Quadro
                               </TableHeadCell>
-                              <TableHeadCell className="hidden lg:table-cell">
+                              <TableHeadCell className="hidden w-28 lg:table-cell">
                                  Especialidade
                               </TableHeadCell>
                               <TableHeadCell className="hidden md:table-cell">
@@ -254,16 +296,16 @@ export default function TripPage() {
                               <TableHeadCell className="hidden md:table-cell">
                                  Nome Completo
                               </TableHeadCell>
-                              <TableHeadCell className="text-center">
+                              <TableHeadCell className="w-24 text-center">
                                  Trigrama
                               </TableHeadCell>
                               <TableHeadCell className="text-center">
                                  Funções
                               </TableHeadCell>
-                              <TableHeadCell className="hidden text-center md:table-cell">
+                              <TableHeadCell className="hidden w-24 text-center md:table-cell">
                                  Status
                               </TableHeadCell>
-                              <TableHeadCell>
+                              <TableHeadCell className="w-28">
                                  <span className="sr-only">Ações</span>
                               </TableHeadCell>
                            </TableRow>

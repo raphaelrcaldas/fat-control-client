@@ -29,7 +29,7 @@ export function SearchUser() {
    return (
       <>
          <Button
-            color="red"
+            color="primary"
             className="font-semibold"
             onClick={() => setShowSearch(true)}
          >

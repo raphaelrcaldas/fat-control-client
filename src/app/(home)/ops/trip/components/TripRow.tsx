@@ -14,7 +14,7 @@ export function TripRow({ trip }: TripRowProps) {
 
    return (
       <TableRow>
-         <TableCell className="text-slate-700 capitalize">
+         <TableCell className="whitespace-nowrap text-slate-700 capitalize">
             {user.posto.mid}
          </TableCell>
          <TableCell className="hidden text-slate-600 uppercase lg:table-cell">
@@ -29,7 +29,7 @@ export function TripRow({ trip }: TripRowProps) {
          <TableCell className="hidden text-slate-800 capitalize md:table-cell">
             {user.nome_completo}
          </TableCell>
-         <TableCell className="text-center font-medium text-red-600 uppercase">
+         <TableCell className="text-primary-600 text-center font-medium uppercase">
             {trip.trig}
          </TableCell>
          <TableCell className="text-center uppercase">
@@ -47,7 +47,7 @@ export function TripRow({ trip }: TripRowProps) {
                ></span>
                <span
                   className={clsx(
-                     trip.active ? "text-green-600" : "text-slate-500"
+                     trip.active ? "text-green-700" : "text-slate-500"
                   )}
                >
                   {trip.active ? "Ativo" : "Inativo"}

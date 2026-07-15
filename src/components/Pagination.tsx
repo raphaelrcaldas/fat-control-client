@@ -38,11 +38,11 @@ export function Pagination({
    };
 
    const btnBase =
-      "flex items-center justify-center text-sm py-2 px-3 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700";
+      "flex items-center justify-center text-sm py-2 px-3 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 pointer-coarse:min-h-[44px] pointer-coarse:min-w-[44px]";
    const btnNav =
-      "flex items-center justify-center h-full py-1.5 px-3 text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-gray-500";
+      "flex items-center justify-center h-full py-1.5 px-3 text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-gray-500 pointer-coarse:min-h-[44px] pointer-coarse:min-w-[44px]";
    const btnActive =
-      "flex items-center justify-center text-sm z-10 py-2 px-3 leading-tight text-red-600 bg-red-50 border border-red-300 hover:bg-red-100 hover:text-red-700";
+      "flex items-center justify-center text-sm z-10 py-2 px-3 leading-tight text-primary-600 bg-primary-50 border border-primary-300 hover:bg-primary-100 hover:text-primary-700 pointer-coarse:min-h-[44px] pointer-coarse:min-w-[44px]";
 
    return (
       <ul className="inline-flex items-stretch -space-x-px">
@@ -51,7 +51,7 @@ export function Pagination({
             <button
                onClick={() => onPageChange(currentPage - 1)}
                disabled={currentPage === 1}
-               className={`${btnNav} rounded-l-lg`}
+               className={`${btnNav} rounded-l`}
                title="Página anterior"
             >
                <span className="sr-only">Anterior</span>
@@ -81,7 +81,7 @@ export function Pagination({
             <button
                onClick={() => onPageChange(currentPage + 1)}
                disabled={currentPage === totalPages}
-               className={`${btnNav} rounded-r-lg`}
+               className={`${btnNav} rounded-r`}
                title="Próxima página"
             >
                <span className="sr-only">Próximo</span>
