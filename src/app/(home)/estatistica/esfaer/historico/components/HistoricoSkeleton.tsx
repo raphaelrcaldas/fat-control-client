@@ -2,8 +2,8 @@
  * Skeleton da view "Histórico de Esforço Aéreo".
  *
  * Espelha o layout real para zero layout-shift: toolbar (chips ~34px), card do
- * chart (linha de título + área que preenche a altura no desktop + brush de
- * 78px) e rail de programas (~330px: cabeçalho, busca e cards de duas linhas).
+ * chart (linha de título + área de 330px + brush de 78px) e rail de programas
+ * (~330px: cabeçalho, busca e cards de duas linhas).
  * Contagens fixas (sem Math.random) para evitar flicker/hydration mismatch.
  */
 
@@ -31,12 +31,8 @@ export function HistoricoSkeleton() {
             {/* Card do chart: título + área principal + brush */}
             <div className="rounded border border-slate-200 bg-white p-4 shadow-sm">
                <div className="mb-2 h-4 w-56 animate-pulse rounded bg-slate-200" />
-               {/* Placeholder da área do chart. O grid real tem altura MEDIDA
-                   em px (page.tsx) — aqui aproximamos por CSS p/ minimizar o
-                   layout-shift na chegada dos dados. O 256px ≈ navbar(64) +
-                   padding do <main>(16) + header(~100) + toolbar(~50) + gaps +
-                   respiro; se o header/toolbar mudarem de altura, reavaliar. */}
-               <div className="h-[330px] w-full animate-pulse rounded bg-slate-200 lg:h-[calc(100dvh-256px)]" />
+               {/* Mesma altura fixa do chart real (MAIN_HEIGHT). */}
+               <div className="h-[330px] w-full animate-pulse rounded bg-slate-200" />
                <div className="mt-2 h-[78px] w-full animate-pulse rounded bg-slate-100" />
             </div>
 

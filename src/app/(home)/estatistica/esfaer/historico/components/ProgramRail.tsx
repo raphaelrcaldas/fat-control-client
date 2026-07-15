@@ -81,7 +81,10 @@ export function ProgramRail({
             )}
          </div>
 
-         <div className="mt-3 max-h-120 space-y-2 overflow-auto pr-1 lg:max-h-none lg:min-h-0 lg:flex-1">
+         {/* Teto fixo + scroll interno: o grid da página é content-sized, então
+             a lista não pode definir a altura da linha (rolaria a página toda
+             com muitos programas). */}
+         <div className="mt-3 max-h-120 space-y-2 overflow-auto pr-1 lg:min-h-0 lg:flex-1">
             {filtered.length === 0 ? (
                <p className="px-1 py-6 text-center text-sm text-slate-400">
                   Nenhum esforço encontrado para &quot;{query}&quot;

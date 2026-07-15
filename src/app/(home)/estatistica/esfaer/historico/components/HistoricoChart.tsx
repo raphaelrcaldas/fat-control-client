@@ -12,22 +12,16 @@
  * - Visibilidade/cores 100% DECLARATIVAS — vêm de `useHistoricoSeries` em
  *   lockstep posicional (series[i] ↔ colors[i] ↔ dashArray[i] ↔ meta[i]).
  *   Nada de `showSeries/hideSeries` imperativo.
- * - Altura responsiva: a página trava a altura do grid à área visível; este
- *   chart deriva a própria altura do container flex (ResizeObserver na área,
- *   descontando o brush). No mobile o container é content-sized e cai na base.
+ * - Alturas FIXAS (main + brush). Não derivar a altura do container: o
+ *   ApexCharts aplica `minHeight = altura + parentHeightOffset` (15px) no div
+ *   externo, então medir o container content-sized e realimentar a altura do
+ *   chart cresce ~30px por ciclo do ResizeObserver — loop infinito no mobile.
  * - Brush SEMPRE plota o Total do backend, independente da visibilidade — é
  *   contexto de navegação, não uma série toggleável.
  * - Único ponto imperativo: `resetZoom()` exposto via ref (a toolbar chama).
  */
 
-import {
-   useEffect,
-   useImperativeHandle,
-   useMemo,
-   useRef,
-   useState,
-   type Ref,
-} from "react";
+import { useImperativeHandle, useMemo, type Ref } from "react";
 import Chart from "react-apexcharts";
 import ApexChartsLib from "apexcharts";
 import { minutesToTime } from "@/../utils/dateHandler";
@@ -47,8 +41,6 @@ const BRUSH_ID = "hist-brush";
 
 const MAIN_HEIGHT = 330;
 const BRUSH_HEIGHT = 78;
-/** Piso do chart principal quando a altura medida é pequena. */
-const MIN_MAIN_HEIGHT = 260;
 
 /** Handle imperativo exposto à toolbar (ex.: botão "Ver ano todo"). */
 export interface HistoricoChartHandle {
@@ -128,30 +120,6 @@ export function HistoricoChart({
       }
       return max > 0 ? Math.round(max * 1.1) : 60;
    }, [historico]);
-
-   // Altura do chart principal derivada do próprio container flex: a página
-   // trava a altura do grid (limitada à viewport), este `<div>` recebe essa
-   // altura via `flex-1` e nós descontamos o brush. No mobile o container é
-   // content-sized, então a área espelha o conteúdo e mainHeight fica na base.
-   const areaRef = useRef<HTMLDivElement>(null);
-   const [mainHeight, setMainHeight] = useState(MAIN_HEIGHT);
-
-   useEffect(() => {
-      const el = areaRef.current;
-      if (!el) return;
-      const measure = () => {
-         const h = el.clientHeight;
-         if (h > 0) {
-            setMainHeight(
-               Math.max(MIN_MAIN_HEIGHT, Math.floor(h - BRUSH_HEIGHT))
-            );
-         }
-      };
-      measure();
-      const ro = new ResizeObserver(measure);
-      ro.observe(el);
-      return () => ro.disconnect();
-   }, []);
 
    useImperativeHandle(
       ref,
@@ -321,14 +289,14 @@ export function HistoricoChart({
             )}
          </div>
 
-         <div ref={areaRef} className="min-h-0 flex-1">
+         <div>
             {hasSeries ? (
                <>
                   <Chart
                      options={options}
                      series={series}
                      type="line"
-                     height={mainHeight}
+                     height={MAIN_HEIGHT}
                   />
                   <Chart
                      options={brushOptions}
@@ -340,7 +308,7 @@ export function HistoricoChart({
             ) : (
                <div
                   className="flex items-center justify-center text-sm text-slate-400"
-                  style={{ height: mainHeight + BRUSH_HEIGHT }}
+                  style={{ height: MAIN_HEIGHT + BRUSH_HEIGHT }}
                >
                   Nenhuma série visível — ative o Total, um grupo ou um
                   programa.
