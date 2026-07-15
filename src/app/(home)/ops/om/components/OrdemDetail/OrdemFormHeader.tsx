@@ -67,7 +67,7 @@ function LifecycleButton({
          >
             {busy ? (
                <>
-                  <Spinner color="failure" size="sm" className="sm:mr-2" />
+                  <Spinner color="primary" size="sm" className="sm:mr-2" />
                   <span className="hidden sm:inline">{busyLabel}</span>
                </>
             ) : (
@@ -234,7 +234,7 @@ export function OrdemFormHeader({
                      {isSaving ? (
                         <>
                            <Spinner
-                              color="failure"
+                              color="primary"
                               size="sm"
                               className="sm:mr-2"
                            />

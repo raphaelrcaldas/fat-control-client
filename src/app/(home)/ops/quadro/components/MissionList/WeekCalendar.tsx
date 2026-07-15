@@ -149,7 +149,7 @@ export default function WeekCalendar({
                      ← Anterior
                   </button>
                   <span className="flex min-w-35 items-center justify-center gap-2 px-2 text-center text-sm font-bold text-slate-700">
-                     {isFetching && <Spinner color="failure" size="xs" />}
+                     {isFetching && <Spinner color="primary" size="xs" />}
                      {weekDays[0].toLocaleDateString("pt-BR", {
                         day: "2-digit",
                         month: "short",

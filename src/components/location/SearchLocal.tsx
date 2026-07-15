@@ -172,7 +172,7 @@ function EmptyState({
       <div className="flex flex-col items-center justify-center px-4 py-16 text-center">
          <div className="mb-4 rounded-full bg-slate-100 p-4">
             {isFetching ? (
-               <Spinner size="xl" color="failure" />
+               <Spinner size="xl" color="primary" />
             ) : (
                <FaMapMarkerAlt className="size-12 text-slate-400" />
             )}

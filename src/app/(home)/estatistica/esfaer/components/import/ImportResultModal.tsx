@@ -168,7 +168,7 @@ export function ImportResultModal({ result, onClose }: ImportResultModalProps) {
                            <>
                               <Spinner
                                  size="sm"
-                                 color="failure"
+                                 color="primary"
                                  className="mr-2"
                               />
                               Gerando imagem...

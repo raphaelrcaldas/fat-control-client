@@ -41,7 +41,7 @@ export function ConfirmDeleteModal({
                            <Spinner
                               size="sm"
                               className="mr-2"
-                              color="failure"
+                              color="primary"
                            />
                            Excluindo...
                         </>

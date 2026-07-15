@@ -158,7 +158,7 @@ const Filters = memo(function Filters({
                         <strong className="text-gray-900">{totalCount}</strong>{" "}
                         militares
                      </span>
-                     {isFetching && <Spinner color="failure" size="sm" />}
+                     {isFetching && <Spinner color="primary" size="sm" />}
                   </div>
                   {hasActiveFilters && (
                      <Button

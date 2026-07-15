@@ -85,7 +85,7 @@ export default function AddSessaoModal({
             <ModalBody>
                {form.isLoadingData ? (
                   <div className="flex items-center justify-center py-16">
-                     <Spinner size="lg" color="failure" />
+                     <Spinner size="lg" color="primary" />
                   </div>
                ) : (
                   <form

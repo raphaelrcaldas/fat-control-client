@@ -193,7 +193,7 @@ export default function AtasTab({
                >
                   {isExtracting ? (
                      <>
-                        <Spinner color="failure" size="sm" className="mr-2" />
+                        <Spinner color="primary" size="sm" className="mr-2" />
                         Processando...
                      </>
                   ) : (
@@ -222,7 +222,7 @@ export default function AtasTab({
          {/* Lista de atas */}
          {isLoading ? (
             <div className="flex justify-center py-8">
-               <Spinner color="failure" size="lg" />
+               <Spinner color="primary" size="lg" />
             </div>
          ) : isError ? (
             <p className="py-4 text-center text-sm text-red-600 dark:text-red-400">

@@ -55,7 +55,7 @@ export default function PilotSearchInput({
             <div className="absolute z-10 mt-1 max-h-48 w-full overflow-y-auto rounded border border-slate-200 bg-white shadow">
                {loadingTrips ? (
                   <div className="flex justify-center py-3">
-                     <Spinner size="sm" color="failure" />
+                     <Spinner size="sm" color="primary" />
                   </div>
                ) : searchResults.length === 0 ? (
                   <p className="px-3 py-2 text-sm text-gray-400 uppercase">

@@ -315,7 +315,7 @@ export function PessoalFormModal({ show, onClose, op, editing }: Props) {
                      </Button>
                      <Button type="submit" color="red" disabled={isSubmitting}>
                         {isSubmitting ? (
-                           <Spinner size="sm" color="failure" />
+                           <Spinner size="sm" color="primary" />
                         ) : isEdit ? (
                            "Salvar"
                         ) : (

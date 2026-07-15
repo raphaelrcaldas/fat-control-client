@@ -422,7 +422,7 @@ export default function OrcamentoAnualPage() {
                            disabled={isSaving || !isBalanced}
                         >
                            {isSaving ? (
-                              <Spinner size="sm" color="failure" />
+                              <Spinner size="sm" color="primary" />
                            ) : (
                               <>
                                  <FaSave className="mr-2 h-4 w-4" />
@@ -452,7 +452,7 @@ export default function OrcamentoAnualPage() {
                      </p>
                   ) : logsLoading ? (
                      <div className="flex justify-center py-8">
-                        <Spinner color="failure" />
+                        <Spinner color="primary" />
                      </div>
                   ) : logs.length === 0 ? (
                      <p className="py-6 text-center text-sm text-gray-500">

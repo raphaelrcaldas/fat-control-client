@@ -3,6 +3,8 @@
  * EditableField para alinhamento visual dentro do SectionCard.
  */
 
+import { FieldIconChip } from "./FieldIconChip";
+
 interface ReadOnlyFieldProps {
    icon: React.ComponentType<{ className?: string }>;
    label: string;
@@ -21,9 +23,7 @@ export function ReadOnlyField({
          id={fieldName ? `field-${fieldName}` : undefined}
          className="flex items-center gap-3 px-5 py-3.5"
       >
-         <div className="bg-primary-100 shrink-0 rounded-md p-2.5">
-            <Icon className="text-primary-600 h-4 w-4" />
-         </div>
+         <FieldIconChip icon={Icon} />
          <div className="min-w-0 flex-1">
             <p className="mb-0.5 text-xs font-medium tracking-wide text-gray-500 uppercase">
                {label}

@@ -24,7 +24,7 @@ export function IndispDeleteConfirm({
             onClick={onConfirm}
             disabled={isDeleting}
          >
-            {isDeleting ? <Spinner color="failure" size="sm" /> : "Sim"}
+            {isDeleting ? <Spinner color="primary" size="sm" /> : "Sim"}
          </Button>
          <Button
             color="gray"

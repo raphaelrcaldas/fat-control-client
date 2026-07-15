@@ -210,7 +210,7 @@ export function EtapasTable({ opId, etapas, onAssociar }: Props) {
                                     title="Desassociar etapa"
                                  >
                                     {removingId === e.id ? (
-                                       <Spinner size="sm" color="failure" />
+                                       <Spinner size="sm" color="primary" />
                                     ) : (
                                        <MdDelete className="h-4 w-4" />
                                     )}

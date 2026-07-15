@@ -25,7 +25,7 @@ export function EscalaFilters({
             </span>
             <div className="h-px flex-1 bg-slate-200" />
             <div className="flex items-center gap-2 font-mono text-[10px] tracking-widest text-slate-500 uppercase">
-               {isFetching && <Spinner size="xs" color="failure" />}
+               {isFetching && <Spinner size="xs" color="primary" />}
                <span>
                   Setor de Escala
                   <span className="mx-1 text-slate-300">·</span>

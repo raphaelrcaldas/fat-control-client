@@ -262,7 +262,7 @@ export function EtapasTable({
             </div>
          </PermBased>
 
-         {bulkUpdate.isPending && <Spinner size="xs" color="failure" />}
+         {bulkUpdate.isPending && <Spinner size="xs" color="primary" />}
          {bulkFeedback && (
             <span className="flex items-center gap-0.5 text-sm font-medium text-emerald-600">
                <HiCheckCircle className="h-4 w-4" />

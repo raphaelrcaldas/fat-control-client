@@ -46,7 +46,7 @@ export function ConfirmImportModal({
                         <>
                            <Spinner
                               size="sm"
-                              color="failure"
+                              color="primary"
                               className="mr-2"
                            />
                            Enviando...

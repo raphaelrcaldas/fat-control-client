@@ -19,6 +19,11 @@ export function createFocusRingCollector({ maxStops }) {
          await page.evaluate(() => {
             window.__auditFocus = {
                prev: null,
+               // Teto de descendentes fotografados por parada. Indicador em
+               // filho (padrao pill/group-focus-visible) vive nos primeiros
+               // niveis; o teto evita varrer sub-arvores gigantes quando o
+               // foco cai num container largo.
+               DESCENDANT_CAP: 40,
                signature(node) {
                   const s = getComputedStyle(node);
                   return [
@@ -37,7 +42,19 @@ export function createFocusRingCollector({ maxStops }) {
                // e re-fotografar apagaria o indicador que acendeu na entrada.
                snapshot(el, meta) {
                   if (this.prev?.el === el) return;
-                  const nodes = [el, ...el.querySelectorAll("*")].slice(0, 25);
+                  // TreeWalker com teto: nao materializa a sub-arvore inteira
+                  // (querySelectorAll("*")) so para descartar o excedente.
+                  const nodes = [el];
+                  const walker = document.createTreeWalker(
+                     el,
+                     NodeFilter.SHOW_ELEMENT,
+                  );
+                  while (
+                     nodes.length <= this.DESCENDANT_CAP &&
+                     walker.nextNode()
+                  ) {
+                     nodes.push(walker.currentNode);
+                  }
                   this.prev = {
                      el,
                      meta,
@@ -57,9 +74,14 @@ export function createFocusRingCollector({ maxStops }) {
                   if (inDom && document.activeElement === prev.el) return null;
                   this.prev = null;
                   if (!inDom) return { ...prev.meta, hasRing: true };
-                  const changed = prev.nodes.some(
-                     (n, i) => this.signature(n) !== prev.sigs[i],
-                  );
+                  // Curto-circuito: na maioria dos controles o indicador esta
+                  // no proprio elemento (indice 0) — só varre os descendentes
+                  // quando o host nao mudou.
+                  const changed =
+                     this.signature(prev.el) !== prev.sigs[0] ||
+                     prev.nodes.some(
+                        (n, i) => i > 0 && this.signature(n) !== prev.sigs[i],
+                     );
                   return { ...prev.meta, hasRing: changed };
                },
             };

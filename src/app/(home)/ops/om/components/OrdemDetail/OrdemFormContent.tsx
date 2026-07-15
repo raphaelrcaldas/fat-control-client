@@ -401,7 +401,7 @@ export function OrdemFormContent({
                            disabled={isExporting || isSaving || isApproving}
                         >
                            {isExporting ? (
-                              <Spinner color="failure" size="sm" />
+                              <Spinner color="primary" size="sm" />
                            ) : (
                               <HiDocumentText
                                  className="mr-2 text-blue-600"
@@ -422,7 +422,7 @@ export function OrdemFormContent({
                               }
                            >
                               {isGeneratingLanche ? (
-                                 <Spinner color="failure" size="sm" />
+                                 <Spinner color="primary" size="sm" />
                               ) : (
                                  <HiShoppingBag
                                     className="mr-2 text-yellow-500"

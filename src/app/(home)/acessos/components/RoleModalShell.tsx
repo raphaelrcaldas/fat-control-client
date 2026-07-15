@@ -92,7 +92,7 @@ export function RoleModalShell({
                >
                   {isSaving ? (
                      <div className="flex items-center gap-2">
-                        <Spinner color="failure" size="sm" />
+                        <Spinner color="primary" size="sm" />
                         <span>{savingLabel}</span>
                      </div>
                   ) : (

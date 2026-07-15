@@ -117,7 +117,7 @@ export function TripEditForm({ trip, onClose, onCancel }: TripEditFormProps) {
             <Button type="submit" disabled={submitting || !isDirty} color="red">
                {submitting ? (
                   <div className="flex items-center gap-2">
-                     <Spinner size="sm" color="failure" />
+                     <Spinner size="sm" color="primary" />
                      <span>Salvando...</span>
                   </div>
                ) : (

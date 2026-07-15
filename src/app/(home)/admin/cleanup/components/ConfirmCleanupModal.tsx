@@ -98,7 +98,7 @@ export function ConfirmCleanupModal({
                         <>
                            <Spinner
                               size="sm"
-                              color="failure"
+                              color="primary"
                               className="mr-2"
                            />
                            Executando...

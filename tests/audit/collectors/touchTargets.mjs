@@ -29,16 +29,15 @@ export function createTouchTargetsCollector({ coarseMinPx, fineMinPx }) {
                for (const el of visibleElements()) {
                   if (!el.matches(selector)) continue;
                   if (el.matches("input[type=hidden]")) continue;
-                  // Sentinelas de focus-trap (floating-ui/modal): 1x1px com
-                  // tabindex, invisíveis por design — não são alvos de toque.
-                  if (
-                     el.getAttribute("aria-hidden") === "true" ||
-                     el.hasAttribute("data-floating-ui-focus-guard")
-                  )
-                     continue;
 
                   const rect = el.getBoundingClientRect();
                   const minSide = Math.min(rect.width, rect.height);
+                  // Sentinelas de focus-trap (floating-ui, Radix, etc.) medem
+                  // <=1px por design — sao invisiveis, nao alvos de toque. O
+                  // sinal e GEOMETRICO, nao um atributo de vendor: cobre
+                  // qualquer lib, e nao isenta botao real marcado (errado)
+                  // com aria-hidden, que continua sendo medido.
+                  if (minSide <= 1) continue;
                   if (minSide >= minSizePx) continue;
 
                   small.push({

@@ -322,7 +322,7 @@ export default function AerodromoCadastro() {
                   <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
                      {loading ? (
                         <div className="flex h-64 flex-col items-center justify-center">
-                           <Spinner size="xl" color="failure" />
+                           <Spinner size="xl" color="primary" />
                            <p className="mt-4 text-gray-600">
                               Carregando aeródromos...
                            </p>

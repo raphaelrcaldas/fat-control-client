@@ -44,7 +44,7 @@ export function CleanupSummary({
          >
             {running ? (
                <>
-                  <Spinner size="sm" color="failure" />
+                  <Spinner size="sm" color="primary" />
                   <span className="ml-2">Executando...</span>
                </>
             ) : (

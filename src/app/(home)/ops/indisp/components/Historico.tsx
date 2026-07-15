@@ -61,7 +61,7 @@ export function Historico({
          <div className={`${maxHeight} min-h-20 space-y-3 overflow-y-auto`}>
             {isLoading ? (
                <div className="flex h-full items-center justify-center">
-                  <Spinner color="failure" size="md" />
+                  <Spinner color="primary" size="md" />
                   <span className="ml-2 text-sm text-gray-500">
                      Carregando histórico...
                   </span>

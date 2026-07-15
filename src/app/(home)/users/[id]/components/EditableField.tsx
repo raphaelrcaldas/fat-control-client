@@ -13,6 +13,7 @@ import { formatPhone, phoneMaskConfig } from "@/constants/formats";
 import { SearchableSelect } from "@/components/SearchableSelect";
 import { useUpdateUser } from "@/hooks/queries";
 import { useToast } from "@/app/context/toast";
+import { FieldIconChip } from "./FieldIconChip";
 import { formatUserSaveError } from "../../userErrors";
 import { FieldFocusContext } from "./FieldFocusContext";
 
@@ -114,9 +115,7 @@ export function EditableField({
             id={`field-${fieldName}`}
             className="flex items-center gap-3 px-5 py-3"
          >
-            <div className="shrink-0 rounded-md bg-blue-100 p-2.5">
-               <Icon className="h-4 w-4 text-blue-600" />
-            </div>
+            <FieldIconChip icon={Icon} tone="blue" />
             <div className="min-w-0">
                <p className="mb-1 text-xs font-medium tracking-wide text-gray-500 uppercase">
                   {label}
@@ -202,9 +201,7 @@ export function EditableField({
          id={`field-${fieldName}`}
          className="group flex items-center gap-3 px-5 py-3.5"
       >
-         <div className="bg-primary-100 shrink-0 rounded-md p-2.5">
-            <Icon className="text-primary-600 h-4 w-4" />
-         </div>
+         <FieldIconChip icon={Icon} />
          <div className="min-w-0">
             <p className="mb-0.5 text-xs font-medium tracking-wide text-gray-500 uppercase">
                {label}

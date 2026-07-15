@@ -141,7 +141,7 @@ export function ShortLongFormModal({
                <Button type="submit" color="red" disabled={isSaving}>
                   {isSaving ? (
                      <>
-                        <Spinner color="failure" size="sm" className="mr-2" />
+                        <Spinner color="primary" size="sm" className="mr-2" />
                         Salvando...
                      </>
                   ) : initial ? (

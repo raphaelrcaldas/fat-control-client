@@ -313,7 +313,7 @@ export function AssociarEtapasModal({ show, onClose, op }: Props) {
                   onClick={handleAssociar}
                >
                   {associarMutation.isPending ? (
-                     <Spinner size="sm" color="failure" />
+                     <Spinner size="sm" color="primary" />
                   ) : (
                      <>
                         <MdLink className="mr-1 h-4 w-4" /> Associar{" "}

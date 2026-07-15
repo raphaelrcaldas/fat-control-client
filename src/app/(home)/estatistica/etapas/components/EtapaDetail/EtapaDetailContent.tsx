@@ -25,7 +25,7 @@ export function EtapaDetailContent({ etapaId }: EtapaDetailContentProps) {
    if (isLoading || !data) {
       return (
          <div className="flex h-full items-center justify-center py-20">
-            <Spinner color="failure" size="xl" />
+            <Spinner color="primary" size="xl" />
          </div>
       );
    }

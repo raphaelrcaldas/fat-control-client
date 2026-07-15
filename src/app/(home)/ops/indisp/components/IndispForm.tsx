@@ -183,7 +183,7 @@ export function IndispForm({
                   size="md"
                >
                   {isMutating && !deleteMutation.isPending ? (
-                     <Spinner color="failure" size="sm" />
+                     <Spinner color="primary" size="sm" />
                   ) : indisp ? (
                      "Atualizar"
                   ) : (

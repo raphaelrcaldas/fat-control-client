@@ -209,7 +209,7 @@ export function InlineTripSearch({
 
             {isSearching && (
                <div className="absolute top-1/2 right-3 -translate-y-1/2">
-                  <Spinner size="sm" color="failure" />
+                  <Spinner size="sm" color="primary" />
                </div>
             )}
          </div>
@@ -235,7 +235,7 @@ export function InlineTripSearch({
                      </p>
                   ) : isSearching && results.length === 0 ? (
                      <div className="flex items-center justify-center gap-2 p-3 text-xs text-gray-400">
-                        <Spinner size="sm" color="failure" />
+                        <Spinner size="sm" color="primary" />
                         Buscando...
                      </div>
                   ) : results.length === 0 ? (

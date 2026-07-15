@@ -95,7 +95,7 @@ export function MetarCard() {
          <div className="p-6">
             {isLoading && (
                <div className="flex items-center justify-center gap-3 py-10">
-                  <Spinner color="failure" />
+                  <Spinner color="primary" />
                   <span className="text-sm text-gray-500">
                      Buscando METAR...
                   </span>

@@ -291,7 +291,7 @@ export function QuadsTrip({
                            {batchDeleting ? (
                               <Spinner
                                  size="sm"
-                                 color="failure"
+                                 color="primary"
                                  className="mr-2"
                               />
                            ) : (

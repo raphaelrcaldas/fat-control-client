@@ -196,7 +196,7 @@ export function LabelManager({
                                  disabled={isLoading || !formData.nome}
                               >
                                  {isLoading ? (
-                                    <Spinner size="sm" color="failure" />
+                                    <Spinner size="sm" color="primary" />
                                  ) : editingId ? (
                                     <HiCheck className="h-4 w-4" />
                                  ) : (

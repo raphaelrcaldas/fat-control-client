@@ -101,7 +101,7 @@ export function DeleteComissModal({
                   >
                      {isDeleting ? (
                         <div className="flex items-center gap-2">
-                           <Spinner color="failure" size="sm" />
+                           <Spinner color="primary" size="sm" />
                            <span>Excluindo...</span>
                         </div>
                      ) : deletePreview ? (

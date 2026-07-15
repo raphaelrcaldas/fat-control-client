@@ -81,7 +81,7 @@ export function MissionActionBar({
                      >
                         {isLoading ? (
                            <div className="flex items-center gap-2">
-                              <Spinner size="sm" color="failure" />
+                              <Spinner size="sm" color="primary" />
                               <span>Salvando...</span>
                            </div>
                         ) : isNew ? (

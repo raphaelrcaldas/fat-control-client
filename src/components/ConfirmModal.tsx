@@ -52,7 +52,7 @@ export function ConfirmModal({
                   >
                      {isLoading ? (
                         <div className="flex items-center gap-2">
-                           <Spinner size="sm" color="failure" />
+                           <Spinner size="sm" color="primary" />
                            <span>Processando...</span>
                         </div>
                      ) : (

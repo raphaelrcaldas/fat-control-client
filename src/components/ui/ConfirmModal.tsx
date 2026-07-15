@@ -65,7 +65,7 @@ export function ConfirmModal({
                         <>
                            <Spinner
                               size="sm"
-                              color="failure"
+                              color="primary"
                               className="mr-2"
                            />
                            Processando...

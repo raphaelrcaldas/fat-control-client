@@ -119,7 +119,7 @@ export function MissaoHeader({
                >
                   {isSaving ? (
                      <span className="flex items-center gap-2">
-                        <Spinner size="sm" color="failure" />
+                        <Spinner size="sm" color="primary" />
                         Salvando...
                      </span>
                   ) : (

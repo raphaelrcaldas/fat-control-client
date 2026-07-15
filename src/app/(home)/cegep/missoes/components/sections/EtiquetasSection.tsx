@@ -50,7 +50,7 @@ export function EtiquetasSection({
             <div>
                {loadingEtiquetas ? (
                   <div className="flex items-center gap-2 text-sm text-slate-500">
-                     <Spinner className="h-4 w-4" color="failure" />
+                     <Spinner className="h-4 w-4" color="primary" />
                      Carregando etiquetas...
                   </div>
                ) : etiquetasDisponiveis.length === 0 ? (

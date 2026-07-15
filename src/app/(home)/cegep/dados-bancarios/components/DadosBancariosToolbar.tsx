@@ -47,7 +47,7 @@ export function DadosBancariosToolbar({
                   )}
                </span>
                {isFetching && !isLoading && (
-                  <Spinner color="failure" size="sm" />
+                  <Spinner color="primary" size="sm" />
                )}
             </div>
             {hasActiveFilters && (

@@ -74,7 +74,7 @@ export function EtapaContent({ localId }: EtapaContentProps) {
 
          {isLoadingExternal && (
             <div className="flex items-center justify-center rounded-lg border border-gray-200 bg-white py-4">
-               <Spinner size="sm" color="failure" />
+               <Spinner size="sm" color="primary" />
                <span className="ml-2 text-xs text-gray-500">
                   Carregando dados auxiliares...
                </span>

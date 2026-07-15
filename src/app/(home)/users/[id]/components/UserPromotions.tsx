@@ -16,6 +16,7 @@ import {
 import { PermBased, usePermBased } from "@/app/(home)/hooks/usePermBased";
 import { useToast } from "@/app/context/toast";
 import { formatDateFull } from "utils/dateHandler";
+import { FieldIconChip } from "./FieldIconChip";
 
 // postos ordenados por antiguidade (menor ant = graduação superior)
 const pgOptions = [...postoGradRecords]
@@ -153,9 +154,7 @@ function PromoRow({
 
    return (
       <div className="group flex items-center gap-3 px-5 py-3.5">
-         <div className="bg-primary-100 shrink-0 rounded-md p-2.5">
-            <HiArrowUp className="text-primary-600 h-4 w-4" />
-         </div>
+         <FieldIconChip icon={HiArrowUp} />
          <div className="min-w-0 flex-1">
             <p className="text-sm leading-tight font-semibold text-gray-900 capitalize">
                {label}

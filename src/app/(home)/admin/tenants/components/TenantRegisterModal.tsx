@@ -96,7 +96,7 @@ export function TenantRegisterModal({
                >
                   {isSaving ? (
                      <>
-                        <Spinner color="failure" size="sm" className="mr-2" />
+                        <Spinner color="primary" size="sm" className="mr-2" />
                         Registrando...
                      </>
                   ) : (

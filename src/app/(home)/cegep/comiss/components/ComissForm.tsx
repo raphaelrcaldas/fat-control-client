@@ -215,7 +215,7 @@ export function ComissForm({ comiss, onCancel, onSuccess }: ComissFormProps) {
                         <>
                            <Spinner
                               size="sm"
-                              color="failure"
+                              color="primary"
                               className="sm:mr-2"
                            />
                            <span className="hidden sm:inline">Salvando...</span>
