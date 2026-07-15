@@ -19,15 +19,19 @@ export function UserCard({ user }: UserCardProps) {
       <div className="rounded border border-slate-200 bg-white p-4 shadow-sm transition-shadow duration-150 hover:shadow-md">
          <div className="mb-3 flex items-start justify-between">
             <div className="flex items-center gap-2">
-               <div className="flex h-10 w-10 items-center justify-center rounded-full bg-red-100">
-                  <span className="text-sm font-bold text-red-600 uppercase">
+               {/* primary-800: o red-600 sobre red-100 media 3.91:1 — abaixo
+                   do piso AA para texto de 12px bold */}
+               <div className="bg-primary-100 flex h-10 w-10 items-center justify-center rounded-full">
+                  <span className="text-primary-800 text-sm font-bold uppercase">
                      {user.p_g}
                   </span>
                </div>
                <div>
-                  <h3 className="text-sm font-semibold text-gray-900 uppercase">
+                  {/* p, não heading: nome de linha de listagem não entra na
+                      árvore de títulos (h1 → h3 saltava nível no axe) */}
+                  <p className="text-sm font-semibold text-gray-900 uppercase">
                      {user.nome_guerra}
-                  </h3>
+                  </p>
                   <p className="text-xs text-gray-500 capitalize">
                      {user.nome_completo}
                   </p>
@@ -38,8 +42,9 @@ export function UserCard({ user }: UserCardProps) {
                size="sm"
                onClick={() => router.push(`/users/${user.id}`)}
                aria-label={`Ver detalhes de ${user.nome_guerra}`}
+               className="pointer-coarse:min-w-[44px]"
             >
-               <IoMdInformationCircleOutline className="h-5 w-5 text-red-600" />
+               <IoMdInformationCircleOutline className="text-primary-600 h-5 w-5" />
             </Button>
          </div>
 
@@ -58,7 +63,7 @@ export function UserCard({ user }: UserCardProps) {
             </div>
             <div>
                <p className="mb-1 text-xs text-gray-500">Unidade</p>
-               <Badge color="red" className="text-xs">
+               <Badge color="primary" className="text-xs">
                   {unidadeOptions.find((u) => u.value === user.unidade)
                      ?.label || user.unidade}
                </Badge>

@@ -81,7 +81,7 @@ export function SearchUser({
                   />
                   {loading && (
                      <div className="absolute inset-y-0 right-3 flex items-center">
-                        <Spinner size="sm" color="failure" />
+                        <Spinner size="sm" color="primary" />
                      </div>
                   )}
                </div>
@@ -132,16 +132,16 @@ export function SearchUser({
                                        type="button"
                                        disabled={disabled}
                                        onClick={() => onSetUser(user)}
-                                       className="group flex w-full items-center gap-3 px-4 py-3 text-left transition-colors enabled:hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50"
+                                       className="group enabled:hover:bg-primary-50 flex w-full items-center gap-3 px-4 py-3 text-left transition-colors disabled:cursor-not-allowed disabled:opacity-50"
                                     >
                                        <FaCheckCircle
                                           className={`size-4 shrink-0 ${
                                              disabled
                                                 ? "text-slate-300"
-                                                : "text-red-500 group-hover:text-red-700"
+                                                : "text-primary-500 group-hover:text-primary-700"
                                           }`}
                                        />
-                                       <span className="flex-1 text-sm font-medium text-slate-700 uppercase group-hover:text-red-900">
+                                       <span className="group-hover:text-primary-900 flex-1 text-sm font-medium text-slate-700 uppercase">
                                           {user.posto.short} {user.quadro}{" "}
                                           {user.esp} {user.nome_guerra}
                                        </span>

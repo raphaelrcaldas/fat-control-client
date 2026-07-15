@@ -49,6 +49,8 @@ export interface UsersFilters {
    setActive: (values: string[]) => void;
    setPage: (page: number) => void;
    setPerPage: (value: number) => void;
+   /** Volta a listagem ao estado inicial (busca vazia, filtros default). */
+   clearFilters: () => void;
 }
 
 export function useUsersFilters(): UsersFilters {
@@ -176,12 +178,28 @@ export function useUsersFilters(): UsersFilters {
       [updateParams]
    );
 
+   const clearFilters = useCallback(() => {
+      setFilterName("");
+      updateParams({
+         search: undefined,
+         pg: undefined,
+         quadro: undefined,
+         esp: undefined,
+         active: undefined, // deletado = volta ao default (só ativos)
+      });
+   }, [updateParams]);
+
+   // "Tem filtro" = desvia do estado inicial. O status default é ["true"]
+   // (só ativos); contá-lo como filtro deixava hasFilters SEMPRE true e
+   // tornava inalcançável o empty-state "Nenhum usuário cadastrado".
+   const isDefaultActive =
+      filterActive.length === 1 && filterActive[0] === "true";
    const hasFilters = Boolean(
       debouncedFilter ||
       filterPG.length > 0 ||
       filterQuadro ||
       filterEsp ||
-      filterActive.length > 0
+      !isDefaultActive
    );
 
    const queryParams: GetUsersParams = {
@@ -211,5 +229,6 @@ export function useUsersFilters(): UsersFilters {
       setActive,
       setPage,
       setPerPage,
+      clearFilters,
    };
 }

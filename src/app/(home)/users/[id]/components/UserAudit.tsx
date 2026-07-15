@@ -72,7 +72,7 @@ export function UserAudit({ userId }: { userId?: number }) {
    if (isLoading)
       return (
          <div className="flex flex-col items-center justify-center py-16">
-            <Spinner size="xl" color="failure" />
+            <Spinner size="xl" color="primary" />
             <p className="mt-4 text-gray-500">Carregando histórico...</p>
          </div>
       );

@@ -216,7 +216,7 @@ export function UserForm({ userId, onSuccess }: UserFormProps) {
    if (loadingUser) {
       return (
          <div className="flex h-40 items-center justify-center">
-            <Spinner size="xl" color="failure" />
+            <Spinner size="xl" color="primary" />
          </div>
       );
    }
@@ -233,7 +233,7 @@ export function UserForm({ userId, onSuccess }: UserFormProps) {
 
          <div className="flex justify-end border-t border-gray-200 pt-5">
             <Button
-               color="red"
+               color="primary"
                type="submit"
                disabled={!hasChanges || isSubmitting}
                size="lg"

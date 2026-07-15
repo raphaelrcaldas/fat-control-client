@@ -35,7 +35,7 @@ export function UserDetailSkeleton() {
       <div className="flex flex-col space-y-2">
          <div className="animate-pulse overflow-hidden rounded border border-slate-200 bg-white shadow-sm">
             {/* Hero */}
-            <div className="bg-linear-to-r from-red-500 to-red-700 px-6 py-4">
+            <div className="from-primary-500 to-primary-700 bg-linear-to-r px-6 py-4">
                <div className="flex items-center gap-4">
                   <div className="h-10 w-10 shrink-0 rounded bg-white/25" />
                   <div className="h-14 w-14 shrink-0 rounded-full bg-white/25" />

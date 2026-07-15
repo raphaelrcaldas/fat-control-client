@@ -83,7 +83,7 @@ export function UsersListSkeleton({ rows = 8 }: { rows?: number }) {
    return (
       <div className="animate-pulse">
          {/* Desktop — mesma moldura e colunas do UserTable */}
-         <div className="mx-2 hidden min-h-100 overflow-x-auto rounded border border-slate-200 bg-white shadow-sm md:block">
+         <div className="mx-2 hidden min-h-100 overflow-x-auto rounded border border-slate-200 bg-white shadow-sm lg:block">
             <Table
                theme={{
                   body: { cell: { base: "py-1" } },
@@ -123,7 +123,7 @@ export function UsersListSkeleton({ rows = 8 }: { rows?: number }) {
          </div>
 
          {/* Mobile — mesma moldura dos UserCard */}
-         <div className="space-y-3 p-4 md:hidden">
+         <div className="space-y-3 p-4 lg:hidden">
             {Array.from({ length: 4 }).map((_, i) => (
                <MobileCard key={i} />
             ))}

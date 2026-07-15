@@ -100,13 +100,13 @@ function AddPromoForm({ userId }: { userId: number }) {
          </div>
          <Button
             type="submit"
-            color="red"
+            color="primary"
             size="sm"
             disabled={createPromo.isPending}
             className="shrink-0"
          >
             {createPromo.isPending ? (
-               <Spinner size="sm" color="failure" />
+               <Spinner size="sm" color="primary" />
             ) : (
                <>
                   <HiPlus className="mr-1.5 h-4 w-4" />
@@ -153,8 +153,8 @@ function PromoRow({
 
    return (
       <div className="group flex items-center gap-3 px-5 py-3.5">
-         <div className="shrink-0 rounded-md bg-red-100 p-2.5">
-            <HiArrowUp className="h-4 w-4 text-red-600" />
+         <div className="bg-primary-100 shrink-0 rounded-md p-2.5">
+            <HiArrowUp className="text-primary-600 h-4 w-4" />
          </div>
          <div className="min-w-0 flex-1">
             <p className="text-sm leading-tight font-semibold text-gray-900 capitalize">
@@ -164,7 +164,7 @@ function PromoRow({
          </div>
          <PermBased resource="user" requiredPerm="update">
             {deletePromo.isPending ? (
-               <Spinner size="sm" color="failure" />
+               <Spinner size="sm" color="primary" />
             ) : (
                <button
                   onClick={handleDelete}
@@ -187,7 +187,7 @@ export function UserPromotions({ userId }: { userId: number }) {
    if (isLoading) {
       return (
          <div className="flex flex-col items-center justify-center py-16">
-            <Spinner size="xl" color="failure" />
+            <Spinner size="xl" color="primary" />
             <p className="mt-4 text-gray-500">Carregando promoções...</p>
          </div>
       );
@@ -212,7 +212,7 @@ export function UserPromotions({ userId }: { userId: number }) {
          <div className="rounded border border-slate-200 bg-white">
             <div className="border-b border-slate-100 px-5 py-3">
                <h2 className="flex items-center gap-2 text-sm font-bold text-gray-900">
-                  <HiArrowUp className="h-4 w-4 text-red-600" />
+                  <HiArrowUp className="text-primary-600 h-4 w-4" />
                   Progressão de Carreira
                </h2>
             </div>

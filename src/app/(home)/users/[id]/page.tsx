@@ -105,7 +105,7 @@ export default function UserDetailsPage() {
       <div className="flex flex-col space-y-2">
          {/* Perfil do Usuário */}
          <div className="overflow-hidden rounded border border-slate-200 bg-white shadow-sm">
-            <div className="bg-linear-to-r from-red-500 to-red-700 px-6 py-4">
+            <div className="from-primary-500 to-primary-700 bg-linear-to-r px-6 py-4">
                <div className="flex items-center gap-4">
                   {/* Voltar */}
                   <button
@@ -133,7 +133,7 @@ export default function UserDetailsPage() {
                            #{userId}
                         </span>
                      </div>
-                     <p className="truncate text-sm text-red-100 capitalize">
+                     <p className="text-primary-100 truncate text-sm capitalize">
                         {user.nome_completo}
                      </p>
                   </div>
@@ -153,7 +153,7 @@ export default function UserDetailsPage() {
                            }
                         >
                            {updateUser.isPending ? (
-                              <Spinner size="sm" color="failure" />
+                              <Spinner size="sm" color="primary" />
                            ) : (
                               <>
                                  {user.active ? (
@@ -194,7 +194,7 @@ export default function UserDetailsPage() {
                         className={clsx(
                            "flex shrink-0 items-center gap-2 border-b-2 px-4 py-3 text-sm font-medium whitespace-nowrap transition-colors",
                            activeTab === tab.key
-                              ? "border-red-500 text-red-600"
+                              ? "border-primary-500 text-primary-600"
                               : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"
                         )}
                      >

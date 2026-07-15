@@ -25,7 +25,7 @@ export function UserTable({ usuarios }: UserTableProps) {
    const unidadeOptions = useUnidadeOptions();
 
    return (
-      <div className="mx-2 hidden min-h-100 overflow-x-auto rounded border border-slate-200 bg-white shadow-sm md:block">
+      <div className="mx-2 hidden min-h-100 overflow-x-auto rounded border border-slate-200 bg-white shadow-sm lg:block">
          <Table
             hoverable
             theme={{
@@ -65,7 +65,7 @@ export function UserTable({ usuarios }: UserTableProps) {
                      <TableCell className="text-gray-600 capitalize">
                         {user.nome_completo}
                      </TableCell>
-                     <TableCell className="text-center font-mono text-gray-500">
+                     <TableCell className="text-center font-mono whitespace-nowrap text-gray-500">
                         {formatSaram(user.saram)}
                      </TableCell>
                      <TableCell className="text-center font-mono text-gray-500">
@@ -79,7 +79,9 @@ export function UserTable({ usuarios }: UserTableProps) {
                         <div
                            className={clsx(
                               "flex items-center justify-center gap-1 py-1 font-medium",
-                              user.active ? "text-green-600" : "text-gray-600"
+                              // green-700: o 600 media 3.22:1 sobre branco —
+                              // abaixo do piso AA (4.5:1) para texto de 12px
+                              user.active ? "text-green-700" : "text-gray-600"
                            )}
                         >
                            <HiCheckCircle className="size-4" />

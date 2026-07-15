@@ -1,6 +1,8 @@
 /**
  * Seções do formulário de usuário
- * Layout em coluna única espelhando o UserReadView
+ * Grid de 2 colunas no sm+ (campos curtos emparelhados; Nome Completo ocupa a
+ * linha inteira) — em coluna única o modal largo ficava com a metade direita
+ * vazia e larguras irregulares. No mobile empilha em 1 coluna.
  */
 
 import { Label, TextInput, Select, Checkbox } from "flowbite-react";
@@ -33,6 +35,9 @@ interface FormSectionProps {
    showActive?: boolean;
 }
 
+/** Grid compartilhado das seções: 2 colunas no sm+, 1 no mobile. */
+const FORM_GRID = "grid grid-cols-1 gap-x-4 gap-y-3 p-4 sm:grid-cols-2";
+
 type AnyFieldError =
    | RhfFieldError
    | Merge<RhfFieldError, FieldErrorsImpl<Record<string, unknown>>>;
@@ -55,8 +60,12 @@ export function PersonalDataSection({ register, errors }: FormSectionProps) {
    const { onChange: phoneOnChange, ...phoneRest } = register("telefone");
 
    return (
-      <SectionCard title="Dados Pessoais" icon={FaUser}>
-         <div className="max-w-md">
+      <SectionCard
+         title="Dados Pessoais"
+         icon={FaUser}
+         bodyClassName={FORM_GRID}
+      >
+         <div className="sm:col-span-2">
             <Label htmlFor="nome_completo">Nome Completo</Label>
             <TextInput
                id="nome_completo"
@@ -71,7 +80,7 @@ export function PersonalDataSection({ register, errors }: FormSectionProps) {
             <FieldError error={errors.nome_completo} />
          </div>
 
-         <div className="max-w-2xs">
+         <div>
             <Label htmlFor="cpf">CPF</Label>
             <TextInput
                id="cpf"
@@ -91,7 +100,7 @@ export function PersonalDataSection({ register, errors }: FormSectionProps) {
             <FieldError error={errors.cpf} />
          </div>
 
-         <div className="max-w-2xs">
+         <div>
             <Label htmlFor="nasc">Data de Nascimento</Label>
             <TextInput
                id="nasc"
@@ -105,7 +114,7 @@ export function PersonalDataSection({ register, errors }: FormSectionProps) {
             <FieldError error={errors.nasc} />
          </div>
 
-         <div className="max-w-sm">
+         <div>
             <Label htmlFor="email_pess">Email Pessoal</Label>
             <TextInput
                id="email_pess"
@@ -120,7 +129,7 @@ export function PersonalDataSection({ register, errors }: FormSectionProps) {
             <FieldError error={errors.email_pess} />
          </div>
 
-         <div className="max-w-2xs">
+         <div>
             <Label htmlFor="telefone">Telefone</Label>
             <TextInput
                id="telefone"
@@ -161,8 +170,12 @@ export function MilitaryDataSection({
    }));
 
    return (
-      <SectionCard title="Dados Militares" icon={FaShieldAlt}>
-         <div className="max-w-2xs">
+      <SectionCard
+         title="Dados Militares"
+         icon={FaShieldAlt}
+         bodyClassName={FORM_GRID}
+      >
+         <div>
             <Label htmlFor="p_g">Posto/Graduação *</Label>
             <Select
                id="p_g"
@@ -184,7 +197,7 @@ export function MilitaryDataSection({
             <FieldError error={errors.p_g} />
          </div>
 
-         <div className="max-w-xs">
+         <div>
             <Label htmlFor="quadro">Quadro</Label>
             <Controller
                name="quadro"
@@ -202,7 +215,7 @@ export function MilitaryDataSection({
             <FieldError error={errors.quadro} />
          </div>
 
-         <div className="max-w-xs">
+         <div>
             <Label htmlFor="esp">Especialidade</Label>
             <Controller
                name="esp"
@@ -220,7 +233,7 @@ export function MilitaryDataSection({
             <FieldError error={errors.esp} />
          </div>
 
-         <div className="max-w-xs">
+         <div>
             <Label htmlFor="nome_guerra">Nome de Guerra *</Label>
             <TextInput
                id="nome_guerra"
@@ -234,7 +247,7 @@ export function MilitaryDataSection({
             <FieldError error={errors.nome_guerra} />
          </div>
 
-         <div className="max-w-2xs">
+         <div>
             <Label htmlFor="saram">SARAM *</Label>
             <TextInput
                id="saram"
@@ -254,7 +267,7 @@ export function MilitaryDataSection({
             <FieldError error={errors.saram} />
          </div>
 
-         <div className="max-w-2xs">
+         <div>
             <Label htmlFor="id_fab">ID FAB</Label>
             <TextInput
                id="id_fab"
@@ -269,7 +282,7 @@ export function MilitaryDataSection({
             <FieldError error={errors.id_fab} />
          </div>
 
-         <div className="max-w-sm">
+         <div>
             <Label htmlFor="email_fab">Email Zimbra</Label>
             <TextInput
                id="email_fab"
@@ -284,7 +297,7 @@ export function MilitaryDataSection({
             <FieldError error={errors.email_fab} />
          </div>
 
-         <div className="max-w-2xs">
+         <div>
             <Label htmlFor="data_praca">Data de Praça</Label>
             <TextInput
                id="data_praca"
@@ -298,7 +311,7 @@ export function MilitaryDataSection({
             <FieldError error={errors.data_praca} />
          </div>
 
-         <div className="max-w-2xs">
+         <div>
             <Label htmlFor="ult_promo">Última Promoção</Label>
             <TextInput
                id="ult_promo"
@@ -312,7 +325,7 @@ export function MilitaryDataSection({
             <FieldError error={errors.ult_promo} />
          </div>
 
-         <div className="max-w-2xs">
+         <div>
             <Label htmlFor="ant_rel">Antiguidade Relativa</Label>
             <TextInput
                id="ant_rel"
@@ -328,11 +341,11 @@ export function MilitaryDataSection({
          </div>
 
          {showActive && (
-            <div className="flex items-center gap-2 rounded bg-gray-50 p-3">
+            <div className="flex items-center gap-2 rounded bg-gray-50 p-3 sm:col-span-2">
                <Checkbox
                   id="active"
                   className="size-5"
-                  color="red"
+                  color="primary"
                   {...register("active")}
                />
                <Label htmlFor="active" className="cursor-pointer">

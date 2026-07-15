@@ -7,8 +7,11 @@ import { ThemeProvider, createTheme } from "flowbite-react";
  * Tema customizado do Flowbite React
  * Define estilos personalizados para componentes da aplicação
  */
+// focus:ring-1: sem largura de ring o "foco" era só a troca de cor da borda
+// (1px) — invisível na régua de acessibilidade. Vale para inputs de data
+// inclusive, onde o Chromium não dá nenhum outline nativo.
 const whiteInputColors = {
-   gray: "bg-white border-gray-300 text-gray-900 placeholder-gray-500 focus:border-primary-500 focus:ring-primary-500",
+   gray: "bg-white border-gray-300 text-gray-900 placeholder-gray-500 focus:border-primary-500 focus:ring-1 focus:ring-primary-500",
 };
 
 /**
@@ -25,7 +28,9 @@ const clearTheme = {
 
 const customTheme = createTheme({
    button: {
-      base: "rounded-md",
+      // pointer-coarse: alvo de 44px só no dedo (regra do projeto) — no mouse
+      // vale o mínimo WCAG de 24px e a densidade do desktop fica intacta.
+      base: "rounded-md pointer-coarse:min-h-[44px]",
       // Ação de marca tematizada por org (data-org-theme). Espelha o color
       // `red` do Flowbite trocando a escala por `primary-*`. Usar em botões de
       // ação primária/de marca; `color="red"` fica reservado a perigo/exclusão.
@@ -34,9 +39,35 @@ const customTheme = createTheme({
             "bg-primary-700 text-white hover:bg-primary-800 focus:ring-primary-300 dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800",
       },
    },
+   badge: {
+      root: {
+         // Chip de identidade/marca tematizado (ex.: unidade do usuário).
+         color: {
+            primary: "bg-primary-100 text-primary-800",
+         },
+      },
+   },
+   checkbox: {
+      color: {
+         primary: "text-primary-600 focus:ring-primary-600",
+      },
+   },
+   spinner: {
+      color: {
+         primary: "fill-primary-600",
+      },
+   },
    modal: {
       root: { show: { on: "backdrop-blur-xs" } },
-      header: { base: "border-gray-300" },
+      // rounded (não o rounded-lg default): padrão visual do projeto.
+      // Botão de fechar: alvo de 44px no dedo, como todo controle.
+      content: { inner: "rounded" },
+      header: {
+         base: "border-gray-300",
+         close: {
+            base: "rounded pointer-coarse:min-h-[44px] pointer-coarse:min-w-[44px]",
+         },
+      },
    },
    pagination: {
       pages: {
@@ -55,6 +86,7 @@ const customTheme = createTheme({
    textInput: {
       field: {
          input: {
+            base: "pointer-coarse:min-h-[44px]",
             colors: whiteInputColors,
             withAddon: { on: "rounded-r", off: "rounded" },
          },
@@ -63,6 +95,7 @@ const customTheme = createTheme({
    select: {
       field: {
          select: {
+            base: "pointer-coarse:min-h-[44px]",
             colors: whiteInputColors,
             withAddon: { on: "rounded-r", off: "rounded" },
          },

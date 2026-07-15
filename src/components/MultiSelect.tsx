@@ -111,7 +111,7 @@ export function MultiSelect({
                      <label
                         key={option.value}
                         className={`flex cursor-pointer items-center gap-3 px-3 py-2.5 hover:bg-gray-50 ${
-                           isSelected ? "bg-red-50" : ""
+                           isSelected ? "bg-primary-50" : ""
                         }`}
                      >
                         <div className="relative flex items-center justify-center">
@@ -124,8 +124,8 @@ export function MultiSelect({
                            <div
                               className={`flex h-5 w-5 items-center justify-center rounded border-2 ${
                                  isSelected
-                                    ? "border-red-600 bg-red-600"
-                                    : "border-gray-300 bg-white hover:border-red-400"
+                                    ? "border-primary-600 bg-primary-600"
+                                    : "hover:border-primary-400 border-gray-300 bg-white"
                               }`}
                            >
                               {isSelected && (
@@ -146,7 +146,7 @@ export function MultiSelect({
                         <span
                            className={`flex-1 text-sm select-none ${
                               isSelected
-                                 ? "font-medium text-red-600"
+                                 ? "text-primary-700 font-medium"
                                  : "text-gray-700"
                            }`}
                         >
@@ -167,9 +167,9 @@ export function MultiSelect({
             type="button"
             onClick={toggleDropdown}
             style={{ transform: "translateZ(0)" }}
-            className={`flex w-full items-center justify-between gap-2 rounded border bg-white ${SIZING_CLASSES[sizing]} focus:border-red-500 focus:ring-2 focus:ring-red-500 focus:outline-none ${
+            className={`flex w-full items-center justify-between gap-2 rounded border bg-white ${SIZING_CLASSES[sizing]} focus:border-primary-500 focus:ring-primary-500 focus:ring-2 focus:outline-none pointer-coarse:min-h-[44px] ${
                selected.length > 0
-                  ? "border-red-300 bg-red-50 text-gray-900 hover:bg-red-100"
+                  ? "border-primary-300 bg-primary-50 hover:bg-primary-100 text-gray-900"
                   : "border-gray-300 text-gray-900 hover:bg-gray-50"
             }`}
          >
@@ -178,7 +178,7 @@ export function MultiSelect({
             >
                {displayText}
                {selected.length > 1 && (
-                  <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-red-600 px-1.5 text-xs font-semibold text-white">
+                  <span className="bg-primary-600 inline-flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-xs font-semibold text-white">
                      {selected.length}
                   </span>
                )}

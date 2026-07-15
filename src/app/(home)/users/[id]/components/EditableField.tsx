@@ -172,7 +172,7 @@ export function EditableField({
                      )}
                   </div>
                   {saving ? (
-                     <Spinner size="sm" color="failure" />
+                     <Spinner size="sm" color="primary" />
                   ) : (
                      <>
                         <button
@@ -202,8 +202,8 @@ export function EditableField({
          id={`field-${fieldName}`}
          className="group flex items-center gap-3 px-5 py-3.5"
       >
-         <div className="shrink-0 rounded-md bg-red-100 p-2.5">
-            <Icon className="h-4 w-4 text-red-600" />
+         <div className="bg-primary-100 shrink-0 rounded-md p-2.5">
+            <Icon className="text-primary-600 h-4 w-4" />
          </div>
          <div className="min-w-0">
             <p className="mb-0.5 text-xs font-medium tracking-wide text-gray-500 uppercase">
