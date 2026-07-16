@@ -34,10 +34,10 @@ export function QuadsGroupCard({
       <div className="rounded bg-white shadow-sm ring-1 ring-slate-200">
          <div className="flex items-center justify-between gap-3 border-b border-slate-200 px-4 py-3">
             <div className="min-w-0">
-               <h3 className="truncate text-lg font-semibold text-gray-900 uppercase">
+               <h2 className="truncate text-lg font-semibold text-gray-900 uppercase">
                   {group.long}
-               </h3>
-               <p className="text-xs font-medium tracking-wide text-gray-400 uppercase">
+               </h2>
+               <p className="text-xs font-medium tracking-wide text-gray-500 uppercase">
                   {group.short}
                </p>
             </div>
@@ -63,7 +63,7 @@ export function QuadsGroupCard({
 
          <div className="divide-y divide-slate-200">
             {group.types.length === 0 ? (
-               <p className="px-4 py-3 text-sm text-gray-400">
+               <p className="px-4 py-3 text-sm text-gray-500">
                   Nenhum tipo cadastrado neste grupo.
                </p>
             ) : (
@@ -75,20 +75,20 @@ export function QuadsGroupCard({
                      <div className="min-w-0">
                         <p className="font-medium text-gray-800 uppercase">
                            {type.long}
-                           <span className="ml-2 text-xs font-normal text-gray-400">
+                           <span className="ml-2 text-xs font-normal text-gray-500">
                               {type.short}
                            </span>
                         </p>
                         <div className="mt-1 flex flex-wrap items-center gap-1">
                            {type.funcs_list.length === 0 ? (
-                              <span className="text-xs text-gray-400">
+                              <span className="text-xs text-gray-500">
                                  Nenhuma função associada
                               </span>
                            ) : (
                               type.funcs_list.map((func) => (
                                  <span
                                     key={func}
-                                    className="inline-flex items-center rounded bg-red-50 px-2 py-0.5 text-xs font-medium text-red-700"
+                                    className="bg-primary-50 text-primary-700 inline-flex items-center rounded px-2 py-0.5 text-xs font-medium"
                                  >
                                     {getFuncLabel(func as FuncType, true)}
                                  </span>

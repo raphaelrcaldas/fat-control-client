@@ -30,10 +30,14 @@ export function CrewRow({ tripQuadRes, groupName, typeName }: CrewRowProps) {
             return <QuadPopover key={quad.id} quad={quad} />;
          })}
          <PermBased resource={"quad_ops"} requiredPerm={"create"}>
-            <VscAdd
-               className="size-6 shrink-0 cursor-pointer p-0"
+            <button
+               type="button"
+               aria-label={`Adicionar quadrinho de ${tripQuadRes.trip.trig}`}
+               className="grid shrink-0 cursor-pointer place-items-center rounded p-1 hover:bg-slate-100 pointer-coarse:min-h-[44px] pointer-coarse:min-w-[44px]"
                onClick={() => setShowForm(true)}
-            />
+            >
+               <VscAdd className="size-6" />
+            </button>
          </PermBased>
 
          <QuadForm

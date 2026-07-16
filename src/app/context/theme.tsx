@@ -30,7 +30,12 @@ const customTheme = createTheme({
    button: {
       // pointer-coarse: alvo de 44px só no dedo (regra do projeto) — no mouse
       // vale o mínimo WCAG de 24px e a densidade do desktop fica intacta.
-      base: "rounded-md pointer-coarse:min-h-[44px]",
+      // min-w também: botões só-ícone (size xs/sm) ficavam com 32-37px de
+      // largura no toque.
+      base: "rounded-md pointer-coarse:min-h-[44px] pointer-coarse:min-w-[44px]",
+      // Pontas do ButtonGroup no mesmo raio do botão solto (default do
+      // Flowbite é rounded-*-lg, destoando do rounded-md do projeto).
+      grouped: "first:rounded-s-md last:rounded-e-md",
       // Ação de marca tematizada por org (data-org-theme). Espelha o color
       // `red` do Flowbite trocando a escala por `primary-*`. Usar em botões de
       // ação primária/de marca; `color="red"` fica reservado a perigo/exclusão.

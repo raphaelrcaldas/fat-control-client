@@ -6,6 +6,8 @@ import { FaPlus } from "react-icons/fa6";
 
 interface SectionHeaderProps {
    title: string;
+   /** Nível do título — "h1" quando o SectionHeader é o título da página */
+   headingLevel?: "h1" | "h2";
    count?: number;
    countLabel?: string;
    onCreateClick?: () => void;
@@ -18,11 +20,12 @@ interface SectionHeaderProps {
 
 export function SectionHeader({
    title,
+   headingLevel: Heading = "h2",
    count,
    countLabel,
    onCreateClick,
    createLabel,
-   createButtonColor = "red",
+   createButtonColor = "primary",
    createIcon: CreateIcon = FaPlus,
    canCreate = true,
    children,
@@ -32,9 +35,9 @@ export function SectionHeader({
    return (
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
          <div className="flex items-center gap-3">
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+            <Heading className="text-xl font-semibold text-gray-900 dark:text-white">
                {title}
-            </h2>
+            </Heading>
             {count !== undefined && (
                <span className="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-700 dark:bg-gray-700 dark:text-gray-300">
                   {count} {countLabel || ""}

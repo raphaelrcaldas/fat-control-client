@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useId, useMemo, useState } from "react";
 import {
    Button,
    Label,
@@ -31,6 +31,9 @@ interface QuadFormProps {
 }
 
 export function QuadForm({ trip, quad, show, setShow }: QuadFormProps) {
+   // useId (não id fixo): há um QuadForm montado por linha do board/modal.
+   const titleId = useId();
+
    const defaultValues = useMemo(
       () => ({
          value: quad?.value ?? "",
@@ -192,6 +195,7 @@ export function QuadForm({ trip, quad, show, setShow }: QuadFormProps) {
          size="md"
          popup
          dismissible
+         aria-labelledby={titleId}
          theme={{
             root: {
                base: "fixed inset-x-0 top-0 z-50 h-screen overflow-y-auto overflow-x-hidden md:inset-0 md:h-full",
@@ -209,11 +213,14 @@ export function QuadForm({ trip, quad, show, setShow }: QuadFormProps) {
          {/* Cabeçalho */}
          <div className="flex items-center justify-between border-b border-slate-200 px-5 py-4 dark:border-slate-700">
             <div className="flex items-center gap-3">
-               <div className="flex size-10 items-center justify-center rounded-md bg-red-600 shadow">
+               <div className="bg-primary-600 flex size-10 items-center justify-center rounded-md shadow">
                   <HiOutlineClipboardList className="size-5 text-white" />
                </div>
                <div>
-                  <h3 className="text-base leading-tight font-semibold text-gray-800 dark:text-white">
+                  <h3
+                     id={titleId}
+                     className="text-base leading-tight font-semibold text-gray-800 dark:text-white"
+                  >
                      {quad ? "Atualizar Quadrinho" : "Adicionar Quadrinho"}
                   </h3>
                   <p className="text-sm font-semibold text-gray-500 uppercase dark:text-slate-400">
@@ -243,7 +250,7 @@ export function QuadForm({ trip, quad, show, setShow }: QuadFormProps) {
                         Tipo de Entrada
                      </Label>
                      <div
-                        role="tablist"
+                        role="group"
                         aria-label="Tipo de Entrada"
                         className="relative grid grid-cols-2 rounded border border-slate-200 bg-slate-100 p-1 dark:border-slate-700 dark:bg-slate-800"
                      >
@@ -258,13 +265,12 @@ export function QuadForm({ trip, quad, show, setShow }: QuadFormProps) {
                               <button
                                  key={id}
                                  type="button"
-                                 role="tab"
-                                 aria-selected={active}
+                                 aria-pressed={active}
                                  onClick={() => setInputType(id)}
                                  className={clsx(
                                     "relative z-10 flex items-center justify-center gap-2 rounded px-3 py-2 text-sm font-medium transition-colors duration-150",
                                     active
-                                       ? "bg-white text-red-600 shadow-sm dark:bg-slate-900 dark:text-red-400"
+                                       ? "text-primary-600 dark:text-primary-400 bg-white shadow-sm dark:bg-slate-900"
                                        : "text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100"
                                  )}
                               >
@@ -318,11 +324,11 @@ export function QuadForm({ trip, quad, show, setShow }: QuadFormProps) {
                                  sizing="md"
                               />
                               {dateCount > 0 && (
-                                 <div className="flex items-center gap-2 rounded border border-red-100 bg-red-50 px-3 py-2 dark:border-red-900/40 dark:bg-red-950/40">
-                                    <span className="inline-flex size-5 items-center justify-center rounded bg-red-500 text-[11px] font-bold text-white">
+                                 <div className="border-primary-100 bg-primary-50 dark:border-primary-900/40 dark:bg-primary-950/40 flex items-center gap-2 rounded border px-3 py-2">
+                                    <span className="bg-primary-600 inline-flex size-5 items-center justify-center rounded text-[11px] font-bold text-white">
                                        {dateCount}
                                     </span>
-                                    <span className="text-xs font-medium text-red-700 dark:text-red-300">
+                                    <span className="text-primary-700 dark:text-primary-300 text-xs font-medium">
                                        quadrinho{dateCount > 1 ? "s" : ""} será
                                        {dateCount > 1 ? "ão" : ""} inserido
                                        {dateCount > 1 ? "s" : ""}
@@ -385,7 +391,7 @@ export function QuadForm({ trip, quad, show, setShow }: QuadFormProps) {
                   Cancelar
                </Button>
                <Button
-                  color="red"
+                  color="primary"
                   onClick={handleSubmit}
                   disabled={loading || !isFormValid()}
                   className="flex-1"

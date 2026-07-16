@@ -34,7 +34,7 @@ export default function GerenciarQuadsPage() {
    const { hasPerm } = usePermBased();
    const canManage = hasPerm("quad_ops", "create");
 
-   const { data: groups = [], isLoading, error } = useQuadsTypes();
+   const { data: groups = [], isLoading, error, refetch } = useQuadsTypes();
 
    const createGroup = useCreateQuadsGroup();
    const updateGroup = useUpdateQuadsGroup();
@@ -176,10 +176,13 @@ export default function GerenciarQuadsPage() {
       return (
          <div className="space-y-2">
             {backLink}
-            <div className="rounded border border-red-300 bg-red-50 p-4">
+            <div className="flex flex-wrap items-center justify-between gap-3 rounded border border-red-300 bg-red-50 p-4">
                <p className="text-sm text-red-800">
                   Erro ao carregar quadrinhos. Por favor, tente novamente.
                </p>
+               <Button color="light" size="sm" onClick={() => refetch()}>
+                  Tentar novamente
+               </Button>
             </div>
          </div>
       );
@@ -194,6 +197,7 @@ export default function GerenciarQuadsPage() {
 
          <SectionHeader
             title="Gerenciar quadrinhos"
+            headingLevel="h1"
             count={groups.length}
             countLabel={groups.length === 1 ? "grupo" : "grupos"}
             onCreateClick={() => setGroupModal({ open: true, editing: null })}

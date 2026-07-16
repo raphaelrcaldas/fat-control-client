@@ -42,7 +42,7 @@ interface QuadRowProps {
 }
 
 const QUAD_CHECKBOX_CLASS =
-   "size-5 cursor-pointer rounded border-2 border-gray-500 text-red-600 ring-offset-1 checked:border-red-600 focus:ring-2 focus:ring-red-500 focus:ring-offset-2";
+   "size-[24px] cursor-pointer rounded border-2 border-gray-500 text-primary-600 ring-offset-1 checked:border-primary-600 focus:ring-2 focus:ring-primary-500 focus:ring-offset-2";
 
 export function QuadsTrip({
    trip,
@@ -59,11 +59,12 @@ export function QuadsTrip({
    const { push } = useToast();
 
    // React Query hooks
-   const { data: quads = [], isLoading: loading } = useQuadsByTrip(
-      trip.id,
-      quadType,
-      openModal
-   );
+   const {
+      data: quads = [],
+      isLoading: loading,
+      isError,
+      refetch,
+   } = useQuadsByTrip(trip.id, quadType, openModal);
 
    const deleteQuadMutation = useDeleteQuad();
 
@@ -141,6 +142,16 @@ export function QuadsTrip({
       setSelectedIds(new Set());
    }, []);
 
+   // Ao fechar o form aninhado, devolver o foco ao botão que o abriu — sem
+   // isso o Flowbite restaura o foco no trigger da página atrás do modal.
+   const addQuadBtnRef = useRef<HTMLButtonElement>(null);
+   const handleFormShow = useCallback((v: boolean) => {
+      setShowForm(v);
+      if (!v) {
+         requestAnimationFrame(() => addQuadBtnRef.current?.focus());
+      }
+   }, []);
+
    return (
       <>
          <Button
@@ -152,7 +163,7 @@ export function QuadsTrip({
          >
             {trip.trig}
             <div
-               className="absolute -top-2 -right-2 inline-flex size-6 items-center justify-center rounded-full border-2 border-white bg-red-500 font-mono text-xs text-white"
+               className="bg-primary-600 absolute -top-2 -right-2 inline-flex size-6 items-center justify-center rounded-full border-2 border-white font-mono text-xs text-white"
                aria-label={`${totalQuads} quadrinhos`}
             >
                {totalQuads}
@@ -168,7 +179,7 @@ export function QuadsTrip({
          >
             <ModalHeader>
                <div className="flex items-center gap-2">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-md bg-red-600 shadow">
+                  <div className="bg-primary-600 flex h-10 w-10 items-center justify-center rounded-md shadow">
                      <HiOutlineClipboardList className="h-6 w-6 text-white" />
                   </div>
                   <span className="text-xl font-bold text-gray-800">
@@ -177,7 +188,7 @@ export function QuadsTrip({
                </div>
             </ModalHeader>
             <ModalBody className="space-y-2">
-               <div className="rounded border border-red-200 bg-red-100 p-4">
+               <div className="border-primary-200 bg-primary-100 rounded border p-4">
                   <div className="text-center uppercase">
                      <h2 className="text-lg font-bold text-gray-900">
                         {userName}
@@ -200,13 +211,13 @@ export function QuadsTrip({
                </div>
 
                <div
-                  className={`flex items-center justify-between rounded border border-red-300 bg-red-50 px-3 py-2 shadow-sm transition-opacity duration-150 ${
+                  className={`border-primary-300 bg-primary-50 flex items-center justify-between rounded border px-3 py-2 shadow-sm transition-opacity duration-150 ${
                      quads.length > 0 && selectedIds.size > 0
                         ? "opacity-100"
                         : "invisible opacity-0"
                   }`}
                >
-                  <span className="text-sm font-semibold text-red-700">
+                  <span className="text-primary-700 text-sm font-semibold">
                      ✓ {selectedIds.size} selecionado(s)
                   </span>
                   <button
@@ -220,6 +231,8 @@ export function QuadsTrip({
                <div className="h-96 overflow-y-auto rounded bg-white shadow-sm ring-1 ring-slate-200">
                   {loading ? (
                      <LoadingState />
+                  ) : isError ? (
+                     <ErrorState onRetry={() => refetch()} />
                   ) : quads.length > 0 ? (
                      <Table
                         className="text-center"
@@ -237,7 +250,7 @@ export function QuadsTrip({
                               <TableHeadCell className="w-10">
                                  <Checkbox
                                     ref={selectAllRef}
-                                    color="red"
+                                    color="primary"
                                     checked={
                                        quads.length > 0 &&
                                        selectedIds.size === quads.length
@@ -247,10 +260,10 @@ export function QuadsTrip({
                                           ? handleClearSelection
                                           : handleSelectAll
                                     }
-                                    title={
+                                    aria-label={
                                        selectedIds.size === quads.length
-                                          ? "Desmarcar todos"
-                                          : "Selecionar todos"
+                                          ? "Desmarcar todos os quadrinhos"
+                                          : "Selecionar todos os quadrinhos"
                                     }
                                     className={QUAD_CHECKBOX_CLASS}
                                  />
@@ -303,7 +316,8 @@ export function QuadsTrip({
                   </PermBased>
                   <PermBased resource={"quad_ops"} requiredPerm={"create"}>
                      <Button
-                        color="red"
+                        ref={addQuadBtnRef}
+                        color="primary"
                         onClick={() => setShowForm(true)}
                         className="w-full sm:w-auto"
                      >
@@ -313,7 +327,7 @@ export function QuadsTrip({
                   </PermBased>
                </div>
 
-               <QuadForm trip={trip} show={showForm} setShow={setShowForm} />
+               <QuadForm trip={trip} show={showForm} setShow={handleFormShow} />
             </ModalBody>
          </Modal>
 
@@ -333,6 +347,15 @@ function QuadRow({ quad, trip, selected, onToggleSelect }: QuadRowProps) {
    const displayValue = quadDisplayValue(quad);
    const canEdit = Boolean(quad.value);
 
+   // Mesmo motivo do handleFormShow: foco de volta ao botão que abriu o form.
+   const editBtnRef = useRef<HTMLButtonElement>(null);
+   const handleFormShow = useCallback((v: boolean) => {
+      setShowForm(v);
+      if (!v) {
+         requestAnimationFrame(() => editBtnRef.current?.focus());
+      }
+   }, []);
+
    return (
       <>
          <TableRow className="min-h-11 transition-colors hover:bg-gray-50 dark:hover:bg-gray-700">
@@ -342,6 +365,7 @@ function QuadRow({ quad, trip, selected, onToggleSelect }: QuadRowProps) {
                   onChange={() =>
                      quad.id !== undefined && onToggleSelect(quad.id)
                   }
+                  aria-label={`Selecionar quadrinho ${displayValue}`}
                   className={QUAD_CHECKBOX_CLASS}
                />
             </TableCell>
@@ -353,9 +377,10 @@ function QuadRow({ quad, trip, selected, onToggleSelect }: QuadRowProps) {
                   <PermBased resource={"quad_ops"} requiredPerm={"update"}>
                      {canEdit && (
                         <button
+                           ref={editBtnRef}
                            onClick={() => setShowForm(true)}
-                           className="cursor-pointer rounded p-2 text-blue-500 transition-all duration-200 hover:bg-blue-500 hover:text-white active:scale-95"
-                           aria-label="Editar quadrinho"
+                           className="cursor-pointer rounded p-2 text-blue-500 transition-all duration-200 hover:bg-blue-500 hover:text-white active:scale-95 motion-reduce:transition-none motion-reduce:active:scale-100"
+                           aria-label={`Editar quadrinho ${displayValue}`}
                         >
                            <FaEdit className="size-5" />
                         </button>
@@ -368,7 +393,7 @@ function QuadRow({ quad, trip, selected, onToggleSelect }: QuadRowProps) {
          {canEdit && (
             <QuadForm
                show={showForm}
-               setShow={setShowForm}
+               setShow={handleFormShow}
                trip={trip}
                quad={quad}
             />
@@ -407,6 +432,22 @@ function LoadingState() {
                </div>
             </div>
          ))}
+      </div>
+   );
+}
+
+function ErrorState({ onRetry }: { onRetry: () => void }) {
+   return (
+      <div className="flex flex-col items-center justify-center gap-2 px-4 py-12">
+         <p className="text-sm font-semibold text-gray-700">
+            Erro ao carregar os quadrinhos
+         </p>
+         <p className="text-center text-sm text-gray-500">
+            Não foi possível buscar os dados deste tripulante.
+         </p>
+         <Button color="light" size="sm" className="mt-1" onClick={onRetry}>
+            Tentar novamente
+         </Button>
       </div>
    );
 }

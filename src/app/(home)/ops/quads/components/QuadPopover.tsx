@@ -13,7 +13,7 @@ export function QuadPopover({ quad }: { quad: Quad }) {
          className={clsx(
             `flex size-9 shrink-0 items-center justify-center rounded`,
             {
-               "bg-red-500 hover:bg-red-700": quad.value,
+               "bg-primary-600 hover:bg-primary-700": quad.value,
                "bg-slate-500 hover:bg-slate-700": !quad.value,
                "sm:w-18": visual === "comp",
                "sm:w-9": visual === "reduz",
