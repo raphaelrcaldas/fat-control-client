@@ -120,9 +120,9 @@ export default function OperacaoDetailPage() {
                      type="button"
                      onClick={() => setActiveTab(tab.key)}
                      className={clsx(
-                        "flex items-center gap-2 border-b-2 px-4 py-3 text-sm font-medium transition-colors",
+                        "flex items-center gap-2 border-b-2 px-4 py-3 text-sm font-medium transition-colors pointer-coarse:min-h-[44px]",
                         activeTab === tab.key
-                           ? "border-red-500 text-red-600"
+                           ? "border-primary-500 text-primary-600"
                            : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"
                      )}
                   >

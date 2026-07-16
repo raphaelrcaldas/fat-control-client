@@ -37,7 +37,7 @@ export function OperacaoHeader({ op, onEdit, onDelete }: Props) {
          <button
             type="button"
             onClick={() => router.back()}
-            className="mb-2 -ml-1 flex items-center gap-2 rounded px-3 py-2 text-sm font-medium text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900"
+            className="mb-2 -ml-1 flex items-center gap-2 rounded px-3 py-2 text-sm font-medium text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900 pointer-coarse:min-h-[44px]"
          >
             <HiArrowLeft className="h-4 w-4" />
             Voltar
@@ -48,19 +48,19 @@ export function OperacaoHeader({ op, onEdit, onDelete }: Props) {
             {/* Espinha vermelha — ecoa a espinha dos cards */}
             <span
                aria-hidden
-               className="absolute top-0 left-0 h-full w-1 bg-red-600"
+               className="bg-primary-600 absolute top-0 left-0 h-full w-1"
             />
 
             <div className="relative flex flex-wrap items-center justify-between gap-x-4 gap-y-3">
                <div className="flex min-w-0 items-center gap-4">
-                  <div className="grid h-12 w-12 shrink-0 place-items-center rounded-md bg-red-50 text-red-600 ring-1 ring-red-100 ring-inset">
+                  <div className="grid h-12 w-12 shrink-0 place-items-center rounded-md bg-primary-50 text-primary-600 ring-primary-100 ring-1 ring-inset">
                      <TbPlaneInflight className="h-6 w-6" />
                   </div>
 
                   <div className="min-w-0">
                      {/* Eyebrow: tipo (mono) + status */}
                      <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1">
-                        <span className="font-mono text-[10px] font-bold tracking-[0.3em] text-red-500 uppercase">
+                        <span className="font-mono text-[10px] font-bold tracking-[0.3em] text-primary-600 uppercase">
                            {TIPO_LABEL[op.tipo]}
                         </span>
                         <span aria-hidden className="h-3 w-px bg-slate-200" />

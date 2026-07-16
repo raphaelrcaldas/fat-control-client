@@ -24,26 +24,26 @@ export function SeboCard({ sebo }: { sebo: SeboRow[] }) {
       <section className="rounded border border-slate-300 bg-white shadow">
          <header className="flex items-center justify-between border-b border-slate-100 px-4 py-3">
             <h2 className="flex items-center gap-2 text-base font-bold text-slate-900">
-               <span className="h-4 w-1 rounded-full bg-red-600" />
+               <span className="bg-primary-600 h-4 w-1 rounded-full" />
                Pau de sebo
             </h2>
-            <span className="font-mono text-[10px] tracking-widest text-slate-400 uppercase">
+            <span className="font-mono text-[10px] tracking-widest text-slate-500 uppercase">
                por tripulante · horas
             </span>
          </header>
 
          {funcs.length > 0 && (
             <div className="flex items-center gap-1.5 border-b border-slate-100 px-4 py-2">
-               <span className="font-mono text-[10px] font-bold tracking-[0.2em] text-slate-400 uppercase">
+               <span className="font-mono text-[10px] font-bold tracking-[0.2em] text-slate-500 uppercase">
                   Função
                </span>
                <button
                   type="button"
                   onClick={() => setFuncFilter(null)}
                   className={clsx(
-                     "rounded-md px-2 py-0.5 text-[11px] font-bold uppercase transition-colors",
+                     "rounded-md px-2 py-1.5 text-[11px] font-bold uppercase transition-colors pointer-coarse:min-h-[44px] pointer-coarse:min-w-[44px]",
                      funcFilter === null
-                        ? "bg-red-600 text-white"
+                        ? "bg-primary-600 text-white"
                         : "bg-slate-100 text-slate-500 hover:bg-slate-200"
                   )}
                >
@@ -57,10 +57,10 @@ export function SeboCard({ sebo }: { sebo: SeboRow[] }) {
                         setFuncFilter((cur) => (cur === f ? null : f))
                      }
                      className={clsx(
-                        "rounded-md px-2 py-0.5 text-[11px] font-bold uppercase transition-colors",
+                        "rounded-md px-2 py-1.5 text-[11px] font-bold uppercase transition-colors pointer-coarse:min-h-[44px] pointer-coarse:min-w-[44px]",
                         funcFilter === f
-                           ? "bg-red-600 text-white"
-                           : "bg-red-50 text-red-700 hover:bg-red-100"
+                           ? "bg-primary-600 text-white"
+                           : "bg-primary-50 text-primary-700 hover:bg-primary-100"
                      )}
                   >
                      {f}
@@ -76,7 +76,7 @@ export function SeboCard({ sebo }: { sebo: SeboRow[] }) {
          ) : (
             <table className="w-full text-sm">
                <thead>
-                  <tr className="font-mono text-[10px] tracking-[0.15em] text-slate-400 uppercase">
+                  <tr className="font-mono text-[10px] tracking-[0.15em] text-slate-500 uppercase">
                      <th className="px-3 py-2 text-left font-bold">#</th>
                      <th className="px-2 py-2 text-left font-bold">
                         Nome de guerra
@@ -94,8 +94,8 @@ export function SeboCard({ sebo }: { sebo: SeboRow[] }) {
                               className={clsx(
                                  "flex h-6 w-6 items-center justify-center rounded-md font-mono text-xs font-bold tabular-nums",
                                  idx < 3
-                                    ? "bg-red-600 text-white"
-                                    : "bg-slate-100 text-slate-500"
+                                    ? "bg-primary-600 text-white"
+                                    : "bg-slate-100 text-slate-600"
                               )}
                            >
                               {idx + 1}
@@ -110,7 +110,7 @@ export function SeboCard({ sebo }: { sebo: SeboRow[] }) {
                            </div>
                         </td>
                         <td className="px-2 py-2">
-                           <span className="rounded-md bg-red-50 px-1.5 py-0.5 text-[11px] font-bold text-red-700 uppercase">
+                           <span className="bg-primary-50 text-primary-700 rounded-md px-1.5 py-0.5 text-[11px] font-bold uppercase">
                               {s.func}
                            </span>
                         </td>

@@ -105,7 +105,7 @@ export function AssociarEtapasModal({ show, onClose, op }: Props) {
       <Modal show={show} size="2xl" onClose={onClose} dismissible>
          <ModalHeader>
             <span className="flex items-center gap-2">
-               <MdLink className="h-5 w-5 text-red-600" />
+               <MdLink className="h-5 w-5 text-primary-600" />
                Associar etapas
             </span>
          </ModalHeader>
@@ -114,7 +114,7 @@ export function AssociarEtapasModal({ show, onClose, op }: Props) {
                <h3 className="text-lg leading-tight font-bold text-slate-800">
                   {op.nome}
                </h3>
-               <span className="inline-flex items-center gap-1.5 rounded-md bg-red-600 px-2.5 py-1 font-mono text-sm font-bold text-white tabular-nums">
+               <span className="inline-flex items-center gap-1.5 bg-primary-600 rounded-md px-2.5 py-1 font-mono text-sm font-bold text-white tabular-nums">
                   <MdCalendarToday className="h-4 w-4" />
                   {isoDateToString(op.data_inicio)} –{" "}
                   {isoDateToString(op.data_fim)}
@@ -130,16 +130,16 @@ export function AssociarEtapasModal({ show, onClose, op }: Props) {
             <div className="mb-3 flex min-h-6.5 flex-wrap items-center gap-1.5">
                {anvs.length > 0 && (
                   <>
-                     <span className="font-mono text-[10px] font-bold tracking-[0.2em] text-slate-400 uppercase">
+                     <span className="font-mono text-[10px] font-bold tracking-[0.2em] text-slate-500 uppercase">
                         Aeronaves
                      </span>
                      <button
                         type="button"
                         onClick={() => setAnvFilter(null)}
                         className={clsx(
-                           "rounded-md px-2 py-0.5 text-[11px] font-bold transition-colors",
+                           "rounded-md px-2 py-1.5 text-[11px] font-bold transition-colors pointer-coarse:min-h-[44px] pointer-coarse:min-w-[44px]",
                            anvFilter === null
-                              ? "bg-red-600 text-white"
+                              ? "bg-primary-600 text-white"
                               : "bg-slate-100 text-slate-500 hover:bg-slate-200"
                         )}
                      >
@@ -153,10 +153,10 @@ export function AssociarEtapasModal({ show, onClose, op }: Props) {
                               setAnvFilter((cur) => (cur === a ? null : a))
                            }
                            className={clsx(
-                              "rounded-md px-2 py-0.5 font-mono text-[11px] font-bold transition-colors",
+                              "rounded-md px-2 py-1.5 font-mono text-[11px] font-bold transition-colors pointer-coarse:min-h-[44px] pointer-coarse:min-w-[44px]",
                               anvFilter === a
-                                 ? "bg-red-600 text-white"
-                                 : "bg-red-50 text-red-700 hover:bg-red-100"
+                                 ? "bg-primary-600 text-white"
+                                 : "bg-primary-50 text-primary-700 hover:bg-primary-100"
                            )}
                         >
                            {a}
@@ -198,7 +198,7 @@ export function AssociarEtapasModal({ show, onClose, op }: Props) {
                   <div className="h-full overflow-y-auto rounded border border-slate-300 shadow">
                      <table className="w-full text-sm">
                         <thead className="sticky top-0 bg-white shadow-[inset_0_-1px_0_var(--color-slate-200)]">
-                           <tr className="text-center font-mono text-[10px] tracking-[0.15em] text-slate-400 uppercase">
+                           <tr className="text-center font-mono text-[10px] tracking-[0.15em] text-slate-500 uppercase">
                               <th className="w-8 px-3 py-2" />
                               <th className="px-2 py-2 text-center font-bold">
                                  Data
@@ -229,7 +229,7 @@ export function AssociarEtapasModal({ show, onClose, op }: Props) {
                                        c.bloqueada
                                           ? "bg-slate-50 opacity-60"
                                           : checked
-                                            ? "bg-red-50/50"
+                                            ? "bg-primary-50/50"
                                             : "hover:bg-slate-50"
                                     )}
                                  >
@@ -238,7 +238,7 @@ export function AssociarEtapasModal({ show, onClose, op }: Props) {
                                           checked={checked}
                                           disabled={c.bloqueada}
                                           onChange={() => toggle(c.id)}
-                                          color="red"
+                                          color="primary"
                                        />
                                     </td>
                                     <td className="px-2 py-2 text-center font-mono text-slate-600 tabular-nums">
@@ -307,7 +307,7 @@ export function AssociarEtapasModal({ show, onClose, op }: Props) {
                   Cancelar
                </Button>
                <Button
-                  color="red"
+                  color="primary"
                   size="sm"
                   disabled={preview.etapas === 0 || associarMutation.isPending}
                   onClick={handleAssociar}

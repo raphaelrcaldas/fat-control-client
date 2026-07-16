@@ -87,7 +87,7 @@ export function PessoalTable({ op }: { op: OperacaoDetail }) {
          <header className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 px-4 py-3">
             <div className="flex flex-wrap items-center gap-3">
                <h2 className="flex items-center gap-2 text-base font-bold text-slate-900">
-                  <span className="h-4 w-1 rounded-full bg-red-600" />
+                  <span className="h-4 w-1 rounded-full bg-primary-600" />
                   Militares envolvidos
                </h2>
                {lista.length > 0 && (
@@ -119,11 +119,11 @@ export function PessoalTable({ op }: { op: OperacaoDetail }) {
                )}
             </div>
             <div className="flex items-center gap-2">
-               <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-500">
+               <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600">
                   {lista.length} {lista.length === 1 ? "militar" : "militares"}
                </span>
                <PermBased resource="operacoes.militar" requiredPerm="create">
-                  <Button color="red" size="xs" onClick={openCreate}>
+                  <Button color="primary" size="xs" onClick={openCreate}>
                      <HiPlus className="mr-1 h-4 w-4" /> Associar
                   </Button>
                </PermBased>

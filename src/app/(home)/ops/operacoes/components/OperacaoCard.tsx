@@ -93,7 +93,7 @@ export function OperacaoCard({ op }: { op: OperacaoListItem }) {
             <div className="flex shrink-0 items-center justify-between gap-4 rounded border border-slate-300 bg-slate-50/80 px-3 py-2 md:justify-start">
                {/* Período */}
                <div className="flex w-44 shrink-0 flex-col gap-1">
-                  <span className="font-mono text-[9px] font-bold tracking-[0.2em] text-slate-400 uppercase">
+                  <span className="font-mono text-[9px] font-bold tracking-[0.2em] text-slate-500 uppercase">
                      Período
                   </span>
                   <span className="flex items-center gap-1.5 font-mono text-sm font-bold text-slate-700 tabular-nums">
@@ -113,14 +113,14 @@ export function OperacaoCard({ op }: { op: OperacaoListItem }) {
 
                {/* Horas — métrica herói */}
                <div className="flex w-20 shrink-0 flex-col gap-1">
-                  <span className="font-mono text-[9px] font-bold tracking-[0.2em] text-slate-400 uppercase">
+                  <span className="font-mono text-[9px] font-bold tracking-[0.2em] text-slate-500 uppercase">
                      Horas
                   </span>
                   <span className="flex items-baseline gap-0.5 leading-none">
-                     <span className="font-mono text-lg font-extrabold text-red-600 tabular-nums">
+                     <span className="font-mono text-primary-600 text-lg font-extrabold tabular-nums">
                         {minutesToTime(op.horas)}
                      </span>
-                     <span className="text-[10px] font-bold text-red-400">
+                     <span className="text-primary-600 text-[10px] font-bold">
                         h
                      </span>
                   </span>

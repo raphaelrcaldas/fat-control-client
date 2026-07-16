@@ -225,7 +225,7 @@ export function OperacaoFormModal({ show, onClose, editing }: Props) {
                      >
                         {cidadeLabel ? (
                            <span className="flex items-center gap-1.5 font-medium text-gray-800">
-                              <MdLocationOn className="h-4 w-4 text-red-500" />
+                              <MdLocationOn className="text-primary-500 h-4 w-4" />
                               {cidadeLabel}
                            </span>
                         ) : (
@@ -338,7 +338,7 @@ export function OperacaoFormModal({ show, onClose, editing }: Props) {
                      >
                         Cancelar
                      </Button>
-                     <Button type="submit" color="red" disabled={isSubmitting}>
+                     <Button type="submit" color="primary" disabled={isSubmitting}>
                         {isSubmitting ? (
                            <div className="flex items-center gap-2">
                               <Spinner size="sm" color="primary" />

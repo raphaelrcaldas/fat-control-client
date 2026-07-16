@@ -91,8 +91,9 @@ export function OperacoesFilters({
 
    return (
       <div className="mb-4 flex flex-col gap-3">
-         {/* Trilho de status — cada aba carrega a cor da espinha do card */}
-         <div className="flex flex-wrap items-center gap-0.5 border-b border-slate-200">
+         {/* Trilho de status — cada aba carrega a cor da espinha do card.
+             No mobile rola na horizontal em uma linha (sem quebrar). */}
+         <div className="flex items-center gap-0.5 overflow-x-auto border-b border-slate-200 whitespace-nowrap">
             {TABS.map((tab) => {
                const n = tab.count(counts);
                if (tab.key === "cancelada" && n === 0) return null;
@@ -104,7 +105,7 @@ export function OperacoesFilters({
                      type="button"
                      onClick={() => patch({ status: tab.key })}
                      className={clsx(
-                        "-mb-px flex items-center gap-1.5 border-b-2 px-3 py-2 text-sm font-semibold transition-colors",
+                        "-mb-px flex shrink-0 items-center gap-1.5 border-b-2 px-3 py-2 text-sm font-semibold transition-colors pointer-coarse:min-h-[44px]",
                         active
                            ? clsx(accent.border, accent.text)
                            : "border-transparent text-slate-500 hover:border-slate-300 hover:text-slate-700"
@@ -142,12 +143,12 @@ export function OperacoesFilters({
                aria-hidden
             />
 
-            {/* Tipo */}
-            <div className="flex items-center gap-1.5">
-               <span className="font-mono text-[9px] font-bold tracking-[0.2em] text-slate-400 uppercase">
+            {/* Tipo — no mobile o segmentado ocupa a largura, botões iguais */}
+            <div className="flex w-full items-center gap-1.5 sm:w-auto">
+               <span className="font-mono text-[9px] font-bold tracking-[0.2em] text-slate-500 uppercase">
                   Tipo
                </span>
-               <div className="flex items-center gap-0.5 rounded-md bg-slate-200/70 p-0.5">
+               <div className="flex flex-1 items-center gap-0.5 rounded-md bg-slate-200/70 p-0.5 sm:flex-initial">
                   <TipoBtn
                      active={value.tipo === null}
                      onClick={() => patch({ tipo: null })}
@@ -171,32 +172,36 @@ export function OperacoesFilters({
                aria-hidden
             />
 
-            {/* Período — inputs separados (Flowbite TextInput type=date) */}
-            <div className="flex items-center gap-1.5">
-               <span className="font-mono text-[9px] font-bold tracking-[0.2em] text-slate-400 uppercase">
-                  Início
-               </span>
-               <TextInput
-                  type="date"
-                  aria-label="Início do período"
-                  sizing="sm"
-                  className="w-40"
-                  value={value.date_start}
-                  onChange={(e) => patch({ date_start: e.target.value })}
-               />
-            </div>
-            <div className="flex items-center gap-1.5">
-               <span className="font-mono text-[9px] font-bold tracking-[0.2em] text-slate-400 uppercase">
-                  Fim
-               </span>
-               <TextInput
-                  type="date"
-                  aria-label="Fim do período"
-                  sizing="sm"
-                  className="w-40"
-                  value={value.date_end}
-                  onChange={(e) => patch({ date_end: e.target.value })}
-               />
+            {/* Período — inputs separados (Flowbite TextInput type=date).
+                No mobile ficam lado a lado numa grid de 2 colunas; no sm+ o
+                `contents` dissolve o wrapper e cada grupo volta ao flex do deck. */}
+            <div className="grid w-full grid-cols-2 gap-2 sm:contents">
+               <div className="flex items-center gap-1.5">
+                  <span className="font-mono text-[9px] font-bold tracking-[0.2em] text-slate-500 uppercase">
+                     Início
+                  </span>
+                  <TextInput
+                     type="date"
+                     aria-label="Início do período"
+                     sizing="sm"
+                     className="min-w-0 flex-1 sm:w-40 sm:flex-initial"
+                     value={value.date_start}
+                     onChange={(e) => patch({ date_start: e.target.value })}
+                  />
+               </div>
+               <div className="flex items-center gap-1.5">
+                  <span className="font-mono text-[9px] font-bold tracking-[0.2em] text-slate-500 uppercase">
+                     Fim
+                  </span>
+                  <TextInput
+                     type="date"
+                     aria-label="Fim do período"
+                     sizing="sm"
+                     className="min-w-0 flex-1 sm:w-40 sm:flex-initial"
+                     value={value.date_end}
+                     onChange={(e) => patch({ date_end: e.target.value })}
+                  />
+               </div>
             </div>
 
             {/* Sempre renderizado (slot fixo) — só alterna visibilidade,
@@ -209,7 +214,7 @@ export function OperacoesFilters({
                className={clsx(
                   "ml-auto flex items-center gap-1 rounded-md px-2 py-1 text-xs font-semibold transition-colors",
                   hasAny
-                     ? "text-slate-400 hover:bg-slate-200/60 hover:text-slate-700"
+                     ? "text-slate-500 hover:bg-slate-200/60 hover:text-slate-700"
                      : "pointer-events-none invisible"
                )}
             >
@@ -249,10 +254,10 @@ function TipoBtn({
          type="button"
          onClick={onClick}
          className={clsx(
-            "rounded px-2.5 py-1 text-xs font-semibold transition-all",
+            "flex-1 rounded px-2.5 py-1.5 text-xs font-semibold transition-all sm:flex-initial pointer-coarse:min-h-[44px]",
             active
                ? "bg-white text-slate-900 shadow-sm"
-               : "text-slate-500 hover:text-slate-800"
+               : "text-slate-600 hover:text-slate-900"
          )}
       >
          {children}
@@ -262,7 +267,7 @@ function TipoBtn({
 
 function Chip({ label, onRemove }: { label: string; onRemove: () => void }) {
    return (
-      <span className="flex items-center gap-1 rounded-md bg-red-50 px-2 py-0.5 text-xs font-semibold text-red-700 ring-1 ring-red-200 ring-inset">
+      <span className="flex items-center gap-1 bg-primary-50 text-primary-700 ring-primary-200 rounded-md px-2 py-0.5 text-xs font-semibold ring-1 ring-inset">
          {label}
          <button
             type="button"

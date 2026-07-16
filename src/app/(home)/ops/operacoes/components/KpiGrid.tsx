@@ -18,13 +18,13 @@ function KpiCard({ label, value, unit, sub, highlight }: KpiCardProps) {
       <div
          className={
             highlight
-               ? "rounded bg-linear-to-br from-red-600 to-red-700 px-4 py-3 text-white shadow"
+               ? "rounded bg-linear-to-br from-primary-600 to-primary-700 px-4 py-3 text-white shadow"
                : "rounded border border-slate-300 bg-white px-4 py-3 shadow"
          }
       >
          <p
             className={`font-mono text-[10px] font-bold tracking-[0.2em] uppercase ${
-               highlight ? "text-red-100" : "text-slate-400"
+               highlight ? "text-primary-100" : "text-slate-500"
             }`}
          >
             {label}
@@ -38,7 +38,7 @@ function KpiCard({ label, value, unit, sub, highlight }: KpiCardProps) {
             {unit && (
                <span
                   className={`ml-0.5 text-sm font-bold ${
-                     highlight ? "text-red-200" : "text-slate-400"
+                     highlight ? "text-primary-200" : "text-slate-500"
                   }`}
                >
                   {unit}
@@ -48,7 +48,7 @@ function KpiCard({ label, value, unit, sub, highlight }: KpiCardProps) {
          {sub && (
             <p
                className={`mt-1 text-[11px] font-medium ${
-                  highlight ? "text-red-100" : "text-slate-400"
+                  highlight ? "text-primary-100" : "text-slate-500"
                }`}
             >
                {sub}

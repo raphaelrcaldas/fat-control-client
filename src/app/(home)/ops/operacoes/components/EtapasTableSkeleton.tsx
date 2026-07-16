@@ -5,7 +5,7 @@ export function EtapasTableSkeleton({ rows = 6 }: { rows?: number }) {
          {/* Header — barra de título + contador + ação */}
          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 px-4 py-3">
             <div className="flex items-center gap-2">
-               <span className="h-4 w-1 rounded-full bg-red-600" />
+               <span className="h-4 w-1 rounded-full bg-primary-600" />
                <div className="h-4 w-40 rounded bg-slate-200" />
             </div>
             <div className="flex items-center gap-2">

@@ -59,7 +59,7 @@ export const TIPO_LABEL: Record<OperTipo, string> = {
 
 /** Classe do "chip" de tipo (pill com ring). */
 export const TIPO_CHIP: Record<OperTipo, string> = {
-   operacao: "bg-red-50 text-red-700 ring-red-200",
+   operacao: "bg-primary-50 text-primary-700 ring-primary-200",
    manobra: "bg-slate-50 text-slate-700 ring-slate-300",
    exercicio: "bg-amber-50 text-amber-700 ring-amber-200",
 };
@@ -111,13 +111,13 @@ interface TabAccent {
 /**
  * Acento das abas do trilho de status — espelha a cor da espinha do card,
  * para que a cor escolhida no filtro seja a cor vista na lista.
- * `null` (aba "Todas") usa o vermelho do app.
+ * `null` (aba "Todas") usa a cor de marca do app (primary).
  */
 export const STATUS_TAB: Record<OperStatus | "todas", TabAccent> = {
    todas: {
-      border: "border-red-600",
-      text: "text-red-700",
-      pill: "bg-red-100 text-red-700",
+      border: "border-primary-600",
+      text: "text-primary-700",
+      pill: "bg-primary-100 text-primary-700",
    },
    andamento: {
       border: "border-emerald-500",
