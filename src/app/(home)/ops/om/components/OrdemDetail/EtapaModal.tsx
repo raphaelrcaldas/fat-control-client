@@ -607,7 +607,7 @@ export function EtapaModal({
                      Cancelar
                   </Button>
                   <Button
-                     color="red"
+                     color="primary"
                      onClick={handleSave}
                      disabled={cannotSave}
                   >

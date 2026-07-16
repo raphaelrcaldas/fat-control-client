@@ -320,7 +320,7 @@ export function OrdemFormContent({
          />
 
          {/* Conteudo Scrollavel */}
-         <main className="flex-1 overflow-y-auto">
+         <div className="flex-1 overflow-y-auto">
             <div className="mx-auto p-4">
                <form
                   onSubmit={handleSaveSubmit}
@@ -524,7 +524,7 @@ export function OrdemFormContent({
                   </FormSection>
                </form>
             </div>
-         </main>
+         </div>
 
          <LabelManager
             isOpen={isLabelManagerOpen}

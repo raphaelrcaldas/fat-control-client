@@ -80,7 +80,7 @@ export function FiltrosOrdemComponent({
             <button
                type="button"
                onClick={() => setExpanded(!expanded)}
-               className="flex min-w-0 flex-1 flex-wrap items-center gap-2 text-left transition-colors"
+               className="-my-2 flex min-w-0 flex-1 flex-wrap items-center gap-2 py-2 text-left transition-colors pointer-coarse:min-h-[44px]"
             >
                <span className="text-sm font-bold tracking-wider text-gray-500 uppercase">
                   Filtros
@@ -90,19 +90,19 @@ export function FiltrosOrdemComponent({
                {hasActiveFilters && (
                   <>
                      {filtros.busca && (
-                        <span className="rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-600">
+                        <span className="bg-primary-100 text-primary-700 rounded-full px-2 py-0.5 text-xs font-medium">
                            Busca: {filtros.busca}
                         </span>
                      )}
 
                      {isDataInicioCustom && (
-                        <span className="rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-600">
+                        <span className="bg-primary-100 text-primary-700 rounded-full px-2 py-0.5 text-xs font-medium">
                            Início: {formatDateFull(filtros.dataInicio)}
                         </span>
                      )}
 
                      {isDataFimCustom && (
-                        <span className="rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-600">
+                        <span className="bg-primary-100 text-primary-700 rounded-full px-2 py-0.5 text-xs font-medium">
                            Fim: {formatDateFull(filtros.dataFim)}
                         </span>
                      )}
@@ -111,7 +111,7 @@ export function FiltrosOrdemComponent({
                      {filtros.status.map((s) => (
                         <span
                            key={s}
-                           className="rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-600"
+                           className="bg-primary-100 text-primary-700 rounded-full px-2 py-0.5 text-xs font-medium"
                         >
                            {statusLabels[s as StatusType] || s}
                         </span>
@@ -147,6 +147,7 @@ export function FiltrosOrdemComponent({
                <button
                   type="button"
                   onClick={() => setExpanded(!expanded)}
+                  className="-m-1 grid place-items-center rounded p-1 pointer-coarse:min-h-[44px] pointer-coarse:min-w-[44px]"
                   aria-label={
                      expanded ? "Recolher filtros" : "Expandir filtros"
                   }
@@ -215,10 +216,14 @@ export function FiltrosOrdemComponent({
 
                   {/* Data Início */}
                   <div className="min-w-0">
-                     <label className="mb-1 block text-xs font-medium text-gray-500">
+                     <label
+                        htmlFor="om-data-inicio"
+                        className="mb-1 block text-xs font-medium text-gray-500"
+                     >
                         Data Início
                      </label>
                      <TextInput
+                        id="om-data-inicio"
                         type="date"
                         value={filtros.dataInicio}
                         max={filtros.dataFim || undefined}
@@ -234,10 +239,14 @@ export function FiltrosOrdemComponent({
 
                   {/* Data Fim */}
                   <div className="min-w-0">
-                     <label className="mb-1 block text-xs font-medium text-gray-500">
+                     <label
+                        htmlFor="om-data-fim"
+                        className="mb-1 block text-xs font-medium text-gray-500"
+                     >
                         Data Fim
                      </label>
                      <TextInput
+                        id="om-data-fim"
                         type="date"
                         value={filtros.dataFim}
                         min={filtros.dataInicio || undefined}

@@ -95,7 +95,12 @@ export const EtapasTable = memo(function EtapasTable({
                )}
             </div>
 
-            <div className="overflow-x-auto border border-gray-200 shadow-xs">
+            <div
+               role="region"
+               aria-label="Tabela de etapas"
+               tabIndex={0}
+               className="overflow-x-auto border border-gray-200 shadow-xs"
+            >
                <Table hoverable className="text-center">
                   <TableHead>
                      <TableRow>
@@ -164,13 +169,13 @@ export const EtapasTable = memo(function EtapasTable({
                                        {tempoVoo}
                                     </span>
                                  </TableCell>
-                                 <TableCell className="text-green-600">
+                                 <TableCell className="text-green-700">
                                     {arr.date}
                                  </TableCell>
-                                 <TableCell className="text-green-600">
+                                 <TableCell className="text-green-700">
                                     {arr.time}
                                  </TableCell>
-                                 <TableCell className="font-bold text-green-600 uppercase">
+                                 <TableCell className="font-bold text-green-700 uppercase">
                                     {etapa.dest || "—"}
                                  </TableCell>
                                  <TableCell className="uppercase">
@@ -266,7 +271,7 @@ export const EtapasTable = memo(function EtapasTable({
                                  <span className="text-xs text-gray-500">
                                     Pouso
                                  </span>
-                                 <div className="text-green-600">
+                                 <div className="text-green-700">
                                     {
                                        formatDateTime(
                                           etapas[deleteConfirmIndex].dt_arr
@@ -279,7 +284,7 @@ export const EtapasTable = memo(function EtapasTable({
                                     }
                                     Z
                                  </div>
-                                 <div className="font-bold text-green-600">
+                                 <div className="font-bold text-green-700">
                                     {etapas[deleteConfirmIndex].dest || "—"}
                                  </div>
                               </div>

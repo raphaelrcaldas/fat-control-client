@@ -163,7 +163,7 @@ export const OrdemBasicInfo = memo(function OrdemBasicInfo({
                placeholder="AUTO"
                maxLength={10}
                aria-label="Número da Ordem de Missão"
-               className="w-full rounded border-2 border-gray-200 bg-white px-3 py-2.5 text-center font-mono text-gray-900 uppercase transition-all placeholder:text-gray-400 focus:border-red-400 focus:ring-2 focus:ring-red-400 disabled:cursor-not-allowed disabled:opacity-50"
+               className="w-full rounded border-2 pointer-coarse:min-h-[44px] border-gray-200 bg-white px-3 py-2.5 text-center font-mono text-gray-900 uppercase transition-all placeholder:text-gray-400 focus:border-primary-400 focus:ring-primary-400 focus:ring-2 disabled:cursor-not-allowed disabled:opacity-50"
             />
          </div>
          <div className="col-span-2 md:flex-1">
@@ -181,7 +181,7 @@ export const OrdemBasicInfo = memo(function OrdemBasicInfo({
                disabled={!isEditable}
                placeholder="FIEX-001/2025"
                maxLength={100}
-               className="w-full rounded border-2 border-gray-200 bg-white px-3 py-2.5 text-gray-900 uppercase transition-all placeholder:text-gray-400 focus:border-red-400 focus:ring-2 focus:ring-red-400 disabled:cursor-not-allowed disabled:opacity-50"
+               className="w-full rounded border-2 pointer-coarse:min-h-[44px] border-gray-200 bg-white px-3 py-2.5 text-gray-900 uppercase transition-all placeholder:text-gray-400 focus:border-primary-400 focus:ring-primary-400 focus:ring-2 disabled:cursor-not-allowed disabled:opacity-50"
             />
             {isEditable && (formData.doc_ref?.length ?? 0) >= 80 && (
                <p
@@ -211,10 +211,10 @@ export const OrdemBasicInfo = memo(function OrdemBasicInfo({
                placeholder="EX: TRANSPORTE DE AUTORIDADE"
                maxLength={100}
                className={clsx(
-                  "w-full rounded border-2 bg-white px-3 py-2.5 text-gray-900 uppercase transition-all placeholder:text-gray-400 focus:ring-2 disabled:cursor-not-allowed disabled:opacity-50",
+                  "w-full rounded border-2 pointer-coarse:min-h-[44px] bg-white px-3 py-2.5 text-gray-900 uppercase transition-all placeholder:text-gray-400 focus:ring-2 disabled:cursor-not-allowed disabled:opacity-50",
                   validationErrors?.tipo
                      ? "border-red-300 focus:border-red-400 focus:ring-red-400"
-                     : "border-gray-200 focus:border-red-400 focus:ring-red-400"
+                     : "focus:border-primary-400 focus:ring-primary-400 border-gray-200"
                )}
             />
             {isEditable && (formData.tipo?.length ?? 0) >= 80 && (
@@ -231,11 +231,15 @@ export const OrdemBasicInfo = memo(function OrdemBasicInfo({
             )}
          </div>
          <div className="md:w-42">
-            <label className="mb-2 flex items-center gap-1.5 text-xs font-semibold tracking-wide text-gray-600 uppercase">
+            <label
+               htmlFor="om-aeronave"
+               className="mb-2 flex items-center gap-1.5 text-xs font-semibold tracking-wide text-gray-600 uppercase"
+            >
                Aeronave
                <span className="text-red-500">*</span>
             </label>
             <select
+               id="om-aeronave"
                value={formData.matricula_anv || ""}
                onChange={(e) =>
                   onUpdate({
@@ -244,10 +248,10 @@ export const OrdemBasicInfo = memo(function OrdemBasicInfo({
                }
                disabled={!isEditable}
                className={clsx(
-                  "w-full rounded border-2 bg-white px-3 py-2.5 text-center text-gray-900 transition-all focus:ring-2 disabled:cursor-not-allowed disabled:opacity-50",
+                  "w-full rounded border-2 pointer-coarse:min-h-[44px] bg-white px-3 py-2.5 text-center text-gray-900 transition-all focus:ring-2 disabled:cursor-not-allowed disabled:opacity-50",
                   validationErrors?.matriculaAeronave
                      ? "border-red-300 focus:border-red-400 focus:ring-red-400"
-                     : "border-gray-200 focus:border-red-400 focus:ring-red-400"
+                     : "focus:border-primary-400 focus:ring-primary-400 border-gray-200"
                )}
             >
                <option value="" disabled>
@@ -270,10 +274,10 @@ export const OrdemBasicInfo = memo(function OrdemBasicInfo({
                disabled={!isEditable}
                placeholder="00:00"
                className={clsx(
-                  "w-full rounded border-2 bg-white px-3 py-2.5 text-center font-mono text-gray-900 transition-all placeholder:text-gray-400 focus:ring-2 disabled:cursor-not-allowed disabled:opacity-50 md:w-28",
+                  "w-full rounded border-2 pointer-coarse:min-h-[44px] bg-white px-3 py-2.5 text-center font-mono text-gray-900 transition-all placeholder:text-gray-400 focus:ring-2 disabled:cursor-not-allowed disabled:opacity-50 md:w-28",
                   erroEsfAer
                      ? "border-red-300 focus:border-red-400 focus:ring-red-400"
-                     : "border-gray-200 focus:border-red-400 focus:ring-red-400"
+                     : "focus:border-primary-400 focus:ring-primary-400 border-gray-200"
                )}
             />
             {erroEsfAer && (

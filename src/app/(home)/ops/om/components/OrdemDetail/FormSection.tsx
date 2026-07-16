@@ -26,12 +26,12 @@ export function FormSection({
          {title && (
             <div className="border-b border-slate-200 p-4">
                <div className="flex items-center gap-4">
-                  <h3 className="flex items-center gap-2 text-sm font-semibold tracking-wide text-slate-700 uppercase">
+                  <h2 className="flex items-center gap-2 text-sm font-semibold tracking-wide text-slate-700 uppercase">
                      <div
                         className={clsx("h-4 w-1 rounded-full", accentClass)}
                      />
                      {title}
-                  </h3>
+                  </h2>
                   {action}
                </div>
             </div>

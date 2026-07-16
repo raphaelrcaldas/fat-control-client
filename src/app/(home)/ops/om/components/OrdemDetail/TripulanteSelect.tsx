@@ -74,12 +74,12 @@ const ACCENT_CLASSES: Record<string, AccentClasses> = {
       addHover: "hover:border-cyan-400 hover:text-cyan-600",
    },
    red: {
-      bar: "bg-red-500",
-      headerText: "text-red-700",
-      chipBg: "bg-red-50",
-      chipBorder: "border-red-200",
-      chipText: "text-red-700",
-      addHover: "hover:border-red-400 hover:text-red-600",
+      bar: "bg-primary-600",
+      headerText: "text-primary-700",
+      chipBg: "bg-primary-50",
+      chipBorder: "border-primary-200",
+      chipText: "text-primary-700",
+      addHover: "hover:border-primary-400 hover:text-primary-600",
    },
 };
 

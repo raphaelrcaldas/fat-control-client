@@ -60,10 +60,11 @@ function LifecycleButton({
       <div className="flex items-center gap-3">
          <div className="hidden h-8 w-px bg-gray-300 md:block" />
          <Button
-            color="red"
+            color="primary"
             type="button"
             onClick={onClick}
             disabled={disabled}
+            aria-label={busy ? busyLabel : label}
          >
             {busy ? (
                <>
@@ -112,12 +113,12 @@ export function OrdemFormHeader({
          <div className="flex min-w-0 flex-1 items-center gap-4">
             <button
                onClick={onClose}
-               className="flex h-10 w-10 shrink-0 items-center justify-center rounded text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-700"
-               title="Voltar"
+               className="flex h-10 w-10 shrink-0 items-center justify-center rounded text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-700 pointer-coarse:min-h-[44px] pointer-coarse:min-w-[44px]"
+               aria-label="Voltar"
             >
                <HiArrowLeft size={24} />
             </button>
-            <div className="hidden min-w-0 md:block">
+            <div className="sr-only min-w-0 md:not-sr-only md:block">
                <h1 className="truncate text-xl font-semibold text-gray-900">
                   {title} Ordem de Missão
                </h1>
@@ -161,7 +162,11 @@ export function OrdemFormHeader({
                         resource={"ordem_missao"}
                         requiredPerm={"update"}
                      >
-                        <Button color="light" onClick={onToggleReadOnly}>
+                        <Button
+                           color="light"
+                           onClick={onToggleReadOnly}
+                           aria-label="Editar"
+                        >
                            <HiPencil className="sm:mr-2" size={16} />
                            <span className="hidden sm:inline">Editar</span>
                         </Button>
@@ -213,6 +218,9 @@ export function OrdemFormHeader({
                         color="gray"
                         onClick={onCancelEdit}
                         disabled={isSaving || isApproving}
+                        aria-label={
+                           hasChanges ? "Descartar alterações" : "Cancelar"
+                        }
                      >
                         <HiX className="sm:mr-2" size={16} />
                         <span className="hidden sm:inline">
@@ -230,6 +238,7 @@ export function OrdemFormHeader({
                         isSaving ||
                         isApproving
                      }
+                     aria-label={isSaving ? "Salvando..." : "Salvar"}
                   >
                      {isSaving ? (
                         <>

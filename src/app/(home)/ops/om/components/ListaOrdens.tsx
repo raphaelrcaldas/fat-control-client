@@ -71,7 +71,7 @@ const OrdemItem = memo(function OrdemItem({
    }, [onDeleteOrdem, ordem]);
 
    return (
-      <div className="relative overflow-hidden rounded border-y border-r border-gray-200 bg-white py-3 pr-4 pl-5 shadow transition-all focus-within:border-red-400 focus-within:shadow-md hover:border-red-300 hover:shadow-md">
+      <div className="relative overflow-hidden rounded border-y border-r border-gray-200 bg-white py-3 pr-4 pl-5 shadow transition-all focus-within:border-primary-400 hover:border-primary-300 focus-within:shadow-md hover:shadow-md">
          {/* Faixa lateral de status (cor = estado da OM) */}
          <span
             aria-hidden
@@ -86,7 +86,7 @@ const OrdemItem = memo(function OrdemItem({
          <Link
             href={`/ops/om/${ordem.id}`}
             aria-label={`Abrir ordem de missão ${ordem.numero} — status ${status?.label ?? ordem.status}`}
-            className="absolute inset-0 rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-red-400/50 focus-visible:ring-offset-2"
+            className="absolute inset-0 rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-400/50 focus-visible:ring-offset-2"
          />
          <div className="flex items-center justify-between gap-2">
             <div className="flex min-w-0 flex-1 items-center gap-3">
@@ -279,7 +279,7 @@ export const ListaOrdens = memo(function ListaOrdens({
                      <button
                         type="button"
                         onClick={onClearFiltros}
-                        className="mt-3 text-sm font-medium text-red-600 hover:underline"
+                        className="text-primary-600 mt-3 py-1 text-sm font-medium hover:underline pointer-coarse:min-h-[44px]"
                      >
                         Limpar filtros
                      </button>
@@ -296,7 +296,7 @@ export const ListaOrdens = memo(function ListaOrdens({
                         <button
                            type="button"
                            onClick={onCreateOrdem}
-                           className="mt-3 text-sm font-medium text-red-600 hover:underline"
+                           className="text-primary-600 mt-3 py-1 text-sm font-medium hover:underline pointer-coarse:min-h-[44px]"
                         >
                            + Criar nova Ordem de Missão
                         </button>

@@ -43,7 +43,7 @@ export function OrdemDetailSkeleton() {
             </div>
          </header>
 
-         <main className="flex-1 overflow-y-auto">
+         <div className="flex-1 overflow-y-auto">
             <div className="mx-auto space-y-4 p-4">
                {/* Informações: linha de inputs */}
                <SectionSkeleton>
@@ -99,7 +99,7 @@ export function OrdemDetailSkeleton() {
                   </div>
                </SectionSkeleton>
             </div>
-         </main>
+         </div>
       </div>
    );
 }

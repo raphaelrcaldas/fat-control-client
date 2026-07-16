@@ -43,7 +43,7 @@ const tabsTheme = {
             underline: {
                base: "rounded-t",
                active: {
-                  on: "active rounded-t border-b-2 border-red-500 text-red-500",
+                  on: "active border-primary-600 text-primary-600 rounded-t border-b-2",
                   off: "border-b-2 border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-600",
                },
             },
@@ -304,16 +304,16 @@ export default function OrdensMissao() {
                {/* Espinha vermelha — ecoa a espinha dos cards */}
                <span
                   aria-hidden
-                  className="absolute top-0 left-0 h-full w-1 bg-red-600"
+                  className="bg-primary-600 absolute top-0 left-0 h-full w-1"
                />
 
                <div className="relative flex flex-wrap items-center justify-between gap-4">
                   <div className="flex min-w-0 items-center gap-4">
-                     <div className="grid h-12 w-12 shrink-0 place-items-center rounded-md bg-red-50 text-red-600 ring-1 ring-red-100 ring-inset">
+                     <div className="grid h-12 w-12 shrink-0 place-items-center rounded-md bg-primary-50 text-primary-600 ring-primary-100 ring-1 ring-inset">
                         <HiOutlineClipboardList className="h-6 w-6" />
                      </div>
                      <div className="min-w-0">
-                        <span className="block font-mono text-[10px] font-bold tracking-[0.3em] text-red-500 uppercase">
+                        <span className="block font-mono text-[10px] font-bold tracking-[0.3em] text-primary-600 uppercase">
                            Gestão Operacional
                         </span>
                         <h1 className="text-2xl leading-none font-extrabold tracking-tight text-slate-900 sm:text-[28px]">
@@ -327,7 +327,7 @@ export default function OrdensMissao() {
                      <Button
                         as={Link}
                         href="/ops/om/nova"
-                        color="red"
+                        color="primary"
                         className="font-semibold whitespace-nowrap"
                      >
                         <HiPlus className="mr-2 h-4 w-4" />
@@ -378,7 +378,7 @@ export default function OrdensMissao() {
                   title={
                      <span className="flex items-center gap-2">
                         Aprovadas
-                        <span className="rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-600">
+                        <span className="bg-primary-100 text-primary-700 rounded-full px-2 py-0.5 text-xs font-medium">
                            {ordensAprovadasQuery.isLoading
                               ? "–"
                               : paginationAprovadas.total}
