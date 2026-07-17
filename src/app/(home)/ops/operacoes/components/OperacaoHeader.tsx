@@ -53,14 +53,14 @@ export function OperacaoHeader({ op, onEdit, onDelete }: Props) {
 
             <div className="relative flex flex-wrap items-center justify-between gap-x-4 gap-y-3">
                <div className="flex min-w-0 items-center gap-4">
-                  <div className="grid h-12 w-12 shrink-0 place-items-center rounded-md bg-primary-50 text-primary-600 ring-primary-100 ring-1 ring-inset">
+                  <div className="bg-primary-50 text-primary-600 ring-primary-100 grid h-12 w-12 shrink-0 place-items-center rounded-md ring-1 ring-inset">
                      <TbPlaneInflight className="h-6 w-6" />
                   </div>
 
                   <div className="min-w-0">
                      {/* Eyebrow: tipo (mono) + status */}
                      <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1">
-                        <span className="font-mono text-[10px] font-bold tracking-[0.3em] text-primary-600 uppercase">
+                        <span className="text-primary-600 font-mono text-[10px] font-bold tracking-[0.3em] uppercase">
                            {TIPO_LABEL[op.tipo]}
                         </span>
                         <span aria-hidden className="h-3 w-px bg-slate-200" />

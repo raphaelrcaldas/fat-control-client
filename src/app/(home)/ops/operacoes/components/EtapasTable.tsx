@@ -77,7 +77,7 @@ export function EtapasTable({ opId, etapas, onAssociar }: Props) {
       <section className="rounded border border-slate-300 bg-white shadow">
          <header className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 px-4 py-3">
             <h2 className="flex items-center gap-2 text-base font-bold text-slate-900">
-               <span className="h-4 w-1 rounded-full bg-primary-600" />
+               <span className="bg-primary-600 h-4 w-1 rounded-full" />
                Etapas associadas
             </h2>
             <div className="flex items-center gap-2">

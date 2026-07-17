@@ -87,7 +87,7 @@ export function PessoalTable({ op }: { op: OperacaoDetail }) {
          <header className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 px-4 py-3">
             <div className="flex flex-wrap items-center gap-3">
                <h2 className="flex items-center gap-2 text-base font-bold text-slate-900">
-                  <span className="h-4 w-1 rounded-full bg-primary-600" />
+                  <span className="bg-primary-600 h-4 w-1 rounded-full" />
                   Militares envolvidos
                </h2>
                {lista.length > 0 && (

@@ -267,7 +267,7 @@ function TipoBtn({
 
 function Chip({ label, onRemove }: { label: string; onRemove: () => void }) {
    return (
-      <span className="flex items-center gap-1 bg-primary-50 text-primary-700 ring-primary-200 rounded-md px-2 py-0.5 text-xs font-semibold ring-1 ring-inset">
+      <span className="bg-primary-50 text-primary-700 ring-primary-200 flex items-center gap-1 rounded-md px-2 py-0.5 text-xs font-semibold ring-1 ring-inset">
          {label}
          <button
             type="button"

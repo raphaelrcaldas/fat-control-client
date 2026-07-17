@@ -18,7 +18,7 @@ function KpiCard({ label, value, unit, sub, highlight }: KpiCardProps) {
       <div
          className={
             highlight
-               ? "rounded bg-linear-to-br from-primary-600 to-primary-700 px-4 py-3 text-white shadow"
+               ? "from-primary-600 to-primary-700 rounded bg-linear-to-br px-4 py-3 text-white shadow"
                : "rounded border border-slate-300 bg-white px-4 py-3 shadow"
          }
       >

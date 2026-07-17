@@ -179,12 +179,12 @@ export function PessoalFormModal({ show, onClose, op, editing }: Props) {
                         className={`group flex w-full items-center gap-3 rounded-xl border px-3 py-2.5 text-left transition-colors ${
                            militar
                               ? "border-slate-200 bg-slate-50"
-                              : "border-dashed border-gray-300 bg-white hover:border-primary-300 hover:bg-primary-50/30"
+                              : "hover:border-primary-300 hover:bg-primary-50/30 border-dashed border-gray-300 bg-white"
                         } ${isEdit ? "cursor-not-allowed" : "cursor-pointer"}`}
                      >
                         {militar ? (
                            <>
-                              <span className="flex h-10 min-w-10 shrink-0 items-center justify-center bg-primary-600 rounded-full px-1.5 font-mono text-sm font-bold text-white uppercase">
+                              <span className="bg-primary-600 flex h-10 min-w-10 shrink-0 items-center justify-center rounded-full px-1.5 font-mono text-sm font-bold text-white uppercase">
                                  {militar.pg}
                               </span>
                               <span className="flex min-w-0 flex-1 flex-col">
@@ -198,7 +198,7 @@ export function PessoalFormModal({ show, onClose, op, editing }: Props) {
                               {isEdit ? (
                                  <MdLock className="h-4 w-4 shrink-0 text-slate-300" />
                               ) : (
-                                 <span className="flex shrink-0 items-center gap-1 text-primary-600 text-xs font-semibold opacity-0 transition-opacity group-hover:opacity-100">
+                                 <span className="text-primary-600 flex shrink-0 items-center gap-1 text-xs font-semibold opacity-0 transition-opacity group-hover:opacity-100">
                                     <MdSwapHoriz className="h-4 w-4" />
                                     Trocar
                                  </span>
@@ -313,7 +313,11 @@ export function PessoalFormModal({ show, onClose, op, editing }: Props) {
                      >
                         Cancelar
                      </Button>
-                     <Button type="submit" color="primary" disabled={isSubmitting}>
+                     <Button
+                        type="submit"
+                        color="primary"
+                        disabled={isSubmitting}
+                     >
                         {isSubmitting ? (
                            <Spinner size="sm" color="primary" />
                         ) : isEdit ? (

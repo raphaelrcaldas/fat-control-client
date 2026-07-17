@@ -309,11 +309,11 @@ export default function OrdensMissao() {
 
                <div className="relative flex flex-wrap items-center justify-between gap-4">
                   <div className="flex min-w-0 items-center gap-4">
-                     <div className="grid h-12 w-12 shrink-0 place-items-center rounded-md bg-primary-50 text-primary-600 ring-primary-100 ring-1 ring-inset">
+                     <div className="bg-primary-50 text-primary-600 ring-primary-100 grid h-12 w-12 shrink-0 place-items-center rounded-md ring-1 ring-inset">
                         <HiOutlineClipboardList className="h-6 w-6" />
                      </div>
                      <div className="min-w-0">
-                        <span className="block font-mono text-[10px] font-bold tracking-[0.3em] text-primary-600 uppercase">
+                        <span className="text-primary-600 block font-mono text-[10px] font-bold tracking-[0.3em] uppercase">
                            Gestão Operacional
                         </span>
                         <h1 className="text-2xl leading-none font-extrabold tracking-tight text-slate-900 sm:text-[28px]">

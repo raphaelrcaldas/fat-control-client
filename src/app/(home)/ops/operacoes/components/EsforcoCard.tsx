@@ -8,7 +8,7 @@ export function EsforcoCard({ esforco }: { esforco: EsforcoBloco }) {
       <section className="rounded border border-slate-300 bg-white shadow">
          <header className="flex items-center justify-between border-b border-slate-100 px-4 py-3">
             <h2 className="flex items-center gap-2 text-base font-bold text-slate-900">
-               <span className="h-4 w-1 rounded-full bg-primary-600" />
+               <span className="bg-primary-600 h-4 w-1 rounded-full" />
                Esforço Aéreo
             </h2>
             <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-semibold text-slate-600">

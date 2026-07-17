@@ -117,7 +117,7 @@ export function OperacaoCard({ op }: { op: OperacaoListItem }) {
                      Horas
                   </span>
                   <span className="flex items-baseline gap-0.5 leading-none">
-                     <span className="font-mono text-primary-600 text-lg font-extrabold tabular-nums">
+                     <span className="text-primary-600 font-mono text-lg font-extrabold tabular-nums">
                         {minutesToTime(op.horas)}
                      </span>
                      <span className="text-primary-600 text-[10px] font-bold">

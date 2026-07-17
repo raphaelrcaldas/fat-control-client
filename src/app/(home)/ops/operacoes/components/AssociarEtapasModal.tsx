@@ -105,7 +105,7 @@ export function AssociarEtapasModal({ show, onClose, op }: Props) {
       <Modal show={show} size="2xl" onClose={onClose} dismissible>
          <ModalHeader>
             <span className="flex items-center gap-2">
-               <MdLink className="h-5 w-5 text-primary-600" />
+               <MdLink className="text-primary-600 h-5 w-5" />
                Associar etapas
             </span>
          </ModalHeader>
@@ -114,7 +114,7 @@ export function AssociarEtapasModal({ show, onClose, op }: Props) {
                <h3 className="text-lg leading-tight font-bold text-slate-800">
                   {op.nome}
                </h3>
-               <span className="inline-flex items-center gap-1.5 bg-primary-600 rounded-md px-2.5 py-1 font-mono text-sm font-bold text-white tabular-nums">
+               <span className="bg-primary-600 inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 font-mono text-sm font-bold text-white tabular-nums">
                   <MdCalendarToday className="h-4 w-4" />
                   {isoDateToString(op.data_inicio)} –{" "}
                   {isoDateToString(op.data_fim)}

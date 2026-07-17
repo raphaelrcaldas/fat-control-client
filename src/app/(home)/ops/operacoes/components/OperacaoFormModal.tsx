@@ -338,7 +338,11 @@ export function OperacaoFormModal({ show, onClose, editing }: Props) {
                      >
                         Cancelar
                      </Button>
-                     <Button type="submit" color="primary" disabled={isSubmitting}>
+                     <Button
+                        type="submit"
+                        color="primary"
+                        disabled={isSubmitting}
+                     >
                         {isSubmitting ? (
                            <div className="flex items-center gap-2">
                               <Spinner size="sm" color="primary" />
