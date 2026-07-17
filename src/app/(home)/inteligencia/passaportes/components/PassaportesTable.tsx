@@ -125,7 +125,7 @@ const SortableHeader = memo(function SortableHeader({
                   className={clsx(
                      "-mb-1 h-3 w-3",
                      isActive && direction === "asc"
-                        ? "text-red-600"
+                        ? "text-primary-600"
                         : "text-gray-400"
                   )}
                />
@@ -133,7 +133,7 @@ const SortableHeader = memo(function SortableHeader({
                   className={clsx(
                      "h-3 w-3",
                      isActive && direction === "desc"
-                        ? "text-red-600"
+                        ? "text-primary-600"
                         : "text-gray-400"
                   )}
                />
@@ -168,10 +168,11 @@ const PassaporteRow = memo(function PassaporteRow({
          }
          tabIndex={0}
          role="button"
-         className="cursor-pointer border-b border-slate-200 font-mono transition-colors hover:bg-red-50"
+         className="hover:bg-primary-50 cursor-pointer border-b border-slate-200 font-mono transition-colors pointer-coarse:h-[44px]"
       >
          <TableCell className="w-10 px-3 py-3">
             <span
+               role="img"
                className={clsx("inline-block h-3 w-3 rounded-full", config.dot)}
                aria-label={`Status: ${config.label}`}
             />
@@ -252,7 +253,9 @@ const PassaportesTable = memo(function PassaportesTable({
          <Table hoverable>
             <TableHead className="border-b border-slate-200 bg-gray-50 text-xs text-gray-700 uppercase">
                <TableRow>
-                  <TableHeadCell className="w-10 px-3 py-3" />
+                  <TableHeadCell className="w-10 px-3 py-3">
+                     <span className="sr-only">Status</span>
+                  </TableHeadCell>
                   <SortableHeader
                      label="Militar"
                      field="militar"

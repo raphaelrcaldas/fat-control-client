@@ -130,11 +130,12 @@ export function useDeletePassaporteImagem() {
    });
 }
 
-export function usePassaportesOrfaos() {
+export function usePassaportesOrfaos(enabled = true) {
    return useQuery({
       queryKey: passaportesKeys.orfaos(),
       queryFn: ({ signal }) => getPassaportesOrfaos(signal),
       staleTime: 60_000,
+      enabled,
    });
 }
 

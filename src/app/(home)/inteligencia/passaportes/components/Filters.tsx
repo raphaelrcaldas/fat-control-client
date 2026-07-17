@@ -48,7 +48,7 @@ function FilterButton({
       <Button
          type="button"
          size="xs"
-         color={active ? "blue" : "light"}
+         color={active ? "primary" : "light"}
          onClick={onClick}
       >
          <span className="flex items-center gap-1.5">

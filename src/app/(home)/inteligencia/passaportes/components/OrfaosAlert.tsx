@@ -211,8 +211,10 @@ export default function OrfaosAlert() {
                   Existem <strong>{orfaos.total_registros}</strong> registro(s)
                   de passaporte de militar(es) inativo(s).
                </span>
+               {/* light, não yellow: o yellow do Flowbite é branco sobre
+                   yellow-400 (~1.8:1, reprova AA) */}
                <Button
-                  color="yellow"
+                  color="light"
                   size="xs"
                   onClick={() => setShowModal(true)}
                >

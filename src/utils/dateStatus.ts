@@ -22,11 +22,14 @@ export function getDateStatus(dateStr: string | null | undefined): DateStatus {
    return "valid";
 }
 
+// `color` (texto) usa tons 700 / gray-500: os 600/gray-400 reprovam contraste
+// AA (4.5:1) sobre fundo branco. Os `dot`/`bg`/`barColor` seguem mais claros
+// de propósito — são gráficos, não texto.
 export function getStatusConfig(status: DateStatus) {
    switch (status) {
       case "valid":
          return {
-            color: "text-green-600",
+            color: "text-green-700",
             bg: "bg-green-50",
             border: "border-green-200",
             barColor: "green" as const,
@@ -36,7 +39,7 @@ export function getStatusConfig(status: DateStatus) {
          };
       case "warning":
          return {
-            color: "text-yellow-600",
+            color: "text-yellow-700",
             bg: "bg-yellow-50",
             border: "border-yellow-200",
             barColor: "yellow" as const,
@@ -46,7 +49,7 @@ export function getStatusConfig(status: DateStatus) {
          };
       case "critical":
          return {
-            color: "text-orange-600",
+            color: "text-orange-700",
             bg: "bg-orange-50",
             border: "border-orange-200",
             barColor: "red" as const,
@@ -66,7 +69,7 @@ export function getStatusConfig(status: DateStatus) {
          };
       case "empty":
          return {
-            color: "text-gray-400",
+            color: "text-gray-500",
             bg: "bg-gray-50",
             border: "border-gray-200",
             barColor: "gray" as const,

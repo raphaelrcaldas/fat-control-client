@@ -293,11 +293,11 @@ const EditPassaporteModal = memo(function EditPassaporteModal({
             <ModalHeader>
                <div className="flex w-full items-center justify-between gap-2">
                   <span className="flex min-w-0 items-center gap-3">
-                     <span className="grid h-10 w-10 shrink-0 place-items-center rounded-md bg-red-50 text-red-600 ring-1 ring-red-100 ring-inset">
+                     <span className="bg-primary-50 text-primary-600 ring-primary-100 grid h-10 w-10 shrink-0 place-items-center rounded-md ring-1 ring-inset">
                         <FaPassport className="h-5 w-5" />
                      </span>
                      <span className="grid min-w-0 gap-1">
-                        <span className="block font-mono text-[10px] font-bold tracking-[0.3em] text-red-500 uppercase">
+                        <span className="text-primary-600 block font-mono text-[10px] font-bold tracking-[0.3em] uppercase">
                            Inteligência · Documentos
                         </span>
                         <span className="block truncate text-lg leading-tight font-extrabold tracking-tight text-slate-900 uppercase">
@@ -444,7 +444,7 @@ const EditPassaporteModal = memo(function EditPassaporteModal({
                         requiredPerm={isEdit ? "update" : "create"}
                      >
                         <Button
-                           color="blue"
+                           color="primary"
                            onClick={handleSave}
                            disabled={isLoading || !isDirty}
                            title={

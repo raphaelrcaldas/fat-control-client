@@ -36,12 +36,12 @@ function StatCard({ icon: Icon, label, stats }: StatCardProps) {
          {/* Header */}
          <div className="mb-4 flex items-center justify-between">
             <div className="flex items-center gap-3">
-               <div className="rounded-md bg-red-50 p-2.5">
-                  <Icon className="h-5 w-5 text-red-600" />
+               <div className="bg-primary-50 rounded-md p-2.5">
+                  <Icon className="text-primary-600 h-5 w-5" />
                </div>
                <div>
-                  <h3 className="text-sm font-bold text-gray-800">{label}</h3>
-                  <p className="text-[11px] text-gray-400">{total} militares</p>
+                  <h2 className="text-sm font-bold text-gray-800">{label}</h2>
+                  <p className="text-[11px] text-gray-500">{total} militares</p>
                </div>
             </div>
             {urgent > 0 && (
@@ -72,7 +72,7 @@ function StatCard({ icon: Icon, label, stats }: StatCardProps) {
                      </div>
                      <div
                         className={clsx(
-                           "text-[9px] font-semibold tracking-widest uppercase opacity-80",
+                           "text-[9px] font-semibold tracking-widest uppercase",
                            cfg.color
                         )}
                      >
