@@ -12,14 +12,17 @@ function LogRowSkeleton() {
          <TableCell>
             <div className="flex flex-col gap-1">
                <Skeleton className="h-4 w-40" />
-               <Skeleton className="h-6 w-16 rounded-full md:hidden" />
+               <Skeleton className="h-6 w-16 rounded md:hidden" />
             </div>
          </TableCell>
          <TableCell>
-            <Skeleton className="h-4 w-12" />
+            <div className="flex items-center gap-2">
+               <Skeleton className="size-2 rounded-full" />
+               <Skeleton className="h-4 w-12" />
+            </div>
          </TableCell>
          <TableCell className="hidden md:table-cell">
-            <Skeleton className="h-6 w-16 rounded-full" />
+            <Skeleton className="h-6 w-16 rounded" />
          </TableCell>
          <TableCell>
             <Skeleton className="h-6 w-20 rounded" />

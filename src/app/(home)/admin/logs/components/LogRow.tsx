@@ -4,6 +4,7 @@ import { Badge, TableCell, TableRow } from "flowbite-react";
 import { HiTrash } from "react-icons/hi";
 import clsx from "clsx";
 import { UserActionLog } from "services/routes/logs";
+import { THEME_META, type OrgTheme } from "@/lib/orgTheme";
 import { formatDateTimeFull } from "@/../utils/dateHandler";
 
 const ACTION_BADGE_COLORS: Record<string, string> = {
@@ -12,6 +13,13 @@ const ACTION_BADGE_COLORS: Record<string, string> = {
    create: "purple",
    update: "warning",
    delete: "failure",
+};
+
+// Dot de identidade da origem — mesma linguagem do dot de tenant
+// (dot = quem/de onde, badge = o quê aconteceu)
+const ORIGIN_DOT_COLORS: Record<string, string> = {
+   fatcontrol: "bg-sky-500",
+   fatbird: "bg-orange-500",
 };
 
 function ActionBadge({ action }: { action: string }) {
@@ -36,10 +44,12 @@ function parseOrigin(after: string | null): string {
 
 interface LogRowProps {
    log: UserActionLog;
+   /** Tema do tenant da linha (undefined = tenant desconhecido, dot neutro) */
+   tema?: OrgTheme;
    onDeleteClick: (log: UserActionLog) => void;
 }
 
-export function LogRow({ log, onDeleteClick }: LogRowProps) {
+export function LogRow({ log, tema, onDeleteClick }: LogRowProps) {
    const timestamp = formatDateTimeFull(log.timestamp) || "N/A";
    const origin = parseOrigin(log.after);
 
@@ -59,23 +69,35 @@ export function LogRow({ log, onDeleteClick }: LogRowProps) {
                </span>
             </div>
          </TableCell>
-         <TableCell className="font-medium text-gray-600 uppercase">
-            {log.user.unidade}
+         <TableCell>
+            {/* Dot na cor do tenant referido (a sigla carrega a informação;
+                a cor é reforço visual — nunca canal único) */}
+            <span className="inline-flex items-center gap-2">
+               <span
+                  aria-hidden
+                  className={clsx(
+                     "size-2 shrink-0 rounded-full",
+                     tema ? THEME_META[tema].swatch : "bg-slate-300"
+                  )}
+               />
+               <span className="font-medium text-slate-700 uppercase">
+                  {log.user.unidade}
+               </span>
+            </span>
          </TableCell>
          <TableCell className="hidden md:table-cell">
             <ActionBadge action={log.action} />
          </TableCell>
          <TableCell>
             {origin && (
-               <span
-                  className={clsx(
-                     "rounded border p-1 text-xs font-medium text-gray-600 shadow",
-                     {
-                        "border-red-400 bg-red-200": origin === "fatbird",
-                        "border-blue-400 bg-blue-200": origin === "fatcontrol",
-                     }
-                  )}
-               >
+               <span className="inline-flex items-center gap-1.5 rounded border border-slate-300 bg-slate-50 px-1.5 py-0.5 text-xs font-medium text-slate-600">
+                  <span
+                     aria-hidden
+                     className={clsx(
+                        "size-2 shrink-0 rounded-full",
+                        ORIGIN_DOT_COLORS[origin] ?? "bg-slate-400"
+                     )}
+                  />
                   {origin}
                </span>
             )}
@@ -83,7 +105,7 @@ export function LogRow({ log, onDeleteClick }: LogRowProps) {
          <TableCell>
             <button
                onClick={() => onDeleteClick(log)}
-               className="rounded p-1.5 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-600"
+               className="grid place-items-center rounded p-1.5 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-600 pointer-coarse:size-[44px]"
                title="Excluir log"
                type="button"
             >

@@ -4,15 +4,22 @@ import {
    useQuery,
    useQueryClient,
 } from "@tanstack/react-query";
-import { deleteUserActionLog, getUserActionLogs } from "services/routes/logs";
+import {
+   deleteUserActionLog,
+   getUserActionLogs,
+   getUserActionLogsPage,
+} from "services/routes/logs";
 
 interface UserActionLogFilters {
    user_id?: number;
    resource?: string;
    resource_id?: number;
    action?: string;
+   search?: string;
    start?: string;
    end?: string;
+   page?: number;
+   per_page?: number;
 }
 
 // ========================================
@@ -41,6 +48,19 @@ export function useUserActionLogs(
       queryKey: logKeys.userActions(filters),
       queryFn: () => getUserActionLogs(filters),
       enabled,
+      staleTime: 30_000,
+      placeholderData: keepPreviousData,
+   });
+}
+
+/**
+ * Listagem paginada de logs (dashboard de admin): envelope com
+ * total/page/pages do servidor.
+ */
+export function useUserActionLogsPage(filters: UserActionLogFilters) {
+   return useQuery({
+      queryKey: logKeys.userActions(filters),
+      queryFn: ({ signal }) => getUserActionLogsPage(filters, signal),
       staleTime: 30_000,
       placeholderData: keepPreviousData,
    });
