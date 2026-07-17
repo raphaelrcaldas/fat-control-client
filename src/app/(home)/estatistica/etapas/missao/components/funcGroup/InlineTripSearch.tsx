@@ -177,7 +177,7 @@ export function InlineTripSearch({
          <button
             type="button"
             onClick={() => setShowSearch(true)}
-            className="flex w-full items-center justify-center gap-1 border border-dashed border-gray-300 bg-white/50 py-1 text-xs font-medium text-gray-400 transition-colors hover:border-gray-400 hover:bg-white hover:text-gray-600"
+            className="flex min-h-[26px] w-full items-center justify-center gap-1 border border-dashed border-gray-300 bg-white/50 py-1 text-xs font-medium text-gray-500 transition-colors hover:border-gray-400 hover:bg-white hover:text-gray-600 pointer-coarse:min-h-[44px]"
          >
             <HiPlus className="h-3.5 w-3.5" />
             Adicionar

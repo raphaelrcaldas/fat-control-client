@@ -49,11 +49,12 @@ function EtapaSidebarItemBase({
          aria-current={selected ? "true" : undefined}
          className={clsx(
             "relative flex w-full flex-col gap-2 overflow-hidden border border-gray-200 bg-white p-3 pl-4 text-left shadow transition",
-            "hover:border-gray-300 hover:bg-gray-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-500",
-            selected && "border-red-200 bg-red-50/40 hover:bg-red-50/60",
+            "focus-visible:outline-primary-500 hover:border-gray-300 hover:bg-gray-50 focus-visible:outline-2 focus-visible:outline-offset-2",
+            selected &&
+               "border-primary-200 bg-primary-50/40 hover:bg-primary-50/60",
             // accent bar — uses pseudo-element via ::before to avoid layout shift
             "before:absolute before:top-0 before:left-0 before:h-full before:w-1 before:transition",
-            selected ? "before:bg-red-500" : "before:bg-transparent",
+            selected ? "before:bg-primary-500" : "before:bg-transparent",
             isModified &&
                !selected &&
                "before:bg-amber-300/70 before:mask-[repeating-linear-gradient(to_bottom,black_0_4px,transparent_4px_8px)]",

@@ -33,7 +33,9 @@ export function MissaoHeader({
    saveDisabled = false,
 }: Props) {
    return (
-      <header className="flex w-full flex-col gap-3 border-b border-gray-200 bg-white px-6 py-4">
+      // div, não <header>: banner duplicado com o navbar do shell reprova
+      // landmark-unique no axe
+      <div className="flex w-full flex-col gap-3 border-b border-gray-200 bg-white px-6 py-4">
          <div className="flex flex-wrap items-start justify-between gap-4">
             <div className="flex min-w-0 items-start gap-3">
                {onBack && (
@@ -41,7 +43,7 @@ export function MissaoHeader({
                      type="button"
                      onClick={onBack}
                      aria-label="Voltar"
-                     className="mt-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-gray-500 transition hover:bg-gray-100 hover:text-gray-700 focus-visible:outline-2 focus-visible:outline-red-500"
+                     className="focus-visible:outline-primary-500 mt-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-gray-500 transition hover:bg-gray-100 hover:text-gray-700 focus-visible:outline-2 pointer-coarse:min-h-[44px] pointer-coarse:min-w-[44px]"
                   >
                      <HiArrowLeft className="h-5 w-5" />
                   </button>
@@ -52,7 +54,7 @@ export function MissaoHeader({
                      onClick={onOpenSidebar}
                      aria-label="Abrir painel de etapas"
                      title="Etapas da missão"
-                     className="mt-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-gray-500 transition hover:bg-gray-100 hover:text-gray-700 focus-visible:outline-2 focus-visible:outline-red-500 lg:hidden"
+                     className="focus-visible:outline-primary-500 mt-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-gray-500 transition hover:bg-gray-100 hover:text-gray-700 focus-visible:outline-2 lg:hidden pointer-coarse:min-h-[44px] pointer-coarse:min-w-[44px]"
                   >
                      <HiMenuAlt2 className="h-5 w-5" />
                   </button>
@@ -106,7 +108,7 @@ export function MissaoHeader({
                   </Button>
                )}
                <Button
-                  color="red"
+                  color="primary"
                   size="sm"
                   className="w-32"
                   onClick={onSave}
@@ -128,6 +130,6 @@ export function MissaoHeader({
                </Button>
             </div>
          </div>
-      </header>
+      </div>
    );
 }

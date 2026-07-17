@@ -96,7 +96,7 @@ export default function EditarMissaoPage() {
                   <HiArrowLeft className="mr-2 h-4 w-4" />
                   Voltar à lista
                </Button>
-               <Button color="red" size="sm" onClick={() => refetch()}>
+               <Button color="light" size="sm" onClick={() => refetch()}>
                   <HiRefresh className="mr-2 h-4 w-4" />
                   Tentar novamente
                </Button>

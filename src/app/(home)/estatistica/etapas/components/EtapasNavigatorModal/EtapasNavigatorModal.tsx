@@ -67,7 +67,7 @@ export function EtapasNavigatorModal({
                   >
                      {missaoTitulo ?? "Etapas da Missão"}
                   </p>
-                  <span className="mt-1 inline-flex items-center rounded-full bg-red-100 px-2 py-0.5 text-[10px] font-bold text-red-700">
+                  <span className="bg-primary-100 text-primary-700 mt-1 inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold">
                      {etapas.length} etapa{etapas.length !== 1 ? "s" : ""}
                   </span>
                </div>
@@ -88,13 +88,13 @@ export function EtapasNavigatorModal({
                            className={clsx(
                               "w-full cursor-pointer border-l-2 px-3 py-1.5 text-left transition-colors",
                               isSelected
-                                 ? "border-red-500 bg-red-100"
+                                 ? "border-primary-500 bg-primary-100"
                                  : "border-transparent hover:bg-slate-50"
                            )}
                         >
                            {/* Row 1: date + anv */}
                            <div className="flex items-center gap-2">
-                              <span className="rounded text-xs font-bold text-red-800">
+                              <span className="text-primary-800 rounded text-xs font-bold">
                                  {isoDateToString(etapa.data)}
                               </span>
                               <span className="text-xs font-semibold">

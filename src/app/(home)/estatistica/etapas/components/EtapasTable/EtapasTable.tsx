@@ -191,7 +191,7 @@ export function EtapasTable({
    const selectionActions = selectedIds.size > 0 && (
       <div className="flex items-center gap-2">
          <div className="h-4 w-px bg-gray-300" />
-         <Badge color="red" size="sm" className="hidden lg:block">
+         <Badge color="primary" size="sm" className="hidden lg:block">
             {selectedIds.size} etapa(s)
          </Badge>
          <div className="flex items-center gap-1 text-sm font-semibold text-gray-800">
@@ -278,13 +278,13 @@ export function EtapasTable({
          <div className="ml-1 flex h-9 flex-wrap items-center gap-2 px-1">
             <Checkbox
                id="select-all-etapas"
-               color="red"
+               color="primary"
                checked={allSelected}
                ref={(el) => {
                   if (el) el.indeterminate = someSelected;
                }}
                onChange={onToggleAll}
-               className="cursor-pointer"
+               className="size-[24px] cursor-pointer pointer-coarse:size-[44px]"
             />
             <Label
                htmlFor="select-all-etapas"

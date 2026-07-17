@@ -69,7 +69,7 @@ export function EspecificosSection({ especificos }: EspecificosSectionProps) {
                   type="button"
                   onClick={() => addEspecifico(kind)}
                   className={clsx(
-                     "flex items-center gap-1.5 rounded border px-3 py-1.5 text-xs font-bold tracking-wide uppercase transition-colors focus:outline-none",
+                     "flex items-center gap-1.5 rounded border px-3 py-1.5 text-xs font-bold tracking-wide uppercase transition-colors focus:outline-none pointer-coarse:min-h-[44px]",
                      className
                   )}
                >

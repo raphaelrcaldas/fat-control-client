@@ -48,13 +48,14 @@ export const MissaoCard = memo(function MissaoCard({
          <div className="flex flex-wrap items-center gap-3 border-b border-slate-200 bg-white p-1.5">
             {hasEtapas && (
                <Checkbox
-                  color="red"
+                  color="primary"
                   checked={allChecked}
                   ref={(el) => {
                      if (el) el.indeterminate = someChecked;
                   }}
                   onChange={() => onToggleMissao(etapaIds)}
-                  className="cursor-pointer"
+                  aria-label={`Selecionar todas as etapas de ${missao.titulo ?? `Missão #${missao.id}`}`}
+                  className="size-[24px] cursor-pointer pointer-coarse:size-[44px]"
                />
             )}
             <span className="text-sm font-medium text-slate-800">

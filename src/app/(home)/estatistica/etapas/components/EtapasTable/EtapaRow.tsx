@@ -21,10 +21,12 @@ import type {
 } from "services/routes/estatistica/etapas";
 import { PermBased } from "@/app/(home)/hooks/usePermBased";
 
+// Tons 700/600: os 500 reprovam contraste AA sobre as linhas tingidas
+// (bg-amber-50/bg-emerald-50 de pendência SAGEM/Parte 1)
 const REG_COLOR: Record<string, string> = {
-   d: "text-amber-500",
-   n: "text-indigo-500",
-   v: "text-emerald-500",
+   d: "text-amber-700",
+   n: "text-indigo-600",
+   v: "text-emerald-700",
 };
 
 export interface EtapaRowProps {
@@ -148,10 +150,11 @@ export const EtapaRow = memo(function EtapaRow({
       >
          <TableCell className="w-7">
             <Checkbox
-               color="red"
+               color="primary"
                checked={checked}
                onChange={() => onToggleEtapa(id)}
-               className="cursor-pointer"
+               aria-label={`Selecionar etapa ${origem}-${destino} de ${isoDateToString(data)}`}
+               className="size-[24px] cursor-pointer pointer-coarse:size-[44px]"
             />
          </TableCell>
          <TableCell className="w-12 font-mono text-slate-500 sm:w-20">

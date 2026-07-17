@@ -1,6 +1,7 @@
 import clsx from "clsx";
 
 const barColors: Record<string, string> = {
+   primary: "bg-primary-600",
    blue: "bg-blue-500",
    amber: "bg-amber-500",
    red: "bg-red-500",
@@ -8,6 +9,7 @@ const barColors: Record<string, string> = {
 };
 
 const iconColors: Record<string, string> = {
+   primary: "text-primary-600",
    blue: "text-blue-500",
    amber: "text-amber-500",
    red: "text-red-500",

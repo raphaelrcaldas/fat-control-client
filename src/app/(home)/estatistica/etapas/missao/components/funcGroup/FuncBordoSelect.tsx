@@ -40,7 +40,7 @@ export function FuncBordoSelect({
             ref={buttonRef}
             type="button"
             onClick={() => setOpen((v) => !v)}
-            className="flex w-12 items-center justify-between border border-gray-300 bg-gray-50 px-1 py-0.5 text-[10px] font-bold text-gray-700 focus:border-red-400 focus:ring-1 focus:ring-red-400 focus:outline-none"
+            className="focus:border-primary-400 focus:ring-primary-400 flex min-h-[26px] w-12 items-center justify-between border border-gray-300 bg-gray-50 px-1 py-0.5 text-[10px] font-bold text-gray-700 focus:ring-1 focus:outline-none pointer-coarse:min-h-[44px] pointer-coarse:min-w-[44px]"
          >
             <span>{value}</span>
             <HiChevronDown className="h-2.5 w-2.5 text-gray-400" />
@@ -74,7 +74,7 @@ export function FuncBordoSelect({
                               className={clsx(
                                  "block w-full px-2 py-1 text-left text-[10px] font-bold uppercase",
                                  selected
-                                    ? "bg-red-50 text-red-700"
+                                    ? "bg-primary-50 text-primary-700"
                                     : "text-gray-700 hover:bg-gray-100"
                               )}
                            >

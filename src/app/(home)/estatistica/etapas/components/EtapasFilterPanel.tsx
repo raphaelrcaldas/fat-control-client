@@ -163,7 +163,7 @@ export const EtapasFilterPanel = memo(function EtapasFilterPanel({
                <Label className="mb-1 block text-xs font-medium text-gray-700">
                   Tripulante
                </Label>
-               <div className="flex overflow-hidden rounded-lg border border-gray-300 bg-white focus-within:border-red-500 focus-within:ring-2 focus-within:ring-red-500">
+               <div className="focus-within:border-primary-500 focus-within:ring-primary-500 flex overflow-hidden rounded-lg border border-gray-300 bg-white focus-within:ring-2">
                   <Select
                      value={filterFuncao}
                      onChange={(e) => onFuncaoChange(e.target.value)}

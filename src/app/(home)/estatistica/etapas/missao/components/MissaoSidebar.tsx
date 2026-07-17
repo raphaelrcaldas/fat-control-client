@@ -44,7 +44,10 @@ export function MissaoSidebar({
    onDeleteMissao,
 }: Props) {
    return (
-      <aside className="flex h-full max-w-80 flex-col border-r border-gray-200 bg-gray-50">
+      <aside
+         aria-label="Painel da missão"
+         className="flex h-full max-w-80 flex-col border-r border-gray-200 bg-gray-50"
+      >
          <div className="flex flex-col gap-3 border-b border-gray-200 bg-white p-4">
             <div className="flex flex-col gap-2">
                {onTituloChange !== undefined ? (
@@ -53,7 +56,7 @@ export function MissaoSidebar({
                      value={tituloValue ?? ""}
                      onChange={(e) => onTituloChange(e.target.value)}
                      placeholder="Título da missão (opcional)"
-                     className="w-full rounded-md border border-gray-200 bg-gray-50 px-3 py-1.5 text-base font-semibold text-gray-900 placeholder:text-gray-400 focus:border-red-400 focus:ring-1 focus:ring-red-400 focus:outline-none"
+                     className="focus:border-primary-400 focus:ring-primary-400 w-full rounded-md border border-gray-200 bg-gray-50 px-3 py-1.5 text-base font-semibold text-gray-900 placeholder:text-gray-400 focus:ring-1 focus:outline-none"
                   />
                ) : (
                   <h2 className="text-lg font-semibold text-gray-900">
@@ -66,12 +69,12 @@ export function MissaoSidebar({
                      onChange={(e) => onObsChange(e.target.value)}
                      placeholder="Observações da missão (opcional)"
                      rows={2}
-                     className="w-full resize-y rounded-md border border-gray-200 bg-gray-50 px-3 py-1.5 text-xs text-gray-700 placeholder:text-gray-400 focus:border-red-400 focus:ring-1 focus:ring-red-400 focus:outline-none"
+                     className="focus:border-primary-400 focus:ring-primary-400 w-full resize-y rounded-md border border-gray-200 bg-gray-50 px-3 py-1.5 text-xs text-gray-700 placeholder:text-gray-400 focus:ring-1 focus:outline-none"
                   />
                )}
             </div>
             <Button
-               color="red"
+               color="primary"
                size="sm"
                onClick={onAddEtapa}
                className="w-full"
@@ -115,7 +118,7 @@ export function MissaoSidebar({
                <button
                   type="button"
                   onClick={onDeleteMissao}
-                  className="flex w-full items-center justify-center gap-1.5 rounded-md border border-red-200 bg-red-50 px-3 py-1.5 text-sm font-medium text-red-600 transition hover:bg-red-100"
+                  className="flex w-full items-center justify-center gap-1.5 rounded-md border border-red-200 bg-red-50 px-3 py-1.5 text-sm font-medium text-red-700 transition hover:bg-red-100 pointer-coarse:min-h-[44px]"
                >
                   <HiTrash className="h-4 w-4" />
                   Excluir missão

@@ -56,7 +56,7 @@ export default function EtapasPage() {
          <div className="mb-4 shrink-0 rounded border border-gray-200 bg-white shadow-sm">
             <div className="flex flex-wrap items-center justify-between gap-3 p-4">
                <div className="flex flex-row gap-3">
-                  <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-red-600 shadow-md">
+                  <div className="bg-primary-600 flex h-11 w-11 items-center justify-center rounded-xl shadow-md">
                      <CiPaperplane className="h-6 w-6 text-white" />
                   </div>
                   <div>
@@ -71,7 +71,7 @@ export default function EtapasPage() {
                      <Button
                         as={Link}
                         href="/estatistica/etapas/missao/nova"
-                        color="red"
+                        color="primary"
                         size="sm"
                      >
                         <HiPlus className="mr-2 h-4 w-4" />
@@ -88,7 +88,7 @@ export default function EtapasPage() {
                      <HiFilter className="mr-2 h-4 w-4" />
                      Filtros
                      {filters.hasActiveFilters && (
-                        <Badge color="red" size="sm" className="ml-2">
+                        <Badge color="primary" size="sm" className="ml-2">
                            {filters.activeFilterCount}
                         </Badge>
                      )}
@@ -124,7 +124,7 @@ export default function EtapasPage() {
                      <HiDownload className="mr-2 h-4 w-4" />
                      Exportar
                      {selectedIds.size > 0 && (
-                        <Badge color="red" size="sm" className="ml-2">
+                        <Badge color="primary" size="sm" className="ml-2">
                            {selectedIds.size}
                         </Badge>
                      )}
@@ -209,11 +209,11 @@ export default function EtapasPage() {
                      <div className="mb-4 rounded-full bg-gray-100 p-4">
                         <MdBarChart className="h-12 w-12 text-gray-400" />
                      </div>
-                     <h3 className="mb-2 text-lg font-semibold text-gray-900">
+                     <p className="mb-2 text-lg font-semibold text-gray-900">
                         {filters.hasActiveFilters
                            ? "Nenhuma etapa encontrada"
                            : "Nenhuma etapa disponivel"}
-                     </h3>
+                     </p>
                      <p className="max-w-md text-center text-sm text-gray-500">
                         {filters.hasActiveFilters
                            ? "Nao foram encontrados resultados com os filtros aplicados."
@@ -223,7 +223,7 @@ export default function EtapasPage() {
                         <button
                            type="button"
                            onClick={filters.clearFilters}
-                           className="mt-3 text-sm text-red-600 hover:text-red-700"
+                           className="text-primary-600 hover:text-primary-700 mt-3 text-sm"
                         >
                            Limpar filtros
                         </button>

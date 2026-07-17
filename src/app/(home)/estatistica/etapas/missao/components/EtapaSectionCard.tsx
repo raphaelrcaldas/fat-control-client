@@ -16,11 +16,11 @@ export function EtapaSectionCard({ title, badge, action, children }: Props) {
             <div className="flex items-center gap-2">
                <span
                   aria-hidden
-                  className="inline-block h-2 w-2 shrink-0 rounded-full bg-red-600"
+                  className="bg-primary-600 inline-block h-2 w-2 shrink-0 rounded-full"
                />
-               <h3 className="text-xs font-semibold tracking-wider text-gray-700 uppercase">
+               <h2 className="text-xs font-semibold tracking-wider text-gray-700 uppercase">
                   {title}
-               </h3>
+               </h2>
                {badge && <div className="ml-2 flex items-center">{badge}</div>}
             </div>
             {action && <div className="flex items-center gap-2">{action}</div>}

@@ -124,7 +124,7 @@ export function OrdensInstrucaoSection({
                         >
                            Regime
                         </Label>
-                        <div className="flex h-8.5 overflow-hidden rounded border border-gray-300">
+                        <div className="flex h-8.5 overflow-hidden rounded border border-gray-300 pointer-coarse:min-h-[44px]">
                            {(
                               [
                                  { v: "d", l: "D" },
@@ -139,11 +139,11 @@ export function OrdensInstrucaoSection({
                                     updateOiItem(oi.uid, { reg: v })
                                  }
                                  className={clsx(
-                                    "flex flex-1 items-center justify-center px-3 text-xs font-bold focus:outline-none",
+                                    "flex flex-1 items-center justify-center px-3 text-xs font-bold focus:outline-none pointer-coarse:min-h-[44px] pointer-coarse:min-w-[44px]",
                                     oi.reg === v
-                                       ? "bg-red-800 text-white"
-                                       : "bg-white text-red-500 hover:bg-red-100",
-                                    v !== "d" && "border-l border-red-200"
+                                       ? "bg-primary-800 text-white"
+                                       : "text-primary-600 hover:bg-primary-100 bg-white",
+                                    v !== "d" && "border-primary-200 border-l"
                                  )}
                               >
                                  {l}
@@ -156,6 +156,7 @@ export function OrdensInstrucaoSection({
                         <Label className={fieldLabelClass}>Tempo</Label>
                         <TextInput
                            type="time"
+                           aria-label="Tempo de voo da OI"
                            value={oi.tvooDisplay || "00:00"}
                            onChange={(e) => {
                               const val = e.target.value;
@@ -173,7 +174,7 @@ export function OrdensInstrucaoSection({
                         <button
                            type="button"
                            onClick={() => removeOiItem(oi.uid)}
-                           className="flex h-8 w-8 items-center justify-center rounded-full text-gray-400 hover:bg-red-50 hover:text-red-600"
+                           className="flex h-8 w-8 items-center justify-center rounded-full text-gray-400 hover:bg-red-50 hover:text-red-600 pointer-coarse:min-h-[44px] pointer-coarse:min-w-[44px]"
                            title="Remover OI"
                            aria-label="Remover Ordem de Instrução"
                         >

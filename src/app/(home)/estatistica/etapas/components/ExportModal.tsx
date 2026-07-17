@@ -154,7 +154,7 @@ export function ExportModal({ show, onClose, selectedIds }: ExportModalProps) {
                               id={`export-${col.key}`}
                               className="size-5"
                               checked={columns[col.key]}
-                              color="red"
+                              color="primary"
                               onChange={() => toggleColumn(col.key)}
                            />
                            <Label
@@ -174,7 +174,7 @@ export function ExportModal({ show, onClose, selectedIds }: ExportModalProps) {
                      Cancelar
                   </Button>
                   <Button
-                     color="red"
+                     color="primary"
                      onClick={handleExport}
                      disabled={isExporting}
                   >

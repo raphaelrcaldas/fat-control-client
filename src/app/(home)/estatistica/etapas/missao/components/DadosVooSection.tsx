@@ -13,7 +13,7 @@ interface DadosVooSectionProps {
 }
 
 const groupHeadingClass =
-   "mb-3 text-xs font-semibold tracking-wider text-gray-400 uppercase";
+   "mb-3 text-xs font-semibold tracking-wider text-gray-500 uppercase";
 
 // min/max vêm de FIELD_LIMITS (fonte única); aqui só rótulo e passo.
 const complementares = [
@@ -182,11 +182,14 @@ export function DadosVooSection({ form, aeronavesList }: DadosVooSectionProps) {
                   label="Sagem"
                   className="flex flex-col items-center justify-end"
                >
+                  {/* aria-label obrigatório: sem a prop `label`, o Flowbite 0.12
+                      emite um aria-labelledby que aponta p/ um id inexistente */}
                   <ToggleSwitch
                      checked={formData.sagem}
                      onChange={(v) => setField("sagem", v)}
-                     color="red"
+                     aria-label="Registrado no SAGEM"
                      sizing="md"
+                     className="min-h-[25px] items-center pointer-coarse:min-h-[44px] pointer-coarse:min-w-[44px]"
                   />
                </FormField>
                <FormField
@@ -196,8 +199,9 @@ export function DadosVooSection({ form, aeronavesList }: DadosVooSectionProps) {
                   <ToggleSwitch
                      checked={formData.parte1}
                      onChange={(v) => setField("parte1", v)}
-                     color="red"
+                     aria-label="Relatório Parte 1 recolhido"
                      sizing="md"
+                     className="min-h-[25px] items-center pointer-coarse:min-h-[44px] pointer-coarse:min-w-[44px]"
                   />
                </FormField>
             </div>

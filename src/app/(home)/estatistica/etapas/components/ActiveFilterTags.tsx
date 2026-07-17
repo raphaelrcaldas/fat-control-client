@@ -55,7 +55,7 @@ export function ActiveFilterTags({
          </span>
 
          {urlDataIni && (
-            <Badge color="red">
+            <Badge color="primary">
                <div className="flex items-center gap-1.5">
                   <HiCalendar className="h-3 w-3" />
                   <span>De: {formatDateFull(urlDataIni)}</span>
@@ -63,7 +63,7 @@ export function ActiveFilterTags({
                      type="button"
                      aria-label="Remover filtro data inicial"
                      onClick={onRemoveDataIni}
-                     className="ml-1 hover:text-red-600"
+                     className="hover:text-primary-900 -my-2 ml-0.5 grid size-[26px] shrink-0 place-items-center rounded pointer-coarse:size-[44px]"
                   >
                      <HiX className="h-3 w-3" />
                   </button>
@@ -72,7 +72,7 @@ export function ActiveFilterTags({
          )}
 
          {urlDataFim && (
-            <Badge color="red">
+            <Badge color="primary">
                <div className="flex items-center gap-1.5">
                   <HiCalendar className="h-3 w-3" />
                   <span>Ate: {formatDateFull(urlDataFim)}</span>
@@ -80,7 +80,7 @@ export function ActiveFilterTags({
                      type="button"
                      aria-label="Remover filtro data final"
                      onClick={onRemoveDataFim}
-                     className="ml-1 hover:text-red-600"
+                     className="hover:text-primary-900 -my-2 ml-0.5 grid size-[26px] shrink-0 place-items-center rounded pointer-coarse:size-[44px]"
                   >
                      <HiX className="h-3 w-3" />
                   </button>
@@ -89,7 +89,7 @@ export function ActiveFilterTags({
          )}
 
          {urlAnv.length > 0 && (
-            <Badge color="red">
+            <Badge color="primary">
                <div className="flex items-center gap-1.5">
                   <MdFlightTakeoff className="h-3 w-3" />
                   <span>Aeronave: {urlAnv.join(", ")}</span>
@@ -97,7 +97,7 @@ export function ActiveFilterTags({
                      type="button"
                      aria-label="Remover filtro aeronave"
                      onClick={onRemoveAnv}
-                     className="ml-1 hover:text-red-600"
+                     className="hover:text-primary-900 -my-2 ml-0.5 grid size-[26px] shrink-0 place-items-center rounded pointer-coarse:size-[44px]"
                   >
                      <HiX className="h-3 w-3" />
                   </button>
@@ -106,7 +106,7 @@ export function ActiveFilterTags({
          )}
 
          {urlOrigem && (
-            <Badge color="red">
+            <Badge color="primary">
                <div className="flex items-center gap-1.5">
                   <MdFlightTakeoff className="h-3 w-3" />
                   <span>Origem: {urlOrigem}</span>
@@ -114,7 +114,7 @@ export function ActiveFilterTags({
                      type="button"
                      aria-label="Remover filtro origem"
                      onClick={onRemoveOrigem}
-                     className="ml-1 hover:text-red-600"
+                     className="hover:text-primary-900 -my-2 ml-0.5 grid size-[26px] shrink-0 place-items-center rounded pointer-coarse:size-[44px]"
                   >
                      <HiX className="h-3 w-3" />
                   </button>
@@ -123,7 +123,7 @@ export function ActiveFilterTags({
          )}
 
          {urlDestino && (
-            <Badge color="red">
+            <Badge color="primary">
                <div className="flex items-center gap-1.5">
                   <MdFlightLand className="h-3 w-3" />
                   <span>Destino: {urlDestino}</span>
@@ -131,7 +131,7 @@ export function ActiveFilterTags({
                      type="button"
                      aria-label="Remover filtro destino"
                      onClick={onRemoveDestino}
-                     className="ml-1 hover:text-red-600"
+                     className="hover:text-primary-900 -my-2 ml-0.5 grid size-[26px] shrink-0 place-items-center rounded pointer-coarse:size-[44px]"
                   >
                      <HiX className="h-3 w-3" />
                   </button>
@@ -140,7 +140,7 @@ export function ActiveFilterTags({
          )}
 
          {urlTrip && (
-            <Badge color="red">
+            <Badge color="primary">
                <div className="flex items-center gap-1.5">
                   <HiUser className="h-3 w-3" />
                   <span>Tripulante: {urlTrip}</span>
@@ -148,7 +148,7 @@ export function ActiveFilterTags({
                      type="button"
                      aria-label="Remover filtro tripulante"
                      onClick={onRemoveTrip}
-                     className="ml-1 hover:text-red-600"
+                     className="hover:text-primary-900 -my-2 ml-0.5 grid size-[26px] shrink-0 place-items-center rounded pointer-coarse:size-[44px]"
                   >
                      <HiX className="h-3 w-3" />
                   </button>
@@ -157,14 +157,14 @@ export function ActiveFilterTags({
          )}
 
          {urlTrip && urlFuncao && (
-            <Badge color="red">
+            <Badge color="primary">
                <div className="flex items-center gap-1.5">
                   <span>Funcao: {urlFuncao.toUpperCase()}</span>
                   <button
                      type="button"
                      aria-label="Remover filtro funcao"
                      onClick={onRemoveFuncao}
-                     className="ml-1 hover:text-red-600"
+                     className="hover:text-primary-900 -my-2 ml-0.5 grid size-[26px] shrink-0 place-items-center rounded pointer-coarse:size-[44px]"
                   >
                      <HiX className="h-3 w-3" />
                   </button>
@@ -173,7 +173,7 @@ export function ActiveFilterTags({
          )}
 
          {urlEsfAer && (
-            <Badge color="red">
+            <Badge color="primary">
                <div className="flex items-center gap-1.5">
                   <MdBarChart className="h-3 w-3" />
                   <span>ESF: {urlEsfAer}</span>
@@ -181,7 +181,7 @@ export function ActiveFilterTags({
                      type="button"
                      aria-label="Remover filtro esforco aereo"
                      onClick={onRemoveEsfAer}
-                     className="ml-1 hover:text-red-600"
+                     className="hover:text-primary-900 -my-2 ml-0.5 grid size-[26px] shrink-0 place-items-center rounded pointer-coarse:size-[44px]"
                   >
                      <HiX className="h-3 w-3" />
                   </button>
@@ -190,14 +190,14 @@ export function ActiveFilterTags({
          )}
 
          {urlTipoMissao.length > 0 && (
-            <Badge color="red">
+            <Badge color="primary">
                <div className="flex items-center gap-1.5">
                   <span>Tipo Missao: {urlTipoMissao.join(", ")}</span>
                   <button
                      type="button"
                      aria-label="Remover filtro tipo missao"
                      onClick={onRemoveTipoMissao}
-                     className="ml-1 hover:text-red-600"
+                     className="hover:text-primary-900 -my-2 ml-0.5 grid size-[26px] shrink-0 place-items-center rounded pointer-coarse:size-[44px]"
                   >
                      <HiX className="h-3 w-3" />
                   </button>
@@ -208,7 +208,7 @@ export function ActiveFilterTags({
          <button
             type="button"
             onClick={onClearAll}
-            className="text-xs text-gray-500 underline hover:text-gray-700"
+            className="-my-2 rounded px-1 py-2 text-xs text-gray-500 underline hover:text-gray-700 pointer-coarse:min-h-[44px]"
          >
             Limpar todos
          </button>

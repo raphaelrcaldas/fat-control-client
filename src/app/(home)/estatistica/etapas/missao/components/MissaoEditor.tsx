@@ -37,7 +37,7 @@ export function MissaoEditor({ mode }: MissaoEditorProps) {
 
    // Drawer da sidebar nas telas < lg (no desktop a sidebar é fixa)
    const [sidebarOpen, setSidebarOpen] = useState(false);
-   const contentRef = useRef<HTMLElement>(null);
+   const contentRef = useRef<HTMLDivElement>(null);
 
    const { saveMutation, updateMutation, deleteMutation, handleSave } =
       useMissaoActions({ draft, mode });
@@ -295,6 +295,7 @@ export function MissaoEditor({ mode }: MissaoEditorProps) {
             open={sidebarOpen}
             onClose={() => setSidebarOpen(false)}
             position="left"
+            aria-label="Etapas da missão"
             className="w-80 p-0 lg:hidden"
          >
             {sidebarOpen && sidebarNode}

@@ -34,16 +34,16 @@ export function EtapaDetailContent({ etapaId }: EtapaDetailContentProps) {
       <div className="flex h-full flex-col rounded">
          <div className="shrink-0 border-b border-slate-200 bg-white px-6 pt-5 pb-4 text-slate-800">
             <div className="mb-4 flex flex-wrap items-center gap-2">
-               <span className="font-mono text-sm font-bold text-red-400">
+               <span className="text-primary-600 font-mono text-sm font-bold">
                   #{data.id}
                </span>
-               <div className="h-4 w-px bg-red-200" />
-               <div className="flex items-center gap-1.5 rounded bg-red-100 px-2.5 py-1 font-medium text-slate-700">
-                  <HiCalendar className="size-5 text-red-700" />
+               <div className="bg-primary-200 h-4 w-px" />
+               <div className="bg-primary-100 flex items-center gap-1.5 rounded px-2.5 py-1 font-medium text-slate-700">
+                  <HiCalendar className="text-primary-700 size-5" />
                   {formatDateFull(data.data)}
                </div>
-               <div className="flex items-center gap-1.5 rounded bg-red-100 px-2.5 py-1 font-semibold text-slate-700">
-                  <MdAirplanemodeActive className="size-5 text-red-700" />
+               <div className="bg-primary-100 flex items-center gap-1.5 rounded px-2.5 py-1 font-semibold text-slate-700">
+                  <MdAirplanemodeActive className="text-primary-700 size-5" />
                   FAB {data.anv}
                </div>
             </div>
@@ -90,7 +90,7 @@ export function EtapaDetailContent({ etapaId }: EtapaDetailContentProps) {
                      <SectionTitle
                         icon={<GoDatabase className="h-4 w-4" />}
                         title="Dados do Voo"
-                        color="red"
+                        color="primary"
                      />
                      <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
                         <StatCard
@@ -144,7 +144,7 @@ export function EtapaDetailContent({ etapaId }: EtapaDetailContentProps) {
                         <SectionTitle
                            icon={<CiPaperplane className="h-4 w-4" />}
                            title="Missão"
-                           color="red"
+                           color="primary"
                         />
                         <OIEtapasList items={data.oi_etapas} />
                      </div>
@@ -157,7 +157,7 @@ export function EtapaDetailContent({ etapaId }: EtapaDetailContentProps) {
                         <SectionTitle
                            icon={<HiOutlineCube className="h-4 w-4" />}
                            title="Missões Específicas"
-                           color="red"
+                           color="primary"
                         />
                         <EspecificosList
                            pqd={data.pqd}
@@ -173,10 +173,10 @@ export function EtapaDetailContent({ etapaId }: EtapaDetailContentProps) {
                      <SectionTitle
                         icon={<FaUsers className="h-4 w-4" />}
                         title="Tripulantes"
-                        color="red"
+                        color="primary"
                      />
                      {data.tripulantes.length > 0 && (
-                        <span className="rounded-full bg-red-100 px-2.5 py-0.5 text-[10px] font-bold text-red-700">
+                        <span className="bg-primary-100 text-primary-700 rounded-full px-2.5 py-0.5 text-[10px] font-bold">
                            {data.tripulantes.length} total
                         </span>
                      )}
