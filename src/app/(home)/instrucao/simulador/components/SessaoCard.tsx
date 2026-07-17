@@ -17,14 +17,14 @@ export default function SessaoCard({ etapa, onClick }: SessaoCardProps) {
       <button
          type="button"
          onClick={() => onClick(etapa)}
-         className="w-full rounded border border-l-[3px] border-slate-200 border-l-red-600 bg-white text-left shadow-sm transition-all duration-150 hover:border-gray-300 hover:bg-gray-50"
+         className="border-l-primary-600 w-full rounded border border-l-[3px] border-slate-200 bg-white text-left shadow-sm transition-all duration-150 hover:border-gray-300 hover:bg-gray-50"
       >
          <div className="flex items-center gap-4 px-4 py-2.5">
             <div className="w-10 shrink-0 text-left font-mono">
                <span className="text-sm leading-none font-bold text-gray-800">
                   {day}
                </span>
-               <span className="ml-1 text-xs font-medium text-red-500 uppercase">
+               <span className="text-primary-600 ml-1 text-xs font-medium uppercase">
                   {month}
                </span>
             </div>
@@ -35,7 +35,7 @@ export default function SessaoCard({ etapa, onClick }: SessaoCardProps) {
                <span className="text-sm font-bold text-gray-900">
                   {etapa.origem}
                </span>
-               <span className="mx-1 text-xs text-red-400">&rarr;</span>
+               <span className="text-primary-600 mx-1 text-xs">&rarr;</span>
                <span className="text-sm font-bold text-gray-900">
                   {etapa.destino}
                </span>

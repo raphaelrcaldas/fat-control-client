@@ -66,7 +66,7 @@ export default function AddSessaoModal({
          <Modal show={show} size="2xl" onClose={onClose} dismissible>
             <ModalHeader>
                <div className="flex items-center gap-3">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-md bg-red-600">
+                  <div className="bg-primary-600 flex h-9 w-9 items-center justify-center rounded-md">
                      <MdFlightTakeoff className="h-5 w-5 text-white" />
                   </div>
                   <div>
@@ -138,7 +138,7 @@ export default function AddSessaoModal({
                         <Button
                            type="submit"
                            form="sessao-form"
-                           color="blue"
+                           color="primary"
                            disabled={!form.canSubmit}
                         >
                            {form.isPending

@@ -28,7 +28,7 @@ export default function SessoesPanel({
    const [confirmDelete, setConfirmDelete] = useState(false);
    if (!dupla) {
       return (
-         <div className="flex flex-1 flex-col items-center justify-center gap-3 bg-gray-50 text-gray-400">
+         <div className="flex flex-1 flex-col items-center justify-center gap-3 bg-gray-50 text-gray-500">
             <MdFlightTakeoff className="h-12 w-12 opacity-30" />
             <p className="text-sm">Selecione uma dupla para ver as sessões</p>
          </div>
@@ -73,7 +73,7 @@ export default function SessoesPanel({
             {/* Lista de sessões */}
             <div className="flex-1 px-6 py-3">
                {!hasSessoes ? (
-                  <div className="flex h-full flex-col items-center justify-center gap-3 text-gray-400">
+                  <div className="flex h-full flex-col items-center justify-center gap-3 text-gray-500">
                      <MdFlightTakeoff className="h-10 w-10 opacity-20" />
                      <p className="text-sm">Nenhuma sessão registrada.</p>
                      <Button color="light" size="sm" onClick={onAddSessao}>

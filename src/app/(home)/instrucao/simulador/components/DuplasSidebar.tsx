@@ -38,14 +38,14 @@ export default function DuplasSidebar({
       <div className="flex w-70 shrink-0 flex-col border-r border-slate-200 bg-white">
          <div className="border-b border-slate-200 px-4 py-3">
             <div className="mb-2 flex items-center justify-between">
-               <p className="font-mono text-xs font-semibold tracking-widest text-gray-400 uppercase">
+               <p className="font-mono text-xs font-semibold tracking-widest text-gray-500 uppercase">
                   Duplas
                </p>
                <Button
                   color="light"
                   size="xs"
                   onClick={onCreateDupla}
-                  className="h-6"
+                  aria-label="Nova dupla"
                >
                   <HiPlus className="h-3.5 w-3.5" />
                </Button>
@@ -60,7 +60,7 @@ export default function DuplasSidebar({
 
          <div className="flex-1 overflow-y-auto">
             {filtered.length === 0 && (
-               <p className="px-4 py-8 text-center text-sm text-gray-400">
+               <p className="px-4 py-8 text-center text-sm text-gray-500">
                   Nenhuma dupla encontrada.
                </p>
             )}
@@ -79,8 +79,9 @@ export default function DuplasSidebar({
                      type="button"
                      onClick={() => onSelect(dupla.key)}
                      className={clsx(
-                        "flex w-full items-center gap-3 border-b border-red-100 px-4 py-3 text-left transition-colors hover:bg-red-50",
-                        isSelected && "border-l-4 border-l-red-500 bg-red-50"
+                        "hover:bg-primary-50 border-primary-100 flex w-full items-center gap-3 border-b px-4 py-3 text-left transition-colors",
+                        isSelected &&
+                           "border-l-primary-600 bg-primary-50 border-l-4"
                      )}
                   >
                      <div className="min-w-0 flex-1">
@@ -102,12 +103,12 @@ export default function DuplasSidebar({
 
                      <div className="flex shrink-0 flex-col items-end gap-1">
                         {isEmpty ? (
-                           <span className="text-[10px] font-medium text-amber-500">
+                           <span className="text-[10px] font-medium text-amber-600">
                               SEM SESSÕES
                            </span>
                         ) : (
                            <>
-                              <span className="font-mono text-xs text-red-600">
+                              <span className="text-primary-600 font-mono text-xs">
                                  {minutesToTime(totalMin)}h
                               </span>
                               {firstDate && (
