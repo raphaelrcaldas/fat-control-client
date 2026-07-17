@@ -17,13 +17,14 @@ export function ActiveFiltersBar({
          <span className="text-xs font-medium text-gray-600 dark:text-gray-400">
             Filtros ativos:
          </span>
-         <Badge color="failure">
+         <Badge color="primary">
             <div className="flex items-center gap-1.5">
                <span>Busca: {search}</span>
                <button
                   type="button"
                   onClick={onClearSearch}
-                  className="rounded-full p-0.5 hover:bg-red-200"
+                  aria-label="Limpar busca"
+                  className="hover:bg-primary-200 -my-2 grid size-[26px] place-items-center rounded-full pointer-coarse:size-[44px]"
                >
                   <HiX className="h-3 w-3" />
                </button>

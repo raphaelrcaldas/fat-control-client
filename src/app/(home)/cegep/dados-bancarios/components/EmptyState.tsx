@@ -18,7 +18,7 @@ export function EmptyState({ search, onClear }: EmptyStateProps) {
             <button
                type="button"
                onClick={onClear}
-               className="mt-2 text-sm text-red-600 hover:text-red-700"
+               className="text-primary-600 hover:text-primary-700 mt-2 text-sm"
             >
                Limpar busca
             </button>

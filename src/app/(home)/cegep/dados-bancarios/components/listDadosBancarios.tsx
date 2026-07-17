@@ -33,7 +33,12 @@ export default function ListDadosBancarios({ dados }: ListDadosBancariosProps) {
 
    return (
       <>
-         <div className="overflow-x-auto rounded border border-slate-200 shadow-sm">
+         <div
+            role="region"
+            aria-label="Tabela de dados bancários"
+            tabIndex={0}
+            className="overflow-x-auto rounded border border-slate-200 shadow-sm"
+         >
             <Table hoverable>
                <TableHead>
                   <TableRow>

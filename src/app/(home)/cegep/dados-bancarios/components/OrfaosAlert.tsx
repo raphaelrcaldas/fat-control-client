@@ -16,7 +16,9 @@ export function OrfaosAlert({ count, onReview }: OrfaosAlertProps) {
                Existem <strong>{count}</strong> registro(s) de dados bancários
                de militares desativados que podem ser limpos.
             </span>
-            <Button color="yellow" size="xs" onClick={onReview}>
+            {/* light, não yellow: o yellow do Flowbite é branco sobre
+                yellow-400 (~1.8:1, reprova AA) */}
+            <Button color="light" size="xs" onClick={onReview}>
                Revisar e limpar
             </Button>
          </div>

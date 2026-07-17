@@ -76,7 +76,7 @@ export function UserSelector({
          ) : (
             <>
                <Button
-                  color="red"
+                  color="primary"
                   className="w-full"
                   onClick={() => setShowSearch(true)}
                >

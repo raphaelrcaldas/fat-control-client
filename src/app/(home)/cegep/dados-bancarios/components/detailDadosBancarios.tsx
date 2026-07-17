@@ -156,7 +156,7 @@ export default function DetailDadosBancarios({
                            error={!!errors.mes_ano}
                         />
                         <Button
-                           color="blue"
+                           color="light"
                            size="sm"
                            onClick={handleSyncPortal}
                            disabled={isSyncing || isLoading}
@@ -252,7 +252,7 @@ export default function DetailDadosBancarios({
                         requiredPerm={isEdit ? "update" : "create"}
                      >
                         <Button
-                           color="blue"
+                           color="primary"
                            onClick={save}
                            disabled={isLoading}
                         >
