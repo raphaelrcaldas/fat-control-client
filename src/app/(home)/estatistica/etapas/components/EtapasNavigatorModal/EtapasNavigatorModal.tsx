@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Modal } from "flowbite-react";
-import { HiX } from "react-icons/hi";
+import { HiPencilAlt, HiX } from "react-icons/hi";
 import clsx from "clsx";
 import type { EtapaItem } from "services/routes/estatistica/etapas";
 import {
@@ -11,12 +11,14 @@ import {
    formatTime,
 } from "@/../utils/dateHandler";
 import { EtapaDetailContent } from "../EtapaDetail/EtapaDetailContent";
+import { PermBased } from "@/app/(home)/hooks/usePermBased";
 
 interface EtapasNavigatorModalProps {
    etapas: EtapaItem[];
    initialEtapaId: number;
    onClose: () => void;
    missaoTitulo?: string | null;
+   onEditEtapa: (id: number) => void;
 }
 
 export function EtapasNavigatorModal({
@@ -24,6 +26,7 @@ export function EtapasNavigatorModal({
    initialEtapaId,
    onClose,
    missaoTitulo,
+   onEditEtapa,
 }: EtapasNavigatorModalProps) {
    const [selectedId, setSelectedId] = useState<number>(initialEtapaId);
    const selectedRef = useRef<HTMLButtonElement | null>(null);
@@ -120,13 +123,25 @@ export function EtapasNavigatorModal({
 
             {/* Detail panel */}
             <div className="relative flex flex-1 flex-col overflow-hidden">
-               {/* Close button */}
-               <button
-                  onClick={onClose}
-                  className="absolute top-3 right-3 z-10 rounded-lg p-1.5 transition-colors hover:bg-slate-200"
-               >
-                  <HiX className="h-5 w-5 text-slate-600" />
-               </button>
+               {/* Edit + close buttons */}
+               <div className="absolute top-3 right-3 z-10 flex items-center gap-1">
+                  <PermBased resource="etp_mis" requiredPerm="create">
+                     <button
+                        onClick={() => onEditEtapa(selectedId)}
+                        title="Editar etapa"
+                        className="rounded-lg p-1.5 transition-colors hover:bg-slate-200"
+                     >
+                        <HiPencilAlt className="h-5 w-5 text-slate-600" />
+                     </button>
+                  </PermBased>
+                  <button
+                     onClick={onClose}
+                     title="Fechar"
+                     className="rounded-lg p-1.5 transition-colors hover:bg-slate-200"
+                  >
+                     <HiX className="h-5 w-5 text-slate-600" />
+                  </button>
+               </div>
 
                {/* overflow-hidden contém o scroll interno do EtapaDetailContent (flex-1 overflow-y-auto) */}
                <div className="flex-1 overflow-hidden">

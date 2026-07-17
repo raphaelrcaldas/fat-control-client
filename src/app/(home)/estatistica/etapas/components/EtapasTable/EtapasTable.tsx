@@ -326,6 +326,9 @@ export function EtapasTable({
                initialEtapaId={detailState.etapaId}
                onClose={() => setDetailState(null)}
                missaoTitulo={detailState.missaoTitulo}
+               onEditEtapa={
+                  grouped ? handleEditEtapaGrouped : handleEditEtapaFlat
+               }
             />
          )}
       </div>
