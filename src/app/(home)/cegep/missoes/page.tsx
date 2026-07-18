@@ -1,17 +1,23 @@
 "use client";
 
 import { TabItem, Tabs, Button } from "flowbite-react";
-import { HiPlus } from "react-icons/hi";
+import { HiPlus, HiCalculator } from "react-icons/hi";
 import { MdOutlineAttachMoney } from "react-icons/md";
 import { IoMdPaper, IoMdSettings } from "react-icons/io";
 import { RegisPage } from "./registros/register";
 import { FilterPage } from "./pagamentos/filterPage";
 import { ConfigPage } from "./configuracoes/configPage";
+import { CalculadoraPage } from "./calculadora/calculadoraPage";
 import { useSearchParamsUpdater } from "@/hooks/useSearchParamsState";
 import { useRouter } from "next/navigation";
 import { PermBased } from "@/app/(home)/hooks/usePermBased";
 
-const TAB_NAMES = ["registros", "pagamentos", "configuracoes"] as const;
+const TAB_NAMES = [
+   "registros",
+   "pagamentos",
+   "configuracoes",
+   "calculadora",
+] as const;
 
 // Trilho vermelho ativo (substitui o <style jsx global> anterior).
 const tabsTheme = {
@@ -124,6 +130,16 @@ export default function MissPage() {
                >
                   <div className="animate-fade-in">
                      <ConfigPage />
+                  </div>
+               </TabItem>
+
+               <TabItem
+                  active={activeTabIndex === 3}
+                  title="Calculadora"
+                  icon={HiCalculator}
+               >
+                  <div className="animate-fade-in">
+                     <CalculadoraPage />
                   </div>
                </TabItem>
             </Tabs>

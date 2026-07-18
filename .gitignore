@@ -57,3 +57,6 @@ CLAUDE.md
 
 # Saida da auditoria de UI (tests/audit)
 .audit/
+
+# Grafo de conhecimento gerado (graphify) — artefato, nao versionar
+graphify-out/

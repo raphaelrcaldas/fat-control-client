@@ -109,6 +109,87 @@ export interface MissoesPaginatedResponse {
    pages: number;
 }
 
+// ============ CALCULADORA (SIMULAÇÃO) ============
+
+export type SituacaoSimulacao = "c" | "d" | "g";
+
+/** Linha da tabela "Militares" da calculadora: PG genérico + quantidade. */
+export interface CombinacaoSimulacao {
+   p_g: string;
+   sit: SituacaoSimulacao;
+   qtd: number;
+}
+
+export interface SimularMissaoRequest {
+   acrec_desloc: boolean;
+   pernoites: {
+      data_ini: string;
+      data_fim: string;
+      cidade_id: number;
+      meia_diaria: boolean;
+      acrec_desloc: boolean;
+   }[];
+   combinacoes: CombinacaoSimulacao[];
+}
+
+export interface SimulacaoCombinacaoResultado {
+   p_g: string;
+   sit: SituacaoSimulacao;
+   qtd: number;
+   valor_unitario: number;
+   subtotal: number;
+}
+
+export interface SimulacaoValorParcela {
+   valor: number;
+   qtd: number;
+}
+
+/** Memória de cálculo de uma combinação (p_g, sit) dentro de um pernoite específico — valores unitários (1 militar), não multiplicados pela quantidade da combinação. */
+export interface SimulacaoPernoiteCombinacao {
+   p_g: string;
+   sit: SituacaoSimulacao;
+   vals: SimulacaoValorParcela[];
+   subtotal: number;
+}
+
+export interface SimulacaoPernoiteResultado {
+   indice: number;
+   cidade_id: number;
+   grupo_cid: number;
+   data_ini: string;
+   data_fim: string;
+   dias: number;
+   ac_desloc: number;
+   combinacoes: SimulacaoPernoiteCombinacao[];
+}
+
+export interface SimulacaoResultado {
+   total_geral: number;
+   total_dias: number;
+   total_diarias: number;
+   acrec_desloc_missao: number;
+   valores_zerados: boolean;
+   combinacoes: SimulacaoCombinacaoResultado[];
+   pernoites: SimulacaoPernoiteResultado[];
+}
+
+const simularMissaoRoute = missoesRoute + "simular";
+
+/**
+ * Simula o custo de uma missão em fase de planejamento (nada persiste).
+ * Reusa a mesma regra de cálculo do cadastro real (`calcular_custos_frag_mis`
+ * no backend), mas com PG genérico + quantidade no lugar de militar nominal.
+ */
+export async function simularMissao(
+   payload: SimularMissaoRequest,
+   signal?: AbortSignal
+): Promise<ApiResult<SimulacaoResultado>> {
+   return parseApiResponse<SimulacaoResultado>(
+      await request("POST", simularMissaoRoute, payload, undefined, signal)
+   );
+}
+
 /**
  * Schema Zod para validação de parâmetros de filtro de missões.
  * Espelha o modelo Pydantic MissoesFilterParams do backend.
