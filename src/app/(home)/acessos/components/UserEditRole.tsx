@@ -52,7 +52,7 @@ export default function UserEditRole({
                Organização
             </label>
             <div className="flex items-center gap-2 rounded border border-slate-200 bg-gray-50 p-3 text-sm font-medium text-gray-700 uppercase">
-               <FaBuilding className="text-red-600" />
+               <FaBuilding className="text-primary-600" />
                {editing?.orgLabel}
             </div>
             <p className="mt-1 text-sm text-gray-500">

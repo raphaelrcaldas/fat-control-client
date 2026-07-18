@@ -77,9 +77,9 @@ export default function UserAddRole({
             </label>
             <div className="flex items-center gap-2">
                {selectedUser ? (
-                  <div className="flex flex-1 items-center justify-between rounded border border-blue-200 bg-blue-50 p-3">
+                  <div className="border-primary-200 bg-primary-50 flex flex-1 items-center justify-between rounded border p-3">
                      <div className="flex items-center gap-3">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-linear-to-br from-blue-500 to-blue-600 font-bold text-white uppercase shadow">
+                        <div className="bg-primary-600 flex h-10 w-10 items-center justify-center rounded-full font-bold text-white uppercase shadow">
                            {selectedUser.posto.short}
                         </div>
                         <div>
@@ -103,7 +103,7 @@ export default function UserAddRole({
                      </p>
                   </div>
                )}
-               <Button color="red" onClick={() => setShowSearch(true)}>
+               <Button color="primary" onClick={() => setShowSearch(true)}>
                   <FaSearch className="mr-2" />
                   {selectedUser ? "Trocar" : "Buscar"}
                </Button>

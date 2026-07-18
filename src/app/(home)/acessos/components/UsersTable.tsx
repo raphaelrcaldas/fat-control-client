@@ -19,6 +19,8 @@ import {
 } from "react-icons/fa6";
 import { HiRefresh } from "react-icons/hi";
 import type { UserWithRole } from "services/routes/security/roles";
+import type { Tenant } from "services/routes/tenants";
+import { normalizeOrgTheme } from "@/lib/orgTheme";
 import { RoleBadge } from "./RoleBadge";
 import { ScopeBadge } from "./ScopeBadge";
 
@@ -27,6 +29,9 @@ interface UsersTableProps {
    filterName: string;
    currentUserId: number | null;
    isUpdating: boolean;
+   tenants: Tenant[];
+   /** "Logar como" é utilitário de dev — só aparece fora de produção. */
+   showDevLogin: boolean;
    onFilterChange: (value: string) => void;
    onRefresh: () => void;
    onEditRole: (ur: UserWithRole) => void;
@@ -44,12 +49,16 @@ export const UsersTable = memo(function UsersTable({
    filterName,
    currentUserId,
    isUpdating,
+   tenants,
+   showDevLogin,
    onFilterChange,
    onRefresh,
    onEditRole,
    onDevLogin,
    onDeleteRole,
 }: UsersTableProps) {
+   const tenantById = new Map(tenants.map((t) => [t.organizacao_id, t]));
+
    return (
       <div className="overflow-hidden rounded border border-slate-200 bg-white shadow-sm">
          {/* Toolbar: busca + atualizar */}
@@ -62,7 +71,12 @@ export const UsersTable = memo(function UsersTable({
                placeholder="Buscar por nome, posto ou perfil..."
             />
             <Tooltip content="Atualizar lista">
-               <Button color="light" onClick={onRefresh} disabled={isUpdating}>
+               <Button
+                  color="light"
+                  onClick={onRefresh}
+                  disabled={isUpdating}
+                  aria-label="Atualizar lista"
+               >
                   <HiRefresh className={isUpdating ? "animate-spin" : ""} />
                </Button>
             </Tooltip>
@@ -107,6 +121,9 @@ export const UsersTable = memo(function UsersTable({
                      filteredUsers.map((ur) => {
                         const userName = `${ur.user.p_g} ${ur.user.nome_guerra}`;
                         const isSelf = ur.user.id === currentUserId;
+                        const tenant = ur.organizacao_id
+                           ? tenantById.get(ur.organizacao_id)
+                           : undefined;
                         return (
                            <TableRow
                               key={`${ur.user.id}-${ur.organizacao_id ?? "sys"}`}
@@ -114,7 +131,7 @@ export const UsersTable = memo(function UsersTable({
                            >
                               <TableCell className="font-medium">
                                  <div className="flex items-center gap-3">
-                                    <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-red-600 text-xs font-bold text-white uppercase shadow">
+                                    <div className="bg-primary-600 flex size-10 shrink-0 items-center justify-center rounded-full text-xs font-bold text-white uppercase shadow">
                                        {ur.user.p_g}
                                     </div>
                                     <span className="text-gray-900 uppercase">
@@ -127,7 +144,17 @@ export const UsersTable = memo(function UsersTable({
                               </TableCell>
                               <TableCell>
                                  <ScopeBadge
-                                    organizacaoId={ur.organizacao_id}
+                                    sigla={
+                                       ur.organizacao_id
+                                          ? (tenant?.organizacao.sigla ??
+                                            ur.organizacao_id)
+                                          : null
+                                    }
+                                    tema={
+                                       tenant
+                                          ? normalizeOrgTheme(tenant.tema)
+                                          : undefined
+                                    }
                                  />
                               </TableCell>
                               <TableCell>
@@ -138,19 +165,25 @@ export const UsersTable = memo(function UsersTable({
                                           color="light"
                                           onClick={() => onEditRole(ur)}
                                           disabled={isUpdating}
+                                          aria-label={`Editar perfil de ${userName}`}
                                        >
                                           <FaUserPen className="size-4 text-gray-600" />
                                        </Button>
                                     </Tooltip>
-                                    <Tooltip content="Login como usuário">
-                                       <Button
-                                          size="xs"
-                                          color="light"
-                                          onClick={() => onDevLogin(ur.user.id)}
-                                       >
-                                          <FaArrowRightToBracket className="size-4 text-blue-600" />
-                                       </Button>
-                                    </Tooltip>
+                                    {showDevLogin && (
+                                       <Tooltip content="Login como usuário (dev)">
+                                          <Button
+                                             size="xs"
+                                             color="light"
+                                             onClick={() =>
+                                                onDevLogin(ur.user.id)
+                                             }
+                                             aria-label={`Login como ${userName} (dev)`}
+                                          >
+                                             <FaArrowRightToBracket className="size-4 text-blue-600" />
+                                          </Button>
+                                       </Tooltip>
+                                    )}
                                     <Tooltip
                                        content={
                                           isSelf
@@ -170,6 +203,7 @@ export const UsersTable = memo(function UsersTable({
                                                 userName
                                              )
                                           }
+                                          aria-label={`Remover perfil de ${userName}`}
                                        >
                                           <FaRegTrashCan className="size-4 text-red-600" />
                                        </Button>

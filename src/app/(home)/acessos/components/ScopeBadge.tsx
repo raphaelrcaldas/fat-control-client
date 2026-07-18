@@ -1,20 +1,36 @@
+import clsx from "clsx";
+import { THEME_META, type OrgTheme } from "@/lib/orgTheme";
+
 interface ScopeBadgeProps {
-   organizacaoId: string | null;
+   /** Sigla da unidade a exibir, ou null para vínculo de sistema. */
+   sigla: string | null;
+   /** Tema da org referida — dá a cor do dot. Ausente = sistema/desconhecido. */
+   tema?: OrgTheme;
 }
 
-/** Chip de escopo do vínculo: unidade (sigla) ou "Sistema" (org NULL). */
-export function ScopeBadge({ organizacaoId }: ScopeBadgeProps) {
-   if (!organizacaoId) {
-      return (
-         <span className="inline-flex items-center rounded bg-purple-100 px-2.5 py-1 text-xs font-medium text-purple-700">
-            Sistema
-         </span>
-      );
-   }
-
+/**
+ * Chip de escopo do vínculo. O dot herda o tema do tenant referido (reforço
+ * visual — a sigla carrega a informação, a cor nunca é canal único), no mesmo
+ * padrão de `admin/logs`. "Sistema" (sem tenant) usa dot neutro.
+ */
+export function ScopeBadge({ sigla, tema }: ScopeBadgeProps) {
    return (
-      <span className="inline-flex items-center rounded bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-700 uppercase">
-         {organizacaoId}
+      <span className="inline-flex items-center gap-2">
+         <span
+            aria-hidden
+            className={clsx(
+               "size-2 shrink-0 rounded-full",
+               tema ? THEME_META[tema].swatch : "bg-slate-300"
+            )}
+         />
+         <span
+            className={clsx(
+               "text-sm font-medium text-slate-700",
+               sigla && "uppercase"
+            )}
+         >
+            {sigla ?? "Sistema"}
+         </span>
       </span>
    );
 }

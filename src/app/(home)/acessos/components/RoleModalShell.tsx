@@ -49,8 +49,8 @@ export function RoleModalShell({
       <Modal show={show} size="lg" onClose={onClose} dismissible>
          <ModalHeader className="border-b">
             <div className="flex items-center gap-3">
-               <div className="flex h-10 w-10 items-center justify-center rounded-full bg-red-100">
-                  <Icon className="text-red-600" />
+               <div className="bg-primary-100 flex h-10 w-10 items-center justify-center rounded-full">
+                  <Icon className="text-primary-600" />
                </div>
                <div>
                   <h3 className="text-xl font-semibold">{title}</h3>
@@ -85,7 +85,7 @@ export function RoleModalShell({
                   Cancelar
                </Button>
                <Button
-                  color="red"
+                  color="primary"
                   onClick={onConfirm}
                   disabled={isSaving || confirmDisabled}
                   className="flex-1 sm:flex-none"

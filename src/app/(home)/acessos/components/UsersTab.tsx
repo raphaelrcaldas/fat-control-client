@@ -41,6 +41,9 @@ export const UsersTab = memo(function UsersTab({
    const [deletingUserRole, setDeletingUserRole] =
       useState<DeletingUserRole | null>(null);
 
+   // "Logar como" é utilitário de dev (o endpoint só responde fora de prod);
+   // esconde o botão e o modal em produção.
+   const isDev = process.env.NODE_ENV !== "production";
    const devLogin = useDevLogin();
 
    const onEditRole = useCallback(
@@ -109,18 +112,20 @@ export const UsersTab = memo(function UsersTab({
             confirmButtonText="Sim, remover"
          />
 
-         <ConfirmModal
-            show={devLogin.showModal}
-            title="Login como usuário?"
-            description="Você será redirecionado e terá as mesmas permissões deste usuário."
-            isLoading={devLogin.isLoggingIn}
-            onClose={() => devLogin.setShowModal(false)}
-            onConfirm={devLogin.confirmLogin}
-            icon={FaArrowRightToBracket}
-            iconColor="text-blue-500"
-            confirmButtonColor="blue"
-            confirmButtonText="Fazer Login"
-         />
+         {isDev && (
+            <ConfirmModal
+               show={devLogin.showModal}
+               title="Login como usuário?"
+               description="Você será redirecionado e terá as mesmas permissões deste usuário."
+               isLoading={devLogin.isLoggingIn}
+               onClose={() => devLogin.setShowModal(false)}
+               onConfirm={devLogin.confirmLogin}
+               icon={FaArrowRightToBracket}
+               iconColor="text-blue-500"
+               confirmButtonColor="blue"
+               confirmButtonText="Fazer Login"
+            />
+         )}
 
          <div
             className={clsx("transition-opacity", isFetching && "opacity-50")}
@@ -130,6 +135,8 @@ export const UsersTab = memo(function UsersTab({
                filterName={filterName}
                currentUserId={currentUserId}
                isUpdating={isFetching}
+               tenants={tenants}
+               showDevLogin={isDev}
                onFilterChange={setFilterName}
                onRefresh={onRefresh}
                onEditRole={onEditRole}
