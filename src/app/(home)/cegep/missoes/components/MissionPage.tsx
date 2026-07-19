@@ -135,7 +135,6 @@ export function MissionPage({
                      afast={form.afast}
                      regres={form.regres}
                      editMode={form.editMode}
-                     checkAfastRegres={form.checkAfastRegres}
                   />
 
                   <MilitaresSection

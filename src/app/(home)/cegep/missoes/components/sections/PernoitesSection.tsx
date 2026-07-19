@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Button } from "flowbite-react";
+import { HiPlus } from "react-icons/hi";
 import { Pernoite } from "services/routes/cegep/missoes";
 import { MissionPernoite } from "../../registros/components/missionDetail/pernoite/missionPernoite";
 import { FormPernoite } from "../../registros/components/missionDetail/pernoite/formPernoite";
@@ -12,7 +12,6 @@ interface PernoitesSectionProps {
    afast: string;
    regres: string;
    editMode: boolean;
-   checkAfastRegres: boolean;
 }
 
 export function PernoitesSection({
@@ -22,12 +21,25 @@ export function PernoitesSection({
    afast,
    regres,
    editMode,
-   checkAfastRegres,
 }: PernoitesSectionProps) {
    const [formPnt, setFormPnt] = useState(false);
 
    return (
-      <SectionWrapper title="Pernoites">
+      <SectionWrapper
+         title="Pernoites"
+         action={
+            editMode && (
+               <button
+                  type="button"
+                  onClick={() => setFormPnt(true)}
+                  className="group text-primary-600 hover:text-primary-700 flex items-center gap-1.5 text-sm font-semibold transition-all pointer-coarse:min-h-[44px]"
+               >
+                  <HiPlus className="h-4 w-4 transition-transform group-hover:scale-110" />
+                  Adicionar
+               </button>
+            )
+         }
+      >
          {pnts.length === 0 && (
             <div className="flex items-center justify-center rounded border border-slate-200 bg-white px-4 py-8">
                <p className="text-sm text-slate-400 italic">
@@ -58,18 +70,6 @@ export function PernoitesSection({
             pnts={pnts}
             setPnts={setPnts}
          />
-
-         {editMode && (
-            <Button
-               color="primary"
-               size="sm"
-               onClick={() => setFormPnt(true)}
-               disabled={!checkAfastRegres}
-               className="mt-4 w-full font-semibold"
-            >
-               + Adicionar Pernoite
-            </Button>
-         )}
       </SectionWrapper>
    );
 }

@@ -431,7 +431,12 @@ function validarDatas(
    if (ini > fim) {
       errors.push("- Data de início não pode ser maior que a data de fim");
    }
-   if (!(afast <= ini && fim <= regres)) {
+   // Só cobra a janela quando afast/regres já estão definidos. Sem eles, o
+   // pernoite pode ser adicionado antes de fixar o período — a janela é
+   // reimposta no submit da missão (validarForm) e no backend
+   // (validar_regras_missao).
+   const janelaDefinida = !isNaN(afast.getTime()) && !isNaN(regres.getTime());
+   if (janelaDefinida && !(afast <= ini && fim <= regres)) {
       errors.push("- O pernoite deve estar contido no período da missão.");
    }
 }

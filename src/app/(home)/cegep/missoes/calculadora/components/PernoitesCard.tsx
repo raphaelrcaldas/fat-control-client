@@ -72,9 +72,19 @@ export function PernoitesCard({
 
    return (
       <div className="rounded border border-slate-200 bg-white p-4 shadow-sm">
-         <p className="mb-3 text-xs font-semibold tracking-wide text-slate-500 uppercase">
-            Pernoites
-         </p>
+         <div className="mb-3 flex items-center justify-between gap-2">
+            <p className="text-xs font-semibold tracking-wide text-slate-500 uppercase">
+               Pernoites
+            </p>
+            <button
+               type="button"
+               onClick={addRow}
+               className="group text-primary-600 hover:text-primary-700 flex items-center gap-1.5 text-sm font-semibold transition-all pointer-coarse:min-h-[44px]"
+            >
+               <HiPlus className="h-4 w-4 transition-transform group-hover:scale-110" />
+               adicionar
+            </button>
+         </div>
 
          {pnts.length > 0 && (
             <div className="overflow-x-auto">
@@ -215,16 +225,8 @@ export function PernoitesCard({
             </p>
          )}
 
-         <button
-            type="button"
-            onClick={addRow}
-            className="text-primary-600 hover:text-primary-700 mt-2 flex items-center gap-1 text-sm font-medium"
-         >
-            <HiPlus className="h-4 w-4" />
-            adicionar pernoite
-         </button>
          {pnts.length === 0 && (
-            <p className="mt-1 text-xs text-slate-500">
+            <p className="text-xs text-slate-500">
                Adicione ao menos um pernoite para calcular.
             </p>
          )}

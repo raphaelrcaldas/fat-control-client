@@ -73,9 +73,12 @@ export function UserMissionDetailModal({
                            </Badge>
                         </div>
                         {missao.desc && (
-                           <span className="text-primary-100 w-96 truncate text-sm font-semibold">
+                           <p
+                              className="text-primary-100 truncate text-sm font-semibold"
+                              title={missao.desc}
+                           >
                               {missao.desc}
-                           </span>
+                           </p>
                         )}
                      </div>
                   </div>

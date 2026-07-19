@@ -32,7 +32,7 @@ export function MissionActionBar({
                <>
                   <PermBased resource="missoes_cegep" requiredPerm="create">
                      <Button
-                        color="blue"
+                        color="primary"
                         onClick={onEdit}
                         className="px-6 py-2.5 font-semibold"
                      >
@@ -75,7 +75,7 @@ export function MissionActionBar({
                   <PermBased resource="missoes_cegep" requiredPerm="create">
                      <Button
                         onClick={onSave}
-                        color="blue"
+                        color="primary"
                         disabled={!isChanged || isLoading}
                         className="px-8 py-2.5 font-semibold disabled:cursor-not-allowed disabled:opacity-50"
                      >

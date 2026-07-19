@@ -24,19 +24,19 @@ const STATUS_CONFIGS = {
    g: {
       label: "G",
       color: "warning",
-      bgClass: "bg-orange-50 hover:bg-orange-100",
+      // bgClass: "bg-orange-50 hover:bg-orange-100",
       checkBoxColor: "yellow",
    },
    d: {
       label: "D",
       color: "success",
-      bgClass: "bg-green-50 hover:bg-green-100",
+      // bgClass: "bg-green-50 hover:bg-green-100",
       checkBoxColor: "green",
    },
    c: {
       label: "C",
       color: "info",
-      bgClass: "bg-blue-50 hover:bg-blue-100",
+      // bgClass: "bg-blue-50 hover:bg-blue-100",
       checkBoxColor: "blue",
    },
 } as const;
@@ -69,7 +69,7 @@ export const UserRow = memo(function UserRow({
    const statusConfig = STATUS_CONFIGS[record.user_mis.sit] || STATUS_CONFIGS.g;
 
    return (
-      <TableRow className={clsx(statusConfig.bgClass)}>
+      <TableRow className="hover:bg-slate-50">
          <TableCell className="w-8 text-center">
             <Checkbox
                className="size-5 cursor-pointer"

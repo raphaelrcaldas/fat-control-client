@@ -70,8 +70,6 @@ export function useMissionForm({
    const [showValidationModal, setShowValidationModal] = useState(false);
    const [validationErrors, setValidationErrors] = useState<string[]>([]);
 
-   const [checkAfastRegres, setCheckAfastRegres] = useState(false);
-
    const isLoading = createUpdateMutation.isPending || deleteMutation.isPending;
 
    const sortedPnts = useMemo(
@@ -139,12 +137,6 @@ export function useMissionForm({
       setMils(defaultValues.mils);
       setEtiquetasMissao(defaultValues.etiquetas);
    }
-
-   useEffect(() => {
-      const afastValido = afast && !isNaN(new Date(afast).getTime());
-      const regresValido = regres && !isNaN(new Date(regres).getTime());
-      setCheckAfastRegres(!!afastValido && !!regresValido);
-   }, [afast, regres]);
 
    useEffect(() => {
       setDefaultValues();
@@ -326,7 +318,6 @@ export function useMissionForm({
       sortedPnts,
       isChanged,
       isLoading,
-      checkAfastRegres,
 
       // Modais
       showErrorModal,
