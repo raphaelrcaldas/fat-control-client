@@ -16,7 +16,7 @@ import {
 } from "flowbite-react";
 import { Pagination } from "@/components/Pagination";
 import { MultiSelect } from "@/components/MultiSelect";
-import { UserRow } from "./components/userRow";
+import { UserRow, UserCard } from "./components/userRow";
 import { PagamentosSkeleton } from "./components/PagamentosSkeleton";
 import { UserMissionDetailModal } from "../../components/UserMissionDetailModal";
 import { usePagamentos } from "@/hooks/queries/usePagamentos";
@@ -305,7 +305,7 @@ export function FilterPage({ active }: { active: boolean }) {
                </span>
 
                {tipoDoc?.map((td) => (
-                  <Badge key={`tipoDoc-${td}`} color="red">
+                  <Badge key={`tipoDoc-${td}`} color="primary">
                      <div className="flex items-center gap-1.5">
                         <HiDocumentText className="h-3 w-3" />
                         <span>Ordem: {td === "om" ? "Missão" : "Serviço"}</span>
@@ -322,7 +322,7 @@ export function FilterPage({ active }: { active: boolean }) {
                ))}
 
                {nDoc && (
-                  <Badge color="red">
+                  <Badge color="primary">
                      <div className="flex items-center gap-1.5">
                         <HiHashtag className="h-3 w-3" />
                         <span>Nº {nDoc}</span>
@@ -337,7 +337,7 @@ export function FilterPage({ active }: { active: boolean }) {
                )}
 
                {selectedTipo?.map((tipo) => (
-                  <Badge key={`tipo-${tipo}`} color="red">
+                  <Badge key={`tipo-${tipo}`} color="primary">
                      <div className="flex items-center gap-1.5">
                         <HiClipboardList className="h-3 w-3" />
                         <span>Tipo: {tipo.toUpperCase()}</span>
@@ -356,7 +356,7 @@ export function FilterPage({ active }: { active: boolean }) {
                ))}
 
                {selectedSit?.map((sit) => (
-                  <Badge key={`sit-${sit}`} color="red">
+                  <Badge key={`sit-${sit}`} color="primary">
                      <div className="flex items-center gap-1.5">
                         <HiTag className="h-3 w-3" />
                         <span>
@@ -382,7 +382,7 @@ export function FilterPage({ active }: { active: boolean }) {
                ))}
 
                {userSearch && (
-                  <Badge color="red">
+                  <Badge color="primary">
                      <div className="flex items-center gap-1.5">
                         <HiUser className="h-3 w-3" />
                         <span>Militar: {userSearch}</span>
@@ -396,7 +396,7 @@ export function FilterPage({ active }: { active: boolean }) {
                   </Badge>
                )}
 
-               <Badge color="red">
+               <Badge color="primary">
                   <div className="flex items-center gap-1.5">
                      <HiCalendar className="h-3 w-3" />
                      <span>Afastamento: {formatDateFull(dataInicio)}</span>
@@ -411,7 +411,7 @@ export function FilterPage({ active }: { active: boolean }) {
                   </div>
                </Badge>
 
-               <Badge color="red">
+               <Badge color="primary">
                   <div className="flex items-center gap-1.5">
                      <HiCalendar className="h-3 w-3" />
                      <span>Regresso: {formatDateFull(dataFim)}</span>
@@ -483,11 +483,15 @@ export function FilterPage({ active }: { active: boolean }) {
 
                      {/* Nº da Ordem */}
                      <div>
-                        <Label className="mb-1.5 flex items-center gap-1.5 text-xs text-gray-600">
+                        <Label
+                           htmlFor="pg-n-ordem"
+                           className="mb-1.5 flex items-center gap-1.5 text-xs text-gray-600"
+                        >
                            <HiHashtag className="text-gray-500" />
                            Nº da Ordem
                         </Label>
                         <TextInput
+                           id="pg-n-ordem"
                            type="text"
                            value={localNDoc}
                            onChange={(e) => handleNDocChange(e.target.value)}
@@ -550,11 +554,15 @@ export function FilterPage({ active }: { active: boolean }) {
 
                      {/* Militar */}
                      <div>
-                        <Label className="mb-1.5 flex items-center gap-1.5 text-xs text-gray-600">
+                        <Label
+                           htmlFor="pg-militar"
+                           className="mb-1.5 flex items-center gap-1.5 text-xs text-gray-600"
+                        >
                            <HiUser className="text-gray-500" />
                            Militar
                         </Label>
                         <TextInput
+                           id="pg-militar"
                            type="text"
                            value={localUserSearch}
                            onChange={(e) =>
@@ -567,11 +575,15 @@ export function FilterPage({ active }: { active: boolean }) {
 
                      {/* Data Afastamento */}
                      <div>
-                        <Label className="mb-1.5 flex items-center gap-1.5 text-xs text-gray-600">
+                        <Label
+                           htmlFor="pg-afastamento"
+                           className="mb-1.5 flex items-center gap-1.5 text-xs text-gray-600"
+                        >
                            <HiCalendar className="text-gray-500" />
                            Afastamento
                         </Label>
                         <TextInput
+                           id="pg-afastamento"
                            type="date"
                            sizing="sm"
                            value={localDataInicio}
@@ -592,11 +604,15 @@ export function FilterPage({ active }: { active: boolean }) {
 
                      {/* Data Regresso */}
                      <div>
-                        <Label className="mb-1.5 flex items-center gap-1.5 text-xs text-gray-600">
+                        <Label
+                           htmlFor="pg-regresso"
+                           className="mb-1.5 flex items-center gap-1.5 text-xs text-gray-600"
+                        >
                            <HiCalendar className="text-gray-500" />
                            Regresso
                         </Label>
                         <TextInput
+                           id="pg-regresso"
                            type="date"
                            sizing="sm"
                            value={localDataFim}
@@ -644,14 +660,15 @@ export function FilterPage({ active }: { active: boolean }) {
                   </div>
                ) : misRecords && misRecords.length > 0 ? (
                   <div>
-                     <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 bg-gray-50 px-3 py-0.5">
+                     <div className="flex flex-col gap-2 border-b border-slate-200 bg-gray-50 px-3 py-1 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:py-0.5">
                         <div className="flex items-center gap-4">
                            <div className="flex items-center gap-2">
                               <Checkbox
-                                 className="size-5"
+                                 className="size-5 pointer-coarse:size-11"
                                  checked={selectedAll}
-                                 color="red"
+                                 color="primary"
                                  onChange={() => setSelectedAll(!selectedAll)}
+                                 aria-label="Selecionar todos os registros"
                               />
                            </div>
                            <h3 className="font-medium text-gray-800">
@@ -674,13 +691,13 @@ export function FilterPage({ active }: { active: boolean }) {
                                        ? "registro selecionado"
                                        : "registros selecionados"}
                                  </p>
-                                 <p className="font-medium text-green-700">
+                                 <p className="font-medium text-green-700 tabular-nums">
                                     {valorSoma.toLocaleString("pt-BR", {
                                        style: "currency",
                                        currency: "BRL",
                                     })}
                                  </p>
-                                 <p className="font-medium text-green-700">
+                                 <p className="font-medium text-green-700 tabular-nums">
                                     {diariasSoma.toFixed(1)} diária
                                     {diariasSoma !== 1 ? "s" : ""}
                                  </p>
@@ -703,6 +720,7 @@ export function FilterPage({ active }: { active: boolean }) {
                            </span>
                            <Select
                               sizing="sm"
+                              aria-label="Registros por página"
                               value={itemsPerPage}
                               onChange={(e) =>
                                  setItemsPerPage(Number(e.target.value))
@@ -719,68 +737,84 @@ export function FilterPage({ active }: { active: boolean }) {
                      {/* Área dos registros com spinner */}
                      <div
                         className={clsx(
-                           "overflow-x-auto transition-opacity",
+                           "transition-opacity",
                            isFetching && "opacity-50"
                         )}
                      >
-                        <Table
-                           hoverable
-                           theme={{
-                              body: { cell: { base: "py-1 px-3" } },
-                              head: {
-                                 cell: {
-                                    base: "bg-white border-b border-slate-200 px-3",
+                        {/* Mobile (< md): cards empilhados — evita scroll horizontal */}
+                        <div className="flex flex-col gap-3 p-3 md:hidden">
+                           {misRecords?.map((record) => (
+                              <UserCard
+                                 key={record.user_mis.id}
+                                 record={record}
+                                 checked={selectedIdSet.has(record.user_mis.id)}
+                                 onSelect={handleSelect}
+                                 onShowDetail={handleShowDetail}
+                              />
+                           ))}
+                        </div>
+
+                        {/* Desktop (>= md): tabela */}
+                        <div className="hidden overflow-x-auto md:block">
+                           <Table
+                              hoverable
+                              theme={{
+                                 body: { cell: { base: "py-1 px-3" } },
+                                 head: {
+                                    cell: {
+                                       base: "bg-white border-b border-slate-200 px-3",
+                                    },
                                  },
-                              },
-                           }}
-                        >
-                           <TableHead>
-                              <TableRow>
-                                 <TableHeadCell className="text-center">
-                                    <span className="sr-only">Sel</span>
-                                 </TableHeadCell>
-                                 <TableHeadCell className="text-center">
-                                    Ordem
-                                 </TableHeadCell>
-                                 <TableHeadCell>Militar</TableHeadCell>
-                                 <TableHeadCell className="text-center">
-                                    Sit
-                                 </TableHeadCell>
-                                 <TableHeadCell>Descrição</TableHeadCell>
-                                 <TableHeadCell className="text-center">
-                                    Afastamento
-                                 </TableHeadCell>
-                                 <TableHeadCell className="text-center">
-                                    Regresso
-                                 </TableHeadCell>
-                                 <TableHeadCell className="text-center">
-                                    Dias
-                                 </TableHeadCell>
-                                 <TableHeadCell className="text-center">
-                                    Diárias
-                                 </TableHeadCell>
-                                 <TableHeadCell className="text-center">
-                                    Valor
-                                 </TableHeadCell>
-                                 <TableHeadCell className="text-center">
-                                    <span className="sr-only">Ações</span>
-                                 </TableHeadCell>
-                              </TableRow>
-                           </TableHead>
-                           <TableBody className="divide-y">
-                              {misRecords?.map((record) => (
-                                 <UserRow
-                                    key={record.user_mis.id}
-                                    record={record}
-                                    checked={selectedIdSet.has(
-                                       record.user_mis.id
-                                    )}
-                                    onSelect={handleSelect}
-                                    onShowDetail={handleShowDetail}
-                                 />
-                              ))}
-                           </TableBody>
-                        </Table>
+                              }}
+                           >
+                              <TableHead>
+                                 <TableRow>
+                                    <TableHeadCell className="text-center">
+                                       <span className="sr-only">Sel</span>
+                                    </TableHeadCell>
+                                    <TableHeadCell className="text-center">
+                                       Ordem
+                                    </TableHeadCell>
+                                    <TableHeadCell>Militar</TableHeadCell>
+                                    <TableHeadCell className="text-center">
+                                       Sit
+                                    </TableHeadCell>
+                                    <TableHeadCell>Descrição</TableHeadCell>
+                                    <TableHeadCell className="text-center">
+                                       Afastamento
+                                    </TableHeadCell>
+                                    <TableHeadCell className="text-center">
+                                       Regresso
+                                    </TableHeadCell>
+                                    <TableHeadCell className="text-center">
+                                       Dias
+                                    </TableHeadCell>
+                                    <TableHeadCell className="text-center">
+                                       Diárias
+                                    </TableHeadCell>
+                                    <TableHeadCell className="text-center">
+                                       Valor
+                                    </TableHeadCell>
+                                    <TableHeadCell className="text-center">
+                                       <span className="sr-only">Ações</span>
+                                    </TableHeadCell>
+                                 </TableRow>
+                              </TableHead>
+                              <TableBody className="divide-y">
+                                 {misRecords?.map((record) => (
+                                    <UserRow
+                                       key={record.user_mis.id}
+                                       record={record}
+                                       checked={selectedIdSet.has(
+                                          record.user_mis.id
+                                       )}
+                                       onSelect={handleSelect}
+                                       onShowDetail={handleShowDetail}
+                                    />
+                                 ))}
+                              </TableBody>
+                           </Table>
+                        </div>
                      </div>
                      {totalPages > 1 && (
                         <div className="flex justify-center border-t border-slate-200 bg-gray-50 px-6 py-4">

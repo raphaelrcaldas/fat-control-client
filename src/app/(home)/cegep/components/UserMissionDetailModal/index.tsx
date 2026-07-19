@@ -39,10 +39,10 @@ export function UserMissionDetailModal({
       <Modal show={show} size="6xl" onClose={onClose} dismissible popup>
          <div className="relative flex max-h-[90vh] flex-col">
             {/* Header */}
-            <div className="shrink-0 rounded-t-lg bg-linear-to-r from-red-500 to-red-700 p-4 text-white">
+            <div className="from-primary-500 to-primary-700 shrink-0 rounded-t-lg bg-linear-to-r p-4 text-white">
                <button
                   onClick={onClose}
-                  className="absolute top-3 right-3 z-10 rounded-lg p-1.5 transition-colors hover:bg-white/20"
+                  className="absolute top-3 right-3 z-10 rounded p-1.5 transition-colors hover:bg-white/20"
                   aria-label="Fechar"
                >
                   <HiX className="h-5 w-5" />
@@ -51,7 +51,7 @@ export function UserMissionDetailModal({
                <div className="mr-10 flex flex-wrap items-start justify-between gap-4">
                   {/* Documento e Militar */}
                   <div className="flex min-w-0 flex-1 items-center gap-4">
-                     <div className="flex h-14 w-14 shrink-0 flex-col items-center justify-center rounded-lg border-2 border-white/30 bg-white/20 backdrop-blur-sm">
+                     <div className="flex h-14 w-14 shrink-0 flex-col items-center justify-center rounded-md border-2 border-white/30 bg-white/20 backdrop-blur-sm">
                         <span className="text-[10px] font-medium uppercase">
                            {missao.tipo_doc}
                         </span>
@@ -73,7 +73,7 @@ export function UserMissionDetailModal({
                            </Badge>
                         </div>
                         {missao.desc && (
-                           <span className="w-96 truncate text-sm font-semibold text-red-100">
+                           <span className="text-primary-100 w-96 truncate text-sm font-semibold">
                               {missao.desc}
                            </span>
                         )}
@@ -85,7 +85,7 @@ export function UserMissionDetailModal({
                      <div className="flex items-center gap-2 rounded bg-white/20 px-3 py-2 text-sm">
                         <HiCalendar className="h-4 w-4" />
                         <div className="flex flex-col">
-                           <span className="text-[10px] text-red-100">
+                           <span className="text-primary-100 text-[10px]">
                               Afastamento
                            </span>
                            <span className="font-mono">{afast}</span>
@@ -94,7 +94,7 @@ export function UserMissionDetailModal({
                      <div className="flex items-center gap-2 rounded bg-white/20 px-3 py-2 text-sm">
                         <HiCalendar className="h-4 w-4" />
                         <div className="flex flex-col">
-                           <span className="text-[10px] text-red-100">
+                           <span className="text-primary-100 text-[10px]">
                               Regresso
                            </span>
                            <span className="font-mono">{regres}</span>

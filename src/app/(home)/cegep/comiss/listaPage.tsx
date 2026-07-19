@@ -167,14 +167,14 @@ export function ListaPage() {
                      <HiFilter className="mr-2 h-4 w-4" />
                      {filtersExpanded ? "Ocultar" : "Filtros"}
                      {hasActiveFilters && (
-                        <span className="ml-2 flex h-5 w-5 items-center justify-center rounded-full bg-red-600 text-xs font-bold text-white">
+                        <span className="bg-primary-600 ml-2 flex h-5 w-5 items-center justify-center rounded-full text-xs font-bold text-white">
                            {activeFilterCount}
                         </span>
                      )}
                   </Button>
                   <RoleBasedRoute requiredRoles={["apoio_avancado"]}>
                      <Button
-                        color="red"
+                        color="primary"
                         size="sm"
                         onClick={() => router.push("/cegep/comiss/new")}
                      >
@@ -415,14 +415,14 @@ function FilterTag({
    onRemove: () => void;
 }) {
    return (
-      <Badge color="failure">
+      <Badge color="primary">
          <div className="flex items-center gap-1.5">
             <span>{children}</span>
             <button
                type="button"
                aria-label="Remover filtro"
                onClick={onRemove}
-               className="ml-1 hover:text-red-600"
+               className="hover:text-primary-800 ml-1"
             >
                <HiX className="h-3 w-3" />
             </button>

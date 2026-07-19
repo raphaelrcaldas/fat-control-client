@@ -109,43 +109,58 @@ export function ResultadoPanel({
                   {/* Resumo por combinação — nota fiscal (colunas alinhadas) */}
                   <div className="rounded border border-slate-200 bg-slate-50 p-3">
                      <div className="overflow-x-auto">
-                        <div className="min-w-max font-mono text-xs tabular-nums">
-                           <div className="grid grid-cols-[1fr_auto_auto_auto] gap-x-4 border-b border-slate-300 pb-1 text-[10px] tracking-wide text-slate-400 uppercase">
-                              <span>Combinação</span>
-                              <span className="text-right">Unit.</span>
-                              <span className="text-right">Qtd</span>
-                              <span className="text-right">Subtotal</span>
-                           </div>
-                           {resultado.combinacoes.map((c, i) => (
-                              <div
-                                 key={`${c.p_g}-${c.sit}-${i}`}
-                                 className="grid grid-cols-[1fr_auto_auto_auto] gap-x-4 border-b border-dashed border-slate-200 py-1"
-                              >
-                                 <span className="text-slate-700">
-                                    {getPostoByShort(c.p_g)?.mid ??
-                                       c.p_g.toUpperCase()}{" "}
-                                    · {SIT_LABEL[c.sit]}
-                                 </span>
-                                 <span className="text-right text-slate-600">
-                                    {currency(c.valor_unitario)}
-                                 </span>
-                                 <span className="text-right text-slate-500">
-                                    ×{c.qtd}
-                                 </span>
-                                 <span className="text-right font-semibold text-slate-900">
-                                    {currency(c.subtotal)}
-                                 </span>
-                              </div>
-                           ))}
-                           <div className="grid grid-cols-[1fr_auto] gap-x-4 pt-2">
-                              <span className="text-[10px] font-semibold tracking-wide text-slate-500 uppercase">
-                                 Total geral
-                              </span>
-                              <span className="text-right text-base font-bold text-slate-900">
-                                 {currency(resultado.total_geral)}
-                              </span>
-                           </div>
-                        </div>
+                        <table className="w-full min-w-max border-collapse font-mono text-xs tabular-nums">
+                           <thead>
+                              <tr className="border-b border-slate-300 text-[10px] tracking-wide text-slate-500 uppercase">
+                                 <th className="pb-1 text-left font-normal">
+                                    Combinação
+                                 </th>
+                                 <th className="pb-1 pl-4 text-right font-normal">
+                                    Unit.
+                                 </th>
+                                 <th className="pb-1 pl-4 text-right font-normal">
+                                    Qtd
+                                 </th>
+                                 <th className="pb-1 pl-4 text-right font-normal">
+                                    Subtotal
+                                 </th>
+                              </tr>
+                           </thead>
+                           <tbody>
+                              {resultado.combinacoes.map((c, i) => (
+                                 <tr
+                                    key={`${c.p_g}-${c.sit}-${i}`}
+                                    className="border-b border-dashed border-slate-200"
+                                 >
+                                    <td className="py-1 text-slate-700">
+                                       {getPostoByShort(c.p_g)?.mid ??
+                                          c.p_g.toUpperCase()}{" "}
+                                       · {SIT_LABEL[c.sit]}
+                                    </td>
+                                    <td className="py-1 pl-4 text-right whitespace-nowrap text-slate-600">
+                                       {currency(c.valor_unitario)}
+                                    </td>
+                                    <td className="py-1 pl-4 text-right whitespace-nowrap text-slate-500">
+                                       ×{c.qtd}
+                                    </td>
+                                    <td className="py-1 pl-4 text-right font-semibold whitespace-nowrap text-slate-900">
+                                       {currency(c.subtotal)}
+                                    </td>
+                                 </tr>
+                              ))}
+                              <tr>
+                                 <td
+                                    colSpan={3}
+                                    className="pt-2 text-[10px] font-semibold tracking-wide text-slate-500 uppercase"
+                                 >
+                                    Total geral
+                                 </td>
+                                 <td className="pt-2 pl-4 text-right text-base font-bold whitespace-nowrap text-slate-900">
+                                    {currency(resultado.total_geral)}
+                                 </td>
+                              </tr>
+                           </tbody>
+                        </table>
                      </div>
                   </div>
 

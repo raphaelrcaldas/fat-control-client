@@ -183,7 +183,7 @@ export default function OrcamentoAnualPage() {
                      onClick={() =>
                         router.push("/cegep/comiss?tab=gestao_fiscal")
                      }
-                     className="inline-flex items-center gap-1 font-medium text-red-700 hover:underline"
+                     className="text-primary-700 inline-flex items-center gap-1 font-medium hover:underline"
                   >
                      <HiArrowLeft className="h-4 w-4" />
                      Gestão Fiscal
@@ -206,7 +206,7 @@ export default function OrcamentoAnualPage() {
             <div className="flex items-center gap-2 text-sm text-gray-600">
                <button
                   onClick={() => router.push("/cegep/comiss?tab=gestao_fiscal")}
-                  className="inline-flex items-center gap-1 font-medium text-red-700 hover:underline"
+                  className="text-primary-700 inline-flex items-center gap-1 font-medium hover:underline"
                >
                   <HiArrowLeft className="h-4 w-4" />
                   Gestão Fiscal
@@ -219,9 +219,9 @@ export default function OrcamentoAnualPage() {
 
             {/* HEADER */}
             <div>
-               <h2 className="text-xl font-bold text-gray-900">
+               <h1 className="text-xl font-bold text-gray-900">
                   Editar Teto Orçamentário
-               </h2>
+               </h1>
                <p className="text-sm text-gray-500">
                   Ajuste os valores do teto global e a distribuição de cotas
                   para o exercício fiscal selecionado.
@@ -257,7 +257,7 @@ export default function OrcamentoAnualPage() {
                                  </option>
                               ))}
                            </Select>
-                           <p className="mt-1 text-xs text-gray-400">
+                           <p className="mt-1 text-xs text-slate-500">
                               Selecione o ano de referência do orçamento.
                            </p>
                         </div>
@@ -288,7 +288,7 @@ export default function OrcamentoAnualPage() {
                                  placeholder="0,00"
                               />
                            </div>
-                           <p className="mt-1 text-xs text-gray-400">
+                           <p className="mt-1 text-xs text-slate-500">
                               Valor limite para todas as operações do ano.
                            </p>
                         </div>
@@ -376,7 +376,7 @@ export default function OrcamentoAnualPage() {
                               className={clsx(
                                  "font-semibold",
                                  isBalanced
-                                    ? "text-green-600"
+                                    ? "text-green-700"
                                     : distribuido > totalNum
                                       ? "text-red-600"
                                       : "text-yellow-600"
@@ -417,7 +417,7 @@ export default function OrcamentoAnualPage() {
                            Cancelar
                         </Button>
                         <Button
-                           color="red"
+                           color="primary"
                            onClick={handleSave}
                            disabled={isSaving || !isBalanced}
                         >
@@ -494,7 +494,7 @@ function OrcamentoLogEntry({ log }: { log: OrcamentoLog }) {
 
    return (
       <li className="relative">
-         <span className="absolute -inset-s-6.5 mt-1.5 flex h-3 w-3 items-center justify-center rounded-full border border-red-300 bg-red-100"></span>
+         <span className="absolute -inset-s-6.5 mt-1.5 flex h-3 w-3 items-center justify-center rounded-full border border-slate-300 bg-slate-100"></span>
          <div className="flex flex-wrap items-baseline justify-between gap-2">
             <div>
                <span className="text-sm font-semibold text-gray-800">
@@ -506,7 +506,7 @@ function OrcamentoLogEntry({ log }: { log: OrcamentoLog }) {
                   </span>
                )}
             </div>
-            <time className="text-xs text-gray-400">
+            <time className="text-xs text-slate-500">
                {formatDateTime(log.timestamp) ?? ""}
             </time>
          </div>

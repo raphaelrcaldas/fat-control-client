@@ -37,6 +37,7 @@ export function MissionRow({
                <Button
                   size="sm"
                   color="light"
+                  aria-label="Ver detalhes da missão"
                   className="transition-colors duration-200 hover:bg-gray-100"
                   onClick={onShowDetail}
                >
@@ -46,9 +47,10 @@ export function MissionRow({
                   <Button
                      size="sm"
                      color="light"
+                     aria-label="Abrir missão"
                      className="transition-colors duration-200 hover:bg-slate-100"
                      onClick={onNavigate}
-                     title="Abrir missao"
+                     title="Abrir missão"
                   >
                      <HiExternalLink size={18} />
                   </Button>
@@ -73,7 +75,7 @@ export function MissionRow({
                </span>
             </div>
             <div className="shrink-0 text-right sm:w-24">
-               <span className="inline-flex items-center justify-end gap-1 text-sm font-semibold text-gray-900">
+               <span className="inline-flex items-center justify-end gap-1 text-sm font-semibold text-gray-900 tabular-nums">
                   {mis.custo_inconsistente && (
                      <span title="Custo possivelmente desatualizado. Reabra e salve a missão para recalcular.">
                         <HiExclamation className="h-4 w-4 text-amber-500" />

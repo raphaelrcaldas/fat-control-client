@@ -61,7 +61,7 @@ export function PernoitesSection({
 
          {editMode && (
             <Button
-               color="blue"
+               color="primary"
                size="sm"
                onClick={() => setFormPnt(true)}
                disabled={!checkAfastRegres}

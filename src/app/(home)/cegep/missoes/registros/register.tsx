@@ -311,11 +311,15 @@ export function RegisPage() {
 
                      {/* Nº da Ordem */}
                      <div>
-                        <Label className="mb-1.5 flex items-center gap-1.5 text-xs text-gray-600">
+                        <Label
+                           htmlFor="reg-n-ordem"
+                           className="mb-1.5 flex items-center gap-1.5 text-xs text-gray-600"
+                        >
                            <HiHashtag className="text-gray-500" />
                            Nº da Ordem
                         </Label>
                         <TextInput
+                           id="reg-n-ordem"
                            type="text"
                            value={localNDoc}
                            onChange={(e) => handleNDocChange(e.target.value)}
@@ -359,11 +363,15 @@ export function RegisPage() {
 
                      {/* Militar */}
                      <div>
-                        <Label className="mb-1.5 flex items-center gap-1.5 text-xs text-gray-600">
+                        <Label
+                           htmlFor="reg-militar"
+                           className="mb-1.5 flex items-center gap-1.5 text-xs text-gray-600"
+                        >
                            <HiUser className="text-gray-500" />
                            Militar
                         </Label>
                         <TextInput
+                           id="reg-militar"
                            type="text"
                            value={localUserSearch}
                            onChange={(e) =>
@@ -376,11 +384,15 @@ export function RegisPage() {
 
                      {/* Cidade */}
                      <div>
-                        <Label className="mb-1.5 flex items-center gap-1.5 text-xs text-gray-600">
+                        <Label
+                           htmlFor="reg-cidade"
+                           className="mb-1.5 flex items-center gap-1.5 text-xs text-gray-600"
+                        >
                            <HiLocationMarker className="text-gray-500" />
                            Cidade
                         </Label>
                         <TextInput
+                           id="reg-cidade"
                            type="text"
                            value={localCitySearch}
                            onChange={(e) =>
@@ -393,11 +405,15 @@ export function RegisPage() {
 
                      {/* Data Afastamento */}
                      <div>
-                        <Label className="mb-1.5 flex items-center gap-1.5 text-xs text-gray-600">
+                        <Label
+                           htmlFor="reg-afastamento"
+                           className="mb-1.5 flex items-center gap-1.5 text-xs text-gray-600"
+                        >
                            <HiCalendar className="text-gray-500" />
                            Afastamento
                         </Label>
                         <TextInput
+                           id="reg-afastamento"
                            type="date"
                            sizing="sm"
                            value={localDataInicio}
@@ -413,11 +429,15 @@ export function RegisPage() {
 
                      {/* Data Regresso */}
                      <div>
-                        <Label className="mb-1.5 flex items-center gap-1.5 text-xs text-gray-600">
+                        <Label
+                           htmlFor="reg-regresso"
+                           className="mb-1.5 flex items-center gap-1.5 text-xs text-gray-600"
+                        >
                            <HiCalendar className="text-gray-500" />
                            Regresso
                         </Label>
                         <TextInput
+                           id="reg-regresso"
                            type="date"
                            sizing="sm"
                            value={localDataFim}
@@ -486,7 +506,7 @@ export function RegisPage() {
                </span>
 
                {tipoDoc.map((tipo) => (
-                  <Badge key={tipo} color="red">
+                  <Badge key={tipo} color="primary">
                      <div className="flex items-center gap-1.5">
                         <HiDocumentText className="h-3 w-3" />
                         <span>
@@ -503,7 +523,7 @@ export function RegisPage() {
                ))}
 
                {nDoc && (
-                  <Badge color="red">
+                  <Badge color="primary">
                      <div className="flex items-center gap-1.5">
                         <HiHashtag className="h-3 w-3" />
                         <span>Nº {nDoc}</span>
@@ -518,7 +538,7 @@ export function RegisPage() {
                )}
 
                {selectedTipo.map((tipo) => (
-                  <Badge key={tipo} color="red">
+                  <Badge key={tipo} color="primary">
                      <div className="flex items-center gap-1.5">
                         <HiClipboardList className="h-3 w-3" />
                         <span>Tipo: {tipo.toUpperCase()}</span>
@@ -533,7 +553,7 @@ export function RegisPage() {
                ))}
 
                {userSearch && (
-                  <Badge color="red">
+                  <Badge color="primary">
                      <div className="flex items-center gap-1.5">
                         <HiUser className="h-3 w-3" />
                         <span>Militar: {userSearch}</span>
@@ -548,7 +568,7 @@ export function RegisPage() {
                )}
 
                {citySearch && (
-                  <Badge color="red">
+                  <Badge color="primary">
                      <div className="flex items-center gap-1.5">
                         <HiLocationMarker className="h-3 w-3" />
                         <span>Cidade: {citySearch}</span>
@@ -562,7 +582,7 @@ export function RegisPage() {
                   </Badge>
                )}
 
-               <Badge color="red">
+               <Badge color="primary">
                   <div className="flex items-center gap-1.5">
                      <HiCalendar className="h-3 w-3" />
                      <span>Afastamento: {formatDateFull(dataInicio)}</span>
@@ -577,7 +597,7 @@ export function RegisPage() {
                   </div>
                </Badge>
 
-               <Badge color="red">
+               <Badge color="primary">
                   <div className="flex items-center gap-1.5">
                      <HiCalendar className="h-3 w-3" />
                      <span>Regresso: {formatDateFull(dataFim)}</span>
@@ -676,7 +696,7 @@ export function RegisPage() {
                         {hasActiveFilters && (
                            <button
                               onClick={clearFilters}
-                              className="text-sm text-red-600 hover:text-red-700"
+                              className="text-primary-700 hover:text-primary-800 text-sm"
                            >
                               Limpar Filtros
                            </button>
@@ -695,7 +715,7 @@ export function RegisPage() {
                                  className={clsx(
                                     "flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium transition-colors",
                                     viewMode === "cards"
-                                       ? "bg-red-600 text-white"
+                                       ? "bg-primary-600 text-white"
                                        : "bg-white text-gray-600 hover:bg-gray-50"
                                  )}
                               >
@@ -708,7 +728,7 @@ export function RegisPage() {
                                  className={clsx(
                                     "flex items-center gap-1.5 border-l border-slate-200 px-3 py-1.5 text-sm font-medium transition-colors",
                                     viewMode === "table"
-                                       ? "bg-red-600 text-white"
+                                       ? "bg-primary-600 text-white"
                                        : "bg-white text-gray-600 hover:bg-gray-50"
                                  )}
                               >

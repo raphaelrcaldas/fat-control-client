@@ -27,6 +27,7 @@ export function DadosBancariosToolbar({
             <TextInput
                id="search"
                type="text"
+               aria-label="Buscar militar por nome de guerra ou nome completo"
                placeholder="Buscar por nome de guerra ou nome completo..."
                value={search}
                onChange={(e) => onSearchChange(e.target.value)}

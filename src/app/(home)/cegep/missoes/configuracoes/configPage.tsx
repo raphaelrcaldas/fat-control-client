@@ -142,15 +142,19 @@ export function ConfigPage() {
                <div className="rounded border border-slate-200 bg-white p-4">
                   <div className="mb-4 flex items-center justify-between">
                      <div className="flex items-center gap-2">
-                        <HiTag className="h-5 w-5 text-purple-600" />
+                        <HiTag className="text-primary-600 h-5 w-5" />
                         <h6 className="text-sm font-medium text-gray-700">
                            Gerenciador de Etiquetas
                         </h6>
-                        <Badge color="purple" size="sm">
+                        <Badge color="primary" size="sm">
                            {etiquetas.length}
                         </Badge>
                      </div>
-                     <Button color="purple" size="xs" onClick={openCreateModal}>
+                     <Button
+                        color="primary"
+                        size="xs"
+                        onClick={openCreateModal}
+                     >
                         <HiPlus className="mr-1.5 h-3 w-3" />
                         Nova Etiqueta
                      </Button>
@@ -183,16 +187,18 @@ export function ConfigPage() {
                            <div className="flex items-center gap-1">
                               <button
                                  onClick={() => openEditModal(etiqueta)}
-                                 className="rounded p-1.5 text-gray-500 transition-colors hover:bg-purple-100 hover:text-purple-600"
+                                 className="hover:bg-primary-100 hover:text-primary-700 flex items-center justify-center rounded p-1.5 text-gray-500 transition-colors pointer-coarse:size-11"
                                  title="Editar etiqueta"
+                                 aria-label={`Editar etiqueta ${etiqueta.nome}`}
                               >
                                  <HiPencil className="h-3.5 w-3.5" />
                               </button>
                               <button
                                  onClick={() => setEtiquetaToDelete(etiqueta)}
-                                 className="rounded p-1.5 text-gray-500 transition-colors hover:bg-red-100 hover:text-red-600"
+                                 className="flex items-center justify-center rounded p-1.5 text-gray-500 transition-colors hover:bg-red-100 hover:text-red-600 pointer-coarse:size-11"
                                  disabled={saving}
                                  title="Excluir etiqueta"
+                                 aria-label={`Excluir etiqueta ${etiqueta.nome}`}
                               >
                                  <HiTrash className="h-3.5 w-3.5" />
                               </button>
@@ -209,7 +215,7 @@ export function ConfigPage() {
                         </p>
                         <button
                            onClick={openCreateModal}
-                           className="mt-2 text-sm font-medium text-purple-600 hover:text-purple-700"
+                           className="text-primary-700 hover:text-primary-800 mt-2 text-sm font-medium"
                         >
                            Criar primeira etiqueta
                         </button>
@@ -308,10 +314,14 @@ export function ConfigPage() {
                   </div>
 
                   <div>
-                     <Label className="mb-1.5 flex text-sm font-medium text-gray-700">
+                     <Label
+                        htmlFor="etiqueta-nome"
+                        className="mb-1.5 flex text-sm font-medium text-gray-700"
+                     >
                         Nome <span className="ml-1 text-red-500">*</span>
                      </Label>
                      <TextInput
+                        id="etiqueta-nome"
                         type="text"
                         value={formData.nome || ""}
                         onChange={(e) =>
@@ -323,10 +333,14 @@ export function ConfigPage() {
                   </div>
 
                   <div>
-                     <Label className="mb-1.5 flex text-sm font-medium text-gray-700">
+                     <Label
+                        htmlFor="etiqueta-descricao"
+                        className="mb-1.5 flex text-sm font-medium text-gray-700"
+                     >
                         Descrição
                      </Label>
                      <TextInput
+                        id="etiqueta-descricao"
                         type="text"
                         value={formData.descricao || ""}
                         onChange={(e) =>
@@ -352,9 +366,11 @@ export function ConfigPage() {
                                  onClick={() =>
                                     setFormData({ ...formData, cor })
                                  }
-                                 className={`group relative flex h-8 w-8 items-center justify-center rounded-full transition-all ${isSelected ? "ring-2 ring-purple-400 ring-offset-2" : "hover:scale-110"}`}
+                                 className={`group relative flex h-8 w-8 items-center justify-center rounded-full transition-all ${isSelected ? "ring-primary-500 ring-2 ring-offset-2" : "hover:scale-110"}`}
                                  style={{ backgroundColor: cor }}
                                  title={cor}
+                                 aria-label={`Selecionar cor ${cor}`}
+                                 aria-pressed={isSelected}
                               >
                                  {isSelected && (
                                     <HiCheck className="h-5 w-5 text-white drop-shadow-sm" />
@@ -375,7 +391,7 @@ export function ConfigPage() {
                   Cancelar
                </Button>
                <Button
-                  color="purple"
+                  color="primary"
                   onClick={handleSaveEtiqueta}
                   disabled={saving || !formData.nome}
                >

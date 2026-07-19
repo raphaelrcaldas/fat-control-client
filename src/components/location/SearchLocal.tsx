@@ -68,7 +68,7 @@ export function SearchLocal({
       <Modal size="xl" show={show} onClose={onClose} dismissible>
          <ModalHeader className="border-b border-slate-200 pb-4">
             <div className="flex items-center gap-2">
-               <MdLocationCity className="size-6 text-blue-600" />
+               <MdLocationCity className="text-primary-600 size-6" />
                <span className="text-xl font-semibold text-gray-800">
                   Buscar Cidade
                </span>
@@ -126,7 +126,7 @@ export function SearchLocal({
 
                {total > 0 && (
                   <p className="text-center text-sm text-gray-500">
-                     <span className="font-semibold text-blue-600">
+                     <span className="text-primary-600 font-semibold">
                         {total}
                      </span>
                      {total === 1

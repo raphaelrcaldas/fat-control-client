@@ -87,7 +87,7 @@ function MissaoLogEntry({ log }: { log: MissaoLog }) {
                   </span>
                )}
             </div>
-            <time className="text-xs whitespace-nowrap text-gray-400">
+            <time className="text-xs whitespace-nowrap text-slate-500 tabular-nums">
                {formatDateTime(log.timestamp) ?? ""}
             </time>
          </div>

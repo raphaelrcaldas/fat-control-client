@@ -44,10 +44,10 @@ export function GestaoFiscalCard({
 
          <div className="mb-1 flex justify-between text-sm text-slate-500">
             <span>{temPrevisao ? "Consumido / Previsto" : "Consumido"}</span>
-            <div className="flex gap-1 font-semibold text-slate-700">
-               <span className="text-green-600">{pct(soma)}%</span>
+            <div className="flex gap-1 font-semibold text-slate-700 tabular-nums">
+               <span className="text-green-700">{pct(soma)}%</span>
                {temPrevisao && (
-                  <span className="text-yellow-500">{pct(previsao)}%</span>
+                  <span className="text-yellow-600">{pct(previsao)}%</span>
                )}
             </div>
          </div>

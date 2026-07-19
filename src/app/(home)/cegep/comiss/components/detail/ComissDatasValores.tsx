@@ -81,7 +81,7 @@ function PeriodoCard({
 function Stat({ valor, label }: { valor: string; label: string }) {
    return (
       <div className="text-center">
-         <span className="block text-base font-semibold text-gray-900">
+         <span className="block text-base font-semibold text-gray-900 tabular-nums">
             {valor}
          </span>
          <span className="text-xs text-gray-500">{label}</span>

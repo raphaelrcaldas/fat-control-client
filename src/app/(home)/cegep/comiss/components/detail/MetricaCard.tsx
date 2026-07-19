@@ -12,7 +12,7 @@ export function MetricaCard({ config }: { config: MetricaConfig }) {
       ? (config.valor ?? 0) < 0
       : (config.dias ?? 0) < 0;
    const valorClass = clsx(
-      "font-bold",
+      "font-bold tabular-nums",
       negativo ? "text-red-600" : "text-gray-900"
    );
 

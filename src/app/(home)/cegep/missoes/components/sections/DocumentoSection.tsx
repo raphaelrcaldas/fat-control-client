@@ -20,11 +20,15 @@ export function DocumentoSection({
       <SectionWrapper title="Documento de Referência">
          <div className="grid grid-cols-2 gap-6">
             <div className="space-y-2">
-               <Label className="text-sm font-medium text-slate-600">
+               <Label
+                  htmlFor="doc-tipo-ordem"
+                  className="text-sm font-medium text-slate-600"
+               >
                   Tipo de Ordem
                </Label>
                {editMode ? (
                   <Select
+                     id="doc-tipo-ordem"
                      value={tipoDoc}
                      onChange={(e) => setTipoDoc(e.target.value)}
                      className="w-full"
@@ -42,11 +46,15 @@ export function DocumentoSection({
                )}
             </div>
             <div className="space-y-2">
-               <Label className="text-sm font-medium text-slate-600">
+               <Label
+                  htmlFor="doc-n-documento"
+                  className="text-sm font-medium text-slate-600"
+               >
                   Nº do Documento
                </Label>
                {editMode ? (
                   <TextInput
+                     id="doc-n-documento"
                      className="w-full"
                      value={nDoc}
                      onChange={(e) => setNDoc(e.target.value)}

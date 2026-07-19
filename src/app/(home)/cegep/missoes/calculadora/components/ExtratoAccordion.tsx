@@ -1,5 +1,6 @@
 "use client";
 
+import clsx from "clsx";
 import {
    Accordion,
    AccordionContent,
@@ -57,77 +58,69 @@ function qtdLabel(qtd: number): string {
    });
 }
 
-/** Linha da nota: descrição à esquerda, valor à direita (colunas alinhadas). */
-function ReceiptLine({
-   desc,
-   amount,
-   bold,
-}: {
-   desc: string;
-   amount: string;
-   bold?: boolean;
-}) {
-   return (
-      <div className="grid grid-cols-[1fr_auto] gap-x-3">
-         <span className="truncate text-slate-500">{desc}</span>
-         <span
-            className={
-               bold
-                  ? "text-right font-semibold text-slate-900"
-                  : "text-right text-slate-700"
-            }
-         >
-            {amount}
-         </span>
-      </div>
-   );
-}
-
 /**
- * Memória de cálculo de uma combinação dentro de um pernoite, em formato de
- * nota fiscal: rótulo (PG · situação) + uma linha por parcela (qtd × valor),
- * acréscimo quando houver e o subtotal por militar. Valores UNITÁRIOS
- * (1 militar) — o total por quantidade fica no resumo por combinação.
+ * Memória de cálculo de uma combinação como linhas de tabela (colunas
+ * compartilhadas entre todas as parcelas do pernoite): cabeçalho
+ * (PG · situação) + uma linha por parcela (qtd × valor), acréscimo quando
+ * houver e o subtotal por militar. Valores UNITÁRIOS (1 militar) — o total
+ * por quantidade fica no resumo por combinação.
  */
-function ComboBlock({
+function ComboRows({
    combo,
    acDesloc,
+   first,
 }: {
    combo: SimulacaoPernoiteCombinacao;
    acDesloc: number;
+   first: boolean;
 }) {
    const isGrat = combo.sit === "g";
    const pg = getPostoByShort(combo.p_g)?.mid ?? combo.p_g.toUpperCase();
 
    return (
-      <div className="space-y-0.5">
-         <p className="font-semibold text-slate-800">
-            {pg} · {SIT_LABEL[combo.sit]}
-         </p>
+      <>
+         <tr>
+            <td
+               colSpan={2}
+               className={clsx(
+                  "font-semibold text-slate-800",
+                  first ? "pt-2" : "pt-3"
+               )}
+            >
+               {pg} · {SIT_LABEL[combo.sit]}
+            </td>
+         </tr>
          {combo.vals.map((v, i) => (
-            <ReceiptLine
-               key={i}
-               desc={
-                  isGrat
+            <tr key={i}>
+               <td className="text-slate-500">
+                  {isGrat
                      ? `${qtdLabel(v.qtd)} dias × ${currency(v.valor)} (2% soldo)`
-                     : `${qtdLabel(v.qtd)} × ${currency(v.valor)}`
-               }
-               amount={currency(v.qtd * v.valor)}
-            />
+                     : `${qtdLabel(v.qtd)} × ${currency(v.valor)}`}
+               </td>
+               <td className="pl-4 text-right whitespace-nowrap text-slate-700">
+                  {currency(v.qtd * v.valor)}
+               </td>
+            </tr>
          ))}
          {/* Diária/comiss.: o subtotal do backend já embute o acréscimo do
              pernoite; sem esta linha a soma da nota não fecharia. */}
          {!isGrat && acDesloc > 0 && (
-            <ReceiptLine desc="Acréscimo desloc." amount={currency(acDesloc)} />
+            <tr>
+               <td className="text-slate-500">Acréscimo desloc.</td>
+               <td className="pl-4 text-right whitespace-nowrap text-slate-700">
+                  {currency(acDesloc)}
+               </td>
+            </tr>
          )}
-         <div className="mt-0.5 border-t border-dashed border-slate-300 pt-0.5">
-            <ReceiptLine
-               desc="subtotal / militar"
-               amount={currency(combo.subtotal)}
-               bold
-            />
-         </div>
-      </div>
+         <tr>
+            <td className="border-t border-dashed border-slate-300 pt-0.5 text-slate-500">
+               subtotal / militar
+            </td>
+            <td className="border-t border-dashed border-slate-300 pt-0.5 pl-4 text-right font-semibold whitespace-nowrap text-slate-900">
+               {currency(combo.subtotal)}
+            </td>
+         </tr>
+      </>
    );
 }
 
@@ -154,14 +147,14 @@ function PernoiteHeader({
       <div className="flex flex-wrap items-baseline justify-between gap-2 font-mono text-xs">
          <span className="truncate">
             {localCidade}{" "}
-            <span className="text-slate-400">(grupo {pernoite.grupo_cid})</span>{" "}
+            <span className="text-slate-500">(grupo {pernoite.grupo_cid})</span>{" "}
             · {formatPeriodoSemAno(pernoite.data_ini, pernoite.data_fim)} ·{" "}
             {pernoite.dias} {pernoite.dias === 1 ? "dia" : "dias"}
             {pernoite.ac_desloc > 0 && " · +R$95"}
          </span>
          <span className="font-semibold whitespace-nowrap text-slate-800 tabular-nums">
             {currency(subtotalPorMilitar)}{" "}
-            <span className="text-[10px] font-normal text-slate-400">
+            <span className="text-[10px] font-normal text-slate-500">
                / militar
             </span>
          </span>
@@ -187,20 +180,33 @@ export function ExtratoAccordion({ pernoites, pnts }: ExtratoAccordionProps) {
                      <PernoiteHeader pernoite={pernoite} pnt={pnt} />
                   </AccordionTitle>
                   <AccordionContent theme={contentTheme}>
-                     <div className="space-y-3 font-mono text-xs tabular-nums">
-                        {pernoite.combinacoes.map((combo, i) => (
-                           <ComboBlock
-                              key={`${combo.p_g}-${combo.sit}-${i}`}
-                              combo={combo}
-                              acDesloc={pernoite.ac_desloc}
-                           />
-                        ))}
-                        {pernoite.ac_desloc === 0 && (
-                           <p className="text-[10px] text-slate-400 italic">
-                              sem acréscimo R$ 95 neste pernoite
-                           </p>
-                        )}
-                     </div>
+                     <table className="w-full border-collapse font-mono text-xs tabular-nums">
+                        <thead>
+                           <tr className="border-b border-slate-300 text-[10px] tracking-wide text-slate-500 uppercase">
+                              <th className="pb-1 text-left font-normal">
+                                 Cálculo
+                              </th>
+                              <th className="pb-1 pl-4 text-right font-normal">
+                                 Valor / militar
+                              </th>
+                           </tr>
+                        </thead>
+                        <tbody>
+                           {pernoite.combinacoes.map((combo, i) => (
+                              <ComboRows
+                                 key={`${combo.p_g}-${combo.sit}-${i}`}
+                                 combo={combo}
+                                 acDesloc={pernoite.ac_desloc}
+                                 first={i === 0}
+                              />
+                           ))}
+                        </tbody>
+                     </table>
+                     {pernoite.ac_desloc === 0 && (
+                        <p className="mt-3 text-[10px] text-slate-500 italic">
+                           sem acréscimo R$ 95 neste pernoite
+                        </p>
+                     )}
                   </AccordionContent>
                </AccordionPanel>
             );

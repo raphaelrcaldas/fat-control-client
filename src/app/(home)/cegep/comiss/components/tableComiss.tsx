@@ -196,7 +196,7 @@ const TableComissRow = memo(function TableComissRow({
                abrir();
             }
          }}
-         className="cursor-pointer bg-white focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-inset"
+         className="focus-visible:ring-primary-500 cursor-pointer bg-white focus:outline-none focus-visible:ring-2 focus-visible:ring-inset"
       >
          <TableCell className="font-medium whitespace-nowrap text-gray-900">
             <div className="flex items-center gap-2">
@@ -232,7 +232,7 @@ const TableComissRow = memo(function TableComissRow({
 
          <TableCell>
             <div className="mx-auto w-28 space-y-1">
-               <Label className="block text-center text-xs font-medium text-gray-600">
+               <Label className="block text-center text-xs font-medium text-gray-600 tabular-nums">
                   {comiss.completude}%
                </Label>
                <Progress
@@ -251,19 +251,23 @@ const TableComissRow = memo(function TableComissRow({
          </TableCell>
 
          <TableCell className="text-center whitespace-nowrap">
-            <span className="font-semibold text-gray-900">{previsto}</span>
+            <span className="font-semibold text-gray-900 tabular-nums">
+               {previsto}
+            </span>
             <span className="ml-1 text-xs text-gray-500">dias</span>
          </TableCell>
 
          <TableCell className="text-center whitespace-nowrap">
-            <span className="font-semibold text-gray-900">{computado}</span>
+            <span className="font-semibold text-gray-900 tabular-nums">
+               {computado}
+            </span>
             <span className="ml-1 text-xs text-gray-500">dias</span>
          </TableCell>
 
          <TableCell className="text-center whitespace-nowrap">
             <span
                className={clsx(
-                  "font-semibold",
+                  "font-semibold tabular-nums",
                   restanteNegativo ? "text-red-600" : "text-gray-900"
                )}
             >

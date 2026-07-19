@@ -146,7 +146,7 @@ export function GestaoFiscalPage() {
                   <PermBased resource="orcamento" requiredPerm="create">
                      <Button
                         size="sm"
-                        color="red"
+                        color="primary"
                         onClick={() =>
                            router.push(`/cegep/comiss/orcamento?ano=${ano}`)
                         }
@@ -190,7 +190,7 @@ export function GestaoFiscalPage() {
                      <PermBased resource="orcamento" requiredPerm="create">
                         <Button
                            size="sm"
-                           color="red"
+                           color="primary"
                            onClick={() =>
                               router.push(`/cegep/comiss/orcamento?ano=${ano}`)
                            }
@@ -265,7 +265,7 @@ export function GestaoFiscalPage() {
                                     aria-label={`Abrir comissionamento de ${
                                        c.user?.nome_guerra ?? "militar"
                                     }`}
-                                    className="cursor-pointer bg-white focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-inset"
+                                    className="focus-visible:ring-primary-500 cursor-pointer bg-white focus:outline-none focus-visible:ring-2 focus-visible:ring-inset"
                                     onClick={abrir}
                                     onKeyDown={(e) => {
                                        if (e.key === "Enter" || e.key === " ") {

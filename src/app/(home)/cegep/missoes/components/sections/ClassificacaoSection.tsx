@@ -21,11 +21,15 @@ export function ClassificacaoSection({
       <SectionWrapper title="Classificação">
          <div className="grid grid-cols-2 gap-6">
             <div className="space-y-2">
-               <Label className="mr-2 text-sm font-medium text-slate-600">
+               <Label
+                  htmlFor="class-tipo-missao"
+                  className="mr-2 text-sm font-medium text-slate-600"
+               >
                   Tipo de Missão
                </Label>
                {editMode ? (
                   <Select
+                     id="class-tipo-missao"
                      value={tipo}
                      onChange={(e) => setTipo(e.target.value)}
                      className="w-full"
@@ -53,11 +57,15 @@ export function ClassificacaoSection({
                )}
             </div>
             <div className="space-y-2">
-               <Label className="mr-2 text-sm font-medium text-slate-600">
+               <Label
+                  htmlFor="class-natureza"
+                  className="mr-2 text-sm font-medium text-slate-600"
+               >
                   Natureza
                </Label>
                {editMode ? (
                   <Select
+                     id="class-natureza"
                      value={ind}
                      onChange={(e) => setInd(e.target.value)}
                      className="w-full"

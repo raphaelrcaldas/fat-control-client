@@ -99,7 +99,7 @@ export default function ListDadosBancarios({ dados }: ListDadosBancariosProps) {
                               ? realCurrency(dado.aux_transp)
                               : "—"}
                         </TableCell>
-                        <TableCell className="text-center text-gray-500 dark:text-gray-400">
+                        <TableCell className="text-center text-slate-500 tabular-nums dark:text-gray-400">
                            {dado.updated_at
                               ? formatDateFull(dado.updated_at)
                               : "—"}

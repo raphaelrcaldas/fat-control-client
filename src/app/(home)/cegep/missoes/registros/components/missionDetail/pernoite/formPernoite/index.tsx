@@ -286,8 +286,9 @@ export function FormPernoite({
                         size="lg"
                         pill
                         onClick={() => setShowSearchLocal(true)}
-                        color="purple"
+                        color="primary"
                         className="shadow-sm"
+                        aria-label="Buscar localidade"
                      >
                         <IoMdSearch className="size-5" />
                      </Button>
@@ -381,7 +382,7 @@ export function FormPernoite({
                   )}
 
                   <Button
-                     color="blue"
+                     color="primary"
                      className="w-32"
                      type="submit"
                      disabled={!isChanged}

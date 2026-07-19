@@ -81,9 +81,9 @@ export function SortableHeadCell<K extends string>({
             <span className="absolute -right-5 flex h-full items-center">
                {isActive ? (
                   sortConfig.direction === "asc" ? (
-                     <HiChevronUp className="h-4 w-4 text-red-600" />
+                     <HiChevronUp className="text-primary-600 h-4 w-4" />
                   ) : (
-                     <HiChevronDown className="h-4 w-4 text-red-600" />
+                     <HiChevronDown className="text-primary-600 h-4 w-4" />
                   )
                ) : (
                   <HiSelector className="h-4 w-4 text-slate-400 opacity-0 transition-opacity group-hover:opacity-100" />

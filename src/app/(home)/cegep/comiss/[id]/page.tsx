@@ -83,7 +83,7 @@ export default function ComissDetailPage() {
             </p>
             <button
                onClick={handleNavigateBack}
-               className="text-sm font-medium text-red-600 hover:underline"
+               className="text-primary-700 text-sm font-medium hover:underline"
             >
                Voltar para lista de comissionamentos
             </button>
@@ -162,7 +162,7 @@ function ComissLogEntry({ log }: { log: ComissLog }) {
 
    return (
       <li className="relative">
-         <span className="absolute -inset-s-6.5 top-1.5 flex h-3 w-3 items-center justify-center rounded-full border border-red-300 bg-red-100" />
+         <span className="absolute -inset-s-6.5 top-1.5 flex h-3 w-3 items-center justify-center rounded-full border border-slate-300 bg-slate-100" />
          <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
             <div className="flex min-w-0 flex-wrap items-baseline gap-x-2">
                <span className="text-sm font-semibold text-gray-800">
@@ -174,7 +174,7 @@ function ComissLogEntry({ log }: { log: ComissLog }) {
                   </span>
                )}
             </div>
-            <time className="text-xs whitespace-nowrap text-gray-400">
+            <time className="text-xs whitespace-nowrap text-slate-500">
                {formatDateTime(log.timestamp) ?? ""}
             </time>
          </div>

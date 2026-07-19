@@ -127,8 +127,8 @@ export function FormMilitar({
       <Modal size="lg" show={show} onClose={() => setShow(false)} dismissible>
          <ModalHeader className="border-b border-slate-200">
             <div className="flex items-center gap-3">
-               <div className="rounded-md bg-blue-100 p-2 shadow-sm">
-                  <HiUserCircle className="h-6 w-6 text-blue-600" />
+               <div className="bg-primary-100 rounded-md p-2 shadow-sm">
+                  <HiUserCircle className="text-primary-600 h-6 w-6" />
                </div>
                <span className="text-xl font-semibold text-gray-800">
                   {userMis ? "Editar Militar" : "Adicionar Militar"}
@@ -142,12 +142,12 @@ export function FormMilitar({
                   <div className="flex flex-col gap-2">
                      <div className="flex items-center justify-between">
                         <Label className="flex items-center gap-2 text-sm font-semibold text-gray-700">
-                           <HiUserCircle className="h-5 w-5 text-blue-500" />
+                           <HiUserCircle className="text-primary-600 h-5 w-5" />
                            Militar Selecionado
                         </Label>
                         <Button
                            pill
-                           color="blue"
+                           color="primary"
                            onClick={() => setShowUserSearch(true)}
                            size="sm"
                         >
@@ -158,9 +158,9 @@ export function FormMilitar({
 
                      <div className="flex items-center justify-center p-2">
                         {user ? (
-                           <div className="rounded border border-blue-200 bg-white px-6 py-3 shadow-sm">
+                           <div className="border-primary-200 rounded border bg-white px-6 py-3 shadow-sm">
                               <span className="text-base font-semibold text-gray-800 uppercase">
-                                 <span className="text-blue-600">
+                                 <span className="text-primary-600">
                                     {user.p_g}
                                  </span>{" "}
                                  <span className="text-gray-500">

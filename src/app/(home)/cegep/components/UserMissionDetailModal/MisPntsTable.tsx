@@ -25,7 +25,7 @@ export function MisPntsTable({
 }: MisPntsTableProps) {
    return (
       <div>
-         <div className="overflow-x-auto rounded border border-gray-200 shadow-md">
+         <div className="overflow-x-auto rounded border border-slate-200 shadow-md">
             <Table
                className="text-center"
                theme={{
@@ -65,7 +65,7 @@ export function MisPntsTable({
                      </TableHeadCell>
                   </TableRow>
                </TableHead>
-               <TableBody className="divide-y divide-gray-200">
+               <TableBody className="divide-y divide-slate-200">
                   {pernoites.map((pnt) => {
                      const ini = isoDateToString(pnt.data_ini);
                      const fim = isoDateToString(pnt.data_fim);
@@ -102,7 +102,7 @@ export function MisPntsTable({
 
                                     return (
                                        <div
-                                          className="rounded border border-current/30 bg-red-100 px-2 py-0.5 text-sm font-medium text-nowrap text-slate-600"
+                                          className="bg-primary-100 rounded border border-current/30 px-2 py-0.5 text-sm font-medium text-nowrap text-slate-600"
                                           key={i}
                                        >
                                           {qtd} × {valor}
@@ -125,7 +125,7 @@ export function MisPntsTable({
                               </span>
                            </TableCell>
                            <TableCell>
-                              <span className="rounded-lg border border-current/30 bg-green-50 px-3 py-1 font-mono font-bold text-green-700">
+                              <span className="rounded border border-current/30 bg-green-50 px-3 py-1 font-mono font-bold text-green-700">
                                  {Number(
                                     pnt.custo?.subtotal ?? 0
                                  ).toLocaleString("pt-BR", {
@@ -143,12 +143,12 @@ export function MisPntsTable({
 
          {/* Footer com totais */}
          <div className="mt-4 grid grid-cols-1 gap-3 md:grid-cols-3">
-            <div className="rounded border border-red-200 bg-red-100 p-3 shadow-sm">
+            <div className="border-primary-200 bg-primary-100 rounded border p-3 shadow-sm">
                <div className="flex items-center justify-between">
                   <span className="text-xs font-medium text-gray-600">
                      Total de Dias
                   </span>
-                  <span className="text-base font-bold text-red-700">
+                  <span className="text-primary-700 text-base font-bold">
                      {pernoites.reduce(
                         (acc, pnt) => acc + (pnt.custo?.dias || 0),
                         0
@@ -177,7 +177,7 @@ export function MisPntsTable({
                </div>
             </div>
 
-            <div className="rounded bg-red-600 p-3 shadow-md">
+            <div className="bg-primary-600 rounded p-3 shadow-md">
                <div className="flex items-center justify-between">
                   <span className="text-xs font-semibold text-white uppercase">
                      Valor Total

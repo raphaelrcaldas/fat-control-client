@@ -206,8 +206,9 @@ export function ComissForm({ comiss, onCancel, onSuccess }: ComissFormProps) {
                onClose={onCancel}
                actions={
                   <Button
-                     color="red"
+                     color="primary"
                      size="sm"
+                     aria-label={comiss ? "Salvar" : "Adicionar"}
                      onClick={handleSaveComiss}
                      disabled={isLoading}
                   >
@@ -252,9 +253,10 @@ export function ComissForm({ comiss, onCancel, onSuccess }: ComissFormProps) {
                {!comiss && (
                   <Button
                      pill
+                     aria-label="Buscar militar"
                      onClick={() => setShowUserSearch(true)}
                      color="light"
-                     className="transition-colors duration-200 hover:bg-white"
+                     className="transition-colors duration-200 hover:bg-white pointer-coarse:size-11"
                   >
                      <IoMdSearch className="size-5" />
                   </Button>
@@ -330,10 +332,14 @@ export function ComissForm({ comiss, onCancel, onSuccess }: ComissFormProps) {
                   </h4>
                   <div className="space-y-4">
                      <div>
-                        <Label className="mb-1.5 block text-xs font-medium text-gray-600">
+                        <Label
+                           htmlFor="ab-data"
+                           className="mb-1.5 block text-xs font-medium text-gray-600"
+                        >
                            Data
                         </Label>
                         <TextInput
+                           id="ab-data"
                            type="date"
                            value={dataAb}
                            onChange={(e) => setDataAb(e.target.value)}
@@ -341,29 +347,39 @@ export function ComissForm({ comiss, onCancel, onSuccess }: ComissFormProps) {
                      </div>
                      <div className="grid grid-cols-2 gap-3">
                         <div>
-                           <Label className="mb-1.5 block text-xs font-medium text-gray-600">
+                           <Label
+                              htmlFor="ab-qtd"
+                              className="mb-1.5 block text-xs font-medium text-gray-600"
+                           >
                               Qtd. Ajuda
                            </Label>
                            <TextInput
+                              id="ab-qtd"
                               value={qtdAjAb}
                               type="number"
                               min={0}
                               max={2}
                               step={0.5}
+                              className="[&_input]:tabular-nums"
                               onChange={(e) =>
                                  setQtdAjAb(Number(e.target.value))
                               }
                            />
                         </div>
                         <div>
-                           <Label className="mb-1.5 block text-xs font-medium text-gray-600">
+                           <Label
+                              htmlFor="ab-valor"
+                              className="mb-1.5 block text-xs font-medium text-gray-600"
+                           >
                               Valor (R$)
                            </Label>
                            <TextInput
+                              id="ab-valor"
                               value={valAjAb}
                               min={0}
                               type="number"
                               step={0.01}
+                              className="[&_input]:tabular-nums"
                               onChange={(e) =>
                                  setValAjAb(Number(e.target.value))
                               }
@@ -381,10 +397,14 @@ export function ComissForm({ comiss, onCancel, onSuccess }: ComissFormProps) {
                   </h4>
                   <div className="space-y-4">
                      <div>
-                        <Label className="mb-1.5 block text-xs font-medium text-gray-600">
+                        <Label
+                           htmlFor="fc-data"
+                           className="mb-1.5 block text-xs font-medium text-gray-600"
+                        >
                            Data
                         </Label>
                         <TextInput
+                           id="fc-data"
                            type="date"
                            min={dataAb}
                            value={dataFc}
@@ -393,29 +413,39 @@ export function ComissForm({ comiss, onCancel, onSuccess }: ComissFormProps) {
                      </div>
                      <div className="grid grid-cols-2 gap-3">
                         <div>
-                           <Label className="mb-1.5 block text-xs font-medium text-gray-600">
+                           <Label
+                              htmlFor="fc-qtd"
+                              className="mb-1.5 block text-xs font-medium text-gray-600"
+                           >
                               Qtd. Ajuda
                            </Label>
                            <TextInput
+                              id="fc-qtd"
                               value={qtdAjFc}
                               type="number"
                               min={0}
                               max={2}
                               step={0.5}
+                              className="[&_input]:tabular-nums"
                               onChange={(e) =>
                                  setQtdAjFc(Number(e.target.value))
                               }
                            />
                         </div>
                         <div>
-                           <Label className="mb-1.5 block text-xs font-medium text-gray-600">
+                           <Label
+                              htmlFor="fc-valor"
+                              className="mb-1.5 block text-xs font-medium text-gray-600"
+                           >
                               Valor (R$)
                            </Label>
                            <TextInput
+                              id="fc-valor"
                               value={valAjFc}
                               min={0}
                               type="number"
                               step={0.01}
+                              className="[&_input]:tabular-nums"
                               onChange={(e) =>
                                  setValAjFc(Number(e.target.value))
                               }
@@ -477,8 +507,8 @@ export function ComissForm({ comiss, onCancel, onSuccess }: ComissFormProps) {
                      <div className="flex items-center gap-2">
                         <Checkbox
                            id="dep"
-                           color="red"
-                           className="h-5 w-5"
+                           color="primary"
+                           className="h-5 w-5 pointer-coarse:size-11"
                            checked={dep}
                            onChange={(e) => setDep(e.target.checked)}
                         />

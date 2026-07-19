@@ -23,6 +23,7 @@ export function MesAnoPicker({ value, onChange, error }: MesAnoPickerProps) {
       <>
          <Select
             id="mes_ano_mes"
+            aria-label="Mês de referência"
             value={mes}
             onChange={(e) => onChange(joinMonthInput(ano, e.target.value))}
             color={color}
@@ -37,6 +38,7 @@ export function MesAnoPicker({ value, onChange, error }: MesAnoPickerProps) {
          </Select>
          <Select
             id="mes_ano_ano"
+            aria-label="Ano de referência"
             value={ano}
             onChange={(e) => onChange(joinMonthInput(e.target.value, mes))}
             color={color}

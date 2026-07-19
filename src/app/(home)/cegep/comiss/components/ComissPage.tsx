@@ -69,6 +69,7 @@ export function ComissPage({ detail, onEdit, onClose }: ComissPageProps) {
                            <Button
                               color="light"
                               size="sm"
+                              aria-label="Exportar planilha"
                               onClick={exportSheet}
                               disabled={
                                  semMissoes ||
@@ -90,6 +91,7 @@ export function ComissPage({ detail, onEdit, onClose }: ComissPageProps) {
                            <Button
                               color="light"
                               size="sm"
+                              aria-label="Exportar apostila"
                               onClick={exportDocx}
                               disabled={
                                  semMissoes ||
@@ -112,8 +114,9 @@ export function ComissPage({ detail, onEdit, onClose }: ComissPageProps) {
                         <RoleBasedRoute requiredRoles={["apoio_avancado"]}>
                            <div className="hidden h-6 w-px bg-slate-200 sm:block" />
                            <Button
-                              color="red"
+                              color="primary"
                               size="sm"
+                              aria-label="Editar comissionamento"
                               onClick={onEdit}
                               disabled={del.isDeleting}
                            >
@@ -123,6 +126,7 @@ export function ComissPage({ detail, onEdit, onClose }: ComissPageProps) {
                            <Button
                               color="light"
                               size="sm"
+                              aria-label="Excluir comissionamento"
                               onClick={del.open}
                               disabled={del.isDeleting}
                            >

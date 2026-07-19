@@ -224,7 +224,7 @@ export function PernoitesCard({
             adicionar pernoite
          </button>
          {pnts.length === 0 && (
-            <p className="mt-1 text-xs text-slate-400">
+            <p className="mt-1 text-xs text-slate-500">
                Adicione ao menos um pernoite para calcular.
             </p>
          )}

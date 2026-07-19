@@ -28,9 +28,9 @@ export function MissionHeader({
          </button>
 
          <div className="min-w-0 flex-1">
-            <h2 className="truncate text-xl font-bold text-slate-800 uppercase">
+            <h1 className="truncate text-xl font-bold text-slate-800 uppercase">
                {isNew ? "Nova Missão" : `${tipoDoc} ${nDoc}`}
-            </h2>
+            </h1>
             {!isNew && desc && (
                <p className="truncate text-sm text-slate-500 uppercase">
                   {desc}
@@ -41,7 +41,7 @@ export function MissionHeader({
          {/* Integridade do cache de custos verificada ao abrir a missão.
              Missão nova ainda não foi persistida, logo não há o que verificar. */}
          {!isNew && !cache_inconsistente && (
-            <div className="flex items-center gap-1.5 text-xs text-green-600">
+            <div className="flex items-center gap-1.5 text-xs text-green-700">
                <HiCheckCircle className="h-4 w-4 shrink-0" />
                <span>Integridade verificada</span>
             </div>

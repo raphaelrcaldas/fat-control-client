@@ -51,7 +51,7 @@ export function MilitaresSection({
 
          {editMode && (
             <Button
-               color="blue"
+               color="primary"
                size="sm"
                onClick={() => setFormMil(true)}
                className="mt-4 w-full font-semibold"
