@@ -23,11 +23,14 @@ export function CalculadoraPage() {
       combinacoes,
       setCombinacoes,
       invalidPernoites,
+      duplicateIdx,
       resultado,
       desatualizado,
       podeCalcular,
+      motivoBloqueio,
       calcular,
       isCalculando,
+      erro,
    } = useSimulacao();
 
    return (
@@ -47,9 +50,13 @@ export function CalculadoraPage() {
             <CombinacoesCard
                combinacoes={combinacoes}
                setCombinacoes={setCombinacoes}
+               duplicateIdx={duplicateIdx}
             />
 
-            <div className="flex justify-end">
+            <div className="flex items-center justify-end gap-3">
+               {!podeCalcular && !isCalculando && motivoBloqueio && (
+                  <p className="text-xs text-slate-500">{motivoBloqueio}</p>
+               )}
                <Button
                   color="primary"
                   disabled={!podeCalcular}
@@ -65,6 +72,7 @@ export function CalculadoraPage() {
             resultado={resultado}
             isCalculando={isCalculando}
             desatualizado={desatualizado}
+            erro={erro}
             onRecalcular={calcular}
             pnts={pnts}
          />

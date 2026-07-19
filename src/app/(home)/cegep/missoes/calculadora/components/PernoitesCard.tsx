@@ -9,14 +9,16 @@ import {
    TableHeadCell,
    TableRow,
    TextInput,
+   Tooltip,
 } from "flowbite-react";
-import { HiInformationCircle, HiPlus, HiX } from "react-icons/hi";
+import { HiInformationCircle, HiLink, HiPlus, HiX } from "react-icons/hi";
 import { Pernoite } from "services/routes/cegep/missoes";
 import { CidadeInlineSearch } from "./CidadeInlineSearch";
+import { PernoiteRow } from "../hooks/useSimulacao";
 
 interface PernoitesCardProps {
-   pnts: Pernoite[];
-   setPnts: React.Dispatch<React.SetStateAction<Pernoite[]>>;
+   pnts: PernoiteRow[];
+   setPnts: React.Dispatch<React.SetStateAction<PernoiteRow[]>>;
    /** Índices com conflito de data (fim<início ou sobreposição), do hook. */
    invalidIdx: Set<number>;
 }
@@ -24,7 +26,7 @@ interface PernoitesCardProps {
 // Pernoites são uma cadeia sequencial: o início de cada perna é o fim da
 // anterior (derivado, não editável) — só o 1º tem início livre. Isso mantém
 // a ordem automaticamente e evita sobreposição por construção.
-function encadear(list: Pernoite[]): Pernoite[] {
+function encadear(list: PernoiteRow[]): PernoiteRow[] {
    return list.map((p, i) =>
       i === 0 ? p : { ...p, data_ini: list[i - 1].data_fim }
    );
@@ -47,6 +49,7 @@ export function PernoitesCard({
          return [
             ...prev,
             {
+               _key: crypto.randomUUID(),
                // Início herda o fim do pernoite anterior (não controlável).
                data_ini: anterior?.data_fim ?? "",
                data_fim: "",
@@ -92,7 +95,12 @@ export function PernoitesCard({
                   <TableHead>
                      <TableRow>
                         <TableHeadCell className="px-2 py-1.5">
-                           Início
+                           <span className="flex items-center gap-1">
+                              Início
+                              <Tooltip content="Só o 1º início é livre — os demais herdam o fim do pernoite anterior">
+                                 <HiInformationCircle className="h-3.5 w-3.5 text-slate-400" />
+                              </Tooltip>
+                           </span>
                         </TableHeadCell>
                         <TableHeadCell className="px-2 py-1.5">
                            Fim
@@ -103,8 +111,11 @@ export function PernoitesCard({
                         <TableHeadCell className="px-2 py-1.5 text-center">
                            ½ diária
                         </TableHeadCell>
-                        <TableHeadCell className="px-2 py-1.5 text-center">
-                           +R$95
+                        <TableHeadCell
+                           className="px-2 py-1.5 text-center"
+                           title="Acréscimo de deslocamento"
+                        >
+                           Acrésc.
                         </TableHeadCell>
                         <TableHeadCell className="px-2 py-1.5" />
                      </TableRow>
@@ -113,7 +124,7 @@ export function PernoitesCard({
                      {pnts.map((pnt, idx) => {
                         const isInvalid = invalidIdx.has(idx);
                         return (
-                           <TableRow key={idx} className="bg-white">
+                           <TableRow key={pnt._key} className="bg-white">
                               <TableCell className="px-2 py-1.5">
                                  <TextInput
                                     sizing="sm"
@@ -122,6 +133,7 @@ export function PernoitesCard({
                                     // Só o 1º pernoite tem início livre; os
                                     // demais herdam o fim do anterior.
                                     disabled={idx > 0}
+                                    icon={idx > 0 ? HiLink : undefined}
                                     title={
                                        idx > 0
                                           ? "Início herdado do fim do pernoite anterior"

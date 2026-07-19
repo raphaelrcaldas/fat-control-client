@@ -176,15 +176,76 @@ export interface SimulacaoResultado {
 
 const simularMissaoRoute = missoesRoute + "simular";
 
+/** Limite superior de militares por combinação (p_g, sit) na calculadora. */
+export const MAX_QTD_MILITARES = 99;
+
+/**
+ * Schema Zod do payload de `simularMissao`. Espelha `SimularMissaoRequest` —
+ * validação client-side antes do request evita ida-e-volta ao backend por
+ * erro que já dá para pegar aqui (data em formato errado, qtd fora do
+ * limite etc.).
+ */
+export const SimularMissaoRequestSchema = z.object({
+   acrec_desloc: z.boolean(),
+   pernoites: z
+      .array(
+         z.object({
+            data_ini: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Data inválida"),
+            data_fim: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Data inválida"),
+            cidade_id: z.number().int().positive("Cidade obrigatória"),
+            meia_diaria: z.boolean(),
+            acrec_desloc: z.boolean(),
+         })
+      )
+      .min(1, "Adicione ao menos um pernoite"),
+   combinacoes: z
+      .array(
+         z.object({
+            p_g: z.string().min(1, "Posto/Grad obrigatório"),
+            sit: z.enum(["c", "d", "g"]),
+            qtd: z
+               .number()
+               .int()
+               .min(1, "Quantidade mínima é 1")
+               .max(
+                  MAX_QTD_MILITARES,
+                  `Quantidade máxima é ${MAX_QTD_MILITARES}`
+               ),
+         })
+      )
+      .min(1, "Adicione ao menos uma combinação de militar"),
+});
+
+export type SimularMissaoRequestValidated = z.infer<
+   typeof SimularMissaoRequestSchema
+>;
+
 /**
  * Simula o custo de uma missão em fase de planejamento (nada persiste).
  * Reusa a mesma regra de cálculo do cadastro real (`calcular_custos_frag_mis`
  * no backend), mas com PG genérico + quantidade no lugar de militar nominal.
+ *
+ * Diferente de `getFragMissoes`, o contrato local desta função é retornar
+ * `ApiResult` (não lançar) — a falha de validação Zod vira `ok: false`, igual
+ * a um erro de negócio do backend, para o caller tratar de forma uniforme.
  */
 export async function simularMissao(
    payload: SimularMissaoRequest,
    signal?: AbortSignal
 ): Promise<ApiResult<SimulacaoResultado>> {
+   const parsed = SimularMissaoRequestSchema.safeParse(payload);
+   if (!parsed.success) {
+      const resumo = parsed.error.issues
+         .map((i) => `${i.path.join(".")}: ${i.message}`)
+         .join("; ");
+      return {
+         ok: false,
+         data: null,
+         message: `Parâmetros inválidos: ${resumo}`,
+         errors: null,
+      };
+   }
+
    return parseApiResponse<SimulacaoResultado>(
       await request("POST", simularMissaoRoute, payload, undefined, signal)
    );

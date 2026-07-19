@@ -42,3 +42,10 @@ export const SITUACAO_CONFIG: Record<SituacaoType, SituacaoConfig> = {
 export function getSituacaoConfig(situacao: SituacaoType): SituacaoConfig {
    return SITUACAO_CONFIG[situacao];
 }
+
+/**
+ * Descrição curta da regra de gratificação de representação — espelha o
+ * percentual aplicado sobre o soldo no cálculo do backend (ver
+ * calcular_custos_frag_mis). Só texto de apoio na UI; não afeta o cálculo.
+ */
+export const GRAT_REP_DESC = "2% soldo";

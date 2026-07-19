@@ -2,7 +2,7 @@
 
 import clsx from "clsx";
 import { Spinner, TextInput } from "flowbite-react";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { FaMapMarkerAlt } from "react-icons/fa";
 import { IoMdSearch } from "react-icons/io";
@@ -31,7 +31,10 @@ interface CidadeInlineSearchProps {
  * `SearchableSelect`): a tabela de pernoites vive dentro de um wrapper
  * `overflow-x-auto` que, por regra do CSS, também recorta o eixo Y — um
  * dropdown `absolute` seria cortado na última linha. O portal escapa desse
- * clipping. Fecha ao clicar fora (input + dropdown), no Escape ou no scroll.
+ * clipping. Fecha ao clicar fora (input + dropdown) ou no Escape; ao rolar a
+ * página ou redimensionar a janela, a posição é recalculada em vez de
+ * fechar. Navegável por teclado (setas, Home/End, Enter) com ARIA de
+ * combobox completo (aria-activedescendant / aria-selected).
  */
 export function CidadeInlineSearch({
    value,
@@ -41,8 +44,10 @@ export function CidadeInlineSearch({
    const [open, setOpen] = useState(false);
    const [term, setTerm] = useState("");
    const [pos, setPos] = useState({ top: 0, left: 0, width: 0 });
+   const [activeIndex, setActiveIndex] = useState(0);
    const containerRef = useRef<HTMLDivElement>(null);
    const dropdownRef = useRef<HTMLDivElement>(null);
+   const listboxId = useId();
 
    const { maisUsadas, demais, total, hasRanking, isFetching, canSearch } =
       useCitySearch(term, {
@@ -52,8 +57,45 @@ export function CidadeInlineSearch({
          enabled: open,
       });
 
-   // Fecha ao clicar fora (input ou dropdown) e ao rolar a página, exceto
-   // scroll dentro do próprio dropdown (lista de resultados).
+   // Lista achatada, na ordem visual (mais usadas primeiro, depois as
+   // demais), usada para navegação por teclado e para o id ativo do ARIA.
+   const flat: RankedCidade[] = [...maisUsadas, ...demais];
+   const activeIndexSafe =
+      flat.length > 0 ? Math.min(activeIndex, flat.length - 1) : -1;
+   const activeId =
+      activeIndexSafe >= 0
+         ? `${listboxId}-${flat[activeIndexSafe].codigo}`
+         : undefined;
+
+   // Reseta o item ativo sempre que o termo muda ou o dropdown abre/fecha.
+   useEffect(() => {
+      setActiveIndex(0);
+   }, [term, open]);
+
+   // Mantém a opção ativa visível ao navegar por teclado (e no hover, sem
+   // efeito perceptível já que o mouse já está sobre ela).
+   useEffect(() => {
+      if (!open || !activeId) return;
+      document.getElementById(activeId)?.scrollIntoView({ block: "nearest" });
+   }, [open, activeId]);
+
+   // Recalcula a posição `fixed` a partir do input — usada tanto ao abrir
+   // quanto para acompanhar scroll/resize enquanto o dropdown está aberto.
+   const updatePos = useCallback(() => {
+      const rect = containerRef.current?.getBoundingClientRect();
+      if (rect) {
+         setPos({
+            top: rect.bottom + 4,
+            left: rect.left,
+            width: rect.width,
+         });
+      }
+   }, []);
+
+   // Fecha ao clicar fora (input ou dropdown) ou no Escape. Ao rolar a
+   // página (scroll de qualquer container, exceto o próprio dropdown) ou
+   // redimensionar a janela, apenas reposiciona — com throttle via rAF para
+   // não recalcular a cada evento de scroll.
    useEffect(() => {
       if (!open) return;
 
@@ -66,28 +108,33 @@ export function CidadeInlineSearch({
             setOpen(false);
          }
       }
+
+      let rafId: number | null = null;
+      function scheduleUpdatePos() {
+         if (rafId !== null) cancelAnimationFrame(rafId);
+         rafId = requestAnimationFrame(() => {
+            rafId = null;
+            updatePos();
+         });
+      }
       function onScroll(e: Event) {
          if (dropdownRef.current?.contains(e.target as Node)) return;
-         setOpen(false);
+         scheduleUpdatePos();
       }
 
       document.addEventListener("mousedown", onMouseDown);
-      document.addEventListener("scroll", onScroll, true);
+      window.addEventListener("scroll", onScroll, true);
+      window.addEventListener("resize", scheduleUpdatePos);
       return () => {
          document.removeEventListener("mousedown", onMouseDown);
-         document.removeEventListener("scroll", onScroll, true);
+         window.removeEventListener("scroll", onScroll, true);
+         window.removeEventListener("resize", scheduleUpdatePos);
+         if (rafId !== null) cancelAnimationFrame(rafId);
       };
-   }, [open]);
+   }, [open, updatePos]);
 
    function openDropdown() {
-      const rect = containerRef.current?.getBoundingClientRect();
-      if (rect) {
-         setPos({
-            top: rect.bottom + 4,
-            left: rect.left,
-            width: rect.width,
-         });
-      }
+      updatePos();
       setTerm("");
       setOpen(true);
    }
@@ -102,6 +149,43 @@ export function CidadeInlineSearch({
       if (e.key === "Escape") {
          setOpen(false);
          e.currentTarget.blur();
+         return;
+      }
+
+      if (!open) return;
+
+      // Lista vazia: setas/Enter não fazem nada.
+      switch (e.key) {
+         case "ArrowDown":
+            if (flat.length > 0) {
+               e.preventDefault();
+               setActiveIndex((i) => Math.min(i + 1, flat.length - 1));
+            }
+            break;
+         case "ArrowUp":
+            if (flat.length > 0) {
+               e.preventDefault();
+               setActiveIndex((i) => Math.max(i - 1, 0));
+            }
+            break;
+         case "Home":
+            if (flat.length > 0) {
+               e.preventDefault();
+               setActiveIndex(0);
+            }
+            break;
+         case "End":
+            if (flat.length > 0) {
+               e.preventDefault();
+               setActiveIndex(flat.length - 1);
+            }
+            break;
+         case "Enter":
+            if (activeIndexSafe >= 0) {
+               e.preventDefault();
+               handleSelect(flat[activeIndexSafe]);
+            }
+            break;
       }
    }
 
@@ -110,6 +194,7 @@ export function CidadeInlineSearch({
    const dropdown = open && (
       <div
          ref={dropdownRef}
+         id={listboxId}
          role="listbox"
          style={{ top: pos.top, left: pos.left, width: pos.width }}
          className={clsx(
@@ -140,8 +225,15 @@ export function CidadeInlineSearch({
                {maisUsadas.map((c) => (
                   <CidadeOption
                      key={c.codigo}
+                     id={`${listboxId}-${c.codigo}`}
                      cidade={c}
+                     isActive={c.codigo === flat[activeIndexSafe]?.codigo}
                      onSelect={() => handleSelect(c)}
+                     onMouseEnter={() =>
+                        setActiveIndex(
+                           flat.findIndex((f) => f.codigo === c.codigo)
+                        )
+                     }
                   />
                ))}
                {hasRanking && demais.length > 0 && (
@@ -152,8 +244,15 @@ export function CidadeInlineSearch({
                {demais.map((c) => (
                   <CidadeOption
                      key={c.codigo}
+                     id={`${listboxId}-${c.codigo}`}
                      cidade={c}
+                     isActive={c.codigo === flat[activeIndexSafe]?.codigo}
                      onSelect={() => handleSelect(c)}
+                     onMouseEnter={() =>
+                        setActiveIndex(
+                           flat.findIndex((f) => f.codigo === c.codigo)
+                        )
+                     }
                   />
                ))}
             </div>
@@ -174,6 +273,8 @@ export function CidadeInlineSearch({
             role="combobox"
             aria-expanded={open}
             aria-haspopup="listbox"
+            aria-controls={listboxId}
+            aria-activedescendant={open ? activeId : undefined}
          />
 
          {typeof document !== "undefined" &&
@@ -184,25 +285,35 @@ export function CidadeInlineSearch({
 }
 
 function CidadeOption({
+   id,
    cidade,
+   isActive,
    onSelect,
+   onMouseEnter,
 }: {
+   id: string;
    cidade: RankedCidade;
+   isActive: boolean;
    onSelect: () => void;
+   onMouseEnter: () => void;
 }) {
    const destaque = cidade.mais_usada;
 
    return (
       <button
+         id={id}
          type="button"
          role="option"
-         aria-selected={false}
+         aria-selected={isActive}
          onClick={onSelect}
+         onMouseEnter={onMouseEnter}
          className={clsx(
             "flex w-full items-center gap-2 px-3 py-2 text-left text-sm transition-colors pointer-coarse:min-h-[44px]",
-            destaque
-               ? "bg-amber-50 hover:bg-amber-100"
-               : "bg-white hover:bg-slate-50"
+            isActive
+               ? "bg-slate-100"
+               : destaque
+                 ? "bg-amber-50 hover:bg-amber-100"
+                 : "bg-white hover:bg-slate-50"
          )}
       >
          <FaMapMarkerAlt

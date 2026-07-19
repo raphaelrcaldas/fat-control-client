@@ -11,10 +11,11 @@ import {
    Pernoite,
    SimulacaoPernoiteCombinacao,
    SimulacaoPernoiteResultado,
-   SituacaoSimulacao,
 } from "services/routes/cegep/missoes";
 import { formatPeriodoSemAno } from "utils/dateHandler";
+import { realCurrency } from "utils/financeiro";
 import { getPostoByShort } from "@/constants/militar/postos";
+import { GRAT_REP_DESC, SITUACAO_CONFIG } from "@/constants/cegep/situacoes";
 
 // Tema sóbrio do projeto (rounded, não rounded-lg; border-slate-200) — o
 // default do Flowbite traz rounded-lg/border-gray-200/hover:bg-gray-100.
@@ -40,16 +41,6 @@ const titleTheme = {
    heading: "min-w-0 flex-1",
    open: { off: "", on: "bg-slate-50" },
 };
-
-const SIT_LABEL: Record<SituacaoSimulacao, string> = {
-   c: "Comissionado",
-   d: "Diária",
-   g: "Grat Rep",
-};
-
-function currency(v: number): string {
-   return v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
-}
 
 function qtdLabel(qtd: number): string {
    return qtd.toLocaleString("pt-BR", {
@@ -87,18 +78,18 @@ function ComboRows({
                   first ? "pt-2" : "pt-3"
                )}
             >
-               {pg} · {SIT_LABEL[combo.sit]}
+               {pg} · {SITUACAO_CONFIG[combo.sit].label}
             </td>
          </tr>
          {combo.vals.map((v, i) => (
             <tr key={i}>
                <td className="text-slate-500">
                   {isGrat
-                     ? `${qtdLabel(v.qtd)} dias × ${currency(v.valor)} (2% soldo)`
-                     : `${qtdLabel(v.qtd)} × ${currency(v.valor)}`}
+                     ? `${qtdLabel(v.qtd)} dias × ${realCurrency(v.valor)} (${GRAT_REP_DESC})`
+                     : `${qtdLabel(v.qtd)} × ${realCurrency(v.valor)}`}
                </td>
                <td className="pl-4 text-right whitespace-nowrap text-slate-700">
-                  {currency(v.qtd * v.valor)}
+                  {realCurrency(v.qtd * v.valor)}
                </td>
             </tr>
          ))}
@@ -108,7 +99,7 @@ function ComboRows({
             <tr>
                <td className="text-slate-500">Acréscimo desloc.</td>
                <td className="pl-4 text-right whitespace-nowrap text-slate-700">
-                  {currency(acDesloc)}
+                  {realCurrency(acDesloc)}
                </td>
             </tr>
          )}
@@ -117,7 +108,7 @@ function ComboRows({
                subtotal / militar
             </td>
             <td className="border-t border-dashed border-slate-300 pt-0.5 pl-4 text-right font-semibold whitespace-nowrap text-slate-900">
-               {currency(combo.subtotal)}
+               {realCurrency(combo.subtotal)}
             </td>
          </tr>
       </>
@@ -150,10 +141,10 @@ function PernoiteHeader({
             <span className="text-slate-500">(grupo {pernoite.grupo_cid})</span>{" "}
             · {formatPeriodoSemAno(pernoite.data_ini, pernoite.data_fim)} ·{" "}
             {pernoite.dias} {pernoite.dias === 1 ? "dia" : "dias"}
-            {pernoite.ac_desloc > 0 && " · +R$95"}
+            {pernoite.ac_desloc > 0 && ` · +${realCurrency(pernoite.ac_desloc)}`}
          </span>
          <span className="font-semibold whitespace-nowrap text-slate-800 tabular-nums">
-            {currency(subtotalPorMilitar)}{" "}
+            {realCurrency(subtotalPorMilitar)}{" "}
             <span className="text-[10px] font-normal text-slate-500">
                / militar
             </span>
@@ -204,7 +195,7 @@ export function ExtratoAccordion({ pernoites, pnts }: ExtratoAccordionProps) {
                      </table>
                      {pernoite.ac_desloc === 0 && (
                         <p className="mt-3 text-[10px] text-slate-500 italic">
-                           sem acréscimo R$ 95 neste pernoite
+                           sem acréscimo de deslocamento neste pernoite
                         </p>
                      )}
                   </AccordionContent>
