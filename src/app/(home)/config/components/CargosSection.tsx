@@ -108,7 +108,7 @@ export function CargosSection() {
                         key={cargo}
                         className="flex items-center gap-3 px-4 py-3"
                      >
-                        <div className="grid size-9 shrink-0 place-items-center rounded-md bg-red-50 text-red-600 ring-1 ring-red-100 ring-inset">
+                        <div className="bg-primary-50 text-primary-600 ring-primary-100 grid size-9 shrink-0 place-items-center rounded-md ring-1 ring-inset">
                            <HiOutlineUser className="size-5" />
                         </div>
 
