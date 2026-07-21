@@ -22,21 +22,19 @@ export function MissaoParamsCard({
             Missão
          </p>
 
-         <div className="flex items-center gap-2">
+         <Label
+            htmlFor="calc-acrec-desloc"
+            className="flex cursor-pointer items-center gap-2 text-sm text-slate-700 pointer-coarse:min-h-[44px]"
+         >
             <Checkbox
                id="calc-acrec-desloc"
                color="primary"
-               className="pointer-coarse:size-5"
+               className="pointer-coarse:size-6"
                checked={acrecDesloc}
                onChange={(e) => setAcrecDesloc(e.target.checked)}
             />
-            <Label
-               htmlFor="calc-acrec-desloc"
-               className="text-sm text-slate-700"
-            >
-               Acréscimo de deslocamento da missão
-            </Label>
-         </div>
+            Acréscimo de deslocamento da missão
+         </Label>
       </div>
    );
 }

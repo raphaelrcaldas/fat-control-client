@@ -79,8 +79,9 @@ export function CombinacoesCard({
             </button>
          </div>
 
+         {/* Desktop/tablet largo: tabela densa (só a partir de md). */}
          {combinacoes.length > 0 && (
-            <div className="overflow-x-auto">
+            <div className="hidden overflow-x-auto md:block">
                <Table>
                   <TableHead>
                      <TableRow>
@@ -93,7 +94,9 @@ export function CombinacoesCard({
                         <TableHeadCell className="px-2 py-1.5 text-center">
                            Qtd
                         </TableHeadCell>
-                        <TableHeadCell className="px-2 py-1.5" />
+                        <TableHeadCell className="px-2 py-1.5">
+                           <span className="sr-only">Ações</span>
+                        </TableHeadCell>
                      </TableRow>
                   </TableHead>
                   <TableBody>
@@ -102,39 +105,18 @@ export function CombinacoesCard({
                         return (
                            <TableRow key={c._key} className="bg-white">
                               <TableCell className="px-2 py-1.5">
-                                 <Select
-                                    sizing="sm"
+                                 <PostoGradSelect
                                     value={c.p_g}
-                                    color={isDuplicate ? "failure" : "gray"}
-                                    onChange={(e) =>
-                                       updateRow(idx, { p_g: e.target.value })
-                                    }
-                                 >
-                                    {postoGradRecords.map((pg) => (
-                                       <option key={pg.short} value={pg.short}>
-                                          {pg.mid}
-                                       </option>
-                                    ))}
-                                 </Select>
+                                    isDuplicate={isDuplicate}
+                                    onChange={(p_g) => updateRow(idx, { p_g })}
+                                 />
                               </TableCell>
                               <TableCell className="px-2 py-1.5">
-                                 <Select
-                                    sizing="sm"
+                                 <SituacaoSelect
                                     value={c.sit}
-                                    color={isDuplicate ? "failure" : "gray"}
-                                    onChange={(e) =>
-                                       updateRow(idx, {
-                                          sit: e.target
-                                             .value as SituacaoSimulacao,
-                                       })
-                                    }
-                                 >
-                                    {SIT_OPTIONS.map((s) => (
-                                       <option key={s.value} value={s.value}>
-                                          {s.label}
-                                       </option>
-                                    ))}
-                                 </Select>
+                                    isDuplicate={isDuplicate}
+                                    onChange={(sit) => updateRow(idx, { sit })}
+                                 />
                               </TableCell>
                               <TableCell className="px-2 py-1.5">
                                  <QtdInput
@@ -143,15 +125,7 @@ export function CombinacoesCard({
                                  />
                               </TableCell>
                               <TableCell className="px-2 py-1.5 text-center">
-                                 <button
-                                    type="button"
-                                    onClick={() => removeRow(idx)}
-                                    className="rounded p-1 text-red-500 hover:bg-red-50"
-                                    title="Remover militar"
-                                    aria-label="Remover militar"
-                                 >
-                                    <HiX className="h-4 w-4" />
-                                 </button>
+                                 <RemoveButton onClick={() => removeRow(idx)} />
                               </TableCell>
                            </TableRow>
                         );
@@ -161,6 +135,62 @@ export function CombinacoesCard({
             </div>
          )}
 
+         {/* Mobile: cada combinação vira um mini-card empilhado. */}
+         {combinacoes.length > 0 && (
+            <ul className="space-y-3 md:hidden">
+               {combinacoes.map((c, idx) => {
+                  const isDuplicate = duplicateIdx.has(idx);
+                  return (
+                     <li
+                        key={c._key}
+                        className="rounded border border-slate-200 bg-slate-50/60 p-3"
+                     >
+                        <div className="mb-2 flex items-center justify-between">
+                           <span className="text-[10px] font-bold tracking-wide text-slate-500 uppercase">
+                              Militar {idx + 1}
+                           </span>
+                           <RemoveButton onClick={() => removeRow(idx)} />
+                        </div>
+
+                        <div className="space-y-2">
+                           <div className="grid grid-cols-2 gap-2">
+                              <div>
+                                 <span className="mb-1 block text-xs font-medium text-slate-600">
+                                    Posto/Grad
+                                 </span>
+                                 <PostoGradSelect
+                                    value={c.p_g}
+                                    isDuplicate={isDuplicate}
+                                    onChange={(p_g) => updateRow(idx, { p_g })}
+                                 />
+                              </div>
+                              <div>
+                                 <span className="mb-1 block text-xs font-medium text-slate-600">
+                                    Situação
+                                 </span>
+                                 <SituacaoSelect
+                                    value={c.sit}
+                                    isDuplicate={isDuplicate}
+                                    onChange={(sit) => updateRow(idx, { sit })}
+                                 />
+                              </div>
+                           </div>
+                           <div className="flex items-center justify-between gap-2">
+                              <span className="text-xs font-medium text-slate-600">
+                                 Quantidade
+                              </span>
+                              <QtdInput
+                                 qtd={c.qtd}
+                                 onChange={(qtd) => updateRow(idx, { qtd })}
+                              />
+                           </div>
+                        </div>
+                     </li>
+                  );
+               })}
+            </ul>
+         )}
+
          {duplicateIdx.size > 0 && (
             <p className="mt-2 text-xs text-red-600">
                Há combinações de Posto/Grad + Situação repetidas — ajuste antes
@@ -168,6 +198,75 @@ export function CombinacoesCard({
             </p>
          )}
       </div>
+   );
+}
+
+// Selects compartilhados entre tabela e mini-card (nome acessível via
+// aria-label — o rótulo visual mora no th/na label do card, que não associa
+// programaticamente ao controle).
+function PostoGradSelect({
+   value,
+   isDuplicate,
+   onChange,
+}: {
+   value: string;
+   isDuplicate: boolean;
+   onChange: (value: string) => void;
+}) {
+   return (
+      <Select
+         sizing="sm"
+         value={value}
+         color={isDuplicate ? "failure" : "gray"}
+         aria-label="Posto/graduação"
+         onChange={(e) => onChange(e.target.value)}
+      >
+         {postoGradRecords.map((pg) => (
+            <option key={pg.short} value={pg.short}>
+               {pg.mid}
+            </option>
+         ))}
+      </Select>
+   );
+}
+
+function SituacaoSelect({
+   value,
+   isDuplicate,
+   onChange,
+}: {
+   value: SituacaoSimulacao;
+   isDuplicate: boolean;
+   onChange: (value: SituacaoSimulacao) => void;
+}) {
+   return (
+      <Select
+         sizing="sm"
+         value={value}
+         color={isDuplicate ? "failure" : "gray"}
+         aria-label="Situação"
+         onChange={(e) => onChange(e.target.value as SituacaoSimulacao)}
+      >
+         {SIT_OPTIONS.map((s) => (
+            <option key={s.value} value={s.value}>
+               {s.label}
+            </option>
+         ))}
+      </Select>
+   );
+}
+
+function RemoveButton({ onClick }: { onClick: () => void }) {
+   return (
+      <button
+         type="button"
+         onClick={onClick}
+         className="flex items-center justify-center rounded p-1 text-red-500 hover:bg-red-50 pointer-coarse:min-h-[44px] pointer-coarse:min-w-[44px]"
+         title="Remover militar"
+         aria-label="Remover militar"
+      >
+         <HiX className="h-4 w-4" />
+      </button>
    );
 }
 
@@ -210,7 +309,7 @@ function QtdInput({
             sizing="sm"
             type="text"
             inputMode="numeric"
-            className="w-12 text-center [&_input]:px-1 [&_input]:text-center"
+            className="w-14 text-center [&_input]:px-1 [&_input]:text-center"
             value={draft ?? String(qtd)}
             onChange={(e) => setDraft(e.target.value)}
             onBlur={commit}

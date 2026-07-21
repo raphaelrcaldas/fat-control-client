@@ -25,13 +25,13 @@ const tabsTheme = {
    tablist: {
       variant: {
          default:
-            "flex-wrap gap-1 rounded-t border-b border-slate-200 bg-slate-50 p-2",
+            "grid grid-cols-2 gap-1 rounded-t border-b border-slate-200 bg-slate-50 p-2 md:flex md:flex-wrap",
       },
       tabitem: {
-         base: "flex items-center justify-center text-sm font-semibold transition-colors first:ml-0 focus:outline-none disabled:cursor-not-allowed disabled:text-gray-400",
+         base: "flex items-center justify-center text-sm font-semibold transition-colors first:ml-0 focus:outline-none disabled:cursor-not-allowed disabled:text-gray-400 pointer-coarse:min-h-[44px]",
          variant: {
             default: {
-               base: "rounded px-6 py-3",
+               base: "rounded px-3 py-3 md:px-6",
                active: {
                   on: "bg-primary-600 text-white shadow-sm",
                   off: "text-slate-600 hover:bg-primary-600/10",

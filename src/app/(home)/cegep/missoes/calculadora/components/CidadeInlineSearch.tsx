@@ -273,7 +273,7 @@ export function CidadeInlineSearch({
             role="combobox"
             aria-expanded={open}
             aria-haspopup="listbox"
-            aria-controls={listboxId}
+            aria-controls={open ? listboxId : undefined}
             aria-activedescendant={open ? activeId : undefined}
          />
 

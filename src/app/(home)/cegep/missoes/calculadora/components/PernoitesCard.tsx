@@ -89,8 +89,9 @@ export function PernoitesCard({
             </button>
          </div>
 
+         {/* Desktop/tablet largo: tabela densa (só a partir de md). */}
          {pnts.length > 0 && (
-            <div className="overflow-x-auto">
+            <div className="hidden overflow-x-auto md:block">
                <Table>
                   <TableHead>
                      <TableRow>
@@ -117,7 +118,9 @@ export function PernoitesCard({
                         >
                            Acrésc.
                         </TableHeadCell>
-                        <TableHeadCell className="px-2 py-1.5" />
+                        <TableHeadCell className="px-2 py-1.5">
+                           <span className="sr-only">Ações</span>
+                        </TableHeadCell>
                      </TableRow>
                   </TableHead>
                   <TableBody>
@@ -126,39 +129,22 @@ export function PernoitesCard({
                         return (
                            <TableRow key={pnt._key} className="bg-white">
                               <TableCell className="px-2 py-1.5">
-                                 <TextInput
-                                    sizing="sm"
-                                    type="date"
+                                 <DataIniInput
+                                    idx={idx}
                                     value={pnt.data_ini}
-                                    // Só o 1º pernoite tem início livre; os
-                                    // demais herdam o fim do anterior.
-                                    disabled={idx > 0}
-                                    icon={idx > 0 ? HiLink : undefined}
-                                    title={
-                                       idx > 0
-                                          ? "Início herdado do fim do pernoite anterior"
-                                          : undefined
-                                    }
-                                    color={isInvalid ? "failure" : "gray"}
-                                    onChange={(e) =>
-                                       updateRow(idx, {
-                                          data_ini: e.target.value,
-                                       })
+                                    isInvalid={isInvalid}
+                                    onChange={(data_ini) =>
+                                       updateRow(idx, { data_ini })
                                     }
                                  />
                               </TableCell>
                               <TableCell className="px-2 py-1.5">
-                                 <TextInput
-                                    sizing="sm"
-                                    type="date"
+                                 <DataFimInput
                                     value={pnt.data_fim}
-                                    // Barreira: fim nunca antes do início.
-                                    min={pnt.data_ini || undefined}
-                                    color={isInvalid ? "failure" : "gray"}
-                                    onChange={(e) =>
-                                       updateRow(idx, {
-                                          data_fim: e.target.value,
-                                       })
+                                    minDate={pnt.data_ini}
+                                    isInvalid={isInvalid}
+                                    onChange={(data_fim) =>
+                                       updateRow(idx, { data_fim })
                                     }
                                  />
                               </TableCell>
@@ -176,44 +162,30 @@ export function PernoitesCard({
                               </TableCell>
                               <TableCell className="px-2 py-1.5 text-center">
                                  <div className="flex justify-center">
-                                    <Checkbox
+                                    <ToggleCheckbox
                                        color="yellow"
-                                       className="pointer-coarse:size-5"
                                        checked={pnt.meia_diaria}
-                                       onChange={(e) =>
-                                          updateRow(idx, {
-                                             meia_diaria: e.target.checked,
-                                          })
+                                       onChange={(meia_diaria) =>
+                                          updateRow(idx, { meia_diaria })
                                        }
-                                       aria-label="Meia diária"
+                                       ariaLabel="Meia diária"
                                     />
                                  </div>
                               </TableCell>
                               <TableCell className="px-2 py-1.5 text-center">
                                  <div className="flex justify-center">
-                                    <Checkbox
+                                    <ToggleCheckbox
                                        color="green"
-                                       className="pointer-coarse:size-5"
                                        checked={pnt.acrec_desloc}
-                                       onChange={(e) =>
-                                          updateRow(idx, {
-                                             acrec_desloc: e.target.checked,
-                                          })
+                                       onChange={(acrec_desloc) =>
+                                          updateRow(idx, { acrec_desloc })
                                        }
-                                       aria-label="Acréscimo deslocamento"
+                                       ariaLabel="Acréscimo deslocamento"
                                     />
                                  </div>
                               </TableCell>
                               <TableCell className="px-2 py-1.5 text-center">
-                                 <button
-                                    type="button"
-                                    onClick={() => removeRow(idx)}
-                                    className="rounded p-1 text-red-500 hover:bg-red-50"
-                                    title="Remover pernoite"
-                                    aria-label="Remover pernoite"
-                                 >
-                                    <HiX className="h-4 w-4" />
-                                 </button>
+                                 <RemoveButton onClick={() => removeRow(idx)} />
                               </TableCell>
                            </TableRow>
                         );
@@ -221,6 +193,95 @@ export function PernoitesCard({
                   </TableBody>
                </Table>
             </div>
+         )}
+
+         {/* Mobile: cada pernoite vira um mini-card empilhado, sem scroll
+             horizontal escondido. */}
+         {pnts.length > 0 && (
+            <ul className="space-y-3 md:hidden">
+               {pnts.map((pnt, idx) => {
+                  const isInvalid = invalidIdx.has(idx);
+                  return (
+                     <li
+                        key={pnt._key}
+                        className="rounded border border-slate-200 bg-slate-50/60 p-3"
+                     >
+                        <div className="mb-2 flex items-center justify-between">
+                           <span className="text-[10px] font-bold tracking-wide text-slate-500 uppercase">
+                              Pernoite {idx + 1}
+                           </span>
+                           <RemoveButton onClick={() => removeRow(idx)} />
+                        </div>
+
+                        <div className="space-y-2">
+                           <div>
+                              <span className="mb-1 block text-xs font-medium text-slate-600">
+                                 Cidade
+                              </span>
+                              <CidadeInlineSearch
+                                 value={pnt.cidade}
+                                 onSelect={(c) =>
+                                    updateRow(idx, {
+                                       cidade_id: c.codigo,
+                                       cidade: c,
+                                    })
+                                 }
+                              />
+                           </div>
+
+                           <div className="grid grid-cols-2 gap-2">
+                              <div>
+                                 <span className="mb-1 flex items-center gap-1 text-xs font-medium text-slate-600">
+                                    Início
+                                    {idx > 0 && (
+                                       <HiLink className="h-3 w-3 text-slate-400" />
+                                    )}
+                                 </span>
+                                 <DataIniInput
+                                    idx={idx}
+                                    value={pnt.data_ini}
+                                    isInvalid={isInvalid}
+                                    onChange={(data_ini) =>
+                                       updateRow(idx, { data_ini })
+                                    }
+                                 />
+                              </div>
+                              <div>
+                                 <span className="mb-1 block text-xs font-medium text-slate-600">
+                                    Fim
+                                 </span>
+                                 <DataFimInput
+                                    value={pnt.data_fim}
+                                    minDate={pnt.data_ini}
+                                    isInvalid={isInvalid}
+                                    onChange={(data_fim) =>
+                                       updateRow(idx, { data_fim })
+                                    }
+                                 />
+                              </div>
+                           </div>
+
+                           <ToggleRow
+                              label="½ diária"
+                              color="yellow"
+                              checked={pnt.meia_diaria}
+                              onChange={(meia_diaria) =>
+                                 updateRow(idx, { meia_diaria })
+                              }
+                           />
+                           <ToggleRow
+                              label="Acréscimo de deslocamento"
+                              color="green"
+                              checked={pnt.acrec_desloc}
+                              onChange={(acrec_desloc) =>
+                                 updateRow(idx, { acrec_desloc })
+                              }
+                           />
+                        </div>
+                     </li>
+                  );
+               })}
+            </ul>
          )}
 
          {invalidIdx.size > 0 && (
@@ -231,7 +292,7 @@ export function PernoitesCard({
          )}
 
          {temIncompleto && invalidIdx.size === 0 && (
-            <p className="mt-2 flex items-center gap-1.5 text-xs text-amber-600">
+            <p className="mt-2 flex items-center gap-1.5 text-xs text-amber-700">
                <HiInformationCircle className="h-4 w-4 shrink-0" />
                Preencha a cidade e as duas datas de cada pernoite para calcular.
             </p>
@@ -243,5 +304,124 @@ export function PernoitesCard({
             </p>
          )}
       </div>
+   );
+}
+
+// Início do pernoite: só o 1º é livre; os demais herdam o fim do anterior
+// (bloqueado, com ícone de elo). Compartilhado entre tabela e mini-card.
+function DataIniInput({
+   idx,
+   value,
+   isInvalid,
+   onChange,
+}: {
+   idx: number;
+   value: string;
+   isInvalid: boolean;
+   onChange: (value: string) => void;
+}) {
+   return (
+      <TextInput
+         sizing="sm"
+         type="date"
+         value={value}
+         disabled={idx > 0}
+         icon={idx > 0 ? HiLink : undefined}
+         title={
+            idx > 0 ? "Início herdado do fim do pernoite anterior" : undefined
+         }
+         color={isInvalid ? "failure" : "gray"}
+         aria-label={idx === 0 ? "Início do pernoite" : undefined}
+         onChange={(e) => onChange(e.target.value)}
+      />
+   );
+}
+
+// Fim do pernoite — barreira: nunca antes do início.
+function DataFimInput({
+   value,
+   minDate,
+   isInvalid,
+   onChange,
+}: {
+   value: string;
+   minDate: string;
+   isInvalid: boolean;
+   onChange: (value: string) => void;
+}) {
+   return (
+      <TextInput
+         sizing="sm"
+         type="date"
+         value={value}
+         min={minDate || undefined}
+         color={isInvalid ? "failure" : "gray"}
+         aria-label="Fim do pernoite"
+         onChange={(e) => onChange(e.target.value)}
+      />
+   );
+}
+
+// Checkbox nu (usado na tabela densa): alvo de toque de 44px só no dedo.
+function ToggleCheckbox({
+   color,
+   checked,
+   onChange,
+   ariaLabel,
+}: {
+   color: "yellow" | "green";
+   checked: boolean;
+   onChange: (checked: boolean) => void;
+   ariaLabel: string;
+}) {
+   return (
+      <label className="inline-flex cursor-pointer items-center justify-center pointer-coarse:min-h-[44px] pointer-coarse:min-w-[44px]">
+         <Checkbox
+            color={color}
+            className="pointer-coarse:size-6"
+            checked={checked}
+            onChange={(e) => onChange(e.target.checked)}
+            aria-label={ariaLabel}
+         />
+      </label>
+   );
+}
+
+// Toggle rotulado do mini-card: a linha inteira é o alvo de toque.
+function ToggleRow({
+   label,
+   color,
+   checked,
+   onChange,
+}: {
+   label: string;
+   color: "yellow" | "green";
+   checked: boolean;
+   onChange: (checked: boolean) => void;
+}) {
+   return (
+      <label className="flex cursor-pointer items-center justify-between gap-2 pointer-coarse:min-h-[44px]">
+         <span className="text-sm text-slate-700">{label}</span>
+         <Checkbox
+            color={color}
+            className="pointer-coarse:size-6"
+            checked={checked}
+            onChange={(e) => onChange(e.target.checked)}
+         />
+      </label>
+   );
+}
+
+function RemoveButton({ onClick }: { onClick: () => void }) {
+   return (
+      <button
+         type="button"
+         onClick={onClick}
+         className="flex items-center justify-center rounded p-1 text-red-500 hover:bg-red-50 pointer-coarse:min-h-[44px] pointer-coarse:min-w-[44px]"
+         title="Remover pernoite"
+         aria-label="Remover pernoite"
+      >
+         <HiX className="h-4 w-4" />
+      </button>
    );
 }

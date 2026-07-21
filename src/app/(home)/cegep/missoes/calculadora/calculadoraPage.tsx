@@ -34,7 +34,7 @@ export function CalculadoraPage() {
    } = useSimulacao();
 
    return (
-      <div className="grid items-start gap-4 lg:grid-cols-2">
+      <div className="grid items-start gap-4 xl:grid-cols-2">
          <div className="flex flex-col gap-3">
             <MissaoParamsCard
                acrecDesloc={acrecDesloc}
