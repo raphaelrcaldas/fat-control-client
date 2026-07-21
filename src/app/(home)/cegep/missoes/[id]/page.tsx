@@ -5,6 +5,7 @@ import { useMissao } from "@/hooks/queries/useMissoes";
 import { MissionPage } from "../components/MissionPage";
 import { MissionPageSkeleton } from "../components/MissionPageSkeleton";
 import { formatDateTime, formatNaiveDate } from "@/../utils/dateHandler";
+import { SITUACAO_CONFIG, SituacaoType } from "@/constants/cegep/situacoes";
 import type {
    MissaoLog,
    MissaoLogSnapshot,
@@ -15,6 +16,7 @@ import type {
 const ACTION_LABEL: Record<string, string> = {
    create: "Criação",
    update: "Atualização",
+   delete: "Exclusão",
 };
 
 const FIELD_LABELS: Record<keyof MissaoLogSnapshot, string> = {
@@ -27,7 +29,15 @@ const FIELD_LABELS: Record<keyof MissaoLogSnapshot, string> = {
    acrec_desloc: "Acréscimo Desloc.",
    tipo: "Tipo de Missão",
    obs: "Observações",
+   // Renderizados à parte (listas) — não entram no loop escalar abaixo.
+   militares: "Militares",
+   pernoites: "Pernoites",
+   etiquetas: "Etiquetas",
 };
+
+const SCALAR_FIELDS = Object.keys(FIELD_LABELS).filter(
+   (f) => f !== "militares" && f !== "pernoites" && f !== "etiquetas"
+) as (keyof MissaoLogSnapshot)[];
 
 const BOOL_FIELDS = new Set<keyof MissaoLogSnapshot>([
    "indenizavel",
@@ -50,6 +60,37 @@ function formatFieldValue(
    return String(value);
 }
 
+// ─── Diff de listas (militares/pernoites/etiquetas) ───────────────────────────
+
+type MissaoMilitar = NonNullable<MissaoLogSnapshot["militares"]>[number];
+type MissaoPernoite = NonNullable<MissaoLogSnapshot["pernoites"]>[number];
+
+type ListField = "militares" | "pernoites" | "etiquetas";
+
+/** Diff por igualdade estrutural de item — as listas já vêm ordenadas do backend. */
+function diffLista<T>(
+   before: T[] | undefined,
+   after: T[] | undefined
+): { removidos: T[]; adicionados: T[] } {
+   const b = before ?? [];
+   const a = after ?? [];
+   const bKeys = new Set(b.map((item) => JSON.stringify(item)));
+   const aKeys = new Set(a.map((item) => JSON.stringify(item)));
+   return {
+      removidos: b.filter((item) => !aKeys.has(JSON.stringify(item))),
+      adicionados: a.filter((item) => !bKeys.has(JSON.stringify(item))),
+   };
+}
+
+function formatMilitar(m: MissaoMilitar): string {
+   const situ = SITUACAO_CONFIG[m.sit as SituacaoType]?.label ?? m.sit;
+   return `${m.p_g.toUpperCase()} ${m.nome} (${situ})`;
+}
+
+function formatPernoite(p: MissaoPernoite): string {
+   return `${p.cidade} — ${formatNaiveDate(p.data_ini)} a ${formatNaiveDate(p.data_fim)}`;
+}
+
 // ─── Componente de entrada do log ─────────────────────────────────────────────
 
 function MissaoLogEntry({ log }: { log: MissaoLog }) {
@@ -63,13 +104,44 @@ function MissaoLogEntry({ log }: { log: MissaoLog }) {
       after: unknown;
    }[] = [];
 
+   const listDiffs: {
+      field: ListField;
+      removidos: string[];
+      adicionados: string[];
+   }[] = [];
+
    if (after) {
-      for (const field of Object.keys(
-         FIELD_LABELS
-      ) as (keyof MissaoLogSnapshot)[]) {
+      for (const field of SCALAR_FIELDS) {
          const b = before ? before[field] : undefined;
          const a = after[field];
          if (b !== a) diffs.push({ field, before: b, after: a });
+      }
+
+      const militares = diffLista(before?.militares, after.militares);
+      if (militares.removidos.length > 0 || militares.adicionados.length > 0) {
+         listDiffs.push({
+            field: "militares",
+            removidos: militares.removidos.map(formatMilitar),
+            adicionados: militares.adicionados.map(formatMilitar),
+         });
+      }
+
+      const pernoites = diffLista(before?.pernoites, after.pernoites);
+      if (pernoites.removidos.length > 0 || pernoites.adicionados.length > 0) {
+         listDiffs.push({
+            field: "pernoites",
+            removidos: pernoites.removidos.map(formatPernoite),
+            adicionados: pernoites.adicionados.map(formatPernoite),
+         });
+      }
+
+      const etiquetas = diffLista(before?.etiquetas, after.etiquetas);
+      if (etiquetas.removidos.length > 0 || etiquetas.adicionados.length > 0) {
+         listDiffs.push({
+            field: "etiquetas",
+            removidos: etiquetas.removidos,
+            adicionados: etiquetas.adicionados,
+         });
       }
    }
 
@@ -91,7 +163,7 @@ function MissaoLogEntry({ log }: { log: MissaoLog }) {
                {formatDateTime(log.timestamp) ?? ""}
             </time>
          </div>
-         {diffs.length > 0 && (
+         {(diffs.length > 0 || listDiffs.length > 0) && (
             <ul className="mt-2 space-y-0.5 text-xs wrap-break-word text-gray-600">
                {diffs.map((d) => (
                   <li key={d.field}>
@@ -113,6 +185,31 @@ function MissaoLogEntry({ log }: { log: MissaoLog }) {
                            {formatFieldValue(d.field, d.after)}
                         </span>
                      )}
+                  </li>
+               ))}
+               {listDiffs.map((d) => (
+                  <li key={d.field}>
+                     <span className="font-medium text-gray-700">
+                        {FIELD_LABELS[d.field]}:
+                     </span>
+                     <ul className="ml-2 space-y-0.5">
+                        {d.removidos.map((item, i) => (
+                           <li
+                              key={`${d.field}-rem-${i}`}
+                              className="text-red-600 line-through"
+                           >
+                              − {item}
+                           </li>
+                        ))}
+                        {d.adicionados.map((item, i) => (
+                           <li
+                              key={`${d.field}-add-${i}`}
+                              className="text-green-700"
+                           >
+                              + {item}
+                           </li>
+                        ))}
+                     </ul>
                   </li>
                ))}
             </ul>

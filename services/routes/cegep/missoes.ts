@@ -66,6 +66,17 @@ export interface MissaoLogSnapshot {
    acrec_desloc: boolean;
    tipo: string;
    obs: string;
+   // Ausentes em logs antigos — tratar como lista vazia, nunca quebrar.
+   militares?: { user_id: number; nome: string; p_g: string; sit: string }[];
+   pernoites?: {
+      cidade: string;
+      data_ini: string;
+      data_fim: string;
+      acrec_desloc: boolean;
+      meia_diaria: boolean;
+      obs: string | null;
+   }[];
+   etiquetas?: string[];
 }
 
 export interface MissaoLog {

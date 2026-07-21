@@ -23,6 +23,7 @@ const ACTION_LABEL: Record<string, string> = {
 
 const FIELD_LABELS: Record<keyof ComissLogSnapshot, string> = {
    status: "Status",
+   user_id: "Militar",
    dep: "Dependente",
    data_ab: "Abertura",
    qtd_aj_ab: "Qtd Aj. Abertura",

@@ -46,6 +46,7 @@ export interface ComissLogUser {
 
 export interface ComissLogSnapshot {
    status: string;
+   user_id?: number;
    dep: boolean;
    data_ab: string;
    qtd_aj_ab: number;
