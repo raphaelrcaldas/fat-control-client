@@ -10,7 +10,7 @@ interface MissaoParamsCardProps {
 /**
  * Opções da missão na calculadora. Não há período (afast/regres): só as
  * datas de cada pernoite entram no cálculo. Resta o acréscimo de
- * deslocamento global (R$ 95), somado 1× por combinação (p_g, sit).
+ * deslocamento global, somado 1× por combinação (p_g, sit).
  */
 export function MissaoParamsCard({
    acrecDesloc,
@@ -34,7 +34,7 @@ export function MissaoParamsCard({
                htmlFor="calc-acrec-desloc"
                className="text-sm text-slate-700"
             >
-               Acréscimo desloc. da missão (R$ 95)
+               Acréscimo de deslocamento da missão
             </Label>
          </div>
       </div>

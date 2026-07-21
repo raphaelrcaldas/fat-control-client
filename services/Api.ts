@@ -140,9 +140,22 @@ export default async function request<T = any>(
 export async function parseApiResponse<T = unknown>(
    response: Response
 ): Promise<ApiResult<T>> {
-   const json = await response.json();
+   // Backend pode devolver HTML (500/502 de proxy/gateway) em vez de JSON —
+   // sem o catch, response.json() lança e a mutation trata como erro de rede
+   // genérico. Aqui viramos isso num ApiResult com mensagem legível.
+   const json = await response.json().catch(() => null);
+   if (json === null) {
+      return {
+         ok: false,
+         data: null,
+         message: response.ok
+            ? null
+            : `Erro ${response.status} — resposta inválida do servidor`,
+         errors: null,
+      };
+   }
    return {
-      ok: response.ok,
+      ok: response.ok && json !== null,
       data: json.data ?? null,
       message: json.message ?? null,
       errors: json.errors ?? null,

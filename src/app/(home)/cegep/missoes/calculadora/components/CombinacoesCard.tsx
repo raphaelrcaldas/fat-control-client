@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useState } from "react";
 import {
    Button,
    Select,
@@ -10,47 +10,35 @@ import {
    TableHead,
    TableHeadCell,
    TableRow,
+   TextInput,
 } from "flowbite-react";
 import { HiMinus, HiPlus, HiX } from "react-icons/hi";
 import { postoGradRecords } from "@/constants/militar/postos";
+import { SITUACAO_CONFIG } from "@/constants/cegep/situacoes";
 import {
-   CombinacaoSimulacao,
+   MAX_QTD_MILITARES,
    SituacaoSimulacao,
 } from "services/routes/cegep/missoes";
+import { CombinacaoRow } from "../hooks/useSimulacao";
 
 // Comissionado ('c') fica de fora da calculadora — planejamento rápido usa só
 // diária e gratificação de representação.
-const SIT_OPTIONS: { value: SituacaoSimulacao; label: string }[] = [
-   { value: "d", label: "Diária" },
-   { value: "g", label: "Grat Rep" },
-];
+const SIT_OPTIONS: { value: SituacaoSimulacao; label: string }[] = (
+   ["d", "g"] as const
+).map((v) => ({ value: v, label: SITUACAO_CONFIG[v].label }));
 
 interface CombinacoesCardProps {
-   combinacoes: CombinacaoSimulacao[];
-   setCombinacoes: React.Dispatch<React.SetStateAction<CombinacaoSimulacao[]>>;
+   combinacoes: CombinacaoRow[];
+   setCombinacoes: React.Dispatch<React.SetStateAction<CombinacaoRow[]>>;
+   /** Índices cujo par (p_g, sit) se repete em outra linha, do hook. */
+   duplicateIdx: Set<number>;
 }
 
 export function CombinacoesCard({
    combinacoes,
    setCombinacoes,
+   duplicateIdx,
 }: CombinacoesCardProps) {
-   // Índices cujo par (p_g, sit) se repete em outra linha — bloqueia com aviso
-   // inline em vez de deixar duas linhas equivalentes seguirem pro cálculo.
-   const duplicateIdx = useMemo(() => {
-      const seen = new Map<string, number>();
-      const dups = new Set<number>();
-      combinacoes.forEach((c, i) => {
-         const key = `${c.p_g}|${c.sit}`;
-         if (seen.has(key)) {
-            dups.add(i);
-            dups.add(seen.get(key)!);
-         } else {
-            seen.set(key, i);
-         }
-      });
-      return dups;
-   }, [combinacoes]);
-
    function addRow() {
       const usedKeys = new Set(combinacoes.map((c) => `${c.p_g}|${c.sit}`));
       const firstFree = postoGradRecords
@@ -59,10 +47,13 @@ export function CombinacoesCard({
       const [p_g, sit] = (firstFree ?? `${postoGradRecords[0].short}|d`).split(
          "|"
       ) as [string, SituacaoSimulacao];
-      setCombinacoes((prev) => [...prev, { p_g, sit, qtd: 1 }]);
+      setCombinacoes((prev) => [
+         ...prev,
+         { _key: crypto.randomUUID(), p_g, sit, qtd: 1 },
+      ]);
    }
 
-   function updateRow(index: number, patch: Partial<CombinacaoSimulacao>) {
+   function updateRow(index: number, patch: Partial<CombinacaoRow>) {
       setCombinacoes((prev) =>
          prev.map((c, i) => (i === index ? { ...c, ...patch } : c))
       );
@@ -109,7 +100,7 @@ export function CombinacoesCard({
                      {combinacoes.map((c, idx) => {
                         const isDuplicate = duplicateIdx.has(idx);
                         return (
-                           <TableRow key={idx} className="bg-white">
+                           <TableRow key={c._key} className="bg-white">
                               <TableCell className="px-2 py-1.5">
                                  <Select
                                     sizing="sm"
@@ -146,34 +137,10 @@ export function CombinacoesCard({
                                  </Select>
                               </TableCell>
                               <TableCell className="px-2 py-1.5">
-                                 <div className="flex items-center justify-center gap-1.5">
-                                    <Button
-                                       size="xs"
-                                       color="light"
-                                       disabled={c.qtd <= 1}
-                                       onClick={() =>
-                                          updateRow(idx, {
-                                             qtd: Math.max(1, c.qtd - 1),
-                                          })
-                                       }
-                                       aria-label="Diminuir quantidade"
-                                    >
-                                       <HiMinus className="h-3 w-3" />
-                                    </Button>
-                                    <span className="w-6 text-center text-sm font-medium text-slate-800">
-                                       {c.qtd}
-                                    </span>
-                                    <Button
-                                       size="xs"
-                                       color="light"
-                                       onClick={() =>
-                                          updateRow(idx, { qtd: c.qtd + 1 })
-                                       }
-                                       aria-label="Aumentar quantidade"
-                                    >
-                                       <HiPlus className="h-3 w-3" />
-                                    </Button>
-                                 </div>
+                                 <QtdInput
+                                    qtd={c.qtd}
+                                    onChange={(qtd) => updateRow(idx, { qtd })}
+                                 />
                               </TableCell>
                               <TableCell className="px-2 py-1.5 text-center">
                                  <button
@@ -200,6 +167,70 @@ export function CombinacoesCard({
                de calcular.
             </p>
          )}
+      </div>
+   );
+}
+
+/**
+ * Input de quantidade da linha: digitação livre (estado local em string) com
+ * commit clampado em [1, MAX_QTD_MILITARES] no blur/Enter — evita propagar
+ * NaN ou valores fora do range enquanto o usuário ainda está digitando.
+ */
+function QtdInput({
+   qtd,
+   onChange,
+}: {
+   qtd: number;
+   onChange: (qtd: number) => void;
+}) {
+   const [draft, setDraft] = useState<string | null>(null);
+
+   function commit() {
+      if (draft === null) return;
+      const parsed = parseInt(draft, 10);
+      const clamped = Number.isNaN(parsed)
+         ? qtd
+         : Math.min(MAX_QTD_MILITARES, Math.max(1, parsed));
+      setDraft(null);
+      if (clamped !== qtd) onChange(clamped);
+   }
+
+   return (
+      <div className="flex items-center justify-center gap-1.5">
+         <Button
+            size="xs"
+            color="light"
+            disabled={qtd <= 1}
+            onClick={() => onChange(Math.max(1, qtd - 1))}
+            aria-label="Diminuir quantidade"
+         >
+            <HiMinus className="h-3 w-3" />
+         </Button>
+         <TextInput
+            sizing="sm"
+            type="text"
+            inputMode="numeric"
+            className="w-12 text-center [&_input]:px-1 [&_input]:text-center"
+            value={draft ?? String(qtd)}
+            onChange={(e) => setDraft(e.target.value)}
+            onBlur={commit}
+            onKeyDown={(e) => {
+               if (e.key === "Enter") {
+                  commit();
+                  e.currentTarget.blur();
+               }
+            }}
+            aria-label="Quantidade"
+         />
+         <Button
+            size="xs"
+            color="light"
+            disabled={qtd >= MAX_QTD_MILITARES}
+            onClick={() => onChange(Math.min(MAX_QTD_MILITARES, qtd + 1))}
+            aria-label="Aumentar quantidade"
+         >
+            <HiPlus className="h-3 w-3" />
+         </Button>
       </div>
    );
 }
