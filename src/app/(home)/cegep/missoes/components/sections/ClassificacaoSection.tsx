@@ -19,11 +19,11 @@ export function ClassificacaoSection({
 }: ClassificacaoSectionProps) {
    return (
       <SectionWrapper title="Classificação">
-         <div className="grid grid-cols-2 gap-6">
+         <div className="grid grid-cols-2 gap-3 sm:gap-6">
             <div className="space-y-2">
                <Label
                   htmlFor="class-tipo-missao"
-                  className="mr-2 text-sm font-medium text-slate-600"
+                  className="block text-sm font-medium text-slate-600"
                >
                   Tipo de Missão
                </Label>
@@ -59,7 +59,7 @@ export function ClassificacaoSection({
             <div className="space-y-2">
                <Label
                   htmlFor="class-natureza"
-                  className="mr-2 text-sm font-medium text-slate-600"
+                  className="block text-sm font-medium text-slate-600"
                >
                   Natureza
                </Label>
