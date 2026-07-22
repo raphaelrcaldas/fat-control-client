@@ -149,13 +149,17 @@ export const EtapaRow = memo(function EtapaRow({
          )}
       >
          <TableCell className="w-7">
-            <Checkbox
-               color="primary"
-               checked={checked}
-               onChange={() => onToggleEtapa(id)}
-               aria-label={`Selecionar etapa ${origem}-${destino} de ${isoDateToString(data)}`}
-               className="size-[24px] cursor-pointer pointer-coarse:size-[44px]"
-            />
+            {/* Glifo fica em 24px (mínimo WCAG no mouse); o label vira o alvo de
+                toque de 44px só no dedo, em vez de inflar o próprio checkbox. */}
+            <label className="inline-flex cursor-pointer items-center justify-center pointer-coarse:min-h-[44px] pointer-coarse:min-w-[44px]">
+               <Checkbox
+                  color="primary"
+                  checked={checked}
+                  onChange={() => onToggleEtapa(id)}
+                  aria-label={`Selecionar etapa ${origem}-${destino} de ${isoDateToString(data)}`}
+                  className="size-[24px] cursor-pointer"
+               />
+            </label>
          </TableCell>
          <TableCell className="w-12 font-mono text-slate-500 sm:w-20">
             <span className="sm:hidden">{isoDateToShort(data)}</span>

@@ -48,8 +48,25 @@ export function ActiveFilterTags({
    onRemoveTipoMissao,
    onClearAll,
 }: ActiveFilterTagsProps) {
+   // Deriva dos próprios props se há algum filtro visível — sem filtro, o bloco
+   // não monta (antes ficava só "Filtros ativos:/Limpar todos" pendurado).
+   const hasActiveFilters = Boolean(
+      urlDataIni ||
+      urlDataFim ||
+      urlAnv.length ||
+      urlOrigem ||
+      urlDestino ||
+      urlTrip ||
+      urlEsfAer ||
+      urlTipoMissao.length
+   );
+
+   if (!hasActiveFilters) return null;
+
    return (
-      <div className="mb-1 ml-1 flex shrink-0 flex-wrap items-center gap-2">
+      // Ocultos no mobile (chips quebravam em várias linhas): o badge de
+      // contagem no botão "Filtros" já sinaliza filtros ativos. Reaparecem no sm+.
+      <div className="mb-1 ml-1 hidden shrink-0 flex-wrap items-center gap-2 sm:flex">
          <span className="text-xs font-medium text-gray-600">
             Filtros ativos:
          </span>
