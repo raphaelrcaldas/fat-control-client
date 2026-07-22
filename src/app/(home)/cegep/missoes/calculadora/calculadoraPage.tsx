@@ -35,7 +35,7 @@ export function CalculadoraPage() {
 
    return (
       <div className="grid items-start gap-4 xl:grid-cols-2">
-         <div className="flex flex-col gap-3">
+         <div className="flex min-w-0 flex-col gap-3">
             <MissaoParamsCard
                acrecDesloc={acrecDesloc}
                setAcrecDesloc={setAcrecDesloc}

@@ -33,7 +33,7 @@ export function ResultadoPanel({
    const stale = !!resultado && (desatualizado || isCalculando);
 
    return (
-      <div className="rounded border border-slate-200 bg-white p-4 shadow-sm">
+      <div className="min-w-0 rounded border border-slate-200 bg-white p-4 shadow-sm">
          <p className="mb-3 text-xs font-semibold tracking-wide text-slate-500 uppercase">
             Resultado
          </p>
@@ -186,7 +186,7 @@ function ResultadoConteudo({
                      {resultado.combinacoes.map((c, i) => (
                         <tr
                            key={`${c.p_g}-${c.sit}-${i}`}
-                           className="border-b border-dashed border-slate-200"
+                           className="border-b border-dashed border-slate-200 last:border-b-0"
                         >
                            <td className="py-1 text-slate-700">
                               {getPostoByShort(c.p_g)?.mid ??
@@ -204,19 +204,17 @@ function ResultadoConteudo({
                            </td>
                         </tr>
                      ))}
-                     <tr>
-                        <td
-                           colSpan={3}
-                           className="pt-2 text-[10px] font-semibold tracking-wide text-slate-500 uppercase"
-                        >
-                           Total geral
-                        </td>
-                        <td className="pt-2 pl-4 text-right text-base font-bold whitespace-nowrap text-slate-900">
-                           {realCurrency(resultado.total_geral)}
-                        </td>
-                     </tr>
                   </tbody>
                </table>
+            </div>
+
+            <div className="mt-2 flex items-baseline justify-between border-t border-slate-300 pt-2">
+               <span className="text-[10px] font-semibold tracking-wide text-slate-500 uppercase">
+                  Total geral
+               </span>
+               <span className="font-mono text-base font-bold text-slate-900 tabular-nums">
+                  {realCurrency(resultado.total_geral)}
+               </span>
             </div>
          </div>
 

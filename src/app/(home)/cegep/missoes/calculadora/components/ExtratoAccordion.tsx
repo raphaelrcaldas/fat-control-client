@@ -135,14 +135,18 @@ function PernoiteHeader({
       : "Cidade";
 
    return (
-      <div className="flex flex-wrap items-baseline justify-between gap-2 font-mono text-xs">
-         <span className="truncate">
-            {localCidade}{" "}
-            <span className="text-slate-500">(grupo {pernoite.grupo_cid})</span>{" "}
-            · {formatPeriodoSemAno(pernoite.data_ini, pernoite.data_fim)} ·{" "}
-            {pernoite.dias} {pernoite.dias === 1 ? "dia" : "dias"}
-            {pernoite.ac_desloc > 0 &&
-               ` · +${realCurrency(pernoite.ac_desloc)}`}
+      <div className="flex flex-wrap items-start justify-between gap-2 font-mono text-xs">
+         <span className="min-w-0 flex-1">
+            <span className="block truncate">
+               {localCidade}{" "}
+               <span className="text-slate-500">G{pernoite.grupo_cid}</span>
+            </span>
+            <span className="block text-slate-500">
+               {formatPeriodoSemAno(pernoite.data_ini, pernoite.data_fim)} ·{" "}
+               {pernoite.dias} {pernoite.dias === 1 ? "dia" : "dias"}
+               {pernoite.ac_desloc > 0 &&
+                  ` · +${realCurrency(pernoite.ac_desloc)}`}
+            </span>
          </span>
          <span className="font-semibold whitespace-nowrap text-slate-800 tabular-nums">
             {realCurrency(subtotalPorMilitar)}{" "}
