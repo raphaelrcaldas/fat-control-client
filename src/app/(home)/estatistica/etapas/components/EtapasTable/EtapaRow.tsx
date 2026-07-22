@@ -149,17 +149,15 @@ export const EtapaRow = memo(function EtapaRow({
          )}
       >
          <TableCell className="w-7">
-            {/* Glifo fica em 24px (mínimo WCAG no mouse); o label vira o alvo de
-                toque de 44px só no dedo, em vez de inflar o próprio checkbox. */}
-            <label className="inline-flex cursor-pointer items-center justify-center pointer-coarse:min-h-[44px] pointer-coarse:min-w-[44px]">
-               <Checkbox
-                  color="primary"
-                  checked={checked}
-                  onChange={() => onToggleEtapa(id)}
-                  aria-label={`Selecionar etapa ${origem}-${destino} de ${isoDateToString(data)}`}
-                  className="size-[24px] cursor-pointer"
-               />
-            </label>
+            {/* Glifo compacto e discreto (17.5px), sem alvo de 44px — densidade
+                priorizada sobre a ergonomia de toque nesta lista. */}
+            <Checkbox
+               color="primary"
+               checked={checked}
+               onChange={() => onToggleEtapa(id)}
+               aria-label={`Selecionar etapa ${origem}-${destino} de ${isoDateToString(data)}`}
+               className="size-5 cursor-pointer"
+            />
          </TableCell>
          <TableCell className="w-12 font-mono text-slate-500 sm:w-20">
             <span className="sm:hidden">{isoDateToShort(data)}</span>
@@ -196,14 +194,14 @@ export const EtapaRow = memo(function EtapaRow({
                <span className="text-gray-300">&mdash;</span>
             )}
          </TableCell>
-         <TableCell className="w-12 px-2 sm:w-14">
-            <div className="flex items-center gap-1">
+         <TableCell className="w-10 px-2 sm:w-12">
+            <div className="flex items-center gap-0.5">
                <Button
                   size="xs"
                   color="light"
                   onClick={() => onDetailEtapa(id)}
                   title="Detalhes da etapa"
-                  className="p-1.5"
+                  className="min-h-0 min-w-0 p-1.5 pointer-coarse:min-h-0 pointer-coarse:min-w-0"
                >
                   <HiEye className="size-4" />
                </Button>
@@ -213,7 +211,7 @@ export const EtapaRow = memo(function EtapaRow({
                      color="light"
                      onClick={() => onEditEtapa(id)}
                      title="Editar etapa"
-                     className="p-1.5"
+                     className="min-h-0 min-w-0 p-1.5 pointer-coarse:min-h-0 pointer-coarse:min-w-0"
                   >
                      <HiPencilAlt className="size-4" />
                   </Button>

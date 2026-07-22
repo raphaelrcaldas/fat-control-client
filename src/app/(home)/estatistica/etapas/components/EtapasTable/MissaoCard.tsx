@@ -45,11 +45,13 @@ export const MissaoCard = memo(function MissaoCard({
    return (
       <div className="mx-0.5 overflow-hidden rounded border border-gray-300 bg-white shadow">
          {/* Header da missao */}
-         <div className="flex flex-wrap items-center gap-3 border-b border-slate-200 bg-white p-1.5">
-            {hasEtapas && (
-               // Glifo em 24px (mínimo WCAG no mouse); o label vira o alvo de
-               // toque de 44px só no dedo, em vez de inflar o próprio checkbox.
-               <label className="inline-flex cursor-pointer items-center justify-center pointer-coarse:min-h-[44px] pointer-coarse:min-w-[44px]">
+         <div className="flex flex-wrap items-center gap-2 border-b border-slate-200 bg-white py-1.5 pr-1.5">
+            {/* Coluna w-7 espelhando a 1ª célula (w-7) das linhas de etapa, para
+                o checkbox da missão cair exatamente sobre os das etapas. */}
+            <div className="flex w-7 shrink-0 items-center justify-center">
+               {hasEtapas && (
+                  // Glifo compacto e discreto (17.5px), sem alvo de 44px —
+                  // densidade priorizada sobre a ergonomia de toque nesta lista.
                   <Checkbox
                      color="primary"
                      checked={allChecked}
@@ -58,10 +60,10 @@ export const MissaoCard = memo(function MissaoCard({
                      }}
                      onChange={() => onToggleMissao(etapaIds)}
                      aria-label={`Selecionar todas as etapas de ${missao.titulo ?? `Missão #${missao.id}`}`}
-                     className="size-[24px] cursor-pointer"
+                     className="size-5 cursor-pointer"
                   />
-               </label>
-            )}
+               )}
+            </div>
             <span className="text-sm font-medium text-slate-800">
                {missao.titulo ?? `Missão #${missao.id}`}
             </span>
