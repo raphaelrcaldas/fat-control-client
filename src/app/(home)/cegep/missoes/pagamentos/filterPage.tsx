@@ -297,9 +297,11 @@ export function FilterPage({ active }: { active: boolean }) {
 
    return (
       <div className="space-y-2">
-         {/* Active Filters Tags */}
-         <section className="flex items-center justify-between gap-3">
-            <div className="flex flex-wrap items-center gap-2">
+         {/* Active Filters Tags — ocultos no mobile (poluíam e quebravam a
+             linha); o badge de contagem no botão "Filtros" já sinaliza que há
+             filtros ativos. Chips reaparecem no sm+. */}
+         <section className="flex items-start justify-end gap-3 sm:justify-between">
+            <div className="hidden flex-wrap items-center gap-2 sm:flex">
                <span className="text-xs font-medium text-gray-600">
                   Filtros ativos:
                </span>
@@ -661,50 +663,54 @@ export function FilterPage({ active }: { active: boolean }) {
                ) : misRecords && misRecords.length > 0 ? (
                   <div>
                      <div className="flex flex-col gap-2 border-b border-slate-200 bg-gray-50 px-3 py-1 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:py-0.5">
-                        <div className="flex items-center gap-4">
-                           <div className="flex items-center gap-2">
+                        <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+                           {/* Glifo compacto; o label vira o alvo de toque de
+                               44px só no dedo (padrão do ToggleCheckbox). */}
+                           <label className="inline-flex cursor-pointer items-center justify-center pointer-coarse:min-h-[44px] pointer-coarse:min-w-[44px]">
                               <Checkbox
-                                 className="size-5 pointer-coarse:size-11"
+                                 className="size-5 pointer-coarse:size-6"
                                  checked={selectedAll}
                                  color="primary"
                                  onChange={() => setSelectedAll(!selectedAll)}
                                  aria-label="Selecionar todos os registros"
                               />
-                           </div>
-                           <h3 className="font-medium text-gray-800">
+                           </label>
+                           <h2 className="shrink-0 text-sm font-semibold whitespace-nowrap text-gray-800">
                               Registros Encontrados ({totalRecords})
-                           </h3>
+                           </h2>
 
-                           <div
-                              className={clsx(
-                                 "rounded border border-green-300 bg-green-50 px-2 py-1.5 shadow-sm transition",
-                                 selectedIds.length > 0
-                                    ? "translate-y-0 opacity-100"
-                                    : "pointer-events-none translate-y-full opacity-0"
-                              )}
-                           >
-                              <div className="flex items-center gap-3">
-                                 <HiCurrencyDollar className="text-xl text-green-600" />
-                                 <p className="text-sm font-medium text-gray-700">
-                                    {selectedIds.length}{" "}
-                                    {selectedIds.length === 1
-                                       ? "registro selecionado"
-                                       : "registros selecionados"}
-                                 </p>
-                                 <p className="font-medium text-green-700 tabular-nums">
-                                    {valorSoma.toLocaleString("pt-BR", {
-                                       style: "currency",
-                                       currency: "BRL",
-                                    })}
-                                 </p>
-                                 <p className="font-medium text-green-700 tabular-nums">
-                                    {diariasSoma.toFixed(1)} diária
-                                    {diariasSoma !== 1 ? "s" : ""}
-                                 </p>
+                           {/* Resumo da seleção: só monta quando há algo
+                               marcado — não reserva espaço nem estoura a
+                               viewport no mobile. Full-width com wrap no
+                               celular, inline (auto) no desktop. */}
+                           {selectedIds.length > 0 && (
+                              <div className="w-full rounded border border-green-300 bg-green-50 px-2 py-1.5 shadow-sm sm:w-auto">
+                                 <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5">
+                                    <HiCurrencyDollar className="shrink-0 text-xl text-green-600" />
+                                    <p className="text-sm font-medium text-gray-700">
+                                       {selectedIds.length}{" "}
+                                       {selectedIds.length === 1
+                                          ? "registro selecionado"
+                                          : "registros selecionados"}
+                                    </p>
+                                    <p className="text-sm font-medium text-green-700 tabular-nums">
+                                       {valorSoma.toLocaleString("pt-BR", {
+                                          style: "currency",
+                                          currency: "BRL",
+                                       })}
+                                    </p>
+                                    <p className="text-sm font-medium text-green-700 tabular-nums">
+                                       {diariasSoma.toFixed(1)} diária
+                                       {diariasSoma !== 1 ? "s" : ""}
+                                    </p>
+                                 </div>
                               </div>
-                           </div>
+                           )}
                         </div>
-                        <div className="flex items-center gap-3">
+                        {/* "Exibindo X-Y de N" + seletor de qtd: ocultos no
+                            mobile (a paginação embaixo já situa; menos ruído no
+                            cabeçalho denso). Reaparecem no sm+. */}
+                        <div className="hidden items-center gap-3 sm:flex">
                            <span className="text-sm text-gray-600">
                               Exibindo{" "}
                               {Math.min(
@@ -742,7 +748,7 @@ export function FilterPage({ active }: { active: boolean }) {
                         )}
                      >
                         {/* Mobile (< md): cards empilhados — evita scroll horizontal */}
-                        <div className="flex flex-col gap-3 p-3 md:hidden">
+                        <div className="flex flex-col gap-3 p-2 sm:p-3 md:hidden">
                            {misRecords?.map((record) => (
                               <UserCard
                                  key={record.user_mis.id}
@@ -817,7 +823,7 @@ export function FilterPage({ active }: { active: boolean }) {
                         </div>
                      </div>
                      {totalPages > 1 && (
-                        <div className="flex justify-center border-t border-slate-200 bg-gray-50 px-6 py-4">
+                        <div className="flex justify-center border-t border-slate-200 bg-gray-50 px-3 py-4 sm:px-6">
                            <Pagination
                               currentPage={currentPage}
                               totalPages={totalPages}

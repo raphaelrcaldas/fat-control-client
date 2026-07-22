@@ -157,8 +157,8 @@ function ResultadoConteudo({
 
          {resultado.valores_zerados && (
             <div className="rounded border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800">
-               Há diárias sem valor vigente para o período simulado —
-               resultado pode estar incompleto.
+               Há diárias sem valor vigente para o período simulado — resultado
+               pode estar incompleto.
             </div>
          )}
 

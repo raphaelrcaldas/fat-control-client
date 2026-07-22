@@ -76,6 +76,7 @@ export const UserRow = memo(function UserRow({
                color={statusConfig.checkBoxColor}
                checked={checked}
                onChange={onChange}
+               aria-label={`Selecionar ${record.user_mis.user.nome_guerra}`}
             />
          </TableCell>
          <TableCell className="text-center font-mono whitespace-nowrap">
@@ -200,16 +201,21 @@ export const UserCard = memo(function UserCard({
    const isGrat = record.user_mis.sit === "g";
 
    return (
-      <div className="rounded border border-slate-200 bg-white p-4 shadow-sm">
-         {/* Topo: seleção + Militar/OM + situação */}
-         <div className="flex items-start gap-3">
-            <Checkbox
-               className="mt-0.5 size-5 shrink-0 cursor-pointer pointer-coarse:size-11"
-               color={statusConfig.checkBoxColor}
-               checked={checked}
-               onChange={onChange}
-               aria-label={`Selecionar ${record.user_mis.user.nome_guerra}`}
-            />
+      <div className="rounded border border-slate-200 bg-white p-3 shadow-sm sm:p-4">
+         {/* Topo: seleção + Militar/OM + situação — checkbox e badge centrados
+             na vertical contra o bloco Militar/OM. */}
+         <div className="flex items-center gap-3">
+            {/* Glifo compacto; o label vira o alvo de toque de 44px só no dedo
+                (mesmo padrão do ToggleCheckbox da calculadora). */}
+            <label className="inline-flex shrink-0 cursor-pointer items-center justify-center pointer-coarse:min-h-[44px] pointer-coarse:min-w-[44px]">
+               <Checkbox
+                  className="size-5 cursor-pointer pointer-coarse:size-6"
+                  color={statusConfig.checkBoxColor}
+                  checked={checked}
+                  onChange={onChange}
+                  aria-label={`Selecionar ${record.user_mis.user.nome_guerra}`}
+               />
+            </label>
             <div className="min-w-0 flex-1">
                <p className="truncate font-medium text-gray-900 uppercase">
                   {record.user_mis.p_g} {record.user_mis.user.nome_guerra}

@@ -24,11 +24,14 @@ const tabsTheme = {
    base: "flex flex-col gap-0",
    tablist: {
       variant: {
+         // Mobile: linha única com scroll lateral (itens não encolhem nem
+         // quebram — flex-nowrap vence o flex-wrap do base do Flowbite) em vez
+         // de grade 2x2. Desktop (md+): flex-wrap normal, sem scroll.
          default:
-            "grid grid-cols-2 gap-1 rounded-t border-b border-slate-200 bg-slate-50 p-2 md:flex md:flex-wrap",
+            "flex flex-nowrap gap-1 overflow-x-auto rounded-t border-b border-slate-200 bg-slate-50 p-2 md:flex-wrap md:overflow-x-visible",
       },
       tabitem: {
-         base: "flex items-center justify-center text-sm font-semibold transition-colors first:ml-0 focus:outline-none disabled:cursor-not-allowed disabled:text-gray-400 pointer-coarse:min-h-[44px]",
+         base: "flex shrink-0 items-center justify-center whitespace-nowrap text-sm font-semibold transition-colors first:ml-0 focus:outline-none disabled:cursor-not-allowed disabled:text-gray-400 pointer-coarse:min-h-[44px]",
          variant: {
             default: {
                base: "rounded px-3 py-3 md:px-6",
@@ -40,7 +43,7 @@ const tabsTheme = {
          },
       },
    },
-   tabpanel: "p-4",
+   tabpanel: "p-2 sm:p-4",
 };
 
 export default function MissPage() {

@@ -90,7 +90,9 @@ function pernoitesInvalidos(pnts: Pernoite[]): Set<number> {
  * p_g+sit) e travam o cálculo até serem resolvidas. Movido de
  * CombinacoesCard para o hook porque também entra em `podeCalcular`.
  */
-function combinacoesDuplicadas(combinacoes: CombinacaoSimulacao[]): Set<number> {
+function combinacoesDuplicadas(
+   combinacoes: CombinacaoSimulacao[]
+): Set<number> {
    const seen = new Map<string, number>();
    const dups = new Set<number>();
    combinacoes.forEach((c, i) => {

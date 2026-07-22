@@ -498,9 +498,11 @@ export function RegisPage() {
             </div>
          </section>
 
-         {/* Linha de filtros ativos (esquerda) + toggle (direita) — igual Pagamentos */}
-         <section className="order-1 flex shrink-0 items-center justify-between gap-3">
-            <div className="flex flex-wrap items-center gap-2">
+         {/* Linha de filtros ativos (esquerda) + toggle (direita) — igual
+             Pagamentos. Chips ocultos no mobile (o badge de contagem no botão
+             "Filtros" já sinaliza filtros ativos); reaparecem no sm+. */}
+         <section className="order-1 flex shrink-0 items-start justify-end gap-3 sm:justify-between">
+            <div className="hidden flex-wrap items-center gap-2 sm:flex">
                <span className="text-xs font-medium text-gray-600">
                   Filtros ativos:
                </span>

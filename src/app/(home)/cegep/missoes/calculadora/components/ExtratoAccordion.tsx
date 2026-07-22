@@ -141,7 +141,8 @@ function PernoiteHeader({
             <span className="text-slate-500">(grupo {pernoite.grupo_cid})</span>{" "}
             · {formatPeriodoSemAno(pernoite.data_ini, pernoite.data_fim)} ·{" "}
             {pernoite.dias} {pernoite.dias === 1 ? "dia" : "dias"}
-            {pernoite.ac_desloc > 0 && ` · +${realCurrency(pernoite.ac_desloc)}`}
+            {pernoite.ac_desloc > 0 &&
+               ` · +${realCurrency(pernoite.ac_desloc)}`}
          </span>
          <span className="font-semibold whitespace-nowrap text-slate-800 tabular-nums">
             {realCurrency(subtotalPorMilitar)}{" "}
