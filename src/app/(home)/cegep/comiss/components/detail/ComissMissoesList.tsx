@@ -3,6 +3,7 @@
 import { Missao } from "services/routes/cegep/missoes";
 import { ComissWithMiss } from "services/routes/cegep/comiss";
 import { MissionRow } from "./MissionRow";
+import { SectionWrapper } from "../../../components/SectionWrapper";
 
 interface ComissMissoesListProps {
    comiss: ComissWithMiss;
@@ -18,10 +19,7 @@ export function ComissMissoesList({
    const missoes = comiss.missoes ?? [];
 
    return (
-      <div className="space-y-3 rounded border border-slate-300 bg-white px-2 py-4 shadow-sm md:px-4">
-         <h4 className="text-sm font-semibold tracking-wide text-gray-700 uppercase">
-            Missões Relacionadas
-         </h4>
+      <SectionWrapper title="Missões Relacionadas">
          <div className="overflow-hidden rounded border border-slate-200 bg-white shadow-sm">
             {missoes.length > 0 ? (
                <div className="divide-y divide-slate-200">
@@ -41,6 +39,6 @@ export function ComissMissoesList({
                </div>
             )}
          </div>
-      </div>
+      </SectionWrapper>
    );
 }

@@ -16,15 +16,38 @@ function StatCell() {
    );
 }
 
+/** Célula "valor + rótulo" em fundo suave, usada em Documentos e Classificação. */
+function FieldCell() {
+   return (
+      <div className="flex flex-col items-center gap-2 rounded bg-slate-50 p-3">
+         <Bar className="h-5 w-24 max-w-full" />
+         <FaintBar className="h-3 w-16 max-w-full" />
+      </div>
+   );
+}
+
+/** Casca de uma seção (`SectionWrapper`): espinha + título e conteúdo. */
+function Section({ children }: { children: React.ReactNode }) {
+   return (
+      <div className="rounded border border-slate-200 bg-white p-4 shadow-sm">
+         <div className="mb-4 flex items-center gap-2">
+            <div className="h-4 w-1 rounded-full bg-slate-200" />
+            <Bar className="h-3.5 w-44" />
+         </div>
+         {children}
+      </div>
+   );
+}
+
 /**
  * Skeleton fiel à casca do `ComissPage`: mesma coluna centralizada
- * (`max-w-7xl`), mesmos cards/grades e dimensões, para zero layout-shift
- * quando o detalhe do comissionamento carrega.
+ * (`max-w-7xl`), mesmas seções (`SectionWrapper`) e dimensões, para zero
+ * layout-shift quando o detalhe do comissionamento carrega.
  */
 export function ComissPageSkeleton() {
    return (
       <div className="flex w-full justify-center">
-         <div className="flex w-full max-w-7xl flex-col gap-3">
+         <div className="flex w-full max-w-7xl flex-col gap-2">
             {/* Barra de comando: voltar + titulo + acoes */}
             <div className="flex items-center justify-between gap-3 rounded border border-slate-200 bg-white px-3 py-2.5 shadow-sm sm:px-4">
                <div className="flex items-center gap-3">
@@ -44,71 +67,61 @@ export function ComissPageSkeleton() {
                <FaintBar className="h-3.5 w-64 max-w-full" />
             </div>
 
-            {/* Documentos */}
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-               {Array.from({ length: 3 }).map((_, i) => (
-                  <div
-                     key={i}
-                     className="flex flex-col items-center gap-2 rounded border border-slate-200 bg-white p-4 shadow-sm"
-                  >
-                     <Bar className="h-5 w-24" />
-                     <FaintBar className="h-3 w-16" />
-                  </div>
-               ))}
-            </div>
+            {/* Documentos de Referência */}
+            <Section>
+               <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+                  <FieldCell />
+                  <FieldCell />
+                  <FieldCell />
+               </div>
+            </Section>
 
             {/* Datas e Valores */}
-            <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
-               <div className="rounded border border-emerald-200 bg-white p-4 shadow-sm">
-                  <Bar className="mb-3 h-4 w-24" />
+            <Section>
+               <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+                  {Array.from({ length: 2 }).map((_, i) => (
+                     <div key={i} className="rounded bg-slate-50 p-4">
+                        <Bar className="mb-3 h-4 w-24" />
+                        <div className="grid grid-cols-3 gap-4">
+                           <StatCell />
+                           <StatCell />
+                           <StatCell />
+                        </div>
+                     </div>
+                  ))}
+               </div>
+            </Section>
+
+            {/* Classificação */}
+            <Section>
+               <div className="grid grid-cols-3 gap-3">
+                  <FieldCell />
+                  <FieldCell />
+                  <FieldCell />
+               </div>
+            </Section>
+
+            {/* Métricas */}
+            <Section>
+               <div className="space-y-4">
                   <div className="grid grid-cols-3 gap-4">
                      <StatCell />
                      <StatCell />
                      <StatCell />
                   </div>
-               </div>
-               <div className="rounded border border-orange-200 bg-white p-4 shadow-sm">
-                  <Bar className="mb-3 h-4 w-24" />
-                  <div className="grid grid-cols-3 gap-4">
-                     <StatCell />
-                     <StatCell />
-                     <StatCell />
+                  <div className="space-y-2">
+                     <div className="flex justify-between">
+                        <FaintBar className="h-4 w-20" />
+                        <Bar className="h-4 w-10" />
+                     </div>
+                     <Bar className="h-4 w-full" />
                   </div>
                </div>
-            </div>
+            </Section>
 
-            {/* Status / Modulo / Dependente */}
-            <div className="grid grid-cols-3 gap-4">
-               {Array.from({ length: 3 }).map((_, i) => (
-                  <div
-                     key={i}
-                     className="flex items-center justify-center rounded border border-slate-200 bg-white p-4 shadow-sm"
-                  >
-                     <Bar className="h-4 w-28" />
-                  </div>
-               ))}
-            </div>
-
-            {/* Metricas */}
-            <div className="space-y-4 rounded border border-slate-300 bg-white p-6 shadow-sm">
-               <div className="grid grid-cols-3 gap-4">
-                  <StatCell />
-                  <StatCell />
-                  <StatCell />
-               </div>
-               <div className="space-y-2">
-                  <div className="flex justify-between">
-                     <FaintBar className="h-4 w-20" />
-                     <Bar className="h-4 w-10" />
-                  </div>
-                  <Bar className="h-4 w-full" />
-               </div>
-            </div>
-
-            {/* Missoes Relacionadas */}
-            <div className="space-y-3 rounded border border-slate-300 bg-white px-2 py-4 shadow-sm md:px-4">
-               <FaintBar className="h-4 w-44" />
-               <div className="divide-y divide-gray-200 overflow-hidden rounded border border-gray-200">
+            {/* Missões Relacionadas */}
+            <Section>
+               <div className="divide-y divide-slate-200 overflow-hidden rounded border border-slate-200">
                   {Array.from({ length: 3 }).map((_, i) => (
                      <div
                         key={i}
@@ -124,7 +137,7 @@ export function ComissPageSkeleton() {
                      </div>
                   ))}
                </div>
-            </div>
+            </Section>
          </div>
       </div>
    );

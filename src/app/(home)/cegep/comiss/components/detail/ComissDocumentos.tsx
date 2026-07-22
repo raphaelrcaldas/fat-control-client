@@ -1,3 +1,5 @@
+import { SectionWrapper } from "../../../components/SectionWrapper";
+
 interface ComissDocumentosProps {
    docProp: string;
    docAut: string;
@@ -10,17 +12,19 @@ export function ComissDocumentos({
    docEnc,
 }: ComissDocumentosProps) {
    return (
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-         <DocCard valor={docProp} label="Proposta" />
-         <DocCard valor={docAut} label="Autorização" />
-         <DocCard valor={docEnc || "ND"} label="Encerramento" />
-      </div>
+      <SectionWrapper title="Documentos de Referência">
+         <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+            <DocCell valor={docProp} label="Proposta" />
+            <DocCell valor={docAut} label="Autorização" />
+            <DocCell valor={docEnc || "ND"} label="Encerramento" />
+         </div>
+      </SectionWrapper>
    );
 }
 
-function DocCard({ valor, label }: { valor: string; label: string }) {
+function DocCell({ valor, label }: { valor: string; label: string }) {
    return (
-      <div className="rounded border border-slate-200 bg-white p-4 text-center shadow-sm">
+      <div className="rounded bg-slate-50 p-3 text-center">
          <span className="block text-base font-semibold text-gray-900 uppercase">
             {valor}
          </span>

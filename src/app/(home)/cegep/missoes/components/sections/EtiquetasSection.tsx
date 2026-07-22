@@ -2,7 +2,7 @@ import { Spinner } from "flowbite-react";
 import { HiTag, HiX } from "react-icons/hi";
 import { Etiqueta } from "services/routes/cegep/missoes";
 import { useEtiquetasMissoes } from "@/hooks/queries/useEtiquetasMissoes";
-import { SectionWrapper } from "../SectionWrapper";
+import { SectionWrapper } from "../../../components/SectionWrapper";
 
 interface EtiquetasSectionProps {
    etiquetasMissao: Etiqueta[];

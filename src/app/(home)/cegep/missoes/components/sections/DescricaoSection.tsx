@@ -1,5 +1,5 @@
 import { TextInput } from "flowbite-react";
-import { SectionWrapper } from "../SectionWrapper";
+import { SectionWrapper } from "../../../components/SectionWrapper";
 
 interface DescricaoSectionProps {
    desc: string;

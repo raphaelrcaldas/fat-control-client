@@ -3,7 +3,7 @@ import { HiPlus } from "react-icons/hi";
 import { UserMission } from "services/routes/cegep/missoes";
 import { MissionMilitar } from "../../registros/components/missionDetail/militar/missionMilitar";
 import { FormMilitar } from "../../registros/components/missionDetail/militar/formMilitar";
-import { SectionWrapper } from "../SectionWrapper";
+import { SectionWrapper } from "../../../components/SectionWrapper";
 
 interface MilitaresSectionProps {
    mils: UserMission[];

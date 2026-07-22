@@ -3,7 +3,7 @@ import { HiPlus } from "react-icons/hi";
 import { Pernoite } from "services/routes/cegep/missoes";
 import { MissionPernoite } from "../../registros/components/missionDetail/pernoite/missionPernoite";
 import { FormPernoite } from "../../registros/components/missionDetail/pernoite/formPernoite";
-import { SectionWrapper } from "../SectionWrapper";
+import { SectionWrapper } from "../../../components/SectionWrapper";
 
 interface PernoitesSectionProps {
    sortedPnts: Pernoite[];

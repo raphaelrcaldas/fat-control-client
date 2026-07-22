@@ -2,7 +2,7 @@ import { Label, Checkbox } from "flowbite-react";
 import { FaPlaneDeparture, FaPlaneArrival } from "react-icons/fa";
 import { DateTimePicker } from "@/app/(home)/components/dateTimePicker";
 import clsx from "clsx";
-import { SectionWrapper } from "../SectionWrapper";
+import { SectionWrapper } from "../../../components/SectionWrapper";
 import { formatNaiveDateTime } from "utils/dateHandler";
 
 interface PeriodoSectionProps {

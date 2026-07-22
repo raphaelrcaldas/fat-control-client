@@ -58,7 +58,7 @@ export function ComissPage({ detail, onEdit, onClose }: ComissPageProps) {
    return (
       <>
          <div className="flex w-full justify-center">
-            <div className="flex w-full max-w-7xl flex-col gap-3">
+            <div className="flex w-full max-w-7xl flex-col gap-2">
                {/* Barra de comando superior */}
                <ComissDetailHeader
                   title="Comissionamento"

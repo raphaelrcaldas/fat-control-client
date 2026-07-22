@@ -1,5 +1,5 @@
 import { Select, Label, TextInput } from "flowbite-react";
-import { SectionWrapper } from "../SectionWrapper";
+import { SectionWrapper } from "../../../components/SectionWrapper";
 
 interface DocumentoSectionProps {
    tipoDoc: string;
