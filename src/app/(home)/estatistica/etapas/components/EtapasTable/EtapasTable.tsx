@@ -274,18 +274,22 @@ export function EtapasTable({
 
    return (
       <div className="space-y-2">
-         {/* Selecionar tudo da pagina + ações em massa */}
-         <div className="ml-1 flex h-9 flex-wrap items-center gap-2 px-1">
-            <Checkbox
-               id="select-all-etapas"
-               color="primary"
-               checked={allSelected}
-               ref={(el) => {
-                  if (el) el.indeterminate = someSelected;
-               }}
-               onChange={onToggleAll}
-               className="size-[24px] cursor-pointer pointer-coarse:size-[44px]"
-            />
+         {/* Selecionar tudo da pagina + ações em massa. Mesma geometria dos
+             cards (mx-0.5 + coluna w-7 centrada, flush à esquerda) para o
+             checkbox cair sobre os das missões/etapas. */}
+         <div className="mx-0.5 flex h-9 flex-wrap items-center gap-2 pr-1">
+            <div className="flex w-7 shrink-0 items-center justify-center">
+               <Checkbox
+                  id="select-all-etapas"
+                  color="primary"
+                  checked={allSelected}
+                  ref={(el) => {
+                     if (el) el.indeterminate = someSelected;
+                  }}
+                  onChange={onToggleAll}
+                  className="size-5 cursor-pointer"
+               />
+            </div>
             <Label
                htmlFor="select-all-etapas"
                className="cursor-pointer text-sm font-medium text-gray-600"
