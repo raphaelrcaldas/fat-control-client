@@ -11,6 +11,13 @@ const loginRedirect = process.env.LOGIN_REDIRECT;
 const FIRST_LOGIN_COOKIE_MAX_AGE = 15 * 60; // 15 minutos
 const SESSION_COOKIE_MAX_AGE = 24 * 60 * 60; // 24 horas
 
+// Verifier do PKCE: precisa sobreviver a todo o round-trip do login (ida ao
+// FATLOGIN, usuário lendo/digitando as credenciais, e volta com ?code). Se
+// expirar antes, o retorno chega sem o verifier e o middleware força um novo
+// login — o usuário acaba tendo que logar 2-3 vezes seguidas. Fica acima do
+// code da API (5min), que só precisa cobrir o trecho submit->exchange.
+const PKCE_COOKIE_MAX_AGE = 10 * 60; // 10 minutos
+
 if (process.env.NODE_ENV === "development" && process.env.DEV_TOKEN) {
    var tokenDev = process.env.DEV_TOKEN;
 }
@@ -114,7 +121,14 @@ async function redirectToLogin(request: NextRequest) {
          status: 500,
       });
    }
-   const codeVerifier = generateRandomString(32);
+   // Reaproveita o verifier já emitido (refresh, prefetch do Next, botão
+   // voltar ou outra aba) em vez de gerar um novo a cada passagem: sobrescrever
+   // o cookie criaria mismatch com o code_challenge que já foi para a URL do
+   // FATLOGIN, fazendo a verificação PKCE falhar no retorno. sha256 é
+   // determinístico, então o mesmo verifier reproduz o mesmo challenge.
+   const codeVerifier =
+      request.cookies.get("pkce_code_verifier")?.value ||
+      generateRandomString(32);
    const codeChallenge = await sha256(codeVerifier);
    const params = new URLSearchParams({
       client_id: "fatcontrol",
@@ -129,7 +143,7 @@ async function redirectToLogin(request: NextRequest) {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       path: "/",
-      maxAge: 300,
+      maxAge: PKCE_COOKIE_MAX_AGE,
       sameSite: "lax",
    });
    return response;
