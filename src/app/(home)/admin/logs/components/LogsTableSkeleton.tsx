@@ -1,44 +1,56 @@
 "use client";
 
 import { TableCell, TableRow } from "flowbite-react";
+import clsx from "clsx";
 import { Skeleton } from "@/components/ui/Skeleton";
 
-function LogRowSkeleton() {
+/** Espelha o LogRow: mesmas colunas, mesmas larguras por breakpoint. */
+function LogRowSkeleton({ showAction }: { showAction: boolean }) {
    return (
       <TableRow className="bg-white">
-         <TableCell>
+         <TableCell className="w-px align-middle md:w-auto">
+            {/* Sem ano nem segundos, a coluna é mais estreita no mobile */}
+            <Skeleton className="h-4 w-16 md:w-28" />
+         </TableCell>
+         <TableCell className="align-middle">
             <Skeleton className="h-4 w-32" />
          </TableCell>
-         <TableCell>
-            <div className="flex flex-col gap-1">
-               <Skeleton className="h-4 w-40" />
-               <Skeleton className="h-6 w-16 rounded md:hidden" />
-            </div>
-         </TableCell>
-         <TableCell>
-            <div className="flex items-center gap-2">
+         <TableCell className="w-px align-middle md:w-auto">
+            <div className="flex items-center justify-center gap-1.5">
                <Skeleton className="size-2 rounded-full" />
-               <Skeleton className="h-4 w-12" />
+               <Skeleton className="h-4 w-8" />
             </div>
          </TableCell>
-         <TableCell className="hidden md:table-cell">
-            <Skeleton className="h-6 w-16 rounded" />
+         <TableCell
+            className={clsx(
+               "w-px align-middle md:w-auto",
+               !showAction && "hidden md:table-cell"
+            )}
+         >
+            <Skeleton className="mx-auto h-6 w-14 rounded" />
          </TableCell>
-         <TableCell>
-            <Skeleton className="h-6 w-20 rounded" />
+         <TableCell className="w-px align-middle md:w-auto">
+            {/* Só o dot no mobile; a pílula com rótulo volta no md+ */}
+            <Skeleton className="mx-auto size-2 rounded-full md:h-6 md:w-20 md:rounded" />
          </TableCell>
-         <TableCell>
-            <Skeleton className="size-7 rounded" />
+         <TableCell className="w-px align-middle md:w-auto">
+            <Skeleton className="size-8 rounded" />
          </TableCell>
       </TableRow>
    );
 }
 
-export function LogsTableSkeleton({ rows = 8 }: { rows?: number }) {
+export function LogsTableSkeleton({
+   showAction,
+   rows = 8,
+}: {
+   showAction: boolean;
+   rows?: number;
+}) {
    return (
       <>
          {Array.from({ length: rows }).map((_, i) => (
-            <LogRowSkeleton key={i} />
+            <LogRowSkeleton key={i} showAction={showAction} />
          ))}
       </>
    );

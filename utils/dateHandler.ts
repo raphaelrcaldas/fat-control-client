@@ -495,6 +495,28 @@ export function formatDateTimeFull(
 }
 
 /**
+ * Quebra formatDateTimeFull nas partes que um layout pode esconder por
+ * breakpoint: "24/07", "/26", "16:51" e ":17". Use quando a coluna é estreita —
+ * ano e segundos são os primeiros a sair, nessa ordem.
+ * Datetime inválido/ausente devolve todas as partes vazias.
+ */
+export function formatDateTimeFullParts(
+   isoDatetime: string | null | undefined
+): { dayMonth: string; year: string; hourMinute: string; seconds: string } {
+   const full = formatDateTimeFull(isoDatetime);
+   if (!full) return { dayMonth: "", year: "", hourMinute: "", seconds: "" };
+   const [date, time] = full.split(" ");
+   const [day, month, year] = date.split("/");
+   const [hour, minute, seconds] = time.split(":");
+   return {
+      dayMonth: `${day}/${month}`,
+      year: `/${year}`,
+      hourMinute: `${hour}:${minute}`,
+      seconds: `:${seconds}`,
+   };
+}
+
+/**
  * Retorna o instante atual formatado como "DD/MM/YYYY HH:MM" (horário local).
  * Use para carimbar "verificado em" em telas/exports.
  */

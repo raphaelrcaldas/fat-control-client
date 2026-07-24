@@ -100,6 +100,7 @@ export default function LogDashboard() {
             onDateStartChange={setDateStart}
             dateEnd={dateEnd}
             onDateEndChange={setDateEnd}
+            onClearFilters={handleClearFilters}
          />
 
          <LogsTable
@@ -108,6 +109,9 @@ export default function LogDashboard() {
             loading={logsQuery.isLoading}
             isFetching={logsQuery.isFetching}
             hasSearch={hasFilters}
+            // "" = todas as ações: só aí a ação varia por linha e a coluna
+            // paga a largura que custa no mobile
+            showAction={!actionFilter}
             onClearSearch={handleClearFilters}
             onDeleteClick={setLogToDelete}
             page={page}
