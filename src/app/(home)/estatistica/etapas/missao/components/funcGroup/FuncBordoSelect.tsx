@@ -42,7 +42,7 @@ export function FuncBordoSelect({
             onClick={() => setOpen((v) => !v)}
             className="focus:border-primary-400 focus:ring-primary-400 flex min-h-6 w-11 items-center justify-between border border-gray-300 bg-gray-50 px-1 py-0.5 text-[10px] font-bold text-gray-700 focus:ring-1 focus:outline-none pointer-coarse:min-h-11 pointer-coarse:min-w-11"
          >
-            <span >{value}</span>
+            <span>{value}</span>
             <HiChevronDown className="h-2.5 w-2.5 text-gray-400" />
          </button>
          {open &&
