@@ -47,6 +47,11 @@ function StatCard({
       "empty",
    ];
 
+   // `total` conta só quem tem data; o efetivo é ele + os sem data. Todas as
+   // barras usam esse mesmo denominador — com bases diferentes elas não
+   // seriam comparáveis entre si, que é a única razão de ficarem lado a lado.
+   const efetivo = total + counts.empty;
+
    return (
       <div className="overflow-hidden rounded border border-slate-200 bg-white p-5 shadow-sm">
          {/* Header */}
@@ -56,8 +61,10 @@ function StatCard({
                   <Icon className={clsx("h-5 w-5", iconColor)} />
                </div>
                <div>
-                  <h3 className="text-sm font-bold text-gray-800">{label}</h3>
-                  <p className="text-[11px] text-gray-400">{total} militares</p>
+                  <h2 className="text-sm font-bold text-gray-800">{label}</h2>
+                  <p className="text-xs text-gray-500 tabular-nums">
+                     {total} de {efetivo} com data
+                  </p>
                </div>
             </div>
             {urgent > 0 && (
@@ -75,9 +82,8 @@ function StatCard({
             {statuses.map((s) => {
                const cfg = getStatusConfig(s);
                const count = counts[s];
-               const grandTotal = total + counts.empty;
-               const base = s === "empty" ? grandTotal : total;
-               const pct = base > 0 ? Math.round((count / base) * 100) : 0;
+               const pct =
+                  efetivo > 0 ? Math.round((count / efetivo) * 100) : 0;
                return (
                   <div key={s} className="text-center">
                      <div
@@ -88,9 +94,13 @@ function StatCard({
                      >
                         {count}
                      </div>
+                     {/* Sem `opacity-80`: as cores 700/gray-500 foram escolhidas
+                         para passar AA e a opacidade anulava a escolha (3.3–4.1).
+                         `whitespace-nowrap` impede a colisão dos rótulos no
+                         tablet; a altura fixa mantém as 5 barras no mesmo eixo. */}
                      <div
                         className={clsx(
-                           "text-[9px] font-semibold tracking-widest uppercase opacity-80",
+                           "flex h-4 items-center justify-center text-[10px] font-semibold tracking-wide whitespace-nowrap uppercase",
                            cfg.color
                         )}
                      >
@@ -165,7 +175,10 @@ export default function StatCardsGrid({
    tovnStats,
 }: StatCardsGridProps) {
    return (
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+      // 3 colunas só a partir de `xl`: abaixo disso o card não passa de ~250px
+      // e os 5 rótulos colidem ("REGULARATENÇÃOCRÍTICO..."). Medido em 1024,
+      // onde a separação entre eles era de 0px.
+      <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
          <StatCard
             icon={FaHeartPulse}
             iconColor="text-rose-500"

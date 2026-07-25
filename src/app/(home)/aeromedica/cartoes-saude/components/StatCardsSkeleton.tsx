@@ -19,10 +19,13 @@ function StatCardSkeleton() {
          {/* Counters */}
          <div className="grid grid-cols-5 gap-2">
             {COUNTERS.map((i) => (
-               <div key={i} className="flex flex-col items-center gap-1.5">
-                  <div className="h-5 w-8 animate-pulse rounded bg-slate-200" />
-                  <div className="h-2 w-10 animate-pulse rounded bg-slate-100" />
-                  <div className="mt-0.5 h-1.5 w-full animate-pulse rounded-full bg-slate-200" />
+               <div key={i} className="flex flex-col items-center">
+                  <div className="h-6 w-8 animate-pulse rounded bg-slate-200" />
+                  {/* h-4: mesma caixa do rótulo real (evita o salto de 7px) */}
+                  <div className="flex h-4 items-center">
+                     <div className="h-2 w-10 animate-pulse rounded bg-slate-100" />
+                  </div>
+                  <div className="mt-1.5 h-1.5 w-full animate-pulse rounded-full bg-slate-200" />
                </div>
             ))}
          </div>
@@ -32,7 +35,7 @@ function StatCardSkeleton() {
 
 export default function StatCardsSkeleton() {
    return (
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
          <StatCardSkeleton />
          <StatCardSkeleton />
          <StatCardSkeleton />

@@ -13,11 +13,15 @@ import type {
    TripFilter,
    StatusFilter,
 } from "./types";
-import { getCemalStatus, getDateStatus } from "./utils/dateStatus";
+import {
+   getCemalStatus,
+   getDateStatus,
+   getWorstStatus,
+} from "./utils/dateStatus";
 import { compareByAntiguidade } from "utils/sortByAntiguidade";
 import StatCardsGrid from "./components/StatCards";
 import StatCardsSkeleton from "./components/StatCardsSkeleton";
-import Filters from "./components/Filters";
+import Filters, { STATUS_VALUES } from "./components/Filters";
 import CartoesSaudeTable from "./components/CartoesSaudeTable";
 import CartoesSaudeTableSkeleton from "./components/CartoesSaudeTableSkeleton";
 import EditCartaoDrawer from "./components/EditCartaoDrawer";
@@ -30,6 +34,8 @@ function parseCommaSeparated(value: string | null): string[] {
    return value.split(",").filter(Boolean);
 }
 
+const TRIP_VALUES: TripFilter[] = ["all", "trip", "naoTrip"];
+
 export default function CartoesSaudePage() {
    const searchParams = useSearchParams();
    const router = useRouter();
@@ -38,8 +44,21 @@ export default function CartoesSaudePage() {
    const urlSearch = searchParams.get("search") ?? "";
    const filterPG = parseCommaSeparated(searchParams.get("pg"));
    const filterFunc = parseCommaSeparated(searchParams.get("func"));
-   const tripFilter = (searchParams.get("trip") as TripFilter) || "all";
-   const statusFilter = (searchParams.get("status") as StatusFilter) || "all";
+   // Validados contra os valores conhecidos: `?status=xyz` na URL deixava a
+   // tabela vazia enquanto o seletor continuava exibindo "Todos".
+   const tripParamRaw = searchParams.get("trip");
+   const tripFilter: TripFilter = TRIP_VALUES.includes(
+      tripParamRaw as TripFilter
+   )
+      ? (tripParamRaw as TripFilter)
+      : "all";
+
+   const statusParamRaw = searchParams.get("status");
+   const statusFilter: StatusFilter = STATUS_VALUES.includes(
+      statusParamRaw as StatusFilter
+   )
+      ? (statusParamRaw as StatusFilter)
+      : "all";
 
    // --- Estado local apenas para o campo de busca (feedback imediato) ---
    const [searchUser, setSearchUser] = useState(urlSearch);
@@ -112,10 +131,12 @@ export default function CartoesSaudePage() {
       if (statusFilter === "sem_ata") {
          return cartoesSaude.filter((item) => item.cemal_tem_ata === false);
       }
-      return cartoesSaude.filter((item) => {
-         const worst = getCemalStatus(item);
-         return worst === statusFilter;
-      });
+      // O filtro seleciona pelo mesmo farol exibido na linha (pior status
+      // entre as datas preenchidas) — senão "Regular" devolveria militar com
+      // bolinha vermelha por causa de TOVN/IMAE.
+      return cartoesSaude.filter(
+         (item) => getWorstStatus(item) === statusFilter
+      );
    }, [cartoesSaude, statusFilter]);
 
    // Sort (null = antiguidade da API)
@@ -270,15 +291,15 @@ export default function CartoesSaudePage() {
          <header className="relative overflow-hidden rounded border border-slate-200 bg-white px-5 py-4 shadow-sm sm:px-6 sm:py-5">
             <span
                aria-hidden
-               className="absolute top-0 left-0 h-full w-1 bg-red-600"
+               className="bg-primary-600 absolute top-0 left-0 h-full w-1"
             />
             <div className="relative flex flex-wrap items-center justify-between gap-4">
                <div className="flex min-w-0 items-center gap-4">
-                  <div className="grid h-12 w-12 shrink-0 place-items-center rounded-md bg-red-50 text-red-600 ring-1 ring-red-100 ring-inset">
+                  <div className="bg-primary-50 text-primary-600 ring-primary-100 grid h-12 w-12 shrink-0 place-items-center rounded-md ring-1 ring-inset">
                      <MdHealthAndSafety className="h-6 w-6" />
                   </div>
                   <div className="min-w-0">
-                     <span className="block font-mono text-[10px] font-bold tracking-[0.3em] text-red-500 uppercase">
+                     <span className="text-primary-600 block font-mono text-[10px] font-bold tracking-[0.3em] uppercase">
                         Aeromédica
                      </span>
                      <h1 className="text-2xl leading-none font-extrabold tracking-tight text-slate-900 sm:text-[28px]">
@@ -314,8 +335,11 @@ export default function CartoesSaudePage() {
             )
          )}
 
-         {/* Filtros + Tabela */}
-         <div className="relative overflow-hidden rounded border border-slate-200 bg-white shadow-sm">
+         {/* Filtros + Tabela — sem `overflow-hidden`: o Dropdown do Flowbite
+             0.12.17 não usa portal e o recorte do card comia as opções do menu
+             de status (no mobile, "Todos" ficava fora da vista). O canto
+             arredondado da base fica por conta do wrapper da tabela. */}
+         <div className="relative rounded border border-slate-200 bg-white shadow-sm">
             <Filters
                searchUser={searchUser}
                onSearchChange={setSearchUser}
@@ -351,7 +375,7 @@ export default function CartoesSaudePage() {
                      onSort={handleSort}
                      onRowClick={handleRowClick}
                      hasActiveFilters={hasActiveFilters}
-                     onClearFilters={clearFilters}
+                     searchTerm={urlSearch}
                   />
                </div>
             )}

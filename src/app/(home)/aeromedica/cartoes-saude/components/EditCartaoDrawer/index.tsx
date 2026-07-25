@@ -172,12 +172,26 @@ export default function EditCartaoDrawer({
 
    return (
       <>
-         <Modal show={show} onClose={onClose} size="lg" dismissible>
+         {/* Ancorado no topo (o default do Flowbite é centralizar): as duas
+             abas têm alturas diferentes e, centralizado, trocar de aba
+             arrastava a janela inteira para cima sob o cursor. Preso no topo,
+             só a borda de baixo se move. */}
+         <Modal
+            show={show}
+            onClose={onClose}
+            size="lg"
+            dismissible
+            position="top-center"
+            className="py-8"
+         >
             <ModalHeader>
                {isEdit ? "Editar Cartão de Saúde" : "Cadastrar Cartão de Saúde"}
             </ModalHeader>
             <ModalBody>
-               <div className="h-140 space-y-4">
+               {/* min-h (e não h-140 cravado): a altura fixa deixava 378px de
+                   vazio na aba Atas, cortava o último campo no mobile e fazia
+                   a janela pular 39px a cada troca de aba. */}
+               <div className="min-h-96 space-y-4">
                   {/* Informações do militar */}
                   <MilitarInfo item={item} />
 
@@ -210,31 +224,37 @@ export default function EditCartaoDrawer({
                   </Tabs>
                </div>
             </ModalBody>
-            {activeTab === "dados" && (
-               <ModalFooter>
+            {/* Sempre montado: gateado por aba, o rodapé sumia na aba Atas —
+                a saída mudava de lugar e a altura do modal oscilava. */}
+            <ModalFooter>
+               {activeTab === "dados" ? (
                   <div className="flex w-full justify-between">
                      <div>
+                        {/* Destrutivo não precisa ser o botão mais chamativo:
+                            a confirmação em modal já segura o gatilho. */}
                         {isEdit && (
                            <Button
-                              color="red"
+                              color="light"
                               onClick={() => setShowDeleteConfirm(true)}
                               disabled={isLoading}
                            >
-                              <HiTrash className="mr-2" />
-                              Deletar
+                              <span className="flex items-center text-red-700">
+                                 <HiTrash className="mr-2" />
+                                 Deletar
+                              </span>
                            </Button>
                         )}
                      </div>
                      <div className="flex gap-2">
                         <Button
-                           color="gray"
+                           color="light"
                            onClick={onClose}
                            disabled={isLoading}
                         >
                            Cancelar
                         </Button>
                         <Button
-                           color="blue"
+                           color="primary"
                            onClick={handleSave}
                            disabled={isLoading}
                         >
@@ -246,8 +266,14 @@ export default function EditCartaoDrawer({
                         </Button>
                      </div>
                   </div>
-               </ModalFooter>
-            )}
+               ) : (
+                  <div className="flex w-full justify-end">
+                     <Button color="light" onClick={onClose}>
+                        Fechar
+                     </Button>
+                  </div>
+               )}
+            </ModalFooter>
          </Modal>
 
          {/* Modal de confirmação de deleção */}
@@ -271,7 +297,7 @@ export default function EditCartaoDrawer({
             </ModalBody>
             <ModalFooter>
                <Button
-                  color="gray"
+                  color="light"
                   onClick={() => setShowDeleteConfirm(false)}
                   disabled={isDeleting}
                >
@@ -361,7 +387,7 @@ function DadosTab({
                   onChange={onChange}
                />
                {item.cemal_tem_ata === false && (
-                  <p className="mt-1 text-xs font-medium text-amber-600">
+                  <p className="mt-1 text-xs font-medium text-amber-700">
                      Sem ata anexada
                   </p>
                )}

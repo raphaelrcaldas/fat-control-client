@@ -1,13 +1,14 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { Button, Label, TextInput, Spinner } from "flowbite-react";
+import { Badge, Button, Label, TextInput, Spinner } from "flowbite-react";
 import {
    HiTrash,
    HiUpload,
    HiExternalLink,
    HiExclamation,
    HiInformationCircle,
+   HiDocumentText,
 } from "react-icons/hi";
 import { useToast } from "@/app/context/toast";
 import {
@@ -186,14 +187,14 @@ export default function AtasTab({
                   onChange={handleFileChange}
                />
                <Button
-                  color="blue"
+                  color="primary"
                   size="sm"
                   onClick={() => fileInputRef.current?.click()}
                   disabled={isExtracting}
                >
                   {isExtracting ? (
                      <>
-                        <Spinner color="primary" size="sm" className="mr-2" />
+                        <Spinner color="gray" size="sm" className="mr-2" />
                         Processando...
                      </>
                   ) : (
@@ -229,9 +230,16 @@ export default function AtasTab({
                Não foi possível carregar as atas. Tente novamente.
             </p>
          ) : !atas || atas.length === 0 ? (
-            <p className="py-4 text-center text-sm text-gray-500 dark:text-gray-400">
-               Nenhuma ata cadastrada
-            </p>
+            <div className="flex flex-col items-center rounded border border-dashed border-slate-300 px-4 py-8 text-center dark:border-gray-600">
+               <HiDocumentText className="mb-3 h-10 w-10 text-gray-400" />
+               <p className="font-medium text-gray-600 dark:text-gray-300">
+                  Nenhuma ata anexada
+               </p>
+               <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                  Envie o PDF da última inspeção: os dados são lidos
+                  automaticamente e atualizam a validade do CEMAL.
+               </p>
+            </div>
          ) : (
             <div className="space-y-2">
                {atas.map((ata: AtaInspecaoWithUrl) => (
@@ -349,7 +357,7 @@ function ManualForm({
          {nomeConflito && (
             <div className="mt-3 space-y-2">
                <div className="rounded bg-white/60 px-3 py-2 dark:bg-gray-800/40">
-                  <span className="text-xs text-amber-600 dark:text-amber-400">
+                  <span className="text-xs text-amber-700 dark:text-amber-400">
                      Nome na ata
                   </span>
                   <p className="text-sm font-semibold text-gray-900 uppercase dark:text-white">
@@ -357,7 +365,7 @@ function ManualForm({
                   </p>
                </div>
                <div className="rounded bg-white/60 px-3 py-2 dark:bg-gray-800/40">
-                  <span className="text-xs text-amber-600 dark:text-amber-400">
+                  <span className="text-xs text-amber-700 dark:text-amber-400">
                      Nome no sistema
                   </span>
                   <p className="text-sm font-semibold text-gray-900 uppercase dark:text-white">
@@ -427,7 +435,7 @@ function ManualForm({
             )}
             <div className="flex gap-2 pt-1">
                <Button
-                  color="blue"
+                  color="primary"
                   size="xs"
                   onClick={onSave}
                   disabled={isSaving || !form.validade_inspsau}
@@ -438,7 +446,7 @@ function ManualForm({
                        ? "Confirmar e Enviar"
                        : "Salvar e Enviar"}
                </Button>
-               <Button color="gray" size="xs" onClick={onCancel}>
+               <Button color="light" size="xs" onClick={onCancel}>
                   Cancelar
                </Button>
             </div>
@@ -464,9 +472,11 @@ function AtaCard({
       <div className="rounded border border-slate-200 bg-white p-3 dark:border-gray-700 dark:bg-gray-800">
          <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-               <span className="text-lg font-bold text-gray-700 dark:text-gray-300">
-                  {ata.letra_finalidade || "—"}
-               </span>
+               {/* Glifo solto ("H") não diz nada a quem não conhece a
+                   nomenclatura — vai rotulado. */}
+               <Badge color="gray">
+                  Finalidade {ata.letra_finalidade || "—"}
+               </Badge>
                <div className="h-8 w-px bg-gray-200 dark:bg-gray-600" />
                <div className="space-y-0.5">
                   <p className="text-sm text-gray-500 dark:text-gray-400">
@@ -485,12 +495,15 @@ function AtaCard({
             </div>
 
             <div className="flex items-center gap-1">
+               {/* <a> não herda o alvo de 44px que o tema dá ao Button —
+                   o padding cresce no dedo e o nome acessível vem explícito. */}
                <a
                   href={ata.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="rounded p-2 text-blue-600 hover:bg-blue-50 dark:text-blue-400 dark:hover:bg-gray-700"
+                  className="text-primary-600 hover:bg-primary-50 dark:text-primary-400 rounded p-2 dark:hover:bg-gray-700 pointer-coarse:p-3"
                   title="Visualizar PDF"
+                  aria-label="Visualizar PDF da ata"
                >
                   <HiExternalLink className="h-4 w-4" />
                </a>

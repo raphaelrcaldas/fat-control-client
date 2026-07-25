@@ -174,7 +174,7 @@ function CleanupModal({ show, onClose, itens }: CleanupModalProps) {
                   {selectedIds.size} de {itens.length} selecionado(s)
                </span>
                <div className="flex gap-2">
-                  <Button color="gray" onClick={onClose} disabled={isDeleting}>
+                  <Button color="light" onClick={onClose} disabled={isDeleting}>
                      Cancelar
                   </Button>
                   <Button
