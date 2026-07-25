@@ -88,7 +88,7 @@ function CleanupModal({ show, onClose, itens }: CleanupModalProps) {
       <Modal show={show} onClose={onClose} size="2xl" dismissible>
          <ModalHeader>Limpar CRM de militares inativos</ModalHeader>
          <ModalBody>
-            <p className="mb-4 text-sm text-gray-600 dark:text-gray-400">
+            <p className="mb-4 text-sm text-gray-600">
                Selecione os militares. A exclusão remove o certificado CRM de
                militares atualmente inativos.
             </p>
@@ -112,7 +112,7 @@ function CleanupModal({ show, onClose, itens }: CleanupModalProps) {
                         <TableRow
                            key={item.user_id}
                            className={clsx(
-                              "bg-white dark:border-gray-700 dark:bg-gray-800",
+                              "bg-white",
                               isDeleting
                                  ? "cursor-not-allowed"
                                  : "cursor-pointer"
@@ -129,7 +129,7 @@ function CleanupModal({ show, onClose, itens }: CleanupModalProps) {
                                  aria-label={`Selecionar ${item.nome_guerra}`}
                               />
                            </TableCell>
-                           <TableCell className="font-medium whitespace-nowrap text-gray-900 uppercase dark:text-white">
+                           <TableCell className="font-medium whitespace-nowrap text-gray-900 uppercase">
                               {item.p_g} {item.nome_guerra}
                            </TableCell>
                         </TableRow>
@@ -140,11 +140,11 @@ function CleanupModal({ show, onClose, itens }: CleanupModalProps) {
          </ModalBody>
          <ModalFooter>
             <div className="flex w-full items-center justify-between">
-               <span className="text-sm text-gray-600 dark:text-gray-400">
+               <span className="text-sm text-gray-600">
                   {selectedIds.size} de {itens.length} selecionado(s)
                </span>
                <div className="flex gap-2">
-                  <Button color="gray" onClick={onClose} disabled={isDeleting}>
+                  <Button color="light" onClick={onClose} disabled={isDeleting}>
                      Cancelar
                   </Button>
                   <Button

@@ -25,24 +25,22 @@ const StatCards = memo(function StatCards({ stats }: StatCardsProps) {
    const { total, counts } = stats;
    const urgent = counts.expired + counts.critical;
 
+   // Card em largura total, no mesmo eixo do masthead e da tabela: identidade à
+   // esquerda e contadores à direita a partir de md (empilhados no mobile).
    return (
-      <div className="flex justify-center">
-         <div className="w-full max-w-md overflow-hidden rounded border border-slate-200 bg-white p-5 shadow-sm">
-            {/* Header */}
-            <div className="mb-4 flex items-center justify-between">
-               <div className="flex items-center gap-3">
-                  <div className="rounded-md bg-red-50 p-2.5">
-                     <MdGroups className="h-5 w-5 text-red-600" />
-                  </div>
-                  <div>
-                     <h3 className="text-sm font-bold text-gray-800">CRM</h3>
-                     <p className="text-[11px] text-gray-400">
-                        {total} militares
-                     </p>
-                  </div>
+      <div className="overflow-hidden rounded border border-slate-200 bg-white p-5 shadow-sm">
+         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+            {/* Identidade */}
+            <div className="flex items-center gap-3">
+               <div className="bg-primary-50 rounded-md p-2.5">
+                  <MdGroups className="text-primary-600 h-5 w-5" />
+               </div>
+               <div>
+                  <p className="text-sm font-bold text-gray-800">Situação</p>
+                  <p className="text-xs text-gray-500">{total} militares</p>
                </div>
                {urgent > 0 && (
-                  <Badge color="failure" size="sm">
+                  <Badge color="red" size="sm">
                      <span className="flex items-center gap-1">
                         <MdWarning className="h-3 w-3" />
                         <span className="font-bold">{urgent}</span>
@@ -51,8 +49,9 @@ const StatCards = memo(function StatCards({ stats }: StatCardsProps) {
                )}
             </div>
 
-            {/* Counters */}
-            <div className="grid grid-cols-5 gap-2">
+            {/* Contadores — crescem com a faixa livre em vez de se amontoar
+                na borda direita (o vão vira respiro entre eles). */}
+            <div className="grid grid-cols-5 gap-2 md:flex-1 md:gap-6 lg:max-w-3xl">
                {STATUSES.map((s) => {
                   const cfg = getStatusConfig(s);
                   const count = counts[s];
@@ -67,9 +66,11 @@ const StatCards = memo(function StatCards({ stats }: StatCardsProps) {
                         >
                            {count}
                         </div>
+                        {/* Sem opacity: os tons 700 de dateStatus passam AA
+                            (4.5:1) em cheio — a opacidade os derrubava. */}
                         <div
                            className={clsx(
-                              "text-[9px] font-semibold tracking-widest uppercase opacity-80",
+                              "text-[10px] font-semibold tracking-widest uppercase",
                               cfg.color
                            )}
                         >

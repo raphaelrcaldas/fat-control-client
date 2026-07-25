@@ -157,7 +157,7 @@ const EditCrmModal = memo(function EditCrmModal({
                   </div>
                   <div className="flex gap-2">
                      <Button
-                        color="gray"
+                        color="light"
                         onClick={onClose}
                         disabled={isLoading}
                      >
@@ -167,8 +167,10 @@ const EditCrmModal = memo(function EditCrmModal({
                         resource="crm"
                         requiredPerm={isEdit ? "update" : "create"}
                      >
+                        {/* `primary` (marca da org), não `red`: vermelho aqui
+                            fica indistinguível do botão de deletar ao lado. */}
                         <Button
-                           color="red"
+                           color="primary"
                            onClick={handleSave}
                            disabled={isLoading}
                         >

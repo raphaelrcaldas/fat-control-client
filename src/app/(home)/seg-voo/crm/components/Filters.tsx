@@ -45,11 +45,14 @@ function FilterButton({
    children: React.ReactNode;
    dot?: string;
 }) {
+   // Borda também no estado ativo: `primary` não traz borda e `light` traz —
+   // sem isso o chip muda de largura (e a fileira "pula") a cada clique.
    return (
       <Button
          type="button"
          size="xs"
-         color={active ? "red" : "light"}
+         color={active ? "primary" : "light"}
+         className={clsx(active && "border-primary-700 border")}
          onClick={onClick}
       >
          <span className="flex items-center gap-1.5">
@@ -160,7 +163,9 @@ const Filters = memo(function Filters({
                      </span>
                      {isFetching && <Spinner color="primary" size="sm" />}
                   </div>
-                  {hasActiveFilters && (
+                  {/* Sem resultado, quem oferece o "limpar" é o estado vazio
+                      da tabela — aqui seria um segundo botão idêntico. */}
+                  {hasActiveFilters && filteredCount > 0 && (
                      <Button
                         type="button"
                         size="xs"
