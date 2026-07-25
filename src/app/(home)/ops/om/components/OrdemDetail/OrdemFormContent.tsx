@@ -19,6 +19,7 @@ import { EtapasTable } from "./EtapasTable";
 import { EtapaModal } from "./EtapaModal";
 import { FormSection } from "./FormSection";
 import { OrdemFormHeader } from "./OrdemFormHeader";
+import { OrdemHistorico } from "./OrdemHistorico";
 import { useOrdemForm } from "./hooks/useOrdemForm";
 import { useOrdemExports } from "./hooks/useOrdemExports";
 import { LabelPicker } from "../LabelPicker";
@@ -522,6 +523,17 @@ export function OrdemFormContent({
                         className="w-full max-w-2xl"
                      />
                   </FormSection>
+
+                  {/* Auditoria: só existe para OM já salva (na criação não há
+                      resource_id para consultar) e só para quem edita */}
+                  {!isNew && ordem?.id && (
+                     <PermBased
+                        resource={"ordem_missao"}
+                        requiredPerm={"update"}
+                     >
+                        <OrdemHistorico ordemId={ordem.id} />
+                     </PermBased>
+                  )}
                </form>
             </div>
          </div>
