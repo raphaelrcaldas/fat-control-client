@@ -37,9 +37,11 @@ export function UserMissionDetailModal({
 
    return (
       <Modal show={show} size="6xl" onClose={onClose} dismissible popup>
-         <div className="relative flex max-h-[90vh] flex-col">
+         {/* overflow-hidden + rounded: recorta o header no mesmo raio do
+             ModalContent (tema define `rounded`), senão sobra branco nos cantos */}
+         <div className="relative flex max-h-[90vh] flex-col overflow-hidden rounded">
             {/* Header */}
-            <div className="from-primary-500 to-primary-700 shrink-0 rounded-t-lg bg-linear-to-r p-4 text-white">
+            <div className="from-primary-500 to-primary-700 shrink-0 bg-linear-to-r p-4 text-white">
                <button
                   onClick={onClose}
                   className="absolute top-3 right-3 z-10 rounded p-1.5 transition-colors hover:bg-white/20"
