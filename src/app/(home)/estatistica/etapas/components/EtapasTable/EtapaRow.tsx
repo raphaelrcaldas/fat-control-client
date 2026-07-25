@@ -148,16 +148,23 @@ export const EtapaRow = memo(function EtapaRow({
                : !parte1 && "bg-emerald-50 hover:bg-emerald-100"
          )}
       >
-         <TableCell className="w-7">
-            {/* Glifo compacto e discreto (17.5px), sem alvo de 44px — densidade
-                priorizada sobre a ergonomia de toque nesta lista. */}
-            <Checkbox
-               color="primary"
-               checked={checked}
-               onChange={() => onToggleEtapa(id)}
-               aria-label={`Selecionar etapa ${origem}-${destino} de ${isoDateToString(data)}`}
-               className="size-5 cursor-pointer"
-            />
+         {/* px-0 + caixa w-7 ancorada à esquerda: em `table-layout: auto` o
+             `w-7` da célula é só preferência — sobrando espaço, o navegador
+             estica a coluna (chega a 42px) e um checkbox centrado escorrega
+             para a direita, saindo do eixo dos checkboxes de missão/página.
+             Com a caixa flush à esquerda o eixo fica fixo em 12.25px. */}
+         <TableCell className="w-7 px-0">
+            <div className="flex w-7 items-center justify-center">
+               {/* Glifo compacto e discreto (17.5px), sem alvo de 44px —
+                   densidade priorizada sobre a ergonomia de toque nesta lista. */}
+               <Checkbox
+                  color="primary"
+                  checked={checked}
+                  onChange={() => onToggleEtapa(id)}
+                  aria-label={`Selecionar etapa ${origem}-${destino} de ${isoDateToString(data)}`}
+                  className="size-5 cursor-pointer"
+               />
+            </div>
          </TableCell>
          <TableCell className="w-12 font-mono text-slate-500 sm:w-20">
             <span className="sm:hidden">{isoDateToShort(data)}</span>

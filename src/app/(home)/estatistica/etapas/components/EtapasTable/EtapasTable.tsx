@@ -277,7 +277,9 @@ export function EtapasTable({
          {/* Selecionar tudo da pagina + ações em massa. Mesma geometria dos
              cards (mx-0.5 + coluna w-7 centrada, flush à esquerda) para o
              checkbox cair sobre os das missões/etapas. */}
-         <div className="mx-0.5 flex h-9 flex-wrap items-center gap-2 pr-1">
+         {/* pl-px compensa a borda de 1px do card das missões, que empurra o
+             conteúdo interno e tirava esta barra do eixo por 1px. */}
+         <div className="mx-0.5 flex h-9 flex-wrap items-center gap-2 pr-1 pl-px">
             <div className="flex w-7 shrink-0 items-center justify-center">
                <Checkbox
                   id="select-all-etapas"
