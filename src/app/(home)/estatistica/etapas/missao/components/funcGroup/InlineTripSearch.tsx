@@ -230,11 +230,11 @@ export function InlineTripSearch({
                   }}
                >
                   {isQueryShort ? (
-                     <p className="p-3 text-center text-xs text-gray-400">
+                     <p className="p-3 text-center text-xs text-gray-500">
                         Digite pelo menos 2 letras para buscar
                      </p>
                   ) : isSearching && results.length === 0 ? (
-                     <div className="flex items-center justify-center gap-2 p-3 text-xs text-gray-400">
+                     <div className="flex items-center justify-center gap-2 p-3 text-xs text-gray-500">
                         <Spinner size="sm" color="primary" />
                         Buscando...
                      </div>

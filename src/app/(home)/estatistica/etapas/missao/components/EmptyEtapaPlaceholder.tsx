@@ -12,7 +12,7 @@ export function EmptyEtapaPlaceholder() {
          <p className="text-sm font-medium text-gray-600">
             Selecione uma etapa
          </p>
-         <p className="max-w-xs text-xs text-gray-400">
+         <p className="max-w-xs text-xs text-gray-500">
             Escolha uma etapa na barra lateral, ou clique em &quot;Nova
             etapa&quot; para começar.
          </p>

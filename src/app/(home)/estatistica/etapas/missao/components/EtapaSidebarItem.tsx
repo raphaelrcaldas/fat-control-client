@@ -14,6 +14,8 @@ import { EtapaStatusBadge } from "./EtapaStatusBadge";
 export type EtapaStatus = "ok" | "verificar" | "editando" | "rascunho";
 
 type Props = {
+   /** Ordinal da etapa na missao, com zero a esquerda ("01"). */
+   numero: string;
    data: string;
    origem: string;
    destino: string;
@@ -29,6 +31,7 @@ type Props = {
 };
 
 function EtapaSidebarItemBase({
+   numero,
    data,
    origem,
    destino,
@@ -66,6 +69,11 @@ function EtapaSidebarItemBase({
          <div className="flex min-w-0 flex-col gap-1">
             <div className="flex min-w-0 items-center justify-between gap-3">
                <div className="flex min-w-0 items-center gap-1 text-sm font-semibold text-gray-900">
+                  {/* No mobile o card e a unica pista de qual etapa e qual — o
+                      titulo "Etapa 01" do header nunca aparece junto do drawer */}
+                  <span className="mr-0.5 shrink-0 font-mono text-xs text-gray-500">
+                     {numero}
+                  </span>
                   <span className="truncate font-mono">{origem}</span>
                   <span className="shrink-0 text-gray-400">→</span>
                   <span className="truncate font-mono">{destino}</span>

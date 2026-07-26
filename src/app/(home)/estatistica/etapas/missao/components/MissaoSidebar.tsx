@@ -86,7 +86,7 @@ export function MissaoSidebar({
 
          <div className="flex-1 overflow-y-auto mask-[linear-gradient(to_bottom,transparent_0,black_16px,black_calc(100%-16px),transparent_100%)] p-3">
             {etapas.length === 0 ? (
-               <p className="px-2 py-6 text-center text-sm text-gray-400">
+               <p className="px-2 py-6 text-center text-sm text-gray-500">
                   Nenhuma etapa adicionada.
                </p>
             ) : (
@@ -94,6 +94,7 @@ export function MissaoSidebar({
                   {etapas.map((etapa) => (
                      <li key={etapa.localId}>
                         <EtapaSidebarItem
+                           numero={etapa.numero}
                            data={etapa.data}
                            origem={etapa.origem}
                            destino={etapa.destino}
@@ -111,20 +112,20 @@ export function MissaoSidebar({
                   ))}
                </ul>
             )}
-         </div>
 
-         {onDeleteMissao && (
-            <div className="border-t border-gray-200 bg-white px-4 py-3">
+            {/* Dentro da area rolavel, e nao num rodape fixo: no drawer do
+                mobile o rodape caia abaixo da dobra e ficava inalcancavel */}
+            {onDeleteMissao && (
                <button
                   type="button"
                   onClick={onDeleteMissao}
-                  className="flex w-full items-center justify-center gap-1.5 rounded-md border border-red-200 bg-red-50 px-3 py-1.5 text-sm font-medium text-red-700 transition hover:bg-red-100 pointer-coarse:min-h-[44px]"
+                  className="mt-3 flex w-full items-center justify-center gap-1.5 rounded-md border border-red-200 bg-red-50 px-3 py-1.5 text-sm font-medium text-red-700 transition hover:bg-red-100 pointer-coarse:min-h-[44px]"
                >
                   <HiTrash className="h-4 w-4" />
                   Excluir missão
                </button>
-            </div>
-         )}
+            )}
+         </div>
       </aside>
    );
 }

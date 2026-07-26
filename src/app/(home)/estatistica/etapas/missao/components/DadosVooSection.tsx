@@ -30,7 +30,7 @@ export function DadosVooSection({ form, aeronavesList }: DadosVooSectionProps) {
       <section className="space-y-6">
          {/* Bloco 1: Identificação do Voo */}
          <div>
-            <div className="grid grid-cols-1 gap-4 text-left sm:grid-cols-2 lg:grid-cols-4">
+            <div className="grid grid-cols-2 gap-4 text-left sm:grid-cols-2 lg:grid-cols-4">
                <FormField label="Data" htmlFor="data" error={errors.data}>
                   <TextInput
                      id="data"
@@ -189,7 +189,7 @@ export function DadosVooSection({ form, aeronavesList }: DadosVooSectionProps) {
                      onChange={(v) => setField("sagem", v)}
                      aria-label="Registrado no SAGEM"
                      sizing="md"
-                     className="min-h-[25px] items-center pointer-coarse:min-h-[44px] pointer-coarse:min-w-[44px]"
+                     className="min-h-6.35 items-center pointer-coarse:min-h-11 pointer-coarse:min-w-11"
                   />
                </FormField>
                <FormField
@@ -201,7 +201,7 @@ export function DadosVooSection({ form, aeronavesList }: DadosVooSectionProps) {
                      onChange={(v) => setField("parte1", v)}
                      aria-label="Relatório Parte 1 recolhido"
                      sizing="md"
-                     className="min-h-[25px] items-center pointer-coarse:min-h-[44px] pointer-coarse:min-w-[44px]"
+                     className="min-h-6.35 items-center pointer-coarse:min-h-11 pointer-coarse:min-w-11"
                   />
                </FormField>
             </div>

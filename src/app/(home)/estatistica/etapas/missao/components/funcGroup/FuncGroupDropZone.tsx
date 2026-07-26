@@ -1,7 +1,6 @@
 import clsx from "clsx";
 import { useDroppable } from "@dnd-kit/core";
 import { HiX } from "react-icons/hi";
-import { MdDragIndicator } from "react-icons/md";
 import {
    FUNCOES_CONFIG,
    getPosicoesByFunc,
@@ -71,7 +70,7 @@ export function FuncGroupDropZone({
                <button
                   type="button"
                   onClick={onRemoveAll}
-                  className="-my-1 grid size-6.5 place-items-center rounded opacity-60 hover:opacity-100 pointer-coarse:size-11"
+                  className="-my-1 grid size-7 place-items-center rounded opacity-60 hover:opacity-100 pointer-coarse:size-11"
                   title="Limpar todos"
                   aria-label={`Limpar todos de ${config.label}`}
                >
@@ -85,10 +84,9 @@ export function FuncGroupDropZone({
             {trips.map((t) => (
                <div
                   key={t.tripId}
-                  className="flex items-center gap-1 border border-slate-200 bg-white px-1.5 py-1 text-xs uppercase shadow"
+                  className="flex items-center gap-1 border border-slate-200 bg-white px-1.5 py-1 text-sm uppercase shadow md:text-xs"
                >
-                  <MdDragIndicator className="h-3.5 w-3.5 shrink-0 text-gray-300" />
-                  <span className="min-w-0 flex-1 truncate font-medium text-gray-700">
+                  <span className="min-w-0 flex-1 font-medium text-gray-700 sm:truncate">
                      {t.pGraduacao} {t.nomeGuerra}
                   </span>
                   {posicoes.length > 0 ? (
@@ -100,14 +98,14 @@ export function FuncGroupDropZone({
                         }
                      />
                   ) : (
-                     <span className="shrink-0 text-xs text-gray-400">--</span>
+                     <span className="shrink-0 text-xs text-gray-500">--</span>
                   )}
                   <button
                      type="button"
                      onClick={() => onRemove(t.tripId)}
                      title={`Remover ${t.nomeGuerra}`}
                      aria-label={`Remover ${t.nomeGuerra} da função ${config.label}`}
-                     className="-my-1 ml-0.5 grid size-6.5 shrink-0 place-items-center text-gray-300 hover:text-red-500 pointer-coarse:size-11"
+                     className="-my-1 ml-0.5 grid size-7 shrink-0 place-items-center text-gray-400 hover:text-red-500 pointer-coarse:size-11"
                   >
                      <HiX className="h-3 w-3" />
                   </button>
@@ -115,8 +113,15 @@ export function FuncGroupDropZone({
             ))}
 
             {trips.length === 0 && (
-               <p className="py-1 text-center text-xs text-gray-400">
-                  Arraste tripulantes para cá
+               <p className="py-1 text-center text-xs text-gray-500">
+                  {/* gray-600: sobre o fundo tingido do card (blue-50 etc.) o
+                      gray-500 fica em 4.44:1 e reprova AA por 0.06 */}
+                  <span className="text-gray-600 pointer-coarse:hidden">
+                     Arraste tripulantes para cá
+                  </span>
+                  <span className="hidden pointer-coarse:inline">
+                     Use + Adicionar abaixo
+                  </span>
                </p>
             )}
 

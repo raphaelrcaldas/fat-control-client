@@ -1,8 +1,10 @@
 "use client";
 
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import { Drawer } from "flowbite-react";
+import { HiMenuAlt2, HiX } from "react-icons/hi";
 
 import {
    useMissaoDraft,
@@ -38,6 +40,23 @@ export function MissaoEditor({ mode }: MissaoEditorProps) {
    // Drawer da sidebar nas telas < lg (no desktop a sidebar é fixa)
    const [sidebarOpen, setSidebarOpen] = useState(false);
    const contentRef = useRef<HTMLDivElement>(null);
+
+   // O drawer precisa sair do wrapper de PageTransition: ele carrega um
+   // `translate` residual (translate-y-0), e no CSS moderno qualquer `translate`
+   // != none cria bloco contêiner para descendentes `position: fixed`. Preso ali,
+   // o drawer se ancorava 60px abaixo do topo, vazava a viewport e injetava
+   // rolagem espúria no <main> mesmo fechado.
+   const [portalTarget, setPortalTarget] = useState<HTMLElement | null>(null);
+   useEffect(() => {
+      setPortalTarget(document.body);
+   }, []);
+
+   // O Drawer do Flowbite 0.12 não move nem prende o foco: sem isto, abrir o
+   // painel deixa o teclado passeando pelo formulário atrás dele
+   const drawerCloseRef = useRef<HTMLButtonElement>(null);
+   useEffect(() => {
+      if (sidebarOpen) drawerCloseRef.current?.focus();
+   }, [sidebarOpen]);
 
    const { saveMutation, updateMutation, deleteMutation, handleSave } =
       useMissaoActions({ draft, mode });
@@ -291,15 +310,41 @@ export function MissaoEditor({ mode }: MissaoEditorProps) {
          {/* Sidebar em drawer nas telas < lg (no desktop ela é coluna fixa).
              Conteúdo montado apenas quando aberto para não deixar inputs
              duplicados focáveis fora da tela */}
-         <Drawer
-            open={sidebarOpen}
-            onClose={() => setSidebarOpen(false)}
-            position="left"
-            aria-label="Etapas da missão"
-            className="w-80 p-0 lg:hidden"
-         >
-            {sidebarOpen && sidebarNode}
-         </Drawer>
+         {portalTarget &&
+            createPortal(
+               <Drawer
+                  open={sidebarOpen}
+                  onClose={() => setSidebarOpen(false)}
+                  position="left"
+                  aria-label="Etapas da missão"
+                  // Abaixo do navbar (fixed, z-50, 4rem): ancorado em top-0 o
+                  // cabeçalho do drawer ficava por baixo dele e o X não recebia
+                  // nem clique nem toque
+                  className="top-16 flex h-[calc(100dvh-4rem)] w-80 flex-col overflow-hidden p-0 lg:hidden"
+               >
+                  {/* Header próprio em vez do DrawerHeader do Flowbite: o dele
+                      é um <h5> fixo, que quebra a ordem de headings (h2 → h5) */}
+                  <div className="flex shrink-0 items-center justify-between gap-2 border-b border-gray-200 px-4 py-2">
+                     <h2 className="flex items-center gap-2 text-sm font-semibold text-gray-700">
+                        <HiMenuAlt2 aria-hidden className="h-4 w-4" />
+                        Etapas da missão
+                     </h2>
+                     <button
+                        ref={drawerCloseRef}
+                        type="button"
+                        onClick={() => setSidebarOpen(false)}
+                        aria-label="Fechar painel de etapas"
+                        className="focus-visible:outline-primary-500 grid size-9 shrink-0 place-items-center rounded-full text-gray-500 transition hover:bg-gray-100 hover:text-gray-700 focus-visible:outline-2 pointer-coarse:size-11"
+                     >
+                        <HiX className="h-5 w-5" />
+                     </button>
+                  </div>
+                  {sidebarOpen && (
+                     <div className="min-h-0 flex-1">{sidebarNode}</div>
+                  )}
+               </Drawer>,
+               portalTarget
+            )}
          {confirmConfig && (
             <ConfirmModal
                show={confirmDialog !== null}

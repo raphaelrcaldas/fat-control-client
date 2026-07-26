@@ -85,7 +85,7 @@ export function EspecificosSection({ especificos }: EspecificosSectionProps) {
                <p className="text-sm font-medium text-gray-500">
                   Nenhum específico adicionado
                </p>
-               <p className="mt-1 text-xs text-gray-400">
+               <p className="mt-1 text-xs text-gray-500">
                   Use os botões acima para registrar lançamentos de
                   paraquedista, reabastecimentos ou cargas pesadas desta etapa.
                </p>

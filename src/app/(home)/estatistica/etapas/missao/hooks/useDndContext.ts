@@ -5,6 +5,7 @@ import { useCallback, useState, type Dispatch } from "react";
 import {
    KeyboardSensor,
    PointerSensor,
+   TouchSensor,
    useSensor,
    useSensors,
    type DragEndEvent,
@@ -44,8 +45,15 @@ export function useDndContext({
 }: UseDndContextParams): UseDndContextResult {
    const [activeTrip, setActiveTrip] = useState<DraftPoolTrip | null>(null);
 
+   // TouchSensor com delay (long press) e nao distancia: no dedo, um limiar de
+   // distancia perde a disputa com a rolagem — o navegador reivindica o gesto e
+   // dispara `pointercancel`, abortando o arrasto antes do overlay aparecer.
+   // O arrastavel tambem precisa de `touch-none` p/ o browser nao rolar.
    const sensors = useSensors(
       useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+      useSensor(TouchSensor, {
+         activationConstraint: { delay: 200, tolerance: 8 },
+      }),
       useSensor(KeyboardSensor)
    );
 

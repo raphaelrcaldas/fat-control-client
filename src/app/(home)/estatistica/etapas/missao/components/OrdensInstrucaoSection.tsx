@@ -64,7 +64,7 @@ export function OrdensInstrucaoSection({
                <p className="text-sm font-medium text-gray-500">
                   Nenhuma Ordem de Instrução associada
                </p>
-               <p className="mt-1 text-xs text-gray-400">
+               <p className="mt-1 text-xs text-gray-500">
                   Clique em "Nova OI" se houver registro de treinamento para
                   adicionar à estatística.
                </p>

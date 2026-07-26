@@ -159,9 +159,13 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
          {children}
 
          {/* Toast container */}
+         {/* Largura explicita: ancorado so em `left-1/2`, o container encolhia
+             para a metade direita da tela e o toast ficava com ~185px no mobile
+             (22 caracteres por linha). No mobile fica embaixo para nao cobrir o
+             cabecalho e o botao de salvar da pagina. */}
          <div
             aria-live="assertive"
-            className="pointer-events-none fixed top-0 left-1/2 z-9999 flex -translate-x-1/2 flex-col items-center gap-4 px-4 py-6"
+            className="pointer-events-none fixed inset-x-0 bottom-0 z-9999 mx-auto flex w-full max-w-sm flex-col items-center gap-4 px-4 py-6 sm:top-0 sm:bottom-auto"
          >
             {toasts.map((toast) => (
                <ToastItem key={toast.id} toast={toast} onRemove={remove} />

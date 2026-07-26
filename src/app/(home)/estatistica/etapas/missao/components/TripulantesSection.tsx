@@ -29,7 +29,9 @@ function DraggablePoolChip({ trip }: { trip: DraftPoolTrip }) {
       <div
          ref={setNodeRef}
          className={clsx(
-            "grid cursor-grab items-center rounded border px-2.5 py-1 text-center font-mono text-sm font-semibold uppercase pointer-coarse:min-h-[44px] pointer-coarse:min-w-[44px]",
+            // touch-none: sem isso o navegador reivindica o gesto para rolagem e
+            // cancela o arrasto no dedo (pointercancel) antes de ele comecar
+            "grid cursor-grab touch-none items-center rounded border px-2.5 py-1 text-center font-mono text-sm font-semibold uppercase pointer-coarse:min-h-11 pointer-coarse:min-w-11",
             isDragging ? "opacity-30" : "",
             colors
                ? colors.badge
@@ -120,7 +122,17 @@ export function TripulantesSection({
             {poolByFunc.length > 0 && (
                <div className="rounded border border-dashed border-slate-400 bg-slate-50 px-2 pt-2 pb-1 shadow-sm">
                   <p className="mb-1 text-xs font-semibold tracking-wide text-gray-500 uppercase">
-                     Pool da Missão — arraste para atribuir função
+                     Pool da Missão
+                     {/* No dedo o arrasto exige toque longo — instruir o gesto
+                         certo em vez de prometer o do mouse */}
+                     <span className="pointer-coarse:hidden">
+                        {" "}
+                        — arraste para atribuir função
+                     </span>
+                     <span className="hidden pointer-coarse:inline">
+                        {" "}
+                        — toque e segure para arrastar
+                     </span>
                   </p>
                   <div className="flex flex-col divide-y divide-slate-300">
                      {poolByFunc.map(({ funcKey, trips }) => {
@@ -147,7 +159,9 @@ export function TripulantesSection({
                </div>
             )}
 
-            <div className="grid grid-cols-2 gap-2 xl:grid-cols-4">
+            {/* 1 coluna abaixo de 640px: em 2 colunas o card fica com 145px e
+                trunca o nome do tripulante em 3-4 letras */}
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-4">
                {TODAS_FUNCOES.map((func) => (
                   <FuncGroupDropZone
                      key={func}
