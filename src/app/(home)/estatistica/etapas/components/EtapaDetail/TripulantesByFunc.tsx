@@ -38,7 +38,7 @@ export function TripulantesByFunc({
 
    if (orderedFuncs.length === 0) {
       return (
-         <div className="rounded-xl border border-dashed border-gray-200 py-8 text-center">
+         <div className="rounded border border-dashed border-gray-200 py-8 text-center">
             <FaUsers className="mx-auto mb-2 h-6 w-6 text-gray-300" />
             <p className="text-sm text-gray-400">
                Nenhum tripulante registrado

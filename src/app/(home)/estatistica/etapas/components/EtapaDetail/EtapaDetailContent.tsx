@@ -32,8 +32,8 @@ export function EtapaDetailContent({ etapaId }: EtapaDetailContentProps) {
 
    return (
       <div className="flex h-full flex-col rounded">
-         <div className="shrink-0 border-b border-slate-200 bg-white px-6 pt-5 pb-4 text-slate-800">
-            <div className="mb-4 flex flex-wrap items-center gap-2">
+         <div className="shrink-0 border-b border-slate-200 bg-white px-3 pt-3 pb-3 text-slate-800 sm:px-6 sm:pt-5 sm:pb-4">
+            <div className="mb-3 flex flex-wrap items-center gap-2 sm:mb-4">
                <span className="text-primary-600 font-mono text-sm font-bold">
                   #{data.id}
                </span>
@@ -57,7 +57,14 @@ export function EtapaDetailContent({ etapaId }: EtapaDetailContentProps) {
             />
          </div>
 
-         <div className="flex-1 overflow-y-auto bg-gray-50/50 p-5">
+         {/* tabIndex/role: a regiao rola, e regiao rolavel sem foco por
+             teclado reprova o scrollable-region-focusable do axe */}
+         <div
+            tabIndex={0}
+            role="region"
+            aria-label="Detalhes da etapa"
+            className="flex-1 overflow-y-auto bg-gray-50/50 p-3 sm:p-5"
+         >
             {(!data.sagem || !data.parte1) && (
                <div className="mb-5 flex flex-col gap-2">
                   {!data.sagem && (
