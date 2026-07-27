@@ -9,11 +9,12 @@
       "dev": "next dev -p 4000",
       "build": "next build",
       "start": "next start",
-      "lint": "next lint",
-      "format": "prettier --write \"src/**/*.{js,ts,jsx,tsx}\"",
+      "lint": "tsc --noEmit && prettier --check .",
+      "format": "prettier --write .",
       "test:e2e": "playwright test",
       "test:e2e:ui": "playwright test --ui",
-      "audit:ui": "node tests/audit/audit.mjs"
+      "audit:ui": "node tests/audit/audit.mjs",
+      "format:check": "prettier --check ."
    },
    "keywords": [],
    "author": "",

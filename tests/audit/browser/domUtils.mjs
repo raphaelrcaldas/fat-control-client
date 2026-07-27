@@ -72,7 +72,7 @@ export function installDomUtils() {
     * do sistema quando ela so esta noutra base.
     */
    const rootFontSize = parseFloat(
-      getComputedStyle(document.documentElement).fontSize,
+      getComputedStyle(document.documentElement).fontSize
    );
    const toRem = (value) => Math.round((value / rootFontSize) * 10000) / 10000;
 

@@ -11,6 +11,6 @@ export interface Cidade {
 
 export async function getCities(search: string): Promise<Cidade[]> {
    const response = await request("GET", citiesRoute, null, { search: search });
-   const json = await response.json() as ApiResponse<Cidade[]>;
+   const json = (await response.json()) as ApiResponse<Cidade[]>;
    return json.data || [];
 }

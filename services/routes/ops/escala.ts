@@ -6,15 +6,7 @@ const escalaRoute = "ops/escala/";
 export type EscalaSort = "horas_voo" | "quads_asc";
 
 export type EscalaIndispMtv =
-   | "svc"
-   | "sde"
-   | "rep"
-   | "fer"
-   | "lic"
-   | "mis"
-   | "odm"
-   | "pes"
-   | "ins";
+   "svc" | "sde" | "rep" | "fer" | "lic" | "mis" | "odm" | "pes" | "ins";
 
 export interface EscalaIndispInfo {
    mtv: EscalaIndispMtv;

@@ -47,7 +47,7 @@ export function createFocusRingCollector({ maxStops }) {
                   const nodes = [el];
                   const walker = document.createTreeWalker(
                      el,
-                     NodeFilter.SHOW_ELEMENT,
+                     NodeFilter.SHOW_ELEMENT
                   );
                   while (
                      nodes.length <= this.DESCENDANT_CAP &&
@@ -80,7 +80,7 @@ export function createFocusRingCollector({ maxStops }) {
                   const changed =
                      this.signature(prev.el) !== prev.sigs[0] ||
                      prev.nodes.some(
-                        (n, i) => i > 0 && this.signature(n) !== prev.sigs[i],
+                        (n, i) => i > 0 && this.signature(n) !== prev.sigs[i]
                      );
                   return { ...prev.meta, hasRing: changed };
                },

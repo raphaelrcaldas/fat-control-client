@@ -69,7 +69,9 @@ export async function getDadosBancarios(
       signal
    );
 
-   const json = (await response.json()) as ApiResponse<DadosBancariosWithUser[]>;
+   const json = (await response.json()) as ApiResponse<
+      DadosBancariosWithUser[]
+   >;
    return json.data || [];
 }
 
@@ -84,7 +86,9 @@ export async function getDadosBancariosOrfaos(
       null,
       signal
    );
-   const json = (await response.json()) as ApiResponse<DadosBancariosWithUser[]>;
+   const json = (await response.json()) as ApiResponse<
+      DadosBancariosWithUser[]
+   >;
    return json.data || [];
 }
 

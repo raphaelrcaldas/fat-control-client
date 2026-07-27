@@ -22,6 +22,8 @@ export async function getPostos(): Promise<
    import("../../src/constants/militar").PostoGrad[]
 > {
    const response = await request("GET", postoRoute);
-   const json = await response.json() as ApiResponse<import("../../src/constants/militar").PostoGrad[]>;
+   const json = (await response.json()) as ApiResponse<
+      import("../../src/constants/militar").PostoGrad[]
+   >;
    return json.data || [];
 }

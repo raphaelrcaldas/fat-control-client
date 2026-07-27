@@ -4,29 +4,29 @@ import type { ApiResponse } from "@/types/api";
 const cleanupRoute = "admin/cleanup/";
 
 export interface CleanupTaskPreview {
-  task_name: string;
-  description: string;
-  count: number;
+   task_name: string;
+   description: string;
+   count: number;
 }
 
 export interface CleanupPreviewResponse {
-  tasks: CleanupTaskPreview[];
-  total_records: number;
+   tasks: CleanupTaskPreview[];
+   total_records: number;
 }
 
 export interface CleanupTaskResult {
-  task_name: string;
-  status: "success" | "error" | "skipped";
-  rows_affected: number;
-  duration_seconds: number;
-  errors: string[];
-  details: Record<string, unknown>;
+   task_name: string;
+   status: "success" | "error" | "skipped";
+   rows_affected: number;
+   duration_seconds: number;
+   errors: string[];
+   details: Record<string, unknown>;
 }
 
 export interface CleanupRunResponse {
-  tasks: CleanupTaskResult[];
-  total_deleted: number;
-  executed_at: string;
+   tasks: CleanupTaskResult[];
+   total_deleted: number;
+   executed_at: string;
 }
 
 export async function getCleanupPreview(
@@ -46,8 +46,8 @@ export async function getCleanupPreview(
 }
 
 export async function runCleanup(): Promise<CleanupRunResponse> {
-  const res = await request("POST", `${cleanupRoute}run`);
-  const json = (await res.json()) as ApiResponse<CleanupRunResponse>;
-  if (!res.ok) throw new Error(json.message || "Erro ao executar limpeza");
-  return json.data!;
+   const res = await request("POST", `${cleanupRoute}run`);
+   const json = (await res.json()) as ApiResponse<CleanupRunResponse>;
+   if (!res.ok) throw new Error(json.message || "Erro ao executar limpeza");
+   return json.data!;
 }

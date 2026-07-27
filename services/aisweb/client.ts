@@ -1,8 +1,7 @@
 import request from "services/Api";
 import type { ApiResponse } from "@/types/api";
 
-export const DEFAULT_ICAO =
-   process.env.NEXT_PUBLIC_AISWEB_ICAO ?? "SBGL";
+export const DEFAULT_ICAO = process.env.NEXT_PUBLIC_AISWEB_ICAO ?? "SBGL";
 
 export async function aiswWebGet<T>(
    path: string,

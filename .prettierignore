@@ -1,0 +1,15 @@
+# Artefatos de build e saidas de ferramenta — nunca formatar
+.next/
+out/
+node_modules/
+coverage/
+playwright-report/
+test-results/
+.audit/
+public/
+
+# Lockfile: reformatar quebra o diff e nao agrega nada
+package-lock.json
+
+# Gerado pelo flowbite-react a cada build (nao versionado)
+.flowbite-react/class-list.json

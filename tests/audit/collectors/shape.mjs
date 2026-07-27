@@ -16,7 +16,8 @@ export function createShapeCollector({ allowedRadiiRem, pillMinPx }) {
       collect: ({ page }) =>
          page.evaluate(
             ({ allowed, pillMinPx }) => {
-               const { px, toRem, selectorOf, visibleElements, counter } = window.__audit;
+               const { px, toRem, selectorOf, visibleElements, counter } =
+                  window.__audit;
                const radii = counter();
                const shadows = counter();
 
@@ -26,27 +27,32 @@ export function createShapeCollector({ allowedRadiiRem, pillMinPx }) {
                   const radius = px(style.borderTopLeftRadius);
                   if (radius > 0) radii.add(toRem(radius), selectorOf(el));
 
-                  if (style.boxShadow !== "none") shadows.add(style.boxShadow, selectorOf(el));
+                  if (style.boxShadow !== "none")
+                     shadows.add(style.boxShadow, selectorOf(el));
                }
 
-               const entries = radii.entries(Number).sort((a, b) => a.value - b.value);
+               const entries = radii
+                  .entries(Number)
+                  .sort((a, b) => a.value - b.value);
                const pillMinRem = toRem(pillMinPx);
 
                return {
                   radii: entries.map((entry) =>
                      entry.value >= pillMinRem
                         ? { ...entry, value: "pill" }
-                        : entry,
+                        : entry
                   ),
                   offSystemRadii: entries.filter(
                      (entry) =>
                         entry.value < pillMinRem &&
-                        !allowed.some((ok) => Math.abs(entry.value - ok) < 0.005),
+                        !allowed.some(
+                           (ok) => Math.abs(entry.value - ok) < 0.005
+                        )
                   ),
                   shadows: shadows.entries().slice(0, 8),
                };
             },
-            { allowed: allowedRadiiRem, pillMinPx },
+            { allowed: allowedRadiiRem, pillMinPx }
          ),
 
       render: (data) => ({
@@ -54,7 +60,11 @@ export function createShapeCollector({ allowedRadiiRem, pillMinPx }) {
             [
                "Raios de borda",
                data.radii
-                  .map((r) => (r.value === "pill" ? `pill (${r.count}x)` : `${r.value}rem (${r.count}x)`))
+                  .map((r) =>
+                     r.value === "pill"
+                        ? `pill (${r.count}x)`
+                        : `${r.value}rem (${r.count}x)`
+                  )
                   .join(", ") || "nenhum",
             ],
             ["Sombras distintas", data.shadows.length],
@@ -64,7 +74,8 @@ export function createShapeCollector({ allowedRadiiRem, pillMinPx }) {
                  {
                     title: `Raio fora do padrao (permitidos: ${allowedRadiiRem.join(", ")}rem, ou pill)`,
                     items: data.offSystemRadii.map(
-                       (r) => `${r.value}rem — ${r.count}x (ex: \`${r.samples[0] ?? "?"}\`)`,
+                       (r) =>
+                          `${r.value}rem — ${r.count}x (ex: \`${r.samples[0] ?? "?"}\`)`
                     ),
                  },
               ]

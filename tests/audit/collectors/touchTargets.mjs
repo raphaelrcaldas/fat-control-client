@@ -44,7 +44,11 @@ export function createTouchTargetsCollector({ coarseMinPx, fineMinPx }) {
                      selector: selectorOf(el),
                      width: Math.round(rect.width),
                      height: Math.round(rect.height),
-                     label: (el.getAttribute("aria-label") ?? el.textContent ?? "")
+                     label: (
+                        el.getAttribute("aria-label") ??
+                        el.textContent ??
+                        ""
+                     )
                         .trim()
                         .slice(0, 40),
                   });
@@ -57,7 +61,7 @@ export function createTouchTargetsCollector({ coarseMinPx, fineMinPx }) {
                   items: small.slice(0, 20),
                };
             },
-            { selector: INTERACTIVE, minSizePx, coarse },
+            { selector: INTERACTIVE, minSizePx, coarse }
          );
       },
 
@@ -71,7 +75,8 @@ export function createTouchTargetsCollector({ coarseMinPx, fineMinPx }) {
                  {
                     title: `Alvos abaixo do minimo para ${data.pointer} (${data.minSizePx}px)`,
                     items: data.items.map(
-                       (t) => `\`${t.selector}\` — ${t.width}x${t.height}px — "${t.label}"`,
+                       (t) =>
+                          `\`${t.selector}\` — ${t.width}x${t.height}px — "${t.label}"`
                     ),
                  },
               ]

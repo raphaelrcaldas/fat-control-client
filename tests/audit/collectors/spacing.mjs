@@ -28,8 +28,14 @@ export function createSpacingCollector({ gridRem }) {
       collect: ({ page }) =>
          page.evaluate(
             ({ props, gridRem }) => {
-               const { px, toRem, rootFontSize, selectorOf, visibleElements, counter } =
-                  window.__audit;
+               const {
+                  px,
+                  toRem,
+                  rootFontSize,
+                  selectorOf,
+                  visibleElements,
+                  counter,
+               } = window.__audit;
                const values = counter();
 
                for (const el of visibleElements()) {
@@ -39,7 +45,8 @@ export function createSpacingCollector({ gridRem }) {
                      if (!raw || raw === "normal" || raw === "auto") continue;
 
                      const value = px(raw);
-                     if (value > 0) values.add(`${prop}:${toRem(value)}`, selectorOf(el));
+                     if (value > 0)
+                        values.add(`${prop}:${toRem(value)}`, selectorOf(el));
                   }
                }
 
@@ -60,7 +67,7 @@ export function createSpacingCollector({ gridRem }) {
                   top: entries.slice(0, 12),
                };
             },
-            { props: PROPS, gridRem },
+            { props: PROPS, gridRem }
          ),
 
       render: (data) => ({
@@ -75,7 +82,7 @@ export function createSpacingCollector({ gridRem }) {
                     title: `Espacamento fora da grade de ${gridRem}rem`,
                     items: data.offGrid.map(
                        (entry) =>
-                          `\`${entry.value}rem\` — ${entry.count}x (ex: \`${entry.samples[0] ?? "?"}\`)`,
+                          `\`${entry.value}rem\` — ${entry.count}x (ex: \`${entry.samples[0] ?? "?"}\`)`
                     ),
                  },
               ]

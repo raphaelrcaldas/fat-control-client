@@ -37,7 +37,10 @@ export async function getHorasAnv(
    return (
       json.data ?? {
          items: [],
-         total_meses: Array.from({ length: 12 }, () => ({ tvoo: 0, pousos: 0 })),
+         total_meses: Array.from({ length: 12 }, () => ({
+            tvoo: 0,
+            pousos: 0,
+         })),
          total_tvoo: 0,
          total_pousos: 0,
       }
