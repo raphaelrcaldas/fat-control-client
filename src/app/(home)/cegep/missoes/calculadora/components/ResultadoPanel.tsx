@@ -1,6 +1,5 @@
 "use client";
 
-import clsx from "clsx";
 import { Button, Tooltip } from "flowbite-react";
 import { HiCalculator, HiExclamation } from "react-icons/hi";
 import { IoMdInformationCircleOutline } from "react-icons/io";
@@ -15,37 +14,51 @@ import { ExtratoAccordion } from "./ExtratoAccordion";
 
 interface ResultadoPanelProps {
    resultado: SimulacaoResultado | null;
-   isCalculando: boolean;
-   desatualizado: boolean;
+   /** Primeiro cálculo, sem resultado anterior para segurar a tela. */
+   calculandoPrimeiro: boolean;
+   /** O que está em tela ainda é do payload anterior. */
+   atualizando: boolean;
    erro: SimulacaoErrorInfo | null;
-   onRecalcular: () => void;
+   motivoBloqueio: string | null;
+   onTentarNovamente: () => void;
    pnts: Pernoite[];
 }
 
 export function ResultadoPanel({
    resultado,
-   isCalculando,
-   desatualizado,
+   calculandoPrimeiro,
+   atualizando,
    erro,
-   onRecalcular,
+   motivoBloqueio,
+   onTentarNovamente,
    pnts,
 }: ResultadoPanelProps) {
-   const stale = !!resultado && (desatualizado || isCalculando);
-
    return (
       <div className="min-w-0 rounded border border-slate-200 bg-white p-4 shadow-sm">
-         <p className="mb-3 text-xs font-semibold tracking-wide text-slate-500 uppercase">
-            Resultado
-         </p>
+         <div className="mb-3 flex items-center justify-between gap-2">
+            <p className="text-xs font-semibold tracking-wide text-slate-500 uppercase">
+               Resultado
+            </p>
+            {/* O conteúdo não esmaece durante o recálculo: a esta densidade,
+                opacidade come contraste e reprova o AA. Quem avisa é o pulso. */}
+            {atualizando && resultado && (
+               <span className="flex shrink-0 items-center gap-1.5 font-mono text-[10px] tracking-wider text-slate-500 uppercase">
+                  <span
+                     aria-hidden
+                     className="animate-sandbox-pulse size-2 rounded-[1px] bg-slate-400"
+                  />
+                  calculando
+               </span>
+            )}
+         </div>
 
-         {/* Precedência: skeleton (calculando) > erro > desatualizado >
-             resultado normal > EmptyState. Erro some sozinho no próximo
-             mutate() bem-sucedido (mutation.error é limpo pelo React Query). */}
-         {isCalculando && !resultado && <ResultadoSkeleton />}
+         {/* Precedência: skeleton (primeiro cálculo) > erro > resultado >
+             EmptyState. O erro some sozinho na próxima resposta boa. */}
+         {calculandoPrimeiro && !resultado && <ResultadoSkeleton />}
 
-         {!isCalculando && erro && (
+         {!calculandoPrimeiro && erro && (
             <div className="space-y-4">
-               <ErroBanner erro={erro} onRecalcular={onRecalcular} />
+               <ErroBanner erro={erro} onRecalcular={onTentarNovamente} />
                {resultado && (
                   <div className="pointer-events-none space-y-4 opacity-50">
                      <ResultadoConteudo resultado={resultado} pnts={pnts} />
@@ -54,40 +67,19 @@ export function ResultadoPanel({
             </div>
          )}
 
-         {!erro && !resultado && !isCalculando && (
+         {!erro && !resultado && !calculandoPrimeiro && (
             <EmptyState
                icon={HiCalculator}
                title="Nenhuma simulação"
-               description="Preencha pernoites e militares e clique em Calcular."
+               description={
+                  motivoBloqueio ?? "Preencha os pernoites e os militares."
+               }
             />
          )}
 
          {!erro && resultado && (
             <div className="space-y-4">
-               {stale && (
-                  <div className="flex flex-wrap items-center justify-between gap-2 rounded border border-amber-200 bg-amber-50 px-3 py-2">
-                     <span className="flex items-center gap-1.5 text-sm text-amber-800">
-                        <HiExclamation className="h-4 w-4 shrink-0" />
-                        {isCalculando
-                           ? "Calculando…"
-                           : "Inputs alterados — resultado desatualizado"}
-                     </span>
-                     {!isCalculando && (
-                        <Button size="xs" color="yellow" onClick={onRecalcular}>
-                           Recalcular
-                        </Button>
-                     )}
-                  </div>
-               )}
-
-               <div
-                  className={clsx(
-                     "space-y-4 transition-opacity",
-                     stale && "pointer-events-none opacity-50"
-                  )}
-               >
-                  <ResultadoConteudo resultado={resultado} pnts={pnts} />
-               </div>
+               <ResultadoConteudo resultado={resultado} pnts={pnts} />
             </div>
          )}
       </div>

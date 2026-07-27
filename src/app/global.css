@@ -154,6 +154,30 @@
    --animate-fade-in: fadeIn 0.3s ease-out;
    --animate-spin: spin 1s linear infinite;
    --animate-shake: shake 0.5s ease-in-out;
+   /* Calculadora de missão: o trecho "sandbox" da barra de completude — o que
+      a missão simulada acrescentaria ao comissionamento. Pulsa como skeleton
+      (ainda não é real) enquanto uma faixa clara varre no sentido do avanço. */
+   --animate-sandbox-pulse: sandboxPulse 1.6s ease-in-out infinite;
+   --animate-sandbox-sweep: sandboxSweep 1.9s ease-in-out infinite;
+
+   @keyframes sandboxPulse {
+      0%,
+      100% {
+         opacity: 1;
+      }
+      50% {
+         opacity: 0.5;
+      }
+   }
+
+   @keyframes sandboxSweep {
+      from {
+         transform: translateX(-120%);
+      }
+      to {
+         transform: translateX(320%);
+      }
+   }
 
    @keyframes fadeIn {
       0% {
@@ -198,6 +222,15 @@
 
 * {
    box-sizing: border-box;
+}
+
+/* O movimento do trecho simulado é decorativo: os números ao lado da barra
+   já dizem de onde para onde a completude iria. */
+@media (prefers-reduced-motion: reduce) {
+   .animate-sandbox-pulse,
+   .animate-sandbox-sweep {
+      animation: none;
+   }
 }
 
 /* Range slider sóbrio: track preenchida (via gradiente inline) + thumb visível.
