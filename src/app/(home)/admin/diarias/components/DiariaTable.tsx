@@ -10,7 +10,7 @@ import {
    Tooltip,
 } from "flowbite-react";
 import { HiPencil, HiTrash } from "react-icons/hi";
-import { PermBased } from "../../../hooks/usePermBased";
+import { SystemAdminOnly } from "../../../hooks/useSystemAdmin";
 import type { DiariaValorPublic, GrupoCidadePublic } from "../types";
 import {
    formatCurrency,
@@ -76,10 +76,7 @@ export function DiariaTable({
                         </TableCell>
                         <TableCell>
                            <div className="flex items-center justify-end gap-1">
-                              <PermBased
-                                 resource="diaria"
-                                 requiredPerm="update"
-                              >
+                              <SystemAdminOnly>
                                  <Tooltip content="Editar valor">
                                     <button
                                        type="button"
@@ -90,11 +87,6 @@ export function DiariaTable({
                                        <HiPencil className="h-4 w-4" />
                                     </button>
                                  </Tooltip>
-                              </PermBased>
-                              <PermBased
-                                 resource="diaria"
-                                 requiredPerm="delete"
-                              >
                                  <Tooltip content="Excluir valor">
                                     <button
                                        type="button"
@@ -105,7 +97,7 @@ export function DiariaTable({
                                        <HiTrash className="h-4 w-4" />
                                     </button>
                                  </Tooltip>
-                              </PermBased>
+                              </SystemAdminOnly>
                            </div>
                         </TableCell>
                      </TableRow>

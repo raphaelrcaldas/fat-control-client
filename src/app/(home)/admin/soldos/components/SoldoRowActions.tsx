@@ -1,6 +1,6 @@
 import { HiPencil, HiTrash } from "react-icons/hi";
 import { SoldoPublic } from "services/routes/admin/soldos";
-import { PermBased } from "../../../hooks/usePermBased";
+import { SystemAdminOnly } from "../../../hooks/useSystemAdmin";
 
 interface SoldoRowActionsProps {
    soldo: SoldoPublic;
@@ -19,7 +19,7 @@ export default function SoldoRowActions({
    if (variant === "labeled") {
       return (
          <div className="flex justify-end gap-2 border-t border-slate-100 pt-3">
-            <PermBased resource="soldo" requiredPerm="update">
+            <SystemAdminOnly>
                <button
                   type="button"
                   onClick={() => onEdit(soldo)}
@@ -28,8 +28,6 @@ export default function SoldoRowActions({
                   <HiPencil className="h-4 w-4" />
                   Editar
                </button>
-            </PermBased>
-            <PermBased resource="soldo" requiredPerm="delete">
                <button
                   type="button"
                   onClick={() => onDelete(soldo)}
@@ -38,14 +36,14 @@ export default function SoldoRowActions({
                   <HiTrash className="h-4 w-4" />
                   Excluir
                </button>
-            </PermBased>
+            </SystemAdminOnly>
          </div>
       );
    }
 
    return (
       <div className="flex justify-center gap-2">
-         <PermBased resource="soldo" requiredPerm="update">
+         <SystemAdminOnly>
             <button
                type="button"
                onClick={() => onEdit(soldo)}
@@ -55,8 +53,6 @@ export default function SoldoRowActions({
             >
                <HiPencil className="h-5 w-5" />
             </button>
-         </PermBased>
-         <PermBased resource="soldo" requiredPerm="delete">
             <button
                type="button"
                onClick={() => onDelete(soldo)}
@@ -66,7 +62,7 @@ export default function SoldoRowActions({
             >
                <HiTrash className="h-5 w-5" />
             </button>
-         </PermBased>
+         </SystemAdminOnly>
       </div>
    );
 }

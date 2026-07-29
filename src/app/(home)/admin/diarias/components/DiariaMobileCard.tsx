@@ -2,7 +2,7 @@
 
 import { Tooltip } from "flowbite-react";
 import { HiPencil, HiTrash } from "react-icons/hi";
-import { PermBased } from "../../../hooks/usePermBased";
+import { SystemAdminOnly } from "../../../hooks/useSystemAdmin";
 import type { DiariaValorPublic, GrupoCidadePublic } from "../types";
 import {
    formatCurrency,
@@ -36,7 +36,7 @@ export function DiariaMobileCard({
                </p>
             </div>
             <div className="flex gap-1">
-               <PermBased resource="diaria" requiredPerm="update">
+               <SystemAdminOnly>
                   <Tooltip content="Editar valor">
                      <button
                         type="button"
@@ -47,8 +47,6 @@ export function DiariaMobileCard({
                         <HiPencil className="h-5 w-5" />
                      </button>
                   </Tooltip>
-               </PermBased>
-               <PermBased resource="diaria" requiredPerm="delete">
                   <Tooltip content="Excluir valor">
                      <button
                         type="button"
@@ -59,7 +57,7 @@ export function DiariaMobileCard({
                         <HiTrash className="h-5 w-5" />
                      </button>
                   </Tooltip>
-               </PermBased>
+               </SystemAdminOnly>
             </div>
          </div>
          <div className="mt-2 flex flex-wrap items-center gap-2 text-sm text-gray-500">

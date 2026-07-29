@@ -2,7 +2,7 @@
 
 import { Button, Checkbox, Label } from "flowbite-react";
 import { HiCurrencyDollar, HiPlus } from "react-icons/hi";
-import { PermBased } from "../../../hooks/usePermBased";
+import { SystemAdminOnly } from "../../../hooks/useSystemAdmin";
 
 interface DiariaHeaderProps {
    onlyActive: boolean;
@@ -55,7 +55,7 @@ export function DiariaHeader({
                   </Label>
                </div>
 
-               <PermBased resource="diaria" requiredPerm="create">
+               <SystemAdminOnly>
                   <Button
                      color="light"
                      onClick={onCreateClick}
@@ -64,7 +64,7 @@ export function DiariaHeader({
                      <HiPlus className="mr-2 h-4 w-4" />
                      Nova Diária
                   </Button>
-               </PermBased>
+               </SystemAdminOnly>
             </div>
          </div>
       </header>

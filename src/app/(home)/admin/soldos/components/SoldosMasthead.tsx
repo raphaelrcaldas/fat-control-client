@@ -1,6 +1,6 @@
 import { Button } from "flowbite-react";
 import { HiPlus, HiCurrencyDollar } from "react-icons/hi";
-import { PermBased } from "../../../hooks/usePermBased";
+import { SystemAdminOnly } from "../../../hooks/useSystemAdmin";
 
 interface SoldosMastheadProps {
    onCreate: () => void;
@@ -36,7 +36,7 @@ export default function SoldosMasthead({
                </div>
             </div>
 
-            <PermBased resource="soldo" requiredPerm="create">
+            <SystemAdminOnly>
                <Button
                   color="light"
                   onClick={onCreate}
@@ -46,7 +46,7 @@ export default function SoldosMasthead({
                   <HiPlus className="mr-2 h-4 w-4" />
                   Novo Soldo
                </Button>
-            </PermBased>
+            </SystemAdminOnly>
          </div>
       </header>
    );
