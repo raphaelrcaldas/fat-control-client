@@ -15,6 +15,7 @@ import { useUpdateTenant } from "@/hooks/queries";
 import { normalizeOrgTheme, type OrgTheme } from "@/lib/orgTheme";
 import type { Tenant } from "services/routes/tenants";
 import { ThemeSelector } from "./ThemeSelector";
+import { formatTenantSaveError } from "../tenantErrors";
 
 const SAUDACAO_MAX = 120;
 
@@ -48,42 +49,32 @@ export function TenantConfigModal({
    async function handleSelectTema(tema: OrgTheme) {
       if (!tenant || tema === temaAtual) return;
       try {
-         const result = await updateMutation.mutateAsync({
+         await updateMutation.mutateAsync({
             organizacaoId: tenant.organizacao_id,
             data: { tema },
          });
-         push(
-            result.ok
-               ? { type: "success", message: "Tema atualizado!" }
-               : {
-                    type: "error",
-                    message: result.message || "Erro ao atualizar o tema",
-                 }
-         );
+         push({ type: "success", message: "Tema atualizado!" });
       } catch (err) {
-         console.error("updateTenant tema failed", err);
-         push({ type: "error", message: "Ocorreu um erro inesperado" });
+         push({
+            type: "error",
+            message: formatTenantSaveError(err, "Erro ao atualizar o tema"),
+         });
       }
    }
 
    async function handleSaveSaudacao() {
       if (!tenant || !saudacaoAlterada) return;
       try {
-         const result = await updateMutation.mutateAsync({
+         await updateMutation.mutateAsync({
             organizacaoId: tenant.organizacao_id,
             data: { saudacao: saudacao.trim() },
          });
-         push(
-            result.ok
-               ? { type: "success", message: "Saudação atualizada!" }
-               : {
-                    type: "error",
-                    message: result.message || "Erro ao atualizar a saudação",
-                 }
-         );
+         push({ type: "success", message: "Saudação atualizada!" });
       } catch (err) {
-         console.error("updateTenant saudacao failed", err);
-         push({ type: "error", message: "Ocorreu um erro inesperado" });
+         push({
+            type: "error",
+            message: formatTenantSaveError(err, "Erro ao atualizar a saudação"),
+         });
       }
    }
 

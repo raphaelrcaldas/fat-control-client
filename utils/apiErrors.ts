@@ -8,6 +8,8 @@
  * mapa de labels e chama {@link humanizeValidationErrors}.
  */
 
+import { ApiError } from "services/Api";
+
 export interface ApiErrorLabels {
    /** Rótulos por nome de campo (nível topo e aninhados). */
    fields: Record<string, string>;
@@ -81,4 +83,38 @@ export function humanizeValidationErrors(
       );
       return label ? `${label}: ${detail}` : detail;
    });
+}
+
+/**
+ * Erros de campo (422) que sobreviveram até o `catch`, ou `null` se o erro não
+ * for de validação. Depende da mutation ter lançado {@link ApiError} — jogar um
+ * `Error` genérico descarta o dict e devolve ao usuário um "Erro de validação"
+ * sem dizer qual campo recusou.
+ */
+export function fieldErrorsFrom(err: unknown): Record<string, unknown> | null {
+   if (err instanceof ApiError && err.errors) {
+      return Object.keys(err.errors).length > 0 ? err.errors : null;
+   }
+   return null;
+}
+
+/**
+ * Texto de toast para uma falha de escrita: a mensagem de topo seguida de uma
+ * linha por campo recusado. Sem erros de campo (400/409/500), devolve a
+ * mensagem do próprio erro.
+ */
+export function formatSaveError(
+   err: unknown,
+   fallback: string,
+   labels: ApiErrorLabels
+): string {
+   const errors = fieldErrorsFrom(err);
+   if (errors) {
+      const lines = humanizeValidationErrors(errors, labels);
+      return [
+         (err as ApiError).message || "Erro de validação",
+         ...lines.map((l) => `• ${l}`),
+      ].join("\n");
+   }
+   return err instanceof Error ? err.message : fallback;
 }

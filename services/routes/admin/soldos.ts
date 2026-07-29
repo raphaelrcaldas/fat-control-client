@@ -1,4 +1,4 @@
-import request from "../../Api";
+import request, { ApiError } from "../../Api";
 import type { ApiResponse } from "@/types/api";
 
 const soldosRoute = "admin/soldos/";
@@ -120,7 +120,7 @@ export async function createSoldo(data: SoldoCreate): Promise<SoldoPublic> {
 
    const json: ApiResponse<SoldoPublic> = await response.json();
    if (!response.ok) {
-      throw new Error(json.message || "Erro ao criar soldo");
+      throw new ApiError(json.message || "Erro ao criar soldo", json.errors);
    }
 
    return json.data as SoldoPublic;
@@ -135,7 +135,10 @@ export async function updateSoldo(
 
    const json: ApiResponse<SoldoPublic> = await response.json();
    if (!response.ok) {
-      throw new Error(json.message || "Erro ao atualizar soldo");
+      throw new ApiError(
+         json.message || "Erro ao atualizar soldo",
+         json.errors
+      );
    }
 
    return json.data as SoldoPublic;
@@ -147,6 +150,6 @@ export async function deleteSoldo(soldo_id: number): Promise<void> {
 
    const json: ApiResponse<null> = await response.json();
    if (!response.ok) {
-      throw new Error(json.message || "Erro ao deletar soldo");
+      throw new ApiError(json.message || "Erro ao deletar soldo", json.errors);
    }
 }

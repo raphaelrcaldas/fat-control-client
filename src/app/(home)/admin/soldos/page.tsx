@@ -6,7 +6,7 @@ import { HiExclamation } from "react-icons/hi";
 import { useSoldos } from "@/hooks/queries";
 import { SoldoPublic } from "services/routes/admin/soldos";
 import { SoldoFormData } from "./schemas/soldoSchema";
-import { sortSoldosByAnt } from "./helpers/soldoHelpers";
+import { resolveMid, sortSoldosByAnt } from "./helpers/soldoHelpers";
 import { useSoldosFilters } from "./hooks/useSoldosFilters";
 import { useSoldoMutations } from "./hooks/useSoldoMutations";
 import SoldosMasthead from "./components/SoldosMasthead";
@@ -14,12 +14,16 @@ import SoldosFilters from "./components/SoldosFilters";
 import SoldoTable from "./components/SoldoTable";
 import SoldoTableSkeleton from "./components/SoldoTableSkeleton";
 import SoldoFormModal from "./components/SoldoFormModal";
+import { ConfirmModal } from "@/components/ui/ConfirmModal";
 
 export default function SoldosPage() {
    const { circulo, setCirculo, onlyActive, setOnlyActive, queryParams } =
       useSoldosFilters();
    const [showModal, setShowModal] = useState(false);
    const [editingSoldo, setEditingSoldo] = useState<SoldoPublic | null>(null);
+   const [soldoParaExcluir, setSoldoParaExcluir] = useState<SoldoPublic | null>(
+      null
+   );
 
    const {
       data: soldos = [],
@@ -27,7 +31,7 @@ export default function SoldosPage() {
       isFetching,
       error,
    } = useSoldos(queryParams);
-   const { save, remove, isSaving } = useSoldoMutations();
+   const { save, remove, isSaving, isDeleting } = useSoldoMutations();
 
    const sortedSoldos = useMemo(() => sortSoldosByAnt(soldos), [soldos]);
 
@@ -41,10 +45,17 @@ export default function SoldosPage() {
       setEditingSoldo(null);
    };
 
-   const handleSubmit = async (formData: SoldoFormData): Promise<boolean> => {
-      const ok = await save(formData, editingSoldo);
-      if (ok) handleCloseModal();
-      return ok;
+   // Deixa a falha subir: o modal devolve o 422 aos campos e só fecha no
+   // caminho feliz.
+   const handleSubmit = async (formData: SoldoFormData): Promise<void> => {
+      await save(formData, editingSoldo);
+      handleCloseModal();
+   };
+
+   const handleConfirmDelete = async () => {
+      if (!soldoParaExcluir) return;
+      const ok = await remove(soldoParaExcluir);
+      if (ok) setSoldoParaExcluir(null);
    };
 
    const errorMessage = error instanceof Error ? error.message : null;
@@ -100,11 +111,25 @@ export default function SoldosPage() {
                   <SoldoTable
                      soldos={sortedSoldos}
                      onEdit={handleOpenModal}
-                     onDelete={remove}
+                     onDelete={setSoldoParaExcluir}
                   />
                </div>
             )}
          </div>
+
+         <ConfirmModal
+            show={soldoParaExcluir !== null}
+            title="Excluir soldo"
+            description={
+               soldoParaExcluir
+                  ? `O soldo de ${resolveMid(soldoParaExcluir)} será removido. As missões do período têm o custo recalculado.`
+                  : undefined
+            }
+            confirmButtonText="Sim, excluir"
+            isLoading={isDeleting}
+            onClose={() => setSoldoParaExcluir(null)}
+            onConfirm={handleConfirmDelete}
+         />
 
          <SoldoFormModal
             show={showModal}

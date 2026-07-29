@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { ApiError } from "services/Api";
 import {
    getTenants,
    createTenant,
@@ -35,7 +36,16 @@ export function useTenants() {
 export function useCreateTenant() {
    const queryClient = useQueryClient();
    return useMutation({
-      mutationFn: (data: TenantCreate) => createTenant(data),
+      mutationFn: async (data: TenantCreate) => {
+         const result = await createTenant(data);
+         if (!result.ok) {
+            throw new ApiError(
+               result.message ?? "Erro ao cadastrar tenant",
+               result.errors
+            );
+         }
+         return result;
+      },
       onSuccess: () => {
          queryClient.invalidateQueries({ queryKey: tenantKeys.list() });
       },
@@ -45,13 +55,22 @@ export function useCreateTenant() {
 export function useUpdateTenant() {
    const queryClient = useQueryClient();
    return useMutation({
-      mutationFn: ({
+      mutationFn: async ({
          organizacaoId,
          data,
       }: {
          organizacaoId: string;
          data: TenantUpdate;
-      }) => updateTenant(organizacaoId, data),
+      }) => {
+         const result = await updateTenant(organizacaoId, data);
+         if (!result.ok) {
+            throw new ApiError(
+               result.message ?? "Erro ao atualizar tenant",
+               result.errors
+            );
+         }
+         return result;
+      },
       onSuccess: () => {
          queryClient.invalidateQueries({ queryKey: tenantKeys.list() });
       },
@@ -61,7 +80,16 @@ export function useUpdateTenant() {
 export function useDeleteTenant() {
    const queryClient = useQueryClient();
    return useMutation({
-      mutationFn: (organizacaoId: string) => deleteTenant(organizacaoId),
+      mutationFn: async (organizacaoId: string) => {
+         const result = await deleteTenant(organizacaoId);
+         if (!result.ok) {
+            throw new ApiError(
+               result.message ?? "Erro ao excluir tenant",
+               result.errors
+            );
+         }
+         return result;
+      },
       onSuccess: () => {
          queryClient.invalidateQueries({ queryKey: tenantKeys.list() });
       },

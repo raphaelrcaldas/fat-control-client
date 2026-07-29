@@ -1,4 +1,4 @@
-import request from "../../Api";
+import request, { ApiError } from "../../Api";
 import type { ApiResponse } from "@/types/api";
 
 // ============================================
@@ -121,7 +121,10 @@ export async function createDiariaValor(
 
    const json: ApiResponse<DiariaValorPublic> = await response.json();
    if (!response.ok) {
-      throw new Error(json.message || "Erro ao criar valor de diária");
+      throw new ApiError(
+         json.message || "Erro ao criar valor de diária",
+         json.errors
+      );
    }
 
    return json.data as DiariaValorPublic;
@@ -139,7 +142,10 @@ export async function updateDiariaValor(
 
    const json: ApiResponse<DiariaValorPublic> = await response.json();
    if (!response.ok) {
-      throw new Error(json.message || "Erro ao atualizar valor de diária");
+      throw new ApiError(
+         json.message || "Erro ao atualizar valor de diária",
+         json.errors
+      );
    }
 
    return json.data as DiariaValorPublic;
@@ -153,7 +159,10 @@ export async function deleteDiariaValor(valorId: number): Promise<void> {
 
    const json: ApiResponse<null> = await response.json();
    if (!response.ok) {
-      throw new Error(json.message || "Erro ao deletar valor de diária");
+      throw new ApiError(
+         json.message || "Erro ao deletar valor de diária",
+         json.errors
+      );
    }
 }
 

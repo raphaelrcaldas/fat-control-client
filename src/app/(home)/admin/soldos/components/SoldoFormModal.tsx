@@ -20,13 +20,15 @@ import {
    SoldoFormData,
    makeDefaultSoldoValues,
 } from "../schemas/soldoSchema";
+import { applySoldoFieldErrors, formatSoldoSaveError } from "../soldoErrors";
+import { useToast } from "../../../../context/toast";
 
 interface SoldoFormModalProps {
    show: boolean;
    editingSoldo: SoldoPublic | null;
    submitting: boolean;
    onClose: () => void;
-   onSubmit: (data: SoldoFormData) => Promise<boolean>;
+   onSubmit: (data: SoldoFormData) => Promise<void>;
 }
 
 export default function SoldoFormModal({
@@ -36,10 +38,12 @@ export default function SoldoFormModal({
    onClose,
    onSubmit,
 }: SoldoFormModalProps) {
+   const { push } = useToast();
    const {
       register,
       handleSubmit,
       reset,
+      setError,
       formState: { errors, isDirty },
    } = useForm<SoldoFormData>({
       resolver: zodResolver(soldoFormSchema),
@@ -60,8 +64,19 @@ export default function SoldoFormModal({
    }, [editingSoldo, reset]);
 
    const handleFormSubmit = async (data: SoldoFormData) => {
-      const ok = await onSubmit(data);
-      if (ok) reset(makeDefaultSoldoValues());
+      try {
+         await onSubmit(data);
+         reset(makeDefaultSoldoValues());
+      } catch (err: unknown) {
+         // 422 do Pydantic volta como dict campo → mensagem: devolve cada erro
+         // ao seu input e resume no toast.
+         applySoldoFieldErrors(err, setError);
+         push({
+            title: "Erro",
+            type: "error",
+            message: formatSoldoSaveError(err, "Erro ao salvar soldo"),
+         });
+      }
    };
 
    const handleClose = () => {

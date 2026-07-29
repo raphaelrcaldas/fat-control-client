@@ -7,30 +7,27 @@ import {
    type ApiErrorLabels,
 } from "@/../utils/apiErrors";
 import {
-   organizacaoFormSchema,
-   type OrganizacaoFormData,
-} from "./schemas/organizacaoSchema";
+   makeDefaultSoldoValues,
+   type SoldoFormData,
+} from "./schemas/soldoSchema";
 
 /**
- * Tradução dos erros de CRUD de organização. Conflito de sigla chega como 400
- * com mensagem pronta; aqui humanizamos o 422 de validação (`body.nome` →
- * "Nome: obrigatório") e o devolvemos para o campo correspondente do form.
+ * Tradução dos erros de CRUD de soldo. As regras de vigência (sobreposição de
+ * faixa, fim antes do início, soldo que começa antes do vigente) chegam como
+ * 400 com mensagem pronta do backend; aqui humanizamos o 422 de validação e o
+ * devolvemos ao campo correspondente do formulário.
  */
 const LABELS: ApiErrorLabels = {
    fields: {
-      sigla: "Sigla",
-      sigla_2: "Sigla 2",
-      sigla_3: "Sigla 3",
-      nome: "Nome",
-      alias: "Codinome",
+      pg: "Posto/Graduação",
+      valor: "Valor",
+      data_inicio: "Início da vigência",
+      data_fim: "Fim da vigência",
    },
 };
 
 /** Converte o erro da mutation em texto pronto para o toast. */
-export function formatOrganizacaoSaveError(
-   err: unknown,
-   fallback: string
-): string {
+export function formatSoldoSaveError(err: unknown, fallback: string): string {
    return formatSaveError(err, fallback, LABELS);
 }
 
@@ -39,19 +36,21 @@ export function formatOrganizacaoSaveError(
  * apareçam sob cada input (e não só no toast). Ignora chaves que não
  * correspondam a um campo do form.
  */
-export function applyOrganizacaoFieldErrors(
+export function applySoldoFieldErrors(
    err: unknown,
-   setError: UseFormSetError<OrganizacaoFormData>
+   setError: UseFormSetError<SoldoFormData>
 ): void {
    const errors = fieldErrorsFrom(err);
    if (!errors) return;
 
-   const formFields = Object.keys(organizacaoFormSchema.shape);
+   // O schema tem `.refine`, então não expõe `.shape`; a factory de defaults
+   // já enumera os campos do form.
+   const formFields = Object.keys(makeDefaultSoldoValues());
 
    for (const [key, msg] of Object.entries(errors)) {
       const field = key.split(".").filter((s) => s !== "body")[0];
       if (!formFields.includes(field)) continue;
-      setError(field as keyof OrganizacaoFormData, {
+      setError(field as keyof SoldoFormData, {
          type: "server",
          message: translatePydanticMessage(String(msg)),
       });

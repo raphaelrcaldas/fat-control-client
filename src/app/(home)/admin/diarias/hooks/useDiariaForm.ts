@@ -13,6 +13,7 @@ import {
    diariaFormSchema,
    type DiariaFormErrors,
 } from "../schemas/diariaFormSchema";
+import { diariaFieldErrors, formatDiariaSaveError } from "../diariaErrors";
 
 interface UseDiariaFormReturn {
    // Modal state
@@ -180,9 +181,12 @@ export function useDiariaForm(): UseDiariaFormReturn {
 
             handleCloseModal();
          } catch (err: unknown) {
+            // 422 do Pydantic volta como dict campo → mensagem: devolve cada
+            // erro ao seu input (o modal fica aberto) e resume no toast.
+            setErrors(diariaFieldErrors(err));
             push({
                title: "Erro",
-               message: err instanceof Error ? err.message : "Erro ao salvar",
+               message: formatDiariaSaveError(err, "Erro ao salvar"),
                type: "error",
             });
          }
@@ -223,7 +227,7 @@ export function useDiariaForm(): UseDiariaFormReturn {
       } catch (err: unknown) {
          push({
             title: "Erro",
-            message: err instanceof Error ? err.message : "Erro ao excluir",
+            message: formatDiariaSaveError(err, "Erro ao excluir"),
             type: "error",
          });
       }

@@ -6,12 +6,15 @@ import {
 } from "@/hooks/queries";
 import { SoldoPublic } from "services/routes/admin/soldos";
 import { SoldoFormData } from "../schemas/soldoSchema";
-import { resolveMid } from "../helpers/soldoHelpers";
+import { formatSoldoSaveError } from "../soldoErrors";
 
 /**
- * Orquestra a escrita de soldos (criar/atualizar/excluir) com toast e
- * confirmação, mantendo a página declarativa. `save` decide create vs update
- * a partir de `editing`; `remove` confirma antes de excluir.
+ * Orquestra a escrita de soldos (criar/atualizar/excluir) com toast, mantendo
+ * a página declarativa. `save` decide create vs update a partir de `editing`.
+ *
+ * `save` **relança** a falha em vez de engoli-la: quem chama é o formulário, e
+ * só ele pode devolver o erro de validação (422) ao input correspondente. A
+ * confirmação de exclusão também não mora aqui — é da página, que tem o modal.
  */
 export function useSoldoMutations() {
    const { push } = useToast();
@@ -22,7 +25,7 @@ export function useSoldoMutations() {
    const save = async (
       formData: SoldoFormData,
       editing: SoldoPublic | null
-   ): Promise<boolean> => {
+   ): Promise<void> => {
       const payload = {
          pg: formData.pg,
          data_inicio: formData.data_inicio,
@@ -30,61 +33,43 @@ export function useSoldoMutations() {
          valor: formData.valor,
       };
 
+      if (editing) {
+         await updateMutation.mutateAsync({ id: editing.id, data: payload });
+         push({
+            title: "Sucesso!",
+            message: "Soldo atualizado com sucesso",
+            type: "success",
+         });
+      } else {
+         await createMutation.mutateAsync(payload);
+         push({
+            title: "Sucesso!",
+            message: "Soldo cadastrado com sucesso",
+            type: "success",
+         });
+      }
+   };
+
+   const remove = async (soldo: SoldoPublic): Promise<boolean> => {
       try {
-         if (editing) {
-            await updateMutation.mutateAsync({ id: editing.id, data: payload });
-            push({
-               title: "Sucesso!",
-               message: "Soldo atualizado com sucesso",
-               type: "success",
-            });
-         } else {
-            await createMutation.mutateAsync(payload);
-            push({
-               title: "Sucesso!",
-               message: "Soldo cadastrado com sucesso",
-               type: "success",
-            });
-         }
+         await deleteMutation.mutateAsync(soldo.id);
+         push({
+            title: "Sucesso!",
+            message: "Soldo excluído com sucesso",
+            type: "success",
+         });
          return true;
       } catch (err: unknown) {
          push({
             title: "Erro",
-            message:
-               err instanceof Error ? err.message : "Erro ao salvar soldo",
+            message: formatSoldoSaveError(err, "Erro ao excluir soldo"),
             type: "error",
          });
          return false;
       }
    };
 
-   const remove = async (soldo: SoldoPublic): Promise<void> => {
-      if (
-         !confirm(
-            `Tem certeza que deseja excluir o soldo de ${resolveMid(soldo)}?`
-         )
-      ) {
-         return;
-      }
-
-      try {
-         await deleteMutation.mutateAsync(soldo.id);
-         push({
-            title: "Sucesso!",
-            message: "Soldo excluido com sucesso",
-            type: "success",
-         });
-      } catch (err: unknown) {
-         push({
-            title: "Erro",
-            message:
-               err instanceof Error ? err.message : "Erro ao excluir soldo",
-            type: "error",
-         });
-      }
-   };
-
    const isSaving = createMutation.isPending || updateMutation.isPending;
 
-   return { save, remove, isSaving };
+   return { save, remove, isSaving, isDeleting: deleteMutation.isPending };
 }

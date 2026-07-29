@@ -17,6 +17,7 @@ import { TenantsHeader } from "./components/TenantsHeader";
 import { TenantsTable, TenantsTableSkeleton } from "./components/TenantsTable";
 import { TenantRegisterModal } from "./components/TenantRegisterModal";
 import { TenantConfigModal } from "./components/TenantConfigModal";
+import { formatTenantSaveError } from "./tenantErrors";
 
 export default function TenantsPage() {
    const { push } = useToast();
@@ -47,21 +48,16 @@ export default function TenantsPage() {
          const result = await createMutation.mutateAsync({
             organizacao_id: organizacaoId,
          });
-         if (result.ok) {
-            push({
-               type: "success",
-               message: result.message || "Tenant registrado com sucesso!",
-            });
-            setShowRegisterModal(false);
-         } else {
-            push({
-               type: "error",
-               message: result.message || "Erro ao registrar tenant",
-            });
-         }
+         push({
+            type: "success",
+            message: result.message || "Tenant registrado com sucesso!",
+         });
+         setShowRegisterModal(false);
       } catch (err) {
-         console.error("createTenant failed", err);
-         push({ type: "error", message: "Ocorreu um erro inesperado" });
+         push({
+            type: "error",
+            message: formatTenantSaveError(err, "Erro ao registrar tenant"),
+         });
       }
    };
 
@@ -71,20 +67,15 @@ export default function TenantsPage() {
             organizacaoId: tenant.organizacao_id,
             data: { active: !tenant.active },
          });
-         if (result.ok) {
-            push({
-               type: "success",
-               message: result.message || "Tenant atualizado!",
-            });
-         } else {
-            push({
-               type: "error",
-               message: result.message || "Erro ao atualizar tenant",
-            });
-         }
+         push({
+            type: "success",
+            message: result.message || "Tenant atualizado!",
+         });
       } catch (err) {
-         console.error("updateTenant failed", err);
-         push({ type: "error", message: "Ocorreu um erro inesperado" });
+         push({
+            type: "error",
+            message: formatTenantSaveError(err, "Erro ao atualizar tenant"),
+         });
       }
    };
 
@@ -94,22 +85,17 @@ export default function TenantsPage() {
          const result = await deleteMutation.mutateAsync(
             deletingTenant.organizacao_id
          );
-         if (result.ok) {
-            push({
-               type: "success",
-               message: result.message || "Tenant removido com sucesso!",
-            });
-            setShowDeleteModal(false);
-            setDeletingTenant(null);
-         } else {
-            push({
-               type: "error",
-               message: result.message || "Erro ao remover tenant",
-            });
-         }
+         push({
+            type: "success",
+            message: result.message || "Tenant removido com sucesso!",
+         });
+         setShowDeleteModal(false);
+         setDeletingTenant(null);
       } catch (err) {
-         console.error("deleteTenant failed", err);
-         push({ type: "error", message: "Ocorreu um erro inesperado" });
+         push({
+            type: "error",
+            message: formatTenantSaveError(err, "Erro ao remover tenant"),
+         });
       }
    };
 
