@@ -125,7 +125,7 @@ export function TenantsTable({
                                  <button
                                     type="button"
                                     onClick={() => onConfig(tenant)}
-                                    className="rounded p-2 text-gray-400 transition-colors hover:bg-slate-100 hover:text-slate-600"
+                                    className="inline-flex items-center justify-center rounded p-2 text-gray-400 transition-colors hover:bg-slate-100 hover:text-slate-600 pointer-coarse:min-h-[44px] pointer-coarse:min-w-[44px]"
                                     aria-label={`Configurar aparência do tenant ${tenant.organizacao.sigla}`}
                                  >
                                     <FaPalette className="h-4 w-4" />
@@ -135,7 +135,7 @@ export function TenantsTable({
                                  <button
                                     type="button"
                                     onClick={() => onDelete(tenant)}
-                                    className="rounded p-2 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-600"
+                                    className="inline-flex items-center justify-center rounded p-2 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-600 pointer-coarse:min-h-[44px] pointer-coarse:min-w-[44px]"
                                     aria-label={`Descadastrar tenant ${tenant.organizacao.sigla}`}
                                  >
                                     <FaTrashCan className="h-4 w-4" />
@@ -202,8 +202,8 @@ export function TenantsTableSkeleton({ rows = 6 }: { rows?: number }) {
                      </TableCell>
                      <TableCell>
                         <div className="flex items-center justify-end gap-1">
-                           <Skeleton className="h-8 w-8 rounded" />
-                           <Skeleton className="h-8 w-8 rounded" />
+                           <Skeleton className="h-8 w-8 rounded pointer-coarse:h-[44px] pointer-coarse:w-[44px]" />
+                           <Skeleton className="h-8 w-8 rounded pointer-coarse:h-[44px] pointer-coarse:w-[44px]" />
                         </div>
                      </TableCell>
                   </TableRow>

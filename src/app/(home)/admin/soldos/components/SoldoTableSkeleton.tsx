@@ -46,8 +46,8 @@ export default function SoldoTableSkeleton({ rows = 8 }: { rows?: number }) {
                         </td>
                         <td className="px-4 py-3">
                            <div className="flex justify-end gap-2">
-                              <div className="h-5 w-5 rounded bg-slate-100" />
-                              <div className="h-5 w-5 rounded bg-slate-100" />
+                              <div className="h-9 w-9 rounded bg-slate-100 pointer-coarse:h-[44px] pointer-coarse:w-[44px]" />
+                              <div className="h-9 w-9 rounded bg-slate-100 pointer-coarse:h-[44px] pointer-coarse:w-[44px]" />
                            </div>
                         </td>
                      </tr>
@@ -77,8 +77,8 @@ export default function SoldoTableSkeleton({ rows = 8 }: { rows?: number }) {
                      <div className="h-4 w-24 rounded bg-slate-100" />
                   </div>
                   <div className="flex justify-end gap-2 border-t border-slate-100 pt-3">
-                     <div className="h-7 w-20 rounded bg-slate-100" />
-                     <div className="h-7 w-20 rounded bg-slate-100" />
+                     <div className="h-7 w-20 rounded bg-slate-100 pointer-coarse:h-[44px]" />
+                     <div className="h-7 w-20 rounded bg-slate-100 pointer-coarse:h-[44px]" />
                   </div>
                </div>
             ))}

@@ -48,7 +48,7 @@ export default function DiariasPage() {
    const errorMessage = error?.message || null;
 
    return (
-      <div className="flex flex-col">
+      <div className="space-y-2">
          <DiariaHeader
             onlyActive={onlyActive}
             onOnlyActiveChange={setOnlyActive}
@@ -56,13 +56,13 @@ export default function DiariasPage() {
          />
 
          {errorMessage && (
-            <div className="mb-3 rounded-md border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-800">
+            <div className="rounded border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-800">
                {errorMessage}
             </div>
          )}
 
          {!isLoading && (
-            <p className="mb-2 text-xs font-medium text-slate-400">
+            <p className="text-xs font-medium text-slate-400">
                {valores?.length || 0} valor(es) · {uniqueGruposCidade.length}{" "}
                grupo(s) de cidade
             </p>

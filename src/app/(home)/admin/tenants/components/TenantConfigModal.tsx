@@ -135,7 +135,7 @@ export function TenantConfigModal({
                         />
                      </div>
                      <Button
-                        color="red"
+                        color="dark"
                         disabled={busy || !saudacaoAlterada}
                         onClick={handleSaveSaudacao}
                      >

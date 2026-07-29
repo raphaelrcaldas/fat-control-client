@@ -73,7 +73,7 @@ export default function SoldoFormModal({
       <Modal show={show} onClose={handleClose} size="lg" dismissible>
          <ModalHeader>
             <div className="flex items-center gap-2">
-               <HiCurrencyDollar className="h-6 w-6 text-red-600" />
+               <HiCurrencyDollar className="h-6 w-6 text-slate-600" />
                {editingSoldo ? "Editar Soldo" : "Novo Soldo"}
             </div>
          </ModalHeader>
@@ -158,7 +158,7 @@ export default function SoldoFormModal({
                      Cancelar
                   </Button>
                   <Button
-                     color="red"
+                     color="dark"
                      type="submit"
                      disabled={
                         submitting || (Boolean(editingSoldo) && !isDirty)

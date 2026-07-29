@@ -91,12 +91,12 @@ export function TenantRegisterModal({
             <ModalFooter>
                <Button
                   type="submit"
-                  color="red"
+                  color="dark"
                   disabled={isSaving || availableOrgs.length === 0}
                >
                   {isSaving ? (
                      <>
-                        <Spinner color="primary" size="sm" className="mr-2" />
+                        <Spinner color="gray" size="sm" className="mr-2" />
                         Registrando...
                      </>
                   ) : (

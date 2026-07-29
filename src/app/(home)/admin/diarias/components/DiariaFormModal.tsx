@@ -206,16 +206,12 @@ export function DiariaFormModal({
                   </Button>
                   <Button
                      type="submit"
-                     color="red"
+                     color="dark"
                      disabled={!hasChanges || isDisabled}
                   >
                      {isSubmitting ? (
                         <>
-                           <Spinner
-                              size="sm"
-                              className="mr-2"
-                              color="primary"
-                           />
+                           <Spinner size="sm" className="mr-2" color="gray" />
                            Salvando...
                         </>
                      ) : isCreating ? (

@@ -28,8 +28,8 @@ function TableRowsSkeleton({ rows }: { rows: number }) {
                <Skeleton className="h-4 w-20" />
                <Skeleton className="h-5 w-16" />
                <div className="ml-auto flex gap-1">
-                  <Skeleton className="h-8 w-8 rounded" />
-                  <Skeleton className="h-8 w-8 rounded" />
+                  <Skeleton className="h-8 w-8 rounded pointer-coarse:h-[44px] pointer-coarse:w-[44px]" />
+                  <Skeleton className="h-8 w-8 rounded pointer-coarse:h-[44px] pointer-coarse:w-[44px]" />
                </div>
             </div>
          ))}

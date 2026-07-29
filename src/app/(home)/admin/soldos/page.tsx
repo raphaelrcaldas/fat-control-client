@@ -51,7 +51,7 @@ export default function SoldosPage() {
    const hasFilters = Boolean(circulo) || onlyActive;
 
    return (
-      <div className="space-y-4">
+      <div className="space-y-2">
          <SoldosMasthead onCreate={() => handleOpenModal()} />
 
          {errorMessage && (

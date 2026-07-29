@@ -27,9 +27,9 @@ export default function SoldosFilters({
                   onClick={() => onCirculoChange(option.value)}
                   disabled={disabled}
                   className={clsx(
-                     "rounded border px-4 py-2 text-sm font-medium transition-colors",
+                     "rounded border px-4 py-2 text-sm font-medium transition-colors pointer-coarse:min-h-[44px]",
                      circulo === option.value
-                        ? "border-red-300 bg-red-50 text-red-700"
+                        ? "border-slate-300 bg-slate-100 text-slate-700"
                         : "border-slate-200 bg-white text-gray-600 hover:bg-gray-50"
                   )}
                >
@@ -44,7 +44,7 @@ export default function SoldosFilters({
                checked={onlyActive}
                onChange={(e) => onOnlyActiveChange(e.target.checked)}
                disabled={disabled}
-               color="red"
+               color="dark"
             />
             <Label htmlFor="onlyActive" className="cursor-pointer">
                Somente vigentes

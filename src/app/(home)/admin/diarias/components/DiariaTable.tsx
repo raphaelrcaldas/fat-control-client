@@ -84,7 +84,7 @@ export function DiariaTable({
                                     <button
                                        type="button"
                                        onClick={() => onEdit(valor)}
-                                       className="rounded p-2 text-gray-400 transition-colors hover:bg-slate-100 hover:text-slate-700"
+                                       className="inline-flex items-center justify-center rounded p-2 text-gray-400 transition-colors hover:bg-slate-100 hover:text-slate-700 pointer-coarse:min-h-[44px] pointer-coarse:min-w-[44px]"
                                        aria-label="Editar valor de diária"
                                     >
                                        <HiPencil className="h-4 w-4" />
@@ -99,7 +99,7 @@ export function DiariaTable({
                                     <button
                                        type="button"
                                        onClick={() => onDelete(valor.id)}
-                                       className="rounded p-2 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-600"
+                                       className="inline-flex items-center justify-center rounded p-2 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-600 pointer-coarse:min-h-[44px] pointer-coarse:min-w-[44px]"
                                        aria-label="Excluir valor de diária"
                                     >
                                        <HiTrash className="h-4 w-4" />
