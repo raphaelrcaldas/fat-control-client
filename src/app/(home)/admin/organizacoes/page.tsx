@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { FaBuilding } from "react-icons/fa6";
+import { Button } from "flowbite-react";
+import { FaBuilding, FaPlus } from "react-icons/fa6";
 import { useToast } from "@/app/context/toast";
 import {
    useOrganizacoes,
@@ -9,23 +10,37 @@ import {
    useUpdateOrganizacao,
    useDeleteOrganizacao,
 } from "@/hooks/queries";
-import type {
-   Organizacao,
-   OrganizacaoCreate,
-} from "services/routes/organizacoes";
+import type { Organizacao } from "services/routes/organizacoes";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
+import { useIsSystemAdmin } from "../../hooks/useSystemAdmin";
 import { OrganizacoesHeader } from "./components/OrganizacoesHeader";
 import { OrganizacaoFormModal } from "./components/OrganizacaoFormModal";
 import {
    OrganizacoesTable,
    OrganizacoesTableSkeleton,
 } from "./components/OrganizacoesTable";
+import { formatOrganizacaoSaveError } from "./organizacaoErrors";
+import {
+   toOrganizacaoPayload,
+   type OrganizacaoFormData,
+} from "./schemas/organizacaoSchema";
 
 export default function OrganizacoesPage() {
    const { push } = useToast();
 
-   const { data: organizacoes = [], isLoading, error } = useOrganizacoes();
+   // Writes do router são require_system_admin: fora do contexto Sistema o
+   // backend responde 403 SCOPE_FORBIDDEN, que redireciona para /403 e
+   // descartaria o formulário. Então nem oferecemos a ação.
+   const canManage = useIsSystemAdmin();
+
+   const {
+      data: organizacoes = [],
+      isLoading,
+      isFetching,
+      error,
+      refetch,
+   } = useOrganizacoes();
    const createMutation = useCreateOrganizacao();
    const updateMutation = useUpdateOrganizacao();
    const deleteMutation = useDeleteOrganizacao();
@@ -60,50 +75,30 @@ export default function OrganizacoesPage() {
       setDeletingOrg(null);
    };
 
-   const handleSubmit = async (data: OrganizacaoCreate) => {
-      try {
-         if (editingOrg) {
-            const result = await updateMutation.mutateAsync({
-               sigla: editingOrg.sigla,
-               data,
-            });
+   /** Deixa o erro subir: o modal devolve os erros de campo aos inputs. */
+   const handleSubmit = async (data: OrganizacaoFormData) => {
+      const payload = toOrganizacaoPayload(data);
 
-            if (result.ok) {
-               push({
-                  type: "success",
-                  message:
-                     result.message || "Organização atualizada com sucesso!",
-               });
-               handleCloseFormModal();
-            } else {
-               push({
-                  type: "error",
-                  message: result.message || "Erro ao atualizar organização",
-               });
-            }
-         } else {
-            const result = await createMutation.mutateAsync(data);
+      // Na edição a sigla é imutável (input disabled) — fica fora do PUT para
+      // não reenviar a PK como se fosse alteração.
+      const { sigla: _sigla, ...updatePayload } = payload;
 
-            if (result.ok) {
-               push({
-                  type: "success",
-                  message: result.message || "Organização criada com sucesso!",
-               });
-               handleCloseFormModal();
-            } else {
-               push({
-                  type: "error",
-                  message: result.message || "Erro ao criar organização",
-               });
-            }
-         }
-      } catch (error) {
-         console.error("submitOrganizacao failed", error);
-         push({
-            type: "error",
-            message: "Ocorreu um erro inesperado",
-         });
-      }
+      const result = editingOrg
+         ? await updateMutation.mutateAsync({
+              sigla: editingOrg.sigla,
+              data: updatePayload,
+           })
+         : await createMutation.mutateAsync(payload);
+
+      push({
+         type: "success",
+         message:
+            result.message ||
+            (editingOrg
+               ? "Organização atualizada com sucesso!"
+               : "Organização criada com sucesso!"),
+      });
+      handleCloseFormModal();
    };
 
    const handleDelete = async () => {
@@ -111,24 +106,18 @@ export default function OrganizacoesPage() {
 
       try {
          const result = await deleteMutation.mutateAsync(deletingOrg.sigla);
-
-         if (result.ok) {
-            push({
-               type: "success",
-               message: result.message || "Organização excluída com sucesso!",
-            });
-            handleCloseDeleteModal();
-         } else {
-            push({
-               type: "error",
-               message: result.message || "Erro ao excluir organização",
-            });
-         }
-      } catch (error) {
-         console.error("deleteOrganizacao failed", error);
+         push({
+            type: "success",
+            message: result.message || "Organização excluída com sucesso!",
+         });
+         handleCloseDeleteModal();
+      } catch (err: unknown) {
          push({
             type: "error",
-            message: "Ocorreu um erro inesperado",
+            message: formatOrganizacaoSaveError(
+               err,
+               "Erro ao excluir organização"
+            ),
          });
       }
    };
@@ -136,8 +125,11 @@ export default function OrganizacoesPage() {
    if (isLoading) {
       return (
          <div className="space-y-2">
-            <OrganizacoesHeader onCreate={handleOpenCreateModal} />
-            <OrganizacoesTableSkeleton rows={8} />
+            <OrganizacoesHeader
+               canManage={canManage}
+               onCreate={handleOpenCreateModal}
+            />
+            <OrganizacoesTableSkeleton rows={8} canManage={canManage} />
          </div>
       );
    }
@@ -145,11 +137,25 @@ export default function OrganizacoesPage() {
    if (error) {
       return (
          <div className="space-y-2">
-            <OrganizacoesHeader onCreate={handleOpenCreateModal} />
-            <div className="rounded border border-red-300 bg-red-50 p-4">
+            <OrganizacoesHeader
+               canManage={canManage}
+               onCreate={handleOpenCreateModal}
+            />
+            <div
+               role="alert"
+               className="space-y-3 rounded border border-red-300 bg-red-50 p-4"
+            >
                <p className="text-sm text-red-800">
                   Erro ao carregar organizações. Por favor, tente novamente.
                </p>
+               <Button
+                  color="light"
+                  size="xs"
+                  onClick={() => refetch()}
+                  disabled={isFetching}
+               >
+                  Tentar novamente
+               </Button>
             </div>
          </div>
       );
@@ -159,6 +165,7 @@ export default function OrganizacoesPage() {
       <div className="space-y-2">
          <OrganizacoesHeader
             count={organizacoes.length}
+            canManage={canManage}
             onCreate={handleOpenCreateModal}
          />
 
@@ -166,11 +173,24 @@ export default function OrganizacoesPage() {
             <EmptyState
                icon={FaBuilding}
                title="Nenhuma organização cadastrada"
-               description="Cadastre uma organização para começar"
+               description={
+                  canManage
+                     ? "Cadastre uma organização para começar"
+                     : "Só um admin de sistema pode cadastrar organizações"
+               }
+               action={
+                  canManage && (
+                     <Button color="light" onClick={handleOpenCreateModal}>
+                        <FaPlus className="mr-2 h-4 w-4" />
+                        Nova Organização
+                     </Button>
+                  )
+               }
             />
          ) : (
             <OrganizacoesTable
                organizacoes={organizacoes}
+               canManage={canManage}
                onEdit={handleOpenEditModal}
                onDelete={handleOpenDeleteModal}
             />
