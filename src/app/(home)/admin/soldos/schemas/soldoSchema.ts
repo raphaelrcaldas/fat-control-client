@@ -6,7 +6,13 @@ export const soldoFormSchema = z
       pg: z.string().min(1, "Selecione um posto/graduacao"),
       data_inicio: z.string().min(1, "Data de inicio obrigatoria"),
       data_fim: z.string().nullable().optional(),
-      valor: z.number().positive("Valor deve ser maior que zero"),
+      // O input é `type="number"` com `valueAsNumber`, então apagar o campo
+      // entrega NaN — não "". Sem a mensagem de tipo, o Zod devolveria o
+      // texto padrão em inglês ("Invalid input: expected number, received
+      // NaN") direto na tela.
+      valor: z
+         .number({ message: "Informe o valor do soldo" })
+         .positive("Valor deve ser maior que zero"),
    })
    .refine(
       (data) => {
