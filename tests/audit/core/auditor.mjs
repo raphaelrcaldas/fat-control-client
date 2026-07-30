@@ -97,6 +97,21 @@ async function measure({ session, breakpoint, collectors, outDir, logger }) {
       // alvos com `pointer: fine` e rotular o resultado como "coarse (dedo)",
       // porque o rotulo vem da config, nao do que foi medido. Isso produzia
       // alvos de 32px falsos em toda rota com rolagem.
+      //
+      // O preco de fotografar depois e que os coletores deixam a pagina em
+      // outro estado: o passeio de Tab do `focusRing` pousa em algum controle,
+      // e combobox/popover que abrem no foco aparecem escancarados no PNG (ja
+      // aconteceu com a busca de cidade do simulador, cobrindo o formulario
+      // inteiro num relatorio). Devolver a pagina ao repouso antes do clique.
+      await handle.page.keyboard.press("Escape").catch(() => {});
+      await handle.page.evaluate(() => {
+         const el = document.activeElement;
+         if (el instanceof HTMLElement) el.blur();
+         window.scrollTo(0, 0);
+      });
+      // Um frame para a saida da animacao de fechamento terminar.
+      await handle.page.waitForTimeout(250);
+
       const screenshot = path.join(outDir, `${breakpoint.name}.png`);
       await handle.page.screenshot({ path: screenshot, fullPage: true });
       measurement.screenshot = screenshot;
