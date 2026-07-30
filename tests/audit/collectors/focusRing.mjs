@@ -10,6 +10,13 @@
  * Por isso a checagem e um DIFF: fotografa outline/box-shadow/borda do
  * elemento e descendentes com foco, compara com a mesma fotografia depois que
  * o foco sai, e considera "com indicador" qualquer mudanca visual.
+ *
+ * As duas fotografias esperam as transicoes assentarem (`settle`). Sem isso o
+ * diff corre contra a animacao: controle com `transition-all` (o Button do
+ * shadcn, por exemplo) era fotografado no quadro em que o anel ainda nao tinha
+ * pintado, e depois relido antes de o anel apagar — duas fotos iguais, e o
+ * relatorio acusava "sem foco visivel" num botao cujo anel media 3px na tela.
+ * O sintoma era intermitente entre breakpoints, que e a assinatura de corrida.
  */
 export function createFocusRingCollector({ maxStops }) {
    return {
@@ -19,6 +26,25 @@ export function createFocusRingCollector({ maxStops }) {
          await page.evaluate(() => {
             window.__auditFocus = {
                prev: null,
+               // Espera as transicoes/animacoes correntes destes elementos
+               // terminarem, para fotografar estado assentado e nao um quadro
+               // intermediario. Teto de 300ms para nao travar em animacao
+               // infinita (skeleton pulsando, por exemplo).
+               settle(els) {
+                  const running = els
+                     .filter((el) => el && el.getAnimations)
+                     .flatMap((el) => el.getAnimations({ subtree: true }))
+                     .map((a) => a.finished.catch(() => {}));
+                  if (running.length === 0) {
+                     return new Promise((r) =>
+                        requestAnimationFrame(() => r())
+                     );
+                  }
+                  return Promise.race([
+                     Promise.all(running),
+                     new Promise((r) => setTimeout(r, 300)),
+                  ]);
+               },
                // Teto de descendentes fotografados por parada. Indicador em
                // filho (padrao pill/group-focus-visible) vive nos primeiros
                // niveis; o teto evita varrer sub-arvores gigantes quando o
@@ -92,7 +118,15 @@ export function createFocusRingCollector({ maxStops }) {
          for (let i = 0; i < maxStops; i++) {
             await page.keyboard.press("Tab");
 
-            const result = await page.evaluate(() => {
+            const result = await page.evaluate(async () => {
+               // Assenta os dois lados do diff antes de medir: o elemento que
+               // acabou de perder o foco (anel apagando) e o que acabou de
+               // receber (anel acendendo).
+               await window.__auditFocus.settle([
+                  window.__auditFocus.prev?.el,
+                  document.activeElement,
+               ]);
+
                const done = window.__auditFocus.resolvePrev();
 
                const el = document.activeElement;
@@ -113,8 +147,10 @@ export function createFocusRingCollector({ maxStops }) {
          }
 
          // Ultima parada: tira o foco e resolve o diff pendente.
-         const last = await page.evaluate(() => {
-            document.activeElement?.blur?.();
+         const last = await page.evaluate(async () => {
+            const el = document.activeElement;
+            el?.blur?.();
+            await window.__auditFocus.settle([el]);
             return window.__auditFocus.resolvePrev();
          });
          if (last) stops.push(last);
