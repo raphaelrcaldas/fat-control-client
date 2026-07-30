@@ -67,6 +67,17 @@ async function measure({ session, breakpoint, collectors, outDir, logger }) {
       return { ...measurement, error: error.message };
    }
 
+   // Havia dialogo/drawer aberto ANTES dos coletores? Se sim, ele e o alvo da
+   // auditoria (veio das `--actions`) e nao pode ser fechado antes da foto.
+   const alvoEraModal = await handle.page
+      .evaluate(
+         () =>
+            !!document.querySelector(
+               '[role="dialog"]:not([hidden]), [role="alertdialog"]:not([hidden])'
+            )
+      )
+      .catch(() => false);
+
    try {
       for (const collector of collectors) {
          // Um coletor que quebra nao pode levar a auditoria inteira junto.
@@ -103,12 +114,17 @@ async function measure({ session, breakpoint, collectors, outDir, logger }) {
       // e combobox/popover que abrem no foco aparecem escancarados no PNG (ja
       // aconteceu com a busca de cidade do simulador, cobrindo o formulario
       // inteiro num relatorio). Devolver a pagina ao repouso antes do clique.
-      await handle.page.keyboard.press("Escape").catch(() => {});
-      await handle.page.evaluate(() => {
+      //
+      // Menos o Escape quando o alvo E um modal: auditar dialogo aberto (via
+      // `--actions`) e fotografa-lo fechado entrega evidencia da tela errada.
+      if (!alvoEraModal) {
+         await handle.page.keyboard.press("Escape").catch(() => {});
+      }
+      await handle.page.evaluate((eraModal) => {
          const el = document.activeElement;
          if (el instanceof HTMLElement) el.blur();
-         window.scrollTo(0, 0);
-      });
+         if (!eraModal) window.scrollTo(0, 0);
+      }, alvoEraModal);
       // Um frame para a saida da animacao de fechamento terminar.
       await handle.page.waitForTimeout(250);
 
