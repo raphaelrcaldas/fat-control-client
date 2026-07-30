@@ -68,10 +68,6 @@ async function measure({ session, breakpoint, collectors, outDir, logger }) {
    }
 
    try {
-      const screenshot = path.join(outDir, `${breakpoint.name}.png`);
-      await handle.page.screenshot({ path: screenshot, fullPage: true });
-      measurement.screenshot = screenshot;
-
       for (const collector of collectors) {
          // Um coletor que quebra nao pode levar a auditoria inteira junto.
          try {
@@ -94,6 +90,16 @@ async function measure({ session, breakpoint, collectors, outDir, logger }) {
             );
          }
       }
+
+      // Screenshot DEPOIS dos coletores, de proposito. Em pagina mais alta que
+      // a viewport, `fullPage: true` reemite `Emulation.setDeviceMetricsOverride`
+      // no Chromium e derruba a emulacao de toque — o que sobrava era medir
+      // alvos com `pointer: fine` e rotular o resultado como "coarse (dedo)",
+      // porque o rotulo vem da config, nao do que foi medido. Isso produzia
+      // alvos de 32px falsos em toda rota com rolagem.
+      const screenshot = path.join(outDir, `${breakpoint.name}.png`);
+      await handle.page.screenshot({ path: screenshot, fullPage: true });
+      measurement.screenshot = screenshot;
    } finally {
       await handle.close();
    }
