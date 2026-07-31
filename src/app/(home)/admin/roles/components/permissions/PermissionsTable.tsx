@@ -62,13 +62,13 @@ export function PermissionsTable({
                         <TableCell colSpan={3} className="py-2">
                            <div className="flex items-center gap-2">
                               <FaCubes
-                                 className="h-3 w-3 text-gray-400"
+                                 className="h-3 w-3 text-gray-500"
                                  aria-hidden="true"
                               />
                               <span className="text-xs font-semibold tracking-wide text-gray-600 uppercase">
                                  {resource}
                               </span>
-                              <span className="text-xs text-gray-400 tabular-nums">
+                              <span className="text-xs text-gray-500 tabular-nums">
                                  {resourcePermissions.length}
                               </span>
                            </div>
@@ -110,14 +110,14 @@ export function PermissionsTable({
                                  <div className="flex items-center justify-end gap-1">
                                     <button
                                        onClick={() => onEdit(permission)}
-                                       className="rounded p-2 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-700"
+                                       className="inline-flex items-center justify-center rounded p-2 text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-700 pointer-coarse:size-[44px]"
                                        aria-label={`Editar permissão ${permission.resource}.${permission.action}`}
                                     >
                                        <FaPenToSquare className="h-4 w-4" />
                                     </button>
                                     <button
                                        onClick={() => onDelete(permission)}
-                                       className="rounded p-2 text-gray-400 transition-colors hover:bg-red-100 hover:text-red-600"
+                                       className="inline-flex items-center justify-center rounded p-2 text-gray-500 transition-colors hover:bg-red-100 hover:text-red-600 pointer-coarse:size-[44px]"
                                        aria-label={`Excluir permissão ${permission.resource}.${permission.action}`}
                                     >
                                        <FaTrashCan className="h-4 w-4" />

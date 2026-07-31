@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { TextInput } from "flowbite-react";
+import { Button, TextInput } from "flowbite-react";
 import { FaCubes, FaMagnifyingGlass } from "react-icons/fa6";
 import { useToast } from "@/app/context/toast";
 import {
@@ -26,7 +26,7 @@ export default function ResourcesTab() {
    const { push } = useToast();
 
    // Query hooks
-   const { data: resources = [], isLoading, error } = useResources();
+   const { data: resources = [], isLoading, error, refetch } = useResources();
    const { data: permissions } = usePermissions();
    const createMutation = useCreateResource();
    const updateMutation = useUpdateResource();
@@ -175,13 +175,21 @@ export default function ResourcesTab() {
       );
    }
 
-   // Error state
+   // Error state — mantém o SectionHeader (a aba sem título fica amputada) e
+   // mostra a mensagem que o backend mandou, não um genérico
    if (error) {
       return (
-         <div className="rounded border border-red-300 bg-red-50 p-4">
-            <p className="text-sm text-red-800">
-               Erro ao carregar recursos. Por favor, tente novamente.
-            </p>
+         <div className="space-y-4">
+            <SectionHeader title="Recursos" />
+            <div className="space-y-3 rounded border border-red-300 bg-red-50 p-4">
+               <p className="text-sm font-medium text-red-800">
+                  Não foi possível carregar os recursos.
+               </p>
+               <p className="text-sm text-red-700">{error.message}</p>
+               <Button color="light" size="sm" onClick={() => refetch()}>
+                  Tentar novamente
+               </Button>
+            </div>
          </div>
       );
    }
@@ -209,6 +217,7 @@ export default function ResourcesTab() {
             countLabel={filteredResources.length === 1 ? "recurso" : "recursos"}
             onCreateClick={handleOpenCreateModal}
             createLabel="Novo Recurso"
+            createButtonColor="dark"
          >
             {searchControl}
          </SectionHeader>

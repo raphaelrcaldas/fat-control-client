@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Select, TextInput } from "flowbite-react";
+import { Button, Select, TextInput } from "flowbite-react";
 import { FaFilter, FaKey, FaMagnifyingGlass } from "react-icons/fa6";
 import { useToast } from "@/app/context/toast";
 import {
@@ -33,6 +33,7 @@ export default function PermissionsTab() {
       data: resources = [],
       isLoading: isLoadingResources,
       error,
+      refetch,
    } = useResources();
 
    // Mutations
@@ -198,13 +199,21 @@ export default function PermissionsTab() {
       );
    }
 
-   // Error state
+   // Error state — mantém o SectionHeader (a aba sem título fica amputada) e
+   // mostra a mensagem que o backend mandou, não um genérico
    if (error) {
       return (
-         <div className="rounded border border-red-300 bg-red-50 p-4">
-            <p className="text-sm text-red-800">
-               Erro ao carregar permissões. Por favor, tente novamente.
-            </p>
+         <div className="space-y-4">
+            <SectionHeader title="Permissões" />
+            <div className="space-y-3 rounded border border-red-300 bg-red-50 p-4">
+               <p className="text-sm font-medium text-red-800">
+                  Não foi possível carregar as permissões.
+               </p>
+               <p className="text-sm text-red-700">{error.message}</p>
+               <Button color="light" size="sm" onClick={() => refetch()}>
+                  Tentar novamente
+               </Button>
+            </div>
          </div>
       );
    }
@@ -254,6 +263,7 @@ export default function PermissionsTab() {
             }
             onCreateClick={handleOpenCreateModal}
             createLabel="Nova Permissão"
+            createButtonColor="dark"
          >
             {filterControls}
          </SectionHeader>

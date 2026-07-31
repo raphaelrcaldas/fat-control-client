@@ -39,6 +39,8 @@ export function RoleCard({
          ? Math.round((grantedCount / totalPermissions) * 100)
          : 0;
    const groupedPermissions = groupPermissionsByResource(role.permissions);
+   const panelId = `role-panel-${role.id}`;
+   const label = theme.label || role.name;
 
    return (
       <div
@@ -47,67 +49,98 @@ export function RoleCard({
             isExpanded ? "border-slate-300" : "border-slate-200"
          )}
       >
-         <button
-            onClick={onToggle}
-            aria-expanded={isExpanded}
-            className={clsx(
-               "flex w-full items-center gap-4 p-4 text-left transition-colors",
-               theme.hover
-            )}
-         >
-            <div
+         {/* h2 ao redor do gatilho: dá ao índice do leitor de tela o nome do
+             perfil, e não nove "Permissões concedidas" idênticos */}
+         <h2>
+            <button
+               onClick={onToggle}
+               aria-expanded={isExpanded}
+               aria-controls={panelId}
+               // Sem isto o nome acessível sai concatenado ("Apoio
+               // Avançado22/82setor de pessoal")
+               aria-label={`${label} — ${grantedCount} de ${totalPermissions} permissões`}
                className={clsx(
-                  "flex h-10 w-10 shrink-0 items-center justify-center rounded-md",
-                  theme.bg
+                  // Grade explícita: identidade e números ficam vizinhos à
+                  // esquerda; só o chevron é empurrado para a borda
+                  // Largura fixa no texto (não `max-content`) para os números
+                  // ficarem na mesma coluna nos 9 cards — eles são comparados
+                  // entre si, e é para isso que existe o `tabular-nums`
+                  "grid w-full grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 p-4 text-left transition-colors sm:grid-cols-[auto_minmax(0,22rem)_auto_1fr_auto] sm:gap-4",
+                  theme.hover
                )}
             >
-               <FaShieldHalved className={clsx("h-4 w-4", theme.text)} />
-            </div>
-
-            <div className="min-w-0 flex-1 space-y-1">
-               <span
+               <div
                   className={clsx(
-                     "inline-flex items-center rounded-md px-2.5 py-0.5 text-sm font-semibold",
-                     theme.bg,
-                     theme.text
+                     "flex h-10 w-10 shrink-0 items-center justify-center rounded-md",
+                     theme.bg
                   )}
                >
-                  {theme.label || role.name}
-               </span>
-               <p className="ml-1 truncate text-sm text-gray-600">
-                  {role.description}
-               </p>
-            </div>
+                  <FaShieldHalved className={clsx("h-4 w-4", theme.text)} />
+               </div>
 
-            <div className="hidden w-40 shrink-0 space-y-1.5 sm:block">
-               <div className="flex items-baseline justify-between text-xs">
-                  <span className="font-semibold text-gray-700 tabular-nums">
-                     {grantedCount}
-                     <span className="font-normal text-gray-400">
-                        /{totalPermissions}
+               <div className="min-w-0 space-y-1">
+                  <div className="flex items-center gap-2">
+                     <span
+                        className={clsx(
+                           "inline-flex items-center rounded-md px-2.5 py-0.5 text-sm font-semibold",
+                           theme.bg,
+                           theme.text
+                        )}
+                     >
+                        {label}
                      </span>
-                  </span>
-                  <span className="text-gray-400">
-                     {grantedCount === 1 ? "permissão" : "permissões"}
-                  </span>
+                     {/* No mobile a barra some, mas o número não: é o dado que
+                         diz o alcance do perfil */}
+                     <span className="text-xs font-semibold text-gray-700 tabular-nums sm:hidden">
+                        {grantedCount}
+                        <span className="font-normal text-gray-600">
+                           /{totalPermissions}
+                        </span>
+                     </span>
+                  </div>
+                  <p className="ml-1 truncate text-sm text-gray-600">
+                     {role.description}
+                  </p>
                </div>
-               <div className="h-1.5 overflow-hidden rounded-full bg-gray-100">
-                  <div
-                     className="h-full rounded-full bg-emerald-500 transition-all duration-500"
-                     style={{ width: `${coverage}%` }}
-                  />
-               </div>
-            </div>
 
-            <FaChevronDown
-               className={clsx(
-                  "h-4 w-4 shrink-0 text-gray-400 transition-transform duration-200",
-                  isExpanded && "rotate-180"
-               )}
-            />
-         </button>
+               <div className="hidden w-40 shrink-0 space-y-1.5 sm:block">
+                  <div className="flex items-baseline justify-between text-xs">
+                     <span className="font-semibold text-gray-700 tabular-nums">
+                        {grantedCount}
+                        <span className="font-normal text-gray-600">
+                           /{totalPermissions}
+                        </span>
+                     </span>
+                     <span className="text-gray-600">
+                        {grantedCount === 1 ? "permissão" : "permissões"}
+                     </span>
+                  </div>
+                  {/* Barra neutra: num painel de segurança, perfil mais amplo
+                      não é "mais completo" — verde elogiaria privilégio */}
+                  <div className="h-1.5 overflow-hidden rounded-full bg-slate-200">
+                     <div
+                        className="h-full rounded-full bg-slate-500 transition-all duration-500"
+                        style={{ width: `${coverage}%` }}
+                     />
+                  </div>
+               </div>
+
+               <span aria-hidden className="hidden sm:block" />
+
+               <FaChevronDown
+                  className={clsx(
+                     "h-4 w-4 shrink-0 text-gray-500 transition-transform duration-200",
+                     isExpanded && "rotate-180"
+                  )}
+               />
+            </button>
+         </h2>
 
          <div
+            id={panelId}
+            // Colapsado, o painel tem altura 0 mas seus botões continuariam
+            // focáveis: `inert` tira do Tab e do leitor de tela
+            inert={!isExpanded}
             className={clsx(
                "grid transition-[grid-template-rows] duration-300 ease-out motion-reduce:transition-none",
                isExpanded ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
@@ -116,10 +149,15 @@ export function RoleCard({
             <div className="overflow-hidden">
                <div className="space-y-3 border-t border-slate-200 bg-gray-50 p-4">
                   <div className="flex items-center justify-between">
-                     <h3 className="text-xs font-semibold tracking-wide text-gray-500 uppercase">
+                     <h3 className="text-xs font-semibold tracking-wide text-gray-600 uppercase">
                         Permissões concedidas
                      </h3>
-                     <Button size="xs" color="red" onClick={onAddPermission}>
+                     <Button
+                        size="xs"
+                        color="light"
+                        onClick={onAddPermission}
+                        className="pointer-coarse:min-h-[44px]"
+                     >
                         <FaPlus className="mr-2 h-3 w-3" />
                         Adicionar
                      </Button>
@@ -140,7 +178,7 @@ export function RoleCard({
                                  <span className="shrink-0 text-xs font-semibold tracking-wide text-gray-500 uppercase sm:w-36">
                                     {resource}
                                  </span>
-                                 <div className="flex flex-wrap gap-1.5">
+                                 <div className="flex flex-wrap gap-2">
                                     {permissions.map((permission) => (
                                        <PermissionChip
                                           key={permission.id}

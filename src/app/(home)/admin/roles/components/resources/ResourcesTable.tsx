@@ -77,7 +77,7 @@ export function ResourcesTable({
                               <span
                                  className={
                                     count === 0
-                                       ? "text-xs text-gray-400"
+                                       ? "text-xs text-gray-500"
                                        : "text-sm text-gray-700 tabular-nums"
                                  }
                               >
@@ -91,14 +91,14 @@ export function ResourcesTable({
                            <div className="flex items-center justify-end gap-1">
                               <button
                                  onClick={() => onEdit(resource)}
-                                 className="rounded p-2 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-700"
+                                 className="inline-flex items-center justify-center rounded p-2 text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-700 pointer-coarse:size-[44px]"
                                  aria-label={`Editar recurso ${resource.name}`}
                               >
                                  <FaPenToSquare className="h-4 w-4" />
                               </button>
                               <button
                                  onClick={() => onDelete(resource)}
-                                 className="rounded p-2 text-gray-400 transition-colors hover:bg-red-100 hover:text-red-600"
+                                 className="inline-flex items-center justify-center rounded p-2 text-gray-500 transition-colors hover:bg-red-100 hover:text-red-600 pointer-coarse:size-[44px]"
                                  aria-label={`Excluir recurso ${resource.name}`}
                               >
                                  <FaTrashCan className="h-4 w-4" />

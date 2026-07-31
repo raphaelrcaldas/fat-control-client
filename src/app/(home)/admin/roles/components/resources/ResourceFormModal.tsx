@@ -99,7 +99,12 @@ export function ResourceFormModal({
    };
 
    return (
-      <Modal show={show} onClose={handleClose} size="md">
+      <Modal
+         show={show}
+         onClose={handleClose}
+         size="md"
+         dismissible={!isSaving}
+      >
          <ModalHeader>
             {editingResource ? "Editar Recurso" : "Novo Recurso"}
          </ModalHeader>
@@ -165,7 +170,7 @@ export function ResourceFormModal({
             <ModalFooter>
                <Button
                   type="submit"
-                  color="red"
+                  color="dark"
                   disabled={isSaving}
                   aria-label={
                      editingResource ? "Atualizar recurso" : "Criar recurso"
@@ -182,7 +187,7 @@ export function ResourceFormModal({
                      "Criar"
                   )}
                </Button>
-               <Button color="gray" onClick={onClose} disabled={isSaving}>
+               <Button color="light" onClick={onClose} disabled={isSaving}>
                   Cancelar
                </Button>
             </ModalFooter>

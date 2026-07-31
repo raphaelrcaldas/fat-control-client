@@ -310,7 +310,7 @@ export const navItems = [
          },
          {
             icon: GiSecurityGate,
-            label: "Roles & Permissões",
+            label: "Perfis & Permissões",
             path: "/admin/roles",
          },
          {

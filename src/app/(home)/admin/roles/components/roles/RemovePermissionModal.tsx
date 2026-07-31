@@ -87,16 +87,9 @@ export function RemovePermissionModal({
                   )}
                </div>
 
+               {/* Ação primeiro, Cancelar depois — mesma ordem do ConfirmModal
+                   que as outras exclusões desta tela já usam */}
                <div className="flex justify-center gap-3">
-                  <Button
-                     color="gray"
-                     className="w-32"
-                     onClick={onClose}
-                     type="button"
-                     disabled={isPending}
-                  >
-                     Cancelar
-                  </Button>
                   <Button
                      color="red"
                      className="w-32"
@@ -119,6 +112,15 @@ export function RemovePermissionModal({
                            Remover
                         </>
                      )}
+                  </Button>
+                  <Button
+                     color="light"
+                     className="w-32"
+                     onClick={onClose}
+                     type="button"
+                     disabled={isPending}
+                  >
+                     Cancelar
                   </Button>
                </div>
             </div>

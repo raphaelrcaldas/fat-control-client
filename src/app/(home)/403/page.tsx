@@ -11,9 +11,12 @@ export default function ForbiddenPage() {
          <EmptyState
             icon={FaLock}
             title="Acesso negado"
+            titleAs="h1"
             description="Você não tem permissão para acessar esta página no contexto atual. Verifique a organização ativa ou seu perfil de acesso."
             action={
-               <Button as={Link} href="/" color="red">
+               // Voltar para casa é navegação, não ação destrutiva: `primary`
+               // (herda o tema da org), nunca `red`
+               <Button as={Link} href="/" color="primary">
                   Voltar ao início
                </Button>
             }

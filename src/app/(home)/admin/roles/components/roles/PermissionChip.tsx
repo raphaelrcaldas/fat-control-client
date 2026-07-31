@@ -29,12 +29,17 @@ export function PermissionChip({
          )}
       >
          {permission.action}
+         {/* Sem `opacity`: a 60% o ✕ ficava em 2,88:1, abaixo dos 3:1 que a
+             WCAG 1.4.11 pede para ícone com significado. O padding leva o alvo
+             a ~26px no mouse (mínimo WCAG 2.5.8) e ~31px no dedo — 44px cravado
+             num chip inline viraria parede de botões, e o espaçamento entre
+             chips (gap-2) sustenta a precisão do gesto */}
          <button
             type="button"
             onClick={onRemove}
             disabled={disabled}
             aria-label={`Remover ${permission.resource}.${permission.action}`}
-            className="rounded-full p-0.5 opacity-60 transition-all hover:bg-black/10 hover:opacity-100"
+            className="rounded-full p-2 transition-colors hover:bg-black/10 pointer-coarse:p-2.5"
          >
             <FaXmark className="h-3 w-3" />
          </button>

@@ -147,7 +147,12 @@ export function PermissionFormModal({
    };
 
    return (
-      <Modal show={show} onClose={handleClose} size="md">
+      <Modal
+         show={show}
+         onClose={handleClose}
+         size="md"
+         dismissible={!isSaving}
+      >
          <ModalHeader>
             {editingPermission ? "Editar Permissão" : "Nova Permissão"}
          </ModalHeader>
@@ -218,7 +223,7 @@ export function PermissionFormModal({
                                     aria-checked={active}
                                     onClick={() => handleSelectAction(action)}
                                     className={clsx(
-                                       "rounded-md border px-2 py-1.5 text-center font-mono text-sm font-medium transition-colors",
+                                       "rounded-md border px-2 py-1.5 text-center font-mono text-sm font-medium transition-colors pointer-coarse:min-h-[44px]",
                                        active
                                           ? clsx(
                                                chip.bg,
@@ -281,7 +286,7 @@ export function PermissionFormModal({
             <ModalFooter>
                <Button
                   type="submit"
-                  color="red"
+                  color="dark"
                   disabled={isSaving}
                   aria-label={
                      editingPermission
@@ -300,7 +305,7 @@ export function PermissionFormModal({
                      "Criar"
                   )}
                </Button>
-               <Button color="gray" onClick={onClose} disabled={isSaving}>
+               <Button color="light" onClick={onClose} disabled={isSaving}>
                   Cancelar
                </Button>
             </ModalFooter>

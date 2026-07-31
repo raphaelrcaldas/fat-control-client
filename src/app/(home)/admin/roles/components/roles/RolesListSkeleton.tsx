@@ -2,7 +2,9 @@
 
 import { Skeleton } from "@/components/ui/Skeleton";
 
-export function RolesListSkeleton({ rows = 6 }: { rows?: number }) {
+// 9 linhas e alturas de 22/20px espelham os perfis reais do sistema: o card
+// medido tem 71,25px, e um skeleton de 6 linhas mais baixas gerava salto
+export function RolesListSkeleton({ rows = 9 }: { rows?: number }) {
    return (
       <div className="space-y-3">
          {Array.from({ length: rows }).map((_, i) => (
@@ -12,9 +14,9 @@ export function RolesListSkeleton({ rows = 6 }: { rows?: number }) {
             >
                <div className="flex w-full items-center gap-4 p-4">
                   <Skeleton className="h-10 w-10 rounded-md" />
-                  <div className="flex-1 space-y-2">
-                     <Skeleton className="h-5 w-32 rounded-md" />
-                     <Skeleton className="h-4 w-56" />
+                  <div className="flex-1 space-y-1">
+                     <Skeleton className="h-[22px] w-32 rounded-md" />
+                     <Skeleton className="h-5 w-56" />
                   </div>
                   <div className="hidden w-40 space-y-2 sm:block">
                      <Skeleton className="h-3 w-full" />

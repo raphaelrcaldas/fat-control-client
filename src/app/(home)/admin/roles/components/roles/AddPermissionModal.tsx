@@ -63,7 +63,7 @@ export function AddPermissionModal({
    const theme = role ? getRoleTheme(role.name) : null;
 
    return (
-      <Modal show={show} onClose={onClose} size="md">
+      <Modal show={show} onClose={onClose} size="md" dismissible>
          <ModalHeader>Adicionar Permissão</ModalHeader>
          <ModalBody>
             {role && theme && (
@@ -126,7 +126,7 @@ export function AddPermissionModal({
          </ModalBody>
          <ModalFooter>
             <Button
-               color="red"
+               color="dark"
                onClick={() =>
                   selectedPermissionId && onConfirm(selectedPermissionId)
                }
@@ -141,7 +141,7 @@ export function AddPermissionModal({
                   "Adicionar"
                )}
             </Button>
-            <Button color="gray" onClick={onClose}>
+            <Button color="light" onClick={onClose}>
                Cancelar
             </Button>
          </ModalFooter>
