@@ -43,6 +43,7 @@ export function EtapasNavigatorModal({
    }, [selectedId]);
 
    const currentIndex = etapas.findIndex((et) => et.id === selectedId);
+   const selecionada = etapas[currentIndex];
    const anterior = etapas[currentIndex - 1];
    const proxima = etapas[currentIndex + 1];
    const titulo = missaoTitulo ?? "Etapas da Missão";
@@ -230,7 +231,7 @@ export function EtapasNavigatorModal({
 
                {/* overflow-hidden contém o scroll interno do EtapaDetailContent (flex-1 overflow-y-auto) */}
                <div className="min-h-0 flex-1 overflow-hidden">
-                  <EtapaDetailContent etapaId={selectedId} />
+                  {selecionada && <EtapaDetailContent etapa={selecionada} />}
                </div>
             </div>
          </div>

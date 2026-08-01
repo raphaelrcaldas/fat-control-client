@@ -11,7 +11,6 @@ import {
    createMissaoWithEtapas,
    deleteEtapa,
    deleteMissao,
-   getEtapaDetail,
    getEtapas,
    getEtapasFlat,
    updateEtapa,
@@ -39,8 +38,6 @@ export const etapaKeys = {
    flats: () => [...etapaKeys.all, "flat"] as const,
    flat: (filters?: GetEtapasParams) =>
       [...etapaKeys.flats(), filters] as const,
-   details: () => [...etapaKeys.all, "detail"] as const,
-   detail: (id: number) => [...etapaKeys.details(), id] as const,
 };
 
 // ========================================
@@ -68,18 +65,6 @@ export function useEtapasFlat(params?: GetEtapasParams, enabled = true) {
       queryFn: ({ signal }) => getEtapasFlat(params, signal),
       placeholderData: keepPreviousData,
       enabled,
-   });
-}
-
-/**
- * Detalhe completo de uma etapa (com tripulantes)
- */
-export function useEtapaDetail(id: number | null) {
-   return useQuery({
-      queryKey: etapaKeys.detail(id!),
-      queryFn: ({ signal }) => getEtapaDetail(id!, signal),
-      enabled: !!id,
-      gcTime: 0,
    });
 }
 
@@ -156,9 +141,8 @@ export function useUpdateEtapa() {
    return useMutation({
       mutationFn: ({ id, data }: { id: number; data: EtapaUpdatePayload }) =>
          updateEtapa(id, data),
-      onSuccess: (_, { id }) => {
+      onSuccess: () => {
          queryClient.invalidateQueries({ queryKey: etapaKeys.all });
-         queryClient.invalidateQueries({ queryKey: etapaKeys.detail(id) });
          queryClient.invalidateQueries({ queryKey: esfAerKeys.all });
          queryClient.invalidateQueries({ queryKey: seboKeys.all });
       },

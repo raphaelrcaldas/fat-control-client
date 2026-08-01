@@ -16,6 +16,12 @@ export interface EtapaItem {
    sagem: boolean;
    parte1: boolean;
    obs: string | null;
+   tow: number | null;
+   pax: number | null;
+   carga: number | null;
+   comb: number | null;
+   lub: number | null;
+   nivel: string | null;
    oi_etapas: OIEtapaItem[];
    tripulantes: TripEtapaItem[];
    pqd: PqdEtapaItem[];
@@ -117,35 +123,12 @@ export interface HeavyCdsEtapaItem {
    radial: number;
 }
 
-export interface EtapaDetail extends EtapaItem {
-   tow: number | null;
-   pax: number | null;
-   carga: number | null;
-   comb: number | null;
-   lub: number | null;
-   nivel: string | null;
-}
+// Carga/combustível/nível passaram a vir já em EtapaItem (a listagem os
+// expõe para consumidores externos). Mantido como o contrato do detalhe.
+export type EtapaDetail = EtapaItem;
 
 export interface MissaoComEtapasDetail extends Omit<MissaoComEtapas, "etapas"> {
    etapas: EtapaDetail[];
-}
-
-export async function getEtapaDetail(
-   id: number,
-   signal?: AbortSignal
-): Promise<EtapaDetail> {
-   const response = await request(
-      "GET",
-      `${etapasRoute}${id}`,
-      null,
-      undefined,
-      signal
-   );
-   const json = (await response.json()) as ApiResponse<EtapaDetail>;
-   if (!response.ok) {
-      throw new Error(json.message || "Etapa não encontrada");
-   }
-   return json.data!;
 }
 
 export async function getEtapas(
