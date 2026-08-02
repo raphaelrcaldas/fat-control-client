@@ -1,7 +1,6 @@
-import { TableRow, TableCell } from "flowbite-react";
-import { TripDetail } from "./tripDetail";
+import { Button, TableRow, TableCell } from "flowbite-react";
+import Link from "next/link";
 import { FuncTripRow } from "./FuncTripRow";
-import { PermBased } from "@/app/(home)/hooks/usePermBased";
 import type { Trip } from "../types/trip.types";
 import clsx from "clsx";
 
@@ -55,9 +54,17 @@ export function TripRow({ trip }: TripRowProps) {
             </div>
          </TableCell>
          <TableCell className="text-center">
-            <PermBased resource={"trips"} requiredPerm={"update"}>
-               <TripDetail trip={trip} />
-            </PermBased>
+            {trip.id != null && (
+               <Button
+                  as={Link}
+                  href={`/ops/trip/${trip.id}`}
+                  color="light"
+                  size="xs"
+                  className="pointer-coarse:min-h-[44px]"
+               >
+                  Detalhes
+               </Button>
+            )}
          </TableCell>
       </TableRow>
    );

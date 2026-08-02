@@ -3,15 +3,6 @@ import type { CrewMember } from "services/routes/trips";
 
 export type Trip = CrewMember;
 
-export type TripFormFields = {
-   trig: string;
-   active: boolean;
-   func: FuncType;
-   oper: OperType;
-   proj: string;
-   data_op: string;
-};
-
 export type TripRegisterFormFields = {
    user_id: number;
    active: boolean;

@@ -149,12 +149,13 @@ export function TripRegister({
                            id="trig"
                            {...register("trig", {
                               ...trigramaValidationRules,
-                              setValueAs: (t) => t.toLowerCase(),
+                              setValueAs: (t) => t.toUpperCase(),
                            })}
                            autoComplete="off"
-                           placeholder="Ex: abc"
+                           placeholder="Ex: ABC"
                            maxLength={3}
                            autoFocus
+                           className="uppercase"
                            color={errors.trig ? "failure" : "gray"}
                            onKeyDown={(e) => {
                               if (!isValidTrigramaKey(e.key)) {

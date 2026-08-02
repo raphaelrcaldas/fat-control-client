@@ -1,5 +1,5 @@
 import request, { parseApiResponse } from "../Api";
-import type { ApiPaginatedResponse, ApiResult } from "@/types/api";
+import type { ApiPaginatedResponse, ApiResponse, ApiResult } from "@/types/api";
 
 const tripRoute = "ops/trips/";
 
@@ -11,6 +11,19 @@ export interface CrewMember extends TripFuncFields {
    trig: string;
    user: UserPublic;
    active: boolean;
+}
+
+/**
+ * Detalhe completo de um tripulante (GET /ops/trips/{id}), usado na página
+ * dedicada `ops/trip/[id]`. Diferente de `CrewMember` (listagem), aqui `id`
+ * é obrigatório — não "consertar" `CrewMember` com isso, ele é usado em
+ * contextos onde o registro ainda não tem id (linha nova da grade).
+ */
+export interface TripDetail extends TripFuncFields {
+   id: number;
+   trig: string;
+   active: boolean;
+   user: UserPublic;
 }
 
 export interface SearchTripsParams {
@@ -96,4 +109,28 @@ export async function updateTrip(
    return parseApiResponse<null>(
       await request("PUT", tripRoute + tripId, trip)
    );
+}
+
+/**
+ * Detalhe completo de um tripulante (página dedicada `ops/trip/[id]`).
+ */
+export async function getTrip(
+   id: number,
+   signal?: AbortSignal
+): Promise<TripDetail> {
+   const response = await request("GET", tripRoute + id, null, null, signal);
+   const json = (await response.json()) as ApiResponse<TripDetail>;
+   return json.data as TripDetail;
+}
+
+/**
+ * Atualização parcial campo-a-campo (página dedicada). Diferente de
+ * `updateTrip` (PUT, payload completo, usado no modal/grade), aqui o body é
+ * parcial — ver `useUpdateUser` sobre o padrão de erro estruturado.
+ */
+export async function patchTrip(
+   id: number,
+   data: Partial<UpdateTripData>
+): Promise<ApiResult<null>> {
+   return parseApiResponse<null>(await request("PATCH", tripRoute + id, data));
 }

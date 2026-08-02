@@ -9,10 +9,14 @@ import {
    getTripUserIds,
    addTrip,
    updateTrip,
+   getTrip,
+   patchTrip,
    GetTripsParams,
    CreateTripData,
    UpdateTripData,
 } from "services/routes/trips";
+import { getUserActionLogs } from "services/routes/logs";
+import { ApiError } from "services/Api";
 
 // ========================================
 // Query Keys - Centralizadas
@@ -25,6 +29,7 @@ export const tripKeys = {
    userIds: () => [...tripKeys.all, "user-ids"] as const,
    details: () => [...tripKeys.all, "detail"] as const,
    detail: (id: number) => [...tripKeys.details(), id] as const,
+   logs: (id: number) => [...tripKeys.detail(id), "logs"] as const,
 };
 
 // ========================================
@@ -72,6 +77,32 @@ export function useTripUserIds() {
    });
 }
 
+/**
+ * Detalhes completos de um tripulante (página dedicada `ops/trip/[id]`)
+ */
+export function useTrip(id: number | null | undefined) {
+   return useQuery({
+      queryKey: tripKeys.detail(id!),
+      queryFn: ({ signal }) => getTrip(id!, signal),
+      enabled: !!id,
+   });
+}
+
+/**
+ * Logs de auditoria de um tripulante
+ */
+export function useTripLogs(id: number | null | undefined) {
+   return useQuery({
+      queryKey: tripKeys.logs(id!),
+      queryFn: () =>
+         getUserActionLogs({
+            resource: "trips",
+            resource_id: id!,
+         }),
+      enabled: !!id,
+   });
+}
+
 // ========================================
 // Mutations
 // ========================================
@@ -103,6 +134,40 @@ export function useUpdateTrip() {
       onSuccess: (_, { id }) => {
          queryClient.invalidateQueries({ queryKey: tripKeys.detail(id) });
          queryClient.invalidateQueries({ queryKey: tripKeys.lists() });
+         queryClient.invalidateQueries({ queryKey: tripKeys.logs(id) });
+      },
+   });
+}
+
+/**
+ * Atualização parcial campo-a-campo de um tripulante (página dedicada).
+ * Falha vira `ApiError` para preservar o dict `errors` do 422 (campo →
+ * mensagem) — ver `useUpdateUser` sobre o mesmo padrão.
+ */
+export function usePatchTrip() {
+   const queryClient = useQueryClient();
+
+   return useMutation({
+      mutationFn: async ({
+         id,
+         data,
+      }: {
+         id: number;
+         data: Partial<UpdateTripData>;
+      }) => {
+         const result = await patchTrip(id, data);
+         if (!result.ok) {
+            throw new ApiError(
+               result.message ?? "Erro ao atualizar tripulante",
+               result.errors
+            );
+         }
+         return result;
+      },
+      onSuccess: (_, { id }) => {
+         queryClient.invalidateQueries({ queryKey: tripKeys.detail(id) });
+         queryClient.invalidateQueries({ queryKey: tripKeys.lists() });
+         queryClient.invalidateQueries({ queryKey: tripKeys.logs(id) });
       },
    });
 }

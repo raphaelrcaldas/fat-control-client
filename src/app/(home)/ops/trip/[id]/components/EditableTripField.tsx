@@ -1,86 +1,107 @@
 /**
- * Campo com edição inline. Exibe o valor e, ao clicar no lápis (ou quando o
- * banner de cadastro incompleto solicita foco), abre o editor adequado ao
- * tipo (texto, data, número, telefone com máscara, select ou searchable).
+ * Campo com edição inline do tripulante. Exibe o valor e, ao clicar no
+ * lápis, abre o editor adequado ao tipo (texto, data ou select), salvando
+ * um único campo por PATCH. Porte de `users/[id]/components/EditableField`
+ * sem `type="phone"` e sem `FieldFocusContext` (não há banner de pendências
+ * no tripulante, então não há consumidor do contexto de foco).
  */
 
-import { useContext, useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import clsx from "clsx";
-import { useMask } from "@react-input/mask";
 import { TextInput, Select, Spinner } from "flowbite-react";
 import { HiPencil, HiCheck, HiX } from "react-icons/hi";
-import type { UserUpdate } from "services/routes/users";
-import { formatPhone, phoneMaskConfig } from "@/constants/formats";
-import { SearchableSelect } from "@/components/SearchableSelect";
-import { useUpdateUser } from "@/hooks/queries";
+import type { UpdateTripData } from "services/routes/trips";
+import { usePatchTrip } from "@/hooks/queries/useTrips";
 import { useToast } from "@/app/context/toast";
-import { FieldIconChip } from "./FieldIconChip";
-import { formatUserSaveError } from "../../userErrors";
-import { FieldFocusContext } from "./FieldFocusContext";
+import { formatSaveError } from "utils/apiErrors";
+import { FieldIconChip } from "@/app/(home)/users/[id]/components/FieldIconChip";
+import { TRIP_FIELD_LABELS } from "./tripFieldLabels";
 
-export type FieldType =
-   "text" | "email" | "date" | "number" | "select" | "searchable" | "phone";
+const ERROR_LABELS = { fields: TRIP_FIELD_LABELS };
 
-export interface FieldConfig {
-   icon: React.ComponentType<{ className?: string }>;
+export type TripFieldType = "text" | "date" | "select";
+
+export interface TripFieldOption {
+   value: string;
    label: string;
-   fieldName: keyof UserUpdate;
-   value: string | null | undefined;
-   rawValue: string;
-   type?: FieldType;
-   options?: { value: string; label: string }[];
-   maxLength?: number;
 }
 
-export function EditableField({
+export interface TripFieldConfig {
+   icon: React.ComponentType<{ className?: string }>;
+   label: string;
+   fieldName: keyof UpdateTripData;
+   value: string | null | undefined;
+   rawValue: string;
+   type?: TripFieldType;
+   options?: TripFieldOption[];
+   maxLength?: number;
+   /** Converte o valor digitado (e exibido) para maiúsculas — ex.: trig. */
+   uppercase?: boolean;
+   /** Filtro de tecla aplicado ao digitar (ex.: só letras no trigrama). */
+   keyFilter?: (key: string) => boolean;
+   /**
+    * Bloqueia salvar o campo vazio, explicando o motivo em vez de deixar o
+    * PATCH falhar no backend. Ex.: `data_op` é obrigatório para tripulante
+    * não-aluno (`schemas/ops/tripulantes.py:28-33`).
+    */
+   blockClear?: boolean;
+   blockClearMessage?: string;
+}
+
+export function EditableTripField({
    icon: Icon,
    label,
    value,
    rawValue,
    fieldName,
-   userId,
+   tripId,
    type = "text",
    options,
    maxLength,
-}: FieldConfig & { userId: number }) {
+   uppercase,
+   keyFilter,
+   blockClear,
+   blockClearMessage,
+}: TripFieldConfig & { tripId: number }) {
    const [editing, setEditing] = useState(false);
    const [localValue, setLocalValue] = useState(rawValue);
-   const updateMutation = useUpdateUser();
+   const [blockMsg, setBlockMsg] = useState<string | null>(null);
+   const patchMutation = usePatchTrip();
    const { push } = useToast();
-   const { focusReq } = useContext(FieldFocusContext);
-   // Último nonce de foco já tratado — evita reabrir a edição quando o
-   // efeito re-roda por mudança de `rawValue` (ex.: refetch após salvar).
-   const lastFocusN = useRef(0);
 
-   const saving = updateMutation.isPending;
+   const saving = patchMutation.isPending;
 
-   const phoneMaskRef = useMask(phoneMaskConfig);
+   /** Forma canônica do valor no editor — ex.: trigrama é maiúsculo. */
+   function normalize(v: string) {
+      return uppercase ? v.toUpperCase() : v;
+   }
 
    function startEdit() {
-      setLocalValue(type === "phone" ? formatPhone(rawValue) : rawValue);
+      setLocalValue(normalize(rawValue));
+      setBlockMsg(null);
       setEditing(true);
    }
 
-   // Abre a edição apenas quando o banner solicita um NOVO foco neste
-   // campo (nonce inédito), não a cada mudança de valor.
-   useEffect(() => {
-      if (focusReq?.field === fieldName && focusReq.n !== lastFocusN.current) {
-         lastFocusN.current = focusReq.n;
-         setLocalValue(type === "phone" ? formatPhone(rawValue) : rawValue);
-         setEditing(true);
-      }
-   }, [focusReq, fieldName, rawValue, type]);
-
    function cancelEdit() {
-      setLocalValue(rawValue);
+      setLocalValue(normalize(rawValue));
+      setBlockMsg(null);
       setEditing(false);
    }
 
+   function changeValue(v: string) {
+      setLocalValue(normalize(v));
+   }
+
    async function save() {
-      const stripped =
-         type === "phone" ? localValue.replace(/\D/g, "") : localValue;
-      const newVal =
-         type === "number" ? Number(stripped) || null : stripped || null;
+      const newVal = localValue.trim() || null;
+
+      if (blockClear && newVal === null) {
+         setBlockMsg(
+            blockClearMessage ?? "Este campo não pode ficar em branco."
+         );
+         return;
+      }
+
       if (
          String(newVal ?? "").toLowerCase() ===
          String(rawValue ?? "").toLowerCase()
@@ -90,22 +111,26 @@ export function EditableField({
       }
 
       try {
-         await updateMutation.mutateAsync({
-            id: userId,
-            data: { [fieldName]: newVal } as UserUpdate,
+         await patchMutation.mutateAsync({
+            id: tripId,
+            data: { [fieldName]: newVal } as Partial<UpdateTripData>,
          });
 
          push({ message: `${label} atualizado`, type: "success" });
          setEditing(false);
       } catch (err: unknown) {
          push({
-            message: formatUserSaveError(err, "Erro ao atualizar"),
+            message: formatSaveError(err, "Erro ao atualizar", ERROR_LABELS),
             type: "error",
          });
       }
    }
 
    function handleKeyDown(e: React.KeyboardEvent) {
+      if (keyFilter && !keyFilter(e.key)) {
+         e.preventDefault();
+         return;
+      }
       if (e.key === "Enter") save();
       if (e.key === "Escape") cancelEdit();
    }
@@ -122,33 +147,19 @@ export function EditableField({
                   {label}
                </p>
                <div className="flex items-center gap-1.5">
-                  {/* Listas precisam de mais largura que texto/data para
+                  {/* Select precisa de mais largura que trigrama/data para
                       caber o rótulo inteiro da opção sem truncar. */}
                   <div
                      className={clsx(
                         "w-full",
-                        type === "select" || type === "searchable"
-                           ? "max-w-sm"
-                           : "max-w-48"
+                        type === "select" ? "max-w-sm" : "max-w-48"
                      )}
                   >
-                     {type === "phone" ? (
-                        <input
-                           ref={phoneMaskRef}
-                           aria-label={label}
-                           type="text"
-                           value={localValue}
-                           onChange={(e) => setLocalValue(e.target.value)}
-                           onKeyDown={handleKeyDown}
-                           placeholder="(__) _____-____"
-                           className="block w-40 rounded border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none pointer-coarse:min-h-[44px]"
-                           autoFocus
-                        />
-                     ) : type === "select" && options ? (
+                     {type === "select" && options ? (
                         <Select
                            aria-label={label}
                            value={localValue}
-                           onChange={(e) => setLocalValue(e.target.value)}
+                           onChange={(e) => changeValue(e.target.value)}
                            onKeyDown={handleKeyDown}
                            autoFocus
                         >
@@ -161,19 +172,13 @@ export function EditableField({
                               </option>
                            ))}
                         </Select>
-                     ) : type === "searchable" && options ? (
-                        <SearchableSelect
-                           clearable
-                           value={localValue}
-                           onChange={setLocalValue}
-                           options={options}
-                        />
                      ) : (
                         <TextInput
                            aria-label={label}
                            type={type}
+                           className={clsx(uppercase && "uppercase")}
                            value={localValue}
-                           onChange={(e) => setLocalValue(e.target.value)}
+                           onChange={(e) => changeValue(e.target.value)}
                            onKeyDown={handleKeyDown}
                            maxLength={maxLength}
                            autoFocus
@@ -201,6 +206,9 @@ export function EditableField({
                      </>
                   )}
                </div>
+               {blockMsg && (
+                  <p className="mt-1 text-xs text-red-600">{blockMsg}</p>
+               )}
             </div>
          </div>
       );
