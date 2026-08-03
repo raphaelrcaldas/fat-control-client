@@ -25,6 +25,7 @@ import {
    MdDeleteSweep,
    MdFlag,
    MdSettings,
+   MdInsights,
 } from "react-icons/md";
 import { FaUsers, FaBuilding, FaSitemap } from "react-icons/fa6";
 import { FaPaperPlane } from "react-icons/fa";
@@ -121,6 +122,13 @@ export const navItems = [
       scope: "tenant",
       roles: [],
       children: [
+         {
+            icon: MdInsights,
+            label: "Indicadores",
+            path: "/estatistica/indicadores",
+            resource: "etapas",
+            permission: "view",
+         },
          {
             icon: MdSort,
             label: "Pau de Sebo",

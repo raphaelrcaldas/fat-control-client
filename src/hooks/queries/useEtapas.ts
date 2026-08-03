@@ -24,6 +24,7 @@ import {
    type MissaoUpdate,
 } from "services/routes/estatistica/etapas";
 import { esfAerKeys } from "./useEsfAer";
+import { indicadoresKeys } from "./useIndicadores";
 import { seboKeys } from "./useSebo";
 
 // ========================================
@@ -95,6 +96,7 @@ export function useCreateMissaoWithEtapas() {
          queryClient.invalidateQueries({ queryKey: etapaKeys.all });
          queryClient.invalidateQueries({ queryKey: esfAerKeys.all });
          queryClient.invalidateQueries({ queryKey: seboKeys.all });
+         queryClient.invalidateQueries({ queryKey: indicadoresKeys.all });
       },
    });
 }
@@ -132,6 +134,7 @@ export function useCreateEtapa() {
          queryClient.invalidateQueries({ queryKey: etapaKeys.all });
          queryClient.invalidateQueries({ queryKey: esfAerKeys.all });
          queryClient.invalidateQueries({ queryKey: seboKeys.all });
+         queryClient.invalidateQueries({ queryKey: indicadoresKeys.all });
       },
    });
 }
@@ -145,6 +148,7 @@ export function useUpdateEtapa() {
          queryClient.invalidateQueries({ queryKey: etapaKeys.all });
          queryClient.invalidateQueries({ queryKey: esfAerKeys.all });
          queryClient.invalidateQueries({ queryKey: seboKeys.all });
+         queryClient.invalidateQueries({ queryKey: indicadoresKeys.all });
       },
    });
 }
@@ -157,6 +161,7 @@ export function useBulkUpdateEtapas() {
          queryClient.invalidateQueries({ queryKey: etapaKeys.all });
          queryClient.invalidateQueries({ queryKey: esfAerKeys.all });
          queryClient.invalidateQueries({ queryKey: seboKeys.all });
+         queryClient.invalidateQueries({ queryKey: indicadoresKeys.all });
       },
    });
 }
@@ -169,6 +174,7 @@ export function useDeleteEtapa() {
          queryClient.invalidateQueries({ queryKey: etapaKeys.all });
          queryClient.invalidateQueries({ queryKey: esfAerKeys.all });
          queryClient.invalidateQueries({ queryKey: seboKeys.all });
+         queryClient.invalidateQueries({ queryKey: indicadoresKeys.all });
       },
    });
 }

@@ -22,6 +22,7 @@ export * from "./useSecurity";
 export * from "./useEtapas";
 export * from "./useEsfAer";
 export * from "./useHorasAnv";
+export * from "./useIndicadores";
 export * from "./useTiposMissao";
 export * from "./useCartoesSaude";
 export * from "./useAtas";

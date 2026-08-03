@@ -8,6 +8,7 @@ import { useToast } from "@/app/context/toast";
 import { usePermBased } from "@/app/(home)/hooks/usePermBased";
 import { etapaKeys } from "@/hooks/queries/useEtapas";
 import { esfAerKeys } from "@/hooks/queries/useEsfAer";
+import { indicadoresKeys } from "@/hooks/queries/useIndicadores";
 import { seboKeys } from "@/hooks/queries/useSebo";
 import { deleteMissaoComEtapas } from "services/routes/estatistica/etapas";
 
@@ -44,6 +45,7 @@ export function useMissaoActions({ draft, mode }: UseMissaoActionsArgs) {
          queryClient.invalidateQueries({ queryKey: etapaKeys.all });
          queryClient.invalidateQueries({ queryKey: esfAerKeys.all });
          queryClient.invalidateQueries({ queryKey: seboKeys.all });
+         queryClient.invalidateQueries({ queryKey: indicadoresKeys.all });
          router.push("/estatistica/etapas");
       },
       onError: (err: Error) => {
