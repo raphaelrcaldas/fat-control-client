@@ -4,18 +4,12 @@ import { HiPencil } from "react-icons/hi";
 import type { AeronavePublic } from "services/routes/aeronaves";
 import { PermBased } from "@/app/(home)/hooks/usePermBased";
 import clsx from "clsx";
+import { situacaoMeta } from "../schemas/aeronaveSchema";
 
 interface AeronaveCardProps {
    aeronave: AeronavePublic;
    onEdit: (aeronave: AeronavePublic) => void;
 }
-
-const SIT_COLORS: Record<string, string> = {
-   DI: "bg-emerald-500",
-   DO: "bg-orange-500",
-   IN: "bg-red-500",
-   IS: "bg-gray-400",
-};
 
 export function AeronaveCard({ aeronave, onEdit }: AeronaveCardProps) {
    return (
@@ -29,8 +23,8 @@ export function AeronaveCard({ aeronave, onEdit }: AeronaveCardProps) {
             <div className="flex min-w-0 items-center gap-3">
                <span
                   className={clsx(
-                     "inline-flex w-12 shrink-0 items-center justify-center rounded py-1 text-sm font-bold tracking-wide text-white",
-                     SIT_COLORS[aeronave.sit]
+                     "inline-flex w-12 shrink-0 items-center justify-center rounded py-1 text-sm font-bold tracking-wide",
+                     situacaoMeta(aeronave.sit).badge
                   )}
                >
                   {aeronave.sit}
@@ -40,9 +34,13 @@ export function AeronaveCard({ aeronave, onEdit }: AeronaveCardProps) {
                      <span
                         className={clsx(
                            "font-mono text-lg font-semibold tracking-wider",
-                           aeronave.active
-                              ? "text-gray-900"
-                              : "text-gray-400 line-through"
+                           // Sem `line-through`: riscado significa
+                           // excluído/cancelado, e inativa não é apagada —
+                           // ainda por cima cortando a matrícula, que é o
+                           // dado procurado na lista. A inatividade já é dita
+                           // pelo fundo, pelo "· Inativa" e pelo chip. Também
+                           // alinha o card à tabela, que não riscava.
+                           aeronave.active ? "text-gray-900" : "text-gray-500"
                         )}
                      >
                         {aeronave.matricula}
@@ -55,7 +53,7 @@ export function AeronaveCard({ aeronave, onEdit }: AeronaveCardProps) {
                   </div>
                   <p className="mt-0.5 text-xs font-medium text-gray-600">
                      {aeronave.proj.modelo}{" "}
-                     <span className="text-gray-400">
+                     <span className="text-gray-500">
                         ({aeronave.proj.id_projeto})
                      </span>
                      {!aeronave.active && (
@@ -67,7 +65,9 @@ export function AeronaveCard({ aeronave, onEdit }: AeronaveCardProps) {
             <PermBased resource={"aeronaves"} requiredPerm={"update"}>
                <button
                   onClick={() => onEdit(aeronave)}
-                  className="rounded p-1.5 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-700"
+                  // Hover sob `pointer-fine`: no toque o estado gruda depois
+                  // do tap. Em `primary-*` para acompanhar o tema da org.
+                  className="pointer-fine:hover:bg-primary-50 pointer-fine:hover:text-primary-600 flex items-center justify-center rounded p-1.5 text-gray-500 transition-colors pointer-coarse:min-h-[44px] pointer-coarse:min-w-[44px]"
                   aria-label={`Editar aeronave ${aeronave.matricula}`}
                >
                   <HiPencil className="h-4 w-4" />

@@ -13,6 +13,7 @@ import { HiPencil } from "react-icons/hi";
 import type { AeronavePublic } from "services/routes/aeronaves";
 import clsx from "clsx";
 import { PermBased } from "@/app/(home)/hooks/usePermBased";
+import { situacaoMeta } from "../schemas/aeronaveSchema";
 
 interface AeronaveTableProps {
    aeronaves: AeronavePublic[];
@@ -37,7 +38,7 @@ export function AeronaveTable({ aeronaves, onEdit }: AeronaveTableProps) {
                   <TableHeadCell>Situação</TableHeadCell>
                   <TableHeadCell>Observação</TableHeadCell>
                   <TableHeadCell>Status</TableHeadCell>
-                  <TableHeadCell className="text-center">Ações</TableHeadCell>
+                  <TableHeadCell>Ações</TableHeadCell>
                </TableRow>
             </TableHead>
             <TableBody className="divide-y">
@@ -45,9 +46,17 @@ export function AeronaveTable({ aeronaves, onEdit }: AeronaveTableProps) {
                   return (
                      <TableRow
                         key={aeronave.matricula}
-                        className={`bg-white ${!aeronave.active ? "opacity-50" : ""}`}
+                        className={clsx({
+                           "bg-white": aeronave.active,
+                           "bg-slate-50": !aeronave.active,
+                        })}
                      >
-                        <TableCell className="text-base font-bold text-gray-900">
+                        <TableCell
+                           className={clsx("text-base font-bold", {
+                              "text-gray-900": aeronave.active,
+                              "text-gray-500": !aeronave.active,
+                           })}
+                        >
                            {aeronave.matricula}
                         </TableCell>
                         <TableCell className="text-center align-middle">
@@ -72,19 +81,23 @@ export function AeronaveTable({ aeronaves, onEdit }: AeronaveTableProps) {
                            )}
                         </TableCell>
                         <TableCell className="text-center align-middle">
-                           <span
-                              className={clsx(
-                                 "inline-block w-10 rounded p-2 font-bold text-white",
-                                 {
-                                    "bg-emerald-400": aeronave.sit === "DI",
-                                    "bg-red-400": aeronave.sit === "IN",
-                                    "bg-gray-400": aeronave.sit === "IS",
-                                    "bg-orange-400": aeronave.sit === "DO",
-                                 }
-                              )}
-                           >
-                              {aeronave.sit}
-                           </span>
+                           <Tooltip content={situacaoMeta(aeronave.sit).label}>
+                              <span
+                                 className={clsx(
+                                    "inline-block w-10 rounded p-2 font-bold",
+                                    situacaoMeta(aeronave.sit).badge
+                                 )}
+                              >
+                                 {aeronave.sit}
+                                 {/* O Tooltip só dispara no hover/foco do
+                                     mouse; o span não é focável. Sem isto o
+                                     leitor de tela anuncia só a sigla. */}
+                                 <span className="sr-only">
+                                    {" "}
+                                    {situacaoMeta(aeronave.sit).label}
+                                 </span>
+                              </span>
+                           </Tooltip>
                         </TableCell>
                         <TableCell className="max-w-xs text-gray-600">
                            {aeronave.obs ? (
@@ -92,16 +105,22 @@ export function AeronaveTable({ aeronaves, onEdit }: AeronaveTableProps) {
                                  {aeronave.obs}
                               </span>
                            ) : (
-                              <span className="text-gray-300">—</span>
+                              <>
+                                 <span className="text-gray-500" aria-hidden>
+                                    —
+                                 </span>
+                                 <span className="sr-only">sem observação</span>
+                              </>
                            )}
                         </TableCell>
                         <TableCell>
                            <span
-                              className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                              className={clsx(
+                                 "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium",
                                  aeronave.active
                                     ? "bg-green-100 text-green-800"
                                     : "bg-red-100 text-red-800"
-                              }`}
+                              )}
                            >
                               {aeronave.active ? "Ativa" : "Inativa"}
                            </span>
@@ -113,7 +132,15 @@ export function AeronaveTable({ aeronaves, onEdit }: AeronaveTableProps) {
                            >
                               <button
                                  onClick={() => onEdit(aeronave)}
-                                 className="rounded p-1.5 text-gray-500 transition-colors hover:bg-blue-50 hover:text-blue-600"
+                                 // A tabela é `md:block`, então ela TAMBÉM
+                                 // aparece no tablet, onde o ponteiro é o
+                                 // dedo — media 26px lá. `pointer-coarse`
+                                 // cresce só no toque; no mouse segue denso.
+                                 // Hover em `primary-*` (era `blue-*` cravado,
+                                 // que virava o único azul da tela numa org de
+                                 // tema vermelho) e sob `pointer-fine`, senão
+                                 // o estado gruda após o toque.
+                                 className="pointer-fine:hover:bg-primary-50 pointer-fine:hover:text-primary-600 rounded p-1.5 text-gray-500 transition-colors pointer-coarse:flex pointer-coarse:min-h-[44px] pointer-coarse:min-w-[44px] pointer-coarse:items-center pointer-coarse:justify-center"
                                  title="Editar"
                                  aria-label={`Editar aeronave ${aeronave.matricula}`}
                               >

@@ -88,6 +88,37 @@ export async function getAeronaves(
    };
 }
 
+/**
+ * Busca a frota inteira, esgotando a paginação.
+ *
+ * O backend crava `per_page = min(per_page, 100)` como teto rígido (não
+ * default) — uma única chamada de `getAeronaves` trunca em silêncio acima de
+ * 100 aeronaves na org. Aqui paginamos até `page >= pages` (o `pages` que a
+ * própria resposta já traz), com um teto de iterações como trava de sanidade:
+ * uma resposta malformada (`pages` não decrescendo) não pode travar o browser
+ * em loop infinito.
+ */
+export async function getAllAeronaves(
+   params?: Omit<GetAeronavesParams, "page" | "per_page">,
+   signal?: AbortSignal
+): Promise<AeronavePublic[]> {
+   const PER_PAGE = 100;
+   const MAX_ITERATIONS = 50; // 50 * 100 = 5000 aeronaves; folga generosa sobre qualquer frota real
+
+   const items: AeronavePublic[] = [];
+
+   for (let page = 1; page <= MAX_ITERATIONS; page++) {
+      const response = await getAeronaves(
+         { ...params, page, per_page: PER_PAGE },
+         signal
+      );
+      items.push(...response.items);
+      if (page >= response.pages) break;
+   }
+
+   return items;
+}
+
 export async function getAeronave(matricula: string): Promise<AeronavePublic> {
    const response = await request("GET", aeronaveRoute + matricula);
    const json = await response.json();
