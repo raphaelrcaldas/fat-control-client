@@ -15,16 +15,28 @@ export function TripCard({ status, index }: TripCardProps) {
    return (
       <article
          className={clsx(
-            "relative flex flex-col rounded border bg-white p-3 transition-shadow",
+            // O fundo é CONDICIONAL, não aditivo: `bg-white` na base convivia
+            // com o `bg-slate-50` do ramo (clsx concatena, não faz merge de
+            // Tailwind), e a cascata dava o branco aos dois estados — medido
+            // no navegador, os cards bloqueados renderizavam brancos.
+            "relative flex flex-col rounded border p-3 transition-shadow",
             isAvailable
-               ? "border-slate-400 shadow-sm hover:shadow-md"
-               : "border-slate-400/50 bg-slate-50/70 opacity-80"
+               ? "border-slate-400 bg-white shadow-sm pointer-fine:hover:shadow-md"
+               : // Sem `opacity-80`: opacidade no card inteiro derrubava junto
+                 // o contraste do texto e dos motivos do bloqueio, que é
+                 // justamente o que precisa ser lido aqui. A espinha rosa à
+                 // esquerda repete a gramática da coluna e não deixa a
+                 // distinção depender de 1px de borda.
+                 "border-l-2 border-slate-300 border-l-rose-300 bg-slate-50"
          )}
       >
          <div className="flex items-start justify-between gap-2">
             <div className="flex min-w-0 items-baseline gap-2">
                <span
-                  className="font-mono text-[10px] text-slate-400 tabular-nums"
+                  // `slate-400` media 2,63:1. O índice é decorativo para o
+                  // leitor de tela (`aria-hidden`), mas 1.4.3 vale para todo
+                  // texto visível.
+                  className="font-mono text-[10px] text-slate-500 tabular-nums"
                   aria-hidden="true"
                >
                   {String(index).padStart(2, "0")}
@@ -46,6 +58,14 @@ export function TripCard({ status, index }: TripCardProps) {
                   title={`Total de ${trip.quads_count} quads neste tipo`}
                >
                   {trip.quads_count}
+                  {/* O `title` só existe para o mouse. Sem isto, o leitor de
+                      tela anuncia dois números soltos ("3", "02:15") sem dizer
+                      o que cada um é. */}
+                  <span className="sr-only">
+                     {trip.quads_count === 1
+                        ? " quadrinho neste tipo"
+                        : " quadrinhos neste tipo"}
+                  </span>
                </span>
                <span
                   className={clsx(
@@ -57,6 +77,7 @@ export function TripCard({ status, index }: TripCardProps) {
                   title={`${minutesToTime(trip.tvoo_year)} de voo no ano`}
                >
                   {minutesToTime(trip.tvoo_year)}
+                  <span className="sr-only"> de voo no ano</span>
                </span>
             </div>
          </div>

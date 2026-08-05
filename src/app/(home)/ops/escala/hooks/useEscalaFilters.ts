@@ -2,11 +2,32 @@
 import { useEffect, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { usePersistedState } from "@/hooks/usePersistedState";
+import { todayIso } from "@/../utils/dateHandler";
 import type { EscalaSort } from "services/routes/ops/escala";
 import type { EscalaFiltersState } from "../types";
 
 const STORAGE_KEY = "escala.filters";
 const VALID_SORTS: EscalaSort[] = ["horas_voo", "quads_asc"];
+
+/**
+ * Puxa uma janela que ficou no passado de volta para hoje.
+ *
+ * O estado inteiro é persistido no localStorage, datas incluídas — então na
+ * sessão seguinte o filtro voltava com a data de ontem, abaixo do `min={today}`
+ * do próprio input, e a consulta saía para uma janela passada sem nada na tela
+ * indicando isso. Como CEMAL e desadaptação são calculados contra `date_end`,
+ * a escala inteira vinha datada de ontem. O default do módulo também não
+ * salvava: `todayIso()` roda uma vez, na carga.
+ */
+function clampToToday(filters: EscalaFiltersState): EscalaFiltersState {
+   const today = todayIso();
+   if (filters.date_start >= today) return filters;
+
+   // Encosta o início em hoje. O fim só se move se também estiver no passado —
+   // uma janela que atravessa hoje mantém a data final que o usuário escolheu.
+   const end = filters.date_end < today ? today : filters.date_end;
+   return { ...filters, date_start: today, date_end: end };
+}
 
 function parseFromUrl(
    sp: URLSearchParams,
@@ -75,14 +96,17 @@ export function useEscalaFilters(defaults: EscalaFiltersState) {
       const sp = new URLSearchParams(searchParams.toString());
       const { value, hasAny } = parseFromUrl(sp, filters);
 
-      if (hasAny) {
-         lastApplied.current = toQueryString(value);
-         setFilters(value);
-      } else {
-         const next = toQueryString(filters);
-         lastApplied.current = next;
-         if (next) router.replace(`?${next}`, { scroll: false });
-      }
+      // Vale para as duas origens: tanto o que veio do localStorage quanto um
+      // link antigo colado na barra de endereço podem trazer data vencida.
+      const resolved = clampToToday(hasAny ? value : filters);
+      const next = toQueryString(resolved);
+      lastApplied.current = next;
+
+      // `clampToToday` devolve o MESMO objeto quando não há nada a corrigir,
+      // então a comparação por identidade cobre as duas origens: só grava se a
+      // URL trouxe filtro novo ou se a data precisou ser puxada para hoje.
+      if (resolved !== filters) setFilters(resolved);
+      if (next) router.replace(`?${next}`, { scroll: false });
    }, []);
 
    useEffect(() => {

@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useId, useState } from "react";
 import clsx from "clsx";
 import { HiChevronDown } from "react-icons/hi";
 import { getFuncColors, getFuncLabel } from "@/constants";
@@ -23,7 +23,10 @@ export function FuncSection({ bucket, index }: FuncSectionProps) {
       <section
          className={clsx(
             "relative flex w-full flex-col overflow-hidden rounded border border-slate-200 bg-white shadow-sm sm:w-68 sm:shrink-0 sm:grow-0",
-            "transition-shadow hover:shadow-md"
+            // A coluna não é clicável — o realce fica só no mouse, onde lê
+            // como profundidade. No dedo, `hover` gruda depois do toque e
+            // sugere uma interação que não existe.
+            "transition-shadow pointer-fine:hover:shadow-md"
          )}
       >
          <div className={clsx("absolute inset-y-0 left-0 w-1.5", colors.bar)} />
@@ -43,13 +46,18 @@ export function FuncSection({ bucket, index }: FuncSectionProps) {
                </h2>
             </div>
 
-            <div className="flex items-center gap-3 font-mono text-[11px] tracking-widest uppercase tabular-nums">
+            {/* `w-full` força o bloco de contagens SEMPRE para a segunda
+                linha. Sem isso ele só quebrava quando o nome da função era
+                longo, e colunas vizinhas ficavam com cabeçalhos de 66px e
+                39px — 27px de desalinho entre as réguas "DISPONÍVEIS". Também
+                é o que o skeleton assume. */}
+            <div className="flex w-full items-center gap-3 font-mono text-[11px] tracking-widest uppercase tabular-nums">
                <div className="flex items-center gap-1.5 text-emerald-700">
                   <span className="inline-block h-2 w-2 rounded-full bg-emerald-500" />
                   <span className="font-bold">{efetivos}</span>
                   <span className="text-slate-500">DI</span>
                </div>
-               <span className="text-slate-300">·</span>
+               <span className="text-slate-400">·</span>
                <div className="flex items-center gap-1.5 text-rose-700">
                   <span className="inline-block h-2 w-2 rounded-full bg-rose-500" />
                   <span className="font-bold">{inop}</span>
@@ -79,7 +87,6 @@ export function FuncSection({ bucket, index }: FuncSectionProps) {
                count={inop}
                accent="bg-rose-500"
                empty="Nenhum tripulante indisponível"
-               muted
                collapsible
                defaultOpen={false}
             >
@@ -102,7 +109,6 @@ interface SubListProps {
    accent: string;
    empty: string;
    children: React.ReactNode;
-   muted?: boolean;
    collapsible?: boolean;
    defaultOpen?: boolean;
 }
@@ -113,11 +119,14 @@ function SubList({
    accent,
    empty,
    children,
-   muted,
    collapsible = false,
    defaultOpen = true,
 }: SubListProps) {
    const [open, setOpen] = useState(collapsible ? defaultOpen : true);
+   // `aria-expanded` sozinho não diz O QUE expande. O par id/aria-controls
+   // amarra o botão à região, e o `useId` evita colisão entre as colunas de
+   // função, que renderizam a mesma sublista lado a lado.
+   const regionId = `${useId()}-sublist`;
 
    const headerInner = (
       <>
@@ -125,14 +134,18 @@ function SubList({
          <h3 className="text-[11px] font-bold tracking-[0.22em] text-slate-700 uppercase">
             {title}
          </h3>
-         <span className="font-mono text-[10px] text-slate-400 tabular-nums">
+         {/* Era `slate-400` (2,63:1). */}
+         <span className="font-mono text-[10px] text-slate-500 tabular-nums">
             {String(count).padStart(2, "0")}
          </span>
          <div className="ml-1 h-px flex-1 bg-slate-200" />
          {collapsible && (
             <HiChevronDown
                className={clsx(
-                  "shrink-0 text-sm text-slate-400 transition-transform",
+                  // A rotação do chevron é o ÚNICO sinal gráfico de
+                  // aberto/fechado, então ele carrega significado e cai no
+                  // 1.4.11 (3:1). Em `slate-400` media 2,63:1.
+                  "shrink-0 text-sm text-slate-500 transition-transform",
                   open && "rotate-180"
                )}
                aria-hidden="true"
@@ -148,7 +161,8 @@ function SubList({
                type="button"
                onClick={() => setOpen((v) => !v)}
                aria-expanded={open}
-               className="mb-2 flex w-full items-center gap-2 text-left transition-colors hover:text-slate-900"
+               aria-controls={regionId}
+               className="mb-2 flex min-h-[24px] w-full items-center gap-2 text-left transition-colors pointer-coarse:min-h-[44px] pointer-fine:hover:text-slate-900"
             >
                {headerInner}
             </button>
@@ -156,19 +170,19 @@ function SubList({
             <div className="mb-2 flex items-center gap-2">{headerInner}</div>
          )}
 
-         {open &&
-            (count === 0 ? (
-               <p
-                  className={clsx(
-                     "rounded-md border border-dashed border-slate-200 bg-slate-50/50 px-3 py-3 text-center text-xs italic",
-                     muted ? "text-slate-400" : "text-slate-500"
-                  )}
-               >
-                  {empty}
-               </p>
-            ) : (
-               <div className="flex flex-col gap-1.5">{children}</div>
-            ))}
+         <div id={regionId}>
+            {open &&
+               (count === 0 ? (
+                  // Era `slate-400` na variante `muted`, abaixo de AA sobre o
+                  // fundo claro. O tom único de 500 mantém os dois vazios
+                  // legíveis — a hierarquia entre eles já vem do colapso.
+                  <p className="rounded-md border border-dashed border-slate-200 bg-slate-50/50 px-3 py-3 text-center text-xs text-slate-500 italic">
+                     {empty}
+                  </p>
+               ) : (
+                  <div className="flex flex-col gap-1.5">{children}</div>
+               ))}
+         </div>
       </div>
    );
 }

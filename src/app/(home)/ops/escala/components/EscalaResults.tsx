@@ -23,7 +23,15 @@ export function EscalaResults({
 }: EscalaResultsProps) {
    if (!isParamsReady) return <EmptyState />;
    if (showSkeleton) return <EscalaSkeleton columns={skeletonColumns} />;
-   if (hasData && buckets.length === 0) return <NoResultsState />;
+
+   // O backend devolve SEMPRE uma seção por função pedida, e a página só
+   // consulta com `funcs` não-vazio — então `buckets.length === 0` (a condição
+   // anterior) nunca acontecia e este estado era inalcançável. O "nada
+   // encontrado" de verdade é toda seção vir vazia; sem isto a tela mostrava N
+   // colunas, cada uma repetindo dois vazios.
+   // (`every` em array vazio é `true`, então isto também cobre o caso antigo.)
+   if (hasData && buckets.every((b) => b.total === 0))
+      return <NoResultsState />;
 
    return (
       <div

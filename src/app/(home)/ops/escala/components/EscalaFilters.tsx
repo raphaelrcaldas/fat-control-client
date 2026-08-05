@@ -1,5 +1,6 @@
 "use client";
 import { Spinner } from "flowbite-react";
+import { useAuth } from "@/app/context/auth";
 import { DateRangeFields } from "./filters/DateRangeFields";
 import { QuadTipoSelect } from "./filters/QuadTipoSelect";
 import { SortToggle } from "./filters/SortToggle";
@@ -17,10 +18,16 @@ export function EscalaFilters({
    onChange,
    isFetching = false,
 }: EscalaFiltersProps) {
+   // A sigla vem da org ativa — estava cravada como "1º/1º GT", que qualquer
+   // outra unidade via no próprio painel de filtro.
+   const { activeOrg } = useAuth();
+
    return (
       <div className="rounded border border-slate-200 bg-white shadow-sm">
          <div className="flex items-center gap-3 border-b border-slate-200 px-4 py-2">
-            <span className="font-mono text-[10px] font-bold tracking-[0.3em] text-slate-400 uppercase">
+            {/* Era `slate-400` (2,63:1) — o tracking largo a 10px já é o pior
+                caso de legibilidade da tela. */}
+            <span className="font-mono text-[10px] font-bold tracking-[0.3em] text-slate-500 uppercase">
                Briefing
             </span>
             <div className="h-px flex-1 bg-slate-200" />
@@ -28,8 +35,12 @@ export function EscalaFilters({
                {isFetching && <Spinner size="xs" color="primary" />}
                <span>
                   Setor de Escala
-                  <span className="mx-1 text-slate-300">·</span>
-                  1º/1º GT
+                  {activeOrg && (
+                     <>
+                        <span className="mx-1 text-slate-300">·</span>
+                        {activeOrg.toUpperCase()}
+                     </>
+                  )}
                </span>
             </div>
          </div>

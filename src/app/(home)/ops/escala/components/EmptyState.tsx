@@ -1,4 +1,5 @@
-import { MdEventAvailable } from "react-icons/md";
+import { Button } from "flowbite-react";
+import { MdEventAvailable, MdErrorOutline } from "react-icons/md";
 
 export function EmptyState() {
    return (
@@ -6,7 +7,7 @@ export function EmptyState() {
          <div className="grid h-14 w-14 place-items-center rounded-full border border-slate-200 bg-white shadow-inner">
             <MdEventAvailable className="text-2xl text-slate-400" />
          </div>
-         <p className="font-mono text-[10px] font-bold tracking-[0.3em] text-slate-400 uppercase">
+         <p className="font-mono text-[10px] font-bold tracking-[0.3em] text-slate-500 uppercase">
             Briefing pendente
          </p>
          <h2 className="max-w-md text-base font-bold text-slate-700">
@@ -24,12 +25,37 @@ export function EmptyState() {
 export function NoResultsState() {
    return (
       <div className="flex flex-col items-center justify-center gap-2 rounded border border-dashed border-slate-300 bg-white/60 px-6 py-10 text-center">
-         <p className="font-mono text-[10px] font-bold tracking-[0.3em] text-slate-400 uppercase">
+         <p className="font-mono text-[10px] font-bold tracking-[0.3em] text-slate-500 uppercase">
             Sem retorno
          </p>
          <h2 className="text-sm font-bold text-slate-700">
             Nenhum tripulante elegível para os filtros selecionados.
          </h2>
+      </div>
+   );
+}
+
+interface ErrorStateProps {
+   message: string;
+   onRetry: () => void;
+}
+
+export function ErrorState({ message, onRetry }: ErrorStateProps) {
+   return (
+      <div
+         role="alert"
+         className="flex flex-col items-center justify-center gap-3 rounded border border-slate-200 bg-white px-6 py-10 text-center shadow-sm"
+      >
+         <div className="grid h-14 w-14 place-items-center rounded-full bg-red-50">
+            <MdErrorOutline className="text-2xl text-red-600" />
+         </div>
+         <h2 className="text-base font-bold text-slate-900">
+            Não foi possível gerar a escala
+         </h2>
+         <p className="max-w-md text-sm text-slate-600">{message}</p>
+         <Button color="light" size="sm" onClick={onRetry}>
+            Tentar novamente
+         </Button>
       </div>
    );
 }

@@ -5,6 +5,7 @@ import { todayIso } from "@/../utils/dateHandler";
 import { EscalaFilters } from "./components/EscalaFilters";
 import { EscalaHeader } from "./components/EscalaHeader";
 import { EscalaResults } from "./components/EscalaResults";
+import { ErrorState } from "./components/EmptyState";
 import { useEscalaFilters } from "./hooks/useEscalaFilters";
 import { buildBuckets } from "./utils/buildEscala";
 import type { EscalaFiltersState } from "./types";
@@ -21,26 +22,32 @@ const INITIAL_FILTERS: EscalaFiltersState = {
 function EscalaView() {
    const [filters, setFilters] = useEscalaFilters(INITIAL_FILTERS);
 
-   const params = useMemo<Partial<GetEscalaParams>>(
-      () => ({
+   // Fonte única do "o filtro está completo?": devolve os params prontos ou
+   // `null`. O hook não repete a checagem — antes havia duas cópias, e só esta
+   // exigia `date_end >= date_start`.
+   const params = useMemo<GetEscalaParams | null>(() => {
+      if (
+         !filters.date_start ||
+         !filters.date_end ||
+         filters.date_end < filters.date_start ||
+         filters.tipo_quad_id === null ||
+         filters.funcs.length === 0
+      ) {
+         return null;
+      }
+      return {
          date_start: filters.date_start,
          date_end: filters.date_end,
-         tipo_quad_id: filters.tipo_quad_id ?? undefined,
+         tipo_quad_id: filters.tipo_quad_id,
          funcs: filters.funcs,
          sort: filters.sort,
-      }),
-      [filters]
-   );
+      };
+   }, [filters]);
 
-   const isParamsReady =
-      Boolean(filters.date_start) &&
-      Boolean(filters.date_end) &&
-      filters.date_end >= filters.date_start &&
-      filters.tipo_quad_id !== null &&
-      filters.funcs.length > 0;
+   const isParamsReady = params !== null;
 
-   const { data, isLoading, isFetching, error } = useEscala(
-      isParamsReady ? params : undefined
+   const { data, isLoading, isFetching, error, refetch } = useEscala(
+      params ?? undefined
    );
 
    const buckets = useMemo(() => {
@@ -50,6 +57,10 @@ function EscalaView() {
 
    const skeletonColumns = Math.max(filters.funcs.length, 1);
    const showSkeleton = isParamsReady && isLoading && !data;
+   // Com `keepPreviousData` ligado, um refetch que falha mantém a escala
+   // anterior em tela. Antes o aviso de erro aparecia ACIMA dela, e o usuário
+   // via a falha e um resultado ao mesmo tempo sem saber qual valia.
+   const showError = Boolean(error) && !data;
 
    return (
       <div className="flex flex-col space-y-2">
@@ -61,20 +72,35 @@ function EscalaView() {
             isFetching={isFetching}
          />
 
-         {error && (
-            <div className="rounded-md border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-800">
-               {(error as Error).message}
-            </div>
+         {showError ? (
+            <ErrorState
+               message={(error as Error).message}
+               onRetry={() => refetch()}
+            />
+         ) : (
+            <>
+               {/* Falhou o refetch mas há escala anterior em tela: não dá para
+                   apagar um resultado bom, nem para deixar o usuário achando
+                   que ele está atualizado. */}
+               {error && (
+                  <div
+                     role="status"
+                     className="rounded border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-900"
+                  >
+                     Não foi possível atualizar — exibindo o último resultado
+                     carregado.
+                  </div>
+               )}
+               <EscalaResults
+                  isParamsReady={isParamsReady}
+                  showSkeleton={showSkeleton}
+                  isFetching={isFetching}
+                  hasData={Boolean(data)}
+                  buckets={buckets}
+                  skeletonColumns={skeletonColumns}
+               />
+            </>
          )}
-
-         <EscalaResults
-            isParamsReady={isParamsReady}
-            showSkeleton={showSkeleton}
-            isFetching={isFetching}
-            hasData={Boolean(data)}
-            buckets={buckets}
-            skeletonColumns={skeletonColumns}
-         />
       </div>
    );
 }

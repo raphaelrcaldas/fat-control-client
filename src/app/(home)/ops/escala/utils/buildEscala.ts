@@ -1,6 +1,8 @@
 import {
+   daysSinceLastFlight,
    isCemalValid,
    isDesadaptado,
+   type ElegibilidadeDesadapta,
 } from "@/app/(home)/ops/indisp/utils/indispStatus";
 import { formatPeriodoSemAno, isoStrToDate } from "utils/dateHandler";
 import type {
@@ -9,16 +11,14 @@ import type {
 } from "services/routes/ops/escala";
 import type { BlockReason, SectionBucket, TripStatus } from "../types";
 
-const MS_DIA = 24 * 60 * 60 * 1000;
-
 function buildTripStatus(trip: EscalaTripEntry, dateRef: Date): TripStatus {
    const cemal = trip.cemal_date ? isoStrToDate(trip.cemal_date) : null;
    const ultVoo = trip.data_ult_voo ? isoStrToDate(trip.data_ult_voo) : null;
 
-   const tripForDesadaptado = {
+   const tripForDesadaptado: ElegibilidadeDesadapta = {
       func: trip.func,
       oper: trip.oper ?? "",
-   } as Parameters<typeof isDesadaptado>[2];
+   };
 
    const desadapt = isDesadaptado(ultVoo, dateRef, tripForDesadaptado);
    const cemalOk = isCemalValid(cemal, dateRef);
@@ -33,6 +33,12 @@ function buildTripStatus(trip: EscalaTripEntry, dateRef: Date): TripStatus {
    }
 
    for (const indisp of trip.indisps) {
+      // `ins` É a indisponibilidade de CEMAL. Com o cartão vencido, a linha
+      // acima já diz isso — listar as duas fazia o mesmo impedimento contar
+      // duas vezes no card. Quando o CEMAL está em dia, o `ins` continua
+      // aparecendo: aí ele informa algo novo (afastado para fazer o exame).
+      if (indisp.mtv === "ins" && !cemalOk) continue;
+
       reasons.push({
          kind: "indisp",
          label: indisp.mtv,
@@ -40,10 +46,10 @@ function buildTripStatus(trip: EscalaTripEntry, dateRef: Date): TripStatus {
       });
    }
 
-   const dsvDias =
-      ultVoo === null
-         ? null
-         : Math.floor((dateRef.getTime() - ultVoo.getTime()) / MS_DIA);
+   // Mesma conta de `daysSinceLastFlight` (que este módulo já importava):
+   // a versão de lá normaliza com `startOfDay`, então não erra por uma hora
+   // na virada do horário de verão.
+   const dsvDias = daysSinceLastFlight(ultVoo, dateRef);
 
    return {
       trip,

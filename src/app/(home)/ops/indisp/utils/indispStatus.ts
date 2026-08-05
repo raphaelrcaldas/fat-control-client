@@ -40,14 +40,22 @@ export function isCemalValid(cemal: Date | null, dateRef: Date): boolean {
    );
 }
 
-export function isElegivelDesadapta(trip: CrewIndisp): boolean {
+/**
+ * Só `func`/`oper` decidem a elegibilidade, então o parâmetro pede só isso —
+ * um `CrewIndisp` inteiro continua servindo. Cobrar o objeto completo obrigava
+ * quem tem apenas os dois campos (ex: a escala, que recebe o tripulante em
+ * outro formato) a fabricar um `CrewIndisp` falso com `as`.
+ */
+export type ElegibilidadeDesadapta = Pick<CrewIndisp, "func" | "oper">;
+
+export function isElegivelDesadapta(trip: ElegibilidadeDesadapta): boolean {
    return trip?.func !== "oe" && trip?.func !== "os" && trip?.oper !== "al";
 }
 
 export function isDesadaptado(
    ultVoo: Date | null,
    dateRef: Date,
-   trip: CrewIndisp
+   trip: ElegibilidadeDesadapta
 ): boolean {
    const days = daysSinceLastFlight(ultVoo, dateRef);
    return (
