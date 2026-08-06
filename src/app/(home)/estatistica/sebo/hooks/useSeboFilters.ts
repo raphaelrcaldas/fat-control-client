@@ -14,6 +14,7 @@ import type { InfoColumn } from "../types";
 export function useSeboFilters() {
    const [opIn, setOpIn] = usePersistedState("estatistica.seboOpIn", true);
    const [opOp, setOpOp] = usePersistedState("estatistica.seboOpOp", true);
+   const [opBa, setOpBa] = usePersistedState("estatistica.seboOpBa", true);
    const [opAl, setOpAl] = usePersistedState("estatistica.seboOpAl", false);
 
    const [infoCols, setInfoCols] = usePersistedState<
@@ -40,12 +41,13 @@ export function useSeboFilters() {
       const oper: string[] = [];
       if (opIn) oper.push("in");
       if (opOp) oper.push("op");
+      if (opBa) oper.push("ba");
       if (opAl) oper.push("al");
       return oper;
-   }, [opIn, opOp, opAl]);
+   }, [opIn, opOp, opBa, opAl]);
 
    // Todos ativos => não enviar oper (a API retorna todos).
-   const allActive = opIn && opOp && opAl;
+   const allActive = opIn && opOp && opBa && opAl;
 
    // func_bordo: derivado das posições da função selecionada.
    const funcBordo = useMemo(() => {
@@ -87,6 +89,8 @@ export function useSeboFilters() {
       setOpIn,
       opOp,
       setOpOp,
+      opBa,
+      setOpBa,
       opAl,
       setOpAl,
       soO3,

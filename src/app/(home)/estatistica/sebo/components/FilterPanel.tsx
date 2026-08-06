@@ -12,6 +12,8 @@ interface FilterPanelProps {
    setOpIn: (value: boolean) => void;
    opOp: boolean;
    setOpOp: (value: boolean) => void;
+   opBa: boolean;
+   setOpBa: (value: boolean) => void;
    opAl: boolean;
    setOpAl: (value: boolean) => void;
    soO3: boolean;
@@ -29,6 +31,8 @@ export default function FilterPanel({
    setOpIn,
    opOp,
    setOpOp,
+   opBa,
+   setOpBa,
    opAl,
    setOpAl,
    soO3,
@@ -54,6 +58,12 @@ export default function FilterPanel({
          checked: opOp,
          set: setOpOp,
          activeClass: "bg-yellow-400 text-slate-900",
+      },
+      {
+         id: "ba",
+         checked: opBa,
+         set: setOpBa,
+         activeClass: "bg-orange-500 text-slate-900",
       },
       {
          id: "al",

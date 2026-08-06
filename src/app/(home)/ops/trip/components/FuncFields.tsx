@@ -38,7 +38,7 @@ export function FuncFields({ register, errors, currentOper }: FuncFieldsProps) {
                <option value="">Selecione</option>
                {TODAS_FUNCOES.map((func) => (
                   <option key={func} value={func}>
-                     {func.toUpperCase()} - {getFuncLabel(func)}
+                     {getFuncLabel(func)}
                   </option>
                ))}
             </Select>

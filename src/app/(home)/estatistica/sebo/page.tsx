@@ -52,6 +52,8 @@ export default function SeboPage() {
             setOpIn={f.setOpIn}
             opOp={f.opOp}
             setOpOp={f.setOpOp}
+            opBa={f.opBa}
+            setOpBa={f.setOpBa}
             opAl={f.opAl}
             setOpAl={f.setOpAl}
             soO3={f.soO3}
