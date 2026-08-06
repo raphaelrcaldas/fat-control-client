@@ -63,7 +63,7 @@ export function FuncFields({ register, errors, currentOper }: FuncFieldsProps) {
                <option value="">Selecione</option>
                {Object.entries(OPER_LABELS).map(([key, label]) => (
                   <option key={key} value={key}>
-                     {key.toUpperCase()} - {label}
+                     {label}
                   </option>
                ))}
             </Select>

@@ -1,5 +1,6 @@
 "use client";
 import { Label, Select } from "flowbite-react";
+import { getOperSigla } from "@/constants/tripulantes";
 import { FUNC_OPTIONS, INFO_COLUMNS_CONFIG, YEAR_OPTIONS } from "../constants";
 import type { InfoColumn } from "../types";
 import { ToggleChip } from "./ToggleChip";
@@ -37,22 +38,25 @@ export default function FilterPanel({
    infoCols,
    setInfoCols,
 }: FilterPanelProps) {
+   const isPilot = seboFunc === "pil";
+
    // Operacionalidade: cores semânticas alinhadas aos badges da tabela.
+   // O valor filtrado continua sendo `op` — piloto só exibe a sigla PO.
    const operControls = [
       {
-         label: "IN",
+         id: "in",
          checked: opIn,
          set: setOpIn,
          activeClass: "bg-red-600 text-white",
       },
       {
-         label: "OP",
+         id: "op",
          checked: opOp,
          set: setOpOp,
          activeClass: "bg-yellow-400 text-slate-900",
       },
       {
-         label: "AL",
+         id: "al",
          checked: opAl,
          set: setOpAl,
          activeClass: "bg-green-600 text-white",
@@ -60,7 +64,7 @@ export default function FilterPanel({
    ];
 
    const visibleCols = INFO_COLUMNS_CONFIG.filter(
-      (c) => seboFunc === "pil" || !c.pilotOnly
+      (c) => isPilot || !c.pilotOnly
    );
 
    return (
@@ -123,13 +127,13 @@ export default function FilterPanel({
                   <div className="flex flex-wrap gap-1">
                      {operControls.map((filter) => (
                         <ToggleChip
-                           key={filter.label}
+                           key={filter.id}
                            active={filter.checked}
                            onToggle={() => filter.set(!filter.checked)}
                            activeClass={filter.activeClass}
                            className="h-10"
                         >
-                           {filter.label}
+                           {getOperSigla(filter.id, isPilot)}
                         </ToggleChip>
                      ))}
                   </div>

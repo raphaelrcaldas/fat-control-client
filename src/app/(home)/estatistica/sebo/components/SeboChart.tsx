@@ -10,13 +10,18 @@ import { SeboStatCards } from "./SeboStatCards";
 interface SeboChartProps {
    trips: SeboTripItem[];
    activeRow: number;
+   isPilot: boolean;
 }
 
 const COLOR_DEFAULT = "#cbd5e1"; // slate-300
 const COLOR_ACTIVE = "#dc2626"; // red-600
 const COLOR_AXIS = "#64748b"; // slate-500
 
-export default function SeboChart({ trips, activeRow }: SeboChartProps) {
+export default function SeboChart({
+   trips,
+   activeRow,
+   isPilot,
+}: SeboChartProps) {
    // Margem (%) da zona de tolerância em torno da média — ajustável pelo usuário.
    const [margin, setMargin] = useState(25);
 
@@ -48,9 +53,10 @@ export default function SeboChart({ trips, activeRow }: SeboChartProps) {
          renderSeboTooltip(
             trips[dataPointIndex],
             categories[dataPointIndex],
-            minutesToTime(series[seriesIndex][dataPointIndex])
+            minutesToTime(series[seriesIndex][dataPointIndex]),
+            isPilot
          ),
-      [trips, categories]
+      [trips, categories, isPilot]
    );
 
    const options = useMemo(

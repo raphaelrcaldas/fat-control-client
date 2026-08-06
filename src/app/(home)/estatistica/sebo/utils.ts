@@ -4,6 +4,7 @@ import {
    isoDateToString,
    minutesToTime,
 } from "@/../utils/dateHandler";
+import { getOperSigla } from "@/constants/tripulantes";
 import type { SeboTripItem } from "services/routes/estatistica/sebo";
 import type { SeboStats } from "./types";
 
@@ -82,14 +83,15 @@ export function computeSeboStats(data: number[]): SeboStats | null {
 export function renderSeboTooltip(
    trip: SeboTripItem | undefined,
    fallbackCategory: string,
-   hours: string
+   hours: string,
+   isPilot = false
 ): string {
    const titulo = trip?.trig.toUpperCase() || fallbackCategory;
    const nome = trip?.nome_guerra
       ? `<div style="color:#64748b;font-size:12px;">${trip.nome_guerra.toUpperCase()}</div>`
       : "";
    const oper = trip?.oper
-      ? `<div style="margin-top:4px;"><span style="background:#f1f5f9;padding:2px 6px;border-radius:4px;font-size:11px;font-weight:500;">${trip.oper.toUpperCase()}</span></div>`
+      ? `<div style="margin-top:4px;"><span style="background:#f1f5f9;padding:2px 6px;border-radius:4px;font-size:11px;font-weight:500;">${getOperSigla(trip.oper, isPilot)}</span></div>`
       : "";
    return `
       <div style="padding:12px;background:#fff;border-radius:6px;box-shadow:0 4px 6px rgba(0,0,0,0.1);">

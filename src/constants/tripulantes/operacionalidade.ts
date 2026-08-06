@@ -87,6 +87,25 @@ export function getOperLabel(oper: OperType): string {
 }
 
 /**
+ * Siglas de operacionalidade usadas pelos pilotos: PB (piloto básico) e PO
+ * (piloto operacional) no lugar de BA/OP. IN e AL não mudam.
+ */
+const OPER_SIGLA_PILOTO: Partial<Record<OperType, string>> = {
+   ba: "PB",
+   op: "PO",
+};
+
+/**
+ * Sigla exibida de um nível de operacionalidade. Apenas apresentação — o valor
+ * trafegado com o backend continua sendo `ba`/`op`.
+ */
+export function getOperSigla(oper: string, isPilot = false): string {
+   const key = oper.toLowerCase() as OperType;
+   const sigla = isPilot ? OPER_SIGLA_PILOTO[key] : undefined;
+   return sigla ?? oper.toUpperCase();
+}
+
+/**
  * Retorna o tema de um nível de operacionalidade
  */
 export function getOperTheme(oper: OperType) {

@@ -97,7 +97,11 @@ export default function SeboPage() {
                      <h3 className="mb-4 text-lg font-semibold text-slate-800">
                         Gráfico de Horas de Voo
                      </h3>
-                     <SeboChart trips={f.trips} activeRow={activeRow} />
+                     <SeboChart
+                        trips={f.trips}
+                        activeRow={activeRow}
+                        isPilot={f.seboFunc === "pil"}
+                     />
                   </div>
                </div>
             </div>

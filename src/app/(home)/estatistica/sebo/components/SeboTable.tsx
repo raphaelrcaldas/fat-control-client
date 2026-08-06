@@ -10,6 +10,7 @@ import {
    Tooltip,
 } from "flowbite-react";
 import { minutesToTime } from "@/../utils/dateHandler";
+import { getOperSigla } from "@/constants/tripulantes";
 import type { SeboTripItem } from "services/routes/estatistica/sebo";
 import { INFO_COLUMNS_CONFIG } from "../constants";
 import type { InfoColumn } from "../types";
@@ -99,7 +100,7 @@ export function SeboTable({
                      </TableCell>
                      <TableCell className="px-0.5 text-center">
                         <span className={getOperBadgeClasses(trip.oper)}>
-                           {trip.oper}
+                           {getOperSigla(trip.oper, isPilot)}
                         </span>
                      </TableCell>
                      <TableCell className="px-0.5 text-center">
