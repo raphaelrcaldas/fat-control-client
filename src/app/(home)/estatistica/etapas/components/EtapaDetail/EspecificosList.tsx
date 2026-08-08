@@ -40,6 +40,21 @@ function Field({ label, value }: { label: string; value: React.ReactNode }) {
    );
 }
 
+/**
+ * Chip de lancamento em branco (quantidade zerada): a passagem foi voada
+ * e o procedimento executado, mas nada foi largado.
+ */
+function BrancoBadge() {
+   return (
+      <span
+         className="rounded border border-slate-300 bg-slate-100 px-2 py-0.5 text-[10px] font-bold tracking-wide text-slate-600 uppercase"
+         title="Procedimento executado, nada largado"
+      >
+         Branco
+      </span>
+   );
+}
+
 export function EspecificosList({ pqd, revo, heavyCds }: EspecificosListProps) {
    if (pqd.length === 0 && revo.length === 0 && heavyCds.length === 0) {
       return null;
@@ -59,6 +74,7 @@ export function EspecificosList({ pqd, revo, heavyCds }: EspecificosListProps) {
                <div className="h-6 w-px bg-green-200" />
                <Field label="Tipo" value={PQD_LABEL[p.tipo] ?? p.tipo} />
                <Field label="Qtd" value={p.qtd} />
+               {p.qtd === 0 && <BrancoBadge />}
             </div>
          ))}
 
@@ -97,11 +113,18 @@ export function EspecificosList({ pqd, revo, heavyCds }: EspecificosListProps) {
                   label="Peso (kg)"
                   value={h.peso.toLocaleString("pt-BR")}
                />
-               <Field
-                  label="Distância (m)"
-                  value={h.dist.toLocaleString("pt-BR")}
-               />
-               <Field label="Radial (°)" value={h.radial} />
+               {/* Em branco nao houve largada: nao existe ponto de impacto */}
+               {h.peso === 0 ? (
+                  <BrancoBadge />
+               ) : (
+                  <>
+                     <Field
+                        label="Distância (m)"
+                        value={h.dist.toLocaleString("pt-BR")}
+                     />
+                     <Field label="Radial (°)" value={h.radial} />
+                  </>
+               )}
             </div>
          ))}
       </div>

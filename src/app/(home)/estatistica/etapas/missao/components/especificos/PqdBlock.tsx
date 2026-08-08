@@ -7,6 +7,7 @@ import { HiX } from "react-icons/hi";
 
 import type { PqdTipo } from "../../context/types";
 
+import { BrancoToggle } from "./BrancoToggle";
 import { inlineLabelClass, parseIntOrNull, type PqdBlockProps } from "./types";
 
 const PQD_TIPOS: { v: PqdTipo; l: string }[] = [
@@ -17,6 +18,8 @@ const PQD_TIPOS: { v: PqdTipo; l: string }[] = [
 ];
 
 export function PqdBlock({ item, index, onChange, onRemove }: PqdBlockProps) {
+   const isBranco = item.qtd === 0;
+
    return (
       <div className="inline-flex flex-wrap items-center gap-6 rounded border border-green-200 bg-green-50/40 px-3 py-1.5 shadow-sm">
          {/* Cabeçalho */}
@@ -55,6 +58,12 @@ export function PqdBlock({ item, index, onChange, onRemove }: PqdBlockProps) {
             </div>
          </div>
 
+         {/* Passagem em branco (qtd 0): procedimento feito, nada largado */}
+         <BrancoToggle
+            active={isBranco}
+            onToggle={() => onChange({ qtd: isBranco ? null : 0 })}
+         />
+
          {/* Quantidade */}
          <div className="inline-flex items-center gap-2">
             <Label className={inlineLabelClass}>qtd</Label>
@@ -70,7 +79,7 @@ export function PqdBlock({ item, index, onChange, onRemove }: PqdBlockProps) {
                sizing="sm"
                className="w-20 text-center font-mono"
                placeholder="0+"
-               title="Informe a quantidade (0 = passagem em branco)"
+               title="Quantidade largada (0 = passagem em branco)"
             />
          </div>
 

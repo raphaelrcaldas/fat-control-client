@@ -6,6 +6,7 @@ import { HiOutlineCube, HiX } from "react-icons/hi";
 
 import type { HeavyCdsTipo } from "../../context/types";
 
+import { BrancoToggle } from "./BrancoToggle";
 import {
    inlineLabelClass,
    parseIntOrNull,
@@ -23,6 +24,10 @@ export function HvyCdsBlock({
    onChange,
    onRemove,
 }: HeavyCdsBlockProps) {
+   // Branco = nada largado. Sem largada nao existe ponto de impacto, por
+   // isso dist/radial ficam zerados e travados enquanto o chip esta ativo.
+   const isBranco = item.peso === 0;
+
    return (
       <div className="inline-flex flex-wrap items-center gap-3 rounded border border-red-200 bg-red-50/40 px-3 py-1.5 shadow-sm">
          {/* Cabeçalho */}
@@ -61,26 +66,41 @@ export function HvyCdsBlock({
             </div>
          </div>
 
+         {/* Lançamento em branco (peso 0): procedimento feito, nada largado */}
+         <BrancoToggle
+            active={isBranco}
+            onToggle={() =>
+               onChange(
+                  isBranco
+                     ? { peso: null, dist: null, radial: null }
+                     : { peso: 0, dist: 0, radial: 0 }
+               )
+            }
+         />
+
          {/* Peso */}
          <div className="inline-flex items-center gap-2">
             <Label className={inlineLabelClass}>Peso (kg)</Label>
             <TextInput
                type="number"
-               min={1}
+               min={0}
                max={32767}
                value={item.peso ?? ""}
                color={
-                  item.peso != null && item.peso >= 1 ? undefined : "failure"
+                  item.peso != null && item.peso >= 0 ? undefined : "failure"
                }
-               onChange={(e) =>
-                  onChange({
-                     peso: parseIntOrNull(e.target.value, 0, 32767),
-                  })
-               }
+               onChange={(e) => {
+                  const peso = parseIntOrNull(e.target.value, 0, 32767);
+                  // Zerar o peso na mao equivale a marcar branco: o ponto
+                  // de impacto deixa de existir e vai junto para 0.
+                  onChange(
+                     peso === 0 ? { peso, dist: 0, radial: 0 } : { peso }
+                  );
+               }}
                sizing="sm"
                className="w-20 text-center font-mono"
-               placeholder="≥1"
-               title="Mínimo 1"
+               placeholder="0+"
+               title="Peso largado (0 = lançamento em branco)"
             />
          </div>
 
@@ -91,9 +111,12 @@ export function HvyCdsBlock({
                type="number"
                min={1}
                max={32767}
+               disabled={isBranco}
                value={item.dist ?? ""}
                color={
-                  item.dist != null && item.dist >= 1 ? undefined : "failure"
+                  isBranco || (item.dist != null && item.dist >= 1)
+                     ? undefined
+                     : "failure"
                }
                onChange={(e) =>
                   onChange({
@@ -103,7 +126,11 @@ export function HvyCdsBlock({
                sizing="sm"
                className="w-20 text-center font-mono"
                placeholder="≥1"
-               title="Mínimo 1"
+               title={
+                  isBranco
+                     ? "Lançamento em branco não tem ponto de impacto"
+                     : "Mínimo 1"
+               }
             />
          </div>
 
@@ -114,8 +141,9 @@ export function HvyCdsBlock({
                type="number"
                min={0}
                max={359}
+               disabled={isBranco}
                value={item.radial ?? ""}
-               color={item.radial != null ? undefined : "failure"}
+               color={isBranco || item.radial != null ? undefined : "failure"}
                onChange={(e) =>
                   onChange({
                      radial: parseIntOrNull(e.target.value, 0, 359),
@@ -124,7 +152,11 @@ export function HvyCdsBlock({
                sizing="sm"
                className="w-20 text-center font-mono"
                placeholder="0–359"
-               title="Informe um valor entre 0 e 359"
+               title={
+                  isBranco
+                     ? "Lançamento em branco não tem ponto de impacto"
+                     : "Informe um valor entre 0 e 359"
+               }
             />
          </div>
 
