@@ -17,7 +17,7 @@ import {
 import { IoMdSearch } from "react-icons/io";
 import { FaSave } from "react-icons/fa";
 import { useToast } from "@/app/context/toast";
-import { isoStrToDate, dateToIso, formatDateFull } from "utils/dateHandler";
+import { formatDateFull } from "utils/dateHandler";
 import { UserPublic } from "services/routes/users";
 import { SearchUser } from "src/app/(home)/users/components/searchUser";
 import { useCreateComiss, useUpdateComiss } from "@/hooks/queries";
@@ -127,21 +127,19 @@ export function ComissForm({ comiss, onCancel, onSuccess }: ComissFormProps) {
          return;
       }
 
-      // Ultima missao = maior data de regresso; fechamento deve ser o dia seguinte.
+      // Ultima missao = maior data de regresso; fechamento e o proprio dia dela.
       const ultimaRegres = missoes.reduce((maisRecente, mis) =>
          new Date(mis.regres).getTime() > new Date(maisRecente.regres).getTime()
             ? mis
             : maisRecente
       );
 
-      const diaSeguinte = isoStrToDate(ultimaRegres.regres.split("T")[0]);
-      diaSeguinte.setDate(diaSeguinte.getDate() + 1);
-      const esperado = dateToIso(diaSeguinte);
+      const esperado = ultimaRegres.regres.split("T")[0];
 
       if (dataFc !== esperado) {
          const esperadoBr = formatDateFull(esperado);
          errors.push(
-            `- Data de fechamento deve ser ${esperadoBr} (dia seguinte à última missão)`
+            `- Data de fechamento deve ser ${esperadoBr} (dia de regresso da última missão)`
          );
       }
    }
