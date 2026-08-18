@@ -34,6 +34,8 @@ interface CenarioChipsBarProps {
    onCompare: () => void;
    /** Consolidado sendo refeito: esmaece os valores, sem trocar por skeleton. */
    isStale?: boolean;
+   /** Sem `comiss.propostas:update`, só comparar e trocar de cenário. */
+   podeEditar: boolean;
 }
 
 const STATS_VAZIO: PlanoStats = {
@@ -63,6 +65,7 @@ export function CenarioChipsBar({
    onRemove,
    onCompare,
    isStale = false,
+   podeEditar,
 }: CenarioChipsBarProps) {
    const [renomeando, setRenomeando] = useState<CenarioDraft | null>(null);
    const [removendo, setRemovendo] = useState<CenarioDraft | null>(null);
@@ -104,15 +107,19 @@ export function CenarioChipsBar({
                      />
                   ))}
 
-                  <button
-                     type="button"
-                     onClick={onAdd}
-                     title="Duplica o cenário ativo como ponto de partida"
-                     className="focus-visible:ring-primary-500 flex w-36 shrink-0 flex-col items-center justify-center gap-1 rounded border border-dashed border-slate-300 px-3 py-2 text-slate-500 transition-colors hover:border-slate-400 hover:bg-slate-50 hover:text-slate-700 focus:outline-none focus-visible:ring-2 pointer-coarse:min-h-[44px]"
-                  >
-                     <HiOutlinePlus className="h-4 w-4" />
-                     <span className="text-xs font-semibold">Novo cenário</span>
-                  </button>
+                  {podeEditar && (
+                     <button
+                        type="button"
+                        onClick={onAdd}
+                        title="Duplica o cenário ativo como ponto de partida"
+                        className="focus-visible:ring-primary-500 flex w-36 shrink-0 flex-col items-center justify-center gap-1 rounded border border-dashed border-slate-300 px-3 py-2 text-slate-500 transition-colors hover:border-slate-400 hover:bg-slate-50 hover:text-slate-700 focus:outline-none focus-visible:ring-2 pointer-coarse:min-h-[44px]"
+                     >
+                        <HiOutlinePlus className="h-4 w-4" />
+                        <span className="text-xs font-semibold">
+                           Novo cenário
+                        </span>
+                     </button>
+                  )}
                </div>
             </div>
 
@@ -132,34 +139,38 @@ export function CenarioChipsBar({
                   Comparar
                </Button>
 
-               <Dropdown
-                  size="sm"
-                  color="light"
-                  arrowIcon={false}
-                  disabled={!ativo}
-                  label={
-                     <span className="flex items-center gap-1.5">
-                        <HiDotsHorizontal className="h-4 w-4" />
-                        <span className="sr-only">
-                           Ações do cenário {ativo?.nome ?? "ativo"}
-                        </span>
-                     </span>
-                  }
-               >
-                  <DropdownItem
-                     onClick={() => ativo && setRenomeando(ativo)}
+               {/* O menu só tem ações de escrita: em modo leitura ele some
+                   inteiro, em vez de virar dois itens desabilitados. */}
+               {podeEditar && (
+                  <Dropdown
+                     size="sm"
+                     color="light"
+                     arrowIcon={false}
                      disabled={!ativo}
+                     label={
+                        <span className="flex items-center gap-1.5">
+                           <HiDotsHorizontal className="h-4 w-4" />
+                           <span className="sr-only">
+                              Ações do cenário {ativo?.nome ?? "ativo"}
+                           </span>
+                        </span>
+                     }
                   >
-                     Renomear cenário
-                  </DropdownItem>
-                  <DropdownItem
-                     onClick={() => ativo && setRemovendo(ativo)}
-                     disabled={!ativo || !podeRemover}
-                     className={podeRemover ? "text-red-700" : undefined}
-                  >
-                     Remover cenário
-                  </DropdownItem>
-               </Dropdown>
+                     <DropdownItem
+                        onClick={() => ativo && setRenomeando(ativo)}
+                        disabled={!ativo}
+                     >
+                        Renomear cenário
+                     </DropdownItem>
+                     <DropdownItem
+                        onClick={() => ativo && setRemovendo(ativo)}
+                        disabled={!ativo || !podeRemover}
+                        className={podeRemover ? "text-red-700" : undefined}
+                     >
+                        Remover cenário
+                     </DropdownItem>
+                  </Dropdown>
+               )}
             </div>
          </div>
 

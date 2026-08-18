@@ -58,6 +58,12 @@ export default function PropostaSandboxPage() {
    const { hasPerm } = usePermBased();
    const queryClient = useQueryClient();
 
+   // Sem `update` o rascunho nunca chega ao banco. Esconder só o botão Salvar
+   // deixaria a pessoa montar a proposta inteira para perder tudo, então o
+   // sandbox inteiro entra em modo leitura: quem só tem `view` compara e
+   // consulta, não edita.
+   const podeEditar = hasPerm("comiss.propostas", "update");
+
    const idBruto = Number(params.id);
    const idValido = Number.isInteger(idBruto) && idBruto > 0;
    const propostaId = idValido ? idBruto : null;
@@ -322,7 +328,7 @@ export default function PropostaSandboxPage() {
       return () => window.removeEventListener("beforeunload", handler);
    }, [isDirty]);
 
-   if (!hasPerm("comiss", "view")) {
+   if (!hasPerm("comiss.propostas", "view")) {
       return (
          <AvisoTelaCheia
             titulo="Sem permissão"
@@ -354,6 +360,7 @@ export default function PropostaSandboxPage() {
             isSaving={isSaving}
             onSave={handleSave}
             onNavigate={navegar}
+            podeEditar={podeEditar}
          />
 
          {status !== "ready" || !draft || !cenarioAtivo ? (
@@ -371,6 +378,7 @@ export default function PropostaSandboxPage() {
                   onRemove={handleRemoveCenario}
                   onCompare={() => setShowComparar(true)}
                   isStale={summaryFetching}
+                  podeEditar={podeEditar}
                />
 
                <PlanoMetricCards
@@ -394,6 +402,7 @@ export default function PropostaSandboxPage() {
                   onEdit={setLinhaEditandoId}
                   onRemove={handleRemoveLinha}
                   onAdd={() => setShowAdd(true)}
+                  podeEditar={podeEditar}
                />
 
                <AddMilitaresModal

@@ -11,6 +11,8 @@ interface LinhaRowProps {
    anoSelecionado: number;
    onEdit: (linhaId: string) => void;
    onRemove: (linhaId: string) => void;
+   /** Sem `comiss.propostas:update` a linha não abre para edição. */
+   podeEditar: boolean;
 }
 
 /**
@@ -28,6 +30,7 @@ export const LinhaRow = memo(function LinhaRow({
    anoSelecionado,
    onEdit,
    onRemove,
+   podeEditar,
 }: LinhaRowProps) {
    const { anoAb, anoFc } = anosImpactados(linha);
    // Só o que recai sobre o exercício em análise: é esse valor que disputa o
@@ -36,26 +39,35 @@ export const LinhaRow = memo(function LinhaRow({
    const subtotal = calcImpactoLinhaFY(linha, anoSelecionado);
    const militar = linha.user;
 
-   const abrir = () => onEdit(linha.localId);
+   const abrir = () => podeEditar && onEdit(linha.localId);
 
    return (
-      <TableRow className="cursor-pointer bg-white" onClick={abrir}>
+      <TableRow
+         className={clsx("bg-white", podeEditar && "cursor-pointer")}
+         onClick={abrir}
+      >
          {/* Coluna-âncora: no mobile o resto rola por baixo dela. `bg-inherit`
              acompanha o zebrado/hover da linha em vez de vazar o conteúdo. */}
          <TableCell className="sticky left-0 z-10 bg-inherit whitespace-nowrap shadow-[1px_0_0_var(--color-slate-200)]">
-            <button
-               type="button"
-               aria-label={`Editar linha de ${militar?.nome_guerra ?? "militar"}`}
-               onClick={(e) => {
-                  e.stopPropagation();
-                  abrir();
-               }}
-               className="focus-visible:ring-primary-500 block max-w-full rounded text-left focus:outline-none focus-visible:ring-2"
-            >
+            {podeEditar ? (
+               <button
+                  type="button"
+                  aria-label={`Editar linha de ${militar?.nome_guerra ?? "militar"}`}
+                  onClick={(e) => {
+                     e.stopPropagation();
+                     abrir();
+                  }}
+                  className="focus-visible:ring-primary-500 block max-w-full rounded text-left focus:outline-none focus-visible:ring-2"
+               >
+                  <span className="block font-medium text-slate-900 uppercase">
+                     {militar?.p_g} {militar?.nome_guerra}
+                  </span>
+               </button>
+            ) : (
                <span className="block font-medium text-slate-900 uppercase">
                   {militar?.p_g} {militar?.nome_guerra}
                </span>
-            </button>
+            )}
          </TableCell>
 
          <PernaCell
@@ -104,18 +116,20 @@ export const LinhaRow = memo(function LinhaRow({
          </TableCell>
 
          <TableCell className="text-center whitespace-nowrap">
-            <button
-               type="button"
-               aria-label={`Remover ${militar?.nome_guerra ?? "militar"} do cenário`}
-               title="Remover do cenário"
-               onClick={(e) => {
-                  e.stopPropagation();
-                  onRemove(linha.localId);
-               }}
-               className="inline-flex h-7 w-7 items-center justify-center rounded text-slate-500 transition-colors hover:bg-red-50 hover:text-red-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500 pointer-coarse:h-[44px] pointer-coarse:w-[44px]"
-            >
-               <HiOutlineTrash aria-hidden className="h-4 w-4" />
-            </button>
+            {podeEditar && (
+               <button
+                  type="button"
+                  aria-label={`Remover ${militar?.nome_guerra ?? "militar"} do cenário`}
+                  title="Remover do cenário"
+                  onClick={(e) => {
+                     e.stopPropagation();
+                     onRemove(linha.localId);
+                  }}
+                  className="inline-flex h-7 w-7 items-center justify-center rounded text-slate-500 transition-colors hover:bg-red-50 hover:text-red-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500 pointer-coarse:h-[44px] pointer-coarse:w-[44px]"
+               >
+                  <HiOutlineTrash aria-hidden className="h-4 w-4" />
+               </button>
+            )}
          </TableCell>
       </TableRow>
    );

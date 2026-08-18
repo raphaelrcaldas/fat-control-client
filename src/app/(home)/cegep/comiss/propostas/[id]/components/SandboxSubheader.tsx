@@ -5,7 +5,6 @@ import { Button, Label, Select, Spinner } from "flowbite-react";
 import clsx from "clsx";
 import { FaSave } from "react-icons/fa";
 import { HiArrowLeft } from "react-icons/hi";
-import { PermBased } from "@/app/(home)/hooks/usePermBased";
 import { ComissSubheader } from "../../../components/ComissSubheader";
 import { getFiscalYears } from "../../../fiscalYears";
 import { InlineNameInput } from "./InlineNameInput";
@@ -25,6 +24,8 @@ interface SandboxSubheaderProps {
     * rascunho pendente e mostra a confirmação de saída.
     */
    onNavigate: (href: string) => void;
+   /** `comiss.propostas:update`. Sem ela o sandbox é só de leitura. */
+   podeEditar: boolean;
 }
 
 const VOLTAR_HREF = "/cegep/comiss?tab=propostas";
@@ -43,6 +44,7 @@ export function SandboxSubheader({
    isSaving,
    onSave,
    onNavigate,
+   podeEditar,
 }: SandboxSubheaderProps) {
    const anos = useMemo(() => getFiscalYears(), []);
 
@@ -72,7 +74,7 @@ export function SandboxSubheader({
                   </Select>
                </div>
 
-               <PermBased resource="comiss.propostas" requiredPerm="update">
+               {podeEditar && (
                   <Button
                      size="sm"
                      color="primary"
@@ -96,7 +98,7 @@ export function SandboxSubheader({
                         </>
                      )}
                   </Button>
-               </PermBased>
+               )}
             </>
          }
       >
@@ -111,16 +113,31 @@ export function SandboxSubheader({
                Propostas
             </button>
 
-            {/* Título da tela: o editor inline mora dentro do h1. */}
+            {/* Título da tela: o editor inline mora dentro do h1 — em modo
+                leitura vira texto, para não convidar a uma edição que não
+                pode ser gravada. */}
             <h1 className="max-w-full min-w-0">
-               <InlineNameInput
-                  value={nome}
-                  onCommit={onRename}
-                  ariaLabel="Nome da proposta"
-                  /* Mesmo teto do schema (`nome: str max_length=120`). */
-                  maxLength={120}
-               />
+               {podeEditar ? (
+                  <InlineNameInput
+                     value={nome}
+                     onCommit={onRename}
+                     ariaLabel="Nome da proposta"
+                     /* Mesmo teto do schema (`nome: str max_length=120`). */
+                     maxLength={120}
+                  />
+               ) : (
+                  <span className="block truncate text-lg font-semibold text-slate-900">
+                     {nome}
+                  </span>
+               )}
             </h1>
+
+            {!podeEditar && (
+               <p className="text-sm text-slate-500">
+                  Somente leitura — você não tem permissão para alterar
+                  propostas.
+               </p>
+            )}
 
             {/* Linha de estado: só aparece quando há o que dizer — o exercício
                 da proposta já está no seletor ao lado. */}

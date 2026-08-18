@@ -31,6 +31,8 @@ interface LinhasTableProps {
    onEdit: (linhaId: string) => void;
    onRemove: (linhaId: string) => void;
    onAdd: () => void;
+   /** Sem `comiss.propostas:update` a tabela é só de consulta. */
+   podeEditar: boolean;
 }
 
 const COLSPAN = 6;
@@ -43,6 +45,7 @@ export function LinhasTable({
    onEdit,
    onRemove,
    onAdd,
+   podeEditar,
 }: LinhasTableProps) {
    const { sortConfig, requestSort } = useSortConfig<SortKey>({
       key: "militar",
@@ -167,6 +170,7 @@ export function LinhasTable({
                            anoSelecionado={anoSelecionado}
                            onEdit={onEdit}
                            onRemove={onRemove}
+                           podeEditar={podeEditar}
                         />
                      ))}
 
@@ -189,21 +193,23 @@ export function LinhasTable({
 
                      {/* Adicionar é a última linha da própria tabela: a ação
                          nasce onde o resultado aparece. */}
-                     <TableRow className="bg-white">
-                        <TableCell colSpan={COLSPAN} className="p-2">
-                           <button
-                              type="button"
-                              onClick={onAdd}
-                              className="focus-visible:ring-primary-500 hover:border-primary-400 hover:text-primary-700 hover:bg-primary-50/40 flex w-full items-center justify-center gap-2 rounded border border-dashed border-slate-300 px-4 py-3 text-sm font-semibold text-slate-500 transition-colors focus:outline-none focus-visible:ring-2 pointer-coarse:min-h-[44px]"
-                           >
-                              <HiOutlineUserAdd
-                                 aria-hidden
-                                 className="h-4 w-4"
-                              />
-                              Adicionar militares
-                           </button>
-                        </TableCell>
-                     </TableRow>
+                     {podeEditar && (
+                        <TableRow className="bg-white">
+                           <TableCell colSpan={COLSPAN} className="p-2">
+                              <button
+                                 type="button"
+                                 onClick={onAdd}
+                                 className="focus-visible:ring-primary-500 hover:border-primary-400 hover:text-primary-700 hover:bg-primary-50/40 flex w-full items-center justify-center gap-2 rounded border border-dashed border-slate-300 px-4 py-3 text-sm font-semibold text-slate-500 transition-colors focus:outline-none focus-visible:ring-2 pointer-coarse:min-h-[44px]"
+                              >
+                                 <HiOutlineUserAdd
+                                    aria-hidden
+                                    className="h-4 w-4"
+                                 />
+                                 Adicionar militares
+                              </button>
+                           </TableCell>
+                        </TableRow>
+                     )}
                   </TableBody>
                </Table>
             </div>
