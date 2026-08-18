@@ -19,7 +19,7 @@ export default function ComissPage() {
    const { hasPerm } = usePermBased();
 
    const canViewFiscal = hasPerm("orcamento", "view");
-   const canViewPropostas = hasPerm("comiss", "view");
+   const canViewPropostas = hasPerm("comiss.propostas", "view");
 
    const activeTabName = getStringParam(searchParams, "tab", "registros");
    const requestedTabIndex = Math.max(
@@ -103,7 +103,7 @@ export default function ComissPage() {
             </PermBased>
          )}
          {activeTabIndex === 2 && (
-            <PermBased resource="comiss" requiredPerm="view">
+            <PermBased resource="comiss.propostas" requiredPerm="view">
                <PropostasTab />
             </PermBased>
          )}

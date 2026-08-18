@@ -72,7 +72,7 @@ export function SandboxSubheader({
                   </Select>
                </div>
 
-               <PermBased resource="comiss" requiredPerm="update">
+               <PermBased resource="comiss.propostas" requiredPerm="update">
                   <Button
                      size="sm"
                      color="primary"
