@@ -3,10 +3,12 @@ import {
    useMutation,
    useQueryClient,
    keepPreviousData,
+   queryOptions,
 } from "@tanstack/react-query";
 import {
    getDadosBancarios,
    getDadosBancariosOrfaos,
+   getRemuneracaoMilitar,
    createDadosBancarios,
    updateDadosBancarios,
    deleteDadosBancarios,
@@ -30,7 +32,27 @@ export const dadosBancariosKeys = {
    details: () => [...dadosBancariosKeys.all, "detail"] as const,
    detail: (id: number) => [...dadosBancariosKeys.details(), id] as const,
    orfaos: () => [...dadosBancariosKeys.all, "orfaos"] as const,
+   remuneracao: (userId: number) =>
+      [...dadosBancariosKeys.all, "remuneracao", userId] as const,
 };
+
+/**
+ * Remuneração de um militar. Exposta como `queryOptions` (e não como hook)
+ * porque quem a consome busca sob demanda, na ação do usuário — a proposta
+ * lê a remuneração no instante em que o militar entra no cenário, não a cada
+ * render. O `staleTime` longo torna repetição do mesmo militar gratuita.
+ */
+export function remuneracaoQueryOptions(userId: number) {
+   return queryOptions({
+      queryKey: dadosBancariosKeys.remuneracao(userId),
+      queryFn: ({ signal }) => getRemuneracaoMilitar(userId, signal),
+      staleTime: 1000 * 60 * 30,
+      // Sem retry: o erro esperado aqui é 403 (sem permissão de PII), que não
+      // é transitório — repetir só faria o usuário esperar o backoff para
+      // receber a mesma negação.
+      retry: false,
+   });
+}
 
 // ========================================
 // Queries

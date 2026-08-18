@@ -6,32 +6,36 @@ import {
    getStringParam,
 } from "@/hooks/useSearchParamsState";
 import clsx from "clsx";
-import { HiClipboardList, HiChartPie } from "react-icons/hi";
+import { HiClipboardList, HiChartPie, HiOutlineBeaker } from "react-icons/hi";
 import { ListaPage } from "./listaPage";
 import { GestaoFiscalPage } from "./gestaoFiscal";
+import { PropostasTab } from "./propostas/PropostasTab";
 import { PermBased, usePermBased } from "@/app/(home)/hooks/usePermBased";
 
-const TAB_NAMES = ["registros", "gestao_fiscal"] as const;
+const TAB_NAMES = ["registros", "gestao_fiscal", "propostas"] as const;
 
 export default function ComissPage() {
    const { searchParams, setParams } = useSearchParamsUpdater();
    const { hasPerm } = usePermBased();
 
    const canViewFiscal = hasPerm("orcamento", "view");
+   const canViewPropostas = hasPerm("comiss", "view");
 
    const activeTabName = getStringParam(searchParams, "tab", "registros");
    const requestedTabIndex = Math.max(
       TAB_NAMES.indexOf(activeTabName as (typeof TAB_NAMES)[number]),
       0
    );
-   // Sem permissao, ignora ?tab=gestao_fiscal e cai em "registros"
-   const deniedFiscalTab = requestedTabIndex === 1 && !canViewFiscal;
-   const activeTabIndex = deniedFiscalTab ? 0 : requestedTabIndex;
+   // Sem permissao, ignora o ?tab pedido e cai em "registros"
+   const deniedTab =
+      (requestedTabIndex === 1 && !canViewFiscal) ||
+      (requestedTabIndex === 2 && !canViewPropostas);
+   const activeTabIndex = deniedTab ? 0 : requestedTabIndex;
 
    // Limpa o ?tab proibido da URL para não deixar o estado inconsistente.
    useEffect(() => {
-      if (deniedFiscalTab) setParams({ tab: undefined });
-   }, [deniedFiscalTab, setParams]);
+      if (deniedTab) setParams({ tab: undefined });
+   }, [deniedTab, setParams]);
 
    function handleTabChange(tabName: string) {
       setParams({
@@ -81,6 +85,14 @@ export default function ComissPage() {
                   onClick={() => handleTabChange("gestao_fiscal")}
                />
             )}
+            {canViewPropostas && (
+               <TabButton
+                  active={activeTabIndex === 2}
+                  icon={<HiOutlineBeaker className="h-5 w-5" />}
+                  label="Propostas"
+                  onClick={() => handleTabChange("propostas")}
+               />
+            )}
          </div>
 
          {/* Conteudo da aba */}
@@ -88,6 +100,11 @@ export default function ComissPage() {
          {activeTabIndex === 1 && (
             <PermBased resource="orcamento" requiredPerm="view">
                <GestaoFiscalPage />
+            </PermBased>
+         )}
+         {activeTabIndex === 2 && (
+            <PermBased resource="comiss" requiredPerm="view">
+               <PropostasTab />
             </PermBased>
          )}
       </div>

@@ -21,26 +21,15 @@ import {
    useUpdateOrcamento,
 } from "@/hooks/queries/useOrcamento";
 import { formatDateTime } from "@/../utils/dateHandler";
-import { realCurrency } from "utils/financeiro";
+import {
+   formatCents,
+   parseDigitsToCents,
+   realCurrency,
+} from "utils/financeiro";
 import type { OrcamentoLog } from "services/routes/cegep/orcamento";
 import { OrcamentoFormSkeleton } from "./OrcamentoFormSkeleton";
 import { usePermBased } from "@/app/(home)/hooks/usePermBased";
 import { getDefaultFiscalYear, getFiscalYears } from "../fiscalYears";
-
-// Converte um inteiro de centavos para "1.234.567,89" (pt-BR com separadores)
-function formatCents(cents: number): string {
-   return new Intl.NumberFormat("pt-BR", {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-   }).format(cents / 100);
-}
-
-// Extrai apenas digitos e interpreta como centavos (mascara dinamica)
-function parseDigitsToCents(raw: string): number {
-   const digits = raw.replace(/\D/g, "");
-   if (!digits) return 0;
-   return Number(digits);
-}
 
 const ACTION_LABEL: Record<string, string> = {
    create: "Criação",

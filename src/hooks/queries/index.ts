@@ -13,6 +13,7 @@ export * from "./usePagamentos";
 export * from "./useEtiquetasMissoes";
 export * from "./useComiss";
 export * from "./useOrcamento";
+export * from "./usePropostas";
 export * from "./useDadosBancarios";
 export * from "./useSoldos";
 export * from "./useDiariaValores";

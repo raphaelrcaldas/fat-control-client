@@ -1,10 +1,10 @@
 import {
    Table,
+   TableBody,
+   TableCell,
    TableHead,
    TableHeadCell,
-   TableBody,
    TableRow,
-   TableCell,
 } from "flowbite-react";
 
 const Bar = ({ className = "" }: { className?: string }) => (
@@ -19,27 +19,55 @@ const COLUMNS = [
    "Militar",
    "Abertura",
    "Fechamento",
-   "Valor Ab.",
-   "Valor Fc.",
-   "Impacto",
-   "Status",
-   "Completude",
+   "Exercícios",
+   "Subtotal",
+   "",
 ] as const;
 
-interface GestaoFiscalSkeletonProps {
+interface SandboxSkeletonProps {
    rows?: number;
 }
 
 /**
- * Skeleton fiel ao corpo da `GestaoFiscalPage`: 3 cards de KPI + tabela de
- * 8 colunas, para zero layout-shift quando os dados orçamentários carregam.
+ * Espelha o corpo do sandbox — trilho de cenários, 3 cartões e a tabela de
+ * linhas — para que a chegada dos dados não empurre nada na tela. O subheader
+ * fica de fora de propósito: ele já renderiza de cara.
  */
-export function GestaoFiscalSkeleton({ rows = 8 }: GestaoFiscalSkeletonProps) {
+export function SandboxSkeleton({ rows = 6 }: SandboxSkeletonProps) {
    return (
-      <div className="flex flex-col gap-2">
-         {/* Cards de KPI */}
+      <div className="flex flex-col space-y-2">
+         {/* Trilho de cenários */}
+         <div className="rounded border border-slate-200 bg-white px-3 py-2.5 shadow-sm">
+            <div className="flex flex-col gap-2 lg:flex-row lg:items-center lg:justify-between">
+               <div className="flex gap-2 pb-1">
+                  {[0, 1, 2].map((i) => (
+                     <div
+                        key={i}
+                        className="flex w-52 shrink-0 flex-col gap-1.5 rounded px-3 py-2 ring-1 ring-slate-200"
+                     >
+                        <div className="flex items-center gap-2">
+                           <FaintBar className="h-5 w-5 rounded-md" />
+                           <Bar className="h-3.5 w-24" />
+                        </div>
+                        <div className="flex justify-between">
+                           <FaintBar className="h-3 w-20" />
+                           <FaintBar className="h-3 w-10" />
+                        </div>
+                        <FaintBar className="h-1 w-full rounded-full" />
+                     </div>
+                  ))}
+                  <div className="w-36 shrink-0 rounded border border-dashed border-slate-200" />
+               </div>
+               <div className="flex shrink-0 gap-2">
+                  <FaintBar className="h-8 w-28" />
+                  <FaintBar className="h-8 w-10" />
+               </div>
+            </div>
+         </div>
+
+         {/* Cartões de métrica */}
          <div className="grid grid-cols-1 gap-2 md:grid-cols-3">
-            {Array.from({ length: 3 }).map((_, i) => (
+            {[0, 1, 2].map((i) => (
                <div
                   key={i}
                   className="rounded border border-slate-200 bg-white p-5 shadow-sm"
@@ -48,10 +76,14 @@ export function GestaoFiscalSkeleton({ rows = 8 }: GestaoFiscalSkeletonProps) {
                      <FaintBar className="h-3 w-32" />
                      <FaintBar className="h-4 w-4" />
                   </div>
-                  <Bar className="mb-4 h-8 w-40" />
-                  <div className="mb-1 flex justify-between">
-                     <FaintBar className="h-4 w-28" />
-                     <FaintBar className="h-4 w-12" />
+                  {/* Número grande (projetado) + chip do rascunho */}
+                  <div className="flex items-center gap-2">
+                     <Bar className="h-8 w-40" />
+                     <FaintBar className="h-5 w-24" />
+                  </div>
+                  <div className="mt-1 mb-4 flex justify-between">
+                     <FaintBar className="h-4 w-32" />
+                     <FaintBar className="h-4 w-20" />
                   </div>
                   <Bar className="h-2.5 w-full rounded-full" />
                   {/* Legenda: rótulo em cima, valor embaixo, 3 colunas */}
@@ -70,10 +102,11 @@ export function GestaoFiscalSkeleton({ rows = 8 }: GestaoFiscalSkeletonProps) {
             ))}
          </div>
 
-         {/* Tabela do ano */}
+         {/* Tabela de linhas */}
          <div className="overflow-hidden rounded bg-white shadow-sm ring-1 ring-slate-200">
-            <div className="border-b border-slate-100 bg-slate-50/50 px-5 py-3">
-               <FaintBar className="h-4 w-72" />
+            <div className="flex items-baseline justify-between border-b border-slate-100 bg-slate-50/50 px-5 py-3">
+               <FaintBar className="h-4 w-20" />
+               <FaintBar className="h-4 w-56" />
             </div>
             <div className="overflow-x-auto">
                <Table striped>
@@ -81,7 +114,7 @@ export function GestaoFiscalSkeleton({ rows = 8 }: GestaoFiscalSkeletonProps) {
                      <TableRow>
                         {COLUMNS.map((label, i) => (
                            <TableHeadCell
-                              key={label}
+                              key={i}
                               className={
                                  i === 0
                                     ? "bg-slate-50"
@@ -100,31 +133,27 @@ export function GestaoFiscalSkeleton({ rows = 8 }: GestaoFiscalSkeletonProps) {
                               <Bar className="h-4 w-40" />
                            </TableCell>
                            <TableCell>
-                              <Bar className="mx-auto h-4 w-16" />
+                              <Bar className="mx-auto h-4 w-28" />
                            </TableCell>
                            <TableCell>
-                              <Bar className="mx-auto h-4 w-16" />
+                              <Bar className="mx-auto h-4 w-28" />
                            </TableCell>
                            <TableCell>
-                              <Bar className="mx-auto h-4 w-20" />
+                              <Bar className="mx-auto h-5 w-28 rounded" />
                            </TableCell>
                            <TableCell>
-                              <Bar className="mx-auto h-4 w-20" />
+                              <Bar className="mx-auto h-4 w-24" />
                            </TableCell>
                            <TableCell>
-                              <Bar className="mx-auto h-4 w-20" />
-                           </TableCell>
-                           <TableCell>
-                              <Bar className="mx-auto h-5 w-16 rounded-full" />
-                           </TableCell>
-                           <TableCell>
-                              <div className="mx-auto w-20 space-y-1.5">
-                                 <Bar className="mx-auto h-3 w-8" />
-                                 <Bar className="h-1.5 w-full" />
-                              </div>
+                              <FaintBar className="mx-auto h-7 w-7" />
                            </TableCell>
                         </TableRow>
                      ))}
+                     <TableRow className="bg-white">
+                        <TableCell colSpan={6} className="p-2">
+                           <div className="h-11 w-full rounded border border-dashed border-slate-200" />
+                        </TableCell>
+                     </TableRow>
                   </TableBody>
                </Table>
             </div>

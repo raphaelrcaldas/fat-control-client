@@ -51,7 +51,7 @@ interface SortableHeadCellProps<K extends string> {
    sortKey: K;
    sortConfig: SortConfig<K>;
    onSort: (key: K) => void;
-   align?: "left" | "center";
+   align?: "left" | "center" | "right";
    /** Classe de fundo/hover do cabeçalho (default cinza sóbrio). */
    headerClass?: string;
 }
@@ -71,14 +71,25 @@ export function SortableHeadCell<K extends string>({
          className={clsx(
             "group cursor-pointer transition-colors select-none",
             headerClass,
-            align === "center" ? "text-center!" : "text-left!"
+            align === "center"
+               ? "text-center!"
+               : align === "right"
+                 ? "text-right!"
+                 : "text-left!"
          )}
          style={{ textAlign: align }}
          onClick={() => onSort(sortKey)}
       >
          <span className="relative inline-flex items-center justify-center">
             <span>{label}</span>
-            <span className="absolute -right-5 flex h-full items-center">
+            {/* Alinhado à direita, o indicador vai para a esquerda do rótulo:
+                à direita ele cairia fora do padding da célula. */}
+            <span
+               className={clsx(
+                  "absolute flex h-full items-center",
+                  align === "right" ? "-left-5" : "-right-5"
+               )}
+            >
                {isActive ? (
                   sortConfig.direction === "asc" ? (
                      <HiChevronUp className="text-primary-600 h-4 w-4" />

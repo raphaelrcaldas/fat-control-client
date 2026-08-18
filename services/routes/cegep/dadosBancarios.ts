@@ -1,4 +1,4 @@
-import request, { parseApiResponse } from "../../Api";
+import request, { ApiError, parseApiResponse } from "../../Api";
 import type { ApiResponse, ApiResult } from "@/types/api";
 import { UserPublic } from "../users";
 import { cegepRoute } from ".";
@@ -111,6 +111,46 @@ export async function getDadosBancariosByUser(
    );
    const json = (await response.json()) as ApiResponse<DadosBancariosPublic>;
    return json.data as DadosBancariosPublic;
+}
+
+/**
+ * Remuneração do militar, sem os dados bancários em volta — base de cálculo
+ * da ajuda de custo nas propostas. `remuneracao: null` = militar sem cadastro
+ * (resposta normal, não erro).
+ */
+export interface RemuneracaoMilitar {
+   user_id: number;
+   remuneracao: number | null;
+   /** Mês de referência do valor (ISO date) — procedência. */
+   mes_ano: string | null;
+}
+
+// GET - Remuneração de um militar (projeção enxuta de dados bancários)
+export async function getRemuneracaoMilitar(
+   user_id: number,
+   signal?: AbortSignal
+): Promise<RemuneracaoMilitar> {
+   const response = await request(
+      "GET",
+      `${dadosBancariosRoute}user/${user_id}/remuneracao`,
+      null,
+      null,
+      signal
+   );
+
+   const json = (await response.json()) as ApiResponse<RemuneracaoMilitar>;
+
+   if (!response.ok) {
+      // Com o status preservado, quem chama distingue "sem permissão para ver
+      // remuneração" (403) de uma falha de verdade.
+      throw new ApiError(
+         json.message || "Erro ao buscar a remuneração",
+         json.errors ?? null,
+         response.status
+      );
+   }
+
+   return json.data as RemuneracaoMilitar;
 }
 
 // POST - Cria novos dados bancários

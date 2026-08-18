@@ -170,10 +170,21 @@ export async function parseApiResponse<T = unknown>(
  */
 export class ApiError extends Error {
    readonly errors: Record<string, unknown> | null;
+   /**
+    * Status HTTP, quando quem lancou o erro o conhece. Permite distinguir
+    * negacao (403 -> o sistema funcionando) de falha (5xx/rede) sem parsear
+    * mensagem. Opcional: quem nao informa continua valido.
+    */
+   readonly status?: number;
 
-   constructor(message: string, errors: Record<string, unknown> | null = null) {
+   constructor(
+      message: string,
+      errors: Record<string, unknown> | null = null,
+      status?: number
+   ) {
       super(message);
       this.name = "ApiError";
       this.errors = errors;
+      this.status = status;
    }
 }

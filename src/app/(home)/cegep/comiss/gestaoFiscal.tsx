@@ -201,26 +201,28 @@ export function GestaoFiscalPage() {
                   </div>
                )}
 
-               {/* DASHBOARD CARDS — só exibe quando há orçamento */}
-               {data.orcamento_id && (
-                  <div className="grid grid-cols-1 gap-2 md:grid-cols-3">
-                     <GestaoFiscalCard
-                        label="Orçamento Total (Ano)"
-                        icon={<FaRegMoneyBillAlt />}
-                        stats={data.total}
-                     />
-                     <GestaoFiscalCard
-                        label="Fechamentos (Términos)"
-                        icon={<FaPlaneArrival />}
-                        stats={data.fechamento}
-                     />
-                     <GestaoFiscalCard
-                        label="Aberturas (Inícios)"
-                        icon={<FaPlaneDeparture />}
-                        stats={data.abertura}
-                     />
-                  </div>
-               )}
+               {/* DASHBOARD CARDS — exibidos SEMPRE. Sem teto cadastrado eles
+                   perdem os percentuais e o "Disponível", mas continuam
+                   mostrando o que já está pago e previsto no exercício: é
+                   justamente aí que saber o quanto já foi comprometido
+                   orienta o cadastro do teto. */}
+               <div className="grid grid-cols-1 gap-2 md:grid-cols-3">
+                  <GestaoFiscalCard
+                     label="Orçamento Total (Ano)"
+                     icon={<FaRegMoneyBillAlt />}
+                     stats={data.total}
+                  />
+                  <GestaoFiscalCard
+                     label="Fechamentos (Términos)"
+                     icon={<FaPlaneArrival />}
+                     stats={data.fechamento}
+                  />
+                  <GestaoFiscalCard
+                     label="Aberturas (Inícios)"
+                     icon={<FaPlaneDeparture />}
+                     stats={data.abertura}
+                  />
+               </div>
 
                {/* TABELA DE REGISTROS DO ANO */}
                <div className="overflow-hidden rounded bg-white shadow-sm ring-1 ring-slate-200">
