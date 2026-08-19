@@ -126,7 +126,7 @@ export const navItems = [
             icon: MdInsights,
             label: "Indicadores",
             path: "/estatistica/indicadores",
-            resource: "etapas",
+            resource: "estatistica.indicadores",
             permission: "view",
          },
          {
