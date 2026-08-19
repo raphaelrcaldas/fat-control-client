@@ -1,6 +1,6 @@
 import clsx from "clsx";
 import { Label } from "flowbite-react";
-import { FUNCOES_PRINCIPAIS, getFuncLabel } from "@/constants";
+import { useFuncoes } from "@/hooks/queries";
 import type { EscalaFiltersState } from "../../types";
 
 interface FuncChipsProps {
@@ -9,6 +9,8 @@ interface FuncChipsProps {
 }
 
 export function FuncChips({ value, onChange }: FuncChipsProps) {
+   const { principais } = useFuncoes();
+
    const toggleFunc = (f: string) => {
       const next = value.funcs.includes(f)
          ? value.funcs.filter((x) => x !== f)
@@ -22,13 +24,13 @@ export function FuncChips({ value, onChange }: FuncChipsProps) {
             Funções
          </Label>
          <div className="mt-1 flex flex-wrap gap-1.5">
-            {FUNCOES_PRINCIPAIS.map((f) => {
-               const checked = value.funcs.includes(f);
+            {principais.map(({ cod, nome_curto }) => {
+               const checked = value.funcs.includes(cod);
                return (
                   <button
-                     key={f}
+                     key={cod}
                      type="button"
-                     onClick={() => toggleFunc(f)}
+                     onClick={() => toggleFunc(cod)}
                      aria-pressed={checked}
                      className={clsx(
                         // Chip de seleção segue o tema da org (`primary-*`):
@@ -49,7 +51,7 @@ export function FuncChips({ value, onChange }: FuncChipsProps) {
                      )}
                   >
                      <span className="font-mono text-[10px] font-bold tracking-widest uppercase">
-                        {getFuncLabel(f, true)}
+                        {nome_curto}
                      </span>
                   </button>
                );

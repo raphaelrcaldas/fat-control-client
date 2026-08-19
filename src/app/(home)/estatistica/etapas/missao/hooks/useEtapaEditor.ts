@@ -2,10 +2,8 @@
 
 import { useCallback, useMemo } from "react";
 
-import {
-   defaultFuncBordo,
-   type FuncType,
-} from "@/constants/tripulantes/funcoes";
+import type { FuncType } from "@/constants/tripulantes/funcoes";
+import { useFuncoes } from "@/hooks/queries";
 
 import {
    useMissaoDraft,
@@ -125,6 +123,7 @@ function deriveErrors(form: EtapaFormData, crossesDay: boolean): FormErrors {
 }
 
 export function useEtapaEditor(localId: string): UseEtapaEditorResult {
+   const { defaultBordo } = useFuncoes();
    const draft = useMissaoDraft();
    const dispatch = useMissaoDraftDispatch();
 
@@ -251,7 +250,7 @@ export function useEtapaEditor(localId: string): UseEtapaEditorResult {
             nomeGuerra: trip.user.nome_guerra,
             pGraduacao: trip.user.p_g,
             func,
-            funcBordo: defaultFuncBordo(func),
+            funcBordo: defaultBordo(func),
          };
 
          dispatch({
@@ -259,7 +258,7 @@ export function useEtapaEditor(localId: string): UseEtapaEditorResult {
             payload: { localId, trip: assigned },
          });
       },
-      [assignedIds, dispatch, localId]
+      [assignedIds, dispatch, localId, defaultBordo]
    );
 
    // Especifico actions

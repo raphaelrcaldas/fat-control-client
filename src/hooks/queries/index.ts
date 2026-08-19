@@ -6,6 +6,7 @@ export * from "./useTenants";
 export * from "./useConfig";
 export * from "./useOrdens";
 export * from "./useTrips";
+export * from "./useFuncoes";
 export * from "./useIndisps";
 export * from "./useQuads";
 export * from "./useMissoes";

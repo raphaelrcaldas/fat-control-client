@@ -2,7 +2,7 @@ import { useCallback, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import clsx from "clsx";
 import { HiChevronDown } from "react-icons/hi2";
-import type { PosicaoABordo } from "@/constants/tripulantes/funcoes";
+import type { FuncaoPosicao } from "services/routes/funcs";
 
 import { usePortalDropdown } from "../../hooks/usePortalDropdown";
 
@@ -12,7 +12,7 @@ export function FuncBordoSelect({
    onChange,
 }: {
    value: string;
-   options: PosicaoABordo[];
+   options: FuncaoPosicao[];
    onChange: (codigo: string) => void;
 }) {
    const [open, setOpen] = useState(false);
@@ -59,18 +59,18 @@ export function FuncBordoSelect({
                   className="z-50 min-w-12 overflow-hidden rounded border border-gray-200 bg-white shadow-lg"
                >
                   {options.map((p) => {
-                     const selected = p.codigo === value;
+                     const selected = p.cod === value;
                      return (
-                        <li key={p.codigo}>
+                        <li key={p.cod}>
                            <button
                               type="button"
                               role="option"
                               aria-selected={selected}
                               onClick={() => {
-                                 onChange(p.codigo);
+                                 onChange(p.cod);
                                  setOpen(false);
                               }}
-                              title={p.label}
+                              title={p.nome}
                               className={clsx(
                                  "block w-full px-2 py-1 text-left text-[10px] font-bold uppercase",
                                  selected
@@ -78,7 +78,7 @@ export function FuncBordoSelect({
                                     : "text-gray-700 hover:bg-gray-100"
                               )}
                            >
-                              {p.codigo}
+                              {p.cod}
                            </button>
                         </li>
                      );

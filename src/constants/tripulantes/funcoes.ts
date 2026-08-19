@@ -1,161 +1,17 @@
 /**
- * Funções de tripulantes da FAB
+ * Cores das funções de tripulantes.
  *
- * Fonte única de verdade para funções, labels, temas e posições a bordo.
- * Estrutura centralizada - todos os outros exports derivam de FUNCOES_CONFIG.
+ * O catálogo de funções (código, rótulo, posições a bordo, cor) é DADO:
+ * vem de `GET /config/funcoes` pelo hook `useFuncoes()`, e cada unidade
+ * declara em /config quais opera. O que sobra aqui é só o mapa
+ * nome-da-cor → classes Tailwind, que precisa ser estático porque o
+ * Tailwind não compila classe montada em runtime (`bg-${cor}-500` não
+ * existe no bundle).
  */
 
-import type {
-   FuncConfig,
-   FuncType,
-   FuncaoTripulante,
-   PosicaoABordo,
-} from "./types";
-
-// Re-export dos tipos
-export type { FuncType, FuncaoTripulante, FuncConfig, PosicaoABordo };
-
-// =============================================================================
-// CONFIGURAÇÃO CENTRALIZADA
-// =============================================================================
-
-/**
- * Configuração completa de todas as funções.
- * Fonte única de verdade - todos os outros exports derivam daqui.
- */
-export const FUNCOES_CONFIG: Record<FuncType, FuncConfig> = {
-   pil: {
-      label: "Piloto",
-      labelShort: "Piloto",
-      theme: { color: "blue", badge: "info" },
-      posicoes: [
-         { codigo: "1P", label: "1º Piloto", descricao: "Piloto em comando" },
-         { codigo: "2P", label: "2º Piloto", descricao: "Copiloto" },
-         { codigo: "IN", label: "Instrutor", descricao: "Piloto instrutor" },
-         { codigo: "AL", label: "Aluno", descricao: "Piloto em instrução" },
-         { codigo: "O3", label: "OE-3", descricao: "OE-3" },
-      ],
-   },
-   mc: {
-      label: "Mecânico",
-      labelShort: "Mecânico",
-      theme: { color: "amber", badge: "warning" },
-      posicoes: [
-         { codigo: "MC", label: "Mecânico", descricao: "Mecânico" },
-         { codigo: "IC", label: "Instrutor", descricao: "Mecânico instrutor" },
-         { codigo: "AC", label: "Aluno", descricao: "Mecânico em instrução" },
-      ],
-   },
-   lm: {
-      label: "Loadmaster",
-      labelShort: "Loadmaster",
-      theme: { color: "emerald", badge: "success" },
-      posicoes: [
-         { codigo: "LM", label: "Loadmaster", descricao: "Loadmaster titular" },
-         {
-            codigo: "IG",
-            label: "Instrutor",
-            descricao: "Loadmaster instrutor",
-         },
-         { codigo: "AG", label: "Aluno", descricao: "Loadmaster em instrução" },
-      ],
-   },
-   tf: {
-      label: "Comissário",
-      labelShort: "Comissário",
-      theme: { color: "purple", badge: "purple" },
-      posicoes: [
-         { codigo: "TF", label: "Comissário", descricao: "Comissário titular" },
-         {
-            codigo: "IF",
-            label: "Instrutor",
-            descricao: "Comissário instrutor",
-         },
-         { codigo: "AF", label: "Aluno", descricao: "Comissário em instrução" },
-      ],
-   },
-   oe: {
-      label: "OE-3",
-      labelShort: "OE-3",
-      theme: { color: "cyan", badge: "cyan" },
-      posicoes: [
-         { codigo: "O3", label: "Operador", descricao: "OE-3 operacional" },
-         { codigo: "I3", label: "Instrutor", descricao: "OE instrutor" },
-         { codigo: "A3", label: "Aluno", descricao: "OE em instrução" },
-      ],
-   },
-   os: {
-      label: "Observador-SAR",
-      labelShort: "Obs-SAR",
-      theme: { color: "red", badge: "failure" },
-      posicoes: [
-         {
-            codigo: "OS",
-            label: "Observador-SAR",
-            descricao: "Observador SAR",
-         },
-         {
-            codigo: "IS",
-            label: "Instrutor",
-            descricao: "Observador-SAR instrutor",
-         },
-         {
-            codigo: "AS",
-            label: "Aluno",
-            descricao: "Observador-SAR em instrução",
-         },
-      ],
-   },
-
-   ml: {
-      label: "Mestre de Lançamento",
-      labelShort: "ML",
-      theme: { color: "pink", badge: "pink" },
-      posicoes: [], // Função esporádica, sem controle de posições
-   },
-   md: {
-      label: "Médico",
-      labelShort: "Médico",
-      theme: { color: "gray", badge: "gray" },
-      posicoes: [], // Função esporádica, sem controle de posições
-   },
-};
-
-// =============================================================================
-// DERIVADOS (para compatibilidade)
-// =============================================================================
-
-/** Labels completos para todas as funções */
-export const FUNC_LABELS: Record<FuncType, string> = Object.fromEntries(
-   Object.entries(FUNCOES_CONFIG).map(([key, config]) => [key, config.label])
-) as Record<FuncType, string>;
-
-/** Labels abreviados (para uso em espaços reduzidos) */
-export const FUNC_LABELS_SHORT: Record<FuncType, string> = Object.fromEntries(
-   Object.entries(FUNCOES_CONFIG).map(([key, config]) => [
-      key,
-      config.labelShort,
-   ])
-) as Record<FuncType, string>;
-
-/** Todas as funções disponíveis (array) */
-export const TODAS_FUNCOES: FuncType[] = Object.keys(
-   FUNCOES_CONFIG
-) as FuncType[];
-
-/** Funções principais (sem ml e md que são esporádicas) */
-export const FUNCOES_PRINCIPAIS: FuncaoTripulante[] = [
-   "pil",
-   "mc",
-   "lm",
-   "tf",
-   "oe",
-   "os",
-];
-
-// =============================================================================
-// CORES TAILWIND POR TEMA (mapeamento estático para Tailwind não purgar)
-// =============================================================================
+// O tipo do código da função segue morando em ./types/func.types e é
+// reexportado aqui porque as telas o importam junto das cores.
+export type { FuncType, PosicaoABordo } from "./types/func.types";
 
 export interface FuncColorSet {
    bg: string;
@@ -224,95 +80,23 @@ export const FUNC_COLORS: Record<string, FuncColorSet> = {
    },
 };
 
-/**
- * Retorna o conjunto de cores Tailwind para uma função
- */
-export function getFuncColors(func: string): FuncColorSet {
-   const config = FUNCOES_CONFIG[func as FuncType];
-   const themeColor = config?.theme.color ?? "gray";
-   return FUNC_COLORS[themeColor] ?? FUNC_COLORS.gray;
-}
-
-// =============================================================================
-// HELPERS
-// =============================================================================
+/** Cores disponíveis para o cadastro do catálogo (/admin/funcoes). */
+export const FUNC_CORES = Object.keys(FUNC_COLORS);
 
 /**
- * Retorna o label de uma função
+ * Conjunto de classes da cor. Cor desconhecida (ou função ainda não
+ * carregada) cai no cinza em vez de renderizar sem classe nenhuma.
  */
-export function getFuncLabel(func: FuncType, short = false): string {
-   return short ? FUNCOES_CONFIG[func].labelShort : FUNCOES_CONFIG[func].label;
+export function getFuncColors(cor?: string): FuncColorSet {
+   return FUNC_COLORS[cor ?? "gray"] ?? FUNC_COLORS.gray;
 }
 
 /**
- * Retorna o tema de uma função
+ * Ordem de exibição das posições a bordo do piloto nas listas de etapa.
+ *
+ * Não é catálogo: é preferência de leitura (o 1P vem seguido de quem voa
+ * no lugar dele). As posições em si vêm do banco, em `funcoes.posicoes`.
  */
-export function getFuncTheme(func: FuncType) {
-   return FUNCOES_CONFIG[func].theme;
-}
-
-/**
- * Retorna as posições a bordo disponíveis para uma função
- */
-export function getPosicoesByFunc(func: FuncType): PosicaoABordo[] {
-   return FUNCOES_CONFIG[func].posicoes;
-}
-
-/**
- * Código padrão de função a bordo para uma função: primeira posição disponível
- * ou, na falta, as duas primeiras letras da função em maiúsculas.
- */
-export function defaultFuncBordo(func: FuncType): string {
-   return getPosicoesByFunc(func)[0]?.codigo ?? func.toUpperCase().slice(0, 2);
-}
-
-/**
- * Retorna o label de uma posição a bordo
- */
-export function getPosicaoLabel(
-   func: FuncType,
-   codigo: string
-): string | undefined {
-   const posicao = FUNCOES_CONFIG[func].posicoes.find(
-      (p) => p.codigo === codigo
-   );
-   return posicao?.label;
-}
-
-/**
- * Verifica se uma posição é válida para uma função
- */
-export function isPosicaoValidaParaFunc(
-   func: FuncType,
-   codigo: string
-): boolean {
-   return FUNCOES_CONFIG[func].posicoes.some((p) => p.codigo === codigo);
-}
-
-/**
- * Retorna todas as posições a bordo (flat array de códigos)
- */
-export function getTodasPosicoes(): string[] {
-   return Object.values(FUNCOES_CONFIG).flatMap((config) =>
-      config.posicoes.map((p) => p.codigo)
-   );
-}
-
-// =============================================================================
-// ORDENAÇÃO
-// =============================================================================
-
-export const FUNC_ORDER: FuncType[] = [
-   "pil",
-   "oe",
-   "mc",
-   "lm",
-   "tf",
-   "os",
-   "md",
-   "ml",
-];
-
 export const FUNC_BORDO_ORDER: Record<string, number> = {
    "1P": 0,
    IN: 1,

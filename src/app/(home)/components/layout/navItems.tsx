@@ -27,7 +27,7 @@ import {
    MdSettings,
    MdInsights,
 } from "react-icons/md";
-import { FaUsers, FaBuilding, FaSitemap } from "react-icons/fa6";
+import { FaUsers, FaBuilding, FaSitemap, FaUserGroup } from "react-icons/fa6";
 import { FaPaperPlane } from "react-icons/fa";
 import { RiAdminLine } from "react-icons/ri";
 import { GiSecurityGate, GiJoystick } from "react-icons/gi";
@@ -320,6 +320,11 @@ export const navItems = [
             icon: GiSecurityGate,
             label: "Perfis & Permissões",
             path: "/admin/roles",
+         },
+         {
+            icon: FaUserGroup,
+            label: "Funções",
+            path: "/admin/funcoes",
          },
          {
             icon: TbLogs,

@@ -1,9 +1,9 @@
 import { Spinner } from "flowbite-react";
 import { HiClock, HiDocumentText } from "react-icons/hi";
 import { useTripLogs } from "@/hooks/queries/useTrips";
-import { getFuncLabel } from "@/constants/tripulantes/funcoes";
+import { useFuncoes } from "@/hooks/queries";
 import { OPER_LABELS } from "@/constants/tripulantes/operacionalidade";
-import type { FuncType, OperType } from "@/constants/tripulantes/types";
+import type { OperType } from "@/constants/tripulantes/types";
 import { formatNaiveDate } from "utils/dateHandler";
 import { Historico } from "@/app/(home)/ops/indisp/components/Historico";
 import { TRIP_FIELD_LABELS } from "./tripFieldLabels";
@@ -15,13 +15,17 @@ import { TRIP_FIELD_LABELS } from "./tripFieldLabels";
  * por parsing de string (`formatNaiveDate`), nunca via `new Date()`, para não
  * arriscar deslocar o dia por fuso.
  */
-function formatTripFieldValue(field: string, value: string): string {
+function formatTripFieldValue(
+   field: string,
+   value: string,
+   funcLabel: (cod: string) => string
+): string {
    const str = String(value ?? "");
    if (!str) return str;
 
    switch (field) {
       case "func": {
-         const label = getFuncLabel(str as FuncType);
+         const label = funcLabel(str);
          return label ? `${str.toUpperCase()} - ${label}` : str.toUpperCase();
       }
       case "oper": {
@@ -41,6 +45,7 @@ function formatTripFieldValue(field: string, value: string): string {
 
 export function TripAudit({ tripId }: { tripId: number }) {
    const { data: logs = [], isLoading, error } = useTripLogs(tripId);
+   const { label: funcLabel } = useFuncoes();
 
    if (isLoading)
       return (
@@ -86,7 +91,9 @@ export function TripAudit({ tripId }: { tripId: number }) {
       <Historico
          logs={logs}
          fieldLabels={TRIP_FIELD_LABELS}
-         formatFieldValue={formatTripFieldValue}
+         formatFieldValue={(field, value) =>
+            formatTripFieldValue(field, value, funcLabel)
+         }
          title="Histórico de Alterações"
          maxHeight="max-h-[600px]"
       />

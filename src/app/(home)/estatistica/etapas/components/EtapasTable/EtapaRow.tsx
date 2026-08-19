@@ -3,11 +3,8 @@
 import { memo, useMemo } from "react";
 import clsx from "clsx";
 import { HiEye, HiPencilAlt } from "react-icons/hi";
-import {
-   FUNC_BORDO_ORDER,
-   FUNC_ORDER,
-   getFuncColors,
-} from "@/constants/tripulantes/funcoes";
+import { FUNC_BORDO_ORDER } from "@/constants/tripulantes/funcoes";
+import { useFuncoes } from "@/hooks/queries";
 import { Button, Checkbox, TableCell, TableRow } from "flowbite-react";
 import {
    isoDateToString,
@@ -70,8 +67,17 @@ export const EtapaRow = memo(function EtapaRow({
    onDetailEtapa,
    onEditEtapa,
 }: EtapaRowProps) {
+   const { codigos, colors: funcColors } = useFuncoes();
+
    const tripBadges = useMemo(() => {
-      return FUNC_ORDER.flatMap((func) => {
+      // Funções na ordem da unidade; as fora do catálogo (dado histórico)
+      // entram no fim para não sumir da linha.
+      const ordenadas = [
+         ...codigos,
+         ...tripulantes.map((t) => t.func).filter((f) => !codigos.includes(f)),
+      ];
+
+      return Array.from(new Set(ordenadas)).flatMap((func) => {
          const members = tripulantes
             .filter((t) => t.func === func)
             .sort(
@@ -80,7 +86,7 @@ export const EtapaRow = memo(function EtapaRow({
                   (FUNC_BORDO_ORDER[b.func_bordo] ?? 50)
             );
          if (members.length === 0) return [];
-         const colors = getFuncColors(func);
+         const colors = funcColors(func);
 
          return members.map((m) => (
             <span
@@ -95,7 +101,7 @@ export const EtapaRow = memo(function EtapaRow({
             </span>
          ));
       });
-   }, [tripulantes]);
+   }, [tripulantes, codigos, funcColors]);
 
    const oiList = useMemo(() => {
       if (oi_etapas.length === 0)

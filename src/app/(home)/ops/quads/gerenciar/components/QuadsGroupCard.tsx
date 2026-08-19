@@ -7,8 +7,7 @@ import {
    FaPlus,
    FaUserGroup,
 } from "react-icons/fa6";
-import { getFuncLabel } from "@/constants";
-import type { FuncType } from "@/constants";
+import { useFuncoes } from "@/hooks/queries";
 import type { QuadType, QuadTypeGroup } from "services/routes/quads";
 
 interface QuadsGroupCardProps {
@@ -30,6 +29,8 @@ export function QuadsGroupCard({
    onDeleteType,
    onEditFuncs,
 }: QuadsGroupCardProps) {
+   const { labelShort } = useFuncoes();
+
    return (
       <div className="rounded bg-white shadow-sm ring-1 ring-slate-200">
          <div className="flex items-center justify-between gap-3 border-b border-slate-200 px-4 py-3">
@@ -90,7 +91,7 @@ export function QuadsGroupCard({
                                     key={func}
                                     className="bg-primary-50 text-primary-700 inline-flex items-center rounded px-2 py-0.5 text-xs font-medium"
                                  >
-                                    {getFuncLabel(func as FuncType, true)}
+                                    {labelShort(func)}
                                  </span>
                               ))
                            )}

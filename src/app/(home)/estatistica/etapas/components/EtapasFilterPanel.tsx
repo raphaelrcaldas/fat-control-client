@@ -5,7 +5,7 @@ import { Label, Select, TextInput } from "flowbite-react";
 import { MdSearch } from "react-icons/md";
 import { MultiSelect } from "@/components/MultiSelect";
 import { SearchableSelect } from "@/components/SearchableSelect";
-import { TODAS_FUNCOES } from "@/constants/tripulantes/funcoes";
+import { useFuncoes } from "@/hooks/queries";
 
 interface SelectOption {
    value: string;
@@ -57,6 +57,8 @@ export const EtapasFilterPanel = memo(function EtapasFilterPanel({
    onDataFimChange,
    onMultiSelectChange,
 }: EtapasFilterPanelProps) {
+   const { funcoes } = useFuncoes();
+
    return (
       <div
          id="filtros-panel"
@@ -177,9 +179,9 @@ export const EtapasFilterPanel = memo(function EtapasFilterPanel({
                      className="[&_select]:w-16 [&_select]:rounded-none [&_select]:border-0 [&_select]:border-r [&_select]:border-gray-300 [&_select]:bg-transparent [&_select]:shadow-none [&_select]:focus:border-gray-300 [&_select]:focus:ring-0 [&_select]:disabled:cursor-not-allowed [&_select]:disabled:opacity-50"
                   >
                      <option value="">--</option>
-                     {TODAS_FUNCOES.map((f) => (
-                        <option key={f} value={f}>
-                           {f.toUpperCase()}
+                     {funcoes.map((f) => (
+                        <option key={f.cod} value={f.cod}>
+                           {f.cod.toUpperCase()}
                         </option>
                      ))}
                   </Select>

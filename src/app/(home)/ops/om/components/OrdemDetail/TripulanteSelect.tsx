@@ -6,12 +6,12 @@ import clsx from "clsx";
 import { Spinner, TextInput } from "flowbite-react";
 import { IoSearchSharp, IoClose, IoAdd } from "react-icons/io5";
 import { type CrewMember } from "services/routes/trips";
-import { useTripSearch } from "@/hooks/queries";
+import { useFuncoes, useTripSearch } from "@/hooks/queries";
 import useDebouncedValue from "@/hooks/useDebouncedValue";
-import { FUNCOES_CONFIG, type FuncaoTripulante } from "@/constants/tripulantes";
+import { type FuncType } from "@/constants/tripulantes";
 
 interface TripulanteSelectProps {
-   funcao: FuncaoTripulante;
+   funcao: FuncType;
    tripulantes: CrewMember[];
    onAdd: (tripulante: CrewMember) => void;
    onRemove: (tripulanteId: number) => void;
@@ -22,7 +22,7 @@ interface TripulanteSelectProps {
 }
 
 // Classes estáticas por cor de tema (Tailwind exige classes analisáveis,
-// então o tema de FUNCOES_CONFIG é mapeado aqui em vez de interpolado)
+// então a cor que vem do catálogo é mapeada aqui em vez de interpolada)
 interface AccentClasses {
    bar: string;
    headerText: string;
@@ -128,8 +128,8 @@ export function TripulanteSelect({
    const inputWrapperRef = useRef<HTMLDivElement>(null);
    const dropdownRef = useRef<HTMLDivElement>(null);
 
-   const funcConfig = FUNCOES_CONFIG[funcao];
-   const accent = ACCENT_CLASSES[funcConfig.theme.color] ?? DEFAULT_ACCENT;
+   const { byCod, labelShort } = useFuncoes();
+   const accent = ACCENT_CLASSES[byCod[funcao]?.cor ?? ""] ?? DEFAULT_ACCENT;
 
    const debouncedQuery = useDebouncedValue(query, 300);
    const searchQuery = useTripSearch(funcao, debouncedQuery);
@@ -290,7 +290,7 @@ export function TripulanteSelect({
                   className={clsx("h-3.5 w-1 rounded-full", accent.bar)}
                   aria-hidden="true"
                />
-               {funcConfig.labelShort}
+               {labelShort(funcao)}
                {required && <span className="text-red-500">*</span>}
             </span>
             {tripulantes.length > 0 && (

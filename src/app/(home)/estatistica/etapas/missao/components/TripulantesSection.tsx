@@ -8,12 +8,7 @@ import type {
 } from "@dnd-kit/core";
 import { useDraggable } from "@dnd-kit/core";
 import clsx from "clsx";
-import {
-   TODAS_FUNCOES,
-   FUNC_ORDER,
-   getFuncColors,
-   getFuncLabel,
-} from "@/constants/tripulantes/funcoes";
+import { useFuncoes } from "@/hooks/queries";
 import type { DraftPoolTrip } from "../context/types";
 import type { EtapaTripsGroup } from "../hooks/useEtapaEditor";
 import { FuncGroupDropZone } from "./funcGroup/FuncGroupDropZone";
@@ -23,7 +18,8 @@ function DraggablePoolChip({ trip }: { trip: DraftPoolTrip }) {
       id: `pool-${trip.tripId}`,
       data: { trip },
    });
-   const colors = trip.lastFunc ? getFuncColors(trip.lastFunc) : null;
+   const { colors: funcColors } = useFuncoes();
+   const colors = trip.lastFunc ? funcColors(trip.lastFunc) : null;
 
    return (
       <div
@@ -60,6 +56,7 @@ export function TripulantesSection({
    handleDragStart,
    handleDragEnd,
 }: TripulantesSectionProps) {
+   const { codigos, colors: funcColors } = useFuncoes();
    const {
       poolTrips,
       assignedTrips,
@@ -95,9 +92,9 @@ export function TripulantesSection({
          groups.get(key)!.push(trip);
       }
 
-      // Retorna na ordem de FUNC_ORDER, sem função no final
+      // Retorna na ordem do catálogo da unidade, sem função no final
       const ordered: { funcKey: string; trips: DraftPoolTrip[] }[] = [];
-      for (const func of FUNC_ORDER) {
+      for (const func of codigos) {
          if (groups.has(func)) {
             ordered.push({ funcKey: func, trips: groups.get(func)! });
          }
@@ -109,7 +106,7 @@ export function TripulantesSection({
          });
       }
       return ordered;
-   }, [poolTrips]);
+   }, [poolTrips, codigos]);
 
    return (
       <section className="space-y-3">
@@ -162,7 +159,7 @@ export function TripulantesSection({
             {/* 1 coluna abaixo de 640px: em 2 colunas o card fica com 145px e
                 trunca o nome do tripulante em 3-4 letras */}
             <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-4">
-               {TODAS_FUNCOES.map((func) => (
+               {codigos.map((func) => (
                   <FuncGroupDropZone
                      key={func}
                      func={func}
@@ -184,7 +181,7 @@ export function TripulantesSection({
                            className={clsx(
                               "w-fit cursor-grabbing items-center rounded px-3 py-1 text-center font-mono text-sm font-semibold uppercase shadow-lg",
                               activeTrip.lastFunc
-                                 ? getFuncColors(activeTrip.lastFunc).badge
+                                 ? funcColors(activeTrip.lastFunc).badge
                                  : "bg-gray-100 text-gray-600"
                            )}
                         >

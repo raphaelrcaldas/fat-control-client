@@ -65,15 +65,10 @@ export interface TripulacaoOrdemOut {
    tripulante: CrewMember | null;
 }
 
-// Tripulacao agrupada por funcao (formato do frontend para envio)
-export interface TripulacaoAgrupada {
-   pil: number[];
-   mc: number[];
-   lm: number[];
-   tf: number[];
-   oe: number[];
-   os: number[];
-}
+// Tripulacao agrupada por funcao (formato do frontend para envio). As
+// chaves sao os codigos de funcao operados pela unidade — nao ha lista
+// fechada desde que a funcao virou dado (`GET /config/funcoes`).
+export type TripulacaoAgrupada = Record<string, number[]>;
 
 export interface OrdemMissaoCreate {
    matricula_anv: string;

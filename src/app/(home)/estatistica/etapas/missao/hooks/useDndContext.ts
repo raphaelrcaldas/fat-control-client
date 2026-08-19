@@ -14,10 +14,8 @@ import {
    type SensorOptions,
 } from "@dnd-kit/core";
 
-import {
-   defaultFuncBordo,
-   type FuncType,
-} from "@/constants/tripulantes/funcoes";
+import type { FuncType } from "@/constants/tripulantes/funcoes";
+import { useFuncoes } from "@/hooks/queries";
 
 import type {
    Action,
@@ -43,6 +41,7 @@ export function useDndContext({
    assignedTrips,
    dispatch,
 }: UseDndContextParams): UseDndContextResult {
+   const { defaultBordo } = useFuncoes();
    const [activeTrip, setActiveTrip] = useState<DraftPoolTrip | null>(null);
 
    // TouchSensor com delay (long press) e nao distancia: no dedo, um limiar de
@@ -106,7 +105,7 @@ export function useDndContext({
             ult_promo: trip.ult_promo,
             ant_rel: trip.ant_rel,
             func: targetFunc,
-            funcBordo: defaultFuncBordo(targetFunc),
+            funcBordo: defaultBordo(targetFunc),
          };
 
          dispatch({
@@ -114,7 +113,7 @@ export function useDndContext({
             payload: { localId: selectedLocalId, trip: assigned },
          });
       },
-      [assignedTrips, dispatch, selectedLocalId]
+      [assignedTrips, dispatch, selectedLocalId, defaultBordo]
    );
 
    return {

@@ -1,33 +1,23 @@
 /**
- * Tipos de funções de tripulantes
+ * Tipos de funções de tripulantes.
+ *
+ * Não há mais união fechada de códigos: a função virou dado (tabelas
+ * `funcoes`/`funcoes_uae`) e o conjunto válido depende da unidade. Ver
+ * `useFuncoes()` em `src/hooks/queries/useFuncoes.ts`.
  */
 
-import type { Theme } from "./theme.types";
+/** Código da função ('pil', 'mc', ...). */
+export type FuncType = string;
 
-/** Todas as funções de tripulantes */
-export type FuncType = "pil" | "mc" | "lm" | "oe" | "os" | "tf" | "ml" | "md";
+/** @deprecated Use FuncType — as "principais" saem de `useFuncoes()`. */
+export type FuncaoTripulante = FuncType;
 
-/** Funções principais (excluindo ml e md que são esporádicas) */
-export type FuncaoTripulante = "pil" | "mc" | "lm" | "tf" | "oe" | "os";
-
-/** Posição a bordo de um tripulante em uma etapa/voo */
+/** Posição a bordo de um tripulante em uma etapa/voo. */
 export interface PosicaoABordo {
    /** Código da posição (ex: "1P", "2P", "IC") */
-   codigo: string;
+   cod: string;
    /** Label para exibição (ex: "1º Piloto", "Instrutor") */
-   label: string;
+   nome: string;
    /** Descrição detalhada da posição */
-   descricao: string;
-}
-
-/** Configuração completa de uma função */
-export interface FuncConfig {
-   /** Label completo (ex: "Piloto") */
-   label: string;
-   /** Label abreviado para espaços reduzidos */
-   labelShort: string;
-   /** Configuração de tema/cores */
-   theme: Theme;
-   /** Posições a bordo disponíveis para esta função */
-   posicoes: PosicaoABordo[];
+   descricao?: string | null;
 }

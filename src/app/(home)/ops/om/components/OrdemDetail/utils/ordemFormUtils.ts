@@ -11,36 +11,34 @@ import type {
    TripulacaoOrdemOut,
 } from "services/routes/om/ordens";
 import { type CrewMember } from "services/routes/trips";
-import {
-   FUNCOES_PRINCIPAIS,
-   type FuncaoTripulante,
-} from "@/constants/tripulantes";
+import type { FuncType } from "@/constants/tripulantes";
 import { createDefaultOrdem, calcularEsfAer } from "./ordemUtils";
 
-// Tripulação agrupada por função — derivada de FuncaoTripulante para não
-// repetir a lista de funções (fonte única em constants/tripulantes)
-export type TripulacaoOrdem = Record<FuncaoTripulante, CrewMember[]>;
+// Tripulação agrupada por função. As chaves são as funções que a unidade
+// opera (`useFuncoes()`), passadas por quem chama — este módulo é puro e
+// não pode ler o catálogo por hook.
+export type TripulacaoOrdem = Record<FuncType, CrewMember[]>;
 
-export const createDefaultTripulacao = (): TripulacaoOrdem =>
-   Object.fromEntries(
-      FUNCOES_PRINCIPAIS.map((funcao) => [funcao, []])
-   ) as TripulacaoOrdem;
+export const createDefaultTripulacao = (funcoes: FuncType[]): TripulacaoOrdem =>
+   Object.fromEntries(funcoes.map((funcao) => [funcao, []]));
 
 // Converte o formato de tripulação da API (array) para o agrupado por função
 export const convertTripulacaoFromApi = (
-   tripulacaoArray: TripulacaoOrdemOut[]
+   tripulacaoArray: TripulacaoOrdemOut[],
+   funcoes: FuncType[]
 ): TripulacaoOrdem => {
-   const result = createDefaultTripulacao();
+   const result = createDefaultTripulacao(funcoes);
 
    if (!tripulacaoArray || !Array.isArray(tripulacaoArray)) {
       return result;
    }
 
    tripulacaoArray.forEach((item) => {
-      const funcao = item.funcao as FuncaoTripulante;
-      if (funcao in result && item.tripulante) {
-         result[funcao].push(item.tripulante);
-      }
+      if (!item.tripulante) return;
+      // Ordem antiga pode trazer função que a unidade não opera mais — a
+      // chave é criada na hora para o tripulante não sumir do documento.
+      const funcao = item.funcao;
+      (result[funcao] ??= []).push(item.tripulante);
    });
 
    return result;
@@ -56,7 +54,8 @@ export interface OrdemFormInitialState {
 // Monta o estado inicial completo do formulário a partir da ordem (ou defaults)
 export const buildInitialState = (
    ordem: OrdemMissaoOut | null,
-   isCloning: boolean
+   isCloning: boolean,
+   funcoes: FuncType[]
 ): OrdemFormInitialState => {
    let formData: OrdemMissaoOut;
    if (!ordem) {
@@ -79,8 +78,8 @@ export const buildInitialState = (
    return {
       formData,
       tripulacao: ordem?.tripulacao
-         ? convertTripulacaoFromApi(ordem.tripulacao)
-         : createDefaultTripulacao(),
+         ? convertTripulacaoFromApi(ordem.tripulacao, funcoes)
+         : createDefaultTripulacao(funcoes),
       camposEspeciais: ordem?.campos_especiais || [],
       esfAerManual,
    };
@@ -110,7 +109,9 @@ export const toOrdemPayload = (
 ): OrdemMissaoCreate | OrdemMissaoUpdate => {
    const etapasOrdenadas = sortEtapas(formData.etapas);
 
-   const tripulacaoAgrupada = FUNCOES_PRINCIPAIS.reduce((acc, funcao) => {
+   // As funções vêm das chaves do próprio estado — que já nasceu do
+   // catálogo da unidade em `buildInitialState`.
+   const tripulacaoAgrupada = Object.keys(tripulacao).reduce((acc, funcao) => {
       acc[funcao] = tripulacao[funcao]
          .map((t) => t.id)
          .filter((id): id is number => !!id);

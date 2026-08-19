@@ -2,8 +2,8 @@
 import { useId, useState } from "react";
 import clsx from "clsx";
 import { HiChevronDown } from "react-icons/hi";
-import { getFuncColors, getFuncLabel } from "@/constants";
 import type { FuncType } from "@/constants/tripulantes/funcoes";
+import { useFuncoes } from "@/hooks/queries";
 import { TripCard } from "./TripCard";
 import type { SectionBucket } from "../types";
 
@@ -13,9 +13,10 @@ interface FuncSectionProps {
 }
 
 export function FuncSection({ bucket, index }: FuncSectionProps) {
+   const { colors: funcColors, label: funcLabel } = useFuncoes();
    const funcKey = bucket.func as FuncType;
-   const colors = getFuncColors(funcKey);
-   const label = getFuncLabel(funcKey);
+   const colors = funcColors(funcKey);
+   const label = funcLabel(funcKey);
    const efetivos = bucket.disponiveis.length;
    const inop = bucket.indisponiveis.length;
 

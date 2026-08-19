@@ -15,11 +15,8 @@ import {
 } from "react-icons/hi";
 import type { TripDetail } from "services/routes/trips";
 import { formatDateFull } from "utils/dateHandler";
-import {
-   TODAS_FUNCOES,
-   getFuncLabel,
-   OPER_LABELS,
-} from "@/constants/tripulantes";
+import { OPER_LABELS } from "@/constants/tripulantes";
+import { useFuncoes } from "@/hooks/queries";
 import { useOrgProjetos } from "@/hooks/queries/useAeronaves";
 import { SectionCard } from "@/app/(home)/users/components/SectionCard";
 import { isValidTrigramaKey } from "../../utils/validateTrigrama";
@@ -34,10 +31,11 @@ const SECTION_BODY = "grid gap-0 divide-y divide-slate-100";
 
 export function TripReadView({ trip, tripId }: TripReadViewProps) {
    const { data: projetos = [] } = useOrgProjetos();
+   const { funcoes, label: funcLabel } = useFuncoes();
 
-   const funcOptions = TODAS_FUNCOES.map((func) => ({
-      value: func,
-      label: `${func.toUpperCase()} - ${getFuncLabel(func)}`,
+   const funcOptions = funcoes.map((func) => ({
+      value: func.cod,
+      label: `${func.cod.toUpperCase()} - ${func.nome}`,
    }));
 
    const operOptions = Object.entries(OPER_LABELS).map(([key, label]) => ({
@@ -76,7 +74,7 @@ export function TripReadView({ trip, tripId }: TripReadViewProps) {
          <EditableTripField
             icon={HiUserGroup}
             label="Função"
-            value={getFuncLabel(trip.func)}
+            value={funcLabel(trip.func)}
             rawValue={trip.func}
             fieldName="func"
             tripId={tripId}

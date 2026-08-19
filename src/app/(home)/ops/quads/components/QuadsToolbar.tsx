@@ -1,7 +1,7 @@
 "use client";
 import { Button, ButtonGroup, Label, Select } from "flowbite-react";
 import { QuadTypeGroup } from "services/routes/quads";
-import { FUNCOES_PRINCIPAIS, getFuncLabel } from "@/constants";
+import { useFuncoes } from "@/hooks/queries";
 import { QuadOrdem } from "../utils/sortQuads";
 
 interface QuadsToolbarProps {
@@ -29,6 +29,8 @@ export function QuadsToolbar({
    onVisualChange,
    loadingTypes,
 }: QuadsToolbarProps) {
+   const { principais } = useFuncoes();
+
    const visibleGroups = quadsType.filter((group) =>
       group.types.some((type) => type.funcs_list.includes(quadFunc))
    );
@@ -43,9 +45,9 @@ export function QuadsToolbar({
                className="w-32"
                onChange={(e) => onQuadFuncChange(e.target.value)}
             >
-               {FUNCOES_PRINCIPAIS.map((f) => (
-                  <option key={f} value={f}>
-                     {getFuncLabel(f, true)}
+               {principais.map((f) => (
+                  <option key={f.cod} value={f.cod}>
+                     {f.nome_curto}
                   </option>
                ))}
             </Select>

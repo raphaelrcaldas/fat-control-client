@@ -11,8 +11,7 @@ import {
    Label,
    Spinner,
 } from "flowbite-react";
-import { TODAS_FUNCOES, getFuncLabel } from "@/constants";
-import type { FuncType } from "@/constants";
+import { useFuncoes } from "@/hooks/queries";
 
 interface TypeFuncsModalProps {
    show: boolean;
@@ -31,6 +30,9 @@ export function TypeFuncsModal({
    onClose,
    onSubmit,
 }: TypeFuncsModalProps) {
+   // Só concorre ao quadrinho função que a unidade opera — é o que o
+   // backend valida no PUT.
+   const { funcoes } = useFuncoes();
    const [selected, setSelected] = useState<Set<string>>(new Set());
 
    useEffect(() => {
@@ -55,7 +57,9 @@ export function TypeFuncsModal({
 
    const handleSubmit = () => {
       // Mantém a ordem canônica das funções.
-      const ordered = TODAS_FUNCOES.filter((f) => selected.has(f));
+      const ordered = funcoes
+         .map((f) => f.cod)
+         .filter((cod) => selected.has(cod));
       onSubmit(ordered);
    };
 
@@ -68,19 +72,19 @@ export function TypeFuncsModal({
                <span className="font-semibold text-gray-700">{typeName}</span>.
             </p>
             <div className="grid grid-cols-2 gap-3">
-               {TODAS_FUNCOES.map((func: FuncType) => (
+               {funcoes.map((func) => (
                   <Label
-                     key={func}
-                     htmlFor={`func-${func}`}
+                     key={func.cod}
+                     htmlFor={`func-${func.cod}`}
                      className="flex cursor-pointer items-center gap-2 rounded border border-slate-200 px-3 py-2 hover:bg-gray-50"
                   >
                      <Checkbox
-                        id={`func-${func}`}
+                        id={`func-${func.cod}`}
                         color="red"
-                        checked={selected.has(func)}
-                        onChange={() => toggle(func)}
+                        checked={selected.has(func.cod)}
+                        onChange={() => toggle(func.cod)}
                      />
-                     <span>{getFuncLabel(func)}</span>
+                     <span>{func.nome}</span>
                   </Label>
                ))}
             </div>

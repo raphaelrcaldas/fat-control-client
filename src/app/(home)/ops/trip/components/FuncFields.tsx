@@ -1,10 +1,7 @@
 import { Label, Select, TextInput } from "flowbite-react";
 import type { FieldErrors, UseFormRegister } from "react-hook-form";
-import {
-   TODAS_FUNCOES,
-   getFuncLabel,
-   OPER_LABELS,
-} from "@/constants/tripulantes";
+import { OPER_LABELS } from "@/constants/tripulantes";
+import { useFuncoes } from "@/hooks/queries";
 import { useOrgProjetos } from "@/hooks/queries/useAeronaves";
 
 type FuncFieldsProps = {
@@ -18,11 +15,13 @@ type FuncFieldsProps = {
  * Compartilhado entre o cadastro e a edição de tripulante — a função deixou
  * de ser entidade separada e passou a viver no próprio tripulante.
  *
- * `proj` é FK para `projetos_anvs.modelo` e as opções são os projetos
- * operados pela org ativa (tenant_projetos), não uma lista fixa.
+ * `func` e `proj` seguem a mesma lógica: as opções são o que a org ativa
+ * opera (`GET /config/funcoes` e `tenant_projetos`), não listas fixas — é o
+ * que o backend valida no write-path.
  */
 export function FuncFields({ register, errors, currentOper }: FuncFieldsProps) {
    const { data: projetos = [], isLoading: loadingProjetos } = useOrgProjetos();
+   const { funcoes } = useFuncoes();
 
    return (
       <div className="grid grid-cols-2 gap-4">
@@ -36,9 +35,9 @@ export function FuncFields({ register, errors, currentOper }: FuncFieldsProps) {
                color={errors.func ? "failure" : "gray"}
             >
                <option value="">Selecione</option>
-               {TODAS_FUNCOES.map((func) => (
-                  <option key={func} value={func}>
-                     {getFuncLabel(func)}
+               {funcoes.map((func) => (
+                  <option key={func.cod} value={func.cod}>
+                     {func.nome}
                   </option>
                ))}
             </Select>

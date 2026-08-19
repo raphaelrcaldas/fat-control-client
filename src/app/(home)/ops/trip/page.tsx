@@ -16,7 +16,8 @@ import {
 import { HiFilter, HiSearch, HiUserGroup, HiX } from "react-icons/hi";
 import { Pagination } from "@/components/Pagination";
 import { postoGradRecords } from "services/routes/postos";
-import { FUNC_LABELS_SHORT, OPER_LABELS } from "@/constants/tripulantes";
+import { OPER_LABELS } from "@/constants/tripulantes";
+import { useFuncoes } from "@/hooks/queries";
 import { SearchUser } from "./components/searchUserTrip";
 import { TripRow } from "./components/TripRow";
 import { TripTableSkeleton } from "./components/TripTableSkeleton";
@@ -44,6 +45,7 @@ export default function TripPage() {
       PER_PAGE_OPTIONS,
       urlSearch,
    } = useTripList();
+   const { funcoes } = useFuncoes();
 
    // Local state for search input (immediate typing feedback)
    const [filterName, setFilterName] = useState(urlSearch);
@@ -169,12 +171,10 @@ export default function TripPage() {
                      {/* Filtro Função */}
                      <div className="w-full md:w-44">
                         <MultiSelect
-                           options={Object.entries(FUNC_LABELS_SHORT).map(
-                              ([key, value]) => ({
-                                 value: key,
-                                 label: value,
-                              })
-                           )}
+                           options={funcoes.map((f) => ({
+                              value: f.cod,
+                              label: f.nome_curto,
+                           }))}
                            selected={filters.func}
                            onChange={(values) =>
                               updateFilter("func", values as FuncType[])

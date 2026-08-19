@@ -1,7 +1,6 @@
 "use client";
 import { useCallback, useMemo, useState } from "react";
-import { FUNCOES_CONFIG, type FuncType } from "@/constants/tripulantes/funcoes";
-import { useSebo } from "@/hooks/queries";
+import { useFuncoes, useSebo } from "@/hooks/queries";
 import { usePersistedState } from "@/hooks/usePersistedState";
 import { defaultInfoCols } from "../constants";
 import type { InfoColumn } from "../types";
@@ -12,6 +11,7 @@ import type { InfoColumn } from "../types";
  * Mantém a `page.tsx` enxuta (só layout + seleção de UI).
  */
 export function useSeboFilters() {
+   const { posicoes: posicoesDe } = useFuncoes();
    const [opIn, setOpIn] = usePersistedState("estatistica.seboOpIn", true);
    const [opOp, setOpOp] = usePersistedState("estatistica.seboOpOp", true);
    const [opBa, setOpBa] = usePersistedState("estatistica.seboOpBa", true);
@@ -54,16 +54,14 @@ export function useSeboFilters() {
       if (seboFunc === "pil") {
          // pilotos: toggle OE filtra apenas O3; default exclui O3.
          if (soO3) return ["O3"];
-         return FUNCOES_CONFIG.pil.posicoes
-            .filter((p) => p.codigo !== "O3")
-            .map((p) => p.codigo);
+         return posicoesDe("pil")
+            .filter((p) => p.cod !== "O3")
+            .map((p) => p.cod);
       }
-      const funcType = seboFunc as FuncType;
-      const config =
-         funcType in FUNCOES_CONFIG ? FUNCOES_CONFIG[funcType] : null;
-      if (!config || config.posicoes.length === 0) return undefined;
-      return config.posicoes.map((p) => p.codigo);
-   }, [seboFunc, soO3]);
+      const posicoes = posicoesDe(seboFunc);
+      if (posicoes.length === 0) return undefined;
+      return posicoes.map((p) => p.cod);
+   }, [seboFunc, soO3, posicoesDe]);
 
    const {
       data: rawTrips,

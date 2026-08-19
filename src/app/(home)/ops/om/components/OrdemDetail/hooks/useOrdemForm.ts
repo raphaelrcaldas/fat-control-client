@@ -8,7 +8,7 @@ import type {
    Etiqueta,
 } from "services/routes/om/ordens";
 import { type CrewMember } from "services/routes/trips";
-import { type FuncaoTripulante } from "@/constants/tripulantes";
+import { type FuncType } from "@/constants/tripulantes";
 import { calcularEsfAer } from "../utils/ordemUtils";
 import {
    buildInitialState,
@@ -26,7 +26,7 @@ import {
    getOverlapErrors,
    type OrdemValidationFlags,
 } from "../utils/ordemValidation";
-import { useCreateOrdem, useUpdateOrdem } from "@/hooks/queries";
+import { useCreateOrdem, useFuncoes, useUpdateOrdem } from "@/hooks/queries";
 import { minutesToTime } from "utils/dateHandler";
 import { compareByAntiguidade } from "utils/sortByAntiguidade";
 
@@ -46,11 +46,17 @@ export const useOrdemForm = ({
    // TanStack Query mutations - invalidacao automatica
    const createOrdemMutation = useCreateOrdem();
    const updateOrdemMutation = useUpdateOrdem();
+   // Funções operadas pela unidade: definem as colunas da tripulação.
+   const { principais } = useFuncoes();
+   const codigosFunc = useMemo(
+      () => principais.map((f) => f.cod),
+      [principais]
+   );
 
    // Estado inicial calculado UMA vez por mount (o padrão anterior repetia
    // buildInitialState em cada inicializador de useState — 5 execuções)
    const initialRef = useRef<OrdemFormInitialState | null>(null);
-   initialRef.current ??= buildInitialState(ordem, isCloning);
+   initialRef.current ??= buildInitialState(ordem, isCloning, codigosFunc);
    const initial = initialRef.current;
 
    const [formData, setFormData] = useState<OrdemMissaoOut>(initial.formData);
@@ -83,7 +89,7 @@ export const useOrdemForm = ({
 
    // Sincronizar o formData quando a ordem ou isCloning mudar
    useEffect(() => {
-      const next = buildInitialState(ordem, isCloning);
+      const next = buildInitialState(ordem, isCloning, codigosFunc);
       initialRef.current = next;
 
       setFormData(next.formData);
@@ -99,7 +105,7 @@ export const useOrdemForm = ({
       } else {
          setIsReadOnlyMode(ordem.status !== "rascunho");
       }
-   }, [ordem, isCloning]);
+   }, [ordem, isCloning, codigosFunc]);
 
    const isEditable = !isReadOnlyMode;
 
@@ -180,7 +186,7 @@ export const useOrdemForm = ({
       setFormData({ ...formData, ...updates });
    };
 
-   const addTripulante = (funcao: FuncaoTripulante, tripulante: CrewMember) => {
+   const addTripulante = (funcao: FuncType, tripulante: CrewMember) => {
       if (!isEditable) return;
       if (tripulacao[funcao].some((t) => t.id === tripulante.id)) return;
 
@@ -194,10 +200,7 @@ export const useOrdemForm = ({
       });
    };
 
-   const removeTripulante = (
-      funcao: FuncaoTripulante,
-      tripulanteId: number
-   ) => {
+   const removeTripulante = (funcao: FuncType, tripulanteId: number) => {
       if (!isEditable) return;
       setTripulacao({
          ...tripulacao,
@@ -206,7 +209,7 @@ export const useOrdemForm = ({
    };
 
    const resetForm = () => {
-      const next = buildInitialState(ordem, isCloning);
+      const next = buildInitialState(ordem, isCloning, codigosFunc);
       setFormData(next.formData);
       setTripulacao(next.tripulacao);
       setCamposEspeciais(next.camposEspeciais);

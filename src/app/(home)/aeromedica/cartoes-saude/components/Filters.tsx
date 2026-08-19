@@ -1,5 +1,7 @@
 "use client";
 
+import { useMemo } from "react";
+
 import {
    TextInput,
    Spinner,
@@ -12,10 +14,7 @@ import { MdFlightTakeoff, MdPeopleAlt, MdFilterList } from "react-icons/md";
 import clsx from "clsx";
 import { MultiSelect } from "@/components/MultiSelect";
 import { postoGradRecords } from "@/constants/militar";
-import {
-   FUNCOES_PRINCIPAIS,
-   FUNC_LABELS,
-} from "@/constants/tripulantes/funcoes";
+import { useFuncoes } from "@/hooks/queries";
 import type { DateStatus } from "@/utils/dateStatus";
 import { getStatusConfig } from "../utils/dateStatus";
 import type { TripFilter, StatusFilter } from "../types";
@@ -27,11 +26,6 @@ import type { TripFilter, StatusFilter } from "../types";
 const PG_OPTIONS = postoGradRecords.map((pg) => ({
    value: pg.short,
    label: pg.mid,
-}));
-
-const FUNC_OPTIONS = FUNCOES_PRINCIPAIS.map((f) => ({
-   value: f,
-   label: FUNC_LABELS[f],
 }));
 
 // Cor e rótulo saem de `getStatusConfig` — a mesma fonte do farol da linha e
@@ -133,6 +127,11 @@ export default function Filters({
    hasActiveFilters,
    onClearFilters,
 }: FiltersProps) {
+   const { principais } = useFuncoes();
+   const funcOptions = useMemo(
+      () => principais.map((f) => ({ value: f.cod, label: f.nome })),
+      [principais]
+   );
    const activeStatus =
       STATUS_OPTIONS.find((o) => o.value === statusFilter) ?? STATUS_OPTIONS[0];
 
@@ -176,7 +175,7 @@ export default function Filters({
 
                   {/* Funcao */}
                   <MultiSelect
-                     options={FUNC_OPTIONS}
+                     options={funcOptions}
                      selected={filterFunc}
                      onChange={onFilterFuncChange}
                      placeholder="Função"

@@ -1,11 +1,8 @@
 import clsx from "clsx";
 import { useDroppable } from "@dnd-kit/core";
 import { HiX } from "react-icons/hi";
-import {
-   FUNCOES_CONFIG,
-   getPosicoesByFunc,
-} from "@/constants/tripulantes/funcoes";
 import type { FuncType } from "@/constants/tripulantes/funcoes";
+import { useFuncoes } from "@/hooks/queries";
 
 import type { DraftAssignedTrip } from "../../context/types";
 import { FuncBordoSelect } from "./FuncBordoSelect";
@@ -41,9 +38,10 @@ export function FuncGroupDropZone({
       data: { targetFunc: func },
    });
 
-   const config = FUNCOES_CONFIG[func];
-   const posicoes = getPosicoesByFunc(func);
-   const color = config.theme.color;
+   const { byCod, label, posicoes: posicoesDe } = useFuncoes();
+   const funcLabel = label(func);
+   const posicoes = posicoesDe(func);
+   const color = byCod[func]?.cor ?? "gray";
 
    const zoneClass = isOver
       ? "border-blue-400 bg-blue-100 ring-2 ring-blue-300"
@@ -61,7 +59,7 @@ export function FuncGroupDropZone({
             )}
          >
             <span>
-               {config.label}
+               {funcLabel}
                {trips.length > 0 && (
                   <span className="ml-1 font-normal">({trips.length})</span>
                )}
@@ -72,7 +70,7 @@ export function FuncGroupDropZone({
                   onClick={onRemoveAll}
                   className="-my-1 grid size-7 place-items-center rounded opacity-60 hover:opacity-100 pointer-coarse:size-11"
                   title="Limpar todos"
-                  aria-label={`Limpar todos de ${config.label}`}
+                  aria-label={`Limpar todos de ${funcLabel}`}
                >
                   <HiX className="h-3 w-3" />
                </button>
@@ -104,7 +102,7 @@ export function FuncGroupDropZone({
                      type="button"
                      onClick={() => onRemove(t.tripId)}
                      title={`Remover ${t.nomeGuerra}`}
-                     aria-label={`Remover ${t.nomeGuerra} da função ${config.label}`}
+                     aria-label={`Remover ${t.nomeGuerra} da função ${funcLabel}`}
                      className="-my-1 ml-0.5 grid size-7 shrink-0 place-items-center text-gray-400 hover:text-red-500 pointer-coarse:size-11"
                   >
                      <HiX className="h-3 w-3" />
@@ -127,7 +125,7 @@ export function FuncGroupDropZone({
 
             <InlineTripSearch
                func={func}
-               funcLabel={config.label}
+               funcLabel={funcLabel}
                trigClass={trigColorMap[color] ?? "text-gray-600"}
                assignedIds={assignedIds}
                onAdd={(trip) => onAddTrip(trip, func)}

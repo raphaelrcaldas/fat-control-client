@@ -1,12 +1,7 @@
 import clsx from "clsx";
 import { FaUsers } from "react-icons/fa";
-import {
-   FUNC_BORDO_ORDER,
-   FUNC_COLORS,
-   FUNC_ORDER,
-   FUNCOES_CONFIG,
-   type FuncType,
-} from "@/constants/tripulantes/funcoes";
+import { FUNC_BORDO_ORDER } from "@/constants/tripulantes/funcoes";
+import { useFuncoes } from "@/hooks/queries";
 import type { TripEtapaItem } from "services/routes/estatistica/etapas";
 
 export function TripulantesByFunc({
@@ -14,6 +9,8 @@ export function TripulantesByFunc({
 }: {
    tripulantes: TripEtapaItem[];
 }) {
+   const { label, colors: funcColors, ordem } = useFuncoes();
+
    const grouped = new Map<string, TripEtapaItem[]>();
    for (const t of tripulantes) {
       const list = grouped.get(t.func) ?? [];
@@ -29,12 +26,11 @@ export function TripulantesByFunc({
       });
    }
 
-   const orderedFuncs = [
-      ...FUNC_ORDER,
-      ...Array.from(grouped.keys()).filter(
-         (f) => !FUNC_ORDER.includes(f as FuncType)
-      ),
-   ].filter((f) => grouped.has(f));
+   // Ordem vem do catálogo da unidade; função fora dele (dado histórico)
+   // cai no fim, mas continua aparecendo.
+   const orderedFuncs = Array.from(grouped.keys()).sort(
+      (a, b) => ordem(a) - ordem(b)
+   );
 
    if (orderedFuncs.length === 0) {
       return (
@@ -50,10 +46,8 @@ export function TripulantesByFunc({
    return (
       <div className="flex flex-col gap-3">
          {orderedFuncs.map((func) => {
-            const config = FUNCOES_CONFIG[func as FuncType];
             const members = grouped.get(func)!;
-            const themeColor = config?.theme.color ?? "gray";
-            const colors = FUNC_COLORS[themeColor] ?? FUNC_COLORS.gray;
+            const colors = funcColors(func);
 
             return (
                <div
@@ -69,7 +63,7 @@ export function TripulantesByFunc({
                               colors.text
                            )}
                         >
-                           {config?.label ?? func}
+                           {label(func)}
                         </span>
                         <span
                            className={clsx(

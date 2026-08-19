@@ -1,11 +1,10 @@
 "use client";
 
-import { ReactNode } from "react";
+import { ReactNode, useMemo } from "react";
 import clsx from "clsx";
 import { Button } from "flowbite-react";
 import { usePersistedState } from "@/hooks/usePersistedState";
-import { useCrewIndisps } from "@/hooks/queries";
-import { FUNC_LABELS_SHORT, FUNCOES_PRINCIPAIS } from "@/constants/tripulantes";
+import { useCrewIndisps, useFuncoes } from "@/hooks/queries";
 import { CrewIndispList } from "services/routes/indisps";
 import { IndispModalProvider } from "./context/indispModalContext";
 import { IndispModal } from "./components/IndispModal";
@@ -19,12 +18,13 @@ import { LastIndisps } from "./components/LastIndisps";
 import { LastIndispsSkeleton } from "./components/LastIndispsSkeleton";
 import { useDateNavigation } from "./hooks/useDateNavigation";
 
-const funcOptions = FUNCOES_PRINCIPAIS.map((f) => ({
-   value: f,
-   label: FUNC_LABELS_SHORT[f],
-}));
-
 export default function IndispPage() {
+   const { principais } = useFuncoes();
+   const funcOptions = useMemo(
+      () => principais.map((f) => ({ value: f.cod, label: f.nome_curto })),
+      [principais]
+   );
+
    const [indispFunc, setIndispFunc] = usePersistedState(
       "indisp.indispFunc",
       "mc"

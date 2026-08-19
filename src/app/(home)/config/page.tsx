@@ -3,6 +3,7 @@
 import { MdSettings } from "react-icons/md";
 import { useAuth } from "@/app/context/auth";
 import { CargosSection } from "./components/CargosSection";
+import { FuncoesSection } from "./components/FuncoesSection";
 
 export default function ConfigPage() {
    const { activeOrg, orgs } = useAuth();
@@ -35,6 +36,7 @@ export default function ConfigPage() {
          </header>
 
          <CargosSection />
+         <FuncoesSection />
       </div>
    );
 }
