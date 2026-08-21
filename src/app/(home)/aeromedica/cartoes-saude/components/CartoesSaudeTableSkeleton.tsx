@@ -25,9 +25,9 @@ export default function CartoesSaudeTableSkeleton({
          <Table>
             <TableHead className="sticky top-0 z-10 border-b border-slate-200 bg-gray-50 text-xs text-gray-700 uppercase">
                <TableRow>
-                  <TableHeadCell className="w-10 px-3 py-3" />
+                  <TableHeadCell className="w-10 px-3 py-2" />
                   {BAR_WIDTHS.map((w, i) => (
-                     <TableHeadCell key={i} className="px-4 py-3">
+                     <TableHeadCell key={i} className="px-4 py-2">
                         <div
                            className={`h-3 ${w} animate-pulse rounded bg-slate-200 ${i > 0 ? "mx-auto" : ""}`}
                         />
@@ -38,14 +38,11 @@ export default function CartoesSaudeTableSkeleton({
             <TableBody>
                {Array.from({ length: rows }).map((_, r) => (
                   <TableRow key={r} className="border-b border-slate-200">
-                     <TableCell className="w-10 px-3 py-3 pointer-coarse:py-4">
+                     <TableCell className="w-10 px-3 py-2">
                         <div className="h-3 w-3 animate-pulse rounded-full bg-slate-200" />
                      </TableCell>
                      {BAR_WIDTHS.map((w, c) => (
-                        <TableCell
-                           key={c}
-                           className="px-4 py-3 pointer-coarse:py-4"
-                        >
+                        <TableCell key={c} className="px-4 py-2">
                            <div
                               className={`h-4 ${w} animate-pulse rounded bg-slate-200 ${c > 0 ? "mx-auto" : ""}`}
                            />

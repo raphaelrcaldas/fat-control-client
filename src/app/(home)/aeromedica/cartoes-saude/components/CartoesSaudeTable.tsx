@@ -104,7 +104,7 @@ const SortableHeader = memo(function SortableHeader({
    return (
       <TableHeadCell
          className={clsx(
-            "cursor-pointer px-4 py-3 font-semibold transition-colors select-none hover:text-gray-900",
+            "cursor-pointer px-4 py-2 font-semibold transition-colors select-none hover:text-gray-900",
             !alignStart && "text-center"
          )}
          onClick={() => onSort(field)}
@@ -178,7 +178,7 @@ const CartoesSaudeRow = memo(function CartoesSaudeRow({
          role="button"
          className="cursor-pointer border-b border-slate-200 transition-colors hover:bg-gray-50"
       >
-         <TableCell className="w-10 px-3 py-3 text-center pointer-coarse:py-4">
+         <TableCell className="w-10 px-3 py-2 text-center">
             {/* Farol da linha: pior status entre as datas preenchidas — antes
                 espelhava só o CEMAL e ficava verde com o IMAE vencido. */}
             <span
@@ -272,7 +272,7 @@ export default function CartoesSaudeTable({
          <Table hoverable>
             <TableHead className="sticky top-0 z-10 border-b border-slate-200 bg-gray-50 text-xs text-gray-700 uppercase">
                <TableRow>
-                  <TableHeadCell className="w-10 px-3 py-3">
+                  <TableHeadCell className="w-10 px-3 py-2">
                      <span className="sr-only">Situação</span>
                   </TableHeadCell>
                   <SortableHeader
@@ -283,10 +283,10 @@ export default function CartoesSaudeTable({
                      onSort={onSort}
                      alignStart
                   />
-                  <TableHeadCell className="px-4 py-3 text-center font-semibold">
+                  <TableHeadCell className="px-4 py-2 text-center font-semibold">
                      Prontuário
                   </TableHeadCell>
-                  <TableHeadCell className="w-12 px-4 py-3 text-center font-semibold">
+                  <TableHeadCell className="w-12 px-4 py-2 text-center font-semibold">
                      Ata
                   </TableHeadCell>
                   <SortableHeader

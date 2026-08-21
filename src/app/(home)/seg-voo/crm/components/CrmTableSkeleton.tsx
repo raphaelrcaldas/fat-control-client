@@ -25,7 +25,7 @@ export default function CrmTableSkeleton({ rows = 15 }: { rows?: number }) {
                      <TableHeadCell
                         key={i}
                         className={clsx(
-                           "px-4 py-3",
+                           "px-4 py-2",
                            // Coluna Militar: mesma âncora do cabeçalho real.
                            i === 0 && "sticky left-0 z-20 bg-gray-50"
                         )}
@@ -40,17 +40,14 @@ export default function CrmTableSkeleton({ rows = 15 }: { rows?: number }) {
             <TableBody>
                {Array.from({ length: rows }).map((_, r) => (
                   <TableRow key={r} className="border-b border-slate-200">
-                     <TableCell className="px-4 py-3 pointer-coarse:py-4">
+                     <TableCell className="px-4 py-2">
                         <div className="flex items-center gap-2.5">
                            <div className="h-3 w-3 shrink-0 animate-pulse rounded-full bg-slate-200" />
                            <div className="h-5 w-40 animate-pulse rounded bg-slate-200" />
                         </div>
                      </TableCell>
                      {BAR_WIDTHS.slice(1).map((w, c) => (
-                        <TableCell
-                           key={c}
-                           className="px-4 py-3 pointer-coarse:py-4"
-                        >
+                        <TableCell key={c} className="px-4 py-2">
                            <div
                               className={`h-5 ${w} animate-pulse rounded bg-slate-200`}
                            />

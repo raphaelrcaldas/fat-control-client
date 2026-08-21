@@ -47,7 +47,7 @@ export function IndispTable({
                            <tr>
                               <td
                                  colSpan={dates.length + 1}
-                                 className="px-4 py-3"
+                                 className="px-4 py-2"
                               >
                                  <div className="flex items-center justify-center gap-2">
                                     <div className="h-px flex-1 bg-gray-300" />

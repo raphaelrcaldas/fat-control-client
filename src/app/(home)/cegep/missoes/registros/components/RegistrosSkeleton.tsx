@@ -76,7 +76,7 @@ function TableSkeleton() {
                   {TABLE_HEADERS.map((h) => (
                      <th
                         key={h}
-                        className="px-4 py-3 text-xs font-semibold text-slate-400 uppercase"
+                        className="px-4 py-2 text-xs font-semibold text-slate-400 uppercase"
                      >
                         {h}
                      </th>

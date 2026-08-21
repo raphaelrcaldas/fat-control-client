@@ -62,16 +62,16 @@ export function ImportResultModal({ result, onClose }: ImportResultModalProps) {
                      >
                         <TableHead>
                            <TableRow className="text-center">
-                              <TableHeadCell className="bg-gray-200 px-3 py-3">
+                              <TableHeadCell className="bg-gray-200 px-3 py-2">
                                  Esforço Aéreo
                               </TableHeadCell>
-                              <TableHeadCell className="bg-gray-200 px-3 py-3">
+                              <TableHeadCell className="bg-gray-200 px-3 py-2">
                                  Antes
                               </TableHeadCell>
-                              <TableHeadCell className="bg-gray-200 px-3 py-3">
+                              <TableHeadCell className="bg-gray-200 px-3 py-2">
                                  Depois
                               </TableHeadCell>
-                              <TableHeadCell className="bg-gray-200 px-3 py-3">
+                              <TableHeadCell className="bg-gray-200 px-3 py-2">
                                  Variação
                               </TableHeadCell>
                            </TableRow>
@@ -129,17 +129,17 @@ export function ImportResultModal({ result, onClose }: ImportResultModalProps) {
                            })}
                            {/* Total */}
                            <TableRow className="text-center font-semibold text-gray-900">
-                              <TableCell className="bg-gray-100 px-3 py-3 text-left">
+                              <TableCell className="bg-gray-100 px-3 py-2 text-left">
                                  Total Esquadrão
                               </TableCell>
-                              <TableCell className="bg-gray-100 px-3 py-3">
+                              <TableCell className="bg-gray-100 px-3 py-2">
                                  {minutesToTime(result.total_antes)}
                               </TableCell>
-                              <TableCell className="bg-gray-100 px-3 py-3">
+                              <TableCell className="bg-gray-100 px-3 py-2">
                                  {minutesToTime(result.total_depois)}
                               </TableCell>
                               <TableCell
-                                 className={clsx("bg-gray-100 px-3 py-3", {
+                                 className={clsx("bg-gray-100 px-3 py-2", {
                                     "text-green-700":
                                        result.total_depois -
                                           result.total_antes >

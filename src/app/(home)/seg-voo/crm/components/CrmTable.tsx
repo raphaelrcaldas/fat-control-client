@@ -82,7 +82,7 @@ const SortableHeader = memo(function SortableHeader({
    return (
       <TableHeadCell
          className={clsx(
-            "cursor-pointer px-4 py-3 font-semibold transition-colors select-none hover:text-gray-900",
+            "cursor-pointer px-4 py-2 font-semibold transition-colors select-none hover:text-gray-900",
             className
          )}
          onClick={() => onSort(field)}
@@ -176,7 +176,7 @@ const CrmRow = memo(function CrmRow({
       >
          {/* Farol + identidade na mesma célula: fixa no scroll horizontal do
              mobile, para a data nunca ficar sem dono. */}
-         <TableCell className="group-hover/row:bg-primary-50 sticky left-0 z-10 bg-white px-4 py-3 font-medium whitespace-nowrap text-gray-900 uppercase transition-colors pointer-coarse:py-4">
+         <TableCell className="group-hover/row:bg-primary-50 sticky left-0 z-10 bg-white px-4 py-2 font-medium whitespace-nowrap text-gray-900 uppercase transition-colors">
             <div className="flex items-center gap-2.5">
                <span
                   aria-hidden
@@ -191,10 +191,10 @@ const CrmRow = memo(function CrmRow({
                <span className="sr-only">Status: {config.label}</span>
             </div>
          </TableCell>
-         <TableCell className="px-4 py-3 whitespace-nowrap pointer-coarse:py-4">
+         <TableCell className="px-4 py-2 whitespace-nowrap">
             <SimpleDateCell dateStr={item.crm?.data_realizacao} />
          </TableCell>
-         <TableCell className="px-4 py-3 whitespace-nowrap pointer-coarse:py-4">
+         <TableCell className="px-4 py-2 whitespace-nowrap">
             <DateCell dateStr={item.crm?.data_validade} />
          </TableCell>
       </TableRow>
@@ -271,7 +271,7 @@ const CrmTable = memo(function CrmTable({
                      onSort={onSort}
                      className="sticky left-0 z-20 bg-gray-50"
                   />
-                  <TableHeadCell className="px-4 py-3 font-semibold">
+                  <TableHeadCell className="px-4 py-2 font-semibold">
                      Realização
                   </TableHeadCell>
                   <SortableHeader

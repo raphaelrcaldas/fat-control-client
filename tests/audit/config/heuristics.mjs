@@ -14,8 +14,23 @@ export const HEURISTICS = {
     * - Mouse (`pointer: fine`): a precisao e outra; vale o minimo do WCAG 2.2
     *   (criterio 2.5.8), 24x24. Cobrar 44px aqui infla o shell e custa
     *   densidade — que num sistema operacional e qualidade, nao defeito.
+    *
+    * `band*`: alvo em FAIXA (linha de tabela/lista clicavel) tem regua propria.
+    * Ele atravessa o container, entao Fitts ja esta satisfeito na horizontal e
+    * o erro de toque so acontece no eixo vertical — mas como a regua olha o
+    * menor lado, a largura enorme fazia a ALTURA responder por 44px sozinha.
+    * Era isso que engordava tabela: linha a linha, ~30% de altura a mais,
+    * ~3 linhas a menos por tela. Numa faixa cobramos `bandMinPx` de altura;
+    * o alvo compacto de verdade (botao, icone) continua devendo os 44.
+    * `bandWidthFactor` define o que conta como faixa: largura >= N x a regua
+    * do ponteiro (44*3 = 132px no dedo).
     */
-   touchTarget: { coarseMinPx: 44, fineMinPx: 24 },
+   touchTarget: {
+      coarseMinPx: 44,
+      fineMinPx: 24,
+      bandMinPx: 32,
+      bandWidthFactor: 3,
+   },
 
    /**
     * Grade do Tailwind. O passo e 0.125rem, nao 0.25rem: a escala tem os meios

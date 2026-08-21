@@ -23,9 +23,9 @@ export default function PassaportesTableSkeleton({
          <Table>
             <TableHead className="border-b border-slate-200 bg-gray-50 text-xs text-gray-700 uppercase">
                <TableRow>
-                  <TableHeadCell className="w-10 px-3 py-3" />
+                  <TableHeadCell className="w-10 px-3 py-2" />
                   {BAR_WIDTHS.map((w, i) => (
-                     <TableHeadCell key={i} className="px-4 py-3">
+                     <TableHeadCell key={i} className="px-4 py-2">
                         <div
                            className={`h-5 ${w} animate-pulse rounded bg-slate-200`}
                         />
@@ -36,11 +36,11 @@ export default function PassaportesTableSkeleton({
             <TableBody>
                {Array.from({ length: rows }).map((_, r) => (
                   <TableRow key={r} className="border-b border-slate-200">
-                     <TableCell className="w-10 px-3 py-3">
+                     <TableCell className="w-10 px-3 py-2">
                         <div className="h-3 w-3 animate-pulse rounded-full bg-slate-200" />
                      </TableCell>
                      {BAR_WIDTHS.map((w, c) => (
-                        <TableCell key={c} className="px-4 py-3">
+                        <TableCell key={c} className="px-4 py-2">
                            <div
                               className={`h-5 ${w} animate-pulse rounded bg-slate-200`}
                            />

@@ -359,41 +359,41 @@ export default function AerodromoCadastro() {
                                  <tr>
                                     <th
                                        scope="col"
-                                       className="px-4 py-3 font-semibold"
+                                       className="px-4 py-2 font-semibold"
                                     >
                                        Nome
                                     </th>
                                     <th
                                        scope="col"
-                                       className="px-4 py-3 font-semibold"
+                                       className="px-4 py-2 font-semibold"
                                     >
                                        ICAO
                                     </th>
                                     <th
                                        scope="col"
-                                       className="px-4 py-3 font-semibold"
+                                       className="px-4 py-2 font-semibold"
                                     >
                                        Localização
                                     </th>
                                     <th
                                        scope="col"
-                                       className="px-4 py-3 font-semibold"
+                                       className="px-4 py-2 font-semibold"
                                     >
                                        País
                                     </th>
                                     <th
                                        scope="col"
-                                       className="px-4 py-3 font-semibold"
+                                       className="px-4 py-2 font-semibold"
                                     >
                                        UTC
                                     </th>
                                     <th
                                        scope="col"
-                                       className="px-4 py-3 font-semibold"
+                                       className="px-4 py-2 font-semibold"
                                     >
                                        Elevação
                                     </th>
-                                    <th scope="col" className="px-4 py-3">
+                                    <th scope="col" className="px-4 py-2">
                                        <span className="sr-only">Ações</span>
                                     </th>
                                  </tr>
@@ -411,7 +411,7 @@ export default function AerodromoCadastro() {
                                        )}
                                        onClick={() => setSelectedAero(aero)}
                                     >
-                                       <td className="px-4 py-3 font-medium text-gray-900">
+                                       <td className="px-4 py-2 font-medium text-gray-900">
                                           <div className="flex items-center gap-2">
                                              <LuMapPin className="h-4 w-4 text-blue-600" />
                                              <div className="flex flex-col gap-0.5">
@@ -441,12 +441,12 @@ export default function AerodromoCadastro() {
                                              </div>
                                           </div>
                                        </td>
-                                       <td className="px-4 py-3">
+                                       <td className="px-4 py-2">
                                           <span className="font-mono font-semibold text-red-600">
                                              {aero.codigo_icao}
                                           </span>
                                        </td>
-                                       <td className="px-4 py-3">
+                                       <td className="px-4 py-2">
                                           <div className="text-sm">
                                              {aero.cidade ? (
                                                 <div className="flex items-center gap-1.5 font-medium text-gray-900">
@@ -464,14 +464,14 @@ export default function AerodromoCadastro() {
                                              )}
                                           </div>
                                        </td>
-                                       <td className="px-4 py-3">
+                                       <td className="px-4 py-2">
                                           <div className="text-sm">
                                              <div className="mt-0.5 flex items-center gap-1.5 text-xs text-gray-500">
                                                 {aero.pais}
                                              </div>
                                           </div>
                                        </td>
-                                       <td className="px-4 py-3">
+                                       <td className="px-4 py-2">
                                           <div className="text-sm">
                                              <span className="font-mono font-semibold text-gray-700">
                                                 {aero.utc >= 0 ? "+" : ""}
@@ -479,7 +479,7 @@ export default function AerodromoCadastro() {
                                              </span>
                                           </div>
                                        </td>
-                                       <td className="px-4 py-3">
+                                       <td className="px-4 py-2">
                                           <div className="space-y-1">
                                              <div className="flex items-center gap-1.5 text-xs text-gray-600">
                                                 <MdTerrain className="h-3.5 w-3.5 text-green-600" />
@@ -487,7 +487,7 @@ export default function AerodromoCadastro() {
                                              </div>
                                           </div>
                                        </td>
-                                       <td className="px-4 py-3">
+                                       <td className="px-4 py-2">
                                           <div className="flex justify-end gap-2">
                                              <button
                                                 onClick={(e) => {

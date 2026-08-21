@@ -84,7 +84,10 @@ const customTheme = createTheme({
    },
    table: {
       root: { shadow: "hidden" },
-      head: { cell: { base: "bg-gray-50 px-6 py-3 dark:bg-gray-700" } },
+      // py-2 no cabecalho e no corpo: altura de linha e a mesma dos dois lados,
+      // e a linha fica na altura do conteudo. O que separa uma linha da outra
+      // numa tabela e a regra horizontal, nao o ar em volta do texto.
+      head: { cell: { base: "bg-gray-50 px-6 py-2 dark:bg-gray-700" } },
       body: { base: "", cell: { base: "px-6 py-2" } },
       row: { base: "border-gray-200 bg-white" },
    },

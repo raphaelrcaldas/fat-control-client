@@ -103,7 +103,7 @@ const SortableHeader = memo(function SortableHeader({
 
    return (
       <TableHeadCell
-         className="cursor-pointer px-4 py-3 font-semibold transition-colors select-none hover:text-gray-900"
+         className="cursor-pointer px-4 py-2 font-semibold transition-colors select-none hover:text-gray-900"
          onClick={() => onSort(field)}
          aria-sort={
             isActive
@@ -168,36 +168,36 @@ const PassaporteRow = memo(function PassaporteRow({
          }
          tabIndex={0}
          role="button"
-         className="hover:bg-primary-50 cursor-pointer border-b border-slate-200 font-mono transition-colors pointer-coarse:h-[44px]"
+         className="hover:bg-primary-50 cursor-pointer border-b border-slate-200 font-mono transition-colors"
       >
-         <TableCell className="w-10 px-3 py-3">
+         <TableCell className="w-10 px-3 py-2">
             <span
                role="img"
                className={clsx("inline-block h-3 w-3 rounded-full", config.dot)}
                aria-label={`Status: ${config.label}`}
             />
          </TableCell>
-         <TableCell className="px-4 py-3 font-medium whitespace-nowrap text-gray-900 uppercase">
+         <TableCell className="px-4 py-2 font-medium whitespace-nowrap text-gray-900 uppercase">
             <p className="font-semibold">
                {item.p_g} {item.nome_guerra}
             </p>
          </TableCell>
-         <TableCell className="px-4 py-3 text-center whitespace-nowrap">
+         <TableCell className="px-4 py-2 text-center whitespace-nowrap">
             <NumeroCell
                numero={item.passaporte?.passaporte}
                url={item.passaporte?.passaporte_url}
             />
          </TableCell>
-         <TableCell className="px-4 py-3 whitespace-nowrap">
+         <TableCell className="px-4 py-2 whitespace-nowrap">
             <DateCell dateStr={item.passaporte?.validade_passaporte} />
          </TableCell>
-         <TableCell className="px-4 py-3 text-center whitespace-nowrap">
+         <TableCell className="px-4 py-2 text-center whitespace-nowrap">
             <NumeroCell
                numero={item.passaporte?.visa}
                url={item.passaporte?.visa_url}
             />
          </TableCell>
-         <TableCell className="px-4 py-3 whitespace-nowrap">
+         <TableCell className="px-4 py-2 whitespace-nowrap">
             <DateCell dateStr={item.passaporte?.validade_visa} />
          </TableCell>
       </TableRow>
@@ -253,7 +253,7 @@ const PassaportesTable = memo(function PassaportesTable({
          <Table hoverable>
             <TableHead className="border-b border-slate-200 bg-gray-50 text-xs text-gray-700 uppercase">
                <TableRow>
-                  <TableHeadCell className="w-10 px-3 py-3">
+                  <TableHeadCell className="w-10 px-3 py-2">
                      <span className="sr-only">Status</span>
                   </TableHeadCell>
                   <SortableHeader
@@ -263,7 +263,7 @@ const PassaportesTable = memo(function PassaportesTable({
                      direction={sortDirection}
                      onSort={onSort}
                   />
-                  <TableHeadCell className="px-4 py-3 text-center font-semibold">
+                  <TableHeadCell className="px-4 py-2 text-center font-semibold">
                      Nº Passaporte
                   </TableHeadCell>
                   <SortableHeader
@@ -274,7 +274,7 @@ const PassaportesTable = memo(function PassaportesTable({
                      onSort={onSort}
                      center
                   />
-                  <TableHeadCell className="px-4 py-3 text-center font-semibold">
+                  <TableHeadCell className="px-4 py-2 text-center font-semibold">
                      Nº VISA
                   </TableHeadCell>
                   <SortableHeader

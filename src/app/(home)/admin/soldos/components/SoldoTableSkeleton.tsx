@@ -11,7 +11,7 @@ export default function SoldoTableSkeleton({ rows = 8 }: { rows?: number }) {
                <thead>
                   <tr className="border-b border-slate-200 bg-slate-50">
                      {COL_WIDTHS.map((w, i) => (
-                        <th key={i} className="px-4 py-3">
+                        <th key={i} className="px-4 py-2">
                            <div className={`h-3 ${w} rounded bg-slate-200`} />
                         </th>
                      ))}
@@ -20,31 +20,31 @@ export default function SoldoTableSkeleton({ rows = 8 }: { rows?: number }) {
                <tbody>
                   {Array.from({ length: rows }).map((_, r) => (
                      <tr key={r} className="border-b border-slate-200">
-                        <td className="px-4 py-3">
+                        <td className="px-4 py-2">
                            <div className="flex items-center gap-3">
                               <div className="h-5 w-10 rounded bg-slate-200" />
                               <div className="h-4 w-28 rounded bg-slate-100" />
                            </div>
                         </td>
-                        <td className="px-4 py-3">
+                        <td className="px-4 py-2">
                            <div className="h-5 w-36 rounded bg-slate-200" />
                         </td>
-                        <td className="px-4 py-3">
+                        <td className="px-4 py-2">
                            <div className="h-4 w-20 rounded bg-slate-100" />
                         </td>
-                        <td className="px-4 py-3">
+                        <td className="px-4 py-2">
                            <div className="h-4 w-16 rounded bg-slate-100" />
                         </td>
-                        <td className="px-4 py-3">
+                        <td className="px-4 py-2">
                            <div className="h-4 w-16 rounded bg-slate-100" />
                         </td>
-                        <td className="px-4 py-3">
+                        <td className="px-4 py-2">
                            <div className="flex items-center gap-1.5">
                               <div className="h-2 w-2 rounded-full bg-slate-200" />
                               <div className="h-3 w-16 rounded bg-slate-100" />
                            </div>
                         </td>
-                        <td className="px-4 py-3">
+                        <td className="px-4 py-2">
                            <div className="flex justify-end gap-2">
                               <div className="h-9 w-9 rounded bg-slate-100 pointer-coarse:h-[44px] pointer-coarse:w-[44px]" />
                               <div className="h-9 w-9 rounded bg-slate-100 pointer-coarse:h-[44px] pointer-coarse:w-[44px]" />
