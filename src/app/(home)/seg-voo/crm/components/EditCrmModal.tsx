@@ -143,7 +143,7 @@ const EditCrmModal = memo(function EditCrmModal({
                <div className="flex w-full justify-between">
                   <div>
                      {isEdit && (
-                        <PermBased resource="crm" requiredPerm="delete">
+                        <PermBased resource="seg_voo.crm" requiredPerm="delete">
                            <Button
                               color="red"
                               onClick={() => setShowDeleteConfirm(true)}
@@ -164,7 +164,7 @@ const EditCrmModal = memo(function EditCrmModal({
                         Cancelar
                      </Button>
                      <PermBased
-                        resource="crm"
+                        resource="seg_voo.crm"
                         requiredPerm={isEdit ? "update" : "create"}
                      >
                         {/* `primary` (marca da org), não `red`: vermelho aqui

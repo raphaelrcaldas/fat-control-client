@@ -56,7 +56,7 @@ export default function DadosBancariosPage() {
             />
          )}
 
-         <PermBased resource="dados_bancarios" requiredPerm="delete">
+         <PermBased resource="cegep.dados_bancarios" requiredPerm="delete">
             <OrfaosAlert
                count={orfaos.length}
                onReview={() => setShowCleanup(true)}

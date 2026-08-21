@@ -96,7 +96,7 @@ export function useTripLogs(id: number | null | undefined) {
       queryKey: tripKeys.logs(id!),
       queryFn: () =>
          getUserActionLogs({
-            resource: "trips",
+            resource: "ops.tripulantes",
             resource_id: id!,
          }),
       enabled: !!id,

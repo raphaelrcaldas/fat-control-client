@@ -107,7 +107,7 @@ export const TripIndisp = ({
                   )}
                </ModalBody>
                <ModalFooter className="flex justify-center gap-3 bg-gray-50">
-                  <PermBased requiredPerm="create" resource="indisp_trips">
+                  <PermBased requiredPerm="create" resource="ops.indisp">
                      <Button
                         color="red"
                         size="md"

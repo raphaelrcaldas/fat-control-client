@@ -74,7 +74,7 @@ function TripIndispRow({
          <TableCell className="h-10 p-1 font-semibold">{dateEnd}</TableCell>
          <TableCell className="h-10 p-1">
             <div className="flex items-center justify-center">
-               <PermBased requiredPerm="create" resource="indisp_trips">
+               <PermBased requiredPerm="create" resource="ops.indisp">
                   <Button
                      pill
                      color="light"

@@ -13,3 +13,7 @@ package-lock.json
 
 # Gerado pelo flowbite-react a cada build (nao versionado)
 .flowbite-react/class-list.json
+
+# Gerado por `uv run task rbac:export` na api. Reformatar aqui faria a
+# copia divergir de api/rbac-resources.json a cada regeracao.
+tests/rbac/resources.json

@@ -102,7 +102,10 @@ export function PropostasTab() {
                         ))}
                      </Select>
                   </div>
-                  <PermBased resource="comiss.propostas" requiredPerm="create">
+                  <PermBased
+                     resource="cegep.comiss.propostas"
+                     requiredPerm="create"
+                  >
                      <Button
                         size="sm"
                         color={vazio ? "light" : "primary"}
@@ -148,7 +151,10 @@ export function PropostasTab() {
                <p className="text-sm font-medium text-slate-600">
                   Nenhuma proposta para {ano}.
                </p>
-               <PermBased resource="comiss.propostas" requiredPerm="create">
+               <PermBased
+                  resource="cegep.comiss.propostas"
+                  requiredPerm="create"
+               >
                   <Button
                      size="sm"
                      color="primary"

@@ -161,7 +161,7 @@ function PromoRow({
             </p>
             <p className="text-xs text-gray-500">{formatDateFull(dataPromo)}</p>
          </div>
-         <PermBased resource="user" requiredPerm="update">
+         <PermBased resource="users" requiredPerm="update">
             {deletePromo.isPending ? (
                <Spinner size="sm" color="primary" />
             ) : (
@@ -181,7 +181,7 @@ function PromoRow({
 export function UserPromotions({ userId }: { userId: number }) {
    const { data: promos = [], isLoading, error } = useUserPromos(userId);
    const { hasPerm } = usePermBased();
-   const canManage = hasPerm("user", "update");
+   const canManage = hasPerm("users", "update");
 
    if (isLoading) {
       return (

@@ -225,7 +225,7 @@ export default function DetailDadosBancarios({
                   <div>
                      {isEdit && (
                         <PermBased
-                           resource="dados_bancarios"
+                           resource="cegep.dados_bancarios"
                            requiredPerm="delete"
                         >
                            <Button
@@ -248,7 +248,7 @@ export default function DetailDadosBancarios({
                         Cancelar
                      </Button>
                      <PermBased
-                        resource="dados_bancarios"
+                        resource="cegep.dados_bancarios"
                         requiredPerm={isEdit ? "update" : "create"}
                      >
                         <Button

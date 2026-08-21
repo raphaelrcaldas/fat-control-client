@@ -64,7 +64,7 @@ export function EtapasNavigatorModal({
 
    const acoes = (
       <>
-         <PermBased resource="etp_mis" requiredPerm="create">
+         <PermBased resource="estatistica.etapas" requiredPerm="create">
             <button
                onClick={() => onEditEtapa(selectedId)}
                title="Editar etapa"

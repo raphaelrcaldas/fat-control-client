@@ -73,7 +73,7 @@ export const MissaoCard = memo(function MissaoCard({
                </span>
             )}
             {!hasEtapas && (
-               <PermBased requiredPerm="create" resource="etp_mis">
+               <PermBased requiredPerm="create" resource="estatistica.etapas">
                   <div className="ml-auto flex items-center gap-0.5">
                      <button
                         onClick={() => onDeleteMissao(missao)}

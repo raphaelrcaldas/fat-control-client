@@ -122,7 +122,10 @@ export function PessoalTable({ op }: { op: OperacaoDetail }) {
                <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600">
                   {lista.length} {lista.length === 1 ? "militar" : "militares"}
                </span>
-               <PermBased resource="operacoes.militar" requiredPerm="create">
+               <PermBased
+                  resource="ops.operacoes.militar"
+                  requiredPerm="create"
+               >
                   <Button color="primary" size="xs" onClick={openCreate}>
                      <HiPlus className="mr-1 h-4 w-4" /> Associar
                   </Button>
@@ -245,7 +248,7 @@ export function PessoalTable({ op }: { op: OperacaoDetail }) {
                            <TableCell className="text-right">
                               <div className="flex items-center justify-end gap-2">
                                  <PermBased
-                                    resource="operacoes.militar"
+                                    resource="ops.operacoes.militar"
                                     requiredPerm="create"
                                  >
                                     <button
@@ -258,7 +261,7 @@ export function PessoalTable({ op }: { op: OperacaoDetail }) {
                                     </button>
                                  </PermBased>
                                  <PermBased
-                                    resource="operacoes.militar"
+                                    resource="ops.operacoes.militar"
                                     requiredPerm="delete"
                                  >
                                     <button

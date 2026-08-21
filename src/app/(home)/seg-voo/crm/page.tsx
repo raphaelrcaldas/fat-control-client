@@ -68,7 +68,7 @@ export default function CrmPage() {
          </header>
 
          {/* Documentos de inativos (gated por permissão de remoção) */}
-         <PermBased resource="crm" requiredPerm="delete">
+         <PermBased resource="seg_voo.crm" requiredPerm="delete">
             <OrfaosAlert />
          </PermBased>
 

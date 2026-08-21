@@ -75,7 +75,7 @@ export function PaopAnoBar({
          </span>
 
          <div className="ml-auto flex items-center gap-1.5">
-            <PermBased resource="instrucao-paop" requiredPerm="update">
+            <PermBased resource="instrucao.paop" requiredPerm="update">
                <Button
                   size="xs"
                   color="light"
@@ -95,7 +95,7 @@ export function PaopAnoBar({
                   <FaPenToSquare className="size-3.5" />
                </Button>
             </PermBased>
-            <PermBased resource="instrucao-paop" requiredPerm="delete">
+            <PermBased resource="instrucao.paop" requiredPerm="delete">
                <Button
                   size="xs"
                   color="red"

@@ -18,8 +18,8 @@ export default function ComissPage() {
    const { searchParams, setParams } = useSearchParamsUpdater();
    const { hasPerm } = usePermBased();
 
-   const canViewFiscal = hasPerm("orcamento", "view");
-   const canViewPropostas = hasPerm("comiss.propostas", "view");
+   const canViewFiscal = hasPerm("cegep.orcamento", "view");
+   const canViewPropostas = hasPerm("cegep.comiss.propostas", "view");
 
    const activeTabName = getStringParam(searchParams, "tab", "registros");
    const requestedTabIndex = Math.max(
@@ -98,12 +98,12 @@ export default function ComissPage() {
          {/* Conteudo da aba */}
          {activeTabIndex === 0 && <ListaPage />}
          {activeTabIndex === 1 && (
-            <PermBased resource="orcamento" requiredPerm="view">
+            <PermBased resource="cegep.orcamento" requiredPerm="view">
                <GestaoFiscalPage />
             </PermBased>
          )}
          {activeTabIndex === 2 && (
-            <PermBased resource="comiss.propostas" requiredPerm="view">
+            <PermBased resource="cegep.comiss.propostas" requiredPerm="view">
                <PropostasTab />
             </PermBased>
          )}

@@ -43,7 +43,7 @@ export function MissionRow({
                >
                   <IoMdInformationCircleOutline size={18} />
                </Button>
-               <PermBased resource={"comiss"} requiredPerm={"create"}>
+               <PermBased resource={"cegep.comiss"} requiredPerm={"create"}>
                   <Button
                      size="sm"
                      color="light"

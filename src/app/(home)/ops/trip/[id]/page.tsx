@@ -114,7 +114,10 @@ export default function TripDetailsPage() {
                       linha no mobile em vez de sumir (esconder tirava do
                       celular a ativação do tripulante e o link da ficha). */}
                   <div className="flex w-full items-center gap-2 sm:w-auto">
-                     <PermBased resource="trips" requiredPerm="update">
+                     <PermBased
+                        resource="ops.tripulantes"
+                        requiredPerm="update"
+                     >
                         <Button
                            color="light"
                            size="sm"

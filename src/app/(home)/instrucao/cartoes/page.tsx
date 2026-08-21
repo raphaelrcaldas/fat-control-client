@@ -31,7 +31,7 @@ export default function CartoesPage() {
          <CartoesMasthead count={isLoading ? null : data.length} />
 
          {/* Documentos de inativos (gated por permissão de remoção) */}
-         <PermBased resource="instrucao-cartoes" requiredPerm="delete">
+         <PermBased resource="instrucao.cartoes" requiredPerm="delete">
             <OrfaosAlert />
          </PermBased>
 

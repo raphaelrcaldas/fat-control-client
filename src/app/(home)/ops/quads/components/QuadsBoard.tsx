@@ -134,7 +134,7 @@ function EmptyBoard({ hasTypes }: { hasTypes: boolean }) {
                : "Esta organização ainda não tem tipos de quadrinho para esta função."}
          </p>
          {!hasTypes && (
-            <PermBased resource="quad_ops" requiredPerm="create">
+            <PermBased resource="ops.quadrinhos" requiredPerm="create">
                <Button
                   as={Link}
                   href="/ops/quads/gerenciar"

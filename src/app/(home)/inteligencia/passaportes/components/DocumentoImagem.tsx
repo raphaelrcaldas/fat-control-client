@@ -139,7 +139,7 @@ export function DocumentoImagem({ tripId, tipo, url }: DocumentoImagemProps) {
                onChange={handleFile}
             />
             <PermBased
-               resource="passaporte.image"
+               resource="inteligencia.passaportes.imagem"
                requiredPerm={currentUrl ? "update" : "create"}
             >
                <Button
@@ -159,7 +159,10 @@ export function DocumentoImagem({ tripId, tipo, url }: DocumentoImagemProps) {
                </Button>
             </PermBased>
             {currentUrl && (
-               <PermBased resource="passaporte.image" requiredPerm="delete">
+               <PermBased
+                  resource="inteligencia.passaportes.imagem"
+                  requiredPerm="delete"
+               >
                   <Button
                      size="xs"
                      color="red"

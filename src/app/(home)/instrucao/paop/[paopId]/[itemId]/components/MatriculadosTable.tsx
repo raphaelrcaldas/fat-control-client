@@ -75,7 +75,7 @@ export function MatriculadosTable({
                      <TableCell>
                         <div className="flex justify-center">
                            <PermBased
-                              resource="instrucao-paop"
+                              resource="instrucao.paop"
                               requiredPerm="update"
                            >
                               <Button

@@ -54,7 +54,7 @@ export function PlanoMetricCards({
                   Sem teto cadastrado para {ano} — os cartões mostram só o
                   comprometido, sem percentual nem saldo.
                </p>
-               <PermBased resource="orcamento" requiredPerm="create">
+               <PermBased resource="cegep.orcamento" requiredPerm="create">
                   <Button size="xs" color="light" onClick={onCadastrarTeto}>
                      Cadastrar teto
                   </Button>

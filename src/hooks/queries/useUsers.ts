@@ -93,7 +93,7 @@ export function useUserLogs(id: number | null | undefined) {
       queryKey: userKeys.logs(id!),
       queryFn: () =>
          getUserActionLogs({
-            resource: "user",
+            resource: "users",
             resource_id: id!,
          }),
       enabled: !!id,

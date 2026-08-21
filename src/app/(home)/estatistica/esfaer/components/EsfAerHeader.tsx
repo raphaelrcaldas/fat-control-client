@@ -71,7 +71,7 @@ export function EsfAerHeader({
                   </Label>
                </div>
 
-               <PermBased resource="esfaer" requiredPerm="create">
+               <PermBased resource="estatistica.esf_aer" requiredPerm="update">
                   <Button
                      color="red"
                      size="sm"

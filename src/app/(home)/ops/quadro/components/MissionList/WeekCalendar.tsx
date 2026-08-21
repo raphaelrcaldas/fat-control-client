@@ -121,7 +121,7 @@ export default function WeekCalendar({
    const [editingAeronave, setEditingAeronave] =
       useState<AeronavePublic | null>(null);
    const { hasPerm } = usePermBased();
-   const canEditAeronave = hasPerm("aeronaves", "update");
+   const canEditAeronave = hasPerm("ops.aeronaves", "update");
 
    const getWeekDays = () => {
       const days: Date[] = [];

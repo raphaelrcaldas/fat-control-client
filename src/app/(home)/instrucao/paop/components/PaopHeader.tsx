@@ -31,7 +31,7 @@ export function PaopHeader({ onCreate }: PaopHeaderProps) {
                </div>
             </div>
 
-            <PermBased resource="instrucao-paop" requiredPerm="create">
+            <PermBased resource="instrucao.paop" requiredPerm="create">
                <Button
                   color="primary"
                   onClick={onCreate}

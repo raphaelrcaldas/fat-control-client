@@ -68,7 +68,7 @@ export function PropostasList({
 
                      {/* O menu não pode abrir a proposta ao ser tocado. */}
                      <PermBased
-                        resource="comiss.propostas"
+                        resource="cegep.comiss.propostas"
                         requiredPerm="delete"
                      >
                         <div onClick={(e) => e.stopPropagation()}>
@@ -159,7 +159,7 @@ export function PropostasList({
                                   hover — botão emoldurado numa coluna de ação
                                   repetida pesa mais que a própria linha. */}
                               <PermBased
-                                 resource="comiss.propostas"
+                                 resource="cegep.comiss.propostas"
                                  requiredPerm="delete"
                               >
                                  <button

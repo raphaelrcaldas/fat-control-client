@@ -108,7 +108,7 @@ export default function TripPage() {
                   </div>
                </div>
 
-               <PermBased resource={"trips"} requiredPerm={"create"}>
+               <PermBased resource={"ops.tripulantes"} requiredPerm={"create"}>
                   <SearchUser />
                </PermBased>
             </div>
@@ -261,7 +261,10 @@ export default function TripPage() {
                         Limpar Filtros
                      </Button>
                   ) : (
-                     <PermBased resource={"trips"} requiredPerm={"create"}>
+                     <PermBased
+                        resource={"ops.tripulantes"}
+                        requiredPerm={"create"}
+                     >
                         <SearchUser />
                      </PermBased>
                   )}

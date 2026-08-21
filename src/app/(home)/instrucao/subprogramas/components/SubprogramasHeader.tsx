@@ -42,7 +42,7 @@ export function SubprogramasHeader({
                   </Badge>
                )}
                <PermBased
-                  resource="instrucao-subprogramas"
+                  resource="instrucao.subprogramas"
                   requiredPerm="create"
                >
                   <Button

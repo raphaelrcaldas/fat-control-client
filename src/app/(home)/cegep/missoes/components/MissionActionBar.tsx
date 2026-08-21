@@ -30,7 +30,7 @@ export function MissionActionBar({
          <div className="flex w-full justify-center gap-3">
             {!editMode ? (
                <>
-                  <PermBased resource="missoes_cegep" requiredPerm="create">
+                  <PermBased resource="cegep.missoes" requiredPerm="create">
                      <Button
                         color="primary"
                         onClick={onEdit}
@@ -40,7 +40,7 @@ export function MissionActionBar({
                      </Button>
                   </PermBased>
                   {onClone && (
-                     <PermBased resource="missoes_cegep" requiredPerm="create">
+                     <PermBased resource="cegep.missoes" requiredPerm="create">
                         <Button
                            color="gray"
                            onClick={onClone}
@@ -51,7 +51,7 @@ export function MissionActionBar({
                         </Button>
                      </PermBased>
                   )}
-                  <PermBased resource="missoes_cegep" requiredPerm="delete">
+                  <PermBased resource="cegep.missoes" requiredPerm="delete">
                      <Button
                         color="red"
                         onClick={onDelete}
@@ -72,7 +72,7 @@ export function MissionActionBar({
                         Cancelar
                      </Button>
                   )}
-                  <PermBased resource="missoes_cegep" requiredPerm="create">
+                  <PermBased resource="cegep.missoes" requiredPerm="create">
                      <Button
                         onClick={onSave}
                         color="primary"

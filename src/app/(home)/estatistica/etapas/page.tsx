@@ -67,7 +67,10 @@ export default function EtapasPage() {
                   </div>
                </div>
                <div className="flex items-center gap-2">
-                  <PermBased resource="etp_mis" requiredPerm="create">
+                  <PermBased
+                     resource="estatistica.etapas"
+                     requiredPerm="create"
+                  >
                      <Button
                         as={Link}
                         href="/estatistica/etapas/missao/nova"

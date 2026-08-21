@@ -62,7 +62,7 @@ export default function PropostaSandboxPage() {
    // deixaria a pessoa montar a proposta inteira para perder tudo, então o
    // sandbox inteiro entra em modo leitura: quem só tem `view` compara e
    // consulta, não edita.
-   const podeEditar = hasPerm("comiss.propostas", "update");
+   const podeEditar = hasPerm("cegep.comiss.propostas", "update");
 
    const idBruto = Number(params.id);
    const idValido = Number.isInteger(idBruto) && idBruto > 0;
@@ -328,7 +328,7 @@ export default function PropostaSandboxPage() {
       return () => window.removeEventListener("beforeunload", handler);
    }, [isDirty]);
 
-   if (!hasPerm("comiss.propostas", "view")) {
+   if (!hasPerm("cegep.comiss.propostas", "view")) {
       return (
          <AvisoTelaCheia
             titulo="Sem permissão"

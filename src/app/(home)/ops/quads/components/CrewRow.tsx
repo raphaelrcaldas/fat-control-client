@@ -29,7 +29,7 @@ export function CrewRow({ tripQuadRes, groupName, typeName }: CrewRowProps) {
          {tripQuadRes.quads.map((quad) => {
             return <QuadPopover key={quad.id} quad={quad} />;
          })}
-         <PermBased resource={"quad_ops"} requiredPerm={"create"}>
+         <PermBased resource={"ops.quadrinhos"} requiredPerm={"create"}>
             <button
                type="button"
                aria-label={`Adicionar quadrinho de ${tripQuadRes.trip.trig}`}

@@ -125,7 +125,7 @@ export default function EditCartoesModal({
                <div className="flex w-full items-center justify-between">
                   {isEdit ? (
                      <PermBased
-                        resource="instrucao-cartoes"
+                        resource="instrucao.cartoes"
                         requiredPerm="delete"
                      >
                         <Button
@@ -147,7 +147,7 @@ export default function EditCartoesModal({
                         Cancelar
                      </Button>
                      <PermBased
-                        resource="instrucao-cartoes"
+                        resource="instrucao.cartoes"
                         requiredPerm={isEdit ? "update" : "create"}
                      >
                         <Button

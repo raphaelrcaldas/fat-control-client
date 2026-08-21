@@ -113,12 +113,12 @@ export function OperacaoHeader({ op, onEdit, onDelete }: Props) {
 
                {/* Ações — centralizadas contra todo o bloco (alinham c/ o ícone) */}
                <div className="flex shrink-0 items-center gap-2 self-center">
-                  <PermBased resource="operacoes" requiredPerm="create">
+                  <PermBased resource="ops.operacoes" requiredPerm="create">
                      <Button color="gray" size="sm" onClick={onEdit}>
                         <MdEdit className="mr-1.5 h-4 w-4" /> Editar
                      </Button>
                   </PermBased>
-                  <PermBased resource="operacoes" requiredPerm="delete">
+                  <PermBased resource="ops.operacoes" requiredPerm="delete">
                      <Button color="red" outline size="sm" onClick={onDelete}>
                         <MdDelete className="mr-1.5 h-4 w-4" /> Excluir
                      </Button>

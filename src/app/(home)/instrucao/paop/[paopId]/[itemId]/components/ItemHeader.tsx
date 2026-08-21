@@ -55,7 +55,7 @@ export function ItemHeader({
                   </h1>
                </div>
 
-               <PermBased resource="instrucao-paop" requiredPerm="update">
+               <PermBased resource="instrucao.paop" requiredPerm="update">
                   <Button
                      color="primary"
                      onClick={onMatricular}

@@ -41,7 +41,7 @@ export default function OrcamentoAnualPage() {
    const searchParams = useSearchParams();
    const { push } = useToast();
    const { hasPerm } = usePermBased();
-   const canEdit = hasPerm("orcamento", "create");
+   const canEdit = hasPerm("cegep.orcamento", "create");
 
    const yearsRange = useMemo(() => getFiscalYears(), []);
 

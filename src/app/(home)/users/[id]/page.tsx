@@ -166,7 +166,7 @@ export default function UserDetailsPage() {
                            )}
                         </Button>
                      )}
-                     <PermBased resource="user" requiredPerm="delete">
+                     <PermBased resource="users" requiredPerm="delete">
                         <Button
                            color="light"
                            size="sm"

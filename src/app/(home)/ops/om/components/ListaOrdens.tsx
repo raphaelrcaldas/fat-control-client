@@ -199,7 +199,7 @@ const OrdemItem = memo(function OrdemItem({
                </div>
             </div>
             <div className="relative z-10 flex shrink-0 items-center gap-1">
-               <PermBased resource={"ordem_missao"} requiredPerm={"create"}>
+               <PermBased resource={"ops.ordem_missao"} requiredPerm={"create"}>
                   <button
                      onClick={handleClone}
                      className="rounded p-2 text-gray-400 transition-colors hover:bg-blue-50 hover:text-blue-500"
@@ -210,7 +210,10 @@ const OrdemItem = memo(function OrdemItem({
                   </button>
                </PermBased>
                {onDeleteOrdem && ordem.status === "rascunho" && (
-                  <PermBased resource={"ordem_missao"} requiredPerm={"delete"}>
+                  <PermBased
+                     resource={"ops.ordem_missao"}
+                     requiredPerm={"delete"}
+                  >
                      <button
                         onClick={handleDelete}
                         className="rounded p-2 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-500"
@@ -290,7 +293,7 @@ export const ListaOrdens = memo(function ListaOrdens({
                   <p className="text-lg text-gray-600">{emptyTitle}</p>
                   {onCreateOrdem && (
                      <PermBased
-                        resource={"ordem_missao"}
+                        resource={"ops.ordem_missao"}
                         requiredPerm={"create"}
                      >
                         <button

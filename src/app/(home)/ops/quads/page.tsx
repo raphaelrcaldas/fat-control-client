@@ -79,7 +79,7 @@ export default function QuadPage() {
                   </div>
                </div>
 
-               <PermBased resource="quad_ops" requiredPerm="create">
+               <PermBased resource="ops.quadrinhos" requiredPerm="create">
                   <Button
                      as={Link}
                      href="/ops/quads/gerenciar"
@@ -106,7 +106,7 @@ export default function QuadPage() {
             loadingTypes={loadingTypes}
          />
 
-         <PermBased resource="quad_ops" requiredPerm="create">
+         <PermBased resource="ops.quadrinhos" requiredPerm="create">
             <QuadsOrfaosAlert />
          </PermBased>
 

@@ -159,7 +159,7 @@ export function OrdemFormHeader({
                <>
                   {status !== "cancelada" && (
                      <PermBased
-                        resource={"ordem_missao"}
+                        resource={"ops.ordem_missao"}
                         requiredPerm={"update"}
                      >
                         <Button
@@ -175,7 +175,7 @@ export function OrdemFormHeader({
                   {/* Zona de ciclo de vida: transições derivadas do status */}
                   {transicoesStatus.includes("aprovar") && (
                      <PermBased
-                        resource={"ordem_missao.status"}
+                        resource={"ops.ordem_missao.status"}
                         requiredPerm={"update"}
                      >
                         <LifecycleButton
@@ -190,7 +190,7 @@ export function OrdemFormHeader({
                   )}
                   {transicoesStatus.includes("cancelar") && (
                      <PermBased
-                        resource={"ordem_missao.status"}
+                        resource={"ops.ordem_missao.status"}
                         requiredPerm={"update"}
                      >
                         <LifecycleButton
@@ -259,7 +259,7 @@ export function OrdemFormHeader({
                   {/* Zona de ciclo de vida: transições derivadas do status */}
                   {!isCloning && transicoesStatus.includes("aprovar") && (
                      <PermBased
-                        resource={"ordem_missao.status"}
+                        resource={"ops.ordem_missao.status"}
                         requiredPerm={"update"}
                      >
                         <LifecycleButton

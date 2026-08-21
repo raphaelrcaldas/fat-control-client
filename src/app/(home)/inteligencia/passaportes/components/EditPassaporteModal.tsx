@@ -208,7 +208,10 @@ const EditPassaporteModal = memo(function EditPassaporteModal({
 
    // Só-view abre o modal em modo leitura: sem a permissão de gravar
    // (update ao editar, create ao cadastrar) os campos ficam desabilitados.
-   const canSave = hasPerm("passaportes", isEdit ? "update" : "create");
+   const canSave = hasPerm(
+      "inteligencia.passaportes",
+      isEdit ? "update" : "create"
+   );
    const readOnly = !canSave;
 
    const upsertMutation = useUpsertPassaporte();
@@ -419,7 +422,10 @@ const EditPassaporteModal = memo(function EditPassaporteModal({
                <div className="flex w-full justify-between">
                   <div>
                      {isEdit && (
-                        <PermBased resource="passaportes" requiredPerm="delete">
+                        <PermBased
+                           resource="inteligencia.passaportes"
+                           requiredPerm="delete"
+                        >
                            <Button
                               color="red"
                               onClick={() => setShowDeleteConfirm(true)}
@@ -440,7 +446,7 @@ const EditPassaporteModal = memo(function EditPassaporteModal({
                         {readOnly || !isDirty ? "Fechar" : "Cancelar"}
                      </Button>
                      <PermBased
-                        resource="passaportes"
+                        resource="inteligencia.passaportes"
                         requiredPerm={isEdit ? "update" : "create"}
                      >
                         <Button

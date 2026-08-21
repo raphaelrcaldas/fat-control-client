@@ -9,7 +9,7 @@ export function useIndispLogs(
    enabled: boolean
 ) {
    const { data, isLoading } = useUserActionLogs(
-      { resource: "indisp", resource_id: indispId ?? undefined },
+      { resource: "ops.indisp", resource_id: indispId ?? undefined },
       enabled && !!indispId
    );
 

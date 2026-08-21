@@ -88,7 +88,7 @@ export default function OperacoesPage() {
                   </div>
                </div>
 
-               <PermBased resource="operacoes" requiredPerm="create">
+               <PermBased resource="ops.operacoes" requiredPerm="create">
                   <Button
                      color="primary"
                      onClick={() => setShowForm(true)}

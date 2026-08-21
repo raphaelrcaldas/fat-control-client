@@ -65,7 +65,10 @@ export function ComissPage({ detail, onEdit, onClose }: ComissPageProps) {
                   onClose={onClose}
                   actions={
                      <>
-                        <PermBased resource={"comiss"} requiredPerm={"create"}>
+                        <PermBased
+                           resource={"cegep.comiss"}
+                           requiredPerm={"create"}
+                        >
                            <Button
                               color="light"
                               size="sm"

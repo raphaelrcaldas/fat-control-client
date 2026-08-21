@@ -80,7 +80,7 @@ export default function EsfAerPage() {
                   isRefetching && "pointer-events-none opacity-50"
                )}
             >
-               <PermBased resource="esfaer" requiredPerm="create">
+               <PermBased resource="estatistica.esf_aer" requiredPerm="update">
                   <EsfAerAlertTable items={items} />
                </PermBased>
                <EsfAerTable

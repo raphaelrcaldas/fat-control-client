@@ -412,7 +412,7 @@ export function OrdemFormContent({
                            Documento
                         </Button>
                         <PermBased
-                           resource={"ordem_missao"}
+                           resource={"ops.ordem_missao"}
                            requiredPerm={"create"}
                         >
                            <Button
@@ -528,7 +528,7 @@ export function OrdemFormContent({
                       resource_id para consultar) e só para quem edita */}
                   {!isNew && ordem?.id && (
                      <PermBased
-                        resource={"ordem_missao"}
+                        resource={"ops.ordem_missao"}
                         requiredPerm={"update"}
                      >
                         <OrdemHistorico ordemId={ordem.id} />

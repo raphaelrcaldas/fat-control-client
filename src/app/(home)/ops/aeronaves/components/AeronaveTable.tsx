@@ -127,7 +127,7 @@ export function AeronaveTable({ aeronaves, onEdit }: AeronaveTableProps) {
                         </TableCell>
                         <TableCell>
                            <PermBased
-                              resource={"aeronaves"}
+                              resource={"ops.aeronaves"}
                               requiredPerm={"update"}
                            >
                               <button

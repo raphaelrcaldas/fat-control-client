@@ -311,7 +311,7 @@ export default function CartoesSaudePage() {
          </header>
 
          {/* Documentos de usuários inativos (gated por permissão de remoção) */}
-         <PermBased resource="cartoes-saude" requiredPerm="delete">
+         <PermBased resource="aeromedica.cartoes" requiredPerm="delete">
             <OrfaosAlert />
          </PermBased>
 

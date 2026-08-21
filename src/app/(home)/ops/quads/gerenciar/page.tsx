@@ -32,7 +32,7 @@ import { TypeFuncsModal } from "./components/TypeFuncsModal";
 export default function GerenciarQuadsPage() {
    const { push } = useToast();
    const { hasPerm } = usePermBased();
-   const canManage = hasPerm("quad_ops", "create");
+   const canManage = hasPerm("ops.quadrinhos", "create");
 
    const { data: groups = [], isLoading, error, refetch } = useQuadsTypes();
 

@@ -81,7 +81,7 @@ export default function AeronavesPage() {
                   </div>
                </div>
 
-               <PermBased resource={"aeronaves"} requiredPerm={"create"}>
+               <PermBased resource={"ops.aeronaves"} requiredPerm={"create"}>
                   <Button
                      color="primary"
                      onClick={handleOpenCreate}
@@ -124,7 +124,7 @@ export default function AeronavesPage() {
                   Cadastre a primeira aeronave para começar
                </p>
 
-               <PermBased resource={"aeronaves"} requiredPerm={"create"}>
+               <PermBased resource={"ops.aeronaves"} requiredPerm={"create"}>
                   <Button color="primary" onClick={handleOpenCreate} size="sm">
                      <HiPlus className="mr-2 h-4 w-4" />
                      Cadastrar Aeronave

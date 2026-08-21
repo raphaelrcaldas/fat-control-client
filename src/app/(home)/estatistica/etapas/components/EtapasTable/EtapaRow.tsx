@@ -218,7 +218,7 @@ export const EtapaRow = memo(function EtapaRow({
                >
                   <HiEye className="size-4" />
                </Button>
-               <PermBased resource="etp_mis" requiredPerm="create">
+               <PermBased resource="estatistica.etapas" requiredPerm="create">
                   <Button
                      size="xs"
                      color="light"

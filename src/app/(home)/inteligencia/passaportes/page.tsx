@@ -52,7 +52,7 @@ export default function PassaportesPage() {
    // mobile). Por isso o boot espera as duas queries e troca skeleton →
    // conteúdo num único commit, remontando a região inteira de uma vez.
    const { hasPerm } = usePermBased();
-   const canCleanOrfaos = hasPerm("passaportes", "delete");
+   const canCleanOrfaos = hasPerm("inteligencia.passaportes", "delete");
    const orfaosQuery = usePassaportesOrfaos(canCleanOrfaos);
    const booting = isLoading || (canCleanOrfaos && orfaosQuery.isLoading);
 
@@ -111,7 +111,10 @@ export default function PassaportesPage() {
          ) : (
             <>
                {/* Limpeza de registros de militares inativos (só quem pode remover) */}
-               <PermBased resource="passaportes" requiredPerm="delete">
+               <PermBased
+                  resource="inteligencia.passaportes"
+                  requiredPerm="delete"
+               >
                   <OrfaosAlert />
                </PermBased>
 

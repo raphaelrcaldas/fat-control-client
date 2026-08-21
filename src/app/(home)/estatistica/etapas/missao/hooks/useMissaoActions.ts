@@ -33,7 +33,7 @@ export function useMissaoActions({ draft, mode }: UseMissaoActionsArgs) {
    const { push } = useToast();
    const dispatch = useMissaoDraftDispatch();
    const { hasPerm } = usePermBased();
-   const canSave = hasPerm("etp_mis", "create");
+   const canSave = hasPerm("estatistica.etapas", "create");
 
    const queryClient = useQueryClient();
    const saveMutation = useSaveMissaoDraft();

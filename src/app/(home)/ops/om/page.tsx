@@ -322,7 +322,10 @@ export default function OrdensMissao() {
                      </div>
                   </div>
 
-                  <PermBased resource={"ordem_missao"} requiredPerm={"create"}>
+                  <PermBased
+                     resource={"ops.ordem_missao"}
+                     requiredPerm={"create"}
+                  >
                      {/* Link real: prefetch do Next e abrir em nova aba */}
                      <Button
                         as={Link}

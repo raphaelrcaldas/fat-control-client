@@ -86,7 +86,7 @@ export default function MissPage() {
                   </div>
                </div>
 
-               <PermBased resource="missoes_cegep" requiredPerm="create">
+               <PermBased resource="cegep.missoes" requiredPerm="create">
                   <Button
                      color="primary"
                      onClick={() => router.push("/cegep/missoes/new")}

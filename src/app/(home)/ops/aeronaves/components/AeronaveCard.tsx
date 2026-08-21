@@ -62,7 +62,7 @@ export function AeronaveCard({ aeronave, onEdit }: AeronaveCardProps) {
                   </p>
                </div>
             </div>
-            <PermBased resource={"aeronaves"} requiredPerm={"update"}>
+            <PermBased resource={"ops.aeronaves"} requiredPerm={"update"}>
                <button
                   onClick={() => onEdit(aeronave)}
                   // Hover sob `pointer-fine`: no toque o estado gruda depois

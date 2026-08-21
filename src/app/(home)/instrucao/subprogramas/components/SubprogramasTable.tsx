@@ -73,7 +73,7 @@ export function SubprogramasTable({
                      <TableCell>
                         <div className="flex items-center justify-center gap-1.5">
                            <PermBased
-                              resource="instrucao-subprogramas"
+                              resource="instrucao.subprogramas"
                               requiredPerm="update"
                            >
                               <Button
@@ -87,7 +87,7 @@ export function SubprogramasTable({
                               </Button>
                            </PermBased>
                            <PermBased
-                              resource="instrucao-subprogramas"
+                              resource="instrucao.subprogramas"
                               requiredPerm="delete"
                            >
                               <Button

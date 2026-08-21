@@ -34,7 +34,7 @@ export function DadosBancariosMasthead({
                </div>
             </div>
 
-            <PermBased resource="dados_bancarios" requiredPerm="create">
+            <PermBased resource="cegep.dados_bancarios" requiredPerm="create">
                <Button
                   color="primary"
                   onClick={onCreate}

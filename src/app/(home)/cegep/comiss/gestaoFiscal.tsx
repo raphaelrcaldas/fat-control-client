@@ -143,7 +143,7 @@ export function GestaoFiscalPage() {
                         ))}
                      </Select>
                   </div>
-                  <PermBased resource="orcamento" requiredPerm="create">
+                  <PermBased resource="cegep.orcamento" requiredPerm="create">
                      <Button
                         size="sm"
                         color="primary"
@@ -187,7 +187,10 @@ export function GestaoFiscalPage() {
                      <p className="text-sm font-medium text-slate-600">
                         Nenhum orçamento cadastrado para {ano}.
                      </p>
-                     <PermBased resource="orcamento" requiredPerm="create">
+                     <PermBased
+                        resource="cegep.orcamento"
+                        requiredPerm="create"
+                     >
                         <Button
                            size="sm"
                            color="primary"
