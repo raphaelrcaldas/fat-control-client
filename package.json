@@ -14,7 +14,10 @@
       "test:e2e": "playwright test",
       "test:e2e:ui": "playwright test --ui",
       "audit:ui": "node tests/audit/audit.mjs",
-      "format:check": "prettier --check ."
+      "format:check": "prettier --check .",
+      "test": "vitest run",
+      "test:watch": "vitest",
+      "rbac:matriz": "node tests/rbac/matriz.mjs"
    },
    "keywords": [],
    "author": "",
@@ -53,15 +56,19 @@
       "@axe-core/playwright": "^4.12.1",
       "@playwright/test": "^1.49.1",
       "@tanstack/react-query-devtools": "^5.91.2",
+      "@testing-library/dom": "^10.4.1",
+      "@testing-library/react": "^16.3.2",
       "@types/node": "^24.10.0",
       "@types/react": "^19.2.2",
       "baseline-browser-mapping": "^2.8.32",
+      "jsdom": "^29.1.1",
       "postcss": "^8.5.10",
       "prettier": "^3.7.4",
       "prettier-plugin-tailwindcss": "^0.8.0",
       "sass": "^1.78.0",
       "tailwindcss": "^4",
-      "typescript": "^7.0.2"
+      "typescript": "^7.0.2",
+      "vitest": "^4.1.11"
    },
    "overrides": {
       "postcss": "$postcss",

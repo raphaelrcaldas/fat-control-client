@@ -60,3 +60,7 @@ CLAUDE.md
 
 # Grafo de conhecimento gerado (graphify) — artefato, nao versionar
 graphify-out/
+
+# Concessões de RBAC exportadas do banco — dado POR AMBIENTE, gerado por
+# `uv run python -m scripts.rbac_grants` na api. Nunca versionar.
+tests/rbac/.grants.json

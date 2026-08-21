@@ -3,7 +3,6 @@
 import { useState, useMemo } from "react";
 import { usePathname } from "next/navigation";
 import clsx from "clsx";
-import type { IconType } from "react-icons";
 import { useAuth } from "@/app/context/auth";
 import SidebarItem from "./sidebarItem";
 import SidebarCollapse from "./sidebarCollapse";
@@ -13,25 +12,7 @@ import { Button } from "flowbite-react";
 import LoadingOverlay from "./loadingOverlay";
 import { useRoleBased } from "../../hooks/useRoleBased";
 import { usePermBased } from "../../hooks/usePermBased";
-
-interface FilteredNavChild {
-   icon: IconType;
-   label: string;
-   path: string;
-   resource?: string;
-   permission?: string;
-   roles?: readonly string[];
-}
-
-interface FilteredNavItem {
-   type: string;
-   icon: IconType;
-   label: string;
-   path?: string;
-   scope?: "system" | "tenant" | "shared";
-   roles?: readonly string[];
-   children?: readonly FilteredNavChild[] | FilteredNavChild[];
-}
+import { filtrarNavItems } from "./filtrarNavItems";
 
 interface SidebarProps {
    isOpen: boolean;
@@ -62,48 +43,10 @@ export default function SidebarWithFooter({
       // O loading será removido quando o componente desmontar após o logout
    };
 
-   const filteredNavItems = useMemo(() => {
-      const result: FilteredNavItem[] = [];
-
-      for (const item of navItems) {
-         // Gate por escopo: a org ativa define qual plano aparece.
-         // "system" só no contexto Sistema; "tenant" só dentro de uma
-         // unidade; "shared" (e ausência de scope) em ambos.
-         if (item.scope === "system" && !isSystemContext) continue;
-         if (item.scope === "tenant" && isSystemContext) continue;
-
-         // Verifica permissão baseada em roles do item principal
-         if (item.roles && item.roles.length > 0) {
-            if (!hasRole(item.roles)) continue;
-         }
-
-         // Se for um collapse, filtra os filhos numa única passagem
-         if (item.type === "collapse" && item.children) {
-            const filteredChildren = item.children.filter((child) => {
-               if ("resource" in child && "permission" in child) {
-                  return hasPerm(child.resource, child.permission);
-               }
-               if (
-                  "roles" in child &&
-                  Array.isArray(child.roles) &&
-                  child.roles.length > 0
-               ) {
-                  return hasRole(child.roles);
-               }
-               return true;
-            });
-
-            if (filteredChildren.length > 0) {
-               result.push({ ...item, children: filteredChildren });
-            }
-            continue;
-         }
-
-         result.push(item);
-      }
-
-      return result;
-   }, [hasRole, hasPerm, isSystemContext]);
+   const filteredNavItems = useMemo(
+      () => filtrarNavItems(navItems, { hasRole, hasPerm, isSystemContext }),
+      [hasRole, hasPerm, isSystemContext]
+   );
 
    return (
       <>

@@ -17,3 +17,6 @@ package-lock.json
 # Gerado por `uv run task rbac:export` na api. Reformatar aqui faria a
 # copia divergir de api/rbac-resources.json a cada regeracao.
 tests/rbac/resources.json
+
+# Idem .gitignore: artefato de relatorio, dado por ambiente.
+tests/rbac/.grants.json
