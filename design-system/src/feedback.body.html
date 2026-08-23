@@ -1,0 +1,201 @@
+<style>
+   .badge {
+      display: inline-flex;
+      align-items: center;
+      border-radius: var(--radius);
+      padding: 0.1rem 0.5rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+   }
+   .b-primary {
+      background: var(--primary-100);
+      color: var(--primary-800);
+   }
+   .b-gray {
+      background: var(--gray-100);
+      color: var(--gray-900);
+   }
+   .b-red {
+      background: oklch(0.936 0.032 17.717);
+      color: oklch(0.444 0.177 26.899);
+   }
+   .spin {
+      width: 1.5rem;
+      height: 1.5rem;
+      border-radius: 9999px;
+      border: 3px solid var(--gray-200);
+      border-top-color: var(--primary-600);
+      animation: sp 1s linear infinite;
+   }
+   @keyframes sp {
+      to {
+         transform: rotate(360deg);
+      }
+   }
+   .pg {
+      display: inline-flex;
+      border: 1px solid var(--gray-300);
+      border-radius: var(--radius);
+      overflow: hidden;
+   }
+   .pg a {
+      padding: 0.4rem 0.8rem;
+      font-size: 0.875rem;
+      color: var(--gray-500);
+      border-right: 1px solid var(--gray-300);
+      text-decoration: none;
+   }
+   .pg a:last-child {
+      border-right: 0;
+   }
+   .pg a.on {
+      background: var(--primary-50);
+      color: var(--primary-600);
+      font-weight: 600;
+   }
+   .backdrop {
+      background: rgb(15 23 42 / 0.45);
+      border-radius: var(--radius);
+      padding: 2rem 1rem;
+      display: grid;
+      place-items: center;
+   }
+   .modal {
+      background: #fff;
+      border-radius: var(--radius);
+      width: min(28rem, 100%);
+      box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.15);
+      overflow: hidden;
+   }
+   .modal header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.85rem 1.15rem;
+      border-bottom: 1px solid var(--gray-300);
+      font-weight: 600;
+   }
+   .modal .x {
+      display: grid;
+      place-items: center;
+      width: 1.75rem;
+      height: 1.75rem;
+      border-radius: var(--radius);
+      color: var(--gray-500);
+   }
+   .modal .bd {
+      padding: 1.15rem;
+      font-size: 0.875rem;
+      color: var(--slate-600);
+   }
+   .modal .ft {
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.6rem;
+      padding: 0 1.15rem 1.15rem;
+   }
+   .mbtn {
+      border-radius: var(--radius-md);
+      font-size: 0.875rem;
+      font-weight: 500;
+      padding: 0.45rem 0.9rem;
+      border: 1px solid transparent;
+      cursor: pointer;
+   }
+   .dot {
+      display: inline-block;
+      width: 0.5rem;
+      height: 0.5rem;
+      border-radius: 9999px;
+      margin-right: 0.4rem;
+      vertical-align: middle;
+   }
+</style>
+
+<section class="spec-sec">
+   <p class="spec-h">Badge</p>
+   <div class="spec-row">
+      <span class="badge b-primary">1º/11º GT</span>
+      <span class="badge b-gray">Rascunho</span>
+      <span class="badge b-red">Vencido</span>
+   </div>
+   <p class="spec-note">
+      <code class="spec-code">color="primary"</code>
+      (<code class="spec-code">bg-primary-100 text-primary-800</code>) é o chip
+      de identidade/marca — a unidade do usuário, por exemplo. Em tabela
+      <strong>cross-tenant</strong> a identidade do tenant é
+      <strong>dot colorido</strong>
+      (<span class="dot" style="background: var(--primary-600)"></span>
+      <code class="spec-code">THEME_META[tema].swatch</code>) + sigla em
+      <code class="spec-code">text-slate-700</code> — nunca Badge com fundo
+      colorido: branco sobre <code class="spec-code">*-500</code> reprova AA.
+   </p>
+</section>
+
+<section class="spec-sec">
+   <p class="spec-h">Spinner e paginação</p>
+   <div class="spec-row" style="gap: 2rem">
+      <div class="spin"></div>
+      <span class="pg">
+         <a href="#">‹</a><a href="#">1</a><a href="#" class="on">2</a
+         ><a href="#">3</a><a href="#">›</a>
+      </span>
+   </div>
+   <p class="spec-note">
+      Spinner
+      <strong>sempre com a prop <code class="spec-code">color</code></strong>
+      — sem ela pode não renderizar. Página ativa:
+      <code class="spec-code">bg-primary-50 text-primary-600</code>.
+   </p>
+</section>
+
+<section class="spec-sec">
+   <p class="spec-h">Modal</p>
+   <div class="backdrop">
+      <div class="modal">
+         <header>Excluir tripulante <span class="x">✕</span></header>
+         <div class="bd">
+            Esta ação remove
+            <strong class="up" style="text-transform: uppercase"
+               >CAP SILVA</strong
+            >
+            da escala. Não pode ser desfeita.
+         </div>
+         <div class="ft">
+            <button
+               class="mbtn"
+               style="
+                  background: #fff;
+                  border-color: var(--gray-200);
+                  color: var(--gray-900);
+               "
+            >
+               Cancelar
+            </button>
+            <button
+               class="mbtn"
+               style="background: var(--red-700); color: #fff"
+            >
+               Excluir
+            </button>
+         </div>
+      </div>
+   </div>
+   <p class="spec-note">
+      <code class="spec-code">content.inner: rounded</code> (não o
+      <code class="spec-code">rounded-lg</code> default),
+      <code class="spec-code">show.on: backdrop-blur-xs</code>, header com
+      <code class="spec-code">border-gray-300</code> e botão de fechar com alvo
+      de 44px no dedo, como todo controle. <br /><strong
+         >Armadilhas conhecidas:</strong
+      >
+      <code class="spec-code">Esc</code> só fecha com
+      <code class="spec-code">dismissible</code>; o focus trap vaza para o
+      chrome do app — corrigir com <code class="spec-code">inert</code> no
+      shell. Modal com abas de alturas diferentes precisa de
+      <code class="spec-code">min-h-*</code> mais ancoragem no topo (<code
+         class="spec-code"
+         >className="items-start py-8"</code
+      >), senão pula ao trocar de aba.
+   </p>
+</section>

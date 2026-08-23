@@ -64,3 +64,6 @@ graphify-out/
 # Concessões de RBAC exportadas do banco — dado POR AMBIENTE, gerado por
 # `uv run python -m scripts.rbac_grants` na api. Nunca versionar.
 tests/rbac/.grants.json
+
+# Fichas do design system geradas por design-system/build.py — artefato
+design-system/dist/

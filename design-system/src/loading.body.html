@@ -1,0 +1,216 @@
+<style>
+   .sk {
+      background: var(--slate-200);
+      border-radius: var(--radius);
+      animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+   }
+   .sk-weak {
+      background: var(--slate-100);
+   }
+   @keyframes pulse {
+      50% {
+         opacity: 0.5;
+      }
+   }
+   .frame {
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius);
+      overflow: hidden;
+      background: #fff;
+   }
+   .frow {
+      display: grid;
+      grid-template-columns: 5rem 4rem 1fr 8rem 2rem;
+      gap: 1.5rem;
+      align-items: center;
+      padding: 0.5rem 1.5rem;
+      border-top: 1px solid var(--gray-200);
+      font-size: 0.875rem;
+   }
+   .fhead {
+      background: var(--gray-50);
+      border-top: 0;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--gray-700);
+   }
+   .cmp {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 1.5rem;
+      align-items: start;
+   }
+   .cmp figcaption {
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 0.6875rem;
+      color: var(--slate-500);
+      margin-bottom: 0.5rem;
+   }
+   .empty {
+      display: grid;
+      place-items: center;
+      gap: 0.5rem;
+      padding: 2.5rem 1rem;
+      text-align: center;
+      border: 1px solid var(--slate-200);
+      border-radius: var(--radius);
+      background: #fff;
+   }
+   .empty .ic {
+      display: grid;
+      place-items: center;
+      width: 2.75rem;
+      height: 2.75rem;
+      border-radius: 9999px;
+      background: var(--slate-100);
+      color: var(--slate-400);
+      font-size: 1.25rem;
+   }
+   .mono {
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 0.8125rem;
+      color: var(--slate-600);
+   }
+   .up {
+      text-transform: uppercase;
+      font-weight: 600;
+   }
+</style>
+
+<section class="spec-sec">
+   <p class="spec-h">Skeleton espelha o layout real — zero layout-shift</p>
+   <div class="cmp">
+      <figure style="margin: 0">
+         <figcaption>carregando</figcaption>
+         <div class="frame">
+            <div class="frow fhead">
+               <div>Trigrama</div>
+               <div>P/G</div>
+               <div>Nome</div>
+               <div>Função</div>
+               <div></div>
+            </div>
+            <div class="frow">
+               <div class="sk" style="height: 0.875rem; width: 2.5rem"></div>
+               <div class="sk" style="height: 0.875rem; width: 2rem"></div>
+               <div class="sk" style="height: 0.875rem; width: 70%"></div>
+               <div
+                  class="sk sk-weak"
+                  style="height: 0.875rem; width: 90%"
+               ></div>
+               <div
+                  class="sk sk-weak"
+                  style="height: 0.875rem; width: 1rem"
+               ></div>
+            </div>
+            <div class="frow">
+               <div class="sk" style="height: 0.875rem; width: 2.5rem"></div>
+               <div class="sk" style="height: 0.875rem; width: 2rem"></div>
+               <div class="sk" style="height: 0.875rem; width: 55%"></div>
+               <div
+                  class="sk sk-weak"
+                  style="height: 0.875rem; width: 75%"
+               ></div>
+               <div
+                  class="sk sk-weak"
+                  style="height: 0.875rem; width: 1rem"
+               ></div>
+            </div>
+            <div class="frow">
+               <div class="sk" style="height: 0.875rem; width: 2.5rem"></div>
+               <div class="sk" style="height: 0.875rem; width: 2rem"></div>
+               <div class="sk" style="height: 0.875rem; width: 80%"></div>
+               <div
+                  class="sk sk-weak"
+                  style="height: 0.875rem; width: 60%"
+               ></div>
+               <div
+                  class="sk sk-weak"
+                  style="height: 0.875rem; width: 1rem"
+               ></div>
+            </div>
+         </div>
+      </figure>
+      <figure style="margin: 0">
+         <figcaption>carregado — mesma altura, mesmas colunas</figcaption>
+         <div class="frame">
+            <div class="frow fhead">
+               <div>Trigrama</div>
+               <div>P/G</div>
+               <div>Nome</div>
+               <div>Função</div>
+               <div></div>
+            </div>
+            <div class="frow">
+               <div class="mono">SVC</div>
+               <div class="up">CAP</div>
+               <div class="up">Silva</div>
+               <div>Comandante</div>
+               <div>⋯</div>
+            </div>
+            <div class="frow">
+               <div class="mono">ODM</div>
+               <div class="up">1T</div>
+               <div class="up">Oliveira</div>
+               <div>Copiloto</div>
+               <div>⋯</div>
+            </div>
+            <div class="frow">
+               <div class="mono">MRA</div>
+               <div class="up">2S</div>
+               <div class="up">Moreira</div>
+               <div>Mecânico</div>
+               <div>⋯</div>
+            </div>
+         </div>
+      </figure>
+   </div>
+   <p class="spec-note">
+      Blocos em
+      <code class="spec-code">animate-pulse rounded bg-slate-200</code> (<code
+         class="spec-code"
+         >bg-slate-100</code
+      >
+      para secundário). <strong>Co-localizar</strong> o skeleton junto da
+      feature (<code class="spec-code">XBoardSkeleton.tsx</code> ao lado de
+      <code class="spec-code">XBoard.tsx</code>) — nada de genérico com
+      <code class="spec-code">rows</code>/<code class="spec-code">cols</code>
+      reusado entre telas. Contagem de linhas fixa, nunca
+      <code class="spec-code">Math.random()</code>: dá flicker e hydration
+      mismatch. Preferir <strong>shell imediato</strong> — toolbar e header de
+      cara, skeleton só onde depende de dado.
+   </p>
+</section>
+
+<section class="spec-sec">
+   <p class="spec-h">Vazio ≠ falha</p>
+   <div class="cmp">
+      <div class="empty">
+         <div class="ic">◎</div>
+         <div style="font-weight: 600">Nenhum tripulante escalado</div>
+         <div style="font-size: 0.8125rem; color: var(--slate-500)">
+            Adicione um tripulante para começar a escala.
+         </div>
+      </div>
+      <div class="empty" style="border-color: oklch(0.885 0.062 18.334)">
+         <div
+            class="ic"
+            style="background: oklch(0.936 0.032 17.717); color: var(--red-600)"
+         >
+            !
+         </div>
+         <div style="font-weight: 600">Não foi possível carregar</div>
+         <div style="font-size: 0.8125rem; color: var(--slate-500)">
+            Tente novamente em instantes.
+         </div>
+      </div>
+   </div>
+   <p class="spec-note">
+      <strong>Estado de erro tem tela própria.</strong> Anunciar falha de carga
+      como "lista vazia" já aconteceu no FatBird — a raiz era o provider
+      engolindo o <code class="spec-code">isError</code>. Vazio convida à ação;
+      falha admite o problema e oferece recuperação.
+   </p>
+</section>

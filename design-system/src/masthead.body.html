@@ -1,0 +1,171 @@
+<style>
+   .mast {
+      position: relative;
+      overflow: hidden;
+      border-radius: var(--radius);
+      border: 1px solid var(--slate-200);
+      background: #fff;
+      padding: 1rem 1.5rem;
+      box-shadow: var(--shadow-sm);
+   }
+   .spine {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 100%;
+      width: 4px;
+      background: var(--primary-600);
+   }
+   .mast .line {
+      position: relative;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+   }
+   .ident {
+      display: flex;
+      align-items: center;
+      gap: 0.9rem;
+   }
+   .ibox {
+      display: grid;
+      place-items: center;
+      width: 3rem;
+      height: 3rem;
+      flex-shrink: 0;
+      border-radius: var(--radius-md);
+      background: var(--primary-50);
+      color: var(--primary-600);
+      box-shadow: inset 0 0 0 1px var(--primary-100);
+      font-size: 1.25rem;
+   }
+   .eyebrow {
+      color: var(--primary-600);
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+   }
+   .mast h1 {
+      margin: 0.15rem 0 0;
+      font-size: 1.5rem;
+      line-height: 1;
+      font-weight: 800;
+      letter-spacing: -0.025em;
+      color: var(--slate-900);
+   }
+   .cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      border-radius: var(--radius-md);
+      background: var(--primary-700);
+      color: #fff;
+      font-size: 0.875rem;
+      font-weight: 500;
+      padding: 0.5rem 1rem;
+      border: 0;
+      cursor: pointer;
+   }
+   .cta-slate {
+      background: var(--slate-600);
+   }
+   .page {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+   }
+   .ghost {
+      border: 1px dashed var(--slate-300);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      text-align: center;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 0.6875rem;
+      color: var(--slate-400);
+   }
+   .gap-tag {
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 0.625rem;
+      color: var(--primary-600);
+      text-align: center;
+   }
+</style>
+
+<section class="spec-sec">
+   <p class="spec-h">Masthead de tenant — a referência canônica</p>
+   <div class="page">
+      <header class="mast">
+         <span class="spine" aria-hidden="true"></span>
+         <div class="line">
+            <div class="ident">
+               <div class="ibox">✈</div>
+               <div>
+                  <div class="eyebrow">Operações</div>
+                  <h1>Missões de transporte</h1>
+               </div>
+            </div>
+            <button class="cta">＋ Nova missão</button>
+         </div>
+      </header>
+      <div class="gap-tag">↕ space-y-2 — o gap é do root da página</div>
+      <div class="ghost">conteúdo da página</div>
+   </div>
+   <p class="spec-note">
+      Fonte:
+      <code class="spec-code">client/src/app/(home)/ops/operacoes/page.tsx</code
+      >. Espinha <code class="spec-code">bg-primary-600</code> de 1px de largura
+      ecoando a espinha dos cards; caixa de ícone
+      <code class="spec-code">h-12 w-12 rounded-md ring-1 ring-inset</code> com
+      ícone <code class="spec-code">h-6 w-6</code>; eyebrow em
+      <strong><code class="spec-code">primary-600</code>, não 500</strong> — o
+      500 reprova contraste AA sobre branco. O header
+      <strong>não</strong> carrega <code class="spec-code">mb-*</code>.
+   </p>
+</section>
+
+<section class="spec-sec">
+   <p class="spec-h">Exceção — admin de SISTEMA é slate neutro</p>
+   <header class="mast">
+      <span
+         class="spine"
+         style="background: var(--slate-600)"
+         aria-hidden="true"
+      ></span>
+      <div class="line">
+         <div class="ident">
+            <div
+               class="ibox"
+               style="
+                  background: var(--slate-100);
+                  color: var(--slate-600);
+                  box-shadow: inset 0 0 0 1px var(--slate-200);
+               "
+            >
+               ▤
+            </div>
+            <div>
+               <div class="eyebrow" style="color: var(--slate-600)">
+                  Administração
+               </div>
+               <h1>Logs de auditoria</h1>
+            </div>
+         </div>
+         <button class="cta cta-slate">Exportar</button>
+      </div>
+   </header>
+   <p class="spec-note">
+      Tela cross-tenant não pertence a nenhuma organização, então
+      <code class="spec-code">primary-*</code> — que é a marca da org
+      <em>ativa</em> — seria mentira; e
+      <code class="spec-code">red-*</code> está reservado a perigo. Espinha
+      <code class="spec-code">bg-slate-600</code>, eyebrow
+      <code class="spec-code">text-slate-600</code>, Badge
+      <code class="spec-code">gray</code>, Button
+      <code class="spec-code">light</code>. Referência:
+      <code class="spec-code">admin/logs/components/LogsHeader.tsx</code>.
+   </p>
+</section>

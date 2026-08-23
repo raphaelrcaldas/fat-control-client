@@ -1,0 +1,193 @@
+<style>
+   .field {
+      display: block;
+      margin-bottom: 1rem;
+      max-width: 26rem;
+   }
+   .lbl {
+      display: block;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--gray-900);
+      margin-bottom: 0.4rem;
+   }
+   .inp {
+      display: block;
+      width: 100%;
+      box-sizing: border-box;
+      background: #fff;
+      border: 1px solid var(--gray-300);
+      border-radius: var(--radius);
+      color: var(--gray-900);
+      font-size: 0.875rem;
+      padding: 0.55rem 0.75rem;
+      font-family: inherit;
+   }
+   .inp::placeholder {
+      color: var(--gray-500);
+   }
+   .inp:focus {
+      outline: none;
+      border-color: var(--primary-500);
+      box-shadow: 0 0 0 1px var(--primary-500);
+   }
+   .inp-focus {
+      border-color: var(--primary-500);
+      box-shadow: 0 0 0 1px var(--primary-500);
+   }
+   .inp-err {
+      border-color: var(--red-600);
+   }
+   .err {
+      margin: 0.25rem 0 0;
+      font-size: 0.8125rem;
+      color: var(--red-600);
+   }
+   .addon {
+      display: flex;
+   }
+   .addon span {
+      display: inline-flex;
+      align-items: center;
+      padding: 0 0.75rem;
+      font-size: 0.875rem;
+      color: var(--gray-500);
+      background: var(--gray-100);
+      border: 1px solid var(--gray-300);
+      border-right: 0;
+      border-start-start-radius: var(--radius);
+      border-end-start-radius: var(--radius);
+   }
+   .addon .inp {
+      border-radius: 0 var(--radius) var(--radius) 0;
+   }
+   .cbrow {
+      display: flex;
+      align-items: center;
+      gap: 0.55rem;
+      font-size: 0.875rem;
+      margin-bottom: 0.6rem;
+   }
+   .cb {
+      width: 1rem;
+      height: 1rem;
+      border-radius: 3px;
+      border: 1px solid var(--gray-300);
+      background: #fff;
+      display: grid;
+      place-items: center;
+   }
+   .cb-on {
+      background: var(--primary-600);
+      border-color: var(--primary-600);
+      color: #fff;
+      font-size: 0.7rem;
+      line-height: 1;
+   }
+</style>
+
+<section class="spec-sec">
+   <p class="spec-h">Campos — fundo branco, foco com ring de 1px</p>
+   <div
+      style="
+         display: grid;
+         gap: 0;
+         grid-template-columns: repeat(2, minmax(0, 1fr));
+         column-gap: 2rem;
+      "
+   >
+      <div>
+         <label class="field">
+            <span class="lbl">Nome de guerra</span>
+            <input
+               class="inp"
+               placeholder="SILVA"
+               style="text-transform: uppercase"
+            />
+         </label>
+
+         <label class="field">
+            <span class="lbl">Origem</span>
+            <select class="inp">
+               <option>Selecione…</option>
+               <option>SBBR — Brasília</option>
+            </select>
+         </label>
+
+         <div class="field">
+            <span class="lbl">Estado de foco</span>
+            <input
+               class="inp inp-focus"
+               value="focus:ring-1 focus:ring-primary-500"
+               readonly
+            />
+         </div>
+      </div>
+
+      <div>
+         <div class="field">
+            <span class="lbl">Horas de voo</span>
+            <div class="addon">
+               <span>hh:mm</span>
+               <input class="inp" placeholder="02:05" />
+            </div>
+         </div>
+
+         <div class="field">
+            <span class="lbl">CPF</span>
+            <input class="inp inp-err" value="123.456.789-00" readonly />
+            <p class="err">CPF inválido</p>
+         </div>
+
+         <label class="field">
+            <span class="lbl">Observações</span>
+            <textarea
+               class="inp"
+               rows="2"
+               placeholder="Texto livre…"
+            ></textarea>
+         </label>
+      </div>
+   </div>
+   <p class="spec-note">
+      <strong
+         >Por que <code class="spec-code">focus:ring-1</code> e não só a
+         borda:</strong
+      >
+      sem largura de ring, o "foco" era apenas a troca de cor de uma borda de
+      1px — invisível na régua de acessibilidade. Vale inclusive para input de
+      data, onde o Chromium não dá outline nativo nenhum. O addon troca o raio:
+      <code class="spec-code">withAddon on: rounded-r / off: rounded</code>.
+   </p>
+</section>
+
+<section class="spec-sec">
+   <p class="spec-h">Checkbox</p>
+   <div class="cbrow"><span class="cb cb-on">✓</span> Pernoite na origem</div>
+   <div class="cbrow">
+      <span class="cb"></span> Considerar acréscimo de deslocamento
+   </div>
+   <p class="spec-note">
+      <code class="spec-code">color="primary"</code>
+      (<code class="spec-code">text-primary-600 focus:ring-primary-600</code>).
+      O alvo de 44px vem do <code class="spec-code">&lt;label&gt;</code> em
+      volta, não do quadradinho — o harness de auditoria mede o <em>input</em>,
+      então checkbox com hit-area no label sempre aparece como achado e deve ser
+      verificado no screenshot antes de virar defeito.
+   </p>
+</section>
+
+<section class="spec-sec">
+   <p class="spec-h">Erro de validação (422) nunca é genérico</p>
+   <p class="spec-note">
+      O backend devolve
+      <code class="spec-code">ApiErrorResponse.errors</code> como
+      <code class="spec-code">campo → mensagem</code>. Exibir só o
+      <code class="spec-code">message</code> de topo entrega um "Erro de
+      validação" inútil. Cada erro volta ao seu input por
+      <code class="spec-code">setError</code> do react-hook-form,
+      <em>além</em> do resumo no toast. Campo opcional em branco viaja como
+      <code class="spec-code">null</code>, nunca
+      <code class="spec-code">""</code>.
+   </p>
+</section>

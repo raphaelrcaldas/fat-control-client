@@ -1,0 +1,184 @@
+<style>
+   .tbl {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.875rem;
+      background: #fff;
+      border-radius: var(--radius);
+      overflow: hidden;
+      border: 1px solid var(--gray-200);
+   }
+   .tbl th {
+      background: var(--gray-50);
+      padding: 0.5rem 1.5rem;
+      text-align: left;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--gray-700);
+   }
+   .tbl td {
+      padding: 0.5rem 1.5rem;
+      border-top: 1px solid var(--gray-200);
+      color: var(--gray-900);
+   }
+   .up {
+      text-transform: uppercase;
+      font-weight: 600;
+   }
+   .mono {
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 0.8125rem;
+      color: var(--slate-600);
+   }
+   .rowact {
+      display: inline-grid;
+      place-items: center;
+      width: 1.75rem;
+      height: 1.75rem;
+      border-radius: var(--radius);
+      color: var(--slate-500);
+      border: 1px solid transparent;
+   }
+   .rowact:hover {
+      background: var(--slate-100);
+      color: var(--slate-900);
+   }
+   .cmp {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 1.5rem;
+      align-items: start;
+   }
+   .cmp figcaption {
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 0.6875rem;
+      color: var(--slate-500);
+      margin-bottom: 0.5rem;
+   }
+   .tall td {
+      padding-top: 1rem;
+      padding-bottom: 1rem;
+   }
+</style>
+
+<section class="spec-sec">
+   <p class="spec-h">Densidade — py-2 dos dois lados</p>
+   <table class="tbl">
+      <thead>
+         <tr>
+            <th>Trigrama</th>
+            <th>P/G</th>
+            <th>Nome de guerra</th>
+            <th>Função</th>
+            <th style="text-align: right">Ações</th>
+         </tr>
+      </thead>
+      <tbody>
+         <tr>
+            <td class="mono">SVC</td>
+            <td class="up">CAP</td>
+            <td class="up">Silva</td>
+            <td>Comandante</td>
+            <td style="text-align: right"><span class="rowact">⋯</span></td>
+         </tr>
+         <tr>
+            <td class="mono">ODM</td>
+            <td class="up">1T</td>
+            <td class="up">Oliveira</td>
+            <td>Copiloto</td>
+            <td style="text-align: right"><span class="rowact">⋯</span></td>
+         </tr>
+         <tr>
+            <td class="mono">MRA</td>
+            <td class="up">2S</td>
+            <td class="up">Moreira</td>
+            <td>Mecânico</td>
+            <td style="text-align: right"><span class="rowact">⋯</span></td>
+         </tr>
+      </tbody>
+   </table>
+   <p class="spec-note">
+      <code class="spec-code">px-6 py-2</code> no cabeçalho <em>e</em> no corpo
+      — a altura de linha é a mesma dos dois lados.
+      <strong
+         >O que separa uma linha da outra é a régua horizontal, não o ar em
+         volta do texto.</strong
+      >
+      A fonte única é <code class="spec-code">table.head/body.cell</code> em
+      <code class="spec-code">theme.tsx</code>; não subir para
+      <code class="spec-code">py-3</code>/<code class="spec-code">py-4</code>,
+      nem acrescentar <code class="spec-code">pointer-coarse:py-*</code> em
+      célula. <code class="spec-code">root.shadow</code> é
+      <code class="spec-code">hidden</code>: a tabela não flutua.
+   </p>
+</section>
+
+<section class="spec-sec">
+   <p class="spec-h">Linha clicável NÃO é alvo compacto</p>
+   <div class="cmp">
+      <figure style="margin: 0">
+         <figcaption>py-2 — altura do conteúdo ✓</figcaption>
+         <table class="tbl">
+            <tbody>
+               <tr>
+                  <td class="up">Silva</td>
+                  <td class="mono">SVC</td>
+               </tr>
+               <tr>
+                  <td class="up">Oliveira</td>
+                  <td class="mono">ODM</td>
+               </tr>
+               <tr>
+                  <td class="up">Moreira</td>
+                  <td class="mono">MRA</td>
+               </tr>
+               <tr>
+                  <td class="up">Andrade</td>
+                  <td class="mono">AND</td>
+               </tr>
+            </tbody>
+         </table>
+      </figure>
+      <figure style="margin: 0; opacity: 0.55">
+         <figcaption>min-h-[44px] na row ✗ — ~30% mais alta</figcaption>
+         <table class="tbl">
+            <tbody class="tall">
+               <tr>
+                  <td class="up">Silva</td>
+                  <td class="mono">SVC</td>
+               </tr>
+               <tr>
+                  <td class="up">Oliveira</td>
+                  <td class="mono">ODM</td>
+               </tr>
+               <tr>
+                  <td class="up">Moreira</td>
+                  <td class="mono">MRA</td>
+               </tr>
+            </tbody>
+         </table>
+      </figure>
+   </div>
+   <p class="spec-note">
+      Uma linha atravessa o container: na horizontal, Fitts já está satisfeito
+      com folga, e o erro de toque só acontece no eixo vertical. Cobrar dela os
+      44px do
+      <em>menor</em> lado custa ~3 linhas por tela de rolagem.
+      <strong>O alvo de toque é o controle dentro da célula</strong> — botão,
+      link, checkbox. O harness trata alvo com largura ≥ 3× o mínimo como
+      <em>faixa</em> e só cobra 32px de altura.
+   </p>
+</section>
+
+<section class="spec-sec">
+   <p class="spec-h">Refetch não bloqueia</p>
+   <p class="spec-note">
+      Com <code class="spec-code">placeholderData: keepPreviousData</code>, os
+      dados da página anterior seguem em tela durante o carregamento.
+      <strong>Não</strong> cobrir com overlay nem spinner: esmaecer com
+      <code class="spec-code">opacity-50 transition-opacity</code>. Evita o
+      flash de tabela vazia e a mudança abrupta de altura entre páginas.
+   </p>
+</section>

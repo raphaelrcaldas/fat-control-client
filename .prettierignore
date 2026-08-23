@@ -20,3 +20,6 @@ tests/rbac/resources.json
 
 # Idem .gitignore: artefato de relatorio, dado por ambiente.
 tests/rbac/.grants.json
+
+# Gerado por design-system/build.py a partir de design-system/src/
+design-system/dist/

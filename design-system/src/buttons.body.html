@@ -1,0 +1,179 @@
+<style>
+   .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      border-radius: var(--radius-md);
+      border: 1px solid transparent;
+      font-weight: 500;
+      font-size: 0.875rem;
+      padding: 0.5rem 1rem;
+      cursor: pointer;
+      line-height: 1.25;
+      transition: background-color 0.15s;
+   }
+   .btn-primary {
+      background: var(--primary-700);
+      color: #fff;
+   }
+   .btn-primary:hover {
+      background: var(--primary-800);
+   }
+   .btn-red {
+      background: var(--red-700);
+      color: #fff;
+   }
+   .btn-light {
+      background: #fff;
+      color: var(--gray-900);
+      border-color: var(--gray-200);
+   }
+   .btn-light:hover {
+      background: var(--gray-100);
+   }
+   .btn:focus-visible {
+      outline: none;
+      box-shadow: 0 0 0 4px var(--primary-300);
+   }
+   .btn[disabled] {
+      opacity: 0.5;
+      cursor: not-allowed;
+   }
+   .s-xs {
+      font-size: 0.75rem;
+      padding: 0.25rem 0.5rem;
+   }
+   .s-sm {
+      font-size: 0.8125rem;
+      padding: 0.375rem 0.75rem;
+   }
+   .s-lg {
+      font-size: 1rem;
+      padding: 0.625rem 1.25rem;
+   }
+   .group {
+      display: inline-flex;
+   }
+   .group .btn {
+      border-radius: 0;
+      border-color: var(--gray-200);
+   }
+   .group .btn:first-child {
+      border-start-start-radius: var(--radius-md);
+      border-end-start-radius: var(--radius-md);
+   }
+   .group .btn:last-child {
+      border-start-end-radius: var(--radius-md);
+      border-end-end-radius: var(--radius-md);
+   }
+   .ruler {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+   }
+   .ruler figure {
+      margin: 0;
+      text-align: center;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 0.6875rem;
+      color: var(--slate-500);
+   }
+   .box44 {
+      width: 44px;
+      height: 44px;
+      display: grid;
+      place-items: center;
+      border-radius: var(--radius-md);
+      background: var(--primary-700);
+      color: #fff;
+      margin-bottom: 0.4rem;
+   }
+   .box24 {
+      width: 32px;
+      height: 32px;
+      display: grid;
+      place-items: center;
+      border-radius: var(--radius-md);
+      background: var(--primary-700);
+      color: #fff;
+      margin-bottom: 0.4rem;
+   }
+</style>
+
+<section class="spec-sec">
+   <p class="spec-h">Cores — a hierarquia é semântica</p>
+   <div class="spec-row">
+      <button class="btn btn-primary">＋ Nova missão</button>
+      <button class="btn btn-light">Cancelar</button>
+      <button class="btn btn-red">Excluir</button>
+      <button class="btn btn-primary" disabled>Salvando…</button>
+   </div>
+   <p class="spec-note">
+      <code class="spec-code">color="primary"</code> é a ação de marca,
+      tematizada por organização — <strong>não existe no Flowbite base</strong>,
+      foi acrescentada no <code class="spec-code">createTheme</code> espelhando
+      o color <code class="spec-code">red</code> com a escala
+      <code class="spec-code">primary-*</code>.
+      <code class="spec-code">color="red"</code> fica reservado a
+      perigo/exclusão. Em Flowbite 0.12.17 é
+      <code class="spec-code">color="red"</code>, nunca
+      <code class="spec-code">color="failure"</code>.
+   </p>
+</section>
+
+<section class="spec-sec">
+   <p class="spec-h">Tamanhos e ButtonGroup</p>
+   <div class="spec-row">
+      <button class="btn btn-primary s-xs">xs</button>
+      <button class="btn btn-primary s-sm">sm</button>
+      <button class="btn btn-primary">md</button>
+      <button class="btn btn-primary s-lg">lg</button>
+      <span class="group">
+         <button class="btn btn-light">Dia</button>
+         <button class="btn btn-light">Semana</button>
+         <button class="btn btn-light">Mês</button>
+      </span>
+   </div>
+   <p class="spec-note">
+      As pontas do ButtonGroup recebem
+      <code class="spec-code">first:rounded-s-md last:rounded-e-md</code> — o
+      default do Flowbite é <code class="spec-code">rounded-*-lg</code> e
+      destoaria do botão solto.
+   </p>
+</section>
+
+<section class="spec-sec">
+   <p class="spec-h">Alvo de toque — 44px só no dedo</p>
+   <div class="ruler">
+      <figure>
+         <div class="box44">◆</div>
+         44×44 — pointer-coarse
+      </figure>
+      <figure>
+         <div class="box24">◆</div>
+         ~32 — mouse (mín. WCAG 24)
+      </figure>
+      <p class="spec-note" style="flex: 1; min-width: 24ch; margin: 0">
+         <code class="spec-code"
+            >pointer-coarse:min-h-[44px] pointer-coarse:min-w-[44px]</code
+         >
+         no <code class="spec-code">button.base</code>. Em <strong>px</strong>,
+         e não <code class="spec-code">rem</code>: com raiz 87.5%,
+         <code class="spec-code">h-11</code> daria 38,5px. <br /><strong
+            >Não inflar o desktop.</strong
+         >
+         Densidade é qualidade num sistema operacional — cobrar 44px no mouse
+         engorda menu, toolbar e switcher sem ganho, e já foi tentado e
+         rejeitado.
+      </p>
+   </div>
+   <p class="spec-note">
+      <code class="spec-code">min-w</code> também: botões só-ícone em
+      <code class="spec-code">xs</code>/<code class="spec-code">sm</code>
+      ficavam com 32–37px de largura no toque. E o inverso — encolher um Button
+      abaixo de 44px no mobile — exige sobrescrever
+      <code class="spec-code">pointer-coarse:min-h-0 min-w-0</code>.
+   </p>
+</section>
