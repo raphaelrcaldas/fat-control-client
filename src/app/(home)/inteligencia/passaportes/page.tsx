@@ -7,11 +7,13 @@ import { usePassaportes, usePassaportesOrfaos } from "@/hooks/queries";
 import type { TripPassaporteOut } from "services/routes/inteligencia/passaportes";
 import { usePassaportesFilters } from "./hooks/usePassaportesFilters";
 import { usePassaportesView } from "./hooks/usePassaportesView";
-import StatCardsGrid from "./components/StatCards";
-import StatCardsSkeleton from "./components/StatCardsSkeleton";
+import SummaryBar from "./components/SummaryBar";
+import SummaryBarSkeleton from "./components/SummaryBarSkeleton";
 import Filters from "./components/Filters";
 import PassaportesTable from "./components/PassaportesTable";
 import PassaportesTableSkeleton from "./components/PassaportesTableSkeleton";
+import PassaportesCardList from "./components/PassaportesCardList";
+import PassaportesCardListSkeleton from "./components/PassaportesCardListSkeleton";
 import EditPassaporteModal from "./components/EditPassaporteModal";
 import OrfaosAlert from "./components/OrfaosAlert";
 import { PermBased, usePermBased } from "@/app/(home)/hooks/usePermBased";
@@ -48,7 +50,7 @@ export default function PassaportesPage() {
    }, []);
 
    // O alerta de órfãos entra em cima da página; se ele resolver depois dos
-   // passaportes, a inserção empurra cards + tabela já pintados (CLS > 0.1 no
+   // passaportes, a inserção empurra o resumo + lista já pintados (CLS > 0.1 no
    // mobile). Por isso o boot espera as duas queries e troca skeleton →
    // conteúdo num único commit, remontando a região inteira de uma vez.
    const { hasPerm } = usePermBased();
@@ -64,8 +66,8 @@ export default function PassaportesPage() {
          onFilterPGChange={filters.setFilterPG}
          filterFunc={filters.filterFunc}
          onFilterFuncChange={filters.setFilterFunc}
-         statusFilter={filters.statusFilter}
-         onStatusFilterChange={filters.setStatusFilter}
+         localFilter={filters.localFilter}
+         onLocalFilterChange={filters.setLocalFilter}
          totalCount={passaportesData.length}
          filteredCount={sortedData.length}
          isLoading={isLoading}
@@ -102,10 +104,15 @@ export default function PassaportesPage() {
 
          {booting ? (
             <>
-               <StatCardsSkeleton />
+               <SummaryBarSkeleton />
                <div className="relative overflow-hidden rounded border border-slate-200 bg-white shadow-sm">
                   {filtersEl}
-                  <PassaportesTableSkeleton />
+                  <div className="md:hidden">
+                     <PassaportesCardListSkeleton />
+                  </div>
+                  <div className="hidden md:block">
+                     <PassaportesTableSkeleton />
+                  </div>
                </div>
             </>
          ) : (
@@ -118,7 +125,7 @@ export default function PassaportesPage() {
                   <OrfaosAlert />
                </PermBased>
 
-               {/* Stat Cards */}
+               {/* Resumo por documento — também é o filtro de status */}
                {passaportesData.length > 0 && (
                   <div
                      className={clsx(
@@ -126,14 +133,16 @@ export default function PassaportesPage() {
                         isFetching && "opacity-50"
                      )}
                   >
-                     <StatCardsGrid
+                     <SummaryBar
                         passaporteStats={passaporteStats}
                         visaStats={visaStats}
+                        statusFilter={filters.statusFilter}
+                        onStatusFilterChange={filters.setStatusFilter}
                      />
                   </div>
                )}
 
-               {/* Filtros + Tabela */}
+               {/* Filtros + lista (cards no mobile, tabela no desktop) */}
                <div className="relative overflow-hidden rounded border border-slate-200 bg-white shadow-sm">
                   {filtersEl}
                   <div
@@ -142,15 +151,25 @@ export default function PassaportesPage() {
                         isFetching && "pointer-events-none opacity-50"
                      )}
                   >
-                     <PassaportesTable
-                        data={sortedData}
-                        sortField={filters.sortField}
-                        sortDirection={filters.sortDirection}
-                        onSort={filters.handleSort}
-                        onRowClick={handleRowClick}
-                        hasActiveFilters={filters.hasActiveFilters}
-                        onClearFilters={filters.clearFilters}
-                     />
+                     <div className="md:hidden">
+                        <PassaportesCardList
+                           data={sortedData}
+                           onCardClick={handleRowClick}
+                           hasActiveFilters={filters.hasActiveFilters}
+                           onClearFilters={filters.clearFilters}
+                        />
+                     </div>
+                     <div className="hidden md:block">
+                        <PassaportesTable
+                           data={sortedData}
+                           sortField={filters.sortField}
+                           sortDirection={filters.sortDirection}
+                           onSort={filters.handleSort}
+                           onRowClick={handleRowClick}
+                           hasActiveFilters={filters.hasActiveFilters}
+                           onClearFilters={filters.clearFilters}
+                        />
+                     </div>
                   </div>
                </div>
             </>

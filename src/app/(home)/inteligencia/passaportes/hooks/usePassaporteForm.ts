@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import type {
    TripPassaporteOut,
    PassaporteUpsert,
+   LocalPassaporte,
 } from "services/routes/inteligencia/passaportes";
 import type { PassaporteFormData } from "../types";
 import { passaporteFormSchema } from "../schemas/passaporteSchema";
@@ -15,6 +16,8 @@ function buildInitialFormData(item: TripPassaporteOut): PassaporteFormData {
       visa: p?.visa ?? "",
       data_expedicao_visa: p?.data_expedicao_visa ?? "",
       validade_visa: p?.validade_visa ?? "",
+      // Militar ainda sem registro entra no default do backend ('secao').
+      local_passaporte: p?.local_passaporte ?? "secao",
    };
 }
 
@@ -27,6 +30,8 @@ function toPayload(form: PassaporteFormData): PassaporteUpsert {
       visa: form.visa || null,
       data_expedicao_visa: form.data_expedicao_visa || null,
       validade_visa: form.validade_visa || null,
+      // Lista fechada: viaja sempre com valor (nunca null).
+      local_passaporte: form.local_passaporte,
    };
 }
 
@@ -61,6 +66,11 @@ export function usePassaporteForm(item: TripPassaporteOut, show: boolean) {
       setFormData((prev) => ({ ...prev, [name]: value }));
    };
 
+   // A custódia é um segmento de botões, não um input nomeado — por isso tem
+   // setter próprio em vez de passar pelo handleChange.
+   const setLocal = (local: LocalPassaporte) =>
+      setFormData((prev) => ({ ...prev, local_passaporte: local }));
+
    /** Valida as regras cruzadas; retorna a 1ª mensagem de erro ou null. */
    const validate = (): string | null => {
       const result = passaporteFormSchema.safeParse(formData);
@@ -75,5 +85,5 @@ export function usePassaporteForm(item: TripPassaporteOut, show: boolean) {
       Object.keys(formData) as Array<keyof PassaporteFormData>
    ).some((key) => formData[key] !== initialData[key]);
 
-   return { formData, handleChange, validate, buildPayload, isDirty };
+   return { formData, handleChange, setLocal, validate, buildPayload, isDirty };
 }

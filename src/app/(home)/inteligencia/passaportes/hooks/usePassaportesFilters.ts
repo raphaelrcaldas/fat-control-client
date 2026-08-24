@@ -1,7 +1,12 @@
 import { useCallback, useMemo, useState } from "react";
 import useDebouncedValue from "@/hooks/useDebouncedValue";
 import type { GetPassaportesParams } from "services/routes/inteligencia/passaportes";
-import type { SortField, SortDirection, StatusFilter } from "../types";
+import type {
+   SortField,
+   SortDirection,
+   StatusFilter,
+   LocalFilter,
+} from "../types";
 
 /**
  * Estado de filtros e ordenação da listagem de passaportes.
@@ -15,6 +20,7 @@ export function usePassaportesFilters() {
    const [filterPG, setFilterPG] = useState<string[]>([]);
    const [filterFunc, setFilterFunc] = useState<string[]>([]);
    const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
+   const [localFilter, setLocalFilter] = useState<LocalFilter>("all");
    const [sortField, setSortField] = useState<SortField | null>(null);
    const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
 
@@ -49,13 +55,15 @@ export function usePassaportesFilters() {
       !!debouncedSearch ||
       filterPG.length > 0 ||
       filterFunc.length > 0 ||
-      statusFilter !== "all";
+      statusFilter !== "all" ||
+      localFilter !== "all";
 
    const clearFilters = useCallback(() => {
       setSearch("");
       setFilterPG([]);
       setFilterFunc([]);
       setStatusFilter("all");
+      setLocalFilter("all");
    }, []);
 
    return {
@@ -68,6 +76,8 @@ export function usePassaportesFilters() {
       setFilterFunc,
       statusFilter,
       setStatusFilter,
+      localFilter,
+      setLocalFilter,
       sortField,
       sortDirection,
       handleSort,

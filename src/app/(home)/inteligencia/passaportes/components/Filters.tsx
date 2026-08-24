@@ -1,55 +1,20 @@
 "use client";
 
-import { memo, useMemo } from "react";
-import { TextInput, Spinner, Button } from "flowbite-react";
+import { memo, useMemo, useState } from "react";
+import { TextInput, Select, Spinner, Button } from "flowbite-react";
 import { HiSearch, HiX } from "react-icons/hi";
 import { MdFilterList } from "react-icons/md";
 import clsx from "clsx";
 import { MultiSelect } from "@/components/MultiSelect";
 import { postoGradRecords } from "@/constants/militar";
 import { useFuncoes } from "@/hooks/queries";
-import type { StatusFilter } from "../types";
-import { getStatusConfig } from "../utils/dateStatus";
+import type { LocalFilter } from "../types";
+import { getLocalConfig, LOCAIS_PASSAPORTE } from "../utils/localPassaporte";
 
 const PG_OPTIONS = postoGradRecords.map((pg) => ({
    value: pg.short,
    label: pg.mid,
 }));
-
-// Chips de status (cores vêm de getStatusConfig — fonte única).
-const STATUS_FILTERS: { value: Exclude<StatusFilter, "all">; label: string }[] =
-   [
-      { value: "expired", label: "Vencidos" },
-      { value: "critical", label: "Críticos" },
-      { value: "warning", label: "Atenção" },
-      { value: "valid", label: "Regular" },
-   ];
-
-function FilterButton({
-   active,
-   onClick,
-   children,
-   dot,
-}: {
-   active: boolean;
-   onClick: () => void;
-   children: React.ReactNode;
-   dot?: string;
-}) {
-   return (
-      <Button
-         type="button"
-         size="xs"
-         color={active ? "primary" : "light"}
-         onClick={onClick}
-      >
-         <span className="flex items-center gap-1.5">
-            {dot && <span className={clsx("h-2 w-2 rounded-full", dot)} />}
-            {children}
-         </span>
-      </Button>
-   );
-}
 
 interface FiltersProps {
    search: string;
@@ -58,8 +23,8 @@ interface FiltersProps {
    onFilterPGChange: (value: string[]) => void;
    filterFunc: string[];
    onFilterFuncChange: (value: string[]) => void;
-   statusFilter: StatusFilter;
-   onStatusFilterChange: (value: StatusFilter) => void;
+   localFilter: LocalFilter;
+   onLocalFilterChange: (value: LocalFilter) => void;
    totalCount: number;
    filteredCount: number;
    isLoading: boolean;
@@ -68,6 +33,16 @@ interface FiltersProps {
    onClearFilters: () => void;
 }
 
+/**
+ * Busca e recortes da listagem.
+ *
+ * O filtro de status não mora aqui — ele é o próprio resumo (ver SummaryBar),
+ * para o número e a ação serem a mesma coisa.
+ *
+ * No mobile os três seletores ficam atrás do botão "Filtros": empilhados eles
+ * ocupavam meia tela antes da primeira linha da lista. No desktop (md+) o
+ * wrapper vira `contents` e eles voltam a dividir a linha com a busca.
+ */
 const Filters = memo(function Filters({
    search,
    onSearchChange,
@@ -75,8 +50,8 @@ const Filters = memo(function Filters({
    onFilterPGChange,
    filterFunc,
    onFilterFuncChange,
-   statusFilter,
-   onStatusFilterChange,
+   localFilter,
+   onLocalFilterChange,
    totalCount,
    filteredCount,
    isLoading,
@@ -84,58 +59,81 @@ const Filters = memo(function Filters({
    hasActiveFilters,
    onClearFilters,
 }: FiltersProps) {
+   const [showFilters, setShowFilters] = useState(false);
    const { principais } = useFuncoes();
    const funcOptions = useMemo(
       () => principais.map((f) => ({ value: f.cod, label: f.nome })),
       [principais]
    );
+
+   const activeCount =
+      filterPG.length + filterFunc.length + (localFilter !== "all" ? 1 : 0);
+
    return (
       <>
          <div className="flex flex-col gap-3 p-4 md:flex-row md:flex-wrap md:items-center">
-            <div className="min-w-0 flex-1">
-               <TextInput
-                  icon={HiSearch}
-                  placeholder="Buscar por nome de guerra..."
-                  value={search}
-                  onChange={(e) => onSearchChange(e.target.value)}
-                  sizing="md"
-               />
+            <div className="flex gap-2 md:min-w-0 md:flex-1">
+               <div className="min-w-0 flex-1">
+                  <TextInput
+                     icon={HiSearch}
+                     placeholder="Buscar por nome de guerra..."
+                     value={search}
+                     onChange={(e) => onSearchChange(e.target.value)}
+                     sizing="md"
+                  />
+               </div>
+               <Button
+                  type="button"
+                  color={activeCount > 0 ? "primary" : "light"}
+                  onClick={() => setShowFilters((v) => !v)}
+                  aria-expanded={showFilters}
+                  className="shrink-0 md:hidden"
+               >
+                  <span className="flex items-center gap-1.5">
+                     <MdFilterList className="h-4 w-4" />
+                     Filtros
+                     {activeCount > 0 && <span>({activeCount})</span>}
+                  </span>
+               </Button>
             </div>
 
-            <MultiSelect
-               options={PG_OPTIONS}
-               selected={filterPG}
-               onChange={onFilterPGChange}
-               placeholder="P/G"
-               className="w-44"
-            />
+            <div
+               className={clsx(
+                  "flex-col gap-3 md:contents",
+                  showFilters ? "flex" : "hidden"
+               )}
+            >
+               <MultiSelect
+                  options={PG_OPTIONS}
+                  selected={filterPG}
+                  onChange={onFilterPGChange}
+                  placeholder="P/G"
+                  className="md:w-44"
+               />
 
-            <MultiSelect
-               options={funcOptions}
-               selected={filterFunc}
-               onChange={onFilterFuncChange}
-               placeholder="Função"
-               className="w-44"
-            />
+               <MultiSelect
+                  options={funcOptions}
+                  selected={filterFunc}
+                  onChange={onFilterFuncChange}
+                  placeholder="Função"
+                  className="md:w-44"
+               />
 
-            <div className="flex items-center gap-1 rounded border border-slate-200 bg-white p-0.5">
-               <FilterButton
-                  active={statusFilter === "all"}
-                  onClick={() => onStatusFilterChange("all")}
+               <Select
+                  value={localFilter}
+                  onChange={(e) =>
+                     onLocalFilterChange(e.target.value as LocalFilter)
+                  }
+                  aria-label="Filtrar por localização do passaporte"
+                  className="md:w-44"
                >
-                  <MdFilterList className="h-3.5 w-3.5" />
-                  Todos
-               </FilterButton>
-               {STATUS_FILTERS.map(({ value, label }) => (
-                  <FilterButton
-                     key={value}
-                     active={statusFilter === value}
-                     onClick={() => onStatusFilterChange(value)}
-                     dot={getStatusConfig(value).dot}
-                  >
-                     {label}
-                  </FilterButton>
-               ))}
+                  <option value="all">Localização: todas</option>
+                  {LOCAIS_PASSAPORTE.map((local) => (
+                     <option key={local} value={local}>
+                        {getLocalConfig(local).label}
+                     </option>
+                  ))}
+               </Select>
             </div>
          </div>
 

@@ -7,6 +7,7 @@ import {
    ModalBody,
    ModalFooter,
    Button,
+   ButtonGroup,
    Label,
    TextInput,
    Spinner,
@@ -25,12 +26,12 @@ import { formatPhone, formatSaram } from "@/constants/formats";
 import { formatPgDisplay } from "@/constants/militar/postos";
 import { formatDateFull } from "@/../utils/dateHandler";
 import { useUpsertPassaporte, useDeletePassaporte } from "@/hooks/queries";
-import type { TripPassaporteOut } from "services/routes/inteligencia/passaportes";
-import {
-   getDateStatus,
-   getStatusConfig,
-   getDaysRemaining,
-} from "../utils/dateStatus";
+import type {
+   TripPassaporteOut,
+   LocalPassaporte,
+} from "services/routes/inteligencia/passaportes";
+import { getDateStatus, getStatusConfig } from "../utils/dateStatus";
+import { getLocalConfig, LOCAIS_PASSAPORTE } from "../utils/localPassaporte";
 import { usePassaporteForm } from "../hooks/usePassaporteForm";
 import { DocumentoImagem } from "./DocumentoImagem";
 
@@ -40,10 +41,10 @@ import { DocumentoImagem } from "./DocumentoImagem";
 
 /**
  * Faixa de status no topo de cada documento: tingida pela cor do status de
- * validade (Regular/Atenção/Crítico/Vencido) com o tipo do documento, o rótulo
- * do status e a contagem de dias. É o sinal operacional da tela — fonte única
- * de status (por isso os campos abaixo não repetem essa informação). Atualiza
- * ao vivo conforme a data de validade é editada no formulário.
+ * validade (Regular/Atenção/Crítico/Vencido) com o tipo do documento e o
+ * rótulo do status. É o sinal operacional da tela — fonte única de status (por
+ * isso os campos abaixo não repetem essa informação). Atualiza ao vivo
+ * conforme a data de validade é editada no formulário.
  */
 function DocumentStatusStrip({
    titulo,
@@ -55,7 +56,6 @@ function DocumentStatusStrip({
    const status = getDateStatus(validade || null);
    const config = getStatusConfig(status);
    const Icon = config.icon;
-   const dias = getDaysRemaining(validade || null);
 
    return (
       <div
@@ -71,11 +71,6 @@ function DocumentStatusStrip({
          <div className={clsx("flex items-center gap-1.5", config.color)}>
             <Icon className="h-4 w-4 shrink-0" />
             <span className="text-xs font-semibold">{config.label}</span>
-            {dias && (
-               <span className="font-mono text-xs tabular-nums opacity-80">
-                  · {dias}
-               </span>
-            )}
          </div>
       </div>
    );
@@ -188,6 +183,59 @@ function NumeroField({
 }
 
 // ========================================
+// LocalField — custódia do passaporte físico
+// ========================================
+
+/**
+ * Onde o caderno está *agora* (seção / militar / renovação).
+ *
+ * Segmento em vez de select: são três opções fixas, e trocar a custódia é a
+ * edição mais frequente da tela — um clique, sem abrir lista. O realce do
+ * ativo usa a cor de marca (padrão de segmento do sistema, ver QuadsToolbar);
+ * a cor semântica de cada estado vive no chip da listagem.
+ */
+function LocalField({
+   value,
+   onChange,
+   disabled,
+}: {
+   value: LocalPassaporte;
+   onChange: (local: LocalPassaporte) => void;
+   disabled?: boolean;
+}) {
+   return (
+      <div>
+         <Label>Localização física</Label>
+         <ButtonGroup className="mt-1 w-full">
+            {LOCAIS_PASSAPORTE.map((local) => {
+               const config = getLocalConfig(local);
+               const Icon = config.icon;
+               const active = value === local;
+               return (
+                  <Button
+                     key={local}
+                     size="sm"
+                     color={active ? "primary" : "light"}
+                     aria-pressed={active}
+                     disabled={disabled}
+                     onClick={() => onChange(local)}
+                     // 38px = altura do TextInput/date ao lado (p-2.5 +
+                     // text-sm): o segmento fica na mesma régua dos campos.
+                     className="h-auto min-h-[38px] flex-1"
+                  >
+                     <span className="flex items-center gap-1.5 whitespace-nowrap">
+                        <Icon className="h-4 w-4 shrink-0" />
+                        {config.short}
+                     </span>
+                  </Button>
+               );
+            })}
+         </ButtonGroup>
+      </div>
+   );
+}
+
+// ========================================
 // EditPassaporteModal
 // ========================================
 
@@ -222,17 +270,19 @@ const EditPassaporteModal = memo(function EditPassaporteModal({
 
    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
    const [copied, setCopied] = useState(false);
-   const { formData, handleChange, validate, buildPayload, isDirty } =
+   const { formData, handleChange, setLocal, validate, buildPayload, isDirty } =
       usePassaporteForm(item, show);
 
-   // Copia a mesma linha de identidade exibida no span de contato acima:
-   // campos não-vazios seguidos do bloco (PASSAP · VAL · NASC), em maiúsculas.
+   // Identidade exibida no bloco acima + os dados do documento que a tela não
+   // mostra em linha (PASSAP · VAL · NASC) — é o texto que a seção cola em
+   // ofício. Mesmo fallback de nome do bloco, para não copiar "—" de quem
+   // aparece na tela pelo nome de guerra.
    const handleCopy = async () => {
       const identidade = [
          formatPgDisplay(item.p_g) || "—",
          item.quadro || "—",
          item.esp || "—",
-         item.nome_completo || "—",
+         item.nome_completo || item.nome_guerra,
       ].join(" ");
       const texto =
          `${identidade} (PASSAP ${formData.passaporte || "—"} VAL ${formatDateFull(formData.validade_passaporte) || "—"} NASC ${formatDateFull(item.nasc) || "—"})`.toUpperCase();
@@ -312,42 +362,34 @@ const EditPassaporteModal = memo(function EditPassaporteModal({
             </ModalHeader>
             <ModalBody className="py-2">
                <div className="space-y-2">
-                  {/* Contato do militar — linha enxuta, sem caixa */}
-                  <div className="flex gap-1 rounded border border-slate-300 bg-slate-100 p-2">
-                     <span className="flex flex-wrap items-center gap-x-0.5 gap-y-0.5 text-sm text-slate-500 uppercase">
-                        <span>{formatPgDisplay(item.p_g) || "—"}</span>
-                        <span>{item.quadro || "—"}</span>
-                        <span>{item.esp || "—"}</span>
-                        <span>{item.nome_completo || "—"}</span>
-                        <span className="text-slate-400">
-                           (
-                           <span className="font-semibold text-slate-500">
-                              PASSAP
-                           </span>{" "}
-                           {formData.passaporte || "—"}{" "}
-                           <span className="font-semibold text-slate-500">
-                              VAL
-                           </span>{" "}
-                           {formatDateFull(formData.validade_passaporte) || "—"}{" "}
-                           <span className="font-semibold text-slate-500">
-                              NASC
-                           </span>{" "}
-                           {formatDateFull(item.nasc) || "—"})
+                  {/* Identidade do militar: nome em primeiro plano, o resto
+                      como metadado — é o que se lê antes de copiar. */}
+                  <div className="flex items-center gap-2 rounded border border-slate-300 bg-slate-100 px-3 py-2">
+                     <span className="min-w-0 flex-1">
+                        <span className="block truncate text-sm font-semibold text-slate-700 uppercase">
+                           {item.nome_completo || item.nome_guerra}
+                        </span>
+                        <span className="mt-0.5 block truncate font-mono text-xs text-slate-500 uppercase">
+                           {formatPgDisplay(item.p_g) || "—"} ·{" "}
+                           {item.quadro || "—"} · {item.esp || "—"} · NASC{" "}
+                           {formatDateFull(item.nasc) || "—"}
                         </span>
                      </span>
                      <Button
                         color={copied ? "green" : "light"}
                         size="xs"
                         onClick={handleCopy}
-                        title="Copiar dados"
-                        aria-label="Copiar dados do militar"
+                        title="Copiar dados do militar"
                         className="shrink-0"
                      >
-                        {copied ? (
-                           <HiOutlineClipboardDocumentCheck className="h-4 w-4" />
-                        ) : (
-                           <HiOutlineClipboardDocument className="h-4 w-4" />
-                        )}
+                        <span className="flex items-center gap-1.5">
+                           {copied ? (
+                              <HiOutlineClipboardDocumentCheck className="h-4 w-4" />
+                           ) : (
+                              <HiOutlineClipboardDocument className="h-4 w-4" />
+                           )}
+                           {copied ? "Copiado" : "Copiar dados"}
+                        </span>
                      </Button>
                   </div>
 
@@ -366,20 +408,29 @@ const EditPassaporteModal = memo(function EditPassaporteModal({
                         onChange={handleChange}
                         disabled={readOnly}
                      />
-                     <DateField
-                        label="Expedição"
-                        name="data_expedicao_passaporte"
-                        value={formData.data_expedicao_passaporte}
-                        onChange={handleChange}
-                        max={formData.validade_passaporte}
-                        disabled={readOnly}
-                     />
-                     <DateField
-                        label="Validade"
-                        name="validade_passaporte"
-                        value={formData.validade_passaporte}
-                        onChange={handleChange}
-                        min={formData.data_expedicao_passaporte}
+                     {/* Expedição e validade dividem a linha: o par é lido
+                         junto e o card não cresce a cada campo novo. */}
+                     <div className="grid grid-cols-2 gap-3">
+                        <DateField
+                           label="Expedição"
+                           name="data_expedicao_passaporte"
+                           value={formData.data_expedicao_passaporte}
+                           onChange={handleChange}
+                           max={formData.validade_passaporte}
+                           disabled={readOnly}
+                        />
+                        <DateField
+                           label="Validade"
+                           name="validade_passaporte"
+                           value={formData.validade_passaporte}
+                           onChange={handleChange}
+                           min={formData.data_expedicao_passaporte}
+                           disabled={readOnly}
+                        />
+                     </div>
+                     <LocalField
+                        value={formData.local_passaporte}
+                        onChange={setLocal}
                         disabled={readOnly}
                      />
                   </DocumentSection>
@@ -399,22 +450,24 @@ const EditPassaporteModal = memo(function EditPassaporteModal({
                         onChange={handleChange}
                         disabled={readOnly}
                      />
-                     <DateField
-                        label="Expedição"
-                        name="data_expedicao_visa"
-                        value={formData.data_expedicao_visa}
-                        onChange={handleChange}
-                        max={formData.validade_visa}
-                        disabled={readOnly}
-                     />
-                     <DateField
-                        label="Validade"
-                        name="validade_visa"
-                        value={formData.validade_visa}
-                        onChange={handleChange}
-                        min={formData.data_expedicao_visa}
-                        disabled={readOnly}
-                     />
+                     <div className="grid grid-cols-2 gap-3">
+                        <DateField
+                           label="Expedição"
+                           name="data_expedicao_visa"
+                           value={formData.data_expedicao_visa}
+                           onChange={handleChange}
+                           max={formData.validade_visa}
+                           disabled={readOnly}
+                        />
+                        <DateField
+                           label="Validade"
+                           name="validade_visa"
+                           value={formData.validade_visa}
+                           onChange={handleChange}
+                           min={formData.data_expedicao_visa}
+                           disabled={readOnly}
+                        />
+                     </div>
                   </DocumentSection>
                </div>
             </ModalBody>

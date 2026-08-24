@@ -13,7 +13,10 @@ import {
 import { HiChevronUp, HiChevronDown, HiPhotograph } from "react-icons/hi";
 import { FaPassport } from "react-icons/fa";
 import clsx from "clsx";
-import type { TripPassaporteOut } from "services/routes/inteligencia/passaportes";
+import type {
+   TripPassaporteOut,
+   LocalPassaporte,
+} from "services/routes/inteligencia/passaportes";
 import type { SortField, SortDirection } from "../types";
 import {
    getDateStatus,
@@ -21,11 +24,16 @@ import {
    formatDate,
    getWorstStatus,
 } from "../utils/dateStatus";
+import { LocalBadge } from "./LocalBadge";
+
+// Traço de campo vazio: em cinza fraco, para não competir com o dado real.
+const Vazio = () => <span className="text-sm text-gray-400">—</span>;
 
 // ========================================
 // DateCell
 // ========================================
 
+/** Validade com o farol de status — a data e a cor, sem contagem de dias. */
 const DateCell = memo(function DateCell({
    dateStr,
 }: {
@@ -34,6 +42,14 @@ const DateCell = memo(function DateCell({
    const status = getDateStatus(dateStr);
    const config = getStatusConfig(status);
    const Icon = config.icon;
+
+   if (status === "empty") {
+      return (
+         <div className="flex justify-center">
+            <Vazio />
+         </div>
+      );
+   }
 
    return (
       <div className="flex items-center justify-center gap-1.5">
@@ -62,11 +78,17 @@ const NumeroCell = memo(function NumeroCell({
    numero: string | null | undefined;
    url: string | null | undefined;
 }) {
+   if (!numero) {
+      return (
+         <div className="flex justify-center">
+            <Vazio />
+         </div>
+      );
+   }
+
    return (
       <div className="flex items-center justify-center gap-1.5">
-         <span className="text-sm font-semibold text-gray-700">
-            {numero || "---"}
-         </span>
+         <span className="text-sm font-semibold text-gray-700">{numero}</span>
          {url && (
             <HiPhotograph
                className="h-4 w-4 shrink-0 text-emerald-600"
@@ -74,6 +96,26 @@ const NumeroCell = memo(function NumeroCell({
                aria-label="Imagem anexada"
             />
          )}
+      </div>
+   );
+});
+
+// ========================================
+// LocalCell
+// ========================================
+
+/**
+ * Custódia do passaporte físico. Militar sem registro nenhum mostra "—" (não
+ * "Na seção"): sem linha na tabela não há caderno para localizar.
+ */
+const LocalCell = memo(function LocalCell({
+   local,
+}: {
+   local: LocalPassaporte | undefined;
+}) {
+   return (
+      <div className="flex justify-center">
+         {local ? <LocalBadge local={local} /> : <Vazio />}
       </div>
    );
 });
@@ -89,6 +131,7 @@ interface SortableHeaderProps {
    direction: SortDirection;
    onSort: (field: SortField) => void;
    center?: boolean;
+   className?: string;
 }
 
 const SortableHeader = memo(function SortableHeader({
@@ -98,12 +141,16 @@ const SortableHeader = memo(function SortableHeader({
    direction,
    onSort,
    center,
+   className,
 }: SortableHeaderProps) {
    const isActive = currentSort === field;
 
    return (
       <TableHeadCell
-         className="cursor-pointer px-4 py-2 font-semibold transition-colors select-none hover:text-gray-900"
+         className={clsx(
+            "cursor-pointer px-4 py-2 font-semibold transition-colors select-none hover:text-gray-900",
+            className
+         )}
          onClick={() => onSort(field)}
          aria-sort={
             isActive
@@ -163,26 +210,27 @@ const PassaporteRow = memo(function PassaporteRow({
    return (
       <TableRow
          onClick={() => onClick(item)}
-         onKeyDown={(e) =>
-            (e.key === "Enter" || e.key === " ") && onClick(item)
-         }
+         onKeyDown={(e) => {
+            if (e.key !== "Enter" && e.key !== " ") return;
+            // Espaço rola a página se o default não for barrado.
+            e.preventDefault();
+            onClick(item);
+         }}
          tabIndex={0}
          role="button"
          className="hover:bg-primary-50 cursor-pointer border-b border-slate-200 font-mono transition-colors"
       >
-         <TableCell className="w-10 px-3 py-2">
-            <span
-               role="img"
-               className={clsx("inline-block h-3 w-3 rounded-full", config.dot)}
-               aria-label={`Status: ${config.label}`}
-            />
+         {/* Pior status da linha como faixa na borda: mesmo sinal do antigo
+             ponto, sem gastar uma coluna com ele. */}
+         <TableCell className={clsx("w-1 p-0", config.dot)}>
+            <span className="sr-only">{`Status: ${config.label}`}</span>
          </TableCell>
          <TableCell className="px-4 py-2 font-medium whitespace-nowrap text-gray-900 uppercase">
             <p className="font-semibold">
                {item.p_g} {item.nome_guerra}
             </p>
          </TableCell>
-         <TableCell className="px-4 py-2 text-center whitespace-nowrap">
+         <TableCell className="border-l border-slate-100 px-4 py-2 text-center whitespace-nowrap">
             <NumeroCell
                numero={item.passaporte?.passaporte}
                url={item.passaporte?.passaporte_url}
@@ -191,7 +239,10 @@ const PassaporteRow = memo(function PassaporteRow({
          <TableCell className="px-4 py-2 whitespace-nowrap">
             <DateCell dateStr={item.passaporte?.validade_passaporte} />
          </TableCell>
-         <TableCell className="px-4 py-2 text-center whitespace-nowrap">
+         <TableCell className="px-4 py-2 whitespace-nowrap">
+            <LocalCell local={item.passaporte?.local_passaporte} />
+         </TableCell>
+         <TableCell className="border-l border-slate-100 px-4 py-2 text-center whitespace-nowrap">
             <NumeroCell
                numero={item.passaporte?.visa}
                url={item.passaporte?.visa_url}
@@ -253,7 +304,7 @@ const PassaportesTable = memo(function PassaportesTable({
          <Table hoverable>
             <TableHead className="border-b border-slate-200 bg-gray-50 text-xs text-gray-700 uppercase">
                <TableRow>
-                  <TableHeadCell className="w-10 px-3 py-2">
+                  <TableHeadCell className="w-1 p-0">
                      <span className="sr-only">Status</span>
                   </TableHeadCell>
                   <SortableHeader
@@ -263,7 +314,7 @@ const PassaportesTable = memo(function PassaportesTable({
                      direction={sortDirection}
                      onSort={onSort}
                   />
-                  <TableHeadCell className="px-4 py-2 text-center font-semibold">
+                  <TableHeadCell className="border-l border-slate-200 px-4 py-2 text-center font-semibold">
                      Nº Passaporte
                   </TableHeadCell>
                   <SortableHeader
@@ -275,6 +326,9 @@ const PassaportesTable = memo(function PassaportesTable({
                      center
                   />
                   <TableHeadCell className="px-4 py-2 text-center font-semibold">
+                     Localização
+                  </TableHeadCell>
+                  <TableHeadCell className="border-l border-slate-200 px-4 py-2 text-center font-semibold">
                      Nº VISA
                   </TableHeadCell>
                   <SortableHeader

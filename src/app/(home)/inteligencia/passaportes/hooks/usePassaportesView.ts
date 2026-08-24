@@ -19,7 +19,13 @@ export function usePassaportesView(
    data: TripPassaporteOut[],
    filters: PassaportesFiltersApi
 ) {
-   const { debouncedSearch, statusFilter, sortField, sortDirection } = filters;
+   const {
+      debouncedSearch,
+      statusFilter,
+      localFilter,
+      sortField,
+      sortDirection,
+   } = filters;
 
    const sortedData = useMemo(() => {
       const q = debouncedSearch.trim().toLowerCase();
@@ -37,6 +43,11 @@ export function usePassaportesView(
                item.passaporte?.validade_visa
             );
             if (worst !== statusFilter) return false;
+         }
+         // Sem registro de passaporte não há custódia — some de qualquer
+         // recorte por localização (mas continua na visão "Todos").
+         if (localFilter !== "all") {
+            if (item.passaporte?.local_passaporte !== localFilter) return false;
          }
          return true;
       });
@@ -66,7 +77,14 @@ export function usePassaportesView(
          return sortDirection === "asc" ? comparison : -comparison;
       });
       return sorted;
-   }, [data, debouncedSearch, statusFilter, sortField, sortDirection]);
+   }, [
+      data,
+      debouncedSearch,
+      statusFilter,
+      localFilter,
+      sortField,
+      sortDirection,
+   ]);
 
    const { passaporteStats, visaStats } = useMemo(() => {
       const passaporte = emptyCounts();
