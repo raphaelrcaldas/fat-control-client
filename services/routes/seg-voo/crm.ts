@@ -19,6 +19,8 @@ export interface TripCrmOut {
    nome_completo: string | null;
    saram: string | null;
    telefone: string | null;
+   trig: string;
+   func: string;
    crm: CrmPublic | null;
 }
 

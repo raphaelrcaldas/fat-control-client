@@ -8,19 +8,14 @@ import {
    TableBody,
    TableRow,
    TableCell,
-   Button,
 } from "flowbite-react";
 import { HiChevronUp, HiChevronDown } from "react-icons/hi";
-import { MdGroups } from "react-icons/md";
 import clsx from "clsx";
 import type { TripCrmOut } from "services/routes/seg-voo/crm";
+import { useFuncoes } from "@/hooks/queries";
 import type { SortField, SortDirection } from "../types";
-import {
-   getDateStatus,
-   getStatusConfig,
-   formatDate,
-   getDaysRemaining,
-} from "@/utils/dateStatus";
+import { getDateStatus, getStatusConfig, formatDate } from "@/utils/dateStatus";
+import EmptyState from "./EmptyState";
 
 const SimpleDateCell = memo(function SimpleDateCell({
    dateStr,
@@ -30,6 +25,41 @@ const SimpleDateCell = memo(function SimpleDateCell({
    return (
       <span className="text-sm text-gray-700 tabular-nums">
          {formatDate(dateStr)}
+      </span>
+   );
+});
+
+// Trigrama: jargão de 3 letras, em caixa alta e mono para alinhar em coluna
+// sem competir com o nome do militar.
+const TrigCell = memo(function TrigCell({ trig }: { trig: string }) {
+   return (
+      <span className="font-mono text-sm font-semibold tracking-wide text-slate-600 uppercase">
+         {trig}
+      </span>
+   );
+});
+
+// Função com a cor do catálogo da org (mesmo chip de /admin/funcoes): a cor
+// é o que deixa a coluna varrível de relance. `w-12` fixo para o chip não
+// mudar de largura entre códigos e a coluna não oscilar linha a linha.
+const FuncCell = memo(function FuncCell({
+   func,
+   label,
+   badge,
+}: {
+   func: string;
+   label: string;
+   badge: string;
+}) {
+   return (
+      <span
+         className={clsx(
+            "inline-grid w-12 place-items-center rounded px-2 py-0.5 font-mono text-xs font-bold uppercase ring-1 ring-inset",
+            badge
+         )}
+         title={label}
+      >
+         {func}
       </span>
    );
 });
@@ -44,18 +74,13 @@ const DateCell = memo(function DateCell({
    const Icon = config.icon;
 
    return (
-      <div className="flex items-center gap-1.5">
+      <div className="flex items-center justify-center gap-1.5">
          <Icon className={clsx("h-4 w-4 shrink-0", config.color)} />
          <span
             className={clsx("text-sm font-medium tabular-nums", config.color)}
          >
             {formatDate(dateStr)}
          </span>
-         {status !== "empty" && (
-            <span className={clsx("text-xs tabular-nums", config.color)}>
-               ({getDaysRemaining(dateStr)})
-            </span>
-         )}
       </div>
    );
 });
@@ -66,7 +91,8 @@ interface SortableHeaderProps {
    currentSort: SortField | null;
    direction: SortDirection;
    onSort: (field: SortField) => void;
-   className?: string;
+   /** Só a coluna Militar alinha à esquerda; o resto é centralizado. */
+   alignStart?: boolean;
 }
 
 const SortableHeader = memo(function SortableHeader({
@@ -75,7 +101,7 @@ const SortableHeader = memo(function SortableHeader({
    currentSort,
    direction,
    onSort,
-   className,
+   alignStart,
 }: SortableHeaderProps) {
    const isActive = currentSort === field;
 
@@ -83,7 +109,7 @@ const SortableHeader = memo(function SortableHeader({
       <TableHeadCell
          className={clsx(
             "cursor-pointer px-4 py-2 font-semibold transition-colors select-none hover:text-gray-900",
-            className
+            !alignStart && "text-center"
          )}
          onClick={() => onSort(field)}
          aria-sort={
@@ -94,7 +120,12 @@ const SortableHeader = memo(function SortableHeader({
                : "none"
          }
       >
-         <div className="flex items-center gap-1">
+         <div
+            className={clsx(
+               "flex items-center gap-1",
+               !alignStart && "justify-center"
+            )}
+         >
             <span>{label}</span>
             <div className="flex flex-col">
                <HiChevronUp
@@ -121,12 +152,16 @@ const SortableHeader = memo(function SortableHeader({
 
 const CrmRow = memo(function CrmRow({
    item,
+   funcLabel,
+   funcBadge,
    index,
    isFocusable,
    onClick,
    onFocusIndex,
 }: {
    item: TripCrmOut;
+   funcLabel: string;
+   funcBadge: string;
    index: number;
    isFocusable: boolean;
    onClick: (item: TripCrmOut) => void;
@@ -172,26 +207,28 @@ const CrmRow = memo(function CrmRow({
          // militares, tabular linha a linha inviabiliza chegar ao resto da tela.
          tabIndex={isFocusable ? 0 : -1}
          role="button"
-         className="group/row focus-visible:ring-primary-500 hover:bg-primary-50 cursor-pointer border-b border-slate-200 transition-colors focus-visible:ring-1 focus-visible:outline-none"
+         className="focus-visible:ring-primary-500 hover:bg-primary-50 cursor-pointer border-b border-slate-200 transition-colors focus-visible:ring-1 focus-visible:outline-none"
       >
-         {/* Farol + identidade na mesma célula: fixa no scroll horizontal do
-             mobile, para a data nunca ficar sem dono. */}
-         <TableCell className="group-hover/row:bg-primary-50 sticky left-0 z-10 bg-white px-4 py-2 font-medium whitespace-nowrap text-gray-900 uppercase transition-colors">
-            <div className="flex items-center gap-2.5">
-               <span
-                  aria-hidden
-                  className={clsx(
-                     "inline-block h-3 w-3 shrink-0 rounded-full",
-                     config.dot
-                  )}
-               />
-               <p className="font-semibold">
-                  {item.p_g} {item.nome_guerra}
-               </p>
-               <span className="sr-only">Status: {config.label}</span>
-            </div>
+         {/* Farol como faixa na borda: mesmo sinal do antigo ponto, sem
+             disputar espaço com o nome dentro da célula. */}
+         <TableCell
+            className={clsx("w-1 p-0", config.dot)}
+            title={`Status: ${config.label}`}
+         >
+            <span className="sr-only">{`Status: ${config.label}`}</span>
          </TableCell>
-         <TableCell className="px-4 py-2 whitespace-nowrap">
+         <TableCell className="px-4 py-2 font-medium whitespace-nowrap text-gray-900 uppercase">
+            <p className="font-semibold">
+               {item.p_g} {item.nome_guerra}
+            </p>
+         </TableCell>
+         <TableCell className="px-4 py-2 text-center whitespace-nowrap">
+            <TrigCell trig={item.trig} />
+         </TableCell>
+         <TableCell className="px-4 py-2 text-center whitespace-nowrap">
+            <FuncCell func={item.func} label={funcLabel} badge={funcBadge} />
+         </TableCell>
+         <TableCell className="px-4 py-2 text-center whitespace-nowrap">
             <SimpleDateCell dateStr={item.crm?.data_realizacao} />
          </TableCell>
          <TableCell className="px-4 py-2 whitespace-nowrap">
@@ -208,7 +245,7 @@ interface CrmTableProps {
    onSort: (field: SortField) => void;
    onRowClick: (item: TripCrmOut) => void;
    hasActiveFilters: boolean;
-   onClearFilters: () => void;
+   searchTerm: string;
 }
 
 const CrmTable = memo(function CrmTable({
@@ -218,43 +255,23 @@ const CrmTable = memo(function CrmTable({
    onSort,
    onRowClick,
    hasActiveFilters,
-   onClearFilters,
+   searchTerm,
 }: CrmTableProps) {
    const [focusIndex, setFocusIndex] = useState(0);
    const onFocusIndex = useCallback((i: number) => setFocusIndex(i), []);
+   // A coluna mostra o código (3 letras, jargão da escala) com a cor da
+   // função; o nome completo fica no `title`. Tudo do catálogo da org, que o
+   // filtro já carrega.
+   const { label: funcLabel, colors: funcColors } = useFuncoes();
    // A lista encolhe ao filtrar: sem o clamp nenhuma linha seria tabulável.
    const activeIndex = Math.min(focusIndex, Math.max(data.length - 1, 0));
 
    if (data.length === 0) {
       return (
-         <div className="flex h-64 flex-col items-center justify-center px-6 text-center">
-            <MdGroups className="mb-4 h-16 w-16 text-gray-300" />
-            {hasActiveFilters ? (
-               <>
-                  <p className="text-lg font-medium text-gray-500">
-                     Nenhum militar neste filtro
-                  </p>
-                  <Button
-                     size="xs"
-                     color="light"
-                     onClick={onClearFilters}
-                     className="mt-2"
-                  >
-                     Limpar filtros
-                  </Button>
-               </>
-            ) : (
-               <>
-                  <p className="text-lg font-medium text-gray-500">
-                     Nenhum CRM lançado nesta organização
-                  </p>
-                  <p className="mt-1 text-sm text-gray-500">
-                     Os militares aparecem aqui assim que houver tripulantes
-                     cadastrados na organização.
-                  </p>
-               </>
-            )}
-         </div>
+         <EmptyState
+            hasActiveFilters={hasActiveFilters}
+            searchTerm={searchTerm}
+         />
       );
    }
 
@@ -263,15 +280,24 @@ const CrmTable = memo(function CrmTable({
          <Table hoverable>
             <TableHead className="border-b border-slate-200 bg-gray-50 text-xs text-gray-700 uppercase">
                <TableRow>
+                  <TableHeadCell className="w-1 p-0">
+                     <span className="sr-only">Status</span>
+                  </TableHeadCell>
                   <SortableHeader
                      label="Militar"
                      field="militar"
                      currentSort={sortField}
                      direction={sortDirection}
                      onSort={onSort}
-                     className="sticky left-0 z-20 bg-gray-50"
+                     alignStart
                   />
-                  <TableHeadCell className="px-4 py-2 font-semibold">
+                  <TableHeadCell className="px-4 py-2 text-center font-semibold">
+                     Trigrama
+                  </TableHeadCell>
+                  <TableHeadCell className="px-4 py-2 text-center font-semibold">
+                     Função
+                  </TableHeadCell>
+                  <TableHeadCell className="px-4 py-2 text-center font-semibold">
                      Realização
                   </TableHeadCell>
                   <SortableHeader
@@ -288,6 +314,8 @@ const CrmTable = memo(function CrmTable({
                   <CrmRow
                      key={item.trip_id}
                      item={item}
+                     funcLabel={funcLabel(item.func)}
+                     funcBadge={funcColors(item.func).badge}
                      index={i}
                      isFocusable={i === activeIndex}
                      onClick={onRowClick}

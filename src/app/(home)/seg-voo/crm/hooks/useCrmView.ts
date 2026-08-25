@@ -10,31 +10,38 @@ function emptyCounts(): StatusCounts {
 
 /**
  * Derivações de UI sobre a lista de CRM:
- * - `sortedData`: aplica busca textual, filtro de status e ordenação,
- *   todos client-side.
- * - `stats`: contagens por status (inclui "empty") sobre a lista recebida
- *   (já filtrada por P/G e Função no servidor), não afetadas pela busca,
- *   filtro de status ou ordenação client-side.
+ * - `searched`: a lista recebida (já filtrada por P/G e Função no servidor)
+ *   recortada pela busca textual.
+ * - `sortedData`: `searched` com o filtro de status e a ordenação aplicados.
+ * - `stats`: contagens por status (inclui "empty") sobre `searched`.
+ *
+ * As contagens saem de `searched`, e não de `data`, porque na faixa de resumo
+ * o número É o botão do filtro: contar sobre um conjunto maior que o filtrado
+ * faria o contador prometer N e a lista devolver outra coisa. Já o filtro de
+ * status fica de fora da conta — senão o número que gerou o clique sumiria ao
+ * clicar.
  */
 export function useCrmView(data: TripCrmOut[], filters: CrmFiltersApi) {
    const { debouncedSearch, statusFilter, sortField, sortDirection } = filters;
 
-   const sortedData = useMemo(() => {
+   const searched = useMemo(() => {
       const q = debouncedSearch.trim().toLowerCase();
+      if (!q) return data;
+      return data.filter(
+         (item) =>
+            item.nome_guerra.toLowerCase().includes(q) ||
+            (item.nome_completo?.toLowerCase().includes(q) ?? false)
+      );
+   }, [data, debouncedSearch]);
 
-      const filtered = data.filter((item) => {
-         if (q) {
-            const matches =
-               item.nome_guerra.toLowerCase().includes(q) ||
-               (item.nome_completo?.toLowerCase().includes(q) ?? false);
-            if (!matches) return false;
-         }
-         if (statusFilter !== "all") {
-            if (getDateStatus(item.crm?.data_validade) !== statusFilter)
-               return false;
-         }
-         return true;
-      });
+   const sortedData = useMemo(() => {
+      const filtered =
+         statusFilter === "all"
+            ? searched
+            : searched.filter(
+                 (item) =>
+                    getDateStatus(item.crm?.data_validade) === statusFilter
+              );
 
       if (!sortField) return filtered;
 
@@ -60,15 +67,15 @@ export function useCrmView(data: TripCrmOut[], filters: CrmFiltersApi) {
          return sortDirection === "asc" ? comparison : -comparison;
       });
       return sorted;
-   }, [data, debouncedSearch, statusFilter, sortField, sortDirection]);
+   }, [searched, statusFilter, sortField, sortDirection]);
 
    const stats = useMemo<CrmStats>(() => {
       const counts = emptyCounts();
-      for (const item of data) {
+      for (const item of searched) {
          counts[getDateStatus(item.crm?.data_validade)]++;
       }
-      return { total: data.length, counts };
-   }, [data]);
+      return { total: searched.length, counts };
+   }, [searched]);
 
    return { sortedData, stats };
 }

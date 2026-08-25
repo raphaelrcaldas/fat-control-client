@@ -7,11 +7,13 @@ import { useCrm } from "@/hooks/queries";
 import type { TripCrmOut } from "services/routes/seg-voo/crm";
 import { useCrmFilters } from "./hooks/useCrmFilters";
 import { useCrmView } from "./hooks/useCrmView";
-import StatCards from "./components/StatCards";
-import StatCardsSkeleton from "./components/StatCardsSkeleton";
+import SummaryBar from "./components/SummaryBar";
+import SummaryBarSkeleton from "./components/SummaryBarSkeleton";
 import Filters from "./components/Filters";
 import CrmTable from "./components/CrmTable";
 import CrmTableSkeleton from "./components/CrmTableSkeleton";
+import CrmCardList from "./components/CrmCardList";
+import CrmCardListSkeleton from "./components/CrmCardListSkeleton";
 import EditCrmModal from "./components/EditCrmModal";
 import OrfaosAlert from "./components/OrfaosAlert";
 import { PermBased } from "../../hooks/usePermBased";
@@ -72,18 +74,25 @@ export default function CrmPage() {
             <OrfaosAlert />
          </PermBased>
 
-         {/* Stat Cards */}
+         {/* Resumo — os contadores são o filtro de status */}
          {isLoading ? (
-            <StatCardsSkeleton />
+            <SummaryBarSkeleton />
          ) : (
             crmData.length > 0 && (
                <div
                   className={clsx(
                      "transition-opacity",
-                     isFetching && "opacity-50"
+                     // `pointer-events-none` junto do esmaecimento: a 50% o
+                     // controle sinaliza "desabilitado", então não pode
+                     // continuar respondendo ao clique (mesma regra da lista).
+                     isFetching && "pointer-events-none opacity-50"
                   )}
                >
-                  <StatCards stats={stats} />
+                  <SummaryBar
+                     stats={stats}
+                     statusFilter={filters.statusFilter}
+                     onStatusFilterChange={filters.setStatusFilter}
+                  />
                </div>
             )
          )}
@@ -97,8 +106,6 @@ export default function CrmPage() {
                onFilterPGChange={filters.setFilterPG}
                filterFunc={filters.filterFunc}
                onFilterFuncChange={filters.setFilterFunc}
-               statusFilter={filters.statusFilter}
-               onStatusFilterChange={filters.setStatusFilter}
                totalCount={crmData.length}
                filteredCount={sortedData.length}
                isLoading={isLoading}
@@ -108,7 +115,14 @@ export default function CrmPage() {
             />
 
             {isLoading ? (
-               <CrmTableSkeleton />
+               <>
+                  <div className="md:hidden">
+                     <CrmCardListSkeleton />
+                  </div>
+                  <div className="hidden md:block">
+                     <CrmTableSkeleton />
+                  </div>
+               </>
             ) : (
                <div
                   className={clsx(
@@ -116,15 +130,29 @@ export default function CrmPage() {
                      isFetching && "pointer-events-none opacity-50"
                   )}
                >
-                  <CrmTable
-                     data={sortedData}
-                     sortField={filters.sortField}
-                     sortDirection={filters.sortDirection}
-                     onSort={filters.handleSort}
-                     onRowClick={handleRowClick}
-                     hasActiveFilters={filters.hasActiveFilters}
-                     onClearFilters={filters.clearFilters}
-                  />
+                  {/* Cards no dedo, tabela no mouse. As duas árvores ficam
+                      montadas e só uma é exibida (o `client` não tem hook de
+                      media query): evita o flash de remontagem ao girar o
+                      aparelho, ao custo de DOM extra. */}
+                  <div className="md:hidden">
+                     <CrmCardList
+                        data={sortedData}
+                        onCardClick={handleRowClick}
+                        hasActiveFilters={filters.hasActiveFilters}
+                        searchTerm={filters.debouncedSearch}
+                     />
+                  </div>
+                  <div className="hidden md:block">
+                     <CrmTable
+                        data={sortedData}
+                        sortField={filters.sortField}
+                        sortDirection={filters.sortDirection}
+                        onSort={filters.handleSort}
+                        onRowClick={handleRowClick}
+                        hasActiveFilters={filters.hasActiveFilters}
+                        searchTerm={filters.debouncedSearch}
+                     />
+                  </div>
                </div>
             )}
          </div>
