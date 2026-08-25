@@ -66,8 +66,8 @@ export default function PassaportesPage() {
          onFilterPGChange={filters.setFilterPG}
          filterFunc={filters.filterFunc}
          onFilterFuncChange={filters.setFilterFunc}
-         localFilter={filters.localFilter}
-         onLocalFilterChange={filters.setLocalFilter}
+         statusFilter={filters.statusFilter}
+         onStatusFilterChange={filters.setStatusFilter}
          totalCount={passaportesData.length}
          filteredCount={sortedData.length}
          isLoading={isLoading}
@@ -136,8 +136,8 @@ export default function PassaportesPage() {
                      <SummaryBar
                         passaporteStats={passaporteStats}
                         visaStats={visaStats}
-                        statusFilter={filters.statusFilter}
-                        onStatusFilterChange={filters.setStatusFilter}
+                        validadeFilter={filters.validadeFilter}
+                        onValidadeFilterChange={filters.setValidadeFilter}
                      />
                   </div>
                )}

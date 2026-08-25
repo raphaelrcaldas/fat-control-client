@@ -10,8 +10,9 @@ import {
    TableCell,
 } from "flowbite-react";
 
-// Larguras dos blocos por coluna de dados (a 1ª coluna é a faixa de status).
-const BAR_WIDTHS = ["w-40", "w-24", "w-32", "w-28", "w-24", "w-32"] as const;
+// Larguras dos blocos por coluna de dados (a 1ª coluna é a faixa de status):
+// militar, status, nº e validade do passaporte, nº e validade do visto.
+const BAR_WIDTHS = ["w-40", "w-32", "w-24", "w-32", "w-24", "w-32"] as const;
 
 export default function PassaportesTableSkeleton({
    rows = 15,

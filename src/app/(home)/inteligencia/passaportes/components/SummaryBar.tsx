@@ -4,7 +4,11 @@ import { memo } from "react";
 import { HiIdentification } from "react-icons/hi";
 import { FaPassport } from "react-icons/fa";
 import clsx from "clsx";
-import type { CountableStatus, PassaporteStats, StatusFilter } from "../types";
+import type {
+   CountableStatus,
+   PassaporteStats,
+   ValidadeFilter,
+} from "../types";
 import { getStatusConfig } from "../utils/dateStatus";
 
 // Ordem de leitura: o que exige ação primeiro.
@@ -95,13 +99,13 @@ function DocSummary({
    icon: Icon,
    label,
    stats,
-   statusFilter,
+   validadeFilter,
    onToggle,
 }: {
    icon: React.ComponentType<{ className?: string }>;
    label: string;
    stats: PassaporteStats;
-   statusFilter: StatusFilter;
+   validadeFilter: ValidadeFilter;
    onToggle: (status: CountableStatus) => void;
 }) {
    return (
@@ -129,7 +133,7 @@ function DocSummary({
                   status={status}
                   count={stats.counts[status]}
                   total={stats.total}
-                  active={statusFilter === status}
+                  active={validadeFilter === status}
                   onToggle={onToggle}
                />
             ))}
@@ -145,23 +149,23 @@ function DocSummary({
 interface SummaryBarProps {
    passaporteStats: PassaporteStats;
    visaStats: PassaporteStats;
-   statusFilter: StatusFilter;
-   onStatusFilterChange: (value: StatusFilter) => void;
+   validadeFilter: ValidadeFilter;
+   onValidadeFilterChange: (value: ValidadeFilter) => void;
 }
 
 /**
- * Resumo por documento em uma faixa. O filtro de status é um só (aplicado ao
+ * Resumo por documento em uma faixa. O filtro de validade é um só (aplicado ao
  * pior status da linha, como sempre foi), então clicar no mesmo bloco de
  * qualquer um dos lados desliga o recorte.
  */
 const SummaryBar = memo(function SummaryBar({
    passaporteStats,
    visaStats,
-   statusFilter,
-   onStatusFilterChange,
+   validadeFilter,
+   onValidadeFilterChange,
 }: SummaryBarProps) {
    const handleToggle = (status: CountableStatus) =>
-      onStatusFilterChange(statusFilter === status ? "all" : status);
+      onValidadeFilterChange(validadeFilter === status ? "all" : status);
 
    return (
       <div className="flex flex-col divide-y divide-slate-200 overflow-hidden rounded border border-slate-200 bg-white shadow-sm sm:flex-row sm:divide-x sm:divide-y-0">
@@ -169,14 +173,14 @@ const SummaryBar = memo(function SummaryBar({
             icon={FaPassport}
             label="Passaporte"
             stats={passaporteStats}
-            statusFilter={statusFilter}
+            validadeFilter={validadeFilter}
             onToggle={handleToggle}
          />
          <DocSummary
             icon={HiIdentification}
             label="Visto"
             stats={visaStats}
-            statusFilter={statusFilter}
+            validadeFilter={validadeFilter}
             onToggle={handleToggle}
          />
       </div>

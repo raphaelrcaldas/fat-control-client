@@ -15,7 +15,7 @@ import { FaPassport } from "react-icons/fa";
 import clsx from "clsx";
 import type {
    TripPassaporteOut,
-   LocalPassaporte,
+   StatusPassaporte,
 } from "services/routes/inteligencia/passaportes";
 import type { SortField, SortDirection } from "../types";
 import {
@@ -24,7 +24,7 @@ import {
    formatDate,
    getWorstStatus,
 } from "../utils/dateStatus";
-import { LocalBadge } from "./LocalBadge";
+import { StatusBadge } from "./StatusBadge";
 
 // Traço de campo vazio: em cinza fraco, para não competir com o dado real.
 const Vazio = () => <span className="text-sm text-gray-400">—</span>;
@@ -101,21 +101,21 @@ const NumeroCell = memo(function NumeroCell({
 });
 
 // ========================================
-// LocalCell
+// StatusCell
 // ========================================
 
 /**
- * Custódia do passaporte físico. Militar sem registro nenhum mostra "—" (não
- * "Na seção"): sem linha na tabela não há caderno para localizar.
+ * Situação do passaporte físico. Militar sem registro nenhum mostra "—" (não
+ * "Disponível"): sem linha na tabela não há caderno para a seção contar.
  */
-const LocalCell = memo(function LocalCell({
-   local,
+const StatusCell = memo(function StatusCell({
+   status,
 }: {
-   local: LocalPassaporte | undefined;
+   status: StatusPassaporte | undefined;
 }) {
    return (
       <div className="flex justify-center">
-         {local ? <LocalBadge local={local} /> : <Vazio />}
+         {status ? <StatusBadge status={status} /> : <Vazio />}
       </div>
    );
 });
@@ -230,6 +230,9 @@ const PassaporteRow = memo(function PassaporteRow({
                {item.p_g} {item.nome_guerra}
             </p>
          </TableCell>
+         <TableCell className="px-4 py-2 whitespace-nowrap">
+            <StatusCell status={item.passaporte?.status_passaporte} />
+         </TableCell>
          <TableCell className="border-l border-slate-100 px-4 py-2 text-center whitespace-nowrap">
             <NumeroCell
                numero={item.passaporte?.passaporte}
@@ -238,9 +241,6 @@ const PassaporteRow = memo(function PassaporteRow({
          </TableCell>
          <TableCell className="px-4 py-2 whitespace-nowrap">
             <DateCell dateStr={item.passaporte?.validade_passaporte} />
-         </TableCell>
-         <TableCell className="px-4 py-2 whitespace-nowrap">
-            <LocalCell local={item.passaporte?.local_passaporte} />
          </TableCell>
          <TableCell className="border-l border-slate-100 px-4 py-2 text-center whitespace-nowrap">
             <NumeroCell
@@ -314,6 +314,11 @@ const PassaportesTable = memo(function PassaportesTable({
                      direction={sortDirection}
                      onSort={onSort}
                   />
+                  {/* Status vem colado ao militar: descreve o caderno
+                      inteiro, não o passaporte em oposição ao visto. */}
+                  <TableHeadCell className="px-4 py-2 text-center font-semibold">
+                     Status
+                  </TableHeadCell>
                   <TableHeadCell className="border-l border-slate-200 px-4 py-2 text-center font-semibold">
                      Nº Passaporte
                   </TableHeadCell>
@@ -325,9 +330,6 @@ const PassaportesTable = memo(function PassaportesTable({
                      onSort={onSort}
                      center
                   />
-                  <TableHeadCell className="px-4 py-2 text-center font-semibold">
-                     Localização
-                  </TableHeadCell>
                   <TableHeadCell className="border-l border-slate-200 px-4 py-2 text-center font-semibold">
                      Nº VISA
                   </TableHeadCell>

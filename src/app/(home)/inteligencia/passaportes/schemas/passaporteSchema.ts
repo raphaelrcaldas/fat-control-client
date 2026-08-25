@@ -13,7 +13,12 @@ export const passaporteFormSchema = z
       visa: z.string(),
       data_expedicao_visa: z.string(),
       validade_visa: z.string(),
-      local_passaporte: z.enum(["secao", "militar", "renovacao"]),
+      status_passaporte: z.enum([
+         "disponivel",
+         "militar",
+         "missao",
+         "renovacao",
+      ]),
    })
    .refine(
       (d) =>

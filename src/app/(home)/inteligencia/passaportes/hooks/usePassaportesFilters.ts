@@ -4,23 +4,24 @@ import type { GetPassaportesParams } from "services/routes/inteligencia/passapor
 import type {
    SortField,
    SortDirection,
-   StatusFilter,
-   LocalFilter,
+   ValidadeFilter,
+   StatusPassaporteFilter,
 } from "../types";
 
 /**
  * Estado de filtros e ordenação da listagem de passaportes.
  *
  * `p_g`/`funcao` vão para a API (server-side) porque `funcao` não trafega no
- * payload de cada linha; já busca textual e status são aplicados no cliente
- * (ver usePassaportesView).
+ * payload de cada linha; já busca textual, validade e situação do documento
+ * são aplicados no cliente (ver usePassaportesView).
  */
 export function usePassaportesFilters() {
    const [search, setSearch] = useState("");
    const [filterPG, setFilterPG] = useState<string[]>([]);
    const [filterFunc, setFilterFunc] = useState<string[]>([]);
-   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
-   const [localFilter, setLocalFilter] = useState<LocalFilter>("all");
+   const [validadeFilter, setValidadeFilter] = useState<ValidadeFilter>("all");
+   const [statusFilter, setStatusFilter] =
+      useState<StatusPassaporteFilter>("all");
    const [sortField, setSortField] = useState<SortField | null>(null);
    const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
 
@@ -55,15 +56,15 @@ export function usePassaportesFilters() {
       !!debouncedSearch ||
       filterPG.length > 0 ||
       filterFunc.length > 0 ||
-      statusFilter !== "all" ||
-      localFilter !== "all";
+      validadeFilter !== "all" ||
+      statusFilter !== "all";
 
    const clearFilters = useCallback(() => {
       setSearch("");
       setFilterPG([]);
       setFilterFunc([]);
+      setValidadeFilter("all");
       setStatusFilter("all");
-      setLocalFilter("all");
    }, []);
 
    return {
@@ -74,10 +75,10 @@ export function usePassaportesFilters() {
       setFilterPG,
       filterFunc,
       setFilterFunc,
+      validadeFilter,
+      setValidadeFilter,
       statusFilter,
       setStatusFilter,
-      localFilter,
-      setLocalFilter,
       sortField,
       sortDirection,
       handleSort,

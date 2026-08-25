@@ -11,7 +11,7 @@ import {
    formatDate,
    getWorstStatus,
 } from "../utils/dateStatus";
-import { LocalBadge } from "./LocalBadge";
+import { StatusBadge } from "./StatusBadge";
 
 // ========================================
 // DocLine
@@ -99,7 +99,7 @@ const PassaporteCard = memo(function PassaporteCard({
                   {item.p_g} {item.nome_guerra}
                </span>
                {item.passaporte && (
-                  <LocalBadge local={item.passaporte.local_passaporte} />
+                  <StatusBadge status={item.passaporte.status_passaporte} />
                )}
             </div>
             <DocLine

@@ -14,10 +14,12 @@ function getTokenFromCookies(): string | null {
 }
 
 /**
- * Custódia do passaporte físico (espelha LocalPassaporteEnum no backend):
- * arquivado na seção, em poder do militar, ou fora para renovação/expedição.
+ * Situação do passaporte físico (espelha StatusPassaporteEnum no backend):
+ * arquivado na seção e pronto para uso, em poder do militar na rotina, fora
+ * com o militar a serviço, ou fora para renovação/expedição.
  */
-export type LocalPassaporte = "secao" | "militar" | "renovacao";
+export type StatusPassaporte =
+   "disponivel" | "militar" | "missao" | "renovacao";
 
 export interface PassaportePublic {
    id: number;
@@ -29,7 +31,7 @@ export interface PassaportePublic {
    data_expedicao_visa: string | null;
    validade_visa: string | null;
    /** Coluna NOT NULL no backend — sempre vem preenchida. */
-   local_passaporte: LocalPassaporte;
+   status_passaporte: StatusPassaporte;
    passaporte_url: string | null;
    visa_url: string | null;
 }
@@ -55,7 +57,7 @@ export interface PassaporteUpsert {
    visa?: string | null;
    data_expedicao_visa?: string | null;
    validade_visa?: string | null;
-   local_passaporte?: LocalPassaporte;
+   status_passaporte?: StatusPassaporte;
 }
 
 export interface GetPassaportesParams {

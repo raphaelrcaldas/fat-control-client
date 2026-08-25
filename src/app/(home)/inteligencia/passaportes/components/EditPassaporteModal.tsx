@@ -7,7 +7,6 @@ import {
    ModalBody,
    ModalFooter,
    Button,
-   ButtonGroup,
    Label,
    TextInput,
    Spinner,
@@ -28,10 +27,13 @@ import { formatDateFull } from "@/../utils/dateHandler";
 import { useUpsertPassaporte, useDeletePassaporte } from "@/hooks/queries";
 import type {
    TripPassaporteOut,
-   LocalPassaporte,
+   StatusPassaporte,
 } from "services/routes/inteligencia/passaportes";
 import { getDateStatus, getStatusConfig } from "../utils/dateStatus";
-import { getLocalConfig, LOCAIS_PASSAPORTE } from "../utils/localPassaporte";
+import {
+   getStatusPassaporteConfig,
+   STATUS_PASSAPORTE,
+} from "../utils/statusPassaporte";
 import { usePassaporteForm } from "../hooks/usePassaporteForm";
 import { DocumentoImagem } from "./DocumentoImagem";
 
@@ -183,45 +185,52 @@ function NumeroField({
 }
 
 // ========================================
-// LocalField — custódia do passaporte físico
+// StatusField — situação do passaporte físico
 // ========================================
 
 /**
- * Onde o caderno está *agora* (seção / militar / renovação).
+ * Onde o caderno está *agora* (disponível / militar / missão / renovação).
  *
- * Segmento em vez de select: são três opções fixas, e trocar a custódia é a
+ * Fica acima dos dois cards, e não dentro do card do passaporte, porque o
+ * visto é uma página *dentro* do passaporte: fisicamente há um documento só,
+ * então a situação vale para os dois de uma vez.
+ *
+ * Botões em vez de select: são quatro opções fixas, e mudar a situação é a
  * edição mais frequente da tela — um clique, sem abrir lista. O realce do
  * ativo usa a cor de marca (padrão de segmento do sistema, ver QuadsToolbar);
  * a cor semântica de cada estado vive no chip da listagem.
+ *
+ * 2x2 no mobile pelo mesmo motivo da SummaryBar: em quatro colunas
+ * "Disponível" não cabe na largura do modal em 390px.
  */
-function LocalField({
+function StatusField({
    value,
    onChange,
    disabled,
 }: {
-   value: LocalPassaporte;
-   onChange: (local: LocalPassaporte) => void;
+   value: StatusPassaporte;
+   onChange: (status: StatusPassaporte) => void;
    disabled?: boolean;
 }) {
    return (
-      <div>
-         <Label>Localização física</Label>
-         <ButtonGroup className="mt-1 w-full">
-            {LOCAIS_PASSAPORTE.map((local) => {
-               const config = getLocalConfig(local);
+      <div className="rounded border border-slate-200 bg-white px-3 py-2 shadow-sm">
+         <Label>Status do documento físico</Label>
+         <div className="mt-1 grid grid-cols-2 gap-1.5 sm:grid-cols-4">
+            {STATUS_PASSAPORTE.map((status) => {
+               const config = getStatusPassaporteConfig(status);
                const Icon = config.icon;
-               const active = value === local;
+               const active = value === status;
                return (
                   <Button
-                     key={local}
+                     key={status}
                      size="sm"
                      color={active ? "primary" : "light"}
                      aria-pressed={active}
                      disabled={disabled}
-                     onClick={() => onChange(local)}
+                     onClick={() => onChange(status)}
                      // 38px = altura do TextInput/date ao lado (p-2.5 +
                      // text-sm): o segmento fica na mesma régua dos campos.
-                     className="h-auto min-h-[38px] flex-1"
+                     className="h-auto min-h-[38px] w-full"
                   >
                      <span className="flex items-center gap-1.5 whitespace-nowrap">
                         <Icon className="h-4 w-4 shrink-0" />
@@ -230,7 +239,7 @@ function LocalField({
                   </Button>
                );
             })}
-         </ButtonGroup>
+         </div>
       </div>
    );
 }
@@ -270,8 +279,14 @@ const EditPassaporteModal = memo(function EditPassaporteModal({
 
    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
    const [copied, setCopied] = useState(false);
-   const { formData, handleChange, setLocal, validate, buildPayload, isDirty } =
-      usePassaporteForm(item, show);
+   const {
+      formData,
+      handleChange,
+      setStatus,
+      validate,
+      buildPayload,
+      isDirty,
+   } = usePassaporteForm(item, show);
 
    // Identidade exibida no bloco acima + os dados do documento que a tela não
    // mostra em linha (PASSAP · VAL · NASC) — é o texto que a seção cola em
@@ -393,6 +408,14 @@ const EditPassaporteModal = memo(function EditPassaporteModal({
                      </Button>
                   </div>
 
+                  {/* Situação física do caderno — vale para passaporte e
+                      visto ao mesmo tempo, por isso vem antes dos dois. */}
+                  <StatusField
+                     value={formData.status_passaporte}
+                     onChange={setStatus}
+                     disabled={readOnly}
+                  />
+
                   {/* Documento — Passaporte */}
                   <DocumentSection
                      titulo="Passaporte"
@@ -428,11 +451,6 @@ const EditPassaporteModal = memo(function EditPassaporteModal({
                            disabled={readOnly}
                         />
                      </div>
-                     <LocalField
-                        value={formData.local_passaporte}
-                        onChange={setLocal}
-                        disabled={readOnly}
-                     />
                   </DocumentSection>
 
                   {/* Documento — Visto */}

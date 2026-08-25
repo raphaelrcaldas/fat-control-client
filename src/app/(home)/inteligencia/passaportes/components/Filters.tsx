@@ -8,8 +8,11 @@ import clsx from "clsx";
 import { MultiSelect } from "@/components/MultiSelect";
 import { postoGradRecords } from "@/constants/militar";
 import { useFuncoes } from "@/hooks/queries";
-import type { LocalFilter } from "../types";
-import { getLocalConfig, LOCAIS_PASSAPORTE } from "../utils/localPassaporte";
+import type { StatusPassaporteFilter } from "../types";
+import {
+   getStatusPassaporteConfig,
+   STATUS_PASSAPORTE,
+} from "../utils/statusPassaporte";
 
 const PG_OPTIONS = postoGradRecords.map((pg) => ({
    value: pg.short,
@@ -23,8 +26,8 @@ interface FiltersProps {
    onFilterPGChange: (value: string[]) => void;
    filterFunc: string[];
    onFilterFuncChange: (value: string[]) => void;
-   localFilter: LocalFilter;
-   onLocalFilterChange: (value: LocalFilter) => void;
+   statusFilter: StatusPassaporteFilter;
+   onStatusFilterChange: (value: StatusPassaporteFilter) => void;
    totalCount: number;
    filteredCount: number;
    isLoading: boolean;
@@ -36,8 +39,8 @@ interface FiltersProps {
 /**
  * Busca e recortes da listagem.
  *
- * O filtro de status não mora aqui — ele é o próprio resumo (ver SummaryBar),
- * para o número e a ação serem a mesma coisa.
+ * O filtro de validade não mora aqui — ele é o próprio resumo (ver
+ * SummaryBar), para o número e a ação serem a mesma coisa.
  *
  * No mobile os três seletores ficam atrás do botão "Filtros": empilhados eles
  * ocupavam meia tela antes da primeira linha da lista. No desktop (md+) o
@@ -50,8 +53,8 @@ const Filters = memo(function Filters({
    onFilterPGChange,
    filterFunc,
    onFilterFuncChange,
-   localFilter,
-   onLocalFilterChange,
+   statusFilter,
+   onStatusFilterChange,
    totalCount,
    filteredCount,
    isLoading,
@@ -67,7 +70,7 @@ const Filters = memo(function Filters({
    );
 
    const activeCount =
-      filterPG.length + filterFunc.length + (localFilter !== "all" ? 1 : 0);
+      filterPG.length + filterFunc.length + (statusFilter !== "all" ? 1 : 0);
 
    return (
       <>
@@ -120,17 +123,19 @@ const Filters = memo(function Filters({
                />
 
                <Select
-                  value={localFilter}
+                  value={statusFilter}
                   onChange={(e) =>
-                     onLocalFilterChange(e.target.value as LocalFilter)
+                     onStatusFilterChange(
+                        e.target.value as StatusPassaporteFilter
+                     )
                   }
-                  aria-label="Filtrar por localização do passaporte"
+                  aria-label="Filtrar por status do passaporte"
                   className="md:w-44"
                >
-                  <option value="all">Localização: todas</option>
-                  {LOCAIS_PASSAPORTE.map((local) => (
-                     <option key={local} value={local}>
-                        {getLocalConfig(local).label}
+                  <option value="all">Status: todos</option>
+                  {STATUS_PASSAPORTE.map((status) => (
+                     <option key={status} value={status}>
+                        {getStatusPassaporteConfig(status).label}
                      </option>
                   ))}
                </Select>

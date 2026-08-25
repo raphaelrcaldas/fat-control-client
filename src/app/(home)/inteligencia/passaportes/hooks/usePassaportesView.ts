@@ -10,9 +10,10 @@ function emptyCounts(): StatusCounts {
 
 /**
  * Derivações de UI sobre a lista de passaportes:
- * - `sortedData`: aplica busca textual, filtro de status (pior caso entre
- *   passaporte e visa) e ordenação, todos client-side.
- * - `passaporteStats`/`visaStats`: contagens por status, calculadas sobre a
+ * - `sortedData`: aplica busca textual, filtro de validade (pior caso entre
+ *   passaporte e visa), filtro de situação do documento e ordenação, todos
+ *   client-side.
+ * - `passaporteStats`/`visaStats`: contagens por validade, calculadas sobre a
  *   lista completa (não afetadas pela busca/filtro/sort).
  */
 export function usePassaportesView(
@@ -21,8 +22,8 @@ export function usePassaportesView(
 ) {
    const {
       debouncedSearch,
+      validadeFilter,
       statusFilter,
-      localFilter,
       sortField,
       sortDirection,
    } = filters;
@@ -37,17 +38,18 @@ export function usePassaportesView(
                (item.nome_completo?.toLowerCase().includes(q) ?? false);
             if (!matches) return false;
          }
-         if (statusFilter !== "all") {
+         if (validadeFilter !== "all") {
             const worst = getWorstStatus(
                item.passaporte?.validade_passaporte,
                item.passaporte?.validade_visa
             );
-            if (worst !== statusFilter) return false;
+            if (worst !== validadeFilter) return false;
          }
-         // Sem registro de passaporte não há custódia — some de qualquer
-         // recorte por localização (mas continua na visão "Todos").
-         if (localFilter !== "all") {
-            if (item.passaporte?.local_passaporte !== localFilter) return false;
+         // Sem registro de passaporte não há documento físico — some de
+         // qualquer recorte por situação (mas continua na visão "Todos").
+         if (statusFilter !== "all") {
+            if (item.passaporte?.status_passaporte !== statusFilter)
+               return false;
          }
          return true;
       });
@@ -80,8 +82,8 @@ export function usePassaportesView(
    }, [
       data,
       debouncedSearch,
+      validadeFilter,
       statusFilter,
-      localFilter,
       sortField,
       sortDirection,
    ]);
