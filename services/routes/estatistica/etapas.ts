@@ -204,6 +204,49 @@ export async function getEtapasFlat(
    };
 }
 
+// ─── Pendentes de verificação ──────────────────────────────────────────────
+
+export interface MissaoPendente {
+   missao_id: number;
+   titulo: string | null;
+   /** Etapa pendente mais antiga da missão — ancora o link do alerta. */
+   etapa_id: number;
+   /** Intervalo das etapas PENDENTES (não de todas as da missão). */
+   primeira_data: string;
+   ultima_data: string;
+   total: number;
+}
+
+export interface EtapasPendentes {
+   total: number;
+   total_missoes: number;
+   /** Truncada em `limit`; `total_missoes` diz quantas existem ao todo. */
+   missoes: MissaoPendente[];
+}
+
+/**
+ * Pendências de SAGEM/Parte 1 da org ativa — a varredura é sem filtro de
+ * data, de propósito: serve para pescar a missão antiga que ficou fora da
+ * janela da tela.
+ */
+export async function getEtapasPendentes(
+   limit?: number,
+   signal?: AbortSignal
+): Promise<EtapasPendentes> {
+   const response = await request(
+      "GET",
+      `${etapasRoute}pendentes`,
+      null,
+      limit != null ? { limit: String(limit) } : undefined,
+      signal
+   );
+   const json = (await response.json()) as ApiResponse<EtapasPendentes>;
+   if (!response.ok) {
+      throw new Error(json.message || "Erro ao buscar etapas pendentes");
+   }
+   return json.data!;
+}
+
 // ─── Etapa CRUD ────────────────────────────────────────────────────────────
 
 export interface TripEtapaIn {

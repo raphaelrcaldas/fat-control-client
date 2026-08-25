@@ -10,6 +10,7 @@ import {
 } from "utils/dateHandler";
 
 import { EtapaStatusBadge } from "./EtapaStatusBadge";
+import { EtapaVerifBadge } from "./EtapaVerifBadge";
 
 export type EtapaStatus = "ok" | "verificar" | "editando" | "rascunho";
 
@@ -24,6 +25,8 @@ type Props = {
    arrHora: string;
    tvooMin: number;
    status: EtapaStatus;
+   sagem: boolean;
+   parte1: boolean;
    selected: boolean;
    isModified?: boolean;
    isNew?: boolean;
@@ -40,6 +43,8 @@ function EtapaSidebarItemBase({
    arrHora,
    tvooMin,
    status,
+   sagem,
+   parte1,
    selected,
    isModified,
    isNew,
@@ -98,26 +103,52 @@ function EtapaSidebarItemBase({
             </div>
          </div>
 
-         <div className="flex items-center justify-end gap-2">
-            {isNew && (
-               <span
-                  className="flex items-center gap-1 rounded-full bg-emerald-50 px-1.5 py-0.5 text-[10px] font-semibold text-emerald-700 ring-1 ring-emerald-200"
-                  title="Esta etapa é nova e ainda não foi salva"
-               >
-                  <HiSparkles className="h-3 w-3" />
-                  Nova
-               </span>
-            )}
-            {isModified && (
-               <span
-                  className="flex items-center gap-1 rounded-full bg-amber-50 px-1.5 py-0.5 text-[10px] font-semibold text-amber-700 ring-1 ring-amber-200"
-                  title="Esta etapa foi modificada e ainda não foi salva"
-               >
-                  <HiPencil className="h-3 w-3" />
-                  Modificado
-               </span>
-            )}
-            <EtapaStatusBadge status={status} />
+         {/* Verificação à esquerda, situação da etapa à direita. flex-wrap:
+             com "Nova"/"Modificado" em cena as pílulas não cabem na largura
+             da sidebar e precisam quebrar em vez de estourar */}
+         <div className="flex flex-wrap items-center justify-between gap-1.5">
+            <div className="flex flex-wrap items-center gap-1.5">
+               <EtapaVerifBadge
+                  label="SAGEM"
+                  ok={sagem}
+                  title={
+                     sagem
+                        ? "Registrado no SAGEM"
+                        : "Pendente de registro no SAGEM"
+                  }
+               />
+               <EtapaVerifBadge
+                  label="PARTE 1"
+                  ok={parte1}
+                  title={
+                     parte1
+                        ? "Relatório Parte 1 recolhido"
+                        : "Relatório Parte 1 pendente"
+                  }
+               />
+            </div>
+
+            <div className="flex flex-wrap items-center justify-end gap-1.5">
+               {isNew && (
+                  <span
+                     className="flex items-center gap-1 rounded-full bg-emerald-50 px-1.5 py-0.5 text-[10px] font-semibold text-emerald-700 ring-1 ring-emerald-200"
+                     title="Esta etapa é nova e ainda não foi salva"
+                  >
+                     <HiSparkles className="h-3 w-3" />
+                     Nova
+                  </span>
+               )}
+               {isModified && (
+                  <span
+                     className="flex items-center gap-1 rounded-full bg-amber-50 px-1.5 py-0.5 text-[10px] font-semibold text-amber-700 ring-1 ring-amber-200"
+                     title="Esta etapa foi modificada e ainda não foi salva"
+                  >
+                     <HiPencil className="h-3 w-3" />
+                     Modificado
+                  </span>
+               )}
+               <EtapaStatusBadge status={status} />
+            </div>
          </div>
       </button>
    );

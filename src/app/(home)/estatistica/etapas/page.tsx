@@ -17,6 +17,7 @@ import { EtapasTable } from "./components/EtapasTable/EtapasTable";
 import { EtapasTableSkeleton } from "./components/EtapasTable/EtapasTableSkeleton";
 import { EtapasFilterPanel } from "./components/EtapasFilterPanel";
 import { ActiveFilterTags } from "./components/ActiveFilterTags";
+import { EtapasPendentesAlert } from "./components/EtapasPendentesAlert";
 import { MissaoDeleteModal } from "./components/MissaoDeleteModal";
 import { ExportModal } from "./components/ExportModal";
 import { PaginationInfo } from "./components/PaginationInfo";
@@ -160,6 +161,16 @@ export default function EtapasPage() {
                />
             </div>
          </div>
+
+         {/* Só quem edita etapa pode resolver a pendência — para os demais o
+             aviso seria ruído sem ação possível. O PermBased também é o que
+             impede a busca de disparar (o componente nem monta). */}
+         <PermBased resource="estatistica.etapas" requiredPerm="update">
+            <EtapasPendentesAlert
+               dataIni={filters.urlDataIni}
+               dataFim={filters.urlDataFim}
+            />
+         </PermBased>
 
          <ActiveFilterTags
             urlDataIni={filters.urlDataIni}

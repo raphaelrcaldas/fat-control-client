@@ -13,6 +13,7 @@ import {
    deleteMissao,
    getEtapas,
    getEtapasFlat,
+   getEtapasPendentes,
    updateEtapa,
    updateMissao,
    type BulkUpdatePayload,
@@ -39,6 +40,10 @@ export const etapaKeys = {
    flats: () => [...etapaKeys.all, "flat"] as const,
    flat: (filters?: GetEtapasParams) =>
       [...etapaKeys.flats(), filters] as const,
+   // Sob `all` de propósito: toda mutação de etapa já invalida `all`, então
+   // marcar SAGEM/Parte 1 rebaixa a contagem de pendências sem código extra.
+   pendentes: (limit?: number) =>
+      [...etapaKeys.all, "pendentes", limit] as const,
 };
 
 // ========================================
@@ -65,6 +70,20 @@ export function useEtapasFlat(params?: GetEtapasParams, enabled = true) {
       queryKey: etapaKeys.flat(params),
       queryFn: ({ signal }) => getEtapasFlat(params, signal),
       placeholderData: keepPreviousData,
+      enabled,
+   });
+}
+
+/**
+ * Etapas pendentes de verificacao (sem SAGEM e/ou sem Parte 1) da org ativa.
+ *
+ * Nao recebe os filtros da tela: a rota varre todo o historico justamente
+ * para pescar a missao antiga que ficou fora da janela de datas.
+ */
+export function useEtapasPendentes(limit?: number, enabled = true) {
+   return useQuery({
+      queryKey: etapaKeys.pendentes(limit),
+      queryFn: ({ signal }) => getEtapasPendentes(limit, signal),
       enabled,
    });
 }

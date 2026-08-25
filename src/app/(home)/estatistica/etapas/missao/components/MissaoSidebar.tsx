@@ -15,6 +15,8 @@ export type SidebarEtapa = {
    arrHora: string;
    tvooMin: number;
    status: EtapaStatus;
+   sagem: boolean;
+   parte1: boolean;
    selected: boolean;
    isModified?: boolean;
    isNew?: boolean;
@@ -103,6 +105,8 @@ export function MissaoSidebar({
                            arrHora={etapa.arrHora}
                            tvooMin={etapa.tvooMin}
                            status={etapa.status}
+                           sagem={etapa.sagem}
+                           parte1={etapa.parte1}
                            selected={etapa.selected}
                            isModified={etapa.isModified}
                            isNew={etapa.isNew}

@@ -112,6 +112,8 @@ export function MissaoEditor({ mode }: MissaoEditorProps) {
                arrHora: e.form.arr || "--:--",
                tvooMin: etapaTotals.tvoo,
                status: e.status,
+               sagem: e.form.sagem,
+               parte1: e.form.parte1,
                selected: e.localId === draft.selectedLocalId,
                isModified: e.dirty && e.serverId !== null,
                isNew: mode === "edit" && e.serverId === null,
