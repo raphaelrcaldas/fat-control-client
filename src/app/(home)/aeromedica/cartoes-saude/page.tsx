@@ -7,23 +7,26 @@ import clsx from "clsx";
 import useDebouncedValue from "@/hooks/useDebouncedValue";
 import { useCartoesSaude } from "@/hooks/queries";
 import type { UserCartaoSaude } from "services/routes/aeromedica/cartoesSaude";
-import type {
-   SortField,
-   SortDirection,
-   TripFilter,
-   StatusFilter,
-} from "./types";
+import type { DateStatus } from "@/utils/dateStatus";
 import {
-   getCemalStatus,
-   getDateStatus,
-   getWorstStatus,
-} from "./utils/dateStatus";
+   DOCS,
+   SEVERIDADES,
+   type SortField,
+   type SortDirection,
+   type TripFilter,
+   type ValidadeFilter,
+   type DocKey,
+   type CartaoStats,
+} from "./types";
+import { getCemalStatus, getDateStatus } from "./utils/dateStatus";
 import { compareByAntiguidade } from "utils/sortByAntiguidade";
-import StatCardsGrid from "./components/StatCards";
-import StatCardsSkeleton from "./components/StatCardsSkeleton";
-import Filters, { STATUS_VALUES } from "./components/Filters";
+import SummaryBar from "./components/SummaryBar";
+import SummaryBarSkeleton from "./components/SummaryBarSkeleton";
+import Filters from "./components/Filters";
 import CartoesSaudeTable from "./components/CartoesSaudeTable";
 import CartoesSaudeTableSkeleton from "./components/CartoesSaudeTableSkeleton";
+import CartoesSaudeCardList from "./components/CartoesSaudeCardList";
+import CartoesSaudeCardListSkeleton from "./components/CartoesSaudeCardListSkeleton";
 import EditCartaoDrawer from "./components/EditCartaoDrawer";
 import OrfaosAlert from "./components/OrfaosAlert";
 import { PermBased } from "../../hooks/usePermBased";
@@ -53,12 +56,21 @@ export default function CartoesSaudePage() {
       ? (tripParamRaw as TripFilter)
       : "all";
 
-   const statusParamRaw = searchParams.get("status");
-   const statusFilter: StatusFilter = STATUS_VALUES.includes(
-      statusParamRaw as StatusFilter
-   )
-      ? (statusParamRaw as StatusFilter)
-      : "all";
+   // O recorte de validade só existe com os dois lados válidos: um status
+   // sem documento (ou vice-versa) não descreve nada, então cai em "all".
+   const statusParamRaw = searchParams.get("status") as DateStatus | null;
+   const docParamRaw = searchParams.get("doc") as DocKey | null;
+   const validadeFilter: ValidadeFilter =
+      statusParamRaw &&
+      docParamRaw &&
+      SEVERIDADES.includes(statusParamRaw) &&
+      DOCS.includes(docParamRaw)
+         ? { tipo: "doc", doc: docParamRaw, status: statusParamRaw }
+         : { tipo: "all" };
+
+   // Ata anexada é outro eixo, então tem seu próprio parâmetro em vez de
+   // disputar o `status` com o farol de validade.
+   const semAta = searchParams.get("sem_ata") === "1";
 
    // --- Estado local apenas para o campo de busca (feedback imediato) ---
    const [searchUser, setSearchUser] = useState(urlSearch);
@@ -125,25 +137,29 @@ export default function CartoesSaudePage() {
       tripulante: tripParam,
    });
 
-   // Filtro de status (client-side)
-   const filteredByStatus = useMemo(() => {
-      if (statusFilter === "all") return cartoesSaude;
-      if (statusFilter === "sem_ata") {
-         return cartoesSaude.filter((item) => item.cemal_tem_ata === false);
-      }
-      // O filtro seleciona pelo mesmo farol exibido na linha (pior status
-      // entre as datas preenchidas) — senão "Regular" devolveria militar com
-      // bolinha vermelha por causa de TOVN/IMAE.
-      return cartoesSaude.filter(
-         (item) => getWorstStatus(item) === statusFilter
-      );
-   }, [cartoesSaude, statusFilter]);
+   // Filtros client-side: validade e ata são independentes e se acumulam.
+   const filteredClientSide = useMemo(() => {
+      return cartoesSaude.filter((item) => {
+         if (semAta && item.cemal_tem_ata !== false) return false;
+         if (validadeFilter.tipo === "doc") {
+            // Status do documento clicado, não o pior do militar: é o mesmo
+            // critério que gerou o número no contador.
+            const { doc, status } = validadeFilter;
+            const atual =
+               doc === "cemal"
+                  ? getCemalStatus(item)
+                  : getDateStatus(item.cartao?.[doc]);
+            if (atual !== status) return false;
+         }
+         return true;
+      });
+   }, [cartoesSaude, validadeFilter, semAta]);
 
    // Sort (null = antiguidade da API)
    const sortedData = useMemo(() => {
-      if (!sortField) return filteredByStatus;
+      if (!sortField) return filteredClientSide;
 
-      const sorted = [...filteredByStatus];
+      const sorted = [...filteredClientSide];
       sorted.sort((a, b) => {
          let comparison = 0;
          switch (sortField) {
@@ -167,7 +183,7 @@ export default function CartoesSaudePage() {
          return sortDirection === "asc" ? comparison : -comparison;
       });
       return sorted;
-   }, [filteredByStatus, sortField, sortDirection]);
+   }, [filteredClientSide, sortField, sortDirection]);
 
    const handleSort = useCallback(
       (field: SortField) => {
@@ -213,9 +229,20 @@ export default function CartoesSaudePage() {
       [updateParams]
    );
 
-   const handleStatusChange = useCallback(
-      (value: StatusFilter) => {
-         updateParams({ status: value });
+   const handleValidadeChange = useCallback(
+      (value: ValidadeFilter) => {
+         updateParams(
+            value.tipo === "all"
+               ? { status: undefined, doc: undefined }
+               : { status: value.status, doc: value.doc }
+         );
+      },
+      [updateParams]
+   );
+
+   const handleSemAtaChange = useCallback(
+      (value: boolean) => {
+         updateParams({ sem_ata: value ? "1" : undefined });
       },
       [updateParams]
    );
@@ -241,7 +268,8 @@ export default function CartoesSaudePage() {
       filterPG.length > 0 ||
       filterFunc.length > 0 ||
       tripFilter !== "all" ||
-      statusFilter !== "all";
+      validadeFilter.tipo !== "all" ||
+      semAta;
 
    const clearFilters = useCallback(() => {
       setSearchUser("");
@@ -251,37 +279,46 @@ export default function CartoesSaudePage() {
          func: undefined,
          trip: undefined,
          status: undefined,
+         doc: undefined,
+         sem_ata: undefined,
       });
    }, [updateParams]);
 
-   // Stats por campo (iteração única)
+   // Stats por campo (iteração única) sobre o que a API devolveu, antes dos
+   // recortes client-side (validade e ata) — senão o número que gerou o
+   // clique sumiria ao clicar. Busca, P/G, função e tripulante são params da
+   // query, então esses o resumo acompanha.
    const { cemalStats, tovnStats, imaeStats } = useMemo(() => {
-      const cemal = { valid: 0, warning: 0, critical: 0, expired: 0, empty: 0 };
-      const tovn = { valid: 0, warning: 0, critical: 0, expired: 0, empty: 0 };
-      const imae = { valid: 0, warning: 0, critical: 0, expired: 0, empty: 0 };
-      let cemalTotal = 0;
-      let tovnTotal = 0;
-      let imaeTotal = 0;
+      const emptyCounts = (): Record<DateStatus, number> => ({
+         valid: 0,
+         warning: 0,
+         critical: 0,
+         expired: 0,
+         empty: 0,
+      });
+      const cemal = emptyCounts();
+      const tovn = emptyCounts();
+      const imae = emptyCounts();
 
       for (const item of cartoesSaude) {
          const c = item.cartao;
-         const cemalStatus = getCemalStatus(item);
-         cemal[cemalStatus]++;
-         if (cemalStatus !== "empty") cemalTotal++;
-
-         const tovnStatus = getDateStatus(c?.tovn);
-         tovn[tovnStatus]++;
-         if (tovnStatus !== "empty") tovnTotal++;
-
-         const imaeStatus = getDateStatus(c?.imae);
-         imae[imaeStatus]++;
-         if (imaeStatus !== "empty") imaeTotal++;
+         cemal[getCemalStatus(item)]++;
+         tovn[getDateStatus(c?.tovn)]++;
+         imae[getDateStatus(c?.imae)]++;
       }
 
+      // `efetivo` é o denominador comum das barras: com bases diferentes elas
+      // não seriam comparáveis entre si, que é a razão de ficarem alinhadas.
+      const build = (counts: Record<DateStatus, number>): CartaoStats => ({
+         counts,
+         efetivo: cartoesSaude.length,
+         total: cartoesSaude.length - counts.empty,
+      });
+
       return {
-         cemalStats: { counts: cemal, total: cemalTotal },
-         tovnStats: { counts: tovn, total: tovnTotal },
-         imaeStats: { counts: imae, total: imaeTotal },
+         cemalStats: build(cemal),
+         tovnStats: build(tovn),
+         imaeStats: build(imae),
       };
    }, [cartoesSaude]);
 
@@ -315,9 +352,9 @@ export default function CartoesSaudePage() {
             <OrfaosAlert />
          </PermBased>
 
-         {/* Stat Cards */}
+         {/* Resumo por documento — os contadores são o filtro de validade */}
          {isLoading ? (
-            <StatCardsSkeleton />
+            <SummaryBarSkeleton />
          ) : (
             cartoesSaude.length > 0 && (
                <div
@@ -326,19 +363,20 @@ export default function CartoesSaudePage() {
                      isFetching && "opacity-50"
                   )}
                >
-                  <StatCardsGrid
+                  <SummaryBar
                      cemalStats={cemalStats}
                      imaeStats={imaeStats}
                      tovnStats={tovnStats}
+                     validadeFilter={validadeFilter}
+                     onValidadeFilterChange={handleValidadeChange}
                   />
                </div>
             )
          )}
 
-         {/* Filtros + Tabela — sem `overflow-hidden`: o Dropdown do Flowbite
-             0.12.17 não usa portal e o recorte do card comia as opções do menu
-             de status (no mobile, "Todos" ficava fora da vista). O canto
-             arredondado da base fica por conta do wrapper da tabela. */}
+         {/* Filtros + lista — sem `overflow-hidden`, para o card não recortar
+             menu aberto de dentro dele. O canto arredondado da base fica por
+             conta do wrapper da tabela. */}
          <div className="relative rounded border border-slate-200 bg-white shadow-sm">
             <Filters
                searchUser={searchUser}
@@ -349,8 +387,8 @@ export default function CartoesSaudePage() {
                onFilterFuncChange={handleFuncChange}
                tripFilter={tripFilter}
                onTripFilterChange={handleTripFilterChange}
-               statusFilter={statusFilter}
-               onStatusFilterChange={handleStatusChange}
+               semAta={semAta}
+               onSemAtaChange={handleSemAtaChange}
                totalCount={cartoesSaude.length}
                filteredCount={sortedData.length}
                isLoading={isLoading}
@@ -360,7 +398,14 @@ export default function CartoesSaudePage() {
             />
 
             {isLoading ? (
-               <CartoesSaudeTableSkeleton />
+               <>
+                  <div className="md:hidden">
+                     <CartoesSaudeCardListSkeleton />
+                  </div>
+                  <div className="hidden md:block">
+                     <CartoesSaudeTableSkeleton />
+                  </div>
+               </>
             ) : (
                <div
                   className={clsx(
@@ -368,15 +413,32 @@ export default function CartoesSaudePage() {
                      isFetching && "pointer-events-none opacity-50"
                   )}
                >
-                  <CartoesSaudeTable
-                     data={sortedData}
-                     sortField={sortField}
-                     sortDirection={sortDirection}
-                     onSort={handleSort}
-                     onRowClick={handleRowClick}
-                     hasActiveFilters={hasActiveFilters}
-                     searchTerm={urlSearch}
-                  />
+                  {/* Cards no dedo, tabela no mouse: em 390px as 7 colunas
+                      só existiam atrás de rolagem lateral.
+                      As duas árvores ficam montadas e só uma é exibida (o
+                      `client` não tem hook de media query): com ~130 linhas o
+                      custo extra de DOM é aceitável e evita o flash de
+                      remontagem ao girar o aparelho. Se a lista crescer muito,
+                      é aqui que entra virtualização. */}
+                  <div className="md:hidden">
+                     <CartoesSaudeCardList
+                        data={sortedData}
+                        onCardClick={handleRowClick}
+                        hasActiveFilters={hasActiveFilters}
+                        searchTerm={urlSearch}
+                     />
+                  </div>
+                  <div className="hidden md:block">
+                     <CartoesSaudeTable
+                        data={sortedData}
+                        sortField={sortField}
+                        sortDirection={sortDirection}
+                        onSort={handleSort}
+                        onRowClick={handleRowClick}
+                        hasActiveFilters={hasActiveFilters}
+                        searchTerm={urlSearch}
+                     />
+                  </div>
                </div>
             )}
          </div>

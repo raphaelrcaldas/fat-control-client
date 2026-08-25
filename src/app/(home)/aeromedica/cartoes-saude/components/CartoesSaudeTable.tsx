@@ -10,11 +10,7 @@ import {
    TableCell,
 } from "flowbite-react";
 import { HiChevronUp, HiChevronDown } from "react-icons/hi";
-import {
-   MdHealthAndSafety,
-   MdAttachFile,
-   MdErrorOutline,
-} from "react-icons/md";
+import { MdAttachFile, MdErrorOutline } from "react-icons/md";
 import clsx from "clsx";
 import type { UserCartaoSaude } from "services/routes/aeromedica/cartoesSaude";
 import type { SortField, SortDirection } from "../types";
@@ -24,6 +20,7 @@ import {
    formatDate,
    getWorstStatus,
 } from "../utils/dateStatus";
+import EmptyState from "./EmptyState";
 
 // ========================================
 // DateCell
@@ -150,9 +147,9 @@ const SortableHeader = memo(function SortableHeader({
 // CartoesSaudeRow
 // ========================================
 
-// pointer-coarse:py-4 sobe a linha para 44px no dedo e mantém os 40px
-// compactos no mouse (mínimo WCAG de 24px folgado).
-const CELL = "px-4 py-3 pointer-coarse:py-4 whitespace-nowrap";
+// Altura da linha é a do conteúdo: no dedo a tabela nem aparece (abaixo de
+// `md` a lista é de cards), então não há por que inflar a linha aqui.
+const CELL = "px-4 py-2 whitespace-nowrap";
 
 const CartoesSaudeRow = memo(function CartoesSaudeRow({
    item,
@@ -161,8 +158,9 @@ const CartoesSaudeRow = memo(function CartoesSaudeRow({
    item: UserCartaoSaude;
    onClick: (item: UserCartaoSaude) => void;
 }) {
-   const rowStatus = getWorstStatus(item);
-   const { dot: dotColor, label: statusLabel } = getStatusConfig(rowStatus);
+   const { dot: dotColor, label: statusLabel } = getStatusConfig(
+      getWorstStatus(item)
+   );
 
    return (
       <TableRow
@@ -178,14 +176,15 @@ const CartoesSaudeRow = memo(function CartoesSaudeRow({
          role="button"
          className="cursor-pointer border-b border-slate-200 transition-colors hover:bg-gray-50"
       >
-         <TableCell className="w-10 px-3 py-2 text-center">
-            {/* Farol da linha: pior status entre as datas preenchidas — antes
-                espelhava só o CEMAL e ficava verde com o IMAE vencido. */}
-            <span
-               className={clsx("inline-block h-3 w-3 rounded-full", dotColor)}
-               title={statusLabel}
-            />
-            <span className="sr-only">{statusLabel}</span>
+         {/* Farol da linha (pior status entre as datas preenchidas — antes
+             espelhava só o CEMAL e ficava verde com o IMAE vencido) como
+             faixa na borda: mesmo sinal do antigo ponto, sem gastar uma
+             coluna de 40px com ele. */}
+         <TableCell
+            className={clsx("w-1 p-0", dotColor)}
+            title={`Situação: ${statusLabel}`}
+         >
+            <span className="sr-only">{`Situação: ${statusLabel}`}</span>
          </TableCell>
          <TableCell
             className={clsx(CELL, "font-medium text-gray-900 uppercase")}
@@ -242,37 +241,24 @@ export default function CartoesSaudeTable({
    searchTerm,
 }: CartoesSaudeTableProps) {
    if (data.length === 0) {
-      // Sem botão de limpar: já existe um na barra logo acima, sempre visível
-      // enquanto houver filtro ativo.
-      const description = searchTerm
-         ? `Nenhum militar corresponde a “${searchTerm}”.`
-         : hasActiveFilters
-           ? "Nenhum militar corresponde aos filtros aplicados."
-           : "Nenhum militar cadastrado nesta organização.";
-
       return (
-         <div className="flex h-64 flex-col items-center justify-center px-4 text-center">
-            <MdHealthAndSafety className="mb-4 h-12 w-12 text-gray-400" />
-            <p className="font-medium text-gray-600">
-               Nenhum resultado encontrado
-            </p>
-            <p className="mt-1 text-sm text-gray-500">{description}</p>
-         </div>
+         <EmptyState
+            hasActiveFilters={hasActiveFilters}
+            searchTerm={searchTerm}
+         />
       );
    }
 
    return (
-      // Altura limitada + cabeçalho fixo: com 133 linhas (~7000px) as colunas
-      // sumiam antes da metade da lista. `sticky` só funciona porque o próprio
-      // wrapper é o container de rolagem vertical — o preço assumido é um
-      // scroller aninhado ao do `main`.
-      // `rounded-b`: o card pai não pode mais recortar (cortaria o menu de
-      // status), então o arredondamento da base mora aqui.
-      <div className="max-h-[70vh] overflow-auto rounded-b">
+      // Rolagem livre na página: sem teto de altura e sem cabeçalho fixo, a
+      // lista não fica presa num scroller aninhado ao do `main`.
+      // `rounded-b`: o card pai não recorta (cortaria menus abertos dentro
+      // dele), então o arredondamento da base mora aqui.
+      <div className="overflow-x-auto rounded-b">
          <Table hoverable>
-            <TableHead className="sticky top-0 z-10 border-b border-slate-200 bg-gray-50 text-xs text-gray-700 uppercase">
+            <TableHead className="border-b border-slate-200 bg-gray-50 text-xs text-gray-700 uppercase">
                <TableRow>
-                  <TableHeadCell className="w-10 px-3 py-2">
+                  <TableHeadCell className="w-1 p-0">
                      <span className="sr-only">Situação</span>
                   </TableHeadCell>
                   <SortableHeader

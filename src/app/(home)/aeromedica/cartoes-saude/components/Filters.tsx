@@ -1,57 +1,25 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 
-import {
-   TextInput,
-   Spinner,
-   Button,
-   Dropdown,
-   DropdownItem,
-} from "flowbite-react";
+import { TextInput, Spinner, Button } from "flowbite-react";
 import { HiSearch, HiX } from "react-icons/hi";
-import { MdFlightTakeoff, MdPeopleAlt, MdFilterList } from "react-icons/md";
+import {
+   MdFlightTakeoff,
+   MdPeopleAlt,
+   MdFilterList,
+   MdErrorOutline,
+} from "react-icons/md";
 import clsx from "clsx";
 import { MultiSelect } from "@/components/MultiSelect";
 import { postoGradRecords } from "@/constants/militar";
 import { useFuncoes } from "@/hooks/queries";
-import type { DateStatus } from "@/utils/dateStatus";
-import { getStatusConfig } from "../utils/dateStatus";
-import type { TripFilter, StatusFilter } from "../types";
-
-// ========================================
-// Constants
-// ========================================
+import type { TripFilter } from "../types";
 
 const PG_OPTIONS = postoGradRecords.map((pg) => ({
    value: pg.short,
    label: pg.mid,
 }));
-
-// Cor e rótulo saem de `getStatusConfig` — a mesma fonte do farol da linha e
-// dos StatCards. Cravar aqui seria a quarta cópia da paleta de status.
-const SEVERIDADES: DateStatus[] = [
-   "expired",
-   "critical",
-   "warning",
-   "valid",
-   "empty",
-];
-
-const STATUS_OPTIONS: {
-   value: StatusFilter;
-   label: string;
-   dot?: string;
-}[] = [
-   { value: "all", label: "Todos" },
-   ...SEVERIDADES.map((s) => {
-      const cfg = getStatusConfig(s);
-      return { value: s as StatusFilter, label: cfg.label, dot: cfg.dot };
-   }),
-   { value: "sem_ata", label: "Sem ata", dot: "bg-amber-500" },
-];
-
-export const STATUS_VALUES = STATUS_OPTIONS.map((o) => o.value);
 
 // ========================================
 // FilterButton
@@ -62,13 +30,11 @@ function FilterButton({
    onClick,
    children,
    icon: Icon,
-   dot,
 }: {
    active: boolean;
    onClick: () => void;
    children: React.ReactNode;
    icon?: React.ComponentType<{ className?: string }>;
-   dot?: string;
 }) {
    return (
       <Button
@@ -79,7 +45,6 @@ function FilterButton({
       >
          <span className="flex items-center gap-1.5">
             {Icon && <Icon className="h-3.5 w-3.5" />}
-            {dot && <span className={clsx("h-2 w-2 rounded-full", dot)} />}
             {children}
          </span>
       </Button>
@@ -99,8 +64,8 @@ interface FiltersProps {
    onFilterFuncChange: (value: string[]) => void;
    tripFilter: TripFilter;
    onTripFilterChange: (value: TripFilter) => void;
-   statusFilter: StatusFilter;
-   onStatusFilterChange: (value: StatusFilter) => void;
+   semAta: boolean;
+   onSemAtaChange: (value: boolean) => void;
    totalCount: number;
    filteredCount: number;
    isLoading: boolean;
@@ -109,6 +74,18 @@ interface FiltersProps {
    onClearFilters: () => void;
 }
 
+/**
+ * Busca e recortes da listagem.
+ *
+ * O filtro de validade não mora aqui — ele é o próprio resumo (ver
+ * SummaryBar), para o número e a ação serem a mesma coisa. Sobrou o que é de
+ * outro eixo: quem é o militar (P/G, função, tripulante) e se a ata do CEMAL
+ * está anexada.
+ *
+ * No mobile os filtros ficam atrás do botão "Filtros": empilhados eles
+ * ocupavam meia tela antes da primeira linha da lista. No desktop (md+) o
+ * wrapper vira `contents` e eles voltam a dividir a linha com a busca.
+ */
 export default function Filters({
    searchUser,
    onSearchChange,
@@ -118,8 +95,8 @@ export default function Filters({
    onFilterFuncChange,
    tripFilter,
    onTripFilterChange,
-   statusFilter,
-   onStatusFilterChange,
+   semAta,
+   onSemAtaChange,
    totalCount,
    filteredCount,
    isLoading,
@@ -127,68 +104,74 @@ export default function Filters({
    hasActiveFilters,
    onClearFilters,
 }: FiltersProps) {
+   const [showFilters, setShowFilters] = useState(false);
    const { principais } = useFuncoes();
    const funcOptions = useMemo(
       () => principais.map((f) => ({ value: f.cod, label: f.nome })),
       [principais]
    );
-   const activeStatus =
-      STATUS_OPTIONS.find((o) => o.value === statusFilter) ?? STATUS_OPTIONS[0];
+
+   const activeCount =
+      filterPG.length +
+      filterFunc.length +
+      (tripFilter !== "all" ? 1 : 0) +
+      (semAta ? 1 : 0);
 
    return (
       <>
-         {/* flex-wrap é obrigatório: sem ele o grupo de status estoura o card
-             (overflow-hidden) entre 768px e ~1120px e os últimos filtros ficam
-             fisicamente inalcançáveis, sem barra de rolagem que os revele. */}
          <div className="flex flex-col gap-3 p-4 md:flex-row md:flex-wrap md:items-center">
-            {/* Busca — basis-64 impede o colapso para o tamanho do ícone
-                quando a toolbar fica apertada (min-w-0 + flex-1 encolhia a 0).
-                Só a partir de `md`: no mobile o container é `flex-col` e o
-                basis viraria 224px de ALTURA (buraco no lugar da toolbar). */}
-            <div className="md:min-w-[16rem] md:flex-1 md:basis-64">
-               <TextInput
-                  icon={HiSearch}
-                  placeholder="Buscar por nome de guerra ou completo..."
-                  value={searchUser}
-                  onChange={(e) => onSearchChange(e.target.value)}
-                  sizing="md"
-               />
-            </div>
-
-            {/* No mobile os quatro filtros dividem duas linhas (P/G+Função,
-                depois tripulante+status) em vez de uma pilha de quatro.
-                `md:contents` dissolve este agrupador no desktop — lá os filhos
-                voltam a ser irmãos diretos da toolbar. */}
-            <div className="flex flex-wrap items-center gap-3 md:contents">
-               {/* Par 1 — `w-full` obriga a linha própria: sem ele os dois
-                   selects encolhiam a ~58px para caber junto do grupo de
-                   tripulante (que tem largura fixa e não cede). */}
-               <div className="flex w-full gap-3 md:contents">
-                  {/* P/G */}
-                  <MultiSelect
-                     options={PG_OPTIONS}
-                     selected={filterPG}
-                     onChange={onFilterPGChange}
-                     placeholder="P/G"
-                     className="min-w-0 flex-1 md:w-44 md:flex-none"
-                  />
-
-                  {/* Funcao */}
-                  <MultiSelect
-                     options={funcOptions}
-                     selected={filterFunc}
-                     onChange={onFilterFuncChange}
-                     placeholder="Função"
-                     className="min-w-0 flex-1 md:w-44 md:flex-none"
+            <div className="flex gap-2 md:min-w-[16rem] md:flex-1 md:basis-64">
+               <div className="min-w-0 flex-1">
+                  <TextInput
+                     icon={HiSearch}
+                     placeholder="Buscar por nome de guerra ou completo..."
+                     value={searchUser}
+                     onChange={(e) => onSearchChange(e.target.value)}
+                     sizing="md"
                   />
                </div>
+               <Button
+                  type="button"
+                  color={activeCount > 0 ? "primary" : "light"}
+                  onClick={() => setShowFilters((v) => !v)}
+                  aria-expanded={showFilters}
+                  aria-controls="cartoes-filtros"
+                  className="shrink-0 md:hidden"
+               >
+                  <span className="flex items-center gap-1.5">
+                     <MdFilterList className="h-4 w-4" />
+                     Filtros
+                     {activeCount > 0 && <span>({activeCount})</span>}
+                  </span>
+               </Button>
+            </div>
 
-               {/* Par 2 — tripulante + status na mesma linha onde couber
-                   (a partir de ~430px); abaixo disso o status desce. */}
-               <div className="flex w-full flex-wrap items-center gap-2 sm:gap-3 md:contents">
+            <div
+               id="cartoes-filtros"
+               className={clsx(
+                  "flex-col gap-3 md:contents",
+                  showFilters ? "flex" : "hidden"
+               )}
+            >
+               <MultiSelect
+                  options={PG_OPTIONS}
+                  selected={filterPG}
+                  onChange={onFilterPGChange}
+                  placeholder="P/G"
+                  className="md:w-44"
+               />
+
+               <MultiSelect
+                  options={funcOptions}
+                  selected={filterFunc}
+                  onChange={onFilterFuncChange}
+                  placeholder="Função"
+                  className="md:w-44"
+               />
+
+               <div className="flex flex-wrap items-center gap-2">
                   {/* Tripulante — abaixo de 430px os ícones saem (os rótulos
-                      já dizem tudo): são os ~60px que faltavam para o status
-                      caber na mesma linha em vez de descer sozinho. */}
+                      já dizem tudo). */}
                   <div className="flex items-center gap-1 rounded border border-slate-200 bg-white p-0.5 max-[430px]:[&_svg]:hidden">
                      <FilterButton
                         active={tripFilter === "all"}
@@ -213,71 +196,20 @@ export default function Filters({
                      </FilterButton>
                   </div>
 
-                  {/* Status — 6 chips só cabem no monitor largo; abaixo de xl a
-                mesma lista vira menu, preservando a densidade da toolbar. */}
-                  <div className="hidden items-center gap-1 rounded border border-slate-200 bg-white p-0.5 xl:flex">
-                     {STATUS_OPTIONS.map((opt) => (
-                        <FilterButton
-                           key={opt.value}
-                           active={statusFilter === opt.value}
-                           onClick={() => onStatusFilterChange(opt.value)}
-                           icon={opt.value === "all" ? MdFilterList : undefined}
-                           dot={opt.dot}
-                        >
-                           {opt.label}
-                        </FilterButton>
-                     ))}
-                  </div>
-
-                  <div className="xl:hidden">
-                     <Dropdown
-                        dismissOnClick
-                        size="xs"
-                        color={statusFilter === "all" ? "light" : "primary"}
-                        label={
-                           <span className="flex items-center gap-1.5">
-                              {activeStatus.dot ? (
-                                 <span
-                                    className={clsx(
-                                       "h-2 w-2 rounded-full",
-                                       activeStatus.dot
-                                    )}
-                                 />
-                              ) : (
-                                 <MdFilterList className="h-3.5 w-3.5" />
-                              )}
-                              Status: {activeStatus.label}
-                           </span>
-                        }
-                     >
-                        {STATUS_OPTIONS.map((opt) => (
-                           <DropdownItem
-                              key={opt.value}
-                              onClick={() => onStatusFilterChange(opt.value)}
-                           >
-                              <span
-                                 className={clsx(
-                                    "flex items-center gap-2",
-                                    statusFilter === opt.value &&
-                                       "text-primary-600 font-semibold"
-                                 )}
-                              >
-                                 {opt.dot ? (
-                                    <span
-                                       className={clsx(
-                                          "h-2 w-2 rounded-full",
-                                          opt.dot
-                                       )}
-                                    />
-                                 ) : (
-                                    <MdFilterList className="h-3.5 w-3.5" />
-                                 )}
-                                 {opt.label}
-                              </span>
-                           </DropdownItem>
-                        ))}
-                     </Dropdown>
-                  </div>
+                  {/* Ata é eixo próprio (documento anexado, não validade):
+                      por isso um toggle solto, e não uma opção do resumo. */}
+                  <Button
+                     type="button"
+                     size="xs"
+                     color={semAta ? "primary" : "light"}
+                     aria-pressed={semAta}
+                     onClick={() => onSemAtaChange(!semAta)}
+                  >
+                     <span className="flex items-center gap-1.5">
+                        <MdErrorOutline className="h-3.5 w-3.5" />
+                        Sem ata
+                     </span>
+                  </Button>
                </div>
             </div>
          </div>
