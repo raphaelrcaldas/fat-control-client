@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { cookies } from "next/headers";
 
 import Providers from "@/app/context/providers";
+import { TitleGuard } from "@/app/components/TitleGuard";
 import { ORG_BRAND_COOKIE, parseOrgBrand } from "@/lib/orgBrand";
 import {
    NEUTRAL_ORG_THEME,
@@ -37,6 +38,7 @@ export default async function RootLayout({
    return (
       <html lang="pt-br" data-org-theme={tema}>
          <body className="bg-gray-100">
+            <TitleGuard fallback="FATCONTROL" />
             <Providers orgBrand={brand}>{children}</Providers>
          </body>
       </html>
