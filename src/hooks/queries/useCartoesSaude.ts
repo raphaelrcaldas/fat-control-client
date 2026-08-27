@@ -11,6 +11,7 @@ import {
    deleteCartaoSaude,
    getOrfaosAeromedica,
    deleteOrfaosAeromedica,
+   getCartaoSaudeHistorico,
    GetCartoesSaudeParams,
    CartaoSaudeCreate,
    CartaoSaudeUpdate,
@@ -27,6 +28,9 @@ export const cartoesSaudeKeys = {
    list: (filters?: GetCartoesSaudeParams) =>
       [...cartoesSaudeKeys.lists(), filters] as const,
    orfaos: () => [...cartoesSaudeKeys.all, "orfaos"] as const,
+   historicos: () => [...cartoesSaudeKeys.all, "historico"] as const,
+   historico: (userId: number) =>
+      [...cartoesSaudeKeys.historicos(), userId] as const,
 };
 
 // ========================================
@@ -44,6 +48,22 @@ export function useCartoesSaude(params?: GetCartoesSaudeParams) {
       queryFn: ({ signal }) => getCartoesSaude(params, signal),
       placeholderData: keepPreviousData,
       staleTime: 5 * 60_000,
+   });
+}
+
+/**
+ * Trilha de auditoria (cartão + atas) de um militar.
+ *
+ * Quem segura o fetch é o render condicional da aba Histórico no drawer
+ * (o componente só monta quando a aba está ativa): dado de saúde não se
+ * busca por precaução ao abrir qualquer militar.
+ */
+export function useCartaoSaudeHistorico(userId: number | null | undefined) {
+   return useQuery({
+      queryKey: cartoesSaudeKeys.historico(userId ?? 0),
+      queryFn: ({ signal }) => getCartaoSaudeHistorico(userId!, signal),
+      enabled: !!userId,
+      staleTime: 30_000,
    });
 }
 
@@ -79,6 +99,11 @@ export function useCreateCartaoSaude() {
          queryClient.invalidateQueries({
             queryKey: cartoesSaudeKeys.lists(),
          });
+         // A escrita virou evento de auditoria: a aba Histórico do drawer
+         // continua aberta e mostraria a trilha sem o que acabou de mudar.
+         queryClient.invalidateQueries({
+            queryKey: cartoesSaudeKeys.historicos(),
+         });
       },
    });
 }
@@ -109,6 +134,11 @@ export function useUpdateCartaoSaude() {
          queryClient.invalidateQueries({
             queryKey: cartoesSaudeKeys.lists(),
          });
+         // A escrita virou evento de auditoria: a aba Histórico do drawer
+         // continua aberta e mostraria a trilha sem o que acabou de mudar.
+         queryClient.invalidateQueries({
+            queryKey: cartoesSaudeKeys.historicos(),
+         });
       },
    });
 }
@@ -133,6 +163,11 @@ export function useDeleteCartaoSaude() {
          queryClient.invalidateQueries({
             queryKey: cartoesSaudeKeys.lists(),
          });
+         // A escrita virou evento de auditoria: a aba Histórico do drawer
+         // continua aberta e mostraria a trilha sem o que acabou de mudar.
+         queryClient.invalidateQueries({
+            queryKey: cartoesSaudeKeys.historicos(),
+         });
       },
    });
 }
@@ -154,6 +189,12 @@ export function useDeleteOrfaosAeromedica() {
          // A remoção das atas libera bytes do bucket aeromedica.
          queryClient.invalidateQueries({
             queryKey: storageKeys.all,
+         });
+         // A limpeza apaga a trilha de auditoria desses militares junto com
+         // os documentos — o cache do histórico ficaria servindo o que já
+         // não existe mais no banco.
+         queryClient.invalidateQueries({
+            queryKey: cartoesSaudeKeys.historicos(),
          });
       },
    });

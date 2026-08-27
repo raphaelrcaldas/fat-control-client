@@ -25,8 +25,14 @@ import {
    CartaoSaudeUpdate,
 } from "services/routes/aeromedica/cartoesSaude";
 import { formatPhone, formatSaram } from "@/constants/formats";
+import { usePermBased } from "@/app/(home)/hooks/usePermBased";
 import DateField from "./DateField";
 import AtasTab from "./AtasTab";
+import HistoricoTab from "./HistoricoTab";
+
+// A ordem é a das abas: o Flowbite entrega o índice no onActiveTabChange.
+const TAB_KEYS = ["dados", "atas", "historico"] as const;
+type TabKey = (typeof TAB_KEYS)[number];
 
 interface EditCartaoDrawerProps {
    show: boolean;
@@ -42,6 +48,13 @@ export default function EditCartaoDrawer({
    const { push } = useToast();
    const isEdit = !!item.cartao;
 
+   // O backend gateia cada escrita por ação (create/update/delete de
+   // 'aeromedica.cartoes'); aqui só escondemos o que ele recusaria — quem
+   // tem apenas 'view' abre o cartão em leitura.
+   const { hasPerm } = usePermBased();
+   const canSave = hasPerm("aeromedica.cartoes", isEdit ? "update" : "create");
+   const canDelete = hasPerm("aeromedica.cartoes", "delete");
+
    const createMutation = useCreateCartaoSaude();
    const updateMutation = useUpdateCartaoSaude();
    const deleteMutation = useDeleteCartaoSaude();
@@ -49,7 +62,7 @@ export default function EditCartaoDrawer({
    const isLoading = createMutation.isPending || updateMutation.isPending;
    const isDeleting = deleteMutation.isPending;
 
-   const [activeTab, setActiveTab] = useState<"dados" | "atas">("dados");
+   const [activeTab, setActiveTab] = useState<TabKey>("dados");
    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
    const [formData, setFormData] = useState({
@@ -172,8 +185,8 @@ export default function EditCartaoDrawer({
 
    return (
       <>
-         {/* Ancorado no topo (o default do Flowbite é centralizar): as duas
-             abas têm alturas diferentes e, centralizado, trocar de aba
+         {/* Ancorado no topo (o default do Flowbite é centralizar): as abas
+             têm alturas diferentes e, centralizado, trocar de aba
              arrastava a janela inteira para cima sob o cursor. Preso no topo,
              só a borda de baixo se move. */}
          <Modal
@@ -185,7 +198,11 @@ export default function EditCartaoDrawer({
             className="py-8"
          >
             <ModalHeader>
-               {isEdit ? "Editar Cartão de Saúde" : "Cadastrar Cartão de Saúde"}
+               {!canSave
+                  ? "Cartão de Saúde"
+                  : isEdit
+                    ? "Editar Cartão de Saúde"
+                    : "Cadastrar Cartão de Saúde"}
             </ModalHeader>
             <ModalBody>
                {/* min-h (e não h-140 cravado): a altura fixa deixava 378px de
@@ -200,7 +217,7 @@ export default function EditCartaoDrawer({
                      aria-label="Seções do cartão de saúde"
                      variant="underline"
                      onActiveTabChange={(idx) =>
-                        setActiveTab(idx === 0 ? "dados" : "atas")
+                        setActiveTab(TAB_KEYS[idx] ?? "dados")
                      }
                   >
                      <TabItem active={activeTab === "dados"} title="Dados">
@@ -208,6 +225,8 @@ export default function EditCartaoDrawer({
                            item={item}
                            formData={formData}
                            onChange={handleChange}
+                           readOnly={!canSave}
+                           canDelete={canDelete}
                         />
                      </TabItem>
                      <TabItem active={activeTab === "atas"} title="Atas">
@@ -221,6 +240,17 @@ export default function EditCartaoDrawer({
                            />
                         )}
                      </TabItem>
+                     <TabItem
+                        active={activeTab === "historico"}
+                        title="Histórico"
+                     >
+                        {/* Mesma razão da aba Atas: a trilha de auditoria só
+                            é buscada quando alguém a abre — é dado de saúde,
+                            não se puxa por precaução. */}
+                        {activeTab === "historico" && (
+                           <HistoricoTab userId={item.user.id} />
+                        )}
+                     </TabItem>
                   </Tabs>
                </div>
             </ModalBody>
@@ -232,7 +262,7 @@ export default function EditCartaoDrawer({
                      <div>
                         {/* Destrutivo não precisa ser o botão mais chamativo:
                             a confirmação em modal já segura o gatilho. */}
-                        {isEdit && (
+                        {isEdit && canDelete && (
                            <Button
                               color="light"
                               onClick={() => setShowDeleteConfirm(true)}
@@ -251,19 +281,21 @@ export default function EditCartaoDrawer({
                            onClick={onClose}
                            disabled={isLoading}
                         >
-                           Cancelar
+                           {canSave ? "Cancelar" : "Fechar"}
                         </Button>
-                        <Button
-                           color="primary"
-                           onClick={handleSave}
-                           disabled={isLoading}
-                        >
-                           {isLoading
-                              ? "Salvando..."
-                              : isEdit
-                                ? "Atualizar"
-                                : "Cadastrar"}
-                        </Button>
+                        {canSave && (
+                           <Button
+                              color="primary"
+                              onClick={handleSave}
+                              disabled={isLoading}
+                           >
+                              {isLoading
+                                 ? "Salvando..."
+                                 : isEdit
+                                   ? "Atualizar"
+                                   : "Cadastrar"}
+                           </Button>
+                        )}
                      </div>
                   </div>
                ) : (
@@ -276,38 +308,45 @@ export default function EditCartaoDrawer({
             </ModalFooter>
          </Modal>
 
-         {/* Modal de confirmação de deleção */}
-         <Modal
-            show={showDeleteConfirm}
-            onClose={() => setShowDeleteConfirm(false)}
-            size="md"
-         >
-            <ModalHeader>Confirmar Exclusão</ModalHeader>
-            <ModalBody>
-               <p className="text-gray-700 dark:text-gray-300">
-                  Tem certeza que deseja deletar o cartão de saúde de{" "}
-                  <strong className="uppercase">
-                     {item.user.posto.short} {item.user.nome_guerra}
-                  </strong>
-                  ?
-               </p>
-               <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-                  Esta ação não pode ser desfeita.
-               </p>
-            </ModalBody>
-            <ModalFooter>
-               <Button
-                  color="light"
-                  onClick={() => setShowDeleteConfirm(false)}
-                  disabled={isDeleting}
-               >
-                  Cancelar
-               </Button>
-               <Button color="red" onClick={handleDelete} disabled={isDeleting}>
-                  {isDeleting ? "Deletando..." : "Deletar"}
-               </Button>
-            </ModalFooter>
-         </Modal>
+         {/* Modal de confirmação de deleção — sob o mesmo gate do gatilho,
+             para a exclusão não depender de invariante implícita do estado. */}
+         {canDelete && (
+            <Modal
+               show={showDeleteConfirm}
+               onClose={() => setShowDeleteConfirm(false)}
+               size="md"
+            >
+               <ModalHeader>Confirmar Exclusão</ModalHeader>
+               <ModalBody>
+                  <p className="text-gray-700 dark:text-gray-300">
+                     Tem certeza que deseja deletar o cartão de saúde de{" "}
+                     <strong className="uppercase">
+                        {item.user.posto.short} {item.user.nome_guerra}
+                     </strong>
+                     ?
+                  </p>
+                  <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                     Esta ação não pode ser desfeita.
+                  </p>
+               </ModalBody>
+               <ModalFooter>
+                  <Button
+                     color="light"
+                     onClick={() => setShowDeleteConfirm(false)}
+                     disabled={isDeleting}
+                  >
+                     Cancelar
+                  </Button>
+                  <Button
+                     color="red"
+                     onClick={handleDelete}
+                     disabled={isDeleting}
+                  >
+                     {isDeleting ? "Deletando..." : "Deletar"}
+                  </Button>
+               </ModalFooter>
+            </Modal>
+         )}
       </>
    );
 }
@@ -344,11 +383,30 @@ function DadosTab({
    item,
    formData,
    onChange,
+   readOnly,
+   canDelete,
 }: {
    item: UserCartaoSaude;
    formData: Record<string, string>;
    onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+   readOnly: boolean;
+   canDelete: boolean;
 }) {
+   // Sem cartão e sem permissão de criar: um formulário inteiro desabilitado
+   // não diz nada — o que há para saber é que o militar não tem cartão.
+   if (readOnly && !item.cartao) {
+      return (
+         <div className="flex flex-col items-center rounded border border-dashed border-slate-300 px-4 py-8 text-center dark:border-gray-600">
+            <p className="font-medium text-gray-600 dark:text-gray-300">
+               Nenhum cartão de saúde cadastrado
+            </p>
+            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+               Você não tem permissão para cadastrar cartões de saúde.
+            </p>
+         </div>
+      );
+   }
+
    return (
       <div className="space-y-6">
          {/* Prontuário */}
@@ -363,6 +421,7 @@ function DadosTab({
                   value={formData.prontuario}
                   onChange={onChange}
                   maxLength={20}
+                  disabled={readOnly}
                />
             </div>
          </div>
@@ -373,7 +432,7 @@ function DadosTab({
                Datas de validade
             </h4>
             <p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">
-               Informe o vencimento de cada inspeção — não a data de realização.
+               Vencimento de cada inspeção — não a data de realização.
             </p>
          </div>
 
@@ -385,30 +444,41 @@ function DadosTab({
                   name="cemal"
                   value={formData.cemal}
                   onChange={onChange}
+                  disabled={readOnly}
                />
                {item.cemal_tem_ata === false && (
                   <p className="mt-1 text-xs font-medium text-amber-700">
                      Sem ata anexada
                   </p>
                )}
-               {item.total_atas > 1 && (
-                  <p className="mt-1 text-xs font-medium text-blue-600 dark:text-blue-400">
-                     {item.total_atas} atas anexadas — considere excluir as
-                     antigas
-                  </p>
-               )}
+               {/* "Considere excluir" só para quem pode excluir; aos demais
+                   o número é informação, não chamada para ação — daí o tom
+                   neutro em vez do azul de recomendação. */}
+               {item.total_atas > 1 &&
+                  (canDelete ? (
+                     <p className="mt-1 text-xs font-medium text-blue-600 dark:text-blue-400">
+                        {item.total_atas} atas anexadas — considere excluir as
+                        antigas
+                     </p>
+                  ) : (
+                     <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                        {item.total_atas} atas anexadas
+                     </p>
+                  ))}
             </div>
             <DateField
                label="Visão Noturna (TOVN)"
                name="tovn"
                value={formData.tovn}
                onChange={onChange}
+               disabled={readOnly}
             />
             <DateField
                label="IMAE"
                name="imae"
                value={formData.imae}
                onChange={onChange}
+               disabled={readOnly}
             />
          </div>
       </div>

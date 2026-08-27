@@ -21,6 +21,7 @@ import type {
    AtaInspecaoWithUrl,
    NomeConflito,
 } from "services/routes/aeromedica/atas";
+import { usePermBased } from "@/app/(home)/hooks/usePermBased";
 import { formatDateFull } from "utils/dateHandler";
 
 export default function AtasTab({
@@ -32,6 +33,12 @@ export default function AtasTab({
 }) {
    const { push } = useToast();
    const fileInputRef = useRef<HTMLInputElement>(null);
+
+   // Anexar ata é 'create' do cartão no backend (POST /extrair e POST /) e
+   // remover é 'delete' — o mesmo recurso RBAC dos dados do cartão.
+   const { hasPerm } = usePermBased();
+   const canUpload = hasPerm("aeromedica.cartoes", "create");
+   const canDelete = hasPerm("aeromedica.cartoes", "delete");
 
    const { data: atas, isLoading, isError } = useAtasByUser(userId);
    const extrairMutation = useExtrairAta();
@@ -175,50 +182,50 @@ export default function AtasTab({
 
    return (
       <div className="space-y-4">
-         {/* Upload */}
-         {!pendingFile && (
-            <div>
-               <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept=".pdf"
-                  className="hidden"
-                  aria-label="Selecionar PDF de ata de inspeção"
-                  onChange={handleFileChange}
+         {/* Upload e a confirmação dos dados extraídos são as duas etapas do
+             MESMO fluxo de escrita: um gate só, para o formulário não depender
+             da invariante implícita de que `pendingFile` veio do botão. */}
+         {canUpload &&
+            (pendingFile ? (
+               <ManualForm
+                  form={manualForm}
+                  onChange={setManualForm}
+                  onSave={handleConfirmUpload}
+                  onCancel={clearPending}
+                  isSaving={isUploading}
+                  variant={extracaoVazia ? "warning" : "success"}
+                  nomeConflito={nomeConflito}
                />
-               <Button
-                  color="primary"
-                  size="sm"
-                  onClick={() => fileInputRef.current?.click()}
-                  disabled={isExtracting}
-               >
-                  {isExtracting ? (
-                     <>
-                        <Spinner color="gray" size="sm" className="mr-2" />
-                        Processando...
-                     </>
-                  ) : (
-                     <>
-                        <HiUpload className="mr-2" />
-                        Upload de Ata (PDF)
-                     </>
-                  )}
-               </Button>
-            </div>
-         )}
-
-         {/* Formulário de confirmação dos dados */}
-         {pendingFile && (
-            <ManualForm
-               form={manualForm}
-               onChange={setManualForm}
-               onSave={handleConfirmUpload}
-               onCancel={clearPending}
-               isSaving={isUploading}
-               variant={extracaoVazia ? "warning" : "success"}
-               nomeConflito={nomeConflito}
-            />
-         )}
+            ) : (
+               <div>
+                  <input
+                     ref={fileInputRef}
+                     type="file"
+                     accept=".pdf"
+                     className="hidden"
+                     aria-label="Selecionar PDF de ata de inspeção"
+                     onChange={handleFileChange}
+                  />
+                  <Button
+                     color="primary"
+                     size="sm"
+                     onClick={() => fileInputRef.current?.click()}
+                     disabled={isExtracting}
+                  >
+                     {isExtracting ? (
+                        <>
+                           <Spinner color="gray" size="sm" className="mr-2" />
+                           Processando...
+                        </>
+                     ) : (
+                        <>
+                           <HiUpload className="mr-2" />
+                           Upload de Ata (PDF)
+                        </>
+                     )}
+                  </Button>
+               </div>
+            ))}
 
          {/* Lista de atas */}
          {isLoading ? (
@@ -236,8 +243,9 @@ export default function AtasTab({
                   Nenhuma ata anexada
                </p>
                <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                  Envie o PDF da última inspeção: os dados são lidos
-                  automaticamente e atualizam a validade do CEMAL.
+                  {canUpload
+                     ? "Envie o PDF da última inspeção: os dados são lidos automaticamente e atualizam a validade do CEMAL."
+                     : "Você não tem permissão para anexar atas."}
                </p>
             </div>
          ) : (
@@ -246,6 +254,7 @@ export default function AtasTab({
                   <AtaCard
                      key={ata.id}
                      ata={ata}
+                     canDelete={canDelete}
                      showConfirm={showDeleteAtaConfirm === ata.id}
                      isDeleting={
                         deleteMutation.isPending &&
@@ -258,7 +267,7 @@ export default function AtasTab({
                   />
                ))}
 
-               {atas.length > 1 && (
+               {atas.length > 1 && canDelete && (
                   <div className="flex items-start gap-2 rounded bg-blue-50 px-3 py-2.5 dark:bg-blue-900/20">
                      <HiInformationCircle className="mt-0.5 h-4 w-4 shrink-0 text-blue-500 dark:text-blue-400" />
                      <p className="text-xs text-blue-700 dark:text-blue-300">
@@ -457,12 +466,14 @@ function ManualForm({
 
 function AtaCard({
    ata,
+   canDelete,
    showConfirm,
    isDeleting,
    onDelete,
    onConfirmToggle,
 }: {
    ata: AtaInspecaoWithUrl;
+   canDelete: boolean;
    showConfirm: boolean;
    isDeleting: boolean;
    onDelete: () => void;
@@ -507,34 +518,35 @@ function AtaCard({
                >
                   <HiExternalLink className="h-4 w-4" />
                </a>
-               {showConfirm ? (
-                  <div className="flex gap-1">
-                     <Button
-                        size="xs"
-                        color="red"
-                        onClick={onDelete}
-                        disabled={isDeleting}
-                     >
-                        {isDeleting ? "..." : "Sim"}
-                     </Button>
+               {canDelete &&
+                  (showConfirm ? (
+                     <div className="flex gap-1">
+                        <Button
+                           size="xs"
+                           color="red"
+                           onClick={onDelete}
+                           disabled={isDeleting}
+                        >
+                           {isDeleting ? "..." : "Sim"}
+                        </Button>
+                        <Button
+                           size="xs"
+                           color="light"
+                           onClick={() => onConfirmToggle(false)}
+                        >
+                           Não
+                        </Button>
+                     </div>
+                  ) : (
                      <Button
                         size="xs"
                         color="light"
-                        onClick={() => onConfirmToggle(false)}
+                        onClick={() => onConfirmToggle(true)}
+                        title="Excluir"
                      >
-                        Não
+                        <HiTrash className="h-4 w-4" />
                      </Button>
-                  </div>
-               ) : (
-                  <Button
-                     size="xs"
-                     color="light"
-                     onClick={() => onConfirmToggle(true)}
-                     title="Excluir"
-                  >
-                     <HiTrash className="h-4 w-4" />
-                  </Button>
-               )}
+                  ))}
             </div>
          </div>
       </div>

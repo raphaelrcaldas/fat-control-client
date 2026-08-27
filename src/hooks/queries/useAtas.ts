@@ -68,6 +68,10 @@ export function useUploadAta() {
          queryClient.invalidateQueries({
             queryKey: cartoesSaudeKeys.lists(),
          });
+         // O anexo entra na mesma trilha de auditoria do cartão.
+         queryClient.invalidateQueries({
+            queryKey: cartoesSaudeKeys.historicos(),
+         });
          // O upload adiciona bytes ao bucket: atualiza as stats de storage.
          queryClient.invalidateQueries({
             queryKey: storageKeys.all,
@@ -93,6 +97,10 @@ export function useDeleteAta() {
          // cemal_tem_ata e total_atas podem mudar
          queryClient.invalidateQueries({
             queryKey: cartoesSaudeKeys.lists(),
+         });
+         // A remoção entra na mesma trilha de auditoria do cartão.
+         queryClient.invalidateQueries({
+            queryKey: cartoesSaudeKeys.historicos(),
          });
       },
    });

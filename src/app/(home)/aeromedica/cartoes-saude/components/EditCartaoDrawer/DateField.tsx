@@ -15,6 +15,7 @@ interface DateFieldProps {
    name: string;
    value: string;
    onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+   disabled?: boolean;
 }
 
 export default function DateField({
@@ -22,6 +23,7 @@ export default function DateField({
    name,
    value,
    onChange,
+   disabled,
 }: DateFieldProps) {
    const status = getDateStatus(value || null);
    const config = getStatusConfig(status);
@@ -37,6 +39,7 @@ export default function DateField({
                type="date"
                value={value}
                onChange={onChange}
+               disabled={disabled}
             />
          </div>
          <div className="mt-1 flex items-center gap-1.5">

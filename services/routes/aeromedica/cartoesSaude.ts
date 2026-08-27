@@ -1,6 +1,7 @@
 import request, { parseApiResponse, ApiError } from "../../Api";
 import type { ApiResponse, ApiResult } from "@/types/api";
 import { UserPublic } from "../users";
+import type { UserActionLog } from "../logs";
 import { aeromedicaRoute } from ".";
 
 const cartoesSaudeRoute = aeromedicaRoute + "cartoes-saude/";
@@ -105,6 +106,36 @@ export async function deleteCartaoSaude(
    return parseApiResponse<null>(
       await request("DELETE", `${cartoesSaudeRoute}${cartao_id}`)
    );
+}
+
+// Teto de eventos que a trilha devolve. Explícito (e não herdado do default
+// do backend) porque a tela precisa saber quando a lista foi cortada para
+// dizê-lo — senão os eventos mais antigos somem sem aviso.
+export const HISTORICO_LIMIT = 50;
+
+// GET - Trilha de auditoria (cartão + atas) de um militar.
+// Endpoint do domínio, não o genérico `/logs/user-actions`: o before/after
+// carrega data de inspeção de saúde e só sai atrás do gate do cartão.
+export async function getCartaoSaudeHistorico(
+   user_id: number,
+   signal?: AbortSignal
+): Promise<UserActionLog[]> {
+   const parsed = await parseApiResponse<UserActionLog[]>(
+      await request(
+         "GET",
+         `${cartoesSaudeRoute}user/${user_id}/historico`,
+         null,
+         { limit: HISTORICO_LIMIT },
+         signal
+      )
+   );
+   if (!parsed.ok) {
+      throw new ApiError(
+         parsed.message || "Erro ao carregar histórico",
+         parsed.errors
+      );
+   }
+   return parsed.data || [];
 }
 
 export interface OrfaoAeromedicaPublic {
