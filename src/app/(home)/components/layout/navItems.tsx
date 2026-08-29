@@ -27,6 +27,7 @@ import {
    MdFlag,
    MdSettings,
    MdInsights,
+   MdOutlineRateReview,
 } from "react-icons/md";
 import { FaUsers, FaBuilding, FaSitemap, FaUserGroup } from "react-icons/fa6";
 import { FaPaperPlane } from "react-icons/fa";
@@ -303,6 +304,18 @@ export const navItems = [
       path: "/acessos",
       scope: "shared",
       roles: ["admin"],
+   },
+   {
+      // Caixa de feedbacks que os tripulantes mandam pelo FatBird. Escopo
+      // "tenant": o dado é da unidade (coluna `uae`), não do sistema.
+      type: "item",
+      icon: MdOutlineRateReview,
+      label: "Feedbacks",
+      path: "/feedback",
+      scope: "tenant",
+      roles: [],
+      resource: "feedbacks",
+      permission: "view",
    },
    {
       // Config da própria organização (org ativa): gerida pelo admin do

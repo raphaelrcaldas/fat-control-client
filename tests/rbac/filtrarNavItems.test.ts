@@ -161,6 +161,25 @@ describe("gate por role no grupo de topo", () => {
    });
 });
 
+describe("gate por permissão no item de topo", () => {
+   it("item de topo com `resource` some sem a permissão", () => {
+      const visiveis = labels(filtrarNavItems(navItems, ctx({ perms: [] })));
+
+      expect(visiveis).not.toContain("Feedbacks");
+   });
+
+   it("a permissão do recurso revela o item de topo", () => {
+      const visiveis = labels(
+         filtrarNavItems(
+            navItems,
+            ctx({ perms: [{ resource: "feedbacks", name: "view" }] })
+         )
+      );
+
+      expect(visiveis).toContain("Feedbacks");
+   });
+});
+
 describe("invariantes da estrutura de navItems", () => {
    const todosOsFilhos = navItems.flatMap((i) =>
       "children" in i && i.children

@@ -24,6 +24,8 @@ export interface FilteredNavItem {
    path?: string;
    scope?: "system" | "tenant" | "shared";
    roles?: readonly string[];
+   resource?: string;
+   permission?: string;
    children?: readonly FilteredNavChild[] | FilteredNavChild[];
 }
 
@@ -49,6 +51,15 @@ export function filtrarNavItems(
       // Verifica permissão baseada em roles do item principal
       if (item.roles && item.roles.length > 0) {
          if (!hasRole(item.roles)) continue;
+      }
+
+      // Item de topo sem filhos também pode ser gateado por recurso (ex.:
+      // "Feedbacks"): o menu tem de sumir para quem o endpoint recusaria,
+      // senão a tela abre e só quebra na primeira consulta.
+      if ("resource" in item && item.resource) {
+         const permission =
+            "permission" in item ? (item.permission as string) : undefined;
+         if (!hasPerm(item.resource, permission)) continue;
       }
 
       // Se for um collapse, filtra os filhos numa única passagem

@@ -40,3 +40,4 @@ export * from "./useEscala";
 export * from "./useLogs";
 export * from "./useSubprogramas";
 export * from "./usePaops";
+export * from "./useFeedbacks";
