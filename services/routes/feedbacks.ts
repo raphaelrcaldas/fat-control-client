@@ -1,7 +1,9 @@
 import request, { parseApiResponse } from "../Api";
 import type { ApiResult } from "@/types/api";
 
-const feedbacksRoute = "feedbacks/";
+// Control-plane de sistema: a caixa vive sob `/admin` (gate
+// `require_system_admin` no grupo). O envio pelo FatBird usa `/feedbacks`.
+const feedbacksRoute = "admin/feedbacks/";
 
 export type FeedbackTipo = "bug" | "sugestao" | "duvida" | "elogio";
 

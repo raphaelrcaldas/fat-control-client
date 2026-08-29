@@ -17,6 +17,7 @@
  */
 
 import { describe, it, expect, vi, afterEach } from "vitest";
+import type { IconType } from "react-icons";
 import { renderHook, cleanup } from "@testing-library/react";
 
 const useAuthMock = vi.fn();
@@ -162,21 +163,41 @@ describe("gate por role no grupo de topo", () => {
 });
 
 describe("gate por permissão no item de topo", () => {
-   it("item de topo com `resource` some sem a permissão", () => {
-      const visiveis = labels(filtrarNavItems(navItems, ctx({ perms: [] })));
+   /**
+    * Fixture SINTÉTICO, ao contrário do resto do arquivo: hoje nenhum item
+    * de topo real usa `resource` (o único que usava, "Feedbacks", virou
+    * filho do grupo Admin ao passar a exigir admin de sistema). A lógica
+    * fica coberta mesmo assim — ela é a guarda que impede um item de topo
+    * gateado de abrir uma tela que o endpoint recusa.
+    */
+   const soTopoGateado = [
+      {
+         type: "item",
+         icon: (() => null) as unknown as IconType,
+         label: "Fixture",
+         path: "/fixture",
+         resource: "ops.tripulantes",
+         permission: "view",
+      },
+   ] as unknown as typeof navItems;
 
-      expect(visiveis).not.toContain("Feedbacks");
+   it("item de topo com `resource` some sem a permissão", () => {
+      const visiveis = labels(
+         filtrarNavItems(soTopoGateado, ctx({ perms: [] }))
+      );
+
+      expect(visiveis).not.toContain("Fixture");
    });
 
    it("a permissão do recurso revela o item de topo", () => {
       const visiveis = labels(
          filtrarNavItems(
-            navItems,
-            ctx({ perms: [{ resource: "feedbacks", name: "view" }] })
+            soTopoGateado,
+            ctx({ perms: [{ resource: "ops.tripulantes", name: "view" }] })
          )
       );
 
-      expect(visiveis).toContain("Feedbacks");
+      expect(visiveis).toContain("Fixture");
    });
 });
 

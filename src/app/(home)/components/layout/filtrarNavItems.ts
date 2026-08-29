@@ -57,9 +57,13 @@ export function filtrarNavItems(
       // "Feedbacks"): o menu tem de sumir para quem o endpoint recusaria,
       // senão a tela abre e só quebra na primeira consulta.
       if ("resource" in item && item.resource) {
+         // Casts porque hoje nenhum item de topo de `navItems` declara
+         // `resource`/`permission` — o tipo os desconhece, e o `in` só
+         // estreita para `unknown`. A guarda continua valendo para o
+         // próximo que declarar.
          const permission =
             "permission" in item ? (item.permission as string) : undefined;
-         if (!hasPerm(item.resource, permission)) continue;
+         if (!hasPerm(item.resource as string, permission)) continue;
       }
 
       // Se for um collapse, filtra os filhos numa única passagem

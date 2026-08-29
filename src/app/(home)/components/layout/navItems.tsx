@@ -306,18 +306,6 @@ export const navItems = [
       roles: ["admin"],
    },
    {
-      // Caixa de feedbacks que os tripulantes mandam pelo FatBird. Escopo
-      // "tenant": o dado é da unidade (coluna `uae`), não do sistema.
-      type: "item",
-      icon: MdOutlineRateReview,
-      label: "Feedbacks",
-      path: "/feedback",
-      scope: "tenant",
-      roles: [],
-      resource: "feedbacks",
-      permission: "view",
-   },
-   {
       // Config da própria organização (org ativa): gerida pelo admin do
       // tenant, não pelo admin de sistema — por isso scope "tenant".
       type: "item",
@@ -333,7 +321,12 @@ export const navItems = [
       label: "Admin",
       scope: "system",
       roles: ["admin"],
+      // Ordem por natureza do que se administra, não por ordem de chegada:
+      // (1) estrutura — quem existe no sistema; (2) acesso — o que cada um
+      // pode; (3) tabelas de referência nacionais; (4) operação do dia a
+      // dia. Item novo entra no seu bloco, não no fim da lista.
       children: [
+         // Estrutura
          {
             icon: FaBuilding,
             label: "Organizações",
@@ -344,6 +337,7 @@ export const navItems = [
             label: "Tenants",
             path: "/admin/tenants",
          },
+         // Acesso
          {
             icon: GiSecurityGate,
             label: "Perfis & Permissões",
@@ -354,16 +348,7 @@ export const navItems = [
             label: "Funções",
             path: "/admin/funcoes",
          },
-         {
-            icon: TbLogs,
-            label: "Logs",
-            path: "/admin/logs",
-         },
-         {
-            icon: MdStorage,
-            label: "Storage",
-            path: "/admin/storage",
-         },
+         // Referência
          {
             icon: MdAttachMoney,
             label: "Soldos",
@@ -373,6 +358,26 @@ export const navItems = [
             icon: MdMoney,
             label: "Diárias",
             path: "/admin/diarias",
+         },
+         // Operação — Feedbacks abre o bloco por ser o único com fila de
+         // trabalho pendente; o resto é diagnóstico e manutenção.
+         {
+            // Caixa do que os tripulantes mandam pelo FatBird. Cross-tenant
+            // e sem recurso RBAC: quem trata é o admin de sistema, que o
+            // gate do grupo `/admin` já resolve.
+            icon: MdOutlineRateReview,
+            label: "Feedbacks",
+            path: "/admin/feedback",
+         },
+         {
+            icon: TbLogs,
+            label: "Logs",
+            path: "/admin/logs",
+         },
+         {
+            icon: MdStorage,
+            label: "Storage",
+            path: "/admin/storage",
          },
          {
             icon: MdDeleteSweep,

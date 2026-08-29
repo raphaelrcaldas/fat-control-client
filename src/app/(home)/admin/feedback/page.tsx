@@ -6,26 +6,35 @@ import { MdErrorOutline, MdOutlineRateReview } from "react-icons/md";
 import clsx from "clsx";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { useFeedbacks } from "@/hooks/queries";
+import { useTenants } from "@/hooks/queries/useTenants";
+import { isOrgTheme, type OrgTheme } from "@/lib/orgTheme";
 import type { Feedback, FeedbackStatus } from "services/routes/feedbacks";
-import { usePermBased } from "../hooks/usePermBased";
 import { FeedbackCard } from "./components/FeedbackCard";
 import { FeedbacksSkeleton } from "./components/FeedbacksSkeleton";
 import { TratarFeedbackModal } from "./components/TratarFeedbackModal";
 import { STATUS_META, STATUS_ORDEM } from "./feedbackMeta";
 
 export default function FeedbackPage() {
-   // A lista inteira da org vem numa consulta e o filtro é local: são os
+   // A caixa inteira vem numa consulta e o filtro é local: são os
    // contadores por status que orientam o trabalho ("3 abertos"), e eles
-   // exigem o conjunto completo. O endpoint aceita `status`/`tipo` para
-   // quem consultar de fora — a tela não precisa deles.
+   // exigem o conjunto completo. O endpoint aceita `status`/`tipo`/`uae`
+   // para quem consultar de fora — a tela não precisa deles.
    const { data: feedbacks = [], isLoading, isError, refetch } = useFeedbacks();
-   const { hasPerm } = usePermBased();
-   const podeTratar = hasPerm("feedbacks", "update");
+   const tenantsQuery = useTenants();
 
    const [statusFiltro, setStatusFiltro] = useState<FeedbackStatus | null>(
       null
    );
    const [selecionado, setSelecionado] = useState<Feedback | null>(null);
+
+   // sigla -> tema, para pintar o dot da unidade de origem de cada cartão
+   const orgTemas = useMemo(() => {
+      const map: Record<string, OrgTheme> = {};
+      for (const tenant of tenantsQuery.data ?? []) {
+         if (isOrgTheme(tenant.tema)) map[tenant.organizacao_id] = tenant.tema;
+      }
+      return map;
+   }, [tenantsQuery.data]);
 
    const contagem = useMemo(() => {
       const mapa = {} as Record<FeedbackStatus, number>;
@@ -41,20 +50,21 @@ export default function FeedbackPage() {
 
    return (
       <div className="flex flex-col space-y-2">
-         {/* Masthead */}
+         {/* Masthead — chrome slate neutro: escopo de admin de SISTEMA,
+             cross-tenant, sem a cor de marca de nenhuma org */}
          <header className="relative overflow-hidden rounded border border-slate-200 bg-white px-5 py-4 shadow-sm sm:px-6 sm:py-5">
             <span
                aria-hidden
-               className="bg-primary-600 absolute top-0 left-0 h-full w-1"
+               className="absolute top-0 left-0 h-full w-1 bg-slate-600"
             />
             <div className="relative flex flex-wrap items-center justify-between gap-4">
                <div className="flex min-w-0 items-center gap-4">
-                  <div className="bg-primary-50 text-primary-600 ring-primary-100 grid h-12 w-12 shrink-0 place-items-center rounded-md ring-1 ring-inset">
+                  <div className="grid h-12 w-12 shrink-0 place-items-center rounded-md bg-slate-100 text-slate-600 ring-1 ring-slate-200 ring-inset">
                      <MdOutlineRateReview className="h-6 w-6" />
                   </div>
                   <div className="min-w-0">
-                     <span className="text-primary-600 block font-mono text-[10px] font-bold tracking-[0.3em] uppercase">
-                        Portal do Tripulante
+                     <span className="block font-mono text-[10px] font-bold tracking-[0.3em] text-slate-600 uppercase">
+                        Administração
                      </span>
                      <h1 className="text-2xl leading-none font-extrabold tracking-tight text-slate-900 sm:text-[28px]">
                         Feedbacks
@@ -74,7 +84,7 @@ export default function FeedbackPage() {
                   className={clsx(
                      "rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors",
                      statusFiltro === null
-                        ? "border-primary-600 bg-primary-50 text-primary-700"
+                        ? "border-slate-400 bg-slate-100 text-slate-800"
                         : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
                   )}
                >
@@ -104,7 +114,7 @@ export default function FeedbackPage() {
          {isLoading && <FeedbacksSkeleton />}
 
          {/* Falha de carga não é caixa vazia: dizer "nenhum feedback" quando
-             a consulta quebrou esconde trabalho pendente da unidade. */}
+             a consulta quebrou esconde trabalho pendente. */}
          {isError && (
             <div className="flex flex-col items-center gap-3 rounded border border-red-200 bg-white p-8 text-center shadow-sm">
                <MdErrorOutline className="h-8 w-8 text-red-600" aria-hidden />
@@ -136,9 +146,8 @@ export default function FeedbackPage() {
                   <FeedbackCard
                      key={feedback.id}
                      feedback={feedback}
-                     onResponder={
-                        podeTratar ? (f) => setSelecionado(f) : undefined
-                     }
+                     tema={orgTemas[feedback.uae]}
+                     onResponder={(f) => setSelecionado(f)}
                   />
                ))}
             </div>

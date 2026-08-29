@@ -2,16 +2,24 @@
 
 import { Button } from "flowbite-react";
 import { MdOutlineChat, MdReply } from "react-icons/md";
+import clsx from "clsx";
 import { formatDateTime } from "utils/dateHandler";
 import type { Feedback } from "services/routes/feedbacks";
+import { THEME_META, type OrgTheme } from "@/lib/orgTheme";
 import { STATUS_META, TIPO_META } from "../feedbackMeta";
 
 interface FeedbackCardProps {
    feedback: Feedback;
+   /** Tema da unidade de origem — pinta o dot; ausente cai no cinza. */
+   tema?: OrgTheme;
    onResponder?: (feedback: Feedback) => void;
 }
 
-export function FeedbackCard({ feedback, onResponder }: FeedbackCardProps) {
+export function FeedbackCard({
+   feedback,
+   tema,
+   onResponder,
+}: FeedbackCardProps) {
    const tipo = TIPO_META[feedback.tipo];
    const status = STATUS_META[feedback.status];
    const Icone = tipo.icon;
@@ -28,6 +36,22 @@ export function FeedbackCard({ feedback, onResponder }: FeedbackCardProps) {
                      {feedback.titulo}
                   </h3>
                   <p className="text-xs text-slate-500">
+                     {/* Caixa cross-tenant: dot na cor do tenant + sigla
+                         dizem de qual unidade o feedback saiu. A sigla
+                         carrega a informação; a cor reforça. */}
+                     <span className="inline-flex items-center gap-1.5 align-middle">
+                        <span
+                           aria-hidden
+                           className={clsx(
+                              "size-2 shrink-0 rounded-full",
+                              tema ? THEME_META[tema].swatch : "bg-slate-300"
+                           )}
+                        />
+                        <span className="font-medium text-slate-700 uppercase">
+                           {feedback.uae}
+                        </span>
+                     </span>
+                     {" · "}
                      <span className="uppercase">
                         {feedback.autor.p_g} {feedback.autor.nome_guerra}
                      </span>
