@@ -129,5 +129,34 @@ export const HEURISTICS = {
       ],
    },
 
-   focusRing: { maxStops: 30 },
+   /**
+    * `maxStops` conta so as paradas MEDIDAS. Navbar e sidebar vem antes do
+    * conteudo na ordem de Tab e no `client` passam de 30 paradas sozinhas, o
+    * que fazia o coletor terminar dentro do menu e devolver um verde que nao
+    * media a tela auditada. Elas sao atravessadas com orcamento proprio
+    * (`maxSkips`) — generoso porque o custo de errar para menos e nao alcancar
+    * o conteudo, que era justamente o defeito.
+    *
+    * `skipWithin` nomeia o chrome por PAPEL (landmark ARIA), nao por classe:
+    * serve aos tres fronts sem saber o markup de nenhum.
+    */
+   focusRing: {
+      maxStops: 30,
+      maxSkips: 400,
+      skipWithin: [
+         "nav",
+         "aside",
+         "[role=navigation]",
+         "[role=banner]",
+         "[data-audit-skip]",
+      ],
+   },
+
+   /**
+    * Corte de conteudo dentro do proprio elemento. `minOverflowPx` de 2 porque
+    * arredondamento de subpixel produz 1px de sobra em texto que cabe.
+    * `minBoxPx` descarta caixa pequena demais para caber letra — a assinatura
+    * do `sr-only`, onde o recorte e a tecnica e nao o defeito.
+    */
+   contentClipping: { minOverflowPx: 2, minBoxPx: 8, maxItems: 12 },
 };

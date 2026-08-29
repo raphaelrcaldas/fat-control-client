@@ -39,6 +39,7 @@ import { createShapeCollector } from "./collectors/shape.mjs";
 import { createLineMeasureCollector } from "./collectors/lineMeasure.mjs";
 import { createTouchTargetsCollector } from "./collectors/touchTargets.mjs";
 import { createOverflowCollector } from "./collectors/overflow.mjs";
+import { createContentClippingCollector } from "./collectors/contentClipping.mjs";
 import { createHeadingsCollector } from "./collectors/headings.mjs";
 import { createLayoutShiftCollector } from "./collectors/layoutShift.mjs";
 import { createFocusRingCollector } from "./collectors/focusRing.mjs";
@@ -64,6 +65,7 @@ function buildCollectors(heuristics) {
       createLineMeasureCollector(heuristics.lineMeasure),
       createTouchTargetsCollector(heuristics.touchTarget),
       createOverflowCollector(),
+      createContentClippingCollector(heuristics.contentClipping),
       createHeadingsCollector(),
       createLayoutShiftCollector(heuristics.layoutShift),
       createFocusRingCollector(heuristics.focusRing),

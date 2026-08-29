@@ -17,8 +17,16 @@
  * pintado, e depois relido antes de o anel apagar — duas fotos iguais, e o
  * relatorio acusava "sem foco visivel" num botao cujo anel media 3px na tela.
  * O sintoma era intermitente entre breakpoints, que e a assinatura de corrida.
+ *
+ * O chrome nao consome orcamento. Navbar e sidebar vem ANTES do conteudo na
+ * ordem de Tab e, no `client`, sozinhas passam de 30 paradas: com um teto unico
+ * o coletor terminava dentro do menu e reportava "30 paradas, 0 sem foco
+ * visivel" sem nunca ter chegado na tela auditada — um verde que nao media
+ * nada. As paradas dentro de `skipWithin` sao ATRAVESSADAS (o Tab continua,
+ * senao nao se alcanca o conteudo) mas nao sao medidas nem contadas, e tem
+ * orcamento proprio em `maxSkips` para que uma sidebar gigante nao vire loop.
  */
-export function createFocusRingCollector({ maxStops }) {
+export function createFocusRingCollector({ maxStops, maxSkips, skipWithin }) {
    return {
       name: "focusRing",
 
@@ -50,6 +58,9 @@ export function createFocusRingCollector({ maxStops }) {
                // niveis; o teto evita varrer sub-arvores gigantes quando o
                // foco cai num container largo.
                DESCENDANT_CAP: 40,
+               // Primeiro elemento focado do ciclo: se o Tab voltar nele, deu
+               // a volta na pagina e nao ha mais nada novo para medir.
+               primeiro: null,
                signature(node) {
                   const s = getComputedStyle(node);
                   return [
@@ -114,11 +125,14 @@ export function createFocusRingCollector({ maxStops }) {
          });
 
          const stops = [];
+         let medidas = 0;
+         let atravessadas = 0;
+         let voltouAoInicio = false;
 
-         for (let i = 0; i < maxStops; i++) {
+         while (medidas < maxStops && atravessadas < maxSkips) {
             await page.keyboard.press("Tab");
 
-            const result = await page.evaluate(async () => {
+            const result = await page.evaluate(async (skipWithin) => {
                // Assenta os dois lados do diff antes de medir: o elemento que
                // acabou de perder o foco (anel apagando) e o que acabou de
                // receber (anel acendendo).
@@ -132,18 +146,39 @@ export function createFocusRingCollector({ maxStops }) {
                const el = document.activeElement;
                if (!el || el === document.body) return { done, current: false };
 
-               window.__auditFocus.snapshot(el, {
-                  selector: window.__audit.selectorOf(el),
-                  label: (el.getAttribute("aria-label") ?? el.textContent ?? "")
-                     .trim()
-                     .slice(0, 40),
-               });
+               const estado = window.__auditFocus;
+               if (estado.primeiro === null) estado.primeiro = el;
+               else if (estado.primeiro === el) {
+                  return { done, current: false, deuAVolta: true };
+               }
 
-               return { done, current: true };
-            });
+               // `closest` cobre o elemento e seus ancestrais, que e como o
+               // chrome se identifica (um botao dentro de <nav>).
+               const ehChrome = skipWithin.some((sel) => el.closest(sel));
+               if (!ehChrome) {
+                  window.__auditFocus.snapshot(el, {
+                     selector: window.__audit.selectorOf(el),
+                     label: (
+                        el.getAttribute("aria-label") ??
+                        el.textContent ??
+                        ""
+                     )
+                        .trim()
+                        .slice(0, 40),
+                  });
+               }
+
+               return { done, current: true, ehChrome };
+            }, skipWithin);
 
             if (result.done) stops.push(result.done);
+            if (result.deuAVolta) {
+               voltouAoInicio = true;
+               break;
+            }
             if (!result.current) break;
+            if (result.ehChrome) atravessadas++;
+            else medidas++;
          }
 
          // Ultima parada: tira o foco e resolve o diff pendente.
@@ -155,12 +190,26 @@ export function createFocusRingCollector({ maxStops }) {
          });
          if (last) stops.push(last);
 
-         return { stops, withoutRing: stops.filter((s) => !s.hasRing) };
+         return {
+            stops,
+            atravessadas,
+            voltouAoInicio,
+            esgotouOrcamento: medidas >= maxStops,
+            withoutRing: stops.filter((s) => !s.hasRing),
+         };
       },
 
       render: (data) => ({
          rows: [
-            ["Paradas de Tab", data.stops.length],
+            [
+               "Paradas de Tab medidas",
+               data.voltouAoInicio
+                  ? `${data.stops.length} (pagina inteira)`
+                  : data.esgotouOrcamento
+                    ? `${data.stops.length} (teto atingido — ha mais adiante)`
+                    : data.stops.length,
+            ],
+            ["Paradas do chrome atravessadas", data.atravessadas],
             ["Sem foco visivel", data.withoutRing.length],
          ],
          sections: data.withoutRing.length

@@ -34,10 +34,26 @@ PNG full-page por breakpoint.
 ## O que é medido
 
 Escala tipográfica · paleta · espaçamento e grade de 4px · raios e sombras ·
-medida de linha · alvos de toque · estouro horizontal · árvore de títulos · foco
-por teclado · layout shift (CLS) · WCAG 2.2 AA (axe-core).
+medida de linha · alvos de toque · estouro horizontal · **conteúdo cortado** ·
+árvore de títulos · foco por teclado · layout shift (CLS) · WCAG 2.2 AA
+(axe-core).
 
 Chromium, não o Firefox dos e2e: `layout-shift` só existe lá.
+
+### Duas leituras que costumam confundir
+
+**Conteúdo cortado ≠ truncado.** `overflow: hidden` sem reticências corta no
+meio do glifo e mente para quem lê (`REP` vira `REI`); com `text-overflow:
+ellipsis` a degradação é deliberada e avisa (`CEMAL venci…`). Só o primeiro é
+reportado como defeito — o segundo aparece apenas como contagem. É uma classe
+de defeito que nenhuma outra métrica enxerga: o texto está no DOM, o leitor de
+tela lê inteiro, o axe não reclama e não há scroll lateral.
+
+**Paradas de Tab medidas ≠ paradas existentes.** Navbar e sidebar vêm antes do
+conteúdo e sozinhas passam de 30 paradas: elas são atravessadas sem consumir o
+orçamento (`focusRing.maxStops`), que vale só para o conteúdo. Quando o
+relatório diz _"teto atingido — há mais adiante"_, a tela tem mais elementos
+focáveis do que foram medidos; suba `maxStops` se precisar varrer tudo.
 
 ## Estrutura
 
