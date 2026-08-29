@@ -1,11 +1,15 @@
 import request, { parseApiResponse } from "../Api";
 import type { ApiResult } from "@/types/api";
 
-// Control-plane de sistema: a caixa vive sob `/admin` (gate
-// `require_system_admin` no grupo). O envio pelo FatBird usa `/feedbacks`.
+// Duas rotas, dois escopos. O TRATAMENTO é control-plane de sistema e vive
+// sob `/admin` (gate `require_system_admin` no grupo); o ENVIO é aberto a
+// qualquer autenticado com org ativa, e o backend congela o `uae` a partir
+// dela — por isso não há rota de admin para criar em nome de outra unidade.
 const feedbacksRoute = "admin/feedbacks/";
+const envioRoute = "feedbacks/";
 
-export type FeedbackTipo = "bug" | "sugestao" | "duvida" | "elogio";
+export type FeedbackTipo =
+   "bug" | "sugestao" | "duvida" | "elogio" | "desabafo";
 
 export type FeedbackStatus =
    "aberto" | "em_analise" | "aceito" | "recusado" | "concluido";
@@ -37,6 +41,14 @@ export interface FeedbackUpdate {
    resposta?: string | null;
 }
 
+export interface FeedbackCreate {
+   tipo: FeedbackTipo;
+   titulo: string;
+   descricao: string;
+   /** Tela de onde o feedback partiu. Null quando não veio de uma tela. */
+   rota?: string | null;
+}
+
 export interface GetFeedbacksParams {
    status?: FeedbackStatus;
    tipo?: FeedbackTipo;
@@ -64,11 +76,23 @@ export async function getFeedbacks(
    return result.data ?? [];
 }
 
+export async function addFeedback(
+   data: FeedbackCreate
+): Promise<ApiResult<Feedback>> {
+   return parseApiResponse<Feedback>(await request("POST", envioRoute, data));
+}
+
 export async function updateFeedback(
    id: number,
    data: FeedbackUpdate
 ): Promise<ApiResult<Feedback>> {
    return parseApiResponse<Feedback>(
       await request("PATCH", `${feedbacksRoute}${id}`, data)
+   );
+}
+
+export async function deleteFeedback(id: number): Promise<ApiResult<null>> {
+   return parseApiResponse<null>(
+      await request("DELETE", `${feedbacksRoute}${id}`)
    );
 }

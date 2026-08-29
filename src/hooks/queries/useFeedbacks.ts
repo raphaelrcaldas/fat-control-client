@@ -5,8 +5,11 @@ import {
    useQueryClient,
 } from "@tanstack/react-query";
 import {
+   addFeedback,
+   deleteFeedback,
    getFeedbacks,
    updateFeedback,
+   type FeedbackCreate,
    type FeedbackUpdate,
    type GetFeedbacksParams,
 } from "services/routes/feedbacks";
@@ -27,6 +30,25 @@ export function useFeedbacks(params?: GetFeedbacksParams) {
    });
 }
 
+export function useAddFeedback() {
+   const queryClient = useQueryClient();
+
+   return useMutation({
+      mutationFn: async (data: FeedbackCreate) => {
+         const result = await addFeedback(data);
+         if (!result.ok) {
+            throw new Error(result.message || "Erro ao enviar feedback");
+         }
+         return result;
+      },
+      // Invalida a caixa do admin: quem trata pode estar com a lista aberta
+      // noutra aba, e o envio do próprio admin apareceria só no refetch.
+      onSuccess: () => {
+         queryClient.invalidateQueries({ queryKey: feedbackKeys.lists() });
+      },
+   });
+}
+
 export function useUpdateFeedback() {
    const queryClient = useQueryClient();
 
@@ -41,6 +63,23 @@ export function useUpdateFeedback() {
          const result = await updateFeedback(id, data);
          if (!result.ok) {
             throw new Error(result.message || "Erro ao atualizar feedback");
+         }
+         return result;
+      },
+      onSuccess: () => {
+         queryClient.invalidateQueries({ queryKey: feedbackKeys.lists() });
+      },
+   });
+}
+
+export function useDeleteFeedback() {
+   const queryClient = useQueryClient();
+
+   return useMutation({
+      mutationFn: async (id: number) => {
+         const result = await deleteFeedback(id);
+         if (!result.ok) {
+            throw new Error(result.message || "Erro ao excluir feedback");
          }
          return result;
       },

@@ -4,6 +4,7 @@ import {
    MdFavoriteBorder,
    MdHelpOutline,
    MdLightbulbOutline,
+   MdOutlineRecordVoiceOver,
 } from "react-icons/md";
 import type { FeedbackStatus, FeedbackTipo } from "services/routes/feedbacks";
 
@@ -12,14 +13,55 @@ import type { FeedbackStatus, FeedbackTipo } from "services/routes/feedbacks";
    administração lê aqui vivem em dois arquivos. Mudou de um lado, mude do
    outro (o valor cru é o contrato; o rótulo é apresentação). */
 
-export const TIPO_META: Record<
-   FeedbackTipo,
-   { label: string; icon: IconType }
-> = {
-   bug: { label: "Problema", icon: MdBugReport },
-   sugestao: { label: "Sugestão", icon: MdLightbulbOutline },
-   duvida: { label: "Dúvida", icon: MdHelpOutline },
-   elogio: { label: "Elogio", icon: MdFavoriteBorder },
+interface TipoMeta {
+   label: string;
+   /** Explica a escolha no formulário de envio; o painel só usa o label. */
+   descricao: string;
+   /** Placeholder do campo de detalhes — muda o convite conforme o tipo. */
+   placeholder: string;
+   icon: IconType;
+}
+
+/** Ordem em que os tipos aparecem no seletor do formulário. */
+export const TIPOS: FeedbackTipo[] = [
+   "bug",
+   "sugestao",
+   "duvida",
+   "elogio",
+   "desabafo",
+];
+
+export const TIPO_META: Record<FeedbackTipo, TipoMeta> = {
+   bug: {
+      label: "Problema",
+      descricao: "Algo não funcionou como deveria",
+      placeholder: "O que você fez, o que esperava e o que aconteceu",
+      icon: MdBugReport,
+   },
+   sugestao: {
+      label: "Sugestão",
+      descricao: "Ideia de melhoria ou funcionalidade nova",
+      placeholder: "Conte com suas palavras",
+      icon: MdLightbulbOutline,
+   },
+   duvida: {
+      label: "Dúvida",
+      descricao: "Não entendi como usar alguma parte do sistema",
+      placeholder: "Conte com suas palavras",
+      icon: MdHelpOutline,
+   },
+   elogio: {
+      label: "Elogio",
+      descricao: "Algo que está ajudando no dia a dia",
+      placeholder: "Conte com suas palavras",
+      icon: MdFavoriteBorder,
+   },
+   desabafo: {
+      label: "Desabafo",
+      descricao: "O que precisa ser dito, sem meias palavras",
+      placeholder: "Solte o verbo, abra seu coração...",
+      icon: MdOutlineRecordVoiceOver,
+   },
 };
 
 interface StatusMeta {

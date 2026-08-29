@@ -14,7 +14,11 @@ import {
 import { useToast } from "@/app/context/toast";
 import { useUpdateFeedback } from "@/hooks/queries";
 import type { Feedback, FeedbackStatus } from "services/routes/feedbacks";
-import { STATUS_META, STATUS_ORDEM, TIPO_META } from "../feedbackMeta";
+import {
+   STATUS_META,
+   STATUS_ORDEM,
+   TIPO_META,
+} from "@/components/feedback/feedbackMeta";
 
 const RESPOSTA_MAX = 2000;
 

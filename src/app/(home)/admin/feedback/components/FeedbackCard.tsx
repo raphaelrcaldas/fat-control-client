@@ -1,24 +1,26 @@
 "use client";
 
 import { Button } from "flowbite-react";
-import { MdOutlineChat, MdReply } from "react-icons/md";
+import { MdDeleteOutline, MdOutlineChat, MdReply } from "react-icons/md";
 import clsx from "clsx";
 import { formatDateTime } from "utils/dateHandler";
 import type { Feedback } from "services/routes/feedbacks";
 import { THEME_META, type OrgTheme } from "@/lib/orgTheme";
-import { STATUS_META, TIPO_META } from "../feedbackMeta";
+import { STATUS_META, TIPO_META } from "@/components/feedback/feedbackMeta";
 
 interface FeedbackCardProps {
    feedback: Feedback;
    /** Tema da unidade de origem — pinta o dot; ausente cai no cinza. */
    tema?: OrgTheme;
    onResponder?: (feedback: Feedback) => void;
+   onExcluir?: (feedback: Feedback) => void;
 }
 
 export function FeedbackCard({
    feedback,
    tema,
    onResponder,
+   onExcluir,
 }: FeedbackCardProps) {
    const tipo = TIPO_META[feedback.tipo];
    const status = STATUS_META[feedback.status];
@@ -99,16 +101,35 @@ export function FeedbackCard({
             </div>
          )}
 
-         {onResponder && (
-            <div className="flex justify-end">
-               <Button
-                  size="xs"
-                  color="light"
-                  onClick={() => onResponder(feedback)}
-               >
-                  <MdReply className="mr-1.5 h-4 w-4" aria-hidden />
-                  {feedback.resposta ? "Editar tratamento" : "Tratar"}
-               </Button>
+         {(onResponder || onExcluir) && (
+            <div className="flex justify-end gap-2">
+               {/* Excluir fica à esquerda e discreto: a ação corrente é
+                   tratar, e a destrutiva não deve ser a mais fácil de
+                   acertar por engano. */}
+               {onExcluir && (
+                  <Button
+                     size="xs"
+                     color="light"
+                     onClick={() => onExcluir(feedback)}
+                     aria-label={`Excluir feedback ${feedback.titulo}`}
+                  >
+                     <MdDeleteOutline
+                        className="mr-1.5 h-4 w-4 text-red-600"
+                        aria-hidden
+                     />
+                     Excluir
+                  </Button>
+               )}
+               {onResponder && (
+                  <Button
+                     size="xs"
+                     color="light"
+                     onClick={() => onResponder(feedback)}
+                  >
+                     <MdReply className="mr-1.5 h-4 w-4" aria-hidden />
+                     {feedback.resposta ? "Editar tratamento" : "Tratar"}
+                  </Button>
+               )}
             </div>
          )}
       </article>

@@ -4,15 +4,17 @@ import { useMemo, useState } from "react";
 import { Button } from "flowbite-react";
 import { MdErrorOutline, MdOutlineRateReview } from "react-icons/md";
 import clsx from "clsx";
+import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import { EmptyState } from "@/components/ui/EmptyState";
-import { useFeedbacks } from "@/hooks/queries";
+import { useToast } from "@/app/context/toast";
+import { useDeleteFeedback, useFeedbacks } from "@/hooks/queries";
 import { useTenants } from "@/hooks/queries/useTenants";
 import { isOrgTheme, type OrgTheme } from "@/lib/orgTheme";
 import type { Feedback, FeedbackStatus } from "services/routes/feedbacks";
 import { FeedbackCard } from "./components/FeedbackCard";
 import { FeedbacksSkeleton } from "./components/FeedbacksSkeleton";
 import { TratarFeedbackModal } from "./components/TratarFeedbackModal";
-import { STATUS_META, STATUS_ORDEM } from "./feedbackMeta";
+import { STATUS_META, STATUS_ORDEM } from "@/components/feedback/feedbackMeta";
 
 export default function FeedbackPage() {
    // A caixa inteira vem numa consulta e o filtro é local: são os
@@ -21,11 +23,27 @@ export default function FeedbackPage() {
    // para quem consultar de fora — a tela não precisa deles.
    const { data: feedbacks = [], isLoading, isError, refetch } = useFeedbacks();
    const tenantsQuery = useTenants();
+   const { push } = useToast();
+   const deleteMutation = useDeleteFeedback();
 
    const [statusFiltro, setStatusFiltro] = useState<FeedbackStatus | null>(
       null
    );
    const [selecionado, setSelecionado] = useState<Feedback | null>(null);
+   const [paraExcluir, setParaExcluir] = useState<Feedback | null>(null);
+
+   const handleExcluir = async () => {
+      if (!paraExcluir) return;
+      try {
+         await deleteMutation.mutateAsync(paraExcluir.id);
+         push({ message: "Feedback excluído", type: "success" });
+         setParaExcluir(null);
+      } catch (err: unknown) {
+         const message =
+            err instanceof Error ? err.message : "Erro ao excluir feedback";
+         push({ title: "Erro", message, type: "error" });
+      }
+   };
 
    // sigla -> tema, para pintar o dot da unidade de origem de cada cartão
    const orgTemas = useMemo(() => {
@@ -148,6 +166,7 @@ export default function FeedbackPage() {
                      feedback={feedback}
                      tema={orgTemas[feedback.uae]}
                      onResponder={(f) => setSelecionado(f)}
+                     onExcluir={(f) => setParaExcluir(f)}
                   />
                ))}
             </div>
@@ -166,6 +185,21 @@ export default function FeedbackPage() {
                show={!!selecionado}
                onClose={() => setSelecionado(null)}
                feedback={selecionado}
+            />
+         )}
+
+         {/* Exclusão é definitiva (não há soft delete na tabela) e o texto
+             cita o assunto: numa caixa de cartões parecidos, "tem certeza?"
+             sozinho não diz qual está prestes a sumir. */}
+         {paraExcluir && (
+            <ConfirmModal
+               show
+               title="Excluir feedback?"
+               description={`"${paraExcluir.titulo}" será apagado definitivamente, junto com a resposta dada ao autor.`}
+               isLoading={deleteMutation.isPending}
+               onClose={() => setParaExcluir(null)}
+               onConfirm={handleExcluir}
+               confirmButtonText="Excluir"
             />
          )}
       </div>
