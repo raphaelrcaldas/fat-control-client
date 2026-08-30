@@ -8,7 +8,7 @@ import {
 } from "../utils/ordemHistorico";
 
 /** Nome do recurso gravado nos logs pelo router de OM (`routers/ops/om.py`). */
-export const ORDEM_MISSAO_LOG_RESOURCE = "ordem_missao";
+export const ORDEM_MISSAO_LOG_RESOURCE = "ops.ordem_missao";
 
 interface UseOrdemHistoricoResult {
    events: OrdemHistoricoEvent[];
