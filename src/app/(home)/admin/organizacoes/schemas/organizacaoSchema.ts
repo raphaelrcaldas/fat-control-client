@@ -7,8 +7,8 @@ import type { Organizacao } from "services/routes/organizacoes";
  *
  * `sigla` é a PK e viaja em lugares que não toleram espaço/acento/maiúscula:
  * URL da API (`/organizacoes/{sigla}`), cookie de tema/marca e nome do arquivo
- * de brasão (`public/brasoes/<sigla>.jpg`, ver `lib/orgBrasao.ts`). Por isso é
- * normalizada e restrita aqui — o backend aceita string livre.
+ * de brasão (`public/brasoes/<sigla>.{jpg,png}`, ver `lib/orgBrasao.ts`). Por
+ * isso é normalizada e restrita aqui — o backend aceita string livre.
  */
 export const organizacaoFormSchema = z.object({
    sigla: z

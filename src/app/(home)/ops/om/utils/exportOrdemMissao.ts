@@ -14,7 +14,7 @@ import {
    minutesToTime,
    formatDateForDisplay,
 } from "utils/dateHandler";
-import { brasaoUrl } from "@/lib/orgBrasao";
+import { brasaoDocxUrl } from "@/lib/orgBrasao";
 import { linhaAssinatura, type CargoTitular } from "services/routes/config";
 
 /**
@@ -35,7 +35,7 @@ export async function gerarOrdemMissaoDocx(
    cargos: CargoTitular[]
 ): Promise<Blob> {
    // Sem brasão registrado não há como montar o cabeçalho — bloquear
-   const brasaoPath = brasaoUrl(uae);
+   const brasaoPath = brasaoDocxUrl(uae);
    if (!brasaoPath) {
       throw new Error(`Organização "${uae}" sem brasão registrado`);
    }
@@ -58,8 +58,9 @@ export async function gerarOrdemMissaoDocx(
       const zip = new PizZip(arrayBuffer);
 
       // O template embute o brasão como word/media/image1.jpeg (referenciado
-      // nos headers); trocar os bytes preserva posição e dimensões. Os
-      // brasões de public/brasoes/ devem manter JPEG 150x200 (proporção 3:4).
+      // nos headers); trocar os bytes preserva posição e dimensões. Daqui sai
+      // sempre o `.jpg` de public/brasoes/ (150x200, proporção 3:4) — o `.png`
+      // recortado é da UI, e não serve para o docx.
       zip.file("word/media/image1.jpeg", brasaoBuffer);
       const doc = new Docxtemplater(zip, {
          paragraphLoop: true,

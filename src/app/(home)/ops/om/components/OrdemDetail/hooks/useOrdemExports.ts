@@ -4,7 +4,7 @@ import { gerarOrdemMissaoDocx } from "../../../utils/exportOrdemMissao";
 import { gerarPedidoLanche } from "../../../utils/exportLanche";
 import { useAuth } from "@/app/context/auth";
 import { useToast } from "@/app/context/toast";
-import { brasaoUrl } from "@/lib/orgBrasao";
+import { brasaoDocxUrl } from "@/lib/orgBrasao";
 import { CARGOS, getCargos, linhaAssinatura } from "services/routes/config";
 
 // Dispara o download de um blob e revoga a URL após o download iniciar
@@ -47,7 +47,7 @@ export function useOrdemExports(ordem: OrdemMissaoOut | null) {
 
       // O cabeçalho herda o brasão da org ativa — sem brasão registrado
       // (public/brasoes + orgBrasao.ts) o documento sairia errado
-      if (!brasaoUrl(activeOrg)) {
+      if (!brasaoDocxUrl(activeOrg)) {
          pushToast({
             type: "warning",
             title: "Atenção",

@@ -64,7 +64,7 @@ export default function Navbar({
                   <img
                      src={brasao}
                      alt={`Brasão ${activeOrg?.toUpperCase() ?? ""}`.trim()}
-                     className="h-10 w-10 rounded object-contain shadow-md"
+                     className="h-10 w-10 object-contain drop-shadow-sm"
                   />
                ) : (
                   isSistema && (
