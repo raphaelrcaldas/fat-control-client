@@ -5,6 +5,7 @@ import {
    Checkbox,
    Modal,
    ModalBody,
+   ModalFooter,
    ModalHeader,
    Table,
    TableBody,
@@ -23,9 +24,10 @@ import { QuadForm } from "./QuadForm";
 import { quadDisplayValue } from "../utils/quadDisplay";
 import { FaRegTrashCan } from "react-icons/fa6";
 import { FaEdit, FaPlus } from "react-icons/fa";
-import { HiOutlineClipboardList } from "react-icons/hi";
+import { HiOutlineUser } from "react-icons/hi";
+import { TbSquareOff } from "react-icons/tb";
 import { useToast } from "@/app/context/toast";
-import { PermBased } from "@/app/(home)/hooks/usePermBased";
+import { PermBased, usePermBased } from "@/app/(home)/hooks/usePermBased";
 import { useQuadsByTrip, useDeleteQuad } from "@/hooks/queries";
 
 interface QuadsTripProps {
@@ -39,11 +41,37 @@ interface QuadRowProps {
    quad: Quad;
    trip: CrewMember;
    selected: boolean;
+   comSelecao: boolean;
    onToggleSelect: (id: number) => void;
 }
 
+/* Borda forte de propósito: a espessura e o `gray-500` compensam o monitor
+   em que este sistema é operado, onde um checkbox de borda fina some. Não
+   suavizar. */
 const QUAD_CHECKBOX_CLASS =
    "size-[24px] cursor-pointer rounded border-2 border-gray-500 text-primary-600 ring-offset-1 checked:border-primary-600 focus:ring-2 focus:ring-primary-500 focus:ring-offset-2";
+
+/**
+ * Área de clique do checkbox: a caixa continua com 24px (crescer um checkbox
+ * até 44px o descaracteriza), mas o `label` em volta estende o alvo até os
+ * 44px do dedo DE GRAÇA — a linha já tem 46px de altura, então nada na tela
+ * muda de tamanho; o que muda é que tocar ao lado da caixa passa a marcar.
+ * No mouse vale o mínimo de 24px do WCAG 2.2, que a caixa cumpre sozinha.
+ */
+const ALVO_CHECKBOX =
+   "flex cursor-pointer items-center justify-center pointer-coarse:min-h-[44px]";
+
+/**
+ * Célula estreita, conteúdo centrado e cabeçalho grudado no topo do rolamento.
+ *
+ * `text-center` sobrepõe o `text-left` que a Table do Flowbite traz na raiz.
+ * Centrar só é estável porque as colunas têm largura FIXA (`w-24` a data,
+ * `w-12` a ação): o centro de cada uma cai no mesmo x em todas as linhas, e a
+ * coluna de datas continua sendo uma pilha de dígitos alinhados entre si.
+ */
+const CELULA = "px-3 text-center";
+const CELULA_CABECALHO =
+   "sticky top-0 z-10 bg-gray-50 px-3 py-2 text-center text-xs font-semibold text-gray-700";
 
 export function QuadsTrip({
    trip,
@@ -58,6 +86,13 @@ export function QuadsTrip({
    const [batchDeleting, setBatchDeleting] = useState(false);
    const { quadType } = useQuadsContext();
    const { push } = useToast();
+   const { hasPerm } = usePermBased();
+
+   // A seleção existe para UMA coisa: apagar em lote. Sem a permissão de
+   // apagar, a coluna de checkbox era um controle que não levava a lugar
+   // nenhum — e ainda assim era a PRIMEIRA coluna de toda linha, empurrando
+   // a data (o dado) para o meio da tabela.
+   const comSelecao = hasPerm("ops.quadrinhos", "delete");
 
    // React Query hooks
    const {
@@ -153,6 +188,9 @@ export function QuadsTrip({
       }
    }, []);
 
+   const nSelecionados = selectedIds.size;
+   const todosSelecionados = quads.length > 0 && nSelecionados === quads.length;
+
    return (
       <>
          {/* A contagem ficava num selo de 24px pendurado na quina
@@ -207,104 +245,98 @@ export function QuadsTrip({
 
          <Modal
             show={openModal}
-            size="md"
+            size="lg"
             onClose={handleCloseModal}
             popup
             dismissible
          >
-            <ModalHeader>
-               <div className="flex items-center gap-2">
-                  <div className="bg-primary-600 flex h-10 w-10 items-center justify-center rounded-md shadow">
-                     <HiOutlineClipboardList className="h-6 w-6 text-white" />
-                  </div>
-                  <span className="text-xl font-bold text-gray-800">
-                     Quadrinhos
-                  </span>
-               </div>
+            {/* Cabeçalho no formato do modal de indisponibilidades: quem, e
+                logo abaixo o contexto em linha fina.
+
+                Antes eram TRÊS blocos empilhados — um título genérico
+                "Quadrinhos" com caixa de ícone (a página inteira já se chama
+                Quadrinhos), um cartão rosa centralizado só com o nome e outro
+                cartão só com grupo/tipo. Somados ao espaço reservado da barra
+                de seleção, empurravam a primeira data para 246px abaixo da
+                borda do modal: 40% da altura antes do primeiro dado. O nome do
+                tripulante é o título — é ele que o leitor de tela deve
+                anunciar.
+
+                `as="div"` porque o conteúdo é um `h3` mais uma linha de
+                contexto, e o Flowbite renderiza os filhos DENTRO do elemento
+                de título (`h3` por padrão) — sem isso, `h3` dentro de `h3`. */}
+            <ModalHeader
+               as="div"
+               className="border-b border-slate-200 px-4 pt-4 pb-3"
+            >
+               <h3 className="flex items-center gap-2 text-base font-bold text-gray-900 uppercase">
+                  <HiOutlineUser
+                     aria-hidden
+                     className="size-4 shrink-0 text-slate-400"
+                  />
+                  {userName}
+               </h3>
+               <p className="mt-0.5 text-xs text-gray-500 uppercase">
+                  {groupName.toLowerCase().includes("internacional") && (
+                     <span aria-hidden>🌍 </span>
+                  )}
+                  {groupName} ·{" "}
+                  <strong className="font-semibold text-gray-700">
+                     {typeName}
+                  </strong>
+               </p>
             </ModalHeader>
-            <ModalBody className="space-y-2">
-               <div className="border-primary-200 bg-primary-100 rounded border p-4">
-                  <div className="text-center uppercase">
-                     <h2 className="text-lg font-bold text-gray-900">
-                        {userName}
-                     </h2>
-                  </div>
-               </div>
 
-               <div className="rounded border border-slate-200 bg-gray-50 p-2">
-                  <div className="text-center">
-                     <p className="mb-1 flex items-center justify-center gap-1 text-xs font-semibold text-gray-500 uppercase">
-                        {groupName.toLowerCase().includes("internacional") && (
-                           <span className="text-blue-600">🌍</span>
-                        )}
-                        {groupName}
-                     </p>
-                     <p className="text-sm font-bold text-gray-900 uppercase">
-                        {typeName}
-                     </p>
-                  </div>
-               </div>
-
-               <div
-                  className={`border-primary-300 bg-primary-50 flex items-center justify-between rounded border px-3 py-2 shadow-sm transition-opacity duration-150 ${
-                     quads.length > 0 && selectedIds.size > 0
-                        ? "opacity-100"
-                        : "invisible opacity-0"
-                  }`}
-               >
-                  <span className="text-primary-700 text-sm font-semibold">
-                     ✓ {selectedIds.size} selecionado(s)
-                  </span>
-                  <button
-                     onClick={handleClearSelection}
-                     className="cursor-pointer rounded px-2 py-0.5 text-xs font-medium text-gray-500 hover:bg-gray-200 hover:text-gray-700"
-                  >
-                     Limpar seleção
-                  </button>
-               </div>
-
-               <div className="h-96 overflow-y-auto rounded bg-white shadow-sm ring-1 ring-slate-200">
+            <ModalBody className="p-4">
+               {/* `max-h-[55vh]`, e não `h-96`: a altura era FIXA, então dois
+                   quadrinhos reservavam os mesmos 336px que quinze — o resto
+                   virava vazio dentro de uma moldura. Agora a caixa tem a
+                   altura da lista e só para de crescer quando ia passar da
+                   tela. */}
+               <div className="max-h-[55vh] overflow-y-auto rounded border border-slate-200 bg-white shadow-sm">
                   {loading ? (
-                     <LoadingState />
+                     <LoadingState comSelecao={comSelecao} />
                   ) : isError ? (
                      <ErrorState onRetry={() => refetch()} />
                   ) : quads.length > 0 ? (
-                     <Table
-                        className="text-center"
-                        hoverable
-                        theme={{
-                           head: {
-                              cell: {
-                                 base: "bg-white border-b border-slate-200",
-                              },
-                           },
-                        }}
-                     >
+                     <Table>
                         <TableHead>
                            <TableRow>
-                              <TableHeadCell className="w-10">
-                                 <Checkbox
-                                    ref={selectAllRef}
-                                    color="primary"
-                                    checked={
-                                       quads.length > 0 &&
-                                       selectedIds.size === quads.length
-                                    }
-                                    onChange={
-                                       selectedIds.size === quads.length
-                                          ? handleClearSelection
-                                          : handleSelectAll
-                                    }
-                                    aria-label={
-                                       selectedIds.size === quads.length
-                                          ? "Desmarcar todos os quadrinhos"
-                                          : "Selecionar todos os quadrinhos"
-                                    }
-                                    className={QUAD_CHECKBOX_CLASS}
-                                 />
+                              {comSelecao && (
+                                 <TableHeadCell className={CELULA_CABECALHO}>
+                                    <label className={ALVO_CHECKBOX}>
+                                       <Checkbox
+                                          ref={selectAllRef}
+                                          color="primary"
+                                          checked={todosSelecionados}
+                                          onChange={
+                                             todosSelecionados
+                                                ? handleClearSelection
+                                                : handleSelectAll
+                                          }
+                                          aria-label={
+                                             todosSelecionados
+                                                ? "Desmarcar todos os quadrinhos"
+                                                : "Selecionar todos os quadrinhos"
+                                          }
+                                          className={QUAD_CHECKBOX_CLASS}
+                                       />
+                                    </label>
+                                 </TableHeadCell>
+                              )}
+                              <TableHeadCell
+                                 className={clsx(CELULA_CABECALHO, "w-24")}
+                              >
+                                 Data
                               </TableHeadCell>
-                              <TableHeadCell>Valor</TableHeadCell>
-                              <TableHeadCell>Ações</TableHeadCell>
+                              <TableHeadCell className={CELULA_CABECALHO}>
+                                 Observações
+                              </TableHeadCell>
+                              <TableHeadCell
+                                 className={clsx(CELULA_CABECALHO, "w-12")}
+                              >
+                                 <span className="sr-only">Ações</span>
+                              </TableHeadCell>
                            </TableRow>
                         </TableHead>
                         <TableBody>
@@ -313,6 +345,7 @@ export function QuadsTrip({
                                  key={quad.id ?? quad.value}
                                  quad={quad}
                                  trip={trip}
+                                 comSelecao={comSelecao}
                                  selected={
                                     quad.id !== undefined &&
                                     selectedIds.has(quad.id)
@@ -327,62 +360,87 @@ export function QuadsTrip({
                   )}
                </div>
 
-               <div className="flex items-center justify-center gap-2">
-                  <PermBased
-                     resource={"ops.quadrinhos"}
-                     requiredPerm={"delete"}
-                  >
-                     {selectedIds.size > 0 && (
-                        <Button
-                           color="gray"
-                           disabled={batchDeleting}
-                           onClick={() => setShowBatchDeleteConfirm(true)}
-                           className="w-full sm:w-auto"
-                        >
-                           {batchDeleting ? (
-                              <Spinner
-                                 size="sm"
-                                 color="primary"
-                                 className="mr-2"
-                              />
-                           ) : (
-                              <FaRegTrashCan className="mr-2 h-4 w-4" />
-                           )}
-                           Deletar ({selectedIds.size})
-                        </Button>
-                     )}
-                  </PermBased>
-                  <PermBased
-                     resource={"ops.quadrinhos"}
-                     requiredPerm={"create"}
-                  >
-                     <Button
-                        ref={addQuadBtnRef}
-                        color="primary"
-                        onClick={() => setShowForm(true)}
-                        className="w-full sm:w-auto"
-                     >
-                        <FaPlus className="mr-2 h-4 w-4" />
-                        Adicionar Quadrinho
-                     </Button>
-                  </PermBased>
-               </div>
-
                <QuadForm trip={trip} show={showForm} setShow={handleFormShow} />
             </ModalBody>
+
+            {/* A contagem de selecionados morava num painel próprio acima da
+                lista, com `invisible opacity-0` quando não havia seleção — ou
+                seja, 40px de nada reservados o tempo todo, no modal que já
+                estava alto demais. Ela cabe aqui: "Deletar (3)" já diz quantos
+                são, e o "Limpar seleção" entra na mesma fileira, ao lado da
+                seleção que desfaz. */}
+            {/* `flex-wrap` + `shrink-0` nos filhos: a 360px os três controles
+                somam mais que a largura do modal, e sem isso o flex encolhia
+                cada botão até o rótulo quebrar em duas linhas dentro dele
+                ("Adicionar / Quadrinho"). Melhor descer um botão de linha do
+                que espremer os três. */}
+            <ModalFooter className="flex-wrap justify-center gap-2 border-slate-200 p-4">
+               {nSelecionados > 0 && (
+                  <button
+                     type="button"
+                     onClick={handleClearSelection}
+                     /* Alvo de dedo só no dedo: no mouse os 24px do WCAG 2.2
+                        bastam e um botão de texto secundário não deve inflar
+                        o rodapé. */
+                     className="shrink-0 cursor-pointer rounded px-2 py-1 text-xs font-medium whitespace-nowrap text-gray-500 hover:bg-gray-100 hover:text-gray-700 pointer-coarse:min-h-[44px] pointer-coarse:px-3"
+                  >
+                     Limpar seleção
+                  </button>
+               )}
+               <PermBased resource={"ops.quadrinhos"} requiredPerm={"delete"}>
+                  {nSelecionados > 0 && (
+                     <Button
+                        color="gray"
+                        size="sm"
+                        disabled={batchDeleting}
+                        onClick={() => setShowBatchDeleteConfirm(true)}
+                        className="shrink-0 whitespace-nowrap"
+                     >
+                        {batchDeleting ? (
+                           <Spinner
+                              size="sm"
+                              color="primary"
+                              className="mr-2"
+                           />
+                        ) : (
+                           <FaRegTrashCan className="mr-2 h-4 w-4" />
+                        )}
+                        Deletar ({nSelecionados})
+                     </Button>
+                  )}
+               </PermBased>
+               <PermBased resource={"ops.quadrinhos"} requiredPerm={"create"}>
+                  <Button
+                     ref={addQuadBtnRef}
+                     color="primary"
+                     size="sm"
+                     onClick={() => setShowForm(true)}
+                     className="shrink-0 whitespace-nowrap"
+                  >
+                     <FaPlus className="mr-2 h-4 w-4" />
+                     Adicionar Quadrinho
+                  </Button>
+               </PermBased>
+            </ModalFooter>
          </Modal>
 
          <ConfirmDeleteModal
             show={showBatchDeleteConfirm}
             onConfirm={handleBatchDelete}
             onCancel={() => setShowBatchDeleteConfirm(false)}
-            count={selectedIds.size}
+            count={nSelecionados}
          />
       </>
    );
 }
 
-function QuadRow({ quad, trip, selected, onToggleSelect }: QuadRowProps) {
+function QuadRow({
+   quad,
+   trip,
+   selected,
+   comSelecao,
+   onToggleSelect,
+}: QuadRowProps) {
    const [showForm, setShowForm] = useState(false);
 
    const displayValue = quadDisplayValue(quad);
@@ -399,38 +457,64 @@ function QuadRow({ quad, trip, selected, onToggleSelect }: QuadRowProps) {
 
    return (
       <>
-         <TableRow className="min-h-11 transition-colors hover:bg-gray-50 dark:hover:bg-gray-700">
-            <TableCell className="w-10">
-               <Checkbox
-                  checked={selected}
-                  onChange={() =>
-                     quad.id !== undefined && onToggleSelect(quad.id)
-                  }
-                  aria-label={`Selecionar quadrinho ${displayValue}`}
-                  className={QUAD_CHECKBOX_CLASS}
-               />
+         <TableRow className="transition-colors hover:bg-gray-50">
+            {comSelecao && (
+               <TableCell className={CELULA}>
+                  <label className={ALVO_CHECKBOX}>
+                     <Checkbox
+                        checked={selected}
+                        onChange={() =>
+                           quad.id !== undefined && onToggleSelect(quad.id)
+                        }
+                        aria-label={`Selecionar quadrinho ${displayValue}`}
+                        className={QUAD_CHECKBOX_CLASS}
+                     />
+                  </label>
+               </TableCell>
+            )}
+            {/* Fonte tabular: numa coluna de largura fixa, dígito embaixo de
+                dígito, o olho compara períodos sem reler. */}
+            <TableCell
+               className={clsx(
+                  CELULA,
+                  "font-mono font-semibold tracking-tight whitespace-nowrap text-gray-900 tabular-nums"
+               )}
+            >
+               {quad.value ? (
+                  displayValue
+               ) : (
+                  <span className="font-sans text-gray-500">LASTRO</span>
+               )}
             </TableCell>
-            <TableCell className="text-center font-semibold">
-               {displayValue}
+            {/* A observação é escrita no formulário desta mesma tela e nunca
+                era mostrada de volta: quem anotava o motivo de um quadrinho
+                só reencontrava a anotação abrindo o form de edição. */}
+            <TableCell className={clsx(CELULA, "text-gray-700")}>
+               {quad.description || (
+                  <span className="text-gray-400">
+                     <span aria-hidden>—</span>
+                     <span className="sr-only">Sem observações</span>
+                  </span>
+               )}
             </TableCell>
-            <TableCell>
-               <div className="flex items-center justify-center gap-2">
-                  <PermBased
-                     resource={"ops.quadrinhos"}
-                     requiredPerm={"update"}
-                  >
-                     {canEdit && (
-                        <button
-                           ref={editBtnRef}
-                           onClick={() => setShowForm(true)}
-                           className="cursor-pointer rounded p-2 text-blue-500 transition-all duration-200 hover:bg-blue-500 hover:text-white active:scale-95 motion-reduce:transition-none motion-reduce:active:scale-100"
-                           aria-label={`Editar quadrinho ${displayValue}`}
-                        >
-                           <FaEdit className="size-5" />
-                        </button>
-                     )}
-                  </PermBased>
-               </div>
+            <TableCell className={CELULA}>
+               <PermBased resource={"ops.quadrinhos"} requiredPerm={"update"}>
+                  {canEdit && (
+                     <button
+                        ref={editBtnRef}
+                        onClick={() => setShowForm(true)}
+                        /* Alvo de 44px SÓ no dedo, e por piso — não por
+                           padding: `size-5` mede 17,5px (a raiz do client é
+                           87,5%), então nenhum passo da escala fecha os 44
+                           (`p-3` para em 41,5px). No mouse ficam os 32px,
+                           acima do mínimo de 24px do WCAG 2.2. */
+                        className="inline-flex cursor-pointer items-center justify-center rounded p-2 text-blue-500 transition-all duration-200 hover:bg-blue-500 hover:text-white active:scale-95 motion-reduce:transition-none motion-reduce:active:scale-100 pointer-coarse:min-h-[44px] pointer-coarse:min-w-[44px]"
+                        aria-label={`Editar quadrinho ${displayValue}`}
+                     >
+                        <FaEdit className="size-5" />
+                     </button>
+                  )}
+               </PermBased>
             </TableCell>
          </TableRow>
 
@@ -446,34 +530,29 @@ function QuadRow({ quad, trip, selected, onToggleSelect }: QuadRowProps) {
    );
 }
 
-function LoadingState() {
+/** Espelha a tabela real — mesmas colunas, mesma altura de linha. */
+function LoadingState({ comSelecao }: { comSelecao: boolean }) {
    return (
       <div className="divide-y divide-slate-200">
-         {/* Cabeçalho (espelha checkbox / Valor / Ações) */}
-         <div className="flex items-center gap-2 px-4 py-3">
-            <div className="w-10">
-               <div className="h-5 w-5 animate-pulse rounded bg-slate-200" />
-            </div>
-            <div className="flex flex-1 justify-center">
-               <div className="h-3 w-12 animate-pulse rounded bg-slate-200" />
-            </div>
-            <div className="flex flex-1 justify-center">
-               <div className="h-3 w-12 animate-pulse rounded bg-slate-200" />
-            </div>
+         <div className="flex items-center gap-3 bg-gray-50 px-3 py-2">
+            {comSelecao && (
+               <div className="size-[24px] shrink-0 animate-pulse rounded bg-slate-200" />
+            )}
+            <div className="h-3 w-16 animate-pulse rounded bg-slate-200" />
+            <div className="h-3 w-24 animate-pulse rounded bg-slate-200" />
          </div>
 
-         {/* Linhas */}
          {Array.from({ length: 6 }).map((_, i) => (
-            <div key={i} className="flex min-h-11 items-center gap-2 px-4 py-2">
-               <div className="w-10">
-                  <div className="h-5 w-5 animate-pulse rounded bg-slate-200" />
-               </div>
-               <div className="flex flex-1 justify-center">
-                  <div className="h-4 w-10 animate-pulse rounded bg-slate-200" />
-               </div>
-               <div className="flex flex-1 justify-center">
-                  <div className="h-8 w-8 animate-pulse rounded bg-slate-100" />
-               </div>
+            <div
+               key={i}
+               className="flex items-center gap-3 px-3 py-2 pointer-coarse:min-h-[44px]"
+            >
+               {comSelecao && (
+                  <div className="size-[24px] shrink-0 animate-pulse rounded bg-slate-200" />
+               )}
+               <div className="h-4 w-16 shrink-0 animate-pulse rounded bg-slate-200" />
+               <div className="h-4 flex-1 animate-pulse rounded bg-slate-100" />
+               <div className="size-8 shrink-0 animate-pulse rounded bg-slate-100" />
             </div>
          ))}
       </div>
@@ -482,7 +561,7 @@ function LoadingState() {
 
 function ErrorState({ onRetry }: { onRetry: () => void }) {
    return (
-      <div className="flex flex-col items-center justify-center gap-2 px-4 py-12">
+      <div className="flex flex-col items-center justify-center gap-2 px-4 py-10">
          <p className="text-sm font-semibold text-gray-700">
             Erro ao carregar os quadrinhos
          </p>
@@ -496,18 +575,14 @@ function ErrorState({ onRetry }: { onRetry: () => void }) {
    );
 }
 
+/* Vazio em uma linha, e não um círculo de 80px com ícone dentro mais título
+   mais parágrafo: a caixa existe para mostrar uma lista, e "não há lista" não
+   merece mais espaço do que a lista teria. */
 function EmptyState() {
    return (
-      <div className="flex flex-col items-center justify-center px-4 py-12">
-         <div className="mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-gray-100">
-            <HiOutlineClipboardList className="h-10 w-10 text-gray-400" />
-         </div>
-         <h3 className="mb-2 text-lg font-semibold text-gray-700">
-            Nenhum quadrinho encontrado
-         </h3>
-         <p className="text-center text-sm text-gray-500">
-            Não há quadrinhos cadastrados para este tripulante.
-         </p>
+      <div className="flex items-center justify-center gap-2 px-4 py-8 text-sm text-gray-500">
+         <TbSquareOff aria-hidden className="size-5 shrink-0" />
+         Nenhum quadrinho registrado
       </div>
    );
 }
