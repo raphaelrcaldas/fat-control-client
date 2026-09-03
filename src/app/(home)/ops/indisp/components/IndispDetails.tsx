@@ -1,6 +1,15 @@
 "use client";
 
-import { isoDateToString } from "utils/dateHandler";
+import clsx from "clsx";
+import { HiOutlineUser } from "react-icons/hi";
+import { MdErrorOutline, MdOutlineFlightTakeoff } from "react-icons/md";
+import {
+   daysInclusive,
+   dateToIso,
+   formatDateTime,
+   formatPeriodo,
+   isoDateToString,
+} from "utils/dateHandler";
 import { getIndispOption } from "@/constants/ops/indisponibilidades";
 import { useIndispModalActions } from "../context/indispModalContext";
 import { CrewIndisp, IndispType } from "services/routes/indisps";
@@ -13,6 +22,36 @@ type IndispDetailsProps = {
    isDesadaptado: boolean;
 };
 
+/**
+ * O que a célula da grade abre.
+ *
+ * ## Por que tudo passou a ser alinhado à esquerda
+ *
+ * Nome, dia da semana, data, motivo, período e observação vinham todos
+ * centralizados, cada um numa linha de largura diferente: a margem esquerda
+ * mudava a cada linha e o olho reancorava seis vezes para ler um cartão só.
+ * Texto em bloco tem uma margem de leitura, e ela é a esquerda.
+ *
+ * ## Por que o cartão deixou de ser todo colorido
+ *
+ * A superfície inteira pintada com a cor do motivo (`bg-red-100` e afins)
+ * gastava a cor mais forte da tela no fundo, e sobrava pouco contraste para o
+ * texto. A cor passou para onde ela informa: uma barra lateral (o mesmo
+ * recurso do `MissionRow` no cegep — é como este projeto marca categoria em
+ * lista) mais um chip com o nome do motivo. A barra ecoa a cor da célula que
+ * o usuário acabou de clicar, então a ligação grade → modal fica explícita.
+ *
+ * ## Por que os avisos usam roxo e slate, e não vermelho e laranja
+ *
+ * "CEMAL inválido" e "Desadaptado" já têm cor definida na grade e na legenda
+ * (`ColorLegend`/`getStatusColor`): **roxo** e **slate**. O modal os pintava
+ * de vermelho e laranja, ou seja: clicava-se numa célula roxa e abria-se um
+ * alerta vermelho. Aqui eles passam a usar a cor da própria legenda.
+ * (Vermelho segue reservado a perigo/erro no sistema — e não é esse o caso:
+ * é o mesmo tipo de resposta à pergunta "por que este dia não está verde?",
+ * por isso os avisos entram na MESMA pilha das indisponibilidades, e não num
+ * bloco separado com `m-2` como antes.)
+ */
 export default function IndispDetails({
    dateRef,
    trip,
@@ -23,62 +62,84 @@ export default function IndispDetails({
    const { openForm } = useIndispModalActions();
 
    const diaSemana = dateRef.toLocaleDateString("pt-BR", { weekday: "long" });
-   const dataFormatada = dateRef.toLocaleDateString("pt-BR", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "2-digit",
-   });
+   const dataFormatada = isoDateToString(dateToIso(dateRef));
+   const vazio = filterIndisp.length === 0 && isValidCEMAL && !isDesadaptado;
 
    return (
       <div className="text-sm">
-         <div className="border-b border-slate-200 py-3">
-            <h3 className="text-center text-base font-semibold text-gray-900 uppercase">
+         <div className="mb-3 border-b border-slate-200 pb-3">
+            <h3 className="flex items-center gap-2 text-base font-bold text-gray-900 uppercase">
+               <HiOutlineUser
+                  aria-hidden
+                  className="size-4 shrink-0 text-slate-400"
+               />
                {`${trip.user.posto.short} ${trip.user.nome_guerra}`}
             </h3>
+            <p className="mt-0.5 text-xs text-gray-500">
+               {dataFormatada} ·{" "}
+               {/* `capitalize` no elemento inteiro escrevia "Quarta-Feira":
+                   ele maiusculiza cada palavra, e o hífen conta como
+                   separador. Só a primeira letra. */}
+               <span className="inline-block first-letter:uppercase">
+                  {diaSemana}
+               </span>
+            </p>
          </div>
 
-         <div className="border-b border-slate-200 px-3 py-1">
-            <p className="text-center font-medium text-gray-700 capitalize">
-               {diaSemana}
-            </p>
-            <p className="text-center font-semibold text-gray-900">
-               {dataFormatada}
-            </p>
-         </div>
-
-         <div className="max-h-[60vh] overflow-y-auto">
-            {filterIndisp.length > 0 ? (
-               <div className="space-y-2 p-2">
-                  {filterIndisp.map((indisp, index) => (
-                     <IndispBody
-                        key={indisp.id ?? index}
-                        indisp={indisp}
-                        onClick={() => openForm({ trip, indisp })}
-                     />
-                  ))}
-               </div>
-            ) : (
-               <div className="p-4 text-center">
-                  <p className="text-gray-500">Sem indisponibilidades</p>
-               </div>
-            )}
+         <div className="max-h-[60vh] space-y-2 overflow-y-auto">
+            {filterIndisp.map((indisp, index) => (
+               <IndispBody
+                  key={indisp.id ?? index}
+                  indisp={indisp}
+                  onClick={() => openForm({ trip, indisp })}
+               />
+            ))}
 
             {!isValidCEMAL && (
-               <div className="m-2 rounded border border-red-200 bg-red-50 px-3 py-2">
-                  <p className="text-center text-xs font-bold text-red-700 uppercase">
-                     ⚠️ CEMAL INVÁLIDO
-                  </p>
-               </div>
+               <Aviso
+                  icon={MdErrorOutline}
+                  texto="CEMAL inválido"
+                  className="border-purple-200 bg-purple-50 text-purple-800 before:bg-purple-600"
+               />
             )}
 
             {isDesadaptado && (
-               <div className="m-2 rounded border border-orange-200 bg-orange-50 px-3 py-2">
-                  <p className="text-center text-xs font-bold text-orange-700 uppercase">
-                     ⚠️ DESADAPTADO
-                  </p>
-               </div>
+               <Aviso
+                  icon={MdOutlineFlightTakeoff}
+                  texto="Desadaptado"
+                  className="border-slate-300 bg-slate-50 text-slate-700 before:bg-slate-600"
+               />
+            )}
+
+            {vazio && (
+               <p className="py-4 text-center text-gray-500">
+                  Sem indisponibilidades
+               </p>
             )}
          </div>
+      </div>
+   );
+}
+
+/** Base comum dos blocos: barra lateral colorida e o recuo que a acomoda. */
+const BLOCO =
+   "relative overflow-hidden rounded border py-2.5 pr-3 pl-4 shadow-sm before:absolute before:inset-y-0 before:left-0 before:w-1 before:content-['']";
+
+function Aviso({
+   icon: Icon,
+   texto,
+   className,
+}: {
+   icon: React.ComponentType<{ className?: string; "aria-hidden"?: boolean }>;
+   texto: string;
+   className: string;
+}) {
+   return (
+      <div className={clsx(BLOCO, className)}>
+         <p className="flex items-center gap-2 text-sm font-bold uppercase">
+            <Icon aria-hidden className="size-4 shrink-0" />
+            {texto}
+         </p>
       </div>
    );
 }
@@ -90,57 +151,66 @@ type IndispBodyProps = {
 
 function IndispBody({ indisp, onClick }: IndispBodyProps) {
    const indispProps = getIndispOption(indisp.mtv);
-   const dateStart = isoDateToString(indisp.date_start);
-   const dateEnd = isoDateToString(indisp.date_end);
-   const createdAt = indisp.created_at
-      ? new Date(indisp.created_at).toLocaleString("pt-br", {
-           day: "2-digit",
-           month: "2-digit",
-           year: "2-digit",
-           hour: "2-digit",
-           minute: "2-digit",
-        })
-      : "";
-   const bgColor = indispProps?.color?.bg ?? "bg-gray-100";
+   // "DD/MM → DD/MM/YY" (`formatPeriodo`) é o formato de período que o client
+   // já usa; a duração ao lado é o dado que faltava e que ninguém obtinha sem
+   // fazer a conta de cabeça. Em fonte tabular, os dígitos ficam um sob o
+   // outro entre cartões e o olho compara períodos sem reler.
+   const periodo = formatPeriodo(indisp.date_start, indisp.date_end);
+   const dias = daysInclusive(indisp.date_start, indisp.date_end);
+   const lancadaEm = formatDateTime(indisp.created_at);
    const resp = indisp.user_created;
 
    return (
-      <div
-         className={`relative flex flex-col gap-2 rounded border px-3 py-3 shadow ${bgColor} cursor-pointer border-current/20 transition-all hover:shadow-lg`}
+      <button
+         type="button"
          onClick={onClick}
+         className={clsx(
+            "block w-full cursor-pointer border-slate-200 bg-white text-left transition-shadow hover:shadow",
+            BLOCO,
+            indispProps?.color.bar
+         )}
       >
-         <span className="absolute top-1 left-2 text-xs text-gray-500">
-            ID: {indisp.id}
+         <span
+            className={clsx(
+               "inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold tracking-wide text-gray-900 uppercase",
+               indispProps?.color.bg,
+               indispProps?.color.border
+            )}
+         >
+            {indispProps?.label ?? indisp.mtv}
          </span>
 
-         <div className="flex items-center justify-center">
-            <span className="text-center text-sm font-bold text-gray-900 uppercase">
-               {indispProps?.label}
-            </span>
-         </div>
-
-         <div className="text-center">
-            <p className="text-xs font-semibold text-gray-800">
-               {dateStart} <span className="text-gray-600">até</span> {dateEnd}
-            </p>
-         </div>
+         <p className="mt-1.5 font-mono text-sm font-semibold tracking-tight text-gray-900 tabular-nums">
+            {periodo}
+            {dias !== null && (
+               <span className="ml-2 font-sans text-xs font-normal text-gray-500">
+                  {dias} {dias === 1 ? "dia" : "dias"}
+               </span>
+            )}
+         </p>
 
          {indisp.obs && (
-            <div className="mt-1 rounded px-2 py-1.5">
-               <p className="leading-relaxed whitespace-pre-line text-gray-700">
-                  {indisp.obs}
-               </p>
-            </div>
+            <p className="mt-1 leading-relaxed whitespace-pre-line text-gray-700">
+               {indisp.obs}
+            </p>
          )}
 
-         {resp && (
-            <div className="mt-1 flex gap-1 border-t border-slate-400/30 pt-2">
-               <p className="text-xs text-gray-600 uppercase">{createdAt}</p>
-               <p className="text-xs font-medium text-gray-700 uppercase">
+         {/* Quem lançou aparece SEMPRE: esta grade é de outra pessoa, e a
+             autoria é justamente o que não se sabe. O `#id` fica na mesma
+             linha de metadados — antes ele flutuava sobre o canto do cartão
+             (`absolute top-1 left-2`) e colidia com o conteúdo. */}
+         <p className="mt-1.5 text-[11px] text-gray-500">
+            {resp && (
+               <span className="font-medium uppercase">
                   {resp.posto.short} {resp.nome_guerra}
-               </p>
-            </div>
-         )}
-      </div>
+               </span>
+            )}
+            {resp && lancadaEm && " · "}
+            {lancadaEm}
+            {indisp.id != null && (
+               <span className="text-gray-400"> · #{indisp.id}</span>
+            )}
+         </p>
+      </button>
    );
 }

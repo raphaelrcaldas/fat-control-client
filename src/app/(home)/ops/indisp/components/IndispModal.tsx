@@ -31,7 +31,11 @@ export function IndispModal({ indisps }: IndispModalProps) {
 
    return (
       <Modal show={isOpen} onClose={close} size="md" dismissible popup>
-         <ModalBody>
+         {/* `pt-6` para igualar o recuo dos lados: com `popup`, o tema do
+             Flowbite zera o padding do topo do corpo (`p-6 pt-0`) porque
+             conta com um `ModalHeader` ali em cima. Este modal não tem
+             header, então o nome do tripulante encostava na borda. */}
+         <ModalBody className="pt-6">
             {tripData && status && state.status === "open" && (
                <IndispDetails
                   trip={tripData.trip}

@@ -9,8 +9,22 @@ export interface IndispOption {
    value: IndispType;
    label: string;
    color: {
+      /** Preenchimento da célula da grade e do swatch da legenda. */
       button: string;
+      /** Fundo do chip/badge do motivo (superfície clara). */
       bg: string;
+      /** Borda do chip do motivo, par do `bg`. */
+      border: string;
+      /**
+       * Barra lateral do cartão (`before:bg-*`) — como este projeto marca
+       * categoria em lista/cartão. Ecoa a cor de `button` para que a barra
+       * do cartão seja a mesma cor da célula que o usuário acabou de clicar.
+       *
+       * É classe LITERAL, e não derivada de `button` em runtime: o Tailwind
+       * varre o código-fonte em build, e string montada em execução nunca
+       * chega ao scanner — o CSS da cor simplesmente não existiria.
+       */
+      bar: string;
    };
 }
 
@@ -29,6 +43,8 @@ export const INDISP_OPTIONS: IndispOption[] = [
       color: {
          button: "bg-amber-400 enabled:hover:bg-amber-700",
          bg: "bg-amber-200",
+         border: "border-amber-400",
+         bar: "before:bg-amber-400",
       },
    },
    {
@@ -37,6 +53,8 @@ export const INDISP_OPTIONS: IndispOption[] = [
       color: {
          button: "bg-red-600 enabled:hover:bg-red-800",
          bg: "bg-red-100",
+         border: "border-red-300",
+         bar: "before:bg-red-600",
       },
    },
    {
@@ -45,6 +63,8 @@ export const INDISP_OPTIONS: IndispOption[] = [
       color: {
          button: "bg-red-600 enabled:hover:bg-red-800",
          bg: "bg-red-100",
+         border: "border-red-300",
+         bar: "before:bg-red-600",
       },
    },
    {
@@ -53,6 +73,8 @@ export const INDISP_OPTIONS: IndispOption[] = [
       color: {
          button: "bg-red-600 enabled:hover:bg-red-800",
          bg: "bg-red-100",
+         border: "border-red-300",
+         bar: "before:bg-red-600",
       },
    },
    {
@@ -61,6 +83,8 @@ export const INDISP_OPTIONS: IndispOption[] = [
       color: {
          button: "bg-red-600 enabled:hover:bg-red-800",
          bg: "bg-red-100",
+         border: "border-red-300",
+         bar: "before:bg-red-600",
       },
    },
    {
@@ -69,6 +93,8 @@ export const INDISP_OPTIONS: IndispOption[] = [
       color: {
          button: "bg-orange-500 enabled:hover:bg-orange-800",
          bg: "bg-orange-100",
+         border: "border-orange-300",
+         bar: "before:bg-orange-500",
       },
    },
    {
@@ -77,6 +103,8 @@ export const INDISP_OPTIONS: IndispOption[] = [
       color: {
          button: "bg-rose-700 enabled:hover:bg-rose-900",
          bg: "bg-rose-200",
+         border: "border-rose-400",
+         bar: "before:bg-rose-700",
       },
    },
    {
@@ -85,6 +113,8 @@ export const INDISP_OPTIONS: IndispOption[] = [
       color: {
          button: "bg-blue-700 enabled:hover:bg-blue-800",
          bg: "bg-blue-200",
+         border: "border-blue-400",
+         bar: "before:bg-blue-700",
       },
    },
    {
@@ -93,6 +123,8 @@ export const INDISP_OPTIONS: IndispOption[] = [
       color: {
          button: "bg-red-600 enabled:hover:bg-red-800",
          bg: "bg-red-100",
+         border: "border-red-300",
+         bar: "before:bg-red-600",
       },
    },
 ];
