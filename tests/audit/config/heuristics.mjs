@@ -59,6 +59,65 @@ export const HEURISTICS = {
    /** Google considera bom ate 0.1. */
    layoutShift: { goodClsThreshold: 0.1 },
 
+   /**
+    * Movimento. `maxDurationMs` e a fronteira do "arrastado": micro-interacao
+    * de UI vive entre 150 e 300ms, e acima de 400 a interface parece lenta ao
+    * inves de fluida. Duracao CURTA nao tem regua — um hover de 80ms e uma
+    * escolha legitima, e cobrar um minimo so geraria ruido.
+    *
+    * `reducedMaxMs` e 1, nao 0, porque o jeito correto de atender
+    * `prefers-reduced-motion` com Radix e encolher a duracao para 0.01ms: com
+    * duracao zero o painel nao chega a desmontar. Isso e conformidade, nao
+    * achado.
+    *
+    * `compositedProps` sobem para a GPU (sem reflow); `layoutProps` sao
+    * prefixos que forcam layout a cada quadro. O que nao esta em nenhuma das
+    * duas cai em "paint" — mais caro que composited, mais barato que layout.
+    *
+    * Excecao conhecida ao ler o relatorio: `grid-template-rows` (o `0fr` ->
+    * `1fr` de um disclosure) cai em layout pelo prefixo `grid` e SEMPRE vai
+    * aparecer no achado. Ele e a forma correta de animar a altura real de um
+    * painel — a alternativa e `max-height` chutado, que tambem e layout e
+    * ainda erra a altura. Um disclosure listado ali nao e defeito.
+    */
+   motion: {
+      /* Duas réguas, porque são dois tipos de movimento com contratos
+         diferentes. Uma TRANSIÇÃO responde a um gesto (hover, foco) e compete
+         com a mão do usuário: acima de 400ms a interface parece arrastada.
+         Uma ANIMAÇÃO de keyframes normalmente é entrada de conteúdo, roda uma
+         vez na montagem e não bloqueia nada — encurtá-la para caber na régua
+         de hover só deixaria a entrada abrupta. */
+      maxDurationMs: 400,
+      maxEnterMs: 600,
+      reducedMaxMs: 1,
+      compositedProps: [
+         "transform",
+         "opacity",
+         "filter",
+         "backdrop-filter",
+         "translate",
+         "rotate",
+         "scale",
+      ],
+      layoutProps: [
+         "width",
+         "height",
+         "top",
+         "left",
+         "right",
+         "bottom",
+         "inset",
+         "margin",
+         "padding",
+         "font-size",
+         "gap",
+         "flex",
+         "grid",
+         "block-size",
+         "inline-size",
+      ],
+   },
+
    accessibility: {
       tags: [
          "wcag2a",

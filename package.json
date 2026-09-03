@@ -14,6 +14,7 @@
       "test:e2e": "playwright test",
       "test:e2e:ui": "playwright test --ui",
       "audit:ui": "node tests/audit/audit.mjs",
+      "peek": "node tests/audit/peek.mjs",
       "format:check": "prettier --check .",
       "test": "vitest run",
       "test:watch": "vitest",

@@ -67,3 +67,7 @@ tests/rbac/.grants.json
 
 # Fichas do design system geradas por design-system/build.py — artefato
 design-system/dist/
+
+# Ciclo de refino de UI (tests/audit/peek.mjs)
+.peek/
+.peek-chrome/

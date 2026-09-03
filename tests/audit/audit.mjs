@@ -43,6 +43,7 @@ import { createHeadingsCollector } from "./collectors/headings.mjs";
 import { createLayoutShiftCollector } from "./collectors/layoutShift.mjs";
 import { createFocusRingCollector } from "./collectors/focusRing.mjs";
 import { createAccessibilityCollector } from "./collectors/accessibility.mjs";
+import { createMotionCollector } from "./collectors/motion.mjs";
 
 import { createJsonReporter } from "./reporters/jsonReporter.mjs";
 import { createMarkdownReporter } from "./reporters/markdownReporter.mjs";
@@ -67,6 +68,7 @@ function buildCollectors(heuristics) {
       createLayoutShiftCollector(heuristics.layoutShift),
       createFocusRingCollector(heuristics.focusRing),
       createAccessibilityCollector(heuristics.accessibility),
+      createMotionCollector(heuristics.motion),
    ];
 }
 

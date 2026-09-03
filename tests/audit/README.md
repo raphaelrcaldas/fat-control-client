@@ -77,3 +77,77 @@ reporters/            json, markdown, console
 régua por injeção; nenhum deles crava um número.
 
 Um coletor que quebra é registrado como erro e não derruba os demais.
+
+---
+
+## Ciclo curto: `peek.mjs`
+
+`audit.mjs` responde _"esta tela está pronta?"_ — sobe um browser limpo, mede
+quatro breakpoints, grava relatório. É caro porque auditoria se faz uma vez, no
+fim.
+
+`peek.mjs` responde _"e agora, ficou melhor?"_ — a pergunta que se faz vinte
+vezes seguidas enquanto se mexe num easing.
+
+```bash
+npm run peek -- --url http://localhost:4000/ops/operacoes
+npm run peek -- --url http://localhost:4000/users --only motion
+npm run peek -- --url http://localhost:4000/users --viewport mobile
+node tests/audit/peek.mjs --help
+```
+
+|                | `audit.mjs`                     | `peek.mjs`                    |
+| -------------- | ------------------------------- | ----------------------------- |
+| Browser        | sobe e descarta a cada execução | um Chromium persistente (CDP) |
+| Sessão         | cookie de `.e2e_token`          | o login que já está na aba    |
+| Estado da tela | recomeça do zero                | **sobrevive entre execuções** |
+| Viewports      | 4, com `pointer: coarse` real   | 1, sempre `pointer: fine`     |
+| Saída          | `report.md` + `report.json`     | resumo no terminal + PNG      |
+| Custo típico   | dezenas de segundos             | ~1s                           |
+
+### O que o torna diferente
+
+Na primeira execução ele sobe o Chromium que o **Playwright já instalou** (não há
+Chrome de sistema envolvido) com `--remote-debugging-port` e perfil próprio em
+`client/.peek-chrome/`, **desanexado** do processo Node. As execuções seguintes
+reatam nesse mesmo browser.
+
+Por isso ele **não recarrega a página por padrão**: o Fast Refresh do Next já
+repintou a tela depois da sua edição, e recarregar jogaria fora o estado que se
+quer inspecionar — o modal aberto, a aba selecionada, o filtro aplicado. Você
+navega até o estado uma vez (`--actions`) e mede quantas vezes quiser. Use
+`--reload` quando quiser justamente o contrário.
+
+Login também se faz **uma vez**: o perfil persiste, então não há token de longa
+duração para expirar em silêncio.
+
+### Limitação: ponteiro
+
+Não há emulação de toque. `hasTouch`/`isMobile` são opções de _contexto_, e o
+contexto aqui é o do browser já aberto — recriá-lo custaria o perfil logado, que
+é o motivo de existir a ferramenta. `--viewport mobile` estreita a janela mas
+mantém `pointer: fine`, e o `peek` avisa quando isso importa. **Medida de alvo
+de toque continua sendo com `audit.mjs`.**
+
+`layoutShift` e `focusRing` também ficam de fora, por incompatibilidade real: o
+primeiro precisa instrumentar a página antes do primeiro paint; o segundo
+percorre a tela com Tab e deixaria o foco pousado num controle para a execução
+seguinte encontrar.
+
+## O coletor `motion`
+
+Roda nos dois modos e é o único que mede o que **não** aparece no screenshot:
+
+- **Propriedade cara** — `transform`/`opacity` sobem para a GPU; `width`, `top`,
+  `padding` forçam reflow a cada quadro. `transition-property: all` (o
+  `transition-all` do Tailwind) é sinalizado por construção: anima o que quer que
+  venha a mudar, layout incluso.
+- **Duração** — acima de `maxDurationMs` a interface parece arrastada. Animação
+  infinita (`animate-pulse` de skeleton) é isenta: ali a duração é ritmo, não
+  espera.
+- **`prefers-reduced-motion`** — segundo passe com a media emulada, relendo o
+  computed style. Pega uma falha que ler o CSS fonte **não** pega: o bloco
+  `@media (prefers-reduced-motion: reduce)` pode existir e mesmo assim não valer,
+  porque um shorthand `transition:` declarado depois reescreve a duração inteira.
+  A régua é `reducedMaxMs`, não zero — encolher para `0.01ms` é o padrão correto
+  com Radix, já que com duração zero o painel não chega a desmontar.
