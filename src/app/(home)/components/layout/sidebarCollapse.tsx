@@ -46,7 +46,9 @@ export default function SidebarCollapse({
          {/* Botão do collapse */}
          <button
             onClick={() => setIsOpen(!isOpen)}
-            className={`focus-visible:ring-primary-600 flex w-full items-center justify-between gap-3 rounded px-4 py-3 transition-colors duration-200 focus-visible:ring-2 focus-visible:outline-none pointer-coarse:min-h-[44px] ${
+            /* Mesma razão do SidebarItem: faixa da largura da gaveta cobra
+               32px de altura, não 44 — e o `py-3` já entrega 42px. */
+            className={`focus-visible:ring-primary-600 flex w-full items-center justify-between gap-3 rounded px-4 py-3 transition-colors duration-200 focus-visible:ring-2 focus-visible:outline-none ${
                hasActiveChild
                   ? "bg-primary-50 text-primary-700"
                   : "text-gray-700 hover:bg-gray-100"

@@ -37,7 +37,14 @@ export default function SidebarItem({
    return (
       <button
          onClick={handleClick}
-         className={`focus-visible:ring-primary-600 flex w-full items-center gap-3 rounded transition-colors duration-200 focus-visible:ring-2 focus-visible:outline-none pointer-coarse:min-h-[44px] ${isChild ? "px-4 py-2 text-sm" : "px-4 py-3"} ${
+         /* Sem `pointer-coarse:min-h-[44px]`: o item atravessa a largura da
+            gaveta, e uma FAIXA não é alvo compacto — na horizontal Fitts já
+            está satisfeito com folga, e a régua do projeto cobra dela 32px de
+            altura, não 44 (ver `rules/frontend/components.md`). Os 44px
+            cravados engordavam todo item no celular em ~12px e faziam o menu
+            respirar mais que o conteúdo. O piso de 32px fica explícito no
+            filho, que sem ele para em 31,5px. */
+         className={`focus-visible:ring-primary-600 flex w-full items-center gap-3 rounded transition-colors duration-200 focus-visible:ring-2 focus-visible:outline-none ${isChild ? "min-h-[32px] px-4 py-2 text-sm" : "px-4 py-3"} ${
             isActive
                ? "bg-primary-100 text-primary-700 font-semibold"
                : isChild
