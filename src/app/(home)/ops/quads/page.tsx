@@ -79,12 +79,16 @@ export default function QuadPage() {
                   </div>
                </div>
 
+               {/* `hidden sm:flex`: configurar tipos de quadrinho é trabalho
+                   de mesa — a tela de gerência é uma tabela de administração,
+                   não algo que se faça no celular. No masthead do telefone o
+                   botão só disputava largura com o título. */}
                <PermBased resource="ops.quadrinhos" requiredPerm="create">
                   <Button
                      as={Link}
                      href="/ops/quads/gerenciar"
                      color="light"
-                     className="font-semibold whitespace-nowrap"
+                     className="hidden font-semibold whitespace-nowrap sm:flex"
                   >
                      <FaSliders className="mr-2 h-4 w-4" />
                      Gerenciar

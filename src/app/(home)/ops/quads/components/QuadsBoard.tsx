@@ -102,15 +102,24 @@ export function QuadsBoard({
             ) : quads.length === 0 ? (
                <EmptyBoard hasTypes={Boolean(groupName)} />
             ) : (
-               quads.map((item, index) => (
-                  <CrewRow
-                     key={item.trip.id}
-                     tripQuadRes={item}
-                     index={index}
-                     groupName={groupName}
-                     typeName={typeName}
-                  />
-               ))
+               /* `w-max min-w-full`: dá a TODAS as linhas a largura da maior
+                  delas. Sem isso, quem tem 6 quadrinhos monta uma linha de
+                  ~500px, e ao rolar além disso a linha inteira sai de cena —
+                  levando junto o trigrama grudado à esquerda, que existe
+                  justamente para não sair. O `min-w-full` cobre o contrário:
+                  com poucas colunas, a grade ainda ocupa a largura do quadro
+                  em vez de encolher para um bloco estreito à esquerda. */
+               <div className="flex w-max min-w-full flex-col gap-1">
+                  {quads.map((item, index) => (
+                     <CrewRow
+                        key={item.trip.id}
+                        tripQuadRes={item}
+                        index={index}
+                        groupName={groupName}
+                        typeName={typeName}
+                     />
+                  ))}
+               </div>
             )}
          </div>
       </div>

@@ -1,4 +1,5 @@
 "use client";
+import { useEffect, useState } from "react";
 import { Label, Radio, Select } from "flowbite-react";
 import clsx from "clsx";
 import { QuadTypeGroup } from "services/routes/quads";
@@ -41,6 +42,37 @@ interface QuadsToolbarProps {
  * atua DENTRO da caixa, não havia contra o que centrar. Esticando a caixa até
  * a largura da fieldset, o texto se centra igual nos dois.
  */
+/**
+ * Verdadeiro abaixo do breakpoint `sm` — o mesmo que decide o layout da barra.
+ *
+ * Existe porque `<option>` não obedece CSS: não dá para escrever o rótulo
+ * longo e escondê-lo com uma classe responsiva, como se faria em qualquer
+ * outro elemento. O texto tem de ser escolhido em JS.
+ *
+ * A consulta usa a expressão IDÊNTICA à do Tailwind (`40rem`) de propósito,
+ * para as duas nunca discordarem — e o número não é o que parece: dentro de
+ * uma media query o `rem` se resolve contra o tamanho INICIAL de fonte
+ * (16px), ignorando a raiz de 87,5% do client. Então `sm:` vira 640px, e não
+ * os 560px que a conta ingênua daria. Verificado no navegador: a 639px a
+ * barra ainda está no layout compacto.
+ *
+ * O primeiro render é o de desktop, mas isso não pisca: as opções só existem
+ * depois que o catálogo de funções chega, e a essa altura o efeito já rodou.
+ */
+function useAbaixoDeSm() {
+   const [compacto, setCompacto] = useState(false);
+
+   useEffect(() => {
+      const mq = window.matchMedia("(min-width: 40rem)");
+      const aplicar = () => setCompacto(!mq.matches);
+      aplicar();
+      mq.addEventListener("change", aplicar);
+      return () => mq.removeEventListener("change", aplicar);
+   }, []);
+
+   return compacto;
+}
+
 const ROTULO =
    "mb-1 block w-full text-center text-xs font-medium text-gray-500";
 
@@ -80,7 +112,13 @@ function OpcaoRadio({
    return (
       <label
          className={clsx(
-            "flex cursor-pointer items-center gap-2 rounded border px-3 text-sm transition-colors select-none",
+            /* `py-2` porque no celular ninguém estica este cartão: ali a
+               fieldset quebra para uma linha só dela, o `grow` não tem contra
+               o que crescer e a altura vira a do conteúdo — 19,5px, com um
+               radio de 14px dentro e 2,75px de folga. No desktop o `grow`
+               continua mandando (37px, a altura dos selects ao lado) e este
+               padding não tem efeito. */
+            "flex cursor-pointer items-center gap-2 rounded border px-3 py-2 text-sm transition-colors select-none",
             /* O anel de foco fica no cartão, não no círculo de 16px: é o
                cartão que o usuário enxerga como o controle. O `ring-0` no
                input desliga o anel nativo para não desenhar dois. */
@@ -115,6 +153,7 @@ export function QuadsToolbar({
    loadingTypes,
 }: QuadsToolbarProps) {
    const { principais } = useFuncoes();
+   const compacto = useAbaixoDeSm();
 
    const visibleGroups = quadsType.filter((group) =>
       group.types.some((type) => type.funcs_list.includes(quadFunc))
@@ -130,26 +169,36 @@ export function QuadsToolbar({
       //
       // `p-3` no lugar de `px-2 py-3`: a barra tinha 7px de folga lateral, e o
       // primeiro rótulo quase encostava na borda do cartão.
-      <div className="flex flex-wrap items-stretch gap-x-4 gap-y-3 rounded border border-slate-200 bg-white p-3 shadow-sm">
-         {/* O QUE a grade mostra. Estes dois mudam a consulta. */}
-         <div>
+      <div className="flex flex-wrap items-start gap-x-2 gap-y-3 rounded border border-slate-200 bg-white p-3 shadow-sm sm:items-stretch sm:gap-x-4">
+         {/* O QUE a grade mostra. Estes dois mudam a consulta.
+
+             `flex-1 min-w-0` no celular: os dois selects espremem até o que
+             sobra depois da coluna de radios, para o filtro inteiro caber numa
+             linha só. `min-w-0` é obrigatório — sem ele o item flex não encolhe
+             abaixo do conteúdo e a linha quebra assim mesmo. A partir de `sm`
+             voltam à largura própria. */}
+         <div className="w-20 shrink-0 sm:w-auto">
             <Label htmlFor="quad-func" className={ROTULO}>
                Função
             </Label>
             <Select
                id="quad-func"
                value={quadFunc}
-               className="w-36"
+               className="w-full sm:w-36"
                onChange={(e) => onQuadFuncChange(e.target.value)}
             >
                {principais.map((f) => (
                   <option key={f.cod} value={f.cod}>
-                     {f.nome_curto}
+                     {/* A sigla no celular: "MC" no lugar de "Mecânico"
+                         devolve ~40px de largura, e é o que sobra para o
+                         seletor de quadrinho ao lado, cujos valores são
+                         longos ("BATE-PRONTO", "CALHA-NORTE"). */}
+                     {compacto ? f.cod.toUpperCase() : f.nome_curto}
                   </option>
                ))}
             </Select>
          </div>
-         <div>
+         <div className="min-w-0 flex-1 sm:flex-none">
             <Label htmlFor="quad-type" className={ROTULO}>
                Quadrinho
             </Label>
@@ -157,7 +206,7 @@ export function QuadsToolbar({
                id="quad-type"
                value={quadType}
                onChange={(e) => onQuadTypeChange(parseInt(e.target.value))}
-               className="w-44"
+               className="w-full sm:w-44"
                disabled={loadingTypes || visibleGroups.length === 0}
             >
                {visibleGroups.length === 0 && (
@@ -190,10 +239,17 @@ export function QuadsToolbar({
              somavam ~500px numa barra de 1283px). */}
          <fieldset className="flex flex-col sm:ml-auto">
             <legend className={ROTULO}>Antiguidade</legend>
-            {/* `grow`: a fileira ocupa a altura restante do fieldset e o
-                align-items stretch do flex estica os cartões junto, que é o
-                que os deixa na mesma altura dos selects ao lado. */}
-            <div className="flex grow gap-2">
+            {/* Em COLUNA no celular: as duas opções empilhadas ocupam a
+                largura de uma palavra em vez de duas, e é isso que faz o filtro
+                inteiro caber numa linha só — antes a fieldset quebrava para uma
+                segunda fileira e a barra media 154px de altura contra os 117px
+                de agora.
+
+                `sm:grow`: a partir daí a fileira volta a ser horizontal e ocupa
+                a altura restante da fieldset, que com o `items-stretch` do
+                contêiner é o que deixa os cartões na mesma altura dos selects
+                ao lado. */}
+            <div className="flex flex-col gap-1 sm:grow sm:flex-row sm:gap-2">
                <OpcaoRadio
                   name="quad-ordem"
                   value="opr"

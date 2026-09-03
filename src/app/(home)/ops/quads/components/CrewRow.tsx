@@ -30,7 +30,15 @@ export function CrewRow({
             (`global.css`), então grade longa não vira espera. É o mesmo
             movimento das listas do portal do tripulante. */
          style={{ "--i": index } as React.CSSProperties}
-         className="animate-enter flex items-center justify-start gap-1 px-1 py-0.5"
+         /* `min-w-max` é o que faz o trigrama grudado à esquerda funcionar
+            de verdade. A linha é filha de um flex-col, então ela nascia com a
+            largura do CONTÊINER (381px no celular) enquanto o conteúdo rolava
+            2164px: o `sticky left-0` prendia o trigrama dentro de uma caixa de
+            381px e, passados esses pixels, ele saía de cena junto com a linha
+            — a 600px de rolagem estava em x=-288, fora da tela. Com a largura
+            do conteúdo, ele acompanha a linha até o último quadrinho, como no
+            portal do tripulante. */
+         className="animate-enter flex min-w-max items-center justify-start gap-1 px-1 py-0.5"
       >
          {/* `overflow-visible` saiu daqui e do contêiner acima: existia para o
              selo de contagem escapar pela quina do botão, e ele nem escapava —
