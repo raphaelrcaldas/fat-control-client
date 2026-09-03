@@ -1,5 +1,6 @@
 "use client";
-import { Button, ButtonGroup, Label, Select } from "flowbite-react";
+import { Label, Radio, Select } from "flowbite-react";
+import clsx from "clsx";
 import { QuadTypeGroup } from "services/routes/quads";
 import { useFuncoes } from "@/hooks/queries";
 import { QuadOrdem } from "../utils/sortQuads";
@@ -28,8 +29,78 @@ interface QuadsToolbarProps {
  *
  * O formato é o do painel de filtros de `ops/indisp`, o vizinho mais próximo:
  * rótulo miúdo e apagado sobre o controle, que é quem tem de ganhar o contraste.
+ *
+ * Centrado: cada rótulo encima um controle de largura própria — dois selects e
+ * dois pares de cartões de radio —, e o eixo do bloco é o que amarra rótulo e
+ * controle como uma coisa só.
+ *
+ * `w-full` é o que faz isso valer no Firefox, e não é redundante com o
+ * `block`: nos dois `<legend>`, a caixa nasce do tamanho do texto (56px numa
+ * fieldset de 195px). O Chromium ainda assim centra essa caixa dentro da
+ * fieldset; o Firefox a encosta na borda esquerda — e como o `text-center`
+ * atua DENTRO da caixa, não havia contra o que centrar. Esticando a caixa até
+ * a largura da fieldset, o texto se centra igual nos dois.
  */
-const ROTULO = "mb-1 block text-xs font-medium text-gray-500";
+const ROTULO =
+   "mb-1 block w-full text-center text-xs font-medium text-gray-500";
+
+/**
+ * Uma opção de um grupo de escolha única — o cartão com borda em volta do
+ * radio.
+ *
+ * Eram dois `ButtonGroup` com `aria-pressed`, ou seja, botões de alternância
+ * fingindo escolha única: nada no markup dizia que "Operacional" e "Militar"
+ * eram as duas faces de UMA pergunta, e o teclado tratava cada um como parada
+ * de Tab independente. Com radios de verdade dentro de um `fieldset`, o
+ * conjunto vira uma parada só e as setas passeiam entre as opções — de graça,
+ * pelo comportamento nativo.
+ *
+ * A borda é o que devolve ao controle a presença que o botão tinha: o radio
+ * sozinho tem 16px e some ao lado de um `<select>` de 37px de altura. O cartão
+ * inteiro é o alvo (é um `label` envolvendo o input), e o estado marcado se lê
+ * de longe — borda e fundo na cor da org, não só o pontinho.
+ *
+ * Sem `color` no `Radio`: o default do Flowbite já é `text-primary-600`, que
+ * segue o tema da org. `color="primary"` NÃO existe para este componente
+ * (existe para o Checkbox, por override nosso) e deixaria o radio sem cor.
+ */
+function OpcaoRadio({
+   name,
+   value,
+   checked,
+   onChange,
+   children,
+}: {
+   name: string;
+   value: string;
+   checked: boolean;
+   onChange: () => void;
+   children: React.ReactNode;
+}) {
+   return (
+      <label
+         className={clsx(
+            "flex cursor-pointer items-center gap-2 rounded border px-3 text-sm transition-colors select-none",
+            /* O anel de foco fica no cartão, não no círculo de 16px: é o
+               cartão que o usuário enxerga como o controle. O `ring-0` no
+               input desliga o anel nativo para não desenhar dois. */
+            "has-[:focus-visible]:ring-primary-500 has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-offset-1",
+            checked
+               ? "border-primary-600 bg-primary-50 text-primary-800 font-semibold"
+               : "border-slate-200 bg-white text-gray-600 hover:border-slate-300 hover:bg-gray-50"
+         )}
+      >
+         <Radio
+            name={name}
+            value={value}
+            checked={checked}
+            onChange={onChange}
+            className="size-4 shrink-0 focus:ring-0 focus:ring-offset-0"
+         />
+         {children}
+      </label>
+   );
+}
 
 export function QuadsToolbar({
    quadsType,
@@ -62,9 +133,6 @@ export function QuadsToolbar({
       <div className="flex flex-wrap items-stretch gap-x-4 gap-y-3 rounded border border-slate-200 bg-white p-3 shadow-sm">
          {/* O QUE a grade mostra. Estes dois mudam a consulta. */}
          <div>
-            {/* Sem `text-center`: o rótulo era centrado sobre um `<select>`
-                cujo texto começa na esquerda, e num controle de 112px isso
-                põe as duas palavras em eixos diferentes. */}
             <Label htmlFor="quad-func" className={ROTULO}>
                Função
             </Label>
@@ -122,53 +190,50 @@ export function QuadsToolbar({
              somavam ~500px numa barra de 1283px). */}
          <fieldset className="flex flex-col sm:ml-auto">
             <legend className={ROTULO}>Antiguidade</legend>
-            {/* grow + h-auto: o grupo ocupa a altura restante do fieldset e o
-                align-items stretch do flex estica os botões junto */}
-            <ButtonGroup className="grow">
-               <Button
-                  size="sm"
-                  color={ordem === "opr" ? "primary" : "light"}
-                  aria-pressed={ordem === "opr"}
-                  onClick={() => onOrdemChange("opr")}
-                  className="h-auto"
+            {/* `grow`: a fileira ocupa a altura restante do fieldset e o
+                align-items stretch do flex estica os cartões junto, que é o
+                que os deixa na mesma altura dos selects ao lado. */}
+            <div className="flex grow gap-2">
+               <OpcaoRadio
+                  name="quad-ordem"
+                  value="opr"
+                  checked={ordem === "opr"}
+                  onChange={() => onOrdemChange("opr")}
                >
                   Operacional
-               </Button>
-               <Button
-                  size="sm"
-                  color={ordem === "mil" ? "primary" : "light"}
-                  aria-pressed={ordem === "mil"}
-                  onClick={() => onOrdemChange("mil")}
-                  className="h-auto"
+               </OpcaoRadio>
+               <OpcaoRadio
+                  name="quad-ordem"
+                  value="mil"
+                  checked={ordem === "mil"}
+                  onChange={() => onOrdemChange("mil")}
                >
                   Militar
-               </Button>
-            </ButtonGroup>
+               </OpcaoRadio>
+            </div>
          </fieldset>
          {/* Abaixo de `md` o quadrinho já é um quadrado sem data legível, então
              a escolha entre completa e reduzida não teria efeito visível. */}
          <fieldset className="hidden flex-col md:flex">
             <legend className={ROTULO}>Visualização</legend>
-            <ButtonGroup className="grow">
-               <Button
-                  size="sm"
-                  color={visual === "comp" ? "primary" : "light"}
-                  aria-pressed={visual === "comp"}
-                  onClick={() => onVisualChange("comp")}
-                  className="h-auto"
+            <div className="flex grow gap-2">
+               <OpcaoRadio
+                  name="quad-visual"
+                  value="comp"
+                  checked={visual === "comp"}
+                  onChange={() => onVisualChange("comp")}
                >
                   Completa
-               </Button>
-               <Button
-                  size="sm"
-                  color={visual === "reduz" ? "primary" : "light"}
-                  aria-pressed={visual === "reduz"}
-                  onClick={() => onVisualChange("reduz")}
-                  className="h-auto"
+               </OpcaoRadio>
+               <OpcaoRadio
+                  name="quad-visual"
+                  value="reduz"
+                  checked={visual === "reduz"}
+                  onChange={() => onVisualChange("reduz")}
                >
                   Reduzida
-               </Button>
-            </ButtonGroup>
+               </OpcaoRadio>
+            </div>
          </fieldset>
       </div>
    );

@@ -15,16 +15,19 @@ export function QuadPopover({ quad }: { quad: Quad }) {
             {
                "bg-primary-600 hover:bg-primary-700": quad.value,
                "bg-slate-500 hover:bg-slate-700": !quad.value,
-               "sm:w-18": visual === "comp",
+               "sm:w-20": visual === "comp",
                "sm:w-9": visual === "reduz",
             }
          )}
       >
          <span
-            className={clsx("hidden text-center font-mono text-sm text-white", {
-               "sm:block": visual === "comp",
-               "sm:hidden": visual === "reduz",
-            })}
+            className={clsx(
+               "hidden text-center text-sm font-bold text-white tabular-nums",
+               {
+                  "sm:block": visual === "comp",
+                  "sm:hidden": visual === "reduz",
+               }
+            )}
          >
             {cellContent}
          </span>
