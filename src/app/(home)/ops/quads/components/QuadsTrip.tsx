@@ -14,6 +14,7 @@ import {
    TableRow,
    Spinner,
 } from "flowbite-react";
+import clsx from "clsx";
 import { useState, useCallback, useMemo, useRef, useEffect } from "react";
 import { useQuadsContext } from "@/app/(home)/context/quads";
 import { CrewMember } from "services/routes/trips";
@@ -154,20 +155,54 @@ export function QuadsTrip({
 
    return (
       <>
+         {/* A contagem ficava num selo de 24px pendurado na quina
+             (`absolute -top-2 -right-2`), com `border-2 border-white` cravada
+             para se destacar do fundo. Três problemas num elemento só: um selo
+             CHEIO da cor da marca anunciava *ausência* ("0") na maioria das
+             linhas, competindo por atenção com os próprios quadrinhos; a borda
+             branca era cor cravada; e ele transbordava o botão para dentro de
+             um contêiner com `overflow-y-auto`, que o cortava na primeira
+             linha da grade.
+
+             Dentro do botão, o número deixa zero recuar (só o dígito, em tom
+             apagado) e dá preenchimento a quem tem muitos — que é a leitura
+             que importa: contar 22 quadrados na tela é impossível. */}
          <Button
             color="light"
             onClick={() => setOpenModal(true)}
-            className="inline-flex w-16 items-center overflow-visible px-0 text-sm font-medium uppercase transition-colors hover:bg-gray-100"
+            /* Largura DETERMINÍSTICA, e conteúdo ancorado nas duas pontas.
+               Com `px-0` e conteúdo centralizado, o botão media 56px mas o
+               conteúdo variava de 44,2px (um dígito) a 57px (três) — três
+               dígitos espremiam, e o trigrama escorregava ~6px de uma linha
+               para a outra, justo na coluna que o olho usa como régua ao
+               descer a grade. Os 4,5rem comportam trigrama e contagem de três
+               dígitos com folga; `justify-between` prende um em cada ponta,
+               então "CLD 0" e "BRG 43" começam e terminam no mesmo x. */
+            className="flex w-18 items-center justify-between gap-1 rounded px-1 text-sm font-medium uppercase transition-colors hover:bg-gray-100"
             size="sm"
-            aria-label={`Ver quadrinhos de ${userName}`}
+            aria-label={`${trip.trig}: ${totalQuads} ${totalQuads === 1 ? "quadrinho" : "quadrinhos"} — ver lista de ${userName}`}
          >
-            {trip.trig}
-            <div
-               className="bg-primary-600 absolute -top-2 -right-2 inline-flex size-6 items-center justify-center rounded-full border-2 border-white font-mono text-xs text-white"
-               aria-label={`${totalQuads} quadrinhos`}
+            {/* `flex-1 text-center`: o trigrama se centra no espaço que sobra
+                depois do chip, em vez de ficar colado na borda esquerda. Como
+                o chip tem largura própria (piso de `min-w-4`), esse espaço é o
+                mesmo em todas as linhas — e o trigrama cai no mesmo x de cima
+                a baixo da grade. */}
+            <span className="flex-1 text-center">{trip.trig}</span>
+            <span
+               aria-hidden
+               className={clsx(
+                  /* `shrink-0`: numa contagem de três dígitos — que na prática
+                     não ocorre, o maior registro é 43 — quem cede espaço é o
+                     trigrama, que tem `flex-1`. Sem isso o flex encolheria o
+                     número e cortaria o dígito, que é o dado. */
+                  "min-w-5 shrink-0 rounded px-1 py-0.5 text-center font-mono text-[11px] font-bold",
+                  totalQuads > 0
+                     ? "bg-slate-200 text-slate-800"
+                     : "text-slate-500"
+               )}
             >
                {totalQuads}
-            </div>
+            </span>
          </Button>
 
          <Modal

@@ -20,11 +20,11 @@ export function QuadsBoardSkeleton({ rows = 8 }: QuadsBoardSkeletonProps) {
             return (
                <div
                   key={rowIdx}
-                  className="flex items-center justify-start gap-1 overflow-visible px-1 py-0.5"
+                  className="flex items-center justify-start gap-1 px-1 py-0.5"
                >
                   {/* Trigrama (sticky à esquerda, igual ao CrewRow) */}
                   <div className="sticky left-0 z-10 shrink-0 bg-white px-1">
-                     <div className="h-9 w-16 animate-pulse rounded bg-slate-200" />
+                     <div className="h-9 w-18 animate-pulse rounded bg-slate-200" />
                   </div>
 
                   {/* Cards de quadrinho */}

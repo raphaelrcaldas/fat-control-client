@@ -33,6 +33,9 @@ export function QuadsBoard({
    loadingTypes,
    dragProps,
 }: QuadsBoardProps) {
+   const mostrandoLinhas =
+      !isLoading && !loadingTypes && !isError && quads.length > 0;
+
    return (
       <div
          className={clsx(
@@ -69,6 +72,18 @@ export function QuadsBoard({
                   )}
                </div>
             )}
+
+            {/* Quantos tripulantes a grade está comparando — o mesmo contador
+                do portal. Só aparece quando há linhas: durante a carga, no erro
+                e no vazio ele contaria zero e diria uma coisa falsa sobre a
+                função. `ml-auto` para encostar na direita, onde o olho termina
+                a varredura do cabeçalho. */}
+            {mostrandoLinhas && (
+               <span className="ml-auto shrink-0 pl-3 text-xs text-slate-500 tabular-nums">
+                  {quads.length}{" "}
+                  {quads.length === 1 ? "tripulante" : "tripulantes"}
+               </span>
+            )}
          </div>
 
          {/* Área rolável / arrastável dos quadrinhos (setas rolam com o foco no container) */}
@@ -87,10 +102,11 @@ export function QuadsBoard({
             ) : quads.length === 0 ? (
                <EmptyBoard hasTypes={Boolean(groupName)} />
             ) : (
-               quads.map((item) => (
+               quads.map((item, index) => (
                   <CrewRow
                      key={item.trip.id}
                      tripQuadRes={item}
+                     index={index}
                      groupName={groupName}
                      typeName={typeName}
                   />

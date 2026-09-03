@@ -9,16 +9,35 @@ import { VscAdd } from "react-icons/vsc";
 
 interface CrewRowProps {
    tripQuadRes: CrewQuadRes;
+   /** Posição na grade — alimenta o atraso da entrada escalonada. */
+   index: number;
    groupName: string;
    typeName: string;
 }
 
-export function CrewRow({ tripQuadRes, groupName, typeName }: CrewRowProps) {
+export function CrewRow({
+   tripQuadRes,
+   index,
+   groupName,
+   typeName,
+}: CrewRowProps) {
    const [showForm, setShowForm] = useState(false);
 
    return (
-      <div className="flex items-center justify-start gap-1 overflow-visible px-1 py-0.5">
-         <div className="sticky left-0 z-10 shrink-0 overflow-visible bg-white px-1">
+      <div
+         /* Escalona a entrada: a grade se monta de cima para baixo em vez de
+            aparecer inteira num quadro só. O teto do atraso mora no utilitário
+            (`global.css`), então grade longa não vira espera. É o mesmo
+            movimento das listas do portal do tripulante. */
+         style={{ "--i": index } as React.CSSProperties}
+         className="animate-enter flex items-center justify-start gap-1 px-1 py-0.5"
+      >
+         {/* `overflow-visible` saiu daqui e do contêiner acima: existia para o
+             selo de contagem escapar pela quina do botão, e ele nem escapava —
+             quem clipava era o `overflow-y-auto` da área rolável, dois níveis
+             acima. Na primeira linha da grade o selo aparecia cortado. A
+             contagem agora mora DENTRO do botão. */}
+         <div className="sticky left-0 z-10 shrink-0 bg-white px-1">
             <QuadsTrip
                trip={tripQuadRes.trip}
                totalQuads={tripQuadRes.quads_len}

@@ -224,11 +224,64 @@
    box-sizing: border-box;
 }
 
+/* ---------------------------------------------------------------------------
+   Entrada de item de lista/grade
+
+   Portado do `fatbird`, onde nasceu na lista de indisponibilidades. O atraso
+   vem de `--i`, que o componente estampa por índice — é o escalonamento que
+   faz uma grade parecer que se MONTA, em vez de piscar inteira de uma vez.
+
+   `both` para o item já nascer no estado inicial: sem ele o item pisca visível
+   no quadro anterior ao início do atraso. Teto de 5 passos porque, além disso,
+   o último item demora tanto que a lista parece travada — numa grade de 40
+   tripulantes o 40º entraria a 1,2s.
+
+   **Mais curta que a do `fatbird`** (240ms/30ms contra 460ms/65ms): lá é o
+   portal do tripulante, aberto de vez em quando no celular, e o movimento mais
+   demorado tem espaço para ser percebido como acabamento. Aqui é a ferramenta
+   de trabalho do escalante, aberta dezenas de vezes por dia — a mesma
+   animação que encanta na primeira vez irrita na trigésima. O item mais
+   atrasado assenta em 390ms, contra 850ms no portal.
+
+   Só `opacity` e `transform`, que a GPU compõe sem repintar a página. Nada
+   aqui anima largura, altura, margem ou padding.
+--------------------------------------------------------------------------- */
+:root {
+   --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes enterUp {
+   from {
+      opacity: 0;
+      /* Sem o `scale` que o portal usa: em 240ms ele não chega a ser
+         percebido como movimento, só a borrar a primeira fração do quadro. */
+      transform: translateY(8px);
+   }
+   to {
+      opacity: 1;
+      transform: none;
+   }
+}
+
+/* `@utility`, e não uma entrada `--animate-*` no `@theme` como as demais: o
+   atraso por índice tem de vir junto com a animação, e o `@theme` só declara o
+   shorthand `animation`. */
+@utility animate-enter {
+   animation: enterUp 240ms var(--ease-out-quint) both;
+   animation-delay: calc(min(var(--i, 0), 5) * 30ms);
+}
+
 /* O movimento do trecho simulado é decorativo: os números ao lado da barra
-   já dizem de onde para onde a completude iria. */
+   já dizem de onde para onde a completude iria.
+
+   `animate-enter` entra na mesma lista: é entrada pura, sem contrapartida de
+   saída, então `animation: none` deixa o item no estado natural — visível.
+   (Com animação de SAÍDA de biblioteca a receita é outra: `0.01ms`, nunca
+   `none`, senão o painel não chega a desmontar.) */
 @media (prefers-reduced-motion: reduce) {
    .animate-sandbox-pulse,
-   .animate-sandbox-sweep {
+   .animate-sandbox-sweep,
+   .animate-enter {
       animation: none;
    }
 }
