@@ -11,6 +11,9 @@ import {
    type MissaoComEtapasDetail,
 } from "services/routes/estatistica/etapas";
 
+import PermDenied from "@/app/components/permDenied";
+import { usePermBased } from "@/app/(home)/hooks/usePermBased";
+
 import {
    MissaoDraftProvider,
    useMissaoDraftDispatch,
@@ -53,13 +56,24 @@ export default function EditarMissaoPage() {
 
    const enabled = Number.isFinite(id) && id > 0;
 
+   // Editar missao exige `update` no backend (PUT, dependencies=[UpdateMissaoEtp]).
+   // O lapis que leva ate aqui ja e gateado, mas a rota e alcancavel por URL
+   // direta — sem o guard, quem so tem `view` abriria um formulario que nunca
+   // salva. Tambem segura o fetch: sem permissao nao ha por que buscar.
+   const { hasPerm } = usePermBased();
+   const canEdit = hasPerm("estatistica.etapas", "update");
+
    const { data, isLoading, isError, error, refetch } = useQuery({
       queryKey: ["missao", id],
       queryFn: ({ signal }) => getMissao(id, signal),
-      enabled,
+      enabled: enabled && canEdit,
       staleTime: 0,
       gcTime: 0,
    });
+
+   if (!canEdit) {
+      return <PermDenied />;
+   }
 
    if (!enabled) {
       return (

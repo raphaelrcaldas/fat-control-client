@@ -218,7 +218,11 @@ export const EtapaRow = memo(function EtapaRow({
                >
                   <HiEye className="size-4" />
                </Button>
-               <PermBased resource="estatistica.etapas" requiredPerm="create">
+               {/* Editar etapa existente = `update` no backend (PUT
+                   /estatistica/etapas/:id, dependencies=[UpdateEtapa]).
+                   Pedir `create` aqui mostraria o lapis a quem so pode
+                   criar, e o 403 so apareceria no salvar. */}
+               <PermBased resource="estatistica.etapas" requiredPerm="update">
                   <Button
                      size="xs"
                      color="light"

@@ -223,7 +223,9 @@ export function EtapasTable({
          )}
          <div className="hidden h-4 w-px bg-gray-300 lg:flex" />
 
-         <PermBased resource="estatistica.etapas" requiredPerm="create">
+         {/* SAGEM/Parte 1 em lote chamam `updateEtapa` por id
+             (`bulkUpdateEtapas`), entao a permissao e `update`. */}
+         <PermBased resource="estatistica.etapas" requiredPerm="update">
             <div className="hidden items-center gap-2 rounded border border-slate-200 bg-white px-2 py-1 shadow lg:flex">
                <span className="text-sm font-medium text-gray-500">SAGEM</span>
                <button

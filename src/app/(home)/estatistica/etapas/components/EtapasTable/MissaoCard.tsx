@@ -72,8 +72,11 @@ export const MissaoCard = memo(function MissaoCard({
                   {missao.obs}
                </span>
             )}
+            {/* Excluir missao = `delete` no backend
+                (DELETE /estatistica/missao/:id,
+                dependencies=[DeleteMissaoEtp]). */}
             {!hasEtapas && (
-               <PermBased requiredPerm="create" resource="estatistica.etapas">
+               <PermBased requiredPerm="delete" resource="estatistica.etapas">
                   <div className="ml-auto flex items-center gap-0.5">
                      <button
                         onClick={() => onDeleteMissao(missao)}
