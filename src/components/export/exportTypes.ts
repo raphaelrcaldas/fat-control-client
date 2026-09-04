@@ -26,12 +26,24 @@ export interface ExportColumn<T> {
     * ALTA na planilha — o dado no banco nao e confiavelmente maiusculo.
     */
    uppercase?: boolean;
-   /** Marca a coluna como dado pessoal, para o aviso no modal. */
-   sensitive?: boolean;
    /**
     * Coluna cujo valor NAO esta na linha da listagem: so chega pela
-    * hidratacao, no ato da exportacao. A previa mostra placeholder no lugar —
-    * nunca um valor plausivel inventado, que alguem printaria como real.
+    * hidratacao, no ato da exportacao. A previa mostra o `sample` no lugar.
     */
    hydrated?: boolean;
+   /**
+    * Exemplo FICTICIO exibido na previa enquanto o valor real nao foi
+    * buscado. So faz sentido em coluna `hydrated`.
+    *
+    * Tem que ser obviamente falso ("FULANO DA SILVA", CPF zerado) e ao mesmo
+    * tempo ter o formato do dado real. Mascara generica (`••••`) seria pior:
+    * lida como "o sistema nao tem esse dado", quando na verdade tem.
+    */
+   sample?: string;
+   /**
+    * Secao do seletor de colunas. Espelha o agrupamento do formulario de
+    * cadastro ("Dados Militares" / "Dados Pessoais"); tela de dominio usa o
+    * nome do seu proprio bloco.
+    */
+   group?: string;
 }

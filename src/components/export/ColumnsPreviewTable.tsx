@@ -16,10 +16,11 @@ interface ColumnsPreviewTableProps<T> {
  * travessao aqui e diferente: na planilha a celula sai VAZIA, e o "—" existe
  * so para a ausencia de dado ficar visivel na tela.
  *
- * Coluna `hydrated` ainda nao tem valor nenhum nesta altura — ele so chega no
- * clique de exportar. Mostra mascara, e nao um valor plausivel inventado:
- * CPF de mentira numa previa e o tipo de coisa que alguem printa e trata
- * como real.
+ * Coluna `hydrated` ainda nao tem valor nesta altura — ele so chega no clique
+ * de exportar. Mostra o `sample`, um exemplo obviamente ficticio (CPF zerado,
+ * "fulano@..."), e nao uma mascara generica: `••••` se le como "o sistema nao
+ * tem esse dado", quando na verdade tem. Italico e o rodape deixam claro que
+ * ali e exemplo.
  */
 export function ColumnsPreviewTable<T>({
    rows,
@@ -54,13 +55,19 @@ export function ColumnsPreviewTable<T>({
                               key={c.key}
                               className={clsx(
                                  "px-2 py-1 whitespace-nowrap",
-                                 c.hydrated || empty
-                                    ? "text-slate-300"
-                                    : "text-slate-700",
+                                 c.hydrated
+                                    ? "text-slate-400 italic"
+                                    : empty
+                                      ? "text-slate-300"
+                                      : "text-slate-700",
                                  !c.hydrated && c.uppercase && "uppercase"
                               )}
                            >
-                              {c.hydrated ? "••••" : empty ? "—" : String(raw)}
+                              {c.hydrated
+                                 ? (c.sample ?? "exemplo")
+                                 : empty
+                                   ? "—"
+                                   : String(raw)}
                            </td>
                         );
                      })}
@@ -69,5 +76,16 @@ export function ColumnsPreviewTable<T>({
             </tbody>
          </table>
       </div>
+   );
+}
+
+/** Rodape da previa, so quando ha coluna com exemplo ficticio em cena. */
+export function PreviewSampleNote({ visible }: { visible: boolean }) {
+   if (!visible) return null;
+   return (
+      <p className="mt-1 text-xs text-slate-500">
+         Em <span className="text-slate-400 italic">itálico</span>, exemplo
+         fictício: o valor real de cada militar é buscado na exportação.
+      </p>
    );
 }

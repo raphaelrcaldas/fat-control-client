@@ -11,7 +11,7 @@ import {
    Spinner,
    TextInput,
 } from "flowbite-react";
-import { HiDownload, HiExclamation, HiOutlineTable } from "react-icons/hi";
+import { HiDownload, HiOutlineTable } from "react-icons/hi";
 import {
    DndContext,
    DragOverlay,
@@ -35,7 +35,8 @@ import { todayDateStamp } from "@/../utils/dateHandler";
 import type { ExportColumn } from "./exportTypes";
 import { exportToXlsx } from "./exportToXlsx";
 import { useColumnPrefs } from "./useColumnPrefs";
-import { ColumnsPreviewTable } from "./ColumnsPreviewTable";
+import { ColumnsPreviewTable, PreviewSampleNote } from "./ColumnsPreviewTable";
+import { ColumnPicker } from "./ColumnPicker";
 import { ColumnChipOverlay, SortableColumnChip } from "./SortableColumnChip";
 
 const PREVIEW_ROWS = 3;
@@ -80,6 +81,7 @@ export function ExportColumnsModal<T>({
       activeColumns,
       checked,
       toggle,
+      setMany,
       setOrder,
       persist,
    } = useColumnPrefs(columns, storageKey, show);
@@ -131,7 +133,6 @@ export function ExportColumnsModal<T>({
       ? activeColumns.find((c) => c.key === draggingKey)
       : undefined;
 
-   const hasSensitive = activeColumns.some((c) => c.sensitive);
    const previewRows = rows.slice(0, PREVIEW_ROWS);
 
    async function handleExport() {
@@ -232,43 +233,12 @@ export function ExportColumnsModal<T>({
                   </DndContext>
                </div>
 
-               <div>
-                  <Label className="mb-2 block text-sm font-semibold">
-                     Colunas adicionais
-                  </Label>
-                  <div className="grid grid-cols-1 gap-x-4 gap-y-2 sm:grid-cols-2 lg:grid-cols-3">
-                     {optionalColumns.map((column) => (
-                        <div
-                           key={column.key}
-                           className="flex items-center gap-2"
-                        >
-                           <Checkbox
-                              id={`col-${column.key}`}
-                              className="size-[20px] pointer-coarse:size-[44px]"
-                              color="primary"
-                              checked={checked.has(column.key)}
-                              onChange={() => toggle(column.key)}
-                           />
-                           <Label
-                              htmlFor={`col-${column.key}`}
-                              className="text-sm text-slate-700"
-                           >
-                              {column.label}
-                           </Label>
-                        </div>
-                     ))}
-                  </div>
-               </div>
-
-               {hasSensitive && (
-                  <div className="flex items-start gap-2 rounded border border-amber-200 bg-amber-50 px-3 py-2">
-                     <HiExclamation className="mt-0.5 h-4 w-4 shrink-0 text-amber-600" />
-                     <p className="text-xs text-amber-800">
-                        Este arquivo conterá dados pessoais. Uma vez exportado,
-                        ele sai do sistema e deixa de ser rastreável.
-                     </p>
-                  </div>
-               )}
+               <ColumnPicker
+                  columns={optionalColumns}
+                  checked={checked}
+                  onToggle={toggle}
+                  onSetMany={setMany}
+               />
 
                <div>
                   <div className="mb-2 flex items-center gap-1.5">
@@ -281,6 +251,9 @@ export function ExportColumnsModal<T>({
                   <ColumnsPreviewTable
                      rows={previewRows}
                      columns={activeColumns}
+                  />
+                  <PreviewSampleNote
+                     visible={activeColumns.some((c) => c.hydrated)}
                   />
                   {rows.length > PREVIEW_ROWS && (
                      <p className="mt-1 text-xs text-slate-500">

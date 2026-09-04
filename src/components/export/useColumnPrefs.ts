@@ -72,6 +72,18 @@ export function useColumnPrefs<T>(
       setOrder([]);
    }, [open, storageKey]);
 
+   /** Marca ou desmarca um conjunto de uma vez ("todas" da secao ou geral). */
+   const setMany = useCallback((keys: string[], value: boolean) => {
+      setChecked((prev) => {
+         const next = new Set(prev);
+         for (const key of keys) {
+            if (value) next.add(key);
+            else next.delete(key);
+         }
+         return next;
+      });
+   }, []);
+
    const toggle = useCallback((key: string) => {
       setChecked((prev) => {
          const next = new Set(prev);
@@ -111,6 +123,7 @@ export function useColumnPrefs<T>(
       activeColumns,
       checked,
       toggle,
+      setMany,
       setOrder,
       persist,
    };

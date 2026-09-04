@@ -76,6 +76,14 @@ export const MILITAR_HYDRATED_COLUMNS: MilitarColumnKey[] = [
  * unidade): o dado no banco nao e confiavelmente maiusculo, e a convencao do
  * projeto manda exibir assim.
  */
+/**
+ * Secoes do seletor de colunas, iguais as do formulario de cadastro
+ * (`UserForm/FormSections.tsx`) — quem preenche o cadastro reconhece o
+ * agrupamento na hora de exportar.
+ */
+export const GRUPO_MILITAR = "Dados Militares";
+export const GRUPO_PESSOAL = "Dados Pessoais";
+
 export function militarColumns<T>(
    get: (row: T) => MilitarLike,
    options?: { omit?: MilitarColumnKey[] }
@@ -85,6 +93,7 @@ export function militarColumns<T>(
    const all: ExportColumn<T>[] = [
       {
          key: "p_g",
+         group: GRUPO_MILITAR,
          label: "P/G",
          required: true,
          uppercase: true,
@@ -94,6 +103,7 @@ export function militarColumns<T>(
       },
       {
          key: "quadro",
+         group: GRUPO_MILITAR,
          label: "Quadro",
          required: true,
          uppercase: true,
@@ -102,6 +112,7 @@ export function militarColumns<T>(
       },
       {
          key: "esp",
+         group: GRUPO_MILITAR,
          label: "Especialidade",
          required: true,
          uppercase: true,
@@ -110,6 +121,7 @@ export function militarColumns<T>(
       },
       {
          key: "nome_guerra",
+         group: GRUPO_MILITAR,
          label: "Nome de Guerra",
          required: true,
          uppercase: true,
@@ -117,6 +129,7 @@ export function militarColumns<T>(
       },
       {
          key: "nome_completo",
+         group: GRUPO_PESSOAL,
          label: "Nome Completo",
          required: true,
          uppercase: true,
@@ -124,6 +137,7 @@ export function militarColumns<T>(
       },
       {
          key: "saram",
+         group: GRUPO_MILITAR,
          label: "SARAM",
          align: "center",
          width: 12,
@@ -134,6 +148,7 @@ export function militarColumns<T>(
       },
       {
          key: "id_fab",
+         group: GRUPO_MILITAR,
          label: "ID FAB",
          align: "center",
          width: 12,
@@ -141,6 +156,7 @@ export function militarColumns<T>(
       },
       {
          key: "unidade",
+         group: GRUPO_MILITAR,
          label: "Unidade",
          uppercase: true,
          align: "center",
@@ -149,19 +165,21 @@ export function militarColumns<T>(
       },
       {
          key: "telefone",
+         group: GRUPO_PESSOAL,
+         sample: "21900000000",
          label: "Telefone",
          align: "center",
          hydrated: true,
-         sensitive: true,
          width: 16,
          get: (row) => get(row).telefone,
       },
       {
          key: "nasc",
+         group: GRUPO_PESSOAL,
+         sample: "01/01/80",
          label: "Nascimento",
          align: "center",
          hydrated: true,
-         sensitive: true,
          width: 14,
          get: (row) => {
             const nasc = get(row).nasc;
@@ -170,6 +188,7 @@ export function militarColumns<T>(
       },
       {
          key: "ult_promo",
+         group: GRUPO_MILITAR,
          label: "Última Promoção",
          align: "center",
          width: 16,
@@ -180,6 +199,8 @@ export function militarColumns<T>(
       },
       {
          key: "data_praca",
+         group: GRUPO_MILITAR,
+         sample: "01/01/00",
          label: "Data de Praça",
          align: "center",
          hydrated: true,
@@ -191,26 +212,29 @@ export function militarColumns<T>(
       },
       {
          key: "cpf",
+         group: GRUPO_PESSOAL,
+         sample: "00000000000",
          label: "CPF",
          align: "center",
          hydrated: true,
-         sensitive: true,
          width: 16,
          get: (row) => get(row).cpf,
       },
       {
          key: "email_fab",
+         group: GRUPO_MILITAR,
+         sample: "fulano@fab.mil.br",
          label: "E-mail FAB",
          hydrated: true,
-         sensitive: true,
          width: 28,
          get: (row) => get(row).email_fab,
       },
       {
          key: "email_pess",
+         group: GRUPO_PESSOAL,
+         sample: "fulano@exemplo.com",
          label: "E-mail Pessoal",
          hydrated: true,
-         sensitive: true,
          width: 28,
          get: (row) => get(row).email_pess,
       },
