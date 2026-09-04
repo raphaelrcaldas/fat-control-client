@@ -1,7 +1,7 @@
 "use client";
 
 import { HiOutlineTrash } from "react-icons/hi";
-import { ConfirmModal } from "@/components/ConfirmModal";
+import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import type { PropostaListItem } from "services/routes/cegep/propostas";
 
 interface DeletePropostaModalProps {
@@ -30,10 +30,10 @@ export function DeletePropostaModal({
          title="Excluir proposta"
          icon={HiOutlineTrash}
          iconColor="text-red-500"
-         confirmColor="red"
-         confirmLabel="Sim, excluir"
+         confirmButtonColor="red"
+         confirmButtonText="Sim, excluir"
          isLoading={isDeleting}
-         message={
+         description={
             <>
                <p>
                   A proposta{" "}

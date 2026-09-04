@@ -8,33 +8,41 @@ import {
    Spinner,
    type ButtonProps,
 } from "flowbite-react";
+import type { ReactNode } from "react";
 import type { IconType } from "react-icons";
 import { FaTriangleExclamation } from "react-icons/fa6";
 
 interface ConfirmModalProps {
    show: boolean;
    title: string;
-   description?: string;
-   isLoading: boolean;
+   /**
+    * Corpo da confirmacao. Aceita texto simples ou JSX (ex: destacar o alvo da
+    * exclusao, listar detalhes do item) — por isso o wrapper e uma `div`, e nao
+    * um `p`, que invalidaria conteudo de bloco aninhado.
+    */
+   description?: ReactNode;
+   isLoading?: boolean;
    onClose: () => void;
    onConfirm: () => void;
    icon?: IconType;
    iconColor?: string;
    confirmButtonColor?: ButtonProps["color"];
    confirmButtonText?: string;
+   cancelButtonText?: string;
 }
 
 export function ConfirmModal({
    show,
    title,
    description,
-   isLoading,
+   isLoading = false,
    onClose,
    onConfirm,
    icon: Icon = FaTriangleExclamation,
    iconColor = "text-red-400 dark:text-red-300",
    confirmButtonColor = "red",
    confirmButtonText = "Confirmar",
+   cancelButtonText = "Cancelar",
 }: ConfirmModalProps) {
    const handleClose = () => {
       if (!isLoading) onClose();
@@ -42,7 +50,17 @@ export function ConfirmModal({
 
    return (
       <Modal show={show} onClose={handleClose} size="md" popup>
-         {!isLoading && <ModalHeader />}
+         {/*
+          * O header (so o X, no modo `popup`) fica SEMPRE montado: escondido
+          * durante o loading, o modal encolhia a altura dele e o conteudo
+          * saltava. Em vez disso ele e neutralizado no lugar — `inert` o tira
+          * do foco por teclado e do leitor de tela, e o `handleClose` do Modal
+          * ja barra o fechamento enquanto carrega.
+          */}
+         <ModalHeader
+            inert={isLoading}
+            className={isLoading ? "opacity-50" : undefined}
+         />
          <ModalBody>
             <div className="text-center">
                <Icon className={`mx-auto mb-4 h-14 w-14 ${iconColor}`} />
@@ -50,9 +68,9 @@ export function ConfirmModal({
                   {title}
                </h3>
                {description && (
-                  <p className="mb-5 text-sm text-gray-500 dark:text-gray-400">
+                  <div className="mb-5 text-sm text-gray-500 dark:text-gray-400">
                      {description}
-                  </p>
+                  </div>
                )}
                <div className="flex justify-center gap-4">
                   <Button
@@ -74,8 +92,12 @@ export function ConfirmModal({
                         confirmButtonText
                      )}
                   </Button>
-                  <Button color="gray" onClick={onClose} disabled={isLoading}>
-                     Cancelar
+                  <Button
+                     color="gray"
+                     onClick={handleClose}
+                     disabled={isLoading}
+                  >
+                     {cancelButtonText}
                   </Button>
                </div>
             </div>

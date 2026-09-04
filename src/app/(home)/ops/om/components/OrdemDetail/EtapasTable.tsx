@@ -11,7 +11,7 @@ import {
    Tooltip,
 } from "flowbite-react";
 import { HiPencil, HiTrash, HiPlus } from "react-icons/hi";
-import { ConfirmModal } from "@/components/ConfirmModal";
+import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import type { EtapaOut } from "services/routes/om/ordens";
 import {
    extractTime,
@@ -237,9 +237,9 @@ export const EtapasTable = memo(function EtapasTable({
             title={`Excluir Etapa #${
                deleteConfirmIndex !== null ? deleteConfirmIndex + 1 : ""
             }`}
-            confirmLabel="Sim, excluir"
+            confirmButtonText="Sim, excluir"
             iconColor="text-red-400"
-            message={
+            description={
                <>
                   {/* Detalhes da etapa */}
                   {deleteConfirmIndex !== null &&

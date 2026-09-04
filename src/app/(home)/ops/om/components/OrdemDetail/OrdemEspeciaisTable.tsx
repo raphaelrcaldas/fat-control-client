@@ -4,7 +4,7 @@ import { memo, useState, useRef, useCallback } from "react";
 import { HiPencil, HiTrash, HiPlus } from "react-icons/hi";
 import clsx from "clsx";
 import type { CampoEspecial } from "services/routes/om/ordens";
-import { ConfirmModal } from "@/components/ConfirmModal";
+import { ConfirmModal } from "@/components/ui/ConfirmModal";
 
 interface OrdemEspeciaisDisplayProps {
    campos: CampoEspecial[];
@@ -246,9 +246,9 @@ export const OrdemEspeciaisDisplay = memo(function OrdemEspeciaisDisplay({
             onClose={handleCancelDelete}
             onConfirm={handleConfirmDelete}
             title="Excluir Ordem Especial"
-            confirmLabel="Sim, excluir"
+            confirmButtonText="Sim, excluir"
             iconColor="text-red-400"
-            message={
+            description={
                <>
                   {/* Detalhes do campo */}
                   {deleteConfirmIndex !== null &&

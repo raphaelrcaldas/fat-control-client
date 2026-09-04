@@ -1,6 +1,6 @@
 "use client";
 
-import { ConfirmModal } from "@/components/ConfirmModal";
+import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import { formatDateForDisplay } from "utils/dateHandler";
 
 interface DeleteOrdemModalProps {
@@ -43,10 +43,10 @@ export function DeleteOrdemModal({
          onClose={onCancel}
          onConfirm={onConfirm}
          title={modalTitle}
-         confirmLabel="Sim, excluir"
+         confirmButtonText="Sim, excluir"
          iconColor="text-red-400"
          isLoading={isDeleting}
-         message={
+         description={
             <>
                <p className="mb-3 text-sm text-gray-500">
                   Tem certeza que deseja excluir {confirmText}{" "}

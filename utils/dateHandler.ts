@@ -296,7 +296,11 @@ export function formatTime(timeStr: string): string {
 }
 
 /**
- * Formata data ISO para DDMMYYYY (sem separadores, usado para identificação de OM)
+ * Formata data ISO para DDMMYY (sem separadores, usado para identificação de OM).
+ * O ano vai com 2 digitos de proposito: esse trecho compoe o numero da Ordem de
+ * Missao (`numero/ORG/DDMMYY`), que ja saiu estampado em documentos emitidos —
+ * alargar para 4 digitos mudaria o identificador. Para 4 digitos use
+ * `todayDateStamp()`.
  */
 export function formatDateForDisplay(dateStr: string): string {
    if (!dateStr) return "";
@@ -528,4 +532,17 @@ export function nowDateTimeBR(): string {
    const hours = String(now.getHours()).padStart(2, "0");
    const minutes = String(now.getMinutes()).padStart(2, "0");
    return `${day}/${month}/${year} ${hours}:${minutes}`;
+}
+
+/**
+ * Retorna a data de hoje no formato DDMMYYYY, sem separadores (ano com 4
+ * dígitos). Use para carimbar nome de arquivo de export quando não houver um
+ * nome vindo do servidor (ex.: header `Content-Disposition` ausente).
+ */
+export function todayDateStamp(): string {
+   const now = new Date();
+   const day = String(now.getDate()).padStart(2, "0");
+   const month = String(now.getMonth() + 1).padStart(2, "0");
+   const year = now.getFullYear();
+   return `${day}${month}${year}`;
 }

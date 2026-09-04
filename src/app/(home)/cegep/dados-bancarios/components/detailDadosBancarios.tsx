@@ -11,7 +11,7 @@ import {
 } from "flowbite-react";
 import { HiCloudDownload, HiTrash } from "react-icons/hi";
 import { DadosBancariosWithUser } from "services/routes/cegep/dadosBancarios";
-import { ConfirmModal } from "@/components/ConfirmModal";
+import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import { PermBased } from "@/app/(home)/hooks/usePermBased";
 import { useDadosBancariosForm } from "../hooks/useDadosBancariosForm";
 import { BANCOS_BRASILEIROS } from "../constants/bancos";
@@ -273,7 +273,7 @@ export default function DetailDadosBancarios({
             onClose={() => setShowDeleteConfirm(false)}
             onConfirm={handleConfirmDelete}
             title="Confirmar Exclusão"
-            message={
+            description={
                <>
                   Tem certeza que deseja deletar os dados bancários de{" "}
                   <strong className="uppercase">
@@ -282,8 +282,8 @@ export default function DetailDadosBancarios({
                   ? Esta ação não pode ser desfeita.
                </>
             }
-            confirmLabel="Deletar"
-            confirmColor="red"
+            confirmButtonText="Deletar"
+            confirmButtonColor="red"
             isLoading={isDeleting}
          />
       </>

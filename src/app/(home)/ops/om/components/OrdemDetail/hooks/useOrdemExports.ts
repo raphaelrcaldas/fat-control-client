@@ -6,17 +6,7 @@ import { useAuth } from "@/app/context/auth";
 import { useToast } from "@/app/context/toast";
 import { brasaoDocxUrl } from "@/lib/orgBrasao";
 import { CARGOS, getCargos, linhaAssinatura } from "services/routes/config";
-
-// Dispara o download de um blob e revoga a URL após o download iniciar
-// (revogar de imediato pode cancelar o download em alguns browsers)
-function downloadBlob(blob: Blob, fileName: string) {
-   const blobUrl = URL.createObjectURL(blob);
-   const a = document.createElement("a");
-   a.href = blobUrl;
-   a.download = fileName;
-   a.click();
-   setTimeout(() => URL.revokeObjectURL(blobUrl), 10_000);
-}
+import { downloadBlob } from "utils/downloadBlob";
 
 // Exportações da OM (documento DOCX e pedido de lanche), com os estados de
 // loading e a validação prévia de cada geração

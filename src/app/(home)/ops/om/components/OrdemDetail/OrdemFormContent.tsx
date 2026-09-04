@@ -8,7 +8,7 @@ import {
    HiShoppingBag,
    HiTag,
 } from "react-icons/hi";
-import { ConfirmModal } from "@/components/ConfirmModal";
+import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import clsx from "clsx";
 import type { OrdemMissaoOut, EtapaOut } from "services/routes/om/ordens";
 import { OrdemBasicInfo } from "./OrdemBasicInfo";
@@ -608,11 +608,9 @@ export function OrdemFormContent({
             onClose={() => setConfirmAction(null)}
             onConfirm={confirmDialog?.onConfirm ?? (() => {})}
             title={confirmDialog?.title ?? ""}
-            message={
-               <p className="text-sm text-gray-500">{confirmDialog?.message}</p>
-            }
-            confirmLabel={confirmDialog?.confirmLabel ?? "Confirmar"}
-            cancelLabel="Voltar"
+            description={confirmDialog?.message}
+            confirmButtonText={confirmDialog?.confirmLabel ?? "Confirmar"}
+            cancelButtonText="Voltar"
             iconColor="text-red-400"
          />
       </div>

@@ -13,6 +13,8 @@ import {
 import { HiDownload } from "react-icons/hi";
 import { useToast } from "@/app/context/toast";
 import { exportEtapas } from "services/routes/estatistica/etapas";
+import { downloadBlob } from "@/../utils/downloadBlob";
+import { todayDateStamp } from "@/../utils/dateHandler";
 
 interface ExportModalProps {
    show: boolean;
@@ -77,18 +79,9 @@ export function ExportModal({ show, onClose, selectedIds }: ExportModalProps) {
             ...columns,
          });
 
-         const url = URL.createObjectURL(blob);
-         const a = document.createElement("a");
-         a.href = url;
-         const now = new Date();
-         const dd = String(now.getDate()).padStart(2, "0");
-         const mm = String(now.getMonth() + 1).padStart(2, "0");
-         const yyyy = now.getFullYear();
          // O servidor nomeia o arquivo com a org ativa (Content-Disposition);
          // fallback neutro quando o header não estiver disponível.
-         a.download = filename ?? `etapas_${dd}${mm}${yyyy}.xlsx`;
-         a.click();
-         URL.revokeObjectURL(url);
+         downloadBlob(blob, filename ?? `etapas_${todayDateStamp()}.xlsx`);
 
          push({
             title: "Sucesso!",

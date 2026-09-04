@@ -15,7 +15,7 @@ import { isDirty } from "../context/serialization";
 import { useToast } from "@/app/context/toast";
 import { formatDateFull } from "@/../utils/dateHandler";
 
-import { ConfirmModal } from "@/components/ConfirmModal";
+import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import { useMissaoActions } from "../hooks/useMissaoActions";
 import { useConfirmDialog } from "../hooks/useConfirmDialog";
 import { useSaveShortcut } from "../hooks/useSaveShortcut";
@@ -353,8 +353,8 @@ export function MissaoEditor({ mode }: MissaoEditorProps) {
                onClose={closeConfirm}
                onConfirm={confirmAction}
                title={confirmConfig.title}
-               message={confirmConfig.message}
-               confirmLabel={confirmConfig.confirmLabel}
+               description={confirmConfig.message}
+               confirmButtonText={confirmConfig.confirmLabel}
                isLoading={
                   confirmDialog?.kind === "deleteMissao" &&
                   deleteMutation.isPending

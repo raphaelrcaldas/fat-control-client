@@ -12,7 +12,7 @@ import {
    Spinner,
 } from "flowbite-react";
 import { HiPlus, HiTrash, HiPencil, HiCheck, HiX } from "react-icons/hi";
-import { ConfirmModal } from "@/components/ConfirmModal";
+import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import type { Etiqueta } from "services/routes/om/ordens";
 import {
    useCreateEtiqueta,
@@ -286,15 +286,10 @@ export function LabelManager({
             onClose={handleCancelDelete}
             onConfirm={handleConfirmDelete}
             title="Excluir Etiqueta"
-            confirmLabel="Sim, excluir"
+            confirmButtonText="Sim, excluir"
             iconColor="text-red-400"
             isLoading={isLoading}
-            message={
-               <p className="text-sm text-gray-500">
-                  Tem certeza que deseja excluir esta etiqueta? Ela será
-                  removida de todas as Ordens de Missão que a utilizam.
-               </p>
-            }
+            description="Tem certeza que deseja excluir esta etiqueta? Ela será removida de todas as Ordens de Missão que a utilizam."
          />
       </>
    );
