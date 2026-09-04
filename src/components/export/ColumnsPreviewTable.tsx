@@ -15,6 +15,11 @@ interface ColumnsPreviewTableProps<T> {
  * previa so vale se mostrar o arquivo, e nao uma tabela parecida com ele. O
  * travessao aqui e diferente: na planilha a celula sai VAZIA, e o "—" existe
  * so para a ausencia de dado ficar visivel na tela.
+ *
+ * Coluna `hydrated` ainda nao tem valor nenhum nesta altura — ele so chega no
+ * clique de exportar. Mostra mascara, e nao um valor plausivel inventado:
+ * CPF de mentira numa previa e o tipo de coisa que alguem printa e trata
+ * como real.
  */
 export function ColumnsPreviewTable<T>({
    rows,
@@ -49,11 +54,13 @@ export function ColumnsPreviewTable<T>({
                               key={c.key}
                               className={clsx(
                                  "px-2 py-1 whitespace-nowrap",
-                                 empty ? "text-slate-300" : "text-slate-700",
-                                 c.uppercase && "uppercase"
+                                 c.hydrated || empty
+                                    ? "text-slate-300"
+                                    : "text-slate-700",
+                                 !c.hydrated && c.uppercase && "uppercase"
                               )}
                            >
-                              {empty ? "—" : String(raw)}
+                              {c.hydrated ? "••••" : empty ? "—" : String(raw)}
                            </td>
                         );
                      })}

@@ -51,6 +51,16 @@ interface ExportColumnsModalProps<T> {
    /** Base do nome do arquivo, sem data nem extensao. */
    fileBaseName: string;
    sheetName: string;
+   /**
+    * Busca o dado que a listagem nao carrega e devolve as linhas enriquecidas.
+    *
+    * Roda UMA vez, no clique de exportar, e so quando alguma coluna
+    * `hydrated` foi escolhida — marcar gente no carrinho nao dispara
+    * requisicao nenhuma. De quebra o dado sai fresco: o carrinho guarda o
+    * retrato do instante em que a linha foi clicada, que pode ter varias
+    * paginas de idade.
+    */
+   hydrate?: (rows: T[]) => Promise<T[]>;
 }
 
 export function ExportColumnsModal<T>({
@@ -61,6 +71,7 @@ export function ExportColumnsModal<T>({
    storageKey,
    fileBaseName,
    sheetName,
+   hydrate,
 }: ExportColumnsModalProps<T>) {
    const { push } = useToast();
 
@@ -127,8 +138,12 @@ export function ExportColumnsModal<T>({
       setIsExporting(true);
       try {
          const safeName = fileName.trim() || fileBaseName;
+
+         const precisaHidratar = activeColumns.some((c) => c.hydrated);
+         const linhas = precisaHidratar && hydrate ? await hydrate(rows) : rows;
+
          await exportToXlsx({
-            rows,
+            rows: linhas,
             columns: activeColumns,
             fileName: `${safeName.replace(/\.xlsx$/i, "")}.xlsx`,
             sheetName,

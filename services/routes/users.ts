@@ -153,6 +153,47 @@ export async function updateUser(
    );
 }
 
+/**
+ * Identidade completa devolvida por `POST /users/export`.
+ *
+ * Espelha o `UserExport` do Pydantic. Traz o que o `UserPublic` da listagem
+ * nao carrega — `nasc`, `data_praca`, `cpf` e os e-mails — mais o `telefone`,
+ * que viaja na listagem mas nao e exibido em tela.
+ */
+export interface UserExport {
+   id: number;
+   p_g: string;
+   quadro: string | null;
+   esp: string | null;
+   nome_guerra: string;
+   nome_completo: string | null;
+   saram: string;
+   id_fab: string | null;
+   unidade: string;
+   cpf: string | null;
+   telefone: string | null;
+   email_fab: string | null;
+   email_pess: string | null;
+   nasc: string | null;
+   data_praca: string | null;
+   ult_promo: string | null;
+   ant_rel: number | null;
+}
+
+/**
+ * Hidrata os militares escolhidos no carrinho, para a planilha.
+ *
+ * Exige `users.export` — que NAO e `users.view`: quem trabalha em cartoes de
+ * saude ou passaportes exporta sem nunca ter a listagem de usuarios. Id fora
+ * da org ativa e descartado em silencio pelo backend, e a requisicao inteira
+ * fica registrada na auditoria.
+ */
+export async function exportUsers(ids: number[]): Promise<UserExport[]> {
+   const response = await request("POST", usersRoute + "export", { ids });
+   const json = (await response.json()) as ApiResponse<UserExport[]>;
+   return json.data ?? [];
+}
+
 export async function changePassword(pwdBody: {
    new_pwd: string;
 }): Promise<ApiResult<null>> {

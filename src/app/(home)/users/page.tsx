@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { Button, Label, Select, TextInput } from "flowbite-react";
 import { HiSearch, HiUserAdd, HiUsers } from "react-icons/hi";
 import clsx from "clsx";
@@ -11,12 +11,13 @@ import { postoGradRecords } from "services/routes/postos";
 import { quadroOptions } from "@/constants/militar/quadros";
 import { especialidadeOptions } from "@/constants/militar/especialidades";
 import { useUsers } from "@/hooks/queries";
-import type { UserPublic } from "services/routes/users";
+import { exportUsers, type UserPublic } from "services/routes/users";
+import { usePermBased } from "../hooks/usePermBased";
 import { useExportCart } from "@/components/export/useExportCart";
 import { ExportCartBar } from "@/components/export/ExportCartBar";
 import { ExportCartDrawer } from "@/components/export/ExportCartDrawer";
 import { ExportColumnsModal } from "@/components/export/ExportColumnsModal";
-import { USERS_EXPORT_COLUMNS } from "./exportColumns";
+import { usersExportColumns } from "./exportColumns";
 import { UserCreateModal } from "./components/UserCreateModal";
 import { UserTable } from "./components/UserTable";
 import { UserCard } from "./components/UserCard";
@@ -63,6 +64,23 @@ export default function UsersPage() {
    // sobrevive a paginacao e a troca de filtro sem nenhuma busca extra na
    // hora de gerar a planilha.
    const cart = useExportCart<UserPublic>((user) => user.id);
+
+   // `users.export` e ortogonal a `users.view`: e o privilegio de tirar PII
+   // do sistema, nao o de enxergar a listagem.
+   const { hasPerm } = usePermBased();
+   const podeHidratar = hasPerm("users", "export");
+   const exportColumns = useMemo(
+      () => usersExportColumns(podeHidratar),
+      [podeHidratar]
+   );
+
+   // Uma requisicao, no clique de exportar. O `id` casa as duas metades: o
+   // que veio da listagem e o que so existe no cadastro completo.
+   const hydrate = useCallback(async (linhas: UserPublic[]) => {
+      const completos = await exportUsers(linhas.map((u) => u.id));
+      const porId = new Map(completos.map((u) => [u.id, u]));
+      return linhas.map((u) => ({ ...u, ...porId.get(u.id) }));
+   }, []);
 
    const { data, isLoading, isFetching } = useUsers(queryParams);
 
@@ -319,7 +337,8 @@ export default function UsersPage() {
             show={showExportModal}
             onClose={() => setShowExportModal(false)}
             rows={cart.items}
-            columns={USERS_EXPORT_COLUMNS}
+            columns={exportColumns}
+            hydrate={hydrate}
             storageKey="export:users:columns"
             fileBaseName="usuarios"
             sheetName="Usuários"

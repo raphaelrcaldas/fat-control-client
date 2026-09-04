@@ -14,7 +14,8 @@ export interface ExportColumn<T> {
    get: (row: T) => string | number | null | undefined;
    /**
     * Coluna obrigatoria: entra sempre e nao pode ser desmarcada no seletor.
-    * P/G, nome de guerra e nome completo sao as tres fixas do sistema.
+    * P/G, quadro, especialidade, nome de guerra e nome completo sao as fixas
+    * do sistema, nesta ordem.
     */
    required?: boolean;
    /** Largura em caracteres. Sem isto a largura e calculada pelo conteudo. */
@@ -27,4 +28,10 @@ export interface ExportColumn<T> {
    uppercase?: boolean;
    /** Marca a coluna como dado pessoal, para o aviso no modal. */
    sensitive?: boolean;
+   /**
+    * Coluna cujo valor NAO esta na linha da listagem: so chega pela
+    * hidratacao, no ato da exportacao. A previa mostra placeholder no lugar —
+    * nunca um valor plausivel inventado, que alguem printaria como real.
+    */
+   hydrated?: boolean;
 }

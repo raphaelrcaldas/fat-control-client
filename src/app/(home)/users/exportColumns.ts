@@ -1,5 +1,8 @@
 import type { UserPublic } from "services/routes/users";
-import { militarColumns } from "@/components/export/militarColumns";
+import {
+   militarColumns,
+   MILITAR_HYDRATED_COLUMNS,
+} from "@/components/export/militarColumns";
 import type { ExportColumn } from "@/components/export/exportTypes";
 
 /**
@@ -8,15 +11,15 @@ import type { ExportColumn } from "@/components/export/exportTypes";
  * A tela de usuarios e a unica sem dominio proprio: exporta so a identidade
  * militar.
  *
- * `nasc` fica de fora porque nao viaja no `UserPublic` da listagem (so no
- * `UserFull` do detalhe individual). `telefone` viaja, mas fica de fora por
- * decisao: ele nao e exibido em nenhum lugar da tabela nem do card, e
- * oferece-lo aqui transformaria a permissao de VER a listagem em permissao de
- * EXTRAIR o contato do efetivo inteiro em tres cliques, sem rastro no
- * servidor. Ele volta — junto de `nasc`, `data_praca`, `cpf` e os e-mails —
- * quando a hidratacao vier por endpoint proprio, com gate e auditoria.
+ * As colunas de PII (`telefone`, `nasc`, `cpf`, e-mails, `data_praca`) nao
+ * estao na listagem: elas chegam pela hidratacao (`POST /users/export`), e
+ * por isso so sao OFERECIDAS a quem tem `users.export`. Oferecer coluna que
+ * sairia vazia em toda linha e pior do que nao oferecer.
  */
-export const USERS_EXPORT_COLUMNS: ExportColumn<UserPublic>[] =
-   militarColumns<UserPublic>((user) => user, {
-      omit: ["nasc", "telefone"],
+export function usersExportColumns(
+   podeHidratar: boolean
+): ExportColumn<UserPublic>[] {
+   return militarColumns<UserPublic>((user) => user, {
+      omit: podeHidratar ? [] : MILITAR_HYDRATED_COLUMNS,
    });
+}
