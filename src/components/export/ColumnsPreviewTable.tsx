@@ -3,27 +3,27 @@
 import clsx from "clsx";
 import type { ExportColumn } from "./exportTypes";
 
+/** Militares ficticios exibidos na previa. */
+const PREVIEW_ROWS = 3;
+
 interface ColumnsPreviewTableProps<T> {
-   rows: T[];
    columns: ExportColumn<T>[];
 }
 
 /**
- * Primeiras linhas da planilha, como ela vai sair.
+ * Previa da planilha, com militares FICTICIOS.
  *
- * O zebrado espelha o do .xlsx (linhas pares sombreadas) de proposito: a
- * previa so vale se mostrar o arquivo, e nao uma tabela parecida com ele. O
- * travessao aqui e diferente: na planilha a celula sai VAZIA, e o "—" existe
- * so para a ausencia de dado ficar visivel na tela.
+ * Ela responde "quais colunas saem e em que ordem?", e nao "o que tem no meu
+ * carrinho" — para isso serve a gaveta. Um Fulano da Silva responde essa
+ * pergunta tao bem quanto o efetivo real e resolve dois problemas de uma vez:
+ * nao expoe dado de ninguem numa tela que vai ser printada, e dispensa
+ * explicar por que uma coluna aparece preenchida e outra nao (as de PII so
+ * sao buscadas no ato da exportacao).
  *
- * Coluna `hydrated` ainda nao tem valor nesta altura — ele so chega no clique
- * de exportar. Mostra o `sample`, um exemplo obviamente ficticio (CPF zerado,
- * "fulano@..."), e nao uma mascara generica: `••••` se le como "o sistema nao
- * tem esse dado", quando na verdade tem. Italico e o rodape deixam claro que
- * ali e exemplo.
+ * O zebrado espelha o do .xlsx (linhas pares sombreadas): a previa so vale se
+ * mostrar o formato do arquivo, e nao uma tabela parecida com ele.
  */
 export function ColumnsPreviewTable<T>({
-   rows,
    columns,
 }: ColumnsPreviewTableProps<T>) {
    return (
@@ -44,30 +44,19 @@ export function ColumnsPreviewTable<T>({
                </tr>
             </thead>
             <tbody>
-               {rows.map((row, i) => (
+               {Array.from({ length: PREVIEW_ROWS }, (_, i) => (
                   <tr key={i} className={clsx(i % 2 === 1 && "bg-slate-50")}>
                      {columns.map((c) => {
-                        const raw = c.get(row);
-                        const empty =
-                           raw === null || raw === undefined || raw === "";
+                        const valor = c.samples?.[i];
                         return (
                            <td
                               key={c.key}
                               className={clsx(
                                  "px-2 py-1 whitespace-nowrap",
-                                 c.hydrated
-                                    ? "text-slate-400 italic"
-                                    : empty
-                                      ? "text-slate-300"
-                                      : "text-slate-700",
-                                 !c.hydrated && c.uppercase && "uppercase"
+                                 valor ? "text-slate-700" : "text-slate-300"
                               )}
                            >
-                              {c.hydrated
-                                 ? (c.sample ?? "exemplo")
-                                 : empty
-                                   ? "—"
-                                   : String(raw)}
+                              {valor ?? "—"}
                            </td>
                         );
                      })}
@@ -76,16 +65,5 @@ export function ColumnsPreviewTable<T>({
             </tbody>
          </table>
       </div>
-   );
-}
-
-/** Rodape da previa, so quando ha coluna com exemplo ficticio em cena. */
-export function PreviewSampleNote({ visible }: { visible: boolean }) {
-   if (!visible) return null;
-   return (
-      <p className="mt-1 text-xs text-slate-500">
-         Em <span className="text-slate-400 italic">itálico</span>, exemplo
-         fictício: o valor real de cada militar é buscado na exportação.
-      </p>
    );
 }

@@ -93,6 +93,7 @@ export function militarColumns<T>(
    const all: ExportColumn<T>[] = [
       {
          key: "p_g",
+         samples: ["TC", "MJ", "1S"],
          group: GRUPO_MILITAR,
          label: "P/G",
          required: true,
@@ -103,6 +104,7 @@ export function militarColumns<T>(
       },
       {
          key: "quadro",
+         samples: ["QOAV", "QOEA", "QSS"],
          group: GRUPO_MILITAR,
          label: "Quadro",
          required: true,
@@ -112,6 +114,7 @@ export function militarColumns<T>(
       },
       {
          key: "esp",
+         samples: ["NTE", "INF", "SAD"],
          group: GRUPO_MILITAR,
          label: "Especialidade",
          required: true,
@@ -121,6 +124,7 @@ export function militarColumns<T>(
       },
       {
          key: "nome_guerra",
+         samples: ["FULANO", "BELTRANO", "SICRANA"],
          group: GRUPO_MILITAR,
          label: "Nome de Guerra",
          required: true,
@@ -129,6 +133,11 @@ export function militarColumns<T>(
       },
       {
          key: "nome_completo",
+         samples: [
+            "FULANO DA SILVA",
+            "BELTRANO DE SOUZA",
+            "SICRANA PEREIRA LIMA",
+         ],
          group: GRUPO_PESSOAL,
          label: "Nome Completo",
          required: true,
@@ -137,6 +146,7 @@ export function militarColumns<T>(
       },
       {
          key: "saram",
+         samples: ["400000-0", "410000-1", "420000-2"],
          group: GRUPO_MILITAR,
          label: "SARAM",
          align: "center",
@@ -148,6 +158,7 @@ export function militarColumns<T>(
       },
       {
          key: "id_fab",
+         samples: ["500000", "510000", "520000"],
          group: GRUPO_MILITAR,
          label: "ID FAB",
          align: "center",
@@ -156,6 +167,7 @@ export function militarColumns<T>(
       },
       {
          key: "unidade",
+         samples: ["11GT", "11GT", "11GT"],
          group: GRUPO_MILITAR,
          label: "Unidade",
          uppercase: true,
@@ -165,8 +177,8 @@ export function militarColumns<T>(
       },
       {
          key: "telefone",
+         samples: ["21900000000", "21911111111", "21922222222"],
          group: GRUPO_PESSOAL,
-         sample: "21900000000",
          label: "Telefone",
          align: "center",
          hydrated: true,
@@ -175,8 +187,8 @@ export function militarColumns<T>(
       },
       {
          key: "nasc",
+         samples: ["01/01/80", "02/02/85", "03/03/90"],
          group: GRUPO_PESSOAL,
-         sample: "01/01/80",
          label: "Nascimento",
          align: "center",
          hydrated: true,
@@ -188,6 +200,7 @@ export function militarColumns<T>(
       },
       {
          key: "ult_promo",
+         samples: ["31/12/20", "31/12/22", "31/12/24"],
          group: GRUPO_MILITAR,
          label: "Última Promoção",
          align: "center",
@@ -199,8 +212,8 @@ export function militarColumns<T>(
       },
       {
          key: "data_praca",
+         samples: ["01/03/00", "01/03/05", "01/03/10"],
          group: GRUPO_MILITAR,
-         sample: "01/01/00",
          label: "Data de Praça",
          align: "center",
          hydrated: true,
@@ -212,8 +225,8 @@ export function militarColumns<T>(
       },
       {
          key: "cpf",
+         samples: ["00000000000", "11111111111", "22222222222"],
          group: GRUPO_PESSOAL,
-         sample: "00000000000",
          label: "CPF",
          align: "center",
          hydrated: true,
@@ -222,8 +235,12 @@ export function militarColumns<T>(
       },
       {
          key: "email_fab",
+         samples: [
+            "fulano@fab.mil.br",
+            "beltrano@fab.mil.br",
+            "sicrana@fab.mil.br",
+         ],
          group: GRUPO_MILITAR,
-         sample: "fulano@fab.mil.br",
          label: "E-mail FAB",
          hydrated: true,
          width: 28,
@@ -231,8 +248,12 @@ export function militarColumns<T>(
       },
       {
          key: "email_pess",
+         samples: [
+            "fulano@exemplo.com",
+            "beltrano@exemplo.com",
+            "sicrana@exemplo.com",
+         ],
          group: GRUPO_PESSOAL,
-         sample: "fulano@exemplo.com",
          label: "E-mail Pessoal",
          hydrated: true,
          width: 28,

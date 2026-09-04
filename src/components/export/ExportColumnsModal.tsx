@@ -35,11 +35,9 @@ import { todayDateStamp } from "@/../utils/dateHandler";
 import type { ExportColumn } from "./exportTypes";
 import { exportToXlsx } from "./exportToXlsx";
 import { useColumnPrefs } from "./useColumnPrefs";
-import { ColumnsPreviewTable, PreviewSampleNote } from "./ColumnsPreviewTable";
+import { ColumnsPreviewTable } from "./ColumnsPreviewTable";
 import { ColumnPicker } from "./ColumnPicker";
 import { ColumnChipOverlay, SortableColumnChip } from "./SortableColumnChip";
-
-const PREVIEW_ROWS = 3;
 
 interface ExportColumnsModalProps<T> {
    show: boolean;
@@ -132,8 +130,6 @@ export function ExportColumnsModal<T>({
    const draggingColumn = draggingKey
       ? activeColumns.find((c) => c.key === draggingKey)
       : undefined;
-
-   const previewRows = rows.slice(0, PREVIEW_ROWS);
 
    async function handleExport() {
       setIsExporting(true);
@@ -248,18 +244,7 @@ export function ExportColumnsModal<T>({
                         {activeColumns.length === 1 ? "coluna" : "colunas"})
                      </Label>
                   </div>
-                  <ColumnsPreviewTable
-                     rows={previewRows}
-                     columns={activeColumns}
-                  />
-                  <PreviewSampleNote
-                     visible={activeColumns.some((c) => c.hydrated)}
-                  />
-                  {rows.length > PREVIEW_ROWS && (
-                     <p className="mt-1 text-xs text-slate-500">
-                        Mostrando {PREVIEW_ROWS} de {rows.length} registros.
-                     </p>
-                  )}
+                  <ColumnsPreviewTable columns={activeColumns} />
                </div>
 
                <div>

@@ -97,12 +97,26 @@ export function useColumnPrefs<T>(
    const activeColumns = useMemo(() => {
       const active = columns.filter((c) => c.required || checked.has(c.key));
 
-      // `sort` e estavel, entao coluna ainda nao remanejada cai no fim
-      // preservando a ordem do catalogo.
-      const pos = new Map(order.map((key, i) => [key, i]));
-      const last = Number.MAX_SAFE_INTEGER;
+      // Coluna que a preferencia salva nao conhece herda a vaga logo APOS a
+      // sua vizinha de catalogo — nao vai para o fim da fila. Sem isto,
+      // acrescentar uma coluna fixa nova joga ela para o fim na tela de quem
+      // ja tinha preferencia gravada: foi o que aconteceu quando `quadro` e
+      // `esp` viraram obrigatorias e apareceram depois do SARAM.
+      const salvo = new Map(order.map((key, i) => [key, i * 1000]));
+      const posicao = new Map<string, number>();
+      let ultima = -1000;
+      for (const column of columns) {
+         const p = salvo.get(column.key);
+         if (p !== undefined) {
+            ultima = p;
+         } else {
+            ultima += 1;
+         }
+         posicao.set(column.key, ultima);
+      }
+
       return [...active].sort(
-         (a, b) => (pos.get(a.key) ?? last) - (pos.get(b.key) ?? last)
+         (a, b) => (posicao.get(a.key) ?? 0) - (posicao.get(b.key) ?? 0)
       );
    }, [columns, checked, order]);
 

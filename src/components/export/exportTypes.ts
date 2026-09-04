@@ -32,14 +32,14 @@ export interface ExportColumn<T> {
     */
    hydrated?: boolean;
    /**
-    * Exemplo FICTICIO exibido na previa enquanto o valor real nao foi
-    * buscado. So faz sentido em coluna `hydrated`.
+    * Valores desta coluna nos militares FICTICIOS da previa — um por linha.
     *
-    * Tem que ser obviamente falso ("FULANO DA SILVA", CPF zerado) e ao mesmo
-    * tempo ter o formato do dado real. Mascara generica (`••••`) seria pior:
-    * lida como "o sistema nao tem esse dado", quando na verdade tem.
+    * A previa nao mostra dado real de ninguem: ela existe para conferir
+    * QUAIS colunas saem e em QUE ordem, e para isso um Fulano da Silva serve
+    * melhor que o efetivo verdadeiro. Assim nao ha o que confundir com dado
+    * do sistema, e some a necessidade de avisar que ali e exemplo.
     */
-   sample?: string;
+   samples?: string[];
    /**
     * Secao do seletor de colunas. Espelha o agrupamento do formulario de
     * cadastro ("Dados Militares" / "Dados Pessoais"); tela de dominio usa o
