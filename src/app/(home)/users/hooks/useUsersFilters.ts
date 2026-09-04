@@ -12,7 +12,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import useDebouncedValue from "@/hooks/useDebouncedValue";
 import type { GetUsersParams } from "services/routes/users";
 
-const DEFAULT_PER_PAGE = 25;
+const DEFAULT_PER_PAGE = 50;
 const DEFAULT_PAGE = 1;
 const DEFAULT_ACTIVE = ["true"];
 

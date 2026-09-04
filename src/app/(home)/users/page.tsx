@@ -11,6 +11,12 @@ import { postoGradRecords } from "services/routes/postos";
 import { quadroOptions } from "@/constants/militar/quadros";
 import { especialidadeOptions } from "@/constants/militar/especialidades";
 import { useUsers } from "@/hooks/queries";
+import type { UserPublic } from "services/routes/users";
+import { useExportCart } from "@/components/export/useExportCart";
+import { ExportCartBar } from "@/components/export/ExportCartBar";
+import { ExportCartDrawer } from "@/components/export/ExportCartDrawer";
+import { ExportColumnsModal } from "@/components/export/ExportColumnsModal";
+import { USERS_EXPORT_COLUMNS } from "./exportColumns";
 import { UserCreateModal } from "./components/UserCreateModal";
 import { UserTable } from "./components/UserTable";
 import { UserCard } from "./components/UserCard";
@@ -50,6 +56,13 @@ export default function UsersPage() {
    } = useUsersFilters();
 
    const [showCreateModal, setShowCreateModal] = useState(false);
+   const [showCartDrawer, setShowCartDrawer] = useState(false);
+   const [showExportModal, setShowExportModal] = useState(false);
+
+   // Carrinho de exportacao: guarda o objeto inteiro, entao a selecao
+   // sobrevive a paginacao e a troca de filtro sem nenhuma busca extra na
+   // hora de gerar a planilha.
+   const cart = useExportCart<UserPublic>((user) => user.id);
 
    const { data, isLoading, isFetching } = useUsers(queryParams);
 
@@ -57,12 +70,19 @@ export default function UsersPage() {
    const totalPages = data?.pages ?? 1;
    const totalUsers = data?.total ?? 0;
 
+   // Quanto da seleção está fora da página visível — é o que o usuário não
+   // consegue ver e por isso precisa ser dito.
+   const selectedOffPage =
+      cart.count - usuarios.filter((user) => cart.has(user.id)).length;
+
    // keepPreviousData: na 1ª carga mostra skeleton; no refetch esmaece o
    // conteúdo anterior sem overlay (regra de refetch suave).
    const softLoading = isFetching && !isLoading;
 
    return (
-      <div className="flex flex-col space-y-2">
+      // `pb-24` reservado SEMPRE, e nao so com o carrinho cheio: condicional,
+      // marcar o primeiro militar empurraria a pagina inteira para cima.
+      <div className="flex flex-col space-y-2 pb-24">
          {/* Masthead */}
          <header className="relative overflow-hidden rounded border border-slate-200 bg-white px-5 py-4 shadow-sm sm:px-6 sm:py-5">
             <span
@@ -184,14 +204,29 @@ export default function UsersPage() {
                      softLoading ? "opacity-50" : "opacity-100"
                   )}
                >
+                  {/* Parte da seleção pode estar fora da página visível — e o
+                      que o usuário não vê precisa ser dito, senão o contador
+                      da barra parece errado. */}
+                  {selectedOffPage > 0 && (
+                     <p
+                        role="status"
+                        className="px-4 py-2 text-xs text-slate-500"
+                     >
+                        {selectedOffPage}{" "}
+                        {selectedOffPage === 1
+                           ? "selecionado em outra página"
+                           : "selecionados em outras páginas"}
+                     </p>
+                  )}
+
                   {/* Tabela Desktop */}
-                  <UserTable usuarios={usuarios} />
+                  <UserTable usuarios={usuarios} cart={cart} />
 
                   {/* Cards até lg: no tablet a tabela estourava 237px e
                       escondia a coluna de ação atrás de scroll sem indício. */}
                   <div className="space-y-2 p-2 lg:hidden">
                      {usuarios.map((user) => (
-                        <UserCard key={user.id} user={user} />
+                        <UserCard key={user.id} user={user} cart={cart} />
                      ))}
                   </div>
 
@@ -252,6 +287,43 @@ export default function UsersPage() {
          </div>
 
          <UserCreateModal show={showCreateModal} setShow={setShowCreateModal} />
+
+         <ExportCartBar
+            cart={cart}
+            getId={(user) => user.id}
+            getLabel={(user) => `${user.p_g} ${user.nome_guerra}`}
+            onReview={() => setShowCartDrawer(true)}
+            onExport={() => setShowExportModal(true)}
+            noun={{ one: "militar", many: "militares" }}
+            hidden={showCartDrawer || showExportModal}
+         />
+
+         <ExportCartDrawer
+            show={showCartDrawer}
+            onClose={() => setShowCartDrawer(false)}
+            cart={cart}
+            getId={(user) => user.id}
+            getLabel={(user) => ({
+               primary: `${user.p_g} ${user.nome_guerra}`,
+               secondary: user.nome_completo ?? undefined,
+            })}
+            onExport={() => {
+               setShowCartDrawer(false);
+               setShowExportModal(true);
+            }}
+            title="Militares selecionados"
+            noun={{ one: "militar", many: "militares" }}
+         />
+
+         <ExportColumnsModal
+            show={showExportModal}
+            onClose={() => setShowExportModal(false)}
+            rows={cart.items}
+            columns={USERS_EXPORT_COLUMNS}
+            storageKey="export:users:columns"
+            fileBaseName="usuarios"
+            sheetName="Usuários"
+         />
       </div>
    );
 }

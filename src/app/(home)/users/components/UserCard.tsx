@@ -1,24 +1,42 @@
 "use client";
 
-import { Badge, Button } from "flowbite-react";
+import { Badge, Button, Checkbox } from "flowbite-react";
 import { IoMdInformationCircleOutline } from "react-icons/io";
 import { HiCheckCircle, HiXCircle } from "react-icons/hi";
 import { UserPublic } from "services/routes/users";
 import { useRouter } from "next/navigation";
 import { useUnidadeOptions } from "@/hooks/queries";
+import type { ExportCart } from "@/components/export/useExportCart";
+import clsx from "clsx";
 
 interface UserCardProps {
    user: UserPublic;
+   cart: ExportCart<UserPublic>;
 }
 
-export function UserCard({ user }: UserCardProps) {
+export function UserCard({ user, cart }: UserCardProps) {
    const router = useRouter();
    const unidadeOptions = useUnidadeOptions();
+   const checked = cart.has(user.id);
 
    return (
-      <div className="rounded border border-slate-200 bg-white p-4 shadow-sm transition-shadow duration-150 hover:shadow-md">
+      <div
+         className={clsx(
+            "rounded border bg-white p-4 shadow-sm transition-shadow duration-150 hover:shadow-md",
+            checked
+               ? "border-primary-300 ring-primary-100 ring-1"
+               : "border-slate-200"
+         )}
+      >
          <div className="mb-3 flex items-start justify-between">
             <div className="flex items-center gap-2">
+               <Checkbox
+                  className="size-[20px] shrink-0 pointer-coarse:size-[44px]"
+                  color="primary"
+                  checked={checked}
+                  onChange={() => cart.toggle(user)}
+                  aria-label={`Selecionar ${user.nome_guerra}`}
+               />
                {/* primary-800: o red-600 sobre red-100 media 3.91:1 — abaixo
                    do piso AA para texto de 12px bold */}
                <div className="bg-primary-100 flex h-10 w-10 items-center justify-center rounded-full">
