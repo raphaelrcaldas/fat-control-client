@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
    Button,
    Checkbox,
@@ -30,19 +30,15 @@ import {
    horizontalListSortingStrategy,
    sortableKeyboardCoordinates,
 } from "@dnd-kit/sortable";
-import clsx from "clsx";
 import { useToast } from "@/app/context/toast";
 import { todayDateStamp } from "@/../utils/dateHandler";
 import type { ExportColumn } from "./exportTypes";
 import { exportToXlsx } from "./exportToXlsx";
+import { useColumnPrefs } from "./useColumnPrefs";
+import { ColumnsPreviewTable } from "./ColumnsPreviewTable";
 import { ColumnChipOverlay, SortableColumnChip } from "./SortableColumnChip";
 
 const PREVIEW_ROWS = 3;
-
-interface StoredPrefs {
-   cols: string[];
-   order: string[];
-}
 
 interface ExportColumnsModalProps<T> {
    show: boolean;
@@ -68,82 +64,23 @@ export function ExportColumnsModal<T>({
 }: ExportColumnsModalProps<T>) {
    const { push } = useToast();
 
-   const optionalColumns = useMemo(
-      () => columns.filter((c) => !c.required),
-      [columns]
-   );
+   const {
+      optionalColumns,
+      activeColumns,
+      checked,
+      toggle,
+      setOrder,
+      persist,
+   } = useColumnPrefs(columns, storageKey, show);
 
-   const [checked, setChecked] = useState<Set<string>>(() => new Set());
-   /** Ordem escolhida das colunas na planilha; chave que falta aqui vai
-    *  para o fim, na ordem do catalogo. */
-   const [order, setOrder] = useState<string[]>([]);
    const [fileName, setFileName] = useState("");
    const [isExporting, setIsExporting] = useState(false);
    /** Coluna erguida no momento; alimenta a copia do `DragOverlay`. */
    const [draggingKey, setDraggingKey] = useState<string | null>(null);
 
-   // O catalogo entra por ref, e nao pelas deps do efeito abaixo. Tela que
-   // monta as colunas por factory (`/ops/trip` precisa do rotulo da funcao,
-   // que vem de hook) devolve um array NOVO a cada render do pai: nas deps,
-   // qualquer refetch do react-query reabriria o efeito no meio da
-   // interacao, desmarcando a coluna e apagando o nome do arquivo que o
-   // usuario estava digitando.
-   const catalogRef = useRef({ columns, optionalColumns });
-   catalogRef.current = { columns, optionalColumns };
-
-   // Preferencia so e lida no cliente: localStorage no primeiro render
-   // divergiria do HTML do servidor. Pode falhar (aba anonima, site data
-   // bloqueado), e ai simplesmente comeca no padrao.
    useEffect(() => {
-      if (!show) return;
-      setFileName(`${fileBaseName}_${todayDateStamp()}`);
-
-      const catalog = catalogRef.current;
-      try {
-         const saved = localStorage.getItem(storageKey);
-         if (saved) {
-            const parsed = JSON.parse(saved) as StoredPrefs;
-            const validCols = (parsed.cols ?? []).filter((k) =>
-               catalog.optionalColumns.some((c) => c.key === k)
-            );
-            setChecked(new Set(validCols));
-            setOrder(
-               (parsed.order ?? []).filter((k) =>
-                  catalog.columns.some((c) => c.key === k)
-               )
-            );
-            return;
-         }
-      } catch {
-         // sem preferencia utilizavel — segue com o padrao
-      }
-      setChecked(new Set());
-      setOrder([]);
-   }, [show, storageKey, fileBaseName]);
-
-   const toggle = useCallback((key: string) => {
-      setChecked((prev) => {
-         const next = new Set(prev);
-         if (next.has(key)) next.delete(key);
-         else next.add(key);
-         return next;
-      });
-   }, []);
-
-   /**
-    * Colunas efetivas: fixas + marcadas, na ordem que o usuario remanejou.
-    */
-   const activeColumns = useMemo(() => {
-      const active = columns.filter((c) => c.required || checked.has(c.key));
-
-      // `sort` e estavel, entao coluna ainda nao remanejada cai no fim
-      // preservando a ordem do catalogo.
-      const pos = new Map(order.map((key, i) => [key, i]));
-      const last = Number.MAX_SAFE_INTEGER;
-      return [...active].sort(
-         (a, b) => (pos.get(a.key) ?? last) - (pos.get(b.key) ?? last)
-      );
-   }, [columns, checked, order]);
+      if (show) setFileName(`${fileBaseName}_${todayDateStamp()}`);
+   }, [show, fileBaseName]);
 
    // Mesma configuracao de sensores do editor de missao: no dedo o
    // TouchSensor precisa de `delay` (long press) e nao de distancia, senao a
@@ -196,15 +133,7 @@ export function ExportColumnsModal<T>({
             fileName: `${safeName.replace(/\.xlsx$/i, "")}.xlsx`,
             sheetName,
          });
-         try {
-            const prefs: StoredPrefs = {
-               cols: [...checked],
-               order: activeColumns.map((c) => c.key),
-            };
-            localStorage.setItem(storageKey, JSON.stringify(prefs));
-         } catch {
-            // preferencia e conveniencia; nao atrapalha o download
-         }
+         persist();
          push({
             title: "Planilha gerada",
             message: `${rows.length} ${
@@ -334,50 +263,10 @@ export function ExportColumnsModal<T>({
                         {activeColumns.length === 1 ? "coluna" : "colunas"})
                      </Label>
                   </div>
-                  {/* Tabela larga rola no proprio container: o body da pagina
-                      nunca deve rolar na horizontal. */}
-                  <div className="overflow-x-auto rounded border border-slate-200">
-                     <table className="w-full text-left text-xs">
-                        <thead className="bg-slate-50 text-slate-600">
-                           <tr>
-                              {activeColumns.map((c) => (
-                                 <th
-                                    key={c.key}
-                                    className="px-2 py-1.5 font-semibold whitespace-nowrap"
-                                 >
-                                    {c.label}
-                                 </th>
-                              ))}
-                           </tr>
-                        </thead>
-                        <tbody className="divide-y divide-slate-100">
-                           {previewRows.map((row, i) => (
-                              <tr key={i} className={clsx(i % 2 && "bg-white")}>
-                                 {activeColumns.map((c) => {
-                                    const raw = c.get(row);
-                                    const value =
-                                       raw === null ||
-                                       raw === undefined ||
-                                       raw === ""
-                                          ? "—"
-                                          : String(raw);
-                                    return (
-                                       <td
-                                          key={c.key}
-                                          className={clsx(
-                                             "px-2 py-1 whitespace-nowrap text-slate-700",
-                                             c.uppercase && "uppercase"
-                                          )}
-                                       >
-                                          {value}
-                                       </td>
-                                    );
-                                 })}
-                              </tr>
-                           ))}
-                        </tbody>
-                     </table>
-                  </div>
+                  <ColumnsPreviewTable
+                     rows={previewRows}
+                     columns={activeColumns}
+                  />
                   {rows.length > PREVIEW_ROWS && (
                      <p className="mt-1 text-xs text-slate-500">
                         Mostrando {PREVIEW_ROWS} de {rows.length} registros.

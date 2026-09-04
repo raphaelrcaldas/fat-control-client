@@ -2,6 +2,7 @@
 
 import { createPortal } from "react-dom";
 import { Button } from "flowbite-react";
+import clsx from "clsx";
 import { HiDownload, HiOutlineViewList } from "react-icons/hi";
 import type { ExportCart } from "./useExportCart";
 import { ClearCartButton } from "./ClearCartButton";
@@ -45,7 +46,7 @@ export function ExportCartBar<T>({
 }: ExportCartBarProps<T>) {
    const target = usePortalTarget();
 
-   if (!target || cart.isEmpty || hidden) return null;
+   if (!target || cart.isEmpty) return null;
 
    const chips = cart.items.slice(0, MAX_CHIPS);
    const overflow = cart.count - chips.length;
@@ -53,7 +54,18 @@ export function ExportCartBar<T>({
    return createPortal(
       // Sem `-translate-x-1/2` para centralizar: translate no proprio no
       // criaria bloco conteiner para qualquer fixed descendente.
-      <div className="pointer-events-none fixed inset-x-0 bottom-4 z-40 flex justify-center px-3">
+      //
+      // Escondida, a barra continua MONTADA (opacidade + `inert`, nunca
+      // `return null`): quem abriu a gaveta clicou num botao daqui, e
+      // desmontar a barra apaga justamente o elemento para onde o foco tem
+      // que voltar quando ela fecha — o foco cairia no `<body>`.
+      <div
+         inert={hidden}
+         className={clsx(
+            "pointer-events-none fixed inset-x-0 bottom-4 z-40 flex justify-center px-3 transition-opacity",
+            hidden && "opacity-0"
+         )}
+      >
          <div className="pointer-events-auto flex w-full max-w-3xl flex-wrap items-center gap-x-4 gap-y-2 rounded border border-slate-200 bg-white px-4 py-3 shadow-lg">
             <div className="flex min-w-0 flex-1 items-center gap-3">
                {/* role=status: a mudanca do contador precisa ser anunciada a

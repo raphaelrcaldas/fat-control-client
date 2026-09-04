@@ -1,7 +1,7 @@
 "use client";
 
-import ExcelJS from "exceljs";
 import { downloadBlob } from "@/../utils/downloadBlob";
+import type { Borders } from "exceljs";
 import type { ExportColumn } from "./exportTypes";
 
 /**
@@ -16,7 +16,7 @@ const HEADER_BORDER = "FFCBD5E1"; // slate-300
 const CELL_BORDER = "FFE2E8F0"; // slate-200
 const ZEBRA_BG = "FFF8FAFC"; // slate-50
 
-const CELL_BORDER_SIDES: Partial<ExcelJS.Borders> = {
+const CELL_BORDER_SIDES: Partial<Borders> = {
    top: { style: "thin", color: { argb: CELL_BORDER } },
    bottom: { style: "thin", color: { argb: CELL_BORDER } },
    left: { style: "thin", color: { argb: CELL_BORDER } },
@@ -27,9 +27,16 @@ const HEADER_ROW = 1;
 const MIN_WIDTH = 10;
 const MAX_WIDTH = 46;
 
-function cellText<T>(column: ExportColumn<T>, row: T): string | number {
+/**
+ * Ausencia de dado vira celula VAZIA, nao um travessao.
+ *
+ * Numa planilha o "—" e dado: entra como opcao no auto-filtro, atrapalha
+ * ordenacao e obriga quem recebe a limpar antes de usar. Celula vazia e o
+ * idioma nativo do Excel para "sem dado".
+ */
+function cellText<T>(column: ExportColumn<T>, row: T): string | number | null {
    const raw = column.get(row);
-   if (raw === null || raw === undefined || raw === "") return "—";
+   if (raw === null || raw === undefined || raw === "") return null;
    if (typeof raw === "number") return raw;
    return column.uppercase ? raw.toUpperCase() : raw;
 }
@@ -48,6 +55,11 @@ export async function exportToXlsx<T>({
    fileName,
    sheetName,
 }: ExportToXlsxArgs<T>): Promise<void> {
+   // Import dinamico: sao ~860 KB que nao tem por que entrar no chunk de uma
+   // rota que todo operador abre e quase ninguem usa para exportar. O custo
+   // cai no clique do botao, que ja mostra spinner.
+   const ExcelJS = (await import("exceljs")).default;
+
    const workbook = new ExcelJS.Workbook();
    workbook.created = new Date();
    const sheet = workbook.addWorksheet(sheetName, {
@@ -118,7 +130,7 @@ export async function exportToXlsx<T>({
       let longest = column.label.length + 4;
       for (const row of rows) {
          const value = cellText(column, row);
-         longest = Math.max(longest, String(value).length);
+         if (value !== null) longest = Math.max(longest, String(value).length);
       }
       excelCol.width = Math.min(Math.max(longest + 2, MIN_WIDTH), MAX_WIDTH);
    });

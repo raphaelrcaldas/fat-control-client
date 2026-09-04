@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect } from "react";
 import { createPortal } from "react-dom";
 import { Button } from "flowbite-react";
 import { HiDownload, HiOutlineInbox, HiX } from "react-icons/hi";
 import type { ExportCart } from "./useExportCart";
 import { ClearCartButton } from "./ClearCartButton";
+import { useDialogFocus } from "./useDialogFocus";
 import { usePortalTarget } from "./usePortalTarget";
 
 interface ExportCartDrawerProps<T> {
@@ -41,15 +41,7 @@ export function ExportCartDrawer<T>({
    noun = { one: "selecionado", many: "selecionados" },
 }: ExportCartDrawerProps<T>) {
    const target = usePortalTarget();
-
-   useEffect(() => {
-      if (!show) return;
-      const onKey = (e: KeyboardEvent) => {
-         if (e.key === "Escape") onClose();
-      };
-      document.addEventListener("keydown", onKey);
-      return () => document.removeEventListener("keydown", onKey);
-   }, [show, onClose]);
+   const panelRef = useDialogFocus(show, onClose);
 
    if (!target || !show) return null;
 
@@ -63,10 +55,14 @@ export function ExportCartDrawer<T>({
          />
          {/* top-16 = 56px do navbar (raiz do client e 87.5%, 1rem = 14px). */}
          <aside
+            ref={panelRef as React.RefObject<HTMLElement>}
             role="dialog"
             aria-modal="true"
             aria-labelledby="export-cart-drawer-title"
-            className="fixed top-16 right-0 bottom-0 z-50 flex w-full max-w-sm flex-col border-l border-slate-200 bg-white shadow-xl"
+            // `tabIndex={-1}` para o painel poder receber o foco inicial sem
+            // entrar na ordem de tabulacao.
+            tabIndex={-1}
+            className="fixed top-16 right-0 bottom-0 z-50 flex w-full max-w-sm flex-col border-l border-slate-200 bg-white shadow-xl outline-none"
          >
             <header className="flex items-center justify-between gap-3 border-b border-slate-200 px-4 py-3">
                <div className="min-w-0">
