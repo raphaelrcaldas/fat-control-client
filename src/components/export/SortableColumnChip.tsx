@@ -61,7 +61,10 @@ export function SortableColumnChip({
          // mostra exatamente onde o chip vai cair.
          className={clsx(
             CHIP_BASE,
-            "cursor-grab active:cursor-grabbing",
+            // `animate-chip-in` roda so na MONTAGEM: reordenar nao remonta o
+            // <li> (a key e a da coluna), entao o fade e exclusivo do chip que
+            // acabou de entrar por um checkbox marcado.
+            "animate-chip-in cursor-grab transition-colors active:cursor-grabbing",
             isDragging
                ? "border-primary-300 border-dashed text-transparent opacity-70 [&>svg]:invisible"
                : "border-slate-200 text-slate-600"

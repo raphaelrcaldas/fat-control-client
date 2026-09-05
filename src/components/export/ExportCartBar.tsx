@@ -62,7 +62,11 @@ export function ExportCartBar<T>({
       <div
          inert={hidden}
          className={clsx(
-            "pointer-events-none fixed inset-x-0 bottom-4 z-40 flex justify-center px-3 transition-opacity",
+            // `hidden lg:flex`: exportar planilha e fluxo de DESKTOP. As
+            // listagens ja trocam a tabela por cards ate `lg`, e os cards nao
+            // tem checkbox — sem selecao possivel, a barra so apareceria a
+            // quem estreitasse a janela depois de selecionar.
+            "pointer-events-none fixed inset-x-0 bottom-4 z-40 hidden justify-center px-3 transition-opacity lg:flex",
             hidden && "opacity-0"
          )}
       >

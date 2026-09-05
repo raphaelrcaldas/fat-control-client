@@ -271,6 +271,120 @@
    animation-delay: calc(min(var(--i, 0), 5) * 30ms);
 }
 
+@keyframes chipIn {
+   from {
+      opacity: 0;
+   }
+   to {
+      opacity: 1;
+   }
+}
+
+/* Entrada do chip de coluna, quando uma coluna passa a ser exportada.
+
+   SÓ `opacity`, e é uma restrição e não preguiça: o chip carrega o `transform`
+   do dnd-kit no style inline, e animação de CSS ganha de style inline — uma
+   que também mexesse no transform sequestraria o deslocamento do arrasto pelos
+   240ms iniciais. O movimento de "abrir espaço" já vem dos vizinhos cedendo
+   lugar. */
+@utility animate-chip-in {
+   animation: chipIn 180ms var(--ease-out-quint) both;
+}
+
+/* ---------------------------------------------------------------------------
+   Gaveta de revisão (entrada E saída)
+
+   Diferente das animações acima, estas têm CONTRAPARTIDA DE SAÍDA, e isso muda
+   a regra do jogo em dois pontos:
+
+   1. `prefers-reduced-motion` aqui zera a DURAÇÃO (0.01ms), nunca
+      `animation: none`. O componente desmonta no `animationend`; sem animação
+      o evento não dispara e a gaveta ficaria pendurada na tela para sempre.
+
+   2. A entrada não leva `forwards`/`both`: terminada a animação o `transform`
+      volta a `none` sozinho. Um transform retido num `position: fixed` vira
+      bloco contentor para qualquer `fixed` DESCENDENTE, e não custa nada
+      evitá-lo. (O `ConfirmModal` do "Limpar tudo" não é um deles: o `Modal`
+      do flowbite-react 0.12.17 usa `FloatingPortal` e renderiza no `<body>`.
+      Isso, aliás, é o motivo de o `useDialogFocus` precisar ser suspenso
+      enquanto ele está aberto.)
+--------------------------------------------------------------------------- */
+@keyframes drawerIn {
+   from {
+      transform: translateX(100%);
+   }
+}
+
+@keyframes drawerOut {
+   to {
+      transform: translateX(100%);
+   }
+}
+
+@keyframes veilIn {
+   from {
+      opacity: 0;
+   }
+}
+
+@keyframes veilOut {
+   to {
+      opacity: 0;
+   }
+}
+
+/* Some para o lado de onde o dedo empurraria: a linha sai por onde o botão
+   de remover está, e não some no lugar. */
+@keyframes rowOut {
+   to {
+      opacity: 0;
+      transform: translateX(20px);
+   }
+}
+
+@utility animate-drawer-in {
+   animation: drawerIn 260ms var(--ease-out-quint);
+}
+
+@utility animate-drawer-out {
+   animation: drawerOut 200ms cubic-bezier(0.4, 0, 1, 1) forwards;
+}
+
+@utility animate-veil-in {
+   animation: veilIn 260ms ease-out;
+}
+
+@utility animate-veil-out {
+   animation: veilOut 200ms ease-in forwards;
+}
+
+@utility animate-row-out {
+   animation: rowOut 160ms ease-in forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+   .animate-drawer-in,
+   .animate-drawer-out,
+   .animate-veil-in,
+   .animate-veil-out,
+   .animate-row-out {
+      animation-duration: 0.01ms;
+   }
+}
+
+/* Barra de rolagem sóbria para container que rola na horizontal.
+
+   A barra padrão do sistema é escura e destoa do resto da UI, e nas telas em
+   que o conteúdo é baixo (a tira de chips do modal de exportar tem 23px) ela
+   domina a faixa inteira. Aqui ela só troca de cor: os cinzas do slate.
+
+   Só a cor mesmo — `scrollbar-width` aceita apenas palavra-chave, e o `thin`
+   além de fino demais vira barra SOBREPOSTA no Firefox, que é justamente o
+   defeito que se está corrigindo. Espessura fica no `auto` do navegador. */
+@utility scroll-rail {
+   scrollbar-color: #cbd5e1 #f1f5f9; /* thumb slate-300, trilho slate-100 */
+}
+
 /* O movimento do trecho simulado é decorativo: os números ao lado da barra
    já dizem de onde para onde a completude iria.
 
@@ -281,7 +395,8 @@
 @media (prefers-reduced-motion: reduce) {
    .animate-sandbox-pulse,
    .animate-sandbox-sweep,
-   .animate-enter {
+   .animate-enter,
+   .animate-chip-in {
       animation: none;
    }
 }

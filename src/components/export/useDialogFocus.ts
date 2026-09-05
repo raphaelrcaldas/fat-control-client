@@ -27,28 +27,66 @@ const FOCUSABLE = [
  */
 export function useDialogFocus(
    open: boolean,
-   onClose: () => void
+   onClose: () => void,
+   /**
+    * Suspende a cerca e o Esc enquanto um dialogo FILHO esta no ar.
+    *
+    * O `Modal` do flowbite-react 0.12.17 usa `FloatingPortal` e renderiza no
+    * `<body>`, fora do painel. Sem isto: (a) `panel.contains(active)` da falso
+    * e todo Tab arrasta o foco de volta para dentro da gaveta, disputando com
+    * o gerenciador de foco do proprio Modal — nao da para tabular entre os
+    * botoes dele; (b) o Esc fecharia a GAVETA por baixo do modal, que so
+    * escuta Esc com `dismissible` e ficaria orfao flutuando sobre a tela.
+    *
+    * Lido por ref dentro do handler, e nao nas deps: mudar de valor nao pode
+    * disparar o cleanup, senao o foco seria devolvido ao gatilho no exato
+    * momento em que o modal filho o esta pedindo.
+    */
+   suspenso = false
 ): React.RefObject<HTMLElement | null> {
    const panelRef = useRef<HTMLElement | null>(null);
+
+   // Por ref, e nunca nas deps: `onClose` costuma ser uma arrow nova a cada
+   // render do pai, e o estado do carrinho MORA no pai. Remover um item da
+   // gaveta re-renderiza a pagina, o efeito rodaria de novo e o `restoreTo`
+   // seria recapturado — a essa altura ja e o <body>, porque a barra que
+   // abriu a gaveta esta `inert`. O foco nunca mais voltaria para "Revisar".
+   const onCloseRef = useRef(onClose);
+   onCloseRef.current = onClose;
+   const suspensoRef = useRef(suspenso);
+   suspensoRef.current = suspenso;
 
    useEffect(() => {
       if (!open) return;
 
-      const panel = panelRef.current;
       const restoreTo = document.activeElement as HTMLElement | null;
 
       // O primeiro foco vai para o painel, e nao para o primeiro botao: quem
       // usa leitor de tela precisa ouvir o titulo da gaveta antes das acoes.
-      panel?.focus();
+      //
+      // Sai daqui se o painel ainda nao existe: quem anima a entrada so monta
+      // o no no render seguinte, e ai o foco inicial e responsabilidade do
+      // chamador, que sabe QUANDO o no aparece (ver `ExportCartDrawer`).
+      // Capturar o `restoreTo`, ao contrario, tem que ser AGORA — um render
+      // depois, o gatilho ja ganhou `inert` e o navegador jogou o foco no
+      // <body>, que viraria o alvo da restauracao.
+      panelRef.current?.focus();
 
       const previousOverflow = document.body.style.overflow;
       document.body.style.overflow = "hidden";
 
       const onKey = (e: KeyboardEvent) => {
+         if (suspensoRef.current) return;
          if (e.key === "Escape") {
-            onClose();
+            onCloseRef.current();
             return;
          }
+         // Lido AQUI, e nao capturado quando o efeito montou: quem anima a
+         // entrada so poe o painel na arvore no render seguinte, e um `panel`
+         // capturado cedo demais fica `null` para sempre — a cerca sairia por
+         // esta guarda em todo Tab, sem sintoma nenhum a nao ser o foco
+         // vazando para a pagina atras do overlay.
+         const panel = panelRef.current;
          if (e.key !== "Tab" || !panel) return;
 
          const focusables = [
@@ -87,7 +125,7 @@ export function useDialogFocus(
          // enquanto o dialogo esta aberto precisa mante-lo montado.
          if (restoreTo?.isConnected) restoreTo.focus();
       };
-   }, [open, onClose]);
+   }, [open]);
 
    return panelRef;
 }

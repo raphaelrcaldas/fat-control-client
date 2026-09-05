@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "flowbite-react";
 import { HiOutlineTrash } from "react-icons/hi";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
@@ -12,6 +12,13 @@ interface ClearCartButtonProps {
    /** Substantivo do dominio, para a confirmacao nao dizer "itens". */
    noun: { one: string; many: string };
    withIcon?: boolean;
+   /**
+    * Avisa quando a confirmacao abre e fecha. Quem hospeda este botao dentro
+    * do proprio dialogo precisa saber: o `Modal` do flowbite-react 0.12.17
+    * renderiza via portal no `<body>`, entao ele fica FORA de qualquer cerca
+    * de foco do hospedeiro (ver `useDialogFocus`).
+    */
+   onOpenChange?: (open: boolean) => void;
 }
 
 /**
@@ -31,15 +38,43 @@ export function ClearCartButton({
    label,
    noun,
    withIcon = false,
+   onOpenChange,
 }: ClearCartButtonProps) {
    const [confirming, setConfirming] = useState(false);
+
+   const alternar = (aberto: boolean) => {
+      setConfirming(aberto);
+      onOpenChange?.(aberto);
+   };
+
+   /**
+    * Esc fecha a confirmacao.
+    *
+    * O `Modal` do flowbite-react 0.12.17 so escuta Esc com `dismissible`
+    * (`useDismiss(..., { enabled: dismissible })`), e `dismissible` liga junto
+    * o fechar-ao-clicar-fora — que numa confirmacao destrutiva e o clique
+    * errado mais facil de dar. Dai o Esc a mao, sem o resto do pacote.
+    */
+   useEffect(() => {
+      if (!confirming) return;
+      const onKey = (e: KeyboardEvent) => {
+         if (e.key !== "Escape") return;
+         // Nao deixa o Esc chegar a quem hospeda este botao (a gaveta), que
+         // fecharia por baixo e deixaria a confirmacao orfa.
+         e.stopPropagation();
+         alternar(false);
+      };
+      document.addEventListener("keydown", onKey, true);
+      return () => document.removeEventListener("keydown", onKey, true);
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+   }, [confirming]);
 
    return (
       <>
          <Button
             color="light"
             size="sm"
-            onClick={() => setConfirming(true)}
+            onClick={() => alternar(true)}
             disabled={count === 0}
          >
             {withIcon && <HiOutlineTrash className="mr-1.5 h-4 w-4" />}
@@ -58,10 +93,10 @@ export function ClearCartButton({
                </>
             }
             confirmButtonText="Limpar tudo"
-            onClose={() => setConfirming(false)}
+            onClose={() => alternar(false)}
             onConfirm={() => {
                onConfirm();
-               setConfirming(false);
+               alternar(false);
             }}
          />
       </>

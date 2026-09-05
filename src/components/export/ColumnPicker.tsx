@@ -21,6 +21,9 @@ interface ColumnPickerProps<T> {
  * "Dados Pessoais"): quem preenche o cadastro ja sabe onde cada campo mora, e
  * uma lista corrida de treze checkboxes obriga a reler todos para achar um.
  * Tela de dominio soma o proprio bloco (Passaporte, CRM, Cartao de Saude).
+ *
+ * O titulo da secao e o "marcar todas" global moram no `ExportSection` do
+ * modal — aqui ficam so os grupos.
  */
 export function ColumnPicker<T>({
    columns,
@@ -41,39 +44,36 @@ export function ColumnPicker<T>({
       return [...mapa.entries()];
    }, [columns]);
 
-   const todasKeys = columns.map((c) => c.key);
-   const todasMarcadas =
-      todasKeys.length > 0 && todasKeys.every((k) => checked.has(k));
-
    return (
-      <div className="space-y-3">
-         <div className="flex items-center justify-between gap-2">
-            <Label className="text-sm font-semibold">Colunas adicionais</Label>
-            <button
-               type="button"
-               onClick={() => onSetMany(todasKeys, !todasMarcadas)}
-               className="text-primary-600 hover:text-primary-700 rounded px-1 text-xs font-semibold hover:underline"
-            >
-               {todasMarcadas ? "Desmarcar todas" : "Marcar todas"}
-            </button>
-         </div>
-
+      <div className="space-y-2">
          {grupos.map(([nome, doGrupo]) => {
             const keys = doGrupo.map((c) => c.key);
-            const marcadas = keys.every((k) => checked.has(k));
+            const marcadas = keys.filter((k) => checked.has(k)).length;
+            const todas = marcadas === keys.length;
             return (
                <fieldset
                   key={nome}
-                  className="rounded border border-slate-200 px-3 py-2"
+                  className="rounded border border-slate-200 px-3 pt-1 pb-2.5"
                >
                   <legend className="flex items-center gap-2 px-1 text-xs font-bold tracking-wide text-slate-500 uppercase">
                      {nome}
+                     {/* `aria-hidden`: a <legend> e o NOME ACESSIVEL do grupo,
+                         repetido pelo leitor de tela em cada checkbox dentro
+                         dele. Sem isto o nome mudaria a cada clique ("Dados
+                         Militares 3 barra 5") — e a contagem e redundante para
+                         quem ja ouve o estado de cada caixa. */}
+                     <span
+                        aria-hidden
+                        className="rounded bg-slate-100 px-1 py-px text-[10px] font-semibold text-slate-600 normal-case tabular-nums"
+                     >
+                        {marcadas}/{keys.length}
+                     </span>
                      <button
                         type="button"
-                        onClick={() => onSetMany(keys, !marcadas)}
+                        onClick={() => onSetMany(keys, !todas)}
                         className="text-primary-600 hover:text-primary-700 rounded text-[10px] font-semibold normal-case hover:underline"
                      >
-                        {marcadas ? "desmarcar todas" : "marcar todas"}
+                        {todas ? "desmarcar todas" : "marcar todas"}
                      </button>
                   </legend>
                   <div className="grid grid-cols-1 gap-x-4 gap-y-2 sm:grid-cols-2 lg:grid-cols-3">
@@ -91,7 +91,7 @@ export function ColumnPicker<T>({
                            />
                            <Label
                               htmlFor={`col-${column.key}`}
-                              className="text-sm text-slate-700"
+                              className="cursor-pointer text-sm text-slate-700 transition-colors hover:text-slate-900"
                            >
                               {column.label}
                            </Label>

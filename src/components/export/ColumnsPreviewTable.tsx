@@ -29,7 +29,7 @@ export function ColumnsPreviewTable<T>({
    return (
       // Tabela larga rola no proprio container: o body da pagina nunca deve
       // rolar na horizontal.
-      <div className="overflow-x-auto rounded border border-slate-200">
+      <div className="scroll-rail overflow-x-auto rounded border border-slate-200">
          <table className="w-full text-left text-xs">
             <thead className="bg-slate-100 text-slate-900">
                <tr>
