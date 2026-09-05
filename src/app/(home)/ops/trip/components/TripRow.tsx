@@ -13,8 +13,8 @@ export function TripRow({ trip }: TripRowProps) {
 
    return (
       <TableRow>
-         <TableCell className="whitespace-nowrap text-slate-700 capitalize">
-            {user.posto.mid}
+         <TableCell className="whitespace-nowrap text-slate-700 uppercase">
+            {user.posto.short}
          </TableCell>
          <TableCell className="hidden text-slate-600 uppercase lg:table-cell">
             {user.quadro}

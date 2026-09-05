@@ -56,22 +56,27 @@ function DesktopRow() {
 
 function MobileCard() {
    return (
-      <div className="rounded border border-slate-200 bg-white p-4 shadow-sm">
-         <div className="mb-3 flex items-start justify-between">
-            <div className="flex items-center gap-2">
-               <div className="h-10 w-10 rounded-full bg-slate-200" />
-               <div className="space-y-1.5">
-                  <Bar className="w-24" />
-                  <div className="h-3 w-32 rounded bg-slate-100" />
-               </div>
+      // As alturas em px vem da MEDIDA do card real (nome 17.5 + completo 14;
+      // rotulo 15 + valor 14): o contorno das barras pode ser mais magro que a
+      // linha de texto, mas a CAIXA tem de ter a altura exata, senao a lista
+      // salta quando os dados chegam.
+      <div className="rounded border border-slate-200 bg-white p-3 shadow-sm">
+         <div className="flex items-center gap-3">
+            <div className="size-10 shrink-0 rounded-full bg-slate-200" />
+            <div className="flex h-[31.5px] min-w-0 flex-1 flex-col justify-center gap-1">
+               <div className="h-3.5 w-24 rounded bg-slate-200" />
+               <div className="h-2.5 w-40 rounded bg-slate-100" />
             </div>
-            <div className="h-8 w-8 rounded bg-slate-100" />
+            <div className="size-5 shrink-0 rounded bg-slate-100" />
          </div>
-         <div className="grid grid-cols-4 gap-2 border-t border-slate-100 pt-3">
-            {Array.from({ length: 4 }).map((_, i) => (
-               <div key={i} className="space-y-1.5">
-                  <div className="h-3 w-10 rounded bg-slate-100" />
-                  <div className="h-5 w-12 rounded bg-slate-200" />
+         <div className="mt-2.5 grid grid-cols-3 gap-3 border-t border-slate-100 pt-2">
+            {Array.from({ length: 3 }).map((_, i) => (
+               <div
+                  key={i}
+                  className="flex h-[29px] flex-col justify-center gap-1"
+               >
+                  <div className="h-2.5 w-10 rounded bg-slate-100" />
+                  <div className="h-3 w-14 rounded bg-slate-200" />
                </div>
             ))}
          </div>
@@ -123,7 +128,7 @@ export function UsersListSkeleton({ rows = 8 }: { rows?: number }) {
          </div>
 
          {/* Mobile — mesma moldura dos UserCard */}
-         <div className="space-y-3 p-4 lg:hidden">
+         <div className="space-y-2 p-2 lg:hidden">
             {Array.from({ length: 4 }).map((_, i) => (
                <MobileCard key={i} />
             ))}

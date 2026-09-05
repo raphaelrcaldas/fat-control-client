@@ -100,7 +100,9 @@ export function UserTable({ usuarios, cart }: UserTableProps) {
                               aria-label={`Selecionar ${user.nome_guerra}`}
                            />
                         </TableCell>
-                        <TableCell>{user.posto.mid}</TableCell>
+                        <TableCell className="uppercase">
+                           {user.posto.short}
+                        </TableCell>
                         <TableCell className="text-gray-600 uppercase">
                            {user.quadro || "—"}
                         </TableCell>

@@ -98,9 +98,10 @@ export default function UsersPage() {
    const softLoading = isFetching && !isLoading;
 
    return (
-      // `pb-24` reservado SEMPRE, e nao so com o carrinho cheio: condicional,
-      // marcar o primeiro militar empurraria a pagina inteira para cima.
-      <div className="flex flex-col space-y-2 pb-24">
+      // `lg:pb-24` reservado SEMPRE no desktop, e nao so com o carrinho
+      // cheio: condicional, marcar o primeiro militar empurraria a pagina
+      // inteira para cima. Ate `lg` nao ha barra de carrinho, nem folga.
+      <div className="flex flex-col space-y-2 lg:pb-24">
          {/* Masthead */}
          <header className="relative overflow-hidden rounded border border-slate-200 bg-white px-5 py-4 shadow-sm sm:px-6 sm:py-5">
             <span
@@ -228,7 +229,7 @@ export default function UsersPage() {
                   {selectedOffPage > 0 && (
                      <p
                         role="status"
-                        className="px-4 py-2 text-xs text-slate-500"
+                        className="hidden px-4 py-2 text-xs text-slate-500 lg:block"
                      >
                         {selectedOffPage}{" "}
                         {selectedOffPage === 1
@@ -244,7 +245,7 @@ export default function UsersPage() {
                       escondia a coluna de ação atrás de scroll sem indício. */}
                   <div className="space-y-2 p-2 lg:hidden">
                      {usuarios.map((user) => (
-                        <UserCard key={user.id} user={user} cart={cart} />
+                        <UserCard key={user.id} user={user} />
                      ))}
                   </div>
 
@@ -256,7 +257,12 @@ export default function UsersPage() {
                      )}
                      aria-label="Navegação da tabela"
                   >
-                     <div className="flex items-center gap-4">
+                     {/* Faixa de contagem + tamanho da pagina: so no
+                         desktop. No celular ela era o dobro da altura do
+                         paginador para dizer o que o proprio paginador ja diz
+                         ("Pagina 2 de 3"), e empurrava a navegacao para fora
+                         da tela. */}
+                     <div className="hidden items-center gap-4 lg:flex">
                         <span className="text-sm font-normal text-gray-500">
                            Mostrando{" "}
                            <span className="font-semibold text-gray-900">
@@ -293,11 +299,13 @@ export default function UsersPage() {
                         </div>
                      </div>
                      {totalPages > 1 && (
-                        <Pagination
-                           currentPage={currentPage}
-                           totalPages={totalPages}
-                           onPageChange={setPage}
-                        />
+                        <div className="flex w-full lg:w-auto">
+                           <Pagination
+                              currentPage={currentPage}
+                              totalPages={totalPages}
+                              onPageChange={setPage}
+                           />
+                        </div>
                      )}
                   </nav>
                </div>
