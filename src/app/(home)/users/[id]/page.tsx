@@ -42,26 +42,30 @@ export default function UserDetailsPage() {
 
    const [showDeleteModal, setShowDeleteModal] = useState(false);
 
-   const { data: user, isLoading } = useUser(userId);
-   const updateUser = useUpdateUser();
    const deleteUser = useDeleteUser();
+   // Depois de excluir, o registro nao existe mais: `null` desliga a query
+   // (`enabled: !!id`) e poupa um GET condenado ao 404 na fracao de segundo
+   // ate o redirecionamento.
+   const { data: user, isLoading } = useUser(
+      deleteUser.isSuccess ? null : userId
+   );
+   const updateUser = useUpdateUser();
    const { push } = useToast();
 
    async function handleDelete() {
       try {
-         const result = await deleteUser.mutateAsync(userId);
-         if (result.ok) {
-            push({ message: "Usuário excluído com sucesso", type: "success" });
-            router.push("/users");
-         } else {
-            push({
-               message: result.message || "Erro ao excluir usuário",
-               type: "error",
-            });
-            setShowDeleteModal(false);
-         }
-      } catch {
-         push({ message: "Erro de conexão ao excluir usuário", type: "error" });
+         await deleteUser.mutateAsync(userId);
+         push({ message: "Usuário excluído com sucesso", type: "success" });
+         router.push("/users");
+      } catch (err) {
+         // A recusa do backend (vinculo com outra tabela) chega aqui como
+         // `ApiError` com a mensagem dele. Antes ela caia no ramo generico e
+         // virava "Erro de conexao", escondendo o motivo real da recusa.
+         push({
+            message:
+               err instanceof Error ? err.message : "Erro ao excluir usuário",
+            type: "error",
+         });
          setShowDeleteModal(false);
       }
    }
@@ -90,7 +94,11 @@ export default function UserDetailsPage() {
       return <UserDetailSkeleton />;
    }
 
-   if (!user) {
+   // `&& !deleteUser.isSuccess`: entre o toast de sucesso e o
+   // `router.push("/users")` completar ha um render em que a query ja esta
+   // desligada e `user` e undefined. Sem a guarda a tela anuncia "Usuario nao
+   // encontrado" ao lado do toast que acabou de dizer que deu certo.
+   if (!user && !deleteUser.isSuccess) {
       return (
          <div className="flex h-96 flex-col items-center justify-center gap-4">
             <p className="text-lg text-gray-500">Usuário não encontrado.</p>

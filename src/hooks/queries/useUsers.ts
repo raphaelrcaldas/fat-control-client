@@ -82,6 +82,11 @@ export function useUser(id: number | null | undefined) {
       queryKey: userKeys.detail(id!),
       queryFn: () => getUserById(id!),
       enabled: !!id,
+      // `ApiError` e o backend RESPONDENDO (404, 403): repetir nao muda a
+      // resposta e so atrasa a tela — com o retry padrao da v5 sao 4 GETs e
+      // ~7s de skeleton antes de mostrar qualquer coisa. Falha de rede, que
+      // nao vira ApiError, continua com as 3 tentativas.
+      retry: (tentativa, erro) => !(erro instanceof ApiError) && tentativa < 3,
    });
 }
 
@@ -164,10 +169,26 @@ export function useDeleteUser() {
    const queryClient = useQueryClient();
 
    return useMutation({
-      mutationFn: (userId: number) => deleteUser(userId),
-      onSuccess: () => {
+      mutationFn: async (userId: number) => {
+         const result = await deleteUser(userId);
+         // Sem isto o `onSuccess` rodava TAMBEM quando a exclusao falhava (um
+         // usuario com vinculo devolve `ok: false`, nao um erro de rede) — e o
+         // cache era limpo como se o registro tivesse sumido.
+         if (!result.ok) {
+            throw new ApiError(
+               result.message ?? "Erro ao excluir usuário",
+               result.errors
+            );
+         }
+         return result;
+      },
+      onSuccess: (_, userId) => {
          queryClient.invalidateQueries({ queryKey: userKeys.lists() });
-         queryClient.invalidateQueries({ queryKey: userKeys.details() });
+         // `remove`, e nao `invalidate`: invalidar manda BUSCAR de novo, e o
+         // registro acabou de deixar de existir. Como a tela de detalhe ainda
+         // esta montada nesse instante, o refetch ia direto para um 404.
+         // E so o detalhe do excluido — o dos outros usuarios nao mudou.
+         queryClient.removeQueries({ queryKey: userKeys.detail(userId) });
       },
    });
 }

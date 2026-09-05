@@ -1,4 +1,4 @@
-import request, { parseApiResponse } from "../Api";
+import request, { ApiError, parseApiResponse } from "../Api";
 import type { ApiResponse, ApiPaginatedResponse, ApiResult } from "@/types/api";
 import { PostoGrad } from "./postos";
 
@@ -133,9 +133,20 @@ export async function getUsers(
 }
 
 export async function getUserById(userId: number): Promise<UserFull> {
-   const response = await request("GET", usersRoute + userId);
-   const json = (await response.json()) as ApiResponse<UserFull>;
-   return json.data as UserFull;
+   const result = await parseApiResponse<UserFull>(
+      await request("GET", usersRoute + userId)
+   );
+   // O `as UserFull` que estava aqui MENTIA: num 404 o `data` vem vazio e a
+   // função devolvia `undefined`, que o TanStack Query rejeita com "Query data
+   // cannot be undefined" — um erro que não diz nada sobre o que aconteceu.
+   // Função de query devolve dado ou LANÇA; não há terceira opção.
+   if (!result.ok || !result.data) {
+      throw new ApiError(
+         result.message ?? "Usuário não encontrado.",
+         result.errors
+      );
+   }
+   return result.data;
 }
 
 export async function addUser(userBody: any): Promise<ApiResult<UserFull>> {
