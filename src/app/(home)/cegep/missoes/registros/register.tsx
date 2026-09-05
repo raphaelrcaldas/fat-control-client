@@ -162,7 +162,9 @@ export function RegisPage() {
                         {/* Pagination Section */}
                         {missoes && missoes.length > 0 && (
                            <div className="flex flex-col items-center justify-between gap-3 border-t border-slate-200 pt-4 sm:flex-row">
-                              <p className="text-sm text-gray-600">
+                              {/* Contagem so com o rodape em linha: ver
+                                  `LogsTable`. */}
+                              <p className="hidden text-sm text-gray-600 sm:block">
                                  Mostrando{" "}
                                  <span className="font-medium text-gray-900">
                                     {(currentPage - 1) * perPage + 1}

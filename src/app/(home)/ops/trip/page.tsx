@@ -326,7 +326,10 @@ export default function TripPage() {
                      className={`flex flex-col items-start justify-between space-y-3 p-4 md:flex-row md:items-center md:space-y-0 ${isFetching ? "pointer-events-none opacity-50" : "opacity-100"} transition-opacity duration-200`}
                      aria-label="Navegação da tabela"
                   >
-                     <div className="flex items-center gap-4">
+                     {/* Contagem e tamanho da pagina so com o rodape em
+                         linha — empilhados, os dois custam o dobro da altura
+                         do paginador para dizer o que ele ja diz. */}
+                     <div className="hidden items-center gap-4 md:flex">
                         <span className="text-sm font-normal text-slate-500">
                            Mostrando{" "}
                            <span className="font-semibold text-slate-900">

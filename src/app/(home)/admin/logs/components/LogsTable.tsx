@@ -147,7 +147,11 @@ export function LogsTable({
                )}
                aria-label="Navegação da tabela"
             >
-               <span className="text-sm font-normal text-gray-500">
+               {/* Faixa de contagem so com o rodape em linha: empilhada, ela
+                   custa o dobro da altura do paginador para dizer o que ele ja
+                   diz ("Pagina 2 de 5"), e empurra a navegacao para fora da
+                   tela no celular. */}
+               <span className="hidden text-sm font-normal text-gray-500 sm:inline">
                   Mostrando{" "}
                   <span className="font-semibold text-gray-900">
                      {(page - 1) * perPage + 1}-

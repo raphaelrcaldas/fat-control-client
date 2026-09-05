@@ -299,13 +299,11 @@ export default function UsersPage() {
                         </div>
                      </div>
                      {totalPages > 1 && (
-                        <div className="flex w-full lg:w-auto">
-                           <Pagination
-                              currentPage={currentPage}
-                              totalPages={totalPages}
-                              onPageChange={setPage}
-                           />
-                        </div>
+                        <Pagination
+                           currentPage={currentPage}
+                           totalPages={totalPages}
+                           onPageChange={setPage}
+                        />
                      )}
                   </nav>
                </div>
