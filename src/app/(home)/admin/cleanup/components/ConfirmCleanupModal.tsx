@@ -92,7 +92,7 @@ export function ConfirmCleanupModal({
                      color="red"
                      className="w-36"
                      onClick={onConfirm}
-                     disabled={isPending}
+                     disabled={isPending || total === 0}
                   >
                      {isPending ? (
                         <>

@@ -32,9 +32,9 @@ export function useRunCleanup() {
    const queryClient = useQueryClient();
 
    return useMutation({
-      mutationFn: async () => runCleanup(),
+      mutationFn: (taskName?: string) => runCleanup(taskName),
       onSuccess: () => {
-         queryClient.invalidateQueries({
+         return queryClient.invalidateQueries({
             queryKey: cleanupKeys.preview(),
          });
       },

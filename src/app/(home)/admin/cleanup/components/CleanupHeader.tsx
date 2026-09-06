@@ -21,26 +21,39 @@ export function CleanupHeader({ isFetching, onRefresh }: CleanupHeaderProps) {
             className="absolute top-0 left-0 h-full w-1 bg-slate-600"
          />
 
-         <div className="relative flex flex-wrap items-center justify-between gap-4">
-            <div className="flex min-w-0 items-center gap-4">
-               <div className="grid h-12 w-12 shrink-0 place-items-center rounded-md bg-slate-100 text-slate-600 ring-1 ring-slate-200 ring-inset">
-                  <MdAutoDelete className="h-6 w-6" />
+         {/* Sem `flex-wrap`: a 360px o botao caia para uma segunda linha e o
+             masthead custava o dobro da altura para dizer o mesmo. A folga vem
+             de encolher a caixa de icone e de esconder o rotulo do botao — o
+             icone e o `aria-label` seguram o sentido. */}
+         <div className="relative flex items-center justify-between gap-3 sm:gap-4">
+            <div className="flex min-w-0 items-center gap-3 sm:gap-4">
+               <div className="grid size-10 shrink-0 place-items-center rounded-md bg-slate-100 text-slate-600 ring-1 ring-slate-200 ring-inset sm:size-12">
+                  <MdAutoDelete className="size-5 sm:size-6" />
                </div>
                <div className="min-w-0">
                   <span className="block font-mono text-[10px] font-bold tracking-[0.3em] text-slate-600 uppercase">
                      Administração
                   </span>
-                  <h1 className="text-2xl leading-none font-extrabold tracking-tight text-slate-900 sm:text-[28px]">
+                  <h1 className="truncate text-xl leading-tight font-extrabold tracking-tight text-slate-900 sm:text-[28px] sm:leading-none">
                      Limpeza de Dados
                   </h1>
                </div>
             </div>
 
-            <Button color="gray" onClick={onRefresh} disabled={isFetching}>
+            <Button
+               color="gray"
+               onClick={onRefresh}
+               disabled={isFetching}
+               aria-label="Atualizar contagens"
+               className="shrink-0"
+            >
                <HiRefresh
-                  className={clsx("mr-2 size-5", isFetching && "animate-spin")}
+                  className={clsx(
+                     "size-5 sm:mr-2",
+                     isFetching && "animate-spin"
+                  )}
                />
-               Atualizar
+               <span className="hidden sm:inline">Atualizar</span>
             </Button>
          </div>
       </header>

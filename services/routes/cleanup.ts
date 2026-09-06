@@ -45,8 +45,15 @@ export async function getCleanupPreview(
    return json.data!;
 }
 
-export async function runCleanup(): Promise<CleanupRunResponse> {
-   const res = await request("POST", `${cleanupRoute}run`);
+export async function runCleanup(
+   taskName?: string
+): Promise<CleanupRunResponse> {
+   const res = await request(
+      "POST",
+      `${cleanupRoute}run`,
+      null,
+      taskName === undefined ? null : { task_name: taskName }
+   );
    const json = (await res.json()) as ApiResponse<CleanupRunResponse>;
    if (!res.ok) throw new Error(json.message || "Erro ao executar limpeza");
    return json.data!;
