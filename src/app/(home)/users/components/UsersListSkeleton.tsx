@@ -94,10 +94,10 @@ export function UsersListSkeleton({ rows = 8 }: { rows?: number }) {
          <div className="hidden min-h-100 overflow-x-auto lg:block">
             <Table
                theme={{
-                  body: { cell: { base: "px-4 py-1" } },
+                  body: { cell: { base: "px-2.5 py-1 xl:px-4" } },
                   head: {
                      cell: {
-                        base: "bg-gray-50 px-4",
+                        base: "bg-gray-50 px-2.5 xl:px-4",
                      },
                   },
                }}

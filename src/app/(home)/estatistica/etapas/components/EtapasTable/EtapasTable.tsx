@@ -1,28 +1,16 @@
 "use client";
 
-import { useState, useMemo, useCallback, useRef, useEffect } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { Badge, Checkbox, Label, Spinner } from "flowbite-react";
-import {
-   HiCheck,
-   HiX,
-   HiCheckCircle,
-   HiClock,
-   HiSun,
-   HiMoon,
-} from "react-icons/hi";
-import { GiOwl } from "react-icons/gi";
+import { Checkbox, Label } from "flowbite-react";
 import type {
    EtapaFlatItem,
    EtapaItem,
    MissaoComEtapas,
 } from "services/routes/estatistica/etapas";
-import { useBulkUpdateEtapas } from "@/hooks/queries/useEtapas";
-import { minutesToTime } from "@/../utils/dateHandler";
 import { MissaoCard } from "./MissaoCard";
 import { EtapasFlatTable } from "./EtapasFlatTable";
 import { EtapasNavigatorModal } from "../EtapasNavigatorModal/EtapasNavigatorModal";
-import { PermBased } from "@/app/(home)/hooks/usePermBased";
 
 export interface EtapasTableProps {
    missoes: MissaoComEtapas[];
@@ -35,7 +23,6 @@ export interface EtapasTableProps {
    allSelected: boolean;
    onDeleteMissao: (missao: MissaoComEtapas) => void;
    grouped?: boolean;
-   onClearSelection?: () => void;
 }
 
 export function EtapasTable({
@@ -49,7 +36,6 @@ export function EtapasTable({
    allSelected,
    onDeleteMissao,
    grouped = true,
-   onClearSelection,
 }: EtapasTableProps) {
    const [detailState, setDetailState] = useState<{
       etapaId: number;
@@ -127,152 +113,9 @@ export function EtapasTable({
       [etapaById, router]
    );
 
-   // ── Bulk update ──────────────────────────────────────────────
-   const bulkUpdate = useBulkUpdateEtapas();
-   const [bulkFeedback, setBulkFeedback] = useState<string | null>(null);
-   const feedbackTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-   useEffect(
-      () => () => {
-         if (feedbackTimerRef.current) clearTimeout(feedbackTimerRef.current);
-      },
-      []
-   );
-
-   const totalTvoo = useMemo(() => {
-      const allEtapas = grouped ? missoes.flatMap((m) => m.etapas) : flatEtapas;
-      return allEtapas
-         .filter((e) => selectedIds.has(e.id))
-         .reduce((sum, e) => sum + e.tvoo, 0);
-   }, [selectedIds, missoes, flatEtapas, grouped]);
-
-   const oiTotals = useMemo(() => {
-      const allEtapas = grouped ? missoes.flatMap((m) => m.etapas) : flatEtapas;
-      const selected = allEtapas.filter((e) => selectedIds.has(e.id));
-      const totals = { d: 0, n: 0, v: 0 };
-      for (const etapa of selected) {
-         for (const oi of etapa.oi_etapas) {
-            totals[oi.reg] += oi.tvoo;
-         }
-      }
-      return totals;
-   }, [selectedIds, missoes, flatEtapas, grouped]);
-
-   const handleBulkUpdate = useCallback(
-      (field: "sagem" | "parte1", value: boolean) => {
-         const ids = Array.from(selectedIds);
-         bulkUpdate.mutate(
-            { ids, data: { [field]: value } },
-            {
-               onSuccess: (result) => {
-                  if (result.ok) {
-                     const label = field === "sagem" ? "SAGEM" : "Parte 1";
-                     setBulkFeedback(
-                        `${label} ${value ? "marcado" : "desmarcado"} em ${ids.length} etapa(s)`
-                     );
-                     if (feedbackTimerRef.current)
-                        clearTimeout(feedbackTimerRef.current);
-                     feedbackTimerRef.current = setTimeout(
-                        () => setBulkFeedback(null),
-                        3000
-                     );
-                     onClearSelection?.();
-                  }
-               },
-            }
-         );
-      },
-      [selectedIds, bulkUpdate, onClearSelection]
-   );
-
    if (!loading && !hasData) {
       return null;
    }
-
-   const selectionActions = selectedIds.size > 0 && (
-      <div className="flex items-center gap-2">
-         <div className="h-4 w-px bg-gray-300" />
-         <Badge color="primary" size="sm" className="hidden lg:block">
-            {selectedIds.size} etapa(s)
-         </Badge>
-         <div className="flex items-center gap-1 text-sm font-semibold text-gray-800">
-            <HiClock className="h-4 w-4 text-blue-600" />
-            {minutesToTime(totalTvoo)}
-         </div>
-         <div className="hidden h-4 w-px bg-gray-300 lg:flex" />
-         {(oiTotals.d > 0 || oiTotals.n > 0 || oiTotals.v > 0) && (
-            <div className="hidden items-center gap-2 lg:flex">
-               {oiTotals.d > 0 && (
-                  <div className="flex items-center gap-1 text-sm font-semibold text-amber-600">
-                     <HiSun className="h-4 w-4" />
-                     {minutesToTime(oiTotals.d)}
-                  </div>
-               )}
-               {oiTotals.n > 0 && (
-                  <div className="flex items-center gap-1 text-sm font-semibold text-indigo-600">
-                     <HiMoon className="h-4 w-4" />
-                     {minutesToTime(oiTotals.n)}
-                  </div>
-               )}
-               {oiTotals.v > 0 && (
-                  <div className="flex items-center gap-1 text-sm font-semibold text-emerald-600">
-                     <GiOwl className="h-4 w-4" />
-                     {minutesToTime(oiTotals.v)}
-                  </div>
-               )}
-            </div>
-         )}
-         <div className="hidden h-4 w-px bg-gray-300 lg:flex" />
-
-         {/* SAGEM/Parte 1 em lote chamam `updateEtapa` por id
-             (`bulkUpdateEtapas`), entao a permissao e `update`. */}
-         <PermBased resource="estatistica.etapas" requiredPerm="update">
-            <div className="hidden items-center gap-2 rounded border border-slate-200 bg-white px-2 py-1 shadow lg:flex">
-               <span className="text-sm font-medium text-gray-500">SAGEM</span>
-               <button
-                  onClick={() => handleBulkUpdate("sagem", true)}
-                  disabled={bulkUpdate.isPending}
-                  className="rounded border border-emerald-200 bg-emerald-50 px-1.5 py-0.5 text-sm font-semibold text-emerald-700 shadow hover:bg-emerald-100 disabled:opacity-50"
-               >
-                  <HiCheck className="inline h-4 w-4" />
-               </button>
-               <button
-                  onClick={() => handleBulkUpdate("sagem", false)}
-                  disabled={bulkUpdate.isPending}
-                  className="rounded border border-amber-200 bg-amber-50 px-1.5 py-0.5 text-sm font-semibold text-amber-700 shadow hover:bg-amber-100 disabled:opacity-50"
-               >
-                  <HiX className="inline h-4 w-4" />
-               </button>
-            </div>
-            <div className="hidden items-center gap-2 rounded border border-slate-200 bg-white px-2 py-1 shadow lg:flex">
-               <span className="text-sm font-medium text-gray-500">
-                  Parte 1
-               </span>
-               <button
-                  onClick={() => handleBulkUpdate("parte1", true)}
-                  disabled={bulkUpdate.isPending}
-                  className="rounded border border-emerald-200 bg-emerald-50 px-1.5 py-0.5 text-sm font-semibold text-emerald-700 shadow hover:bg-emerald-100 disabled:opacity-50"
-               >
-                  <HiCheck className="inline h-4 w-4" />
-               </button>
-               <button
-                  onClick={() => handleBulkUpdate("parte1", false)}
-                  disabled={bulkUpdate.isPending}
-                  className="rounded border border-amber-200 bg-amber-50 px-1.5 py-0.5 text-sm font-semibold text-amber-700 shadow hover:bg-amber-100 disabled:opacity-50"
-               >
-                  <HiX className="inline h-4 w-4" />
-               </button>
-            </div>
-         </PermBased>
-
-         {bulkUpdate.isPending && <Spinner size="xs" color="primary" />}
-         {bulkFeedback && (
-            <span className="flex items-center gap-0.5 text-sm font-medium text-emerald-600">
-               <HiCheckCircle className="h-4 w-4" />
-               {bulkFeedback}
-            </span>
-         )}
-      </div>
-   );
 
    return (
       <div className="space-y-2">
@@ -300,7 +143,6 @@ export function EtapasTable({
             >
                Selecionar todas as etapas da pagina
             </Label>
-            {selectionActions}
          </div>
 
          {grouped ? (

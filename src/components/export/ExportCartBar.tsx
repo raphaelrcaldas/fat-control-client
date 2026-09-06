@@ -1,5 +1,6 @@
 "use client";
 
+import type { ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { Button } from "flowbite-react";
 import clsx from "clsx";
@@ -12,13 +13,28 @@ const MAX_CHIPS = 3;
 
 interface ExportCartBarProps<T> {
    cart: ExportCart<T>;
-   /** Rotulo curto do item no chip, ex.: "1S SILVA". */
-   getLabel: (item: T) => string;
-   getId: (item: T) => number;
-   onReview: () => void;
+   /** Rotulo curto do item no chip, ex.: "1S SILVA". Omita para nao resumir itens. */
+   getLabel?: (item: T) => string;
+   /** Identificador usado nos chips; necessario somente junto de `getLabel`. */
+   getId?: (item: T) => number;
+   /** Abre a revisao da selecao quando a tela oferece esse passo. */
+   onReview?: () => void;
    onExport: () => void;
    /** Substantivo do dominio, para o contador nao dizer "itens". */
    noun?: { one: string; many: string };
+   /** Resumo especifico do dominio, exibido junto do contador. */
+   details?: ReactNode;
+   /** Acoes contextuais posicionadas antes de limpar/exportar. */
+   extraActions?: ReactNode;
+   /**
+    * Listagens que trocam a tabela por cards sem checkbox mantem a barra so
+    * no desktop. Telas com selecao em todos os breakpoints podem desativar.
+    */
+   desktopOnly?: boolean;
+   /** Aumenta a barra quando o dominio acrescenta resumo e acoes proprias. */
+   wide?: boolean;
+   /** Faz a largura acompanhar o conteudo, preservando apenas o recuo da tela. */
+   compact?: boolean;
    /**
     * Some enquanto a gaveta ou o modal estao abertos. Os dois ja trazem as
     * proprias acoes, e a barra ficaria sob o overlay — escurecida e
@@ -42,6 +58,11 @@ export function ExportCartBar<T>({
    onReview,
    onExport,
    noun = { one: "selecionado", many: "selecionados" },
+   details,
+   extraActions,
+   desktopOnly = true,
+   wide = false,
+   compact = false,
    hidden = false,
 }: ExportCartBarProps<T>) {
    const target = usePortalTarget();
@@ -62,16 +83,30 @@ export function ExportCartBar<T>({
       <div
          inert={hidden}
          className={clsx(
-            // `hidden lg:flex`: exportar planilha e fluxo de DESKTOP. As
-            // listagens ja trocam a tabela por cards ate `lg`, e os cards nao
-            // tem checkbox — sem selecao possivel, a barra so apareceria a
-            // quem estreitasse a janela depois de selecionar.
-            "pointer-events-none fixed inset-x-0 bottom-4 z-40 hidden justify-center px-3 transition-opacity lg:flex",
+            "pointer-events-none fixed inset-x-0 bottom-4 z-40 justify-center px-3 transition-opacity",
+            // Listagens como /users trocam a tabela por cards sem checkbox
+            // ate `lg`; etapas conserva selecao no mobile e deixa a barra
+            // disponivel em todos os breakpoints.
+            desktopOnly ? "hidden lg:flex" : "flex",
             hidden && "opacity-0"
          )}
       >
-         <div className="pointer-events-auto flex w-full max-w-3xl flex-wrap items-center gap-x-4 gap-y-2 rounded border border-slate-200 bg-white px-4 py-3 shadow-lg">
-            <div className="flex min-w-0 flex-1 items-center gap-3">
+         <div
+            className={clsx(
+               "animate-enter pointer-events-auto flex flex-wrap items-center gap-x-4 gap-y-2 rounded border border-slate-200 bg-white px-4 py-3 shadow-lg",
+               compact
+                  ? "w-fit max-w-[calc(100vw-1.5rem)]"
+                  : wide
+                    ? "w-full max-w-5xl"
+                    : "w-full max-w-3xl"
+            )}
+         >
+            <div
+               className={clsx(
+                  "flex min-w-0 items-center gap-3",
+                  compact ? "flex-none" : "flex-1"
+               )}
+            >
                {/* role=status: a mudanca do contador precisa ser anunciada a
                    quem usa leitor de tela, nao so vista. */}
                <p
@@ -82,24 +117,29 @@ export function ExportCartBar<T>({
                   {cart.count === 1 ? noun.one : noun.many}
                </p>
 
-               <ul className="hidden min-w-0 flex-wrap items-center gap-1 sm:flex">
-                  {chips.map((item) => (
-                     <li
-                        key={getId(item)}
-                        className="max-w-40 truncate rounded border border-slate-200 bg-slate-50 px-2 py-0.5 text-xs font-medium text-slate-600 uppercase"
-                     >
-                        {getLabel(item)}
-                     </li>
-                  ))}
-                  {overflow > 0 && (
-                     <li className="text-xs font-medium text-slate-500">
-                        +{overflow}
-                     </li>
-                  )}
-               </ul>
+               {details}
+
+               {getLabel && getId && (
+                  <ul className="hidden min-w-0 flex-wrap items-center gap-1 sm:flex">
+                     {chips.map((item) => (
+                        <li
+                           key={getId(item)}
+                           className="max-w-40 truncate rounded border border-slate-200 bg-slate-50 px-2 py-0.5 text-xs font-medium text-slate-600 uppercase"
+                        >
+                           {getLabel(item)}
+                        </li>
+                     ))}
+                     {overflow > 0 && (
+                        <li className="text-xs font-medium text-slate-500">
+                           +{overflow}
+                        </li>
+                     )}
+                  </ul>
+               )}
             </div>
 
             <div className="flex shrink-0 items-center gap-2">
+               {extraActions}
                <ClearCartButton
                   count={cart.count}
                   onConfirm={cart.clear}
@@ -107,10 +147,12 @@ export function ExportCartBar<T>({
                   noun={noun}
                   withIcon
                />
-               <Button color="light" size="sm" onClick={onReview}>
-                  <HiOutlineViewList className="mr-1.5 h-4 w-4" />
-                  Revisar
-               </Button>
+               {onReview && (
+                  <Button color="light" size="sm" onClick={onReview}>
+                     <HiOutlineViewList className="mr-1.5 h-4 w-4" />
+                     Revisar
+                  </Button>
+               )}
                <Button color="primary" size="sm" onClick={onExport}>
                   <HiDownload className="mr-1.5 h-4 w-4" />
                   Exportar

@@ -2,27 +2,23 @@
 
 import { Button, Badge, Select } from "flowbite-react";
 import { MdBarChart } from "react-icons/md";
-import {
-   HiFilter,
-   HiDownload,
-   HiPlus,
-   HiViewBoards,
-   HiTable,
-} from "react-icons/hi";
+import { HiFilter, HiPlus, HiViewBoards, HiTable } from "react-icons/hi";
 import { CiPaperplane } from "react-icons/ci";
 import Link from "next/link";
 import { Pagination } from "@/components/Pagination";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { EtapasTable } from "./components/EtapasTable/EtapasTable";
 import { EtapasTableSkeleton } from "./components/EtapasTable/EtapasTableSkeleton";
 import { EtapasFilterPanel } from "./components/EtapasFilterPanel";
 import { ActiveFilterTags } from "./components/ActiveFilterTags";
 import { EtapasPendentesAlert } from "./components/EtapasPendentesAlert";
 import { MissaoDeleteModal } from "./components/MissaoDeleteModal";
-import { ExportModal } from "./components/ExportModal";
+import { ExportColumnsModal } from "@/components/export/ExportColumnsModal";
+import { EtapasSelectionBar } from "./components/EtapasSelectionBar";
 import { PaginationInfo } from "./components/PaginationInfo";
 import { useEtapasFilters, PER_PAGE_OPTIONS } from "./hooks/useEtapasFilters";
 import { useEtapaSelection } from "./hooks/useEtapaSelection";
+import { etapasExportColumns, sortEtapasForExport } from "./exportColumns";
 import type { MissaoComEtapas } from "services/routes/estatistica/etapas";
 import clsx from "clsx";
 import { PermBased } from "../../hooks/usePermBased";
@@ -39,12 +35,13 @@ export default function EtapasPage() {
 
    const filters = useEtapasFilters(groupByMissao);
    const {
+      cart,
       selectedIds,
+      visibleSelectedCount,
       allSelected,
       toggleEtapa,
       toggleMissao,
       toggleAll,
-      clearSelection,
    } = useEtapaSelection(filters.missoes, filters.flatEtapas, groupByMissao);
 
    const handleDeleteMissao = useCallback((missao: MissaoComEtapas) => {
@@ -52,8 +49,15 @@ export default function EtapasPage() {
       setShowDeleteModal(true);
    }, []);
 
+   const etapasParaExportar = useMemo(
+      () => sortEtapasForExport(cart.items),
+      [cart.items]
+   );
+
    return (
-      <div className="flex flex-1 flex-col overflow-hidden">
+      // Reserva estavel para a barra: selecionar a primeira etapa nao deve
+      // reduzir de repente a area util da listagem.
+      <div className="flex flex-1 flex-col overflow-hidden pb-24">
          <div className="mb-4 shrink-0 rounded border border-gray-200 bg-white shadow-sm">
             <div className="flex flex-wrap items-center justify-between gap-3 p-4">
                <div className="flex flex-row gap-3">
@@ -117,21 +121,6 @@ export default function EtapasPage() {
                         <HiViewBoards className="mr-2 h-4 w-4" />
                      )}
                      {groupByMissao ? "Tabela plana" : "Agrupar por Missao"}
-                  </Button>
-                  <Button
-                     color="light"
-                     size="sm"
-                     className="w-32"
-                     disabled={selectedIds.size === 0}
-                     onClick={() => setShowExportModal(true)}
-                  >
-                     <HiDownload className="mr-2 h-4 w-4" />
-                     Exportar
-                     {selectedIds.size > 0 && (
-                        <Badge color="primary" size="sm" className="ml-2">
-                           {selectedIds.size}
-                        </Badge>
-                     )}
                   </Button>
                </div>
             </div>
@@ -265,7 +254,6 @@ export default function EtapasPage() {
                      allSelected={allSelected}
                      onDeleteMissao={handleDeleteMissao}
                      grouped={groupByMissao}
-                     onClearSelection={clearSelection}
                   />
                </div>
             )}
@@ -340,10 +328,21 @@ export default function EtapasPage() {
             missao={deletingMissao}
          />
 
-         <ExportModal
+         <EtapasSelectionBar
+            cart={cart}
+            visibleSelectedCount={visibleSelectedCount}
+            onExport={() => setShowExportModal(true)}
+            hidden={showExportModal}
+         />
+
+         <ExportColumnsModal
             show={showExportModal}
             onClose={() => setShowExportModal(false)}
-            selectedIds={selectedIds}
+            rows={etapasParaExportar}
+            columns={etapasExportColumns}
+            storageKey="export:estatistica-etapas:columns"
+            fileBaseName="etapas"
+            sheetName="Etapas"
          />
       </div>
    );

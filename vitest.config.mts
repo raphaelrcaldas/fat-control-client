@@ -6,16 +6,14 @@ import { resolve } from "node:path";
 // vai deixar de funcionar. A extensão resolve na raiz.
 
 /**
- * Vitest só para a camada de RBAC (visibilidade por role/permissão).
- *
- * Não é infra de teste "do front" em geral: é a suíte que trava a lógica
- * que decide o que cada perfil enxerga. O que valida NOME de recurso é
- * outra coisa e roda no lint (`tests/rbac/check.mjs`), sem runner.
+ * Vitest para regras puras e componentes que precisam de regressão rápida.
+ * O que valida NOME de recurso RBAC continua separado e roda no lint
+ * (`tests/rbac/check.mjs`), sem runner.
  */
 export default defineConfig({
    test: {
       // `node` como padrão, jsdom só onde precisa: o teste do filtro de
-      // menu é dado puro e roda em milissegundos. Quem precisa de DOM
+      // menu e ordenadores são dados puros e rodam em milissegundos. Quem precisa de DOM
       // declara `@vitest-environment jsdom` no topo do próprio arquivo.
       environment: "node",
       include: ["tests/**/*.test.{ts,tsx}"],

@@ -44,10 +44,10 @@ export function UserTable({ usuarios, cart }: UserTableProps) {
          <Table
             hoverable
             theme={{
-               body: { cell: { base: "px-4 py-1" } },
+               body: { cell: { base: "px-2.5 py-1 xl:px-4" } },
                head: {
                   cell: {
-                     base: "bg-gray-50 px-4",
+                     base: "bg-gray-50 px-2.5 xl:px-4",
                   },
                },
             }}
@@ -140,9 +140,14 @@ export function UserTable({ usuarios, cart }: UserTableProps) {
                               {user.nome_guerra}
                            </span>
                         </TableCell>
-                        <TableCell className="text-gray-600 capitalize">
+                        {/* Unica coluna elastica, e por isso a unica que pode
+                            truncar: `w-full max-w-0` faz a celula receber a
+                            sobra da tabela e cortar so quando ela acaba — um
+                            `max-w-*` fixo cortava o nome com espaco livre ao
+                            lado. */}
+                        <TableCell className="w-full max-w-0 text-gray-600 capitalize">
                            <span
-                              className="block max-w-56 truncate"
+                              className="block truncate"
                               title={user.nome_completo ?? undefined}
                            >
                               {user.nome_completo}

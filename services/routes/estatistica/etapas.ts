@@ -345,68 +345,9 @@ export interface BulkUpdatePayload {
 export async function bulkUpdateEtapas(
    payload: BulkUpdatePayload
 ): Promise<ApiResult<null>> {
-   const results = await Promise.all(
-      payload.ids.map((id) => updateEtapa(id, payload.data))
+   return parseApiResponse<null>(
+      await request("PATCH", `${etapasRoute}bulk`, payload)
    );
-   const failed = results.filter((r) => !r.ok);
-   if (failed.length > 0) {
-      return {
-         ok: false,
-         data: null,
-         message: `Falha ao atualizar ${failed.length} de ${payload.ids.length} etapas`,
-         errors: null,
-      };
-   }
-   return { ok: true, data: null, message: null, errors: null };
-}
-
-// ─── Export ───────────────────────────────────────────────────────────────
-
-export interface ExportEtapasPayload {
-   ids: number[];
-   pousos: boolean;
-   nivel: boolean;
-   tow: boolean;
-   pax: boolean;
-   carga: boolean;
-   comb: boolean;
-   lub: boolean;
-   esforco_aereo: boolean;
-   tripulantes: boolean;
-}
-
-export interface ExportEtapasResult {
-   blob: Blob;
-   filename: string | null;
-}
-
-function parseContentDispositionFilename(header: string | null): string | null {
-   if (!header) return null;
-   // filename*=UTF-8''... tem prioridade sobre filename="..."
-   const star = header.match(/filename\*=(?:UTF-8'')?([^;]+)/i);
-   if (star?.[1]) {
-      try {
-         return decodeURIComponent(star[1].trim().replace(/^"|"$/g, ""));
-      } catch {
-         // formato inesperado — cai para o filename simples
-      }
-   }
-   const simple = header.match(/filename="?([^";]+)"?/i);
-   return simple?.[1]?.trim() ?? null;
-}
-
-export async function exportEtapas(
-   payload: ExportEtapasPayload
-): Promise<ExportEtapasResult> {
-   const response = await request("POST", `${etapasRoute}export`, payload);
-   if (!response.ok) {
-      const json = await response.json();
-      throw new Error(json.message || "Erro ao exportar etapas");
-   }
-   const filename = parseContentDispositionFilename(
-      response.headers.get("content-disposition")
-   );
-   return { blob: await response.blob(), filename };
 }
 
 // ─── Missão CRUD ───────────────────────────────────────────────────────────
