@@ -15,12 +15,12 @@ v4), publicadas como projeto _design system_ no claude.ai/design.
 Nada em `src/` é importado pelo Next. São páginas estáticas de _spec_ — o que o
 Storybook seria, se houvesse um. A fonte de verdade continua sendo o código:
 
-| Ficha fala sobre           | Fonte de verdade no repo                         |
-| -------------------------- | ------------------------------------------------ |
-| Escala `--primary-*`, raiz | `src/app/global.css`                             |
-| Tema dos componentes       | `src/app/context/theme.tsx` (`createTheme`)      |
-| Padrão visual, Masthead    | `.claude/rules/frontend/components.md` (na raiz) |
-| Temas de organização       | `api/fcontrol_api/enums/tema.py` (`TemaEnum`)    |
+| Ficha fala sobre           | Fonte de verdade no repo                      |
+| -------------------------- | --------------------------------------------- |
+| Escala `--primary-*`, raiz | `src/app/global.css`                          |
+| Tema dos componentes       | `src/app/context/theme.tsx` (`createTheme`)   |
+| Padrão visual, Masthead    | `docs/ai/rules/frontend.md` (na raiz)         |
+| Temas de organização       | `api/fcontrol_api/enums/tema.py` (`TemaEnum`) |
 
 Ao mudar qualquer um desses, atualizar o fragmento correspondente e republicar.
 Ficha que descreve o sistema errado é pior que ficha nenhuma.
