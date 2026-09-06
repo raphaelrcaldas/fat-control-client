@@ -5,7 +5,8 @@ import { HiClipboardList, HiRefresh } from "react-icons/hi";
 import clsx from "clsx";
 
 interface LogsHeaderProps {
-   count: number;
+   /** `null` = carga falhou: some a contagem em vez de anunciar "0 registros" */
+   count: number | null;
    lastUpdated?: number;
    isFetching: boolean;
    onRefresh: () => void;
@@ -23,7 +24,10 @@ export function LogsHeader({
            minute: "2-digit",
         })
       : null;
-   const registros = `${count} ${count === 1 ? "registro" : "registros"}`;
+   const registros =
+      count === null
+         ? null
+         : `${count} ${count === 1 ? "registro" : "registros"}`;
 
    return (
       <header className="relative overflow-hidden rounded border border-slate-200 bg-white px-4 py-3 shadow-sm sm:px-6 sm:py-5">
@@ -48,10 +52,12 @@ export function LogsHeader({
                   {/* No mobile esta linha é o único indicador de volume e
                       frescor — o Badge só aparece a partir de sm */}
                   <span className="mt-0.5 block truncate text-sm text-gray-500">
-                     <span className="sm:hidden">{registros}</span>
+                     {registros && (
+                        <span className="sm:hidden">{registros}</span>
+                     )}
                      {updatedAt && (
                         <>
-                           <span className="sm:hidden"> · </span>
+                           {registros && <span className="sm:hidden"> · </span>}
                            atualizado às {updatedAt}
                         </>
                      )}
@@ -60,9 +66,11 @@ export function LogsHeader({
             </div>
 
             <div className="flex shrink-0 items-center gap-3">
-               <Badge color="gray" size="lg" className="hidden sm:block">
-                  {registros}
-               </Badge>
+               {registros && (
+                  <Badge color="gray" size="lg" className="hidden sm:block">
+                     {registros}
+                  </Badge>
+               )}
                <Button
                   color="light"
                   onClick={onRefresh}

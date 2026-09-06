@@ -7,7 +7,7 @@ import {
    TableHeadCell,
    TableRow,
 } from "flowbite-react";
-import { HiClipboardList } from "react-icons/hi";
+import { HiClipboardList, HiExclamationCircle } from "react-icons/hi";
 import clsx from "clsx";
 import { UserActionLog } from "services/routes/logs";
 import { EmptyState } from "@/components/ui/EmptyState";
@@ -17,10 +17,16 @@ import { LogRow } from "./LogRow";
 import { LogsTableSkeleton } from "./LogsTableSkeleton";
 
 // Padding folgado do tema global engolia a largura útil no mobile: com 6
-// colunas, o px-6 padrão custava ~48px por coluna só de respiro.
+// colunas, o px-6 padrão custava ~48px por coluna só de respiro. O px-2 é o
+// piso que ainda separa as colunas sem roubar a largura do nome — abaixo dele
+// dot, sigla e hora encostam; acima, o nome começa a ser truncado.
 const LOGS_TABLE_THEME = {
-   head: { cell: { base: "bg-white px-1.5 py-1.5 md:px-6 md:py-3" } },
-   body: { cell: { base: "px-1.5 py-0 md:px-6 md:py-2" } },
+   // Cabeçalho respira mais que o corpo de propósito: é uma linha só, e o ar
+   // acima dos rótulos é o que separa a faixa de título da lista.
+   head: { cell: { base: "bg-white px-2 py-2.5 md:px-6 md:py-3" } },
+   // `py-0` no corpo: no dedo quem dita a altura da linha é o alvo de 44px do
+   // botão de excluir, e qualquer padding vertical só empilha em cima dele.
+   body: { cell: { base: "px-2 py-0 md:px-6 md:py-2" } },
 };
 
 interface LogsTableProps {
@@ -28,6 +34,9 @@ interface LogsTableProps {
    orgTemas: Record<string, OrgTheme>;
    loading: boolean;
    isFetching: boolean;
+   /** Falha de carga — nunca deve ser anunciada como "nenhum log encontrado" */
+   isError: boolean;
+   onRetry: () => void;
    hasSearch: boolean;
    /** Lista mistura ações — só nesse caso a coluna Ação aparece no mobile */
    showAction: boolean;
@@ -45,6 +54,8 @@ export function LogsTable({
    orgTemas,
    loading,
    isFetching,
+   isError,
+   onRetry,
    hasSearch,
    showAction,
    onClearSearch,
@@ -55,6 +66,27 @@ export function LogsTable({
    perPage,
    onPageChange,
 }: LogsTableProps) {
+   // Falha de carga vem antes do vazio: sem isso a tela afirmaria que não há
+   // log sobre dados que nunca chegaram a ser lidos
+   if (isError && logs.length === 0) {
+      return (
+         <EmptyState
+            icon={HiExclamationCircle}
+            title="Não foi possível carregar os logs"
+            description="Verifique a conexão e tente novamente."
+            action={
+               <button
+                  onClick={onRetry}
+                  className="text-sm text-slate-700 underline hover:text-slate-900"
+                  type="button"
+               >
+                  Tentar novamente
+               </button>
+            }
+         />
+      );
+   }
+
    // O EmptyState traz moldura própria — dentro do card viraria borda em borda
    if (!loading && logs.length === 0) {
       return (

@@ -26,7 +26,7 @@ function ActionBadge({ action }: { action: string }) {
    return (
       <Badge
          color={ACTION_BADGE_COLORS[action] || "gray"}
-         className="mx-auto w-fit shrink-0 capitalize"
+         className="mx-auto w-fit shrink-0 whitespace-nowrap capitalize"
       >
          {action}
       </Badge>
@@ -117,8 +117,14 @@ export function LogRow({ log, tema, showAction, onDeleteClick }: LogRowProps) {
             )}
          </TableCell>
 
-         <TableCell className="align-middle">
-            <span className="font-medium uppercase">
+         {/* Única coluna elástica — e por isso a única que pode quebrar em duas
+             linhas. `max-w-0` + `truncate` trocam a quebra por reticências: a
+             altura da linha fica constante e o nome inteiro segue no title */}
+         <TableCell className="max-w-0 align-middle">
+            <span
+               title={`${log.user.p_g} ${log.user.nome_guerra}`}
+               className="block truncate font-medium uppercase"
+            >
                {log.user.p_g} {log.user.nome_guerra}
             </span>
          </TableCell>

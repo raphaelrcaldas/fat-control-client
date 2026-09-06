@@ -12,8 +12,10 @@ function LogRowSkeleton({ showAction }: { showAction: boolean }) {
             {/* Sem ano nem segundos, a coluna é mais estreita no mobile */}
             <Skeleton className="h-4 w-16 md:w-28" />
          </TableCell>
-         <TableCell className="align-middle">
-            <Skeleton className="h-4 w-32" />
+         {/* max-w-0 como na linha real: a coluna elástica precisa nascer com a
+             mesma regra, senão o skeleton mede outra largura */}
+         <TableCell className="max-w-0 align-middle">
+            <Skeleton className="h-4 w-32 max-w-full" />
          </TableCell>
          <TableCell className="w-px align-middle md:w-auto">
             <div className="flex items-center justify-center gap-1.5">

@@ -85,7 +85,7 @@ export default function LogDashboard() {
    return (
       <div className="space-y-2">
          <LogsHeader
-            count={total}
+            count={logsQuery.isError ? null : total}
             lastUpdated={logsQuery.dataUpdatedAt}
             isFetching={logsQuery.isFetching}
             onRefresh={() => logsQuery.refetch()}
@@ -108,6 +108,8 @@ export default function LogDashboard() {
             orgTemas={orgTemas}
             loading={logsQuery.isLoading}
             isFetching={logsQuery.isFetching}
+            isError={logsQuery.isError}
+            onRetry={() => logsQuery.refetch()}
             hasSearch={hasFilters}
             // "" = todas as ações: só aí a ação varia por linha e a coluna
             // paga a largura que custa no mobile

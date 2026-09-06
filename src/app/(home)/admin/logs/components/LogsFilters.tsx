@@ -4,7 +4,6 @@ import { useState } from "react";
 import { Button, Label, Select, TextInput } from "flowbite-react";
 import { HiChevronDown, HiFilter, HiSearch, HiX } from "react-icons/hi";
 import clsx from "clsx";
-import { isoDateToString } from "@/../utils/dateHandler";
 
 const ACTION_OPTIONS = [
    { value: "login", label: "Login" },
@@ -45,6 +44,11 @@ export function LogsFilters({
    const actionLabel =
       ACTION_OPTIONS.find((opt) => opt.value === actionFilter)?.label ??
       "Todas as ações";
+   // O botão vira o resumo do escopo, então o rótulo tem que caber ao lado da
+   // busca — "Todas as ações" seria truncado justamente onde diz o que filtra
+   const actionShort = actionFilter ? actionLabel : "Todas";
+   // Datas não cabem no botão; o que cabe é dizer que existem
+   const periodo = (dateStart ? 1 : 0) + (dateEnd ? 1 : 0);
 
    return (
       <section
@@ -62,19 +66,34 @@ export function LogsFilters({
                   value={searchTerm}
                   onChange={(e) => onSearchChange(e.target.value)}
                />
+               {/* O botão É o resumo do escopo: mostra a ação vigente e sinaliza
+                   o período. Antes isso morava numa fita de pílulas abaixo, que
+                   custava uma linha inteira da tela para repetir o que o próprio
+                   controle pode dizer */}
                <Button
                   color="light"
                   type="button"
                   onClick={() => setOpen((v) => !v)}
                   aria-expanded={open}
                   aria-controls="logs-filtros-panel"
+                  aria-label={`Filtros: ação ${actionLabel}${
+                     periodo ? ", com período" : ""
+                  }`}
                   className="shrink-0 lg:hidden pointer-coarse:min-h-[44px]"
                >
-                  <HiFilter className="h-4 w-4" />
-                  <span className="mx-2">Filtros</span>
+                  <HiFilter className="size-4 shrink-0" />
+                  <span className="mx-2 max-w-24 truncate">{actionShort}</span>
+                  {periodo > 0 && (
+                     <span
+                        aria-hidden
+                        className="mr-2 grid size-4 shrink-0 place-items-center rounded-full bg-slate-200 text-[10px] font-bold text-slate-700"
+                     >
+                        {periodo}
+                     </span>
+                  )}
                   <HiChevronDown
                      className={clsx(
-                        "h-4 w-4 transition-transform duration-200 motion-reduce:transition-none",
+                        "size-4 shrink-0 transition-transform duration-200 motion-reduce:transition-none",
                         open && "rotate-180"
                      )}
                   />
@@ -105,7 +124,10 @@ export function LogsFilters({
                         ))}
                      </Select>
 
-                     <div className="flex items-center gap-2">
+                     {/* Lado a lado, os dois campos de data ficam com ~137px
+                         no celular e o seletor nativo corta o próprio ícone —
+                         abaixo de `sm` cada um ocupa a linha inteira */}
+                     <div className="col-span-2 flex items-center gap-2 sm:col-span-1">
                         {/* Largura fixa nos dois rótulos: sem isso "De" e "Até"
                             dão larguras diferentes aos campos de data */}
                         <Label
@@ -124,7 +146,7 @@ export function LogsFilters({
                         />
                      </div>
 
-                     <div className="flex items-center gap-2">
+                     <div className="col-span-2 flex items-center gap-2 sm:col-span-1">
                         <Label
                            htmlFor="logs-date-end"
                            className="w-7 shrink-0 text-sm text-gray-500"
@@ -156,48 +178,6 @@ export function LogsFilters({
                </div>
             </div>
          </div>
-
-         {/* Escopo vigente enquanto o painel está fechado — sem isso o mobile
-             esconderia que a lista está restrita a uma ação/período */}
-         {!open && (
-            <div className="mt-2 flex gap-1.5 overflow-x-auto lg:hidden">
-               <FilterChip prefix="Ação" label={actionLabel} />
-               {dateStart && (
-                  <FilterChip
-                     prefix="De"
-                     label={isoDateToString(dateStart)}
-                     mono
-                  />
-               )}
-               {dateEnd && (
-                  <FilterChip
-                     prefix="Até"
-                     label={isoDateToString(dateEnd)}
-                     mono
-                  />
-               )}
-            </div>
-         )}
       </section>
-   );
-}
-
-/** Pílula de leitura do escopo. Datas em mono para ecoar a coluna de timestamp. */
-function FilterChip({
-   prefix,
-   label,
-   mono,
-}: {
-   prefix: string;
-   label: string;
-   mono?: boolean;
-}) {
-   return (
-      <span className="inline-flex shrink-0 items-center gap-1 rounded border border-slate-200 bg-slate-50 px-2 py-0.5 text-xs text-slate-600">
-         <span className="text-slate-400">{prefix}</span>
-         <span className={clsx("font-medium", mono && "font-mono")}>
-            {label}
-         </span>
-      </span>
    );
 }
