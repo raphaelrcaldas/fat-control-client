@@ -20,8 +20,11 @@ const Bar = ({ className = "" }: { className?: string }) => (
 function DesktopRow() {
    return (
       <TableRow>
+         <TableCell className="px-3">
+            <Bar className="size-5" />
+         </TableCell>
          <TableCell>
-            <Bar className="w-12" />
+            <Bar className="w-10" />
          </TableCell>
          <TableCell>
             <Bar className="w-10" />
@@ -48,7 +51,7 @@ function DesktopRow() {
             <Bar className="mx-auto w-16 bg-slate-100" />
          </TableCell>
          <TableCell>
-            <Bar className="ml-auto w-14 bg-slate-100" />
+            <Bar className="ml-auto w-7 bg-slate-100" />
          </TableCell>
       </TableRow>
    );
@@ -88,30 +91,47 @@ export function UsersListSkeleton({ rows = 8 }: { rows?: number }) {
    return (
       <div className="animate-pulse">
          {/* Desktop — mesma moldura e colunas do UserTable */}
-         <div className="mx-2 hidden min-h-100 overflow-x-auto rounded border border-slate-200 bg-white shadow-sm lg:block">
+         <div className="hidden min-h-100 overflow-x-auto lg:block">
             <Table
                theme={{
-                  body: { cell: { base: "py-1" } },
+                  body: { cell: { base: "px-4 py-1" } },
                   head: {
-                     cell: { base: "bg-white border-b border-slate-200" },
+                     cell: {
+                        base: "bg-gray-50 px-4",
+                     },
                   },
                }}
             >
                <TableHead>
                   <TableRow>
-                     <TableHeadCell>P/G</TableHeadCell>
-                     <TableHeadCell>Quadro</TableHeadCell>
-                     <TableHeadCell>Especialidade</TableHeadCell>
-                     <TableHeadCell>Nome de Guerra</TableHeadCell>
-                     <TableHeadCell>Nome Completo</TableHeadCell>
-                     <TableHeadCell className="text-center">
+                     <TableHeadCell className="w-10 px-3">
+                        <span className="sr-only">Seleção</span>
+                     </TableHeadCell>
+                     <TableHeadCell className="whitespace-nowrap">
+                        P/G
+                     </TableHeadCell>
+                     <TableHeadCell className="whitespace-nowrap">
+                        Quadro
+                     </TableHeadCell>
+                     <TableHeadCell className="whitespace-nowrap">
+                        Especialidade
+                     </TableHeadCell>
+                     <TableHeadCell className="whitespace-nowrap">
+                        Nome de Guerra
+                     </TableHeadCell>
+                     <TableHeadCell className="whitespace-nowrap">
+                        Nome Completo
+                     </TableHeadCell>
+                     <TableHeadCell className="text-center whitespace-nowrap">
                         SARAM
                      </TableHeadCell>
-                     <TableHeadCell className="text-center">ID</TableHeadCell>
-                     <TableHeadCell className="text-center">
+                     <TableHeadCell className="text-center whitespace-nowrap">
+                        ID
+                     </TableHeadCell>
+                     <TableHeadCell className="text-center whitespace-nowrap">
                         Unidade
                      </TableHeadCell>
-                     <TableHeadCell className="text-center">
+                     <TableHeadCell className="text-center whitespace-nowrap">
                         Status
                      </TableHeadCell>
                      <TableHeadCell>

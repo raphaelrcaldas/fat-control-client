@@ -14,17 +14,9 @@ import type { GetUsersParams } from "services/routes/users";
 
 const DEFAULT_PER_PAGE = 50;
 const DEFAULT_PAGE = 1;
-const DEFAULT_ACTIVE = ["true"];
+const DEFAULT_ACTIVE = true;
 
 export const PER_PAGE_OPTIONS = [25, 50, 100];
-
-// Converte o array de status (["true"]/["false"]/[]) em boolean | undefined.
-function getActiveFilter(active: string[]): boolean | undefined {
-   if (active.length === 0 || active.length === 2) return undefined;
-   if (active.includes("true")) return true;
-   if (active.includes("false")) return false;
-   return undefined;
-}
 
 // Faz o parse de um param separado por vírgula (string vazia = array vazio).
 function parseCommaSeparated(value: string | null): string[] {
@@ -37,7 +29,7 @@ export interface UsersFilters {
    filterPG: string[];
    filterQuadro: string;
    filterEsp: string;
-   filterActive: string[];
+   filterActive: boolean;
    currentPage: number;
    perPage: number;
    hasFilters: boolean;
@@ -46,7 +38,7 @@ export interface UsersFilters {
    setPG: (values: string[]) => void;
    setQuadro: (value: string) => void;
    setEsp: (value: string) => void;
-   setActive: (values: string[]) => void;
+   setActive: (value: boolean) => void;
    setPage: (page: number) => void;
    setPerPage: (value: number) => void;
    /** Volta a listagem ao estado inicial (busca vazia, filtros default). */
@@ -62,10 +54,12 @@ export function useUsersFilters(): UsersFilters {
    const filterPG = parseCommaSeparated(searchParams.get("pg"));
    const filterQuadro = searchParams.get("quadro") ?? "";
    const filterEsp = searchParams.get("esp") ?? "";
+   // Recorte binario: ou ativos, ou inativos. Nao existe "todos" — a lista
+   // sempre mostra uma das duas metades, e o backend recebe sempre um booleano
+   // (`active: bool | None` em schemas/users.py aceita os dois).
+   const activeParam = searchParams.get("active");
    const filterActive =
-      searchParams.get("active") !== null
-         ? parseCommaSeparated(searchParams.get("active"))
-         : DEFAULT_ACTIVE;
+      activeParam === null ? DEFAULT_ACTIVE : activeParam === "true";
    const currentPage = Number(searchParams.get("page")) || DEFAULT_PAGE;
    const perPage = Number(searchParams.get("per_page")) || DEFAULT_PER_PAGE;
 
@@ -153,8 +147,10 @@ export function useUsersFilters(): UsersFilters {
    );
 
    const setActive = useCallback(
-      (values: string[]) => {
-         updateParams({ active: values.length === 0 ? "" : values.join(",") });
+      (value: boolean) => {
+         updateParams({
+            active: value === DEFAULT_ACTIVE ? undefined : String(value),
+         });
       },
       [updateParams]
    );
@@ -189,17 +185,15 @@ export function useUsersFilters(): UsersFilters {
       });
    }, [updateParams]);
 
-   // "Tem filtro" = desvia do estado inicial. O status default é ["true"]
-   // (só ativos); contá-lo como filtro deixava hasFilters SEMPRE true e
-   // tornava inalcançável o empty-state "Nenhum usuário cadastrado".
-   const isDefaultActive =
-      filterActive.length === 1 && filterActive[0] === "true";
+   // "Tem filtro" = desvia do estado inicial. O status default é "só ativos";
+   // contá-lo como filtro deixava hasFilters SEMPRE true e tornava
+   // inalcançável o empty-state "Nenhum usuário cadastrado".
    const hasFilters = Boolean(
       debouncedFilter ||
       filterPG.length > 0 ||
       filterQuadro ||
       filterEsp ||
-      !isDefaultActive
+      !filterActive
    );
 
    const queryParams: GetUsersParams = {
@@ -209,7 +203,7 @@ export function useUsersFilters(): UsersFilters {
       p_g: filterPG.length > 0 ? filterPG.join(",") : undefined,
       quadro: filterQuadro || undefined,
       esp: filterEsp || undefined,
-      active: getActiveFilter(filterActive),
+      active: filterActive,
    };
 
    return {

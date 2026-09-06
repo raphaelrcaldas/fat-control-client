@@ -1,11 +1,12 @@
 "use client";
 
 import { useCallback, useMemo, useState } from "react";
-import { Button, Label, Select, TextInput } from "flowbite-react";
-import { HiSearch, HiUserAdd, HiUsers } from "react-icons/hi";
+import { Badge, Button, Label, Select, TextInput } from "flowbite-react";
+import { HiFilter, HiSearch, HiUserAdd, HiUsers } from "react-icons/hi";
 import clsx from "clsx";
 import { Pagination } from "@/components/Pagination";
 import { MultiSelect } from "@/components/MultiSelect";
+import { SegmentedControl } from "@/components/SegmentedControl";
 import { SearchableSelect } from "@/components/SearchableSelect";
 import { postoGradRecords } from "services/routes/postos";
 import { quadroOptions } from "@/constants/militar/quadros";
@@ -23,6 +24,7 @@ import { UserTable } from "./components/UserTable";
 import { UserCard } from "./components/UserCard";
 import { UsersListSkeleton } from "./components/UsersListSkeleton";
 import { useUsersFilters, PER_PAGE_OPTIONS } from "./hooks/useUsersFilters";
+import { useAbaixoDe } from "@/hooks/useAbaixoDe";
 
 // Opções dos MultiSelects
 const PG_OPTIONS = postoGradRecords.map((pg) => ({
@@ -31,8 +33,8 @@ const PG_OPTIONS = postoGradRecords.map((pg) => ({
 }));
 
 const STATUS_OPTIONS = [
-   { value: "true", label: "Ativo" },
-   { value: "false", label: "Inativo" },
+   { label: "Ativos", value: "true" },
+   { label: "Inativos", value: "false" },
 ];
 
 export default function UsersPage() {
@@ -55,6 +57,17 @@ export default function UsersPage() {
       setPerPage,
       clearFilters,
    } = useUsersFilters();
+
+   // Filtros avancados sao os que o disclosure esconde no celular; o recorte
+   // ativo/inativo entra na conta porque, fechado o painel, o contador do botao
+   // e a unica pista de que a lista nao esta no padrao.
+   const filtrosAvancados =
+      filterPG.length +
+      (filterQuadro ? 1 : 0) +
+      (filterEsp ? 1 : 0) +
+      (filterActive ? 0 : 1);
+   const [filtersOpen, setFiltersOpen] = useState(filtrosAvancados > 0);
+   const compacto = useAbaixoDe("lg");
 
    const [showCreateModal, setShowCreateModal] = useState(false);
    const [showCartDrawer, setShowCartDrawer] = useState(false);
@@ -137,50 +150,88 @@ export default function UsersPage() {
          </header>
 
          <div className="overflow-hidden rounded border border-slate-200 bg-white shadow">
-            {/* Barra de Busca e Filtros. lg (não md): no tablet a linha única
-                esmagava a busca a ~77px — largura de meio placeholder. */}
-            <div className="flex flex-col gap-3 p-4 lg:flex-row">
-               <div className="flex-1">
-                  <TextInput
-                     icon={HiSearch}
-                     placeholder="Buscar por nome de guerra ou nome completo..."
-                     value={filterName}
-                     onChange={(e) => setSearch(e.target.value)}
-                     sizing="md"
-                  />
+            {/* Barra de busca e filtros. `lg` (não `md`): no tablet a linha
+                única esmagava a busca a ~77px — largura de meio placeholder.
+                O `border-b` é o que separa a barra do cabeçalho da tabela, como
+                em /ops/trip. */}
+            <div className="flex flex-col border-b border-slate-200 p-3 sm:p-4 lg:flex-row lg:items-center lg:gap-3">
+               <div className="flex flex-1 gap-3">
+                  <div className="flex-1">
+                     <TextInput
+                        icon={HiSearch}
+                        type="search"
+                        aria-label="Buscar usuário"
+                        placeholder="Buscar por nome de guerra ou nome completo..."
+                        value={filterName}
+                        onChange={(e) => setSearch(e.target.value)}
+                        sizing="md"
+                     />
+                  </div>
+                  <Button
+                     color="light"
+                     className="shrink-0 lg:hidden"
+                     onClick={() => setFiltersOpen((open) => !open)}
+                     aria-expanded={filtersOpen}
+                     aria-controls="users-filters"
+                  >
+                     <HiFilter className="mr-1 h-4 w-4" />
+                     Filtros
+                     {filtrosAvancados > 0 && (
+                        <Badge color="primary" className="ml-1.5">
+                           {filtrosAvancados}
+                        </Badge>
+                     )}
+                  </Button>
                </div>
 
-               <div className="flex flex-wrap gap-2">
-                  <MultiSelect
-                     options={PG_OPTIONS}
-                     selected={filterPG}
-                     onChange={setPG}
-                     placeholder="Todos P/G"
-                     className="w-44"
-                  />
-                  <SearchableSelect
-                     options={quadroOptions}
-                     value={filterQuadro}
-                     onChange={setQuadro}
-                     placeholder="Todos Quadros"
-                     clearable
-                     className="w-44"
-                  />
-                  <SearchableSelect
-                     options={especialidadeOptions}
-                     value={filterEsp}
-                     onChange={setEsp}
-                     placeholder="Todas Especialidades"
-                     clearable
-                     className="w-44"
-                  />
-                  <MultiSelect
-                     options={STATUS_OPTIONS}
-                     selected={filterActive}
-                     onChange={setActive}
-                     placeholder="Todos Status"
-                     className="w-44"
-                  />
+               {/* A altura anima por `grid-template-rows` (0fr → 1fr): com
+                   `max-height` a duração vira função de um palpite de altura. */}
+               <div
+                  className={clsx(
+                     "grid transition-[grid-template-rows] duration-200 ease-out motion-reduce:transition-none lg:contents",
+                     filtersOpen ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
+                  )}
+               >
+                  <div className="overflow-hidden lg:contents">
+                     {/* `inert` só abaixo de `lg`: no desktop `filtersOpen` é
+                         falso e mesmo assim os filtros estão visíveis. */}
+                     <div
+                        id="users-filters"
+                        inert={compacto && !filtersOpen}
+                        className="flex flex-col gap-3 pt-3 lg:contents"
+                     >
+                        <MultiSelect
+                           options={PG_OPTIONS}
+                           selected={filterPG}
+                           onChange={setPG}
+                           placeholder="Todos P/G"
+                           className="w-full lg:w-44"
+                        />
+                        <SearchableSelect
+                           options={quadroOptions}
+                           value={filterQuadro}
+                           onChange={setQuadro}
+                           placeholder="Todos Quadros"
+                           clearable
+                           className="w-full lg:w-44"
+                        />
+                        <SearchableSelect
+                           options={especialidadeOptions}
+                           value={filterEsp}
+                           onChange={setEsp}
+                           placeholder="Todas Especialidades"
+                           clearable
+                           className="w-full lg:w-44"
+                        />
+                        <SegmentedControl
+                           options={STATUS_OPTIONS}
+                           value={String(filterActive) as "true" | "false"}
+                           onChange={(value) => setActive(value === "true")}
+                           ariaLabel="Situação do usuário"
+                           className="w-full self-start lg:w-auto"
+                        />
+                     </div>
+                  </div>
                </div>
             </div>
 

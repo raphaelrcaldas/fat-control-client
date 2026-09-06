@@ -1,37 +1,25 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
-import clsx from "clsx";
-import {
-   Badge,
-   Select,
-   TextInput,
-   Button,
-   Table,
-   TableHead,
-   TableBody,
-   TableRow,
-   TableHeadCell,
-} from "flowbite-react";
-import { HiFilter, HiSearch, HiUserGroup, HiX } from "react-icons/hi";
+import { Button, Select, Table, TableBody } from "flowbite-react";
+import { HiExclamationCircle, HiRefresh, HiUserGroup } from "react-icons/hi";
 import { Pagination } from "@/components/Pagination";
-import { postoGradRecords } from "services/routes/postos";
-import { OPER_LABELS } from "@/constants/tripulantes";
-import { useFuncoes } from "@/hooks/queries";
 import { SearchUser } from "./components/searchUserTrip";
+import { TripCard } from "./components/TripCard";
+import { TripFilters } from "./components/TripFilters";
+import { TripListSkeleton } from "./components/TripListSkeleton";
 import { TripRow } from "./components/TripRow";
-import { TripTableSkeleton } from "./components/TripTableSkeleton";
-import { MultiSelect } from "@/components/MultiSelect";
+import { TripTableHead } from "./components/TripTableHead";
+import { TRIP_TABLE_THEME } from "./tripTableTheme";
 import { PermBased } from "../../hooks/usePermBased";
-import useDebouncedValue from "@/hooks/useDebouncedValue";
 import { useTripList } from "./hooks/useTripList";
-import type { FuncType, OperType } from "./types/trip.types";
 
 export default function TripPage() {
    const {
       trips,
       loading,
       isFetching,
+      isError,
+      refetch,
       filters,
       updateFilter,
       updateSearch,
@@ -45,32 +33,6 @@ export default function TripPage() {
       PER_PAGE_OPTIONS,
       urlSearch,
    } = useTripList();
-   const { funcoes } = useFuncoes();
-
-   // Local state for search input (immediate typing feedback)
-   const [filterName, setFilterName] = useState(urlSearch);
-   const debouncedFilter = useDebouncedValue(filterName, 350);
-
-   // Sync debounced search to URL
-   useEffect(() => {
-      if (debouncedFilter !== urlSearch) {
-         updateSearch(debouncedFilter);
-      }
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-   }, [debouncedFilter]);
-
-   // Sync URL search param back to local input when navigating back
-   useEffect(() => {
-      if (urlSearch !== filterName && urlSearch !== debouncedFilter) {
-         setFilterName(urlSearch);
-      }
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-   }, [urlSearch]);
-
-   const handleClearFilters = useCallback(() => {
-      clearFilters();
-      setFilterName("");
-   }, [clearFilters]);
 
    const hasActiveFilters =
       filters.p_g.length > 0 ||
@@ -79,13 +41,8 @@ export default function TripPage() {
       filters.name !== "" ||
       filters.active !== true;
 
-   // Disclosure dos selects no mobile; abre se a URL já traz filtro ativo
-   const advancedFilterCount =
-      filters.p_g.length + filters.func.length + filters.oper.length;
-   const [filtersOpen, setFiltersOpen] = useState(advancedFilterCount > 0);
-
    return (
-      <div className="flex flex-col space-y-2">
+      <div className="flex flex-col gap-2">
          {/* Masthead — padrão canônico do sistema */}
          <header className="relative overflow-hidden rounded border border-slate-200 bg-white px-5 py-4 shadow-sm sm:px-6 sm:py-5">
             <span
@@ -102,146 +59,67 @@ export default function TripPage() {
                      <span className="text-primary-600 block font-mono text-[10px] font-bold tracking-[0.3em] uppercase">
                         Gestão Operacional
                      </span>
-                     <h1 className="text-2xl leading-none font-extrabold tracking-tight text-slate-900 sm:text-[28px]">
-                        Tripulantes
-                     </h1>
+                     <div className="flex items-baseline gap-2">
+                        <h1 className="text-2xl leading-none font-extrabold tracking-tight text-slate-900 sm:text-[28px]">
+                           Tripulantes
+                        </h1>
+                        {/* O contador substitui a antiga coluna "Status": o
+                            recorte ativo/inativo e binario, entao a lista e
+                            sempre homogenea e a coluna repetia o filtro. */}
+                        {!loading && !isError && (
+                           <span className="text-sm font-medium text-slate-500">
+                              {totalTrips}{" "}
+                              {filters.active ? "ativos" : "inativos"}
+                           </span>
+                        )}
+                     </div>
                   </div>
                </div>
 
-               <PermBased resource={"ops.tripulantes"} requiredPerm={"create"}>
-                  <SearchUser />
-               </PermBased>
+               {/* No celular a acao de cadastro nao acontece: a tela e de
+                   consulta, e o botao roubava uma faixa inteira do masthead. */}
+               <div className="hidden md:block">
+                  <PermBased
+                     resource={"ops.tripulantes"}
+                     requiredPerm={"create"}
+                  >
+                     <SearchUser />
+                  </PermBased>
+               </div>
             </div>
          </header>
 
-         {/* Card da Tabela */}
+         {/* Card da lista */}
          <div className="relative overflow-hidden rounded border border-slate-200 bg-white shadow-sm">
-            {/* Barra de Busca e Filtros */}
-            <div className="border-b border-slate-200 p-4">
-               {/* Linha 1: Busca + Toggle + Adicionar */}
-               <div className="flex flex-col gap-3 md:flex-row md:items-center">
-                  {/* Busca + disclosure dos filtros (mobile) */}
-                  <div className="flex flex-1 gap-3">
-                     <div className="flex-1">
-                        <TextInput
-                           icon={HiSearch}
-                           placeholder="Buscar por trigrama, nome de guerra ou nome completo..."
-                           value={filterName}
-                           onChange={(e) => setFilterName(e.target.value)}
-                        />
-                     </div>
-                     <Button
-                        color="light"
-                        className="shrink-0 md:hidden"
-                        onClick={() => setFiltersOpen((open) => !open)}
-                        aria-expanded={filtersOpen}
-                        aria-controls="trip-filters"
-                     >
-                        <HiFilter className="mr-1 h-4 w-4" />
-                        Filtros
-                        {advancedFilterCount > 0 && (
-                           <Badge color="primary" className="ml-1.5">
-                              {advancedFilterCount}
-                           </Badge>
-                        )}
-                     </Button>
-                  </div>
+            <TripFilters
+               filters={filters}
+               urlSearch={urlSearch}
+               updateSearch={updateSearch}
+               updateFilter={updateFilter}
+               onClear={clearFilters}
+               hasActiveFilters={hasActiveFilters}
+            />
 
-                  {/* Selects — recolhíveis no mobile, inline no desktop */}
-                  <div
-                     id="trip-filters"
-                     className={clsx(
-                        "flex-col gap-3 md:contents",
-                        filtersOpen ? "flex" : "hidden"
-                     )}
-                  >
-                     {/* Filtro P/G */}
-                     <div className="w-full md:w-44">
-                        <MultiSelect
-                           options={postoGradRecords.map((posto) => ({
-                              value: posto.short,
-                              label: posto.mid,
-                           }))}
-                           selected={filters.p_g}
-                           onChange={(values) => updateFilter("p_g", values)}
-                           placeholder="Posto/Graduação"
-                        />
-                     </div>
-
-                     {/* Filtro Função */}
-                     <div className="w-full md:w-44">
-                        <MultiSelect
-                           options={funcoes.map((f) => ({
-                              value: f.cod,
-                              label: f.nome_curto,
-                           }))}
-                           selected={filters.func}
-                           onChange={(values) =>
-                              updateFilter("func", values as FuncType[])
-                           }
-                           placeholder="Função"
-                        />
-                     </div>
-
-                     {/* Filtro Operacionalidade */}
-                     <div className="w-full md:w-48">
-                        <MultiSelect
-                           options={Object.entries(OPER_LABELS).map(
-                              ([key, value]) => ({
-                                 value: key,
-                                 label: value,
-                              })
-                           )}
-                           selected={filters.oper}
-                           onChange={(values) =>
-                              updateFilter("oper", values as OperType[])
-                           }
-                           placeholder="Operacionalidade"
-                        />
-                     </div>
-                  </div>
-
-                  {/* Toggle Ativo/Inativo */}
-                  <div className="flex gap-1">
-                     <Button
-                        color={filters.active ? "primary" : "light"}
-                        size="sm"
-                        onClick={() => updateFilter("active", true)}
-                     >
-                        Ativos
-                     </Button>
-                     <Button
-                        color={!filters.active ? "primary" : "light"}
-                        size="sm"
-                        onClick={() => updateFilter("active", false)}
-                     >
-                        Inativos
-                     </Button>
-                  </div>
-               </div>
-
-               {/* Limpar Filtros */}
-               {hasActiveFilters && (
-                  <div className="mt-3 flex flex-wrap items-center gap-3">
-                     <Button
-                        color="light"
-                        size="sm"
-                        outline
-                        onClick={handleClearFilters}
-                     >
-                        <HiX className="mr-1 h-4 w-4" />
-                        Limpar Filtros
-                     </Button>
-                  </div>
-               )}
-            </div>
-
-            {/* Conteúdo */}
             {loading ? (
-               <TripTableSkeleton />
+               <TripListSkeleton rows={perPage} />
+            ) : isError && trips.length === 0 ? (
+               <div className="flex min-h-96 flex-col items-center justify-center px-4 text-center">
+                  <HiExclamationCircle className="mb-2 h-8 w-8 text-red-500" />
+                  <h2 className="mb-1 text-lg font-semibold text-slate-700">
+                     Não foi possível carregar os tripulantes
+                  </h2>
+                  <p className="mb-4 max-w-md text-sm text-slate-500">
+                     A lista não chegou do servidor. Nada foi perdido — tente
+                     novamente.
+                  </p>
+                  <Button color="light" size="sm" onClick={() => refetch()}>
+                     <HiRefresh className="mr-1.5 h-4 w-4" />
+                     Tentar novamente
+                  </Button>
+               </div>
             ) : trips.length === 0 ? (
-               <div className="flex h-64 flex-col items-center justify-center px-4 text-center">
-                  <h2 className="mb-2 text-lg font-semibold text-slate-700">
+               <div className="flex min-h-96 flex-col items-center justify-center px-4 text-center">
+                  <h2 className="mb-1 text-lg font-semibold text-slate-700">
                      {hasActiveFilters
                         ? "Nenhum tripulante encontrado"
                         : "Nenhum tripulante cadastrado"}
@@ -252,78 +130,73 @@ export default function TripPage() {
                         : "Comece adicionando o primeiro tripulante ao sistema."}
                   </p>
                   {hasActiveFilters ? (
-                     <Button
-                        color="light"
-                        size="xs"
-                        outline
-                        onClick={handleClearFilters}
-                     >
-                        Limpar Filtros
+                     <Button color="light" size="sm" onClick={clearFilters}>
+                        Limpar filtros
                      </Button>
                   ) : (
-                     <PermBased
-                        resource={"ops.tripulantes"}
-                        requiredPerm={"create"}
-                     >
-                        <SearchUser />
-                     </PermBased>
+                     <div className="hidden md:block">
+                        <PermBased
+                           resource={"ops.tripulantes"}
+                           requiredPerm={"create"}
+                        >
+                           <SearchUser />
+                        </PermBased>
+                     </div>
                   )}
                </div>
             ) : (
                <div>
+                  {/* Refetch falho com dados em tela: uma faixa, nunca a tela
+                      de erro — trocar 25 linhas boas por um aviso e o oposto do
+                      "refetch suave" da regra de TanStack Query. */}
+                  {isError && (
+                     <div
+                        role="status"
+                        className="flex flex-wrap items-center gap-2 border-b border-amber-200 bg-amber-50 px-4 py-2 text-sm text-amber-900"
+                     >
+                        <HiExclamationCircle className="h-4 w-4 shrink-0" />A
+                        atualização falhou — mostrando os últimos dados.
+                        <button
+                           type="button"
+                           onClick={() => refetch()}
+                           className="font-semibold underline underline-offset-2"
+                        >
+                           Tentar novamente
+                        </button>
+                     </div>
+                  )}
+
                   {/* Refetch suave: mantém os dados e esmaece (keepPreviousData) */}
                   <div
-                     className={`min-h-96 overflow-x-auto transition-opacity duration-200 ${isFetching ? "opacity-50" : "opacity-100"}`}
+                     className={`transition-opacity duration-200 ${isFetching ? "opacity-50" : "opacity-100"}`}
                   >
-                     <Table
-                        hoverable
-                        theme={{
-                           head: { cell: { base: "px-3 sm:px-6" } },
-                           body: { cell: { base: "px-3 py-1 sm:px-6" } },
-                        }}
-                     >
-                        <TableHead>
-                           <TableRow>
-                              <TableHeadCell className="w-20">
-                                 P/G
-                              </TableHeadCell>
-                              <TableHeadCell className="hidden w-24 lg:table-cell">
-                                 Quadro
-                              </TableHeadCell>
-                              <TableHeadCell className="hidden w-28 lg:table-cell">
-                                 Especialidade
-                              </TableHeadCell>
-                              <TableHeadCell className="hidden md:table-cell">
-                                 Nome de Guerra
-                              </TableHeadCell>
-                              <TableHeadCell className="hidden md:table-cell">
-                                 Nome Completo
-                              </TableHeadCell>
-                              <TableHeadCell className="w-24 text-center">
-                                 Trigrama
-                              </TableHeadCell>
-                              <TableHeadCell className="text-center">
-                                 Funções
-                              </TableHeadCell>
-                              <TableHeadCell className="hidden w-24 text-center md:table-cell">
-                                 Status
-                              </TableHeadCell>
-                              <TableHeadCell className="w-28">
-                                 <span className="sr-only">Ações</span>
-                              </TableHeadCell>
-                           </TableRow>
-                        </TableHead>
-                        <TableBody className="divide-y divide-slate-100">
-                           {trips.map((trip) => (
-                              <TripRow key={trip.id} trip={trip} />
-                           ))}
-                        </TableBody>
-                     </Table>
+                     {/* Mobile: a tabela derrubaria justamente as colunas de nome */}
+                     <ul className="divide-y divide-slate-100 md:hidden">
+                        {trips.map((trip) => (
+                           <li key={trip.id ?? trip.trig}>
+                              <TripCard trip={trip} />
+                           </li>
+                        ))}
+                     </ul>
+
+                     <div className="hidden min-h-96 overflow-x-auto md:block">
+                        <Table hoverable theme={TRIP_TABLE_THEME}>
+                           <TripTableHead />
+                           <TableBody className="divide-y divide-slate-100">
+                              {trips.map((trip) => (
+                                 <TripRow
+                                    key={trip.id ?? trip.trig}
+                                    trip={trip}
+                                 />
+                              ))}
+                           </TableBody>
+                        </Table>
+                     </div>
                   </div>
 
-                  {/* Footer com Paginação */}
+                  {/* Rodapé com paginação */}
                   <nav
-                     className={`flex flex-col items-start justify-between space-y-3 p-4 md:flex-row md:items-center md:space-y-0 ${isFetching ? "pointer-events-none opacity-50" : "opacity-100"} transition-opacity duration-200`}
+                     className={`flex flex-col items-start justify-between space-y-3 border-t border-slate-100 p-3 sm:p-4 md:flex-row md:items-center md:space-y-0 ${isFetching ? "pointer-events-none opacity-50" : "opacity-100"} transition-opacity duration-200`}
                      aria-label="Navegação da tabela"
                   >
                      {/* Contagem e tamanho da pagina so com o rodape em

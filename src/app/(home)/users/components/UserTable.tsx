@@ -1,7 +1,6 @@
 "use client";
 
 import {
-   Button,
    Checkbox,
    Table,
    TableHead,
@@ -10,9 +9,9 @@ import {
    TableCell,
    TableHeadCell,
 } from "flowbite-react";
-import { HiCheckCircle } from "react-icons/hi";
+import Link from "next/link";
+import { HiChevronRight } from "react-icons/hi";
 import { UserPublic } from "services/routes/users";
-import { useRouter } from "next/navigation";
 import { useUnidadeOptions } from "@/hooks/queries";
 import { formatSaram } from "@/constants/formats/saram";
 import type { ExportCart } from "@/components/export/useExportCart";
@@ -24,7 +23,6 @@ interface UserTableProps {
 }
 
 export function UserTable({ usuarios, cart }: UserTableProps) {
-   const router = useRouter();
    const unidadeOptions = useUnidadeOptions();
 
    const pageIds = usuarios.map((u) => u.id);
@@ -38,13 +36,20 @@ export function UserTable({ usuarios, cart }: UserTableProps) {
       else cart.addMany(usuarios);
    };
 
+   // Sem moldura propria: a tabela ocupa o card da pagina de ponta a ponta,
+   // como a de tripulantes. Antes era um card dentro do card, e a margem
+   // lateral roubava a largura que faltava as colunas.
    return (
-      <div className="mx-2 hidden min-h-100 overflow-x-auto rounded border border-slate-200 bg-white shadow-sm lg:block">
+      <div className="hidden min-h-100 overflow-x-auto lg:block">
          <Table
             hoverable
             theme={{
-               body: { cell: { base: "py-1" } },
-               head: { cell: { base: "bg-white border-b border-slate-200" } },
+               body: { cell: { base: "px-4 py-1" } },
+               head: {
+                  cell: {
+                     base: "bg-gray-50 px-4",
+                  },
+               },
             }}
          >
             <TableHead>
@@ -69,15 +74,33 @@ export function UserTable({ usuarios, cart }: UserTableProps) {
                         }
                      />
                   </TableHeadCell>
-                  <TableHeadCell>P/G</TableHeadCell>
-                  <TableHeadCell>Quadro</TableHeadCell>
-                  <TableHeadCell>Especialidade</TableHeadCell>
-                  <TableHeadCell>Nome de Guerra</TableHeadCell>
-                  <TableHeadCell>Nome Completo</TableHeadCell>
-                  <TableHeadCell className="text-center">SARAM</TableHeadCell>
-                  <TableHeadCell className="text-center">ID</TableHeadCell>
-                  <TableHeadCell className="text-center">Unidade</TableHeadCell>
-                  <TableHeadCell className="text-center">Status</TableHeadCell>
+                  <TableHeadCell className="whitespace-nowrap">
+                     P/G
+                  </TableHeadCell>
+                  <TableHeadCell className="whitespace-nowrap">
+                     Quadro
+                  </TableHeadCell>
+                  <TableHeadCell className="whitespace-nowrap">
+                     Especialidade
+                  </TableHeadCell>
+                  <TableHeadCell className="whitespace-nowrap">
+                     Nome de Guerra
+                  </TableHeadCell>
+                  <TableHeadCell className="whitespace-nowrap">
+                     Nome Completo
+                  </TableHeadCell>
+                  <TableHeadCell className="text-center whitespace-nowrap">
+                     SARAM
+                  </TableHeadCell>
+                  <TableHeadCell className="text-center whitespace-nowrap">
+                     ID
+                  </TableHeadCell>
+                  <TableHeadCell className="text-center whitespace-nowrap">
+                     Unidade
+                  </TableHeadCell>
+                  <TableHeadCell className="text-center whitespace-nowrap">
+                     Status
+                  </TableHeadCell>
                   <TableHeadCell>
                      <span className="sr-only">Ações</span>
                   </TableHeadCell>
@@ -100,7 +123,7 @@ export function UserTable({ usuarios, cart }: UserTableProps) {
                               aria-label={`Selecionar ${user.nome_guerra}`}
                            />
                         </TableCell>
-                        <TableCell className="uppercase">
+                        <TableCell className="text-sm font-medium whitespace-nowrap text-slate-600 uppercase">
                            {user.posto.short}
                         </TableCell>
                         <TableCell className="text-gray-600 uppercase">
@@ -110,10 +133,20 @@ export function UserTable({ usuarios, cart }: UserTableProps) {
                            {user.esp || "—"}
                         </TableCell>
                         <TableCell className="font-medium text-gray-800 capitalize dark:text-white">
-                           {user.nome_guerra}
+                           <span
+                              className="block max-w-36 truncate"
+                              title={user.nome_guerra}
+                           >
+                              {user.nome_guerra}
+                           </span>
                         </TableCell>
                         <TableCell className="text-gray-600 capitalize">
-                           {user.nome_completo}
+                           <span
+                              className="block max-w-56 truncate"
+                              title={user.nome_completo ?? undefined}
+                           >
+                              {user.nome_completo}
+                           </span>
                         </TableCell>
                         <TableCell className="text-center font-mono whitespace-nowrap text-gray-500">
                            {formatSaram(user.saram)}
@@ -121,35 +154,45 @@ export function UserTable({ usuarios, cart }: UserTableProps) {
                         <TableCell className="text-center font-mono text-gray-500">
                            {user.id_fab ?? "—"}
                         </TableCell>
-                        <TableCell className="text-center">
+                        <TableCell className="text-center whitespace-nowrap">
                            {unidadeOptions.find((u) => u.value === user.unidade)
                               ?.label || user.unidade}
                         </TableCell>
                         <TableCell className="text-center">
-                           <div
-                              className={clsx(
-                                 "flex items-center justify-center gap-1 py-1 font-medium",
-                                 // green-700: o 600 media 3.22:1 sobre branco —
-                                 // abaixo do piso AA (4.5:1) para texto de 12px
-                                 user.active
-                                    ? "text-green-700"
-                                    : "text-gray-600"
-                              )}
-                           >
-                              <HiCheckCircle className="size-4" />
-                              <span className="text-sm">
+                           {/* Ponto em vez de icone: o check de 16px repetido
+                               em cinquenta linhas virava um carimbo, e a cor
+                               ja diz o estado. O texto fica em slate — verde
+                               no rotulo dobrava o mesmo sinal. */}
+                           <span className="inline-flex items-center gap-1.5 text-sm">
+                              <span
+                                 aria-hidden
+                                 className={clsx(
+                                    "size-1.5 rounded-full",
+                                    user.active
+                                       ? "bg-emerald-500"
+                                       : "bg-slate-400"
+                                 )}
+                              />
+                              <span
+                                 className={clsx(
+                                    user.active
+                                       ? "text-slate-600"
+                                       : "text-slate-500"
+                                 )}
+                              >
                                  {user.active ? "Ativo" : "Inativo"}
                               </span>
-                           </div>
+                           </span>
                         </TableCell>
-                        <TableCell className="text-center">
-                           <Button
-                              color="light"
-                              size="xs"
-                              onClick={() => router.push(`/users/${user.id}`)}
+                        <TableCell className="text-right">
+                           <Link
+                              href={`/users/${user.id}`}
+                              aria-label={`Detalhes de ${user.nome_guerra}`}
+                              title={`Detalhes de ${user.nome_guerra}`}
+                              className="hover:border-primary-300 hover:text-primary-700 focus-visible:outline-primary-600 inline-flex items-center justify-center rounded border border-slate-200 p-1.5 text-slate-500 transition-colors outline-none focus-visible:outline-[2px] focus-visible:outline-offset-[2px] focus-visible:[outline-style:solid] pointer-coarse:min-h-[44px] pointer-coarse:min-w-[44px]"
                            >
-                              Detalhes
-                           </Button>
+                              <HiChevronRight className="h-4 w-4" />
+                           </Link>
                         </TableCell>
                      </TableRow>
                   );

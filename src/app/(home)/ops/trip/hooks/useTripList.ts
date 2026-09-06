@@ -101,7 +101,8 @@ export function useTripList() {
       ]
    );
 
-   const { data, isLoading, isFetching, refetch } = useTrips(queryParams);
+   const { data, isLoading, isFetching, isError, refetch } =
+      useTrips(queryParams);
 
    // --- Update handlers ---
    const updateSearch = useCallback(
@@ -160,6 +161,7 @@ export function useTripList() {
    return {
       trips: data?.items ?? [],
       loading: isLoading,
+      isError,
       isFetching,
       refetch,
       filters,

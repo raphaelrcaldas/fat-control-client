@@ -86,7 +86,10 @@ export function MultiSelect({
       selected.length === 0
          ? placeholder
          : selected.length === 1
-           ? options.find((opt) => opt.value === selected[0])?.label || ""
+           ? // catalogo assincrono: enquanto as opcoes nao chegam, o proprio
+             // valor no lugar do rotulo — em branco o controle parecia vazio
+             (options.find((opt) => opt.value === selected[0])?.label ??
+             selected[0])
            : `${selected.length} selecionados`;
 
    const dropdownContent = isOpen && (
@@ -166,6 +169,7 @@ export function MultiSelect({
             ref={buttonRef}
             type="button"
             onClick={toggleDropdown}
+            title={displayText}
             style={{ transform: "translateZ(0)" }}
             /* Foco visivel so no TECLADO (`focus-visible`), nunca no clique
                de mouse — era o incomodo do `focus:ring-2` antigo. O estilo e a
@@ -179,18 +183,21 @@ export function MultiSelect({
                   : "border-gray-300 text-gray-900 hover:bg-gray-50"
             }`}
          >
+            {/* `min-w-0` + `truncate`: sem eles o rotulo de varias selecoes
+                quebrava em duas linhas e o controle crescia, desalinhando a
+                barra de filtros inteira. */}
             <span
-               className={`flex items-center gap-1.5 ${selected.length === 0 ? "text-gray-500" : ""}`}
+               className={`flex min-w-0 items-center gap-1.5 ${selected.length === 0 ? "text-gray-500" : ""}`}
             >
-               {displayText}
+               <span className="truncate">{displayText}</span>
                {selected.length > 1 && (
-                  <span className="bg-primary-600 inline-flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-xs font-semibold text-white">
+                  <span className="bg-primary-600 inline-flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full px-1.5 text-xs font-semibold text-white">
                      {selected.length}
                   </span>
                )}
             </span>
             <HiChevronDown
-               className={`h-4 w-4 text-gray-500 ${isOpen ? "rotate-180" : ""}`}
+               className={`h-4 w-4 shrink-0 text-gray-500 ${isOpen ? "rotate-180" : ""}`}
             />
          </button>
 
