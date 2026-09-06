@@ -43,6 +43,7 @@ export class BrowserSession {
          // Ponteiro grosso: faz `pointer: coarse` valer, como num tablet real.
          hasTouch: Boolean(breakpoint.touch),
          isMobile: Boolean(breakpoint.touch),
+         deviceScaleFactor: breakpoint.dpr ?? 1,
       });
 
       if (this.token) {

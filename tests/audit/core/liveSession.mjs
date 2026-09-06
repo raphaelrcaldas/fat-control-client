@@ -13,17 +13,20 @@ import { installDomUtils } from "../browser/domUtils.mjs";
  * |-|-|-|
  * | Sessao | contexto novo por breakpoint | a aba viva, com o login que ja esta la |
  * | Estado | recomeca do zero | sobrevive entre execucoes |
- * | Toque | emula `pointer: coarse` | impossivel (ver abaixo) |
+ * | Toque | opcao de contexto (`hasTouch`) | override de CDP na aba (ver abaixo) |
  *
- * **Nao ha emulacao de toque aqui.** `hasTouch`/`isMobile` sao opcoes de
- * CONTEXTO, e o contexto e o do browser ja aberto — nao da para recria-lo sem
- * perder o perfil logado, que e justamente o que se veio buscar. Encolher a
- * viewport para 360px sem isso deixa `@media (pointer: coarse)` desligado, e a
- * regua de alvo de toque passa a ser a de mouse (24px) com cara de mobile. Esse
- * falso positivo ja custou caro uma vez (ver o comentario do screenshot em
- * `auditor.mjs`), entao aqui a viewport estreita e permitida mas o breakpoint
- * sai sempre com `touch: false` — e o `peek` avisa. Medida de toque de verdade
- * continua sendo com `audit.mjs`.
+ * **Toque aqui e emulado por CDP, nao por contexto.** `hasTouch`/`isMobile` sao
+ * opcoes de CONTEXTO, e o contexto e o do browser ja aberto — recria-lo perderia
+ * o perfil logado, que e justamente o que se veio buscar. O caminho e o mesmo
+ * que o DevTools usa no modo dispositivo: `Emulation.setDeviceMetricsOverride`
+ * (mobile + dpr) e `Emulation.setTouchEmulationEnabled`. Sem isso, encolher a
+ * viewport para 360px deixaria `@media (pointer: coarse)` desligado e a regua de
+ * alvo passaria a ser a de mouse (24px) com cara de mobile — falso positivo que
+ * ja custou caro uma vez (ver o comentario do screenshot em `auditor.mjs`).
+ *
+ * O override e de ABA e SOBREVIVE a execucao, entao ele e reaplicado a cada
+ * `open()` conforme o breakpoint pedido — inclusive desligado no desktop. Do
+ * contrario um `--viewport mobile` deixaria a aba grossa para o peek seguinte.
  *
  * Sobre `stop()`: `browser.close()` numa conexao CDP apenas DESCONECTA — o
  * Chromium continua no ar (verificado). E o que se quer: o proximo `peek`
@@ -32,6 +35,7 @@ import { installDomUtils } from "../browser/domUtils.mjs";
 export class LiveSession {
    #browser = null;
    #context = null;
+   #cdp = null;
 
    constructor({
       endpoint,
@@ -84,13 +88,15 @@ export class LiveSession {
    }
 
    async stop() {
+      // Nao se desfaz a emulacao aqui: fechar a conexao ja a reverte, e a aba
+      // volta ao ponteiro do sistema para quem estiver olhando a janela.
+      this.#cdp = null;
       await this.#browser?.close();
       this.#browser = null;
       this.#context = null;
    }
 
    /**
-    * `breakpoint` aqui e so `{ name, width, height }` — ver a nota sobre toque.
     * Devolve o mesmo handle do `BrowserSession`, mas `close()` e no-op: fechar
     * a aba destruiria o estado que a proxima execucao quer encontrar.
     */
@@ -124,10 +130,7 @@ export class LiveSession {
       // quem decide e isto nao muda nada — o aviso sai no peek.
       if (this.scheme) await page.emulateMedia({ colorScheme: this.scheme });
 
-      await page.setViewportSize({
-         width: breakpoint.width,
-         height: breakpoint.height,
-      });
+      await this.#emulateDevice(page, breakpoint);
 
       await this.#hideDevChrome(page);
       await page.evaluate(installDomUtils);
@@ -145,6 +148,46 @@ export class LiveSession {
       await page.waitForTimeout(this.settle);
 
       return { page, close: async () => {} };
+   }
+
+   /**
+    * Poe a aba no aparelho pedido: tamanho, densidade de pixel e ponteiro.
+    *
+    * `setViewportSize` sozinho so muda o retangulo — o ponteiro continua fino e
+    * `pointer: coarse` nao vale. As duas chamadas de `Emulation` abaixo sao o
+    * que o DevTools faz no modo dispositivo; `setEmitTouchEventsForMouse` com
+    * `configuration: "mobile"` e a que troca o TIPO de ponteiro primario (o
+    * `setTouchEmulationEnabled` sozinho so cria os eventos de toque).
+    */
+   async #emulateDevice(page, breakpoint) {
+      const touch = Boolean(breakpoint.touch);
+
+      await page.setViewportSize({
+         width: breakpoint.width,
+         height: breakpoint.height,
+      });
+
+      // A sessao CDP fica ATIVA ate o fim da execucao de proposito: override de
+      // Emulation e por sessao, e `detach()` reverte tudo na hora — foi assim
+      // que a primeira versao mediu 44px de regua com ponteiro fino, cobrando
+      // do dedo o que a tela renderizou para o mouse.
+      const cdp = await this.#context.newCDPSession(page);
+      this.#cdp = cdp;
+
+      await cdp.send("Emulation.setDeviceMetricsOverride", {
+         width: breakpoint.width,
+         height: breakpoint.height,
+         deviceScaleFactor: breakpoint.dpr ?? 1,
+         mobile: touch,
+      });
+      await cdp.send("Emulation.setTouchEmulationEnabled", {
+         enabled: touch,
+         maxTouchPoints: touch ? 5 : 1,
+      });
+      await cdp.send("Emulation.setEmitTouchEventsForMouse", {
+         enabled: touch,
+         configuration: touch ? "mobile" : "desktop",
+      });
    }
 
    /**

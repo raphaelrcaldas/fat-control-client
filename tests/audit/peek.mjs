@@ -95,16 +95,28 @@ async function main() {
       : (args.only ?? DEFAULT_COLLECTORS);
    const collectors = buildCollectors(names);
 
-   // Ver a nota sobre toque em core/liveSession.mjs: numa aba emprestada nao ha
-   // como ligar `pointer: coarse`, entao a regua de alvo aqui e sempre a de
-   // mouse. Dizer isso e o que impede o numero de ser lido como medida de dedo.
-   const breakpoint = { ...args.viewport, touch: false };
-   if (breakpoint.width <= 768 && names.includes("touchTargets")) {
+   // Viewport nomeada carrega o aparelho inteiro (ponteiro e dpr); WxH avulsa e
+   // so um retangulo, e ai o ponteiro fica fino. Dizer isso e o que impede o
+   // numero de alvo de ser lido como medida de dedo.
+   const breakpoint = args.viewport;
+   if (
+      !breakpoint.touch &&
+      breakpoint.width <= 768 &&
+      names.includes("touchTargets")
+   ) {
       console.warn(
          `[peek] aviso: viewport estreita mas ponteiro FINE (24px). ` +
-            `Medida de dedo (44px): node tests/audit/audit.mjs --breakpoints mobile`
+            `Para a regua de dedo use uma viewport nomeada: --viewport mobile`
       );
    }
+
+   // Carimba o aparelho medido: sem isto, um screenshot estreito nao diz se
+   // saiu do aparelho de referencia ou de um WxH avulso com ponteiro de mouse.
+   console.log(
+      `[peek] ${breakpoint.device ?? breakpoint.name} — ` +
+         `${breakpoint.width}x${breakpoint.height} @${breakpoint.dpr ?? 1}x · ` +
+         `ponteiro ${breakpoint.touch ? "COARSE (dedo, 44px)" : "fine (mouse, 24px)"}`
+   );
 
    const { endpoint } = await ensureDevChrome({
       port: args.port,
@@ -164,7 +176,14 @@ async function main() {
          // Sem Escape, sem blur, sem scrollTo (o que o `audit.mjs` faz antes de
          // fotografar): ali a pagina e descartavel, aqui ela e o estado que se
          // esta refinando. Fotografa-se como esta.
-         await handle.page.screenshot({ path: file, fullPage: args.full });
+         // `scale: "css"` fotografa em pixel CSS: num aparelho dpr 3 o PNG
+         // sairia com 3x a largura e diria a mesma coisa, so que ilegivel de
+         // tao grande ao lado da regua em px CSS do relatorio.
+         await handle.page.screenshot({
+            path: file,
+            fullPage: args.full,
+            scale: "css",
+         });
          console.log(`\n[peek] screenshot: ${file}`);
       }
 

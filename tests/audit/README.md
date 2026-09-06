@@ -1,7 +1,9 @@
 # Auditoria de UI/UX
 
 Abre uma rota num Chromium real, em vários breakpoints, e mede **o que foi
-renderizado** — não o que o código pretendia. Nasceu para dar evidência ao
+renderizado** — não o que o código pretendia. O breakpoint `mobile` é o
+**Galaxy S25** (360x780 CSS, dpr 3, dedo), o aparelho de referência do projeto:
+ajuste de mobile se confere nele. Nasceu para dar evidência ao
 agente `ui-ux-auditor`, mas roda sozinho.
 
 Serve os três frontends: o alvo é só a URL (`client:4000`, `fatbird:5000`,
@@ -101,7 +103,7 @@ node tests/audit/peek.mjs --help
 | Browser        | sobe e descarta a cada execução | um Chromium persistente (CDP) |
 | Sessão         | cookie de `.e2e_token`          | o login que já está na aba    |
 | Estado da tela | recomeça do zero                | **sobrevive entre execuções** |
-| Viewports      | 4, com `pointer: coarse` real   | 1, sempre `pointer: fine`     |
+| Viewports      | 4                               | 1, a que você pedir           |
 | Saída          | `report.md` + `report.json`     | resumo no terminal + PNG      |
 | Custo típico   | dezenas de segundos             | ~1s                           |
 
@@ -121,13 +123,22 @@ navega até o estado uma vez (`--actions`) e mede quantas vezes quiser. Use
 Login também se faz **uma vez**: o perfil persiste, então não há token de longa
 duração para expirar em silêncio.
 
-### Limitação: ponteiro
+### Ponteiro: viewport nomeada emula o dedo
 
-Não há emulação de toque. `hasTouch`/`isMobile` são opções de _contexto_, e o
-contexto aqui é o do browser já aberto — recriá-lo custaria o perfil logado, que
-é o motivo de existir a ferramenta. `--viewport mobile` estreita a janela mas
-mantém `pointer: fine`, e o `peek` avisa quando isso importa. **Medida de alvo
-de toque continua sendo com `audit.mjs`.**
+`--viewport mobile` não estreita só a janela: emula o aparelho inteiro, com
+`pointer: coarse` e a régua de 44px. Como `hasTouch`/`isMobile` são opções de
+_contexto_ — e recriar o contexto custaria o perfil logado, que é o motivo de
+existir a ferramenta —, a emulação vai por CDP na própria aba
+(`Emulation.setDeviceMetricsOverride` + `setTouchEmulationEnabled`), o mesmo
+caminho do modo dispositivo do DevTools.
+
+O override é **por sessão CDP**: ela fica aberta até o fim da execução de
+propósito, porque `detach()` reverte tudo na hora — foi assim que a primeira
+versão mediu com régua de dedo uma tela renderizada para mouse. Ao terminar, a
+aba volta ao ponteiro do sistema.
+
+`--viewport 400x900` (WxH avulso) é só um retângulo: fica com ponteiro de mouse,
+e o `peek` avisa.
 
 `layoutShift` e `focusRing` também ficam de fora, por incompatibilidade real: o
 primeiro precisa instrumentar a página antes do primeiro paint; o segundo

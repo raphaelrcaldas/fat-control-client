@@ -129,7 +129,13 @@ async function measure({ session, breakpoint, collectors, outDir, logger }) {
       await handle.page.waitForTimeout(250);
 
       const screenshot = path.join(outDir, `${breakpoint.name}.png`);
-      await handle.page.screenshot({ path: screenshot, fullPage: true });
+      // Em pixel CSS: o aparelho de referencia e dpr 3, e um PNG 3x nao
+      // acrescenta nada a uma regua que fala em px CSS.
+      await handle.page.screenshot({
+         path: screenshot,
+         fullPage: true,
+         scale: "css",
+      });
       measurement.screenshot = screenshot;
    } finally {
       await handle.close();

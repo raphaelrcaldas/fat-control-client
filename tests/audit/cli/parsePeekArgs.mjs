@@ -1,3 +1,5 @@
+import { BREAKPOINTS } from "../core/breakpoints.mjs";
+
 const USAGE = `
 Peek — ciclo curto de refino de UI. Anexa num Chromium persistente (CDP), mede a
 aba viva e devolve screenshot + console. Nao recarrega a pagina por padrao: o
@@ -8,6 +10,8 @@ Fast Refresh do Next ja repintou, e o estado (modal aberto, aba, filtro) fica.
 Opcoes:
   --url <url>          Rota alvo (obrigatorio). Ex: http://localhost:4000/ops/operacoes
   --viewport <v>       Nome (mobile|tablet|desktop|wide) ou WxH. Default: desktop
+                       Nome = aparelho inteiro (mobile = Galaxy S25, dedo e dpr 3);
+                       WxH = so o retangulo, com ponteiro de mouse
   --only <a,b>         So estes coletores. Default: movimento, estouro, espacamento,
                        raios, alvos e paleta
   --all                Todos os coletores disponiveis no peek
@@ -25,8 +29,6 @@ Opcoes:
   --no-shot            Nao tira screenshot
   --out <dir>          Onde gravar (default: client/.peek/<slug-da-rota>)
 
-Medida de alvo de toque com ponteiro grosso continua sendo com audit.mjs — ver
-a nota em core/liveSession.mjs.
 `;
 
 /** Coletores que fazem sentido no ciclo curto (ver peek.mjs para o porque). */
@@ -39,16 +41,15 @@ export const DEFAULT_COLLECTORS = [
    "color",
 ];
 
-const NAMED_VIEWPORTS = {
-   mobile: { width: 360, height: 800 },
-   tablet: { width: 768, height: 1024 },
-   desktop: { width: 1280, height: 900 },
-   wide: { width: 1920, height: 1080 },
-};
+// Fonte unica com a auditoria: nome de viewport aqui e o mesmo aparelho medido
+// la (mobile = Galaxy S25), senao os dois modos mediriam telas diferentes.
+const NAMED_VIEWPORTS = Object.fromEntries(
+   BREAKPOINTS.map((breakpoint) => [breakpoint.name, breakpoint])
+);
 
 function parseViewport(value) {
    const named = NAMED_VIEWPORTS[value];
-   if (named) return { name: value, ...named };
+   if (named) return { ...named };
 
    const match = /^(\d+)x(\d+)$/.exec(value);
    if (!match) {
@@ -56,10 +57,13 @@ function parseViewport(value) {
          `Viewport invalida: ${value}. Use ${Object.keys(NAMED_VIEWPORTS).join("|")} ou WxH (ex: 1024x768).`
       );
    }
+   // Retangulo avulso nao e aparelho: sem toque e sem dpr, e o peek avisa
    return {
       name: value,
       width: Number(match[1]),
       height: Number(match[2]),
+      dpr: 1,
+      touch: false,
    };
 }
 
