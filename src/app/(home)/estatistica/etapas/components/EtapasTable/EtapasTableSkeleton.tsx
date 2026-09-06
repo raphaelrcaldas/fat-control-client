@@ -49,8 +49,8 @@ function EtapaRowSkeleton() {
          <TableCell className="hidden w-92 md:table-cell">
             <Bar className="mx-auto h-5 w-80" />
          </TableCell>
-         <TableCell className="hidden lg:table-cell">
-            <div className="flex flex-wrap items-center gap-1">
+         <TableCell className="hidden min-w-36 lg:table-cell">
+            <div className="flex flex-wrap items-center gap-0.5">
                <Bar className="h-5 w-10 bg-slate-100" />
                <Bar className="h-5 w-10 bg-slate-100" />
                <Bar className="h-5 w-10 bg-slate-100" />
@@ -76,7 +76,7 @@ function InnerTableSkeleton({ rows }: { rows: number }) {
          <Table
             className="text-center"
             theme={{
-               body: { cell: { base: "px-1 py-1.5 align-middle" } },
+               body: { cell: { base: "px-1 py-0.5 align-middle" } },
             }}
          >
             <TableBody className="divide-y">

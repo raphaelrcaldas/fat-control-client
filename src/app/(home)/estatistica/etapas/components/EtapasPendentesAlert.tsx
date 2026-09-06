@@ -78,7 +78,7 @@ export function EtapasPendentesAlert({
             className="absolute top-0 left-0 h-full w-1 bg-amber-500"
          />
 
-         <div className="relative flex flex-wrap items-start gap-x-3 gap-y-2">
+         <div className="relative flex flex-wrap items-center gap-x-3 gap-y-2">
             {/* O ping é o que chama atenção. `motion-safe:` porque é
                 decorativo — quem pediu menos movimento fica com o ponto
                 estático, sem perder o sinal. */}

@@ -198,7 +198,11 @@ export const EtapaRow = memo(function EtapaRow({
             {pousos > 1 ? pousos : null}
          </TableCell>
          <TableCell className="hidden w-80 md:table-cell">{oiList}</TableCell>
-         <TableCell className="hidden lg:table-cell">
+         {/* `lg` considera a viewport inteira, inclusive a sidebar. Sem um
+             piso, o table-layout auto comprime esta coluna até a largura de
+             um badge e transforma a tripulação numa torre vertical. O wrapper
+             da tabela já oferece overflow-x para a largura excedente. */}
+         <TableCell className="hidden min-w-36 lg:table-cell">
             {tripBadges.length > 0 ? (
                <div className="flex flex-wrap items-center gap-0.5">
                   {tripBadges}
