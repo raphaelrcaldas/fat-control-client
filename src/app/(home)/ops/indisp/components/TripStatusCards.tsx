@@ -1,18 +1,26 @@
 "use client";
 
 import clsx from "clsx";
-import { isoStrToDate, formatDateFull } from "utils/dateHandler";
-import { CrewIndisp } from "services/routes/indisps";
+import { formatDateFull, isoStrToDate } from "utils/dateHandler";
+import type { RestricaoDerivada } from "services/routes/ops/restricoes";
 import {
-   isCemalValid,
-   isDesadaptado,
-   isElegivelDesadapta,
    daysSinceLastFlight,
+   filterRestricoesForDate,
 } from "../utils/indispStatus";
 
-export function CemalCard({ cemal }: { cemal: string | null }) {
+export function CemalCard({
+   cemal,
+   restricoesDerivadas,
+}: {
+   cemal: string | null;
+   restricoesDerivadas: RestricaoDerivada[];
+}) {
    const cemalDate = cemal ? isoStrToDate(cemal) : null;
-   const isValid = cemalDate ? isCemalValid(cemalDate, new Date()) : false;
+   const cemalRestricao = filterRestricoesForDate(
+      restricoesDerivadas,
+      new Date()
+   ).find((restricao) => restricao.origem === "cemal");
+   const isValid = !cemalRestricao;
 
    return (
       <div
@@ -56,17 +64,24 @@ export function CemalCard({ cemal }: { cemal: string | null }) {
 
 export function UltVooCard({
    dataUltVoo,
-   trip,
+   elegivelDesadaptacao,
+   restricoesDerivadas,
 }: {
    dataUltVoo: string | null;
-   trip: CrewIndisp;
+   elegivelDesadaptacao: boolean;
+   restricoesDerivadas: RestricaoDerivada[];
 }) {
    const ultVooDate = dataUltVoo ? isoStrToDate(dataUltVoo) : null;
-   const isEligible = isElegivelDesadapta(trip);
+   const restricoesHoje = filterRestricoesForDate(
+      restricoesDerivadas,
+      new Date()
+   );
+   const desadaptado = restricoesHoje.some(
+      (restricao) => restricao.codigo === "desadaptacao"
+   );
    const days = daysSinceLastFlight(ultVooDate, new Date());
-   const desadaptado = isDesadaptado(ultVooDate, new Date(), trip);
 
-   const cardClass = !isEligible
+   const cardClass = !elegivelDesadaptacao
       ? "border-slate-200 bg-gray-50"
       : desadaptado
         ? "border-slate-200 bg-slate-50"
@@ -74,7 +89,7 @@ export function UltVooCard({
           ? "border-emerald-200 bg-emerald-50"
           : "border-slate-200 bg-gray-50";
 
-   const textClass = !isEligible
+   const textClass = !elegivelDesadaptacao
       ? "text-gray-600"
       : desadaptado
         ? "text-slate-700"
@@ -82,7 +97,7 @@ export function UltVooCard({
           ? "text-emerald-700"
           : "text-gray-600";
 
-   const subTextClass = !isEligible
+   const subTextClass = !elegivelDesadaptacao
       ? "text-gray-500"
       : desadaptado
         ? "text-slate-600"
@@ -90,7 +105,7 @@ export function UltVooCard({
           ? "text-emerald-600"
           : "text-gray-500";
 
-   const statusText = !isEligible
+   const statusText = !elegivelDesadaptacao
       ? "Não elegível"
       : desadaptado
         ? `Desadaptado (${days}d)`

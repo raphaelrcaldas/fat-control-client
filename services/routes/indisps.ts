@@ -1,6 +1,10 @@
 import request from "../Api";
 import type { ApiResponse } from "@/types/api";
 import { UserPublic } from "./users";
+import {
+   RestricoesDerivadasEntrySchema,
+   type RestricaoDerivada,
+} from "./ops/restricoes";
 
 const indispRoute = "indisp/";
 
@@ -33,6 +37,8 @@ export interface IndispType {
 export interface CrewIndispList {
    trip: CrewIndisp;
    indisps: IndispType[];
+   restricoes_derivadas: RestricaoDerivada[];
+   elegivel_desadaptacao: boolean;
 }
 
 // Interface para filtros de indisponibilidade
@@ -64,7 +70,13 @@ export async function getCrewIndisps(
    if (!response.ok) {
       throw new Error(json.message || "Erro ao buscar indisponibilidades");
    }
-   return json.data || [];
+   if (!json.data) {
+      throw new Error("Resposta vazia do servidor");
+   }
+   return json.data.map((entry) => ({
+      ...entry,
+      ...RestricoesDerivadasEntrySchema.parse(entry),
+   }));
 }
 
 export async function getIndispByUser(

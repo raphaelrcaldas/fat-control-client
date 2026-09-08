@@ -8,6 +8,8 @@ import {
 import type { DadosConfirmados } from "services/routes/aeromedica/atas";
 import { cartoesSaudeKeys } from "./useCartoesSaude";
 import { storageKeys } from "./useStorage";
+import { indispKeys } from "./useIndisps";
+import { escalaKeys } from "./useEscala";
 
 // ========================================
 // Query Keys
@@ -76,6 +78,8 @@ export function useUploadAta() {
          queryClient.invalidateQueries({
             queryKey: storageKeys.all,
          });
+         queryClient.invalidateQueries({ queryKey: indispKeys.all });
+         queryClient.invalidateQueries({ queryKey: escalaKeys.all });
       },
    });
 }
@@ -102,6 +106,8 @@ export function useDeleteAta() {
          queryClient.invalidateQueries({
             queryKey: cartoesSaudeKeys.historicos(),
          });
+         queryClient.invalidateQueries({ queryKey: indispKeys.all });
+         queryClient.invalidateQueries({ queryKey: escalaKeys.all });
       },
    });
 }

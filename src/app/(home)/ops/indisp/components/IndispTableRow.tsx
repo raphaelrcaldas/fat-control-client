@@ -19,7 +19,12 @@ export function IndispTableRow({
    return (
       <tr>
          <th scope="row" className="grid justify-items-center p-px">
-            <TripIndisp trip={tripData.trip} indisps={tripData.indisps} />
+            <TripIndisp
+               trip={tripData.trip}
+               indisps={tripData.indisps}
+               restricoesDerivadas={tripData.restricoes_derivadas}
+               elegivelDesadaptacao={tripData.elegivel_desadaptacao}
+            />
          </th>
          {dates.map((day, index) => {
             const checkToday = datasIguais(day, today);

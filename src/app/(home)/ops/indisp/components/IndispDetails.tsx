@@ -13,13 +13,13 @@ import {
 import { getIndispOption } from "@/constants/ops/indisponibilidades";
 import { useIndispModalActions } from "../context/indispModalContext";
 import { CrewIndisp, IndispType } from "services/routes/indisps";
+import type { RestricaoDerivada } from "services/routes/ops/restricoes";
 
 type IndispDetailsProps = {
    trip: CrewIndisp;
    dateRef: Date;
    filterIndisp: IndispType[];
-   isValidCEMAL: boolean;
-   isDesadaptado: boolean;
+   restricoesDerivadas: RestricaoDerivada[];
 };
 
 /**
@@ -56,14 +56,13 @@ export default function IndispDetails({
    dateRef,
    trip,
    filterIndisp,
-   isDesadaptado,
-   isValidCEMAL,
+   restricoesDerivadas,
 }: IndispDetailsProps) {
    const { openForm } = useIndispModalActions();
 
    const diaSemana = dateRef.toLocaleDateString("pt-BR", { weekday: "long" });
    const dataFormatada = isoDateToString(dateToIso(dateRef));
-   const vazio = filterIndisp.length === 0 && isValidCEMAL && !isDesadaptado;
+   const vazio = filterIndisp.length === 0 && restricoesDerivadas.length === 0;
 
    return (
       <div className="text-sm">
@@ -95,21 +94,12 @@ export default function IndispDetails({
                />
             ))}
 
-            {!isValidCEMAL && (
-               <Aviso
-                  icon={MdErrorOutline}
-                  texto="CEMAL inválido"
-                  className="border-purple-200 bg-purple-50 text-purple-800 before:bg-purple-600"
+            {restricoesDerivadas.map((restricao) => (
+               <RestricaoDerivadaBody
+                  key={`${restricao.origem}-${restricao.codigo}`}
+                  restricao={restricao}
                />
-            )}
-
-            {isDesadaptado && (
-               <Aviso
-                  icon={MdOutlineFlightTakeoff}
-                  texto="Desadaptado"
-                  className="border-slate-300 bg-slate-50 text-slate-700 before:bg-slate-600"
-               />
-            )}
+            ))}
 
             {vazio && (
                <p className="py-4 text-center text-gray-500">
@@ -118,6 +108,34 @@ export default function IndispDetails({
             )}
          </div>
       </div>
+   );
+}
+
+function RestricaoDerivadaBody({
+   restricao,
+}: {
+   restricao: RestricaoDerivada;
+}) {
+   if (restricao.origem === "cemal") {
+      return (
+         <Aviso
+            icon={MdErrorOutline}
+            texto={
+               restricao.codigo === "cemal_ausente"
+                  ? "CEMAL não informado"
+                  : "CEMAL inválido"
+            }
+            className="border-purple-200 bg-purple-50 text-purple-800 before:bg-purple-600"
+         />
+      );
+   }
+
+   return (
+      <Aviso
+         icon={MdOutlineFlightTakeoff}
+         texto="Desadaptado"
+         className="border-slate-300 bg-slate-50 text-slate-700 before:bg-slate-600"
+      />
    );
 }
 

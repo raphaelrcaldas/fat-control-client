@@ -1,8 +1,6 @@
 import {
    daysSinceLastFlight,
-   isCemalValid,
-   isDesadaptado,
-   type ElegibilidadeDesadapta,
+   filterRestricoesForDate,
 } from "@/app/(home)/ops/indisp/utils/indispStatus";
 import { formatPeriodoSemAno, isoStrToDate } from "utils/dateHandler";
 import type {
@@ -12,23 +10,25 @@ import type {
 import type { BlockReason, SectionBucket, TripStatus } from "../types";
 
 function buildTripStatus(trip: EscalaTripEntry, dateRef: Date): TripStatus {
-   const cemal = trip.cemal_date ? isoStrToDate(trip.cemal_date) : null;
    const ultVoo = trip.data_ult_voo ? isoStrToDate(trip.data_ult_voo) : null;
-
-   const tripForDesadaptado: ElegibilidadeDesadapta = {
-      func: trip.func,
-      oper: trip.oper ?? "",
-   };
-
-   const desadapt = isDesadaptado(ultVoo, dateRef, tripForDesadaptado);
-   const cemalOk = isCemalValid(cemal, dateRef);
+   const restricoesDerivadas = filterRestricoesForDate(
+      trip.restricoes_derivadas,
+      dateRef
+   );
+   const cemalRestricao = restricoesDerivadas.find(
+      (restricao) => restricao.origem === "cemal"
+   );
+   const desadapt = restricoesDerivadas.some(
+      (restricao) => restricao.codigo === "desadaptacao"
+   );
 
    const reasons: BlockReason[] = [];
 
-   if (!cemalOk) {
-      const label = trip.cemal_date
-         ? `CEMAL vencido em ${formatPeriodoSemAno(trip.cemal_date, trip.cemal_date)}`
-         : "CEMAL ausente";
+   if (cemalRestricao) {
+      const label =
+         cemalRestricao.codigo === "cemal_ausente"
+            ? "CEMAL ausente"
+            : `CEMAL vencido em ${formatPeriodoSemAno(trip.cemal_date!, trip.cemal_date!)}`;
       reasons.push({ kind: "cemal", label });
    }
 
@@ -37,7 +37,7 @@ function buildTripStatus(trip: EscalaTripEntry, dateRef: Date): TripStatus {
       // acima já diz isso — listar as duas fazia o mesmo impedimento contar
       // duas vezes no card. Quando o CEMAL está em dia, o `ins` continua
       // aparecendo: aí ele informa algo novo (afastado para fazer o exame).
-      if (indisp.mtv === "ins" && !cemalOk) continue;
+      if (indisp.mtv === "ins" && cemalRestricao) continue;
 
       reasons.push({
          kind: "indisp",
@@ -55,8 +55,8 @@ function buildTripStatus(trip: EscalaTripEntry, dateRef: Date): TripStatus {
       trip,
       isDesadaptado: desadapt,
       dsvDias,
-      cemalValid: cemalOk,
-      isAvailable: cemalOk && trip.indisps.length === 0,
+      cemalValid: !cemalRestricao,
+      isAvailable: !cemalRestricao && trip.indisps.length === 0,
       reasons,
    };
 }

@@ -17,6 +17,8 @@ import {
 } from "services/routes/trips";
 import { getUserActionLogs } from "services/routes/logs";
 import { ApiError } from "services/Api";
+import { indispKeys } from "./useIndisps";
+import { escalaKeys } from "./useEscala";
 
 // ========================================
 // Query Keys - Centralizadas
@@ -118,6 +120,8 @@ export function useCreateTrip() {
       onSuccess: () => {
          queryClient.invalidateQueries({ queryKey: tripKeys.lists() });
          queryClient.invalidateQueries({ queryKey: tripKeys.all });
+         queryClient.invalidateQueries({ queryKey: indispKeys.all });
+         queryClient.invalidateQueries({ queryKey: escalaKeys.all });
       },
    });
 }
@@ -135,6 +139,8 @@ export function useUpdateTrip() {
          queryClient.invalidateQueries({ queryKey: tripKeys.detail(id) });
          queryClient.invalidateQueries({ queryKey: tripKeys.lists() });
          queryClient.invalidateQueries({ queryKey: tripKeys.logs(id) });
+         queryClient.invalidateQueries({ queryKey: indispKeys.all });
+         queryClient.invalidateQueries({ queryKey: escalaKeys.all });
       },
    });
 }
@@ -168,6 +174,8 @@ export function usePatchTrip() {
          queryClient.invalidateQueries({ queryKey: tripKeys.detail(id) });
          queryClient.invalidateQueries({ queryKey: tripKeys.lists() });
          queryClient.invalidateQueries({ queryKey: tripKeys.logs(id) });
+         queryClient.invalidateQueries({ queryKey: indispKeys.all });
+         queryClient.invalidateQueries({ queryKey: escalaKeys.all });
       },
    });
 }

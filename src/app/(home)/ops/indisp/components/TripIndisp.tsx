@@ -10,6 +10,7 @@ import {
 } from "flowbite-react";
 import { PermBased } from "@/app/(home)/hooks/usePermBased";
 import { CrewIndisp, IndispType } from "services/routes/indisps";
+import type { RestricaoDerivada } from "services/routes/ops/restricoes";
 import { useUserIndisps } from "@/hooks/queries";
 import { useIndispFilters } from "../hooks/useIndispFilters";
 import { useIndispModalActions } from "../context/indispModalContext";
@@ -21,11 +22,15 @@ import { TripIndispTableSkeleton } from "./TripIndispTableSkeleton";
 interface TripIndispProps {
    trip: CrewIndisp;
    indisps: IndispType[];
+   restricoesDerivadas: RestricaoDerivada[];
+   elegivelDesadaptacao: boolean;
 }
 
 export const TripIndisp = ({
    trip,
    indisps: initialIndisps,
+   restricoesDerivadas,
+   elegivelDesadaptacao,
 }: TripIndispProps) => {
    const [isOpen, setIsOpen] = useState(false);
    const { openForm } = useIndispModalActions();
@@ -75,8 +80,15 @@ export const TripIndisp = ({
                   </div>
 
                   <div className="mb-4 grid grid-cols-2 gap-3">
-                     <CemalCard cemal={trip.cemal} />
-                     <UltVooCard dataUltVoo={trip.data_ult_voo} trip={trip} />
+                     <CemalCard
+                        cemal={trip.cemal}
+                        restricoesDerivadas={restricoesDerivadas}
+                     />
+                     <UltVooCard
+                        dataUltVoo={trip.data_ult_voo}
+                        elegivelDesadaptacao={elegivelDesadaptacao}
+                        restricoesDerivadas={restricoesDerivadas}
+                     />
                   </div>
 
                   <TripIndispFilters

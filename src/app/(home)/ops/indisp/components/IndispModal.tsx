@@ -41,8 +41,7 @@ export function IndispModal({ indisps }: IndispModalProps) {
                   trip={tripData.trip}
                   dateRef={state.dateRef}
                   filterIndisp={status.filterIndisp}
-                  isValidCEMAL={status.isValidCEMAL}
-                  isDesadaptado={status.isDesadaptado}
+                  restricoesDerivadas={status.restricoesDerivadas}
                />
             )}
          </ModalBody>

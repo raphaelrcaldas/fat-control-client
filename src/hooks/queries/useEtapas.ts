@@ -3,6 +3,7 @@ import {
    useMutation,
    useQueryClient,
    keepPreviousData,
+   type QueryClient,
 } from "@tanstack/react-query";
 import {
    bulkUpdateEtapas,
@@ -27,6 +28,8 @@ import {
 import { esfAerKeys } from "./useEsfAer";
 import { indicadoresKeys } from "./useIndicadores";
 import { seboKeys } from "./useSebo";
+import { indispKeys } from "./useIndisps";
+import { escalaKeys } from "./useEscala";
 
 // ========================================
 // Query Keys - Centralizadas
@@ -45,6 +48,11 @@ export const etapaKeys = {
    pendentes: (limit?: number) =>
       [...etapaKeys.all, "pendentes", limit] as const,
 };
+
+function invalidateRestricoesOperacionais(queryClient: QueryClient) {
+   queryClient.invalidateQueries({ queryKey: indispKeys.all });
+   queryClient.invalidateQueries({ queryKey: escalaKeys.all });
+}
 
 // ========================================
 // Queries
@@ -98,6 +106,7 @@ export function useCreateMissao() {
       mutationFn: (data: MissaoCreate) => createMissao(data),
       onSuccess: () => {
          queryClient.invalidateQueries({ queryKey: etapaKeys.all });
+         invalidateRestricoesOperacionais(queryClient);
       },
    });
 }
@@ -116,6 +125,7 @@ export function useCreateMissaoWithEtapas() {
          queryClient.invalidateQueries({ queryKey: esfAerKeys.all });
          queryClient.invalidateQueries({ queryKey: seboKeys.all });
          queryClient.invalidateQueries({ queryKey: indicadoresKeys.all });
+         invalidateRestricoesOperacionais(queryClient);
       },
    });
 }
@@ -127,6 +137,7 @@ export function useUpdateMissao() {
          updateMissao(id, data),
       onSuccess: () => {
          queryClient.invalidateQueries({ queryKey: etapaKeys.all });
+         invalidateRestricoesOperacionais(queryClient);
       },
    });
 }
@@ -137,6 +148,7 @@ export function useDeleteEstatMissao() {
       mutationFn: (id: number) => deleteMissao(id),
       onSuccess: () => {
          queryClient.invalidateQueries({ queryKey: etapaKeys.all });
+         invalidateRestricoesOperacionais(queryClient);
       },
    });
 }
@@ -154,6 +166,7 @@ export function useCreateEtapa() {
          queryClient.invalidateQueries({ queryKey: esfAerKeys.all });
          queryClient.invalidateQueries({ queryKey: seboKeys.all });
          queryClient.invalidateQueries({ queryKey: indicadoresKeys.all });
+         invalidateRestricoesOperacionais(queryClient);
       },
    });
 }
@@ -168,6 +181,7 @@ export function useUpdateEtapa() {
          queryClient.invalidateQueries({ queryKey: esfAerKeys.all });
          queryClient.invalidateQueries({ queryKey: seboKeys.all });
          queryClient.invalidateQueries({ queryKey: indicadoresKeys.all });
+         invalidateRestricoesOperacionais(queryClient);
       },
    });
 }
@@ -181,6 +195,7 @@ export function useBulkUpdateEtapas() {
          queryClient.invalidateQueries({ queryKey: esfAerKeys.all });
          queryClient.invalidateQueries({ queryKey: seboKeys.all });
          queryClient.invalidateQueries({ queryKey: indicadoresKeys.all });
+         invalidateRestricoesOperacionais(queryClient);
       },
    });
 }
@@ -194,6 +209,7 @@ export function useDeleteEtapa() {
          queryClient.invalidateQueries({ queryKey: esfAerKeys.all });
          queryClient.invalidateQueries({ queryKey: seboKeys.all });
          queryClient.invalidateQueries({ queryKey: indicadoresKeys.all });
+         invalidateRestricoesOperacionais(queryClient);
       },
    });
 }

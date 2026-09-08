@@ -1,20 +1,12 @@
-import { dateIsIn, isoStrToDate, startOfDay } from "utils/dateHandler";
-import {
-   CrewIndisp,
-   CrewIndispList,
-   IndispType,
-} from "services/routes/indisps";
+import { dateIsIn, dateToIso, startOfDay } from "utils/dateHandler";
+import { CrewIndispList, IndispType } from "services/routes/indisps";
+import type { RestricaoDerivada } from "services/routes/ops/restricoes";
 import {
    INDISP_OPTIONS,
    getIndispOption,
 } from "@/constants/ops/indisponibilidades";
 
-export const MIN_DESADAPTA_DAYS = 45;
-
-/**
- * Dias decorridos (em dias inteiros) desde o último voo até a data de
- * referência, ignorando a hora. `null` quando não há data válida.
- */
+/** Indicador visual; a regra de desadaptação vem exclusivamente da API. */
 export function daysSinceLastFlight(
    ultVoo: Date | null,
    dateRef: Date
@@ -32,80 +24,54 @@ export function filterIndispsForDate(
    );
 }
 
-export function isCemalValid(cemal: Date | null, dateRef: Date): boolean {
-   return (
-      cemal instanceof Date &&
-      !isNaN(cemal.getTime()) &&
-      startOfDay(cemal) >= startOfDay(dateRef)
-   );
-}
-
-/**
- * Só `func`/`oper` decidem a elegibilidade, então o parâmetro pede só isso —
- * um `CrewIndisp` inteiro continua servindo. Cobrar o objeto completo obrigava
- * quem tem apenas os dois campos (ex: a escala, que recebe o tripulante em
- * outro formato) a fabricar um `CrewIndisp` falso com `as`.
- */
-export type ElegibilidadeDesadapta = Pick<CrewIndisp, "func" | "oper">;
-
-export function isElegivelDesadapta(trip: ElegibilidadeDesadapta): boolean {
-   return trip?.func !== "oe" && trip?.func !== "os" && trip?.oper !== "al";
-}
-
-export function isDesadaptado(
-   ultVoo: Date | null,
-   dateRef: Date,
-   trip: ElegibilidadeDesadapta
-): boolean {
-   const days = daysSinceLastFlight(ultVoo, dateRef);
-   return (
-      days !== null && days >= MIN_DESADAPTA_DAYS && isElegivelDesadapta(trip)
+export function filterRestricoesForDate(
+   restricoes: RestricaoDerivada[],
+   dateRef: Date
+): RestricaoDerivada[] {
+   const date = dateToIso(dateRef);
+   return restricoes.filter(
+      ({ inicio, fim }) => (!inicio || inicio <= date) && (!fim || fim >= date)
    );
 }
 
 export function getStatusColor(
    filteredIndisps: IndispType[],
-   hasValidCemal: boolean,
-   desadaptado: boolean
+   restricoes: RestricaoDerivada[]
 ): string {
    for (const option of INDISP_OPTIONS) {
       if (filteredIndisps.some((i) => i.mtv == option.value)) {
          return getIndispOption(option.value)?.color?.button ?? "bg-slate-500";
       }
    }
-   if (!hasValidCemal) return "bg-purple-600 enabled:hover:bg-purple-800";
-   if (desadaptado) return "bg-slate-600 enabled:hover:bg-slate-800";
+   if (restricoes.some((r) => r.origem === "cemal")) {
+      return "bg-purple-600 enabled:hover:bg-purple-800";
+   }
+   if (restricoes.some((r) => r.codigo === "desadaptacao")) {
+      return "bg-slate-600 enabled:hover:bg-slate-800";
+   }
    return "bg-emerald-600";
 }
 
 export interface IndispStatus {
    filterIndisp: IndispType[];
-   isValidCEMAL: boolean;
-   isDesadaptado: boolean;
+   restricoesDerivadas: RestricaoDerivada[];
    color: string;
    canOpen: boolean;
-}
-
-export function parseTripDates(trip: CrewIndisp) {
-   return {
-      cemal: trip.cemal ? isoStrToDate(trip.cemal) : null,
-      ultVoo: trip.data_ult_voo ? isoStrToDate(trip.data_ult_voo) : null,
-   };
 }
 
 export function computeIndispStatus(
    tripData: CrewIndispList,
    dateRef: Date
 ): IndispStatus {
-   const { cemal, ultVoo } = parseTripDates(tripData.trip);
    const filterIndisp = filterIndispsForDate(tripData.indisps, dateRef);
-   const validCemal = isCemalValid(cemal, dateRef);
-   const desadapt = isDesadaptado(ultVoo, dateRef, tripData.trip);
+   const restricoesDerivadas = filterRestricoesForDate(
+      tripData.restricoes_derivadas,
+      dateRef
+   );
    return {
       filterIndisp,
-      isValidCEMAL: validCemal,
-      isDesadaptado: desadapt,
-      color: getStatusColor(filterIndisp, validCemal, desadapt),
-      canOpen: filterIndisp.length > 0 || !validCemal || desadapt,
+      restricoesDerivadas,
+      color: getStatusColor(filterIndisp, restricoesDerivadas),
+      canOpen: filterIndisp.length > 0 || restricoesDerivadas.length > 0,
    };
 }

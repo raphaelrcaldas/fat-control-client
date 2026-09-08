@@ -1,5 +1,9 @@
 import request, { ApiError } from "../../Api";
 import type { ApiResponse } from "@/types/api";
+import {
+   RestricoesDerivadasEntrySchema,
+   type RestricaoDerivada,
+} from "./restricoes";
 
 const escalaRoute = "ops/escala/";
 
@@ -27,6 +31,8 @@ export interface EscalaTripEntry {
    data_ult_voo: string | null;
    cemal_date: string | null;
    indisps: EscalaIndispInfo[];
+   restricoes_derivadas: RestricaoDerivada[];
+   elegivel_desadaptacao: boolean;
 }
 
 export interface EscalaFuncSection {
@@ -76,5 +82,14 @@ export async function getEscalaDisponiveis(
    if (!json.data) {
       throw new ApiError("Resposta vazia do servidor");
    }
-   return json.data;
+   return {
+      ...json.data,
+      sections: json.data.sections.map((section) => ({
+         ...section,
+         trips: section.trips.map((trip) => ({
+            ...trip,
+            ...RestricoesDerivadasEntrySchema.parse(trip),
+         })),
+      })),
+   };
 }

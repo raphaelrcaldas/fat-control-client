@@ -6,6 +6,8 @@ import { useToast } from "@/app/context/toast";
 import { etapaKeys } from "@/hooks/queries/useEtapas";
 import { esfAerKeys } from "@/hooks/queries/useEsfAer";
 import { seboKeys } from "@/hooks/queries/useSebo";
+import { indispKeys } from "@/hooks/queries/useIndisps";
+import { escalaKeys } from "@/hooks/queries/useEscala";
 import { ApiError } from "services/Api";
 import {
    updateMissaoWithEtapas,
@@ -51,6 +53,8 @@ export function useUpdateMissaoDraft() {
          queryClient.invalidateQueries({ queryKey: etapaKeys.all });
          queryClient.invalidateQueries({ queryKey: esfAerKeys.all });
          queryClient.invalidateQueries({ queryKey: seboKeys.all });
+         queryClient.invalidateQueries({ queryKey: indispKeys.all });
+         queryClient.invalidateQueries({ queryKey: escalaKeys.all });
          push({
             type: "success",
             title: "Sucesso",

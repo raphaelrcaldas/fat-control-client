@@ -17,6 +17,8 @@ import {
    CartaoSaudeUpdate,
 } from "services/routes/aeromedica/cartoesSaude";
 import { storageKeys } from "./useStorage";
+import { indispKeys } from "./useIndisps";
+import { escalaKeys } from "./useEscala";
 
 // ========================================
 // Query Keys - Centralizadas
@@ -104,6 +106,8 @@ export function useCreateCartaoSaude() {
          queryClient.invalidateQueries({
             queryKey: cartoesSaudeKeys.historicos(),
          });
+         queryClient.invalidateQueries({ queryKey: indispKeys.all });
+         queryClient.invalidateQueries({ queryKey: escalaKeys.all });
       },
    });
 }
@@ -139,6 +143,8 @@ export function useUpdateCartaoSaude() {
          queryClient.invalidateQueries({
             queryKey: cartoesSaudeKeys.historicos(),
          });
+         queryClient.invalidateQueries({ queryKey: indispKeys.all });
+         queryClient.invalidateQueries({ queryKey: escalaKeys.all });
       },
    });
 }
@@ -168,6 +174,8 @@ export function useDeleteCartaoSaude() {
          queryClient.invalidateQueries({
             queryKey: cartoesSaudeKeys.historicos(),
          });
+         queryClient.invalidateQueries({ queryKey: indispKeys.all });
+         queryClient.invalidateQueries({ queryKey: escalaKeys.all });
       },
    });
 }
@@ -196,6 +204,8 @@ export function useDeleteOrfaosAeromedica() {
          queryClient.invalidateQueries({
             queryKey: cartoesSaudeKeys.historicos(),
          });
+         queryClient.invalidateQueries({ queryKey: indispKeys.all });
+         queryClient.invalidateQueries({ queryKey: escalaKeys.all });
       },
    });
 }

@@ -13,6 +13,7 @@ import {
    IndispType,
    IndispFilters,
 } from "services/routes/indisps";
+import { escalaKeys } from "./useEscala";
 
 // ========================================
 // Query Keys - Centralizadas
@@ -86,6 +87,7 @@ export function useCreateIndisp() {
       onSuccess: () => {
          // Invalida todas as queries de indisps
          queryClient.invalidateQueries({ queryKey: indispKeys.all });
+         queryClient.invalidateQueries({ queryKey: escalaKeys.all });
       },
    });
 }
@@ -101,6 +103,7 @@ export function useUpdateIndisp() {
       onSuccess: () => {
          // Invalida todas as queries de indisps
          queryClient.invalidateQueries({ queryKey: indispKeys.all });
+         queryClient.invalidateQueries({ queryKey: escalaKeys.all });
       },
    });
 }
@@ -116,6 +119,7 @@ export function useDeleteIndisp() {
       onSuccess: () => {
          // Invalida todas as queries de indisps
          queryClient.invalidateQueries({ queryKey: indispKeys.all });
+         queryClient.invalidateQueries({ queryKey: escalaKeys.all });
       },
    });
 }
