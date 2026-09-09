@@ -5,7 +5,7 @@ import { useFuncoes } from "@/hooks/queries";
 import { OPER_LABELS } from "@/constants/tripulantes/operacionalidade";
 import type { OperType } from "@/constants/tripulantes/types";
 import { formatNaiveDate } from "utils/dateHandler";
-import { Historico } from "@/app/(home)/ops/indisp/components/Historico";
+import { Historico } from "@/components/audit/Historico";
 import { TRIP_FIELD_LABELS } from "./tripFieldLabels";
 
 /**

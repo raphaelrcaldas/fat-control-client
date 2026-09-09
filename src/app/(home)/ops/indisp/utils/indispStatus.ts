@@ -40,7 +40,9 @@ export function getStatusColor(
 ): string {
    for (const option of INDISP_OPTIONS) {
       if (filteredIndisps.some((i) => i.mtv == option.value)) {
-         return getIndispOption(option.value)?.color?.button ?? "bg-slate-500";
+         return (
+            getIndispOption(option.value)?.bar ?? "bg-slate-100 text-slate-700"
+         );
       }
    }
    if (restricoes.some((r) => r.origem === "cemal")) {

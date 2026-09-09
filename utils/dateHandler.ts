@@ -546,3 +546,19 @@ export function todayDateStamp(): string {
    const year = now.getFullYear();
    return `${day}${month}${year}`;
 }
+
+/** Soma dias preservando a data no fuso local. */
+export function addDays(date: Date, days: number): Date {
+   return new Date(date.getFullYear(), date.getMonth(), date.getDate() + days);
+}
+
+/** Milissegundos em um dia, usado em diferenças entre datas normalizadas. */
+export const MS_PER_DAY = 86_400_000;
+
+/** Formata uma data local como DD/MM. */
+export function dateToDayMonth(date: Date): string {
+   return date.toLocaleDateString("pt-BR", {
+      day: "2-digit",
+      month: "2-digit",
+   });
+}

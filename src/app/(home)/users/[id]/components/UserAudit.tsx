@@ -4,7 +4,7 @@ import type { UnidadeOption } from "@/hooks/queries";
 import { postoGradRecords } from "@/constants/militar/postos";
 import { Spinner } from "flowbite-react";
 import { HiClock, HiDocumentText } from "react-icons/hi";
-import { Historico } from "@/app/(home)/ops/indisp/components/Historico";
+import { Historico } from "@/components/audit/Historico";
 import { cpf as cpfValidator } from "cpf-cnpj-validator";
 import { formatCpf } from "@/constants/formats";
 import { USER_FIELD_LABELS } from "./userFieldLabels";

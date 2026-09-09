@@ -5,7 +5,7 @@ import { cleanup, render, screen } from "@testing-library/react";
 import {
    CemalCard,
    UltVooCard,
-} from "@/app/(home)/ops/indisp/components/TripStatusCards";
+} from "@/app/(home)/ops/indisp/components/trip/TripStatusCards";
 
 afterEach(() => {
    cleanup();

@@ -1,4 +1,5 @@
 import request from "../Api";
+import type { IndispMtv } from "@/constants/ops/indisponibilidades";
 import type { ApiResponse } from "@/types/api";
 import { UserPublic } from "./users";
 import {
@@ -25,7 +26,7 @@ export interface IndispType {
    user_id?: number;
    date_start: string;
    date_end: string;
-   mtv: string;
+   mtv: IndispMtv;
    obs: string | null;
    created_by?: number;
    created_at?: string;

@@ -1,24 +1,20 @@
 "use client";
+import { todayIso } from "utils/dateHandler";
 
-import { ReactNode, useMemo } from "react";
-import clsx from "clsx";
-import { Button } from "flowbite-react";
+import { useMemo, useState } from "react";
 import { usePersistedState } from "@/hooks/usePersistedState";
 import { useCrewIndisps, useFuncoes } from "@/hooks/queries";
-import { CrewIndispList } from "services/routes/indisps";
 import { IndispModalProvider } from "./context/indispModalContext";
-import { IndispModal } from "./components/IndispModal";
-import { IndispFormHost } from "./components/IndispFormHost";
+import { IndispFormHost } from "./components/form/IndispFormHost";
+import { TripIndispHost } from "./components/trip/TripIndispHost";
 import { IndispHeader } from "./components/IndispHeader";
-import { IndispControls } from "./components/IndispControls";
-import { ColorLegend } from "./components/ColorLegend";
-import { IndispTable } from "./components/IndispTable";
-import { IndispTableSkeleton } from "./components/IndispTableSkeleton";
-import { LastIndisps } from "./components/LastIndisps";
-import { LastIndispsSkeleton } from "./components/LastIndispsSkeleton";
-import { useDateNavigation } from "./hooks/useDateNavigation";
+import { IndispContent } from "./components/IndispContent";
+import { IndispBoardToolbar } from "./components/board/IndispBoardToolbar";
+import { useDateNavigation } from "./components/board/hooks/useDateNavigation";
+import { useVisibleDays } from "./components/board/hooks/useVisibleDays";
 
 export default function IndispPage() {
+   const [focusedIso, setFocusedIso] = useState<string | null>(null);
    const { principais } = useFuncoes();
    const funcOptions = useMemo(
       () => principais.map((f) => ({ value: f.cod, label: f.nome_curto })),
@@ -29,9 +25,17 @@ export default function IndispPage() {
       "indisp.indispFunc",
       "mc"
    );
+   // O catálogo de funções é por unidade: o valor guardado pode não existir na
+   // org ativa. Sem esta queda, o Select renderizava vazio e a busca rodava
+   // com uma função fantasma.
+   const func =
+      funcOptions.length > 0 && !funcOptions.some((f) => f.value === indispFunc)
+         ? funcOptions[0].value
+         : indispFunc;
 
+   const dayCount = useVisibleDays();
    const { dates, shift, goToday, canBack, canForward, windowFrom, windowTo } =
-      useDateNavigation();
+      useDateNavigation(dayCount);
 
    const {
       data: indisps,
@@ -39,11 +43,11 @@ export default function IndispPage() {
       isError,
       isFetching,
       refetch,
-   } = useCrewIndisps(indispFunc, windowFrom, windowTo);
+   } = useCrewIndisps(func, windowFrom, windowTo);
 
    return (
       <IndispModalProvider>
-         <div className="flex flex-1 flex-col space-y-2 overflow-hidden">
+         <div className="flex h-[calc(100dvh-4.5rem)] min-h-0 flex-col space-y-2 overflow-hidden md:h-[calc(100dvh-5rem)]">
             <IndispHeader />
 
             <IndispContent
@@ -52,132 +56,28 @@ export default function IndispPage() {
                isFetching={isFetching}
                indisps={indisps}
                dates={dates}
+               focusedIso={focusedIso}
+               onFocusDay={setFocusedIso}
                onRetry={refetch}
-               onToday={goToday}
-               controls={
-                  <IndispControls
-                     func={indispFunc}
+               onShiftDays={shift}
+               toolbar={
+                  <IndispBoardToolbar
+                     func={func}
                      funcOptions={funcOptions}
                      onFuncChange={setIndispFunc}
-                     onShift={shift}
-                     onToday={goToday}
+                     onToday={() => {
+                        goToday();
+                        setFocusedIso(todayIso());
+                     }}
+                     onShiftDays={shift}
                      canBack={canBack}
                      canForward={canForward}
                   />
                }
             />
          </div>
-         <IndispModal indisps={indisps} />
          <IndispFormHost />
+         <TripIndispHost />
       </IndispModalProvider>
-   );
-}
-
-interface IndispContentProps {
-   isLoading: boolean;
-   isError: boolean;
-   isFetching: boolean;
-   indisps: CrewIndispList[] | undefined;
-   dates: Date[];
-   onRetry: () => void;
-   onToday: () => void;
-   controls: ReactNode;
-}
-
-function IndispContent({
-   isLoading,
-   isError,
-   isFetching,
-   indisps,
-   dates,
-   onRetry,
-   onToday,
-   controls,
-}: IndispContentProps) {
-   // 1. Primeira carga — espelha o layout de conteúdo (tabela + painel lateral).
-   if (isLoading) {
-      return (
-         <div className="flex min-h-0 flex-1 overflow-hidden">
-            <div className="flex min-h-0 flex-1 justify-between gap-2">
-               <IndispTableSkeleton
-                  cols={dates.length}
-                  controls={controls}
-                  legend={<ColorLegend />}
-               />
-               <div className="hidden flex-1 justify-center lg:grid">
-                  <LastIndispsSkeleton />
-               </div>
-            </div>
-         </div>
-      );
-   }
-
-   // 2. Erro — com retry (controles no topo para trocar de função).
-   if (isError) {
-      return (
-         <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-hidden">
-            {controls}
-            <div className="m-auto max-w-md rounded border border-rose-200 bg-rose-50 px-4 py-8 text-center">
-               <p className="text-sm font-semibold text-rose-700">
-                  Erro ao carregar as indisponibilidades
-               </p>
-               <button
-                  type="button"
-                  onClick={onRetry}
-                  className="mt-2 text-xs font-semibold text-rose-600 underline"
-               >
-                  Tentar novamente
-               </button>
-            </div>
-         </div>
-      );
-   }
-
-   // 3. Vazio — função sem tripulantes (controles no topo para trocar).
-   if (!indisps || indisps.length === 0) {
-      return (
-         <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-hidden">
-            {controls}
-            <div className="m-auto max-w-md rounded border border-dashed border-slate-300 bg-slate-50 px-4 py-12 text-center">
-               <p className="text-sm font-semibold text-slate-600">
-                  Nenhuma indisponibilidade para esta função
-               </p>
-               <p className="mt-1 text-xs text-slate-600">
-                  Troque a função ou o período para ver os registros.
-               </p>
-               <Button
-                  color="light"
-                  size="sm"
-                  onClick={onToday}
-                  className="mt-4"
-               >
-                  Voltar para hoje
-               </Button>
-            </div>
-         </div>
-      );
-   }
-
-   // 4. Conteúdo — controles e legenda dentro do card; refetch esmaece sem bloquear.
-   return (
-      <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden">
-         <div
-            aria-busy={isFetching}
-            className={clsx(
-               "flex min-h-0 flex-1 justify-between gap-2 transition-opacity duration-200",
-               isFetching && "pointer-events-none opacity-50"
-            )}
-         >
-            <IndispTable
-               indisps={indisps}
-               dates={dates}
-               controls={controls}
-               legend={<ColorLegend />}
-            />
-            <div className="hidden flex-1 justify-center lg:grid">
-               <LastIndisps indisps={indisps} />
-            </div>
-         </div>
-      </div>
    );
 }
