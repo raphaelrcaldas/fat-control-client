@@ -244,27 +244,28 @@ export function OrdemFormContent({
       [camposEspeciais]
    );
 
-   // Scroll automatico para erros quando aparecem
+   // Traz o erro para a tela quando ele aparece.
+   //
+   // Era `closest(".overflow-y-auto").scrollTo({top: 0})`, e não funcionava:
+   // o seletor achava o `div.flex-1.overflow-y-auto` do próprio formulário,
+   // que — medido no navegador — NÃO rola; quem rola é o `main` do layout.
+   // O `scrollTo` mandava zero para um elemento parado e o usuário ficava com
+   // o erro fora da tela, sem saber por que o salvamento não passou.
+   //
+   // `scrollIntoView` no próprio alvo não depende de adivinhar qual ancestral
+   // rola: o navegador percorre a cadeia e rola quem precisar.
    useEffect(() => {
       if (
          (error || formValidationErrors.length > 0) &&
          errorContainerRef.current
       ) {
-         const scrollContainer = errorContainerRef.current.closest(
-            ".overflow-y-auto"
-         ) as HTMLElement;
-
-         if (scrollContainer) {
-            setTimeout(() => {
-               scrollContainer.scrollTo({
-                  top: 0,
-                  behavior: "smooth",
-               });
-            }, 100);
-         }
+         errorContainerRef.current.scrollIntoView({
+            behavior: "smooth",
+            block: "nearest",
+         });
 
          // Focus na area de erro para acessibilidade
-         errorContainerRef.current.focus();
+         errorContainerRef.current.focus({ preventScroll: true });
       }
    }, [error, formValidationErrors]);
 

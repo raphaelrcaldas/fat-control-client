@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { Button } from "flowbite-react";
+import { Button, Timeline } from "flowbite-react";
 import { HiClock, HiExclamationCircle } from "react-icons/hi";
+import { TIMELINE_DENSO } from "@/components/audit/timelineTheme";
 import { FormSection } from "./FormSection";
 import { OrdemHistoricoItem } from "./OrdemHistoricoItem";
 import { OrdemHistoricoSkeleton } from "./OrdemHistoricoSkeleton";
@@ -20,23 +20,6 @@ interface OrdemHistoricoProps {
  */
 export function OrdemHistorico({ ordemId }: OrdemHistoricoProps) {
    const { events, isLoading, isError, refetch } = useOrdemHistorico(ordemId);
-
-   const listRef = useRef<HTMLDivElement>(null);
-   // A região só é foco de teclado quando realmente rola (o limite de altura
-   // vale do `sm` para cima): senão seria uma parada de Tab que não faz nada.
-   const [rola, setRola] = useState(false);
-
-   useEffect(() => {
-      const el = listRef.current;
-      if (!el) return;
-
-      const medir = () => setRola(el.scrollHeight > el.clientHeight);
-      medir();
-
-      const observer = new ResizeObserver(medir);
-      observer.observe(el);
-      return () => observer.disconnect();
-   }, [events]);
 
    return (
       <FormSection
@@ -71,33 +54,34 @@ export function OrdemHistorico({ ordemId }: OrdemHistoricoProps) {
                Nenhuma alteração desde a criação desta OM.
             </p>
          ) : (
-            <div
-               ref={listRef}
-               role="region"
-               aria-label="Histórico de alterações"
-               tabIndex={rola ? 0 : undefined}
-               // Sem limite no mobile (a seção é a última da página, então a
-               // rolagem natural resolve); do `sm` em diante o limite contém
-               // históricos longos sem virar armadilha de rolagem.
-               className="max-h-none space-y-3 sm:max-h-96 sm:overflow-y-auto"
-            >
-               {events.map((event, index) => {
-                  const anterior = index > 0 ? events[index - 1] : null;
-                  const repeatsHeader =
-                     !!anterior &&
-                     anterior.action === event.action &&
-                     anterior.user?.id === event.user?.id &&
-                     anterior.timestamp.slice(0, 16) ===
-                        event.timestamp.slice(0, 16);
+            /* Sem limite de altura e sem scroll próprio: esta seção é a
+               última da página, e o formulário inteiro já vive dentro de um
+               `overflow-y-auto`. O `sm:max-h-96` de antes punha uma barra de
+               rolagem a 50px da barra da página — a roda do mouse parava no
+               histórico em vez de continuar a página, e o cartão ficava
+               espremido em 336px com a viewport sobrando embaixo. A rolagem
+               natural resolve, e sem região rolável não há mais parada de Tab
+               a gerenciar. */
+            <div role="region" aria-label="Histórico de alterações">
+               <Timeline theme={TIMELINE_DENSO}>
+                  {events.map((event, index) => {
+                     const anterior = index > 0 ? events[index - 1] : null;
+                     const repeatsHeader =
+                        !!anterior &&
+                        anterior.action === event.action &&
+                        anterior.user?.id === event.user?.id &&
+                        anterior.timestamp.slice(0, 16) ===
+                           event.timestamp.slice(0, 16);
 
-                  return (
-                     <OrdemHistoricoItem
-                        key={event.id}
-                        event={event}
-                        repeatsHeader={repeatsHeader}
-                     />
-                  );
-               })}
+                     return (
+                        <OrdemHistoricoItem
+                           key={event.id}
+                           event={event}
+                           repeatsHeader={repeatsHeader}
+                        />
+                     );
+                  })}
+               </Timeline>
             </div>
          )}
       </FormSection>

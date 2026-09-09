@@ -9,6 +9,7 @@ import {
    TimelineTitle,
 } from "flowbite-react";
 import { formatDateTime, formatNaiveDateTime } from "utils/dateHandler";
+import { PONTO_POR_ACAO, pontoTheme } from "./timelineTheme";
 import { LogUser } from "services/routes/logs";
 
 // Valores de log chegam como string crua: uns são data ISO, outros são texto
@@ -45,20 +46,11 @@ export interface HistoricoItemProps {
    }[];
 }
 
-/**
- * A cor mora na BOLINHA, não no cartão: é o único elemento que se repete em
- * toda a coluna, então percorrer a linha do tempo de cima a baixo já diz onde
- * o registro nasceu, onde mudou e onde morreu, sem ler texto.
- *
- * Vai pelo `theme`, e não por `className`: o `className` do `TimelinePoint`
- * cai no wrapper (vazio e sem tamanho), enquanto a bolinha é um filho interno
- * que só o tema alcança. Pintar pelo `className` não muda pixel nenhum.
- */
-const TIPO = {
-   create: { label: "Criado", dot: "bg-emerald-500" },
-   update: { label: "Alterado", dot: "bg-amber-500" },
-   delete: { label: "Removido", dot: "bg-red-600" },
-} as const satisfies Record<HistoricoItemType, { label: string; dot: string }>;
+const LABEL: Record<HistoricoItemType, string> = {
+   create: "Criado",
+   update: "Alterado",
+   delete: "Removido",
+};
 
 export function HistoricoItem({
    type,
@@ -67,7 +59,7 @@ export function HistoricoItem({
    changes,
 }: HistoricoItemProps) {
    const formattedTime = formatDateTime(timestamp);
-   const { label, dot } = TIPO[type];
+   const label = LABEL[type];
 
    if (!formattedTime) return null;
 
@@ -79,7 +71,7 @@ export function HistoricoItem({
 
    return (
       <TimelineItem>
-         <TimelinePoint theme={{ marker: { base: { vertical: dot } } }} />
+         <TimelinePoint theme={pontoTheme(PONTO_POR_ACAO[type])} />
          <TimelineContent>
             <TimelineTime>{formattedTime}</TimelineTime>
             {/* Truncado com `title`: nome de guerra longo quebrava o cabeçalho

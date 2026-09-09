@@ -6,26 +6,7 @@ import { HiExclamationCircle } from "react-icons/hi";
 import { formatDateTime } from "utils/dateHandler";
 import { UserActionLog, LogUser } from "services/routes/logs";
 import { HistoricoItem, HistoricoItemType } from "./HistoricoItem";
-
-/**
- * O tema padrão da Timeline foi desenhado para post de blog: `mb-10` por item
- * (35px aqui, com a raiz em 87.5%) e título em `text-lg`. Numa trilha de
- * auditoria dentro de modal isso rende três eventos por tela de rolagem. A
- * densidade cai para o mesmo passo do resto do sistema, e o gap entre eventos
- * passa a ser um só — o `mb` do item — em vez de somar com o `mb-4` do corpo.
- */
-const TIMELINE_DENSO = {
-   item: {
-      root: { vertical: "mb-4 ml-4" },
-      content: {
-         title: { base: "text-sm font-semibold text-slate-800" },
-         body: { base: "mb-0 text-sm font-normal text-slate-600" },
-         time: {
-            base: "mb-0.5 text-xs font-normal leading-none text-slate-400",
-         },
-      },
-   },
-};
+import { TIMELINE_DENSO } from "./timelineTheme";
 
 export interface HistoricoProps {
    /** Logs de alteração do recurso */
