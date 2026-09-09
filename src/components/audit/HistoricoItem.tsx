@@ -1,15 +1,8 @@
 "use client";
 
-import {
-   TimelineBody,
-   TimelineContent,
-   TimelineItem,
-   TimelinePoint,
-   TimelineTime,
-   TimelineTitle,
-} from "flowbite-react";
-import { formatDateTime, formatNaiveDateTime } from "utils/dateHandler";
-import { PONTO_POR_ACAO, pontoTheme } from "./timelineTheme";
+import { formatNaiveDateTime } from "utils/dateHandler";
+import { AuditTimelineItem } from "./AuditTimelineItem";
+import { AuditValueDelta } from "./AuditValueDelta";
 import { LogUser } from "services/routes/logs";
 
 // Valores de log chegam como string crua: uns são data ISO, outros são texto
@@ -58,52 +51,38 @@ export function HistoricoItem({
    user,
    changes,
 }: HistoricoItemProps) {
-   const formattedTime = formatDateTime(timestamp);
-   const label = LABEL[type];
-
-   if (!formattedTime) return null;
-
-   // Log sem usuário existe (ação de sistema, registro antigo): sem a guarda,
-   // `user.p_g` derrubava o modal inteiro.
-   const autor = user ? `${user.p_g} ${user.nome_guerra}` : "Sistema";
-   const titulo = `${label} · ${autor}`;
    const temMudancas = type === "update" && changes && changes.length > 0;
 
    return (
-      <TimelineItem>
-         <TimelinePoint theme={pontoTheme(PONTO_POR_ACAO[type])} />
-         <TimelineContent>
-            <TimelineTime>{formattedTime}</TimelineTime>
-            {/* Truncado com `title`: nome de guerra longo quebrava o cabeçalho
-                em duas linhas e desalinhava a coluna de bolinhas. */}
-            <TimelineTitle className="truncate uppercase" title={titulo}>
-               {titulo}
-            </TimelineTitle>
-            {temMudancas && (
-               <TimelineBody>
-                  <ul className="space-y-0.5">
-                     {changes.map((change) => (
-                        <li key={change.field} className="text-slate-600">
-                           <span className="font-medium">{change.label}:</span>{" "}
-                           {change.oldValue ? (
-                              <>
-                                 <span className="text-slate-400 line-through">
-                                    {formatValueIfDate(change.oldValue)}
-                                 </span>
-                                 {" → "}
-                              </>
-                           ) : null}
-                           <span className="font-medium text-slate-800">
-                              {change.newValue
-                                 ? formatValueIfDate(change.newValue)
-                                 : "(vazio)"}
-                           </span>
-                        </li>
-                     ))}
-                  </ul>
-               </TimelineBody>
-            )}
-         </TimelineContent>
-      </TimelineItem>
+      <AuditTimelineItem
+         tone={type}
+         label={LABEL[type]}
+         timestamp={timestamp}
+         user={user}
+      >
+         {temMudancas && (
+            <ul className="space-y-0.5">
+               {changes.map((change) => (
+                  <li key={change.field} className="text-slate-600">
+                     <span className="font-medium text-slate-700">
+                        {change.label}:
+                     </span>{" "}
+                     <AuditValueDelta
+                        before={
+                           change.oldValue
+                              ? formatValueIfDate(change.oldValue)
+                              : null
+                        }
+                        after={
+                           change.newValue
+                              ? formatValueIfDate(change.newValue)
+                              : ""
+                        }
+                     />
+                  </li>
+               ))}
+            </ul>
+         )}
+      </AuditTimelineItem>
    );
 }

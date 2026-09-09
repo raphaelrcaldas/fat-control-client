@@ -1,6 +1,10 @@
 "use client";
 
 import { useMemo } from "react";
+import { Timeline } from "flowbite-react";
+import { AuditTimelineItem } from "@/components/audit/AuditTimelineItem";
+import { AuditValueDelta } from "@/components/audit/AuditValueDelta";
+import { TIMELINE_DENSO } from "@/components/audit/timelineTheme";
 import type { IconType } from "react-icons";
 import {
    HiBan,
@@ -11,11 +15,10 @@ import {
    HiPlusCircle,
    HiTrash,
 } from "react-icons/hi";
-import clsx from "clsx";
 import { useCartaoSaudeHistorico } from "@/hooks/queries";
 import { HISTORICO_LIMIT } from "services/routes/aeromedica/cartoesSaude";
 import type { UserActionLog } from "services/routes/logs";
-import { formatDateFull, formatDateTime } from "utils/dateHandler";
+import { formatDateFull } from "utils/dateHandler";
 import HistoricoTabSkeleton from "./HistoricoTabSkeleton";
 
 // Rótulos dos campos que aparecem no before/after gravado pela API
@@ -42,15 +45,6 @@ const DATE_FIELDS = new Set([
 ]);
 
 type Tom = "create" | "update" | "delete";
-
-// Acento só na borda esquerda, sobre cartão branco — mesma gramática do
-// histórico da OM (OrdemHistoricoItem). Com 20 eventos empilhados, fundo
-// tonal em todos vira ruído; a cor da espinha basta para dar o tom.
-const TOM_STYLE: Record<Tom, { accent: string; text: string }> = {
-   create: { accent: "border-l-green-500", text: "text-green-700" },
-   update: { accent: "border-l-amber-500", text: "text-amber-700" },
-   delete: { accent: "border-l-red-500", text: "text-red-700" },
-};
 
 const ACTION_CONFIG: Record<
    string,
@@ -116,7 +110,6 @@ function EventoCard({ log }: { log: UserActionLog }) {
       tom: "update" as Tom,
       Icon: HiPencilAlt,
    };
-   const style = TOM_STYLE[tom];
 
    const linhas = useMemo<Linha[]>(() => {
       const before = parseJson(log.before);
@@ -150,63 +143,30 @@ function EventoCard({ log }: { log: UserActionLog }) {
    }, [log.before, log.after]);
 
    return (
-      <div
-         className={clsx(
-            "rounded border border-l-2 border-slate-200 bg-white p-3 text-sm shadow-sm",
-            style.accent
-         )}
+      <AuditTimelineItem
+         tone={tom}
+         label={label}
+         timestamp={log.timestamp}
+         user={log.user}
+         icon={Icon}
       >
-         <div className="flex items-center justify-between gap-2">
-            <span
-               className={clsx(
-                  "flex items-center gap-1.5 font-medium",
-                  style.text
-               )}
-            >
-               <Icon className="h-4 w-4 shrink-0" aria-hidden />
-               {label}
-            </span>
-            <time
-               dateTime={log.timestamp}
-               className="shrink-0 font-mono text-xs text-gray-500"
-            >
-               {formatDateTime(log.timestamp)}
-            </time>
-         </div>
-
-         <div className="text-gray-600 uppercase">
-            {log.user.p_g} {log.user.nome_guerra}
-         </div>
-
          {linhas.length > 0 && (
-            <ul className="mt-2 space-y-1">
+            <ul className="space-y-1">
                {linhas.map((linha) => (
-                  <li key={linha.field} className="text-gray-600">
-                     <span className="font-medium">{linha.label}:</span>{" "}
-                     {linha.oldValue !== null && (
-                        <span
-                           className={clsx(
-                              linha.newValue !== null &&
-                                 "text-red-600 line-through"
-                           )}
-                        >
-                           {linha.oldValue}
-                        </span>
-                     )}
-                     {linha.oldValue !== null && linha.newValue !== null
-                        ? " → "
-                        : null}
-                     {linha.newValue !== null && (
-                        // 700, não 600: o valor novo é o dado mais
-                        // importante da linha e `text-green-600` sobre
-                        // `bg-green-50` fica em ~3,1:1, abaixo do AA.
-                        <span className="text-green-700">{linha.newValue}</span>
-                     )}
+                  <li key={linha.field} className="text-slate-600">
+                     <span className="font-medium text-slate-700">
+                        {linha.label}:
+                     </span>{" "}
+                     <AuditValueDelta
+                        before={linha.oldValue}
+                        after={linha.newValue ?? ""}
+                        vazio="—"
+                     />
                   </li>
                ))}
             </ul>
          )}
-      </div>
+      </AuditTimelineItem>
    );
 }
 
@@ -256,15 +216,18 @@ export default function HistoricoTab({ userId }: { userId: number }) {
       // Sem `max-h`/`overflow` próprios: quem rola é o corpo do modal. Um
       // container rolável cujos filhos são só texto não recebe foco, e a
       // lista ficaria inalcançável por teclado depois do 4º evento.
-      <div className="space-y-2">
-         {logs.map((log) => (
-            <EventoCard key={log.id} log={log} />
-         ))}
+      <div>
+         <Timeline theme={TIMELINE_DENSO}>
+            {logs.map((log) => (
+               <EventoCard key={log.id} log={log} />
+            ))}
+         </Timeline>
 
          {/* A lista corta no teto do backend: sem dizer isso, os eventos
-             mais antigos simplesmente sumiriam. */}
+             mais antigos simplesmente sumiriam. Fica FORA da Timeline: um
+             `<p>` como filho direto de `<ol>` é HTML inválido. */}
          {logs.length >= HISTORICO_LIMIT && (
-            <p className="pt-1 text-center text-xs text-gray-500">
+            <p className="pt-1 text-center text-xs text-slate-500">
                Mostrando os {HISTORICO_LIMIT} eventos mais recentes.
             </p>
          )}

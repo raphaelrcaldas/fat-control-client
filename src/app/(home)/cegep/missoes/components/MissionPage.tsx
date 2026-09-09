@@ -67,10 +67,22 @@ export function MissionPage({
                <MissionHeader
                   tipoDoc={form.tipoDoc}
                   nDoc={form.nDoc}
-                  desc={form.desc}
                   isNew={form.isNew}
                   cache_inconsistente={missao?.custo_inconsistente}
                   onBack={onClose}
+                  actions={
+                     <MissionActionBar
+                        editMode={form.editMode}
+                        isNew={form.isNew}
+                        isChanged={form.isChanged}
+                        isLoading={form.isLoading}
+                        onEdit={() => form.setEditMode(true)}
+                        onCancelEdit={form.handleCancelEdit}
+                        onSave={form.handleSave}
+                        onClone={onClone ? form.handleClone : undefined}
+                        onDelete={() => form.setShowDeleteModal(true)}
+                     />
+                  }
                />
 
                <div className="space-y-2">
@@ -143,18 +155,6 @@ export function MissionPage({
                      editMode={form.editMode}
                   />
                </div>
-
-               <MissionActionBar
-                  editMode={form.editMode}
-                  isNew={form.isNew}
-                  isChanged={form.isChanged}
-                  isLoading={form.isLoading}
-                  onEdit={() => form.setEditMode(true)}
-                  onCancelEdit={form.handleCancelEdit}
-                  onSave={form.handleSave}
-                  onClone={onClone ? form.handleClone : undefined}
-                  onDelete={() => form.setShowDeleteModal(true)}
-               />
             </div>
          </div>
       </>

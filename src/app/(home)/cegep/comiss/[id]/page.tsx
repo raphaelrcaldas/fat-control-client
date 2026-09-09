@@ -9,7 +9,11 @@ import { useComissDetail } from "@/hooks/queries";
 import { ComissPage } from "../components/ComissPage";
 import { ComissPageSkeleton } from "../components/ComissPageSkeleton";
 import { ComissForm } from "../components/ComissForm";
-import { formatDateTime, isoDateToString } from "@/../utils/dateHandler";
+import { isoDateToString } from "@/../utils/dateHandler";
+import { Timeline } from "flowbite-react";
+import { AuditTimelineItem } from "@/components/audit/AuditTimelineItem";
+import { AuditValueDelta } from "@/components/audit/AuditValueDelta";
+import { TIMELINE_DENSO } from "@/components/audit/timelineTheme";
 import { realCurrency } from "utils/financeiro";
 import type {
    ComissLog,
@@ -20,6 +24,11 @@ const ACTION_LABEL: Record<string, string> = {
    create: "Criação",
    update: "Atualização",
 };
+
+// A COR do evento é compartilhada com as demais trilhas (verde nasce, amarelo
+// muda); o rótulo, não — cada domínio tem o seu vocabulário. Antes toda ação
+// saía com a mesma bolinha cinza: a trilha não dizia o que era criação.
+const ACTION_TONE = { create: "create", update: "update" } as const;
 
 const FIELD_LABELS: Record<keyof ComissLogSnapshot, string> = {
    status: "Status",
@@ -124,11 +133,11 @@ export default function ComissDetailPage() {
                      </p>
                   </div>
                   <div className="p-5">
-                     <ol className="relative space-y-4 border-s border-gray-200 ps-5">
+                     <Timeline theme={TIMELINE_DENSO}>
                         {comiss.logs.map((log) => (
                            <ComissLogEntry key={log.id} log={log} />
                         ))}
-                     </ol>
+                     </Timeline>
                   </div>
                </div>
             </div>
@@ -162,49 +171,31 @@ function ComissLogEntry({ log }: { log: ComissLog }) {
    }
 
    return (
-      <li className="relative">
-         <span className="absolute -inset-s-6.5 top-1.5 flex h-3 w-3 items-center justify-center rounded-full border border-slate-300 bg-slate-100" />
-         <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
-            <div className="flex min-w-0 flex-wrap items-baseline gap-x-2">
-               <span className="text-sm font-semibold text-gray-800">
-                  {action}
-               </span>
-               {log.user && (
-                  <span className="text-xs text-gray-500 uppercase">
-                     por {log.user.p_g} {log.user.nome_guerra}
-                  </span>
-               )}
-            </div>
-            <time className="text-xs whitespace-nowrap text-slate-500">
-               {formatDateTime(log.timestamp) ?? ""}
-            </time>
-         </div>
+      <AuditTimelineItem
+         tone={ACTION_TONE[log.action as keyof typeof ACTION_TONE] ?? "update"}
+         label={action}
+         timestamp={log.timestamp}
+         user={log.user}
+      >
          {diffs.length > 0 && (
-            <ul className="mt-2 space-y-0.5 text-xs wrap-break-word text-gray-600">
+            <ul className="space-y-0.5 wrap-break-word text-slate-600">
                {diffs.map((d) => (
                   <li key={d.field}>
-                     <span className="font-medium text-gray-700">
+                     <span className="font-medium text-slate-700">
                         {FIELD_LABELS[d.field]}:
                      </span>{" "}
-                     {d.before !== undefined && d.before !== null ? (
-                        <>
-                           <span className="text-red-600 line-through">
-                              {formatFieldValue(d.field, d.before)}
-                           </span>{" "}
-                           <span className="text-gray-400">→</span>{" "}
-                           <span className="text-green-700">
-                              {formatFieldValue(d.field, d.after)}
-                           </span>
-                        </>
-                     ) : (
-                        <span className="text-green-700">
-                           {formatFieldValue(d.field, d.after)}
-                        </span>
-                     )}
+                     <AuditValueDelta
+                        before={
+                           d.before === undefined || d.before === null
+                              ? null
+                              : formatFieldValue(d.field, d.before)
+                        }
+                        after={formatFieldValue(d.field, d.after)}
+                     />
                   </li>
                ))}
             </ul>
          )}
-      </li>
+      </AuditTimelineItem>
    );
 }
