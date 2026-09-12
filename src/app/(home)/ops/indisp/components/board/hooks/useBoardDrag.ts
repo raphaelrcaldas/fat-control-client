@@ -14,6 +14,7 @@ const LIMIAR_PX = 3;
 interface DragState {
    pointerId: number;
    x: number;
+   y: number;
    /** Largura de um dia, medida no início do gesto. */
    dayPx: number;
    /** Deslocamento já aplicado durante o gesto. */
@@ -59,6 +60,7 @@ export function useBoardDrag(
          drag.current = {
             pointerId: event.pointerId,
             x: event.clientX,
+            y: event.clientY,
             dayPx: largura / dayCount,
             passos: 0,
          };
@@ -71,6 +73,18 @@ export function useBoardDrag(
          const atual = drag.current;
          if (!atual || atual.pointerId !== event.pointerId) return;
          const dx = event.clientX - atual.x;
+         const dy = event.clientY - atual.y;
+         // Um gesto vertical pertence ao scroll, mesmo com pequena deriva
+         // horizontal do dedo. A direção é decidida antes de capturar o toque.
+         if (
+            !dragged.current &&
+            event.pointerType === "touch" &&
+            Math.abs(dy) > LIMIAR_PX &&
+            Math.abs(dy) > Math.abs(dx)
+         ) {
+            drag.current = null;
+            return;
+         }
          if (Math.abs(dx) > LIMIAR_PX && !dragged.current) {
             dragged.current = true;
             event.currentTarget.setPointerCapture(event.pointerId);
@@ -90,9 +104,8 @@ export function useBoardDrag(
          const atual = drag.current;
          if (!atual || atual.pointerId !== event.pointerId) return;
          drag.current = null;
-         if (event.currentTarget.hasPointerCapture(atual.pointerId)) {
-            event.currentTarget.releasePointerCapture(atual.pointerId);
-         }
+         // pointerup/pointercancel liberam a captura automaticamente;
+         // em lostpointercapture ela já foi perdida. O id pode estar inativo.
          if (frame.current !== null) cancelAnimationFrame(frame.current);
          flush();
       },
@@ -130,7 +143,12 @@ export function useBoardDrag(
          // avisar por `pointercancel`. Ainda preservamos o deslocamento que
          // o usuário já fez antes de o navegador assumir o gesto.
          onPointerCancel: finishDrag,
-         onLostPointerCapture: finishDrag,
+         onLostPointerCapture: (event: PointerEvent<HTMLDivElement>) => {
+            // O toque começa com captura implícita no filho. Ao transferi-la
+            // para a grade, o lostpointercapture do filho borbulha até aqui;
+            // isso não significa que a grade perdeu sua própria captura.
+            if (event.target === event.currentTarget) finishDrag(event);
+         },
          onWheel,
       },
       wasDragged,

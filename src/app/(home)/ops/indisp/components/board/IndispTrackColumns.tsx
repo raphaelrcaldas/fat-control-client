@@ -16,7 +16,7 @@ export function IndispTrackColumns({ days }: IndispTrackColumnsProps) {
    return (
       <div
          aria-hidden
-         className="pointer-events-none absolute inset-y-0 right-0 left-[70px] z-0"
+         className="pointer-events-none absolute inset-y-0 right-0 left-(--trig-w) z-0"
       >
          {days.map((day, index) => {
             const { left, width } = trackSpan(index, index + 1, days.length);

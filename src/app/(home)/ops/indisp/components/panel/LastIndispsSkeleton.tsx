@@ -1,28 +1,23 @@
-// Espelha o LastIndisps: cartão "Últimas Atualizações" com título + N linhas,
-// cada uma com trigrama / motivo / período / alteração / ícone.
-const ROWS = 12;
+import { LastIndispsFrame } from "./LastIndispsFrame";
+
+const ROWS = 15;
 
 export function LastIndispsSkeleton() {
    return (
-      <div className="flex min-h-0 w-full animate-pulse flex-col rounded border border-slate-200 bg-white p-3 shadow-sm">
-         <div className="mb-3 border-b border-slate-200 pb-2">
-            <div className="mx-auto h-5 w-44 rounded bg-slate-200" />
-         </div>
-
-         <div className="flex min-h-0 flex-1 flex-col gap-0.5 overflow-y-auto">
-            {Array.from({ length: ROWS }).map((_, i) => (
-               <div
-                  key={i}
-                  className="flex items-center gap-2 border-b border-slate-100 px-2 py-1.5 last:border-b-0"
-               >
-                  <div className="h-5 w-10 shrink-0 rounded bg-slate-200" />
-                  <div className="h-5 w-12 shrink-0 rounded bg-slate-100" />
-                  <div className="h-5 w-24 shrink-0 rounded bg-slate-100" />
-                  <div className="h-5 w-24 shrink-0 rounded bg-slate-100" />
-                  <div className="h-5 w-6 shrink-0 rounded bg-slate-100" />
-               </div>
-            ))}
-         </div>
-      </div>
+      <LastIndispsFrame isLoading>
+         {Array.from({ length: ROWS }, (_, i) => (
+            <div
+               key={i}
+               aria-hidden
+               className="col-span-5 grid animate-pulse grid-cols-subgrid items-center justify-items-center border-b border-slate-100 px-1.5 py-1.5 motion-reduce:animate-none"
+            >
+               <div className="h-3 w-5 rounded bg-slate-200" />
+               <div className="h-7 w-8 rounded bg-slate-200" />
+               <div className="h-3 w-16 rounded bg-slate-100" />
+               <div className="h-3 w-16 rounded bg-slate-100" />
+               <div className="h-3 w-3 rounded bg-slate-100" />
+            </div>
+         ))}
+      </LastIndispsFrame>
    );
 }

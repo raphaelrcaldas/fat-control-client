@@ -50,10 +50,7 @@ export function TripIndispFilters({
          <Button
             color="light"
             fullSized
-            className={clsx(
-               "justify-between pointer-coarse:min-h-[44px]",
-               showFilters && "rounded-b-none"
-            )}
+            className={clsx("justify-between", showFilters && "rounded-b-none")}
             onClick={() => setShowFilters((visible) => !visible)}
             aria-expanded={showFilters}
             aria-controls="trip-indisp-filters"
@@ -89,10 +86,10 @@ export function TripIndispFilters({
                   className="space-y-4 rounded rounded-t-none border border-slate-200 bg-gray-50 p-4"
                >
                   <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                     <div>
+                     <div className="space-y-1.5">
                         <Label
                            htmlFor="filtro-inicio"
-                           className="mb-1.5 block text-xs text-gray-500"
+                           className="block text-xs text-slate-600"
                         >
                            Data início
                         </Label>
@@ -105,10 +102,10 @@ export function TripIndispFilters({
                            onChange={(event) => setDateFrom(event.target.value)}
                         />
                      </div>
-                     <div>
+                     <div className="space-y-1.5">
                         <Label
                            htmlFor="filtro-fim"
-                           className="mb-1.5 block text-xs text-gray-500"
+                           className="block text-xs text-slate-600"
                         >
                            Data fim
                         </Label>
@@ -140,10 +137,10 @@ export function TripIndispFilters({
                      </span>
                   </Label>
 
-                  <div>
+                  <div className="space-y-1.5">
                      <Label
                         htmlFor="filtro-tipo"
-                        className="mb-1.5 block text-xs text-gray-500"
+                        className="block text-xs text-slate-600"
                      >
                         Tipo de indisponibilidade
                      </Label>

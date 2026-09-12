@@ -8,7 +8,7 @@
  */
 
 /** Coluna do trigrama — a única largura fixa; a trilha ocupa o resto. */
-export const TRIG_COL = "w-[70px] shrink-0";
+export const TRIG_COL = "w-(--trig-w) shrink-0";
 
 /**
  * Altura da faixa via variável CSS, não via constante JS.
@@ -22,7 +22,7 @@ export const TRIG_COL = "w-[70px] shrink-0";
  * abaixo são `calc()` em cima dela.
  */
 export const LANE_VARS =
-   "[--bar-h:24px] [--lane-gap:4px] [--row-pad:4px] pointer-coarse:[--bar-h:34px] pointer-coarse:[--row-pad:5px]";
+   "[--trig-w:44px] sm:[--trig-w:52px] [--bar-h:24px] [--lane-gap:4px] [--row-pad:4px] pointer-coarse:[--bar-h:34px] pointer-coarse:[--row-pad:5px]";
 
 /** Altura da linha em função de quantas pistas ela precisa empilhar. */
 export function rowHeight(lanes: number): string {
@@ -65,13 +65,11 @@ export function trackSpan(
  * dois, então os tamanhos são dois — o que separa dentro de cada degrau é
  * PESO, CAIXA e COR, não meio pixel a mais:
  *
- * - `TEXTO_VARREDURA` (9px) — rótulo que se localiza, não se lê: mês, TRIP,
+ * - `TEXTO_VARREDURA` (`text-xs`, 10,5px) — rótulo de apoio: mês, TRIP,
  *   sigla do dia, código e período da faixa, separador de alunos. Sempre em
  *   caixa alta com tracking aberto.
- * - `TEXTO_DADO` (`text-xs`) — o que se lê de fato: número do dia, trigrama,
- *   rótulo do motivo. É token do Tailwind (0,75rem = 10,5px na raiz 87,5%) de
- *   propósito: `text-[11px]` ao lado de `text-xs` seria reinventar o degrau de
- *   meio pixel que este comentário existe para proibir.
+ * - `TEXTO_DADO` (`text-sm`, 12,25px) — número do dia, trigrama e motivo.
+ *   Os dois papéis usam tokens e acompanham a preferência de fonte do usuário.
  *
  * As constantes carregam SÓ o tamanho, de propósito: peso, caixa e cor ficam
  * no ponto de uso, porque é neles que a diferença dentro de um degrau mora (o
@@ -82,8 +80,8 @@ export function trackSpan(
  * título do painel). O masthead segue o padrão canônico do projeto (eyebrow de
  * 10px + h1), que é compartilhado com todas as telas e não se mexe aqui.
  */
-export const TEXTO_VARREDURA = "text-[9px]";
-export const TEXTO_DADO = "text-xs";
+export const TEXTO_VARREDURA = "text-xs";
+export const TEXTO_DADO = "text-sm";
 
 /** Largura de N colunas na trilha — mês, régua e skeleton medem por aqui. */
 export function colWidth(days: number, total: number): string {

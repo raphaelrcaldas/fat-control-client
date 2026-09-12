@@ -1,6 +1,7 @@
 "use client";
 
 import { ReactNode } from "react";
+import clsx from "clsx";
 import { Button } from "flowbite-react";
 import { CrewIndispList } from "services/routes/indisps";
 import { IndispBoard } from "./board/IndispBoard";
@@ -24,12 +25,11 @@ interface IndispContentProps {
 /**
  * Painel lateral — largura fixa para a grade ficar com o resto da tela.
  *
- * Só existe a partir de `xl`, e com 380px só em `2xl`. Abaixo disso ele cobra
- * caro: em 1024 espremia a faixa de um dia para 25px e em 1360 custava dois
- * dias de trilha — nos dois casos o código do motivo, que é o único desempate
- * entre os quatro motivos que dividem o vermelho, deixava de caber.
+ * Só existe a partir de `xl`. As cinco colunas, os gaps e o padding cabem
+ * em 320px, inclusive com scrollbar. Crescer no monitor largo só afastava
+ * os dados e tirava espaço da grade. O cartão acompanha a altura do conteúdo.
  */
-const PAINEL = "hidden shrink-0 xl:flex xl:w-[300px] 2xl:w-[380px]";
+const PAINEL = "hidden min-h-0 shrink-0 items-start xl:flex xl:w-[320px]";
 
 /**
  * Máquina de estados da tela: carga, erro, vazio e conteúdo. A toolbar é a
@@ -52,7 +52,12 @@ export function IndispContent({
    if (isLoading) {
       return (
          <div className="flex min-h-0 flex-1 gap-2 overflow-hidden">
-            <IndispBoardSkeleton cols={dates.length} toolbar={toolbar} />
+            <IndispBoardSkeleton
+               dates={dates}
+               focusedIso={focusedIso}
+               onFocusDay={onFocusDay}
+               toolbar={toolbar}
+            />
             <div className={PAINEL}>
                <LastIndispsSkeleton />
             </div>
@@ -123,7 +128,11 @@ export function IndispContent({
             isFetching={isFetching}
          />
          <div
-            className={`${PAINEL} transition-opacity ${isFetching ? "opacity-50" : ""}`}
+            className={clsx(
+               PAINEL,
+               "transition-opacity",
+               isFetching && "opacity-50"
+            )}
          >
             <LastIndisps indisps={indisps} />
          </div>

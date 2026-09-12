@@ -15,7 +15,10 @@ export function IndispDeleteConfirm({
 }: IndispDeleteConfirmProps) {
    return (
       <>
-         <span className="text-sm font-medium text-gray-700">
+         <span
+            role="status"
+            className="w-full text-sm font-medium text-slate-700"
+         >
             {isDeleting ? "Excluindo..." : "Confirmar exclusão?"}
          </span>
          <Button
@@ -24,15 +27,22 @@ export function IndispDeleteConfirm({
             onClick={onConfirm}
             disabled={isDeleting}
          >
-            {isDeleting ? <Spinner color="primary" size="sm" /> : "Sim"}
+            {isDeleting ? (
+               <>
+                  <Spinner size="sm" aria-hidden className="mr-2" />
+                  Excluindo…
+               </>
+            ) : (
+               "Excluir registro"
+            )}
          </Button>
          <Button
-            color="gray"
+            color="light"
             size="md"
             onClick={onCancel}
             disabled={isDeleting}
          >
-            Não
+            Cancelar
          </Button>
       </>
    );

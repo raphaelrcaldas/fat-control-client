@@ -22,7 +22,7 @@ export function IndispFormFields({
    readOnly,
 }: IndispFormFieldsProps) {
    return (
-      <div className="grid gap-5">
+      <div className="space-y-4">
          <div className="grid gap-2">
             <Label htmlFor="mtv" className="font-semibold text-gray-700">
                Motivo <span className="text-red-500">*</span>
@@ -93,6 +93,7 @@ export function IndispFormFields({
                placeholder="Detalhes adicionais sobre a indisponibilidade..."
                value={values.obs}
                className="placeholder-slate-500"
+               rows={3}
                onChange={(e) => setField("obs", e.target.value)}
                disabled={readOnly}
             />

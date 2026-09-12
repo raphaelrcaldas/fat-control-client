@@ -24,8 +24,9 @@ export function IndispBoardGrid({
    ...rowProps
 }: IndispBoardGridProps) {
    return (
-      <div className="min-h-0 flex-1 overflow-y-auto">
-         <div className="relative min-h-full">
+      <div className="min-h-0 flex-1 touch-pan-y overflow-y-auto">
+         {/* O fundo termina na última linha, mesmo quando a lista é curta. */}
+         <div className="relative">
             <IndispTrackColumns days={days} />
             <div className="relative z-10">
                {principais.map((tripData) => (

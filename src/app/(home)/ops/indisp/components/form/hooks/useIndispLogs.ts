@@ -1,4 +1,4 @@
-import { useUserActionLogs } from "@/hooks/queries";
+import { useUserActionLogs } from "@/hooks/queries/useLogs";
 
 /**
  * Logs de alteração de uma indisponibilidade (histórico do form).

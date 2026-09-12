@@ -7,45 +7,33 @@ import { getIndispOption } from "@/constants/ops/indisponibilidades";
 import { CrewIndispList } from "services/routes/indisps";
 import { useLastIndisps, type LastIndispItem } from "./hooks/useLastIndisps";
 import { useIndispModalActions } from "../../context/indispModalContext";
+import { LastIndispsFrame } from "./LastIndispsFrame";
 
 export function LastIndisps({ indisps }: { indisps: CrewIndispList[] }) {
    const lastIndisps = useLastIndisps(indisps);
    const { openForm } = useIndispModalActions();
 
    return (
-      <div className="flex min-h-0 w-full flex-col gap-3 rounded border border-slate-200 bg-white p-3 shadow-sm">
-         <h2 className="border-b border-slate-200 pb-2 text-center text-base font-bold text-slate-800">
-            Últimas Atualizações
-         </h2>
-
-         <div className="grid min-h-0 flex-1 grid-cols-[max-content_max-content_max-content_max-content_max-content] content-start justify-between gap-x-2 gap-y-0.5 overflow-y-auto">
-            <div className="sticky top-0 z-10 col-span-5 grid grid-cols-subgrid items-center justify-items-center border-b border-slate-200 bg-white py-2 text-center text-[9px] font-semibold tracking-wide text-slate-500 uppercase">
-               <span>Trip.</span>
-               <span>Motivo</span>
-               <span>Período</span>
-               <span>Atualização</span>
-               <span title="Situação">Sit.</span>
-            </div>
-            {lastIndisps.length === 0 && (
-               <p className="col-span-5 p-3 text-center text-sm text-slate-600">
-                  Nenhuma atualização neste período.
-               </p>
-            )}
-            {lastIndisps.map((item, idx) => (
-               <LastIndispRow
-                  key={item.id ?? `${item.trig}-${item.created_at}-${idx}`}
-                  item={item}
-                  onClick={() =>
-                     openForm({
-                        trip: item.trip,
-                        indisp: item,
-                        readOnly: item.isDeleted,
-                     })
-                  }
-               />
-            ))}
-         </div>
-      </div>
+      <LastIndispsFrame>
+         {lastIndisps.length === 0 && (
+            <p className="col-span-5 p-3 text-center text-sm text-slate-600">
+               Nenhuma atualização neste período.
+            </p>
+         )}
+         {lastIndisps.map((item, idx) => (
+            <LastIndispRow
+               key={item.id ?? `${item.trig}-${item.created_at}-${idx}`}
+               item={item}
+               onClick={() =>
+                  openForm({
+                     trip: item.trip,
+                     indisp: item,
+                     readOnly: item.isDeleted,
+                  })
+               }
+            />
+         ))}
+      </LastIndispsFrame>
    );
 }
 
@@ -73,7 +61,7 @@ function LastIndispRow({
          aria-label={`${item.trig}, ${indispTheme?.label ?? item.mtv}, ${dateIni} a ${dateEnd}, ${status} em ${lastChangeDate}`}
          title={`${indispTheme?.label ?? item.mtv} · ${status} em ${lastChangeDate}`}
          className={clsx(
-            "col-span-5 grid w-full grid-cols-subgrid items-center justify-items-center rounded border-b border-slate-100 py-1 text-center text-xs whitespace-nowrap transition-colors focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:outline-none",
+            "col-span-5 grid w-full grid-cols-subgrid items-center justify-items-center rounded border-b border-slate-100 px-1.5 py-1.5 text-center text-sm whitespace-nowrap transition-colors focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:outline-none focus-visible:ring-inset",
             item.isDeleted
                ? "bg-red-50 hover:bg-red-100"
                : item.wasModified
@@ -86,7 +74,7 @@ function LastIndispRow({
          </span>
          <span
             className={clsx(
-               "rounded px-1 py-0.5 text-center font-semibold uppercase",
+               "rounded px-1.5 py-1 text-center font-semibold uppercase",
                item.isDeleted
                   ? "bg-slate-100 text-slate-600 line-through"
                   : indispTheme?.bar

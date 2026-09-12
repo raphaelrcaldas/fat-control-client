@@ -1,7 +1,7 @@
 "use client";
 
 import clsx from "clsx";
-import { HiOutlineUser } from "react-icons/hi";
+import { HiOutlineUser, HiPlus } from "react-icons/hi";
 import {
    Button,
    Modal,
@@ -11,7 +11,7 @@ import {
 } from "flowbite-react";
 import { PermBased } from "@/app/(home)/hooks/usePermBased";
 import { CrewIndispList } from "services/routes/indisps";
-import { useUserIndisps } from "@/hooks/queries";
+import { useUserIndisps } from "@/hooks/queries/useIndisps";
 import { useIndispFilters } from "./hooks/useIndispFilters";
 import { useIndispModalActions } from "../../context/indispModalContext";
 import { CemalCard, UltVooCard } from "./TripStatusCards";
@@ -50,21 +50,36 @@ export const TripIndisp = ({ tripData, onClose }: TripIndispProps) => {
    const activeIndisps = indisps.filter((i) => !i.deleted_at);
 
    return (
-      <Modal show size="3xl" onClose={onClose} dismissible>
-         <ModalHeader>
+      <Modal
+         show
+         size="3xl"
+         onClose={onClose}
+         dismissible
+         className="h-dvh items-start"
+         theme={{ content: { base: "h-auto" } }}
+      >
+         <ModalHeader
+            as="h2"
+            theme={{ title: "min-w-0", close: { base: "shrink-0" } }}
+         >
             <span className="flex items-center gap-2 text-lg font-bold text-slate-800 uppercase">
                <HiOutlineUser
                   aria-hidden
                   className="h-5 w-5 shrink-0 text-slate-400"
                />
-               {user.posto.mid} {user.nome_guerra}
+               <span
+                  className="truncate"
+                  title={`${user.posto.mid} ${user.nome_guerra}`}
+               >
+                  {user.posto.mid} {user.nome_guerra}
+               </span>
             </span>
             <span className="block text-sm font-normal text-slate-500">
                Indisponibilidades
             </span>
          </ModalHeader>
-         <ModalBody className="max-h-160 min-h-[60vh] space-y-4 overflow-y-auto sm:min-h-160">
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+         <ModalBody className="min-h-0 space-y-3 p-3 sm:min-h-80 sm:p-6">
+            <div className="grid grid-cols-2 gap-2">
                <CemalCard
                   cemal={trip.cemal}
                   restricoesDerivadas={restricoes_derivadas}
@@ -95,9 +110,9 @@ export const TripIndisp = ({ tripData, onClose }: TripIndispProps) => {
                      role="alert"
                      className="space-y-3 rounded border border-red-200 bg-red-50 p-8 text-center"
                   >
-                     <h4 className="text-base font-semibold text-red-700">
+                     <h3 className="text-base font-semibold text-red-700">
                         Não foi possível carregar as indisponibilidades
-                     </h4>
+                     </h3>
                      <p className="text-sm text-slate-600">
                         Verifique a conexão e tente novamente.
                      </p>
@@ -133,17 +148,18 @@ export const TripIndisp = ({ tripData, onClose }: TripIndispProps) => {
                )}
             </div>
          </ModalBody>
-         <ModalFooter className="flex flex-wrap justify-center gap-3 bg-gray-50">
+         <ModalFooter className="flex shrink-0 flex-wrap justify-end gap-2 border-t border-slate-200 bg-slate-50 p-3 sm:p-4">
             <PermBased requiredPerm="create" resource="ops.indisp">
                <Button
                   color="primary"
                   size="md"
                   onClick={() => openForm({ trip, indisp: null })}
                >
-                  + Adicionar Indisponibilidade
+                  <HiPlus className="mr-2 h-4 w-4" aria-hidden />
+                  Adicionar
                </Button>
             </PermBased>
-            <Button color="gray" size="md" onClick={() => onClose()}>
+            <Button color="light" size="md" onClick={onClose}>
                Fechar
             </Button>
          </ModalFooter>

@@ -1,6 +1,7 @@
 "use client";
 
-import { Button, ButtonGroup, Label, Select } from "flowbite-react";
+import { useEffect, useRef } from "react";
+import { Button, ButtonGroup } from "flowbite-react";
 import { HiChevronLeft, HiChevronRight } from "react-icons/hi";
 
 interface FuncOption {
@@ -24,12 +25,8 @@ const PASSO = 7;
 /**
  * Controles da grade.
  *
- * As quatro setas antigas (dia e mês) saíram quando a navegação virou arrasto.
- * Este par voltou por um motivo específico: o arrasto não se anuncia — não há
- * texto, não há botão, e no tablet nem cursor existe para mudar para mãozinha.
- * O botão ENSINA o gesto (clica, vê a grade deslizar, entende que a superfície
- * se move) além de servir a quem prefere clicar. O passo é de uma semana; o
- * dia a dia continua no arrasto e nas setas do teclado.
+ * No celular, apenas os chips de função: o arrasto navega no tempo.
+ * Nas telas maiores, Hoje e as setas de semana continuam disponíveis.
  */
 export function IndispBoardToolbar({
    func,
@@ -40,35 +37,46 @@ export function IndispBoardToolbar({
    canBack,
    canForward,
 }: IndispBoardToolbarProps) {
+   const selectedChip = useRef<HTMLButtonElement>(null);
+
+   useEffect(() => {
+      selectedChip.current?.scrollIntoView({
+         block: "nearest",
+         inline: "nearest",
+      });
+   }, [func, funcOptions]);
+
    return (
-      <div className="flex shrink-0 flex-col gap-2 border-b border-slate-200 px-3 py-2 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
-         <div className="flex min-w-0 items-center gap-2">
-            <Label htmlFor="indisp-func" className="shrink-0 text-sm">
-               Função
-            </Label>
-            <Select
-               id="indisp-func"
-               className="min-w-0 flex-1 sm:w-40 sm:flex-none"
-               value={func}
-               disabled={funcOptions.length === 0}
-               onChange={(e) => onFuncChange(e.target.value)}
-            >
-               {funcOptions.map((f) => (
-                  <option key={f.value} value={f.value}>
-                     {f.label}
-                  </option>
-               ))}
-            </Select>
+      <div className="flex shrink-0 items-center justify-between gap-2 border-b border-slate-200 px-3 py-2 sm:gap-3">
+         <div
+            role="group"
+            aria-label="Função"
+            className="flex min-w-0 flex-1 [scrollbar-width:none] items-center gap-1.5 overflow-x-auto"
+         >
+            {funcOptions.map((f) => (
+               <Button
+                  key={f.value}
+                  ref={func === f.value ? selectedChip : undefined}
+                  type="button"
+                  size="sm"
+                  color={func === f.value ? "primary" : "light"}
+                  aria-pressed={func === f.value}
+                  title={f.label}
+                  onClick={() => onFuncChange(f.value)}
+                  className="shrink-0 rounded px-3 font-semibold uppercase focus:ring-2 focus:ring-inset"
+               >
+                  {f.value}
+               </Button>
+            ))}
          </div>
 
          <ButtonGroup
-            className="grid w-full grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] sm:flex sm:w-auto"
+            className="hidden shrink-0 sm:flex"
             aria-label="Navegação do período"
          >
             <Button
                color="light"
                size="sm"
-               className="pointer-coarse:min-h-[44px]"
                disabled={!canBack}
                onClick={() => onShiftDays(-PASSO)}
                aria-label={
@@ -84,18 +92,12 @@ export function IndispBoardToolbar({
             >
                <HiChevronLeft className="h-4 w-4" aria-hidden />
             </Button>
-            <Button
-               color="primary"
-               size="sm"
-               className="pointer-coarse:min-h-[44px]"
-               onClick={onToday}
-            >
+            <Button color="primary" size="sm" onClick={onToday}>
                Hoje
             </Button>
             <Button
                color="light"
                size="sm"
-               className="pointer-coarse:min-h-[44px]"
                disabled={!canForward}
                onClick={() => onShiftDays(PASSO)}
                aria-label={

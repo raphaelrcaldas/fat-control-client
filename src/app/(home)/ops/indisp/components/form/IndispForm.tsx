@@ -18,7 +18,8 @@ import {
    useCreateIndisp,
    useUpdateIndisp,
    useDeleteIndisp,
-} from "@/hooks/queries";
+} from "@/hooks/queries/useIndisps";
+import { formatSaveError } from "utils/apiErrors";
 import { useIndispFormState } from "./hooks/useIndispFormState";
 import { useIndispLogs } from "./hooks/useIndispLogs";
 import { Historico } from "@/components/audit/Historico";
@@ -125,7 +126,11 @@ export function IndispForm({
          },
          onError: (err: Error) => {
             push({
-               message: err.message || "Falha na comunicação com o servidor.",
+               message: formatSaveError(
+                  err,
+                  "Falha na comunicação com o servidor.",
+                  { fields: fieldLabels }
+               ),
                type: "error",
             });
          },
@@ -159,13 +164,22 @@ export function IndispForm({
          show={open}
          size="lg"
          onClose={() => {
+            if (isMutating) return;
             reset();
             closeModal();
          }}
-         dismissible
+         dismissible={!isMutating}
+         className="h-dvh items-start"
+         theme={{ content: { base: "h-auto" } }}
       >
-         <ModalHeader>
-            <span className="block text-lg font-bold text-slate-800 uppercase">
+         <ModalHeader
+            as="h2"
+            theme={{ title: "min-w-0", close: { base: "shrink-0" } }}
+         >
+            <span
+               className="block truncate text-lg font-bold text-slate-800 uppercase"
+               title={`${trip.user.posto.short} ${trip.user.nome_guerra}`}
+            >
                {trip.user.posto.short} {trip.user.nome_guerra}
             </span>
             <span className="block text-sm font-normal text-slate-500">
@@ -176,17 +190,26 @@ export function IndispForm({
                     : "Nova indisponibilidade"}
             </span>
          </ModalHeader>
-         <ModalBody className="space-y-5">
+         <ModalBody className="min-h-0 space-y-4 p-3 sm:p-6">
             {somenteLeitura && (
                <p className="rounded border border-slate-200 bg-slate-50 p-3 text-sm text-slate-600">
                   Registro disponível apenas para consulta.
                </p>
             )}
-            <IndispFormFields
-               values={values}
-               setField={setField}
-               readOnly={somenteLeitura}
-            />
+            <form
+               id="indisp-form"
+               onSubmit={(event) => {
+                  event.preventDefault();
+                  if (podeGravar && !somenteLeitura && !isMutating)
+                     handleIndisp();
+               }}
+            >
+               <IndispFormFields
+                  values={values}
+                  setField={setField}
+                  readOnly={somenteLeitura || !podeGravar || isMutating}
+               />
+            </form>
             {indisp && (
                <Historico
                   logs={logs}
@@ -200,16 +223,25 @@ export function IndispForm({
                />
             )}
          </ModalBody>
-         <ModalFooter className="flex flex-wrap justify-end gap-2 bg-slate-50">
+         <ModalFooter className="flex shrink-0 flex-wrap justify-end gap-2 border-t border-slate-200 bg-slate-50 p-3 sm:p-4">
             {podeGravar && !somenteLeitura && !confirmingDelete && (
                <Button
                   color="primary"
-                  onClick={handleIndisp}
+                  type="submit"
+                  form="indisp-form"
                   disabled={isMutating || (indisp ? !isChanged : false)}
                   size="md"
                >
                   {isMutating && !deleteMutation.isPending ? (
-                     <Spinner color="primary" size="sm" />
+                     <>
+                        <Spinner
+                           color="primary"
+                           size="sm"
+                           aria-hidden
+                           className="mr-2"
+                        />
+                        Salvando…
+                     </>
                   ) : indisp ? (
                      "Atualizar"
                   ) : (
@@ -238,7 +270,7 @@ export function IndispForm({
             )}
             {!confirmingDelete && (
                <Button
-                  color="gray"
+                  color="light"
                   onClick={() => {
                      reset();
                      closeModal();

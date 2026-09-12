@@ -3,7 +3,8 @@ import { todayIso } from "utils/dateHandler";
 
 import { useMemo, useState } from "react";
 import { usePersistedState } from "@/hooks/usePersistedState";
-import { useCrewIndisps, useFuncoes } from "@/hooks/queries";
+import { useCrewIndisps } from "@/hooks/queries/useIndisps";
+import { useFuncoes } from "@/hooks/queries/useFuncoes";
 import { IndispModalProvider } from "./context/indispModalContext";
 import { IndispFormHost } from "./components/form/IndispFormHost";
 import { TripIndispHost } from "./components/trip/TripIndispHost";

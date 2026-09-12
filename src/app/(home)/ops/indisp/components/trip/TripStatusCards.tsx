@@ -25,7 +25,7 @@ export function CemalCard({
    return (
       <div
          className={clsx(
-            "rounded border p-3 text-center",
+            "space-y-1 rounded border p-2 text-center shadow-sm sm:p-3",
             isValid
                ? "border-emerald-200 bg-emerald-50"
                : cemalDate
@@ -36,7 +36,7 @@ export function CemalCard({
          <p className="text-xs font-medium text-gray-500 uppercase">CEMAL</p>
          <p
             className={clsx(
-               "mt-1 text-sm font-bold",
+               "text-sm font-bold",
                isValid
                   ? "text-emerald-700"
                   : cemalDate
@@ -50,7 +50,7 @@ export function CemalCard({
             className={clsx(
                "text-xs",
                isValid
-                  ? "text-emerald-600"
+                  ? "text-emerald-700"
                   : cemalDate
                     ? "text-purple-600"
                     : "text-gray-500"
@@ -102,7 +102,7 @@ export function UltVooCard({
       : desadaptado
         ? "text-slate-600"
         : ultVooDate
-          ? "text-emerald-600"
+          ? "text-emerald-700"
           : "text-gray-500";
 
    const statusText = !elegivelDesadaptacao
@@ -114,11 +114,16 @@ export function UltVooCard({
           : "Sem dados";
 
    return (
-      <div className={clsx("rounded border p-3 text-center", cardClass)}>
+      <div
+         className={clsx(
+            "space-y-1 rounded border p-2 text-center shadow-sm sm:p-3",
+            cardClass
+         )}
+      >
          <p className="text-xs font-medium text-gray-500 uppercase">
             Último Voo
          </p>
-         <p className={clsx("mt-1 text-sm font-bold", textClass)}>
+         <p className={clsx("text-sm font-bold", textClass)}>
             {ultVooDate ? formatDateFull(dataUltVoo) : "Sem registro"}
          </p>
          <p className={clsx("text-xs", subTextClass)}>{statusText}</p>

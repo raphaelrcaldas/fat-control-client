@@ -11,7 +11,7 @@ export function IndispHeader() {
 
          <div className="relative flex items-center gap-4">
             <div className="bg-primary-50 text-primary-600 ring-primary-100 grid h-12 w-12 shrink-0 place-items-center rounded-md ring-1 ring-inset">
-               <HiUserGroup className="h-6 w-6" />
+               <HiUserGroup className="h-6 w-6" aria-hidden />
             </div>
             <div>
                <span className="text-primary-600 block font-mono text-[10px] font-bold tracking-[0.3em] uppercase">

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { todayIso } from "utils/dateHandler";
+import { daysInclusive, todayIso } from "utils/dateHandler";
 import type { IndispMtv } from "@/constants/ops/indisponibilidades";
 import { IndispType } from "services/routes/indisps";
 
@@ -64,14 +64,14 @@ export function useIndispFormState(
 
    const validate = (): string[] => {
       const msg: string[] = [];
-      if (isNaN(new Date(values.dateStart).getTime())) {
+      if (daysInclusive(values.dateStart, values.dateStart) === null) {
          msg.push("- Insira uma data de início válida!");
       }
-      if (isNaN(new Date(values.dateEnd).getTime())) {
+      if (daysInclusive(values.dateEnd, values.dateEnd) === null) {
          msg.push("- Insira uma data final válida!");
       }
       if (values.mtv === "") msg.push("- Escolha um motivo");
-      if (new Date(values.dateStart) > new Date(values.dateEnd)) {
+      if (values.dateStart > values.dateEnd) {
          msg.push("- A data de início não deve ser maior que a data final");
       }
       return msg;
@@ -91,14 +91,14 @@ export function useIndispFormState(
          if (values.dateEnd !== defaults.dateEnd) {
             data.date_end = values.dateEnd;
          }
-         if (values.obs !== defaults.obs) data.obs = values.obs;
+         if (values.obs !== defaults.obs) data.obs = values.obs.trim() || null;
          return data;
       }
       return {
          mtv,
          date_start: values.dateStart,
          date_end: values.dateEnd,
-         obs: values.obs,
+         obs: values.obs.trim() || null,
          user_id: userId,
       };
    };

@@ -1,4 +1,4 @@
-import request from "../Api";
+import request, { ApiError } from "../Api";
 import type { IndispMtv } from "@/constants/ops/indisponibilidades";
 import type { ApiResponse } from "@/types/api";
 import { UserPublic } from "./users";
@@ -109,7 +109,10 @@ export async function addIndisp(indisp: IndispType): Promise<string> {
    const response = await request("POST", indispRoute, indisp);
    const json: ApiResponse<null> = await response.json();
    if (!response.ok) {
-      throw new Error(json.message || "Erro ao criar indisponibilidade");
+      throw new ApiError(
+         json.message || "Erro ao criar indisponibilidade",
+         json.errors
+      );
    }
    return json.message || "Sucesso";
 }
@@ -118,7 +121,10 @@ export async function updateIndisp(indisp: IndispType): Promise<string> {
    const response = await request("PUT", indispRoute + indisp.id, indisp);
    const json: ApiResponse<null> = await response.json();
    if (!response.ok) {
-      throw new Error(json.message || "Erro ao atualizar indisponibilidade");
+      throw new ApiError(
+         json.message || "Erro ao atualizar indisponibilidade",
+         json.errors
+      );
    }
    return json.message || "Sucesso";
 }

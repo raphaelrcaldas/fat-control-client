@@ -1,11 +1,10 @@
 import { useMemo, useState } from "react";
-import { todayIso, dateToIso } from "utils/dateHandler";
+import { addDays, todayIso, dateToIso } from "utils/dateHandler";
 import type { IndispFilters } from "services/routes/indisps";
 
 // Padrão: dos últimos 7 dias até hoje (em fuso local — sem toISOString).
 function getDefaultDates() {
-   const d = new Date();
-   d.setDate(d.getDate() - 7);
+   const d = addDays(new Date(), -7);
    return { dateFrom: dateToIso(d), dateTo: todayIso() };
 }
 

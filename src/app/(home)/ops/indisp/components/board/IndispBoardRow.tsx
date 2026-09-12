@@ -64,7 +64,7 @@ export const IndispBoardRow = memo(function IndispBoardRow({
                onClick={() => {
                   if (!shouldIgnoreClick()) onOpenTrip(tripData);
                }}
-               className="relative flex h-full w-full cursor-[inherit] items-center justify-center px-2.5 pointer-coarse:min-h-[44px]"
+               className="focus-visible:ring-primary-600 relative flex h-full w-full cursor-[inherit] items-center justify-center px-0.5 focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-inset pointer-coarse:min-h-[44px] pointer-coarse:min-w-[44px]"
                aria-label={`Ver indisponibilidades de ${trig}${oper === "in" ? ", instrutor" : ""}`}
             >
                <span
@@ -75,12 +75,6 @@ export const IndispBoardRow = memo(function IndispBoardRow({
                >
                   {trig}
                </span>
-               {oper === "in" && (
-                  <span
-                     title="Instrutor"
-                     className="bg-primary-600 absolute top-1/2 right-1.5 size-1.5 -translate-y-1/2 rounded-full"
-                  />
-               )}
             </button>
          </div>
 
