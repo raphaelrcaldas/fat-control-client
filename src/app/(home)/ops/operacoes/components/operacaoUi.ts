@@ -87,14 +87,6 @@ export const STATUS_SPINE: Record<OperStatus, string> = {
    cancelada: "bg-rose-400",
 };
 
-/** Halo sutil aplicado no hover, na cor do status. */
-export const STATUS_GLOW: Record<OperStatus, string> = {
-   planejada: "group-hover:shadow-amber-200/60",
-   andamento: "group-hover:shadow-emerald-200/60",
-   encerrada: "group-hover:shadow-slate-200/60",
-   cancelada: "group-hover:shadow-rose-200/60",
-};
-
 export const STATUS_TEXT: Record<OperStatus, string> = {
    planejada: "text-amber-600",
    andamento: "text-emerald-600",

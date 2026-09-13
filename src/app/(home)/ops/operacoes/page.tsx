@@ -2,12 +2,12 @@
 
 import { useMemo, useState } from "react";
 import { Button } from "flowbite-react";
-import { HiPlus } from "react-icons/hi";
+import { HiPlus, HiOutlineRefresh } from "react-icons/hi";
 import { TbPlaneInflight } from "react-icons/tb";
 import useDebouncedValue from "@/hooks/useDebouncedValue";
 import { useOperacoes } from "@/hooks/queries/useOperacoes";
 import { PermBased } from "../../hooks/usePermBased";
-import { OperacaoCard } from "./components/OperacaoCard";
+import { OperacoesTable } from "./components/OperacoesTable";
 import { OperacoesFilters } from "./components/OperacoesFilters";
 import { OperacoesSkeleton } from "./components/OperacoesSkeleton";
 import { OperacaoFormModal } from "./components/OperacaoFormModal";
@@ -57,17 +57,26 @@ export default function OperacoesPage() {
       ]
    );
 
-   const { data, isLoading, isFetching, error } = useOperacoes(params);
+   const { data, isLoading, isFetching, error, refetch } = useOperacoes(params);
 
    const items = data?.items ?? [];
    const counts = data?.counts ?? EMPTY_COUNTS;
    const showSkeleton = isLoading || (isFetching && !data);
 
+   // Busca/tipo/período em uso: muda a saída do vazio — quem filtrou quer
+   // limpar, não criar.
+   const filtrando =
+      filters.q.trim().length > 0 ||
+      filters.tipo !== null ||
+      filters.status !== null ||
+      filters.date_start !== defaults.date_start ||
+      filters.date_end !== defaults.date_end;
+
    return (
       <div className="flex flex-col space-y-2">
-         {/* Masthead — claro, mesma linguagem tática dos cards */}
+         {/* Masthead — referência canônica de cabeçalho do sistema */}
          <header className="relative overflow-hidden rounded border border-slate-200 bg-white px-5 py-4 shadow-sm sm:px-6 sm:py-5">
-            {/* Espinha vermelha — ecoa a espinha dos cards */}
+            {/* Espinha vermelha — ecoa a espinha das linhas */}
             <span
                aria-hidden
                className="bg-primary-600 absolute top-0 left-0 h-full w-1"
@@ -101,53 +110,90 @@ export default function OperacoesPage() {
             </div>
          </header>
 
-         <OperacoesFilters
-            value={filters}
-            onChange={setFilters}
-            counts={counts}
-            defaultDates={{
-               start: defaults.date_start,
-               end: defaults.date_end,
-            }}
-         />
+         {/* Superfície única: trilho de status, filtros e tabela. A tabela não
+             leva moldura própria — card dentro de card rouba a largura que
+             falta às colunas. */}
+         <div className="overflow-hidden rounded border border-slate-200 bg-white shadow-sm">
+            <OperacoesFilters
+               value={filters}
+               onChange={setFilters}
+               counts={counts}
+               defaultDates={{
+                  start: defaults.date_start,
+                  end: defaults.date_end,
+               }}
+            />
 
-         {error && (
-            <div className="rounded-md border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-800">
-               {(error as Error).message}
-            </div>
-         )}
-
-         {!showSkeleton && (
-            <p className="text-xs font-medium text-slate-500">
-               {items.length}{" "}
-               {items.length === 1
-                  ? "operação encontrada"
-                  : "operações encontradas"}
-            </p>
-         )}
-
-         {showSkeleton ? (
-            <OperacoesSkeleton />
-         ) : items.length === 0 ? (
-            <div className="rounded border border-dashed border-slate-300 bg-slate-50 px-4 py-16 text-center">
-               <p className="text-sm font-semibold text-slate-600">
-                  Nenhuma operação encontrada
-               </p>
-               <p className="mt-1 text-xs text-slate-500">
-                  Ajuste os filtros ou crie uma nova operação.
-               </p>
-            </div>
-         ) : (
-            <div
-               className={`flex flex-col gap-2.5 transition-opacity ${
-                  isFetching ? "opacity-60" : ""
-               }`}
-            >
-               {items.map((op) => (
-                  <OperacaoCard key={op.id} op={op} />
-               ))}
-            </div>
-         )}
+            {showSkeleton ? (
+               <OperacoesSkeleton />
+            ) : error ? (
+               /* Erro e vazio são estados diferentes: mostrar "nenhuma
+                  operação" quando a consulta falhou faz concluir que não há
+                  operação quando na verdade não se sabe. */
+               <div
+                  role="alert"
+                  className="flex flex-col items-center gap-1 px-6 py-12 text-center"
+               >
+                  <p className="text-sm font-semibold text-red-800">
+                     Não foi possível carregar as operações
+                  </p>
+                  <p className="text-xs text-slate-500">
+                     {(error as Error).message}
+                  </p>
+                  <Button
+                     color="light"
+                     size="sm"
+                     className="mt-3"
+                     onClick={() => refetch()}
+                  >
+                     <HiOutlineRefresh className="mr-2 h-4 w-4" />
+                     Tentar novamente
+                  </Button>
+               </div>
+            ) : items.length === 0 ? (
+               <div className="flex flex-col items-center gap-1 px-6 py-12 text-center">
+                  <TbPlaneInflight
+                     aria-hidden
+                     className="mb-2 h-7 w-7 text-slate-300"
+                  />
+                  {filtrando ? (
+                     <>
+                        <p className="text-sm font-semibold text-slate-700">
+                           Nenhuma operação encontrada
+                        </p>
+                        <p className="text-xs text-slate-500">
+                           A busca cobre nome e documento de referência.
+                        </p>
+                        <Button
+                           color="light"
+                           size="sm"
+                           className="mt-3"
+                           onClick={() => setFilters(defaults)}
+                        >
+                           Limpar filtros
+                        </Button>
+                     </>
+                  ) : (
+                     <>
+                        <p className="text-sm font-semibold text-slate-700">
+                           Nenhuma operação no período
+                        </p>
+                        <p className="text-xs text-slate-500">
+                           Amplie o período ou crie a primeira operação.
+                        </p>
+                     </>
+                  )}
+               </div>
+            ) : (
+               <div
+                  className={
+                     isFetching ? "opacity-60 transition-opacity" : undefined
+                  }
+               >
+                  <OperacoesTable items={items} />
+               </div>
+            )}
+         </div>
 
          <OperacaoFormModal
             show={showForm}
