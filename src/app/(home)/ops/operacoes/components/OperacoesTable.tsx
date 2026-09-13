@@ -14,34 +14,11 @@ import { HiArrowSmDown } from "react-icons/hi";
 import { isoDateToShort, minutesToTime } from "@/../utils/dateHandler";
 import type { OperacaoListItem } from "services/routes/ops/operacoes";
 import {
-   STATUS_DOT,
    STATUS_LABEL,
    STATUS_SPINE,
    TIPO_CHIP,
    TIPO_LABEL,
 } from "./operacaoUi";
-
-/** Ponto de status; pulsa só em `andamento`, que é o estado vivo. */
-function StatusDot({ op }: { op: OperacaoListItem }) {
-   return (
-      <span
-         className="relative flex h-1.5 w-1.5 shrink-0"
-         title={STATUS_LABEL[op.status]}
-      >
-         {op.status === "andamento" && (
-            <span
-               aria-hidden
-               className={`absolute inline-flex h-full w-full animate-ping rounded-full opacity-75 ${STATUS_DOT[op.status]}`}
-            />
-         )}
-         <span
-            aria-hidden
-            className={`relative inline-flex h-1.5 w-1.5 rounded-full ${STATUS_DOT[op.status]}`}
-         />
-         <span className="sr-only">{STATUS_LABEL[op.status]}</span>
-      </span>
-   );
-}
 
 function TipoChip({ op }: { op: OperacaoListItem }) {
    return (
@@ -78,13 +55,16 @@ export function OperacoesTable({ items }: { items: OperacaoListItem[] }) {
          <ul className="flex flex-col divide-y divide-slate-100 md:hidden">
             {items.map((op) => (
                <li key={op.id} className="flex items-stretch">
+                  {/* Espinha: mesma marca de status da tabela, e o rótulo
+                      acessível vive nela desde que o ponto saiu. */}
                   <span
-                     aria-hidden
+                     title={STATUS_LABEL[op.status]}
                      className={`w-1 shrink-0 ${STATUS_SPINE[op.status]}`}
-                  />
+                  >
+                     <span className="sr-only">{STATUS_LABEL[op.status]}</span>
+                  </span>
                   <div className="flex min-w-0 flex-1 flex-col gap-1.5 px-3 py-2.5">
                      <div className="flex min-w-0 items-center gap-2">
-                        <StatusDot op={op} />
                         <Link
                            href={`/ops/operacoes/${op.id}`}
                            title={op.nome}
@@ -93,9 +73,6 @@ export function OperacoesTable({ items }: { items: OperacaoListItem[] }) {
                            {op.nome}
                         </Link>
                         <TipoChip op={op} />
-                        <span className="ml-auto shrink-0 font-mono text-[11px] text-slate-500 tabular-nums">
-                           {String(op.numero).padStart(3, "0")}
-                        </span>
                      </div>
 
                      {/* Sem cidade a linha some: travessão solto no estreito
@@ -139,9 +116,6 @@ export function OperacoesTable({ items }: { items: OperacaoListItem[] }) {
                      <TableHeadCell className="w-1 p-0">
                         <span className="sr-only">Status</span>
                      </TableHeadCell>
-                     <TableHeadCell className="w-px px-3 text-right normal-case">
-                        Nº
-                     </TableHeadCell>
                      <TableHeadCell className="px-3 normal-case">
                         Operação
                      </TableHeadCell>
@@ -151,14 +125,19 @@ export function OperacoesTable({ items }: { items: OperacaoListItem[] }) {
                      <TableHeadCell className="hidden px-3 normal-case lg:table-cell">
                         Local
                      </TableHeadCell>
+                     {/* A seta fica em `Início`, que é por onde o backend
+                         ordena (`data_inicio DESC`) — não no par inteiro. */}
                      <TableHeadCell className="w-px px-3 whitespace-nowrap normal-case">
                         <span className="inline-flex items-center gap-1">
-                           Período
+                           Início
                            <HiArrowSmDown
                               aria-label="ordenado da mais recente para a mais antiga"
                               className="h-3.5 w-3.5 text-slate-400"
                            />
                         </span>
+                     </TableHeadCell>
+                     <TableHeadCell className="w-px px-3 whitespace-nowrap normal-case">
+                        Fim
                      </TableHeadCell>
                      <TableHeadCell className="w-px px-3 text-right normal-case">
                         Dias
@@ -181,29 +160,28 @@ export function OperacoesTable({ items }: { items: OperacaoListItem[] }) {
                         className="cursor-pointer bg-white"
                         onClick={() => router.push(`/ops/operacoes/${op.id}`)}
                      >
-                        {/* Espinha de status: mesma cor do ponto, varredura
-                            vertical da lista inteira. */}
+                        {/* Espinha de status: única marca de status da linha
+                            desde que o ponto saiu, então carrega o rótulo
+                            acessível — pintura sozinha não chega ao leitor. */}
                         <TableCell
-                           aria-hidden
+                           title={STATUS_LABEL[op.status]}
                            className={`w-1 p-0 ${STATUS_SPINE[op.status]}`}
-                        />
-                        <TableCell className="w-px px-3 text-right font-mono text-slate-500 tabular-nums">
-                           {String(op.numero).padStart(3, "0")}
+                        >
+                           <span className="sr-only">
+                              {STATUS_LABEL[op.status]}
+                           </span>
                         </TableCell>
                         {/* `max-w-0` + truncate: em `td` o algoritmo auto ignora
                             max-width, então o corte tem de vir do bloco interno. */}
                         <TableCell className="max-w-0 px-3">
-                           <div className="flex min-w-0 items-center gap-2">
-                              <StatusDot op={op} />
-                              <Link
-                                 href={`/ops/operacoes/${op.id}`}
-                                 title={op.nome}
-                                 onClick={(e) => e.stopPropagation()}
-                                 className="focus-visible:ring-primary-500 min-w-0 truncate rounded font-bold tracking-tight text-slate-900 uppercase focus:outline-none focus-visible:ring-2"
-                              >
-                                 {op.nome}
-                              </Link>
-                           </div>
+                           <Link
+                              href={`/ops/operacoes/${op.id}`}
+                              title={op.nome}
+                              onClick={(e) => e.stopPropagation()}
+                              className="focus-visible:ring-primary-500 block truncate rounded font-bold tracking-tight text-slate-900 uppercase focus:outline-none focus-visible:ring-2"
+                           >
+                              {op.nome}
+                           </Link>
                         </TableCell>
                         <TableCell className="w-px px-3">
                            <TipoChip op={op} />
@@ -221,8 +199,9 @@ export function OperacoesTable({ items }: { items: OperacaoListItem[] }) {
                            )}
                         </TableCell>
                         <TableCell className="w-px px-3 font-mono whitespace-nowrap text-slate-700 tabular-nums">
-                           {isoDateToShort(op.data_inicio)}{" "}
-                           <span className="text-slate-300">→</span>{" "}
+                           {isoDateToShort(op.data_inicio)}
+                        </TableCell>
+                        <TableCell className="w-px px-3 font-mono whitespace-nowrap text-slate-700 tabular-nums">
                            {isoDateToShort(op.data_fim)}
                         </TableCell>
                         <TableCell className="w-px px-3 text-right font-mono text-slate-500 tabular-nums">
