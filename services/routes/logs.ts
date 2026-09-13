@@ -93,6 +93,35 @@ export async function getUserActionLogsPage(
    };
 }
 
+/**
+ * Carrega o histórico completo de um recurso, respeitando a paginação do
+ * backend. A listagem administrativa continua paginada; esta função é para
+ * timelines individuais, que não podem omitir eventos antigos em silêncio.
+ */
+export async function getAllUserActionLogs(
+   filters: LogFilters = {},
+   signal?: AbortSignal
+): Promise<UserActionLog[]> {
+   const firstPage = await getUserActionLogsPage(
+      { ...filters, page: 1, per_page: 100 },
+      signal
+   );
+   // `Map` por `id`: um log inserido entre a busca da página 1 e da página 2
+   // desloca um item de uma página para a outra e ele viria duplicado — key
+   // repetida no React e evento contado duas vezes na trilha.
+   const byId = new Map(firstPage.items.map((item) => [item.id, item]));
+
+   for (let page = 2; page <= firstPage.pages; page += 1) {
+      const nextPage = await getUserActionLogsPage(
+         { ...filters, page, per_page: 100 },
+         signal
+      );
+      nextPage.items.forEach((item) => byId.set(item.id, item));
+   }
+
+   return [...byId.values()];
+}
+
 export async function deleteUserActionLog(id: number): Promise<void> {
    const res = await request("DELETE", `${logsRoute}user-actions/${id}`);
    const json = (await res.json()) as ApiResponse<null>;

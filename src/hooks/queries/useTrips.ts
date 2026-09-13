@@ -15,7 +15,7 @@ import {
    CreateTripData,
    UpdateTripData,
 } from "services/routes/trips";
-import { getUserActionLogs } from "services/routes/logs";
+import { getAllUserActionLogs } from "services/routes/logs";
 import { ApiError } from "services/Api";
 import { indispKeys } from "./useIndisps";
 import { escalaKeys } from "./useEscala";
@@ -91,16 +91,22 @@ export function useTrip(id: number | null | undefined) {
 }
 
 /**
- * Logs de auditoria de um tripulante
+ * Logs de auditoria de um tripulante. `getAllUserActionLogs` — não
+ * `getUserActionLogs` — porque a trilha é reordenada ascendente por
+ * `Historico`: truncar em 25 eventos fazia a trilha parecer começar no
+ * 26º evento em vez do mais antigo.
  */
 export function useTripLogs(id: number | null | undefined) {
    return useQuery({
       queryKey: tripKeys.logs(id!),
-      queryFn: () =>
-         getUserActionLogs({
-            resource: "ops.tripulantes",
-            resource_id: id!,
-         }),
+      queryFn: ({ signal }) =>
+         getAllUserActionLogs(
+            {
+               resource: "ops.tripulantes",
+               resource_id: id!,
+            },
+            signal
+         ),
       enabled: !!id,
    });
 }

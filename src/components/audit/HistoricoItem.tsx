@@ -26,6 +26,8 @@ export type HistoricoItemType = "create" | "update" | "delete";
 export interface HistoricoItemProps {
    /** Tipo do item: criação, alteração ou deleção */
    type: HistoricoItemType;
+   /** Rótulo específico da ação; usa o rótulo do tipo quando omitido. */
+   label?: string;
    /** Data/hora do evento (ISO string) */
    timestamp: string | null | undefined;
    /** Usuário que realizou a ação */
@@ -47,16 +49,17 @@ const LABEL: Record<HistoricoItemType, string> = {
 
 export function HistoricoItem({
    type,
+   label,
    timestamp,
    user,
    changes,
 }: HistoricoItemProps) {
-   const temMudancas = type === "update" && changes && changes.length > 0;
+   const temMudancas = type !== "delete" && changes && changes.length > 0;
 
    return (
       <AuditTimelineItem
          tone={type}
-         label={LABEL[type]}
+         label={label ?? LABEL[type]}
          timestamp={timestamp}
          user={user}
       >

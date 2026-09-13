@@ -6,7 +6,7 @@ import {
 } from "@tanstack/react-query";
 import {
    deleteUserActionLog,
-   getUserActionLogs,
+   getAllUserActionLogs,
    getUserActionLogsPage,
 } from "services/routes/logs";
 
@@ -38,7 +38,10 @@ export const logKeys = {
 
 /**
  * Logs de ações de usuário sobre um recurso.
- * Usado no histórico de alterações (ex.: IndispForm).
+ * Usado no histórico de alterações (ex.: IndispForm). `getAllUserActionLogs`
+ * — não `getUserActionLogs` — porque a trilha é reordenada ascendente por
+ * `Historico`: truncar em 25 eventos fazia a trilha parecer começar no 26º
+ * evento em vez do mais antigo.
  */
 export function useUserActionLogs(
    filters: UserActionLogFilters,
@@ -46,7 +49,7 @@ export function useUserActionLogs(
 ) {
    return useQuery({
       queryKey: logKeys.userActions(filters),
-      queryFn: () => getUserActionLogs(filters),
+      queryFn: ({ signal }) => getAllUserActionLogs(filters, signal),
       enabled,
       staleTime: 30_000,
       placeholderData: keepPreviousData,

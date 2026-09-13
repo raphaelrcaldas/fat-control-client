@@ -1,4 +1,3 @@
-import { Spinner } from "flowbite-react";
 import { HiClock, HiDocumentText } from "react-icons/hi";
 import { useTripLogs } from "@/hooks/queries/useTrips";
 import { useFuncoes } from "@/hooks/queries";
@@ -47,14 +46,6 @@ export function TripAudit({ tripId }: { tripId: number }) {
    const { data: logs = [], isLoading, error } = useTripLogs(tripId);
    const { label: funcLabel } = useFuncoes();
 
-   if (isLoading)
-      return (
-         <div className="flex flex-col items-center justify-center py-16">
-            <Spinner size="xl" color="primary" />
-            <p className="mt-4 text-gray-500">Carregando histórico...</p>
-         </div>
-      );
-
    if (error)
       return (
          <div className="flex flex-col items-center justify-center py-16">
@@ -69,7 +60,9 @@ export function TripAudit({ tripId }: { tripId: number }) {
          </div>
       );
 
-   if (!logs.length) {
+   // Enquanto carrega, `Historico` mostra o esqueleto da trilha na mesma
+   // moldura do resultado; o estado vazio só vale depois da resposta.
+   if (!isLoading && !logs.length) {
       return (
          <div className="flex flex-col items-center justify-center py-16">
             <div className="mb-4 rounded-full bg-gray-100 p-4">
@@ -90,6 +83,7 @@ export function TripAudit({ tripId }: { tripId: number }) {
    return (
       <Historico
          logs={logs}
+         isLoading={isLoading}
          fieldLabels={TRIP_FIELD_LABELS}
          formatFieldValue={(field, value) =>
             formatTripFieldValue(field, value, funcLabel)
