@@ -3,15 +3,11 @@
 import { useState, useCallback, useEffect, useMemo } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import useDebouncedValue from "@/hooks/useDebouncedValue";
-import { useEtapas, useEtapasFlat } from "@/hooks/queries";
+import { useEtapas } from "@/hooks/queries";
 import { useAeronaves } from "@/hooks/queries/useAeronaves";
 import { useEsfAerList } from "@/hooks/queries/useEsfAer";
 import { useTiposMissao } from "@/hooks/queries/useTiposMissao";
 import { dateToIso, todayIso } from "@/../utils/dateHandler";
-
-const PER_PAGE_OPTIONS = [25, 50, 100, 200, 400];
-const DEFAULT_PER_PAGE = 25;
-const DEFAULT_PAGE = 1;
 
 // Fuso local (dateHandler), não UTC: após ~21h em UTC-3, toISOString()
 // devolveria "amanhã" e deslocaria a janela de 30 dias em um dia.
@@ -24,8 +20,6 @@ function getDefaultDataIni(): string {
 function getDefaultDataFim(): string {
    return todayIso();
 }
-
-export { PER_PAGE_OPTIONS, DEFAULT_PER_PAGE };
 
 function useSyncDebouncedParam(
    debouncedValue: string,
@@ -53,7 +47,7 @@ function useSyncParamToState(
    }, [paramValue]);
 }
 
-export function useEtapasFilters(grouped = true) {
+export function useEtapasFilters() {
    const searchParams = useSearchParams();
    const router = useRouter();
 
@@ -79,19 +73,21 @@ export function useEtapasFilters(grouped = true) {
    const urlEsfAer = searchParams.get("esf_aer") ?? "";
    const urlDataIni = searchParams.get("data_ini") ?? getDefaultDataIni();
    const urlDataFim = searchParams.get("data_fim") ?? getDefaultDataFim();
-   const currentPage = Number(searchParams.get("page")) || DEFAULT_PAGE;
-   const perPage = Number(searchParams.get("per_page")) || DEFAULT_PER_PAGE;
 
    // --- Seed default dates into URL on first render ---
+   // Aproveita para varrer page/per_page: a listagem deixou de paginar, mas
+   // link salvo e historico ainda os carregam, e nada mais os removeria.
    useEffect(() => {
-      if (!searchParams.has("data_ini") || !searchParams.has("data_fim")) {
-         const params = new URLSearchParams(searchParams.toString());
-         if (!params.has("data_ini"))
-            params.set("data_ini", getDefaultDataIni());
-         if (!params.has("data_fim"))
-            params.set("data_fim", getDefaultDataFim());
-         router.replace(`?${params.toString()}`, { scroll: false });
-      }
+      const stale = ["page", "per_page"].filter((key) => searchParams.has(key));
+      const needsDates =
+         !searchParams.has("data_ini") || !searchParams.has("data_fim");
+      if (!needsDates && stale.length === 0) return;
+
+      const params = new URLSearchParams(searchParams.toString());
+      if (!params.has("data_ini")) params.set("data_ini", getDefaultDataIni());
+      if (!params.has("data_fim")) params.set("data_fim", getDefaultDataFim());
+      stale.forEach((key) => params.delete(key));
+      router.replace(`?${params.toString()}`, { scroll: false });
       // eslint-disable-next-line react-hooks/exhaustive-deps
    }, []);
 
@@ -109,7 +105,7 @@ export function useEtapasFilters(grouped = true) {
 
    // --- URL update helper ---
    const updateParams = useCallback(
-      (updates: Record<string, string | undefined>, resetPage = true) => {
+      (updates: Record<string, string | undefined>) => {
          const params = new URLSearchParams(spString);
 
          for (const [key, value] of Object.entries(updates)) {
@@ -119,11 +115,6 @@ export function useEtapasFilters(grouped = true) {
                params.set(key, value);
             }
          }
-
-         if (resetPage) params.delete("page");
-         if (params.get("per_page") === String(DEFAULT_PER_PAGE))
-            params.delete("per_page");
-         if (params.get("page") === String(DEFAULT_PAGE)) params.delete("page");
 
          const qs = params.toString();
          router.replace(qs ? `?${qs}` : "?", { scroll: false });
@@ -200,7 +191,6 @@ export function useEtapasFilters(grouped = true) {
          const params = new URLSearchParams(spString);
          params.delete(key);
          values.forEach((v) => params.append(key, v));
-         params.delete("page");
          const qs = params.toString();
          router.replace(qs ? `?${qs}` : "?", { scroll: false });
       },
@@ -243,23 +233,6 @@ export function useEtapasFilters(grouped = true) {
       // eslint-disable-next-line react-hooks/exhaustive-deps
    }, [filterTrip]);
 
-   const handlePageChange = useCallback(
-      (page: number) =>
-         updateParams(
-            { page: page > DEFAULT_PAGE ? String(page) : undefined },
-            false
-         ),
-      [updateParams]
-   );
-
-   const handlePerPageChange = useCallback(
-      (value: number) =>
-         updateParams({
-            per_page: value !== DEFAULT_PER_PAGE ? String(value) : undefined,
-         }),
-      [updateParams]
-   );
-
    const clearFilters = useCallback(() => {
       setFilterOrigem("");
       setFilterDestino("");
@@ -273,9 +246,8 @@ export function useEtapasFilters(grouped = true) {
    }, [router]);
 
    // --- React Query ---
-   // Modo grouped: sem paginacao (backend retorna lista completa)
-   // Modo flat: paginacao por etapa individual
-   const groupedParams = {
+   // Sem paginacao: o backend devolve as missoes da janela de datas inteira.
+   const params = {
       anv: urlAnv.length > 0 ? urlAnv : undefined,
       origem: debouncedOrigem || undefined,
       destino: debouncedDestino || undefined,
@@ -287,25 +259,12 @@ export function useEtapasFilters(grouped = true) {
       data_fim: urlDataFim || undefined,
       is_simulador: false,
    };
-   const flatParams = {
-      ...groupedParams,
-      page: currentPage,
-      per_page: perPage,
-   };
 
-   const groupedQuery = useEtapas(groupedParams, grouped);
-   const flatQuery = useEtapasFlat(flatParams, !grouped);
+   const { data, isLoading: loading, isFetching } = useEtapas(params);
 
-   const activeQuery = grouped ? groupedQuery : flatQuery;
-   const { isLoading: loading, isFetching } = activeQuery;
-
-   const missoes = groupedQuery.data ?? [];
-   const flatEtapas = flatQuery.data?.items ?? [];
-   const totalPages = grouped ? 1 : (flatQuery.data?.pages ?? 1);
-   const totalMissoes = grouped ? missoes.length : 0;
-   const totalEtapas = grouped
-      ? missoes.reduce((acc, m) => acc + m.etapas.length, 0)
-      : (flatQuery.data?.total ?? 0);
+   const missoes = data ?? [];
+   const totalMissoes = missoes.length;
+   const totalEtapas = missoes.reduce((acc, m) => acc + m.etapas.length, 0);
 
    // Datas só contam como filtro quando o usuário sai do intervalo default
    // (a janela padrão é sempre semeada na URL — contá-la inflaria o badge).
@@ -324,14 +283,10 @@ export function useEtapasFilters(grouped = true) {
 
    return {
       missoes,
-      flatEtapas,
-      totalPages,
       totalMissoes,
       totalEtapas,
       loading,
       isRefetching,
-      currentPage,
-      perPage,
       activeFilterCount,
       hasActiveFilters,
 
@@ -368,8 +323,6 @@ export function useEtapasFilters(grouped = true) {
       handleDataIniChange,
       handleDataFimChange,
       handleFuncaoChange,
-      handlePageChange,
-      handlePerPageChange,
       clearFilters,
    };
 }

@@ -1,16 +1,14 @@
 "use client";
 
-// Skeleton fiel da listagem de etapas. Espelha o EtapasTable nos dois modos:
-// - grouped: barra "selecionar todas" + cards de missao (header + tabela interna)
-// - flat: tabela unica dentro da moldura arredondada
+// Skeleton fiel da listagem de etapas: barra "selecionar todas" + cards de
+// missao (header + tabela interna), como o EtapasTable monta.
 // Mesmas colunas/larguras/visibilidades responsivas do EtapaRow -> zero layout-shift.
 
 import clsx from "clsx";
 import { Table, TableBody, TableCell, TableRow } from "flowbite-react";
 
 // Contagens fixas (sem Math.random) para evitar flicker e hydration mismatch.
-const GROUPED_MISSOES = [2, 3, 8, 3]; // nº de etapas por card de missao
-const FLAT_ROWS = 8;
+const MISSOES_SKELETON = [2, 3, 8, 3]; // nº de etapas por card de missao
 
 function Bar({ className }: { className?: string }) {
    return (
@@ -101,36 +99,16 @@ function MissaoCardSkeleton({ rows }: { rows: number }) {
    );
 }
 
-export interface EtapasTableSkeletonProps {
-   grouped: boolean;
-}
-
-export function EtapasTableSkeleton({ grouped }: EtapasTableSkeletonProps) {
-   if (grouped) {
-      return (
-         <div
-            role="status"
-            aria-label="Carregando etapas"
-            className="space-y-2"
-         >
-            <div className="ml-1 flex h-10 items-center gap-2 px-1">
-               <Bar className="size-4" />
-               <Bar className="h-5 w-64" />
-            </div>
-            {GROUPED_MISSOES.map((rows, i) => (
-               <MissaoCardSkeleton key={i} rows={rows} />
-            ))}
-         </div>
-      );
-   }
-
+export function EtapasTableSkeleton() {
    return (
-      <div
-         role="status"
-         aria-label="Carregando etapas"
-         className="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm"
-      >
-         <InnerTableSkeleton rows={FLAT_ROWS} />
+      <div role="status" aria-label="Carregando etapas" className="space-y-2">
+         <div className="ml-1 flex h-10 items-center gap-2 px-1">
+            <Bar className="size-4" />
+            <Bar className="h-5 w-64" />
+         </div>
+         {MISSOES_SKELETON.map((rows, i) => (
+            <MissaoCardSkeleton key={i} rows={rows} />
+         ))}
       </div>
    );
 }

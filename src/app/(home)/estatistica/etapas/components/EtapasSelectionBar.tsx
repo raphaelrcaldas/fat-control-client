@@ -8,13 +8,13 @@ import { ExportCartBar } from "@/components/export/ExportCartBar";
 import type { ExportCart } from "@/components/export/useExportCart";
 import { useBulkUpdateEtapas } from "@/hooks/queries/useEtapas";
 import { minutesToTime } from "@/../utils/dateHandler";
-import type { EtapaFlatItem } from "services/routes/estatistica/etapas";
+import type { EtapaExportItem } from "services/routes/estatistica/etapas";
 import { PermBased } from "@/app/(home)/hooks/usePermBased";
 import { useToast } from "@/app/context/toast";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
 
 interface EtapasSelectionBarProps {
-   cart: ExportCart<EtapaFlatItem>;
+   cart: ExportCart<EtapaExportItem>;
    visibleSelectedCount: number;
    onExport: () => void;
    hidden: boolean;

@@ -1,11 +1,10 @@
 "use client";
 
-import { Button, Badge, Select } from "flowbite-react";
+import { Button, Badge } from "flowbite-react";
 import { MdBarChart } from "react-icons/md";
-import { HiFilter, HiPlus, HiViewBoards, HiTable } from "react-icons/hi";
+import { HiFilter, HiPlus } from "react-icons/hi";
 import { CiPaperplane } from "react-icons/ci";
 import Link from "next/link";
-import { Pagination } from "@/components/Pagination";
 import { useState, useCallback, useMemo } from "react";
 import { EtapasTable } from "./components/EtapasTable/EtapasTable";
 import { EtapasTableSkeleton } from "./components/EtapasTable/EtapasTableSkeleton";
@@ -15,8 +14,8 @@ import { EtapasPendentesAlert } from "./components/EtapasPendentesAlert";
 import { MissaoDeleteModal } from "./components/MissaoDeleteModal";
 import { ExportColumnsModal } from "@/components/export/ExportColumnsModal";
 import { EtapasSelectionBar } from "./components/EtapasSelectionBar";
-import { PaginationInfo } from "./components/PaginationInfo";
-import { useEtapasFilters, PER_PAGE_OPTIONS } from "./hooks/useEtapasFilters";
+import { ResultadosInfo } from "./components/ResultadosInfo";
+import { useEtapasFilters } from "./hooks/useEtapasFilters";
 import { useEtapaSelection } from "./hooks/useEtapaSelection";
 import { etapasExportColumns, sortEtapasForExport } from "./exportColumns";
 import type { MissaoComEtapas } from "services/routes/estatistica/etapas";
@@ -25,7 +24,6 @@ import { PermBased } from "../../hooks/usePermBased";
 
 export default function EtapasPage() {
    const [showFilters, setShowFilters] = useState(false);
-   const [groupByMissao, setGroupByMissao] = useState(true);
 
    const [showDeleteModal, setShowDeleteModal] = useState(false);
    const [deletingMissao, setDeletingMissao] = useState<MissaoComEtapas | null>(
@@ -33,7 +31,7 @@ export default function EtapasPage() {
    );
    const [showExportModal, setShowExportModal] = useState(false);
 
-   const filters = useEtapasFilters(groupByMissao);
+   const filters = useEtapasFilters();
    const {
       cart,
       selectedIds,
@@ -42,7 +40,7 @@ export default function EtapasPage() {
       toggleEtapa,
       toggleMissao,
       toggleAll,
-   } = useEtapaSelection(filters.missoes, filters.flatEtapas, groupByMissao);
+   } = useEtapaSelection(filters.missoes);
 
    const handleDeleteMissao = useCallback((missao: MissaoComEtapas) => {
       setDeletingMissao(missao);
@@ -100,27 +98,6 @@ export default function EtapasPage() {
                            {filters.activeFilterCount}
                         </Badge>
                      )}
-                  </Button>
-                  <Button
-                     color="light"
-                     size="sm"
-                     className="hidden sm:flex"
-                     onClick={() => {
-                        setGroupByMissao((v) => !v);
-                        filters.handlePageChange(1);
-                     }}
-                     title={
-                        groupByMissao
-                           ? "Exibir tabela plana"
-                           : "Agrupar por missao"
-                     }
-                  >
-                     {groupByMissao ? (
-                        <HiTable className="mr-2 h-4 w-4" />
-                     ) : (
-                        <HiViewBoards className="mr-2 h-4 w-4" />
-                     )}
-                     {groupByMissao ? "Tabela plana" : "Agrupar por Missao"}
                   </Button>
                </div>
             </div>
@@ -202,41 +179,36 @@ export default function EtapasPage() {
          />
 
          <div className="relative flex-1 overflow-auto">
-            {filters.loading && <EtapasTableSkeleton grouped={groupByMissao} />}
+            {filters.loading && <EtapasTableSkeleton />}
 
-            {!filters.loading &&
-               (groupByMissao
-                  ? filters.missoes.length === 0
-                  : filters.flatEtapas.length === 0) && (
-                  <div className="flex h-64 flex-col items-center justify-center rounded-lg border border-gray-200 bg-white">
-                     <div className="mb-4 rounded-full bg-gray-100 p-4">
-                        <MdBarChart className="h-12 w-12 text-gray-400" />
-                     </div>
-                     <p className="mb-2 text-lg font-semibold text-gray-900">
-                        {filters.hasActiveFilters
-                           ? "Nenhuma etapa encontrada"
-                           : "Nenhuma etapa disponivel"}
-                     </p>
-                     <p className="max-w-md text-center text-sm text-gray-500">
-                        {filters.hasActiveFilters
-                           ? "Nao foram encontrados resultados com os filtros aplicados."
-                           : "Utilize os filtros para visualizar as etapas."}
-                     </p>
-                     {filters.hasActiveFilters && (
-                        <button
-                           type="button"
-                           onClick={filters.clearFilters}
-                           className="text-primary-600 hover:text-primary-700 mt-3 text-sm"
-                        >
-                           Limpar filtros
-                        </button>
-                     )}
+            {!filters.loading && filters.missoes.length === 0 && (
+               <div className="flex h-64 flex-col items-center justify-center rounded-lg border border-gray-200 bg-white">
+                  <div className="mb-4 rounded-full bg-gray-100 p-4">
+                     <MdBarChart className="h-12 w-12 text-gray-400" />
                   </div>
-               )}
+                  <p className="mb-2 text-lg font-semibold text-gray-900">
+                     {filters.hasActiveFilters
+                        ? "Nenhuma etapa encontrada"
+                        : "Nenhuma etapa disponivel"}
+                  </p>
+                  <p className="max-w-md text-center text-sm text-gray-500">
+                     {filters.hasActiveFilters
+                        ? "Nao foram encontrados resultados com os filtros aplicados."
+                        : "Utilize os filtros para visualizar as etapas."}
+                  </p>
+                  {filters.hasActiveFilters && (
+                     <button
+                        type="button"
+                        onClick={filters.clearFilters}
+                        className="text-primary-600 hover:text-primary-700 mt-3 text-sm"
+                     >
+                        Limpar filtros
+                     </button>
+                  )}
+               </div>
+            )}
 
-            {(groupByMissao
-               ? filters.missoes.length > 0
-               : filters.flatEtapas.length > 0) && (
+            {filters.missoes.length > 0 && (
                <div
                   className={clsx(
                      "transition-opacity duration-200",
@@ -245,7 +217,6 @@ export default function EtapasPage() {
                >
                   <EtapasTable
                      missoes={filters.missoes}
-                     flatEtapas={filters.flatEtapas}
                      loading={filters.isRefetching}
                      selectedIds={selectedIds}
                      onToggleEtapa={toggleEtapa}
@@ -253,72 +224,23 @@ export default function EtapasPage() {
                      onToggleAll={toggleAll}
                      allSelected={allSelected}
                      onDeleteMissao={handleDeleteMissao}
-                     grouped={groupByMissao}
                   />
                </div>
             )}
 
-            {(groupByMissao
-               ? filters.missoes.length > 0
-               : filters.flatEtapas.length > 0) && (
-               <nav
+            {filters.missoes.length > 0 && (
+               <div
                   className={clsx(
-                     "mt-4 flex flex-col items-start justify-between space-y-3 rounded-lg border border-gray-200 bg-white px-4 py-3 md:flex-row md:items-center md:space-y-0",
+                     "mt-4 rounded-lg border border-gray-200 bg-white px-4 py-3",
                      "transition-opacity duration-200",
                      filters.isRefetching && "pointer-events-none opacity-50"
                   )}
-                  aria-label="Navegacao da tabela"
                >
-                  <div className="flex items-center gap-4">
-                     <PaginationInfo
-                        page={filters.currentPage}
-                        perPage={filters.perPage}
-                        total={
-                           groupByMissao
-                              ? filters.totalMissoes
-                              : filters.totalEtapas
-                        }
-                        totalItems={
-                           groupByMissao ? filters.totalEtapas : undefined
-                        }
-                        viewMode={groupByMissao ? "grouped" : "flat"}
-                     />
-                     {!groupByMissao && (
-                        <div className="flex items-center gap-2">
-                           <label
-                              htmlFor="perPage"
-                              className="text-sm text-gray-500"
-                           >
-                              Por pagina:
-                           </label>
-                           <Select
-                              id="perPage"
-                              sizing="sm"
-                              value={filters.perPage}
-                              onChange={(e) =>
-                                 filters.handlePerPageChange(
-                                    Number(e.target.value)
-                                 )
-                              }
-                              className="w-20"
-                           >
-                              {PER_PAGE_OPTIONS.map((option) => (
-                                 <option key={option} value={option}>
-                                    {option}
-                                 </option>
-                              ))}
-                           </Select>
-                        </div>
-                     )}
-                  </div>
-                  {!groupByMissao && filters.totalPages > 1 && (
-                     <Pagination
-                        currentPage={filters.currentPage}
-                        totalPages={filters.totalPages}
-                        onPageChange={filters.handlePageChange}
-                     />
-                  )}
-               </nav>
+                  <ResultadosInfo
+                     totalMissoes={filters.totalMissoes}
+                     totalEtapas={filters.totalEtapas}
+                  />
+               </div>
             )}
          </div>
 

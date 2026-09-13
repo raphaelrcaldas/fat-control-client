@@ -1,5 +1,5 @@
 import request, { parseApiResponse } from "../../Api";
-import type { ApiPaginatedResponse, ApiResponse, ApiResult } from "@/types/api";
+import type { ApiResponse, ApiResult } from "@/types/api";
 
 const etapasRoute = "estatistica/etapas/";
 
@@ -66,21 +66,12 @@ export interface GetEtapasParams {
    trip_search?: string;
    funcao?: string;
    is_simulador?: boolean;
-   page?: number;
-   per_page?: number;
 }
 
-export interface EtapaFlatItem extends EtapaItem {
+/** Etapa com a missão achatada — formato que a planilha de etapas exporta. */
+export interface EtapaExportItem extends EtapaItem {
    missao_id: number;
    missao_titulo: string | null;
-}
-
-export interface PaginatedEtapasFlatResponse {
-   items: EtapaFlatItem[];
-   total: number;
-   page: number;
-   per_page: number;
-   pages: number;
 }
 
 export interface TripEtapaItem {
@@ -163,45 +154,6 @@ export async function getEtapas(
    );
    const json = (await response.json()) as ApiResponse<MissaoComEtapas[]>;
    return json.data ?? [];
-}
-
-export async function getEtapasFlat(
-   params?: GetEtapasParams,
-   signal?: AbortSignal
-): Promise<PaginatedEtapasFlatResponse> {
-   const queryParams: Record<string, string | string[]> = { flat: "true" };
-   if (params) {
-      if (params.data_ini) queryParams.data_ini = params.data_ini;
-      if (params.data_fim) queryParams.data_fim = params.data_fim;
-      if (params.origem) queryParams.origem = params.origem;
-      if (params.destino) queryParams.destino = params.destino;
-      if (params.anv && params.anv.length > 0) queryParams.anv = params.anv;
-      if (params.esf_aer) queryParams.esf_aer = params.esf_aer;
-      if (params.tipo_missao_cod && params.tipo_missao_cod.length > 0)
-         queryParams.tipo_missao_cod = params.tipo_missao_cod;
-      if (params.trip_search) queryParams.trip_search = params.trip_search;
-      if (params.funcao) queryParams.funcao = params.funcao;
-      if (params.is_simulador != null)
-         queryParams.is_simulador = params.is_simulador ? "true" : "false";
-      if (params.page != null) queryParams.page = params.page.toString();
-      if (params.per_page != null)
-         queryParams.per_page = params.per_page.toString();
-   }
-   const response = await request(
-      "GET",
-      etapasRoute,
-      null,
-      queryParams,
-      signal
-   );
-   const json = (await response.json()) as ApiPaginatedResponse<EtapaFlatItem>;
-   return {
-      items: json.data || [],
-      total: json.total,
-      page: json.page,
-      per_page: json.per_page,
-      pages: json.pages,
-   };
 }
 
 // ─── Pendentes de verificação ──────────────────────────────────────────────

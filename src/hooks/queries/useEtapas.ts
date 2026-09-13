@@ -13,7 +13,6 @@ import {
    deleteEtapa,
    deleteMissao,
    getEtapas,
-   getEtapasFlat,
    getEtapasPendentes,
    updateEtapa,
    updateMissao,
@@ -40,9 +39,6 @@ export const etapaKeys = {
    lists: () => [...etapaKeys.all, "list"] as const,
    list: (filters?: GetEtapasParams) =>
       [...etapaKeys.lists(), filters] as const,
-   flats: () => [...etapaKeys.all, "flat"] as const,
-   flat: (filters?: GetEtapasParams) =>
-      [...etapaKeys.flats(), filters] as const,
    // Sob `all` de propósito: toda mutação de etapa já invalida `all`, então
    // marcar SAGEM/Parte 1 rebaixa a contagem de pendências sem código extra.
    pendentes: (limit?: number) =>
@@ -59,24 +55,13 @@ function invalidateRestricoesOperacionais(queryClient: QueryClient) {
 // ========================================
 
 /**
- * Lista paginada de missoes com etapas e filtros
+ * Lista de missoes com etapas e filtros. Nao e paginada: a janela de datas
+ * do filtro e o que limita o volume.
  */
 export function useEtapas(params?: GetEtapasParams, enabled = true) {
    return useQuery({
       queryKey: etapaKeys.list(params),
       queryFn: ({ signal }) => getEtapas(params, signal),
-      placeholderData: keepPreviousData,
-      enabled,
-   });
-}
-
-/**
- * Lista paginada flat de etapas (sem agrupamento por missao)
- */
-export function useEtapasFlat(params?: GetEtapasParams, enabled = true) {
-   return useQuery({
-      queryKey: etapaKeys.flat(params),
-      queryFn: ({ signal }) => getEtapasFlat(params, signal),
       placeholderData: keepPreviousData,
       enabled,
    });

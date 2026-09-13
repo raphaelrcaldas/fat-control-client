@@ -4,7 +4,7 @@ import {
    minutesToTime,
 } from "@/../utils/dateHandler";
 import type { ExportColumn } from "@/components/export/exportTypes";
-import type { EtapaFlatItem } from "services/routes/estatistica/etapas";
+import type { EtapaExportItem } from "services/routes/estatistica/etapas";
 
 const FLIGHT_DATA = "Dados do Voo";
 const AIR_EFFORT = "Esforço Aéreo";
@@ -16,7 +16,7 @@ function joinValues(values: string[]): string | null {
 
 /** Preserva a ordenacao cronologica que o antigo exportador da API aplicava. */
 export function sortEtapasForExport<
-   T extends Pick<EtapaFlatItem, "data" | "dep" | "id">,
+   T extends Pick<EtapaExportItem, "data" | "dep" | "id">,
 >(etapas: readonly T[]): T[] {
    return [...etapas].sort(
       (a, b) =>
@@ -27,7 +27,7 @@ export function sortEtapasForExport<
 }
 
 /** Catálogo de colunas da planilha de etapas. */
-export const etapasExportColumns: ExportColumn<EtapaFlatItem>[] = [
+export const etapasExportColumns: ExportColumn<EtapaExportItem>[] = [
    {
       key: "data",
       label: "Data",
