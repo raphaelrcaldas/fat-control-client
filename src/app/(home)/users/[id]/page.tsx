@@ -5,6 +5,8 @@ import { useParams, useRouter } from "next/navigation";
 import { Button, Spinner } from "flowbite-react";
 import { useUser, useUpdateUser, useDeleteUser } from "@/hooks/queries";
 import { useToast } from "@/app/context/toast";
+import { useAuth } from "@/app/context/auth";
+import { useSearchParamsUpdater } from "@/hooks/useSearchParamsState";
 import { PermBased } from "@/app/(home)/hooks/usePermBased";
 import { formatUserSaveError } from "../userErrors";
 import { UserReadView } from "./components/UserReadView";
@@ -38,8 +40,6 @@ export default function UserDetailsPage() {
    const params = useParams<{ id: string }>();
    const router = useRouter();
    const userId = Number(params.id);
-   const [activeTab, setActiveTab] = useState<TabKey>("dados");
-
    const [showDeleteModal, setShowDeleteModal] = useState(false);
 
    const deleteUser = useDeleteUser();
@@ -51,6 +51,24 @@ export default function UserDetailsPage() {
    );
    const updateUser = useUpdateUser();
    const { push } = useToast();
+   const { role } = useAuth();
+   // O backend exige `require_admin` da org ativa em reset-pwd; esconder a
+   // aba evita o 403 SCOPE_FORBIDDEN que redireciona a página inteira para
+   // /403 (services/Api.ts). Mesmo padrão de RoleBasedRoute/useRoleBased.
+   const isAdmin = role === "admin";
+   const tabs = TABS.filter((tab) => tab.key !== "senha" || isAdmin);
+
+   // A aba vive na URL (`?tab=`), como em ops/om e cegep/missoes: link
+   // compartilhável e voltar/avançar coerentes com o resto do app. "dados" é
+   // o padrão e fica fora da URL; valor desconhecido — ou "senha" para quem
+   // não é admin — cai em "dados" em vez de painel vazio.
+   const { searchParams, setParams } = useSearchParamsUpdater();
+   const tabParam = searchParams.get("tab");
+   const activeTab: TabKey = tabs.some((tab) => tab.key === tabParam)
+      ? (tabParam as TabKey)
+      : "dados";
+   const handleTabChange = (key: TabKey) =>
+      setParams({ tab: key === "dados" ? undefined : key });
 
    async function handleDelete() {
       try {
@@ -195,10 +213,10 @@ export default function UserDetailsPage() {
                   className="flex gap-0 overflow-x-auto px-6"
                   aria-label="Abas do usuário"
                >
-                  {TABS.map((tab) => (
+                  {tabs.map((tab) => (
                      <button
                         key={tab.key}
-                        onClick={() => setActiveTab(tab.key)}
+                        onClick={() => handleTabChange(tab.key)}
                         className={clsx(
                            "flex shrink-0 items-center gap-2 border-b-2 px-4 py-3 text-sm font-medium whitespace-nowrap transition-colors",
                            activeTab === tab.key
@@ -220,7 +238,9 @@ export default function UserDetailsPage() {
                )}
                {activeTab === "promocoes" && <UserPromotions userId={userId} />}
                {activeTab === "historico" && <UserAudit userId={userId} />}
-               {activeTab === "senha" && <ResetPassword userId={userId} />}
+               {activeTab === "senha" && isAdmin && (
+                  <ResetPassword userId={userId} />
+               )}
             </div>
          </div>
 

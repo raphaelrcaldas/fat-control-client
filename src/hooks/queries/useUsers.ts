@@ -19,7 +19,7 @@ import {
    UserUpdate,
    UserPromoCreate,
 } from "services/routes/users";
-import { getUserActionLogs } from "services/routes/logs";
+import { getAllUserActionLogs } from "services/routes/logs";
 import { ApiError } from "services/Api";
 
 // ========================================
@@ -96,11 +96,14 @@ export function useUser(id: number | null | undefined) {
 export function useUserLogs(id: number | null | undefined) {
    return useQuery({
       queryKey: userKeys.logs(id!),
-      queryFn: () =>
-         getUserActionLogs({
-            resource: "users",
-            resource_id: id!,
-         }),
+      queryFn: ({ signal }) =>
+         getAllUserActionLogs(
+            {
+               resource: "users",
+               resource_id: id!,
+            },
+            signal
+         ),
       enabled: !!id,
    });
 }
@@ -194,13 +197,24 @@ export function useDeleteUser() {
 }
 
 /**
- * Resetar senha de usuário
+ * Redefinir senha de usuário (ver useDeleteUser sobre o erro: sem o throw o
+ * `onSuccess` rodava também em 403/404, invalidando logs de uma ação que na
+ * verdade falhou).
  */
 export function useResetPassword() {
    const queryClient = useQueryClient();
 
    return useMutation({
-      mutationFn: (userId: number) => resetPassword(userId),
+      mutationFn: async (userId: number) => {
+         const result = await resetPassword(userId);
+         if (!result.ok) {
+            throw new ApiError(
+               result.message ?? "Erro ao redefinir senha",
+               result.errors
+            );
+         }
+         return result;
+      },
       onSuccess: (_, userId) => {
          // Invalida logs pois reset de senha gera log
          queryClient.invalidateQueries({ queryKey: userKeys.logs(userId) });

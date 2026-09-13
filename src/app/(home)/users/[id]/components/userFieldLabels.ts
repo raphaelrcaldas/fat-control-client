@@ -22,6 +22,5 @@ export const USER_FIELD_LABELS: Record<string, string> = {
    ult_promo: "Última Promoção",
    ant_rel: "Antiguidade Relativa",
    active: "Status",
-   password: "Senha",
-   _senha: "Senha",
+   first_login: "Troca de senha pendente",
 };

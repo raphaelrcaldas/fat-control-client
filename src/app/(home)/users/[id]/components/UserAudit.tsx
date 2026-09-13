@@ -1,81 +1,16 @@
-import { useMemo } from "react";
-import { useUserLogs, useUnidadeOptions } from "@/hooks/queries";
-import type { UnidadeOption } from "@/hooks/queries";
-import { postoGradRecords } from "@/constants/militar/postos";
-import { Spinner } from "flowbite-react";
+import { useUserLogs } from "@/hooks/queries/useUsers";
 import { HiClock, HiDocumentText } from "react-icons/hi";
 import { Historico } from "@/components/audit/Historico";
-import { cpf as cpfValidator } from "cpf-cnpj-validator";
-import { formatCpf } from "@/constants/formats";
+import {
+   formatUserAuditFieldValue,
+   USER_AUDIT_ACTION_LABELS,
+} from "./userAuditFormat";
 import { USER_FIELD_LABELS } from "./userFieldLabels";
-
-/**
- * Cria o formatador de valores de campo. Recebe as opções de unidade
- * (diretório de organizações) para resolver `unidade` → label.
- */
-function makeFormatUserFieldValue(unidadeOptions: UnidadeOption[]) {
-   return function formatUserFieldValue(field: string, value: string): string {
-      const str = String(value ?? "");
-      if (!str) return str;
-
-      switch (field) {
-         case "p_g": {
-            const posto = postoGradRecords.find((p) => p.short === str);
-            return posto ? posto.long : str;
-         }
-         case "unidade": {
-            const und = unidadeOptions.find((u) => u.value === str);
-            return und ? und.label : str;
-         }
-         case "cpf":
-            return cpfValidator.isValid(str) ? formatCpf(str) : str;
-         case "active":
-            return str === "true" ? "Ativo" : "Inativo";
-         case "password":
-            return "••••••••";
-         case "_senha":
-            return "Redefinida";
-         default:
-            return str;
-      }
-   };
-}
-
-/**
- * Pré-processa logs para tratar ações especiais (ex: change-pwd sem before/after)
- */
-function preprocessLogs(logs: ReturnType<typeof useUserLogs>["data"]) {
-   if (!logs) return [];
-   return logs.map((log) => {
-      if (log.action === "change-pwd") {
-         return {
-            ...log,
-            action: "update",
-            after: JSON.stringify({ _senha: "redefinida" }),
-         };
-      }
-      return log;
-   });
-}
 
 export function UserAudit({ userId }: { userId?: number }) {
    const { data: rawLogs = [], isLoading, error } = useUserLogs(userId);
-   const unidadeOptions = useUnidadeOptions();
-   const formatFieldValue = useMemo(
-      () => makeFormatUserFieldValue(unidadeOptions),
-      [unidadeOptions]
-   );
-   const logs = preprocessLogs(rawLogs);
 
    if (!userId) return null;
-
-   if (isLoading)
-      return (
-         <div className="flex flex-col items-center justify-center py-16">
-            <Spinner size="xl" color="primary" />
-            <p className="mt-4 text-gray-500">Carregando histórico...</p>
-         </div>
-      );
 
    if (error)
       return (
@@ -91,7 +26,9 @@ export function UserAudit({ userId }: { userId?: number }) {
          </div>
       );
 
-   if (!logs.length) {
+   // Enquanto carrega, `Historico` mostra o esqueleto da trilha na mesma
+   // moldura do resultado; o estado vazio só vale depois da resposta.
+   if (!isLoading && !rawLogs.length) {
       return (
          <div className="flex flex-col items-center justify-center py-16">
             <div className="mb-4 rounded-full bg-gray-100 p-4">
@@ -109,9 +46,11 @@ export function UserAudit({ userId }: { userId?: number }) {
 
    return (
       <Historico
-         logs={logs}
+         logs={rawLogs}
+         isLoading={isLoading}
          fieldLabels={USER_FIELD_LABELS}
-         formatFieldValue={formatFieldValue}
+         formatFieldValue={formatUserAuditFieldValue}
+         actionLabels={USER_AUDIT_ACTION_LABELS}
          title="Histórico de Alterações"
          maxHeight="max-h-[600px]"
       />

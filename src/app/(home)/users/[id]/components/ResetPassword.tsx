@@ -1,7 +1,7 @@
-import { resetPassword } from "services/routes/users";
 import { Button, Spinner } from "flowbite-react";
 import { useState } from "react";
 import { useToast } from "@/app/context/toast";
+import { useResetPassword } from "@/hooks/queries/useUsers";
 import {
    HiKey,
    HiExclamation,
@@ -10,39 +10,27 @@ import {
 } from "react-icons/hi";
 
 export function ResetPassword({ userId }: { userId: number }) {
-   const [isLoading, setIsLoading] = useState(false);
    const [showConfirm, setShowConfirm] = useState(false);
    const [resetSuccess, setResetSuccess] = useState(false);
+   const resetMutation = useResetPassword();
 
    const { push } = useToast();
 
    const handlePasswordReset = async () => {
-      setIsLoading(true);
-
       try {
-         const result = await resetPassword(userId);
-         if (result.ok) {
-            push({
-               message: result.message || "Senha resetada com sucesso",
-               type: "success",
-            });
-            setResetSuccess(true);
-            setShowConfirm(false);
-         } else {
-            push({
-               message: result.message || "Erro ao resetar senha",
-               type: "error",
-            });
-            setShowConfirm(false);
-         }
+         const result = await resetMutation.mutateAsync(userId);
+         push({
+            message: result.message || "Senha redefinida com sucesso",
+            type: "success",
+         });
+         setResetSuccess(true);
+         setShowConfirm(false);
       } catch (err: any) {
          push({
-            message: err?.message || "Erro ao resetar senha",
+            message: err?.message || "Erro ao redefinir senha",
             type: "error",
          });
          setShowConfirm(false);
-      } finally {
-         setIsLoading(false);
       }
    };
 
@@ -56,8 +44,8 @@ export function ResetPassword({ userId }: { userId: number }) {
                Senha Redefinida!
             </h3>
             <p className="mb-6 max-w-md text-center text-gray-600">
-               A senha foi redefinida com sucesso. O usuário receberá as novas
-               credenciais.
+               A senha foi redefinida para a senha padrão do sistema. Informe-a
+               ao militar; ele será obrigado a trocá-la no próximo acesso.
             </p>
             <Button color="gray" onClick={() => setResetSuccess(false)}>
                Fechar
@@ -76,23 +64,24 @@ export function ResetPassword({ userId }: { userId: number }) {
                Confirmar Redefinição
             </h3>
             <p className="mb-6 max-w-md text-center text-gray-600">
-               Tem certeza que deseja redefinir a senha deste usuário? Esta ação
-               não pode ser desfeita.
+               A senha deste usuário será redefinida para a senha padrão do
+               sistema. Ele será obrigado a trocá-la no próximo acesso. Esta
+               ação não pode ser desfeita.
             </p>
             <div className="flex gap-3">
                <Button
                   color="gray"
                   onClick={() => setShowConfirm(false)}
-                  disabled={isLoading}
+                  disabled={resetMutation.isPending}
                >
                   Cancelar
                </Button>
                <Button
                   color="red"
                   onClick={handlePasswordReset}
-                  disabled={isLoading}
+                  disabled={resetMutation.isPending}
                >
-                  {isLoading ? (
+                  {resetMutation.isPending ? (
                      <>
                         <Spinner size="sm" color="gray" />
                         Redefinindo...
@@ -118,8 +107,9 @@ export function ResetPassword({ userId }: { userId: number }) {
                         Redefinição de Senha
                      </h4>
                      <p className="text-sm text-blue-700">
-                        A senha do usuário será redefinida para o padrão do
-                        sistema. Uma nova senha temporária será gerada.
+                        A senha será redefinida para a senha padrão do sistema.
+                        Informe-a ao militar; ele será obrigado a trocá-la no
+                        próximo acesso.
                      </p>
                   </div>
                </div>
@@ -131,10 +121,13 @@ export function ResetPassword({ userId }: { userId: number }) {
                   <div className="text-sm text-yellow-800">
                      <p className="mb-1 font-medium">Aviso de Segurança</p>
                      <ul className="list-inside list-disc space-y-1 text-yellow-700">
-                        <li>Esta ação é irreversível</li>
-                        <li>A senha atual será invalidada imediatamente</li>
+                        <li>Esta ação não pode ser desfeita</li>
                         <li>
-                           O usuário precisará usar a nova senha temporária
+                           Sessões já abertas continuam válidas até o token
+                           expirar
+                        </li>
+                        <li>
+                           O militar precisará trocar a senha no próximo acesso
                         </li>
                      </ul>
                   </div>
@@ -148,11 +141,11 @@ export function ResetPassword({ userId }: { userId: number }) {
                <HiKey className="h-12 w-12 text-gray-600" />
             </div>
             <h3 className="mb-2 text-lg font-semibold text-gray-900">
-               Resetar Senha do Usuário
+               Redefinir Senha do Usuário
             </h3>
             <p className="mb-6 text-gray-600">
-               Clique no botão abaixo para iniciar o processo de redefinição de
-               senha.
+               Clique no botão abaixo para redefinir a senha para o padrão do
+               sistema.
             </p>
             <Button
                color="blue"
