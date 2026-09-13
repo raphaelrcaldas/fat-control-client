@@ -29,11 +29,9 @@ export function ConfirmDeleteModal({
       >
          <ModalHeader />
          <ModalBody>
-            <div className="text-center">
-               <HiExclamation className="mx-auto mb-4 h-14 w-14 text-gray-400" />
-               <h3 className="mb-5 text-lg font-normal text-gray-500">
-                  {message}
-               </h3>
+            <div className="space-y-4 text-center">
+               <HiExclamation className="mx-auto h-14 w-14 text-gray-400" />
+               <h3 className="text-lg font-normal text-gray-500">{message}</h3>
                <div className="flex justify-center gap-4">
                   <Button color="red" onClick={onConfirm} disabled={isDeleting}>
                      {isDeleting ? (

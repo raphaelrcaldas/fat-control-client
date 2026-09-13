@@ -47,8 +47,13 @@ export interface OperacaoKpis {
    etapas: number;
    anv: number;
    pax: number;
-   carga: number;
-   comb: number;
+   carga: number; // carga transportada, em kg
+   comb: number; // combustível consumido, em litros
+   pqd: number; // paraquedistas lançados
+   comb_transf: number; // combustível transferido em REVO, em litros
+   heavy_qtd: number; // lançamentos heavy com peso > 0
+   cds_qtd: number; // lançamentos CDS com peso > 0
+   peso_lancado: number; // peso total lançado, em kg
    missoes: number;
    modelos: number;
 }

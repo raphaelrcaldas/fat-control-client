@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import clsx from "clsx";
+import { Button, Tabs, TabItem } from "flowbite-react";
 import { MdInsights, MdLayers, MdGroups } from "react-icons/md";
 import { useToast } from "@/app/context/toast";
 import {
@@ -23,25 +23,22 @@ import { OperacaoFormModal } from "../components/OperacaoFormModal";
 import { AssociarEtapasModal } from "../components/AssociarEtapasModal";
 import { OperacaoDetailSkeleton } from "../components/OperacaoDetailSkeleton";
 
-const TABS = [
-   { key: "estatistica", label: "Estatística", icon: MdInsights },
-   { key: "etapas", label: "Etapas", icon: MdLayers },
-   { key: "efetivo", label: "Efetivo", icon: MdGroups },
-] as const;
-
-type TabKey = (typeof TABS)[number]["key"];
-
 export default function OperacaoDetailPage() {
    const params = useParams<{ id: string }>();
    const router = useRouter();
    const opId = Number(params.id);
 
    const { data: op, isLoading, error, refetch } = useOperacao(opId);
-   const { data: etapas, isLoading: loadingEtapas } = useOperacaoEtapas(opId);
+   const {
+      data: etapas,
+      isLoading: loadingEtapas,
+      isError: etapasError,
+      refetch: refetchEtapas,
+   } = useOperacaoEtapas(opId);
    const deleteMutation = useDeleteOperacao();
    const { push } = useToast();
 
-   const [activeTab, setActiveTab] = useState<TabKey>("estatistica");
+   const [activeTab, setActiveTab] = useState(0);
    const [showEdit, setShowEdit] = useState(false);
    const [showAssociar, setShowAssociar] = useState(false);
    const [showDelete, setShowDelete] = useState(false);
@@ -77,87 +74,104 @@ export default function OperacaoDetailPage() {
       const notFound =
          error instanceof OperacaoFetchError && error.status === 404;
       return (
-         <div className="rounded border border-rose-200 bg-rose-50 px-4 py-12 text-center">
+         <div
+            role="alert"
+            className="space-y-3 rounded border border-slate-200 bg-white px-4 py-12 text-center shadow-sm"
+         >
             <p className="text-sm font-semibold text-rose-700">
                {notFound
                   ? "Operação não encontrada"
                   : "Erro ao carregar a operação"}
             </p>
             {!notFound && (
-               <button
-                  type="button"
+               <Button
+                  color="light"
+                  size="sm"
                   onClick={() => refetch()}
-                  className="mt-2 text-xs font-semibold text-rose-600 underline"
+                  className="mx-auto"
                >
                   Tentar novamente
-               </button>
+               </Button>
             )}
-            <button
-               type="button"
+            <Button
+               color="light"
+               size="sm"
                onClick={() => router.push("/ops/operacoes")}
-               className="mt-2 block w-full text-xs font-semibold text-rose-600 underline"
+               className="mx-auto"
             >
                Voltar para a lista
-            </button>
+            </Button>
          </div>
       );
    }
 
    return (
-      <div className="flex flex-col">
+      <div className="space-y-2">
          <OperacaoHeader
             op={op}
             onEdit={() => setShowEdit(true)}
             onDelete={() => setShowDelete(true)}
          />
 
-         {/* Abas */}
-         <div className="mb-5 border-b border-gray-200">
-            <nav className="flex gap-0" aria-label="Abas da operação">
-               {TABS.map((tab) => (
-                  <button
-                     key={tab.key}
-                     type="button"
-                     onClick={() => setActiveTab(tab.key)}
-                     className={clsx(
-                        "flex items-center gap-2 border-b-2 px-4 py-3 text-sm font-medium transition-colors pointer-coarse:min-h-[44px]",
-                        activeTab === tab.key
-                           ? "border-primary-500 text-primary-600"
-                           : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"
-                     )}
-                  >
-                     <tab.icon className="h-4 w-4" />
-                     {tab.label}
-                  </button>
-               ))}
-            </nav>
-         </div>
-
-         {/* Conteúdo das abas */}
-         {activeTab === "estatistica" && (
-            <>
-               <div className="mb-5">
-                  <KpiGrid kpis={op.kpis} />
-               </div>
-               <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-2">
-                  <EsforcoCard esforco={op.esforco} />
-                  <SeboCard sebo={op.sebo} />
-               </div>
-            </>
-         )}
-
-         {activeTab === "etapas" &&
-            (loadingEtapas ? (
-               <EtapasTableSkeleton />
-            ) : (
-               <EtapasTable
-                  opId={op.id}
-                  etapas={etapas ?? []}
-                  onAssociar={() => setShowAssociar(true)}
-               />
-            ))}
-
-         {activeTab === "efetivo" && <PessoalTable op={op} />}
+         <Tabs
+            aria-label="Abas da operação"
+            variant="underline"
+            onActiveTabChange={setActiveTab}
+            theme={{
+               tablist: {
+                  tabitem: {
+                     base: "flex items-center justify-center gap-1 px-3 py-3 text-sm font-semibold focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-primary-600 pointer-coarse:min-h-[44px]",
+                     icon: "mr-1 size-4",
+                  },
+               },
+               tabpanel:
+                  "py-0 focus-visible:outline-2 focus-visible:outline-primary-600",
+            }}
+         >
+            <TabItem active title="Estatísticas" icon={MdInsights}>
+               {activeTab === 0 && (
+                  <div className="space-y-2">
+                     <KpiGrid kpis={op.kpis} />
+                     <div className="grid grid-cols-1 items-start gap-2 xl:grid-cols-2">
+                        <EsforcoCard esforco={op.esforco} />
+                        <SeboCard sebo={op.sebo} />
+                     </div>
+                  </div>
+               )}
+            </TabItem>
+            <TabItem title="Etapas" icon={MdLayers}>
+               {activeTab === 1 &&
+                  (loadingEtapas ? (
+                     <EtapasTableSkeleton />
+                  ) : etapasError ? (
+                     <div
+                        role="alert"
+                        className="space-y-3 rounded border border-slate-200 bg-white p-6 text-center shadow-sm"
+                     >
+                        <p className="text-sm text-red-700">
+                           Não foi possível carregar as etapas.
+                        </p>
+                        <Button
+                           color="light"
+                           size="sm"
+                           className="mx-auto"
+                           onClick={() => refetchEtapas()}
+                        >
+                           Tentar novamente
+                        </Button>
+                     </div>
+                  ) : (
+                     <EtapasTable
+                        opId={op.id}
+                        etapas={etapas ?? []}
+                        onAssociar={() => setShowAssociar(true)}
+                     />
+                  ))}
+            </TabItem>
+            <TabItem title="Efetivo" icon={MdGroups}>
+               {activeTab === 2 && <PessoalTable op={op} />}
+            </TabItem>
+         </Tabs>
 
          <OperacaoFormModal
             show={showEdit}

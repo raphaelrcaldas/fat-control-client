@@ -34,7 +34,7 @@ import type {
 } from "services/routes/ops/operacoes";
 
 export function PessoalTable({ op }: { op: OperacaoDetail }) {
-   const { data: pessoal, isLoading } = usePessoal(op.id);
+   const { data: pessoal, isLoading, isError, refetch } = usePessoal(op.id);
    const removeMutation = useRemovePessoal(op.id);
    const { push } = useToast();
    const [showForm, setShowForm] = useState(false);
@@ -83,7 +83,7 @@ export function PessoalTable({ op }: { op: OperacaoDetail }) {
    }
 
    return (
-      <section className="rounded border border-slate-300 bg-white shadow">
+      <section className="rounded border border-slate-200 bg-white shadow-sm">
          <header className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 px-4 py-3">
             <div className="flex flex-wrap items-center gap-3">
                <h2 className="flex items-center gap-2 text-base font-bold text-slate-900">
@@ -102,7 +102,7 @@ export function PessoalTable({ op }: { op: OperacaoDetail }) {
                               onClick={() =>
                                  setSitFilter((cur) => (cur === s ? null : s))
                               }
-                              className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-xs font-bold ring-1 transition-colors ring-inset ${
+                              className={`inline-flex items-center gap-1 rounded px-2 py-0.5 text-xs font-bold ring-1 transition-colors ring-inset ${
                                  active
                                     ? SIT_STYLE[s].active
                                     : SIT_STYLE[s].badge
@@ -133,8 +133,22 @@ export function PessoalTable({ op }: { op: OperacaoDetail }) {
             </div>
          </header>
 
-         {isLoading ? (
-            <div className="animate-pulse divide-y divide-slate-100">
+         {isError ? (
+            <div role="alert" className="space-y-3 p-6 text-center">
+               <p className="text-sm text-red-700">
+                  Não foi possível carregar o efetivo.
+               </p>
+               <Button
+                  color="light"
+                  size="sm"
+                  className="mx-auto"
+                  onClick={() => refetch()}
+               >
+                  Tentar novamente
+               </Button>
+            </div>
+         ) : isLoading ? (
+            <div className="divide-y divide-slate-100 motion-safe:animate-pulse">
                {Array.from({ length: 6 }).map((_, i) => (
                   <div
                      key={i}
@@ -142,7 +156,7 @@ export function PessoalTable({ op }: { op: OperacaoDetail }) {
                   >
                      <div className="h-3.5 w-32 rounded bg-slate-200" />
                      <div className="mx-auto h-5 w-24 rounded bg-slate-100" />
-                     <div className="mx-auto h-5 w-10 rounded-md bg-slate-100" />
+                     <div className="mx-auto h-5 w-10 rounded bg-slate-100" />
                      <div className="mx-auto h-3.5 w-16 rounded bg-slate-100" />
                      <div className="mx-auto h-3.5 w-16 rounded bg-slate-100" />
                      <div className="mx-auto h-3.5 w-8 rounded bg-slate-200" />
@@ -151,7 +165,7 @@ export function PessoalTable({ op }: { op: OperacaoDetail }) {
                ))}
             </div>
          ) : lista.length === 0 ? (
-            <p className="px-4 py-12 text-center text-sm text-slate-400">
+            <p className="px-4 py-12 text-center text-sm text-slate-500">
                Nenhum militar registrado nesta operação.
             </p>
          ) : (
@@ -161,19 +175,19 @@ export function PessoalTable({ op }: { op: OperacaoDetail }) {
                      <TableRow>
                         <TableHeadCell>
                            <span className="inline-flex items-center gap-1">
-                              <HiUser className="h-4 w-4 text-slate-400" />
+                              <HiUser className="h-4 w-4 text-slate-500" />
                               Nome
                            </span>
                         </TableHeadCell>
                         <TableHeadCell className="text-center">
                            <span className="inline-flex items-center gap-1">
-                              <HiBriefcase className="h-4 w-4 text-slate-400" />
+                              <HiBriefcase className="h-4 w-4 text-slate-500" />
                               Função
                            </span>
                         </TableHeadCell>
                         <TableHeadCell className="text-center">
                            <span className="inline-flex items-center gap-1">
-                              <HiFlag className="h-4 w-4 text-slate-400" />
+                              <HiFlag className="h-4 w-4 text-slate-500" />
                               Situação
                            </span>
                         </TableHeadCell>
@@ -191,11 +205,13 @@ export function PessoalTable({ op }: { op: OperacaoDetail }) {
                         </TableHeadCell>
                         <TableHeadCell className="text-center">
                            <span className="inline-flex items-center gap-1">
-                              <HiCalendar className="h-4 w-4 text-slate-400" />
+                              <HiCalendar className="h-4 w-4 text-slate-500" />
                               Dias
                            </span>
                         </TableHeadCell>
-                        <TableHeadCell className="w-16 text-right" />
+                        <TableHeadCell className="w-16 text-right">
+                           <span className="sr-only">Ações</span>
+                        </TableHeadCell>
                      </TableRow>
                   </TableHead>
                   <TableBody className="divide-y">
@@ -203,7 +219,7 @@ export function PessoalTable({ op }: { op: OperacaoDetail }) {
                         <TableRow>
                            <TableCell
                               colSpan={7}
-                              className="py-8 text-center text-sm text-slate-400"
+                              className="py-8 text-center text-sm text-slate-500"
                            >
                               Nenhum militar com situação{" "}
                               <strong>
@@ -231,7 +247,7 @@ export function PessoalTable({ op }: { op: OperacaoDetail }) {
                            </TableCell>
                            <TableCell className="text-center">
                               <span
-                                 className={`inline-flex justify-center rounded-md px-2 py-0.5 text-sm font-semibold uppercase ring-1 ring-inset ${SIT_STYLE[p.sit].badge}`}
+                                 className={`inline-flex justify-center rounded px-2 py-0.5 text-sm font-semibold uppercase ring-1 ring-inset ${SIT_STYLE[p.sit].badge}`}
                               >
                                  {p.sit}
                               </span>
@@ -254,7 +270,7 @@ export function PessoalTable({ op }: { op: OperacaoDetail }) {
                                     <button
                                        type="button"
                                        onClick={() => openEdit(p)}
-                                       className="text-slate-300 hover:text-slate-600"
+                                       className="p-1 text-slate-600 pointer-coarse:min-h-[44px] pointer-coarse:min-w-[44px]"
                                        title="Editar"
                                     >
                                        <MdEdit className="h-4 w-4" />
@@ -267,7 +283,7 @@ export function PessoalTable({ op }: { op: OperacaoDetail }) {
                                     <button
                                        type="button"
                                        onClick={() => setConfirmTarget(p)}
-                                       className="text-slate-300 hover:text-rose-500"
+                                       className="p-1 text-red-700 pointer-coarse:min-h-[44px] pointer-coarse:min-w-[44px]"
                                        title="Remover"
                                     >
                                        <MdDelete className="h-4 w-4" />

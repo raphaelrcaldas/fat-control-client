@@ -1,68 +1,81 @@
-// Espelha o layout da aba "Estatística" (padrão): masthead + KPIs + Esforço/Sebo.
 export function OperacaoDetailSkeleton() {
    return (
-      <div className="animate-pulse">
-         {/* Voltar */}
-         <div className="mb-2 h-8 w-24 rounded bg-slate-100" />
-
-         {/* Masthead — mesma moldura do OperacaoHeader */}
-         <div className="relative mb-5 overflow-hidden rounded border border-slate-200 bg-white px-5 py-4 shadow-sm sm:px-6 sm:py-5">
-            <span className="bg-primary-600 absolute top-0 left-0 h-full w-1" />
-            <div className="flex items-center gap-4">
-               <div className="h-12 w-12 shrink-0 rounded-md bg-slate-200" />
-               <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-2">
-                     <div className="h-3 w-20 rounded bg-slate-200" />
-                     <div className="h-3 w-24 rounded bg-slate-100" />
-                  </div>
-                  <div className="mt-1.5 h-7 w-72 rounded bg-slate-200" />
-                  <div className="mt-2.5 h-4 w-96 max-w-full rounded bg-slate-100" />
+      <div
+         role="status"
+         aria-label="Carregando operação"
+         className="space-y-2 motion-safe:animate-pulse"
+      >
+         <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+            <div className="space-y-5 px-4 py-4 sm:px-6 sm:py-5">
+               <div className="flex h-8 items-center justify-between">
+                  <div className="h-8 w-28 rounded bg-slate-100" />
+                  <div className="h-8 w-28 rounded bg-slate-100" />
+               </div>
+               <div className="space-y-3">
+                  <div className="h-6 w-40 rounded bg-slate-100" />
+                  <div className="h-[26px] w-52 max-w-full rounded bg-slate-200 sm:h-8" />
                </div>
             </div>
+            <div className="grid gap-4 border-t border-slate-200 bg-slate-50/70 px-4 py-4 sm:grid-cols-2 sm:px-6 xl:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)_minmax(0,1fr)]">
+               {[0, 1, 2].map((i) => (
+                  <div key={i} className="flex min-w-0 gap-3">
+                     <div className="size-5 shrink-0 rounded bg-slate-200" />
+                     <div className="min-w-0 space-y-1">
+                        <div className="h-4 w-24 rounded bg-slate-100" />
+                        <div className="h-5 w-44 max-w-full rounded bg-slate-200" />
+                     </div>
+                  </div>
+               ))}
+            </div>
          </div>
-
-         {/* Abas */}
-         <div className="mb-5 flex gap-4 border-b border-gray-200 pb-2">
-            <div className="h-5 w-24 rounded bg-slate-200" />
-            <div className="h-5 w-20 rounded bg-slate-100" />
-            <div className="h-5 w-20 rounded bg-slate-100" />
+         <div className="flex h-12 items-center gap-5 border-b border-slate-200 px-3">
+            {[0, 1, 2].map((i) => (
+               <div key={i} className="h-4 w-20 rounded bg-slate-200" />
+            ))}
          </div>
-
-         {/* KPIs */}
-         <div className="mb-5 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-            {Array.from({ length: 6 }).map((_, i) => (
+         <div className="grid grid-cols-2 gap-2 md:grid-cols-3 xl:grid-cols-4">
+            {Array.from({ length: 9 }).map((_, i) => (
                <div
                   key={i}
-                  className="rounded border border-slate-300 bg-white px-4 py-3 shadow"
+                  className="relative min-w-0 rounded border border-slate-200 bg-white px-3 py-3 pr-12 shadow-sm sm:px-4 sm:pr-14"
                >
-                  <div className="h-2.5 w-16 rounded bg-slate-100" />
-                  <div className="mt-2 h-6 w-14 rounded bg-slate-200" />
+                  <div className="min-h-9 sm:min-h-8">
+                     <div className="h-4 w-28 max-w-full rounded bg-slate-100" />
+                  </div>
+                  <div className="absolute top-1/2 right-3 size-6 -translate-y-1/2 rounded bg-slate-100 sm:right-4" />
+                  <div className="h-7 w-24 max-w-full rounded bg-slate-200" />
+                  {i === 7 && (
+                     <div className="mt-1 h-4 w-40 max-w-full rounded bg-slate-100" />
+                  )}
                </div>
             ))}
          </div>
-
-         {/* Esforço + Sebo */}
-         <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-            {Array.from({ length: 2 }).map((_, i) => (
+         <div className="grid grid-cols-1 items-start gap-2 xl:grid-cols-2">
+            {[0, 1].map((i) => (
                <div
                   key={i}
-                  className="rounded border border-slate-300 bg-white shadow"
+                  className="min-w-0 rounded border border-slate-200 bg-white shadow-sm"
                >
-                  <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3">
-                     <div className="flex items-center gap-2">
-                        <span className="bg-primary-600 h-4 w-1 rounded-full" />
-                        <div className="h-4 w-32 rounded bg-slate-200" />
-                     </div>
-                     <div className="h-5 w-20 rounded-full bg-slate-100" />
+                  <div className="border-b border-slate-200 px-4 py-3">
+                     <div className="h-6 w-32 rounded bg-slate-200" />
                   </div>
-                  <div className="divide-y divide-slate-100">
-                     {Array.from({ length: 5 }).map((_, r) => (
+                  {i === 1 && (
+                     <div className="h-12 border-b border-slate-200 bg-slate-50" />
+                  )}
+                  <div
+                     className={
+                        i === 1
+                           ? "h-80 divide-y divide-slate-100 sm:h-96"
+                           : "divide-y divide-slate-100"
+                     }
+                  >
+                     {[0, 1, 2, 3, 4].map((r) => (
                         <div
                            key={r}
-                           className="flex items-center justify-between px-4 py-2.5"
+                           className="flex justify-between gap-4 px-4 py-2"
                         >
-                           <div className="h-3.5 w-40 rounded bg-slate-100" />
-                           <div className="h-3.5 w-10 rounded bg-slate-100" />
+                           <div className="h-5 w-40 max-w-full rounded bg-slate-100" />
+                           <div className="h-5 w-10 shrink-0 rounded bg-slate-100" />
                         </div>
                      ))}
                   </div>

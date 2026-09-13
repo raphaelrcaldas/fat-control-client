@@ -1,129 +1,117 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import clsx from "clsx";
+import { useState } from "react";
+import {
+   Button,
+   Badge,
+   Table,
+   TableHead,
+   TableHeadCell,
+   TableBody,
+   TableRow,
+   TableCell,
+} from "flowbite-react";
 import { minutesToTime } from "@/../utils/dateHandler";
 import type { SeboRow } from "services/routes/ops/operacoes";
 
 export function SeboCard({ sebo }: { sebo: SeboRow[] }) {
    const [funcFilter, setFuncFilter] = useState<string | null>(null);
-
-   const funcs = useMemo(() => {
-      const set = new Set(sebo.map((s) => s.func));
-      return Array.from(set);
-   }, [sebo]);
-
-   const rows = useMemo(() => {
-      const filtered = funcFilter
-         ? sebo.filter((s) => s.func === funcFilter)
-         : sebo;
-      return filtered;
-   }, [sebo, funcFilter]);
+   const funcs = Array.from(new Set(sebo.map((s) => s.func)));
+   const selected =
+      funcFilter && funcs.includes(funcFilter) ? funcFilter : null;
+   const rows = selected ? sebo.filter((s) => s.func === selected) : sebo;
 
    return (
-      <section className="rounded border border-slate-300 bg-white shadow">
-         <header className="flex items-center justify-between border-b border-slate-100 px-4 py-3">
-            <h2 className="flex items-center gap-2 text-base font-bold text-slate-900">
-               <span className="bg-primary-600 h-4 w-1 rounded-full" />
-               Pau de sebo
-            </h2>
-            <span className="font-mono text-[10px] tracking-widest text-slate-500 uppercase">
-               por tripulante · horas
-            </span>
+      <section className="min-w-0 overflow-hidden rounded border border-slate-200 bg-white shadow-sm">
+         <header className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 px-4 py-3">
+            <h2 className="text-base font-bold text-slate-900">Pau de sebo</h2>
+            <span className="text-xs text-slate-600">Horas por tripulante</span>
          </header>
-
          {funcs.length > 0 && (
-            <div className="flex items-center gap-1.5 border-b border-slate-100 px-4 py-2">
-               <span className="font-mono text-[10px] font-bold tracking-[0.2em] text-slate-500 uppercase">
-                  Função
-               </span>
-               <button
-                  type="button"
+            <div
+               aria-label="Filtrar por função"
+               className="flex flex-wrap items-center gap-1.5 border-b border-slate-200 px-3 py-2"
+            >
+               <Button
+                  size="xs"
+                  color={selected === null ? "primary" : "light"}
+                  aria-pressed={selected === null}
                   onClick={() => setFuncFilter(null)}
-                  className={clsx(
-                     "rounded-md px-2 py-1.5 text-[11px] font-bold uppercase transition-colors pointer-coarse:min-h-[44px] pointer-coarse:min-w-[44px]",
-                     funcFilter === null
-                        ? "bg-primary-600 text-white"
-                        : "bg-slate-100 text-slate-500 hover:bg-slate-200"
-                  )}
                >
                   Todas
-               </button>
+               </Button>
                {funcs.map((f) => (
-                  <button
+                  <Button
                      key={f}
-                     type="button"
-                     onClick={() =>
-                        setFuncFilter((cur) => (cur === f ? null : f))
-                     }
-                     className={clsx(
-                        "rounded-md px-2 py-1.5 text-[11px] font-bold uppercase transition-colors pointer-coarse:min-h-[44px] pointer-coarse:min-w-[44px]",
-                        funcFilter === f
-                           ? "bg-primary-600 text-white"
-                           : "bg-primary-50 text-primary-700 hover:bg-primary-100"
-                     )}
+                     size="xs"
+                     color={selected === f ? "primary" : "light"}
+                     aria-pressed={selected === f}
+                     onClick={() => setFuncFilter(selected === f ? null : f)}
+                     className="uppercase"
                   >
                      {f}
-                  </button>
+                  </Button>
                ))}
             </div>
          )}
-
          {rows.length === 0 ? (
-            <p className="flex min-h-70 items-center justify-center px-4 text-center text-sm text-slate-400">
+            <p className="px-4 py-12 text-center text-sm text-slate-600">
                Nenhuma tripulação registrada nas etapas associadas.
             </p>
          ) : (
-            <table className="w-full text-sm">
-               <thead>
-                  <tr className="font-mono text-[10px] tracking-[0.15em] text-slate-500 uppercase">
-                     <th className="px-3 py-2 text-left font-bold">#</th>
-                     <th className="px-2 py-2 text-left font-bold">
-                        Nome de guerra
-                     </th>
-                     <th className="px-2 py-2 text-left font-bold">função</th>
-                     <th className="px-2 py-2 text-right font-bold">Etapas</th>
-                     <th className="px-4 py-2 text-right font-bold">Horas</th>
-                  </tr>
-               </thead>
-               <tbody className="divide-y divide-slate-100">
-                  {rows.map((s, idx) => (
-                     <tr key={s.trip_id} className="hover:bg-slate-50">
-                        <td className="px-3 py-2">
-                           <span
-                              className={clsx(
-                                 "flex h-6 w-6 items-center justify-center rounded-md font-mono text-xs font-bold tabular-nums",
-                                 idx < 3
-                                    ? "bg-primary-600 text-white"
-                                    : "bg-slate-100 text-slate-600"
-                              )}
-                           >
+            <div
+               className="focus-visible:outline-primary-600 h-80 overflow-y-auto overscroll-contain focus-visible:outline-2 sm:h-96"
+               role="region"
+               aria-label="Lista do pau de sebo"
+               tabIndex={0}
+            >
+               <Table aria-label="Ranking de horas por tripulante">
+                  <TableHead className="sticky top-0 z-10">
+                     <TableRow>
+                        <TableHeadCell className="w-px px-2">
+                           <span className="sr-only">Posição</span>#
+                        </TableHeadCell>
+                        <TableHeadCell className="px-2 normal-case">
+                           Nome de guerra
+                        </TableHeadCell>
+                        <TableHeadCell className="w-px px-2 normal-case">
+                           Função
+                        </TableHeadCell>
+                        <TableHeadCell className="w-px px-2 text-right normal-case">
+                           Etapas
+                        </TableHeadCell>
+                        <TableHeadCell className="w-px px-3 text-right normal-case">
+                           Horas
+                        </TableHeadCell>
+                     </TableRow>
+                  </TableHead>
+                  <TableBody className="divide-y divide-slate-100">
+                     {rows.map((s, idx) => (
+                        <TableRow key={s.trip_id} className="hover:bg-slate-50">
+                           <TableCell className="px-2 text-center text-slate-500 tabular-nums">
                               {idx + 1}
-                           </span>
-                        </td>
-
-                        <td className="px-2 py-2">
-                           <div className="flex items-center gap-2">
-                              <span className="font-medium text-slate-700 uppercase">
+                           </TableCell>
+                           <TableCell className="max-w-0 px-2 font-medium text-slate-700 uppercase">
+                              <span className="block truncate" title={s.nome}>
                                  {s.nome}
                               </span>
-                           </div>
-                        </td>
-                        <td className="px-2 py-2">
-                           <span className="bg-primary-50 text-primary-700 rounded-md px-1.5 py-0.5 text-[11px] font-bold uppercase">
-                              {s.func}
-                           </span>
-                        </td>
-                        <td className="px-2 py-2 text-right font-mono font-semibold text-slate-600 tabular-nums">
-                           {s.etapas}
-                        </td>
-                        <td className="px-4 py-2 text-right font-mono font-bold text-slate-800 tabular-nums">
-                           {minutesToTime(s.horas)}
-                        </td>
-                     </tr>
-                  ))}
-               </tbody>
-            </table>
+                           </TableCell>
+                           <TableCell className="px-2">
+                              <Badge color="gray" className="w-fit uppercase">
+                                 {s.func}
+                              </Badge>
+                           </TableCell>
+                           <TableCell className="px-2 text-right text-slate-600 tabular-nums">
+                              {s.etapas}
+                           </TableCell>
+                           <TableCell className="px-3 text-right font-semibold whitespace-nowrap text-slate-900 tabular-nums">
+                              {minutesToTime(s.horas)}
+                           </TableCell>
+                        </TableRow>
+                     ))}
+                  </TableBody>
+               </Table>
+            </div>
          )}
       </section>
    );

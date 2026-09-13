@@ -74,7 +74,7 @@ export function EtapasTable({ opId, etapas, onAssociar }: Props) {
    }
 
    return (
-      <section className="rounded border border-slate-300 bg-white shadow">
+      <section className="rounded border border-slate-200 bg-white shadow-sm">
          <header className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 px-4 py-3">
             <h2 className="flex items-center gap-2 text-base font-bold text-slate-900">
                <span className="bg-primary-600 h-4 w-1 rounded-full" />
@@ -102,7 +102,7 @@ export function EtapasTable({ opId, etapas, onAssociar }: Props) {
                   type="button"
                   onClick={() => setAnvFilter(null)}
                   className={clsx(
-                     "rounded-md px-2 py-1.5 text-[11px] font-bold transition-colors pointer-coarse:min-h-[44px] pointer-coarse:min-w-[44px]",
+                     "rounded px-2 py-1.5 text-[11px] font-bold transition-colors pointer-coarse:min-h-[44px] pointer-coarse:min-w-[44px]",
                      anvFilter === null
                         ? "bg-primary-600 text-white"
                         : "bg-slate-100 text-slate-500 hover:bg-slate-200"
@@ -118,7 +118,7 @@ export function EtapasTable({ opId, etapas, onAssociar }: Props) {
                         setAnvFilter((cur) => (cur === a ? null : a))
                      }
                      className={clsx(
-                        "rounded-md px-2 py-1.5 font-mono text-[11px] font-bold transition-colors pointer-coarse:min-h-[44px] pointer-coarse:min-w-[44px]",
+                        "rounded px-2 py-1.5 font-mono text-[11px] font-bold transition-colors pointer-coarse:min-h-[44px] pointer-coarse:min-w-[44px]",
                         anvFilter === a
                            ? "bg-primary-600 text-white"
                            : "bg-primary-50 text-primary-700 hover:bg-primary-100"
@@ -135,7 +135,7 @@ export function EtapasTable({ opId, etapas, onAssociar }: Props) {
                <p className="text-sm font-semibold text-slate-600">
                   Nenhuma etapa associada
                </p>
-               <p className="mt-1 text-xs text-slate-400">
+               <p className="mt-1 text-xs text-slate-500">
                   Associe etapas do período para consolidar as estatísticas.
                </p>
             </div>
@@ -162,7 +162,9 @@ export function EtapasTable({ opId, etapas, onAssociar }: Props) {
                         <TableHeadCell className="text-center">
                            Esforço
                         </TableHeadCell>
-                        <TableHeadCell className="w-8 px-2" />
+                        <TableHeadCell className="w-8 px-2">
+                           <span className="sr-only">Ações</span>
+                        </TableHeadCell>
                      </TableRow>
                   </TableHead>
                   <TableBody className="divide-y">
@@ -206,7 +208,7 @@ export function EtapasTable({ opId, etapas, onAssociar }: Props) {
                                     type="button"
                                     onClick={() => setConfirmId(e.id)}
                                     disabled={removingId === e.id}
-                                    className="text-slate-300 hover:text-rose-500"
+                                    className="p-1 text-red-700 pointer-coarse:min-h-[44px] pointer-coarse:min-w-[44px]"
                                     title="Desassociar etapa"
                                  >
                                     {removingId === e.id ? (
