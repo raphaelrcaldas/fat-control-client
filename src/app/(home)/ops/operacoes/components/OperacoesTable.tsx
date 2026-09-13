@@ -10,7 +10,6 @@ import {
    TableHeadCell,
    TableRow,
 } from "flowbite-react";
-import { HiArrowSmDown } from "react-icons/hi";
 import { isoDateToShort, minutesToTime } from "@/../utils/dateHandler";
 import type { OperacaoListItem } from "services/routes/ops/operacoes";
 import {
@@ -38,9 +37,9 @@ function TipoChip({ op }: { op: OperacaoListItem }) {
  * varrer quais são manobra e quais são exercício —, e no mobile, onde não há
  * coluna, volta a ser chip ao lado do nome.
  *
- * A ordem é a do backend (`data_inicio DESC`) e o cabeçalho só a INDICA: não há
- * parâmetro de ordenação no endpoint, então uma seta clicável prometeria o que
- * a tela não entrega.
+ * A ordem é a do backend (`data_inicio DESC`) e o cabeçalho não a sinaliza: não
+ * há parâmetro de ordenação no endpoint, e qualquer seta ali — mesmo decorativa
+ * — se lê como controle de sort que a tela não entrega.
  *
  * O alvo focável é o link do nome; o clique na linha é conforto de mouse. Linha
  * com `role="button"` embrulhando outro interativo reprova `nested-interactive`
@@ -125,16 +124,8 @@ export function OperacoesTable({ items }: { items: OperacaoListItem[] }) {
                      <TableHeadCell className="hidden px-3 normal-case lg:table-cell">
                         Local
                      </TableHeadCell>
-                     {/* A seta fica em `Início`, que é por onde o backend
-                         ordena (`data_inicio DESC`) — não no par inteiro. */}
                      <TableHeadCell className="w-px px-3 whitespace-nowrap normal-case">
-                        <span className="inline-flex items-center gap-1">
-                           Início
-                           <HiArrowSmDown
-                              aria-label="ordenado da mais recente para a mais antiga"
-                              className="h-3.5 w-3.5 text-slate-400"
-                           />
-                        </span>
+                        Início
                      </TableHeadCell>
                      <TableHeadCell className="w-px px-3 whitespace-nowrap normal-case">
                         Fim
