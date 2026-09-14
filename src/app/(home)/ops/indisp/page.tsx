@@ -8,6 +8,7 @@ import { useFuncoes } from "@/hooks/queries/useFuncoes";
 import { IndispModalProvider } from "./context/indispModalContext";
 import { IndispFormHost } from "./components/form/IndispFormHost";
 import { TripIndispHost } from "./components/trip/TripIndispHost";
+import { IndispDerivadaHost } from "./components/derivada/IndispDerivadaHost";
 import { IndispHeader } from "./components/IndispHeader";
 import { IndispContent } from "./components/IndispContent";
 import { IndispBoardToolbar } from "./components/board/IndispBoardToolbar";
@@ -79,6 +80,7 @@ export default function IndispPage() {
          </div>
          <IndispFormHost />
          <TripIndispHost />
+         <IndispDerivadaHost />
       </IndispModalProvider>
    );
 }

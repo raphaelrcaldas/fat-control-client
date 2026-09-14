@@ -19,9 +19,12 @@ export interface IndispBar {
    label: string;
    /** Classes de fundo/texto da faixa. */
    bar: string;
+   /** Só as faixas derivadas: não há registro por trás, nada a editar. */
    locked: boolean;
    /** Efeito operacional das faixas derivadas; registros reais usam `null`. */
    effect: RestricaoDerivada["efeito"] | null;
+   /** A restrição que originou a faixa; `null` nos registros reais. */
+   restricao: RestricaoDerivada | null;
    /** Data que o modal de detalhes abre (1º dia visível da faixa). */
    dateRef: Date;
    /** Coluna inicial (inclusiva) e final (exclusiva) já recortadas na janela. */
@@ -62,6 +65,7 @@ interface Span {
    bar: string;
    locked: boolean;
    effect: RestricaoDerivada["efeito"] | null;
+   restricao: RestricaoDerivada | null;
    range: string;
    /** Colunas absolutas, ainda sem recorte (podem ser negativas ou > N). */
    a: number;
@@ -96,10 +100,13 @@ function derivedSpan(
       key: `${tripKey}:${restricao.codigo}:${restricao.inicio ?? "aberto"}:${restricao.fim ?? "aberto"}`,
       indisp: null,
       code: meta.code,
-      label: meta.label,
+      // O nome da operação, quando vem, diz mais que "Em operação": é o que
+      // permite ao escalante reconhecer o afastamento sem abrir nada.
+      label: restricao.rotulo ?? meta.label,
       bar: meta.bar,
       locked: true,
       effect: restricao.efeito,
+      restricao,
       range,
       a,
       b,
@@ -144,8 +151,13 @@ export function buildRowBars(
          code: indisp.mtv.toUpperCase(),
          label: option.label,
          bar: option.bar,
-         locked: option.locked,
+         // Registro real nunca leva cadeado, nem o de motivo `locked`: o
+         // client é o portal de gestão e o gestor corrige qualquer um deles
+         // pelo formulário. O cadeado ficou reservado à faixa DERIVADA, que é
+         // a única que ninguém edita aqui — ela não tem registro para editar.
+         locked: false,
          effect: null,
+         restricao: null,
          range: `${dateToDayMonth(inicio)} → ${dateToDayMonth(fim)}`,
          a,
          b,
@@ -183,6 +195,7 @@ export function buildRowBars(
          bar: span.bar,
          locked: span.locked,
          effect: span.effect,
+         restricao: span.restricao,
          dateRef: dates[from],
          from,
          to,

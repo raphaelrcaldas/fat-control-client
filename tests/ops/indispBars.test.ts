@@ -76,3 +76,54 @@ describe("faixas derivadas", () => {
       expect(result.bars).toHaveLength(2);
    });
 });
+
+describe("faixa de operação", () => {
+   const emOperacao: RestricaoDerivada = {
+      origem: "operacao",
+      codigo: "operacao",
+      inicio: "2026-09-09",
+      fim: "2026-09-11",
+      efeito: "bloqueio",
+      rotulo: "SLOP",
+      operacao_id: 2,
+   };
+
+   it("fecha nos dois lados e bloqueia", () => {
+      const result = buildRowBars(entry([emOperacao]), dates);
+
+      expect(result.bars[0]).toMatchObject({
+         code: "OPR",
+         effect: "bloqueio",
+         indisp: null,
+         from: 2,
+         to: 5,
+         cutLeft: false,
+         cutRight: false,
+      });
+   });
+
+   it("mostra o nome da operação, não o rótulo genérico", () => {
+      const result = buildRowBars(entry([emOperacao]), dates);
+      expect(result.bars[0].label).toBe("SLOP");
+   });
+
+   it("cai no rótulo genérico quando a operação não veio nomeada", () => {
+      const semNome = { ...emOperacao, rotulo: null };
+      const result = buildRowBars(entry([semNome]), dates);
+      expect(result.bars[0].label).toBe("Em operação");
+   });
+
+   it("empilha dois períodos do mesmo militar em vez de fundi-los", () => {
+      const segundo: RestricaoDerivada = {
+         ...emOperacao,
+         inicio: "2026-09-12",
+         fim: "2026-09-13",
+      };
+      const result = buildRowBars(entry([emOperacao, segundo]), dates);
+
+      expect(result.bars.map((b) => [b.from, b.to])).toEqual([
+         [2, 5],
+         [5, 7],
+      ]);
+   });
+});

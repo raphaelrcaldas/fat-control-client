@@ -18,7 +18,11 @@ export interface IndispOption {
     * lado a lado na mesma tela, o que desfazia o índice que a cor deveria ser.
     */
    bar: string;
-   /** O escalante não altera este motivo — a faixa ganha cadeado. */
+   /**
+    * O escalante não é quem altera este motivo (Saúde, Férias, Licença, CEMAL
+    * nascem fora da escala). Marca de domínio, não de UI: o cadeado na grade
+    * ficou reservado à faixa DERIVADA, que é a única sem registro para editar.
+    */
    locked: boolean;
 }
 
@@ -29,9 +33,12 @@ export interface IndispOption {
  * intencional; NÃO dar um vermelho distinto a cada um, isso apagaria o sinal.
  *
  * Na grade de faixas o sinal deixou de depender só da cor: a faixa carrega o
- * cadeado (`locked`) e o rótulo do motivo, então o vermelho vira reforço em
- * vez de ser a única informação. Foi o que dispensou a legenda de 12 cores,
- * que prometia uma bijeção cor→motivo que nunca existiu.
+ * rótulo do motivo, então o vermelho vira reforço em vez de ser a única
+ * informação. Foi o que dispensou a legenda de 12 cores, que prometia uma
+ * bijeção cor→motivo que nunca existiu.
+ *
+ * O cadeado NÃO vem daqui: ele marca "sem registro para editar" e só aparece
+ * nas faixas derivadas (ver `DERIVED_BARS` e `indispBars.ts`).
  */
 
 export const INDISP_OPTIONS: IndispOption[] = [

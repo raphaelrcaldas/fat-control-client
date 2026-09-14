@@ -46,7 +46,7 @@ export function IndispBoard({
    onFocusDay,
    isFetching = false,
 }: IndispBoardProps) {
-   const { openForm, openTrip } = useIndispModalActions();
+   const { openForm, openTrip, openDerivada } = useIndispModalActions();
    const { hasPerm } = usePermBased();
    // A vaga "+" é um caminho de criação como qualquer outro: sem o gate, quem
    // não pode criar via o "+" em toda coluna livre e só descobria no 403.
@@ -88,16 +88,19 @@ export function IndispBoard({
     * só fazia sentido quando a célula não dizia nada: era preciso abrir para
     * descobrir o que havia ali. A faixa já mostra, então a etapa sobrava.
     *
-    * Estado derivado (CEMAL vencido, desadaptado) não tem registro para abrir —
-    * ele pertence ao tripulante, e é a ficha dele que responde.
+    * Estado derivado (operação, CEMAL vencido, desadaptado) não tem registro
+    * para editar, então abre a ficha da derivada: ela diz de qual fonte a
+    * faixa nasceu e leva até lá (ver `IndispDerivada`).
     */
    const onOpenBar = useCallback(
       (tripData: CrewIndispList, bar: IndispBar) => {
          if (bar.indisp) {
             openForm({ trip: tripData.trip, indisp: bar.indisp });
+         } else if (bar.restricao) {
+            openDerivada({ trip: tripData.trip, restricao: bar.restricao });
          }
       },
-      [openForm]
+      [openForm, openDerivada]
    );
 
    // Realce da faixa cuja edição está aberta — derivado, sem estado próprio.

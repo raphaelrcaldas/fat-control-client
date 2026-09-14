@@ -28,7 +28,10 @@ interface IndispBarProps {
  * informação disponível.
  */
 export function IndispBar({ bar, total, selected, onOpen }: IndispBarProps) {
-   const Element = bar.indisp ? "button" : "div";
+   // Derivada também abre: não para editar (não há registro), mas para dizer
+   // de onde veio e como se resolve — ver `IndispDerivada`.
+   const abrivel = bar.indisp !== null || bar.restricao !== null;
+   const Element = abrivel ? "button" : "div";
    const dias = bar.to - bar.from;
    const { left, width } = trackSpan(bar.from, bar.to, total, BAR_INSET_PX);
    // Faixa de um dia só cabe o código — e mal. Em 1280 ela mede ~37px, então
@@ -38,8 +41,8 @@ export function IndispBar({ bar, total, selected, onOpen }: IndispBarProps) {
 
    return (
       <Element
-         type={bar.indisp ? "button" : undefined}
-         onClick={bar.indisp ? onOpen : undefined}
+         type={abrivel ? "button" : undefined}
+         onClick={abrivel ? onOpen : undefined}
          title={bar.range ? `${bar.label} · ${bar.range}` : bar.label}
          /* Faixa curta mostra só o código, então o nome acessível não pode
             depender do texto visível. */
@@ -48,10 +51,10 @@ export function IndispBar({ bar, total, selected, onOpen }: IndispBarProps) {
             bar.range,
             bar.effect === "aviso" ? "aviso operacional" : "",
             bar.effect === "bloqueio" ? "bloqueio operacional" : "",
-            /* Sinal de origem, não de tranca: o gestor abre e corrige pelo
-               client. O cadeado diz que o motivo nasce fora da escala
-               (aeromédica, férias, licença), não que o campo está travado. */
-            bar.locked ? "motivo fora da gestão da escala" : "",
+            /* Só as derivadas: a faixa é calculada de outra fonte e não tem
+               registro para editar. Clicar abre a ficha que diz de onde veio
+               e leva até lá. */
+            bar.locked ? "sem registro para editar, abre a origem" : "",
          ]
             .filter(Boolean)
             .join(" · ")}

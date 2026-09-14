@@ -14,6 +14,7 @@ import {
    CrewIndispList,
    IndispType,
 } from "services/routes/indisps";
+import type { RestricaoDerivada } from "services/routes/ops/restricoes";
 
 export type IndispModalState =
    { status: "closed" } | { status: "open"; tripId: number; dateRef: Date };
@@ -30,6 +31,18 @@ export type IndispFormTarget = {
    initialDate?: string;
 };
 
+/**
+ * Alvo da ficha de uma faixa derivada (null = fechada).
+ *
+ * Canal próprio, e não o do formulário: a derivada não tem registro para
+ * editar, então passá-la por `openForm` obrigaria o formulário a lidar com um
+ * `indisp` nulo que não é criação.
+ */
+export type IndispDerivadaTarget = {
+   trip: CrewIndisp;
+   restricao: RestricaoDerivada;
+};
+
 export type IndispModalActions = {
    /** Abre o formulário único de indisponibilidade. */
    openForm: (target: {
@@ -42,15 +55,20 @@ export type IndispModalActions = {
    /** Abre a lista completa de um tripulante. */
    openTrip: (tripData: CrewIndispList) => void;
    closeTrip: () => void;
+   /** Abre a ficha de uma faixa derivada (operação, CEMAL, desadaptação). */
+   openDerivada: (target: IndispDerivadaTarget) => void;
+   closeDerivada: () => void;
 };
 
 const FormContext = createContext<IndispFormTarget | null>(null);
 const TripContext = createContext<CrewIndispList | null>(null);
+const DerivadaContext = createContext<IndispDerivadaTarget | null>(null);
 const ActionsContext = createContext<IndispModalActions | null>(null);
 
 export function IndispModalProvider({ children }: { children: ReactNode }) {
    const [form, setForm] = useState<IndispFormTarget | null>(null);
    const [tripTarget, setTripTarget] = useState<CrewIndispList | null>(null);
+   const [derivada, setDerivada] = useState<IndispDerivadaTarget | null>(null);
    /**
     * Um gatilho POR CANAL. Com um ref só, abrir o formulário de dentro da
     * ficha do tripulante sobrescrevia o gatilho da ficha: ao fechar os dois, o
@@ -58,6 +76,7 @@ export function IndispModalProvider({ children }: { children: ReactNode }) {
     */
    const formTriggerRef = useRef<HTMLElement | null>(null);
    const tripTriggerRef = useRef<HTMLElement | null>(null);
+   const derivadaTriggerRef = useRef<HTMLElement | null>(null);
 
    // Guarda o elemento focado para devolver o foco ao fechar (a11y).
    const lembrarGatilho = (ref: typeof formTriggerRef) => {
@@ -95,16 +114,39 @@ export function IndispModalProvider({ children }: { children: ReactNode }) {
       requestAnimationFrame(() => tripTriggerRef.current?.focus());
    }, []);
 
+   const openDerivada = useCallback<IndispModalActions["openDerivada"]>(
+      (target) => {
+         lembrarGatilho(derivadaTriggerRef);
+         setDerivada(target);
+      },
+      []
+   );
+   const closeDerivada = useCallback<
+      IndispModalActions["closeDerivada"]
+   >(() => {
+      setDerivada(null);
+      requestAnimationFrame(() => derivadaTriggerRef.current?.focus());
+   }, []);
+
    const actions = useMemo<IndispModalActions>(
-      () => ({ openForm, closeForm, openTrip, closeTrip }),
-      [openForm, closeForm, openTrip, closeTrip]
+      () => ({
+         openForm,
+         closeForm,
+         openTrip,
+         closeTrip,
+         openDerivada,
+         closeDerivada,
+      }),
+      [openForm, closeForm, openTrip, closeTrip, openDerivada, closeDerivada]
    );
 
    return (
       <ActionsContext.Provider value={actions}>
          <FormContext.Provider value={form}>
             <TripContext.Provider value={tripTarget}>
-               {children}
+               <DerivadaContext.Provider value={derivada}>
+                  {children}
+               </DerivadaContext.Provider>
             </TripContext.Provider>
          </FormContext.Provider>
       </ActionsContext.Provider>
@@ -127,4 +169,8 @@ export function useIndispFormTarget(): IndispFormTarget | null {
 
 export function useIndispTripTarget(): CrewIndispList | null {
    return useContext(TripContext);
+}
+
+export function useIndispDerivadaTarget(): IndispDerivadaTarget | null {
+   return useContext(DerivadaContext);
 }
