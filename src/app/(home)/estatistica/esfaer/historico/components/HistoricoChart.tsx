@@ -24,16 +24,19 @@
 import { useImperativeHandle, useMemo, type Ref } from "react";
 import Chart from "react-apexcharts";
 import ApexChartsLib from "apexcharts";
+import { Button } from "flowbite-react";
 import { minutesToTime } from "@/../utils/dateHandler";
 import { TOTAL_COLOR } from "../constants";
-import { epochOf, toApexData, type ApexSeries } from "../utils";
+import { deriveEndData, epochOf, toApexData, type ApexSeries } from "../utils";
 import {
    useHistoricoSeries,
    type HistoricoVisibility,
 } from "../hooks/useHistoricoSeries";
+import { useChartReadouts } from "../hooks/useChartReadouts";
 import type { CarryForward } from "../hooks/useCarryForward";
 import type { EsfAerHistorico } from "services/routes/estatistica/esfAer";
 import { buildTooltipHTML } from "./HistoricoTooltip";
+import { ChartHeader } from "./ChartHeader";
 
 /** id estável do chart principal (alvo do brush e do `exec`). */
 const MAIN_ID = "hist-main";
@@ -55,6 +58,10 @@ export interface HistoricoChartProps {
    /** Derivados compartilhados da página (mesma fonte do rail). */
    carry: CarryForward;
    programColors: Map<number, string>;
+   /** Sai do isolamento (badge dispensável do cabeçalho). */
+   onClearIsolated: () => void;
+   /** Devolve o default da tela (só o Total) — saída do estado vazio. */
+   onResetVisibility: () => void;
 }
 
 export function HistoricoChart({
@@ -63,6 +70,8 @@ export function HistoricoChart({
    visibility,
    carry,
    programColors,
+   onClearIsolated,
+   onResetVisibility,
 }: HistoricoChartProps) {
    const { series, colors, dashArray, widths, markerSizes, meta } =
       useHistoricoSeries(historico, visibility, carry, programColors);
@@ -73,11 +82,11 @@ export function HistoricoChart({
    const yearStart = useMemo(() => epochOf(`${anoRef}-01-01`), [anoRef]);
    const yearEnd = useMemo(() => epochOf(`${anoRef}-12-31`), [anoRef]);
 
-   /** Data ISO da última atualização do ano (último ponto real do Total). */
-   const lastUpdateData = useMemo(() => {
-      const pts = historico.total.timeline;
-      return pts.length ? pts[pts.length - 1].data : `${anoRef}-01-01`;
-   }, [historico, anoRef]);
+   /**
+    * Data ISO da última mudança conhecida no ano — mesma fonte das séries
+    * (`useHistoricoSeries`), para o degrau final e o eixo não divergirem.
+    */
+   const lastUpdateData = useMemo(() => deriveEndData(historico), [historico]);
 
    /**
     * Fim do domínio do eixo X: a última atualização + ~5 dias de respiro (p/ o
@@ -268,26 +277,29 @@ export function HistoricoChart({
       [yearStart, domainMax, brushDefault, brushYMax]
    );
 
-   const isolatedNome =
+   const { readouts, excedente } = useChartReadouts(
+      historico,
+      visibility,
+      carry,
+      programColors
+   );
+
+   const isoladoNome =
       visibility.isolated != null
-         ? historico.programas.find((p) => p.esfaer_id === visibility.isolated)
-              ?.nome
+         ? (historico.programas.find((p) => p.esfaer_id === visibility.isolated)
+              ?.nome ?? null)
          : null;
 
    const hasSeries = series.length > 0;
 
    return (
-      <div className="flex h-full flex-col rounded border border-slate-200 bg-white p-4 shadow-sm">
-         <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-            <h2 className="text-xs font-semibold tracking-wide text-slate-500 uppercase">
-               Total da unidade · carry-forward
-            </h2>
-            {isolatedNome && (
-               <span className="inline-flex items-center gap-1 rounded border border-red-100 bg-red-50 px-2 py-0.5 text-xs font-medium text-red-600">
-                  isolado: {isolatedNome}
-               </span>
-            )}
-         </div>
+      <div className="flex flex-col rounded border border-slate-200 bg-white p-4 shadow-sm">
+         <ChartHeader
+            readouts={readouts}
+            excedente={excedente}
+            isoladoNome={isoladoNome}
+            onClearIsolated={onClearIsolated}
+         />
 
          <div>
             {hasSeries ? (
@@ -306,12 +318,18 @@ export function HistoricoChart({
                   />
                </>
             ) : (
+               /* Beco sem saída se for só texto: o usuário precisa deduzir
+                  onde clicar para recuperar o gráfico. O botão devolve o
+                  default da tela em um clique. */
                <div
-                  className="flex items-center justify-center text-sm text-slate-400"
+                  className="flex flex-col items-center justify-center gap-3 text-sm text-slate-500"
                   style={{ height: MAIN_HEIGHT + BRUSH_HEIGHT }}
                >
                   Nenhuma série visível — ative o Total, um grupo ou um
                   programa.
+                  <Button color="light" size="xs" onClick={onResetVisibility}>
+                     Mostrar o Total
+                  </Button>
                </div>
             )}
          </div>

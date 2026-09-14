@@ -2,16 +2,20 @@
 
 import clsx from "clsx";
 import { Button } from "flowbite-react";
-import { TbZoomReset } from "react-icons/tb";
+import { TbEraser, TbZoomReset } from "react-icons/tb";
 import { minutesToTime } from "@/../utils/dateHandler";
 import { getGroupColor, TOTAL_COLOR } from "../constants";
 
 /** Base comum dos chips-legenda (Total e Σ grupos): mesmo shape e ritmo. */
 const CHIP_BASE =
    "inline-flex items-center gap-2 rounded border px-3 py-1.5 text-sm font-medium transition-colors";
-/** Chip desligado: neutro e esmaecido (sem strikethrough). */
+/**
+ * Chip desligado: neutro e esmaecido (sem strikethrough). `slate-500` (~4.6:1
+ * sobre branco) e não `slate-400` (~2.8:1, reprova AA) — "desligado" ainda lê
+ * como desligado pelo contraste com o chip ON, sem exigir texto ilegível.
+ */
 const CHIP_OFF =
-   "border-slate-200 bg-white text-slate-400 hover:bg-slate-50 hover:text-slate-600";
+   "border-slate-200 bg-white text-slate-500 hover:bg-slate-50 hover:text-slate-700";
 
 interface HistoricoToolbarProps {
    /** Total visível (linha do somatório geral no gráfico). */
@@ -26,6 +30,10 @@ interface HistoricoToolbarProps {
    somaAtualPorGrupo: Record<string, number>;
    /** Restaura o eixo X para o ano inteiro (limpa o zoom do brush). */
    onResetZoom: () => void;
+   /** Volta a visibilidade ao default da tela (só o Total). */
+   onResetVisibility: () => void;
+   /** Há seleção além do default — desabilita a ação quando não há. */
+   hasSelection: boolean;
 }
 
 /**
@@ -46,6 +54,8 @@ export function HistoricoToolbar({
    onToggleGroup,
    somaAtualPorGrupo,
    onResetZoom,
+   onResetVisibility,
+   hasSelection,
 }: HistoricoToolbarProps) {
    return (
       <div className="flex flex-wrap items-center gap-2 rounded border border-slate-200 bg-white px-4 py-2 shadow-sm">
@@ -110,7 +120,7 @@ export function HistoricoToolbar({
                   <span
                      className={clsx(
                         "font-mono text-xs tabular-nums",
-                        !on && "text-slate-400"
+                        !on && "text-slate-500"
                      )}
                   >
                      {minutesToTime(somaAtualPorGrupo[g])}
@@ -119,16 +129,24 @@ export function HistoricoToolbar({
             );
          })}
 
-         {/* Reset zoom */}
-         <Button
-            color="light"
-            size="xs"
-            onClick={onResetZoom}
-            className="ml-auto"
-         >
-            <TbZoomReset className="mr-1.5 h-3.5 w-3.5" />
-            Ver ano todo
-         </Button>
+         {/* Ações — o `ml-auto` vai no grupo, não no primeiro botão, senão a
+             quebra de linha separaria as duas ações. */}
+         <div className="ml-auto flex items-center gap-2">
+            {/* Sem isto, desfazer uma seleção grande é desmarcar item a item —
+                e, com o rail rolado, sem ver o que ficou ligado. Some quando
+                não há o que limpar, em vez de ficar inerte na faixa. */}
+            {hasSelection && (
+               <Button color="light" size="xs" onClick={onResetVisibility}>
+                  <TbEraser className="mr-1.5 h-3.5 w-3.5" />
+                  Limpar seleção
+               </Button>
+            )}
+
+            <Button color="light" size="xs" onClick={onResetZoom}>
+               <TbZoomReset className="mr-1.5 h-3.5 w-3.5" />
+               Ver ano todo
+            </Button>
+         </div>
       </div>
    );
 }

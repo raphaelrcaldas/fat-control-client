@@ -28,7 +28,8 @@ export function useCarryForward(programas: HistPrograma[]): CarryForward {
 
       for (const grupo of grupos) {
          const doGrupo = programas.filter((p) => p.grupo === grupo);
-         porGrupo[grupo] = carryForwardSum(doGrupo);
+         const serie = carryForwardSum(doGrupo);
+         porGrupo[grupo] = serie;
          somaAtualPorGrupo[grupo] = doGrupo.reduce(
             (sum, p) => sum + p.atual,
             0

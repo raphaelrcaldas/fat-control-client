@@ -53,7 +53,8 @@ function deltaLine(delta: number): string {
 /**
  * Monta o HTML do tooltip para um ponto da timeline.
  *
- * - `carry`   → "vigente HH:mm · sem mudança" (degrau estendido até 31/dez).
+ * - `carry`   → "vigente HH:mm · sem mudança" (degrau estendido até a última
+ *   atualização do ano — ver `deriveEndData`, NÃO até 31/dez).
  * - `criacao` → "criação · 0 → HH:mm" + linha verde de aumento.
  * - caso geral → "HH:mm → HH:mm" + linha de delta (verde/vermelho).
  */

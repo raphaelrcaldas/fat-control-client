@@ -2,8 +2,12 @@
  * Skeleton da view "Histórico de Esforço Aéreo".
  *
  * Espelha o layout real para zero layout-shift: toolbar (chips ~34px), card do
- * chart (linha de título + área de 330px + brush de 78px) e rail de programas
- * (~330px: cabeçalho, busca e cards de duas linhas).
+ * chart (linha de título de ~14px + área de 330px + brush de 78px, sem gap
+ * entre os dois) e rail de programas (~330px: cabeçalho, busca e lista com o
+ * mesmo teto de 420px).
+ *
+ * O `HistoricoHeader` NÃO entra aqui de propósito: ele fica fora do ternário
+ * de loading da página e já está em tela durante a carga.
  * Contagens fixas (sem Math.random) para evitar flicker/hydration mismatch.
  */
 
@@ -30,24 +34,31 @@ export function HistoricoSkeleton() {
          <div className="grid grid-cols-1 gap-2 lg:grid-cols-[minmax(0,1fr)_330px]">
             {/* Card do chart: título + área principal + brush */}
             <div className="rounded border border-slate-200 bg-white p-4 shadow-sm">
-               <div className="mb-2 h-4 w-56 animate-pulse rounded bg-slate-200" />
-               {/* Mesma altura fixa do chart real (MAIN_HEIGHT). */}
+               {/* Espelha o `h2` real: `text-xs` com raiz 87,5% dá ~14px de
+                   linha, dentro de um cabeçalho `mb-2`. */}
+               <div className="mb-2 h-[14px] w-56 animate-pulse rounded bg-slate-200" />
+               {/* Mesmas alturas fixas do chart real (MAIN_HEIGHT/BRUSH_HEIGHT).
+                   Sem gap entre eles: no chart real os dois <Chart> são irmãos
+                   diretos, e um `mt-2` aqui deslocaria tudo em 8px na troca. */}
                <div className="h-[330px] w-full animate-pulse rounded bg-slate-200" />
-               <div className="mt-2 h-[78px] w-full animate-pulse rounded bg-slate-100" />
+               <div className="h-[78px] w-full animate-pulse rounded bg-slate-100" />
             </div>
 
             {/* Rail de programas */}
             <div className="rounded border border-slate-200 bg-white p-4 shadow-sm">
                {/* Cabeçalho "PROGRAMAS (n)" + dica */}
                <div className="flex items-baseline justify-between gap-2">
-                  <div className="h-4 w-32 animate-pulse rounded bg-slate-200" />
+                  <div className="h-[14px] w-32 animate-pulse rounded bg-slate-200" />
                   <div className="h-3 w-24 animate-pulse rounded bg-slate-100" />
                </div>
                {/* Busca */}
                <div className="mt-3 h-[34px] w-full animate-pulse rounded bg-slate-100" />
 
-               {/* Cards de programa (duas linhas: nome+badge | atual+Δ) */}
-               <div className="mt-3 space-y-2">
+               {/* Cards de programa (duas linhas: nome+badge | atual+Δ).
+                   Mesmo teto da lista real (`max-h-[420px]` em ProgramRail):
+                   sem ele as 8 linhas passariam de 420px e o card encolheria
+                   quando os dados chegassem. */}
+               <div className="mt-3 max-h-[420px] space-y-2 overflow-hidden">
                   {RAIL_ROWS.map((i) => (
                      <div
                         key={i}

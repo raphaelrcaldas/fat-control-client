@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import type { HistoricoVisibility } from "./useHistoricoSeries";
 
 export interface HistoricoVisibilityControls {
@@ -9,6 +9,12 @@ export interface HistoricoVisibilityControls {
    onToggleGroup: (grupo: string) => void;
    onTogglePrograma: (id: number) => void;
    onIsolate: (id: number) => void;
+   /** Sai do isolamento preservando o resto da seleção. */
+   onClearIsolated: () => void;
+   /** Volta ao default da tela (só o Total) — ver `resetVisibility`. */
+   onResetVisibility: () => void;
+   /** Há algo além do default ligado (habilita a ação de limpar). */
+   hasSelection: boolean;
 }
 
 /**
@@ -27,14 +33,23 @@ export function useHistoricoVisibility(
    const [toggled, setToggled] = useState<Record<number, boolean>>({});
    const [isolated, setIsolated] = useState<number | null>(null);
 
-   // Reset síncrono na troca de ano (padrão React "state reset during render").
-   const [prevAnoRef, setPrevAnoRef] = useState(anoRef);
-   if (prevAnoRef !== anoRef) {
-      setPrevAnoRef(anoRef);
+   /**
+    * Volta ao default da tela: só o Total. É a MESMA rotina que a troca de ano
+    * usa — um só conceito de "estado inicial", para o botão de limpar e a
+    * troca de ano nunca divergirem.
+    */
+   const resetVisibility = useCallback(() => {
       setTotalVisible(true);
       setGroups({});
       setToggled({});
       setIsolated(null);
+   }, []);
+
+   // Reset síncrono na troca de ano (padrão React "state reset during render").
+   const [prevAnoRef, setPrevAnoRef] = useState(anoRef);
+   if (prevAnoRef !== anoRef) {
+      setPrevAnoRef(anoRef);
+      resetVisibility();
    }
 
    const onToggleTotal = () => setTotalVisible((v) => !v);
@@ -58,10 +73,22 @@ export function useHistoricoVisibility(
    const onIsolate = (id: number) =>
       setIsolated((prev) => (prev === id ? null : id));
 
+   // Só desfaz o isolamento: o `toggled` por trás volta a valer, como no
+   // segundo clique no nome. Não confundir com `resetVisibility`.
+   const onClearIsolated = () => setIsolated(null);
+
    const visibility = useMemo<HistoricoVisibility>(
       () => ({ totalVisible, groups, toggled, isolated }),
       [totalVisible, groups, toggled, isolated]
    );
+
+   // Desviou do default (só o Total) por qualquer via? Os records guardam
+   // `false` depois de ligar e desligar, então conta VALOR true, não chave.
+   const hasSelection =
+      !totalVisible ||
+      isolated !== null ||
+      Object.values(groups).some(Boolean) ||
+      Object.values(toggled).some(Boolean);
 
    return {
       visibility,
@@ -69,5 +96,8 @@ export function useHistoricoVisibility(
       onToggleGroup,
       onTogglePrograma,
       onIsolate,
+      onClearIsolated,
+      onResetVisibility: resetVisibility,
+      hasSelection,
    };
 }

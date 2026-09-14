@@ -3,8 +3,10 @@
 /**
  * Estado dos filtros da view de histórico espelhado na URL (compartilhável):
  * `ano` (ano de referência, SEMPRE explícito — gravado até no primeiro acesso)
- * e `search` (busca do rail de programas, debounced). Segue o padrão de
- * `users/hooks/useUsersFilters.ts`.
+ * e `search` (busca do rail de programas). Só a ESCRITA na URL é debounced: o
+ * `query` devolvido é o valor cru do input, e o rail filtra com ele a cada
+ * tecla — filtro em array na memória não precisa de debounce, e adiá-lo só
+ * atrasaria o feedback. Segue o padrão de `users/hooks/useUsersFilters.ts`.
  */
 
 import { useCallback, useEffect, useState } from "react";

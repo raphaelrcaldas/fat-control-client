@@ -6,6 +6,7 @@
 
 import { getGroupPalette, KNOWN_GRUPOS } from "./constants";
 import type {
+   EsfAerHistorico,
    HistPoint,
    HistPrograma,
 } from "services/routes/estatistica/esfAer";
@@ -66,6 +67,47 @@ export function toApexData(
 }
 
 /**
+ * Último Δ de uma timeline, em MINUTOS (timeline vazia → 0).
+ *
+ * NÃO zere o primeiro ponto: o backend calcula `delta` contra o valor vigente
+ * ANTES da primeira mudança (`_to_hist_points`, com `valor_inicial`), que não é
+ * zero. Tratar "1 ponto" como criação a partir do nada apagaria uma variação
+ * real — e fazia o rail e a leitura do gráfico mostrarem números diferentes
+ * para a MESMA série.
+ */
+export function ultimoDelta(timeline: HistPoint[]): number {
+   return timeline.length > 0 ? timeline[timeline.length - 1].delta : 0;
+}
+
+/**
+ * Data ISO do fim do domínio: a ÚLTIMA data de mudança conhecida no ano,
+ * tomada como o máximo entre o último ponto do Total e o último ponto de
+ * qualquer programa.
+ *
+ * Não basta olhar o Total: quando `total.timeline` vem vazio (ou defasado) e
+ * há programas com pontos, usar só o Total colapsa o domínio no 1º de janeiro
+ * — e as séries dos programas ficam FORA do eixo, com o gráfico renderizando
+ * área vazia sem nenhuma mensagem (`hasSeries` é true, então o empty-state do
+ * chart também não aparece). Comparação lexicográfica: "YYYY-MM-DD" ordena
+ * como string.
+ */
+export function deriveEndData(historico: EsfAerHistorico): string {
+   let ultima = "";
+
+   const totalTl = historico.total.timeline;
+   if (totalTl.length > 0) ultima = totalTl[totalTl.length - 1].data;
+
+   for (const p of historico.programas) {
+      const tl = p.timeline;
+      if (tl.length === 0) continue;
+      const fim = tl[tl.length - 1].data;
+      if (fim > ultima) ultima = fim;
+   }
+
+   return ultima || `${historico.ano_ref}-01-01`;
+}
+
+/**
  * Mapeia cada programa a uma cor da paleta do seu grupo, pela ordem de aparição
  * dentro do grupo. Derivado da lista COMPLETA (não da filtrada por visibilidade)
  * para a cor de um programa não mudar quando outros são ocultados.
@@ -119,16 +161,16 @@ export function carryForwardSum(programas: HistPrograma[]): HistPoint[] {
 /**
  * Metadados de uma transição da timeline, usados pelo tooltip do gráfico e pelo
  * changelog. Cada item alinha 1:1 com um ponto do array de dados do Apex
- * (inclusive o ponto sintético final em 31/dez — ver `carry`).
+ * (inclusive o ponto sintético final em `endData` — ver `carry`).
  */
 export interface ChangeMeta {
-   /** Alocado anterior (0 no primeiro ponto), em MINUTOS. */
+   /** Alocado vigente antes deste ponto (`to - delta`), em MINUTOS. */
    from: number;
    /** Alocado vigente neste ponto, em MINUTOS. */
    to: number;
    /** Variação `to - from`, em MINUTOS. */
    delta: number;
-   /** Primeiro ponto da timeline (criação, `from = 0`). */
+   /** Primeiro ponto E partindo do zero — criação de fato. */
    criacao: boolean;
    /** Ponto sintético "vigente · sem mudança" até a última atualização. */
    carry: boolean;
@@ -139,8 +181,8 @@ export interface ChangeMeta {
 /**
  * Constrói os metadados de transição de uma timeline.
  *
- * Para cada ponto: `from` = alocado do ponto anterior (0 no primeiro), `to` =
- * alocado atual, `delta = to - from`, `criacao = (i === 0)`. Ao final acrescenta
+ * Para cada ponto: `delta` é o do backend, `from = to - delta` e `criacao` só
+ * quando o primeiro ponto de fato partiu de zero. Ao final acrescenta
  * UM ponto sintético `carry` (sem mudança, `to` = último alocado) com data em
  * `endData` — a última atualização do ano —, espelhando o degrau que o gráfico
  * estende até lá. Só adiciona o carry se `endData` for depois do último ponto
@@ -153,12 +195,17 @@ export function buildChangeMeta(
    if (timeline.length === 0) return [];
 
    const meta: ChangeMeta[] = timeline.map((ponto, i) => {
-      const from = i === 0 ? 0 : timeline[i - 1].alocado;
+      // `delta` vem do backend e já é medido contra o valor anterior à
+      // primeira mudança — recomputá-lo com `from = 0` inflava o primeiro
+      // ponto (um programa que foi de 100h para 120h aparecia como
+      // "criação · 00:00 → 120:00", contra o "+20:00" que o rail mostrava).
+      const from = ponto.alocado - ponto.delta;
       return {
          from,
          to: ponto.alocado,
-         delta: ponto.alocado - from,
-         criacao: i === 0,
+         delta: ponto.delta,
+         // Só é criação se o valor realmente partiu do zero.
+         criacao: i === 0 && from === 0,
          carry: false,
          data: ponto.data,
       };

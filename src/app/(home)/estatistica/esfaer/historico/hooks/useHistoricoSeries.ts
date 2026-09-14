@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import { getGroupColor, TOTAL_COLOR } from "../constants";
 import {
    buildChangeMeta,
+   deriveEndData,
    toApexData,
    type ApexSeries,
    type ChangeMeta,
@@ -42,10 +43,17 @@ export interface HistoricoSeries {
    meta: ChangeMeta[][];
 }
 
-/** Estilo por tipo de série (largura, tracejado e tamanho do marcador). */
+/**
+ * Estilo por tipo de série (largura, tracejado e tamanho do marcador).
+ *
+ * TODA série marca seus pontos de mudança: sem marcador não se vê ONDE o valor
+ * mudou e, como o tooltip é `intersect: true`, não há alvo para ler o Δ daquele
+ * ponto. O tamanho segue a hierarquia da linha (Total > Σ grupo > esforço), que
+ * é o que distingue as séries — junto do tracejado do grupo.
+ */
 const STYLE = {
    total: { width: 3, dash: 0, marker: 4 },
-   group: { width: 2.5, dash: 5, marker: 0 },
+   group: { width: 2.5, dash: 5, marker: 3.5 },
    program: { width: 2, dash: 0, marker: 3 },
 } as const;
 
@@ -68,14 +76,11 @@ export function useHistoricoSeries(
    const { totalVisible, groups, toggled, isolated } = visibility;
 
    return useMemo(() => {
-      const anoRef = historico.ano_ref;
-      // Fim do domínio = última atualização global (último ponto do Total).
+      // Fim do domínio = última mudança conhecida no ano (Total OU programas).
       // Todas as séries estendem seu valor vigente (horizontal) até aqui — não
-      // até 31/dez.
-      const totalTl = historico.total.timeline;
-      const endData = totalTl.length
-         ? totalTl[totalTl.length - 1].data
-         : `${anoRef}-01-01`;
+      // até 31/dez. Ver `deriveEndData`: derivar só do Total apaga as séries
+      // dos programas quando `total.timeline` vem vazio.
+      const endData = deriveEndData(historico);
 
       const series: ApexSeries[] = [];
       const colors: string[] = [];

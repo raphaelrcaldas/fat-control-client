@@ -14,9 +14,6 @@
 /** Linha do Total (slate-900). */
 export const TOTAL_COLOR = "#0f172a";
 
-/** Cor de marca/realce (red-600), p. ex. destaque de série isolada/hover. */
-export const BRAND_COLOR = "#dc2626";
-
 /** Ordem canônica dos grupos conhecidos (usada por `deriveGrupos`). */
 export const KNOWN_GRUPOS: readonly string[] = ["COMPREP", "COMAE", "DCTA"];
 
