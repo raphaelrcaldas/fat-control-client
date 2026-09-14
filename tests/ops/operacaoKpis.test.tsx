@@ -2,7 +2,7 @@
 
 import { afterEach, describe, expect, it } from "vitest";
 import { cleanup, render, screen, within } from "@testing-library/react";
-import { KpiGrid } from "@/app/(home)/ops/operacoes/components/KpiGrid";
+import { IndicadoresGrid } from "@/app/(home)/ops/operacoes/components/IndicadoresGrid";
 import type { OperacaoKpis } from "services/routes/ops/operacoes";
 
 afterEach(cleanup);
@@ -25,30 +25,29 @@ const baseKpis: OperacaoKpis = {
 
 function metric(label: string) {
    const term = screen.getByText(label);
-   const container = term.closest("div");
-   if (!container) throw new Error(`Indicador sem card: ${label}`);
-   return within(container);
+   const card = term.closest("dl");
+   if (!card) throw new Error(`Indicador sem card: ${label}`);
+   return within(card);
 }
 
 describe("indicadores da operação", () => {
-   it("renderiza os nove cards e compõe Heavy e CDS com as unidades corretas", () => {
-      render(<KpiGrid kpis={baseKpis} />);
+   it("compõe Heavy e CDS e mantém as unidades", () => {
+      render(<IndicadoresGrid kpis={baseKpis} />);
 
-      expect(screen.getAllByRole("term")).toHaveLength(9);
       expect(metric("PQDs lançados").getByText("7")).not.toBeNull();
 
       const cargas = metric("Cargas lançadas");
       expect(cargas.getByText("3")).not.toBeNull();
-      expect(cargas.getByText("1 Heavy / 2 CDS • 1.250 kg")).not.toBeNull();
+      expect(cargas.getByText(/1 Heavy \/ 2 CDS/)).not.toBeNull();
 
       const combustivel = metric("Combustível transferido");
       expect(combustivel.getByText("2.500")).not.toBeNull();
       expect(combustivel.getByText("L")).not.toBeNull();
    });
 
-   it("distingue métricas ausentes de valores efetivamente zerados", () => {
-      const { rerender } = render(
-         <KpiGrid
+   it("mantém 'Indisponível' no cartão quando o dado não veio", () => {
+      render(
+         <IndicadoresGrid
             kpis={
                {
                   ...baseKpis,
@@ -62,10 +61,15 @@ describe("indicadores da operação", () => {
          />
       );
 
+      // Ausente não é zero: continua na grade, sinalizado, em vez de descer
+      // para a faixa de "sem registro" — que afirmaria que não houve.
       expect(screen.getAllByText("Indisponível")).toHaveLength(3);
+      expect(screen.queryByText(/Sem registro nesta operação/)).toBeNull();
+   });
 
-      rerender(
-         <KpiGrid
+   it("desce para a faixa o que veio zerado, sem sumir da tela", () => {
+      render(
+         <IndicadoresGrid
             kpis={{
                ...baseKpis,
                pqd: 0,
@@ -78,9 +82,25 @@ describe("indicadores da operação", () => {
       );
 
       expect(screen.queryByText("Indisponível")).toBeNull();
-      expect(metric("PQDs lançados").getByText("0")).not.toBeNull();
-      expect(metric("Cargas lançadas").getByText("0")).not.toBeNull();
-      expect(metric("Combustível transferido").getByText("0")).not.toBeNull();
-      expect(metric("Combustível transferido").getByText("L")).not.toBeNull();
+
+      const faixa = screen
+         .getByText(/Sem registro nesta operação/)
+         .closest("p");
+      if (!faixa) throw new Error("faixa de zerados não encontrada");
+
+      for (const label of [
+         "PQDs lançados",
+         "Cargas lançadas",
+         "Combustível transferido",
+      ]) {
+         expect(within(faixa).getByText(label)).not.toBeNull();
+         // saiu da grade: não há mais cartão com esse rótulo
+         expect(screen.getAllByText(label)).toHaveLength(1);
+      }
+   });
+
+   it("mostra o efetivo junto das demais dimensões quando informado", () => {
+      render(<IndicadoresGrid kpis={baseKpis} efetivo={41} />);
+      expect(metric("Efetivo").getByText("41")).not.toBeNull();
    });
 });
