@@ -127,6 +127,17 @@ export function ListaPage() {
       filterModulo,
    ].filter((v) => v).length;
 
+   // No celular o botao E o resumo do escopo (a fita de pilhas fica oculta):
+   // ele mostra a situacao vigente, que e o recorte principal da lista, e conta
+   // os demais filtros, que nao cabem no rotulo.
+   const situacaoLabel = STATUS_LABELS[statusComis] ?? STATUS_LABELS.aberto;
+   const outrosFiltros = [
+      searchUser,
+      filterPG.length > 0 ? filterPG : null,
+      filterTipo,
+      filterModulo,
+   ].filter((v) => v).length;
+
    const clearFilters = useCallback(() => {
       setSearchUser("");
       setParams({
@@ -144,25 +155,44 @@ export function ListaPage() {
          <ComissSubheader
             compact
             actions={
-               /* No celular os rotulos saem e sobram os icones: com eles, o par
-                  de botoes nao cabia ao lado do titulo e custava uma segunda
-                  linha da faixa. O nome acessivel fica no `aria-label`. */
+               /* No celular o botao de Novo fica so-icone (o par nao cabia ao
+                  lado do titulo e custava uma segunda linha da faixa), mas o de
+                  Filtros carrega a situacao vigente: e ele que substitui a fita
+                  de pilhas, oculta abaixo de `md`. */
                <>
                   <Button
                      color="light"
                      size="sm"
-                     aria-label={
-                        filtersExpanded ? "Ocultar filtros" : "Exibir filtros"
-                     }
-                     title={filtersExpanded ? "Ocultar filtros" : "Filtros"}
+                     aria-expanded={filtersExpanded}
+                     aria-label={`Filtros: ${situacaoLabel}${
+                        outrosFiltros ? `, mais ${outrosFiltros}` : ""
+                     }`}
                      onClick={() => setFiltersExpanded(!filtersExpanded)}
                   >
-                     <HiFilter className="h-4 w-4 sm:mr-2" />
-                     <span className="hidden sm:inline">
+                     <HiFilter className="h-4 w-4 shrink-0" />
+                     {/* Mobile: a situacao vigente. Desktop: o rotulo do botao,
+                         porque la a fita de chips ja diz o escopo. */}
+                     <span className="mx-1.5 max-w-20 truncate md:hidden">
+                        {situacaoLabel}
+                     </span>
+                     <span className="mx-2 hidden md:inline">
                         {filtersExpanded ? "Ocultar" : "Filtros"}
                      </span>
+                     {/* No mobile conta so o que NAO cabe no rotulo; no desktop
+                         conta tudo, como antes. */}
+                     {outrosFiltros > 0 && (
+                        <span
+                           aria-hidden
+                           className="bg-primary-600 flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-xs font-bold text-white md:hidden"
+                        >
+                           {outrosFiltros}
+                        </span>
+                     )}
                      {hasActiveFilters && (
-                        <span className="bg-primary-600 ml-1.5 flex h-5 w-5 items-center justify-center rounded-full text-xs font-bold text-white sm:ml-2">
+                        <span
+                           aria-hidden
+                           className="bg-primary-600 hidden h-5 w-5 shrink-0 items-center justify-center rounded-full text-xs font-bold text-white md:flex"
+                        >
                            {activeFilterCount}
                         </span>
                      )}
@@ -185,7 +215,7 @@ export function ListaPage() {
             <h2 className="text-base font-semibold text-slate-900">
                Registros
             </h2>
-            <p className="text-sm text-slate-500">
+            <p className="truncate text-sm text-slate-500">
                {!loading && cmtos.length > 0
                   ? `${cmtos.length} ${
                        cmtos.length === 1
@@ -196,9 +226,13 @@ export function ListaPage() {
             </p>
          </ComissSubheader>
 
-         {/* Tags de filtros ativos */}
+         {/* Tags de filtros ativos — `hidden md:flex`: no celular a fita custa
+             uma linha inteira da lista para repetir o que o botao de Filtros ja
+             diz (situacao vigente + contador do resto). No desktop nao ha
+             painel colapsado, entao ela nao custa linha e ainda da o atalho de
+             tirar um filtro sem reabrir o select. */}
          {hasActiveFilters && (
-            <div className="mt-3 flex flex-wrap items-center gap-2">
+            <div className="mt-3 hidden flex-wrap items-center gap-2 md:flex">
                <span className="text-xs font-medium text-slate-600">
                   Filtros ativos:
                </span>
@@ -403,7 +437,7 @@ export function ListaPage() {
                   <h3 className="mb-1 text-lg font-semibold text-slate-900">
                      Nenhum comissionamento encontrado
                   </h3>
-                  <p className="text-sm text-slate-500">
+                  <p className="truncate text-sm text-slate-500">
                      {hasActiveFilters
                         ? "Tente ajustar ou limpar os filtros ativos"
                         : "Ainda não há comissionamentos cadastrados"}
