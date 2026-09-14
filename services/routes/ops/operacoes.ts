@@ -49,6 +49,7 @@ export interface OperacaoKpis {
    pax: number;
    carga: number; // carga transportada, em kg
    comb: number; // combustível consumido, em litros
+   lub: number; // lubrificante consumido, em litros (uma casa decimal)
    pqd: number; // paraquedistas lançados
    comb_transf: number; // combustível transferido em REVO, em litros
    heavy_qtd: number; // lançamentos heavy com peso > 0
@@ -107,6 +108,11 @@ export interface OperacaoEtapaRow {
    tvoo: number;
    dep: string;
    arr: string;
+   // Opcionais na origem: `null` é "não informado", não zero.
+   pax: number | null;
+   carga: number | null; // kg
+   comb: number | null; // L
+   lub: number | null; // L
 }
 
 export interface EtapaCandidata {

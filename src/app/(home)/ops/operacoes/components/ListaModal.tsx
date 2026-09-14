@@ -1,5 +1,6 @@
 "use client";
 
+import clsx from "clsx";
 import { Modal, ModalBody, ModalHeader } from "flowbite-react";
 
 interface Props {
@@ -13,6 +14,11 @@ interface Props {
    ferramentas?: React.ReactNode;
    /** Resumo do recorte, ancorado no rodapé. */
    rodape?: React.ReactNode;
+   /**
+    * Largura máxima da moldura. O padrão serve às listas de 4-5 colunas; as
+    * etapas, com dez, pedem `larga` para não espremer as colunas de consumo.
+    */
+   largura?: "padrao" | "larga";
    children: React.ReactNode;
 }
 
@@ -34,6 +40,7 @@ export function ListaModal({
    contexto,
    ferramentas,
    rodape,
+   largura = "padrao",
    children,
 }: Props) {
    return (
@@ -43,9 +50,16 @@ export function ListaModal({
          size="5xl"
          dismissible
          theme={{
-            root: { sizes: { "5xl": "max-w-5xl" } },
+            root: {
+               sizes: {
+                  "5xl": largura === "larga" ? "max-w-[80rem]" : "max-w-5xl",
+               },
+            },
             content: {
-               inner: "relative flex max-h-[85vh] flex-col rounded bg-white shadow",
+               // Altura fixa, não apenas teto: com `max-h`, filtrar de 45 para
+               // 2 linhas encolhia o modal e puxava o rodapé para debaixo do
+               // cursor. A moldura fica parada e só o corpo rola.
+               inner: "relative flex h-[85vh] flex-col rounded bg-white shadow",
             },
          }}
       >
@@ -90,20 +104,31 @@ export function ModalTools({ children }: { children: React.ReactNode }) {
 /**
  * Um grupo de filtro: rótulo + segmentado.
  *
- * Ocupa a linha inteira porque o rótulo não pode se separar do controle a que
- * pertence — com dois grupos numa linha só, o segundo rótulo órfão sobra no fim
- * da primeira linha.
+ * O par rótulo+controle é indivisível — o `flex` interno e o `min-w-0` garantem
+ * que o rótulo nunca fique órfão no fim de uma linha enquanto o controle desce
+ * para a seguinte.
+ *
+ * Por padrão o grupo se ajusta ao próprio conteúdo, para dois filtros curtos
+ * dividirem uma linha; `largura="cheia"` reserva a linha inteira, que é o que
+ * um segmentado longo precisa para não espremer o vizinho.
  */
 export function FiltroGrupo({
    label,
+   largura = "conteudo",
    children,
 }: {
    label: string;
+   largura?: "conteudo" | "cheia";
    children: React.ReactNode;
 }) {
    return (
-      <div className="flex w-full min-w-0 items-center gap-2">
-         <span className="w-14 shrink-0 font-mono text-[9px] font-bold tracking-[0.2em] text-slate-500 uppercase">
+      <div
+         className={clsx(
+            "flex min-w-0 items-center gap-2",
+            largura === "cheia" ? "w-full" : "min-w-0 shrink"
+         )}
+      >
+         <span className="shrink-0 font-mono text-[9px] font-bold tracking-[0.2em] text-slate-500 uppercase">
             {label}
          </span>
          <div className="min-w-0 overflow-x-auto">{children}</div>

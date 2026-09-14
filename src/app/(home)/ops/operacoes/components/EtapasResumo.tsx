@@ -18,6 +18,7 @@ import {
 import { PermBased } from "../../../hooks/usePermBased";
 import type { OperacaoEtapaRow } from "services/routes/ops/operacoes";
 import { PainelResumo } from "./PainelResumo";
+import { Consumo, ConsumoLinha } from "./Consumo";
 
 const TOPO = 5;
 
@@ -73,8 +74,8 @@ export function EtapasResumo({
          resumo={`últimas ${linhas.length} de ${etapas.length}`}
          verTudo={
             etapas.length === 1
-               ? "Abrir a etapa"
-               : `Abrir as ${etapas.length} etapas`
+               ? "Ver a etapa"
+               : `Ver as ${etapas.length} etapas`
          }
          onVerTudo={onVerTudo}
       >
@@ -105,6 +106,7 @@ export function EtapasResumo({
                         {e.anv}
                      </span>
                   </div>
+                  <ConsumoLinha etapa={e} />
                </li>
             ))}
          </ul>
@@ -118,71 +120,101 @@ export function EtapasResumo({
             aria-label="Etapas associadas"
             tabIndex={0}
          >
-            <Table>
-               <TableHead>
-                  <TableRow>
-                     <TableHeadCell className="w-px px-3 normal-case">
-                        Data
-                     </TableHeadCell>
-                     <TableHeadCell className="w-px px-3 normal-case">
-                        Rota
-                     </TableHeadCell>
-                     <TableHeadCell className="w-px px-3 whitespace-nowrap normal-case">
-                        Dep → Pso
-                     </TableHeadCell>
-                     <TableHeadCell className="w-px px-3 text-right normal-case">
-                        T. voo
-                     </TableHeadCell>
-                     <TableHeadCell className="w-px px-3 normal-case">
-                        Anv
-                     </TableHeadCell>
-                     <TableHeadCell className="px-3 normal-case">
-                        Esforço
-                     </TableHeadCell>
-                  </TableRow>
-               </TableHead>
-               <TableBody className="divide-y divide-slate-100">
-                  {linhas.map((e) => (
-                     <TableRow key={e.id} className="bg-white">
-                        <TableCell className="w-px px-3 font-mono whitespace-nowrap text-slate-600 tabular-nums">
-                           {isoDateToShort(e.data)}
-                        </TableCell>
-                        <TableCell className="w-px px-3 font-mono font-bold whitespace-nowrap text-slate-800">
-                           {e.origem}{" "}
-                           <span aria-hidden className="text-slate-500">
-                              →
-                           </span>{" "}
-                           {e.destino}
-                        </TableCell>
-                        <TableCell className="w-px px-3 font-mono whitespace-nowrap text-slate-600 tabular-nums">
-                           {formatTime(e.dep)}{" "}
-                           <span aria-hidden className="text-slate-500">
-                              →
-                           </span>{" "}
-                           {formatTime(e.arr)}
-                        </TableCell>
-                        <TableCell className="w-px px-3 text-right font-mono font-bold whitespace-nowrap text-slate-900 tabular-nums">
-                           {minutesToTime(e.tvoo)}
-                        </TableCell>
-                        <TableCell className="w-px px-3 font-mono whitespace-nowrap text-slate-700">
-                           {e.anv}
-                        </TableCell>
-                        <TableCell className="max-w-0 px-3">
-                           {e.esforco ? (
-                              <span
-                                 className="block truncate text-slate-600"
-                                 title={e.esforco}
-                              >
-                                 {e.esforco}
-                              </span>
-                           ) : (
-                              <span className="text-slate-500">—</span>
-                           )}
-                        </TableCell>
+            {/* Altura de cinco linhas cravada na moldura: com menos etapas
+                o painel encolhia e desalinhava do Efetivo ao lado. Vai aqui e
+                não na tabela porque `display` alterado no `tbody` desalinha as
+                colunas do cabeçalho — e em posição fracionária cada linha
+                arredonda para 32,5 ou 33px, então somar cinco não dá um valor
+                estável. */}
+            <div className="h-[193px] overflow-y-hidden">
+               {/* `w-full` com todas as colunas em `w-px`: a folga se reparte
+                   entre elas em vez de cair inteira na última — antes a Lub
+                   recebia 127px contra 47 das irmãs, e o número flutuava longe
+                   do cabeçalho. */}
+               <Table className="w-full">
+                  <TableHead>
+                     <TableRow>
+                        <TableHeadCell className="w-px px-3 text-center normal-case">
+                           Data
+                        </TableHeadCell>
+                        <TableHeadCell className="w-px px-3 text-center normal-case">
+                           Rota
+                        </TableHeadCell>
+                        <TableHeadCell className="w-px px-3 text-center whitespace-nowrap normal-case">
+                           Dep → Pso
+                        </TableHeadCell>
+                        <TableHeadCell className="w-px px-3 text-center normal-case">
+                           T. voo
+                        </TableHeadCell>
+                        <TableHeadCell className="w-px px-3 text-center normal-case">
+                           Anv
+                        </TableHeadCell>
+                        <TableHeadCell className="w-px px-2 text-center normal-case">
+                           Pax
+                        </TableHeadCell>
+                        <TableHeadCell className="w-px px-2 text-center whitespace-nowrap normal-case">
+                           Carga{" "}
+                           <span className="font-normal text-slate-500">
+                              (kg)
+                           </span>
+                        </TableHeadCell>
+                        <TableHeadCell className="w-px px-2 text-center whitespace-nowrap normal-case">
+                           Comb{" "}
+                           <span className="font-normal text-slate-500">
+                              (L)
+                           </span>
+                        </TableHeadCell>
+                        <TableHeadCell className="w-px px-2 text-center whitespace-nowrap normal-case">
+                           Lub{" "}
+                           <span className="font-normal text-slate-500">
+                              (L)
+                           </span>
+                        </TableHeadCell>
                      </TableRow>
-                  ))}
-               </TableBody>
-            </Table>
+                  </TableHead>
+                  <TableBody className="divide-y divide-slate-100">
+                     {linhas.map((e) => (
+                        <TableRow key={e.id} className="bg-white">
+                           <TableCell className="w-px px-3 text-center font-mono whitespace-nowrap text-slate-600 tabular-nums">
+                              {isoDateToShort(e.data)}
+                           </TableCell>
+                           <TableCell className="w-px px-3 text-center font-mono font-bold whitespace-nowrap text-slate-800">
+                              {e.origem}{" "}
+                              <span aria-hidden className="text-slate-500">
+                                 →
+                              </span>{" "}
+                              {e.destino}
+                           </TableCell>
+                           <TableCell className="w-px px-3 text-center font-mono whitespace-nowrap text-slate-600 tabular-nums">
+                              {formatTime(e.dep)}{" "}
+                              <span aria-hidden className="text-slate-500">
+                                 →
+                              </span>{" "}
+                              {formatTime(e.arr)}
+                           </TableCell>
+                           <TableCell className="w-px px-3 text-center font-mono font-bold whitespace-nowrap text-slate-900 tabular-nums">
+                              {minutesToTime(e.tvoo)}
+                           </TableCell>
+                           <TableCell className="w-px px-3 text-center font-mono whitespace-nowrap text-slate-700">
+                              {e.anv}
+                           </TableCell>
+                           <TableCell className="w-px px-2 text-center font-mono text-slate-600 tabular-nums">
+                              <Consumo valor={e.pax} />
+                           </TableCell>
+                           <TableCell className="w-px px-2 text-center font-mono text-slate-600 tabular-nums">
+                              <Consumo valor={e.carga} />
+                           </TableCell>
+                           <TableCell className="w-px px-2 text-center font-mono text-slate-600 tabular-nums">
+                              <Consumo valor={e.comb} />
+                           </TableCell>
+                           <TableCell className="w-px px-2 text-center font-mono text-slate-600 tabular-nums">
+                              <Consumo valor={e.lub} />
+                           </TableCell>
+                        </TableRow>
+                     ))}
+                  </TableBody>
+               </Table>
+            </div>
          </div>
       </PainelResumo>
    );

@@ -1,22 +1,46 @@
+import type { ReactNode } from "react";
+import {
+   TbClockHour4,
+   TbRoute,
+   TbPlane,
+   TbUsersGroup,
+   TbUsers,
+   TbPackage,
+   TbGasStation,
+   TbDroplet,
+   TbParachute,
+   TbPackageExport,
+   TbArrowsExchange,
+} from "react-icons/tb";
 import { minutesToTime } from "@/../utils/dateHandler";
+import { KpiCard } from "@/components/ui/KpiCard";
 import type { OperacaoKpis } from "services/routes/ops/operacoes";
+import type { ContagemCirculo } from "./pessoalAgrupado";
 
 const nf = new Intl.NumberFormat("pt-BR", { maximumFractionDigits: 2 });
 
 interface Metrica {
    label: string;
+   icon: ReactNode;
    /** `null` = o backend não tem o dado. Diferente de zero. */
    value: number | null;
    /** Texto já formatado, para horas. */
    texto?: string;
    unidade?: string;
    apoio?: string;
-   /** Cartão de destaque (horas voadas). */
-   destaque?: boolean;
 }
 
 /**
  * Os indicadores da operação.
+ *
+ * O cartão é o `KpiCard` compartilhado, o mesmo de `estatistica/indicadores`:
+ * são o mesmo objeto de leitura — um número do GT com rótulo, unidade e
+ * composição — e duas implementações divergiam no ícone, no peso do número e
+ * no espaçamento. O que é próprio daqui não é o cartão, é quais métricas
+ * entram e o que fazer com as que vieram zero.
+ *
+ * Todos os cartões têm o mesmo peso: a grade é um painel de leitura, e o
+ * dossiê já diz de quem é a operação no cabeçalho.
  *
  * Métrica que veio zero sai da grade e desce para uma faixa: numa operação de
  * transporte, PQD, cargas lançadas e combustível transferido vêm zero, e cinco
@@ -29,9 +53,12 @@ interface Metrica {
 export function IndicadoresGrid({
    kpis,
    efetivo,
+   circulos,
 }: {
    kpis: OperacaoKpis;
    efetivo?: number;
+   /** Composição do efetivo por círculo, para o apoio do cartão. */
+   circulos?: ContagemCirculo[];
 }) {
    const lancadas =
       kpis.heavy_qtd == null || kpis.cds_qtd == null
@@ -41,18 +68,20 @@ export function IndicadoresGrid({
    const metricas: Metrica[] = [
       {
          label: "Horas voadas",
+         icon: <TbClockHour4 className="h-5 w-5" />,
          value: kpis.horas,
          texto: minutesToTime(kpis.horas),
-         destaque: true,
       },
       {
          label: "Etapas",
+         icon: <TbRoute className="h-5 w-5" />,
          value: kpis.etapas,
          apoio:
             kpis.missoes > 0 ? `${nf.format(kpis.missoes)} missões` : undefined,
       },
       {
          label: "Aeronaves",
+         icon: <TbPlane className="h-5 w-5" />,
          value: kpis.anv,
          apoio:
             kpis.modelos > 0
@@ -63,14 +92,50 @@ export function IndicadoresGrid({
       // como elas, e não produção de voo. No fim da lista ele sobrava sozinho
       // numa terceira fileira de quatro colunas.
       ...(efetivo !== undefined
-         ? [{ label: "Efetivo", value: efetivo } as Metrica]
+         ? [
+              {
+                 label: "Efetivo",
+                 icon: <TbUsersGroup className="h-5 w-5" />,
+                 value: efetivo,
+                 // A composição por círculo cabe no apoio do cartão e responde
+                 // "30 militares, mas quantos oficiais?" sem abrir a lista.
+                 apoio: circulos?.length
+                    ? circulos.map((c) => `${c.total} ${c.label}`).join(" · ")
+                    : undefined,
+              } as Metrica,
+           ]
          : []),
-      { label: "Pax transportados", value: kpis.pax },
-      { label: "Carga transportada", value: kpis.carga, unidade: "kg" },
-      { label: "Combustível consumido", value: kpis.comb, unidade: "L" },
-      { label: "PQDs lançados", value: kpis.pqd },
+      {
+         label: "Pax transportados",
+         icon: <TbUsers className="h-5 w-5" />,
+         value: kpis.pax,
+      },
+      {
+         label: "Carga transportada",
+         icon: <TbPackage className="h-5 w-5" />,
+         value: kpis.carga,
+         unidade: "kg",
+      },
+      {
+         label: "Combustível consumido",
+         icon: <TbGasStation className="h-5 w-5" />,
+         value: kpis.comb,
+         unidade: "L",
+      },
+      {
+         label: "Lubrificante consumido",
+         icon: <TbDroplet className="h-5 w-5" />,
+         value: kpis.lub,
+         unidade: "L",
+      },
+      {
+         label: "PQDs lançados",
+         icon: <TbParachute className="h-5 w-5" />,
+         value: kpis.pqd,
+      },
       {
          label: "Cargas lançadas",
+         icon: <TbPackageExport className="h-5 w-5" />,
          value: lancadas,
          apoio:
             lancadas != null && lancadas > 0 && kpis.peso_lancado != null
@@ -79,6 +144,7 @@ export function IndicadoresGrid({
       },
       {
          label: "Combustível transferido",
+         icon: <TbArrowsExchange className="h-5 w-5" />,
          value: kpis.comb_transf,
          unidade: "L",
       },
@@ -89,50 +155,19 @@ export function IndicadoresGrid({
 
    return (
       <section aria-label="Indicadores da operação" className="space-y-2">
-         {/* Cada cartão é uma `dl` própria em vez de todos dentro de uma só:
-             `div` como filho direto de `dl` reprova `definition-list` no axe,
-             e o cartão precisa do wrapper para a borda e o layout. */}
          <div className="grid grid-cols-2 gap-2 md:grid-cols-3 xl:grid-cols-4">
             {visiveis.map((m) => (
-               <dl
+               <KpiCard
                   key={m.label}
-                  className={`flex min-w-0 flex-col rounded border px-3 py-2.5 shadow-sm ${
-                     m.destaque
-                        ? "border-slate-950 bg-slate-950"
-                        : "border-slate-200 bg-white"
-                  }`}
-               >
-                  <dt
-                     className={`truncate text-xs ${m.destaque ? "text-slate-400" : "text-slate-600"}`}
-                  >
-                     {m.label}
-                  </dt>
-                  <dd
-                     className={`flex flex-wrap items-baseline gap-x-1.5 leading-tight font-semibold tracking-tight tabular-nums ${
-                        m.destaque
-                           ? "text-[28px] text-white"
-                           : "text-2xl text-slate-900"
-                     }`}
-                  >
-                     {m.value == null ? (
-                        <span className="text-sm font-medium text-slate-500 italic">
-                           Indisponível
-                        </span>
-                     ) : (
-                        (m.texto ?? nf.format(m.value))
-                     )}
-                     {m.unidade && m.value != null && (
-                        <span className="text-sm font-medium text-slate-500">
-                           {m.unidade}
-                        </span>
-                     )}
-                  </dd>
-                  {/* Slot fixo: sem ele, cartões com e sem apoio têm alturas
-                      diferentes e a segunda fileira desalinha da primeira. */}
-                  <dd className="mt-1 min-h-4 text-[11px] leading-4 text-slate-500">
-                     {m.apoio && <span className="truncate">{m.apoio}</span>}
-                  </dd>
-               </dl>
+                  icon={m.icon}
+                  label={m.label}
+                  value={
+                     m.value == null ? null : (m.texto ?? nf.format(m.value))
+                  }
+                  unit={m.unidade}
+                  sub={m.apoio}
+                  reservaSub
+               />
             ))}
          </div>
 

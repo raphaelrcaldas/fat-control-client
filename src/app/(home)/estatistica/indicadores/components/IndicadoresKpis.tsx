@@ -19,7 +19,7 @@ import type {
 } from "services/routes/estatistica/indicadores";
 import { LANCAMENTO_LABELS } from "../constants";
 import { fmtInt, fmtDec, kgToT } from "../utils";
-import { KpiCard } from "./KpiCard";
+import { KpiCard } from "@/components/ui/KpiCard";
 
 interface IndicadoresKpisProps {
    totais: Metricas;

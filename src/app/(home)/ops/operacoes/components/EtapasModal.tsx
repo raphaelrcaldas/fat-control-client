@@ -26,6 +26,7 @@ import { PermBased } from "../../../hooks/usePermBased";
 import { ListaModal, ModalTools, FiltroGrupo } from "./ListaModal";
 import { Segmented } from "./Segmented";
 import { ConfirmDeleteModal } from "./ConfirmDeleteModal";
+import { Consumo, ConsumoLinha } from "./Consumo";
 import type { OperacaoEtapaRow } from "services/routes/ops/operacoes";
 
 interface Props {
@@ -123,6 +124,7 @@ export function EtapasModal({
          onClose={onClose}
          titulo="Etapas"
          contexto={opNome}
+         largura="larga"
          ferramentas={
             <ModalTools>
                <div className="flex w-full items-center gap-2">
@@ -150,7 +152,7 @@ export function EtapasModal({
                </div>
 
                {anvs.length > 0 && (
-                  <FiltroGrupo label="Anv">
+                  <FiltroGrupo label="Anv" largura="cheia">
                      <Segmented
                         options={anvOptions}
                         value={anvFilter}
@@ -223,6 +225,7 @@ export function EtapasModal({
                                  {e.anv}
                               </span>
                            </div>
+                           <ConsumoLinha etapa={e} />
                         </div>
                         <PermBased
                            resource="ops.operacoes.etapas"
@@ -250,14 +253,45 @@ export function EtapasModal({
                   <Table>
                      <TableHead className="sticky top-0 z-10">
                         <TableRow>
-                           <TableHeadCell>Data</TableHeadCell>
-                           <TableHeadCell>Rota</TableHeadCell>
-                           <TableHeadCell>Dep → Pso</TableHeadCell>
-                           <TableHeadCell className="text-right">
+                           <TableHeadCell className="text-center">
+                              Data
+                           </TableHeadCell>
+                           <TableHeadCell className="text-center">
+                              Rota
+                           </TableHeadCell>
+                           <TableHeadCell className="text-center">
+                              Dep → Pso
+                           </TableHeadCell>
+                           <TableHeadCell className="text-center">
                               T. voo
                            </TableHeadCell>
-                           <TableHeadCell>Anv</TableHeadCell>
-                           <TableHeadCell>Esforço</TableHeadCell>
+                           <TableHeadCell className="text-center">
+                              Anv
+                           </TableHeadCell>
+                           <TableHeadCell className="px-2 text-center">
+                              Pax
+                           </TableHeadCell>
+                           <TableHeadCell className="px-2 text-center whitespace-nowrap">
+                              Carga{" "}
+                              <span className="font-normal text-slate-500">
+                                 (kg)
+                              </span>
+                           </TableHeadCell>
+                           <TableHeadCell className="px-2 text-center whitespace-nowrap">
+                              Comb{" "}
+                              <span className="font-normal text-slate-500">
+                                 (L)
+                              </span>
+                           </TableHeadCell>
+                           <TableHeadCell className="px-2 text-center whitespace-nowrap">
+                              Lub{" "}
+                              <span className="font-normal text-slate-500">
+                                 (L)
+                              </span>
+                           </TableHeadCell>
+                           <TableHeadCell className="text-center">
+                              Esforço
+                           </TableHeadCell>
                            <TableHeadCell className="w-8 px-2">
                               <span className="sr-only">Ações</span>
                            </TableHeadCell>
@@ -266,30 +300,42 @@ export function EtapasModal({
                      <TableBody className="divide-y">
                         {rows.map((e) => (
                            <TableRow key={e.id} className="bg-white">
-                              <TableCell className="w-px font-mono whitespace-nowrap text-slate-600 tabular-nums">
+                              <TableCell className="w-px text-center font-mono whitespace-nowrap text-slate-600 tabular-nums">
                                  {isoDateToShort(e.data)}
                               </TableCell>
-                              <TableCell className="w-px font-mono font-bold whitespace-nowrap">
+                              <TableCell className="w-px text-center font-mono font-bold whitespace-nowrap">
                                  {e.origem}{" "}
                                  <span aria-hidden className="text-slate-500">
                                     →
                                  </span>{" "}
                                  {e.destino}
                               </TableCell>
-                              <TableCell className="w-px font-mono whitespace-nowrap text-slate-600 tabular-nums">
+                              <TableCell className="w-px text-center font-mono whitespace-nowrap text-slate-600 tabular-nums">
                                  {formatTime(e.dep)}{" "}
                                  <span aria-hidden className="text-slate-500">
                                     →
                                  </span>{" "}
                                  {formatTime(e.arr)}
                               </TableCell>
-                              <TableCell className="w-px text-right font-mono font-bold whitespace-nowrap text-slate-800 tabular-nums">
+                              <TableCell className="w-px text-center font-mono font-bold whitespace-nowrap text-slate-800 tabular-nums">
                                  {minutesToTime(e.tvoo)}
                               </TableCell>
-                              <TableCell className="w-px font-mono whitespace-nowrap text-slate-700">
+                              <TableCell className="w-px text-center font-mono whitespace-nowrap text-slate-700">
                                  {e.anv}
                               </TableCell>
-                              <TableCell className="max-w-0">
+                              <TableCell className="w-px px-2 text-center font-mono text-slate-600 tabular-nums">
+                                 <Consumo valor={e.pax} />
+                              </TableCell>
+                              <TableCell className="w-px px-2 text-center font-mono text-slate-600 tabular-nums">
+                                 <Consumo valor={e.carga} />
+                              </TableCell>
+                              <TableCell className="w-px px-2 text-center font-mono text-slate-600 tabular-nums">
+                                 <Consumo valor={e.comb} />
+                              </TableCell>
+                              <TableCell className="w-px px-2 text-center font-mono text-slate-600 tabular-nums">
+                                 <Consumo valor={e.lub} />
+                              </TableCell>
+                              <TableCell className="max-w-0 text-center">
                                  {e.esforco ? (
                                     <span
                                        className="block truncate text-slate-600"

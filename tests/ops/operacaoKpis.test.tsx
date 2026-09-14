@@ -14,6 +14,7 @@ const baseKpis: OperacaoKpis = {
    pax: 10,
    carga: 500,
    comb: 800,
+   lub: 12.5,
    pqd: 7,
    comb_transf: 2500,
    heavy_qtd: 1,
@@ -23,9 +24,14 @@ const baseKpis: OperacaoKpis = {
    modelos: 1,
 };
 
+// O cartão é o `KpiCard` compartilhado, uma pilha de `div`s sem papel ARIA —
+// então sobe-se do rótulo até o elemento que é filho direto da grade, em vez
+// de contar `parentElement`s (que quebra a cada ajuste de markup do cartão).
 function metric(label: string) {
    const term = screen.getByText(label);
-   const card = term.closest("dl");
+   const grade = term.closest("section")?.querySelector(".grid");
+   let card: HTMLElement | null = term;
+   while (card && card.parentElement !== grade) card = card.parentElement;
    if (!card) throw new Error(`Indicador sem card: ${label}`);
    return within(card);
 }

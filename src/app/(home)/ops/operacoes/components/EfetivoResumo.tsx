@@ -18,8 +18,9 @@ import type {
 } from "services/routes/ops/operacoes";
 import { BarraPresenca } from "./BarraPresenca";
 import { PainelResumo } from "./PainelResumo";
-import { agruparPessoal } from "./pessoalAgrupado";
-import { FUNC_STYLE, SIT_LABEL, SIT_STYLE } from "./operacaoUi";
+import { agruparPessoal, contarPorCirculo } from "./pessoalAgrupado";
+import { compareByAntiguidade } from "@/../utils/sortByAntiguidade";
+import { ChipFuncao, ChipSituacao } from "./Chip";
 
 const TOPO = 5;
 
@@ -51,11 +52,16 @@ export function EfetivoResumo({
    onVerTudo: () => void;
    onAssociar: () => void;
 }) {
-   const militares = agruparPessoal(pessoal);
+   // Mesma ordem do modal: antiguidade é como uma relação de militares se lê.
+   const militares = agruparPessoal(pessoal).sort((a, b) =>
+      compareByAntiguidade(a.user, b.user)
+   );
    const linhas = militares.slice(0, TOPO);
 
-   const porSit = { d: 0, g: 0, c: 0 };
-   for (const p of pessoal) porSit[p.sit] += 1;
+   // Círculo hierárquico diz a COMPOSIÇÃO do efetivo — quantos oficiais, quantos
+   // graduados —, que é o que se lê num cabeçalho de dossiê. A situação (diária,
+   // grat rep, comiss) é dado de pagamento e continua na tabela, por período.
+   const circulos = contarPorCirculo(militares);
 
    if (erro) {
       return (
@@ -125,12 +131,21 @@ export function EfetivoResumo({
    return (
       <PainelResumo
          titulo="Militares envolvidos"
-         resumo={`${porSit.d} diária · ${porSit.g} grat rep · ${porSit.c} comiss`}
-         verTudo={
-            militares.length === 1
-               ? "Abrir o militar"
-               : `Abrir os ${militares.length} militares`
+         resumo={
+            circulos.length > 0 ? (
+               <span className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
+                  {circulos.map((c) => (
+                     <span key={c.circulo} title={c.label}>
+                        <span className="font-semibold text-slate-700">
+                           {c.total}
+                        </span>{" "}
+                        {c.label}
+                     </span>
+                  ))}
+               </span>
+            ) : undefined
          }
+         verTudo="Ver o efetivo"
          onVerTudo={onVerTudo}
       >
          {/* --------------------------- mobile --------------------------- */}
@@ -154,16 +169,8 @@ export function EfetivoResumo({
                       de badges empilhados não dizem qual valeu quando. */}
                   {m.periodos.length === 1 ? (
                      <div className="mt-1 flex items-center gap-1.5">
-                        <span
-                           className={`inline-block rounded px-1.5 py-0.5 text-[10px] font-bold uppercase ring-1 ring-inset ${FUNC_STYLE[m.periodos[0].func].badge}`}
-                        >
-                           {m.periodos[0].func}
-                        </span>
-                        <span
-                           className={`inline-block rounded px-1.5 py-0.5 text-[10px] font-bold uppercase ring-1 ring-inset ${SIT_STYLE[m.periodos[0].sit].badge}`}
-                        >
-                           {SIT_LABEL[m.periodos[0].sit]}
-                        </span>
+                        <ChipFuncao func={m.periodos[0].func} />
+                        <ChipSituacao sit={m.periodos[0].sit} />
                      </div>
                   ) : (
                      <div className="mt-1 flex flex-col gap-1">
@@ -176,16 +183,8 @@ export function EfetivoResumo({
                                  {isoDateToShort(p.data_ingresso)}–
                                  {isoDateToShort(p.data_regresso)}
                               </span>
-                              <span
-                                 className={`inline-block rounded px-1.5 py-0.5 text-[10px] font-bold uppercase ring-1 ring-inset ${FUNC_STYLE[p.func].badge}`}
-                              >
-                                 {p.func}
-                              </span>
-                              <span
-                                 className={`inline-block rounded px-1.5 py-0.5 text-[10px] font-bold uppercase ring-1 ring-inset ${SIT_STYLE[p.sit].badge}`}
-                              >
-                                 {SIT_LABEL[p.sit]}
-                              </span>
+                              <ChipFuncao func={p.func} />
+                              <ChipSituacao sit={p.sit} />
                            </div>
                         ))}
                      </div>
@@ -212,81 +211,82 @@ export function EfetivoResumo({
             aria-label="Militares envolvidos"
             tabIndex={0}
          >
-            <Table>
-               <TableHead>
-                  <TableRow>
-                     <TableHeadCell className="px-3 normal-case">
-                        Militar
-                     </TableHeadCell>
-                     <TableHeadCell className="w-px px-3 normal-case">
-                        Função
-                     </TableHeadCell>
-                     <TableHeadCell className="w-px px-3 normal-case">
-                        Sit
-                     </TableHeadCell>
-                     <TableHeadCell className="w-[30%] px-3 normal-case">
-                        Presença no período
-                     </TableHeadCell>
-                     <TableHeadCell className="w-px px-3 text-right normal-case">
-                        Dias
-                     </TableHeadCell>
-                  </TableRow>
-               </TableHead>
-               <TableBody className="divide-y divide-slate-100">
-                  {linhas.map((m) => (
-                     <TableRow key={m.userId} className="bg-white">
-                        <TableCell className="max-w-0 px-3">
-                           <span
-                              className="block truncate font-semibold text-slate-800 uppercase"
-                              title={`${m.user.p_g} ${m.user.nome_guerra}`}
-                           >
-                              {m.user.p_g} {m.user.nome_guerra}
-                           </span>
-                        </TableCell>
-                        <TableCell className="w-px px-3">
-                           <div className="flex flex-col gap-1">
-                              {m.periodos.map((p) => (
-                                 <span
-                                    key={p.id}
-                                    className={`inline-block rounded px-1.5 py-0.5 text-center text-[10px] font-bold uppercase ring-1 ring-inset ${FUNC_STYLE[p.func].badge}`}
-                                 >
-                                    {p.func}
-                                 </span>
-                              ))}
-                           </div>
-                        </TableCell>
-                        <TableCell className="w-px px-3">
-                           <div className="flex flex-col gap-1">
-                              {m.periodos.map((p) => (
-                                 <span
-                                    key={p.id}
-                                    title={SIT_LABEL[p.sit]}
-                                    className={`inline-block rounded px-1.5 py-0.5 text-center text-[10px] font-bold uppercase ring-1 ring-inset ${SIT_STYLE[p.sit].badge}`}
-                                 >
-                                    {p.sit}
-                                 </span>
-                              ))}
-                           </div>
-                        </TableCell>
-                        <TableCell className="px-3">
-                           <BarraPresenca
-                              periodos={m.periodos}
-                              opInicio={op.data_inicio}
-                              opFim={op.data_fim}
-                           />
-                        </TableCell>
-                        <TableCell className="w-px px-3 text-right font-mono font-bold whitespace-nowrap text-slate-900 tabular-nums">
-                           {m.diasTotal}
-                           {m.periodos.length > 1 && (
-                              <span className="block text-[10px] font-normal text-slate-500">
-                                 {m.periodos.map((p) => p.dias).join(" + ")}
-                              </span>
-                           )}
-                        </TableCell>
+            {/* Mesma altura de cinco linhas das Etapas, ao lado. */}
+            <div className="h-[193px] overflow-y-hidden">
+               <Table>
+                  <TableHead>
+                     <TableRow>
+                        {/* A largura sobrando vai para a barra de presença, não
+                         para o nome: a barra é uma régua e ganha resolução com
+                         ela; o nome é curto e só afastava o militar da sua
+                         função. Antes a célula do nome media 871px em 1920px
+                         para um texto de ~120. */}
+                        <TableHeadCell className="w-[22ch] px-3 normal-case">
+                           Militar
+                        </TableHeadCell>
+                        <TableHeadCell className="w-px px-3 normal-case">
+                           Função
+                        </TableHeadCell>
+                        <TableHeadCell className="w-px px-3 normal-case">
+                           Sit
+                        </TableHeadCell>
+                        <TableHeadCell className="px-3 normal-case">
+                           Presença no período
+                        </TableHeadCell>
+                        <TableHeadCell className="w-px px-3 text-right normal-case">
+                           Dias
+                        </TableHeadCell>
                      </TableRow>
-                  ))}
-               </TableBody>
-            </Table>
+                  </TableHead>
+                  <TableBody className="divide-y divide-slate-100">
+                     {linhas.map((m) => (
+                        <TableRow key={m.userId} className="bg-white">
+                           <TableCell className="w-[22ch] px-3">
+                              <span
+                                 className="block truncate font-semibold text-slate-800 uppercase"
+                                 title={`${m.user.p_g} ${m.user.nome_guerra}`}
+                              >
+                                 {m.user.p_g} {m.user.nome_guerra}
+                              </span>
+                           </TableCell>
+                           <TableCell className="w-px px-3">
+                              <div className="flex flex-col gap-1">
+                                 {m.periodos.map((p) => (
+                                    <ChipFuncao key={p.id} func={p.func} />
+                                 ))}
+                              </div>
+                           </TableCell>
+                           <TableCell className="w-px px-3">
+                              <div className="flex flex-col gap-1">
+                                 {m.periodos.map((p) => (
+                                    <ChipSituacao
+                                       key={p.id}
+                                       sit={p.sit}
+                                       abreviado
+                                    />
+                                 ))}
+                              </div>
+                           </TableCell>
+                           <TableCell className="px-3">
+                              <BarraPresenca
+                                 periodos={m.periodos}
+                                 opInicio={op.data_inicio}
+                                 opFim={op.data_fim}
+                              />
+                           </TableCell>
+                           <TableCell className="w-px px-3 text-right font-mono font-bold whitespace-nowrap text-slate-900 tabular-nums">
+                              {m.diasTotal}
+                              {m.periodos.length > 1 && (
+                                 <span className="block text-[10px] font-normal text-slate-500">
+                                    {m.periodos.map((p) => p.dias).join(" + ")}
+                                 </span>
+                              )}
+                           </TableCell>
+                        </TableRow>
+                     ))}
+                  </TableBody>
+               </Table>
+            </div>
          </div>
       </PainelResumo>
    );

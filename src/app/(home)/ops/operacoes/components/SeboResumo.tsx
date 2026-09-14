@@ -10,6 +10,7 @@ import {
    TableRow,
 } from "flowbite-react";
 import { minutesToTime } from "@/../utils/dateHandler";
+import { useFuncoes } from "@/hooks/queries/useFuncoes";
 import type { SeboRow } from "services/routes/ops/operacoes";
 import { PainelResumo, PainelVazio } from "./PainelResumo";
 import { Segmented } from "./Segmented";
@@ -25,8 +26,9 @@ const TOPO = 5;
  * filtro os cinco primeiros são pilotos em toda operação — mecânico e loadmaster
  * nunca apareceriam no dossiê.
  *
- * A posição mostrada é a do ranking geral, não a do recorte: filtrando por MEC,
- * o primeiro mecânico mantém sua colocação real na operação.
+ * A ordem dos chips é a do catálogo de funções da organização
+ * (`funcoes.ordem`), não alfabética: é hierarquia de tripulação, e cada
+ * unidade pode ordenar a sua.
  */
 export function SeboResumo({
    sebo,
@@ -36,26 +38,27 @@ export function SeboResumo({
    onVerTudo: () => void;
 }) {
    const [func, setFunc] = useState<string | null>(null);
+   const catalogo = useFuncoes();
 
-   // Funções vêm do dado, não de uma allowlist: o backend devolve string livre.
+   // Quais funções aparecem vem do dado; em que ordem, do catálogo da org.
    const funcoes = useMemo(() => {
       const contagem = new Map<string, number>();
       for (const s of sebo)
          contagem.set(s.func, (contagem.get(s.func) ?? 0) + 1);
-      return Array.from(contagem.entries()).sort((a, b) =>
-         a[0].localeCompare(b[0])
+      return Array.from(contagem.entries()).sort(
+         (a, b) => catalogo.ordem(a[0]) - catalogo.ordem(b[0])
       );
-   }, [sebo]);
-
-   const comPosicao = useMemo(
-      () => sebo.map((s, i) => ({ ...s, posicao: i + 1 })),
-      [sebo]
-   );
+   }, [sebo, catalogo]);
 
    const ativo = func && funcoes.some(([f]) => f === func) ? func : null;
-   const linhas = (
-      ativo ? comPosicao.filter((s) => s.func === ativo) : comPosicao
-   ).slice(0, TOPO);
+   const linhas = (ativo ? sebo.filter((s) => s.func === ativo) : sebo).slice(
+      0,
+      TOPO
+   );
+
+   // Completa até TOPO com linhas vazias: trocar de função com menos de cinco
+   // tripulantes encolheria o painel e faria o resto da página saltar.
+   const vazias = Math.max(0, TOPO - linhas.length);
 
    return (
       <PainelResumo
@@ -72,7 +75,7 @@ export function SeboResumo({
                      { value: null, label: "Todas", count: sebo.length },
                      ...funcoes.map(([f, n]) => ({
                         value: f,
-                        label: f,
+                        label: f.toUpperCase(),
                         count: n,
                      })),
                   ]}
@@ -90,58 +93,68 @@ export function SeboResumo({
             <PainelVazio>
                Nenhuma tripulação registrada nas etapas associadas.
             </PainelVazio>
-         ) : linhas.length === 0 ? (
-            <PainelVazio>Nenhum tripulante nesta função.</PainelVazio>
          ) : (
-            <Table>
-               <TableHead>
-                  <TableRow>
-                     <TableHeadCell className="w-px px-3">
-                        <span className="sr-only">Posição</span>#
-                     </TableHeadCell>
-                     <TableHeadCell className="px-2 normal-case">
-                        Tripulante
-                     </TableHeadCell>
-                     <TableHeadCell className="w-px px-2 normal-case">
-                        Função
-                     </TableHeadCell>
-                     <TableHeadCell className="w-px px-2 text-right normal-case">
-                        Et.
-                     </TableHeadCell>
-                     <TableHeadCell className="w-px px-3 text-right normal-case">
-                        Horas
-                     </TableHeadCell>
-                  </TableRow>
-               </TableHead>
-               <TableBody className="divide-y divide-slate-100">
-                  {linhas.map((s) => (
-                     <TableRow key={s.trip_id} className="bg-white">
-                        <TableCell className="w-px px-3 text-right font-mono text-slate-500 tabular-nums">
-                           {s.posicao}
-                        </TableCell>
-                        <TableCell className="max-w-0 px-2">
-                           <span
-                              className="block truncate font-semibold text-slate-800 uppercase"
-                              title={s.nome}
-                           >
-                              {s.nome}
-                           </span>
-                        </TableCell>
-                        <TableCell className="w-px px-2">
-                           <span className="inline-block rounded bg-slate-100 px-1.5 py-0.5 text-[10px] font-bold text-slate-600 uppercase">
-                              {s.func}
-                           </span>
-                        </TableCell>
-                        <TableCell className="w-px px-2 text-right font-mono text-slate-600 tabular-nums">
-                           {s.etapas}
-                        </TableCell>
-                        <TableCell className="w-px px-3 text-right font-mono font-bold whitespace-nowrap text-slate-900 tabular-nums">
-                           {minutesToTime(s.horas)}
-                        </TableCell>
+            // Altura cravada na moldura, não na tabela: cada linha cai numa
+            // posição fracionária e arredonda para 32,5 ou 33px conforme onde
+            // cai, então somar cinco linhas dava 293 a 294px conforme o filtro.
+            // O teto aqui absorve a fração — e a tabela continua tabela, com as
+            // colunas alinhadas ao cabeçalho.
+            <div className="h-[198px] overflow-hidden">
+               <Table>
+                  <TableHead>
+                     <TableRow>
+                        <TableHeadCell className="px-3 normal-case">
+                           Tripulante
+                        </TableHeadCell>
+                        <TableHeadCell className="w-px px-2 normal-case">
+                           Função
+                        </TableHeadCell>
+                        <TableHeadCell className="w-px px-2 text-right normal-case">
+                           Et.
+                        </TableHeadCell>
+                        <TableHeadCell className="w-px px-3 text-right normal-case">
+                           Horas
+                        </TableHeadCell>
                      </TableRow>
-                  ))}
-               </TableBody>
-            </Table>
+                  </TableHead>
+                  <TableBody className="divide-y divide-slate-100">
+                     {linhas.map((s) => (
+                        <TableRow key={s.trip_id} className="bg-white">
+                           <TableCell className="max-w-0 px-3">
+                              <span
+                                 className="block truncate font-semibold text-slate-800 uppercase"
+                                 title={s.nome}
+                              >
+                                 {s.nome}
+                              </span>
+                           </TableCell>
+                           <TableCell className="w-px px-2">
+                              <span className="inline-block rounded bg-slate-100 px-1.5 py-0.5 text-[10px] font-bold text-slate-600 uppercase">
+                                 {s.func}
+                              </span>
+                           </TableCell>
+                           <TableCell className="w-px px-2 text-right font-mono text-slate-600 tabular-nums">
+                              {s.etapas}
+                           </TableCell>
+                           <TableCell className="w-px px-3 text-right font-mono font-bold whitespace-nowrap text-slate-900 tabular-nums">
+                              {minutesToTime(s.horas)}
+                           </TableCell>
+                        </TableRow>
+                     ))}
+                     {Array.from({ length: vazias }).map((_, i) => (
+                        <TableRow
+                           key={`vazia-${i}`}
+                           aria-hidden
+                           className="bg-white"
+                        >
+                           <TableCell className="px-3 py-2" colSpan={4}>
+                              <span className="block h-5" />
+                           </TableCell>
+                        </TableRow>
+                     ))}
+                  </TableBody>
+               </Table>
+            </div>
          )}
       </PainelResumo>
    );

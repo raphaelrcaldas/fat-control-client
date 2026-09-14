@@ -25,16 +25,10 @@ import { ConfirmDeleteModal } from "../components/ConfirmDeleteModal";
 import { OperacaoFormModal } from "../components/OperacaoFormModal";
 import { AssociarEtapasModal } from "../components/AssociarEtapasModal";
 import { OperacaoDetailSkeleton } from "../components/OperacaoDetailSkeleton";
-import { agruparPessoal } from "../components/pessoalAgrupado";
-
-/** Seções do dossiê, na ordem em que a pergunta aparece. */
-const SECOES = [
-   { id: "identificacao", label: "Identificação" },
-   { id: "indicadores", label: "Indicadores" },
-   { id: "distribuicao", label: "Distribuição" },
-   { id: "etapas", label: "Etapas" },
-   { id: "efetivo", label: "Efetivo" },
-];
+import {
+   agruparPessoal,
+   contarPorCirculo,
+} from "../components/pessoalAgrupado";
 
 /**
  * Detalhe da operação — um dossiê.
@@ -137,28 +131,15 @@ export default function OperacaoDetailPage() {
 
    const listaEtapas = etapas ?? [];
    const listaPessoal = pessoal ?? [];
-   const totalMilitares = agruparPessoal(listaPessoal).length;
+   const militares = agruparPessoal(listaPessoal);
+   const totalMilitares = militares.length;
 
    return (
       <div className="space-y-2">
-         {/* O sumário rola na horizontal no mobile e vira coluna fixa em `lg`,
-             onde sobra largura para ele viver ao lado sem espremer o dossiê. */}
-         <div className="lg:grid lg:grid-cols-[152px_minmax(0,1fr)] lg:items-start lg:gap-4">
-            <nav
-               aria-label="Seções do dossiê"
-               className="mb-2 flex gap-1 overflow-x-auto pb-1 lg:sticky lg:top-2 lg:mb-0 lg:flex-col lg:overflow-visible lg:pb-0"
-            >
-               {SECOES.map((s) => (
-                  <a
-                     key={s.id}
-                     href={`#${s.id}`}
-                     className="focus-visible:ring-primary-500 shrink-0 rounded border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-600 transition-colors hover:text-slate-950 focus:outline-none focus-visible:ring-2 lg:border-0 lg:border-l-2 lg:border-transparent lg:bg-transparent lg:hover:bg-white"
-                  >
-                     {s.label}
-                  </a>
-               ))}
-            </nav>
-
+         {/* Teto de largura: sem ele as tabelas esticam com a janela e a linha
+             do voo se parte em blocos distantes num monitor largo. As seções
+             mantêm o `id` — o link direto para uma delas continua valendo. */}
+         <div className="mx-auto max-w-[96rem]">
             <div className="space-y-4">
                <section id="identificacao" className="scroll-mt-2">
                   <OperacaoIdentificacao
@@ -177,6 +158,11 @@ export default function OperacaoDetailPage() {
                            ? undefined
                            : totalMilitares
                      }
+                     circulos={
+                        pessoalCarregando || pessoalErro
+                           ? undefined
+                           : contarPorCirculo(militares)
+                     }
                   />
                </section>
 
@@ -184,6 +170,11 @@ export default function OperacaoDetailPage() {
                   <SecaoTitulo apoio="de onde vieram as horas">
                      Distribuição
                   </SecaoTitulo>
+                  {/* `items-start`: cada painel tem a altura do seu conteúdo.
+                      Esticar para igualar as alturas parece mais arrumado numa
+                      medição, mas quando um dos dois não tem rodapé (Esforço só
+                      ganha "ver tudo" acima de 4 categorias) o que se iguala é
+                      espaço vazio — 89px de branco sem nada que o justifique. */}
                   <div className="grid grid-cols-1 items-start gap-2 xl:grid-cols-2">
                      <EsforcoResumo
                         esforco={op.esforco}
@@ -196,50 +187,57 @@ export default function OperacaoDetailPage() {
                   </div>
                </section>
 
-               <section id="etapas" className="scroll-mt-2 space-y-2">
-                  <SecaoTitulo
-                     apoio={
-                        listaEtapas.length > 0
-                           ? `${listaEtapas.length} ${listaEtapas.length === 1 ? "voo" : "voos"}`
-                           : undefined
-                     }
-                  >
-                     Etapas
-                  </SecaoTitulo>
-                  {etapasErro ? (
-                     <ErroBloco
-                        mensagem="Não foi possível carregar as etapas."
-                        onTentar={() => refetch()}
-                     />
-                  ) : (
-                     <EtapasResumo
-                        etapas={listaEtapas}
-                        onVerTudo={() => setModal("etapas")}
-                        onAssociar={() => setShowAssociar(true)}
-                     />
-                  )}
-               </section>
+               {/* Etapas e Efetivo lado a lado: são as duas listas do dossiê
+                   e se lêem em paralelo — quem voou e quem foi. Só a partir de
+                   `2xl`: em 1280px as nove colunas de Etapas medem 583px numa
+                   coluna de 512px, e a tabela ficava cortada. Abaixo disso as
+                   duas seções empilham e cada uma usa a largura inteira. */}
+               <div className="grid grid-cols-1 items-start gap-4 2xl:grid-cols-2">
+                  <section id="etapas" className="scroll-mt-2 space-y-2">
+                     <SecaoTitulo
+                        apoio={
+                           listaEtapas.length > 0
+                              ? `${listaEtapas.length} ${listaEtapas.length === 1 ? "voo" : "voos"}`
+                              : undefined
+                        }
+                     >
+                        Etapas
+                     </SecaoTitulo>
+                     {etapasErro ? (
+                        <ErroBloco
+                           mensagem="Não foi possível carregar as etapas."
+                           onTentar={() => refetch()}
+                        />
+                     ) : (
+                        <EtapasResumo
+                           etapas={listaEtapas}
+                           onVerTudo={() => setModal("etapas")}
+                           onAssociar={() => setShowAssociar(true)}
+                        />
+                     )}
+                  </section>
 
-               <section id="efetivo" className="scroll-mt-2 space-y-2">
-                  <SecaoTitulo
-                     apoio={
-                        totalMilitares > 0
-                           ? `${totalMilitares} ${totalMilitares === 1 ? "militar" : "militares"}`
-                           : undefined
-                     }
-                  >
-                     Efetivo
-                  </SecaoTitulo>
-                  <EfetivoResumo
-                     op={op}
-                     pessoal={listaPessoal}
-                     carregando={pessoalCarregando}
-                     erro={pessoalErro}
-                     onRecarregar={() => refetchPessoal()}
-                     onVerTudo={() => setModal("efetivo")}
-                     onAssociar={() => setModal("efetivo")}
-                  />
-               </section>
+                  <section id="efetivo" className="scroll-mt-2 space-y-2">
+                     <SecaoTitulo
+                        apoio={
+                           totalMilitares > 0
+                              ? `${totalMilitares} ${totalMilitares === 1 ? "militar" : "militares"}`
+                              : undefined
+                        }
+                     >
+                        Efetivo
+                     </SecaoTitulo>
+                     <EfetivoResumo
+                        op={op}
+                        pessoal={listaPessoal}
+                        carregando={pessoalCarregando}
+                        erro={pessoalErro}
+                        onRecarregar={() => refetchPessoal()}
+                        onVerTudo={() => setModal("efetivo")}
+                        onAssociar={() => setModal("efetivo")}
+                     />
+                  </section>
+               </div>
             </div>
          </div>
 

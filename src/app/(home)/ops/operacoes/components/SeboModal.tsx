@@ -13,6 +13,7 @@ import {
 } from "flowbite-react";
 import { IoMdSearch } from "react-icons/io";
 import { minutesToTime } from "@/../utils/dateHandler";
+import { useFuncoes } from "@/hooks/queries/useFuncoes";
 import { ListaModal, ModalTools, FiltroGrupo } from "./ListaModal";
 import { Segmented } from "./Segmented";
 import type { SeboRow } from "services/routes/ops/operacoes";
@@ -28,39 +29,40 @@ export function SeboModal({ show, onClose, opNome, sebo }: Props) {
    const [busca, setBusca] = useState("");
    const [funcFilter, setFuncFilter] = useState<string | null>(null);
 
+   const catalogo = useFuncoes();
+
+   // Quais funções aparecem vem do dado; em que ordem, do catálogo da org
+   // (`funcoes.ordem`) — é hierarquia de tripulação, não ordem alfabética.
    const funcs = useMemo(
-      () => Array.from(new Set(sebo.map((s) => s.func))),
-      [sebo]
+      () =>
+         Array.from(new Set(sebo.map((s) => s.func))).sort(
+            (a, b) => catalogo.ordem(a) - catalogo.ordem(b)
+         ),
+      [sebo, catalogo]
    );
 
    const funcOptions = useMemo(
       () => [
          { value: null, label: "Todas", count: sebo.length },
+         // A função vem do dado em minúsculas ("pil", "mec"); na tela é
+         // sigla, e sigla se lê em caixa alta.
          ...funcs.map((f) => ({
             value: f,
-            label: f,
+            label: f.toUpperCase(),
             count: sebo.filter((s) => s.func === f).length,
          })),
       ],
       [funcs, sebo]
    );
 
-   // A posição é do ranking geral da operação, não do recorte filtrado: um
-   // mecânico continua vendo sua colocação real mesmo ao isolar só "MEC". Por
-   // isso o índice é calculado antes do filtro por função ou busca.
-   const ranking = useMemo(
-      () => sebo.map((s, idx) => ({ ...s, posicao: idx + 1 })),
-      [sebo]
-   );
-
    const rows = useMemo(() => {
       const termo = busca.trim().toLowerCase();
-      return ranking.filter((s) => {
+      return sebo.filter((s) => {
          if (funcFilter && s.func !== funcFilter) return false;
          if (!termo) return true;
          return s.nome.toLowerCase().includes(termo);
       });
-   }, [ranking, busca, funcFilter]);
+   }, [sebo, busca, funcFilter]);
 
    const totalHoras = useMemo(
       () => rows.reduce((sum, s) => sum + s.horas, 0),
@@ -90,7 +92,7 @@ export function SeboModal({ show, onClose, opNome, sebo }: Props) {
                />
 
                {funcs.length > 0 && (
-                  <FiltroGrupo label="Função">
+                  <FiltroGrupo label="Função" largura="cheia">
                      <Segmented
                         options={funcOptions}
                         value={funcFilter}
@@ -126,10 +128,7 @@ export function SeboModal({ show, onClose, opNome, sebo }: Props) {
             <Table aria-label="Ranking completo de horas por tripulante">
                <TableHead className="sticky top-0 z-10">
                   <TableRow>
-                     <TableHeadCell className="w-px px-2">
-                        <span className="sr-only">Posição</span>#
-                     </TableHeadCell>
-                     <TableHeadCell className="px-2 normal-case">
+                     <TableHeadCell className="px-3 normal-case">
                         Tripulante
                      </TableHeadCell>
                      <TableHeadCell className="w-px px-2 normal-case">
@@ -146,10 +145,7 @@ export function SeboModal({ show, onClose, opNome, sebo }: Props) {
                <TableBody className="divide-y divide-slate-100">
                   {rows.map((s) => (
                      <TableRow key={s.trip_id} className="hover:bg-slate-50">
-                        <TableCell className="px-2 text-center text-slate-500 tabular-nums">
-                           {s.posicao}
-                        </TableCell>
-                        <TableCell className="max-w-0 px-2">
+                        <TableCell className="max-w-0 px-3">
                            <span
                               className="block truncate font-semibold text-slate-900 uppercase"
                               title={s.nome}
