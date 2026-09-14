@@ -5,17 +5,13 @@ import { ComissWithMiss } from "services/routes/cegep/comiss";
 import { DIARIA_MINIMA, buildMetricas } from "./metricas";
 import { MetricaCard } from "./MetricaCard";
 import { SectionWrapper } from "../../../components/SectionWrapper";
+import { progressColor } from "../../comissDerivacoes";
+
+/** buildMetricas devolve sempre Previsto, Computado e Restante nesta ordem. */
+const PESO_POR_POSICAO = ["referencia", "cumprido", "acao"] as const;
 
 export function ComissMetricas({ comiss }: { comiss: ComissWithMiss }) {
    const metricas = buildMetricas(comiss);
-
-   // Cor da barra reflete o estado do comissionamento.
-   const progressBar =
-      comiss.status === "fechado"
-         ? ("gray" as const)
-         : comiss.modulo
-           ? ("green" as const)
-           : ("red" as const);
 
    return (
       <SectionWrapper title="Métricas">
@@ -30,9 +26,15 @@ export function ComissMetricas({ comiss }: { comiss: ComissWithMiss }) {
                </div>
             )}
 
+            {/* Mesma hierarquia da listagem: referencia, cumprido e o
+                restante em destaque. */}
             <div className="grid grid-cols-3 gap-4">
-               {metricas.map((m) => (
-                  <MetricaCard key={m.label} config={m} />
+               {metricas.map((m, i) => (
+                  <MetricaCard
+                     key={m.label}
+                     config={m}
+                     peso={PESO_POR_POSICAO[i] ?? "acao"}
+                  />
                ))}
             </div>
 
@@ -46,7 +48,8 @@ export function ComissMetricas({ comiss }: { comiss: ComissWithMiss }) {
                <Progress
                   progress={comiss.completude}
                   size="lg"
-                  color={progressBar}
+                  textLabel={`Completude ${comiss.completude}%`}
+                  color={progressColor(comiss)}
                />
             </div>
          </div>

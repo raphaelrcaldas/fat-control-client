@@ -1,4 +1,5 @@
 import { SectionWrapper } from "../../../components/SectionWrapper";
+import { DadoCell } from "./DadoCell";
 
 interface ComissDocumentosProps {
    docProp: string;
@@ -13,24 +14,14 @@ export function ComissDocumentos({
 }: ComissDocumentosProps) {
    return (
       <SectionWrapper title="Documentos de Referência">
-         <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-            <DocCell valor={docProp} label="Proposta" />
-            <DocCell valor={docAut} label="Autorização" />
-            <DocCell valor={docEnc || "ND"} label="Encerramento" />
+         {/* Tres colunas ja no celular: os valores sao curtos ("P", "ND") e,
+             empilhados, a secao custava tres linhas para dizer o que cabe em
+             uma. O numero da autorizacao trunca com `title`. */}
+         <div className="grid grid-cols-3 gap-2 sm:gap-3">
+            <DadoCell valor={docProp} label="Proposta" />
+            <DadoCell valor={docAut} label="Autorização" />
+            <DadoCell valor={docEnc || "ND"} label="Encerramento" />
          </div>
       </SectionWrapper>
-   );
-}
-
-function DocCell({ valor, label }: { valor: string; label: string }) {
-   return (
-      <div className="rounded bg-slate-50 p-3 text-center">
-         <span className="block text-base font-semibold text-gray-900 uppercase">
-            {valor}
-         </span>
-         <span className="text-xs tracking-wide text-gray-500 uppercase">
-            {label}
-         </span>
-      </div>
    );
 }

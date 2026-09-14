@@ -5,15 +5,32 @@ import clsx from "clsx";
 import { realCurrency } from "utils/financeiro";
 import { DIARIA_MINIMA, MetricaConfig } from "./metricas";
 
+/**
+ * Peso visual de cada métrica, o mesmo da listagem: o previsto é a referência
+ * contratada, o computado é o que já foi cumprido, e o restante é o dado de
+ * ação — é ele que diz se ainda há o que fazer.
+ */
+const PESO_METRICA = {
+   referencia: "font-medium text-slate-500",
+   cumprido: "font-semibold text-slate-700",
+   acao: "font-bold text-slate-900",
+} as const;
+
 /** Uma célula da grade de métricas. Substitui os 3 Popovers duplicados. */
-export function MetricaCard({ config }: { config: MetricaConfig }) {
+export function MetricaCard({
+   config,
+   peso = "acao",
+}: {
+   config: MetricaConfig;
+   peso?: keyof typeof PESO_METRICA;
+}) {
    const { label, hasPopover } = config;
    const negativo = hasPopover
       ? (config.valor ?? 0) < 0
       : (config.dias ?? 0) < 0;
    const valorClass = clsx(
-      "font-bold tabular-nums",
-      negativo ? "text-red-600" : "text-gray-900"
+      "tabular-nums",
+      negativo ? "font-bold text-red-600" : PESO_METRICA[peso]
    );
 
    return (

@@ -61,15 +61,21 @@ export function ComissPageSkeleton() {
                </div>
             </div>
 
-            {/* Identidade do militar — card independente */}
-            <div className="flex flex-col items-center gap-1.5 rounded border border-slate-200 bg-white px-4 py-3 shadow-sm">
-               <Bar className="h-5 w-48 max-w-full" />
-               <FaintBar className="h-3.5 w-64 max-w-full" />
+            {/* Identidade do militar — card com espinha e chips */}
+            <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 rounded border border-l-4 border-slate-200 border-l-slate-200 bg-white px-4 py-3 shadow-sm">
+               <div className="min-w-0 flex-1 space-y-1.5">
+                  <Bar className="h-5 w-48 max-w-full" />
+                  <FaintBar className="h-3.5 w-64 max-w-full" />
+               </div>
+               <div className="flex shrink-0 items-center gap-2">
+                  <Bar className="h-5 w-[5.5rem]" />
+                  <Bar className="h-5 w-20" />
+               </div>
             </div>
 
             {/* Documentos de Referência */}
             <Section>
-               <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+               <div className="grid grid-cols-3 gap-2 sm:gap-3">
                   <FieldCell />
                   <FieldCell />
                   <FieldCell />
@@ -94,7 +100,7 @@ export function ComissPageSkeleton() {
 
             {/* Classificação */}
             <Section>
-               <div className="grid grid-cols-3 gap-3">
+               <div className="grid grid-cols-3 gap-2 sm:gap-3">
                   <FieldCell />
                   <FieldCell />
                   <FieldCell />
