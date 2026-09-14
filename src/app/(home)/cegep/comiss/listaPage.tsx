@@ -265,9 +265,13 @@ export function ListaPage() {
             <div ref={filtersRef} className="pt-3">
                <div className="rounded border border-slate-200 bg-white p-4 shadow-sm">
                   <div className="mb-4 flex items-center justify-between">
-                     <h6 className="text-sm font-medium text-slate-700">
+                     {/* `h3` e não `h6`: o nível segue a hierarquia (h1 da
+                         página → h2 da lista → este), não o tamanho da fonte,
+                         que vem da classe. Saltar níveis reprova
+                         `heading-order` e quebra a navegação por títulos. */}
+                     <h3 className="text-sm font-medium text-slate-700">
                         Filtros
-                     </h6>
+                     </h3>
                      {hasActiveFilters && (
                         <button
                            type="button"
@@ -283,10 +287,14 @@ export function ListaPage() {
                   <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-5">
                      {/* Militar */}
                      <div>
-                        <FilterLabel icon={<HiOutlineUser />}>
+                        <FilterLabel
+                           htmlFor="filtro-militar"
+                           icon={<HiOutlineUser />}
+                        >
                            Militar
                         </FilterLabel>
                         <TextInput
+                           id="filtro-militar"
                            type="text"
                            value={searchUser}
                            onChange={(e) => setSearchUser(e.target.value)}
@@ -297,10 +305,14 @@ export function ListaPage() {
 
                      {/* Situação */}
                      <div>
-                        <FilterLabel icon={<HiOutlineCheckCircle />}>
+                        <FilterLabel
+                           htmlFor="filtro-situacao"
+                           icon={<HiOutlineCheckCircle />}
+                        >
                            Situação
                         </FilterLabel>
                         <Select
+                           id="filtro-situacao"
                            value={statusComis}
                            onChange={(e) => setStatusComis(e.target.value)}
                            sizing="sm"
@@ -313,10 +325,14 @@ export function ListaPage() {
 
                      {/* P/G */}
                      <div>
+                        {/* Sem `htmlFor`: o MultiSelect é um botão com
+                            dropdown, não um campo com id — o nome acessível
+                            dele vai por `ariaLabel`. */}
                         <FilterLabel icon={<HiOutlineUserGroup />}>
                            Posto/Graduação
                         </FilterLabel>
                         <MultiSelect
+                           ariaLabel="Posto/Graduação"
                            options={PG_OPTIONS}
                            selected={filterPG}
                            onChange={setFilterPG}
@@ -327,8 +343,14 @@ export function ListaPage() {
 
                      {/* Tipo */}
                      <div>
-                        <FilterLabel icon={<HiOutlineTag />}>Tipo</FilterLabel>
+                        <FilterLabel
+                           htmlFor="filtro-tipo"
+                           icon={<HiOutlineTag />}
+                        >
+                           Tipo
+                        </FilterLabel>
                         <Select
+                           id="filtro-tipo"
                            value={filterTipo}
                            onChange={(e) => setFilterTipo(e.target.value)}
                            sizing="sm"
@@ -341,10 +363,14 @@ export function ListaPage() {
 
                      {/* Módulo */}
                      <div>
-                        <FilterLabel icon={<HiOutlineCube />}>
+                        <FilterLabel
+                           htmlFor="filtro-modulo"
+                           icon={<HiOutlineCube />}
+                        >
                            Módulo
                         </FilterLabel>
                         <Select
+                           id="filtro-modulo"
                            value={filterModulo}
                            onChange={(e) => setFilterModulo(e.target.value)}
                            sizing="sm"
@@ -392,15 +418,27 @@ export function ListaPage() {
    );
 }
 
+/**
+ * Rótulo de um campo de filtro.
+ *
+ * O `htmlFor` não é decorativo: sem ele o `<select>` fica sem nome acessível
+ * (reprova `select-name` no axe) e o rótulo visível não foca o campo ao ser
+ * clicado — o texto está ali, mas só para quem enxerga.
+ */
 function FilterLabel({
+   htmlFor,
    icon,
    children,
 }: {
+   htmlFor?: string;
    icon: React.ReactNode;
    children: React.ReactNode;
 }) {
    return (
-      <Label className="mb-1.5 flex items-center gap-1.5 text-xs text-slate-600">
+      <Label
+         htmlFor={htmlFor}
+         className="mb-1.5 flex items-center gap-1.5 text-xs text-slate-600"
+      >
          <span className="text-slate-500">{icon}</span>
          {children}
       </Label>

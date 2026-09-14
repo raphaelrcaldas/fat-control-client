@@ -19,6 +19,12 @@ type MultiSelectProps = {
    placeholder?: string;
    className?: string;
    sizing?: FlowbiteSizing;
+   /**
+    * Nome acessível do controle. É um `<button>` com dropdown, não um campo
+    * nativo, então um `<label htmlFor>` não o alcança — o rótulo visível ao
+    * lado precisa ser repetido aqui.
+    */
+   ariaLabel?: string;
 };
 
 export function MultiSelect({
@@ -28,6 +34,7 @@ export function MultiSelect({
    placeholder = "Selecione...",
    className = "",
    sizing = "md",
+   ariaLabel,
 }: MultiSelectProps) {
    const [isOpen, setIsOpen] = useState(false);
    const [dropdownPosition, setDropdownPosition] = useState({
@@ -169,6 +176,8 @@ export function MultiSelect({
             ref={buttonRef}
             type="button"
             onClick={toggleDropdown}
+            aria-label={ariaLabel}
+            aria-expanded={isOpen}
             title={displayText}
             style={{ transform: "translateZ(0)" }}
             /* Foco visivel so no TECLADO (`focus-visible`), nunca no clique
