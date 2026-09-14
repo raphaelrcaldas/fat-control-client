@@ -38,7 +38,7 @@ export function origemDaRestricao(r: RestricaoDerivada): OrigemRestricao {
                : "/ops/operacoes",
             acao: "Abrir a operação",
             resource: "ops.operacoes",
-            perm: "read",
+            perm: "view",
             comoResolver:
                "Para mudar as datas, ajuste o período do militar na operação.",
          };
@@ -51,7 +51,7 @@ export function origemDaRestricao(r: RestricaoDerivada): OrigemRestricao {
             href: null,
             acao: "",
             resource: "aeromedica.cartoes",
-            perm: "read",
+            perm: "view",
             comoResolver:
                "Lance ou atualize o CEMAL no cartão de saúde do militar.",
          };
@@ -60,7 +60,7 @@ export function origemDaRestricao(r: RestricaoDerivada): OrigemRestricao {
             href: null,
             acao: "",
             resource: "estatistica.etapas",
-            perm: "read",
+            perm: "view",
             comoResolver:
                "A faixa some quando um voo novo do militar entrar nas etapas.",
          };
