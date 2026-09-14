@@ -29,7 +29,7 @@ export function HistoricoHeader({
                <div className="min-w-0">
                   <Link
                      href="/estatistica/esfaer"
-                     className="group -ml-0.5 inline-flex items-center gap-1.5 font-mono text-[10px] font-bold tracking-[0.3em] text-slate-400 uppercase transition-colors hover:text-red-500"
+                     className="group -ml-0.5 inline-flex items-center gap-1.5 font-mono text-[10px] font-bold tracking-[0.3em] text-slate-500 uppercase transition-colors hover:text-red-500"
                   >
                      <TbArrowLeft className="h-3.5 w-3.5 transition-transform group-hover:-translate-x-0.5" />
                      Esforço Aéreo
@@ -46,7 +46,7 @@ export function HistoricoHeader({
             <div className="flex items-center gap-2">
                <Label
                   htmlFor="anoRef"
-                  className="font-mono text-[10px] font-bold tracking-[0.2em] text-slate-400 uppercase"
+                  className="font-mono text-[10px] font-bold tracking-[0.2em] text-slate-500 uppercase"
                >
                   Ano
                </Label>

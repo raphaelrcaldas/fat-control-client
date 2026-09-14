@@ -45,12 +45,14 @@ export function ProgramRow({
    // (ver `ultimoDelta`): o gráfico lê a mesma fonte, e os dois precisam
    // mostrar o mesmo número para a mesma série.
    const delta = ultimoDelta(timeline);
+   // Tons -500/-700: a 10.5px, `slate-400` (2.56:1) e `green-600` (3.30:1)
+   // reprovavam AA — medido pelo axe na tela renderizada, não estimado.
    const deltaColor =
       delta === 0
-         ? "text-slate-400"
+         ? "text-slate-500"
          : delta > 0
-           ? "text-green-600"
-           : "text-red-600";
+           ? "text-green-700"
+           : "text-red-700";
 
    return (
       <div

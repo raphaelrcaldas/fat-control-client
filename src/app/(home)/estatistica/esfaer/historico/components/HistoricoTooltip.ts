@@ -14,9 +14,13 @@
 import { formatNaiveDate, minutesToTime } from "@/../utils/dateHandler";
 import type { ChangeMeta } from "../utils";
 
-/** Verde de aumento (green-600) e vermelho de redução (red-600). */
-const UP_COLOR = "#16a34a";
-const DOWN_COLOR = "#dc2626";
+/**
+ * Verde de aumento (green-700) e vermelho de redução (red-700). Os tons -600
+ * reprovavam AA a 12px sobre branco (green-600 = 3.30:1); o axe não alcança
+ * este HTML — o Apex o injeta cru —, então a régua é aplicada aqui na mão.
+ */
+const UP_COLOR = "#15803d";
+const DOWN_COLOR = "#b91c1c";
 
 const FONT = "system-ui, -apple-system, Segoe UI, Roboto, sans-serif";
 const MONO = "ui-monospace, SFMono-Regular, Menlo, monospace";
@@ -41,7 +45,7 @@ function hhmm(min: number, color = "#0f172a"): string {
  */
 function deltaLine(delta: number): string {
    if (delta === 0) {
-      return `<div style="margin-top:4px;font-family:${MONO};font-size:12px;font-weight:600;color:#94a3b8">00:00</div>`;
+      return `<div style="margin-top:4px;font-family:${MONO};font-size:12px;font-weight:600;color:#64748b">00:00</div>`;
    }
    const up = delta > 0;
    const color = up ? UP_COLOR : DOWN_COLOR;
@@ -67,7 +71,7 @@ export function buildTooltipHTML(name: string, m: ChangeMeta): string {
 
    let body: string;
    if (m.carry) {
-      body = `<div style="font-size:12px;color:#475569">vigente ${hhmm(m.to)} · <span style="color:#94a3b8">sem mudança</span></div>`;
+      body = `<div style="font-size:12px;color:#475569">vigente ${hhmm(m.to)} · <span style="color:#64748b">sem mudança</span></div>`;
    } else if (m.criacao) {
       body =
          `<div style="font-size:12px;color:#475569">criação · ${hhmm(0)} → ${hhmm(m.to)}</div>` +

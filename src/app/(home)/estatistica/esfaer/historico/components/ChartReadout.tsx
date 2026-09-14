@@ -55,10 +55,10 @@ export function ChartReadout({
             className={clsx(
                "font-mono text-[11px] tabular-nums",
                delta === 0
-                  ? "text-slate-400"
+                  ? "text-slate-500"
                   : delta > 0
-                    ? "text-green-600"
-                    : "text-red-600"
+                    ? "text-green-700"
+                    : "text-red-700"
             )}
             // Δ zero é ambíguo: pode ser "nunca houve mudança" ou mudanças
             // opostas na MESMA data, que se anulam. Sem saber qual, o title

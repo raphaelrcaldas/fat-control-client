@@ -83,7 +83,7 @@ export function HistoricoToolbar({
 
          {/* Separador + rótulo */}
          <span aria-hidden className="mx-1 h-5 w-px bg-slate-200" />
-         <span className="font-mono text-[10px] font-bold tracking-[0.2em] text-slate-400 uppercase">
+         <span className="font-mono text-[10px] font-bold tracking-[0.2em] text-slate-500 uppercase">
             Grupos
          </span>
 
