@@ -8,15 +8,21 @@ import {
    TableRow,
    TableCell,
    Progress,
-   Label,
-   Badge,
 } from "flowbite-react";
 import { isoDateToString } from "utils/dateHandler";
 import clsx from "clsx";
 import { ComissList } from "services/routes/cegep/comiss";
 import { useRouter } from "next/navigation";
 import { compareByAntiguidade } from "utils/sortByAntiguidade";
-import { DIARIA_MINIMA } from "./detail/metricas";
+import {
+   comissDiasNumericos,
+   deriveComissDias,
+   progressColor,
+   spineColor,
+} from "../comissDerivacoes";
+import { COMISS_TABLE_THEME } from "../comissTableTheme";
+import { ComissCard } from "./ComissCard";
+import { TipoComissChip, ModuloComissChip } from "./comissChips";
 import {
    SortableHeadCell,
    compareValues,
@@ -69,23 +75,11 @@ export const TableComiss = memo(function TableComiss({
             sortConfig.key === "computado" ||
             sortConfig.key === "restante"
          ) {
-            const getDerived = (comiss: ComissList, key: SortKey) => {
-               if (comiss.dias_cumprir) {
-                  if (key === "previsto") return comiss.dias_cumprir;
-                  if (key === "computado") return comiss.dias_comp;
-                  if (key === "restante")
-                     return comiss.dias_cumprir - comiss.dias_comp;
-               }
-               const prev =
-                  (comiss.valor_aj_ab + comiss.valor_aj_fc) / DIARIA_MINIMA;
-               const comp = comiss.vals_comp / DIARIA_MINIMA;
-               if (key === "previsto") return prev;
-               if (key === "computado") return comp;
-               if (key === "restante") return prev - comp;
-               return 0;
-            };
-            aValue = getDerived(a, sortConfig.key);
-            bValue = getDerived(b, sortConfig.key);
+            // A conta sai de `comissDiasNumericos`, a mesma que alimenta o que
+            // a linha exibe: copiada aqui, o primeiro ajuste de arredondamento
+            // faria a lista ordenar por um numero diferente do que ela mostra.
+            aValue = comissDiasNumericos(a)[sortConfig.key];
+            bValue = comissDiasNumericos(b)[sortConfig.key];
          } else if (sortConfig.key === "tipo") {
             aValue = a.dias_cumprir ? 1 : 0;
             bValue = b.dias_cumprir ? 1 : 0;
@@ -102,7 +96,8 @@ export const TableComiss = memo(function TableComiss({
    const renderHeader = (
       label: string,
       sortKey: SortKey,
-      align: "left" | "center" = "center"
+      align: "left" | "center" | "right" = "center",
+      widthClass?: string
    ) => (
       <SortableHeadCell
          label={label}
@@ -110,31 +105,56 @@ export const TableComiss = memo(function TableComiss({
          sortConfig={sortConfig}
          onSort={requestSort}
          align={align}
+         headerClass={clsx(
+            "bg-slate-50 whitespace-nowrap hover:bg-slate-100",
+            widthClass
+         )}
       />
    );
 
    return (
-      <div className="overflow-x-auto rounded bg-white shadow ring-1 ring-slate-200">
-         <Table hoverable striped>
-            <TableHead>
-               <TableRow>
-                  {renderHeader("Militar", "militar", "left")}
-                  {renderHeader("Abertura", "data_ab")}
-                  {renderHeader("Fechamento", "data_fc")}
-                  {renderHeader("Tipo", "tipo")}
-                  {renderHeader("Progresso", "completude")}
-                  {renderHeader("Módulo", "modulo")}
-                  {renderHeader("Previsto", "previsto")}
-                  {renderHeader("Computado", "computado")}
-                  {renderHeader("Restante", "restante")}
-               </TableRow>
-            </TableHead>
-            <TableBody className="divide-y divide-gray-200">
-               {sortedCmtos.map((comiss) => (
-                  <TableComissRow key={comiss.id} comiss={comiss} />
-               ))}
-            </TableBody>
-         </Table>
+      <div className="overflow-hidden rounded bg-white shadow ring-1 ring-slate-200">
+         {/* Mobile: as nove colunas estouravam 674px alem da viewport, e o
+             progresso — o motivo de abrir a tela — ficava atras do arrasto. */}
+         <ul className="divide-y divide-slate-100 md:hidden">
+            {sortedCmtos.map((comiss) => (
+               <li key={comiss.id}>
+                  <ComissCard comiss={comiss} />
+               </li>
+            ))}
+         </ul>
+
+         <div className="hidden overflow-x-auto md:block">
+            <Table hoverable striped theme={COMISS_TABLE_THEME}>
+               <TableHead>
+                  <TableRow>
+                     {/* Unica coluna elastica: fica com toda a folga que as
+                         demais (`w-px`, largura do conteudo) nao usam. */}
+                     {renderHeader("Militar", "militar", "left")}
+                     {renderHeader("Abertura", "data_ab")}
+                     {renderHeader("Fechamento", "data_fc")}
+                     {renderHeader("Tipo", "tipo")}
+                     {renderHeader("Progresso", "completude")}
+                     {renderHeader("Módulo", "modulo")}
+                     {/* Sem o sufixo "dias" nas celulas: repetido em tres
+                         colunas de cada linha, o rotulo era ruido que disputava
+                         largura com o proprio numero. */}
+                     {renderHeader("Previsto", "previsto")}
+                     {renderHeader("Computado", "computado")}
+                     {/* O indicador de ordenacao fica em `-right-5` e, na ultima
+                         coluna, escapa do padding da celula: 6px de estouro na
+                         tabela inteira. Com `align="right"` ele vai para a
+                         esquerda do rotulo e volta para dentro. */}
+                     {renderHeader("Restante", "restante", "right")}
+                  </TableRow>
+               </TableHead>
+               <TableBody className="divide-y divide-gray-200">
+                  {sortedCmtos.map((comiss) => (
+                     <TableComissRow key={comiss.id} comiss={comiss} />
+                  ))}
+               </TableBody>
+            </Table>
+         </div>
       </div>
    );
 });
@@ -155,32 +175,12 @@ const TableComissRow = memo(function TableComissRow({
       [comiss.data_ab, comiss.data_fc]
    );
 
-   const ajdAb = comiss.valor_aj_ab;
-   const ajdFc = comiss.valor_aj_fc;
+   const { previsto, computado, restante, restanteNegativo } = useMemo(
+      () => deriveComissDias(comiss),
+      [comiss]
+   );
 
-   const { previsto, computado, restante, restanteNegativo } = useMemo(() => {
-      if (comiss.dias_cumprir) {
-         const rest = comiss.dias_cumprir - comiss.dias_comp;
-         return {
-            previsto: String(comiss.dias_cumprir),
-            computado: String(comiss.dias_comp),
-            restante: String(rest),
-            restanteNegativo: rest < 0,
-         };
-      }
-      const prev = (ajdAb + ajdFc) / DIARIA_MINIMA;
-      const comp = comiss.vals_comp / DIARIA_MINIMA;
-      const rest = prev - comp;
-      return {
-         previsto: `~ ${prev.toFixed(0)}`,
-         computado: `~ ${comp.toFixed(0)}`,
-         restante: `~ ${rest.toFixed(0)}`,
-         restanteNegativo: rest < 0,
-      };
-   }, [comiss.dias_cumprir, comiss.dias_comp, comiss.vals_comp, ajdAb, ajdFc]);
-
-   let progressColor = comiss.modulo ? "green" : "red";
-   progressColor = comiss.status === "fechado" ? "gray" : progressColor;
+   const nomeMilitar = `${user?.p_g ?? ""} ${user?.nome_guerra ?? ""}`.trim();
 
    const abrir = () => router.push(`/cegep/comiss/${comiss.id}`);
 
@@ -198,82 +198,91 @@ const TableComissRow = memo(function TableComissRow({
          }}
          className="focus-visible:ring-primary-500 cursor-pointer bg-white focus:outline-none focus-visible:ring-2 focus-visible:ring-inset"
       >
-         <TableCell className="font-medium whitespace-nowrap text-gray-900">
-            <div className="flex items-center gap-2">
-               <div
-                  className={clsx(
-                     "h-2 w-2 shrink-0 rounded-full",
-                     comiss.status === "aberto"
-                        ? "bg-emerald-500"
-                        : "bg-gray-400"
-                  )}
+         {/* Unica coluna elastica: o nome trunca com `title` em vez de quebrar
+             em duas linhas e desalinhar a altura da linha. O limite vai no
+             `<span>`, nao no `<td>`: com `table-layout: auto` o `max-width` da
+             celula zera a largura preferida da coluna, e o nome trunca cedo
+             enquanto sobra folga nas colunas numericas.
+
+             A espinha (borda esquerda, como a do masthead) substituiu o dot,
+             que ficava no meio do fluxo disputando alinhamento com o nome. Ela
+             codifica o MODULO, com o fechado sobrepondo — ver `spineColor`.
+             Vai na borda da propria celula porque num `<td>` o `position:
+             relative` nao e contexto confiavel para um filho absoluto com
+             `h-full`: a barra simplesmente nao pintava. */}
+         <TableCell
+            className={clsx(
+               "border-l-4 font-medium text-gray-900",
+               spineColor(comiss)
+            )}
+         >
+            <span
+               className="block max-w-40 truncate uppercase xl:max-w-72"
+               title={nomeMilitar}
+            >
+               {nomeMilitar}
+            </span>
+         </TableCell>
+
+         <TableCell className="w-px text-center whitespace-nowrap">
+            <span className="font-mono text-sm text-slate-600">
+               {dataAbertura}
+            </span>
+         </TableCell>
+
+         <TableCell className="w-px text-center whitespace-nowrap">
+            <span className="font-mono text-sm text-slate-600">
+               {dataFechamento}
+            </span>
+         </TableCell>
+
+         <TableCell className="w-px text-center whitespace-nowrap">
+            <TipoComissChip periodo={!!comiss.dias_cumprir} />
+         </TableCell>
+
+         <TableCell className="w-px">
+            {/* Percentual ao lado da barra, nao acima: empilhado, o par ocupava
+                duas alturas de texto e era o que puxava a linha para cima. */}
+            <div className="flex items-center justify-center gap-2">
+               <Progress
+                  progress={comiss.completude}
+                  color={progressColor(comiss)}
+                  size="sm"
+                  /* Sem isto o Flowbite anuncia cada barra como "progressbar",
+                     sem contexto nenhum. `labelText` fica falso, entao o texto
+                     vai so para o nome acessivel. */
+                  textLabel={`Completude ${comiss.completude}%`}
+                  className="w-20 xl:w-24"
                />
-               <span className="uppercase">
-                  {user?.p_g} {user?.nome_guerra}
+               <span className="w-9 shrink-0 text-right text-xs font-medium text-gray-600 tabular-nums">
+                  {comiss.completude}%
                </span>
             </div>
          </TableCell>
 
-         <TableCell className="text-center whitespace-nowrap">
-            <span className="font-mono text-sm">{dataAbertura}</span>
+         <TableCell className="w-px text-center whitespace-nowrap">
+            <ModuloComissChip modulo={comiss.modulo} />
          </TableCell>
 
-         <TableCell className="text-center whitespace-nowrap">
-            <span className="font-mono text-sm">{dataFechamento}</span>
+         {/* Peso e cor dao a hierarquia das tres colunas de dias: o previsto e
+             a referencia contratada (leve, cinza), o computado e o que ja foi
+             cumprido (medio, escuro) e o restante e o dado de acao — o unico em
+             negrito, e em ambar quando ainda ha muito a cumprir. */}
+         <TableCell className="w-px text-center font-normal whitespace-nowrap text-slate-500 tabular-nums">
+            {previsto}
          </TableCell>
 
-         <TableCell className="text-center whitespace-nowrap">
-            <div className="flex justify-center">
-               <Badge color={comiss.dias_cumprir ? "info" : "success"}>
-                  {comiss.dias_cumprir ? "Periodo" : "Comparativo"}
-               </Badge>
-            </div>
+         <TableCell className="w-px text-center font-medium whitespace-nowrap text-slate-700 tabular-nums">
+            {computado}
          </TableCell>
 
-         <TableCell>
-            <div className="mx-auto w-28 space-y-1">
-               <Label className="block text-center text-xs font-medium text-gray-600 tabular-nums">
-                  {comiss.completude}%
-               </Label>
-               <Progress
-                  progress={comiss.completude}
-                  color={progressColor}
-                  size="sm"
-               />
-            </div>
-         </TableCell>
-         <TableCell className="text-center whitespace-nowrap">
-            <div className="flex justify-center">
-               <Badge color={comiss.modulo ? "success" : "failure"}>
-                  {comiss.modulo ? "Sim" : "Não"}
-               </Badge>
-            </div>
-         </TableCell>
-
-         <TableCell className="text-center whitespace-nowrap">
-            <span className="font-semibold text-gray-900 tabular-nums">
-               {previsto}
-            </span>
-            <span className="ml-1 text-xs text-gray-500">dias</span>
-         </TableCell>
-
-         <TableCell className="text-center whitespace-nowrap">
-            <span className="font-semibold text-gray-900 tabular-nums">
-               {computado}
-            </span>
-            <span className="ml-1 text-xs text-gray-500">dias</span>
-         </TableCell>
-
-         <TableCell className="text-center whitespace-nowrap">
-            <span
-               className={clsx(
-                  "font-semibold tabular-nums",
-                  restanteNegativo ? "text-red-600" : "text-gray-900"
-               )}
-            >
-               {restante}
-            </span>
-            <span className="ml-1 text-xs text-gray-500">dias</span>
+         <TableCell
+            className={clsx(
+               "w-px text-center font-bold whitespace-nowrap tabular-nums",
+               restanteNegativo ? "text-red-600" : "text-slate-900"
+            )}
+         >
+            {restante}
          </TableCell>
       </TableRow>
    );

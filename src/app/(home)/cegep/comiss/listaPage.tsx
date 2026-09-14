@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Button, Label, Select, TextInput, Badge } from "flowbite-react";
 import { TableComiss } from "./components/tableComiss";
 import { TableComissSkeleton } from "./components/TableComissSkeleton";
@@ -77,21 +77,6 @@ export function ListaPage() {
 
    const [filtersExpanded, setFiltersExpanded] = useState(false);
 
-   // Animação suave do painel de filtros. Um ResizeObserver mantém a altura
-   // correta mesmo quando o grid de filtros quebra em mais linhas no resize.
-   const filtersRef = useRef<HTMLDivElement>(null);
-   const [filtersHeight, setFiltersHeight] = useState(0);
-
-   useEffect(() => {
-      const el = filtersRef.current;
-      if (!el) return;
-      const update = () => setFiltersHeight(el.scrollHeight);
-      update();
-      const ro = new ResizeObserver(update);
-      ro.observe(el);
-      return () => ro.disconnect();
-   }, []);
-
    // Handlers de filtros -> URL
    const setStatusComis = useCallback(
       (v: string) => setParams({ status: serializeString(v, "aberto") }),
@@ -157,17 +142,27 @@ export function ListaPage() {
       <div className="flex flex-col">
          {/* Subheader da aba */}
          <ComissSubheader
+            compact
             actions={
+               /* No celular os rotulos saem e sobram os icones: com eles, o par
+                  de botoes nao cabia ao lado do titulo e custava uma segunda
+                  linha da faixa. O nome acessivel fica no `aria-label`. */
                <>
                   <Button
                      color="light"
                      size="sm"
+                     aria-label={
+                        filtersExpanded ? "Ocultar filtros" : "Exibir filtros"
+                     }
+                     title={filtersExpanded ? "Ocultar filtros" : "Filtros"}
                      onClick={() => setFiltersExpanded(!filtersExpanded)}
                   >
-                     <HiFilter className="mr-2 h-4 w-4" />
-                     {filtersExpanded ? "Ocultar" : "Filtros"}
+                     <HiFilter className="h-4 w-4 sm:mr-2" />
+                     <span className="hidden sm:inline">
+                        {filtersExpanded ? "Ocultar" : "Filtros"}
+                     </span>
                      {hasActiveFilters && (
-                        <span className="bg-primary-600 ml-2 flex h-5 w-5 items-center justify-center rounded-full text-xs font-bold text-white">
+                        <span className="bg-primary-600 ml-1.5 flex h-5 w-5 items-center justify-center rounded-full text-xs font-bold text-white sm:ml-2">
                            {activeFilterCount}
                         </span>
                      )}
@@ -176,10 +171,12 @@ export function ListaPage() {
                      <Button
                         color="primary"
                         size="sm"
+                        aria-label="Novo comissionamento"
+                        title="Novo comissionamento"
                         onClick={() => router.push("/cegep/comiss/new")}
                      >
-                        <HiPlus className="mr-2 h-4 w-4" />
-                        Novo
+                        <HiPlus className="h-4 w-4 sm:mr-2" />
+                        <span className="hidden sm:inline">Novo</span>
                      </Button>
                   </RoleBasedRoute>
                </>
@@ -254,131 +251,140 @@ export function ListaPage() {
             </div>
          )}
 
-         {/* Painel de filtros — transicao suave (gap dentro da area animada) */}
+         {/* Painel de filtros — a altura anima por `grid-template-rows`
+             (0fr → 1fr), e nao por `max-height` medido em JS: o valor certo e o
+             do conteudo, sem ResizeObserver para reconferir quando o grid
+             quebra em mais linhas. `inert` enquanto fechado tira os campos do
+             Tab e do leitor de tela. */}
          <div
-            className="overflow-hidden transition-all duration-300 ease-in-out"
-            style={{
-               maxHeight: filtersExpanded ? `${filtersHeight}px` : "0px",
-               opacity: filtersExpanded ? 1 : 0,
-            }}
+            className={clsx(
+               "grid transition-[grid-template-rows] duration-300 ease-in-out motion-reduce:transition-none",
+               filtersExpanded ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
+            )}
          >
-            <div ref={filtersRef} className="pt-3">
-               <div className="rounded border border-slate-200 bg-white p-4 shadow-sm">
-                  <div className="mb-4 flex items-center justify-between">
-                     {/* `h3` e não `h6`: o nível segue a hierarquia (h1 da
+            <div className="overflow-hidden" inert={!filtersExpanded}>
+               <div className="pt-3">
+                  <div className="rounded border border-slate-200 bg-white p-4 shadow-sm">
+                     <div className="mb-4 flex items-center justify-between">
+                        {/* `h3` e não `h6`: o nível segue a hierarquia (h1 da
                          página → h2 da lista → este), não o tamanho da fonte,
                          que vem da classe. Saltar níveis reprova
                          `heading-order` e quebra a navegação por títulos. */}
-                     <h3 className="text-sm font-medium text-slate-700">
-                        Filtros
-                     </h3>
-                     {hasActiveFilters && (
-                        <button
-                           type="button"
-                           onClick={clearFilters}
-                           className="flex items-center gap-1.5 rounded px-3 py-1.5 text-xs text-slate-600 hover:bg-slate-100 hover:text-slate-800"
-                        >
-                           <HiX />
-                           Limpar
-                        </button>
-                     )}
-                  </div>
-
-                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-5">
-                     {/* Militar */}
-                     <div>
-                        <FilterLabel
-                           htmlFor="filtro-militar"
-                           icon={<HiOutlineUser />}
-                        >
-                           Militar
-                        </FilterLabel>
-                        <TextInput
-                           id="filtro-militar"
-                           type="text"
-                           value={searchUser}
-                           onChange={(e) => setSearchUser(e.target.value)}
-                           placeholder="Nome completo ou de guerra"
-                           sizing="sm"
-                        />
+                        <h3 className="text-sm font-medium text-slate-700">
+                           Filtros
+                        </h3>
+                        {hasActiveFilters && (
+                           <button
+                              type="button"
+                              onClick={clearFilters}
+                              className="flex items-center gap-1.5 rounded px-3 py-1.5 text-xs text-slate-600 hover:bg-slate-100 hover:text-slate-800"
+                           >
+                              <HiX />
+                              Limpar
+                           </button>
+                        )}
                      </div>
 
-                     {/* Situação */}
-                     <div>
-                        <FilterLabel
-                           htmlFor="filtro-situacao"
-                           icon={<HiOutlineCheckCircle />}
-                        >
-                           Situação
-                        </FilterLabel>
-                        <Select
-                           id="filtro-situacao"
-                           value={statusComis}
-                           onChange={(e) => setStatusComis(e.target.value)}
-                           sizing="sm"
-                        >
-                           <option value="aberto">Aberto</option>
-                           <option value="fechado">Fechado</option>
-                           <option value="todos">Todos</option>
-                        </Select>
-                     </div>
+                     {/* Duas colunas ja no celular: os quatro seletores tem
+                         opcoes curtas (Aberto/Fechado, Sim/Nao) e cabem em
+                         ~150px a 360px, poupando quatro linhas de rolagem. O
+                         campo de nome e a excecao e fica com a linha inteira. */}
+                     <div className="grid grid-cols-2 gap-3 lg:grid-cols-5">
+                        {/* Militar */}
+                        <div className="col-span-2 lg:col-span-1">
+                           <FilterLabel
+                              htmlFor="filtro-militar"
+                              icon={<HiOutlineUser />}
+                           >
+                              Militar
+                           </FilterLabel>
+                           <TextInput
+                              id="filtro-militar"
+                              type="text"
+                              value={searchUser}
+                              onChange={(e) => setSearchUser(e.target.value)}
+                              placeholder="Nome completo ou de guerra"
+                              sizing="md"
+                           />
+                        </div>
 
-                     {/* P/G */}
-                     <div>
-                        {/* Sem `htmlFor`: o MultiSelect é um botão com
+                        {/* Situação */}
+                        <div>
+                           <FilterLabel
+                              htmlFor="filtro-situacao"
+                              icon={<HiOutlineCheckCircle />}
+                           >
+                              Situação
+                           </FilterLabel>
+                           <Select
+                              id="filtro-situacao"
+                              value={statusComis}
+                              onChange={(e) => setStatusComis(e.target.value)}
+                              sizing="md"
+                           >
+                              <option value="aberto">Aberto</option>
+                              <option value="fechado">Fechado</option>
+                              <option value="todos">Todos</option>
+                           </Select>
+                        </div>
+
+                        {/* P/G */}
+                        <div>
+                           {/* Sem `htmlFor`: o MultiSelect é um botão com
                             dropdown, não um campo com id — o nome acessível
                             dele vai por `ariaLabel`. */}
-                        <FilterLabel icon={<HiOutlineUserGroup />}>
-                           Posto/Graduação
-                        </FilterLabel>
-                        <MultiSelect
-                           ariaLabel="Posto/Graduação"
-                           options={PG_OPTIONS}
-                           selected={filterPG}
-                           onChange={setFilterPG}
-                           placeholder="Todos"
-                           sizing="sm"
-                        />
-                     </div>
+                           <FilterLabel icon={<HiOutlineUserGroup />}>
+                              Posto/Graduação
+                           </FilterLabel>
+                           <MultiSelect
+                              ariaLabel="Posto/Graduação"
+                              options={PG_OPTIONS}
+                              selected={filterPG}
+                              onChange={setFilterPG}
+                              placeholder="Todos"
+                              sizing="md"
+                           />
+                        </div>
 
-                     {/* Tipo */}
-                     <div>
-                        <FilterLabel
-                           htmlFor="filtro-tipo"
-                           icon={<HiOutlineTag />}
-                        >
-                           Tipo
-                        </FilterLabel>
-                        <Select
-                           id="filtro-tipo"
-                           value={filterTipo}
-                           onChange={(e) => setFilterTipo(e.target.value)}
-                           sizing="sm"
-                        >
-                           <option value="">Todos</option>
-                           <option value="periodo">Período</option>
-                           <option value="comparativo">Comparativo</option>
-                        </Select>
-                     </div>
+                        {/* Tipo */}
+                        <div>
+                           <FilterLabel
+                              htmlFor="filtro-tipo"
+                              icon={<HiOutlineTag />}
+                           >
+                              Tipo
+                           </FilterLabel>
+                           <Select
+                              id="filtro-tipo"
+                              value={filterTipo}
+                              onChange={(e) => setFilterTipo(e.target.value)}
+                              sizing="md"
+                           >
+                              <option value="">Todos</option>
+                              <option value="periodo">Período</option>
+                              <option value="comparativo">Comparativo</option>
+                           </Select>
+                        </div>
 
-                     {/* Módulo */}
-                     <div>
-                        <FilterLabel
-                           htmlFor="filtro-modulo"
-                           icon={<HiOutlineCube />}
-                        >
-                           Módulo
-                        </FilterLabel>
-                        <Select
-                           id="filtro-modulo"
-                           value={filterModulo}
-                           onChange={(e) => setFilterModulo(e.target.value)}
-                           sizing="sm"
-                        >
-                           <option value="">Todos</option>
-                           <option value="sim">Sim</option>
-                           <option value="nao">Não</option>
-                        </Select>
+                        {/* Módulo */}
+                        <div>
+                           <FilterLabel
+                              htmlFor="filtro-modulo"
+                              icon={<HiOutlineCube />}
+                           >
+                              Módulo
+                           </FilterLabel>
+                           <Select
+                              id="filtro-modulo"
+                              value={filterModulo}
+                              onChange={(e) => setFilterModulo(e.target.value)}
+                              sizing="md"
+                           >
+                              <option value="">Todos</option>
+                              <option value="sim">Sim</option>
+                              <option value="nao">Não</option>
+                           </Select>
+                        </div>
                      </div>
                   </div>
                </div>

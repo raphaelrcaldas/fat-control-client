@@ -1,7 +1,6 @@
 import { useComissSummary } from "@/hooks/queries";
 import type { ComissList } from "services/routes/cegep/comiss";
 import {
-   Badge,
    Button,
    Label,
    Progress,
@@ -28,6 +27,10 @@ import clsx from "clsx";
 import { GestaoFiscalCard } from "./components/GestaoFiscalCard";
 import { GestaoFiscalSkeleton } from "./components/GestaoFiscalSkeleton";
 import { ComissSubheader } from "./components/ComissSubheader";
+import { StatusComissChip } from "./components/comissChips";
+import { GestaoFiscalRowCard } from "./components/GestaoFiscalRowCard";
+import { COMISS_TABLE_THEME } from "./comissTableTheme";
+import { progressColor } from "./comissDerivacoes";
 import {
    SortableHeadCell,
    compareValues,
@@ -105,7 +108,7 @@ export function GestaoFiscalPage() {
    const renderHeader = (
       label: string,
       sortKey: SortKey,
-      align: "left" | "center" = "center"
+      align: "left" | "center" | "right" = "center"
    ) => (
       <SortableHeadCell
          label={label}
@@ -113,6 +116,7 @@ export function GestaoFiscalPage() {
          sortConfig={sortConfig}
          onSort={requestSort}
          align={align}
+         headerClass="bg-slate-50 whitespace-nowrap hover:bg-slate-100"
       />
    );
 
@@ -235,8 +239,28 @@ export function GestaoFiscalPage() {
                         {data.comissionamentos.length})
                      </h3>
                   </div>
-                  <div className="overflow-x-auto">
-                     <Table hoverable striped>
+                  {/* Mobile: as oito colunas pediam 949px num aparelho de
+                      360px, e o impacto ficava atras do arrasto. */}
+                  <ul className="divide-y divide-slate-100 md:hidden">
+                     {sortedComissionamentos.map((c) => (
+                        <li key={c.id}>
+                           <GestaoFiscalRowCard
+                              comiss={c}
+                              ano={ano}
+                              impacto={computeImpacto(c, ano)}
+                           />
+                        </li>
+                     ))}
+                     {sortedComissionamentos.length === 0 && (
+                        <li className="py-8 text-center text-sm text-slate-500">
+                           Nenhum dado orçamentário registrado neste ano de
+                           exercício.
+                        </li>
+                     )}
+                  </ul>
+
+                  <div className="hidden overflow-x-auto md:block">
+                     <Table hoverable striped theme={COMISS_TABLE_THEME}>
                         <TableHead>
                            <TableRow>
                               {renderHeader("Militar", "militar", "left")}
@@ -279,94 +303,102 @@ export function GestaoFiscalPage() {
                                        }
                                     }}
                                  >
-                                    <TableCell className="font-medium whitespace-nowrap text-slate-900">
-                                       <div className="uppercase">
+                                    {/* Espinha da linha, como na aba Registros:
+                                        aqui diz se o comissionamento segue
+                                        aberto no exercicio. */}
+                                    <TableCell
+                                       className={clsx(
+                                          "border-l-4 font-medium text-slate-900",
+                                          c.status === "aberto"
+                                             ? "border-l-emerald-500"
+                                             : "border-l-slate-300"
+                                       )}
+                                    >
+                                       <span
+                                          className="block max-w-40 truncate uppercase xl:max-w-64"
+                                          title={`${c.user?.p_g ?? ""} ${
+                                             c.user?.nome_guerra ?? ""
+                                          }`.trim()}
+                                       >
                                           {c.user?.p_g} {c.user?.nome_guerra}
-                                       </div>
+                                       </span>
                                     </TableCell>
-                                    <TableCell className="text-center whitespace-nowrap">
-                                       <div
+                                    {/* A ponta que NAO recai sobre o exercicio
+                                        exibido recua por cor e peso, nunca por
+                                        `opacity`: atenuar texto com opacidade
+                                        derruba o contraste abaixo de AA. */}
+                                    <TableCell className="w-px text-center whitespace-nowrap">
+                                       <span
                                           className={clsx(
-                                             "font-medium",
-                                             anoAb !== ano &&
-                                                "font-normal text-slate-400 opacity-60 grayscale"
+                                             "font-mono text-sm",
+                                             anoAb === ano
+                                                ? "text-slate-600"
+                                                : "text-slate-500"
                                           )}
                                        >
                                           {formatDateFull(c.data_ab)}
-                                       </div>
+                                       </span>
                                     </TableCell>
-                                    <TableCell className="text-center whitespace-nowrap">
-                                       <div
+                                    <TableCell className="w-px text-center whitespace-nowrap">
+                                       <span
                                           className={clsx(
-                                             "font-medium",
-                                             anoFc !== ano &&
-                                                "font-normal text-slate-400 opacity-60 grayscale"
+                                             "font-mono text-sm",
+                                             anoFc === ano
+                                                ? "text-slate-600"
+                                                : "text-slate-500"
                                           )}
                                        >
                                           {c.data_fc
                                              ? formatDateFull(c.data_fc)
-                                             : "-"}
-                                       </div>
-                                    </TableCell>
-                                    <TableCell className="text-center whitespace-nowrap">
-                                       <span
-                                          className={clsx(
-                                             anoAb !== ano &&
-                                                "text-slate-400 opacity-60 grayscale"
-                                          )}
-                                       >
-                                          {realCurrency(c.valor_aj_ab)}
+                                             : "—"}
                                        </span>
                                     </TableCell>
-                                    <TableCell className="text-center whitespace-nowrap">
-                                       <span
-                                          className={clsx(
-                                             anoFc !== ano &&
-                                                "text-slate-400 opacity-60 grayscale"
-                                          )}
-                                       >
-                                          {c.valor_aj_fc > 0
-                                             ? realCurrency(c.valor_aj_fc)
-                                             : "-"}
-                                       </span>
+                                    {/* `tabular-nums` mantem os digitos na
+                                        mesma largura, entao os milhares seguem
+                                        alinhados mesmo com a coluna centrada. */}
+                                    <TableCell
+                                       className={clsx(
+                                          "w-px text-center whitespace-nowrap tabular-nums",
+                                          anoAb === ano
+                                             ? "text-slate-700"
+                                             : "text-slate-500"
+                                       )}
+                                    >
+                                       {realCurrency(c.valor_aj_ab)}
                                     </TableCell>
-                                    <TableCell className="text-center font-semibold whitespace-nowrap text-slate-900">
+                                    <TableCell
+                                       className={clsx(
+                                          "w-px text-center whitespace-nowrap tabular-nums",
+                                          anoFc === ano
+                                             ? "text-slate-700"
+                                             : "text-slate-500"
+                                       )}
+                                    >
+                                       {c.valor_aj_fc > 0
+                                          ? realCurrency(c.valor_aj_fc)
+                                          : "—"}
+                                    </TableCell>
+                                    <TableCell className="w-px text-center font-bold whitespace-nowrap text-slate-900 tabular-nums">
                                        {realCurrency(impacto)}
                                     </TableCell>
-                                    <TableCell className="text-center whitespace-nowrap">
-                                       <div className="flex justify-center">
-                                          <Badge
-                                             color={
-                                                c.status === "aberto"
-                                                   ? "success"
-                                                   : c.status === "fechado"
-                                                     ? "gray"
-                                                     : "warning"
-                                             }
-                                             className="w-min"
-                                          >
-                                             {c.status.toUpperCase()}
-                                          </Badge>
-                                       </div>
+                                    <TableCell className="w-px text-center whitespace-nowrap">
+                                       <StatusComissChip status={c.status} />
                                     </TableCell>
-                                    <TableCell className="text-center whitespace-nowrap">
-                                       <div className="inline-flex flex-col items-center gap-1">
-                                          <span className="text-xs font-bold text-slate-700">
+                                    <TableCell className="w-px">
+                                       {/* Percentual ao lado da barra, nao
+                                           acima: empilhado, o par custava duas
+                                           alturas de texto por linha. */}
+                                       <div className="flex items-center justify-center gap-2">
+                                          <Progress
+                                             progress={c.completude}
+                                             size="sm"
+                                             color={progressColor(c)}
+                                             textLabel={`Completude ${c.completude}%`}
+                                             className="w-16 xl:w-20"
+                                          />
+                                          <span className="w-9 shrink-0 text-right text-xs font-medium text-slate-600 tabular-nums">
                                              {c.completude}%
                                           </span>
-                                          <div className="w-20">
-                                             <Progress
-                                                progress={c.completude}
-                                                size="sm"
-                                                color={
-                                                   c.status === "fechado"
-                                                      ? "gray"
-                                                      : c.modulo
-                                                        ? "green"
-                                                        : "red"
-                                                }
-                                             />
-                                          </div>
                                        </div>
                                     </TableCell>
                                  </TableRow>

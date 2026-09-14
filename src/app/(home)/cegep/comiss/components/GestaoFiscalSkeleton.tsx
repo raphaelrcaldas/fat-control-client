@@ -6,6 +6,7 @@ import {
    TableRow,
    TableCell,
 } from "flowbite-react";
+import { COMISS_TABLE_THEME } from "../comissTableTheme";
 
 const Bar = ({ className = "" }: { className?: string }) => (
    <div className={`animate-pulse rounded bg-slate-200 ${className}`} />
@@ -31,8 +32,9 @@ interface GestaoFiscalSkeletonProps {
 }
 
 /**
- * Skeleton fiel ao corpo da `GestaoFiscalPage`: 3 cards de KPI + tabela de
- * 8 colunas, para zero layout-shift quando os dados orçamentários carregam.
+ * Skeleton fiel ao corpo da `GestaoFiscalPage`: 3 cards de KPI mais a MESMA
+ * troca de layout no `md` — lista no mobile, tabela de 8 colunas no desktop —
+ * para zero layout-shift quando os dados orçamentários carregam.
  */
 export function GestaoFiscalSkeleton({ rows = 8 }: GestaoFiscalSkeletonProps) {
    return (
@@ -75,8 +77,34 @@ export function GestaoFiscalSkeleton({ rows = 8 }: GestaoFiscalSkeletonProps) {
             <div className="border-b border-slate-100 bg-slate-50/50 px-5 py-3">
                <FaintBar className="h-4 w-72" />
             </div>
-            <div className="overflow-x-auto">
-               <Table striped>
+            {/* Mobile: espelha o `GestaoFiscalRowCard` */}
+            <ul className="divide-y divide-slate-100 md:hidden">
+               {Array.from({ length: rows }).map((_, i) => (
+                  <li
+                     key={i}
+                     className="border-l-4 border-l-slate-200 px-4 py-3"
+                  >
+                     <div className="flex items-center gap-2">
+                        <Bar className="h-4 flex-1" />
+                        <Bar className="h-5 w-20 shrink-0" />
+                        <Bar className="h-4 w-4 shrink-0" />
+                     </div>
+                     <div className="mt-1.5 flex items-center gap-2">
+                        <FaintBar className="h-4 w-20 shrink-0" />
+                        <Bar className="h-4 w-24 shrink-0" />
+                        <Bar className="ml-auto h-1.5 w-16 shrink-0" />
+                        <FaintBar className="h-4 w-8 shrink-0" />
+                     </div>
+                     <div className="mt-1.5 flex items-center gap-4">
+                        <FaintBar className="h-4 w-36" />
+                        <FaintBar className="h-4 w-36" />
+                     </div>
+                  </li>
+               ))}
+            </ul>
+
+            <div className="hidden overflow-x-auto md:block">
+               <Table striped theme={COMISS_TABLE_THEME}>
                   <TableHead>
                      <TableRow>
                         {COLUMNS.map((label, i) => (
@@ -85,7 +113,7 @@ export function GestaoFiscalSkeleton({ rows = 8 }: GestaoFiscalSkeletonProps) {
                               className={
                                  i === 0
                                     ? "bg-slate-50"
-                                    : "bg-slate-50 text-center"
+                                    : "bg-slate-50 text-center whitespace-nowrap"
                               }
                            >
                               {label}
@@ -96,31 +124,32 @@ export function GestaoFiscalSkeleton({ rows = 8 }: GestaoFiscalSkeletonProps) {
                   <TableBody className="divide-y divide-slate-200">
                      {Array.from({ length: rows }).map((_, i) => (
                         <TableRow key={i} className="bg-white">
-                           <TableCell>
+                           {/* Militar — coluna elástica, com a espinha */}
+                           <TableCell className="border-l-4 border-l-slate-200">
                               <Bar className="h-4 w-40" />
                            </TableCell>
-                           <TableCell>
+                           <TableCell className="w-px">
                               <Bar className="mx-auto h-4 w-16" />
                            </TableCell>
-                           <TableCell>
+                           <TableCell className="w-px">
                               <Bar className="mx-auto h-4 w-16" />
                            </TableCell>
-                           <TableCell>
+                           <TableCell className="w-px">
                               <Bar className="mx-auto h-4 w-20" />
                            </TableCell>
-                           <TableCell>
+                           <TableCell className="w-px">
                               <Bar className="mx-auto h-4 w-20" />
                            </TableCell>
-                           <TableCell>
+                           <TableCell className="w-px">
                               <Bar className="mx-auto h-4 w-20" />
                            </TableCell>
-                           <TableCell>
-                              <Bar className="mx-auto h-5 w-16 rounded-full" />
+                           <TableCell className="w-px">
+                              <Bar className="mx-auto h-5 w-20" />
                            </TableCell>
-                           <TableCell>
-                              <div className="mx-auto w-20 space-y-1.5">
-                                 <Bar className="mx-auto h-3 w-8" />
-                                 <Bar className="h-1.5 w-full" />
+                           <TableCell className="w-px">
+                              <div className="flex items-center justify-center gap-2">
+                                 <Bar className="h-1.5 w-16 xl:w-20" />
+                                 <Bar className="h-3 w-9 shrink-0" />
                               </div>
                            </TableCell>
                         </TableRow>
