@@ -132,9 +132,13 @@ export interface EsfAerHistorico {
 }
 
 /**
- * Busca o histórico de esforço aéreo de um ano de referência, no mesmo
- * padrão de `getEsfAerResumo`: envelope `ApiResponse` + fallback vazio
- * quando `data` vier ausente.
+ * Busca o histórico de esforço aéreo de um ano de referência.
+ *
+ * Falha de carga vira ERRO, nunca histórico vazio — mesmo padrão de
+ * `getIndicadores`. `request()` não lança em 4xx/5xx (devolve a `Response`
+ * crua) e o envelope de erro do backend não traz `data`: com um
+ * `json.data ?? fallback` a query RESOLVE com sucesso, `isError` fica `false`
+ * e a tela anuncia "nenhum histórico" sobre dados que nunca foram lidos.
  */
 export async function getEsfAerHistorico(
    anoRef: number,
@@ -147,14 +151,19 @@ export async function getEsfAerHistorico(
       { ano_ref: anoRef },
       signal
    );
-   const json = (await response.json()) as ApiResponse<EsfAerHistorico>;
-   return (
-      json.data ?? {
-         ano_ref: anoRef,
-         programas: [],
-         total: { atual: 0, timeline: [] },
-      }
-   );
+
+   const json = (await response
+      .json()
+      .catch(() => null)) as ApiResponse<EsfAerHistorico> | null;
+
+   if (!response.ok || !json?.data) {
+      throw new Error(
+         json?.message ??
+            `Falha ao carregar o histórico (HTTP ${response.status})`
+      );
+   }
+
+   return json.data;
 }
 
 export async function getEsfAerResumo(
