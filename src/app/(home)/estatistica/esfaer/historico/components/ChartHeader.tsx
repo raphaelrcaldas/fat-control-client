@@ -68,7 +68,7 @@ export function ChartHeader({
                type="button"
                onClick={onClearIsolated}
                title={`Sair do isolamento de ${isoladoNome}`}
-               className="inline-flex max-w-full items-center gap-1 rounded border border-red-100 bg-red-50 py-0.5 pr-1.5 pl-2 text-xs font-medium text-red-600 transition-colors hover:bg-red-100"
+               className="border-primary-100 bg-primary-50 text-primary-700 hover:bg-primary-100 inline-flex max-w-full items-center gap-1 rounded border py-0.5 pr-1.5 pl-2 text-xs font-medium transition-colors"
             >
                <span className="truncate">sair do isolamento</span>
                <TbX aria-hidden className="h-3.5 w-3.5 shrink-0" />

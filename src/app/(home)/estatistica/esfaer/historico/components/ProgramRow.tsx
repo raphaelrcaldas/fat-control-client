@@ -76,7 +76,7 @@ export function ProgramRow({
          }
       >
          <Checkbox
-            color="red"
+            color="primary"
             checked={checked}
             onChange={onToggle}
             aria-label={`Alternar visibilidade de ${nome}`}
