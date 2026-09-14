@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { deleteCookie } from "cookies-next";
+import { usePersistedState } from "@/hooks/usePersistedState";
 import Navbar from "./components/layout/navbar";
 import SidebarWithFooter from "./components/layout/sidebar";
 import PageTransition from "./components/layout/page-transition";
@@ -17,15 +18,33 @@ interface RootLayoutProps {
 export default function RootLayout({ children }: RootLayoutProps) {
    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
    const [isMobile, setIsMobile] = useState(false);
+   /**
+    * Só a preferência do DESKTOP é lembrada. No mobile a sidebar é uma gaveta
+    * sobre o conteúdo, com backdrop e scroll travado: restaurá-la aberta faria
+    * a sessão começar com a tela coberta.
+    */
+   const [desktopSidebarOpen, setDesktopSidebarOpen] =
+      usePersistedState<boolean>("sidebar:desktopOpen", true);
    const router = useRouter();
    const pathname = usePathname();
+
+   /**
+    * A preferencia entra por ref, e nao por dependencia do efeito: como
+    * dependencia, cada toggle no desktop re-registraria o listener de resize e
+    * reafirmaria `isSidebarOpen` a partir do valor persistido. Hoje isso e
+    * inofensivo so porque o toggle grava os dois estados com o MESMO valor —
+    * qualquer caminho que feche a sidebar sem espelhar na preferencia teria o
+    * valor devolvido pelo efeito. Com a ref, o listener se registra uma vez e
+    * o efeito nao disputa o estado com quem o alterou.
+    */
+   const prefRef = useRef(desktopSidebarOpen);
+   prefRef.current = desktopSidebarOpen;
 
    useEffect(() => {
       const checkMobile = () => {
          const mobile = window.innerWidth < 1024;
          setIsMobile(mobile);
-         if (!mobile) setIsSidebarOpen(true);
-         if (mobile) setIsSidebarOpen(false);
+         setIsSidebarOpen(mobile ? false : prefRef.current);
       };
 
       checkMobile();
@@ -47,7 +66,12 @@ export default function RootLayout({ children }: RootLayoutProps) {
       router.refresh();
    };
 
-   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
+   const toggleSidebar = () => {
+      const next = !isSidebarOpen;
+      setIsSidebarOpen(next);
+      // Só o desktop grava: o fechar da gaveta no mobile não é preferência.
+      if (!isMobile) setDesktopSidebarOpen(next);
+   };
 
    return (
       <AuthProvider>
