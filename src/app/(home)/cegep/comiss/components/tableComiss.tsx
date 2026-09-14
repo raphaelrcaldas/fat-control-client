@@ -21,7 +21,7 @@ import {
    SortableHeadCell,
    compareValues,
    useSortConfig,
-} from "./sortableTable";
+} from "@/components/ui/SortableTable";
 
 interface TableComissProps {
    cmtos: ComissList[];

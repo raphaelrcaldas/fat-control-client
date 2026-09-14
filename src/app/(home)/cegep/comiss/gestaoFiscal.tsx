@@ -32,7 +32,7 @@ import {
    SortableHeadCell,
    compareValues,
    useSortConfig,
-} from "./components/sortableTable";
+} from "@/components/ui/SortableTable";
 import { getDefaultFiscalYear, getFiscalYears } from "./fiscalYears";
 
 type SortKey =

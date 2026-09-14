@@ -14,8 +14,10 @@ export interface SortConfig<K extends string> {
 
 /**
  * Estado de ordenação de tabela: mantém `key`/`direction` e alterna a direção
- * ao reclicar a mesma coluna. Centraliza o `requestSort` antes duplicado nas
- * tabelas de Registros e Gestão Fiscal.
+ * ao reclicar a mesma coluna.
+ *
+ * Nasceu nas tabelas do comissionamento e mora aqui porque não tem nada de
+ * comiss: é primitiva de tabela, usada também pelo efetivo da operação.
  */
 export function useSortConfig<K extends string>(initial: SortConfig<K>) {
    const [sortConfig, setSortConfig] = useState<SortConfig<K>>(initial);
