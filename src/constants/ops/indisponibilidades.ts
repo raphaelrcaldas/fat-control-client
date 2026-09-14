@@ -121,4 +121,16 @@ export const DERIVED_BARS = {
       label: "Desadaptado",
       bar: "bg-slate-100 text-slate-800",
    },
+   /**
+    * O militar está numa operação no período — sai de `operacao_pessoal`, não
+    * de um registro de indisponibilidade. É a única faixa derivada com período
+    * fechado dos dois lados (as outras começam num dia e seguem abertas), e a
+    * única cujo rótulo varia: quem escala precisa saber QUAL operação levou o
+    * militar, então `IndispBar` troca este label pelo nome quando ele vem.
+    */
+   operacao: {
+      code: "OPR",
+      label: "Em operação",
+      bar: "bg-teal-100 text-teal-800",
+   },
 } as const;
