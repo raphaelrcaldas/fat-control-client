@@ -51,16 +51,20 @@ export function BucketCard({ bucket, totalBytes, partial }: BucketCardProps) {
 
                {/* Barra proporcional à participação no uso total */}
                <div className="space-y-1">
-                  {/* "do uso apurado" quando há bucket ilegível: o
-                      denominador já perdeu aquele bucket, então o sobrevivente
-                      reivindicaria 100% da torta sem ter direito a ela */}
+                  {/* "relativa" é explícito de propósito: sem isso o número é
+                      lido como consumo de cota ("96% cheio"), quando na verdade
+                      é fatia entre buckets — as fatias somam 100% e uma cai
+                      quando outra cresce, sem limite nenhum por bucket.
+                      "apurado" quando há bucket ilegível: o denominador já
+                      perdeu aquele bucket, então o sobrevivente reivindicaria
+                      100% da torta sem ter direito a ela */}
                   <p className="text-sm text-gray-500 tabular-nums">
-                     {share.toFixed(1)}%{" "}
-                     {partial ? "do uso apurado" : "do uso total"}
+                     {share.toFixed(1)}% do uso {partial ? "apurado" : "total"}{" "}
+                     (relativa)
                   </p>
                   <div
                      role="progressbar"
-                     aria-label={`Participação do bucket ${bucket.name} no uso total`}
+                     aria-label={`Participação relativa do bucket ${bucket.name} no uso ${partial ? "apurado" : "total"} do storage`}
                      aria-valuenow={Number(share.toFixed(1))}
                      aria-valuemin={0}
                      aria-valuemax={100}
