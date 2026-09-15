@@ -9,7 +9,7 @@ import {
    useIndispFormTarget,
    useIndispModalActions,
 } from "../../context/indispModalContext";
-import { useBoardDrag } from "./hooks/useBoardDrag";
+import { useTimelineDrag } from "@/hooks/useTimelineDrag";
 import { IndispBar, partitionTrips } from "./utils/indispBars";
 import { buildDayColumns, buildMonthSegments } from "./utils/indispDays";
 import { LANE_VARS } from "./utils/indispBoardLayout";
@@ -58,7 +58,7 @@ export function IndispBoard({
       () => trackRef.current?.clientWidth ?? 0,
       []
    );
-   const { dragHandlers, wasDragged } = useBoardDrag(
+   const { dragHandlers, wasDragged } = useTimelineDrag(
       medirTrilha,
       dates.length,
       onShiftDays

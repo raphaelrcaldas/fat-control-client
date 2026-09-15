@@ -22,13 +22,26 @@ interface DragState {
 }
 
 /**
- * Navegação por arrasto: a grade inteira é a superfície.
+ * Navegação por arrasto numa linha do tempo horizontal: a grade inteira é a
+ * superfície do gesto.
  *
- * Substitui os quatro botões de seta. Como a faixa e a vaga de "+" também são
- * clicáveis, o hook expõe `wasDragged()` para que um arrasto que termina em
- * cima delas não dispare o clique.
+ * Compartilhado por `ops/indisp` (faixas de indisponibilidade) e `ops/quadro`
+ * (etapas de missão), que substituíram as setas de navegação por este gesto.
+ * Vive aqui, e não dentro de uma das duas telas, porque concentra armadilhas
+ * medidas no navegador — gesto vertical pertence ao scroll, o `pointerup` pode
+ * nunca chegar (só `pointercancel`), o `lostpointercapture` do filho borbulha,
+ * e o trackpad dispara dezenas de eventos que precisam acumular até fechar um
+ * dia. Ver `docs/ai/notes/frontend-armadilhas.md`. Com duas cópias, a próxima
+ * correção consertaria uma e deixaria a outra em produção.
+ *
+ * Como os itens da grade também são clicáveis (a faixa e a vaga de "+" no
+ * indisp, o chip de etapa no quadro), o hook expõe `wasDragged()` para que um
+ * arrasto terminado em cima deles não dispare o clique.
+ *
+ * `trackWidth` deve medir **apenas** a área que representa tempo: incluir uma
+ * coluna fixa lateral superestima o dia e faz o conteúdo escorregar sob o dedo.
  */
-export function useBoardDrag(
+export function useTimelineDrag(
    trackWidth: () => number,
    dayCount: number,
    shiftDays: (days: number) => void

@@ -3,7 +3,7 @@
 import type { PointerEvent } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { act, cleanup, renderHook } from "@testing-library/react";
-import { useBoardDrag } from "@/app/(home)/ops/indisp/components/board/hooks/useBoardDrag";
+import { useTimelineDrag } from "@/hooks/useTimelineDrag";
 
 beforeEach(() => {
    vi.useFakeTimers();
@@ -26,7 +26,7 @@ function setup() {
    board.hasPointerCapture = vi.fn(() => true);
    board.releasePointerCapture = vi.fn();
    const shift = vi.fn();
-   const { result } = renderHook(() => useBoardDrag(() => 350, 7, shift));
+   const { result } = renderHook(() => useTimelineDrag(() => 350, 7, shift));
    const event = (x: number, y = 100, target: HTMLElement = child) =>
       ({
          currentTarget: board,
