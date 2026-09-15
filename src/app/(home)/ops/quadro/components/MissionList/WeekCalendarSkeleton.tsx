@@ -1,7 +1,14 @@
 "use client";
+import clsx from "clsx";
+
+function isWeekend(d: Date): boolean {
+   return d.getDay() === 0 || d.getDay() === 6;
+}
 
 interface WeekCalendarSkeletonProps {
-   daysToShow: number;
+   /** As mesmas datas da grade real: o skeleton pinta o fim de semana na
+    *  coluna certa, para a cor não saltar quando os dados chegam. */
+   dates: Date[];
    rows?: number;
 }
 
@@ -14,37 +21,36 @@ const CHIP_PATTERN: number[][] = [
 ];
 
 export function WeekCalendarSkeleton({
-   daysToShow,
+   dates,
    rows = 3,
 }: WeekCalendarSkeletonProps) {
-   const days = Array.from({ length: daysToShow });
+   const days = dates;
    const aeronaves = Array.from({ length: rows });
 
    return (
       <div className="min-h-screen text-gray-900">
-         {/* Header com navegação */}
-         <div className="m-4">
-            <div className="flex flex-col items-center gap-3">
-               <div className="flex items-center gap-2">
-                  <div className="h-8 w-24 animate-pulse rounded bg-slate-200" />
-                  <div className="flex min-w-35 justify-center px-2">
-                     <div className="h-5 w-32 animate-pulse rounded bg-slate-200" />
-                  </div>
-                  <div className="h-8 w-24 animate-pulse rounded bg-slate-200" />
-               </div>
-            </div>
+         {/* Navegação — mesmas medidas da barra real (dois NavButton de
+             32×32 e o período no meio), para não haver salto quando os
+             dados chegam. */}
+         <div className="m-4 flex items-center justify-center gap-1">
+            <div className="h-[32px] w-[32px] animate-pulse rounded bg-slate-200 pointer-coarse:h-[44px] pointer-coarse:w-[44px]" />
+            <div className="h-[32px] animate-pulse rounded bg-slate-200 px-3 sm:min-w-35 pointer-coarse:h-[44px]" />
+            <div className="h-[32px] w-[32px] animate-pulse rounded bg-slate-200 pointer-coarse:h-[44px] pointer-coarse:w-[44px]" />
          </div>
 
          {/* Calendário */}
-         <div className="relative overflow-x-auto rounded border border-slate-200 shadow">
-            <table className="w-full table-fixed border-collapse">
+         <div className="relative rounded border border-slate-200 shadow">
+            <table className="w-full table-fixed border-separate border-spacing-0">
                <thead>
                   <tr className="bg-white">
-                     <th className="w-16 border-r border-b border-slate-200/60 bg-white/30 sm:w-24"></th>
-                     {days.map((_, idx) => (
+                     <th className="sticky left-0 z-10 w-16 border-r border-b border-slate-200/60 bg-white sm:w-24"></th>
+                     {days.map((day, idx) => (
                         <th
                            key={idx}
-                           className="border-r border-b border-slate-200/60 p-2"
+                           className={clsx(
+                              "border-r border-b border-slate-200/60 p-2",
+                              isWeekend(day) ? "bg-red-50" : "bg-white"
+                           )}
                         >
                            <div className="flex flex-col items-center gap-1.5">
                               <div className="h-2 w-8 animate-pulse rounded bg-slate-200" />
@@ -58,7 +64,7 @@ export function WeekCalendarSkeleton({
                   {aeronaves.map((_, rowIdx) => (
                      <tr key={rowIdx}>
                         {/* Coluna da aeronave */}
-                        <td className="border-r border-b border-slate-200/60 p-1">
+                        <td className="sticky left-0 z-10 border-r border-b border-slate-200/60 bg-white p-1">
                            <div className="flex flex-col items-center justify-center gap-1.5 p-1">
                               <div className="h-3.5 w-14 animate-pulse rounded bg-slate-200" />
                               <div className="h-4 w-9 animate-pulse rounded-md bg-slate-200" />
@@ -67,12 +73,16 @@ export function WeekCalendarSkeleton({
                         </td>
 
                         {/* Células dos dias */}
-                        {days.map((_, colIdx) => {
-                           const chips = CHIP_PATTERN[rowIdx]?.[colIdx] ?? 0;
+                        {days.map((day, colIdx) => {
+                           const chips =
+                              CHIP_PATTERN[rowIdx]?.[colIdx % 7] ?? 0;
                            return (
                               <td
                                  key={colIdx}
-                                 className="border-r border-b border-slate-200/60 align-top"
+                                 className={clsx(
+                                    "border-r border-b border-slate-200/60 align-top",
+                                    isWeekend(day) ? "bg-red-50" : "bg-white"
+                                 )}
                               >
                                  <div className="flex min-h-38 flex-col justify-start gap-1 p-1">
                                     {Array.from({ length: chips }).map(
