@@ -153,6 +153,12 @@ export interface OrdemFilters {
    data_fim?: string;
    busca?: string;
    etiquetas_ids?: number[];
+   /**
+    * `recente` (padrão): mais recentes por cadastro — a ordem da listagem.
+    * `cronologica`: por data de decolagem, para quem lê o período como uma
+    * janela (o quadro). Ver `list_ordens` no backend.
+    */
+   ordem?: "recente" | "cronologica";
 }
 
 // --- Helpers de erro ---
@@ -203,6 +209,7 @@ export async function listOrdens(
       if (filters.data_inicio) params.data_inicio = filters.data_inicio;
       if (filters.data_fim) params.data_fim = filters.data_fim;
       if (filters.busca) params.busca = filters.busca;
+      if (filters.ordem) params.ordem = filters.ordem;
    }
 
    // Status e etiquetas são arrays, precisam de tratamento especial

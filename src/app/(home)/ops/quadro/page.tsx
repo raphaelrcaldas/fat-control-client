@@ -35,6 +35,10 @@ export default function QuadroOperacoes() {
          data_fim: windowTo,
          status_ne: "cancelada",
          per_page: PER_PAGE,
+         // O quadro desenha o período da esquerda para a direita: o corte
+         // do `per_page` tem de guardar o início da janela, não as OMs
+         // cadastradas por último.
+         ordem: "cronologica" as const,
       }),
       [windowFrom, windowTo]
    );
