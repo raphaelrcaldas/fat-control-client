@@ -23,6 +23,8 @@ Opcoes:
   --no-auth            Nao injeta cookie de sessao (telas publicas)
   --scheme <s>         Emula prefers-color-scheme: light|dark (tema do sistema)
   --reload             Recarrega a rota em vez de reusar o estado da aba
+  --solo               Fecha as outras abas e mede numa so (limpa sobra de
+                       execucao anterior; o estado das demais e descartado)
   --port <n>           Porta de depuracao do Chromium (default: 9222)
   --headless           Sobe o Chromium sem janela (so vale na primeira execucao)
   --full               Screenshot da pagina inteira (default: so a viewport)
@@ -87,6 +89,7 @@ const FLAGS = {
    "--out": (args, value) => (args.out = value),
    "--all": (args) => (args.all = true),
    "--reload": (args) => (args.reload = true),
+   "--solo": (args) => (args.solo = true),
    "--headless": (args) => (args.headless = true),
    "--full": (args) => (args.full = true),
    "--no-shot": (args) => (args.shot = false),
@@ -96,6 +99,7 @@ const FLAGS = {
 const VALUELESS = new Set([
    "--all",
    "--reload",
+   "--solo",
    "--headless",
    "--full",
    "--no-shot",
@@ -116,6 +120,7 @@ export function parsePeekArgs(argv) {
       wait: null,
       settle: 400,
       reload: false,
+      solo: false,
       port: Number(process.env.PEEK_PORT ?? 9222),
       headless: false,
       full: false,

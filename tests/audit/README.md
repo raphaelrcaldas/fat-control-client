@@ -28,6 +28,41 @@ Rota protegida precisa de sessão: o token sai de `--token`, de `AUDIT_TOKEN` ou
 de `client/.e2e_token` (o mesmo cookie `token` que os e2e usam para pular o
 login).
 
+### O escopo ativo muda a tela — confira ANTES de medir
+
+O `client` tem dois escopos, e eles não renderizam a mesma página:
+
+| Escopo                        | `activeOrg` | Tema                         | O que se vê                                     |
+| ----------------------------- | ----------- | ---------------------------- | ----------------------------------------------- |
+| **Organização** (11GT, 12GT…) | a sigla     | a do tenant (`red`, `blue`…) | os módulos operacionais                         |
+| **Sistema**                   | `null`      | `slate` fixo                 | o control plane: `/admin/*`, telas cross-tenant |
+
+O escopo não é escolha do harness: ele vem do token. No login o backend
+**prioriza o vínculo de sistema** (`resolve_default_org`, com
+`nulls_first()`), então quem tem os dois vínculos cai no Sistema — e um
+relatório de `/ops/*` feito ali mede a sidebar errada, porque
+`filtrarNavItems` troca os itens do menu conforme `isSystemContext`.
+
+Consequências concretas ao ler um relatório:
+
+- **Cor**: no Sistema o tema é `slate` por decisão, não por bug. Um achado de
+  "marca ausente" ali é falso positivo. Na organização, o mesmo elemento sai
+  em `primary-*`.
+- **Navegação**: contar paradas de Tab ou medir a sidebar num escopo não vale
+  para o outro.
+- **Permissão**: `/admin/*` exige admin de sistema (`activeOrg === null` **e**
+  papel admin). Com token de org a rota redireciona, e o harness audita a tela
+  de destino sem avisar — confira o screenshot antes de concluir qualquer coisa.
+
+Para saber em qual escopo a aba está, leia o switcher da navbar (mostra a sigla,
+ou "Sistema") e o `data-org-theme` do `<html>`. No `peek`, que reusa o login da
+aba, a troca de perfil pelo switcher **persiste entre execuções** — se a medição
+anterior trocou de escopo, a seguinte herda.
+
+Audite a tela no escopo de quem a usa. E prefira uma organização de tema
+**azul** para o trabalho de cor: assim qualquer `red-*` cravado salta como
+desvio de marca, em vez de se camuflar no vermelho do tema.
+
 Saída em `client/.audit/<rota>/` (fora do Git): `report.md`, `report.json` e um
 PNG full-page por breakpoint.
 
@@ -129,6 +164,27 @@ Na primeira execução ele sobe o Chromium que o **Playwright já instalou** (n�
 Chrome de sistema envolvido) com `--remote-debugging-port` e perfil próprio em
 `client/.peek-chrome/`, **desanexado** do processo Node. As execuções seguintes
 reatam nesse mesmo browser.
+
+### Uma aba, sempre
+
+O `peek` trabalha numa aba só: rota nova **navega a aba existente** em vez de
+abrir outra. Isso importa porque o Chromium é persistente — ele sobrevive ao fim
+do processo Node, de propósito —, então aba aberta aqui não se fecha sozinha e a
+próxima execução, ou o próximo agente, herda o que ficou. Auditar oito telas
+chegava a deixar oito abas de pé.
+
+Se encontrar sobra de uma execução anterior, `--solo` fecha as outras antes de
+medir (o estado delas é descartado):
+
+```bash
+npm run peek -- --url http://localhost:4000/users --solo
+```
+
+Para conferir o que está aberto sem abrir o navegador:
+
+```bash
+curl -s http://127.0.0.1:9222/json/list | grep '"url"'
+```
 
 Por isso ele **não recarrega a página por padrão**: o Fast Refresh do Next já
 repintou a tela depois da sua edição, e recarregar jogaria fora o estado que se

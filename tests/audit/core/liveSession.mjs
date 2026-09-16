@@ -46,6 +46,7 @@ export class LiveSession {
       settle = 400,
       scheme = null,
       reload = false,
+      solo = false,
       onConsole = null,
    }) {
       this.endpoint = endpoint;
@@ -56,6 +57,7 @@ export class LiveSession {
       this.settle = settle;
       this.scheme = scheme;
       this.reload = reload;
+      this.solo = solo;
       this.onConsole = onConsole;
    }
 
@@ -121,8 +123,8 @@ export class LiveSession {
       // `currentTime` fica em 0 para sempre, e um coletor que amostre o estado
       // ao longo do tempo le a animacao presa no primeiro quadro — o que se
       // parece exatamente com "a entrada nao roda e o conteudo fica invisivel".
-      // Como esta sessao acumula uma aba por rota visitada, a aba medida quase
-      // nunca e a ativa, e o falso positivo seria a regra, nao a excecao.
+      // Mesmo com uma aba so, ela pode estar em segundo plano (a janela perdeu
+      // o foco, outra aba foi aberta a mao), entao o cuidado continua valendo.
       await page.bringToFront().catch(() => {});
 
       // Emula a preferencia do SISTEMA. So vale onde o app segue `system`; se
@@ -197,9 +199,30 @@ export class LiveSession {
     * repintou a tela apos a edicao, e recarregar jogaria fora o estado que se
     * quer inspecionar (modal aberto, aba selecionada, filtro aplicado). E o que
     * separa "ver o efeito da minha ultima edicao" de "recomecar do zero".
+    *
+    * Rota DIFERENTE navega a aba que ja existe, em vez de abrir outra. Antes
+    * cada rota nova ganhava a sua: auditar oito telas deixava oito abas de pe,
+    * que a execucao seguinte — e o agente seguinte — herdava. O Chromium e
+    * persistente de proposito, entao lixo aqui nao se limpa sozinho.
     */
    async #resolvePage() {
       const target = new URL(this.url);
+
+      // `--solo`: fecha o que sobrou de execucoes anteriores antes de medir.
+      // Guarda UMA aba para navegar; fechar todas obrigaria a abrir outra e o
+      // Chromium fecha junto quando fica sem nenhuma.
+      if (this.solo) {
+         const abertas = this.#context.pages();
+         for (const p of abertas.slice(1)) {
+            await p.close().catch(() => {});
+         }
+         if (abertas.length > 1) {
+            console.log(
+               `[peek] --solo: ${abertas.length - 1} aba(s) fechada(s)`
+            );
+         }
+      }
+
       const pages = this.#context.pages();
 
       const match = pages.find((p) => {
@@ -220,10 +243,18 @@ export class LiveSession {
          return match;
       }
 
-      // Sem aba na rota: reaproveita uma aba em branco se houver, para nao
-      // acumular abas a cada rota nova visitada.
+      // Sem aba na rota: reusa a que houver — em branco de preferencia, senao
+      // a primeira do mesmo host — e so abre uma nova se o contexto estiver
+      // vazio. `goto` na aba existente troca a rota sem multiplicar abas.
       const blank = pages.find((p) => p.url() === "about:blank");
-      const page = blank ?? (await this.#context.newPage());
+      const mesmoHost = pages.find((p) => {
+         try {
+            return new URL(p.url()).origin === target.origin;
+         } catch {
+            return false;
+         }
+      });
+      const page = blank ?? mesmoHost ?? (await this.#context.newPage());
       await page.goto(this.url, { waitUntil: "networkidle", timeout: 45000 });
       return page;
    }

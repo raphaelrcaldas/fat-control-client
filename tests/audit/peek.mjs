@@ -130,6 +130,7 @@ async function main() {
       settle: args.settle,
       scheme: args.scheme,
       reload: args.reload,
+      solo: args.solo,
       onConsole: (message) => {
          const type = message.type();
          if (type === "error" || type === "warning" || type === "pageerror") {
@@ -142,6 +143,38 @@ async function main() {
 
    try {
       const handle = await session.open(breakpoint);
+
+      // Carimba o ESCOPO, e nao so o aparelho: o `client` renderiza paginas
+      // diferentes conforme a org ativa (sidebar, tema e ate a permissao de
+      // entrar na rota). Sem isto, um relatorio de /ops/* feito no escopo
+      // Sistema parece so "estranho", quando na verdade mediu outra tela.
+      // Ver "O escopo ativo muda a tela" no README.
+      const escopo = await handle.page
+         .evaluate(() => {
+            // A sigla (ou "Sistema") mora sozinha no switcher da navbar, num
+            // no curto — casar regex no texto inteiro do header pegaria o
+            // wordmark e os itens de menu junto.
+            const org = [
+               ...document.querySelectorAll(
+                  "nav button, nav div, header button, header div"
+               ),
+            ]
+               .map((e) => e.textContent.trim())
+               .find((t) => /^(Sistema|[A-Z0-9]{2,6})$/.test(t));
+            return {
+               tema: document.documentElement.getAttribute("data-org-theme"),
+               org,
+            };
+         })
+         .catch(() => null);
+      if (escopo?.tema) {
+         console.log(
+            `[peek] escopo: ${escopo.org ?? "?"} · tema ${escopo.tema}` +
+               (escopo.tema === "slate"
+                  ? " (Sistema: chrome neutro e' o correto)"
+                  : "")
+         );
+      }
 
       for (const collector of collectors) {
          // Um coletor que quebra nao pode levar o ciclo inteiro junto.
