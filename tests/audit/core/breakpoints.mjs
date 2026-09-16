@@ -1,8 +1,9 @@
 /**
  * `touch` nao e so o tamanho da tela: liga a emulacao de ponteiro grosso (dedo),
- * o que faz `@media (pointer: coarse)` valer na pagina. E o que separa a regua
- * de alvo confortavel (44px, dedo) da regua de alvo minimo (24px, mouse) — sem
- * isso, cobrariamos 44px no desktop e inflariamos a UI sem ganho nenhum.
+ * o que faz `@media (pointer: coarse)` valer na pagina. Ele NAO muda mais a
+ * regua de alvo — essa e 24px em qualquer ponteiro —, mas continua importando
+ * porque a pagina pode renderizar diferente sob `pointer-coarse:`, e e essa
+ * renderizacao que queremos medir.
  *
  * `mobile` nao e um retangulo generico: e o **Galaxy S25** (360x780 CSS, dpr 3),
  * o aparelho de referencia do projeto. Ajuste de mobile se confere nele — outro

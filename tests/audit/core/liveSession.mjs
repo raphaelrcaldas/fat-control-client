@@ -168,9 +168,9 @@ export class LiveSession {
       });
 
       // A sessao CDP fica ATIVA ate o fim da execucao de proposito: override de
-      // Emulation e por sessao, e `detach()` reverte tudo na hora — foi assim
-      // que a primeira versao mediu 44px de regua com ponteiro fino, cobrando
-      // do dedo o que a tela renderizou para o mouse.
+      // Emulation e por sessao, e `detach()` reverte tudo na hora — a primeira
+      // versao media a pagina ja revertida, com o ponteiro do sistema, e nao a
+      // que o aparelho emulado tinha renderizado.
       const cdp = await this.#context.newCDPSession(page);
       this.#cdp = cdp;
 

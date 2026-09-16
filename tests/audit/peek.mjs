@@ -95,27 +95,16 @@ async function main() {
       : (args.only ?? DEFAULT_COLLECTORS);
    const collectors = buildCollectors(names);
 
-   // Viewport nomeada carrega o aparelho inteiro (ponteiro e dpr); WxH avulsa e
-   // so um retangulo, e ai o ponteiro fica fino. Dizer isso e o que impede o
-   // numero de alvo de ser lido como medida de dedo.
    const breakpoint = args.viewport;
-   if (
-      !breakpoint.touch &&
-      breakpoint.width <= 768 &&
-      names.includes("touchTargets")
-   ) {
-      console.warn(
-         `[peek] aviso: viewport estreita mas ponteiro FINE (24px). ` +
-            `Para a regua de dedo use uma viewport nomeada: --viewport mobile`
-      );
-   }
 
    // Carimba o aparelho medido: sem isto, um screenshot estreito nao diz se
-   // saiu do aparelho de referencia ou de um WxH avulso com ponteiro de mouse.
+   // saiu do aparelho de referencia ou de um WxH avulso. O ponteiro entra no
+   // carimbo porque muda o que a PAGINA renderiza (`@media (pointer: coarse)`),
+   // nao mais a regua de alvo — essa e 24px em qualquer um.
    console.log(
       `[peek] ${breakpoint.device ?? breakpoint.name} — ` +
          `${breakpoint.width}x${breakpoint.height} @${breakpoint.dpr ?? 1}x · ` +
-         `ponteiro ${breakpoint.touch ? "COARSE (dedo, 44px)" : "fine (mouse, 24px)"}`
+         `ponteiro ${breakpoint.touch ? "coarse (dedo)" : "fine (mouse)"}`
    );
 
    const { endpoint } = await ensureDevChrome({

@@ -64,7 +64,7 @@ os coletores e os reporters que recebeu. Quem os escolhe é o composition root
 ```
 audit.mjs             composition root — monta e injeta as dependências
 cli/                  parse de argumentos, resolução do token
-config/heuristics.mjs as réguas (44px, grade de 4px, 45-75 caracteres…)
+config/heuristics.mjs as réguas (24px, grade de 4px, 45-75 caracteres…)
 core/auditor.mjs      orquestrador — só fala com os contratos abaixo
 core/browserSession.mjs   único módulo que sabe dirigir o Playwright
 browser/domUtils.mjs  helpers injetados na página (window.__audit)
@@ -142,19 +142,19 @@ duração para expirar em silêncio.
 ### Ponteiro: viewport nomeada emula o dedo
 
 `--viewport mobile` não estreita só a janela: emula o aparelho inteiro, com
-`pointer: coarse` e a régua de 44px. Como `hasTouch`/`isMobile` são opções de
-_contexto_ — e recriar o contexto custaria o perfil logado, que é o motivo de
-existir a ferramenta —, a emulação vai por CDP na própria aba
-(`Emulation.setDeviceMetricsOverride` + `setTouchEmulationEnabled`), o mesmo
-caminho do modo dispositivo do DevTools.
+`pointer: coarse`. Isso **não muda a régua de alvo** — ela é 24px em qualquer
+ponteiro —, mas muda o que a página renderiza, porque `@media (pointer: coarse)`
+passa a valer. Como `hasTouch`/`isMobile` são opções de _contexto_ — e recriar o
+contexto custaria o perfil logado, que é o motivo de existir a ferramenta —, a
+emulação vai por CDP na própria aba (`Emulation.setDeviceMetricsOverride` +
+`setTouchEmulationEnabled`), o mesmo caminho do modo dispositivo do DevTools.
 
 O override é **por sessão CDP**: ela fica aberta até o fim da execução de
-propósito, porque `detach()` reverte tudo na hora — foi assim que a primeira
-versão mediu com régua de dedo uma tela renderizada para mouse. Ao terminar, a
-aba volta ao ponteiro do sistema.
+propósito, porque `detach()` reverte tudo na hora — a primeira versão media a
+página já revertida, com o ponteiro do sistema. Ao terminar, a aba volta ao
+ponteiro do sistema.
 
-`--viewport 400x900` (WxH avulso) é só um retângulo: fica com ponteiro de mouse,
-e o `peek` avisa.
+`--viewport 400x900` (WxH avulso) é só um retângulo, com ponteiro de mouse.
 
 `layoutShift` e `focusRing` também ficam de fora, por incompatibilidade real: o
 primeiro precisa instrumentar a página antes do primeiro paint; o segundo

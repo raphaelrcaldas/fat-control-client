@@ -7,28 +7,22 @@
 
 export const HEURISTICS = {
    /**
-    * A regua depende do PONTEIRO, nao da tela.
-    *
-    * - Dedo (`pointer: coarse`): 44x44 e o alvo confortavel (Apple HIG / MD) —
-    *   e o caso do tablet no hangar.
-    * - Mouse (`pointer: fine`): a precisao e outra; vale o minimo do WCAG 2.2
-    *   (criterio 2.5.8), 24x24. Cobrar 44px aqui infla o shell e custa
-    *   densidade — que num sistema operacional e qualidade, nao defeito.
+    * UMA regua, igual em qualquer ponteiro: 24x24, o minimo do WCAG 2.2
+    * (criterio 2.5.8). O controle tem o mesmo tamanho no desktop e no
+    * celular — ver `docs/ai/rules/frontend.md`.
     *
     * `band*`: alvo em FAIXA (linha de tabela/lista clicavel) tem regua propria.
     * Ele atravessa o container, entao Fitts ja esta satisfeito na horizontal e
-    * o erro de toque so acontece no eixo vertical — mas como a regua olha o
-    * menor lado, a largura enorme fazia a ALTURA responder por 44px sozinha.
-    * Era isso que engordava tabela: linha a linha, ~30% de altura a mais,
-    * ~3 linhas a menos por tela. Numa faixa cobramos `bandMinPx` de altura;
-    * o alvo compacto de verdade (botao, icone) continua devendo os 44.
-    * `bandWidthFactor` define o que conta como faixa: largura >= N x a regua
-    * do ponteiro (44*3 = 132px no dedo).
+    * o erro de toque so acontece no eixo vertical. `bandMinPx` e 20, ABAIXO da
+    * regua compacta de propósito: uma linha de tabela com 24px de altura ja e
+    * confortavel de acertar, e cobrar dela o mesmo que de um icone solto
+    * engordava a tabela inteira — ~30% de altura por linha, ~3 linhas a menos
+    * por tela. `bandWidthFactor` define o que conta como faixa: largura >= N x
+    * a regua (24*3 = 72px).
     */
    touchTarget: {
-      coarseMinPx: 44,
-      fineMinPx: 24,
-      bandMinPx: 32,
+      minPx: 24,
+      bandMinPx: 20,
       bandWidthFactor: 3,
    },
 
