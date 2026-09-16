@@ -28,11 +28,11 @@ const clearTheme = {
 
 const customTheme = createTheme({
    button: {
-      // pointer-coarse: alvo de 44px só no dedo (regra do projeto) — no mouse
-      // vale o mínimo WCAG de 24px e a densidade do desktop fica intacta.
-      // min-w também: botões só-ícone (size xs/sm) ficavam com 32-37px de
-      // largura no toque.
-      base: "rounded-md pointer-coarse:min-h-[44px] pointer-coarse:min-w-[44px]",
+      // Sem variante de tamanho por ponteiro: o botão tem a MESMA altura no
+      // desktop e no celular (ver `docs/ai/rules/frontend.md`). O
+      // `pointer-coarse:min-h-[44px]` que morava aqui era a causa raiz dos
+      // controles maiores no mobile em todas as telas.
+      base: "rounded-md",
       // Pontas do ButtonGroup no mesmo raio do botão solto (default do
       // Flowbite é rounded-*-lg, destoando do rounded-md do projeto).
       grouped: "first:rounded-s-md last:rounded-e-md",
@@ -65,13 +65,10 @@ const customTheme = createTheme({
    modal: {
       root: { show: { on: "backdrop-blur-xs" } },
       // rounded (não o rounded-lg default): padrão visual do projeto.
-      // Botão de fechar: alvo de 44px no dedo, como todo controle.
       content: { inner: "rounded" },
       header: {
          base: "border-gray-300",
-         close: {
-            base: "rounded pointer-coarse:min-h-[44px] pointer-coarse:min-w-[44px]",
-         },
+         close: { base: "rounded" },
       },
    },
    pagination: {
@@ -94,7 +91,6 @@ const customTheme = createTheme({
    textInput: {
       field: {
          input: {
-            base: "pointer-coarse:min-h-[44px]",
             colors: whiteInputColors,
             withAddon: { on: "rounded-r", off: "rounded" },
          },
@@ -103,7 +99,6 @@ const customTheme = createTheme({
    select: {
       field: {
          select: {
-            base: "pointer-coarse:min-h-[44px]",
             colors: whiteInputColors,
             withAddon: { on: "rounded-r", off: "rounded" },
          },
