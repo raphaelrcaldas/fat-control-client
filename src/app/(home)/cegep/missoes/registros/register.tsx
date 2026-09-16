@@ -120,6 +120,7 @@ export function RegisPage() {
                            <div className="flex overflow-hidden rounded border border-slate-200">
                               <button
                                  type="button"
+                                 aria-label="Ver em cards"
                                  onClick={() => setViewMode("cards")}
                                  className={clsx(
                                     "flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium transition-colors",
@@ -133,6 +134,7 @@ export function RegisPage() {
                               </button>
                               <button
                                  type="button"
+                                 aria-label="Ver em tabela"
                                  onClick={() => setViewMode("table")}
                                  className={clsx(
                                     "flex items-center gap-1.5 border-l border-slate-200 px-3 py-1.5 text-sm font-medium transition-colors",
