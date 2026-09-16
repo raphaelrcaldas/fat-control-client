@@ -34,8 +34,11 @@ export async function gerarPedidoLanche(ordem: OrdemMissaoOut): Promise<Blob> {
       if (ordem.tripulacao && Array.isArray(ordem.tripulacao)) {
          for (const tripItem of ordem.tripulacao) {
             if (tripItem.tripulante) {
+               // p_g é o snapshot do posto na criação da OM (igual ao
+               // exportOrdemMissao): promoção posterior não reescreve
+               // uma ordem antiga.
                const nome = tripItem.tripulante.user
-                  ? `${tripItem.tripulante.user.p_g} ${tripItem.tripulante.user.nome_guerra}`
+                  ? `${tripItem.p_g} ${tripItem.tripulante.user.nome_guerra}`
                   : tripItem.tripulante.trig || "N/A";
                todosTripulantes.push(nome.toUpperCase());
             }
