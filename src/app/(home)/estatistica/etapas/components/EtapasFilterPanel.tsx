@@ -64,8 +64,18 @@ export const EtapasFilterPanel = memo(function EtapasFilterPanel({
          id="filtros-panel"
          className="border-t border-gray-200 bg-gray-50 p-4"
       >
-         <div className="flex flex-wrap gap-2">
-            <div className="w-32">
+         {/* Grid de 6 colunas SO no mobile, onde o `flex-wrap` acomodava os
+             campos pela largura fixa de cada um e produzia linhas
+             desbalanceadas (origem sozinha ao lado das datas, tripulante
+             espremido ao lado do tipo de missao). Seis divide exato por 2 e
+             por 3, que sao as duas unicas divisoes usadas aqui.
+
+             A partir do `sm` volta tudo ao flex-wrap com as larguras fixas:
+             ali a acomodacao automatica funciona e o grid so engessaria. Por
+             isso cada campo carrega `col-span-*` e o `sm:col-auto` que o
+             desliga. */}
+         <div className="grid grid-cols-6 gap-2 sm:flex sm:flex-wrap">
+            <div className="col-span-3 sm:col-auto sm:w-32">
                <Label className="mb-1 block text-xs font-medium text-gray-700">
                   Data inicial
                </Label>
@@ -77,7 +87,7 @@ export const EtapasFilterPanel = memo(function EtapasFilterPanel({
                />
             </div>
 
-            <div className="w-32">
+            <div className="col-span-3 sm:col-auto sm:w-32">
                <Label className="mb-1 block text-xs font-medium text-gray-700">
                   Data final
                </Label>
@@ -89,7 +99,7 @@ export const EtapasFilterPanel = memo(function EtapasFilterPanel({
                />
             </div>
 
-            <div className="w-20">
+            <div className="col-span-2 sm:col-auto sm:w-20">
                <Label className="mb-1 block text-xs font-medium text-gray-700">
                   Origem
                </Label>
@@ -104,7 +114,7 @@ export const EtapasFilterPanel = memo(function EtapasFilterPanel({
                />
             </div>
 
-            <div className="w-20">
+            <div className="col-span-2 sm:col-auto sm:w-20">
                <Label className="mb-1 block text-xs font-medium text-gray-700">
                   Destino
                </Label>
@@ -119,7 +129,7 @@ export const EtapasFilterPanel = memo(function EtapasFilterPanel({
                />
             </div>
 
-            <div className="w-28">
+            <div className="col-span-2 sm:col-auto sm:w-28">
                <Label className="mb-1 block text-xs font-medium text-gray-700">
                   Aeronave
                </Label>
@@ -132,7 +142,7 @@ export const EtapasFilterPanel = memo(function EtapasFilterPanel({
                />
             </div>
 
-            <div className="w-72">
+            <div className="col-span-6 sm:col-auto sm:w-72">
                <Label className="mb-1 block text-xs font-medium text-gray-700">
                   Esforço Aéreo
                </Label>
@@ -146,7 +156,7 @@ export const EtapasFilterPanel = memo(function EtapasFilterPanel({
                />
             </div>
 
-            <div className="w-52">
+            <div className="col-span-6 sm:col-auto sm:w-52">
                <Label className="mb-1 block text-xs font-medium text-gray-700">
                   Tipo de Missao
                </Label>
@@ -161,7 +171,7 @@ export const EtapasFilterPanel = memo(function EtapasFilterPanel({
                />
             </div>
 
-            <div className="flex-1">
+            <div className="col-span-6 sm:col-auto sm:flex-1">
                <Label className="mb-1 block text-xs font-medium text-gray-700">
                   Tripulante
                </Label>

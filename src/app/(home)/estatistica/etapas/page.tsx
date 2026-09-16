@@ -74,14 +74,20 @@ export default function EtapasPage() {
                      resource="estatistica.etapas"
                      requiredPerm="create"
                   >
+                     {/* No mobile fica só o ícone, para a linha do masthead
+                         caber sem quebrar. O rótulo continua no DOM sob
+                         `sr-only`, e não removido: sem ele o botão perde o
+                         nome acessível e o leitor de tela anuncia só "botão".
+                         A margem do ícone acompanha — `mr-2` com o texto
+                         escondido deixaria o glifo fora do eixo. */}
                      <Button
                         as={Link}
                         href="/estatistica/etapas/missao/nova"
                         color="primary"
                         size="sm"
                      >
-                        <HiPlus className="mr-2 h-4 w-4" />
-                        Missao
+                        <HiPlus className="h-4 w-4 sm:mr-2" />
+                        <span className="sr-only sm:not-sr-only">Missao</span>
                      </Button>
                   </PermBased>
                   <Button
@@ -91,8 +97,11 @@ export default function EtapasPage() {
                      aria-expanded={showFilters}
                      aria-controls="filtros-panel"
                   >
-                     <HiFilter className="mr-2 h-4 w-4" />
-                     Filtros
+                     <HiFilter className="h-4 w-4 sm:mr-2" />
+                     <span className="sr-only sm:not-sr-only">Filtros</span>
+                     {/* A contagem fica visível também no mobile: ela é o
+                         único sinal de que há filtro ativo quando o painel
+                         está fechado. */}
                      {filters.hasActiveFilters && (
                         <Badge color="primary" size="sm" className="ml-2">
                            {filters.activeFilterCount}

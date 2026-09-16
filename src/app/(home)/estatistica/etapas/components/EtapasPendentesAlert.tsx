@@ -44,7 +44,7 @@ export function EtapasPendentesAlert({
                type="button"
                onClick={() => refetch()}
                disabled={isFetching}
-               className="focus-visible:ring-primary-500 inline-flex items-center gap-1 rounded border border-slate-200 px-2 py-1 font-medium text-slate-700 transition-colors hover:bg-slate-50 focus:outline-none focus-visible:ring-2 disabled:opacity-50 pointer-coarse:min-h-[44px] pointer-coarse:px-3"
+               className="focus-visible:ring-primary-500 inline-flex items-center gap-1 rounded border border-slate-200 px-2 py-1 font-medium text-slate-700 transition-colors hover:bg-slate-50 focus:outline-none focus-visible:ring-2 disabled:opacity-50"
             >
                <HiRefresh
                   aria-hidden
@@ -127,7 +127,7 @@ export function EtapasPendentesAlert({
                               prefetch={false}
                               title={`Abrir ${nome} — ${missao.total} etapa(s) pendente(s)${fora ? ", fora do período filtrado" : ""}`}
                               className={clsx(
-                                 "group focus-visible:ring-primary-500 inline-flex items-center gap-1.5 rounded border px-2 py-1 text-xs font-medium shadow-sm transition-colors focus:outline-none focus-visible:ring-2 pointer-coarse:min-h-[44px] pointer-coarse:px-3",
+                                 "group focus-visible:ring-primary-500 inline-flex items-center gap-1.5 rounded border px-2 py-1 text-xs font-medium shadow-sm transition-colors focus:outline-none focus-visible:ring-2",
                                  fora
                                     ? "border-amber-500 bg-amber-100 text-amber-900 hover:bg-amber-200"
                                     : "border-amber-300 bg-white text-amber-900 hover:border-amber-400 hover:bg-amber-100"
@@ -167,7 +167,7 @@ export function EtapasPendentesAlert({
                            type="button"
                            onClick={() => setExpandido((v) => !v)}
                            aria-expanded={expandido}
-                           className="focus-visible:ring-primary-500 inline-flex items-center rounded border border-dashed border-amber-300 px-2 py-1 text-xs font-medium text-amber-800 transition-colors hover:bg-amber-100 focus:outline-none focus-visible:ring-2 pointer-coarse:min-h-[44px] pointer-coarse:px-3"
+                           className="focus-visible:ring-primary-500 inline-flex items-center rounded border border-dashed border-amber-300 px-2 py-1 text-xs font-medium text-amber-800 transition-colors hover:bg-amber-100 focus:outline-none focus-visible:ring-2"
                         >
                            {expandido
                               ? "Mostrar menos"
