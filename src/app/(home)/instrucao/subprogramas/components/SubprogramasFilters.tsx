@@ -115,7 +115,7 @@ export function SubprogramasFilters({
                <button
                   type="button"
                   onClick={() => onChange(FILTROS_VAZIOS)}
-                  className="flex items-center gap-1 rounded px-2 py-1 text-xs font-semibold text-slate-600 hover:bg-slate-200/70 hover:text-slate-800 pointer-coarse:min-h-[44px]"
+                  className="flex items-center gap-1 rounded px-2 py-1 text-xs font-semibold text-slate-600 hover:bg-slate-200/70 hover:text-slate-800"
                >
                   <MdClose className="size-3.5" />
                   Limpar
@@ -170,7 +170,7 @@ function Chip({
          type="button"
          onClick={onClick}
          className={clsx(
-            "flex shrink-0 items-center gap-1 rounded px-2 py-1 text-xs font-semibold whitespace-nowrap transition-colors pointer-coarse:min-h-[44px]",
+            "flex shrink-0 items-center gap-1 rounded px-2 py-1 text-xs font-semibold whitespace-nowrap transition-colors",
             active
                ? "bg-white text-slate-900 shadow-sm"
                : "text-slate-600 hover:text-slate-900"

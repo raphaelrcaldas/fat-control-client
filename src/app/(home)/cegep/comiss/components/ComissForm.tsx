@@ -254,7 +254,7 @@ export function ComissForm({ comiss, onCancel, onSuccess }: ComissFormProps) {
                      aria-label="Buscar militar"
                      onClick={() => setShowUserSearch(true)}
                      color="light"
-                     className="transition-colors duration-200 hover:bg-white pointer-coarse:size-11"
+                     className="transition-colors duration-200 hover:bg-white"
                   >
                      <IoMdSearch className="size-5" />
                   </Button>
@@ -506,7 +506,7 @@ export function ComissForm({ comiss, onCancel, onSuccess }: ComissFormProps) {
                         <Checkbox
                            id="dep"
                            color="primary"
-                           className="h-5 w-5 pointer-coarse:size-11"
+                           className="h-5 w-5"
                            checked={dep}
                            onChange={(e) => setDep(e.target.checked)}
                         />

@@ -118,7 +118,7 @@ export function OperacoesFilters({
                      type="button"
                      onClick={() => patch({ status: tab.key })}
                      className={clsx(
-                        "-mb-px flex shrink-0 items-center gap-1.5 border-b-2 px-3 py-2 text-sm font-semibold transition-colors pointer-coarse:min-h-[44px]",
+                        "-mb-px flex shrink-0 items-center gap-1.5 border-b-2 px-3 py-2 text-sm font-semibold transition-colors",
                         active
                            ? clsx(accent.border, accent.text)
                            : "border-transparent text-slate-500 hover:border-slate-300 hover:text-slate-700"
@@ -312,7 +312,7 @@ function TipoBtn({
          type="button"
          onClick={onClick}
          className={clsx(
-            "flex-1 rounded px-2.5 py-1.5 text-xs font-semibold transition-all sm:flex-initial pointer-coarse:min-h-[44px]",
+            "flex-1 rounded px-2.5 py-1.5 text-xs font-semibold transition-all sm:flex-initial",
             active
                ? "bg-white text-slate-900 shadow-sm"
                : "text-slate-600 hover:text-slate-900"

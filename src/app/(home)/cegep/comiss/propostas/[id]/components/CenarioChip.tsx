@@ -78,7 +78,7 @@ export function CenarioChip({
          aria-label={rotulo}
          className={clsx(
             "focus-visible:ring-primary-500 relative flex w-52 shrink-0 flex-col gap-1.5 overflow-hidden rounded py-2 pr-3 pl-4 text-left transition-shadow ring-inset focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-1",
-            "pb-3.5 pointer-coarse:min-h-[44px]",
+            "pb-3.5",
             active
                ? clsx(cor.soft, "shadow-sm ring-2", cor.ring)
                : "bg-white ring-1 ring-slate-200 hover:bg-slate-50"

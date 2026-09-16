@@ -125,7 +125,7 @@ export const LinhaRow = memo(function LinhaRow({
                      e.stopPropagation();
                      onRemove(linha.localId);
                   }}
-                  className="inline-flex h-7 w-7 items-center justify-center rounded text-slate-500 transition-colors hover:bg-red-50 hover:text-red-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500 pointer-coarse:h-[44px] pointer-coarse:w-[44px]"
+                  className="inline-flex h-7 w-7 items-center justify-center rounded text-slate-500 transition-colors hover:bg-red-50 hover:text-red-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
                >
                   <HiOutlineTrash aria-hidden className="h-4 w-4" />
                </button>

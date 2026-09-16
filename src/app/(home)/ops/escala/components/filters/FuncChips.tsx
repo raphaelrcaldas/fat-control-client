@@ -44,7 +44,7 @@ export function FuncChips({ value, onChange }: FuncChipsProps) {
                         // de pixel entre focado e não-focado era ZERO. O offset
                         // joga o anel sobre o branco da página, então serve aos
                         // dois estados.
-                        "inline-flex items-center justify-center gap-1.5 rounded-md border px-2.5 py-1 transition-colors select-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-900 pointer-coarse:min-h-[44px]",
+                        "inline-flex items-center justify-center gap-1.5 rounded-md border px-2.5 py-1 transition-colors select-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-900",
                         checked
                            ? "border-primary-700 bg-primary-600 pointer-fine:hover:bg-primary-700 text-white shadow-sm"
                            : "border-slate-300 bg-white text-slate-700 pointer-fine:hover:border-slate-400 pointer-fine:hover:bg-slate-50"

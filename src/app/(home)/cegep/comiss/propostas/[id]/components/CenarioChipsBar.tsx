@@ -112,7 +112,7 @@ export function CenarioChipsBar({
                         type="button"
                         onClick={onAdd}
                         title="Duplica o cenário ativo como ponto de partida"
-                        className="focus-visible:ring-primary-500 flex w-36 shrink-0 flex-col items-center justify-center gap-1 rounded border border-dashed border-slate-300 px-3 py-2 text-slate-500 transition-colors hover:border-slate-400 hover:bg-slate-50 hover:text-slate-700 focus:outline-none focus-visible:ring-2 pointer-coarse:min-h-[44px]"
+                        className="focus-visible:ring-primary-500 flex w-36 shrink-0 flex-col items-center justify-center gap-1 rounded border border-dashed border-slate-300 px-3 py-2 text-slate-500 transition-colors hover:border-slate-400 hover:bg-slate-50 hover:text-slate-700 focus:outline-none focus-visible:ring-2"
                      >
                         <HiOutlinePlus className="h-4 w-4" />
                         <span className="text-xs font-semibold">

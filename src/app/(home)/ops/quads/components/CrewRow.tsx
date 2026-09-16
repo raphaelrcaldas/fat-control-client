@@ -60,7 +60,7 @@ export function CrewRow({
             <button
                type="button"
                aria-label={`Adicionar quadrinho de ${tripQuadRes.trip.trig}`}
-               className="grid shrink-0 cursor-pointer place-items-center rounded p-1 hover:bg-slate-100 pointer-coarse:min-h-[44px] pointer-coarse:min-w-[44px]"
+               className="grid shrink-0 cursor-pointer place-items-center rounded p-1 hover:bg-slate-100"
                onClick={() => setShowForm(true)}
             >
                <VscAdd className="size-6" />

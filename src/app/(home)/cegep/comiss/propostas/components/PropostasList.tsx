@@ -55,7 +55,7 @@ export function PropostasList({
                               e.stopPropagation();
                               onOpen(p.id);
                            }}
-                           className="focus-visible:ring-primary-500 flex max-w-full min-w-0 items-center rounded text-left font-medium text-slate-900 focus:outline-none focus-visible:ring-2 pointer-coarse:min-h-[44px]"
+                           className="focus-visible:ring-primary-500 flex max-w-full min-w-0 items-center rounded text-left font-medium text-slate-900 focus:outline-none focus-visible:ring-2"
                         >
                            <span className="truncate">{p.nome}</span>
                         </button>
@@ -170,7 +170,7 @@ export function PropostasList({
                                        e.stopPropagation();
                                        onDelete(p);
                                     }}
-                                    className="inline-flex h-7 w-7 items-center justify-center rounded text-slate-500 transition-colors hover:bg-red-50 hover:text-red-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500 pointer-coarse:h-[44px] pointer-coarse:w-[44px]"
+                                    className="inline-flex h-7 w-7 items-center justify-center rounded text-slate-500 transition-colors hover:bg-red-50 hover:text-red-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
                                  >
                                     <HiOutlineTrash
                                        aria-hidden

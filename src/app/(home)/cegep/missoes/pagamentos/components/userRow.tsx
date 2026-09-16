@@ -205,11 +205,10 @@ export const UserCard = memo(function UserCard({
          {/* Topo: seleção + Militar/OM + situação — checkbox e badge centrados
              na vertical contra o bloco Militar/OM. */}
          <div className="flex items-center gap-3">
-            {/* Glifo compacto; o label vira o alvo de toque de 44px só no dedo
-                (mesmo padrão do ToggleCheckbox da calculadora). */}
-            <label className="inline-flex shrink-0 cursor-pointer items-center justify-center pointer-coarse:min-h-[44px] pointer-coarse:min-w-[44px]">
+            {/* Glifo compacto; o label envolve caixa e área clicável. */}
+            <label className="inline-flex shrink-0 cursor-pointer items-center justify-center">
                <Checkbox
-                  className="size-5 cursor-pointer pointer-coarse:size-6"
+                  className="size-5 cursor-pointer"
                   color={statusConfig.checkBoxColor}
                   checked={checked}
                   onChange={onChange}

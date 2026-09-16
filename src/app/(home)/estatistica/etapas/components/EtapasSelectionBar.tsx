@@ -135,7 +135,7 @@ export function EtapasSelectionBar({
    );
 
    const bulkToggle = (label: string, field: "sagem" | "parte1") => (
-      <div className="hidden h-9 w-32 items-center justify-between gap-1 rounded border border-slate-200 bg-white px-1.5 shadow lg:flex pointer-coarse:min-h-[44px] pointer-coarse:w-[156px]">
+      <div className="hidden h-9 w-32 items-center justify-between gap-1 rounded border border-slate-200 bg-white px-1.5 shadow lg:flex">
          <span className="text-sm font-medium whitespace-nowrap text-slate-500">
             {label}
          </span>

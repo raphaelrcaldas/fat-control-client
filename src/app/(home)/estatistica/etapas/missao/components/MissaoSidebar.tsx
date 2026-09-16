@@ -123,7 +123,7 @@ export function MissaoSidebar({
                <button
                   type="button"
                   onClick={onDeleteMissao}
-                  className="mt-3 flex w-full items-center justify-center gap-1.5 rounded-md border border-red-200 bg-red-50 px-3 py-1.5 text-sm font-medium text-red-700 transition hover:bg-red-100 pointer-coarse:min-h-[44px]"
+                  className="mt-3 flex w-full items-center justify-center gap-1.5 rounded-md border border-red-200 bg-red-50 px-3 py-1.5 text-sm font-medium text-red-700 transition hover:bg-red-100"
                >
                   <HiTrash className="h-4 w-4" />
                   Excluir missão

@@ -80,25 +80,22 @@ export function Pagination({
    };
 
    const btnBase =
-      "flex items-center justify-center text-sm py-2 px-3 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 pointer-coarse:min-h-[44px] pointer-coarse:min-w-[44px]";
+      "flex items-center justify-center text-sm py-2 px-3 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700";
    const btnNav =
-      "flex items-center justify-center h-full py-1.5 px-3 text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-gray-500 pointer-coarse:min-h-[44px] pointer-coarse:min-w-[44px]";
-   // O 44px vai no BOTAO, nao so na pastilha: a borda de 1px do container fica
-   // dentro do `min-h` dele, e o filho esticado herdava 42px — 2px abaixo da
-   // regua de dedo, justamente no controle mais usado da barra no celular.
+      "flex items-center justify-center h-full py-1.5 px-3 text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-gray-500";
    const btnCompacto =
-      "grid w-14 shrink-0 place-items-center border-slate-200 text-slate-600 transition-colors duration-150 active:bg-slate-100 disabled:text-slate-300 disabled:active:bg-transparent pointer-coarse:min-h-[44px]";
+      "grid w-14 shrink-0 place-items-center border-slate-200 text-slate-600 transition-colors duration-150 active:bg-slate-100 disabled:text-slate-300 disabled:active:bg-transparent";
    const btnActive =
-      "flex items-center justify-center text-sm z-10 py-2 px-3 leading-tight text-primary-600 bg-primary-50 border border-primary-300 hover:bg-primary-100 hover:text-primary-700 pointer-coarse:min-h-[44px] pointer-coarse:min-w-[44px]";
+      "flex items-center justify-center text-sm z-10 py-2 px-3 leading-tight text-primary-600 bg-primary-50 border border-primary-300 hover:bg-primary-100 hover:text-primary-700";
 
    return (
       <>
          {/*
-            Ate `sm` o paginador numerado NAO CABE: sao ate 9 alvos de 44px
-            (dois navegadores, dois extremos, tres vizinhos, duas reticencias)
-            = 388px num viewport de 360. O excesso era recortado pelo
-            container, e quem sumia era justamente o "Proximo" — a acao mais
-            usada da barra ficava inalcancavel no celular.
+            Ate `sm` o paginador numerado NAO CABE: sao ate 9 pecas (dois
+            navegadores, dois extremos, tres vizinhos, duas reticencias), e a
+            soma passa da largura de um viewport de 360. O excesso era
+            recortado pelo container, e quem sumia era justamente o "Proximo"
+            — a acao mais usada da barra ficava inalcancavel no celular.
 
             Aqui ele vira UM controle, e nao tres pecas soltas: uma pastilha
             com as duas zonas de toque nas BORDAS (onde o polegar chega) e o
@@ -115,7 +112,7 @@ export function Pagination({
             ref={compactoRef}
             className={clsx(
                "relative flex w-full items-stretch overflow-hidden rounded border border-slate-200 bg-white shadow-sm sm:hidden",
-               "min-h-10 pointer-coarse:min-h-[44px]"
+               "min-h-10"
             )}
          >
             <button

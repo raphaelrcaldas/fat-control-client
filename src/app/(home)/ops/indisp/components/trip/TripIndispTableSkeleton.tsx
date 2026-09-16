@@ -55,7 +55,7 @@ export function TripIndispTableSkeleton() {
                         <div className="mx-auto h-4 w-14 rounded bg-slate-100" />
                      </TableCell>
                      <TableCell className="w-px">
-                        <div className="mx-auto h-9 w-14 rounded bg-slate-100 pointer-coarse:h-[44px]" />
+                        <div className="mx-auto h-9 w-14 rounded bg-slate-100" />
                      </TableCell>
                   </TableRow>
                ))}

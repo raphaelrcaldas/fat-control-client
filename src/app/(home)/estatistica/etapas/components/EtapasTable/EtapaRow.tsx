@@ -161,8 +161,8 @@ export const EtapaRow = memo(function EtapaRow({
              Com a caixa flush à esquerda o eixo fica fixo em 12.25px. */}
          <TableCell className="w-7 px-0">
             <div className="flex w-7 items-center justify-center">
-               {/* Glifo compacto e discreto (17.5px), sem alvo de 44px —
-                   densidade priorizada sobre a ergonomia de toque nesta lista. */}
+               {/* Glifo compacto e discreto (17.5px), abaixo do piso de 24px
+                   do WCAG — densidade priorizada nesta lista densa. */}
                <Checkbox
                   color="primary"
                   checked={checked}
@@ -218,7 +218,7 @@ export const EtapaRow = memo(function EtapaRow({
                   color="light"
                   onClick={() => onDetailEtapa(id)}
                   title="Detalhes da etapa"
-                  className="min-h-0 min-w-0 p-1.5 pointer-coarse:min-h-0 pointer-coarse:min-w-0"
+                  className="min-h-0 min-w-0 p-1.5"
                >
                   <HiEye className="size-4" />
                </Button>
@@ -232,7 +232,7 @@ export const EtapaRow = memo(function EtapaRow({
                      color="light"
                      onClick={() => onEditEtapa(id)}
                      title="Editar etapa"
-                     className="min-h-0 min-w-0 p-1.5 pointer-coarse:min-h-0 pointer-coarse:min-w-0"
+                     className="min-h-0 min-w-0 p-1.5"
                   >
                      <HiPencilAlt className="size-4" />
                   </Button>

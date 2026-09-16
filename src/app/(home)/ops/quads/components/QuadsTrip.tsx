@@ -52,14 +52,12 @@ const QUAD_CHECKBOX_CLASS =
    "size-[24px] cursor-pointer rounded border-2 border-gray-500 text-primary-600 ring-offset-1 checked:border-primary-600 focus:ring-2 focus:ring-primary-500 focus:ring-offset-2";
 
 /**
- * Área de clique do checkbox: a caixa continua com 24px (crescer um checkbox
- * até 44px o descaracteriza), mas o `label` em volta estende o alvo até os
- * 44px do dedo DE GRAÇA — a linha já tem 46px de altura, então nada na tela
- * muda de tamanho; o que muda é que tocar ao lado da caixa passa a marcar.
- * No mouse vale o mínimo de 24px do WCAG 2.2, que a caixa cumpre sozinha.
+ * Área de clique do checkbox: a caixa cumpre os 24px do WCAG 2.2 sozinha, e o
+ * `label` em volta estende o alvo até a altura da linha DE GRAÇA — nada na
+ * tela muda de tamanho; o que muda é que tocar ao lado da caixa passa a
+ * marcar.
  */
-const ALVO_CHECKBOX =
-   "flex cursor-pointer items-center justify-center pointer-coarse:min-h-[44px]";
+const ALVO_CHECKBOX = "flex cursor-pointer items-center justify-center";
 
 /**
  * Célula estreita, conteúdo centrado e cabeçalho grudado no topo do rolamento.
@@ -379,10 +377,7 @@ export function QuadsTrip({
                   <button
                      type="button"
                      onClick={handleClearSelection}
-                     /* Alvo de dedo só no dedo: no mouse os 24px do WCAG 2.2
-                        bastam e um botão de texto secundário não deve inflar
-                        o rodapé. */
-                     className="shrink-0 cursor-pointer rounded px-2 py-1 text-xs font-medium whitespace-nowrap text-gray-500 hover:bg-gray-100 hover:text-gray-700 pointer-coarse:min-h-[44px] pointer-coarse:px-3"
+                     className="shrink-0 cursor-pointer rounded px-2 py-1 text-xs font-medium whitespace-nowrap text-gray-500 hover:bg-gray-100 hover:text-gray-700"
                   >
                      Limpar seleção
                   </button>
@@ -503,12 +498,7 @@ function QuadRow({
                      <button
                         ref={editBtnRef}
                         onClick={() => setShowForm(true)}
-                        /* Alvo de 44px SÓ no dedo, e por piso — não por
-                           padding: `size-5` mede 17,5px (a raiz do client é
-                           87,5%), então nenhum passo da escala fecha os 44
-                           (`p-3` para em 41,5px). No mouse ficam os 32px,
-                           acima do mínimo de 24px do WCAG 2.2. */
-                        className="inline-flex cursor-pointer items-center justify-center rounded p-2 text-blue-500 transition-all duration-200 hover:bg-blue-500 hover:text-white active:scale-95 motion-reduce:transition-none motion-reduce:active:scale-100 pointer-coarse:min-h-[44px] pointer-coarse:min-w-[44px]"
+                        className="inline-flex cursor-pointer items-center justify-center rounded p-2 text-blue-500 transition-all duration-200 hover:bg-blue-500 hover:text-white active:scale-95 motion-reduce:transition-none motion-reduce:active:scale-100"
                         aria-label={`Editar quadrinho ${displayValue}`}
                      >
                         <FaEdit className="size-5" />
@@ -543,10 +533,7 @@ function LoadingState({ comSelecao }: { comSelecao: boolean }) {
          </div>
 
          {Array.from({ length: 6 }).map((_, i) => (
-            <div
-               key={i}
-               className="flex items-center gap-3 px-3 py-2 pointer-coarse:min-h-[44px]"
-            >
+            <div key={i} className="flex items-center gap-3 px-3 py-2">
                {comSelecao && (
                   <div className="size-[24px] shrink-0 animate-pulse rounded bg-slate-200" />
                )}

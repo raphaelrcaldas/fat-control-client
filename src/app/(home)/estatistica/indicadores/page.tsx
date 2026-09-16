@@ -109,7 +109,7 @@ export default function IndicadoresPage() {
                <button
                   type="button"
                   onClick={() => refetch()}
-                  className="mt-2 rounded border border-rose-300 bg-white px-3 py-1.5 text-xs font-semibold text-rose-800 hover:bg-rose-100 pointer-coarse:min-h-[44px]"
+                  className="mt-2 rounded border border-rose-300 bg-white px-3 py-1.5 text-xs font-semibold text-rose-800 hover:bg-rose-100"
                >
                   Tentar novamente
                </button>

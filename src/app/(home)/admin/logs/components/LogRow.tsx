@@ -149,7 +149,7 @@ export function LogRow({ log, tema, showAction, onDeleteClick }: LogRowProps) {
          <TableCell className="w-px align-middle md:w-auto">
             <button
                onClick={() => onDeleteClick(log)}
-               className="grid size-8 place-items-center rounded text-gray-400 transition-colors hover:bg-red-50 hover:text-red-600 pointer-coarse:size-[44px]"
+               className="grid size-8 place-items-center rounded text-gray-400 transition-colors hover:bg-red-50 hover:text-red-600"
                aria-label={`Excluir log de ${log.user.nome_guerra}`}
                type="button"
             >

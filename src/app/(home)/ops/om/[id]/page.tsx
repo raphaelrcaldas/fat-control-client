@@ -46,7 +46,7 @@ export default function OrdemDetailPage() {
                </Button>
                <button
                   onClick={handleNavigateBack}
-                  className="text-primary-600 py-1 text-sm font-medium hover:underline pointer-coarse:min-h-[44px]"
+                  className="text-primary-600 py-1 text-sm font-medium hover:underline"
                >
                   Voltar para lista de ordens
                </button>
@@ -63,7 +63,7 @@ export default function OrdemDetailPage() {
             </p>
             <button
                onClick={handleNavigateBack}
-               className="text-primary-600 py-1 text-sm font-medium hover:underline pointer-coarse:min-h-[44px]"
+               className="text-primary-600 py-1 text-sm font-medium hover:underline"
             >
                Voltar para lista de ordens
             </button>

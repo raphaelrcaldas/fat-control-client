@@ -39,7 +39,7 @@ export function PermissionChip({
             onClick={onRemove}
             disabled={disabled}
             aria-label={`Remover ${permission.resource}.${permission.action}`}
-            className="rounded-full p-2 transition-colors hover:bg-black/10 pointer-coarse:p-2.5"
+            className="rounded-full p-2 transition-colors hover:bg-black/10"
          >
             <FaXmark className="h-3 w-3" />
          </button>

@@ -115,11 +115,10 @@ export function FilterPage({ active }: { active: boolean }) {
                   <div>
                      <div className="flex flex-col gap-2 border-b border-slate-200 bg-gray-50 px-3 py-1 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:py-0.5">
                         <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-                           {/* Glifo compacto; o label vira o alvo de toque de
-                               44px só no dedo (padrão do ToggleCheckbox). */}
-                           <label className="inline-flex cursor-pointer items-center justify-center pointer-coarse:min-h-[44px] pointer-coarse:min-w-[44px]">
+                           {/* Glifo compacto; o label envolve caixa e área clicável. */}
+                           <label className="inline-flex cursor-pointer items-center justify-center">
                               <Checkbox
-                                 className="size-5 pointer-coarse:size-6"
+                                 className="size-5"
                                  checked={selectedAll}
                                  color="primary"
                                  onChange={() => setSelectedAll(!selectedAll)}

@@ -17,7 +17,7 @@ const tabsTheme = {
          underline: "-mb-px flex flex-wrap gap-1 border-b border-slate-200",
       },
       tabitem: {
-         base: "flex items-center justify-center gap-2 rounded-t! px-4 py-2.5 text-sm font-medium transition-colors first:ml-0 focus:outline-none disabled:cursor-not-allowed disabled:text-gray-500 pointer-coarse:min-h-[44px]",
+         base: "flex items-center justify-center gap-2 rounded-t! px-4 py-2.5 text-sm font-medium transition-colors first:ml-0 focus:outline-none disabled:cursor-not-allowed disabled:text-gray-500",
          variant: {
             underline: {
                base: "",

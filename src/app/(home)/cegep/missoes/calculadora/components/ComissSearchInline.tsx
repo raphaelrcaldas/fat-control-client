@@ -223,7 +223,7 @@ function ComissOption({
          onClick={onSelect}
          onPointerEnter={onHover}
          className={clsx(
-            "flex w-full items-center gap-3 px-3 py-2 text-left transition-colors pointer-coarse:min-h-[44px]",
+            "flex w-full items-center gap-3 px-3 py-2 text-left transition-colors",
             ativa ? "bg-slate-100" : "bg-white hover:bg-slate-50"
          )}
       >

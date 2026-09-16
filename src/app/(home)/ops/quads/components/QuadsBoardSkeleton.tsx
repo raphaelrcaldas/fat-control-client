@@ -27,10 +27,7 @@ export function QuadsBoardSkeleton({ rows = 8 }: QuadsBoardSkeletonProps) {
                >
                   {/* Trigrama (sticky à esquerda, igual ao CrewRow) */}
                   <div className="sticky left-0 z-10 shrink-0 bg-white px-1">
-                     {/* O botão do trigrama também cresce no dedo (piso de
-                         44px que o tema dá a todo Button), então o
-                         placeholder cresce junto. */}
-                     <div className="h-9 w-18 animate-pulse rounded bg-slate-200 pointer-coarse:min-h-[44px]" />
+                     <div className="h-9 w-18 animate-pulse rounded bg-slate-200" />
                   </div>
 
                   {/* Cards de quadrinho */}

@@ -64,7 +64,7 @@ export const IndispBoardRow = memo(function IndispBoardRow({
                onClick={() => {
                   if (!shouldIgnoreClick()) onOpenTrip(tripData);
                }}
-               className="focus-visible:ring-primary-600 relative flex h-full w-full cursor-[inherit] items-center justify-center px-0.5 focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-inset pointer-coarse:min-h-[44px] pointer-coarse:min-w-[44px]"
+               className="focus-visible:ring-primary-600 relative flex h-full w-full cursor-[inherit] items-center justify-center px-0.5 focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-inset"
                aria-label={`Ver indisponibilidades de ${trig}${oper === "in" ? ", instrutor" : ""}`}
             >
                <span

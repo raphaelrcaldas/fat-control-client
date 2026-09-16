@@ -565,7 +565,7 @@ function EfetivoRow({
                   <button
                      type="button"
                      onClick={() => onEdit(p)}
-                     className="p-1 text-slate-600 pointer-coarse:min-h-[44px] pointer-coarse:min-w-[44px]"
+                     className="p-1 text-slate-600"
                      title={`Editar período ${isoDateToShort(p.data_ingresso)}–${isoDateToShort(p.data_regresso)}`}
                   >
                      <MdEdit className="h-4 w-4" />
@@ -579,7 +579,7 @@ function EfetivoRow({
                      type="button"
                      onClick={() => onRemove(p)}
                      disabled={removendo}
-                     className="p-1 text-red-700 pointer-coarse:min-h-[44px] pointer-coarse:min-w-[44px]"
+                     className="p-1 text-red-700"
                      title={`Remover período ${isoDateToShort(p.data_ingresso)}–${isoDateToShort(p.data_regresso)}`}
                   >
                      {removendo ? (
@@ -677,7 +677,7 @@ function EfetivoItemMobile({
                   <button
                      type="button"
                      onClick={() => onEdit(p)}
-                     className="p-1 text-slate-600 pointer-coarse:min-h-[44px] pointer-coarse:min-w-[44px]"
+                     className="p-1 text-slate-600"
                      title="Editar período"
                   >
                      <MdEdit className="h-4 w-4" />
@@ -691,7 +691,7 @@ function EfetivoItemMobile({
                      type="button"
                      onClick={() => onRemove(p)}
                      disabled={removendo}
-                     className="p-1 text-red-700 pointer-coarse:min-h-[44px] pointer-coarse:min-w-[44px]"
+                     className="p-1 text-red-700"
                      title="Remover período"
                   >
                      {removendo ? (

@@ -223,7 +223,7 @@ export function PermissionFormModal({
                                     aria-checked={active}
                                     onClick={() => handleSelectAction(action)}
                                     className={clsx(
-                                       "rounded-md border px-2 py-1.5 text-center font-mono text-sm font-medium transition-colors pointer-coarse:min-h-[44px]",
+                                       "rounded-md border px-2 py-1.5 text-center font-mono text-sm font-medium transition-colors",
                                        active
                                           ? clsx(
                                                chip.bg,

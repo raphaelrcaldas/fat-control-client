@@ -68,7 +68,7 @@ export function FuncGroupDropZone({
                <button
                   type="button"
                   onClick={onRemoveAll}
-                  className="-my-1 grid size-7 place-items-center rounded opacity-60 hover:opacity-100 pointer-coarse:size-11"
+                  className="-my-1 grid size-7 place-items-center rounded opacity-60 hover:opacity-100"
                   title="Limpar todos"
                   aria-label={`Limpar todos de ${funcLabel}`}
                >
@@ -103,7 +103,7 @@ export function FuncGroupDropZone({
                      onClick={() => onRemove(t.tripId)}
                      title={`Remover ${t.nomeGuerra}`}
                      aria-label={`Remover ${t.nomeGuerra} da função ${funcLabel}`}
-                     className="-my-1 ml-0.5 grid size-7 shrink-0 place-items-center text-gray-400 hover:text-red-500 pointer-coarse:size-11"
+                     className="-my-1 ml-0.5 grid size-7 shrink-0 place-items-center text-gray-400 hover:text-red-500"
                   >
                      <HiX className="h-3 w-3" />
                   </button>

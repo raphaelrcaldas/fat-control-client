@@ -172,7 +172,7 @@ export function SearchableSelect({
                2px e o piso de area do WCAG 2.4.11; borda de 1px trocando de
                cor nao alcanca 3:1 entre os dois estados. */
             className={clsx(
-               "focus-visible:outline-primary-600 flex w-full cursor-pointer items-center justify-between gap-2 rounded border bg-white outline-none focus-visible:outline-[2px] focus-visible:outline-offset-[2px] focus-visible:[outline-style:solid] pointer-coarse:min-h-[44px]",
+               "focus-visible:outline-primary-600 flex w-full cursor-pointer items-center justify-between gap-2 rounded border bg-white outline-none focus-visible:outline-[2px] focus-visible:outline-offset-[2px] focus-visible:[outline-style:solid]",
                SIZING_CLASSES[sizing],
                value
                   ? "border-gray-300 text-gray-900 hover:bg-gray-50"

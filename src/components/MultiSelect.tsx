@@ -186,7 +186,7 @@ export function MultiSelect({
                regra vence o `outline-style` e o contorno nao chega a pintar.
                2px e o piso de area do WCAG 2.4.11; borda de 1px trocando de
                cor nao alcanca 3:1 entre os dois estados. */
-            className={`flex w-full items-center justify-between gap-2 rounded border bg-white ${SIZING_CLASSES[sizing]} focus-visible:outline-primary-600 outline-none focus-visible:outline-[2px] focus-visible:outline-offset-[2px] focus-visible:[outline-style:solid] pointer-coarse:min-h-[44px] ${
+            className={`flex w-full items-center justify-between gap-2 rounded border bg-white ${SIZING_CLASSES[sizing]} focus-visible:outline-primary-600 outline-none focus-visible:outline-[2px] focus-visible:outline-offset-[2px] focus-visible:[outline-style:solid] ${
                selected.length > 0
                   ? "border-primary-300 bg-primary-50 hover:bg-primary-100 text-gray-900"
                   : "border-gray-300 text-gray-900 hover:bg-gray-50"

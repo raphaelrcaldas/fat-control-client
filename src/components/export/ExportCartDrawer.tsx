@@ -197,7 +197,7 @@ export function ExportCartDrawer<T>({
                   type="button"
                   onClick={onClose}
                   aria-label="Fechar"
-                  className="grid size-8 shrink-0 place-items-center rounded text-slate-500 transition-colors duration-150 hover:bg-slate-100 pointer-coarse:size-[44px]"
+                  className="grid size-8 shrink-0 place-items-center rounded text-slate-500 transition-colors duration-150 hover:bg-slate-100"
                >
                   <HiX className="h-5 w-5" />
                </button>
@@ -262,7 +262,7 @@ export function ExportCartDrawer<T>({
                                  // Discreto no repouso e forte no hover: numa
                                  // lista de 40, quarenta X vermelhos gritariam
                                  // mais que os nomes.
-                                 className="grid size-7 shrink-0 place-items-center rounded text-slate-300 transition-colors duration-150 hover:bg-red-50 hover:text-red-600 pointer-coarse:size-[44px] pointer-coarse:text-slate-400 pointer-fine:group-hover:text-slate-500"
+                                 className="grid size-7 shrink-0 place-items-center rounded text-slate-300 transition-colors duration-150 hover:bg-red-50 hover:text-red-600 pointer-coarse:text-slate-400 pointer-fine:group-hover:text-slate-500"
                               >
                                  <HiX className="h-4 w-4" />
                               </button>

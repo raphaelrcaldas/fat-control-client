@@ -80,7 +80,7 @@ export function ActiveFilterTags({
                      type="button"
                      aria-label="Remover filtro data inicial"
                      onClick={onRemoveDataIni}
-                     className="hover:text-primary-900 -my-2 ml-0.5 grid size-[26px] shrink-0 place-items-center rounded pointer-coarse:size-[44px]"
+                     className="hover:text-primary-900 -my-2 ml-0.5 grid size-[26px] shrink-0 place-items-center rounded"
                   >
                      <HiX className="h-3 w-3" />
                   </button>
@@ -97,7 +97,7 @@ export function ActiveFilterTags({
                      type="button"
                      aria-label="Remover filtro data final"
                      onClick={onRemoveDataFim}
-                     className="hover:text-primary-900 -my-2 ml-0.5 grid size-[26px] shrink-0 place-items-center rounded pointer-coarse:size-[44px]"
+                     className="hover:text-primary-900 -my-2 ml-0.5 grid size-[26px] shrink-0 place-items-center rounded"
                   >
                      <HiX className="h-3 w-3" />
                   </button>
@@ -114,7 +114,7 @@ export function ActiveFilterTags({
                      type="button"
                      aria-label="Remover filtro aeronave"
                      onClick={onRemoveAnv}
-                     className="hover:text-primary-900 -my-2 ml-0.5 grid size-[26px] shrink-0 place-items-center rounded pointer-coarse:size-[44px]"
+                     className="hover:text-primary-900 -my-2 ml-0.5 grid size-[26px] shrink-0 place-items-center rounded"
                   >
                      <HiX className="h-3 w-3" />
                   </button>
@@ -131,7 +131,7 @@ export function ActiveFilterTags({
                      type="button"
                      aria-label="Remover filtro origem"
                      onClick={onRemoveOrigem}
-                     className="hover:text-primary-900 -my-2 ml-0.5 grid size-[26px] shrink-0 place-items-center rounded pointer-coarse:size-[44px]"
+                     className="hover:text-primary-900 -my-2 ml-0.5 grid size-[26px] shrink-0 place-items-center rounded"
                   >
                      <HiX className="h-3 w-3" />
                   </button>
@@ -148,7 +148,7 @@ export function ActiveFilterTags({
                      type="button"
                      aria-label="Remover filtro destino"
                      onClick={onRemoveDestino}
-                     className="hover:text-primary-900 -my-2 ml-0.5 grid size-[26px] shrink-0 place-items-center rounded pointer-coarse:size-[44px]"
+                     className="hover:text-primary-900 -my-2 ml-0.5 grid size-[26px] shrink-0 place-items-center rounded"
                   >
                      <HiX className="h-3 w-3" />
                   </button>
@@ -165,7 +165,7 @@ export function ActiveFilterTags({
                      type="button"
                      aria-label="Remover filtro tripulante"
                      onClick={onRemoveTrip}
-                     className="hover:text-primary-900 -my-2 ml-0.5 grid size-[26px] shrink-0 place-items-center rounded pointer-coarse:size-[44px]"
+                     className="hover:text-primary-900 -my-2 ml-0.5 grid size-[26px] shrink-0 place-items-center rounded"
                   >
                      <HiX className="h-3 w-3" />
                   </button>
@@ -181,7 +181,7 @@ export function ActiveFilterTags({
                      type="button"
                      aria-label="Remover filtro funcao"
                      onClick={onRemoveFuncao}
-                     className="hover:text-primary-900 -my-2 ml-0.5 grid size-[26px] shrink-0 place-items-center rounded pointer-coarse:size-[44px]"
+                     className="hover:text-primary-900 -my-2 ml-0.5 grid size-[26px] shrink-0 place-items-center rounded"
                   >
                      <HiX className="h-3 w-3" />
                   </button>
@@ -198,7 +198,7 @@ export function ActiveFilterTags({
                      type="button"
                      aria-label="Remover filtro esforco aereo"
                      onClick={onRemoveEsfAer}
-                     className="hover:text-primary-900 -my-2 ml-0.5 grid size-[26px] shrink-0 place-items-center rounded pointer-coarse:size-[44px]"
+                     className="hover:text-primary-900 -my-2 ml-0.5 grid size-[26px] shrink-0 place-items-center rounded"
                   >
                      <HiX className="h-3 w-3" />
                   </button>
@@ -214,7 +214,7 @@ export function ActiveFilterTags({
                      type="button"
                      aria-label="Remover filtro tipo missao"
                      onClick={onRemoveTipoMissao}
-                     className="hover:text-primary-900 -my-2 ml-0.5 grid size-[26px] shrink-0 place-items-center rounded pointer-coarse:size-[44px]"
+                     className="hover:text-primary-900 -my-2 ml-0.5 grid size-[26px] shrink-0 place-items-center rounded"
                   >
                      <HiX className="h-3 w-3" />
                   </button>
@@ -225,7 +225,7 @@ export function ActiveFilterTags({
          <button
             type="button"
             onClick={onClearAll}
-            className="-my-2 rounded px-1 py-2 text-xs text-gray-500 underline hover:text-gray-700 pointer-coarse:min-h-[44px]"
+            className="-my-2 rounded px-1 py-2 text-xs text-gray-500 underline hover:text-gray-700"
          >
             Limpar todos
          </button>

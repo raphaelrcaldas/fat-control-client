@@ -79,7 +79,7 @@ export function TripRow({ trip }: TripRowProps) {
                   href={href}
                   aria-label={`Detalhes de ${user.nome_guerra}`}
                   title={`Detalhes de ${user.nome_guerra}`}
-                  className="hover:border-primary-300 hover:text-primary-700 focus-visible:outline-primary-600 inline-flex items-center justify-center rounded border border-slate-200 p-1.5 text-[0.7rem] text-slate-500 uppercase transition-colors outline-none focus-visible:outline-[2px] focus-visible:outline-offset-[2px] focus-visible:[outline-style:solid] pointer-coarse:min-h-[44px] pointer-coarse:min-w-[44px]"
+                  className="hover:border-primary-300 hover:text-primary-700 focus-visible:outline-primary-600 inline-flex items-center justify-center rounded border border-slate-200 p-1.5 text-[0.7rem] text-slate-500 uppercase transition-colors outline-none focus-visible:outline-[2px] focus-visible:outline-offset-[2px] focus-visible:[outline-style:solid]"
                >
                   <HiChevronRight className="h-4 w-4" />
                </Link>

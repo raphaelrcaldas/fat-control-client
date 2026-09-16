@@ -447,23 +447,20 @@ export function AeronaveFormModal({
                      Configurações
                   </p>
                   {/* O pill do Flowbite tem 21px de altura — abaixo do piso
-                      WCAG 2.5.8 de 24px em QUALQUER ponteiro, não só no dedo.
-                      O padding cresce a área clicável (o botão é o alvo
-                      medido) sem mexer no desenho do pill. No dedo, `py-3`
-                      parava em 42px: a raiz é 87,5% (1rem = 14px), então o
-                      alvo precisa ser cravado em px. */}
+                      WCAG 2.5.8 de 24px. O padding cresce a área clicável (o
+                      botão é o alvo medido) sem mexer no desenho do pill. */}
                   <ToggleSwitch
                      label="Aeronave Ativa"
                      checked={formData.active}
                      color="green"
-                     className="py-1.5 pointer-coarse:min-h-[44px]"
+                     className="py-1.5"
                      onChange={(val) => updateField("active", val)}
                   />
                   <ToggleSwitch
                      label="Simulador"
                      checked={formData.is_sim}
                      color="purple"
-                     className="py-1.5 pointer-coarse:min-h-[44px]"
+                     className="py-1.5"
                      onChange={(val) => updateField("is_sim", val)}
                   />
                </div>

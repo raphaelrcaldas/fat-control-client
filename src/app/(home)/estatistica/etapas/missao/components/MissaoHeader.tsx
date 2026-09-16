@@ -55,7 +55,7 @@ export function MissaoHeader({
                      type="button"
                      onClick={onBack}
                      aria-label="Voltar"
-                     className="focus-visible:outline-primary-500 flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-gray-500 transition hover:bg-gray-100 hover:text-gray-700 focus-visible:outline-2 pointer-coarse:min-h-11 pointer-coarse:min-w-11"
+                     className="focus-visible:outline-primary-500 flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-gray-500 transition hover:bg-gray-100 hover:text-gray-700 focus-visible:outline-2"
                   >
                      <HiArrowLeft className="h-5 w-5" />
                   </button>
@@ -66,7 +66,7 @@ export function MissaoHeader({
                      onClick={onOpenSidebar}
                      aria-label="Abrir painel de etapas"
                      title="Etapas da missão"
-                     className="focus-visible:outline-primary-500 flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-gray-500 transition hover:bg-gray-100 hover:text-gray-700 focus-visible:outline-2 lg:hidden pointer-coarse:min-h-11 pointer-coarse:min-w-11"
+                     className="focus-visible:outline-primary-500 flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-gray-500 transition hover:bg-gray-100 hover:text-gray-700 focus-visible:outline-2 lg:hidden"
                   >
                      <HiMenuAlt2 className="h-5 w-5" />
                   </button>
@@ -112,27 +112,19 @@ export function MissaoHeader({
                            type="button"
                            aria-label="Mais ações da etapa"
                            disabled={isSaving}
-                           className="focus-visible:outline-primary-500 flex h-9 w-9 items-center justify-center rounded-full text-gray-500 transition hover:bg-gray-100 hover:text-gray-700 focus-visible:outline-2 disabled:opacity-50 sm:hidden pointer-coarse:min-h-11 pointer-coarse:min-w-11"
+                           className="focus-visible:outline-primary-500 flex h-9 w-9 items-center justify-center rounded-full text-gray-500 transition hover:bg-gray-100 hover:text-gray-700 focus-visible:outline-2 disabled:opacity-50 sm:hidden"
                         >
                            <HiDotsVertical className="h-5 w-5" />
                         </button>
                      )}
                   >
                      {onDeleteEtapa && (
-                        <DropdownItem
-                           icon={HiTrash}
-                           onClick={onDeleteEtapa}
-                           className="pointer-coarse:min-h-11"
-                        >
+                        <DropdownItem icon={HiTrash} onClick={onDeleteEtapa}>
                            Excluir etapa
                         </DropdownItem>
                      )}
                      {dirty && onRevert && (
-                        <DropdownItem
-                           icon={HiReply}
-                           onClick={onRevert}
-                           className="pointer-coarse:min-h-11"
-                        >
+                        <DropdownItem icon={HiReply} onClick={onRevert}>
                            Desfazer alterações
                         </DropdownItem>
                      )}

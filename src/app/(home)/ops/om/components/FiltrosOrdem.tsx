@@ -80,7 +80,7 @@ export function FiltrosOrdemComponent({
             <button
                type="button"
                onClick={() => setExpanded(!expanded)}
-               className="-my-2 flex min-w-0 flex-1 flex-wrap items-center gap-2 py-2 text-left transition-colors pointer-coarse:min-h-[44px]"
+               className="-my-2 flex min-w-0 flex-1 flex-wrap items-center gap-2 py-2 text-left transition-colors"
             >
                <span className="text-sm font-bold tracking-wider text-gray-500 uppercase">
                   Filtros
@@ -147,7 +147,7 @@ export function FiltrosOrdemComponent({
                <button
                   type="button"
                   onClick={() => setExpanded(!expanded)}
-                  className="-m-1 grid place-items-center rounded p-1 pointer-coarse:min-h-[44px] pointer-coarse:min-w-[44px]"
+                  className="-m-1 grid place-items-center rounded p-1"
                   aria-label={
                      expanded ? "Recolher filtros" : "Expandir filtros"
                   }

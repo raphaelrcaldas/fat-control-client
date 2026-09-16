@@ -23,7 +23,7 @@ export default function SoldoRowActions({
                <button
                   type="button"
                   onClick={() => onEdit(soldo)}
-                  className="flex items-center gap-1 rounded px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-100 pointer-coarse:min-h-[44px]"
+                  className="flex items-center gap-1 rounded px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-100"
                >
                   <HiPencil className="h-4 w-4" />
                   Editar
@@ -31,7 +31,7 @@ export default function SoldoRowActions({
                <button
                   type="button"
                   onClick={() => onDelete(soldo)}
-                  className="flex items-center gap-1 rounded px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 pointer-coarse:min-h-[44px]"
+                  className="flex items-center gap-1 rounded px-3 py-1.5 text-sm text-red-600 hover:bg-red-50"
                >
                   <HiTrash className="h-4 w-4" />
                   Excluir
@@ -47,7 +47,7 @@ export default function SoldoRowActions({
             <button
                type="button"
                onClick={() => onEdit(soldo)}
-               className="inline-flex items-center justify-center rounded p-2 text-gray-600 transition-colors hover:bg-slate-100 hover:text-slate-700 pointer-coarse:min-h-[44px] pointer-coarse:min-w-[44px]"
+               className="inline-flex items-center justify-center rounded p-2 text-gray-600 transition-colors hover:bg-slate-100 hover:text-slate-700"
                aria-label="Editar soldo"
                title="Editar"
             >
@@ -56,7 +56,7 @@ export default function SoldoRowActions({
             <button
                type="button"
                onClick={() => onDelete(soldo)}
-               className="inline-flex items-center justify-center rounded p-2 text-gray-600 transition-colors hover:bg-red-50 hover:text-red-600 pointer-coarse:min-h-[44px] pointer-coarse:min-w-[44px]"
+               className="inline-flex items-center justify-center rounded p-2 text-gray-600 transition-colors hover:bg-red-50 hover:text-red-600"
                aria-label="Excluir soldo"
                title="Excluir"
             >

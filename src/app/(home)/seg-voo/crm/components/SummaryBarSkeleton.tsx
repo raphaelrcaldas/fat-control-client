@@ -24,7 +24,7 @@ export default function SummaryBarSkeleton() {
             {COUNTERS.map((i) => (
                <div
                   key={i}
-                  className="rounded border border-slate-200 px-2 py-1 pointer-coarse:min-h-[44px]"
+                  className="rounded border border-slate-200 px-2 py-1"
                >
                   {/* O número real é `text-base`: line-box de 21px. */}
                   <div className="flex h-[21px] items-center justify-between gap-1">

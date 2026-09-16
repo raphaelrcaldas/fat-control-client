@@ -33,9 +33,9 @@ export function PropostasListSkeleton({
                   className="flex items-start justify-between gap-2 rounded border border-slate-200 bg-white px-3 py-2 shadow-sm"
                >
                   <div className="min-w-0 flex-1">
-                     {/* Mesma altura do botão do nome no card real (44px no
-                         toque), para a lista não pular quando os dados chegam. */}
-                     <div className="flex items-center pointer-coarse:min-h-[44px]">
+                     {/* Mesma altura do botão do nome no card real, para a
+                         lista não pular quando os dados chegam. */}
+                     <div className="flex items-center">
                         <Bar className="h-4 w-40" />
                      </div>
                      <Bar className="mt-1.5 h-3.5 w-56" />

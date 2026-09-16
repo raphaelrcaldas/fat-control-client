@@ -41,12 +41,9 @@ export default function Navbar({
          {/* min-w-0: deixa o bloco da marca ceder espaço ao OrgSwitcher em vez
              de empurrá-lo — em 360px os dois somavam a viewport inteira. */}
          <div className="flex min-w-0 items-center gap-2 sm:gap-3">
-            {/* Alvo de 44px só em ponteiro grosso (dedo). No mouse a precisão é
-                outra — o mínimo WCAG ali é 24px — e inflar o shell no desktop
-                custaria densidade sem ganho. Em px, e não rem: a raiz é 87.5%. */}
             <button
                onClick={onToggleSidebar}
-               className="hover:bg-primary-100 focus-visible:ring-primary-600 flex items-center justify-center rounded transition-colors focus-visible:ring-2 focus-visible:outline-none pointer-coarse:min-h-[44px] pointer-coarse:min-w-[44px]"
+               className="hover:bg-primary-100 focus-visible:ring-primary-600 flex items-center justify-center rounded transition-colors focus-visible:ring-2 focus-visible:outline-none"
                aria-label={isSidebarOpen ? "Fechar menu" : "Abrir menu"}
                aria-expanded={isSidebarOpen}
             >
@@ -93,7 +90,7 @@ export default function Navbar({
                   onClick={() => setFeedbackAberto(true)}
                   aria-label="Enviar feedback"
                   title="Enviar feedback"
-                  className="hover:bg-primary-100 focus-visible:ring-primary-600 flex items-center justify-center rounded p-1.5 transition-colors focus-visible:ring-2 focus-visible:outline-none pointer-coarse:min-h-[44px] pointer-coarse:min-w-[44px]"
+                  className="hover:bg-primary-100 focus-visible:ring-primary-600 flex items-center justify-center rounded p-1.5 transition-colors focus-visible:ring-2 focus-visible:outline-none"
                >
                   <MdOutlineRateReview className="text-primary-600 h-6 w-6" />
                </button>

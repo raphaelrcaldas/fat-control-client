@@ -24,12 +24,11 @@ export function MissaoParamsCard({
 
          <Label
             htmlFor="calc-acrec-desloc"
-            className="flex cursor-pointer items-center gap-2 text-sm text-slate-700 pointer-coarse:min-h-[44px]"
+            className="flex cursor-pointer items-center gap-2 text-sm text-slate-700"
          >
             <Checkbox
                id="calc-acrec-desloc"
                color="primary"
-               className="pointer-coarse:size-6"
                checked={acrecDesloc}
                onChange={(e) => setAcrecDesloc(e.target.checked)}
             />

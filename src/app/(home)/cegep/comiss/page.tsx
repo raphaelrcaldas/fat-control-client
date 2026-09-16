@@ -125,8 +125,7 @@ function TabButton({ active, icon, label, onClick }: TabButtonProps) {
          aria-pressed={active}
          onClick={onClick}
          className={clsx(
-            // 44px so no dedo: no mouse a densidade do desktop fica intacta.
-            "flex flex-1 items-center justify-center gap-2 rounded py-2.5 text-sm font-semibold transition-colors pointer-coarse:min-h-[44px]",
+            "flex flex-1 items-center justify-center gap-2 rounded py-2.5 text-sm font-semibold transition-colors",
             active
                ? "bg-primary-50 text-primary-700 ring-primary-100 ring-1 ring-inset"
                : "text-slate-500 hover:bg-slate-50 hover:text-slate-700"

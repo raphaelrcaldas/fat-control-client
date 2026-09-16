@@ -26,7 +26,7 @@ export function MilitaresSection({
                <button
                   type="button"
                   onClick={() => setFormMil(true)}
-                  className="group text-primary-600 hover:text-primary-700 flex items-center gap-1.5 text-sm font-semibold transition-all pointer-coarse:min-h-[44px]"
+                  className="group text-primary-600 hover:text-primary-700 flex items-center gap-1.5 text-sm font-semibold transition-all"
                >
                   <HiPlus className="h-4 w-4 transition-transform group-hover:scale-110" />
                   Adicionar

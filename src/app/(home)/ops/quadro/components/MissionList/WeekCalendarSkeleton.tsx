@@ -33,9 +33,9 @@ export function WeekCalendarSkeleton({
              32×32 e o período no meio), para não haver salto quando os
              dados chegam. */}
          <div className="m-4 flex items-center justify-center gap-1">
-            <div className="h-[32px] w-[32px] animate-pulse rounded bg-slate-200 pointer-coarse:h-[44px] pointer-coarse:w-[44px]" />
-            <div className="h-[32px] animate-pulse rounded bg-slate-200 px-3 sm:min-w-35 pointer-coarse:h-[44px]" />
-            <div className="h-[32px] w-[32px] animate-pulse rounded bg-slate-200 pointer-coarse:h-[44px] pointer-coarse:w-[44px]" />
+            <div className="h-[32px] w-[32px] animate-pulse rounded bg-slate-200" />
+            <div className="h-[32px] animate-pulse rounded bg-slate-200 px-3 sm:min-w-35" />
+            <div className="h-[32px] w-[32px] animate-pulse rounded bg-slate-200" />
          </div>
 
          {/* Calendário */}

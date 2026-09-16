@@ -110,7 +110,7 @@ export default function SidebarWithFooter({
                      </div>
                   </div>
                   <Button
-                     className="p-1 pointer-coarse:min-h-[44px] pointer-coarse:min-w-[44px]"
+                     className="p-1"
                      onClick={handleLogout}
                      color="alternative"
                      disabled={isLoggingOut}

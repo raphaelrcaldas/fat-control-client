@@ -32,11 +32,7 @@ export function MissionHeader({
       <div className="flex items-center gap-3 rounded border border-slate-200 bg-white px-4 py-2.5 shadow-sm sm:gap-4">
          <button
             onClick={onBack}
-            /* `h-10` são 35px, não 40: a raiz do client é 87,5% (1rem = 14px).
-               Medido no dedo, ficava 9px abaixo do mínimo. O reforço é em px
-               cravado e só no ponteiro grosso — no mouse os 35px passam com
-               folga dos 24px e inflar seria piorar a densidade. */
-            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-600 transition-colors hover:bg-slate-200 pointer-coarse:h-[44px] pointer-coarse:w-[44px]"
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-600 transition-colors hover:bg-slate-200"
             title="Voltar"
          >
             <HiArrowLeft className="h-5 w-5" />

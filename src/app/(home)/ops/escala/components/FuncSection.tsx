@@ -163,7 +163,7 @@ function SubList({
                onClick={() => setOpen((v) => !v)}
                aria-expanded={open}
                aria-controls={regionId}
-               className="mb-2 flex min-h-[24px] w-full items-center gap-2 text-left transition-colors pointer-coarse:min-h-[44px] pointer-fine:hover:text-slate-900"
+               className="mb-2 flex min-h-[24px] w-full items-center gap-2 text-left transition-colors pointer-fine:hover:text-slate-900"
             >
                {headerInner}
             </button>

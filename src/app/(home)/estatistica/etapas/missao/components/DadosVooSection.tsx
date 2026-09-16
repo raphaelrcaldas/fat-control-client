@@ -189,7 +189,7 @@ export function DadosVooSection({ form, aeronavesList }: DadosVooSectionProps) {
                      onChange={(v) => setField("sagem", v)}
                      aria-label="Registrado no SAGEM"
                      sizing="md"
-                     className="min-h-6.35 items-center pointer-coarse:min-h-11 pointer-coarse:min-w-11"
+                     className="min-h-6.35 items-center"
                   />
                </FormField>
                <FormField
@@ -201,7 +201,7 @@ export function DadosVooSection({ form, aeronavesList }: DadosVooSectionProps) {
                      onChange={(v) => setField("parte1", v)}
                      aria-label="Relatório Parte 1 recolhido"
                      sizing="md"
-                     className="min-h-6.35 items-center pointer-coarse:min-h-11 pointer-coarse:min-w-11"
+                     className="min-h-6.35 items-center"
                   />
                </FormField>
             </div>

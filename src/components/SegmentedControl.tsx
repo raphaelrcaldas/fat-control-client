@@ -58,7 +58,7 @@ export function SegmentedControl<T extends string>({
             <label
                key={option.value}
                className={clsx(
-                  "has-[:focus-visible]:outline-primary-600 flex flex-1 cursor-pointer items-center justify-center rounded px-3 py-2 text-sm font-medium whitespace-nowrap transition-colors select-none has-[:focus-visible]:outline-[2px] has-[:focus-visible]:-outline-offset-2 has-[:focus-visible]:[outline-style:solid] pointer-coarse:min-h-[44px]",
+                  "has-[:focus-visible]:outline-primary-600 flex flex-1 cursor-pointer items-center justify-center rounded px-3 py-2 text-sm font-medium whitespace-nowrap transition-colors select-none has-[:focus-visible]:outline-[2px] has-[:focus-visible]:-outline-offset-2 has-[:focus-visible]:[outline-style:solid]",
                   value === option.value
                      ? "bg-white text-slate-900 shadow-sm"
                      : "text-slate-500 hover:text-slate-800"

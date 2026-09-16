@@ -135,7 +135,7 @@ function NavButton({
          disabled={disabled}
          title={title}
          className={clsx(
-            "flex min-h-[32px] min-w-[32px] shrink-0 items-center justify-center rounded border border-slate-200 bg-white px-2 text-sm font-semibold text-slate-600 shadow-sm transition-colors pointer-coarse:min-h-[44px] pointer-coarse:min-w-[44px]",
+            "flex min-h-[32px] min-w-[32px] shrink-0 items-center justify-center rounded border border-slate-200 bg-white px-2 text-sm font-semibold text-slate-600 shadow-sm transition-colors",
             disabled
                ? "cursor-not-allowed opacity-40"
                : "hover:bg-slate-50 hover:text-slate-800"
@@ -166,7 +166,7 @@ function AeronaveCell({
                <button
                   key={`${etapa.omId}-${idx}`}
                   type="button"
-                  className={`flex w-full cursor-pointer items-center justify-center gap-1 rounded border px-1.5 py-1 text-center font-mono text-sm font-semibold whitespace-nowrap shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md sm:min-h-[32px] pointer-coarse:min-h-[44px] ${statusCfg.bg} ${statusCfg.text} ${statusCfg.border}`}
+                  className={`flex w-full cursor-pointer items-center justify-center gap-1 rounded border px-1.5 py-1 text-center font-mono text-sm font-semibold whitespace-nowrap shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md sm:min-h-[32px] ${statusCfg.bg} ${statusCfg.text} ${statusCfg.border}`}
                   title={`OM ${etapa.omNumero} — ${etapa.omTipo} — ${etapa.origem} para ${etapa.dest}${
                      etapa.horaZ ? ` às ${etapa.horaZ}` : ""
                   }`}
@@ -284,7 +284,7 @@ export default function WeekCalendar({
                   // Sem `disabled:opacity-*` de propósito: o período
                   // continua sendo informação mesmo quando a ação de
                   // voltar para hoje não cabe.
-                  "flex min-h-[32px] items-center justify-center rounded border border-slate-200 bg-white px-3 text-center text-xs font-bold whitespace-nowrap text-slate-700 tabular-nums shadow-sm transition-colors sm:min-w-35 sm:text-sm pointer-coarse:min-h-[44px]",
+                  "flex min-h-[32px] items-center justify-center rounded border border-slate-200 bg-white px-3 text-center text-xs font-bold whitespace-nowrap text-slate-700 tabular-nums shadow-sm transition-colors sm:min-w-35 sm:text-sm",
                   refIsToday
                      ? "cursor-default"
                      : "hover:bg-slate-50 hover:text-slate-900"

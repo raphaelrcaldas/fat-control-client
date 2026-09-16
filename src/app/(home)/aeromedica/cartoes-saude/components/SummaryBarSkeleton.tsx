@@ -18,7 +18,7 @@ function DocSummarySkeleton() {
             {COUNTERS.map((i) => (
                <div
                   key={i}
-                  className="rounded border border-slate-200 px-2 py-1 pointer-coarse:min-h-[44px]"
+                  className="rounded border border-slate-200 px-2 py-1"
                >
                   {/* h-5: o número real é `text-base` (line-box de 21px), e
                       um bloco de 14px encolheria a faixa inteira. */}

@@ -25,10 +25,6 @@ interface Props<T> {
  * Substitui os três que conviviam aqui: botões sólidos nas etapas, chips do
  * Flowbite no pau de sebo e badges com anel no efetivo. Filtros que fazem a
  * mesma coisa passam a ter a mesma forma.
- *
- * Sem `pointer-coarse:min-h-[44px]`: o segmentado aparece no modal e no painel
- * do pau de sebo, ambos densos, e 44px por botão infla a barra inteira. Os
- * 44px valem para a ação primária — ver a barra fixa do modal no mobile.
  */
 export function Segmented<T extends string | null>({
    options,

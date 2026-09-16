@@ -56,7 +56,7 @@ export function UserTable({ usuarios, cart }: UserTableProps) {
                <TableRow>
                   <TableHeadCell className="w-10 px-3">
                      <Checkbox
-                        className="size-[20px] pointer-coarse:size-[44px]"
+                        className="size-[20px]"
                         color="primary"
                         checked={allOnPage}
                         ref={(el) => {
@@ -116,7 +116,7 @@ export function UserTable({ usuarios, cart }: UserTableProps) {
                      >
                         <TableCell className="px-3">
                            <Checkbox
-                              className="size-[20px] pointer-coarse:size-[44px]"
+                              className="size-[20px]"
                               color="primary"
                               checked={checked}
                               onChange={() => cart.toggle(user)}
@@ -194,7 +194,7 @@ export function UserTable({ usuarios, cart }: UserTableProps) {
                               href={`/users/${user.id}`}
                               aria-label={`Detalhes de ${user.nome_guerra}`}
                               title={`Detalhes de ${user.nome_guerra}`}
-                              className="hover:border-primary-300 hover:text-primary-700 focus-visible:outline-primary-600 inline-flex items-center justify-center rounded border border-slate-200 p-1.5 text-slate-500 transition-colors outline-none focus-visible:outline-[2px] focus-visible:outline-offset-[2px] focus-visible:[outline-style:solid] pointer-coarse:min-h-[44px] pointer-coarse:min-w-[44px]"
+                              className="hover:border-primary-300 hover:text-primary-700 focus-visible:outline-primary-600 inline-flex items-center justify-center rounded border border-slate-200 p-1.5 text-slate-500 transition-colors outline-none focus-visible:outline-[2px] focus-visible:outline-offset-[2px] focus-visible:[outline-style:solid]"
                            >
                               <HiChevronRight className="h-4 w-4" />
                            </Link>

@@ -48,9 +48,9 @@ function SortButton({ active, onClick, label }: SortButtonProps) {
          className={clsx(
             // Media 23,5px de altura (11px × 1.5 + py-1) com gap ZERO entre os
             // dois botões — abaixo do piso de 24px do WCAG 2.5.8 e sem direito
-            // à exceção de espaçamento, porque estão colados. No mouse cresce
-            // meio pixel; no dedo vai a 44.
-            "inline-flex min-h-[24px] items-center justify-center rounded-sm px-2.5 py-1 text-[11px] font-bold tracking-wider whitespace-nowrap uppercase transition-colors pointer-coarse:min-h-[44px]",
+            // à exceção de espaçamento, porque estão colados. `min-h-[24px]`
+            // fecha o piso.
+            "inline-flex min-h-[24px] items-center justify-center rounded-sm px-2.5 py-1 text-[11px] font-bold tracking-wider whitespace-nowrap uppercase transition-colors",
             active
                ? "bg-white text-slate-900 shadow-sm"
                : // `slate-500` sobre o `slate-100` do trilho dava 4,34:1.

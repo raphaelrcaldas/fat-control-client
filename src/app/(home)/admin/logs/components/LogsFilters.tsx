@@ -79,7 +79,7 @@ export function LogsFilters({
                   aria-label={`Filtros: ação ${actionLabel}${
                      periodo ? ", com período" : ""
                   }`}
-                  className="shrink-0 lg:hidden pointer-coarse:min-h-[44px]"
+                  className="shrink-0 lg:hidden"
                >
                   <HiFilter className="size-4 shrink-0" />
                   <span className="mx-2 max-w-24 truncate">{actionShort}</span>
@@ -168,7 +168,7 @@ export function LogsFilters({
                            color="light"
                            type="button"
                            onClick={onClearFilters}
-                           className="col-span-2 shrink-0 sm:col-span-3 sm:w-fit sm:justify-self-end lg:w-auto pointer-coarse:min-h-[44px]"
+                           className="col-span-2 shrink-0 sm:col-span-3 sm:w-fit sm:justify-self-end lg:w-auto"
                         >
                            <HiX className="mr-2 h-4 w-4" />
                            Limpar

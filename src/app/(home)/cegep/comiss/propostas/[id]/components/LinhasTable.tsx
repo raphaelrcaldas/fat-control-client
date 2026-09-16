@@ -199,7 +199,7 @@ export function LinhasTable({
                               <button
                                  type="button"
                                  onClick={onAdd}
-                                 className="focus-visible:ring-primary-500 hover:border-primary-400 hover:text-primary-700 hover:bg-primary-50/40 flex w-full items-center justify-center gap-2 rounded border border-dashed border-slate-300 px-4 py-3 text-sm font-semibold text-slate-500 transition-colors focus:outline-none focus-visible:ring-2 pointer-coarse:min-h-[44px]"
+                                 className="focus-visible:ring-primary-500 hover:border-primary-400 hover:text-primary-700 hover:bg-primary-50/40 flex w-full items-center justify-center gap-2 rounded border border-dashed border-slate-300 px-4 py-3 text-sm font-semibold text-slate-500 transition-colors focus:outline-none focus-visible:ring-2"
                               >
                                  <HiOutlineUserAdd
                                     aria-hidden

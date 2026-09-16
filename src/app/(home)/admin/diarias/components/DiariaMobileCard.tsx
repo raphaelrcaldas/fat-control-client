@@ -41,7 +41,7 @@ export function DiariaMobileCard({
                      <button
                         type="button"
                         onClick={() => onEdit(valor)}
-                        className="inline-flex items-center justify-center rounded p-2 text-gray-400 transition-colors hover:bg-slate-100 hover:text-slate-700 pointer-coarse:min-h-[44px] pointer-coarse:min-w-[44px]"
+                        className="inline-flex items-center justify-center rounded p-2 text-gray-400 transition-colors hover:bg-slate-100 hover:text-slate-700"
                         aria-label="Editar valor de diária"
                      >
                         <HiPencil className="h-5 w-5" />
@@ -51,7 +51,7 @@ export function DiariaMobileCard({
                      <button
                         type="button"
                         onClick={() => onDelete(valor.id)}
-                        className="inline-flex items-center justify-center rounded p-2 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-600 pointer-coarse:min-h-[44px] pointer-coarse:min-w-[44px]"
+                        className="inline-flex items-center justify-center rounded p-2 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-600"
                         aria-label="Excluir valor de diária"
                      >
                         <HiTrash className="h-5 w-5" />

@@ -27,7 +27,7 @@ function DraggablePoolChip({ trip }: { trip: DraftPoolTrip }) {
          className={clsx(
             // touch-none: sem isso o navegador reivindica o gesto para rolagem e
             // cancela o arrasto no dedo (pointercancel) antes de ele comecar
-            "grid cursor-grab touch-none items-center rounded border px-2.5 py-1 text-center font-mono text-sm font-semibold uppercase pointer-coarse:min-h-11 pointer-coarse:min-w-11",
+            "grid cursor-grab touch-none items-center rounded border px-2.5 py-1 text-center font-mono text-sm font-semibold uppercase",
             isDragging ? "opacity-30" : "",
             colors
                ? colors.badge

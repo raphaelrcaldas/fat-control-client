@@ -137,7 +137,7 @@ export function AssociarEtapasModal({ show, onClose, op }: Props) {
                         type="button"
                         onClick={() => setAnvFilter(null)}
                         className={clsx(
-                           "rounded-md px-2 py-1.5 text-[11px] font-bold transition-colors pointer-coarse:min-h-[44px] pointer-coarse:min-w-[44px]",
+                           "rounded-md px-2 py-1.5 text-[11px] font-bold transition-colors",
                            anvFilter === null
                               ? "bg-primary-600 text-white"
                               : "bg-slate-100 text-slate-500 hover:bg-slate-200"
@@ -153,7 +153,7 @@ export function AssociarEtapasModal({ show, onClose, op }: Props) {
                               setAnvFilter((cur) => (cur === a ? null : a))
                            }
                            className={clsx(
-                              "rounded-md px-2 py-1.5 font-mono text-[11px] font-bold transition-colors pointer-coarse:min-h-[44px] pointer-coarse:min-w-[44px]",
+                              "rounded-md px-2 py-1.5 font-mono text-[11px] font-bold transition-colors",
                               anvFilter === a
                                  ? "bg-primary-600 text-white"
                                  : "bg-primary-50 text-primary-700 hover:bg-primary-100"

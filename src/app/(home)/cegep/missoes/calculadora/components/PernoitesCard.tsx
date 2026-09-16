@@ -82,7 +82,7 @@ export function PernoitesCard({
             <button
                type="button"
                onClick={addRow}
-               className="group text-primary-600 hover:text-primary-700 flex items-center gap-1.5 text-sm font-semibold transition-all pointer-coarse:min-h-[44px]"
+               className="group text-primary-600 hover:text-primary-700 flex items-center gap-1.5 text-sm font-semibold transition-all"
             >
                <HiPlus className="h-4 w-4 transition-transform group-hover:scale-110" />
                adicionar
@@ -362,7 +362,7 @@ function DataFimInput({
    );
 }
 
-// Checkbox nu (usado na tabela densa): alvo de toque de 44px só no dedo.
+// Checkbox nu, usado na tabela densa.
 function ToggleCheckbox({
    color,
    checked,
@@ -375,10 +375,9 @@ function ToggleCheckbox({
    ariaLabel: string;
 }) {
    return (
-      <label className="inline-flex cursor-pointer items-center justify-center pointer-coarse:min-h-[44px] pointer-coarse:min-w-[44px]">
+      <label className="inline-flex cursor-pointer items-center justify-center">
          <Checkbox
             color={color}
-            className="pointer-coarse:size-6"
             checked={checked}
             onChange={(e) => onChange(e.target.checked)}
             aria-label={ariaLabel}
@@ -400,11 +399,10 @@ function ToggleRow({
    onChange: (checked: boolean) => void;
 }) {
    return (
-      <label className="flex cursor-pointer items-center justify-between gap-2 pointer-coarse:min-h-[44px]">
+      <label className="flex cursor-pointer items-center justify-between gap-2">
          <span className="text-sm text-slate-700">{label}</span>
          <Checkbox
             color={color}
-            className="pointer-coarse:size-6"
             checked={checked}
             onChange={(e) => onChange(e.target.checked)}
          />
@@ -417,7 +415,7 @@ function RemoveButton({ onClick }: { onClick: () => void }) {
       <button
          type="button"
          onClick={onClick}
-         className="flex items-center justify-center rounded p-1 text-red-500 hover:bg-red-50 pointer-coarse:min-h-[44px] pointer-coarse:min-w-[44px]"
+         className="flex items-center justify-center rounded p-1 text-red-500 hover:bg-red-50"
          title="Remover pernoite"
          aria-label="Remover pernoite"
       >

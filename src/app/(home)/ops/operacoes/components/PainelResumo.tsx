@@ -49,7 +49,7 @@ export function PainelResumo({
             <button
                type="button"
                onClick={onVerTudo}
-               className="focus-visible:ring-primary-500 mt-auto flex w-full items-center justify-center gap-1.5 border-t border-slate-200 bg-slate-50 px-3 py-2 text-xs font-semibold text-slate-700 transition-colors hover:bg-slate-100 hover:text-slate-950 focus:outline-none focus-visible:ring-2 focus-visible:ring-inset pointer-coarse:min-h-[44px]"
+               className="focus-visible:ring-primary-500 mt-auto flex w-full items-center justify-center gap-1.5 border-t border-slate-200 bg-slate-50 px-3 py-2 text-xs font-semibold text-slate-700 transition-colors hover:bg-slate-100 hover:text-slate-950 focus:outline-none focus-visible:ring-2 focus-visible:ring-inset"
             >
                {verTudo}
                <span aria-hidden className="opacity-60">

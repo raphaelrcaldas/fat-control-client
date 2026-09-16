@@ -187,7 +187,7 @@ export function ConfigPage() {
                            <div className="flex items-center gap-1">
                               <button
                                  onClick={() => openEditModal(etiqueta)}
-                                 className="hover:bg-primary-100 hover:text-primary-700 flex items-center justify-center rounded p-1.5 text-gray-500 transition-colors pointer-coarse:size-11"
+                                 className="hover:bg-primary-100 hover:text-primary-700 flex items-center justify-center rounded p-1.5 text-gray-500 transition-colors"
                                  title="Editar etiqueta"
                                  aria-label={`Editar etiqueta ${etiqueta.nome}`}
                               >
@@ -195,7 +195,7 @@ export function ConfigPage() {
                               </button>
                               <button
                                  onClick={() => setEtiquetaToDelete(etiqueta)}
-                                 className="flex items-center justify-center rounded p-1.5 text-gray-500 transition-colors hover:bg-red-100 hover:text-red-600 pointer-coarse:size-11"
+                                 className="flex items-center justify-center rounded p-1.5 text-gray-500 transition-colors hover:bg-red-100 hover:text-red-600"
                                  disabled={saving}
                                  title="Excluir etiqueta"
                                  aria-label={`Excluir etiqueta ${etiqueta.nome}`}

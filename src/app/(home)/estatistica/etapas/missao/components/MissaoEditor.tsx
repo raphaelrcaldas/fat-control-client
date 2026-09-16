@@ -336,7 +336,7 @@ export function MissaoEditor({ mode }: MissaoEditorProps) {
                         type="button"
                         onClick={() => setSidebarOpen(false)}
                         aria-label="Fechar painel de etapas"
-                        className="focus-visible:outline-primary-500 grid size-9 shrink-0 place-items-center rounded-full text-gray-500 transition hover:bg-gray-100 hover:text-gray-700 focus-visible:outline-2 pointer-coarse:size-11"
+                        className="focus-visible:outline-primary-500 grid size-9 shrink-0 place-items-center rounded-full text-gray-500 transition hover:bg-gray-100 hover:text-gray-700 focus-visible:outline-2"
                      >
                         <HiX className="h-5 w-5" />
                      </button>

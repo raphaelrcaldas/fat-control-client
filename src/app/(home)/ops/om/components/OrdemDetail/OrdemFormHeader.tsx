@@ -113,7 +113,7 @@ export function OrdemFormHeader({
          <div className="flex min-w-0 flex-1 items-center gap-4">
             <button
                onClick={onClose}
-               className="flex h-10 w-10 shrink-0 items-center justify-center rounded text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-700 pointer-coarse:min-h-[44px] pointer-coarse:min-w-[44px]"
+               className="flex h-10 w-10 shrink-0 items-center justify-center rounded text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-700"
                aria-label="Voltar"
             >
                <HiArrowLeft size={24} />

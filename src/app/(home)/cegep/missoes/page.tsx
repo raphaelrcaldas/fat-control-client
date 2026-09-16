@@ -31,7 +31,7 @@ const tabsTheme = {
             "flex flex-nowrap gap-1 overflow-x-auto rounded-t border-b border-slate-200 bg-slate-50 p-2 md:flex-wrap md:overflow-x-visible",
       },
       tabitem: {
-         base: "flex shrink-0 items-center justify-center whitespace-nowrap text-sm font-semibold transition-colors first:ml-0 focus:outline-none disabled:cursor-not-allowed disabled:text-gray-400 pointer-coarse:min-h-[44px]",
+         base: "flex shrink-0 items-center justify-center whitespace-nowrap text-sm font-semibold transition-colors first:ml-0 focus:outline-none disabled:cursor-not-allowed disabled:text-gray-400",
          variant: {
             default: {
                base: "rounded px-3 py-3 md:px-6",

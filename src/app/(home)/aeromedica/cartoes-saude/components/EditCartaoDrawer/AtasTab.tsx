@@ -506,13 +506,13 @@ function AtaCard({
             </div>
 
             <div className="flex items-center gap-1">
-               {/* <a> não herda o alvo de 44px que o tema dá ao Button —
-                   o padding cresce no dedo e o nome acessível vem explícito. */}
+               {/* <a> não herda o padding que o tema dá ao Button — o nome
+                   acessível vem explícito. */}
                <a
                   href={ata.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-primary-600 hover:bg-primary-50 dark:text-primary-400 rounded p-2 dark:hover:bg-gray-700 pointer-coarse:p-3"
+                  className="text-primary-600 hover:bg-primary-50 dark:text-primary-400 rounded p-2 dark:hover:bg-gray-700"
                   title="Visualizar PDF"
                   aria-label="Visualizar PDF da ata"
                >

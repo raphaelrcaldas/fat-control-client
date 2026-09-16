@@ -67,7 +67,7 @@ export function AeronaveCard({ aeronave, onEdit }: AeronaveCardProps) {
                   onClick={() => onEdit(aeronave)}
                   // Hover sob `pointer-fine`: no toque o estado gruda depois
                   // do tap. Em `primary-*` para acompanhar o tema da org.
-                  className="pointer-fine:hover:bg-primary-50 pointer-fine:hover:text-primary-600 flex items-center justify-center rounded p-1.5 text-gray-500 transition-colors pointer-coarse:min-h-[44px] pointer-coarse:min-w-[44px]"
+                  className="pointer-fine:hover:bg-primary-50 pointer-fine:hover:text-primary-600 flex items-center justify-center rounded p-1.5 text-gray-500 transition-colors"
                   aria-label={`Editar aeronave ${aeronave.matricula}`}
                >
                   <HiPencil className="h-4 w-4" />

@@ -24,7 +24,7 @@ export function ActiveFiltersBar({
                   type="button"
                   onClick={onClearSearch}
                   aria-label="Limpar busca"
-                  className="hover:bg-primary-200 -my-2 grid size-[26px] place-items-center rounded-full pointer-coarse:size-[44px]"
+                  className="hover:bg-primary-200 -my-2 grid size-[26px] place-items-center rounded-full"
                >
                   <HiX className="h-3 w-3" />
                </button>

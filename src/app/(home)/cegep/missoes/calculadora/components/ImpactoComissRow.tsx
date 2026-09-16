@@ -62,7 +62,7 @@ export function ImpactoComissRow({
                type="button"
                onClick={onRemover}
                aria-label={`Tirar ${nome} da simulação`}
-               className="-mt-1 -mr-1 flex min-h-[24px] min-w-[24px] shrink-0 items-center justify-center rounded p-1.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-red-600 pointer-coarse:min-h-[44px] pointer-coarse:min-w-[44px]"
+               className="-mt-1 -mr-1 flex min-h-[24px] min-w-[24px] shrink-0 items-center justify-center rounded p-1.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-red-600"
             >
                <HiX className="size-4" aria-hidden />
             </button>
@@ -118,7 +118,7 @@ export function ImpactoComissRow({
                   // Medidas em px, não em `rem`: a raiz do client é 87,5%
                   // (1rem = 14px), então `min-h-6` renderizaria 21px e não
                   // cumpriria os 24px do WCAG 2.5.8 no mouse.
-                  className="flex min-h-[24px] items-center gap-1 rounded px-1.5 py-1 font-mono text-[10px] tracking-wider text-slate-500 uppercase transition-colors hover:bg-slate-100 hover:text-slate-700 pointer-coarse:min-h-[44px]"
+                  className="flex min-h-[24px] items-center gap-1 rounded px-1.5 py-1 font-mono text-[10px] tracking-wider text-slate-500 uppercase transition-colors hover:bg-slate-100 hover:text-slate-700"
                >
                   detalhes
                   <HiChevronDown

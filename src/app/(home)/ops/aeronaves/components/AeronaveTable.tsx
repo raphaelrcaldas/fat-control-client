@@ -132,15 +132,11 @@ export function AeronaveTable({ aeronaves, onEdit }: AeronaveTableProps) {
                            >
                               <button
                                  onClick={() => onEdit(aeronave)}
-                                 // A tabela é `md:block`, então ela TAMBÉM
-                                 // aparece no tablet, onde o ponteiro é o
-                                 // dedo — media 26px lá. `pointer-coarse`
-                                 // cresce só no toque; no mouse segue denso.
                                  // Hover em `primary-*` (era `blue-*` cravado,
                                  // que virava o único azul da tela numa org de
                                  // tema vermelho) e sob `pointer-fine`, senão
                                  // o estado gruda após o toque.
-                                 className="pointer-fine:hover:bg-primary-50 pointer-fine:hover:text-primary-600 rounded p-1.5 text-gray-500 transition-colors pointer-coarse:flex pointer-coarse:min-h-[44px] pointer-coarse:min-w-[44px] pointer-coarse:items-center pointer-coarse:justify-center"
+                                 className="pointer-fine:hover:bg-primary-50 pointer-fine:hover:text-primary-600 rounded p-1.5 text-gray-500 transition-colors"
                                  title="Editar"
                                  aria-label={`Editar aeronave ${aeronave.matricula}`}
                               >

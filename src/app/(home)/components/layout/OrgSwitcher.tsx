@@ -94,7 +94,7 @@ export function OrgSwitcher() {
                <button
                   type="button"
                   disabled={isSwitching}
-                  className="group flex items-center focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-60 pointer-coarse:min-h-[44px]"
+                  className="group flex items-center focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-60"
                >
                   <span className="group-focus-visible:ring-primary-600 flex items-center gap-2 rounded bg-white/60 px-3 py-1.5 text-sm font-semibold text-gray-700 shadow-sm transition-colors group-hover:bg-white group-focus-visible:ring-2">
                      <FaBuilding className="text-primary-600" />

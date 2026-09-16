@@ -124,7 +124,7 @@ export function OrdensInstrucaoSection({
                         >
                            Regime
                         </Label>
-                        <div className="flex h-8.5 overflow-hidden rounded border border-gray-300 pointer-coarse:min-h-[44px]">
+                        <div className="flex h-8.5 overflow-hidden rounded border border-gray-300">
                            {(
                               [
                                  { v: "d", l: "D" },
@@ -139,7 +139,7 @@ export function OrdensInstrucaoSection({
                                     updateOiItem(oi.uid, { reg: v })
                                  }
                                  className={clsx(
-                                    "flex flex-1 items-center justify-center px-3 text-xs font-bold focus:outline-none pointer-coarse:min-h-[44px] pointer-coarse:min-w-[44px]",
+                                    "flex flex-1 items-center justify-center px-3 text-xs font-bold focus:outline-none",
                                     oi.reg === v
                                        ? "bg-primary-800 text-white"
                                        : "text-primary-600 hover:bg-primary-100 bg-white",
@@ -174,7 +174,7 @@ export function OrdensInstrucaoSection({
                         <button
                            type="button"
                            onClick={() => removeOiItem(oi.uid)}
-                           className="flex h-8 w-8 items-center justify-center rounded-full text-gray-400 hover:bg-red-50 hover:text-red-600 pointer-coarse:min-h-[44px] pointer-coarse:min-w-[44px]"
+                           className="flex h-8 w-8 items-center justify-center rounded-full text-gray-400 hover:bg-red-50 hover:text-red-600"
                            title="Remover OI"
                            aria-label="Remover Ordem de Instrução"
                         >

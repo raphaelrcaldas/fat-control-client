@@ -110,14 +110,14 @@ export function PermissionsTable({
                                  <div className="flex items-center justify-end gap-1">
                                     <button
                                        onClick={() => onEdit(permission)}
-                                       className="inline-flex items-center justify-center rounded p-2 text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-700 pointer-coarse:size-[44px]"
+                                       className="inline-flex items-center justify-center rounded p-2 text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-700"
                                        aria-label={`Editar permissão ${permission.resource}.${permission.action}`}
                                     >
                                        <FaPenToSquare className="h-4 w-4" />
                                     </button>
                                     <button
                                        onClick={() => onDelete(permission)}
-                                       className="inline-flex items-center justify-center rounded p-2 text-gray-500 transition-colors hover:bg-red-100 hover:text-red-600 pointer-coarse:size-[44px]"
+                                       className="inline-flex items-center justify-center rounded p-2 text-gray-500 transition-colors hover:bg-red-100 hover:text-red-600"
                                        aria-label={`Excluir permissão ${permission.resource}.${permission.action}`}
                                     >
                                        <FaTrashCan className="h-4 w-4" />

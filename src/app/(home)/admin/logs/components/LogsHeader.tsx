@@ -76,7 +76,7 @@ export function LogsHeader({
                   onClick={onRefresh}
                   disabled={isFetching}
                   aria-label="Atualizar registros"
-                  className="font-semibold whitespace-nowrap pointer-coarse:min-h-[44px]"
+                  className="font-semibold whitespace-nowrap"
                >
                   <HiRefresh
                      className={clsx("size-4", isFetching && "animate-spin")}

@@ -13,16 +13,13 @@ export const TRIG_COL = "w-(--trig-w) shrink-0";
 /**
  * Altura da faixa via variável CSS, não via constante JS.
  *
- * A faixa é o alvo clicável da grade, e alvo cresce no dedo e encolhe no
- * mouse: 24px cumpre o mínimo WCAG do ponteiro fino, e no toque vai a 34px —
- * NÃO a 44px, porque uma linha de três pistas a 44px estoura a tela; a linha
- * inteira, que é o alvo do trigrama, chega aos 44 (5*2 + 34).
- * Como as alturas entram em `style` inline — que não aceita media query — a
- * escolha vive numa variável que o `pointer-coarse` troca, e os cálculos
- * abaixo são `calc()` em cima dela.
+ * A faixa é o alvo clicável da grade: 24px cumpre o mínimo WCAG, igual em
+ * qualquer ponteiro. Como as alturas entram em `style` inline — que não
+ * aceita media query —, a escolha vive numa variável, e os cálculos abaixo
+ * são `calc()` em cima dela.
  */
 export const LANE_VARS =
-   "[--trig-w:44px] sm:[--trig-w:52px] [--bar-h:24px] [--lane-gap:4px] [--row-pad:4px] pointer-coarse:[--bar-h:34px] pointer-coarse:[--row-pad:5px]";
+   "[--trig-w:44px] sm:[--trig-w:52px] [--bar-h:24px] [--lane-gap:4px] [--row-pad:4px]";
 
 /** Altura da linha em função de quantas pistas ela precisa empilhar. */
 export function rowHeight(lanes: number): string {

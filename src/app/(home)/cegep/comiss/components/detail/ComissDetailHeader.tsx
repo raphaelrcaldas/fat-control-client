@@ -28,7 +28,7 @@ export function ComissDetailHeader({
                /* `h-9` são 31,5px, não 36: a raiz do client é 87,5%
                   (1rem = 14px). O reforço é em px cravado e só no ponteiro
                   grosso — no mouse os 31,5px já passam dos 24px exigidos. */
-               className="flex h-9 w-9 shrink-0 items-center justify-center rounded text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-700 pointer-coarse:h-[44px] pointer-coarse:w-[44px]"
+               className="flex h-9 w-9 shrink-0 items-center justify-center rounded text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-700"
             >
                <HiArrowLeft size={20} />
             </button>

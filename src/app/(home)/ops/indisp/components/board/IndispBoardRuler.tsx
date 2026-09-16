@@ -63,7 +63,7 @@ export function IndispBoardRuler({
                   aria-label={`${day.weekday}, ${day.day}/${day.month}${day.isToday ? ", hoje" : ""}`}
                   style={{ width: colWidth(1, days.length) }}
                   className={clsx(
-                     "focus-visible:ring-primary-600 cursor-[inherit] border-b-2 pt-1 pb-0.5 focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-inset pointer-coarse:min-h-[44px] pointer-coarse:py-1.5",
+                     "focus-visible:ring-primary-600 cursor-[inherit] border-b-2 pt-1 pb-0.5 focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-inset",
                      day.isToday
                         ? "border-b-sky-600"
                         : day.isFocused

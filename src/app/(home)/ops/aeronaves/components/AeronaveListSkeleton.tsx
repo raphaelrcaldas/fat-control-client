@@ -156,7 +156,7 @@ export function AeronaveListSkeleton({ rows = 6 }: AeronaveListSkeletonProps) {
                         </div>
                      </div>
                      {/* Botão de editar */}
-                     <div className="h-7 w-7 shrink-0 animate-pulse rounded bg-slate-100 pointer-coarse:min-h-[44px] pointer-coarse:min-w-[44px]" />
+                     <div className="h-7 w-7 shrink-0 animate-pulse rounded bg-slate-100" />
                   </div>
 
                   {/* Bloco de observação — só em parte das linhas, como no real */}

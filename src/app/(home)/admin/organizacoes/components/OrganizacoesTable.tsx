@@ -108,7 +108,7 @@ export function OrganizacoesTable({
                                     <button
                                        type="button"
                                        onClick={() => onEdit(org)}
-                                       className="inline-flex items-center justify-center rounded p-2 text-gray-400 transition-colors hover:bg-slate-100 hover:text-slate-700 pointer-coarse:min-h-[44px] pointer-coarse:min-w-[44px]"
+                                       className="inline-flex items-center justify-center rounded p-2 text-gray-400 transition-colors hover:bg-slate-100 hover:text-slate-700"
                                        aria-label={`Editar organização ${org.sigla}`}
                                     >
                                        <FaPenToSquare className="h-4 w-4" />
@@ -118,7 +118,7 @@ export function OrganizacoesTable({
                                     <button
                                        type="button"
                                        onClick={() => onDelete(org)}
-                                       className="inline-flex items-center justify-center rounded p-2 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-600 pointer-coarse:min-h-[44px] pointer-coarse:min-w-[44px]"
+                                       className="inline-flex items-center justify-center rounded p-2 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-600"
                                        aria-label={`Excluir organização ${org.sigla}`}
                                     >
                                        <FaTrashCan className="h-4 w-4" />
@@ -171,8 +171,8 @@ export function OrganizacoesTableSkeleton({
                      {canManage && (
                         <TableCell>
                            <div className="flex items-center justify-end gap-1">
-                              <Skeleton className="h-8 w-8 rounded pointer-coarse:h-[44px] pointer-coarse:w-[44px]" />
-                              <Skeleton className="h-8 w-8 rounded pointer-coarse:h-[44px] pointer-coarse:w-[44px]" />
+                              <Skeleton className="h-8 w-8 rounded" />
+                              <Skeleton className="h-8 w-8 rounded" />
                            </div>
                         </TableCell>
                      )}

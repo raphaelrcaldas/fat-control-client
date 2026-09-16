@@ -70,7 +70,7 @@ export function EtapasNavigatorModal({
                onClick={() => onEditEtapa(selectedId)}
                title="Editar etapa"
                aria-label="Editar etapa"
-               className="grid size-7 shrink-0 place-items-center rounded transition-colors hover:bg-slate-200 pointer-coarse:size-[44px]"
+               className="grid size-7 shrink-0 place-items-center rounded transition-colors hover:bg-slate-200"
             >
                <HiPencilAlt className="h-5 w-5 text-slate-600" />
             </button>
@@ -79,7 +79,7 @@ export function EtapasNavigatorModal({
             onClick={onClose}
             title="Fechar"
             aria-label="Fechar detalhes da etapa"
-            className="grid size-7 shrink-0 place-items-center rounded transition-colors hover:bg-slate-200 pointer-coarse:size-[44px]"
+            className="grid size-7 shrink-0 place-items-center rounded transition-colors hover:bg-slate-200"
          >
             <HiX className="h-5 w-5 text-slate-600" />
          </button>
@@ -200,7 +200,7 @@ export function EtapasNavigatorModal({
                            }
                            disabled={!anterior}
                            aria-label="Etapa anterior"
-                           className="grid size-7 shrink-0 place-items-center rounded text-slate-600 transition-colors hover:bg-slate-100 disabled:opacity-30 pointer-coarse:size-[44px]"
+                           className="grid size-7 shrink-0 place-items-center rounded text-slate-600 transition-colors hover:bg-slate-100 disabled:opacity-30"
                         >
                            <HiChevronLeft className="h-5 w-5" />
                         </button>
@@ -216,7 +216,7 @@ export function EtapasNavigatorModal({
                            onClick={() => proxima && setSelectedId(proxima.id)}
                            disabled={!proxima}
                            aria-label="Próxima etapa"
-                           className="grid size-7 shrink-0 place-items-center rounded text-slate-600 transition-colors hover:bg-slate-100 disabled:opacity-30 pointer-coarse:size-[44px]"
+                           className="grid size-7 shrink-0 place-items-center rounded text-slate-600 transition-colors hover:bg-slate-100 disabled:opacity-30"
                         >
                            <HiChevronRight className="h-5 w-5" />
                         </button>

@@ -152,12 +152,7 @@ export function RoleCard({
                      <h3 className="text-xs font-semibold tracking-wide text-gray-600 uppercase">
                         Permissões concedidas
                      </h3>
-                     <Button
-                        size="xs"
-                        color="light"
-                        onClick={onAddPermission}
-                        className="pointer-coarse:min-h-[44px]"
-                     >
+                     <Button size="xs" color="light" onClick={onAddPermission}>
                         <FaPlus className="mr-2 h-3 w-3" />
                         Adicionar
                      </Button>

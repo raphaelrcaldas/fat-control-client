@@ -282,7 +282,7 @@ export const ListaOrdens = memo(function ListaOrdens({
                      <button
                         type="button"
                         onClick={onClearFiltros}
-                        className="text-primary-600 mt-3 py-1 text-sm font-medium hover:underline pointer-coarse:min-h-[44px]"
+                        className="text-primary-600 mt-3 py-1 text-sm font-medium hover:underline"
                      >
                         Limpar filtros
                      </button>
@@ -299,7 +299,7 @@ export const ListaOrdens = memo(function ListaOrdens({
                         <button
                            type="button"
                            onClick={onCreateOrdem}
-                           className="text-primary-600 mt-3 py-1 text-sm font-medium hover:underline pointer-coarse:min-h-[44px]"
+                           className="text-primary-600 mt-3 py-1 text-sm font-medium hover:underline"
                         >
                            + Criar nova Ordem de Missão
                         </button>

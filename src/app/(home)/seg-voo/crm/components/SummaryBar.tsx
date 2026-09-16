@@ -58,7 +58,7 @@ const CounterButton = memo(function CounterButton({
          onClick={() => onToggle(status)}
          title={nome}
          className={clsx(
-            "rounded border px-2 py-1 text-left transition-colors pointer-coarse:min-h-[44px]",
+            "rounded border px-2 py-1 text-left transition-colors",
             active
                ? clsx(cfg.bg, cfg.border, "shadow-sm")
                : "border-slate-200 bg-white hover:bg-gray-50"

@@ -141,7 +141,7 @@ export function EditableField({
                            onChange={(e) => setLocalValue(e.target.value)}
                            onKeyDown={handleKeyDown}
                            placeholder="(__) _____-____"
-                           className="block w-40 rounded border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none pointer-coarse:min-h-[44px]"
+                           className="block w-40 rounded border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
                            autoFocus
                         />
                      ) : type === "select" && options ? (
@@ -186,14 +186,14 @@ export function EditableField({
                      <>
                         <button
                            onClick={save}
-                           className="shrink-0 rounded p-1 text-green-600 transition-colors hover:bg-green-50 pointer-coarse:p-2"
+                           className="shrink-0 rounded p-1 text-green-600 transition-colors hover:bg-green-50"
                            aria-label="Salvar"
                         >
                            <HiCheck className="h-4.5 w-4.5" />
                         </button>
                         <button
                            onClick={cancelEdit}
-                           className="shrink-0 rounded p-1 text-gray-400 transition-colors hover:bg-gray-100 pointer-coarse:p-2"
+                           className="shrink-0 rounded p-1 text-gray-400 transition-colors hover:bg-gray-100"
                            aria-label="Cancelar"
                         >
                            <HiX className="h-4.5 w-4.5" />
@@ -222,7 +222,7 @@ export function EditableField({
                </p>
                <button
                   onClick={startEdit}
-                  className="shrink-0 rounded p-0.5 text-gray-300 opacity-100 transition-all hover:bg-gray-100 hover:text-gray-600 pointer-coarse:p-2.5 pointer-fine:opacity-0 pointer-fine:group-hover:opacity-100"
+                  className="shrink-0 rounded p-0.5 text-gray-300 opacity-100 transition-all hover:bg-gray-100 hover:text-gray-600 pointer-fine:opacity-0 pointer-fine:group-hover:opacity-100"
                   aria-label={`Editar ${label}`}
                >
                   <HiPencil className="h-3.5 w-3.5" />

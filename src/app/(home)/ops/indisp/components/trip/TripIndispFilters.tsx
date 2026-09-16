@@ -123,7 +123,7 @@ export function TripIndispFilters({
 
                   <Label
                      htmlFor="filtro-futuras"
-                     className="flex cursor-pointer items-center gap-3 select-none pointer-coarse:min-h-[44px]"
+                     className="flex cursor-pointer items-center gap-3 select-none"
                   >
                      <Checkbox
                         id="filtro-futuras"

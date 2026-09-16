@@ -308,7 +308,7 @@ function CidadeOption({
          onClick={onSelect}
          onMouseEnter={onMouseEnter}
          className={clsx(
-            "flex w-full items-center gap-2 px-3 py-2 text-left text-sm transition-colors pointer-coarse:min-h-[44px]",
+            "flex w-full items-center gap-2 px-3 py-2 text-left text-sm transition-colors",
             isActive
                ? "bg-slate-100"
                : destaque
