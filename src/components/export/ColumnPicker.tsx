@@ -78,24 +78,29 @@ export function ColumnPicker<T>({
                   </legend>
                   <div className="grid grid-cols-1 gap-x-4 gap-y-2 sm:grid-cols-2 lg:grid-cols-3">
                      {doGrupo.map((column) => (
-                        <div
+                        /* O alvo e a <label> inteira — que ja abraca caixa e
+                           texto —, nunca o `size` do Checkbox: inflar o
+                           desenho da caixa pintava um quadrado de 44px no
+                           mobile.
+
+                           Um tamanho so, identico no dedo e no mouse: ver
+                           `docs/ai/rules/frontend.md`. `min-h` em px, nunca
+                           `size-6`, porque a raiz do client e 87.5% e 1.5rem
+                           renderiza 21px. */
+                        <Label
                            key={column.key}
-                           className="flex items-center gap-2"
+                           htmlFor={`col-${column.key}`}
+                           className="flex min-h-[24px] cursor-pointer items-center gap-2 text-sm text-slate-700 transition-colors hover:text-slate-900"
                         >
                            <Checkbox
                               id={`col-${column.key}`}
-                              className="size-[20px] pointer-coarse:size-[44px]"
+                              className="size-[18px] shrink-0"
                               color="primary"
                               checked={checked.has(column.key)}
                               onChange={() => onToggle(column.key)}
                            />
-                           <Label
-                              htmlFor={`col-${column.key}`}
-                              className="cursor-pointer text-sm text-slate-700 transition-colors hover:text-slate-900"
-                           >
-                              {column.label}
-                           </Label>
-                        </div>
+                           {column.label}
+                        </Label>
                      ))}
                   </div>
                </fieldset>

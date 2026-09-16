@@ -206,8 +206,16 @@ export function ExportColumnsModal<T>({
          </ModalHeader>
          <ModalBody>
             <div className="space-y-4">
+               {/* Escondida no dedo (`hidden sm:block`), e nao so encolhida:
+                   reordenar por arrasto numa tira que ja rola na horizontal
+                   disputa o gesto com a propria rolagem, e o long press de
+                   200ms do TouchSensor e um caminho que ninguem descobre. A
+                   ordem persiste no localStorage por tela, entao quem ajustou
+                   no desktop continua exportando na ordem escolhida — o
+                   mobile so nao a edita. */}
                <ExportSection
                   index={0}
+                  className="hidden sm:block"
                   icon={HiOutlineSwitchHorizontal}
                   title="Ordem das colunas"
                   hint="Arraste para remanejar — é nesta ordem que elas saem na planilha. As de cadeado entram sempre, mas a posição delas também pode mudar."

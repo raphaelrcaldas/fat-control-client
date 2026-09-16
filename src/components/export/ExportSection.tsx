@@ -2,10 +2,13 @@
 
 import type { ReactNode } from "react";
 import type { IconType } from "react-icons";
+import clsx from "clsx";
 
 interface ExportSectionProps {
    icon: IconType;
    title: string;
+   /** Classes extras na `<section>`, ex.: visibilidade por breakpoint. */
+   className?: string;
    /** Uma linha explicando o que se faz aqui; some quando e obvio. */
    hint?: string;
    /** Contagem a direita do titulo ("15 colunas", "7 de 13"). */
@@ -38,6 +41,7 @@ interface ExportSectionProps {
 export function ExportSection({
    icon: Icon,
    title,
+   className,
    hint,
    badge,
    titleFor,
@@ -47,7 +51,7 @@ export function ExportSection({
 }: ExportSectionProps) {
    return (
       <section
-         className="animate-enter space-y-2"
+         className={clsx("animate-enter space-y-2", className)}
          style={{ "--i": index } as React.CSSProperties}
       >
          <div className="flex items-start justify-between gap-3">
