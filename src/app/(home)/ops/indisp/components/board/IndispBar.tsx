@@ -75,9 +75,19 @@ export function IndispBar({ bar, total, selected, onOpen }: IndispBarProps) {
          {bar.locked && !apertada && (
             <HiLockClosed aria-hidden className="shrink-0" />
          )}
+         {/* `leading-none` REPETIDO em cada filho, e não só na faixa: as
+             utilidades de tamanho do Tailwind trazem o `line-height` junto
+             (aqui o `text-xs` do código resolvia para 10,5px/14px) e
+             sobrescrevem o da faixa. Com caixas de alturas diferentes o
+             `items-center` centrava as CAIXAS, não os glifos, e o código de
+             três letras assentava ~1px fora do rótulo — medido no navegador.
+
+             `items-baseline` parece a correção óbvia e NÃO é: o rótulo usa
+             `truncate` (`overflow:hidden`), o que lhe dá baseline própria de
+             bloco, e o desvio aumenta em vez de sumir. */}
          <code
             className={clsx(
-               "shrink-0 font-mono font-bold tracking-wider",
+               "shrink-0 font-mono leading-none font-bold tracking-wider",
                TEXTO_VARREDURA
             )}
          >
@@ -88,12 +98,12 @@ export function IndispBar({ bar, total, selected, onOpen }: IndispBarProps) {
              "CEMAL venci…"); truncar o código não seria, e por isso ele é
              `shrink-0`. */}
          {dias >= MIN_DIAS_ROTULO && (
-            <span className="min-w-0 truncate">{bar.label}</span>
+            <span className="min-w-0 truncate leading-none">{bar.label}</span>
          )}
          {dias >= MIN_DIAS_PERIODO && bar.range && (
             <span
                className={clsx(
-                  "ml-auto font-mono font-medium",
+                  "ml-auto font-mono leading-none font-medium",
                   TEXTO_VARREDURA
                )}
             >
