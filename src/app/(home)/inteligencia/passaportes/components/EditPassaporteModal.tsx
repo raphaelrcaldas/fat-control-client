@@ -295,8 +295,6 @@ const EditPassaporteModal = memo(function EditPassaporteModal({
    const handleCopy = async () => {
       const identidade = [
          formatPgDisplay(item.p_g) || "—",
-         item.quadro || "—",
-         item.esp || "—",
          item.nome_completo || item.nome_guerra,
       ].join(" ");
       const texto =
@@ -385,8 +383,7 @@ const EditPassaporteModal = memo(function EditPassaporteModal({
                            {item.nome_completo || item.nome_guerra}
                         </span>
                         <span className="mt-0.5 block truncate font-mono text-xs text-slate-500 uppercase">
-                           {formatPgDisplay(item.p_g) || "—"} ·{" "}
-                           {item.quadro || "—"} · {item.esp || "—"} · NASC{" "}
+                           {formatPgDisplay(item.p_g) || "—"} · NASC{" "}
                            {formatDateFull(item.nasc) || "—"}
                         </span>
                      </span>
