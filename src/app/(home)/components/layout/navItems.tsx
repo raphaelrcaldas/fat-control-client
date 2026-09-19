@@ -33,7 +33,7 @@ import { FaUsers, FaBuilding, FaSitemap, FaUserGroup } from "react-icons/fa6";
 import { FaPaperPlane } from "react-icons/fa";
 import { RiAdminLine } from "react-icons/ri";
 import { GiSecurityGate, GiJoystick } from "react-icons/gi";
-import { TbLogs } from "react-icons/tb";
+import { TbLogs, TbMapPin } from "react-icons/tb";
 import { ImStatsDots } from "react-icons/im";
 import { CiPaperplane } from "react-icons/ci";
 
@@ -279,6 +279,13 @@ export const navItems = [
             label: "Dados Bancários",
             path: "/cegep/dados-bancarios",
             resource: "cegep.dados_bancarios",
+            permission: "view",
+         },
+         {
+            icon: TbMapPin,
+            label: "GLE",
+            path: "/cegep/gle",
+            resource: "cegep.gle",
             permission: "view",
          },
       ],

@@ -5,12 +5,26 @@ import { useSearchParams, useRouter, usePathname } from "next/navigation";
 
 type ParamUpdates = Record<string, string | undefined>;
 
+interface SetParamsOptions {
+   /**
+    * `true` empilha uma entrada no histórico (`router.push`) em vez de
+    * sobrescrever a atual (`router.replace`, o padrão).
+    *
+    * Use para mudança que o usuário entende como **navegação** e espera
+    * desfazer com o botão voltar — trocar de aba, por exemplo. Não use
+    * para filtro digitado: cada tecla viraria uma entrada no histórico e
+    * o voltar ficaria inútil.
+    */
+   push?: boolean;
+}
+
 /**
  * Hook that provides searchParams for reading and a setParams function
  * for batch-updating multiple URL search params at once.
  *
  * When a value is `undefined`, the param is deleted from the URL.
- * Uses `router.replace()` with `{ scroll: false }` to avoid page scroll.
+ * Uses `{ scroll: false }` to avoid page scroll; writes with
+ * `router.replace()` unless `{ push: true }` is passed.
  */
 export function useSearchParamsUpdater() {
    const searchParams = useSearchParams();
@@ -18,7 +32,7 @@ export function useSearchParamsUpdater() {
    const pathname = usePathname();
 
    const setParams = useCallback(
-      (updates: ParamUpdates) => {
+      (updates: ParamUpdates, options?: SetParamsOptions) => {
          const params = new URLSearchParams(searchParams.toString());
 
          for (const [key, value] of Object.entries(updates)) {
@@ -31,7 +45,13 @@ export function useSearchParamsUpdater() {
 
          const queryString = params.toString();
          const newUrl = queryString ? `${pathname}?${queryString}` : pathname;
-         router.replace(newUrl, { scroll: false });
+         // Chamado no router, não desestruturado: `push`/`replace` são
+         // métodos do AppRouterInstance e podem depender do `this`.
+         if (options?.push) {
+            router.push(newUrl, { scroll: false });
+         } else {
+            router.replace(newUrl, { scroll: false });
+         }
       },
       [searchParams, router, pathname]
    );
