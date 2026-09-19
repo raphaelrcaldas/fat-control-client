@@ -1,20 +1,32 @@
-import { useState, useMemo, useCallback, useEffect, useRef } from "react";
+import { useMemo } from "react";
 import { useEtapas } from "@/hooks/queries";
 import type { MissaoComEtapas } from "services/routes/estatistica/etapas";
-import type { Dupla, DuplaPilot, PendingDupla } from "../types";
+import type { Dupla, DuplaPilot } from "../types";
 
-function getFirstDate(d: Dupla): string | null {
+/** Data da sessao mais recente da dupla; `null` quando ainda nao ha sessao. */
+function getLastDate(d: Dupla): string | null {
    if (d.etapas.length === 0) return null;
-   return d.etapas.map((e) => e.data).sort()[0];
+   return (
+      d.etapas
+         .map((e) => e.data)
+         .sort()
+         .at(-1) ?? null
+   );
 }
 
-function sortByFirstDate(a: Dupla, b: Dupla): number {
-   const da = getFirstDate(a);
-   const db = getFirstDate(b);
-   if (!da && !db) return 0;
-   if (!da) return 1;
-   if (!db) return -1;
-   return da.localeCompare(db);
+/**
+ * Mais recentes no topo, pela ULTIMA sessao — nao pela primeira: uma dupla
+ * antiga que voou ontem e atividade recente e precisa subir. Duplas ainda sem
+ * sessao ficam acima de todas, por serem o trabalho pendente.
+ */
+function sortByLastDateDesc(a: Dupla, b: Dupla): number {
+   const da = getLastDate(a);
+   const db = getLastDate(b);
+   if (!da && !db) return b.missaoId - a.missaoId;
+   if (!da) return -1;
+   if (!db) return 1;
+   if (da === db) return b.missaoId - a.missaoId;
+   return db.localeCompare(da);
 }
 
 function buildDuplasFromApi(missoes: MissaoComEtapas[]): Dupla[] {
@@ -44,110 +56,25 @@ function buildDuplasFromApi(missoes: MissaoComEtapas[]): Dupla[] {
             pilots,
             etapas: missao.etapas,
             missaoId: missao.id,
+            obs: missao.obs,
          } satisfies Dupla;
       })
-      .sort(sortByFirstDate);
-}
-
-function mergeDuplas(apiDuplas: Dupla[], pending: PendingDupla[]): Dupla[] {
-   const pendingByMissao = new Map(pending.map((p) => [p.missaoId, p]));
-
-   // Enriquece duplas da API: se sem pilotos, usa pilotos da pending
-   const enriched = apiDuplas.map((d) => {
-      if (d.pilots.length === 0 && pendingByMissao.has(d.missaoId)) {
-         return { ...d, pilots: pendingByMissao.get(d.missaoId)!.pilots };
-      }
-      return d;
-   });
-
-   // Pending duplas que ainda não apareceram na API
-   const apiMissaoIds = new Set(apiDuplas.map((d) => d.missaoId));
-   const newDuplas: Dupla[] = pending
-      .filter((p) => !apiMissaoIds.has(p.missaoId))
-      .map((p) => ({
-         key: p.key,
-         pilots: p.pilots,
-         etapas: [],
-         missaoId: p.missaoId,
-      }));
-
-   return [...enriched, ...newDuplas].sort(sortByFirstDate);
+      .sort(sortByLastDateDesc);
 }
 
 export function useSimuladorDuplas(anoRef: number) {
-   const [pendingDuplas, setPendingDuplas] = useState<PendingDupla[]>([]);
-   const [selectedKey, setSelectedKey] = useState<string | null>(null);
-   // Ids temporarios (negativos) para duplas ainda nao persistidas no banco.
-   // A missao real so e criada junto da primeira sessao (ver persistDraft).
-   const draftIdRef = useRef(-1);
-
    const { data, isLoading, isFetching, isError } = useEtapas({
       is_simulador: true,
       data_ini: `${anoRef}-01-01`,
       data_fim: `${anoRef}-12-31`,
    });
 
-   // Pendings são otimismo local de um ano específico; ao trocar o ano de
-   // referência, descarta-as para não vazar uma "dupla fantasma" no ano errado.
-   useEffect(() => {
-      setPendingDuplas([]);
-   }, [anoRef]);
-
-   const apiDuplas = useMemo(() => buildDuplasFromApi(data ?? []), [data]);
-
-   const duplas = useMemo(
-      () => mergeDuplas(apiDuplas, pendingDuplas),
-      [apiDuplas, pendingDuplas]
-   );
-
-   const selectedDupla = useMemo(
-      () => duplas.find((d) => d.key === selectedKey) ?? null,
-      [duplas, selectedKey]
-   );
-
-   // Cria uma dupla apenas no estado local (draft). Nada e gravado no banco
-   // ate a primeira sessao ser salva — evita missao orfa sem etapas.
-   const handleDuplaCreated = useCallback((pilots: DuplaPilot[]) => {
-      const sorted = [...pilots].sort((a, b) => a.trip_id - b.trip_id);
-      const draftId = draftIdRef.current;
-      draftIdRef.current -= 1;
-      const key = String(draftId);
-
-      setPendingDuplas((prev) => [
-         ...prev,
-         { key, missaoId: draftId, pilots: sorted },
-      ]);
-      setSelectedKey(key);
-   }, []);
-
-   // Ao salvar a primeira sessao de um draft, a missao real e criada. Converte
-   // o pending para o id real e move a selecao, sem flicker de "sem dupla".
-   const persistDraft = useCallback((draftId: number, newMissaoId: number) => {
-      const newKey = String(newMissaoId);
-      setPendingDuplas((prev) =>
-         prev.map((p) =>
-            p.missaoId === draftId
-               ? { ...p, key: newKey, missaoId: newMissaoId }
-               : p
-         )
-      );
-      setSelectedKey(newKey);
-   }, []);
-
-   const removePending = useCallback((missaoId: number) => {
-      setPendingDuplas((prev) => prev.filter((p) => p.missaoId !== missaoId));
-   }, []);
+   const duplas = useMemo(() => buildDuplasFromApi(data ?? []), [data]);
 
    return {
       duplas,
-      selectedDupla,
-      selectedKey,
-      setSelectedKey,
       isLoading,
       isFetching,
       isError,
-      handleDuplaCreated,
-      persistDraft,
-      removePending,
    };
 }

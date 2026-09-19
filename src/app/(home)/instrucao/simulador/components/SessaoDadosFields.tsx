@@ -22,6 +22,7 @@ export default function SessaoDadosFields({ form }: { form: SessaoForm }) {
       crossesDay,
       depArrEqual,
       dateOutOfYear,
+      anoRef,
    } = form;
 
    const tvooInvalid = crossesDay || depArrEqual;
@@ -38,11 +39,16 @@ export default function SessaoDadosFields({ form }: { form: SessaoForm }) {
       <div className="space-y-3 rounded border border-slate-200 bg-gray-50 p-4 shadow-sm">
          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             <Field id="ses-data" label="Data">
+               {/* min/max prendem o seletor ao ano de referencia: sem eles o
+                   campo aceita qualquer ano de 4 digitos, e um deslize de
+                   digitacao ja gravou sessao no ano 0006. */}
                <TextInput
                   id="ses-data"
                   type="date"
                   value={data}
                   onChange={(e) => setData(e.target.value)}
+                  min={`${anoRef}-01-01`}
+                  max={`${anoRef}-12-31`}
                   sizing="sm"
                   color={dateOutOfYear ? "failure" : undefined}
                   required
@@ -82,15 +88,20 @@ export default function SessaoDadosFields({ form }: { form: SessaoForm }) {
                />
             </Field>
             <Field id="ses-pousos" label="Pousos">
+               {/* `parseInt(...) || 0` como em estatistica/etapas: com
+                   `Math.max(0, Number(v))` uma entrada incompleta ("-", "e")
+                   virava NaN, que `Math.max` propaga, o JSON serializa como
+                   null e o backend recusa com 422 sem dizer qual campo. */}
                <TextInput
                   id="ses-pousos"
                   type="number"
                   value={pousos}
                   onChange={(e) =>
-                     setPousos(Math.max(0, Number(e.target.value)))
+                     setPousos(Math.max(0, parseInt(e.target.value) || 0))
                   }
                   sizing="sm"
                   min={0}
+                  max={20}
                />
             </Field>
          </div>

@@ -25,9 +25,13 @@ interface UseSessaoFormArgs {
    anoRef: number;
    pilots: DuplaPilot[];
    editEtapa: EtapaItem | null;
+   /** Observacao da missao, usada so na criacao de um draft. */
+   obs?: string | null;
    onClose: () => void;
    /** Chamado com o id real quando a 1ª sessao de um draft cria a missao. */
    onPersistDraft?: (newMissaoId: number) => void;
+   /** Chamado depois de persistir uma sessao existente ou nova. */
+   onSaved?: (etapaId: number) => void;
 }
 
 /**
@@ -40,8 +44,10 @@ export function useSessaoForm({
    anoRef,
    pilots,
    editEtapa,
+   obs = null,
    onClose,
    onPersistDraft,
+   onSaved,
 }: UseSessaoFormArgs) {
    const isEditMode = editEtapa !== null;
    // Draft: dupla local sem missao no banco; a 1ª sessao cria missao + etapa.
@@ -175,6 +181,10 @@ export function useSessaoForm({
       dep &&
       arr &&
       tvooValid &&
+      // Cinto e suspensorio: o campo ja sanitiza, mas NaN aqui viraria
+      // `null` no JSON e 422 generico do backend.
+      Number.isInteger(pousos) &&
+      pousos >= 0 &&
       tipoMissaoId &&
       smlEsfAer &&
       sessionPilots.length > 0 &&
@@ -226,11 +236,14 @@ export function useSessaoForm({
                   message: res.message ?? "Sessão atualizada",
                   type: res.ok ? "success" : "error",
                });
-               if (res.ok) onClose();
+               if (res.ok) {
+                  onSaved?.(res.data?.id ?? editEtapa.id);
+                  onClose();
+               }
             } else if (isDraft) {
                const res = await createMissaoWithEtapas.mutateAsync({
                   titulo: "Simulador",
-                  obs: null,
+                  obs,
                   is_simulador: true,
                   etapas: [
                      {
@@ -272,7 +285,10 @@ export function useSessaoForm({
                   message: res.message ?? "Sessão criada",
                   type: res.ok ? "success" : "error",
                });
-               if (res.ok) onClose();
+               if (res.ok) {
+                  if (res.data) onSaved?.(res.data.id);
+                  onClose();
+               }
             }
          } catch (err) {
             push({
@@ -300,12 +316,14 @@ export function useSessaoForm({
          pousos,
          isEditMode,
          isDraft,
+         obs,
          editEtapa,
          missaoId,
          updateEtapa,
          createEtapa,
          createMissaoWithEtapas,
          onPersistDraft,
+         onSaved,
          push,
          onClose,
       ]
@@ -344,6 +362,7 @@ export function useSessaoForm({
       isPending,
       isLoadingData,
       handleSubmit,
+      anoRef,
    };
 }
 

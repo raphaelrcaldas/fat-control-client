@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, useRef } from "react";
+import useDebouncedValue from "@/hooks/useDebouncedValue";
 import { useTrips } from "@/hooks/queries/useTrips";
 import type { GetTripsParams } from "services/routes/trips";
 import type { CrewSearchResult } from "../types";
@@ -23,17 +24,26 @@ export function usePilotSearch(assignedIds: Set<number>) {
          }
       }
       document.addEventListener("mousedown", handleClickOutside);
-      return () =>
+      // `touchstart` junto: num scroll no celular o navegador nao sintetiza
+      // `mousedown`, e o dropdown ficava aberto.
+      document.addEventListener("touchstart", handleClickOutside);
+      return () => {
          document.removeEventListener("mousedown", handleClickOutside);
+         document.removeEventListener("touchstart", handleClickOutside);
+      };
    }, []);
 
-   const searchParams: GetTripsParams | undefined = useMemo(
-      () =>
-         tripSearch.length >= 2
-            ? { search: tripSearch, func: ["pil"], per_page: 10, active: true }
-            : undefined,
-      [tripSearch]
-   );
+   // Sem debounce era uma requisicao por tecla: digitar "SILVA" disparava 4
+   // queries, nenhuma servida de cache (`useTrips` tem staleTime 0). Mesmos
+   // 300ms do `InlineTripSearch` de estatistica/etapas.
+   const debouncedSearch = useDebouncedValue(tripSearch, 300);
+
+   const searchParams: GetTripsParams | undefined = useMemo(() => {
+      const termo = debouncedSearch.trim();
+      return termo.length >= 2
+         ? { search: termo, func: ["pil"], per_page: 10, active: true }
+         : undefined;
+   }, [debouncedSearch]);
 
    const { data: tripsData, isLoading: loadingTrips } = useTrips(
       searchParams,
@@ -54,6 +64,11 @@ export function usePilotSearch(assignedIds: Set<number>) {
       [tripsData, assignedIds]
    );
 
+   // Entre a tecla e o fim do debounce a query ainda nao foi habilitada,
+   // entao `loadingTrips` e false: sem isto o painel piscaria "Nenhum piloto
+   // encontrado" por 300ms antes de buscar.
+   const aguardandoDebounce = tripSearch.trim() !== debouncedSearch.trim();
+
    return {
       tripSearch,
       setTripSearch,
@@ -61,6 +76,6 @@ export function usePilotSearch(assignedIds: Set<number>) {
       setSearchOpen,
       searchRef,
       searchResults,
-      loadingTrips,
+      loadingTrips: loadingTrips || aguardandoDebounce,
    };
 }

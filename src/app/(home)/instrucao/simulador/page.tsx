@@ -1,151 +1,102 @@
 "use client";
 
-import { useState, useCallback } from "react";
-import { Alert } from "flowbite-react";
+import { useState } from "react";
+import { Alert, Button } from "flowbite-react";
 import clsx from "clsx";
-import type { EtapaItem } from "services/routes/estatistica/etapas";
-import { useSimuladorDuplas } from "./hooks/useSimuladorDuplas";
+import { MdFlightTakeoff } from "react-icons/md";
+import { useSimuladorFilters } from "./hooks/useSimuladorFilters";
 import { useSimuladorActions } from "./hooks/useSimuladorActions";
 import SimuladorHeader from "./components/SimuladorHeader";
-import DuplasSidebar from "./components/DuplasSidebar";
-import SessoesPanel from "./components/SessoesPanel";
-import SimuladorBoardSkeleton from "./components/SimuladorBoardSkeleton";
-import CreateDuplaModal from "./components/CreateDuplaModal";
-import AddSessaoModal from "./components/AddSessaoModal";
-
-const currentYear = new Date().getFullYear();
-const YEAR_OPTIONS = Array.from({ length: 4 }, (_, i) => currentYear - 2 + i);
+import { SimuladorFilterPanel } from "./components/SimuladorFilterPanel";
+import { ActiveFilterTags } from "./components/ActiveFilterTags";
+import { DuplasList } from "./components/DuplasList/DuplasList";
+import { DuplasListSkeleton } from "./components/DuplasList/DuplasListSkeleton";
 
 export default function SimuladorPage() {
-   const [search, setSearch] = useState("");
-   const [anoRef, setAnoRef] = useState(currentYear);
+   const [showFilters, setShowFilters] = useState(false);
 
-   // Modais
-   const [showCreateDupla, setShowCreateDupla] = useState(false);
-   const [showAddSessao, setShowAddSessao] = useState(false);
-   const [editingEtapa, setEditingEtapa] = useState<EtapaItem | null>(null);
-
-   const {
-      duplas,
-      selectedDupla,
-      selectedKey,
-      setSelectedKey,
-      isLoading,
-      isFetching,
-      isError,
-      handleDuplaCreated,
-      persistDraft,
-      removePending,
-   } = useSimuladorDuplas(anoRef);
-
-   const { deleteSessao, deleteDupla, isDeletingDupla } = useSimuladorActions({
-      selectedKey,
-      setSelectedKey,
-      removePending,
-   });
-
-   const handleAddSessao = useCallback(() => {
-      if (!selectedDupla) return;
-      setEditingEtapa(null);
-      setShowAddSessao(true);
-   }, [selectedDupla]);
-
-   const handleSessaoClick = useCallback((etapa: EtapaItem) => {
-      setEditingEtapa(etapa);
-      setShowAddSessao(true);
-   }, []);
-
-   const handleDeleteSessao = useCallback(
-      async (etapa: EtapaItem) => {
-         const ok = await deleteSessao(etapa);
-         if (ok) {
-            setShowAddSessao(false);
-            setEditingEtapa(null);
-         }
-      },
-      [deleteSessao]
-   );
-
-   const handleAnoChange = useCallback(
-      (ano: number) => {
-         setAnoRef(ano);
-         setSelectedKey(null);
-      },
-      [setSelectedKey]
-   );
+   const filters = useSimuladorFilters();
+   const { deleteDupla, isDeletingDupla } = useSimuladorActions();
 
    return (
       <div className="space-y-2">
          <SimuladorHeader
-            anoRef={anoRef}
-            yearOptions={YEAR_OPTIONS}
-            onAnoChange={handleAnoChange}
+            showFilters={showFilters}
+            activeFilterCount={filters.activeFilterCount}
+            anoRef={filters.anoRef}
+            onToggleFilters={() => setShowFilters((visible) => !visible)}
+         >
+            <SimuladorFilterPanel
+               anoRef={filters.anoRef}
+               yearOptions={filters.yearOptions}
+               filterPiloto={filters.filterPiloto}
+               onAnoChange={filters.handleAnoChange}
+               onPilotoChange={filters.setFilterPiloto}
+            />
+         </SimuladorHeader>
+
+         <ActiveFilterTags
+            anoRef={filters.anoRef}
+            anoActive={filters.anoActive}
+            piloto={filters.urlPiloto}
+            pilotoActive={filters.pilotoActive}
+            onRemoveAno={filters.removeAnoFilter}
+            onRemovePiloto={filters.removePilotoFilter}
+            onClearAll={filters.clearFilters}
          />
 
-         {isError && (
+         {filters.isError && (
             <Alert color="failure">
                Erro ao carregar as sessões do simulador. Verifique a conexão e
                tente novamente.
             </Alert>
          )}
 
-         {isLoading ? (
-            <SimuladorBoardSkeleton />
-         ) : (
-            !isError && (
-               <div
-                  className={clsx(
-                     "overflow-hidden rounded border border-slate-200 bg-white shadow-sm transition-opacity",
-                     isFetching && "opacity-50"
-                  )}
-               >
-                  <div className="flex min-h-120">
-                     <DuplasSidebar
-                        duplas={duplas}
-                        selectedKey={selectedKey}
-                        search={search}
-                        onSearchChange={setSearch}
-                        onSelect={(key) =>
-                           setSelectedKey((prev) => (prev === key ? null : key))
-                        }
-                        onCreateDupla={() => setShowCreateDupla(true)}
-                     />
+         {filters.isLoading && <DuplasListSkeleton />}
 
-                     <SessoesPanel
-                        dupla={selectedDupla}
-                        onAddSessao={handleAddSessao}
-                        onDeleteDupla={deleteDupla}
-                        onSessaoClick={handleSessaoClick}
-                        isDeletingDupla={isDeletingDupla}
-                     />
+         {!filters.isLoading &&
+            !filters.isError &&
+            filters.totalDuplas === 0 && (
+               <div className="flex h-64 flex-col items-center justify-center rounded border border-gray-200 bg-white px-4 text-center shadow-sm">
+                  <div className="mb-4 rounded-full bg-gray-100 p-4">
+                     <MdFlightTakeoff className="h-12 w-12 text-gray-400" />
                   </div>
+                  <p className="mb-2 text-lg font-semibold text-gray-900">
+                     {filters.hasActiveFilters
+                        ? "Nenhuma dupla encontrada"
+                        : "Nenhuma dupla disponível"}
+                  </p>
+                  <p className="max-w-md text-sm text-gray-500">
+                     {filters.hasActiveFilters
+                        ? "Não foram encontrados resultados com os filtros aplicados."
+                        : "Crie uma nova dupla para registrar a primeira sessão de simulador."}
+                  </p>
+                  {filters.hasActiveFilters && (
+                     <Button
+                        color="light"
+                        size="sm"
+                        onClick={filters.clearFilters}
+                        className="mt-3"
+                     >
+                        Limpar filtros
+                     </Button>
+                  )}
                </div>
-            )
-         )}
+            )}
 
-         {/* ── Modais ─────────────────────────────────────────────────── */}
-         <CreateDuplaModal
-            show={showCreateDupla}
-            onClose={() => setShowCreateDupla(false)}
-            onCreated={handleDuplaCreated}
-         />
-
-         {selectedDupla && (
-            <AddSessaoModal
-               show={showAddSessao}
-               onClose={() => {
-                  setShowAddSessao(false);
-                  setEditingEtapa(null);
-               }}
-               missaoId={selectedDupla.missaoId}
-               anoRef={anoRef}
-               pilots={selectedDupla.pilots}
-               editEtapa={editingEtapa}
-               onDelete={handleDeleteSessao}
-               onPersistDraft={(newMissaoId) =>
-                  persistDraft(selectedDupla.missaoId, newMissaoId)
-               }
-            />
+         {!filters.isError && filters.duplas.length > 0 && (
+            <div
+               className={clsx(
+                  "transition-opacity duration-200",
+                  filters.isRefetching && "pointer-events-none opacity-50"
+               )}
+            >
+               <DuplasList
+                  duplas={filters.duplas}
+                  onDeleteDupla={deleteDupla}
+                  isDeletingDupla={isDeletingDupla}
+               />
+            </div>
          )}
       </div>
    );

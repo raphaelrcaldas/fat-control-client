@@ -1,54 +1,15 @@
 import { useCallback } from "react";
-import type { Dispatch, SetStateAction } from "react";
-import {
-   useDeleteEtapa,
-   useDeleteEstatMissao,
-} from "@/hooks/queries/useEtapas";
+import { useDeleteEstatMissao } from "@/hooks/queries/useEtapas";
 import { useToast } from "@/app/context/toast";
-import type { EtapaItem } from "services/routes/estatistica/etapas";
 import type { Dupla } from "../types";
 
-interface UseSimuladorActionsArgs {
-   selectedKey: string | null;
-   setSelectedKey: Dispatch<SetStateAction<string | null>>;
-   removePending: (missaoId: number) => void;
-}
-
 /**
- * Ações de exclusão da feature (sessão e dupla), com toast e regras de
- * negócio. Mantém a página declarativa, sem mutations inline.
+ * Ações de exclusão da feature (dupla), com toast e regras de negócio.
+ * Mantém a página declarativa, sem mutations inline.
  */
-export function useSimuladorActions({
-   selectedKey,
-   setSelectedKey,
-   removePending,
-}: UseSimuladorActionsArgs) {
+export function useSimuladorActions() {
    const { push } = useToast();
-   const deleteEtapaMutation = useDeleteEtapa();
    const deleteMissaoMutation = useDeleteEstatMissao();
-
-   const deleteSessao = useCallback(
-      async (etapa: EtapaItem): Promise<boolean> => {
-         try {
-            const res = await deleteEtapaMutation.mutateAsync(etapa.id);
-            push({
-               title: res.ok ? "Sucesso!" : "Erro",
-               message: res.message ?? "Sessão excluída",
-               type: res.ok ? "success" : "error",
-            });
-            return res.ok;
-         } catch (err) {
-            push({
-               title: "Erro",
-               message:
-                  err instanceof Error ? err.message : "Erro ao excluir sessão",
-               type: "error",
-            });
-            return false;
-         }
-      },
-      [deleteEtapaMutation, push]
-   );
 
    const deleteDupla = useCallback(
       async (dupla: Dupla) => {
@@ -68,10 +29,6 @@ export function useSimuladorActions({
                message: res.message ?? "Dupla excluída",
                type: res.ok ? "success" : "error",
             });
-            if (res.ok) {
-               removePending(dupla.missaoId);
-               if (selectedKey === dupla.key) setSelectedKey(null);
-            }
          } catch (err) {
             push({
                title: "Erro",
@@ -81,13 +38,11 @@ export function useSimuladorActions({
             });
          }
       },
-      [deleteMissaoMutation, push, selectedKey, setSelectedKey, removePending]
+      [deleteMissaoMutation, push]
    );
 
    return {
-      deleteSessao,
       deleteDupla,
       isDeletingDupla: deleteMissaoMutation.isPending,
-      isDeletingSessao: deleteEtapaMutation.isPending,
    };
 }

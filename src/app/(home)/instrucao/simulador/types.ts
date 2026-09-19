@@ -25,14 +25,5 @@ export interface Dupla {
    pilots: DuplaPilot[];
    etapas: EtapaItem[];
    missaoId: number;
-}
-
-/**
- * Dupla criada localmente. Enquanto `missaoId` for negativo, e um draft ainda
- * nao persistido no banco; a missao real so nasce junto da primeira sessao.
- */
-export interface PendingDupla {
-   key: string;
-   missaoId: number;
-   pilots: DuplaPilot[];
+   obs: string | null;
 }
