@@ -30,6 +30,19 @@ import type {
 // funcionam como rede de seguranca). Fonte unica: alimenta tanto os avisos de
 // validacao (deriveErrors) quanto os atributos min/max dos inputs, evitando
 // divergencia entre o que o campo aceita e o que a validacao acusa.
+/**
+ * Janela plausivel para a data da etapa, espelhando o guard do backend
+ * (`ETAPA_ANO_MIN` em `schemas/estatistica/etapa.py`). O piso acompanha o
+ * resto da estatistica, que trata 2020 como inicio; o teto deixa um ano de
+ * folga para planejamento.
+ *
+ * Sem isto o campo aceita qualquer ano de 4 digitos — um deslize de
+ * digitacao ja gravou etapa no ano 0006, que some dos paineis (filtram
+ * `ano >= 2020`) mas continua na listagem por janela de data.
+ */
+export const DATA_MIN = "2020-01-01";
+export const DATA_MAX = `${new Date().getFullYear() + 1}-12-31`;
+
 export const FIELD_LIMITS = {
    pousos: { min: 0, max: 20, label: "Pousos" },
    tow: { min: 52000, max: 87000, label: "TOW" },

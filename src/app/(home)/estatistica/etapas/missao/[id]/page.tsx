@@ -11,6 +11,7 @@ import {
    type MissaoComEtapasDetail,
 } from "services/routes/estatistica/etapas";
 
+import { missaoEtpKeys } from "@/hooks/queries/useEtapas";
 import PermDenied from "@/app/components/permDenied";
 import { usePermBased } from "@/app/(home)/hooks/usePermBased";
 
@@ -64,7 +65,7 @@ export default function EditarMissaoPage() {
    const canEdit = hasPerm("estatistica.etapas", "update");
 
    const { data, isLoading, isError, error, refetch } = useQuery({
-      queryKey: ["missao", id],
+      queryKey: missaoEtpKeys.detail(id),
       queryFn: ({ signal }) => getMissao(id, signal),
       enabled: enabled && canEdit,
       staleTime: 0,

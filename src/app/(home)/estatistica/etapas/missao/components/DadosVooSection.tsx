@@ -4,7 +4,12 @@ import { minutesToTime } from "@/../utils/dateHandler";
 
 import { toIcao, toNivelDigits } from "../context/format";
 import { isRotaPousoSuspeito } from "../context/selectors";
-import { FIELD_LIMITS, type EtapaFormGroup } from "../hooks/useEtapaEditor";
+import {
+   DATA_MAX,
+   DATA_MIN,
+   FIELD_LIMITS,
+   type EtapaFormGroup,
+} from "../hooks/useEtapaEditor";
 import { FormField } from "./FormField";
 
 interface DadosVooSectionProps {
@@ -32,9 +37,14 @@ export function DadosVooSection({ form, aeronavesList }: DadosVooSectionProps) {
          <div>
             <div className="grid grid-cols-2 gap-4 text-left sm:grid-cols-2 lg:grid-cols-4">
                <FormField label="Data" htmlFor="data" error={errors.data}>
+                  {/* min/max espelham o guard do backend: sem eles o campo
+                      aceita qualquer ano de 4 digitos, e uma digitacao
+                      errada ja gravou etapa no ano 0006. */}
                   <TextInput
                      id="data"
                      type="date"
+                     min={DATA_MIN}
+                     max={DATA_MAX}
                      value={formData.data}
                      onChange={(e) => setField("data", e.target.value)}
                      color={errors.data ? "failure" : "gray"}

@@ -45,6 +45,19 @@ export const etapaKeys = {
       [...etapaKeys.all, "pendentes", limit] as const,
 };
 
+/**
+ * Chave do detalhe de uma missao de ESTATISTICA (nao confundir com
+ * `missaoKeys` de `useMissoes`, que e do cegep), usada pelos dois editores (estatistica e
+ * simulador). Fica FORA de `etapaKeys` porque o prefixo e outro: `["missao",
+ * id]` nao casa com `["etapas"]`, entao invalidar `etapaKeys.all` nunca
+ * alcancou esta query. Ate aqui o detalhe so nao servia dado velho porque as
+ * paginas usam `gcTime: 0` — protecao acidental, nao declarada.
+ */
+export const missaoEtpKeys = {
+   all: ["missao"] as const,
+   detail: (id: number) => [...missaoEtpKeys.all, id] as const,
+};
+
 function invalidateRestricoesOperacionais(queryClient: QueryClient) {
    queryClient.invalidateQueries({ queryKey: indispKeys.all });
    queryClient.invalidateQueries({ queryKey: escalaKeys.all });
@@ -91,6 +104,7 @@ export function useCreateMissao() {
       mutationFn: (data: MissaoCreate) => createMissao(data),
       onSuccess: () => {
          queryClient.invalidateQueries({ queryKey: etapaKeys.all });
+         queryClient.invalidateQueries({ queryKey: missaoEtpKeys.all });
          invalidateRestricoesOperacionais(queryClient);
       },
    });
@@ -107,6 +121,7 @@ export function useCreateMissaoWithEtapas() {
          createMissaoWithEtapas(data),
       onSuccess: () => {
          queryClient.invalidateQueries({ queryKey: etapaKeys.all });
+         queryClient.invalidateQueries({ queryKey: missaoEtpKeys.all });
          queryClient.invalidateQueries({ queryKey: esfAerKeys.all });
          queryClient.invalidateQueries({ queryKey: seboKeys.all });
          queryClient.invalidateQueries({ queryKey: indicadoresKeys.all });
@@ -122,6 +137,7 @@ export function useUpdateMissao() {
          updateMissao(id, data),
       onSuccess: () => {
          queryClient.invalidateQueries({ queryKey: etapaKeys.all });
+         queryClient.invalidateQueries({ queryKey: missaoEtpKeys.all });
          invalidateRestricoesOperacionais(queryClient);
       },
    });
@@ -133,6 +149,7 @@ export function useDeleteEstatMissao() {
       mutationFn: (id: number) => deleteMissao(id),
       onSuccess: () => {
          queryClient.invalidateQueries({ queryKey: etapaKeys.all });
+         queryClient.invalidateQueries({ queryKey: missaoEtpKeys.all });
          invalidateRestricoesOperacionais(queryClient);
       },
    });
@@ -148,6 +165,7 @@ export function useCreateEtapa() {
       mutationFn: (data: EtapaCreatePayload) => createEtapa(data),
       onSuccess: () => {
          queryClient.invalidateQueries({ queryKey: etapaKeys.all });
+         queryClient.invalidateQueries({ queryKey: missaoEtpKeys.all });
          queryClient.invalidateQueries({ queryKey: esfAerKeys.all });
          queryClient.invalidateQueries({ queryKey: seboKeys.all });
          queryClient.invalidateQueries({ queryKey: indicadoresKeys.all });
@@ -163,6 +181,7 @@ export function useUpdateEtapa() {
          updateEtapa(id, data),
       onSuccess: () => {
          queryClient.invalidateQueries({ queryKey: etapaKeys.all });
+         queryClient.invalidateQueries({ queryKey: missaoEtpKeys.all });
          queryClient.invalidateQueries({ queryKey: esfAerKeys.all });
          queryClient.invalidateQueries({ queryKey: seboKeys.all });
          queryClient.invalidateQueries({ queryKey: indicadoresKeys.all });
@@ -177,6 +196,7 @@ export function useBulkUpdateEtapas() {
       mutationFn: (payload: BulkUpdatePayload) => bulkUpdateEtapas(payload),
       onSuccess: () => {
          queryClient.invalidateQueries({ queryKey: etapaKeys.all });
+         queryClient.invalidateQueries({ queryKey: missaoEtpKeys.all });
          queryClient.invalidateQueries({ queryKey: esfAerKeys.all });
          queryClient.invalidateQueries({ queryKey: seboKeys.all });
          queryClient.invalidateQueries({ queryKey: indicadoresKeys.all });
@@ -191,6 +211,7 @@ export function useDeleteEtapa() {
       mutationFn: (id: number) => deleteEtapa(id),
       onSuccess: () => {
          queryClient.invalidateQueries({ queryKey: etapaKeys.all });
+         queryClient.invalidateQueries({ queryKey: missaoEtpKeys.all });
          queryClient.invalidateQueries({ queryKey: esfAerKeys.all });
          queryClient.invalidateQueries({ queryKey: seboKeys.all });
          queryClient.invalidateQueries({ queryKey: indicadoresKeys.all });
