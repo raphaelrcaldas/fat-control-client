@@ -6,6 +6,14 @@
  */
 export const VALOR_DIARIA = 335;
 
+/**
+ * Moeda a partir de um `number` já em mãos.
+ *
+ * Quando o valor vem do backend como string (`Decimal` do Pydantic), prefira
+ * `formatarValorEmReais` de `valorPorExtenso.ts`: ela lê os centavos da
+ * própria string e evita o `Number()` que esta aqui exige. A saída é a mesma,
+ * exceto pelo espaço após "R$", que aqui é NBSP por vir do `toLocaleString`.
+ */
 export function realCurrency(valor: number) {
    return Number(valor).toLocaleString("pt-BR", {
       style: "currency",

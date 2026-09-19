@@ -5,7 +5,7 @@ import clsx from "clsx";
 import { HiChevronDown } from "react-icons/hi";
 
 import { isoDateToString } from "@/../utils/dateHandler";
-import { realCurrency } from "@/../utils/financeiro";
+import { formatarValorEmReais } from "@/../utils/valorPorExtenso";
 import type { TrechoCalculado } from "services/routes/cegep/gleCalculo";
 import type { MissaoGle } from "services/routes/cegep/gleMissoes";
 
@@ -69,10 +69,10 @@ export function ResultadoGle({ calculo }: { calculo: MissaoGle }) {
                            </span>
                         </td>
                         <td className="px-3 py-2 text-right font-mono text-xs text-slate-500">
-                           {realCurrency(Number(m.soldo))}
+                           {formatarValorEmReais(m.soldo)}
                         </td>
                         <td className="px-3 py-2 text-right font-mono font-bold text-slate-900">
-                           {realCurrency(Number(m.valor))}
+                           {formatarValorEmReais(m.valor)}
                         </td>
                      </tr>
                   ))}

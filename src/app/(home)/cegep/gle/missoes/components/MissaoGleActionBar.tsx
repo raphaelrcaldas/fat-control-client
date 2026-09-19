@@ -2,10 +2,14 @@ import { Button, Spinner } from "flowbite-react";
 import { HiCheck, HiTrash } from "react-icons/hi";
 
 import { PermBased } from "@/app/(home)/hooks/usePermBased";
+import type { MissaoGle } from "services/routes/cegep/gleMissoes";
+
+import { GerarGleDocxButton } from "./GerarGleDocxButton";
 
 interface MissaoGleActionBarProps {
    isNew: boolean;
    isLoading: boolean;
+   missao: MissaoGle | null;
    onSave: () => void;
    onDelete: () => void;
 }
@@ -19,6 +23,7 @@ interface MissaoGleActionBarProps {
 export function MissaoGleActionBar({
    isNew,
    isLoading,
+   missao,
    onSave,
    onDelete,
 }: MissaoGleActionBarProps) {
@@ -35,7 +40,7 @@ export function MissaoGleActionBar({
                size="sm"
                onClick={onSave}
                disabled={isLoading}
-               aria-label={isNew ? "Criar missão" : "Salvar missão"}
+               aria-busy={isLoading}
                className="disabled:cursor-not-allowed disabled:opacity-50"
             >
                {isLoading ? (
@@ -43,7 +48,7 @@ export function MissaoGleActionBar({
                ) : (
                   <HiCheck className="size-4 sm:mr-2" />
                )}
-               <span className="hidden sm:inline">
+               <span className="sr-only sm:not-sr-only">
                   {isLoading
                      ? "Salvando..."
                      : isNew
@@ -53,6 +58,12 @@ export function MissaoGleActionBar({
             </Button>
          </PermBased>
 
+         {!isNew && missao && (
+            <PermBased resource="cegep.gle" requiredPerm="view">
+               <GerarGleDocxButton missao={missao} />
+            </PermBased>
+         )}
+
          {!isNew && (
             <PermBased resource="cegep.gle" requiredPerm="delete">
                <Button
@@ -61,11 +72,10 @@ export function MissaoGleActionBar({
                   size="sm"
                   onClick={onDelete}
                   disabled={isLoading}
-                  aria-label="Excluir missão"
                   className="disabled:cursor-not-allowed disabled:opacity-50"
                >
                   <HiTrash className="size-4 sm:mr-2" />
-                  <span className="hidden sm:inline">Excluir</span>
+                  <span className="sr-only sm:not-sr-only">Excluir</span>
                </Button>
             </PermBased>
          )}

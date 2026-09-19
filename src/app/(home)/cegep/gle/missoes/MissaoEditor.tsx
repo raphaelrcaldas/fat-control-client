@@ -223,6 +223,7 @@ export function MissaoEditor({ missaoId }: MissaoEditorProps) {
                <MissaoGleActionBar
                   isNew={ehNova}
                   isLoading={salvando}
+                  missao={apurado}
                   onSave={salvar}
                   onDelete={() => setConfirmarExclusao(true)}
                />
