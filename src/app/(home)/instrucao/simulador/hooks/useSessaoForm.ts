@@ -29,6 +29,8 @@ interface UseSessaoFormArgs {
    anoRef: number;
    pilots: DuplaPilot[];
    editEtapa: EtapaItem | null;
+   /** Ultima sessao da missao: semente dos campos repetidos numa sessao nova. */
+   ultimaEtapa?: EtapaItem | null;
    /** Observacao da missao, usada so na criacao de um draft. */
    obs?: string | null;
    onClose: () => void;
@@ -48,6 +50,7 @@ export function useSessaoForm({
    anoRef,
    pilots,
    editEtapa,
+   ultimaEtapa = null,
    obs = null,
    onClose,
    onPersistDraft,
@@ -129,6 +132,11 @@ export function useSessaoForm({
    // alvo — não a cada refetch (que muda `pilots`/`tiposMissaoData`), o que
    // apagaria o que o usuário está digitando com o modal aberto.
    const initKeyRef = useRef<string | null>(null);
+   // Lida so na inicializacao. Como semente, `ultimaEtapa` nao pode entrar nas
+   // deps do efeito: ela e um objeto novo a cada refetch e reinicializaria o
+   // formulario por cima do que o usuario esta digitando.
+   const ultimaEtapaRef = useRef(ultimaEtapa);
+   ultimaEtapaRef.current = ultimaEtapa;
    useEffect(() => {
       if (!show) {
          initKeyRef.current = null;
@@ -138,7 +146,11 @@ export function useSessaoForm({
       if (initKeyRef.current === key) return;
       initKeyRef.current = key;
 
-      const initial = createSessaoDraft(editEtapa, pilots);
+      const initial = createSessaoDraft(
+         editEtapa,
+         pilots,
+         ultimaEtapaRef.current
+      );
       setSavedDraft(initial);
       setData(initial.data);
       setOrigem(initial.origem);

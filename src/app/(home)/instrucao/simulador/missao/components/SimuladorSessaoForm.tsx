@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Spinner } from "flowbite-react";
 
 import { todayIso } from "@/../utils/dateHandler";
@@ -12,6 +12,7 @@ import type { SessaoFormState } from "../../helpers/sessaoDraft";
 import PilotSearchDropdown from "../../components/PilotSearchDropdown";
 import SessaoDadosFields from "../../components/SessaoDadosFields";
 import SessaoOrdemInstrucaoFields from "../../components/SessaoOrdemInstrucaoFields";
+import { SessaoPreFilledBanner } from "../../components/SessaoPreFilledBanner";
 
 export const SESSAO_FORM_ID = "simulador-sessao-form";
 
@@ -58,12 +59,18 @@ export function SimuladorSessaoForm({
       return Number(referenceDate.slice(0, 4));
    }, [anoMissao, ultimaEtapa?.data]);
 
+   // O componente e remontado por `key` a cada troca de sessao, entao o
+   // estado volta a `false` sozinho ao abrir a proxima.
+   const [bannerDismissed, setBannerDismissed] = useState(false);
+   const preFilled = editEtapa === null && ultimaEtapa !== null;
+
    const form = useSessaoForm({
       show: true,
       missaoId,
       anoRef,
       pilots: pilotos,
       editEtapa,
+      ultimaEtapa,
       onClose: () => undefined,
       onSaved,
    });
@@ -93,6 +100,11 @@ export function SimuladorSessaoForm({
          onSubmit={form.handleSubmit}
          className="space-y-3"
       >
+         <SessaoPreFilledBanner
+            visible={preFilled && !bannerDismissed}
+            onDismiss={() => setBannerDismissed(true)}
+         />
+
          <div className="space-y-3 rounded border border-slate-200 bg-white p-4 shadow-sm">
             <div className="flex items-center justify-between gap-3">
                <h2 className="text-sm font-semibold text-slate-800">
