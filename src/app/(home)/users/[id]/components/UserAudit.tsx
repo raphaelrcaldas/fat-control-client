@@ -4,8 +4,19 @@ import { Historico } from "@/components/audit/Historico";
 import {
    formatUserAuditFieldValue,
    USER_AUDIT_ACTION_LABELS,
+   USER_ROLE_AUDIT_FIELD_LABELS,
 } from "./userAuditFormat";
 import { USER_FIELD_LABELS } from "./userFieldLabels";
+
+/**
+ * Rótulos da trilha: os campos do cadastro mais os que só aparecem nos
+ * eventos de perfil. Os dois mapas não colidem — `role` e `organizacao` não
+ * existem em `USER_FIELD_LABELS`.
+ */
+const AUDIT_FIELD_LABELS = {
+   ...USER_FIELD_LABELS,
+   ...USER_ROLE_AUDIT_FIELD_LABELS,
+};
 
 export function UserAudit({ userId }: { userId?: number }) {
    const { data: rawLogs = [], isLoading, error } = useUserLogs(userId);
@@ -48,7 +59,7 @@ export function UserAudit({ userId }: { userId?: number }) {
       <Historico
          logs={rawLogs}
          isLoading={isLoading}
-         fieldLabels={USER_FIELD_LABELS}
+         fieldLabels={AUDIT_FIELD_LABELS}
          formatFieldValue={formatUserAuditFieldValue}
          actionLabels={USER_AUDIT_ACTION_LABELS}
          title="Histórico de Alterações"

@@ -5,6 +5,21 @@ import { formatCpf } from "@/constants/formats";
 export const USER_AUDIT_ACTION_LABELS: Record<string, string> = {
    "change-pwd": "Senha alterada",
    "reset-pwd": "Senha redefinida",
+   "role-add": "Perfil concedido",
+   "role-update": "Perfil alterado",
+   "role-delete": "Perfil removido",
+};
+
+/**
+ * Campos que só existem no before/after dos eventos de perfil
+ * (`role-add`/`role-update`/`role-delete`, gravados pelas rotas de
+ * `/security/roles/users`). Ficam fora de `USER_FIELD_LABELS` porque aquele
+ * mapa também alimenta os erros de validação e os avisos de completude de
+ * cadastro, onde `role` e `organizacao` não são campos do usuário.
+ */
+export const USER_ROLE_AUDIT_FIELD_LABELS: Record<string, string> = {
+   role: "Perfil",
+   organizacao: "Organização",
 };
 
 /**
