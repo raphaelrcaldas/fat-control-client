@@ -1,6 +1,6 @@
 import type { EtapaItem } from "services/routes/estatistica/etapas";
 import { formatTime } from "@/../utils/dateHandler";
-import type { DuplaPilot } from "../types";
+import { DESTINO_ROTA, type DuplaPilot } from "../types";
 
 export interface SessaoDraft {
    data: string;
@@ -45,6 +45,10 @@ export const EMPTY_SESSAO_FORM_STATE: SessaoFormState = {
  * distingue uma sessão da seguinte, e como são obrigatórios para submeter,
  * deixá-los vazios força a revisão. `pousos` seria o oposto: herdado, passaria
  * na validação sem ninguém reparar.
+ *
+ * **Exceção**: anterior com destino `ROTA` não pousou, então o `dep` da nova
+ * recebe o `arr` dela — o horário aqui não é um palpite a revisar, é a
+ * continuidade do que já foi registrado.
  */
 export function createSessaoDraft(
    etapa: EtapaItem | null,
@@ -60,7 +64,14 @@ export function createSessaoDraft(
       // decide agora. No simulador quase sempre repete a origem, mas cravar
       // isso aqui assumiria o caso comum como se fosse regra.
       destino: etapa?.destino ?? "",
-      dep: etapa ? formatTime(etapa.dep) : "",
+      // Sessao anterior terminada em ROTA nao pousou: a nova retoma dali, e o
+      // `arr` dela e o `dep` desta. Fora esse caso o horario fica em branco de
+      // proposito — ver o bloco acima.
+      dep: etapa
+         ? formatTime(etapa.dep)
+         : ultimaEtapa?.destino === DESTINO_ROTA
+           ? formatTime(ultimaEtapa.arr)
+           : "",
       arr: etapa ? formatTime(etapa.arr) : "",
       // Nao herda: e contagem propria da sessao e, ao contrario de dep/arr,
       // um valor herdado passaria na validacao sem o usuario rever.

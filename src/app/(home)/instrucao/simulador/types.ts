@@ -3,6 +3,13 @@ import type { EtapaItem } from "services/routes/estatistica/etapas";
 export const MAX_PILOTOS = 2;
 export const SIM_ANV = "2850";
 
+/**
+ * Destino sentinela de sessão que não termina em pouso: a seguinte retoma de
+ * onde esta parou, então o `arr` dela vira o `dep` da próxima. Mesma convenção
+ * de `estatistica/etapas`, onde aparece como string literal.
+ */
+export const DESTINO_ROTA = "ROTA";
+
 export interface DuplaPilot {
    trip_id: number;
    trig: string;
