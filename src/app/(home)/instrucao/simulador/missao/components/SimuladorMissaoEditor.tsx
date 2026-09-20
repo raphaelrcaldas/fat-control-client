@@ -20,6 +20,10 @@ import {
    sortEtapas,
 } from "../../helpers/sessoes";
 import { useMissaoObs } from "../hooks/useMissaoObs";
+import {
+   EMPTY_SESSAO_FORM_STATE,
+   type SessaoFormState,
+} from "../../helpers/sessaoDraft";
 import { SimuladorEditorHeader } from "./SimuladorEditorHeader";
 import { SimuladorEditorLayout } from "./SimuladorEditorLayout";
 import { SimuladorMissaoSidebar } from "./SimuladorMissaoSidebar";
@@ -48,13 +52,11 @@ export function SimuladorMissaoEditor({
    const contentRef = useRef<HTMLDivElement>(null);
    const drawerCloseRef = useRef<HTMLButtonElement>(null);
    const creatingRef = useRef(false);
+   const selectionVersionRef = useRef(0);
    const [portalTarget, setPortalTarget] = useState<HTMLElement | null>(null);
    const [sidebarOpen, setSidebarOpen] = useState(false);
    const [confirmDelete, setConfirmDelete] = useState(false);
-   const [formState, setFormState] = useState({
-      canSubmit: false,
-      isPending: false,
-   });
+   const [formState, setFormState] = useState(EMPTY_SESSAO_FORM_STATE);
    const [selectedEtapaId, setSelectedEtapaId] = useState<number | null>(() => {
       if (
          initialEtapaId &&
@@ -94,7 +96,12 @@ export function SimuladorMissaoEditor({
       (etapaId: number | null) => {
          creatingRef.current = etapaId === null;
          setSelectedEtapaId(etapaId);
-         setFormState({ canSubmit: false, isPending: false });
+         // Selecionar a mesma sessão (inclusive após salvar) não remonta o
+         // formulário: apagar seu estado aqui deixava o botão travado.
+         if (etapaId !== selectedEtapaId) {
+            selectionVersionRef.current += 1;
+            setFormState(EMPTY_SESSAO_FORM_STATE);
+         }
          setSidebarOpen(false);
          contentRef.current?.scrollTo({ top: 0 });
          const query = etapaId == null ? "" : `?etapa=${etapaId}`;
@@ -102,7 +109,7 @@ export function SimuladorMissaoEditor({
             scroll: false,
          });
       },
-      [missao.id, router]
+      [missao.id, router, selectedEtapaId]
    );
 
    useEffect(() => {
@@ -132,20 +139,23 @@ export function SimuladorMissaoEditor({
       });
    }, [etapas, initialEtapaId]);
 
-   const handleFormStateChange = useCallback(
-      (state: { canSubmit: boolean; isPending: boolean }) => {
-         setFormState(state);
-      },
-      []
-   );
+   const handleFormStateChange = useCallback((state: SessaoFormState) => {
+      setFormState(state);
+   }, []);
 
    const handleSaved = useCallback(
       async (etapaId: number) => {
+         const selectionVersion = selectionVersionRef.current;
          // A observacao sobe ANTES do refetch: invertido, o refetch traria a
          // obs antiga do servidor e descartaria o que o usuario digitou.
          await missaoObs.flush();
          const refreshed = await onRefetch();
-         if (refreshed?.etapas.some((etapa) => etapa.id === etapaId)) {
+         // O refetch pode terminar depois de o usuário abrir outra sessão.
+         // Não volte à anterior desmontando o formulário que ele está editando.
+         if (
+            selectionVersionRef.current === selectionVersion &&
+            refreshed?.etapas.some((etapa) => etapa.id === etapaId)
+         ) {
             selectEtapa(etapaId);
          }
       },
@@ -195,7 +205,7 @@ export function SimuladorMissaoEditor({
 
    // Observacao suja com a sessao intocada: o submit do form nao dispara, entao
    // o botao do cabecalho passa a salvar so a observacao.
-   const obsOnly = missaoObs.isDirty && !formState.canSubmit;
+   const obsOnly = missaoObs.isDirty && !formState.isDirty;
    const handleSaveObsOnly = useCallback(async () => {
       if (await missaoObs.flush()) {
          push({
@@ -207,7 +217,23 @@ export function SimuladorMissaoEditor({
       }
    }, [missaoObs, onRefetch, push]);
 
-   const hasUnsavedChanges = missaoObs.isDirty || formState.canSubmit;
+   const hasUnsavedChanges = missaoObs.isDirty || formState.isDirty;
+
+   const requestSelectEtapa = useCallback(
+      (etapaId: number | null) => {
+         if (formState.isPending) return;
+         if (
+            etapaId !== selectedEtapaId &&
+            formState.isDirty &&
+            !window.confirm(
+               "Há mudanças não salvas nesta sessão. Descartar e trocar de sessão?"
+            )
+         )
+            return;
+         selectEtapa(etapaId);
+      },
+      [formState.isDirty, formState.isPending, selectedEtapaId, selectEtapa]
+   );
 
    // Cobre fechar aba / recarregar e clique em link interno (drawer, etc).
    // "Voltar para o simulador" e um <button>, entao o clique nele nao passa
@@ -239,12 +265,13 @@ export function SimuladorMissaoEditor({
          anoRef={anoMissao}
          etapas={etapas}
          selectedEtapaId={selectedEtapaId}
+         formState={formState}
          obs={missaoObs.obs}
          obsDirty={missaoObs.isDirty}
          canCreate={canCreate}
          onObsChange={missaoObs.setObs}
-         onSelectEtapa={selectEtapa}
-         onAddEtapa={() => selectEtapa(null)}
+         onSelectEtapa={requestSelectEtapa}
+         onAddEtapa={() => requestSelectEtapa(null)}
       />
    );
 

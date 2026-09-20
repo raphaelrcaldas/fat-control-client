@@ -12,6 +12,7 @@ import SessaoDadosFields from "../../components/SessaoDadosFields";
 import SessaoOrdemInstrucaoFields from "../../components/SessaoOrdemInstrucaoFields";
 import { SimuladorEditorHeader } from "./SimuladorEditorHeader";
 import { SimuladorEditorLayout } from "./SimuladorEditorLayout";
+import { SimuladorSessaoSidebarItem } from "./SimuladorSessaoSidebarItem";
 
 const NOVA_FORM_ID = "simulador-nova-missao-form";
 
@@ -50,10 +51,7 @@ export function NovaMissaoSimulador({ anoRef }: NovaMissaoSimuladorProps) {
       onPersistDraft: handlePersisted,
    });
 
-   const isDirty =
-      form.sessionPilots.length > 0 ||
-      obs.trim().length > 0 ||
-      Boolean(form.data || form.origem || form.destino || form.dep || form.arr);
+   const isDirty = form.isDirty || obs.trim().length > 0;
 
    // Fechar a aba / recarregar com dados preenchidos perde tudo: nada foi
    // gravado ainda. Cobre tambem clique em link interno, como no editor de
@@ -103,7 +101,15 @@ export function NovaMissaoSimulador({ anoRef }: NovaMissaoSimuladorProps) {
                   />
                </div>
 
-               <div className="flex-1 overflow-y-auto p-3">
+               <div className="flex-1 space-y-3 overflow-y-auto p-3">
+                  <SimuladorSessaoSidebarItem
+                     numero={1}
+                     sessao={form.preview}
+                     anoRef={anoRef}
+                     selected
+                     isNew
+                     onClick={() => contentRef.current?.scrollTo({ top: 0 })}
+                  />
                   <p className="rounded border border-dashed border-gray-200 bg-white px-3 py-5 text-center text-sm text-gray-500">
                      A dupla e a primeira sessão são gravadas juntas ao salvar.
                   </p>
@@ -118,7 +124,17 @@ export function NovaMissaoSimulador({ anoRef }: NovaMissaoSimuladorProps) {
                canDelete={false}
                canSave={form.canSubmit}
                isSaving={form.isPending}
-               onBack={() => router.push("/instrucao/simulador")}
+               onBack={() => {
+                  if (
+                     isDirty &&
+                     !savedRef.current &&
+                     !window.confirm(
+                        "Há mudanças não salvas. Sair mesmo assim?"
+                     )
+                  )
+                     return;
+                  router.push("/instrucao/simulador");
+               }}
                saveLabel="Criar dupla"
             />
          }

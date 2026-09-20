@@ -8,6 +8,7 @@ import type { EtapaItem } from "services/routes/estatistica/etapas";
 import type { DuplaPilot } from "../../types";
 import { MAX_PILOTOS } from "../../types";
 import { useSessaoForm } from "../../hooks/useSessaoForm";
+import type { SessaoFormState } from "../../helpers/sessaoDraft";
 import PilotSearchDropdown from "../../components/PilotSearchDropdown";
 import SessaoDadosFields from "../../components/SessaoDadosFields";
 import SessaoOrdemInstrucaoFields from "../../components/SessaoOrdemInstrucaoFields";
@@ -22,10 +23,7 @@ interface SimuladorSessaoFormProps {
    /** Ano dominante da missao, usado como referencia de validacao. */
    anoMissao: number | null;
    onSaved: (etapaId: number) => void;
-   onFormStateChange: (state: {
-      canSubmit: boolean;
-      isPending: boolean;
-   }) => void;
+   onFormStateChange: (state: SessaoFormState) => void;
 }
 
 function FormDataSkeleton() {
@@ -74,8 +72,16 @@ export function SimuladorSessaoForm({
       onFormStateChange({
          canSubmit: form.canSubmit,
          isPending: form.isPending,
+         isDirty: form.isDirty,
+         preview: form.preview,
       });
-   }, [form.canSubmit, form.isPending, onFormStateChange]);
+   }, [
+      form.canSubmit,
+      form.isPending,
+      form.isDirty,
+      form.preview,
+      onFormStateChange,
+   ]);
 
    if (form.isLoadingData) {
       return <FormDataSkeleton />;

@@ -7,9 +7,13 @@ import {
 } from "@/hooks/queries/useEtapas";
 import { useEsfAerList } from "@/hooks/queries/useEsfAer";
 import { useTiposMissao } from "@/hooks/queries/useTiposMissao";
-import { formatTime } from "@/../utils/dateHandler";
 import type { EtapaItem } from "services/routes/estatistica/etapas";
 import { computeTvoo } from "../helpers/tvoo";
+import {
+   createSessaoDraft,
+   serializeSessaoDraft,
+   type SessaoDraft,
+} from "../helpers/sessaoDraft";
 import {
    SIM_ANV,
    MAX_PILOTOS,
@@ -69,6 +73,7 @@ export function useSessaoForm({
    const [reg, setReg] = useState<"d" | "n" | "v">("d");
    const [tipoMissaoId, setTipoMissaoId] = useState<number | null>(null);
    const [sessionPilots, setSessionPilots] = useState<DuplaPilot[]>([]);
+   const [savedDraft, setSavedDraft] = useState<SessaoDraft | null>(null);
 
    const addPilot = useCallback((crew: CrewSearchResult) => {
       setSessionPilots((prev) => {
@@ -133,39 +138,52 @@ export function useSessaoForm({
       if (initKeyRef.current === key) return;
       initKeyRef.current = key;
 
-      if (isEditMode) {
-         setData(editEtapa.data);
-         setOrigem(editEtapa.origem);
-         setDestino(editEtapa.destino);
-         setDep(formatTime(editEtapa.dep));
-         setArr(formatTime(editEtapa.arr));
-         setPousos(editEtapa.pousos);
-         setReg(editEtapa.oi_etapas[0]?.reg ?? "d");
-         setTipoMissaoId(editEtapa.oi_etapas[0]?.tipo_missao_id ?? null);
-         setSessionPilots(
-            editEtapa.tripulantes.map((t) => ({
-               trip_id: t.trip_id,
-               trig: t.trig,
-               nome_guerra: t.nome_guerra,
-               p_g: t.p_g,
-               func: t.func,
-               func_bordo: t.func_bordo,
-            }))
-         );
-      } else {
-         setData("");
-         setOrigem("");
-         setDestino("");
-         setDep("");
-         setArr("");
-         setPousos(0);
-         setReg("d");
-         setTipoMissaoId(tiposMissaoData?.[0]?.id ?? null);
-         setSessionPilots(
-            pilots.map((p, i) => ({ ...p, func_bordo: i === 0 ? "1P" : "2P" }))
-         );
-      }
+      const initial = createSessaoDraft(editEtapa, pilots);
+      setSavedDraft(initial);
+      setData(initial.data);
+      setOrigem(initial.origem);
+      setDestino(initial.destino);
+      setDep(initial.dep);
+      setArr(initial.arr);
+      setPousos(initial.pousos);
+      setReg(initial.reg);
+      setTipoMissaoId(initial.tipoMissaoId ?? tiposMissaoData?.[0]?.id ?? null);
+      setSessionPilots(initial.sessionPilots);
    }, [show, isEditMode, editEtapa, tiposMissaoData, pilots]);
+
+   const draft = useMemo<SessaoDraft>(
+      () => ({
+         data,
+         origem,
+         destino,
+         dep,
+         arr,
+         pousos,
+         reg,
+         tipoMissaoId,
+         sessionPilots,
+      }),
+      [
+         data,
+         origem,
+         destino,
+         dep,
+         arr,
+         pousos,
+         reg,
+         tipoMissaoId,
+         sessionPilots,
+      ]
+   );
+   const defaultTipoMissaoId = tiposMissaoData?.[0]?.id ?? null;
+   const isDirty =
+      savedDraft !== null &&
+      serializeSessaoDraft(draft, defaultTipoMissaoId) !==
+         serializeSessaoDraft(savedDraft, defaultTipoMissaoId);
+   const preview = useMemo(
+      () => ({ data, origem, destino, dep, arr, tvoo }),
+      [data, origem, destino, dep, arr, tvoo]
+   );
 
    const isPending =
       createEtapa.isPending ||
@@ -174,6 +192,7 @@ export function useSessaoForm({
    const isLoadingData = loadingEsfAer || loadingTipos;
 
    const canSubmit = Boolean(
+      isDirty &&
       data &&
       !dateOutOfYear &&
       origem.length === 4 &&
@@ -237,6 +256,7 @@ export function useSessaoForm({
                   type: res.ok ? "success" : "error",
                });
                if (res.ok) {
+                  setSavedDraft(draft);
                   onSaved?.(res.data?.id ?? editEtapa.id);
                   onClose();
                }
@@ -269,6 +289,7 @@ export function useSessaoForm({
                   type: res.ok ? "success" : "error",
                });
                if (res.ok && res.data) {
+                  setSavedDraft(draft);
                   onPersistDraft?.(res.data.id);
                   onClose();
                }
@@ -286,6 +307,7 @@ export function useSessaoForm({
                   type: res.ok ? "success" : "error",
                });
                if (res.ok) {
+                  setSavedDraft(draft);
                   if (res.data) onSaved?.(res.data.id);
                   onClose();
                }
@@ -303,6 +325,7 @@ export function useSessaoForm({
       },
       [
          canSubmit,
+         draft,
          sessionPilots,
          smlEsfAer,
          tipoMissaoId,
@@ -359,6 +382,8 @@ export function useSessaoForm({
       depArrEqual,
       dateOutOfYear,
       canSubmit,
+      isDirty,
+      preview,
       isPending,
       isLoadingData,
       handleSubmit,
