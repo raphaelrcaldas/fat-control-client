@@ -154,11 +154,13 @@ export interface OrdemFilters {
    busca?: string;
    etiquetas_ids?: number[];
    /**
-    * `recente` (padrão): mais recentes por cadastro — a ordem da listagem.
+    * `recente` (padrão): mais recentes por cadastro.
     * `cronologica`: por data de decolagem, para quem lê o período como uma
-    * janela (o quadro). Ver `list_ordens` no backend.
+    * janela (o quadro).
+    * `numerica`: por ano da OM e numeração — a ordem da listagem `/ops/om`,
+    * que é como a OM é identificada. Ver `list_ordens` no backend.
     */
-   ordem?: "recente" | "cronologica";
+   ordem?: "recente" | "cronologica" | "numerica";
 }
 
 // --- Helpers de erro ---

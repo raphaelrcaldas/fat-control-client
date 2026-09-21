@@ -170,6 +170,10 @@ export default function OrdensMissao() {
    const ordensAprovadasQuery = useOrdens({
       page: pageAprovadas,
       per_page: 20,
+      // Ano da OM e numeração — como a OM é identificada. Precisa vir do
+      // servidor: ordenar só a página já recortada acertaria a ordem dentro
+      // dela e erraria quais OMs caem em cada página.
+      ordem: "numerica",
       ...(filtros.status.length > 0
          ? { status: filtros.status }
          : { status_ne: "rascunho" }),

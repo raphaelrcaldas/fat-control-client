@@ -239,36 +239,9 @@ export const ListaOrdens = memo(function ListaOrdens({
    onClearFiltros,
    onCreateOrdem,
 }: ListaOrdensProps) {
-   const sortedOrdens = useMemo(() => {
-      return [...ordens].sort((a, b) => {
-         // 1. Ano da data_saida (descendente) — parse por string: new Date()
-         // interpretaria "YYYY-MM-DD" como UTC e deslocaria 1º de janeiro
-         // para o ano anterior no fuso local
-         const anoA = a.data_saida ? Number(a.data_saida.slice(0, 4)) : 0;
-         const anoB = b.data_saida ? Number(b.data_saida.slice(0, 4)) : 0;
-
-         if (anoA !== anoB) return anoB - anoA;
-
-         // 2. Número da ordem (descendente)
-         // 'auto' e números não-numéricos (ex: alfanuméricos) são tratados como 0
-         const parseNumero = (numero: string | null | undefined) => {
-            if (!numero || numero === "auto") return 0;
-            const parsed = parseInt(numero, 10);
-            return Number.isNaN(parsed) ? 0 : parsed;
-         };
-         const numA = parseNumero(a.numero);
-         const numB = parseNumero(b.numero);
-
-         if (numA !== numB) return numB - numA;
-
-         // 3. Data/hora de última modificação ou criação (descendente)
-         const momentA = new Date(a.updated_at || a.created_at || 0).getTime();
-         const momentB = new Date(b.updated_at || b.created_at || 0).getTime();
-
-         return momentB - momentA;
-      });
-   }, [ordens]);
-
+   // A ordem vem do servidor (`ordem` em `OrdemFilters`): reordenar aqui
+   // acertaria a ordem dentro da página e erraria quais OMs caem em cada
+   // uma, já que o recorte do `per_page` é feito no banco.
    if (ordens.length === 0) {
       return (
          <div className="rounded border border-gray-200 bg-white py-16 text-center text-gray-400">
@@ -313,7 +286,7 @@ export const ListaOrdens = memo(function ListaOrdens({
 
    return (
       <div className="space-y-2">
-         {sortedOrdens.map((ordem) => (
+         {ordens.map((ordem) => (
             <OrdemItem
                key={ordem.id}
                ordem={ordem}
