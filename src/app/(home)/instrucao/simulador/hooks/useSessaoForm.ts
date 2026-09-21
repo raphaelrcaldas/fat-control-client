@@ -70,8 +70,22 @@ export function useSessaoForm({
    const createEtapa = useCreateEtapa();
    const updateEtapa = useUpdateEtapa();
    const createMissaoWithEtapas = useCreateMissaoWithEtapas();
-   const { data: esfAerData, isLoading: loadingEsfAer } = useEsfAerList();
-   const { data: tiposMissaoData, isLoading: loadingTipos } = useTiposMissao();
+   const {
+      data: esfAerData,
+      error: esfAerError,
+      isError: isEsfAerError,
+      isLoading: loadingEsfAer,
+      isRefetching: refetchingEsfAer,
+      refetch: refetchEsfAer,
+   } = useEsfAerList();
+   const {
+      data: tiposMissaoData,
+      error: tiposMissaoError,
+      isError: isTiposMissaoError,
+      isLoading: loadingTipos,
+      isRefetching: refetchingTipos,
+      refetch: refetchTipos,
+   } = useTiposMissao();
 
    // Estado do formulário
    const [data, setData] = useState("");
@@ -217,6 +231,26 @@ export function useSessaoForm({
       updateEtapa.isPending ||
       createMissaoWithEtapas.isPending;
    const isLoadingData = loadingEsfAer || loadingTipos;
+   const isCatalogConfigurationError =
+      !isLoadingData &&
+      !isEsfAerError &&
+      !isTiposMissaoError &&
+      (!smlEsfAer || !tiposMissaoData?.length);
+   const isDataError =
+      isEsfAerError || isTiposMissaoError || isCatalogConfigurationError;
+   const dataError = esfAerError ?? tiposMissaoError;
+   const dataErrorMessage = isCatalogConfigurationError
+      ? !smlEsfAer
+         ? "A configuração do simulador não contém o esforço aéreo SML."
+         : "A configuração do simulador não contém tipos de missão disponíveis."
+      : dataError instanceof Error
+        ? `Não foi possível carregar os dados da sessão: ${dataError.message}`
+        : "Não foi possível carregar os dados da sessão";
+   const isRefetchingData = refetchingEsfAer || refetchingTipos;
+   const retryLoadingData = useCallback(async () => {
+      await Promise.all([refetchEsfAer(), refetchTipos()]);
+   }, [refetchEsfAer, refetchTipos]);
+
    const canSubmit = Boolean(
       isDirty &&
       data &&
@@ -232,6 +266,8 @@ export function useSessaoForm({
       pousos >= 0 &&
       tipoMissaoId &&
       smlEsfAer &&
+      tiposMissaoData?.length &&
+      !isDataError &&
       sessionPilots.length > 0 &&
       !isPending
    );
@@ -431,6 +467,10 @@ export function useSessaoForm({
       preview,
       isPending,
       isLoadingData,
+      isDataError,
+      dataErrorMessage,
+      isRefetchingData,
+      retryLoadingData,
       handleSubmit,
       anoRef,
    };
