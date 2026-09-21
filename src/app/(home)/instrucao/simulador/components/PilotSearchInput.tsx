@@ -40,6 +40,7 @@ export default function PilotSearchInput({
       <div ref={searchRef} className="relative">
          <TextInput
             icon={HiSearch}
+            aria-label="Buscar piloto"
             placeholder={placeholder}
             value={tripSearch}
             onChange={(e) => {

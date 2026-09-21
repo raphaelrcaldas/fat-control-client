@@ -5,6 +5,7 @@ import { HiPlus } from "react-icons/hi";
 
 import type { EtapaItem } from "services/routes/estatistica/etapas";
 import type { SessaoFormState } from "../../helpers/sessaoDraft";
+import MissaoObsField from "../../components/MissaoObsField";
 import { SimuladorSessaoSidebarItem } from "./SimuladorSessaoSidebarItem";
 
 interface SimuladorMissaoSidebarProps {
@@ -52,17 +53,7 @@ export function SimuladorMissaoSidebar({
                      {pilotNames}
                   </h2>
                </div>
-               <label htmlFor={obsId} className="sr-only">
-                  Observações da missão
-               </label>
-               <textarea
-                  id={obsId}
-                  value={obs}
-                  onChange={(event) => onObsChange(event.target.value)}
-                  placeholder="Observações da missão (opcional)"
-                  rows={2}
-                  className="focus:border-primary-400 focus:ring-primary-400 w-full resize-y rounded-md border border-gray-200 bg-gray-50 px-3 py-1.5 text-xs text-gray-700 placeholder:text-gray-400 focus:ring-1 focus:outline-none"
-               />
+               <MissaoObsField id={obsId} value={obs} onChange={onObsChange} />
                {obsDirty && (
                   <p className="text-xs text-amber-700">
                      Será salva junto da sessão.

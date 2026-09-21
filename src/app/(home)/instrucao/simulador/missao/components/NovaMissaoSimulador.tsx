@@ -7,6 +7,7 @@ import { Spinner } from "flowbite-react";
 import { useUnsavedChangesGuard } from "@/app/(home)/estatistica/etapas/missao/hooks/useUnsavedChangesGuard";
 import { useSessaoForm } from "../../hooks/useSessaoForm";
 import { MAX_PILOTOS } from "../../types";
+import MissaoObsField from "../../components/MissaoObsField";
 import PilotSearchDropdown from "../../components/PilotSearchDropdown";
 import SessaoDadosFields from "../../components/SessaoDadosFields";
 import SessaoOrdemInstrucaoFields from "../../components/SessaoOrdemInstrucaoFields";
@@ -85,19 +86,11 @@ export function NovaMissaoSimulador({ anoRef }: NovaMissaoSimuladorProps) {
                         Ano de referência {anoRef}
                      </p>
                   </div>
-                  <label
-                     htmlFor="simulador-nova-missao-obs"
-                     className="sr-only"
-                  >
-                     Observações da missão
-                  </label>
-                  <textarea
+                  <MissaoObsField
                      id="simulador-nova-missao-obs"
                      value={obs}
-                     onChange={(event) => setObs(event.target.value)}
-                     placeholder="Observações da missão (opcional)"
-                     rows={2}
-                     className="focus:border-primary-400 focus:ring-primary-400 w-full resize-y rounded-md border border-gray-200 bg-gray-50 px-3 py-1.5 text-xs text-gray-700 placeholder:text-gray-400 focus:ring-1 focus:outline-none"
+                     onChange={setObs}
+                     disabled={form.isPending}
                   />
                </div>
 
@@ -144,26 +137,42 @@ export function NovaMissaoSimulador({ anoRef }: NovaMissaoSimuladorProps) {
                onSubmit={form.handleSubmit}
                className="space-y-3"
             >
-               <div className="space-y-3 rounded border border-slate-200 bg-white p-4 shadow-sm">
-                  <div className="flex items-center justify-between gap-3">
-                     <h2 className="text-sm font-semibold text-slate-800">
-                        Pilotos da dupla
-                     </h2>
-                     <span className="rounded border border-slate-200 bg-slate-50 px-2 py-0.5 text-xs font-semibold text-slate-600">
-                        {form.sessionPilots.length} / {MAX_PILOTOS}
-                     </span>
+               <fieldset disabled={form.isPending} className="space-y-3">
+                  <div className="space-y-3 rounded border border-slate-200 bg-white p-4 shadow-sm">
+                     <div className="flex items-center justify-between gap-3">
+                        <h2 className="text-sm font-semibold text-slate-800">
+                           Pilotos da dupla
+                        </h2>
+                        <span className="rounded border border-slate-200 bg-slate-50 px-2 py-0.5 text-xs font-semibold text-slate-600">
+                           {form.sessionPilots.length} / {MAX_PILOTOS}
+                        </span>
+                     </div>
+                     <PilotSearchDropdown
+                        pilots={form.sessionPilots}
+                        onAdd={form.addPilot}
+                        onRemove={form.removePilot}
+                        onUpdateFuncBordo={form.updateFuncBordo}
+                        showSearch
+                     />
                   </div>
-                  <PilotSearchDropdown
-                     pilots={form.sessionPilots}
-                     onAdd={form.addPilot}
-                     onRemove={form.removePilot}
-                     onUpdateFuncBordo={form.updateFuncBordo}
-                     showSearch
-                  />
-               </div>
 
-               <SessaoDadosFields form={form} />
-               <SessaoOrdemInstrucaoFields form={form} />
+                  <section
+                     aria-label="Observações da missão"
+                     className="space-y-2 rounded border border-slate-200 bg-white p-4 shadow-sm lg:hidden"
+                  >
+                     <MissaoObsField
+                        id="simulador-nova-missao-obs-mobile"
+                        value={obs}
+                        onChange={setObs}
+                        labelVisible
+                        rows={3}
+                        className="resize-y text-sm"
+                     />
+                  </section>
+
+                  <SessaoDadosFields form={form} />
+                  <SessaoOrdemInstrucaoFields form={form} />
+               </fieldset>
 
                {form.isPending && (
                   <div className="flex items-center justify-end gap-2 text-sm text-slate-500">

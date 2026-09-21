@@ -54,6 +54,7 @@ export default function PilotSearchDropdown({
                      onChange={(e) =>
                         onUpdateFuncBordo(p.trip_id, e.target.value)
                      }
+                     aria-label={`Função a bordo de ${`${p.p_g} ${p.nome_guerra}`.toUpperCase()}`}
                      className="w-20"
                   >
                      <option value="1P">1P</option>
@@ -65,7 +66,8 @@ export default function PilotSearchDropdown({
                      <button
                         type="button"
                         onClick={() => onRemove(p.trip_id)}
-                        className="rounded p-1 text-gray-400 hover:bg-red-100 hover:text-red-500"
+                        aria-label={`Remover ${`${p.p_g} ${p.nome_guerra}`.toUpperCase()}`}
+                        className="min-h-[24px] min-w-[24px] rounded p-1 text-gray-400 hover:bg-red-100 hover:text-red-500"
                      >
                         <HiX className="h-4 w-4" />
                      </button>
