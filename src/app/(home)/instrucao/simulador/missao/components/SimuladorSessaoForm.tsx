@@ -23,7 +23,7 @@ interface SimuladorSessaoFormProps {
    ultimaEtapa: EtapaItem | null;
    /** Ano dominante da missao, usado como referencia de validacao. */
    anoMissao: number | null;
-   onSaved: (etapaId: number) => void;
+   onSaved: (etapaId: number) => Promise<void> | void;
    onFormStateChange: (state: SessaoFormState) => void;
 }
 

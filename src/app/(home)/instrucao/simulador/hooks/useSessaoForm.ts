@@ -37,7 +37,7 @@ interface UseSessaoFormArgs {
    /** Chamado com o id real quando a 1ª sessao de um draft cria a missao. */
    onPersistDraft?: (newMissaoId: number) => void;
    /** Chamado depois de persistir uma sessao existente ou nova. */
-   onSaved?: (etapaId: number) => void;
+   onSaved?: (etapaId: number) => Promise<void> | void;
 }
 
 /**
@@ -56,7 +56,14 @@ export function useSessaoForm({
    onPersistDraft,
    onSaved,
 }: UseSessaoFormArgs) {
-   const isEditMode = editEtapa !== null;
+   const [persistedEtapaId, setPersistedEtapaId] = useState<number | null>(
+      null
+   );
+   // Depois de criar a sessão, o componente pode continuar montado enquanto
+   // uma recarga termina. Guardar o id localmente faz a próxima gravação virar
+   // PUT mesmo se a seleção visual ainda for o rascunho.
+   const editingEtapaId = editEtapa?.id ?? persistedEtapaId;
+   const isEditMode = editingEtapaId !== null;
    // Draft: dupla local sem missao no banco; a 1ª sessao cria missao + etapa.
    const isDraft = !isEditMode && missaoId < 0;
    const { push } = useToast();
@@ -142,8 +149,16 @@ export function useSessaoForm({
          initKeyRef.current = null;
          return;
       }
-      const key = isEditMode ? `edit-${editEtapa.id}` : "new";
+      // A promoção local de um rascunho recém-criado não deve reinicializar os
+      // campos que o usuário continuou editando durante o refetch.
+      const key = editEtapa ? `edit-${editEtapa.id}` : "new";
       if (initKeyRef.current === key) return;
+      if (editEtapa && editEtapa.id === persistedEtapaId) {
+         // O pai reconheceu a sessão que este formulário acabou de criar.
+         // Os campos e o baseline já são locais; refetch não deve apagá-los.
+         initKeyRef.current = key;
+         return;
+      }
       initKeyRef.current = key;
 
       const initial = createSessaoDraft(
@@ -161,7 +176,7 @@ export function useSessaoForm({
       setReg(initial.reg);
       setTipoMissaoId(initial.tipoMissaoId ?? tiposMissaoData?.[0]?.id ?? null);
       setSessionPilots(initial.sessionPilots);
-   }, [show, isEditMode, editEtapa, tiposMissaoData, pilots]);
+   }, [show, editEtapa, persistedEtapaId, tiposMissaoData, pilots]);
 
    const draft = useMemo<SessaoDraft>(
       () => ({
@@ -202,7 +217,6 @@ export function useSessaoForm({
       updateEtapa.isPending ||
       createMissaoWithEtapas.isPending;
    const isLoadingData = loadingEsfAer || loadingTipos;
-
    const canSubmit = Boolean(
       isDirty &&
       data &&
@@ -220,6 +234,22 @@ export function useSessaoForm({
       smlEsfAer &&
       sessionPilots.length > 0 &&
       !isPending
+   );
+
+   // A sessão já persistiu quando isto roda. O refetch que `onSaved` dispara
+   // tem estado e retentativa próprios, então sua falha não pode virar erro de
+   // mutation (o toast diria "erro ao criar" sobre algo que foi criado) nem
+   // liberar um POST duplicado. Só o console registra — a tela já trata o
+   // refetch quebrado com o seu próprio alerta de nova tentativa.
+   const notifySaved = useCallback(
+      async (etapaId: number) => {
+         try {
+            await onSaved?.(etapaId);
+         } catch (err) {
+            console.error("Falha ao recarregar a missão após salvar:", err);
+         }
+      },
+      [onSaved]
    );
 
    const handleSubmit = useCallback(
@@ -259,7 +289,7 @@ export function useSessaoForm({
          try {
             if (isEditMode) {
                const res = await updateEtapa.mutateAsync({
-                  id: editEtapa.id,
+                  id: editingEtapaId,
                   data: commonPayload,
                });
                push({
@@ -269,7 +299,7 @@ export function useSessaoForm({
                });
                if (res.ok) {
                   setSavedDraft(draft);
-                  onSaved?.(res.data?.id ?? editEtapa.id);
+                  await notifySaved(res.data?.id ?? editingEtapaId);
                   onClose();
                }
             } else if (isDraft) {
@@ -320,7 +350,10 @@ export function useSessaoForm({
                });
                if (res.ok) {
                   setSavedDraft(draft);
-                  if (res.data) onSaved?.(res.data.id);
+                  if (res.data) {
+                     setPersistedEtapaId(res.data.id);
+                     await notifySaved(res.data.id);
+                  }
                   onClose();
                }
             }
@@ -352,13 +385,13 @@ export function useSessaoForm({
          isEditMode,
          isDraft,
          obs,
-         editEtapa,
+         editingEtapaId,
          missaoId,
          updateEtapa,
          createEtapa,
          createMissaoWithEtapas,
          onPersistDraft,
-         onSaved,
+         notifySaved,
          push,
          onClose,
       ]

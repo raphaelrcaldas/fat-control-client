@@ -53,6 +53,8 @@ export function SimuladorMissaoEditor({
    const drawerCloseRef = useRef<HTMLButtonElement>(null);
    const creatingRef = useRef(false);
    const selectionVersionRef = useRef(0);
+   const [draftInstance, setDraftInstance] = useState(0);
+   const [promotedEtapaId, setPromotedEtapaId] = useState<number | null>(null);
    const [portalTarget, setPortalTarget] = useState<HTMLElement | null>(null);
    const [sidebarOpen, setSidebarOpen] = useState(false);
    const [confirmDelete, setConfirmDelete] = useState(false);
@@ -76,6 +78,9 @@ export function SimuladorMissaoEditor({
       ? etapas.findIndex((etapa) => etapa.id === selectedEtapa.id)
       : -1;
    const ultimaEtapa = etapas.at(-1) ?? null;
+   // O backend apaga a missao junto com a sua ultima sessao: a confirmacao
+   // precisa dizer isso, e nao prometer que so a sessao some.
+   const isUltimaEtapa = etapas.length === 1;
    const anoDominanteMissao = useMemo(() => anoDominante(etapas), [etapas]);
    // Fallback unico: sidebar e SimuladorSessaoForm usavam cada um o seu
    // (`new Date().getFullYear()` aqui, `ultimaEtapa?.data ?? todayIso()` no
@@ -93,14 +98,24 @@ export function SimuladorMissaoEditor({
    });
 
    const selectEtapa = useCallback(
-      (etapaId: number | null) => {
+      (etapaId: number | null, preserveForm = false) => {
+         const restartSavedDraft =
+            !preserveForm && etapaId === null && promotedEtapaId !== null;
          creatingRef.current = etapaId === null;
          setSelectedEtapaId(etapaId);
          // Selecionar a mesma sessão (inclusive após salvar) não remonta o
          // formulário: apagar seu estado aqui deixava o botão travado.
-         if (etapaId !== selectedEtapaId) {
+         if (etapaId !== selectedEtapaId || restartSavedDraft) {
             selectionVersionRef.current += 1;
-            setFormState(EMPTY_SESSAO_FORM_STATE);
+            if (preserveForm) {
+               // A sessão criada ganha seu ID na sidebar e na URL, mas mantém
+               // a instância do formulário com a edição posterior ao POST.
+               if (selectedEtapaId === null) setPromotedEtapaId(etapaId);
+            } else {
+               setPromotedEtapaId(null);
+               if (etapaId === null) setDraftInstance((value) => value + 1);
+               setFormState(EMPTY_SESSAO_FORM_STATE);
+            }
          }
          setSidebarOpen(false);
          contentRef.current?.scrollTo({ top: 0 });
@@ -109,7 +124,7 @@ export function SimuladorMissaoEditor({
             scroll: false,
          });
       },
-      [missao.id, router, selectedEtapaId]
+      [missao.id, router, selectedEtapaId, promotedEtapaId]
    );
 
    useEffect(() => {
@@ -139,6 +154,19 @@ export function SimuladorMissaoEditor({
       });
    }, [etapas, initialEtapaId]);
 
+   useEffect(() => {
+      // A criação já confirmou o ID, mas sua recarga pode falhar. Uma nova
+      // tentativa (ou invalidação automática) promove a seleção assim que o
+      // registro chega, sem depender da promessa da primeira recarga.
+      if (
+         selectedEtapaId === null &&
+         promotedEtapaId !== null &&
+         etapas.some((etapa) => etapa.id === promotedEtapaId)
+      ) {
+         selectEtapa(promotedEtapaId, true);
+      }
+   }, [etapas, promotedEtapaId, selectedEtapaId, selectEtapa]);
+
    const handleFormStateChange = useCallback((state: SessaoFormState) => {
       setFormState(state);
    }, []);
@@ -146,6 +174,7 @@ export function SimuladorMissaoEditor({
    const handleSaved = useCallback(
       async (etapaId: number) => {
          const selectionVersion = selectionVersionRef.current;
+         if (selectedEtapaId === null) setPromotedEtapaId(etapaId);
          // A observacao sobe ANTES do refetch: invertido, o refetch traria a
          // obs antiga do servidor e descartaria o que o usuario digitou.
          await missaoObs.flush();
@@ -156,17 +185,18 @@ export function SimuladorMissaoEditor({
             selectionVersionRef.current === selectionVersion &&
             refreshed?.etapas.some((etapa) => etapa.id === etapaId)
          ) {
-            selectEtapa(etapaId);
+            selectEtapa(etapaId, true);
          }
       },
       // So `flush` (e nao o objeto `missaoObs`) nas deps: `missaoObs` e um
       // literal novo a cada render (useMissaoObs nao o memoiza), o que
       // invalidaria handleSaved a cada tecla digitada na observacao.
-      [missaoObs.flush, onRefetch, selectEtapa]
+      [missaoObs.flush, onRefetch, selectEtapa, selectedEtapaId]
    );
 
    const handleDelete = useCallback(async () => {
       if (!selectedEtapa) return;
+      const selectionVersion = selectionVersionRef.current;
       const fallbackId =
          etapas[selectedIndex + 1]?.id ?? etapas[selectedIndex - 1]?.id ?? null;
 
@@ -179,8 +209,19 @@ export function SimuladorMissaoEditor({
          });
          setConfirmDelete(false);
          if (result.ok) {
+            // O backend remove a missão junto com sua última sessão. Não há
+            // recurso para recarregar nessa rota, e invalidar a mutation já
+            // pode ter iniciado um GET; sair imediatamente evita insistir nela.
+            if (isUltimaEtapa) {
+               router.push("/instrucao/simulador");
+               return;
+            }
             await onRefetch();
-            selectEtapa(fallbackId);
+            // Uma seleção feita enquanto a exclusão aguardava o refetch é a
+            // intenção mais recente; o fallback só vale se ela não mudou.
+            if (selectionVersionRef.current === selectionVersion) {
+               selectEtapa(fallbackId);
+            }
          }
       } catch (error) {
          setConfirmDelete(false);
@@ -196,8 +237,10 @@ export function SimuladorMissaoEditor({
    }, [
       deleteEtapa,
       etapas,
+      isUltimaEtapa,
       onRefetch,
       push,
+      router,
       selectEtapa,
       selectedEtapa,
       selectedIndex,
@@ -223,7 +266,8 @@ export function SimuladorMissaoEditor({
       (etapaId: number | null) => {
          if (formState.isPending) return;
          if (
-            etapaId !== selectedEtapaId &&
+            (etapaId !== selectedEtapaId ||
+               (etapaId === null && promotedEtapaId !== null)) &&
             formState.isDirty &&
             !window.confirm(
                "Há mudanças não salvas nesta sessão. Descartar e trocar de sessão?"
@@ -232,7 +276,13 @@ export function SimuladorMissaoEditor({
             return;
          selectEtapa(etapaId);
       },
-      [formState.isDirty, formState.isPending, selectedEtapaId, selectEtapa]
+      [
+         formState.isDirty,
+         formState.isPending,
+         selectedEtapaId,
+         promotedEtapaId,
+         selectEtapa,
+      ]
    );
 
    // Cobre fechar aba / recarregar e clique em link interno (drawer, etc).
@@ -306,7 +356,12 @@ export function SimuladorMissaoEditor({
                content={
                   canRenderForm ? (
                      <SimuladorSessaoForm
-                        key={selectedEtapa?.id ?? "new"}
+                        key={
+                           !selectedEtapa ||
+                           selectedEtapa.id === promotedEtapaId
+                              ? `draft-${draftInstance}`
+                              : selectedEtapa.id
+                        }
                         missaoId={missao.id}
                         pilotos={pilotos}
                         editEtapa={selectedEtapa}
@@ -366,9 +421,25 @@ export function SimuladorMissaoEditor({
 
          <ConfirmModal
             show={confirmDelete}
-            title="Excluir sessão?"
-            description="Esta ação não pode ser desfeita."
-            confirmButtonText="Excluir sessão"
+            title={isUltimaEtapa ? "Excluir a dupla?" : "Excluir sessão?"}
+            description={
+               <div className="space-y-2">
+                  <p>
+                     {isUltimaEtapa
+                        ? "Esta é a última sessão: excluí-la apaga a dupla inteira."
+                        : "Esta ação não pode ser desfeita."}
+                  </p>
+                  {isUltimaEtapa && missaoObs.isDirty && (
+                     <p className="font-medium text-red-600 dark:text-red-400">
+                        A observação digitada ainda não foi salva e será
+                        perdida.
+                     </p>
+                  )}
+               </div>
+            }
+            confirmButtonText={
+               isUltimaEtapa ? "Excluir a dupla" : "Excluir sessão"
+            }
             isLoading={deleteEtapa.isPending}
             onClose={() => setConfirmDelete(false)}
             onConfirm={handleDelete}

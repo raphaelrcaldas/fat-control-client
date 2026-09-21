@@ -66,9 +66,11 @@ export default function EditarMissaoSimuladorPage() {
       );
    }
 
-   // O erro vem antes do loading: em erro `data` fica undefined; testar
-   // `!data` primeiro deixaria o skeleton preso indefinidamente.
-   if (isError) {
+   // Sem dado anterior, o erro inicial ainda precisa de uma tela dedicada.
+   // Depois de um carregamento bem-sucedido, porém, React Query preserva
+   // `data` durante um refetch que falha. Manter o editor montado conserva os
+   // rascunhos locais enquanto o alerta oferece nova tentativa.
+   if (isError && !data) {
       return (
          <div className="space-y-2">
             <Alert color="failure">
@@ -119,6 +121,19 @@ export default function EditarMissaoSimuladorPage() {
 
    return (
       <div className="space-y-2">
+         {isError ? (
+            <div className="space-y-2">
+               <Alert color="failure">
+                  {error instanceof Error
+                     ? error.message
+                     : "Erro ao recarregar a missão de simulador"}
+               </Alert>
+               <Button color="light" size="sm" onClick={() => refetch()}>
+                  <HiRefresh className="mr-2 h-4 w-4" />
+                  Tentar novamente
+               </Button>
+            </div>
+         ) : null}
          <SimuladorMissaoEditor
             key={id}
             missao={data}

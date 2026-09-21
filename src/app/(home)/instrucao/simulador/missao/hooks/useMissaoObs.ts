@@ -60,7 +60,11 @@ export function useMissaoObs({ missaoId, serverObs }: UseMissaoObsArgs) {
             return false;
          }
 
-         setObs(normalizedObs);
+         // A mutação foi iniciada com o valor capturado por este callback. Se
+         // o usuário continuou digitando enquanto ela aguardava, a resposta
+         // só atualiza o baseline: substituir `obs` aqui apagaria o rascunho
+         // mais novo e marcaria incorretamente o campo como limpo.
+         if (obsRef.current === obs) setObs(normalizedObs);
          setSavedObs(normalizedObs);
          return true;
       } catch (error) {
