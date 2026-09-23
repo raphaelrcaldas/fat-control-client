@@ -21,6 +21,7 @@ import clsx from "clsx";
 import { usePermBased } from "@/app/(home)/hooks/usePermBased";
 import { AeronaveFormModal } from "@/app/(home)/ops/aeronaves/components/AeronaveFormModal";
 import { useTimelineDrag } from "@/hooks/useTimelineDrag";
+import { markOmInAppOrigin } from "@/app/(home)/ops/om/utils/omListUrl";
 
 // Rótulo curto do dia da semana, indexado por `getDay()`. Evita um
 // `toLocaleDateString` por coluna a cada render.
@@ -471,9 +472,10 @@ export default function WeekCalendar({
                                           cellKey(anv.matricula, dateToIso(day))
                                        ) ?? []
                                     }
-                                    onSelectOrdem={(omId) =>
-                                       router.push(`/ops/om/${omId}`)
-                                    }
+                                    onSelectOrdem={(omId) => {
+                                       markOmInAppOrigin();
+                                       router.push(`/ops/om/${omId}`);
+                                    }}
                                  />
                               </td>
                            );

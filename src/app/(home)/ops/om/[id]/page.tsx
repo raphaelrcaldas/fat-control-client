@@ -6,7 +6,7 @@ import { Button } from "flowbite-react";
 import { useOrdem } from "@/hooks/queries";
 import { OrdemFormContent } from "../components/OrdemDetail/OrdemFormContent";
 import { OrdemDetailSkeleton } from "../components/OrdemDetail/OrdemDetailSkeleton";
-import { getOmListUrl } from "../utils/omListUrl";
+import { getOmListUrl, hasOmInAppOrigin } from "../utils/omListUrl";
 
 export default function OrdemDetailPage() {
    const params = useParams<{ id: string }>();
@@ -24,9 +24,13 @@ export default function OrdemDetailPage() {
    }, [ordem?.numero]);
 
    const handleNavigateBack = () => {
-      // Volta para a lista preservando tab/página/filtros (URL gravada pela
-      // própria lista em sessionStorage; fallback /ops/om em acesso direto)
-      router.push(getOmListUrl());
+      // Volta para a tela de origem (lista ou quadro) com o estado dela;
+      // em acesso direto pela URL, cai na lista (ver utils/omListUrl)
+      if (hasOmInAppOrigin()) {
+         router.back();
+      } else {
+         router.push(getOmListUrl());
+      }
    };
 
    if (isLoading) {
@@ -48,7 +52,7 @@ export default function OrdemDetailPage() {
                   onClick={handleNavigateBack}
                   className="text-primary-600 py-1 text-sm font-medium hover:underline"
                >
-                  Voltar para lista de ordens
+                  Voltar
                </button>
             </div>
          </div>
@@ -65,7 +69,7 @@ export default function OrdemDetailPage() {
                onClick={handleNavigateBack}
                className="text-primary-600 py-1 text-sm font-medium hover:underline"
             >
-               Voltar para lista de ordens
+               Voltar
             </button>
          </div>
       );

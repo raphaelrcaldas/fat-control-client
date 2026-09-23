@@ -32,7 +32,7 @@ import { type OrdemMissaoList } from "services/routes/om/ordens";
 import { useAuth } from "@/app/context/auth";
 import { useToast } from "@/app/context/toast";
 import { dateToIso } from "utils/dateHandler";
-import { saveOmListUrl } from "./utils/omListUrl";
+import { markOmInAppOrigin, saveOmListUrl } from "./utils/omListUrl";
 import { PermBased } from "../../hooks/usePermBased";
 
 const tabsTheme = {
@@ -150,6 +150,7 @@ export default function OrdensMissao() {
    // "voltar" das telas de detalhe/clonagem/nova (ver utils/omListUrl)
    useEffect(() => {
       saveOmListUrl(window.location.pathname + window.location.search);
+      markOmInAppOrigin();
    }, [searchParams]);
 
    // Paginacao derivada da URL
