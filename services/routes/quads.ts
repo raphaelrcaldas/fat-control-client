@@ -111,9 +111,15 @@ export async function deleteQuadsOrfaos(
 }
 
 export async function getQuadsType(): Promise<QuadTypeGroup[]> {
-   const response = await request("GET", quadsRoute + "types");
-   const json = (await response.json()) as ApiResponse<QuadTypeGroup[]>;
-   return json.data || [];
+   // Erro precisa lançar: devolvido como `[]`, um 403/500 virava o estado
+   // vazio ("Nenhum grupo cadastrado") em vez do bloco de erro.
+   const result = await parseApiResponse<QuadTypeGroup[]>(
+      await request("GET", quadsRoute + "types")
+   );
+   if (!result.ok) {
+      throw new Error(result.message || "Erro ao carregar quadrinhos");
+   }
+   return result.data ?? [];
 }
 
 // ===========================================================================
