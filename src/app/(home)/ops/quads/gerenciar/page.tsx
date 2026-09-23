@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
 import { Button } from "flowbite-react";
-import { FaArrowLeft, FaPlus, FaLayerGroup } from "react-icons/fa6";
+import { FaArrowLeft, FaPlus, FaLayerGroup, FaSliders } from "react-icons/fa6";
 import { useToast } from "@/app/context/toast";
 import PermDenied from "@/app/components/permDenied";
 import { usePermBased } from "../../../hooks/usePermBased";
@@ -18,11 +18,10 @@ import {
    useSetQuadsTypeFuncs,
 } from "@/hooks/queries";
 import type { QuadType, QuadTypeGroup } from "services/routes/quads";
-import { SectionHeader } from "@/components/ui/SectionHeader";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
-import { TableSkeleton } from "@/components/ui/Skeleton";
 import { QuadsGroupCard } from "./components/QuadsGroupCard";
+import { QuadsGerenciarSkeleton } from "./components/QuadsGerenciarSkeleton";
 import {
    ShortLongFormModal,
    type ShortLongData,
@@ -62,6 +61,24 @@ export default function GerenciarQuadsPage() {
       null
    );
    const [deletingType, setDeletingType] = useState<QuadType | null>(null);
+
+   // Referência estável: o modal re-sincroniza o formulário quando `initial`
+   // muda, e um objeto novo a cada render apagaria a edição em curso (o
+   // `isPending` do salvar re-renderiza a página).
+   const groupInitial = useMemo<ShortLongData | null>(
+      () =>
+         groupModal.editing
+            ? { short: groupModal.editing.short, long: groupModal.editing.long }
+            : null,
+      [groupModal.editing]
+   );
+   const typeInitial = useMemo<ShortLongData | null>(
+      () =>
+         typeModal.editing
+            ? { short: typeModal.editing.short, long: typeModal.editing.long }
+            : null,
+      [typeModal.editing]
+   );
 
    const notify = (
       ok: boolean,
@@ -157,25 +174,61 @@ export default function GerenciarQuadsPage() {
       }
    };
 
-   const backLink = (
-      <Button as={Link} href="/ops/quads" color="light" size="sm">
-         <FaArrowLeft className="mr-2 h-3 w-3" />
-         Voltar
-      </Button>
-   );
-
    if (!canManage) {
       return <PermDenied />;
    }
 
-   if (isLoading) {
-      return <TableSkeleton rows={6} cols={3} />;
-   }
+   const isSavingGroup = createGroup.isPending || updateGroup.isPending;
+   const isSavingType = createType.isPending || updateType.isPending;
 
-   if (error) {
-      return (
-         <div className="space-y-2">
-            {backLink}
+   return (
+      <div className="space-y-2">
+         {/* Masthead — referência canônica (ops/operacoes) */}
+         <header className="relative overflow-hidden rounded border border-slate-200 bg-white px-5 py-4 shadow-sm sm:px-6 sm:py-5">
+            <span
+               aria-hidden
+               className="bg-primary-600 absolute top-0 left-0 h-full w-1"
+            />
+
+            <div className="relative flex items-center justify-between gap-4">
+               <div className="flex min-w-0 items-center gap-4">
+                  <div className="bg-primary-50 text-primary-600 ring-primary-100 grid h-12 w-12 shrink-0 place-items-center rounded-md ring-1 ring-inset">
+                     <FaSliders className="h-6 w-6" />
+                  </div>
+                  <div className="min-w-0">
+                     <span className="text-primary-600 block font-mono text-[10px] font-bold tracking-[0.3em] uppercase">
+                        Quadrinhos
+                     </span>
+                     <h1 className="text-2xl leading-none font-extrabold tracking-tight text-slate-900 sm:text-[28px]">
+                        Gerenciar
+                     </h1>
+                  </div>
+               </div>
+
+               {/* No celular só o ícone: o rótulo vira `sr-only` e segue como
+                   nome acessível, sem empurrar as ações para outra linha. */}
+               <div className="flex shrink-0 items-center gap-2">
+                  <Button as={Link} href="/ops/quads" color="light">
+                     <FaArrowLeft className="h-3 w-3 sm:mr-2" />
+                     <span className="sr-only sm:not-sr-only">Voltar</span>
+                  </Button>
+                  <Button
+                     color="primary"
+                     className="font-semibold whitespace-nowrap"
+                     onClick={() =>
+                        setGroupModal({ open: true, editing: null })
+                     }
+                  >
+                     <FaPlus className="h-4 w-4 sm:mr-2" />
+                     <span className="sr-only sm:not-sr-only">Novo grupo</span>
+                  </Button>
+               </div>
+            </div>
+         </header>
+
+         {isLoading ? (
+            <QuadsGerenciarSkeleton />
+         ) : error ? (
             <div className="flex flex-wrap items-center justify-between gap-3 rounded border border-red-300 bg-red-50 p-4">
                <p className="text-sm text-red-800">
                   Erro ao carregar quadrinhos. Por favor, tente novamente.
@@ -184,28 +237,7 @@ export default function GerenciarQuadsPage() {
                   Tentar novamente
                </Button>
             </div>
-         </div>
-      );
-   }
-
-   const isSavingGroup = createGroup.isPending || updateGroup.isPending;
-   const isSavingType = createType.isPending || updateType.isPending;
-
-   return (
-      <div className="space-y-2">
-         <div className="flex items-center gap-3">{backLink}</div>
-
-         <SectionHeader
-            title="Gerenciar quadrinhos"
-            headingLevel="h1"
-            count={groups.length}
-            countLabel={groups.length === 1 ? "grupo" : "grupos"}
-            onCreateClick={() => setGroupModal({ open: true, editing: null })}
-            createLabel="Novo grupo"
-            createIcon={FaPlus}
-         />
-
-         {groups.length === 0 ? (
+         ) : groups.length === 0 ? (
             <EmptyState
                icon={FaLayerGroup}
                title="Nenhum grupo cadastrado"
@@ -220,7 +252,18 @@ export default function GerenciarQuadsPage() {
                      onEditGroup={(g) =>
                         setGroupModal({ open: true, editing: g })
                      }
-                     onDeleteGroup={(g) => setDeletingGroup(g)}
+                     onDeleteGroup={(g) => {
+                        // O backend recusa (409) grupo com tipos; avisar já
+                        // poupa o usuário de confirmar para então falhar.
+                        if (g.types.length > 0) {
+                           push({
+                              type: "error",
+                              message: `Remova os ${g.types.length} tipo(s) do grupo antes de excluí-lo.`,
+                           });
+                           return;
+                        }
+                        setDeletingGroup(g);
+                     }}
                      onAddType={(g) =>
                         setTypeModal({ open: true, group: g, editing: null })
                      }
@@ -243,14 +286,7 @@ export default function GerenciarQuadsPage() {
             longLabel="Nome"
             shortPlaceholder="Ex: SOBR"
             longPlaceholder="Ex: Sobreaviso"
-            initial={
-               groupModal.editing
-                  ? {
-                       short: groupModal.editing.short,
-                       long: groupModal.editing.long,
-                    }
-                  : null
-            }
+            initial={groupInitial}
             isSaving={isSavingGroup}
             onClose={() => setGroupModal({ open: false, editing: null })}
             onSubmit={handleSubmitGroup}
@@ -263,14 +299,7 @@ export default function GerenciarQuadsPage() {
             longLabel="Nome"
             shortPlaceholder="Ex: PTO"
             longPlaceholder="Ex: Sobreaviso preto"
-            initial={
-               typeModal.editing
-                  ? {
-                       short: typeModal.editing.short,
-                       long: typeModal.editing.long,
-                    }
-                  : null
-            }
+            initial={typeInitial}
             isSaving={isSavingType}
             onClose={() =>
                setTypeModal({ open: false, group: null, editing: null })

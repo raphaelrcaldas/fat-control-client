@@ -1,5 +1,6 @@
 "use client";
 
+import clsx from "clsx";
 import { Button } from "flowbite-react";
 import {
    FaPenToSquare,
@@ -29,16 +30,19 @@ export function QuadsGroupCard({
    onDeleteType,
    onEditFuncs,
 }: QuadsGroupCardProps) {
-   const { labelShort } = useFuncoes();
+   const { label, colors, ordem } = useFuncoes();
 
    return (
-      <div className="rounded bg-white shadow-sm ring-1 ring-slate-200">
+      <div className="rounded border border-slate-200 bg-white shadow-sm">
          <div className="flex items-center justify-between gap-3 border-b border-slate-200 px-4 py-3">
             <div className="min-w-0">
-               <h2 className="truncate text-lg font-semibold text-gray-900 uppercase">
+               <h2
+                  className="truncate text-lg font-semibold text-slate-900 uppercase"
+                  title={group.long}
+               >
                   {group.long}
                </h2>
-               <p className="text-xs font-medium tracking-wide text-gray-500 uppercase">
+               <p className="text-xs font-medium tracking-wide text-slate-500 uppercase">
                   {group.short}
                </p>
             </div>
@@ -52,48 +56,59 @@ export function QuadsGroupCard({
                   <FaPenToSquare className="h-4 w-4" />
                </Button>
                <Button
-                  color="red"
+                  color="light"
                   size="sm"
                   onClick={() => onDeleteGroup(group)}
                   aria-label={`Excluir grupo ${group.short}`}
                >
-                  <FaTrashCan className="h-4 w-4" />
+                  <FaTrashCan className="h-4 w-4 text-red-600" />
                </Button>
             </div>
          </div>
 
          <div className="divide-y divide-slate-200">
             {group.types.length === 0 ? (
-               <p className="px-4 py-3 text-sm text-gray-500">
+               <p className="px-4 py-3 text-sm text-slate-500">
                   Nenhum tipo cadastrado neste grupo.
                </p>
             ) : (
                group.types.map((type) => (
                   <div
                      key={type.id}
-                     className="flex flex-col gap-2 px-4 py-3 sm:flex-row sm:items-center sm:justify-between"
+                     className="flex items-center justify-between gap-3 px-4 py-3"
                   >
                      <div className="min-w-0">
-                        <p className="font-medium text-gray-800 uppercase">
+                        <p
+                           className="truncate font-medium text-slate-800 uppercase"
+                           title={`${type.long} (${type.short})`}
+                        >
                            {type.long}
-                           <span className="ml-2 text-xs font-normal text-gray-500">
+                           <span className="ml-2 text-xs font-normal text-slate-500">
                               {type.short}
                            </span>
                         </p>
                         <div className="mt-1 flex flex-wrap items-center gap-1">
                            {type.funcs_list.length === 0 ? (
-                              <span className="text-xs text-gray-500">
+                              <span className="text-xs text-slate-500">
                                  Nenhuma função associada
                               </span>
                            ) : (
-                              type.funcs_list.map((func) => (
-                                 <span
-                                    key={func}
-                                    className="bg-primary-50 text-primary-700 inline-flex items-center rounded px-2 py-0.5 text-xs font-medium"
-                                 >
-                                    {labelShort(func)}
-                                 </span>
-                              ))
+                              // O GET não ordena as funções; a ordem canônica é a
+                              // do catálogo, a mesma que o modal envia.
+                              [...type.funcs_list]
+                                 .sort((a, b) => ordem(a) - ordem(b))
+                                 .map((func) => (
+                                    <span
+                                       key={func}
+                                       title={label(func)}
+                                       className={clsx(
+                                          "inline-flex items-center rounded border px-2 py-0.5 font-mono text-xs font-semibold uppercase",
+                                          colors(func).badge
+                                       )}
+                                    >
+                                       {func}
+                                    </span>
+                                 ))
                            )}
                         </div>
                      </div>
@@ -104,8 +119,12 @@ export function QuadsGroupCard({
                            onClick={() => onEditFuncs(group, type)}
                            aria-label={`Editar funções de ${type.short}`}
                         >
-                           <FaUserGroup className="mr-1 h-3 w-3" />
-                           Funções
+                           {/* No celular só o ícone, para as ações caberem
+                               ao lado do nome em vez de descerem de linha. */}
+                           <FaUserGroup className="h-3 w-3 sm:mr-1" />
+                           <span className="sr-only sm:not-sr-only">
+                              Funções
+                           </span>
                         </Button>
                         <Button
                            color="light"
@@ -116,12 +135,12 @@ export function QuadsGroupCard({
                            <FaPenToSquare className="h-3 w-3" />
                         </Button>
                         <Button
-                           color="red"
+                           color="light"
                            size="xs"
                            onClick={() => onDeleteType(group, type)}
                            aria-label={`Excluir tipo ${type.short}`}
                         >
-                           <FaTrashCan className="h-3 w-3" />
+                           <FaTrashCan className="h-3 w-3 text-red-600" />
                         </Button>
                      </div>
                   </div>
@@ -134,7 +153,7 @@ export function QuadsGroupCard({
                color="light"
                size="sm"
                onClick={() => onAddType(group)}
-               aria-label={`Adicionar tipo ao grupo ${group.short}`}
+               aria-label={`Novo tipo no grupo ${group.short}`}
             >
                <FaPlus className="mr-2 h-3 w-3" />
                Novo tipo

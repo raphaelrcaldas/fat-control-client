@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
    Modal,
    ModalHeader,
@@ -49,6 +49,9 @@ export function ShortLongFormModal({
 }: ShortLongFormModalProps) {
    const [form, setForm] = useState<ShortLongData>({ short: "", long: "" });
    const [errors, setErrors] = useState<FormErrors>({});
+   // `initialFocus` em vez de `autoFocus`: o nativo quebra a devolução do foco
+   // ao fechar, que cai no <body>.
+   const shortRef = useRef<HTMLInputElement>(null);
 
    useEffect(() => {
       if (show) {
@@ -61,13 +64,9 @@ export function ShortLongFormModal({
       const next: FormErrors = {};
       if (!form.short.trim()) {
          next.short = `${shortLabel} é obrigatório`;
-      } else if (form.short.trim().length > 50) {
-         next.short = `${shortLabel} deve ter no máximo 50 caracteres`;
       }
       if (!form.long.trim()) {
          next.long = `${longLabel} é obrigatório`;
-      } else if (form.long.trim().length > 150) {
-         next.long = `${longLabel} deve ter no máximo 150 caracteres`;
       }
       setErrors(next);
       return Object.keys(next).length === 0;
@@ -92,7 +91,13 @@ export function ShortLongFormModal({
    };
 
    return (
-      <Modal show={show} onClose={handleClose} size="md">
+      <Modal
+         show={show}
+         onClose={handleClose}
+         size="md"
+         dismissible={!isSaving}
+         initialFocus={shortRef}
+      >
          <ModalHeader>{title}</ModalHeader>
          <form onSubmit={handleSubmit}>
             <ModalBody>
@@ -100,15 +105,17 @@ export function ShortLongFormModal({
                   <div>
                      <Label htmlFor="quad-short">{shortLabel}</Label>
                      <TextInput
+                        ref={shortRef}
                         id="quad-short"
                         name="short"
                         type="text"
                         placeholder={shortPlaceholder}
                         value={form.short}
-                        maxLength={6}
+                        // Limites do schema do backend. Não encurte: há
+                        // siglas de até 9 caracteres em uso.
+                        maxLength={50}
                         onChange={handleChange}
                         color={errors.short ? "failure" : undefined}
-                        autoFocus
                         aria-invalid={!!errors.short}
                      />
                      {errors.short && (
@@ -125,6 +132,7 @@ export function ShortLongFormModal({
                         type="text"
                         placeholder={longPlaceholder}
                         value={form.long}
+                        maxLength={150}
                         onChange={handleChange}
                         color={errors.long ? "failure" : undefined}
                         aria-invalid={!!errors.long}
@@ -138,10 +146,10 @@ export function ShortLongFormModal({
                </div>
             </ModalBody>
             <ModalFooter>
-               <Button type="submit" color="red" disabled={isSaving}>
+               <Button type="submit" color="primary" disabled={isSaving}>
                   {isSaving ? (
                      <>
-                        <Spinner color="primary" size="sm" className="mr-2" />
+                        <Spinner size="sm" className="mr-2" />
                         Salvando...
                      </>
                   ) : initial ? (
