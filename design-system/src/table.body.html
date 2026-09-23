@@ -142,7 +142,7 @@
          </table>
       </figure>
       <figure style="margin: 0; opacity: 0.55">
-         <figcaption>min-h-[44px] na row ✗ — ~30% mais alta</figcaption>
+         <figcaption>altura mínima cravada na row ✗ — mais alta</figcaption>
          <table class="tbl">
             <tbody class="tall">
                <tr>
@@ -163,12 +163,12 @@
    </div>
    <p class="spec-note">
       Uma linha atravessa o container: na horizontal, Fitts já está satisfeito
-      com folga, e o erro de toque só acontece no eixo vertical. Cobrar dela os
-      44px do
-      <em>menor</em> lado custa ~3 linhas por tela de rolagem.
-      <strong>O alvo de toque é o controle dentro da célula</strong> — botão,
-      link, checkbox. O harness trata alvo com largura ≥ 3× o mínimo como
-      <em>faixa</em> e só cobra 32px de altura.
+      com folga, e o erro de toque só acontece no eixo vertical. Não crave
+      <code class="spec-code">min-h-[24px]</code> (nem maior) numa
+      <code class="spec-code">&lt;TableRow&gt;</code>: a altura da linha é a do
+      conteúdo. <strong>O alvo de toque é o controle dentro da célula</strong> —
+      botão, link, checkbox. O harness trata alvo com largura ≥ 3× o mínimo como
+      <em>faixa</em> — largura ≥ 3× o mínimo (72px) — e só cobra 20px de altura.
    </p>
 </section>
 

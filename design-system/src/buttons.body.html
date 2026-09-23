@@ -80,19 +80,9 @@
       font-size: 0.6875rem;
       color: var(--slate-500);
    }
-   .box44 {
-      width: 44px;
-      height: 44px;
-      display: grid;
-      place-items: center;
-      border-radius: var(--radius-md);
-      background: var(--primary-700);
-      color: #fff;
-      margin-bottom: 0.4rem;
-   }
    .box24 {
-      width: 32px;
-      height: 32px;
+      width: 24px;
+      height: 24px;
       display: grid;
       place-items: center;
       border-radius: var(--radius-md);
@@ -145,35 +135,31 @@
 </section>
 
 <section class="spec-sec">
-   <p class="spec-h">Alvo de toque — 44px só no dedo</p>
+   <p class="spec-h">Tamanho de controle — um só, 24px no mínimo</p>
    <div class="ruler">
       <figure>
-         <div class="box44">◆</div>
-         44×44 — pointer-coarse
-      </figure>
-      <figure>
          <div class="box24">◆</div>
-         ~32 — mouse (mín. WCAG 24)
+         24×24 — qualquer ponteiro
       </figure>
       <p class="spec-note" style="flex: 1; min-width: 24ch; margin: 0">
-         <code class="spec-code"
-            >pointer-coarse:min-h-[44px] pointer-coarse:min-w-[44px]</code
-         >
-         no <code class="spec-code">button.base</code>. Em <strong>px</strong>,
-         e não <code class="spec-code">rem</code>: com raiz 87.5%,
-         <code class="spec-code">h-11</code> daria 38,5px. <br /><strong
-            >Não inflar o desktop.</strong
-         >
-         Densidade é qualidade num sistema operacional — cobrar 44px no mouse
-         engorda menu, toolbar e switcher sem ganho, e já foi tentado e
-         rejeitado.
+         O controle tem
+         <strong>o mesmo tamanho no desktop e no celular</strong>: nada de
+         <code class="spec-code">pointer-coarse:min-h-[44px]</code>,
+         <code class="spec-code">pointer-coarse:size-*</code> ou equivalente. A
+         régua é o mínimo do WCAG 2.2 (2.5.8), <strong>24×24px</strong>, sempre
+         em <strong>px</strong> e não <code class="spec-code">rem</code>: com
+         raiz 87.5%, <code class="spec-code">size-6</code> daria 21px.
       </p>
    </div>
    <p class="spec-note">
-      <code class="spec-code">min-w</code> também: botões só-ícone em
-      <code class="spec-code">xs</code>/<code class="spec-code">sm</code>
-      ficavam com 32–37px de largura no toque. E o inverso — encolher um Button
-      abaixo de 44px no mobile — exige sobrescrever
-      <code class="spec-code">pointer-coarse:min-h-0 min-w-0</code>.
+      A régua dupla ("44px no dedo, 24px no mouse") foi abandonada em
+      16/09/2026: produzia duas telas do mesmo sistema, e os halos usados para
+      chegar a 44px sem engordar o layout se sobrepunham ao vizinho — o toque
+      abria o item errado. Alvo pequeno demais de verdade cresce pelo
+      <strong>elemento que já ocupa a linha</strong> (o
+      <code class="spec-code">&lt;label&gt;</code>, o
+      <code class="spec-code">&lt;li&gt;</code>), nunca por pseudo-elemento.
+      <code class="spec-code">pointer-coarse:</code> continua valendo para
+      trocar <em>conteúdo</em> ou <em>cor</em>, não tamanho.
    </p>
 </section>
