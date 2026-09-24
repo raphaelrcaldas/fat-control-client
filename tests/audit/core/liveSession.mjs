@@ -32,6 +32,37 @@ import { installDomUtils } from "../browser/domUtils.mjs";
  * Chromium continua no ar (verificado). E o que se quer: o proximo `peek`
  * reencontra a mesma aba.
  */
+
+/**
+ * A aba em `current` ja mostra a tela pedida em `target`?
+ *
+ * Mesma origem e pathname, e cada parametro da query PEDIDA presente na aba com
+ * o mesmo valor. Nao e igualdade de URL: telas reescrevem a propria query
+ * (`relatorios-voo` acrescenta `data_ini`/`data_fim` ao carregar; filtro
+ * aplicado pela UI grava na URL), e exigir URL identica faria todo `peek` sem
+ * esses extras navegar de novo e perder o estado. Ja parametro pedido e
+ * ausente, ou com outro valor, e outra tela — comparar so o pathname fez
+ * `?anv=9999` reusar a aba em `?anv=2858`.
+ *
+ * Hash so conta se foi pedido. `--url` sem query casa com qualquer query na
+ * mesma rota; para voltar ao padrao da tela, `--reload` (que navega para a URL
+ * exata pedida).
+ */
+function mesmaRota(current, target) {
+   if (current.origin !== target.origin) return false;
+   if (current.pathname !== target.pathname) return false;
+   if (target.hash && current.hash !== target.hash) return false;
+   for (const key of new Set(target.searchParams.keys())) {
+      const pedidos = target.searchParams.getAll(key);
+      const atuais = current.searchParams.getAll(key);
+      if (
+         pedidos.length !== atuais.length ||
+         pedidos.some((valor, i) => valor !== atuais[i])
+      )
+         return false;
+   }
+   return true;
+}
 export class LiveSession {
    #browser = null;
    #context = null;
@@ -200,6 +231,9 @@ export class LiveSession {
     * quer inspecionar (modal aberto, aba selecionada, filtro aplicado). E o que
     * separa "ver o efeito da minha ultima edicao" de "recomecar do zero".
     *
+    * "Mesma rota" inclui a query: `?anv=2858` e `?anv=9999` sao telas
+    * diferentes. Ver `mesmaRota`.
+    *
     * Rota DIFERENTE navega a aba que ja existe, em vez de abrir outra. Antes
     * cada rota nova ganhava a sua: auditar oito telas deixava oito abas de pe,
     * que a execucao seguinte — e o agente seguinte — herdava. O Chromium e
@@ -227,11 +261,7 @@ export class LiveSession {
 
       const match = pages.find((p) => {
          try {
-            const current = new URL(p.url());
-            return (
-               current.origin === target.origin &&
-               current.pathname === target.pathname
-            );
+            return mesmaRota(new URL(p.url()), target);
          } catch {
             return false; // about:blank e afins
          }
@@ -239,7 +269,18 @@ export class LiveSession {
 
       if (match && !this.reload) return match;
       if (match) {
-         await match.reload({ waitUntil: "networkidle", timeout: 45000 });
+         // A aba pode estar numa URL mais longa que a pedida (parametros que a
+         // pagina acrescentou). `reload` manteria esses extras; `goto` carrega
+         // exatamente o que foi pedido. Mesma URL: `goto` so trocaria o hash,
+         // sem recarregar — dai o `reload`.
+         if (match.url() === this.url) {
+            await match.reload({ waitUntil: "networkidle", timeout: 45000 });
+         } else {
+            await match.goto(this.url, {
+               waitUntil: "networkidle",
+               timeout: 45000,
+            });
+         }
          return match;
       }
 

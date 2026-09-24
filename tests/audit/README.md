@@ -192,6 +192,15 @@ quer inspecionar — o modal aberto, a aba selecionada, o filtro aplicado. Você
 navega até o estado uma vez (`--actions`) e mede quantas vezes quiser. Use
 `--reload` quando quiser justamente o contrário.
 
+"Mesma rota" considera a query: a aba é reusada quando tem o mesmo pathname e
+**cada parâmetro que você pediu** com o mesmo valor. `?anv=2858` e `?anv=9999`
+são telas diferentes — a segunda navega. Parâmetros que a própria tela acrescenta
+à URL (ex.: `data_ini`/`data_fim` em `relatorios-voo`) ou que um filtro da UI
+gravou não impedem o reuso; por isso `--url` sem query mantém a aba como está.
+Para voltar à URL exata que pediu, descartando esses extras, use `--reload` — ele
+navega para a URL pedida (ou recarrega, se a aba já estiver nela). O hash só
+conta se estiver na `--url`.
+
 Login também se faz **uma vez**: o perfil persiste, então não há token de longa
 duração para expirar em silêncio.
 
