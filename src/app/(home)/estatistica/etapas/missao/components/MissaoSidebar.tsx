@@ -40,15 +40,16 @@ type Props = {
 };
 
 // Campo "no lugar": sem moldura em repouso, borda só no hover/foco, para o
-// título ler como título e continuar editável
+// título ler como título e continuar editável. Foco só com a borda (ring-0):
+// borda de 0.8px + ring-1 da mesma cor renderizavam como linha dupla
 const inlineFieldBase =
-   "-mx-1.5 w-[calc(100%+0.75rem)] rounded border-transparent bg-transparent px-1.5 shadow-none placeholder:text-gray-400 hover:border-gray-200 focus:border-primary-400 focus:bg-white focus:ring-1 focus:ring-primary-400";
+   "-mx-1.5 w-[calc(100%+0.75rem)] rounded border-transparent bg-transparent px-1.5 shadow-none placeholder:text-gray-400 hover:border-gray-200 focus:border-primary-500 focus:bg-white focus:ring-0";
 
 function inlineField(extra: string) {
    return clsx(
       "-mx-1.5",
       "[&_input]:rounded [&_input]:border-transparent [&_input]:bg-transparent [&_input]:px-1.5 [&_input]:shadow-none [&_input]:placeholder:text-gray-400",
-      "[&_input]:hover:border-gray-200 [&_input]:focus:border-primary-400 [&_input]:focus:bg-white [&_input]:focus:ring-1 [&_input]:focus:ring-primary-400",
+      "[&_input]:hover:border-gray-200 [&_input]:focus:border-primary-500 [&_input]:focus:bg-white [&_input]:focus:ring-0",
       extra
    );
 }
