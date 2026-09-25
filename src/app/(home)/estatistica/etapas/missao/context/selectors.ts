@@ -1,6 +1,6 @@
 import { timeToMinutes } from "@/../utils/dateHandler";
 
-import { selectEspecificosValid } from "./validators";
+import { deriveFormErrors, selectEspecificosValid } from "./validators";
 import type {
    DraftAssignedTrip,
    DraftEtapa,
@@ -51,7 +51,6 @@ export function selectEtapaTotals(etapa: DraftEtapa): EtapaTotals {
 
 export function selectStatusByEtapa(etapa: DraftEtapa): DraftStatus {
    const totals = selectEtapaTotals(etapa);
-   const tvooValid = totals.tvoo > 0 && totals.tvoo % 5 === 0;
    const baseFilled =
       !!etapa.form.data &&
       etapa.form.origem.length === 4 &&
@@ -63,7 +62,10 @@ export function selectStatusByEtapa(etapa: DraftEtapa): DraftStatus {
    if (!baseFilled) {
       return etapa.serverId == null ? "rascunho" : "editando";
    }
-   if (!tvooValid || !totals.oiValid || !selectEspecificosValid(etapa))
+   // tvoo zerado ou fora do passo de 5 min tambem cai em deriveFormErrors
+   const formValid =
+      Object.keys(deriveFormErrors(etapa.form, totals.tvoo)).length === 0;
+   if (!formValid || !totals.oiValid || !selectEspecificosValid(etapa))
       return "verificar";
    return "ok";
 }

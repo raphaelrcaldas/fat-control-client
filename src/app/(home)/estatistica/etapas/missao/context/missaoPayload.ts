@@ -36,7 +36,9 @@ export function buildEtapaNested(etapa: DraftEtapa): EtapaCreateNestedPayload {
       carga: etapa.form.carga,
       comb: etapa.form.comb,
       lub: etapa.form.lub,
-      nivel: nullIfEmpty(etapa.form.nivel),
+      // o input so completa os zeros no blur; salvar com o foco nele
+      // (Ctrl+S) mandaria "15" e a API exige 3 digitos
+      nivel: nullIfEmpty(etapa.form.nivel)?.padStart(3, "0") ?? null,
       sagem: etapa.form.sagem,
       parte1: etapa.form.parte1,
       obs: nullIfEmpty(etapa.form.obs),

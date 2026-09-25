@@ -11,7 +11,7 @@ import {
 import { useAeronaves } from "@/hooks/queries/useAeronaves";
 import { useEsfAerList } from "@/hooks/queries/useEsfAer";
 import { useTiposMissao } from "@/hooks/queries/useTiposMissao";
-import { Badge, Spinner } from "flowbite-react";
+import { Badge } from "flowbite-react";
 
 import { DadosVooSection } from "./DadosVooSection";
 import { OrdensInstrucaoSection } from "./OrdensInstrucaoSection";
@@ -70,8 +70,6 @@ export function EtapaContent({ localId, showErrors }: EtapaContentProps) {
       especificos.revo.length +
       especificos.heavyCds.length;
 
-   const isLoadingExternal = loadingAnv || loadingEsfAer || loadingTiposMissao;
-
    return (
       <>
          <PreFilledBanner
@@ -79,17 +77,13 @@ export function EtapaContent({ localId, showErrors }: EtapaContentProps) {
             onDismiss={() => setBannerDismissed(true)}
          />
 
-         {isLoadingExternal && (
-            <div className="flex items-center justify-center rounded-lg border border-gray-200 bg-white py-4">
-               <Spinner size="sm" color="primary" />
-               <span className="ml-2 text-xs text-gray-500">
-                  Carregando dados auxiliares...
-               </span>
-            </div>
-         )}
-
          <EtapaSectionCard title="Dados do Voo">
-            <DadosVooSection form={form} aeronavesList={aeronavesList} />
+            <DadosVooSection
+               form={form}
+               aeronavesList={aeronavesList}
+               loadingAeronaves={loadingAnv}
+               showErrors={showErrors}
+            />
          </EtapaSectionCard>
 
          <EtapaSectionCard title="Ordens de Instrução">
@@ -98,6 +92,7 @@ export function EtapaContent({ localId, showErrors }: EtapaContentProps) {
                tvoo={form.tvoo}
                esfAerList={esfAerList}
                tiposMissaoList={tiposMissaoList}
+               loadingCatalogos={loadingEsfAer || loadingTiposMissao}
                showErrors={showErrors}
             />
          </EtapaSectionCard>

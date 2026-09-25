@@ -81,7 +81,7 @@ export function OiTempoInput({
             if (minutos !== null) setTexto(fmt(minutos));
          }}
          sizing="sm"
-         className="text-center font-mono"
+         className="font-mono [&_input]:text-center"
       />
    );
 }

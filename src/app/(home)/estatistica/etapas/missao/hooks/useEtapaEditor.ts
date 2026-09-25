@@ -26,35 +26,7 @@ import type {
    EspecificoKind,
    EtapaFormData,
 } from "../context/types";
-
-// Envelopes operacionais (mais restritos que os limites duros do banco, que
-// funcionam como rede de seguranca). Fonte unica: alimenta tanto os avisos de
-// validacao (deriveErrors) quanto os atributos min/max dos inputs, evitando
-// divergencia entre o que o campo aceita e o que a validacao acusa.
-/**
- * Janela plausivel para a data da etapa, espelhando o guard do backend
- * (`ETAPA_ANO_MIN` em `schemas/estatistica/etapa.py`). O piso acompanha o
- * resto da estatistica, que trata 2020 como inicio; o teto deixa um ano de
- * folga para planejamento.
- *
- * Sem isto o campo aceita qualquer ano de 4 digitos — um deslize de
- * digitacao ja gravou etapa no ano 0006, que some dos paineis (filtram
- * `ano >= 2020`) mas continua na listagem por janela de data.
- */
-export const DATA_MIN = "2020-01-01";
-export const DATA_MAX = `${new Date().getFullYear() + 1}-12-31`;
-
-export const FIELD_LIMITS = {
-   pousos: { min: 0, max: 20, label: "Pousos" },
-   tow: { min: 52000, max: 87000, label: "TOW" },
-   pax: { min: 0, max: 84, label: "PAX" },
-   carga: { min: 0, max: 30000, label: "Carga" },
-   comb: { min: 1, max: 32767, label: "Combustível" },
-   lub: { min: 0, max: 99.9, label: "Lubrificante" },
-} as const;
-
-type LimitKey = keyof typeof FIELD_LIMITS;
-type FormErrors = Partial<Record<keyof EtapaFormData, string>>;
+import { deriveFormErrors, type FormErrors } from "../context/validators";
 
 interface AddTripInput {
    id?: number;
@@ -69,8 +41,7 @@ export interface EtapaFormGroup {
       value: EtapaFormData[K]
    ) => void;
    tvoo: number;
-   tvooValid: boolean;
-   crossesDay: boolean;
+   /** Violacoes que travam o salvar (limites, horario, data). */
    errors: FormErrors;
 }
 
@@ -111,30 +82,6 @@ export interface UseEtapaEditorResult {
    especificos: EtapaEspecificosGroup;
 }
 
-function deriveErrors(form: EtapaFormData, crossesDay: boolean): FormErrors {
-   const errs: FormErrors = {};
-
-   if (form.dep && form.arr && crossesDay) {
-      errs.arr = "Etapa nao pode atravessar o dia. Use 00:00 como fim do dia.";
-   }
-
-   for (const key of Object.keys(FIELD_LIMITS) as LimitKey[]) {
-      const val = form[key];
-      if (val == null) continue;
-      const num = Number(val);
-      if (Number.isNaN(num)) continue;
-      const { min, max, label } = FIELD_LIMITS[key];
-      if (num < min) {
-         errs[key] = `${label} deve ser no mínimo ${min}`;
-      } else if (num > max) {
-         errs[key] =
-            `${label} deve ser no máximo ${max.toLocaleString("pt-BR")}`;
-      }
-   }
-
-   return errs;
-}
-
 export function useEtapaEditor(localId: string): UseEtapaEditorResult {
    const { defaultBordo, posicoes } = useFuncoes();
    const draft = useMissaoDraft();
@@ -160,8 +107,6 @@ export function useEtapaEditor(localId: string): UseEtapaEditorResult {
       () => calcTvoo(formData.dep, formData.arr),
       [formData.dep, formData.arr]
    );
-   const crossesDay = !!formData.dep && !!formData.arr && tvoo === 0;
-   const tvooValid = tvoo > 0 && tvoo % 5 === 0;
 
    const setField = useCallback(
       <K extends keyof EtapaFormData>(key: K, value: EtapaFormData[K]) => {
@@ -178,8 +123,8 @@ export function useEtapaEditor(localId: string): UseEtapaEditorResult {
 
    // Live errors derived from current form state
    const liveErrors = useMemo(
-      () => deriveErrors(formData, crossesDay),
-      [formData, crossesDay]
+      () => deriveFormErrors(formData, tvoo),
+      [formData, tvoo]
    );
 
    // OI totals — selectEtapaTotals encapsulates the canonical rule
@@ -333,8 +278,6 @@ export function useEtapaEditor(localId: string): UseEtapaEditorResult {
          formData,
          setField,
          tvoo,
-         tvooValid,
-         crossesDay,
          errors: liveErrors,
       },
       oi: {

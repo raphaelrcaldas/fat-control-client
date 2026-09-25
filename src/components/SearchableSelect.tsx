@@ -25,6 +25,8 @@ type SearchableSelectProps = {
    id?: string;
    /** Borda de erro (campo obrigatorio vazio, por ex.). */
    invalid?: boolean;
+   /** Opcoes ainda carregando: skeleton no lugar do texto, sem abrir. */
+   loading?: boolean;
 };
 
 export function SearchableSelect({
@@ -37,6 +39,7 @@ export function SearchableSelect({
    clearable = false,
    id,
    invalid = false,
+   loading = false,
 }: SearchableSelectProps) {
    const [isOpen, setIsOpen] = useState(false);
    const [search, setSearch] = useState("");
@@ -171,6 +174,8 @@ export function SearchableSelect({
             id={id}
             type="button"
             aria-invalid={invalid || undefined}
+            aria-busy={loading || undefined}
+            disabled={loading}
             onClick={toggleDropdown}
             style={{ transform: "translateZ(0)" }}
             /* Foco visivel so no TECLADO (`focus-visible`), nunca no clique
@@ -180,7 +185,7 @@ export function SearchableSelect({
                2px e o piso de area do WCAG 2.4.11; borda de 1px trocando de
                cor nao alcanca 3:1 entre os dois estados. */
             className={clsx(
-               "focus-visible:outline-primary-600 flex w-full cursor-pointer items-center justify-between gap-2 rounded border outline-none focus-visible:outline-[2px] focus-visible:outline-offset-[2px] focus-visible:[outline-style:solid]",
+               "focus-visible:outline-primary-600 flex w-full cursor-pointer items-center justify-between gap-2 rounded border outline-none focus-visible:outline-[2px] focus-visible:outline-offset-[2px] focus-visible:[outline-style:solid] disabled:cursor-wait",
                SIZING_CLASSES[sizing],
                invalid
                   ? "border-red-500 bg-red-50 text-red-900 hover:bg-red-100"
@@ -189,9 +194,16 @@ export function SearchableSelect({
                     : "border-gray-300 bg-white text-gray-500 hover:bg-gray-50"
             )}
          >
-            <span className="truncate">
-               {selectedOption?.label || placeholder}
-            </span>
+            {loading ? (
+               // texto transparente: mantem a altura da linha, zero shift
+               <span className="w-2/3 animate-pulse truncate rounded bg-slate-200 text-transparent">
+                  Carregando
+               </span>
+            ) : (
+               <span className="truncate">
+                  {selectedOption?.label || placeholder}
+               </span>
+            )}
             <span className="flex shrink-0 items-center gap-0.5">
                {clearable && value && (
                   <span

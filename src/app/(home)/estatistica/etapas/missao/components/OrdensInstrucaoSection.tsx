@@ -13,6 +13,8 @@ interface OrdensInstrucaoSectionProps {
    tvoo: number;
    esfAerList: Array<{ id: number; descricao: string }>;
    tiposMissaoList: Array<{ id: number; cod: string; desc: string }>;
+   /** Catalogos de esforco/tipo carregando: os selects viram skeleton. */
+   loadingCatalogos: boolean;
    /** Houve tentativa de salvar recusada: aponta os campos que faltam. */
    showErrors: boolean;
 }
@@ -40,6 +42,7 @@ export function OrdensInstrucaoSection({
    tvoo,
    esfAerList,
    tiposMissaoList,
+   loadingCatalogos,
    showErrors,
 }: OrdensInstrucaoSectionProps) {
    const { oiItems, addOiItem, removeOiItem, updateOiItem, oiTotalTvoo } = oi;
@@ -110,6 +113,7 @@ export function OrdensInstrucaoSection({
                      showErrors={showErrors}
                      esfAerList={esfAerList}
                      tiposMissaoList={tiposMissaoList}
+                     loading={loadingCatalogos}
                      onChange={(patch) => updateOiItem(item.uid, patch)}
                      onRemove={() => removeOiItem(item.uid)}
                   />
@@ -170,6 +174,7 @@ interface OiRowProps {
    showErrors: boolean;
    esfAerList: Array<{ id: number; descricao: string }>;
    tiposMissaoList: Array<{ id: number; cod: string; desc: string }>;
+   loading: boolean;
    onChange: (patch: Partial<DraftOIItem>) => void;
    onRemove: () => void;
 }
@@ -181,6 +186,7 @@ function OiRow({
    showErrors,
    esfAerList,
    tiposMissaoList,
+   loading,
    onChange,
    onRemove,
 }: OiRowProps) {
@@ -206,6 +212,7 @@ function OiRow({
                placeholder="Buscar Esforço..."
                sizing="sm"
                invalid={showErrors && !item.esf_aer_id}
+               loading={loading}
             />
          </div>
          {/* Tipo Missão */}
@@ -226,6 +233,7 @@ function OiRow({
                placeholder="Buscar Sigla..."
                sizing="sm"
                invalid={showErrors && !item.tipo_missao_id}
+               loading={loading}
             />
          </div>
          {/* Regime */}

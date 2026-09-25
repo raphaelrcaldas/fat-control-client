@@ -6,6 +6,9 @@ export const fieldLabelClass =
 
 export const errorTextClass = "mt-1 text-xs font-medium text-red-600";
 
+/** Id da mensagem de erro do campo, para o `aria-describedby` do input. */
+export const errorId = (htmlFor: string) => `${htmlFor}-erro`;
+
 interface FormFieldProps {
    label: string;
    htmlFor?: string;
@@ -34,7 +37,14 @@ export function FormField({
             {label}
          </Label>
          {children}
-         {error && <p className={errorTextClass}>{error}</p>}
+         {error && (
+            <p
+               id={htmlFor ? errorId(htmlFor) : undefined}
+               className={errorTextClass}
+            >
+               {error}
+            </p>
+         )}
          {footer}
       </div>
    );
