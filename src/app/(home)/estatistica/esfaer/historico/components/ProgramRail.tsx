@@ -18,6 +18,8 @@ const OVERFLOW_EPS = 8;
 
 interface ProgramRailProps {
    programas: HistPrograma[];
+   /** Grupos na ordem de exibição (`deriveGrupos`, a mesma dos chips Σ). */
+   grupos: string[];
    /** Cores por programa, derivadas UMA vez na página (mesma fonte do gráfico). */
    programColors: Map<number, string>;
    /** Visibilidade por programa (`esfaer_id → visível`; ausente = oculto). */
@@ -32,14 +34,16 @@ interface ProgramRailProps {
 
 /**
  * Rail lateral de programas: cabeçalho com contagem, busca (nome/descrição/
- * grupo), e lista rolável de `ProgramRow`.
+ * grupo), e lista rolável de `ProgramRow` em seções por grupo, cada uma com
+ * cabeçalho fixo (`sticky`) — o grupo sai de cada linha e vira título.
  *
- * Não força largura fixa nem altura: a page controla o grid (~330px) e o teto
- * da lista é o `max-h` — `h-full` aqui seria inerte, porque o wrapper do grid
- * não propaga altura.
+ * Altura: em `lg` o card estica até a base do grid (a página é presa à altura
+ * da janela) e a lista ocupa o que sobra (`flex-1`). Abaixo de `lg` o grid é
+ * content-sized, então o teto volta a ser o `max-h`.
  */
 export function ProgramRail({
    programas,
+   grupos,
    programColors,
    toggled,
    isolated,
@@ -58,6 +62,18 @@ export function ProgramRail({
             p.grupo.toLowerCase().includes(q)
       );
    }, [programas, q]);
+
+   /** Seções na ordem dos grupos; grupo sem programa sob a busca some. */
+   const secoes = useMemo(
+      () =>
+         grupos
+            .map((grupo) => ({
+               grupo,
+               itens: filtered.filter((p) => p.grupo === grupo),
+            }))
+            .filter((sec) => sec.itens.length > 0),
+      [grupos, filtered]
+   );
 
    /**
     * Fade no rodapé só quando ainda HÁ conteúdo abaixo. Fade incondicional
@@ -106,7 +122,7 @@ export function ProgramRail({
    }, [isolated]);
 
    return (
-      <div className="flex flex-col rounded border border-slate-200 bg-white p-4 shadow-sm">
+      <div className="flex flex-col rounded border border-slate-200 bg-white p-4 shadow-sm lg:h-full lg:min-h-0">
          <div className="flex shrink-0 items-baseline justify-between gap-2">
             <h2 className="font-mono text-[11px] font-bold tracking-[0.2em] text-slate-500 uppercase">
                {/* Sob busca a contagem é "N de M": exibir só o total mentiria
@@ -148,13 +164,13 @@ export function ProgramRail({
             )}
          </div>
 
-         {/* Teto fixo + scroll interno: o grid da página é content-sized, então
-             a lista não pode definir a altura da linha (rolaria a página toda
-             com muitos programas). */}
+         {/* Scroll interno: a lista não pode definir a altura do card (rolaria
+             a página toda com muitos programas). Em `lg` ela ocupa o resto do
+             card esticado; abaixo, o teto fixo faz esse papel. */}
          <div
             ref={listRef}
             className={clsx(
-               "mt-3 max-h-[420px] space-y-2 overflow-auto pr-1",
+               "mt-3 max-h-[420px] overflow-auto pr-1 lg:max-h-none lg:min-h-0 lg:flex-1",
                hasMore &&
                   "mask-[linear-gradient(to_bottom,black_calc(100%-24px),transparent_100%)]"
             )}
@@ -178,26 +194,54 @@ export function ProgramRail({
                   </Button>
                </div>
             ) : (
-               filtered.map((p) => {
-                  const isolatedRow = isolated === p.esfaer_id;
-                  const checked =
-                     isolated != null
-                        ? isolatedRow
-                        : toggled[p.esfaer_id] === true;
-                  const dimmed = isolated != null && !isolatedRow;
-                  const color =
-                     programColors.get(p.esfaer_id) ?? getGroupColor(p.grupo);
+               secoes.map(({ grupo, itens }) => {
+                  const grupoColor = getGroupColor(grupo);
                   return (
-                     <ProgramRow
-                        key={p.esfaer_id}
-                        programa={p}
-                        color={color}
-                        checked={checked}
-                        isolated={isolatedRow}
-                        dimmed={dimmed}
-                        onToggle={() => onTogglePrograma(p.esfaer_id)}
-                        onIsolate={() => onIsolate(p.esfaer_id)}
-                     />
+                     <section key={grupo} aria-label={`Grupo ${grupo}`}>
+                        {/* Fixo no topo enquanto a seção rola: o grupo da
+                            linha visível nunca sai de vista. Fundo opaco
+                            para as linhas passarem por baixo. */}
+                        <h3 className="sticky top-0 z-10 flex items-center gap-2 bg-white py-1.5 font-mono text-[10px] font-bold tracking-[0.2em] text-slate-600 uppercase">
+                           {/* A cor do grupo vai no marcador, não no texto: o
+                               laranja do COMPREP a 10px daria ~3,6:1 (< AA). */}
+                           <span
+                              aria-hidden
+                              className="h-2.5 w-[3px] shrink-0 rounded-full"
+                              style={{ backgroundColor: grupoColor }}
+                           />
+                           <span>{grupo}</span>
+                           <span className="h-px flex-1 bg-slate-100" />
+                           <span className="text-slate-500 tabular-nums">
+                              {itens.length}
+                           </span>
+                        </h3>
+                        <div className="space-y-0.5 pb-2">
+                           {itens.map((p) => {
+                              const isolatedRow = isolated === p.esfaer_id;
+                              const checked =
+                                 isolated != null
+                                    ? isolatedRow
+                                    : toggled[p.esfaer_id] === true;
+                              const dimmed = isolated != null && !isolatedRow;
+                              const color =
+                                 programColors.get(p.esfaer_id) ?? grupoColor;
+                              return (
+                                 <ProgramRow
+                                    key={p.esfaer_id}
+                                    programa={p}
+                                    color={color}
+                                    checked={checked}
+                                    isolated={isolatedRow}
+                                    dimmed={dimmed}
+                                    onToggle={() =>
+                                       onTogglePrograma(p.esfaer_id)
+                                    }
+                                    onIsolate={() => onIsolate(p.esfaer_id)}
+                                 />
+                              );
+                           })}
+                        </div>
+                     </section>
                   );
                })
             )}

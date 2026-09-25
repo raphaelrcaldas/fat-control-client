@@ -12,22 +12,30 @@
  * - Visibilidade/cores 100% DECLARATIVAS — vêm de `useHistoricoSeries` em
  *   lockstep posicional (series[i] ↔ colors[i] ↔ dashArray[i] ↔ meta[i]).
  *   Nada de `showSeries/hideSeries` imperativo.
- * - Alturas FIXAS (main + brush). Não derivar a altura do container: o
- *   ApexCharts aplica `minHeight = altura + parentHeightOffset` (15px) no div
- *   externo, então medir o container content-sized e realimentar a altura do
- *   chart cresce ~30px por ciclo do ResizeObserver — loop infinito no mobile.
+ * - Altura do principal em `%` do wrapper, e o wrapper tem altura dada pelo
+ *   LAYOUT, nunca pelo conteúdo: fixa (330px) abaixo de `lg`; em `lg`, o resto
+ *   do card numa página presa à altura da janela. Com altura em `%` o Apex não
+ *   aplica o `minHeight = altura + parentHeightOffset` no div externo — era ele
+ *   que, com a altura medida de um container content-sized, crescia ~30px por
+ *   ciclo do ResizeObserver (loop infinito no mobile). O brush segue fixo.
  * - Brush SEMPRE plota o Total do backend, independente da visibilidade — é
  *   contexto de navegação, não uma série toggleável.
  * - Único ponto imperativo: `resetZoom()` exposto via ref (a toolbar chama).
  */
 
-import { useImperativeHandle, useMemo, type Ref } from "react";
+import { useImperativeHandle, useMemo, type ReactNode, type Ref } from "react";
 import Chart from "react-apexcharts";
 import ApexChartsLib from "apexcharts";
 import { Button } from "flowbite-react";
 import { minutesToTime } from "@/../utils/dateHandler";
 import { TOTAL_COLOR } from "../constants";
-import { deriveEndData, epochOf, toApexData, type ApexSeries } from "../utils";
+import {
+   deriveEndData,
+   epochOf,
+   escalaY,
+   toApexData,
+   type ApexSeries,
+} from "../utils";
 import {
    useHistoricoSeries,
    type HistoricoVisibility,
@@ -42,8 +50,16 @@ import { ChartHeader } from "./ChartHeader";
 const MAIN_ID = "hist-main";
 const BRUSH_ID = "hist-brush";
 
-const MAIN_HEIGHT = 330;
 const BRUSH_HEIGHT = 78;
+
+/**
+ * Wrapper do gráfico principal: a altura vem daqui (o Apex usa `height="100%"`
+ * do pai) — 330px abaixo de `lg`; em `lg`, o resto do card. `overflow-hidden`
+ * + `min-h-0` garantem que o conteúdo nunca empurre o wrapper — é o que mantém
+ * o `%` longe do loop de realimentação. O vazio sem séries (`h-[423px]`) cobre
+ * o principal + o brush (78px + os 15px de respiro que o Apex soma a ele).
+ */
+const MAIN_WRAPPER = "h-[330px] overflow-hidden lg:h-auto lg:min-h-0 lg:flex-1";
 
 /** Handle imperativo exposto à toolbar (ex.: botão "Ver ano todo"). */
 export interface HistoricoChartHandle {
@@ -53,6 +69,8 @@ export interface HistoricoChartHandle {
 
 export interface HistoricoChartProps {
    ref?: Ref<HistoricoChartHandle>;
+   /** Controles das séries (Total/Σ grupos/zoom), no topo do card. */
+   toolbar: ReactNode;
    historico: EsfAerHistorico;
    visibility: HistoricoVisibility;
    /** Derivados compartilhados da página (mesma fonte do rail). */
@@ -66,6 +84,7 @@ export interface HistoricoChartProps {
 
 export function HistoricoChart({
    ref,
+   toolbar,
    historico,
    visibility,
    carry,
@@ -108,13 +127,13 @@ export function HistoricoChart({
       [yearStart, domainMax]
    );
 
-   // Teto do eixo Y derivado das séries visíveis (com folga de 10%).
-   const yMax = useMemo(() => {
+   // Escala do eixo Y derivada das séries visíveis, em passos redondos.
+   const yEscala = useMemo(() => {
       let max = 0;
       for (const s of series) {
          for (const p of s.data) if (p.y > max) max = p.y;
       }
-      return max > 0 ? Math.round(max * 1.1) : 60;
+      return escalaY(max);
    }, [series]);
 
    /**
@@ -151,6 +170,9 @@ export function HistoricoChart({
          chart: {
             id: MAIN_ID,
             type: "line",
+            // Altura em `%`: o respiro de 15px no topo não se aplica, e a
+            // área útil é a do wrapper inteiro.
+            parentHeightOffset: 0,
             fontFamily: "Inter, sans-serif",
             animations: { enabled: false },
             toolbar: { show: false },
@@ -186,8 +208,8 @@ export function HistoricoChart({
          },
          yaxis: {
             min: 0,
-            max: yMax,
-            tickAmount: 5,
+            max: yEscala.max,
+            tickAmount: yEscala.divisoes,
             labels: {
                style: { colors: "#64748b", fontSize: "11px" },
                formatter: (v: number) => minutesToTime(Math.round(v)),
@@ -213,7 +235,7 @@ export function HistoricoChart({
          meta,
          yearStart,
          domainMax,
-         yMax,
+         yEscala,
       ]
    );
 
@@ -293,7 +315,9 @@ export function HistoricoChart({
    const hasSeries = series.length > 0;
 
    return (
-      <div className="flex flex-col rounded border border-slate-200 bg-white p-4 shadow-sm">
+      <div className="flex flex-col gap-3 rounded border border-slate-200 bg-white p-4 shadow-sm lg:h-full">
+         {toolbar}
+
          <ChartHeader
             readouts={readouts}
             excedente={excedente}
@@ -301,38 +325,36 @@ export function HistoricoChart({
             onClearIsolated={onClearIsolated}
          />
 
-         <div>
-            {hasSeries ? (
-               <>
+         {hasSeries ? (
+            <div className="flex flex-col lg:min-h-0 lg:flex-1">
+               <div className={MAIN_WRAPPER}>
                   <Chart
                      options={options}
                      series={series}
                      type="line"
-                     height={MAIN_HEIGHT}
+                     height="100%"
                   />
+               </div>
+               <div className="shrink-0">
                   <Chart
                      options={brushOptions}
                      series={brushSeries}
                      type="area"
                      height={BRUSH_HEIGHT}
                   />
-               </>
-            ) : (
-               /* Beco sem saída se for só texto: o usuário precisa deduzir
+               </div>
+            </div>
+         ) : (
+            /* Beco sem saída se for só texto: o usuário precisa deduzir
                   onde clicar para recuperar o gráfico. O botão devolve o
                   default da tela em um clique. */
-               <div
-                  className="flex flex-col items-center justify-center gap-3 text-sm text-slate-500"
-                  style={{ height: MAIN_HEIGHT + BRUSH_HEIGHT }}
-               >
-                  Nenhuma série visível — ative o Total, um grupo ou um
-                  programa.
-                  <Button color="light" size="xs" onClick={onResetVisibility}>
-                     Mostrar o Total
-                  </Button>
-               </div>
-            )}
-         </div>
+            <div className="flex h-[423px] flex-col items-center justify-center gap-3 text-sm text-slate-500 lg:h-auto lg:min-h-0 lg:flex-1">
+               Nenhuma série visível — ative o Total, um grupo ou um programa.
+               <Button color="light" size="xs" onClick={onResetVisibility}>
+                  Mostrar o Total
+               </Button>
+            </div>
+         )}
       </div>
    );
 }

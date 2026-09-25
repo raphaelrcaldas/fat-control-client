@@ -67,19 +67,6 @@ export function toApexData(
 }
 
 /**
- * Último Δ de uma timeline, em MINUTOS (timeline vazia → 0).
- *
- * NÃO zere o primeiro ponto: o backend calcula `delta` contra o valor vigente
- * ANTES da primeira mudança (`_to_hist_points`, com `valor_inicial`), que não é
- * zero. Tratar "1 ponto" como criação a partir do nada apagaria uma variação
- * real — e fazia o rail e a leitura do gráfico mostrarem números diferentes
- * para a MESMA série.
- */
-export function ultimoDelta(timeline: HistPoint[]): number {
-   return timeline.length > 0 ? timeline[timeline.length - 1].delta : 0;
-}
-
-/**
  * Data ISO do fim do domínio: a ÚLTIMA data de mudança conhecida no ano,
  * tomada como o máximo entre o último ponto do Total e o último ponto de
  * qualquer programa.
@@ -105,6 +92,31 @@ export function deriveEndData(historico: EsfAerHistorico): string {
    }
 
    return ultima || `${historico.ano_ref}-01-01`;
+}
+
+/** Passos de marcação do eixo Y, em HORAS — sempre números redondos. */
+const PASSOS_HORAS = [1, 2, 5, 10, 25, 50, 100, 250, 500, 1000, 2500];
+
+/** Teto de divisões do eixo Y (5 faixas = 6 marcas, contando o zero). */
+const MAX_DIVISOES = 5;
+
+/**
+ * Escala "redonda" do eixo Y para um máximo em MINUTOS: o menor passo de
+ * `PASSOS_HORAS` que cobre o máximo (com ~2% de folga, p/ a linha não colar no
+ * topo) em até `MAX_DIVISOES` faixas. Devolve o teto e o número de divisões
+ * para o Apex (`max` + `tickAmount`) — as marcas caem em 250:00, 500:00…
+ * em vez de frações de "máximo + 10%" (247:30, 495:00…).
+ */
+export function escalaY(maxMin: number): { max: number; divisoes: number } {
+   const alvo = Math.max(maxMin, 1) * 1.02;
+   for (const horas of PASSOS_HORAS) {
+      const passo = horas * 60;
+      const divisoes = Math.ceil(alvo / passo);
+      if (divisoes <= MAX_DIVISOES) return { max: divisoes * passo, divisoes };
+   }
+   const passo = PASSOS_HORAS[PASSOS_HORAS.length - 1] * 60;
+   const divisoes = Math.ceil(alvo / passo);
+   return { max: divisoes * passo, divisoes };
 }
 
 /**
@@ -172,6 +184,11 @@ export interface ChangeMeta {
    delta: number;
    /** Primeiro ponto E partindo do zero — criação de fato. */
    criacao: boolean;
+   /**
+    * Primeiro ponto sem variação (Δ 0): o valor já vigente quando a série
+    * começa (âncora de 1º/jan no backend). Não há anterior para comparar.
+    */
+   base: boolean;
    /** Ponto sintético "vigente · sem mudança" até a última atualização. */
    carry: boolean;
    /** Data ISO "YYYY-MM-DD" (última atualização do ano no ponto `carry`). */
@@ -200,12 +217,15 @@ export function buildChangeMeta(
       // ponto (um programa que foi de 100h para 120h aparecia como
       // "criação · 00:00 → 120:00", contra o "+20:00" que o rail mostrava).
       const from = ponto.alocado - ponto.delta;
+      const base = i === 0 && ponto.delta === 0;
       return {
          from,
          to: ponto.alocado,
          delta: ponto.delta,
-         // Só é criação se o valor realmente partiu do zero.
-         criacao: i === 0 && from === 0,
+         // Só é criação se o valor realmente partiu do zero — e mudou (um
+         // programa ancorado em 00:00 é base, não "criação · 0 → 0").
+         criacao: i === 0 && from === 0 && !base,
+         base,
          carry: false,
          data: ponto.data,
       };
@@ -218,10 +238,76 @@ export function buildChangeMeta(
          to: last.alocado,
          delta: 0,
          criacao: false,
+         base: false,
          carry: true,
          data: endData,
       });
    }
 
    return meta;
+}
+
+/** Natureza de uma linha do extrato — define o que as colunas mostram. */
+export type ExtratoTipo = "base" | "criacao" | "alteracao";
+
+/** Uma linha do extrato: um ponto da timeline de um programa. */
+export interface ExtratoLinha {
+   /** Chave estável de render (`esfaer_id` + data). */
+   key: string;
+   /** Data ISO "YYYY-MM-DD" do lançamento. */
+   data: string;
+   esfaer_id: number;
+   nome: string;
+   grupo: string;
+   /** Alocado antes do lançamento, em MINUTOS — `null` na base (nada antes). */
+   anterior: number | null;
+   /** Alocado depois do lançamento, em MINUTOS. */
+   novo: number;
+   /** `novo - anterior`, em MINUTOS — `null` na base. */
+   variacao: number | null;
+   tipo: ExtratoTipo;
+}
+
+/**
+ * Extrato cronológico das alterações de um conjunto de programas, em ordem de
+ * data (e de nome, na mesma data).
+ *
+ * O 1º ponto de cada programa é `base` quando não houve mudança (Δ 0 — já
+ * valia em 1º/jan, sem anterior a comparar) ou `criacao` quando partiu de
+ * zero (entra como `0 → novo`, com a variação cheia); os demais são
+ * `alteracao`, com `anterior = alocado - delta`.
+ */
+export function buildExtrato(programas: HistPrograma[]): ExtratoLinha[] {
+   const linhas: ExtratoLinha[] = [];
+
+   for (const p of programas) {
+      p.timeline.forEach((ponto, i) => {
+         const from = ponto.alocado - ponto.delta;
+         const tipo: ExtratoTipo =
+            i === 0 && ponto.delta === 0
+               ? "base"
+               : i === 0 && from === 0
+                 ? "criacao"
+                 : "alteracao";
+
+         linhas.push({
+            key: `${p.esfaer_id}:${ponto.data}`,
+            data: ponto.data,
+            esfaer_id: p.esfaer_id,
+            nome: p.nome,
+            grupo: p.grupo,
+            anterior: tipo === "base" ? null : from,
+            novo: ponto.alocado,
+            variacao: tipo === "base" ? null : ponto.delta,
+            tipo,
+         });
+      });
+   }
+
+   linhas.sort(
+      (a, b) =>
+         a.data.localeCompare(b.data) || a.nome.localeCompare(b.nome, "pt-BR")
+   );
+
+   return linhas;
 }

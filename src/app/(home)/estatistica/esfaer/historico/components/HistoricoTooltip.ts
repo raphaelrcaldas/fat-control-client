@@ -59,7 +59,9 @@ function deltaLine(delta: number): string {
  *
  * - `carry`   → "vigente HH:mm · sem mudança" (degrau estendido até a última
  *   atualização do ano — ver `deriveEndData`, NÃO até 31/dez).
- * - `criacao` → "criação · 0 → HH:mm" + linha verde de aumento.
+ * - `base`    → "alocado HH:mm", sem delta (1º ponto, nada a comparar).
+ * - `criacao` → "criação · alocado HH:mm", também sem delta: o "+HH:mm" só
+ *   repetiria o próprio valor.
  * - caso geral → "HH:mm → HH:mm" + linha de delta (verde/vermelho).
  */
 export function buildTooltipHTML(name: string, m: ChangeMeta): string {
@@ -72,10 +74,10 @@ export function buildTooltipHTML(name: string, m: ChangeMeta): string {
    let body: string;
    if (m.carry) {
       body = `<div style="font-size:12px;color:#475569">vigente ${hhmm(m.to)} · <span style="color:#64748b">sem mudança</span></div>`;
+   } else if (m.base) {
+      body = `<div style="font-size:12px;color:#475569">alocado ${hhmm(m.to)}</div>`;
    } else if (m.criacao) {
-      body =
-         `<div style="font-size:12px;color:#475569">criação · ${hhmm(0)} → ${hhmm(m.to)}</div>` +
-         deltaLine(m.delta);
+      body = `<div style="font-size:12px;color:#475569">criação · alocado ${hhmm(m.to)}</div>`;
    } else {
       body =
          `<div style="font-size:12px;color:#475569">${hhmm(m.from)} → ${hhmm(m.to)}</div>` +

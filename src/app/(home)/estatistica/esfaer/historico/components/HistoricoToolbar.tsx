@@ -2,8 +2,7 @@
 
 import clsx from "clsx";
 import { Button } from "flowbite-react";
-import { TbEraser, TbZoomReset } from "react-icons/tb";
-import { minutesToTime } from "@/../utils/dateHandler";
+import { TbEraser, TbFileText, TbZoomReset } from "react-icons/tb";
 import { getGroupColor, TOTAL_COLOR } from "../constants";
 
 /** Base comum dos chips-legenda (Total e Σ grupos): mesmo shape e ritmo. */
@@ -26,19 +25,25 @@ interface HistoricoToolbarProps {
    /** Visibilidade de cada série Σ por grupo (ausente = oculto). */
    groups: Record<string, boolean>;
    onToggleGroup: (g: string) => void;
-   /** Soma do `atual` (minutos) por grupo, exibida em cada chip Σ. */
-   somaAtualPorGrupo: Record<string, number>;
    /** Restaura o eixo X para o ano inteiro (limpa o zoom do brush). */
    onResetZoom: () => void;
    /** Volta a visibilidade ao default da tela (só o Total). */
    onResetVisibility: () => void;
    /** Há seleção além do default — desabilita a ação quando não há. */
    hasSelection: boolean;
+   /** Programas no gráfico — o que o extrato vai listar (0 = desabilitado). */
+   extratoCount: number;
+   onOpenExtrato: () => void;
 }
 
 /**
  * Faixa de controles do histórico: chip "Total" (toggle), chips "Σ <grupo>"
- * (toggle + somatório atual; grupos DERIVADOS dos dados) e ação "ver ano todo".
+ * (toggle; grupos DERIVADOS dos dados — o somatório fica na leitura do
+ * gráfico, que aparece quando o grupo é ligado) e ação "ver ano todo".
+ *
+ * Mora DENTRO do card do gráfico (slot `toolbar` de `HistoricoChart`), não num
+ * card próprio: tudo aqui só age sobre o gráfico, e a faixa separada custava
+ * uma borda e ~50px de altura entre o masthead e o conteúdo.
  *
  * Estilo sóbrio (legenda-toggle): mesmo shape para todos. ON aplica uma tinta
  * suave da própria cor da série (Total = slate; grupos = cor do grupo, via
@@ -52,13 +57,14 @@ export function HistoricoToolbar({
    grupos,
    groups,
    onToggleGroup,
-   somaAtualPorGrupo,
    onResetZoom,
    onResetVisibility,
    hasSelection,
+   extratoCount,
+   onOpenExtrato,
 }: HistoricoToolbarProps) {
    return (
-      <div className="flex flex-wrap items-center gap-2 rounded border border-slate-200 bg-white px-4 py-2 shadow-sm">
+      <div className="flex flex-wrap items-center gap-2 border-b border-slate-100 pb-3">
          {/* Total — linha sólida (peso neutro-escuro quando ON). */}
          <button
             type="button"
@@ -117,14 +123,6 @@ export function HistoricoToolbar({
                      style={{ borderColor: on ? color : "#cbd5e1" }}
                   />
                   <span>Σ {g}</span>
-                  <span
-                     className={clsx(
-                        "font-mono text-xs tabular-nums",
-                        !on && "text-slate-500"
-                     )}
-                  >
-                     {minutesToTime(somaAtualPorGrupo[g])}
-                  </span>
                </button>
             );
          })}
@@ -141,6 +139,23 @@ export function HistoricoToolbar({
                   Limpar seleção
                </Button>
             )}
+
+            {/* Sempre presente (não some como "Limpar seleção"): o botão
+                desabilitado ensina que o extrato sai da seleção do rail. */}
+            <Button
+               color="light"
+               size="xs"
+               onClick={onOpenExtrato}
+               disabled={extratoCount === 0}
+               title={
+                  extratoCount === 0
+                     ? "Marque programas no rail para ver o extrato"
+                     : undefined
+               }
+            >
+               <TbFileText className="mr-1.5 h-3.5 w-3.5" />
+               Extrato{extratoCount > 0 && ` (${extratoCount})`}
+            </Button>
 
             <Button color="light" size="xs" onClick={onResetZoom}>
                <TbZoomReset className="mr-1.5 h-3.5 w-3.5" />

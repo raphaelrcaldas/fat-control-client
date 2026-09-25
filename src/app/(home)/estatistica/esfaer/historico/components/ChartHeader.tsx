@@ -24,7 +24,7 @@ export function ChartHeader({
    onClearIsolated,
 }: ChartHeaderProps) {
    return (
-      <div className="mb-2 flex flex-wrap items-center justify-between gap-x-4 gap-y-1">
+      <div className="flex shrink-0 flex-wrap items-center justify-between gap-x-4 gap-y-1">
          {/* Heading de verdade fica no `sr-only`: um h2 cujo texto acessível
              fosse a lista de números seria inútil para navegação. As leituras
              mudam a cada toggle, então vão num live region educado. */}
@@ -41,8 +41,8 @@ export function ChartHeader({
                      label={r.label}
                      color={r.color}
                      atual={r.atual}
-                     delta={r.delta}
                      dashed={r.dashed}
+                     destaque={r.key === "total"}
                   />
                ))
             ) : (

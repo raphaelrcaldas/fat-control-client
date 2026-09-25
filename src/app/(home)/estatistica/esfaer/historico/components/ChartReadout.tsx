@@ -2,11 +2,11 @@
 
 import clsx from "clsx";
 import { minutesToTime } from "@/../utils/dateHandler";
-import { formatSignedMinutes } from "../../utils";
 
 /**
- * Leitura de uma série ativa no gráfico: dot da cor da série, rótulo, alocado
- * vigente e último Δ.
+ * Leitura de uma série ativa no gráfico: dot da cor da série, rótulo e alocado
+ * vigente. Sem Δ: a variação fica no tooltip, junto da data e do valor
+ * anterior que lhe dão sentido.
  *
  * O chip da toolbar é CONTROLE (liga/desliga) e continua só com o rótulo; a
  * leitura numérica mora aqui, junto do gráfico que ela descreve — a mesma
@@ -20,18 +20,21 @@ export interface ChartReadoutProps {
    color: string;
    /** Alocado vigente, em MINUTOS. */
    atual: number;
-   /** Último Δ da série, em MINUTOS (0 = neutro). */
-   delta: number;
    /** Série tracejada no gráfico (Σ de grupo) — o dot vira anel. */
    dashed?: boolean;
+   /**
+    * Leitura principal da tela (o Total da unidade): valor maior, para ser o
+    * primeiro número que o olho encontra acima do gráfico.
+    */
+   destaque?: boolean;
 }
 
 export function ChartReadout({
    label,
    color,
    atual,
-   delta,
    dashed = false,
+   destaque = false,
 }: ChartReadoutProps) {
    return (
       <span className="inline-flex items-baseline gap-1.5">
@@ -48,28 +51,13 @@ export function ChartReadout({
          <span className="text-xs font-semibold tracking-wide text-slate-600 uppercase">
             {label}
          </span>
-         <span className="font-mono text-xs font-semibold text-slate-900 tabular-nums">
-            {minutesToTime(atual)}
-         </span>
          <span
             className={clsx(
-               "font-mono text-[11px] tabular-nums",
-               delta === 0
-                  ? "text-slate-500"
-                  : delta > 0
-                    ? "text-green-700"
-                    : "text-red-700"
+               "font-mono font-semibold text-slate-900 tabular-nums",
+               destaque ? "text-lg leading-none font-bold" : "text-xs"
             )}
-            // Δ zero é ambíguo: pode ser "nunca houve mudança" ou mudanças
-            // opostas na MESMA data, que se anulam. Sem saber qual, o title
-            // afirma só o que é certo — o valor não mudou.
-            title={
-               delta === 0
-                  ? `${label}: sem variação`
-                  : `${label}: última variação de ${formatSignedMinutes(delta)}`
-            }
          >
-            {formatSignedMinutes(delta)}
+            {minutesToTime(atual)}
          </span>
       </span>
    );

@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef } from "react";
+import { useMemo, useRef, useState } from "react";
 import clsx from "clsx";
 import { Button } from "flowbite-react";
 import { useEsfAerHistorico } from "@/hooks/queries/useEsfAer";
@@ -18,9 +18,19 @@ import {
    type HistoricoChartHandle,
 } from "./components/HistoricoChart";
 import { ProgramRail } from "./components/ProgramRail";
+import { ExtratoModal } from "./components/ExtratoModal";
 import type { HistPrograma } from "services/routes/estatistica/esfAer";
 
 const EMPTY_PROGRAMAS: HistPrograma[] = [];
+
+// Altura explícita só a partir de `lg` — mesma régua de `relatorios-voo` e
+// `ops/indisp`: o pai (`PageTransition`) só tem `min-h-full`, então sem isto o
+// gráfico e o rail não teriam de onde herdar altura. É a altura da JANELA, não
+// do conteúdo — por isso o gráfico pode crescer sem o loop do ApexCharts (ver
+// `HistoricoChart`). Abaixo de `lg` volta ao fluxo natural, com alturas fixas.
+// O `min-h` segura um piso em janela baixa: abaixo dele a página rola.
+const ALTURA_PAGINA =
+   "flex min-h-0 flex-col space-y-2 lg:h-[calc(100dvh-5rem)] lg:min-h-[600px] lg:overflow-hidden";
 
 export default function HistoricoEsfAerPage() {
    // Filtros espelhados na URL (compartilhável): ano de referência + busca.
@@ -52,11 +62,24 @@ export default function HistoricoEsfAerPage() {
       [programas]
    );
 
+   // Programas no gráfico, na ordem da resposta — a mesma regra de
+   // `useHistoricoSeries`: no modo isolado só o isolado, senão os marcados.
+   const selecionados = useMemo(
+      () =>
+         programas.filter((p) =>
+            visibility.isolated !== null
+               ? p.esfaer_id === visibility.isolated
+               : visibility.toggled[p.esfaer_id] === true
+         ),
+      [programas, visibility.isolated, visibility.toggled]
+   );
+   const [extratoAberto, setExtratoAberto] = useState(false);
+
    const chartRef = useRef<HistoricoChartHandle>(null);
    const onResetZoom = () => chartRef.current?.resetZoom();
 
    return (
-      <div className="space-y-2">
+      <div className={ALTURA_PAGINA}>
          <HistoricoHeader anoRef={anoRef} onAnoRefChange={setAnoRef} />
 
          {isLoading ? (
@@ -106,55 +129,63 @@ export default function HistoricoEsfAerPage() {
                   </div>
                )}
 
+               {/* Em `lg` o grid ocupa o resto da altura da página e a linha
+                   única (`minmax(0,1fr)`) estica os dois cards até a mesma
+                   base. Abaixo de `lg`, content-sized com alturas fixas. */}
                <div
                   className={clsx(
-                     "space-y-2 transition-opacity duration-200",
+                     "grid grid-cols-1 gap-2 transition-opacity duration-200 lg:min-h-0 lg:flex-1 lg:grid-cols-[minmax(0,1fr)_330px] lg:grid-rows-[minmax(0,1fr)]",
                      isRefetching && "pointer-events-none opacity-50"
                   )}
                >
-                  <HistoricoToolbar
-                     totalVisible={visibility.totalVisible}
-                     onToggleTotal={onToggleTotal}
-                     grupos={carry.grupos}
-                     groups={visibility.groups}
-                     onToggleGroup={onToggleGroup}
-                     somaAtualPorGrupo={carry.somaAtualPorGrupo}
-                     onResetZoom={onResetZoom}
-                     onResetVisibility={onResetVisibility}
-                     hasSelection={hasSelection}
-                  />
+                  <div className="min-w-0 lg:min-h-0">
+                     <HistoricoChart
+                        ref={chartRef}
+                        toolbar={
+                           <HistoricoToolbar
+                              totalVisible={visibility.totalVisible}
+                              onToggleTotal={onToggleTotal}
+                              grupos={carry.grupos}
+                              groups={visibility.groups}
+                              onToggleGroup={onToggleGroup}
+                              onResetZoom={onResetZoom}
+                              onResetVisibility={onResetVisibility}
+                              hasSelection={hasSelection}
+                              extratoCount={selecionados.length}
+                              onOpenExtrato={() => setExtratoAberto(true)}
+                           />
+                        }
+                        historico={data}
+                        visibility={visibility}
+                        carry={carry}
+                        programColors={programColors}
+                        onClearIsolated={onClearIsolated}
+                        onResetVisibility={onResetVisibility}
+                     />
+                  </div>
 
-                  {/* Grid content-sized: alturas fixas no chart e `max-h` na
-                      lista do rail — nada de medir viewport/container (já
-                      causou loop de crescimento infinito com o ResizeObserver
-                      + ApexCharts). */}
-                  <div className="grid grid-cols-1 gap-2 lg:grid-cols-[minmax(0,1fr)_330px]">
-                     <div className="min-w-0">
-                        <HistoricoChart
-                           ref={chartRef}
-                           historico={data}
-                           visibility={visibility}
-                           carry={carry}
-                           programColors={programColors}
-                           onClearIsolated={onClearIsolated}
-                           onResetVisibility={onResetVisibility}
-                        />
-                     </div>
-
-                     <div className="min-w-0">
-                        <ProgramRail
-                           programas={programas}
-                           programColors={programColors}
-                           toggled={visibility.toggled}
-                           isolated={visibility.isolated}
-                           query={query}
-                           onQueryChange={setQuery}
-                           onTogglePrograma={onTogglePrograma}
-                           onIsolate={onIsolate}
-                        />
-                     </div>
+                  <div className="min-w-0 lg:min-h-0">
+                     <ProgramRail
+                        programas={programas}
+                        grupos={carry.grupos}
+                        programColors={programColors}
+                        toggled={visibility.toggled}
+                        isolated={visibility.isolated}
+                        query={query}
+                        onQueryChange={setQuery}
+                        onTogglePrograma={onTogglePrograma}
+                        onIsolate={onIsolate}
+                     />
                   </div>
                </div>
+
+               <ExtratoModal
+                  show={extratoAberto}
+                  onClose={() => setExtratoAberto(false)}
+                  anoRef={data.ano_ref}
+                  programas={selecionados}
+                  programColors={programColors}
+               />
             </>
          )}
       </div>

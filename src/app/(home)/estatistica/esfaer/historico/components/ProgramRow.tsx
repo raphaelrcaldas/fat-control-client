@@ -3,9 +3,6 @@
 import clsx from "clsx";
 import { Checkbox } from "flowbite-react";
 import { minutesToTime } from "@/../utils/dateHandler";
-import { formatSignedMinutes } from "../../utils";
-import { ultimoDelta } from "../utils";
-import { getGroupColor } from "../constants";
 import type { HistPrograma } from "services/routes/estatistica/esfAer";
 
 interface ProgramRowProps {
@@ -24,10 +21,12 @@ interface ProgramRowProps {
 }
 
 /**
- * Linha do rail de programas: checkbox de visibilidade + dot de cor + nome
- * (clicável p/ isolar) com badge do grupo, e à direita o alocado atual + o
- * último Δ da timeline (verde se positivo, vermelho se negativo, cinza se
- * criação/zero).
+ * Linha do rail de programas, numa linha só: checkbox de visibilidade + dot de
+ * cor + nome (clicável p/ isolar) e, à direita, o alocado atual. O Δ fica
+ * só no tooltip do gráfico, onde tem data e valor anterior para dar sentido.
+ *
+ * O grupo NÃO se repete por linha: o rail agrupa por seção, com o grupo no
+ * cabeçalho — o selo em cada uma das ~57 linhas dobrava a altura delas.
  */
 export function ProgramRow({
    programa,
@@ -38,32 +37,25 @@ export function ProgramRow({
    onToggle,
    onIsolate,
 }: ProgramRowProps) {
-   const { nome, descricao, grupo, atual, timeline } = programa;
-   const grupoColor = getGroupColor(grupo);
+   const { nome, descricao, atual } = programa;
 
-   // Último Δ da timeline — o do backend, sem tratar "1 ponto" como criação
-   // (ver `ultimoDelta`): o gráfico lê a mesma fonte, e os dois precisam
-   // mostrar o mesmo número para a mesma série.
-   const delta = ultimoDelta(timeline);
-   // Tons -500/-700: a 10.5px, `slate-400` (2.56:1) e `green-600` (3.30:1)
-   // reprovavam AA — medido pelo axe na tela renderizada, não estimado.
-   const deltaColor =
-      delta === 0
-         ? "text-slate-500"
-         : delta > 0
-           ? "text-green-700"
-           : "text-red-700";
+   // Programa sem hora alocada hoje: fica na lista (tem histórico), mas cede o
+   // peso visual para os que estão valendo. `slate-500`, não mais claro: o
+   // texto continua legível (AA), só deixa de competir.
+   const zerado = atual === 0;
 
    return (
       <div
          data-esfaer-id={programa.esfaer_id}
          className={clsx(
-            "flex items-center gap-3 rounded border px-3 py-2 transition-opacity",
+            // `scroll-mt-8`: o `scrollIntoView` do isolado não pode deixar a
+            // linha escondida atrás do cabeçalho fixo da seção.
+            "flex scroll-mt-8 items-center gap-2 rounded border py-1 pr-2 pl-1 transition-opacity",
             // O isolado precisa de tinta PRÓPRIA: `dimmed` cai nos OUTROS, de
             // modo que sem isto a linha em foco fica idêntica a uma normal —
             // e, com o rail rolado, o usuário vê várias linhas apagadas e
             // nenhuma acesa. Ring na cor da série amarra a linha ao gráfico.
-            isolated ? "bg-slate-50" : "border-slate-200 bg-white",
+            isolated ? "bg-slate-50" : "border-transparent hover:bg-slate-50",
             dimmed && "opacity-45"
          )}
          // Borda na cor da própria série (não numa cor de realce fixa): amarra
@@ -75,13 +67,17 @@ export function ProgramRow({
                : undefined
          }
       >
-         <Checkbox
-            color="primary"
-            checked={checked}
-            onChange={onToggle}
-            aria-label={`Alternar visibilidade de ${nome}`}
-            className="shrink-0 cursor-pointer"
-         />
+         {/* O checkbox tem 14px; o alvo de 24px é o `label` que o abraça
+             (cresce o elemento da linha, não um halo — ver regra de alvos). */}
+         <label className="flex h-[24px] w-[24px] shrink-0 cursor-pointer items-center justify-center">
+            <Checkbox
+               color="primary"
+               checked={checked}
+               onChange={onToggle}
+               aria-label={`Alternar visibilidade de ${nome}`}
+               className="cursor-pointer"
+            />
+         </label>
 
          <span
             aria-hidden
@@ -95,32 +91,22 @@ export function ProgramRow({
             title={descricao}
             aria-pressed={isolated}
             aria-label={`Isolar ${nome} no gráfico`}
-            className="min-w-0 flex-1 text-left"
+            className={clsx(
+               "min-w-0 flex-1 truncate text-left text-sm font-semibold",
+               zerado ? "text-slate-500" : "text-slate-900"
+            )}
          >
-            <span className="block truncate text-sm font-semibold text-slate-900">
-               {nome}
-            </span>
-            <span
-               className="mt-0.5 inline-block rounded px-1.5 py-0.5 text-[10px] font-bold tracking-wide uppercase"
-               style={{ color: grupoColor, backgroundColor: `${grupoColor}14` }}
-            >
-               {grupo}
-            </span>
+            {nome}
          </button>
 
-         <div className="shrink-0 text-right">
-            <span className="block font-mono text-sm font-semibold text-slate-900 tabular-nums">
-               {minutesToTime(atual)}
-            </span>
-            <span
-               className={clsx(
-                  "block font-mono text-xs tabular-nums",
-                  deltaColor
-               )}
-            >
-               {formatSignedMinutes(delta)}
-            </span>
-         </div>
+         <span
+            className={clsx(
+               "shrink-0 font-mono text-sm font-semibold tabular-nums",
+               zerado ? "text-slate-500" : "text-slate-900"
+            )}
+         >
+            {minutesToTime(atual)}
+         </span>
       </div>
    );
 }

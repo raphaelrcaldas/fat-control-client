@@ -1,6 +1,5 @@
 import { useMemo } from "react";
 import { getGroupColor, TOTAL_COLOR } from "../constants";
-import { ultimoDelta } from "../utils";
 import type { CarryForward } from "./useCarryForward";
 import type { HistoricoVisibility } from "./useHistoricoSeries";
 import type { EsfAerHistorico } from "services/routes/estatistica/esfAer";
@@ -16,8 +15,6 @@ export interface Readout {
    color: string;
    /** Alocado vigente, em MINUTOS. */
    atual: number;
-   /** Último Δ da série, em MINUTOS. */
-   delta: number;
    /** Série tracejada no gráfico (Σ de grupo). */
    dashed?: boolean;
 }
@@ -30,12 +27,11 @@ export interface ChartReadouts {
 }
 
 /**
- * Deriva a leitura do cabeçalho do gráfico — valor e Δ de cada série ATIVA.
+ * Deriva a leitura do cabeçalho do gráfico — o valor vigente de cada série
+ * ATIVA.
  *
  * Espelha `useHistoricoSeries`: mesma ordem e as mesmas regras de visibilidade
- * (no modo isolado só o isolado aparece, e os Σ de grupo saem de cena). Todo Δ
- * passa por `ultimoDelta`, de modo que rail, tooltip e leitura mostrem sempre
- * o mesmo número para a mesma série.
+ * (no modo isolado só o isolado aparece, e os Σ de grupo saem de cena).
  */
 export function useChartReadouts(
    historico: EsfAerHistorico,
@@ -54,7 +50,6 @@ export function useChartReadouts(
             label: "Total da unidade",
             color: TOTAL_COLOR,
             atual: historico.total.atual,
-            delta: ultimoDelta(historico.total.timeline),
          });
       }
 
@@ -66,7 +61,6 @@ export function useChartReadouts(
                label: `Σ ${grupo}`,
                color: getGroupColor(grupo),
                atual: carry.somaAtualPorGrupo[grupo] ?? 0,
-               delta: ultimoDelta(carry.porGrupo[grupo] ?? []),
                dashed: true,
             });
          }
@@ -89,7 +83,6 @@ export function useChartReadouts(
             label: p.nome,
             color: programColors.get(p.esfaer_id) ?? getGroupColor(p.grupo),
             atual: p.atual,
-            delta: ultimoDelta(p.timeline),
          });
       }
 
