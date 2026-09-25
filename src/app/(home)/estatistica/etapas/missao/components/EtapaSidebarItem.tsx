@@ -1,7 +1,7 @@
 "use client";
 
-import { memo } from "react";
-import { HiPencil, HiSparkles } from "react-icons/hi";
+import { memo, useEffect, useRef } from "react";
+import { HiCheck, HiPencil, HiSparkles } from "react-icons/hi";
 import clsx from "clsx";
 import {
    formatDateFull,
@@ -50,13 +50,26 @@ function EtapaSidebarItemBase({
    isNew,
    onClick,
 }: Props) {
+   const ref = useRef<HTMLButtonElement>(null);
+
+   // Etapa recém-adicionada (fim da lista) ou selecionada fora da área
+   // visível: traz o card para a vista. `nearest` não mexe se já estiver lá
+   useEffect(() => {
+      if (selected) ref.current?.scrollIntoView({ block: "nearest" });
+   }, [selected]);
+
+   // Selo só para o que pede atenção; tudo em ordem vira um ✓ discreto
+   const alertas = !sagem || !parte1 || status !== "ok" || isNew || isModified;
+
    return (
       <button
+         ref={ref}
          type="button"
          onClick={onClick}
          aria-current={selected ? "true" : undefined}
          className={clsx(
-            "relative flex w-full flex-col gap-2 overflow-hidden border border-gray-200 bg-white p-3 pl-4 text-left shadow transition",
+            // scroll-m: o scrollIntoView deixa folga além do fade da lista
+            "relative flex w-full scroll-my-4 flex-col gap-2 overflow-hidden border border-gray-200 bg-white p-3 pl-4 text-left shadow transition",
             "focus-visible:outline-primary-500 hover:border-gray-300 hover:bg-gray-50 focus-visible:outline-2 focus-visible:outline-offset-2",
             selected &&
                "border-primary-200 bg-primary-50/40 hover:bg-primary-50/60",
@@ -95,61 +108,69 @@ function EtapaSidebarItemBase({
                >
                   {data ? isoDateToShort(data) : "--/--"}
                   <span className="mx-1 text-gray-300">·</span>
-                  {depHora}–{arrHora}
+                  {depHora === "--:--" && arrHora === "--:--"
+                     ? "sem horário"
+                     : `${depHora}–${arrHora}`}
                </span>
-               <span className="shrink-0 font-mono text-sm font-semibold text-gray-900">
-                  {minutesToTime(tvooMin)}
+               <span className="flex shrink-0 items-center gap-1 font-mono text-sm font-semibold text-gray-900">
+                  {!alertas && (
+                     <HiCheck
+                        role="img"
+                        aria-label="OK, SAGEM e Parte 1 verificados"
+                        title="OK · SAGEM e Parte 1 verificados"
+                        className="h-3.5 w-3.5 text-green-600"
+                     />
+                  )}
+                  {tvooMin > 0 ? minutesToTime(tvooMin) : "--:--"}
                </span>
             </div>
          </div>
 
-         {/* Verificação à esquerda, situação da etapa à direita. flex-wrap:
-             com "Nova"/"Modificado" em cena as pílulas não cabem na largura
-             da sidebar e precisam quebrar em vez de estourar */}
-         <div className="flex flex-wrap items-center justify-between gap-1.5">
-            <div className="flex flex-wrap items-center gap-1.5">
-               <EtapaVerifBadge
-                  label="SAGEM"
-                  ok={sagem}
-                  title={
-                     sagem
-                        ? "Registrado no SAGEM"
-                        : "Pendente de registro no SAGEM"
-                  }
-               />
-               <EtapaVerifBadge
-                  label="PARTE 1"
-                  ok={parte1}
-                  title={
-                     parte1
-                        ? "Relatório Parte 1 recolhido"
-                        : "Relatório Parte 1 pendente"
-                  }
-               />
-            </div>
+         {/* Verificação pendente à esquerda, situação da etapa à direita.
+             flex-wrap: com "Nova"/"Modificado" em cena as pílulas não cabem
+             na largura da sidebar e precisam quebrar em vez de estourar */}
+         {alertas && (
+            <div className="flex flex-wrap items-center justify-between gap-1.5">
+               <div className="flex flex-wrap items-center gap-1.5">
+                  {!sagem && (
+                     <EtapaVerifBadge
+                        label="SAGEM"
+                        ok={false}
+                        title="Pendente de registro no SAGEM"
+                     />
+                  )}
+                  {!parte1 && (
+                     <EtapaVerifBadge
+                        label="PARTE 1"
+                        ok={false}
+                        title="Relatório Parte 1 pendente"
+                     />
+                  )}
+               </div>
 
-            <div className="flex flex-wrap items-center justify-end gap-1.5">
-               {isNew && (
-                  <span
-                     className="flex items-center gap-1 rounded-full bg-emerald-50 px-1.5 py-0.5 text-[10px] font-semibold text-emerald-700 ring-1 ring-emerald-200"
-                     title="Esta etapa é nova e ainda não foi salva"
-                  >
-                     <HiSparkles className="h-3 w-3" />
-                     Nova
-                  </span>
-               )}
-               {isModified && (
-                  <span
-                     className="flex items-center gap-1 rounded-full bg-amber-50 px-1.5 py-0.5 text-[10px] font-semibold text-amber-700 ring-1 ring-amber-200"
-                     title="Esta etapa foi modificada e ainda não foi salva"
-                  >
-                     <HiPencil className="h-3 w-3" />
-                     Modificado
-                  </span>
-               )}
-               <EtapaStatusBadge status={status} />
+               <div className="flex flex-wrap items-center justify-end gap-1.5">
+                  {isNew && (
+                     <span
+                        className="flex items-center gap-1 rounded-full bg-emerald-50 px-1.5 py-0.5 text-[10px] font-semibold text-emerald-700 ring-1 ring-emerald-200"
+                        title="Esta etapa é nova e ainda não foi salva"
+                     >
+                        <HiSparkles className="h-3 w-3" />
+                        Nova
+                     </span>
+                  )}
+                  {isModified && (
+                     <span
+                        className="flex items-center gap-1 rounded-full bg-amber-50 px-1.5 py-0.5 text-[10px] font-semibold text-amber-700 ring-1 ring-amber-200"
+                        title="Esta etapa foi modificada e ainda não foi salva"
+                     >
+                        <HiPencil className="h-3 w-3" />
+                        Modificado
+                     </span>
+                  )}
+                  {status !== "ok" && <EtapaStatusBadge status={status} />}
+               </div>
             </div>
-         </div>
+         )}
       </button>
    );
 }

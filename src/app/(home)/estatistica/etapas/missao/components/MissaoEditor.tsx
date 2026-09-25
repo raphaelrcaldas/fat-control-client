@@ -13,7 +13,7 @@ import {
 import { selectEtapaTotals } from "../context/selectors";
 import { isDirty } from "../context/serialization";
 import { useToast } from "@/app/context/toast";
-import { formatDateFull } from "@/../utils/dateHandler";
+import { formatDateFull, isoDateToShort } from "@/../utils/dateHandler";
 
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import { useMissaoActions } from "../hooks/useMissaoActions";
@@ -146,6 +146,8 @@ export function MissaoEditor({ mode }: MissaoEditorProps) {
    const handleSelectEtapa = useCallback(
       (localId: string) => {
          dispatch({ type: "SELECT_ETAPA", payload: { localId } });
+         // outra etapa começa do topo, e não na rolagem da anterior
+         contentRef.current?.scrollTo({ top: 0 });
          setSidebarOpen(false);
       },
       [dispatch]
@@ -199,6 +201,10 @@ export function MissaoEditor({ mode }: MissaoEditorProps) {
       ? sidebarEtapas.find((s) => s.localId === selectedEtapa.localId)
       : null;
 
+   // O título da missão fica na sidebar, que no mobile vive num drawer: o
+   // eyebrow mantém à vista de qual missão é a etapa
+   const missaoEyebrow = draft.titulo ? `Missão ${draft.titulo}` : missaoLabel;
+
    const headerTitle = selectedEtapa
       ? `Etapa ${selectedSidebarEtapa?.numero ?? "—"}`
       : missaoLabel;
@@ -222,7 +228,7 @@ export function MissaoEditor({ mode }: MissaoEditorProps) {
 
    const subtitleTags = selectedEtapa ? (
       <div
-         className="flex flex-wrap items-center gap-x-3 gap-y-1"
+         className="flex flex-wrap items-center gap-x-2 gap-y-1 sm:gap-x-3"
          role="group"
          aria-label={subtitleAriaLabel}
       >
@@ -236,8 +242,14 @@ export function MissaoEditor({ mode }: MissaoEditorProps) {
                <span aria-hidden className="text-gray-300">
                   ·
                </span>
+               {/* sem o ano no mobile: com ele o ANV quebrava de linha */}
                <span className="text-sm text-gray-500 tabular-nums">
-                  {formatDateFull(selectedEtapa.form.data)}
+                  <span className="sm:hidden">
+                     {isoDateToShort(selectedEtapa.form.data)}
+                  </span>
+                  <span className="hidden sm:inline">
+                     {formatDateFull(selectedEtapa.form.data)}
+                  </span>
                </span>
             </>
          )}
@@ -256,18 +268,31 @@ export function MissaoEditor({ mode }: MissaoEditorProps) {
                <span aria-hidden className="text-gray-300">
                   ·
                </span>
-               <span className="text-sm font-semibold text-gray-500">
+               <span className="text-sm font-semibold text-gray-500 tabular-nums">
+                  <span className="mr-1 text-[10px] font-bold tracking-wider text-gray-500">
+                     ANV
+                  </span>
                   {selectedEtapa.form.anv}
                </span>
             </>
          )}
-         <EtapaStatusBadge status={selectedEtapa.status} size="sm" />
       </div>
    ) : undefined;
 
    const headerNode = (
       <MissaoHeader
          title={headerTitle}
+         eyebrow={selectedEtapa ? missaoEyebrow : undefined}
+         titleSuffix={
+            selectedEtapa
+               ? `/${String(sidebarEtapas.length).padStart(2, "0")}`
+               : undefined
+         }
+         titleBadge={
+            selectedEtapa ? (
+               <EtapaStatusBadge status={selectedEtapa.status} size="sm" />
+            ) : undefined
+         }
          subtitleTags={subtitleTags}
          onBack={handleCancel}
          onSave={handleSave}

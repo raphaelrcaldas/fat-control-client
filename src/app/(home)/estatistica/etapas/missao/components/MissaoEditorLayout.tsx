@@ -2,6 +2,13 @@
 
 import type { ReactNode, RefObject } from "react";
 
+/**
+ * Altura do topo do editor a partir de lg: cabeçalho e topo da sidebar usam a
+ * mesma, para as bordas inferiores formarem uma linha só. Em px porque a raiz
+ * do client é 87.5%.
+ */
+export const EDITOR_TOP_H = "lg:h-[92px]";
+
 type Props = {
    header: ReactNode;
    sidebar: ReactNode;
@@ -22,7 +29,10 @@ export function MissaoEditorLayout({
       // do <main> (p-1 => 0.5rem; md:p-2 => 1rem).
       <div className="flex h-[calc(100dvh-4.5rem)] min-h-0 flex-col overflow-hidden border border-slate-200 bg-gray-50 shadow md:h-[calc(100dvh-5rem)]">
          <div className="flex min-h-0">
-            <div className="hidden h-full min-h-0 w-88 lg:block">{sidebar}</div>
+            {/* shrink-0: sem ele o flex espremia a coluna de 308px para ~245px */}
+            <div className="hidden h-full min-h-0 w-88 shrink-0 lg:block">
+               {sidebar}
+            </div>
             <div className="flex min-h-0 w-full flex-col">
                {header}
                {/* div, não <main>: o layout do (home) já provê o main da página
