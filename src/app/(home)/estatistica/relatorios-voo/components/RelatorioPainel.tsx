@@ -26,7 +26,7 @@ import {
    formatTimeUTC,
 } from "utils/dateHandler";
 import { ExcluirRelatorioModal } from "./ExcluirRelatorioModal";
-import { formatarTamanho } from "../utils/relatorios";
+import { formatSize } from "@/../utils/formatSize";
 
 interface Props {
    relatorio: RelatorioVoo;
@@ -244,7 +244,7 @@ export function RelatorioPainel({
                      {relatorio.num_paginas
                         ? `${relatorio.num_paginas} ${relatorio.num_paginas === 1 ? "página" : "páginas"} · `
                         : ""}
-                     {formatarTamanho(relatorio.file_size)}
+                     {formatSize(relatorio.file_size)}
                   </p>
                   <Button
                      as="a"
@@ -278,7 +278,7 @@ export function RelatorioPainel({
             <span className="flex min-w-0 flex-col">
                <span className="text-[11px] text-slate-500">Tamanho</span>
                <span className="truncate font-semibold text-slate-800">
-                  {formatarTamanho(relatorio.file_size)}
+                  {formatSize(relatorio.file_size)}
                   {relatorio.num_paginas
                      ? ` · ${relatorio.num_paginas} pág.`
                      : ""}

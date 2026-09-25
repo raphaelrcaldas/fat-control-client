@@ -608,3 +608,11 @@ export function formatDiaSemana(iso: string): string {
       "0"
    )}/${ano}`;
 }
+
+/** Instante (Date ou epoch ms) para "HH:MM" no horário local. */
+export function formatHoraLocal(instante: Date | number): string {
+   const date = new Date(instante);
+   const hours = String(date.getHours()).padStart(2, "0");
+   const minutes = String(date.getMinutes()).padStart(2, "0");
+   return `${hours}:${minutes}`;
+}

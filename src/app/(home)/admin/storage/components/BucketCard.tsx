@@ -1,10 +1,12 @@
 "use client";
 
+import clsx from "clsx";
 import { MdStorage } from "react-icons/md";
 import { HiExclamationCircle } from "react-icons/hi";
 import { formatSize } from "@/../utils/formatSize";
 import { Skeleton } from "@/components/ui/Skeleton";
 import type { BucketStats } from "services/routes/storage";
+import { formatPercent, rotuloBucket } from "../utils/buckets";
 
 interface BucketCardProps {
    bucket: BucketStats;
@@ -20,16 +22,36 @@ export function BucketCard({ bucket, totalBytes, partial }: BucketCardProps) {
    // esta grade existe para responder é "quem está comendo o storage?" —
    // logo, a base é a participação no uso total.
    const share = totalBytes > 0 ? (bucket.total_size / totalBytes) * 100 : 0;
+   const rotulo = rotuloBucket(bucket.name);
 
    return (
       // flex-col: no grid o card é esticado até a altura do irmão, e o corpo
       // do estado ilegível usa flex-1 para centrar em vez de ficar pendurado.
       <div className="flex flex-col space-y-3 rounded border border-slate-200 bg-white p-5 shadow-sm">
-         <div className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-md bg-slate-100 text-slate-600 ring-1 ring-slate-200 ring-inset">
-               <MdStorage className="h-4 w-4" />
+         <div className="flex items-center gap-3">
+            <div className="flex size-10 shrink-0 items-center justify-center rounded-md bg-slate-100 text-slate-600 ring-1 ring-slate-200 ring-inset">
+               <MdStorage className="size-5" />
             </div>
-            <h3 className="font-semibold text-gray-900">{bucket.name}</h3>
+            {/* Módulo em destaque, slug técnico embaixo: é o slug que aparece
+                no painel do provedor e nos logs. Sem rótulo conhecido, o
+                slug sobe para o título e a 2ª linha diz isso. */}
+            <div className="min-w-0">
+               <h3
+                  title={rotulo ?? bucket.name}
+                  className="truncate leading-tight font-semibold text-gray-900"
+               >
+                  {rotulo ?? bucket.name}
+               </h3>
+               <p
+                  title={bucket.name}
+                  className={clsx(
+                     "truncate text-xs text-gray-500",
+                     rotulo && "font-mono"
+                  )}
+               >
+                  {rotulo ? bucket.name : "módulo não identificado"}
+               </p>
+            </div>
          </div>
 
          {bucket.readable ? (
@@ -44,7 +66,7 @@ export function BucketCard({ bucket, totalBytes, partial }: BucketCardProps) {
                   <div className="space-y-0.5">
                      <p className="text-sm text-gray-500">Arquivos</p>
                      <p className="text-lg font-bold text-gray-900 tabular-nums">
-                        {bucket.total_objects}
+                        {bucket.total_objects.toLocaleString("pt-BR")}
                      </p>
                   </div>
                </div>
@@ -59,8 +81,8 @@ export function BucketCard({ bucket, totalBytes, partial }: BucketCardProps) {
                       perdeu aquele bucket, então o sobrevivente reivindicaria
                       100% da torta sem ter direito a ela */}
                   <p className="text-sm text-gray-500 tabular-nums">
-                     {share.toFixed(1)}% do uso {partial ? "apurado" : "total"}{" "}
-                     (relativa)
+                     {formatPercent(share)} do uso{" "}
+                     {partial ? "apurado" : "total"} (relativa)
                   </p>
                   <div
                      role="progressbar"
@@ -104,9 +126,12 @@ export function BucketCard({ bucket, totalBytes, partial }: BucketCardProps) {
 export function BucketCardSkeleton() {
    return (
       <div className="space-y-3 rounded border border-slate-200 bg-white p-5 shadow-sm">
-         <div className="flex items-center gap-2">
-            <Skeleton className="h-8 w-8 rounded-md" />
-            <Skeleton className="h-5 w-28" />
+         <div className="flex items-center gap-3">
+            <Skeleton className="size-10 shrink-0 rounded-md" />
+            <div className="space-y-1">
+               <Skeleton className="h-5 w-32" />
+               <Skeleton className="h-3.5 w-20" />
+            </div>
          </div>
          <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1">

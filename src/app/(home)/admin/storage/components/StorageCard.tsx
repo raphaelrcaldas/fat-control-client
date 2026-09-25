@@ -3,6 +3,7 @@
 import clsx from "clsx";
 import { HiExclamation } from "react-icons/hi";
 import { formatSize } from "@/../utils/formatSize";
+import { formatPercent, rotuloBucket } from "../utils/buckets";
 import { Skeleton } from "@/components/ui/Skeleton";
 
 function getUsageColor(percent: number) {
@@ -16,7 +17,7 @@ function getUsageColor(percent: number) {
          bar: "bg-red-600",
          text: "text-red-700",
          badge: "bg-red-600/10 text-red-800",
-         label: "Crítico",
+         label: percent > 100 ? "Excedido" : "Crítico",
          // Crítico é o único estado com ícone: reforço por FORMA, para o
          // alarme não depender só da cor — e não se confundir com o vermelho
          // da marca quando a org ativa tem tema vermelho.
@@ -41,7 +42,6 @@ function getUsageColor(percent: number) {
 
 interface StorageCardProps {
    title: string;
-   subtitle?: string;
    totalBytes: number;
    totalObjects: number;
    bucketCount: number;
@@ -54,7 +54,6 @@ interface StorageCardProps {
 
 export function StorageCard({
    title,
-   subtitle,
    totalBytes,
    totalObjects,
    bucketCount,
@@ -62,8 +61,11 @@ export function StorageCard({
    unreadableCount,
    maxMB,
 }: StorageCardProps) {
-   const totalMB = totalBytes / (1024 * 1024);
-   const percent = Math.min((totalMB / maxMB) * 100, 100);
+   const quotaBytes = maxMB * 1024 * 1024;
+   // Sem teto: acima da cota o número real é justamente o que importa. Só a
+   // barra (e o aria-valuenow, limitado a aria-valuemax) param em 100.
+   const percent = quotaBytes > 0 ? (totalBytes / quotaBytes) * 100 : 0;
+   const barPercent = Math.min(percent, 100);
 
    // Nenhum bucket pôde ser lido: TODO número aqui derivaria de zero
    // conhecimento. Um farol verde "OK · 0.0% · 1024 MB disponíveis" seria
@@ -81,30 +83,28 @@ export function StorageCard({
       : getUsageColor(percent);
    // Leitura parcial: o total apurado é um PISO, não o valor real.
    const piso = !semLeitura && unreadableCount > 0;
+   const excedido = !semLeitura && totalBytes > quotaBytes;
+   const maiorRotulo = largestBucket
+      ? (rotuloBucket(largestBucket.name) ?? largestBucket.name)
+      : null;
 
    return (
       // max-w-5xl: em 1920 o card esticado abria ~1400px entre o título e o
       // seu próprio status, quebrando a leitura por proximidade.
       <div className="max-w-5xl space-y-4 rounded border border-slate-200 bg-white p-6 shadow-sm">
-         {subtitle && (
-            <p className="text-sm font-medium tracking-wide text-gray-500 uppercase">
-               {subtitle}
-            </p>
-         )}
-
          <div className="flex items-end justify-between gap-4">
-            <div className="space-y-1">
+            <div className="min-w-0 space-y-1">
                <p className="text-sm font-medium text-gray-500">{title}</p>
                <p className="text-3xl font-bold text-gray-900 tabular-nums">
                   {semLeitura
                      ? "—"
                      : `${piso ? "≥ " : ""}${formatSize(totalBytes)}`}
                   <span className="ml-1 text-lg font-normal text-gray-500">
-                     / {maxMB} MB
+                     / {formatSize(quotaBytes)}
                   </span>
                </p>
             </div>
-            <div className="space-y-1 text-right">
+            <div className="shrink-0 space-y-1 text-right">
                <span
                   className={clsx(
                      "inline-flex items-center gap-1 rounded-full px-3 py-1 text-sm font-semibold",
@@ -122,7 +122,10 @@ export function StorageCard({
                      usage.text
                   )}
                >
-                  {semLeitura ? "—" : `${percent.toFixed(1)}%`}
+                  {/* Com bucket ilegível o percentual também é piso */}
+                  {semLeitura
+                     ? "—"
+                     : `${piso ? "≥ " : ""}${formatPercent(percent)}`}
                </p>
             </div>
          </div>
@@ -149,64 +152,113 @@ export function StorageCard({
          <div
             role="progressbar"
             aria-label="Uso da cota de armazenamento"
-            aria-valuenow={semLeitura ? undefined : Number(percent.toFixed(1))}
+            aria-valuenow={
+               semLeitura ? undefined : Number(barPercent.toFixed(1))
+            }
             aria-valuemin={0}
             aria-valuemax={100}
             aria-valuetext={
                semLeitura
                   ? "indeterminado"
-                  : `${percent.toFixed(1)}% — ${usage.label}`
+                  : `${formatPercent(percent)} — ${usage.label}`
             }
             className="h-4 w-full overflow-hidden rounded-full bg-slate-200"
          >
             <div
                className={clsx("h-4 rounded-full transition-all", usage.bar)}
-               style={{ width: semLeitura ? "0%" : `${percent}%` }}
+               style={{ width: semLeitura ? "0%" : `${barPercent}%` }}
             />
          </div>
 
-         {/* Fileira de 4: densifica o topo e responde de uma vez "quanto usei /
-             quanto sobra / quantos arquivos / quantos buckets" */}
-         <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-            {/* "Em uso" repetiria o número-herói 80px acima — este slot vale
-                mais respondendo quem ocupa o espaço */}
-            {/* col-span-2 no mobile: nome + tamanho pedem ~172px e o tile de
-                meia-largura só dá 120px — o `truncate` comia justamente o
-                número, que é a razão de o tile existir */}
-            <div className="col-span-2 space-y-1 rounded bg-slate-50 p-4 lg:col-span-1">
-               <p className="text-sm text-gray-500">Maior bucket</p>
-               {largestBucket && !semLeitura ? (
-                  <p className="truncate text-2xl font-bold text-gray-900">
-                     {largestBucket.name}{" "}
-                     <span className="text-lg font-normal text-gray-500 tabular-nums">
-                        {formatSize(largestBucket.total_size)}
-                     </span>
-                  </p>
-               ) : (
-                  <p className="text-2xl font-bold text-gray-500">—</p>
-               )}
-            </div>
-            <div className="space-y-1 rounded bg-slate-50 p-4">
-               <p className="text-sm text-gray-500">Espaço disponível</p>
-               <p className="text-2xl font-bold text-gray-900 tabular-nums">
-                  {semLeitura
-                     ? "—"
-                     : formatSize(Math.max(maxMB - totalMB, 0) * 1024 * 1024)}
-               </p>
-            </div>
-            <div className="space-y-1 rounded bg-slate-50 p-4">
-               <p className="text-sm text-gray-500">Total de arquivos</p>
-               <p className="text-2xl font-bold text-gray-900 tabular-nums">
-                  {semLeitura ? "—" : totalObjects}
-               </p>
-            </div>
-            <div className="space-y-1 rounded bg-slate-50 p-4">
-               <p className="text-sm text-gray-500">Buckets</p>
-               <p className="text-2xl font-bold text-gray-900 tabular-nums">
-                  {bucketCount}
-               </p>
-            </div>
+         {/* Três tiles de mesma forma (rótulo, valor, detalhe): quem ocupa o
+             espaço, quanto sobra e quantos arquivos. A contagem de buckets
+             já está no cabeçalho e no título da grade — um tile só para ela
+             repetia o número pela terceira vez. */}
+         <div className="grid grid-cols-2 gap-4 lg:grid-cols-3">
+            {/* col-span-2 no mobile: o nome do bucket pede a largura toda.
+                O tamanho vai numa linha própria — dividindo a linha com o
+                nome, o `truncate` comia justamente o número */}
+            <Tile
+               className="col-span-2 lg:col-span-1"
+               label="Maior bucket"
+               valor={largestBucket && !semLeitura ? maiorRotulo : null}
+               valorTitle={largestBucket?.name}
+               detalhe={
+                  largestBucket && !semLeitura
+                     ? formatSize(largestBucket.total_size)
+                     : undefined
+               }
+            />
+            {excedido ? (
+               <Tile
+                  label="Excedido em"
+                  valor={formatSize(totalBytes - quotaBytes)}
+                  valorClassName="text-red-700"
+                  detalhe={`cota de ${formatSize(quotaBytes)}`}
+               />
+            ) : (
+               <Tile
+                  label="Espaço disponível"
+                  valor={
+                     semLeitura
+                        ? null
+                        : formatSize(Math.max(quotaBytes - totalBytes, 0))
+                  }
+                  detalhe={`de ${formatSize(quotaBytes)}`}
+               />
+            )}
+            <Tile
+               label="Total de arquivos"
+               valor={semLeitura ? null : totalObjects.toLocaleString("pt-BR")}
+               detalhe={`em ${bucketCount} ${bucketCount === 1 ? "bucket" : "buckets"}`}
+            />
          </div>
+      </div>
+   );
+}
+
+interface TileProps {
+   label: string;
+   /** null = não apurado: mostra "—" em vez de afirmar um número. */
+   valor: string | null;
+   valorTitle?: string;
+   valorClassName?: string;
+   detalhe?: string;
+   className?: string;
+}
+
+function Tile({
+   label,
+   valor,
+   valorTitle,
+   valorClassName,
+   detalhe,
+   className,
+}: TileProps) {
+   return (
+      <div
+         className={clsx(
+            "min-w-0 space-y-1 rounded bg-slate-50 p-4",
+            className
+         )}
+      >
+         <p className="text-sm text-gray-500">{label}</p>
+         <p
+            title={valorTitle ?? valor ?? undefined}
+            className={clsx(
+               "truncate text-2xl font-bold tabular-nums",
+               valor === null
+                  ? "text-gray-500"
+                  : (valorClassName ?? "text-gray-900")
+            )}
+         >
+            {valor ?? "—"}
+         </p>
+         {/* &nbsp; segura a linha quando não há detalhe: os três tiles
+             ficam da mesma altura e o skeleton acerta a conta */}
+         <p className="truncate text-sm text-gray-500 tabular-nums">
+            {detalhe ?? "\u00a0"}
+         </p>
       </div>
    );
 }
@@ -217,7 +269,6 @@ export function StorageCardSkeleton() {
       // text-2xl = 28px), não o corpo do glifo — com h-4/h-6 o skeleton
       // ficava ~14px mais baixo e a seção "Buckets" saltava ao carregar.
       <div className="max-w-5xl space-y-4 rounded border border-slate-200 bg-white p-6 shadow-sm">
-         <Skeleton className="h-5 w-32" />
          <div className="flex items-end justify-between">
             <div className="space-y-1">
                <Skeleton className="h-5 w-40" />
@@ -229,10 +280,10 @@ export function StorageCardSkeleton() {
             </div>
          </div>
          <Skeleton className="h-4 w-full rounded-full" />
-         <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-            {/* Mesma estrutura do tile real (p-4 + rótulo + valor), para a
-                altura sair da composição em vez de um h-* chutado */}
-            {[0, 1, 2, 3].map((i) => (
+         <div className="grid grid-cols-2 gap-4 lg:grid-cols-3">
+            {/* Mesma estrutura do Tile (p-4 + rótulo + valor + detalhe), para
+                a altura sair da composição em vez de um h-* chutado */}
+            {[0, 1, 2].map((i) => (
                <div
                   key={i}
                   className={clsx(
@@ -242,6 +293,7 @@ export function StorageCardSkeleton() {
                >
                   <Skeleton className="h-5 w-24" />
                   <Skeleton className="h-7 w-20" />
+                  <Skeleton className="h-5 w-16" />
                </div>
             ))}
          </div>

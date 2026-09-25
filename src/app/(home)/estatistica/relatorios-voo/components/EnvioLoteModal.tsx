@@ -18,7 +18,8 @@ import {
    useEnviarRelatorio,
    useInvalidarRelatoriosVoo,
 } from "@/hooks/queries/useRelatoriosVoo";
-import { executarComLimite, formatarTamanho } from "../utils/relatorios";
+import { executarComLimite } from "../utils/relatorios";
+import { formatSize } from "@/../utils/formatSize";
 
 const LIMITE_BYTES = 10 * 1024 * 1024;
 const SIMULTANEOS = 2;
@@ -255,7 +256,7 @@ export function EnvioLoteModal({ aberto, onFechar, frota }: Props) {
                               {l.file.name}
                            </span>
                            <span className="text-[11px] text-slate-500">
-                              {formatarTamanho(l.file.size)}
+                              {formatSize(l.file.size)}
                            </span>
                         </span>
                         <button

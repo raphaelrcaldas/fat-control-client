@@ -98,17 +98,6 @@ export function periodoSeValido(
    return proximo.data_ini <= proximo.data_fim ? proximo : null;
 }
 
-/**
- * Tamanho de arquivo em texto curto: KB abaixo de 1 MB (a maioria dos PDFs
- * escaneados fica nessa faixa, e "0.0 MB" não diz nada útil), MB com uma
- * casa decimal a partir daí. Mesmo critério usado no painel e no modal de
- * envio.
- */
-export function formatarTamanho(bytes: number): string {
-   if (bytes < 1024 * 1024) return `${Math.round(bytes / 1024)} KB`;
-   return `${(bytes / 1024 / 1024).toFixed(1)} MB`;
-}
-
 /** A API já ordena por data desc e id desc; aqui só se agrupa. */
 export function agruparPorDia(
    itens: RelatorioVoo[]

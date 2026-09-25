@@ -8,7 +8,6 @@ import {
    agruparPorDia,
    executarComLimite,
    separarFrota,
-   formatarTamanho,
 } from "@/app/(home)/estatistica/relatorios-voo/utils/relatorios";
 import type { RelatorioVoo } from "services/routes/estatistica/relatoriosVoo";
 
@@ -210,19 +209,6 @@ describe("executarComLimite", () => {
       });
       expect(pico).toBe(2);
       expect(feitos.sort()).toEqual([1, 2, 3, 4, 5]);
-   });
-});
-
-describe("formatarTamanho", () => {
-   it("abaixo de 1 MB, mostra KB arredondado", () => {
-      expect(formatarTamanho(4 * 1024)).toBe("4 KB");
-      expect(formatarTamanho(500)).toBe("0 KB");
-      expect(formatarTamanho(1024 * 1024 - 1)).toBe("1024 KB");
-   });
-
-   it("a partir de 1 MB, mostra MB com uma casa decimal", () => {
-      expect(formatarTamanho(1024 * 1024)).toBe("1.0 MB");
-      expect(formatarTamanho(2.5 * 1024 * 1024)).toBe("2.5 MB");
    });
 });
 

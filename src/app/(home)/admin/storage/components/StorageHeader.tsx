@@ -4,6 +4,7 @@ import { Badge, Button } from "flowbite-react";
 import { MdStorage } from "react-icons/md";
 import { HiRefresh } from "react-icons/hi";
 import clsx from "clsx";
+import { formatHoraLocal } from "@/../utils/dateHandler";
 
 interface StorageHeaderProps {
    bucketCount?: number;
@@ -18,12 +19,7 @@ export function StorageHeader({
    isFetching,
    onRefresh,
 }: StorageHeaderProps) {
-   const updatedAt = lastUpdated
-      ? new Date(lastUpdated).toLocaleTimeString("pt-BR", {
-           hour: "2-digit",
-           minute: "2-digit",
-        })
-      : null;
+   const updatedAt = lastUpdated ? formatHoraLocal(lastUpdated) : null;
    const buckets =
       bucketCount === undefined
          ? null
