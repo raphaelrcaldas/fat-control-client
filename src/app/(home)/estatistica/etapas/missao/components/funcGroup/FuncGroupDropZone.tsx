@@ -17,6 +17,7 @@ export function FuncGroupDropZone({
    onRemove,
    onAddTrip,
    assignedIds,
+   foraDoCatalogo = false,
 }: {
    func: FuncType;
    trips: DraftAssignedTrip[];
@@ -32,10 +33,17 @@ export function FuncGroupDropZone({
       func: FuncType
    ) => void;
    assignedIds: Set<number>;
+   /**
+    * Funcao que a unidade nao opera mais, presente numa missao antiga. O card
+    * existe para o tripulante continuar visivel e removivel; nao recebe
+    * atribuicao nova (sem drop e sem busca).
+    */
+   foraDoCatalogo?: boolean;
 }) {
    const { isOver, setNodeRef } = useDroppable({
       id: `group-${func}`,
       data: { targetFunc: func },
+      disabled: foraDoCatalogo,
    });
 
    const { byCod, label, posicoes: posicoesDe } = useFuncoes();
@@ -58,10 +66,19 @@ export function FuncGroupDropZone({
                headerColorMap[color] ?? "bg-gray-100 text-gray-600"
             )}
          >
-            <span>
+            <span
+               title={
+                  foraDoCatalogo
+                     ? "Função que a unidade não opera mais"
+                     : undefined
+               }
+            >
                {funcLabel}
                {trips.length > 0 && (
                   <span className="ml-1 font-normal">({trips.length})</span>
+               )}
+               {foraDoCatalogo && (
+                  <span className="ml-1 font-normal">· fora do catálogo</span>
                )}
             </span>
             {trips.length > 0 && (
@@ -84,11 +101,15 @@ export function FuncGroupDropZone({
                   key={t.tripId}
                   className="flex items-center gap-1 border border-slate-200 bg-white px-1.5 py-1 text-sm uppercase shadow md:text-xs"
                >
-                  <span className="min-w-0 flex-1 font-medium text-gray-700 sm:truncate">
+                  <span
+                     className="min-w-0 flex-1 font-medium text-gray-700 sm:truncate"
+                     title={`${t.pGraduacao} ${t.nomeGuerra}`}
+                  >
                      {t.pGraduacao} {t.nomeGuerra}
                   </span>
                   {posicoes.length > 0 ? (
                      <FuncBordoSelect
+                        label={`Posição a bordo de ${t.nomeGuerra}`}
                         value={t.funcBordo}
                         options={posicoes}
                         onChange={(codigo) =>
@@ -96,7 +117,9 @@ export function FuncGroupDropZone({
                         }
                      />
                   ) : (
-                     <span className="shrink-0 text-xs text-gray-500">--</span>
+                     <span className="shrink-0 text-xs text-gray-500">
+                        {t.funcBordo || "--"}
+                     </span>
                   )}
                   <button
                      type="button"
@@ -111,10 +134,11 @@ export function FuncGroupDropZone({
             ))}
 
             {trips.length === 0 && (
-               <p className="py-1 text-center text-xs text-gray-500">
-                  {/* gray-600: sobre o fundo tingido do card (blue-50 etc.) o
-                      gray-500 fica em 4.44:1 e reprova AA por 0.06 */}
-                  <span className="text-gray-600 pointer-coarse:hidden">
+               <p className="py-1 text-center text-xs text-gray-600">
+                  {/* gray-600 no <p>, valendo para os dois textos: sobre o
+                      fundo tingido do card (blue-50 etc.) o gray-500 fica em
+                      4.44:1 e reprova AA por 0.06 */}
+                  <span className="pointer-coarse:hidden">
                      Arraste tripulantes para cá
                   </span>
                   <span className="hidden pointer-coarse:inline">
@@ -123,13 +147,15 @@ export function FuncGroupDropZone({
                </p>
             )}
 
-            <InlineTripSearch
-               func={func}
-               funcLabel={funcLabel}
-               trigClass={trigColorMap[color] ?? "text-gray-600"}
-               assignedIds={assignedIds}
-               onAdd={(trip) => onAddTrip(trip, func)}
-            />
+            {!foraDoCatalogo && (
+               <InlineTripSearch
+                  func={func}
+                  funcLabel={funcLabel}
+                  trigClass={trigColorMap[color] ?? "text-gray-600"}
+                  assignedIds={assignedIds}
+                  onAdd={(trip) => onAddTrip(trip, func)}
+               />
+            )}
          </div>
       </div>
    );

@@ -151,10 +151,6 @@ export type Action =
         payload: { localId: string; tripId: number; funcBordo: string };
      }
    | {
-        type: "MOVE_TRIP_TO_FUNC";
-        payload: { localId: string; tripId: number; func: FuncType };
-     }
-   | {
         type: "SET_ETAPA_TRIPS";
         payload: { localId: string; trips: DraftAssignedTrip[] };
      }

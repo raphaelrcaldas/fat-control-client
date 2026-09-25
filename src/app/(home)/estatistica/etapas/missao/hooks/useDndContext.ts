@@ -17,6 +17,7 @@ import {
 import type { FuncType } from "@/constants/tripulantes/funcoes";
 import { useFuncoes } from "@/hooks/queries";
 
+import { escolherFuncBordo } from "../context/funcBordo";
 import type {
    Action,
    DraftAssignedTrip,
@@ -41,7 +42,7 @@ export function useDndContext({
    assignedTrips,
    dispatch,
 }: UseDndContextParams): UseDndContextResult {
-   const { defaultBordo } = useFuncoes();
+   const { defaultBordo, posicoes } = useFuncoes();
    const [activeTrip, setActiveTrip] = useState<DraftPoolTrip | null>(null);
 
    // TouchSensor com delay (long press) e nao distancia: no dedo, um limiar de
@@ -78,24 +79,9 @@ export function useDndContext({
          const targetFunc = overData?.targetFunc;
          if (!trip || !targetFunc) return;
 
-         const existing = assignedTrips.find((t) => t.tripId === trip.tripId);
+         // So o pool e arrastavel, e ele ja exclui quem esta na etapa: todo
+         // drop e uma atribuicao nova.
 
-         if (existing) {
-            // Trip already assigned in this etapa → just move to new func.
-            // Preserve existing funcBordo (matches legacy behaviour).
-            if (existing.func === targetFunc) return;
-            dispatch({
-               type: "MOVE_TRIP_TO_FUNC",
-               payload: {
-                  localId: selectedLocalId,
-                  tripId: trip.tripId,
-                  func: targetFunc,
-               },
-            });
-            return;
-         }
-
-         // Trip coming from the pool → add as a new assignment.
          const assigned: DraftAssignedTrip = {
             tripId: trip.tripId,
             trig: trip.trig,
@@ -105,7 +91,13 @@ export function useDndContext({
             ult_promo: trip.ult_promo,
             ant_rel: trip.ant_rel,
             func: targetFunc,
-            funcBordo: defaultBordo(targetFunc),
+            funcBordo: escolherFuncBordo({
+               func: targetFunc,
+               posicoes: posicoes(targetFunc),
+               fallback: defaultBordo(targetFunc),
+               anterior: trip,
+               atribuidos: assignedTrips,
+            }),
          };
 
          dispatch({
@@ -113,7 +105,7 @@ export function useDndContext({
             payload: { localId: selectedLocalId, trip: assigned },
          });
       },
-      [assignedTrips, dispatch, selectedLocalId, defaultBordo]
+      [assignedTrips, dispatch, selectedLocalId, defaultBordo, posicoes]
    );
 
    return {

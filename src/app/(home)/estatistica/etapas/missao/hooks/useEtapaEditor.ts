@@ -9,6 +9,7 @@ import {
    useMissaoDraft,
    useMissaoDraftDispatch,
 } from "../context/MissaoDraftContext";
+import { escolherFuncBordo } from "../context/funcBordo";
 import {
    buildPoolFromDraft,
    calcTvoo,
@@ -136,7 +137,7 @@ function deriveErrors(form: EtapaFormData, crossesDay: boolean): FormErrors {
 }
 
 export function useEtapaEditor(localId: string): UseEtapaEditorResult {
-   const { defaultBordo } = useFuncoes();
+   const { defaultBordo, posicoes } = useFuncoes();
    const draft = useMissaoDraft();
    const dispatch = useMissaoDraftDispatch();
 
@@ -263,7 +264,13 @@ export function useEtapaEditor(localId: string): UseEtapaEditorResult {
             nomeGuerra: trip.user.nome_guerra,
             pGraduacao: trip.user.p_g,
             func,
-            funcBordo: defaultBordo(func),
+            funcBordo: escolherFuncBordo({
+               func,
+               posicoes: posicoes(func),
+               fallback: defaultBordo(func),
+               anterior: poolTrips.find((p) => p.tripId === tripId),
+               atribuidos: assignedTrips,
+            }),
          };
 
          dispatch({
@@ -271,7 +278,15 @@ export function useEtapaEditor(localId: string): UseEtapaEditorResult {
             payload: { localId, trip: assigned },
          });
       },
-      [assignedIds, dispatch, localId, defaultBordo]
+      [
+         assignedIds,
+         assignedTrips,
+         dispatch,
+         localId,
+         defaultBordo,
+         poolTrips,
+         posicoes,
+      ]
    );
 
    // Especifico actions

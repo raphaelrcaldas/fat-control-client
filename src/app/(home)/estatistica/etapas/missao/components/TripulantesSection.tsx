@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import { DndContext, DragOverlay, pointerWithin } from "@dnd-kit/core";
 import type {
+   Announcements,
    DragStartEvent,
    DragEndEvent,
    SensorDescriptor,
@@ -9,6 +10,7 @@ import type {
 import { useDraggable } from "@dnd-kit/core";
 import clsx from "clsx";
 import { useFuncoes } from "@/hooks/queries";
+import type { FuncType } from "@/constants/tripulantes/funcoes";
 import type { DraftPoolTrip } from "../context/types";
 import type { EtapaTripsGroup } from "../hooks/useEtapaEditor";
 import { FuncGroupDropZone } from "./funcGroup/FuncGroupDropZone";
@@ -35,6 +37,7 @@ function DraggablePoolChip({ trip }: { trip: DraftPoolTrip }) {
          )}
          {...listeners}
          {...attributes}
+         title={`${trip.pGraduacao} ${trip.nomeGuerra}`.trim()}
       >
          {trip.trig}
       </div>
@@ -56,7 +59,7 @@ export function TripulantesSection({
    handleDragStart,
    handleDragEnd,
 }: TripulantesSectionProps) {
-   const { codigos, colors: funcColors } = useFuncoes();
+   const { codigos, colors: funcColors, label } = useFuncoes();
    const {
       poolTrips,
       assignedTrips,
@@ -92,21 +95,65 @@ export function TripulantesSection({
          groups.get(key)!.push(trip);
       }
 
-      // Retorna na ordem do catálogo da unidade, sem função no final
+      // Ordem do catálogo da unidade; depois, funções que ela não opera
+      // mais (missão antiga) e, por último, sem função. Sem esse resto o
+      // tripulante sumia do pool em vez de aparecer fora de ordem.
       const ordered: { funcKey: string; trips: DraftPoolTrip[] }[] = [];
       for (const func of codigos) {
          if (groups.has(func)) {
             ordered.push({ funcKey: func, trips: groups.get(func)! });
+            groups.delete(func);
          }
       }
-      if (groups.has("__sem_funcao__")) {
-         ordered.push({
-            funcKey: "__sem_funcao__",
-            trips: groups.get("__sem_funcao__")!,
-         });
+      const semFuncao = groups.get("__sem_funcao__");
+      groups.delete("__sem_funcao__");
+      for (const [funcKey, trips] of groups) {
+         ordered.push({ funcKey, trips });
+      }
+      if (semFuncao) {
+         ordered.push({ funcKey: "__sem_funcao__", trips: semFuncao });
       }
       return ordered;
    }, [poolTrips, codigos]);
+
+   // Função que a unidade não opera mais, mas está na etapa (missão antiga):
+   // ganha um card próprio. Sem ele o tripulante some da tela e continua
+   // indo no payload, sem como ver ou remover.
+   const funcsForaDoCatalogo = useMemo(() => {
+      const operadas = new Set(codigos);
+      return [
+         ...new Set(
+            assignedTrips.map((t) => t.func).filter((f) => !operadas.has(f))
+         ),
+      ];
+   }, [assignedTrips, codigos]);
+
+   // Anúncios do leitor de tela em português (o padrão do dnd-kit é inglês
+   // e cita o id interno, "pool-12")
+   const announcements = useMemo<Announcements>(() => {
+      const nome = (data: unknown) => {
+         const trip = (data as { trip?: DraftPoolTrip } | undefined)?.trip;
+         return trip ? `${trip.pGraduacao} ${trip.nomeGuerra}`.trim() : "";
+      };
+      const destino = (data: unknown) => {
+         const func = (data as { targetFunc?: FuncType } | undefined)
+            ?.targetFunc;
+         return func ? label(func) : "";
+      };
+      return {
+         onDragStart: ({ active }) => `${nome(active.data.current)} pego.`,
+         onDragOver: ({ active, over }) =>
+            over
+               ? `${nome(active.data.current)} sobre ${destino(over.data.current)}.`
+               : `${nome(active.data.current)} fora das funções.`,
+         onDragEnd: ({ active, over }) =>
+            over
+               ? `${nome(active.data.current)} atribuído a ${destino(over.data.current)}.`
+               : `${nome(active.data.current)} solto fora das funções.`,
+         onDragCancel: ({ active }) =>
+            `Arrasto de ${nome(active.data.current)} cancelado.`,
+      };
+   }, [label]);
 
    return (
       <section className="space-y-3">
@@ -115,6 +162,13 @@ export function TripulantesSection({
             collisionDetection={pointerWithin}
             onDragStart={handleDragStart}
             onDragEnd={handleDragEnd}
+            accessibility={{
+               announcements,
+               screenReaderInstructions: {
+                  draggable:
+                     "Para arrastar, pressione espaço ou Enter. Use as setas para mover até a função e espaço ou Enter para soltar. Esc cancela.",
+               },
+            }}
          >
             {poolByFunc.length > 0 && (
                <div className="rounded border border-dashed border-slate-400 bg-slate-50 px-2 pt-2 pb-1 shadow-sm">
@@ -139,7 +193,7 @@ export function TripulantesSection({
                               className="flex items-center gap-1.5 py-1"
                            >
                               <span className="w-8 shrink-0 text-center text-sm font-semibold text-gray-500 uppercase">
-                                 {funcKey}
+                                 {funcKey === "__sem_funcao__" ? "—" : funcKey}
                               </span>
                               <div className="flex flex-wrap gap-1">
                                  {trips.map((trip) => (
@@ -163,6 +217,19 @@ export function TripulantesSection({
                   <FuncGroupDropZone
                      key={func}
                      func={func}
+                     trips={assignedTrips.filter((t) => t.func === func)}
+                     onFuncBordoChange={updateFuncBordo}
+                     onRemoveAll={() => removeAllFromFunc(func)}
+                     onRemove={removeFromGroup}
+                     onAddTrip={addTripToGroup}
+                     assignedIds={assignedIds}
+                  />
+               ))}
+               {funcsForaDoCatalogo.map((func) => (
+                  <FuncGroupDropZone
+                     key={func}
+                     func={func}
+                     foraDoCatalogo
                      trips={assignedTrips.filter((t) => t.func === func)}
                      onFuncBordoChange={updateFuncBordo}
                      onRemoveAll={() => removeAllFromFunc(func)}

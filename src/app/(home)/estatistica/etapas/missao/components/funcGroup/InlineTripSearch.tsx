@@ -42,6 +42,10 @@ export function InlineTripSearch({
    const inputRef = useRef<HTMLInputElement>(null);
    const inputWrapperRef = useRef<HTMLDivElement>(null);
    const dropdownRef = useRef<HTMLDivElement>(null);
+   const addButtonRef = useRef<HTMLButtonElement>(null);
+   // Fechar pelo teclado (Esc, Enter) devolve o foco ao "Adicionar"; sem
+   // isso o input desmonta e o foco cai no <body>. Clique fora nao rouba.
+   const returnFocusRef = useRef(false);
 
    const debouncedQuery = useDebouncedValue(query, 300);
    const isQueryShort = debouncedQuery.trim().length < 2;
@@ -90,14 +94,23 @@ export function InlineTripSearch({
       },
    });
 
-   const closeSearch = useCallback(() => {
+   const closeSearch = useCallback((returnFocus = false) => {
+      returnFocusRef.current = returnFocus;
       setIsOpen(false);
       setShowSearch(false);
       setQuery("");
    }, []);
 
-   // Fecha em click fora (considera container e dropdown do portal)
    useEffect(() => {
+      if (showSearch || !returnFocusRef.current) return;
+      returnFocusRef.current = false;
+      addButtonRef.current?.focus();
+   }, [showSearch]);
+
+   // Fecha em click fora (considera container e dropdown do portal). So
+   // escuta com a busca aberta: sao varios cards na tela.
+   useEffect(() => {
+      if (!showSearch) return;
       const handleClickOutside = (event: MouseEvent) => {
          const target = event.target as Node;
          const isInsideContainer =
@@ -112,7 +125,7 @@ export function InlineTripSearch({
       document.addEventListener("mousedown", handleClickOutside);
       return () =>
          document.removeEventListener("mousedown", handleClickOutside);
-   }, [closeSearch]);
+   }, [showSearch, closeSearch]);
 
    // Foca o input ao abrir a busca
    useEffect(() => {
@@ -131,9 +144,9 @@ export function InlineTripSearch({
    }, [activeIndex]);
 
    const handleSelect = useCallback(
-      (trip: SearchTrip) => {
+      (trip: SearchTrip, viaTeclado = false) => {
          onAdd(trip);
-         closeSearch();
+         closeSearch(viaTeclado);
       },
       [onAdd, closeSearch]
    );
@@ -141,7 +154,7 @@ export function InlineTripSearch({
    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
       if (e.key === "Escape") {
          e.preventDefault();
-         closeSearch();
+         closeSearch(true);
          return;
       }
 
@@ -166,17 +179,20 @@ export function InlineTripSearch({
       } else if (e.key === "Enter") {
          e.preventDefault();
          const active = results[activeIndex];
-         if (active) handleSelect(active);
+         if (active) handleSelect(active, true);
       }
    };
 
    const listboxId = `trip-search-${func}-listbox`;
+   const optionId = (index: number) => `${listboxId}-opt-${index}`;
 
    if (!showSearch) {
       return (
          <button
+            ref={addButtonRef}
             type="button"
             onClick={() => setShowSearch(true)}
+            aria-label={`Adicionar tripulante como ${funcLabel}`}
             className="flex min-h-[26px] w-full items-center justify-center gap-1 border border-dashed border-gray-300 bg-white/50 py-1 text-xs font-medium text-gray-500 transition-colors hover:border-gray-400 hover:bg-white hover:text-gray-600"
          >
             <HiPlus className="h-3.5 w-3.5" />
@@ -205,6 +221,11 @@ export function InlineTripSearch({
                aria-expanded={isOpen}
                aria-controls={listboxId}
                aria-autocomplete="list"
+               aria-activedescendant={
+                  isOpen && activeIndex >= 0 && results[activeIndex]
+                     ? optionId(activeIndex)
+                     : undefined
+               }
             />
 
             {isSearching && (
@@ -222,7 +243,7 @@ export function InlineTripSearch({
                   ref={dropdownRef}
                   id={listboxId}
                   role="listbox"
-                  className="fixed z-9999 max-h-52 overflow-auto rounded-lg border border-gray-200 bg-white shadow-lg"
+                  className="fixed z-9999 max-h-52 overflow-auto rounded border border-gray-200 bg-white shadow-lg"
                   style={{
                      top: dropdownPosition.top,
                      left: dropdownPosition.left,
@@ -252,6 +273,7 @@ export function InlineTripSearch({
                            <button
                               key={trip.id ?? index}
                               type="button"
+                              id={optionId(index)}
                               role="option"
                               aria-selected={isActive}
                               data-option-index={index}

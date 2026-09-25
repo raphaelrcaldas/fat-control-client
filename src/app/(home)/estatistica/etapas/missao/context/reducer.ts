@@ -264,16 +264,6 @@ export function missaoDraftReducer(
          }));
       }
 
-      case "MOVE_TRIP_TO_FUNC": {
-         const { localId, tripId, func } = action.payload;
-         return updateEtapa(state, localId, (etapa) => ({
-            ...etapa,
-            assignedTrips: etapa.assignedTrips.map((t) =>
-               t.tripId === tripId ? { ...t, func } : t
-            ),
-         }));
-      }
-
       case "SET_ETAPA_TRIPS": {
          const { localId, trips } = action.payload;
          return updateEtapa(state, localId, (etapa) => ({

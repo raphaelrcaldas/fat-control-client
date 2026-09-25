@@ -111,18 +111,28 @@ export function buildPoolFromDraft(
    draft: MissaoDraft,
    currentLocalId: string | null
 ): DraftPoolTrip[] {
-   const assignedIds = new Set<number>();
-   if (currentLocalId) {
-      const current = draft.etapas.find((e) => e.localId === currentLocalId);
-      if (current) {
-         for (const t of current.assignedTrips) assignedIds.add(t.tripId);
-      }
-   }
+   const currentIdx = draft.etapas.findIndex(
+      (e) => e.localId === currentLocalId
+   );
+   const assignedIds = new Set<number>(
+      currentIdx >= 0
+         ? draft.etapas[currentIdx].assignedTrips.map((t) => t.tripId)
+         : []
+   );
+
+   // `lastFunc`/`lastFuncBordo` vêm da etapa mais próxima ANTES da atual
+   // (a anterior sobrescreve as mais antigas); só quem não voou antes
+   // herda de uma etapa posterior. É o que o arrasto reaproveita.
+   const before = currentIdx >= 0 ? draft.etapas.slice(0, currentIdx) : [];
+   const after =
+      currentIdx >= 0 ? draft.etapas.slice(currentIdx + 1) : draft.etapas;
 
    const seen = new Map<number, DraftPoolTrip>();
-   for (const etapa of draft.etapas) {
-      for (const t of etapa.assignedTrips) {
-         if (!seen.has(t.tripId) && !assignedIds.has(t.tripId)) {
+   const collect = (etapas: DraftEtapa[], overwrite: boolean) => {
+      for (const etapa of etapas) {
+         for (const t of etapa.assignedTrips) {
+            if (assignedIds.has(t.tripId)) continue;
+            if (!overwrite && seen.has(t.tripId)) continue;
             seen.set(t.tripId, {
                tripId: t.tripId,
                trig: t.trig,
@@ -136,6 +146,8 @@ export function buildPoolFromDraft(
             });
          }
       }
-   }
+   };
+   collect(before, true);
+   collect(after, false);
    return Array.from(seen.values());
 }
