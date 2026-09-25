@@ -26,8 +26,8 @@ interface UseMissaoActionsArgs {
 
 /**
  * Orquestra as mutations da missao (criar / atualizar / excluir), incluindo a
- * checagem de permissao, o RECOMPUTE_SNAPSHOT pos-salvar e a navegacao de volta
- * para a lista. Expoe as mutations cruas para que o componente leia os estados
+ * checagem de permissao e a recarga do rascunho pos-salvar (a tela permanece
+ * aberta; so excluir a missao volta para a lista). Expoe as mutations cruas para que o componente leia os estados
  * de pending (header, guard de mudancas, atalho).
  */
 export function useMissaoActions({ draft, mode }: UseMissaoActionsArgs) {
@@ -100,15 +100,50 @@ export function useMissaoActions({ draft, mode }: UseMissaoActionsArgs) {
          });
          return;
       }
-      const onSuccess = () => {
-         dispatch({ type: "RECOMPUTE_SNAPSHOT" });
-         router.push("/estatistica/etapas");
-      };
       if (mode === "edit") {
-         updateMutation.mutate(draft, { onSuccess });
+         updateMutation.mutate(draft, {
+            onSuccess: (missao) => {
+               setSaveAttempted(false);
+               if (!missao) {
+                  dispatch({ type: "RECOMPUTE_SNAPSHOT" });
+                  return;
+               }
+               // Fica na tela: recarrega o rascunho com o que o servidor
+               // gravou, senão as etapas novas seguem sem id e o próximo
+               // salvar as criaria de novo. A seleção acompanha a mesma
+               // etapa — pelo id, ou (se era nova) por data/decolagem/rota,
+               // já que o servidor pode devolvê-las em outra ordem.
+               const sel = draft.etapas.find(
+                  (e) => e.localId === draft.selectedLocalId
+               );
+               const alvo =
+                  sel?.serverId ??
+                  (sel &&
+                     missao.etapas.find(
+                        (e) =>
+                           e.data === sel.form.data &&
+                           e.dep.slice(0, 5) === sel.form.dep &&
+                           e.origem === sel.form.origem &&
+                           e.destino === sel.form.destino
+                     )?.id);
+               dispatch({
+                  type: "LOAD_FROM_SERVER",
+                  payload: { missao, selectEtapaServerId: alvo ?? undefined },
+               });
+            },
+         });
          return;
       }
-      saveMutation.mutate(draft, { onSuccess });
+      // Missão nova: o POST devolve só o id, então segue para a edição da
+      // missão criada (mesmo editor, agora carregado do servidor). replace,
+      // e não push: voltar não deve reabrir o formulário de criação.
+      saveMutation.mutate(draft, {
+         onSuccess: (missao) => {
+            setSaveAttempted(false);
+            dispatch({ type: "RECOMPUTE_SNAPSHOT" });
+            router.replace(`/estatistica/etapas/missao/${missao.id}`);
+         },
+      });
    }, [
       canSave,
       draft,
