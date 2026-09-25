@@ -99,7 +99,6 @@ export function buildLastEtapaSeed(draft: MissaoDraft): LastEtapaSeed {
       tipo_missao_id: oi.tipo_missao_id,
       reg: oi.reg,
       tvoo: 0,
-      tvooDisplay: "",
    }));
    const assignedTrips: DraftAssignedTrip[] = last.assignedTrips.map((t) => ({
       ...t,

@@ -80,7 +80,6 @@ export interface EtapaOiGroup {
    removeOiItem: (uid: string) => void;
    updateOiItem: (uid: string, patch: Partial<DraftOIItem>) => void;
    oiTotalTvoo: number;
-   oiValid: boolean;
 }
 
 export interface EtapaTripsGroup {
@@ -184,10 +183,7 @@ export function useEtapaEditor(localId: string): UseEtapaEditorResult {
    );
 
    // OI totals — selectEtapaTotals encapsulates the canonical rule
-   const { oiTvooSum, oiValid } = useMemo(
-      () => selectEtapaTotals(etapa),
-      [etapa]
-   );
+   const { oiTvooSum } = useMemo(() => selectEtapaTotals(etapa), [etapa]);
 
    // Pool derived from the whole draft (excludes already-assigned trips
    // for the current etapa)
@@ -347,7 +343,6 @@ export function useEtapaEditor(localId: string): UseEtapaEditorResult {
          removeOiItem,
          updateOiItem,
          oiTotalTvoo: oiTvooSum,
-         oiValid,
       },
       trips: {
          poolTrips,

@@ -37,7 +37,6 @@ export function newOiItem(esfAerId: number | null = null): DraftOIItem {
       tipo_missao_id: null,
       reg: "d",
       tvoo: 0,
-      tvooDisplay: "",
    };
 }
 

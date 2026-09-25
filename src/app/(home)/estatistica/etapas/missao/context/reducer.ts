@@ -1,5 +1,5 @@
 import { DEFAULT_ETAPA_FORM, newEspecifico, newOiItem } from "./factories";
-import { buildLastEtapaSeed, selectStatusByEtapa } from "./selectors";
+import { buildLastEtapaSeed, calcTvoo, selectStatusByEtapa } from "./selectors";
 import { serializeDraft } from "./serialization";
 import { buildDraftFromServer, emptyDraft } from "./serverMappers";
 import type {
@@ -11,6 +11,20 @@ import type {
    MissaoDraft,
 } from "./types";
 
+/**
+ * Com uma unica OI, o tempo dela E o tempo da etapa: a API exige a soma igual
+ * (`_check_oi_sums`), entao nao ha outro valor valido. Mantem os dois colados
+ * a cada mudanca de decolagem/pouso e ao sobrar uma OI so; com varias, a
+ * divisao e da pessoa.
+ */
+function syncOiUnica(etapa: DraftEtapa): DraftEtapa {
+   if (etapa.oiItems.length !== 1) return etapa;
+   const tvoo = calcTvoo(etapa.form.dep, etapa.form.arr);
+   const [oi] = etapa.oiItems;
+   if (oi.tvoo === tvoo) return etapa;
+   return { ...etapa, oiItems: [{ ...oi, tvoo }] };
+}
+
 function updateEtapa(
    draft: MissaoDraft,
    localId: string,
@@ -20,7 +34,7 @@ function updateEtapa(
    const etapas = draft.etapas.map((etapa) => {
       if (etapa.localId !== localId) return etapa;
       touched = true;
-      const next = updater(etapa);
+      const next = syncOiUnica(updater(etapa));
       return {
          ...next,
          dirty: true,
@@ -74,7 +88,7 @@ export function missaoDraftReducer(
             ...seed.form,
             ...(action.payload?.template ?? {}),
          };
-         const etapa: DraftEtapa = {
+         const etapa: DraftEtapa = syncOiUnica({
             localId: crypto.randomUUID(),
             serverId: null,
             status: "rascunho",
@@ -85,7 +99,7 @@ export function missaoDraftReducer(
             revo: [],
             heavyCds: [],
             dirty: true,
-         };
+         });
          etapa.status = selectStatusByEtapa(etapa);
          return {
             ...state,
@@ -156,14 +170,6 @@ export function missaoDraftReducer(
             oiItems: etapa.oiItems.map((oi) =>
                oi.uid === uid ? { ...oi, ...patch } : oi
             ),
-         }));
-      }
-
-      case "SET_ETAPA_OIS": {
-         const { localId, ois } = action.payload;
-         return updateEtapa(state, localId, (etapa) => ({
-            ...etapa,
-            oiItems: ois,
          }));
       }
 

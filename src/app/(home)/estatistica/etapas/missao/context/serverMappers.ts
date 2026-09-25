@@ -1,5 +1,5 @@
 import type { FuncType } from "@/constants/tripulantes/funcoes";
-import { formatTime, minutesToTime } from "@/../utils/dateHandler";
+import { formatTime } from "@/../utils/dateHandler";
 import type {
    EtapaDetail,
    MissaoComEtapasDetail,
@@ -26,7 +26,6 @@ function detailToOiItems(detail: EtapaDetail): DraftOIItem[] {
       tipo_missao_id: oi.tipo_missao_id,
       reg: oi.reg,
       tvoo: oi.tvoo,
-      tvooDisplay: minutesToTime(oi.tvoo),
    }));
 }
 

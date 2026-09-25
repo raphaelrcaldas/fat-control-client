@@ -229,6 +229,27 @@ export function timeToMinutes(time: string): number {
 }
 
 /**
+ * Converte o texto de uma DURACAO digitada em minutos. Aceita "1:30",
+ * "01:30", "130"/"0130" (h + mm, util no teclado numerico do celular, que
+ * nao tem ":") e "90" (1 ou 2 digitos = minutos). Vazio vale 0.
+ * Retorna `null` quando o texto nao e uma duracao valida (minutos >= 60,
+ * letras, formato incompleto como "1:").
+ */
+export function parseDuracao(texto: string): number | null {
+   const t = texto.trim();
+   if (t === "") return 0;
+   const comDoisPontos = /^(\d{1,2}):(\d{2})$/.exec(t);
+   const soDigitos = /^(\d{1,2})(\d{2})$/.exec(t);
+   const hm = comDoisPontos ?? soDigitos;
+   if (hm) {
+      const m = Number(hm[2]);
+      return m < 60 ? Number(hm[1]) * 60 + m : null;
+   }
+   if (/^\d{1,2}$/.test(t)) return Number(t);
+   return null;
+}
+
+/**
  * Converte minutos (int) para string HH:mm
  */
 export function minutesToTime(minutes: number): string {

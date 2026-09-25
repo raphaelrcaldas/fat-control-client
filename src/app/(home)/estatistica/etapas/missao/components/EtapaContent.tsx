@@ -98,6 +98,7 @@ export function EtapaContent({ localId, showErrors }: EtapaContentProps) {
                tvoo={form.tvoo}
                esfAerList={esfAerList}
                tiposMissaoList={tiposMissaoList}
+               showErrors={showErrors}
             />
          </EtapaSectionCard>
 

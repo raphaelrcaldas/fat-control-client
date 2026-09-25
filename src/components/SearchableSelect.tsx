@@ -21,6 +21,10 @@ type SearchableSelectProps = {
    className?: string;
    sizing?: FlowbiteSizing;
    clearable?: boolean;
+   /** id do botao, para um `<Label htmlFor>` apontar para o campo. */
+   id?: string;
+   /** Borda de erro (campo obrigatorio vazio, por ex.). */
+   invalid?: boolean;
 };
 
 export function SearchableSelect({
@@ -31,6 +35,8 @@ export function SearchableSelect({
    className = "",
    sizing = "md",
    clearable = false,
+   id,
+   invalid = false,
 }: SearchableSelectProps) {
    const [isOpen, setIsOpen] = useState(false);
    const [search, setSearch] = useState("");
@@ -162,7 +168,9 @@ export function SearchableSelect({
       <div className={`relative ${className}`} ref={containerRef}>
          <button
             ref={buttonRef}
+            id={id}
             type="button"
+            aria-invalid={invalid || undefined}
             onClick={toggleDropdown}
             style={{ transform: "translateZ(0)" }}
             /* Foco visivel so no TECLADO (`focus-visible`), nunca no clique
@@ -172,11 +180,13 @@ export function SearchableSelect({
                2px e o piso de area do WCAG 2.4.11; borda de 1px trocando de
                cor nao alcanca 3:1 entre os dois estados. */
             className={clsx(
-               "focus-visible:outline-primary-600 flex w-full cursor-pointer items-center justify-between gap-2 rounded border bg-white outline-none focus-visible:outline-[2px] focus-visible:outline-offset-[2px] focus-visible:[outline-style:solid]",
+               "focus-visible:outline-primary-600 flex w-full cursor-pointer items-center justify-between gap-2 rounded border outline-none focus-visible:outline-[2px] focus-visible:outline-offset-[2px] focus-visible:[outline-style:solid]",
                SIZING_CLASSES[sizing],
-               value
-                  ? "border-gray-300 text-gray-900 hover:bg-gray-50"
-                  : "border-gray-300 text-gray-500 hover:bg-gray-50"
+               invalid
+                  ? "border-red-500 bg-red-50 text-red-900 hover:bg-red-100"
+                  : value
+                    ? "border-gray-300 bg-white text-gray-900 hover:bg-gray-50"
+                    : "border-gray-300 bg-white text-gray-500 hover:bg-gray-50"
             )}
          >
             <span className="truncate">

@@ -26,7 +26,6 @@ export interface DraftOIItem {
    tipo_missao_id: number | null;
    reg: "d" | "n" | "v";
    tvoo: number;
-   tvooDisplay: string;
 }
 
 export type PqdTipo = "VTC" | "LV" | "PREC" | "LIVRE";
@@ -153,10 +152,6 @@ export type Action =
    | {
         type: "SET_ETAPA_TRIPS";
         payload: { localId: string; trips: DraftAssignedTrip[] };
-     }
-   | {
-        type: "SET_ETAPA_OIS";
-        payload: { localId: string; ois: DraftOIItem[] };
      }
    | {
         type: "ADD_ESPECIFICO";
