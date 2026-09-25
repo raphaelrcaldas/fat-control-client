@@ -562,3 +562,28 @@ export function dateToDayMonth(date: Date): string {
       month: "2-digit",
    });
 }
+
+const DIAS_SEMANA = [
+   "Domingo",
+   "Segunda",
+   "Terça",
+   "Quarta",
+   "Quinta",
+   "Sexta",
+   "Sábado",
+];
+
+/**
+ * "AAAA-MM-DD" → "Domingo, 20/09/2026". Monta a data no fuso local a partir
+ * dos números, sem `new Date(iso)`, que leria a string como UTC e voltaria um
+ * dia no Brasil.
+ */
+export function formatDiaSemana(iso: string): string {
+   const [ano, mes, dia] = iso.split("T")[0].split("-").map(Number);
+   if (!ano || !mes || !dia) return "";
+   const semana = DIAS_SEMANA[new Date(ano, mes - 1, dia).getDay()];
+   return `${semana}, ${String(dia).padStart(2, "0")}/${String(mes).padStart(
+      2,
+      "0"
+   )}/${ano}`;
+}

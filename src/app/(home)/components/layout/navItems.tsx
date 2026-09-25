@@ -36,6 +36,7 @@ import { GiSecurityGate, GiJoystick } from "react-icons/gi";
 import { TbLogs, TbMapPin } from "react-icons/tb";
 import { ImStatsDots } from "react-icons/im";
 import { CiPaperplane } from "react-icons/ci";
+import { HiDocumentText } from "react-icons/hi";
 
 export const navItems = [
    {
@@ -143,6 +144,13 @@ export const navItems = [
             label: "Etapas",
             path: "/estatistica/etapas",
             resource: "estatistica.etapas",
+            permission: "view",
+         },
+         {
+            icon: HiDocumentText,
+            label: "Relatórios de voo",
+            path: "/estatistica/relatorios-voo",
+            resource: "estatistica.relatorios_voo",
             permission: "view",
          },
          {
