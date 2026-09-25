@@ -22,8 +22,11 @@ import type { FuncaoOrgItem } from "services/routes/funcs";
  */
 export function FuncoesSection() {
    const { push } = useToast();
-   const { data: catalogo = [], isLoading: loadingCatalogo } =
+   const { data: catalogoData, isLoading: loadingCatalogo } =
       useFuncoesCatalogo(false);
+   // Referência estável: um `= []` no destructuring criaria array novo a cada
+   // render enquanto a query carrega, e o efeito abaixo entraria em loop.
+   const catalogo = useMemo(() => catalogoData ?? [], [catalogoData]);
    const { funcoes: operadas, isLoading: loadingOperadas } = useFuncoes();
    const salvar = useSetFuncoesOrg();
 
