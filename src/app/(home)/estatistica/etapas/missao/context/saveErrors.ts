@@ -35,7 +35,7 @@ const ETAPA_FIELD_LABELS: Record<string, string> = {
    oi_etapas: "Ordens de instrução",
    pqd: "PQD",
    revo: "REVO",
-   heavy_cds: "Heavy CDS",
+   heavy_cds: "Heavy/CDS",
 };
 
 /** Rotulos dos campos no nivel da missao. */

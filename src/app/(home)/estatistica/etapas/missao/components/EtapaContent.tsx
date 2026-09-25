@@ -11,7 +11,7 @@ import {
 import { useAeronaves } from "@/hooks/queries/useAeronaves";
 import { useEsfAerList } from "@/hooks/queries/useEsfAer";
 import { useTiposMissao } from "@/hooks/queries/useTiposMissao";
-import { Spinner } from "flowbite-react";
+import { Badge, Spinner } from "flowbite-react";
 
 import { DadosVooSection } from "./DadosVooSection";
 import { OrdensInstrucaoSection } from "./OrdensInstrucaoSection";
@@ -23,9 +23,11 @@ import { PreFilledBanner } from "./PreFilledBanner";
 
 interface EtapaContentProps {
    localId: string;
+   /** Houve tentativa de salvar recusada: exibe erro nos campos nao tocados. */
+   showErrors: boolean;
 }
 
-export function EtapaContent({ localId }: EtapaContentProps) {
+export function EtapaContent({ localId, showErrors }: EtapaContentProps) {
    const draft = useMissaoDraft();
    const dispatch = useMissaoDraftDispatch();
 
@@ -62,6 +64,11 @@ export function EtapaContent({ localId }: EtapaContentProps) {
       hasPriorEtapa &&
       !bannerDismissed &&
       !etapa.serverId;
+
+   const totalEspecificos =
+      especificos.pqd.length +
+      especificos.revo.length +
+      especificos.heavyCds.length;
 
    const isLoadingExternal = loadingAnv || loadingEsfAer || loadingTiposMissao;
 
@@ -104,8 +111,20 @@ export function EtapaContent({ localId }: EtapaContentProps) {
             />
          </EtapaSectionCard>
 
-         <EtapaSectionCard title="Específicos da Missão">
-            <EspecificosSection especificos={especificos} />
+         <EtapaSectionCard
+            title="Específicos da Missão"
+            badge={
+               totalEspecificos > 0 ? (
+                  <Badge color="gray" size="xs">
+                     {totalEspecificos}
+                  </Badge>
+               ) : undefined
+            }
+         >
+            <EspecificosSection
+               especificos={especificos}
+               showErrors={showErrors}
+            />
          </EtapaSectionCard>
       </>
    );

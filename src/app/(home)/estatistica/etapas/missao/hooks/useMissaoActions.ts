@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
@@ -36,6 +36,9 @@ export function useMissaoActions({ draft, mode }: UseMissaoActionsArgs) {
    const dispatch = useMissaoDraftDispatch();
    const { hasPerm } = usePermBased();
    const canSave = hasPerm("estatistica.etapas", "create");
+   // Liga a exibicao de erro nos campos ainda nao tocados (especificos):
+   // depois de um salvar recusado, a pessoa precisa ver o que falta.
+   const [saveAttempted, setSaveAttempted] = useState(false);
 
    const queryClient = useQueryClient();
    const saveMutation = useSaveMissaoDraft();
@@ -85,6 +88,7 @@ export function useMissaoActions({ draft, mode }: UseMissaoActionsArgs) {
          .map((e, i) => ({ num: i + 1, status: e.status }))
          .filter((e) => e.status !== "ok");
       if (invalidas.length > 0) {
+         setSaveAttempted(true);
          push({
             title: "Etapas incompletas",
             message:
@@ -116,5 +120,11 @@ export function useMissaoActions({ draft, mode }: UseMissaoActionsArgs) {
       updateMutation,
    ]);
 
-   return { saveMutation, updateMutation, deleteMutation, handleSave };
+   return {
+      saveMutation,
+      updateMutation,
+      deleteMutation,
+      handleSave,
+      saveAttempted,
+   };
 }

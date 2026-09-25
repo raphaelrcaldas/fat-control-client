@@ -58,8 +58,13 @@ export function MissaoEditor({ mode }: MissaoEditorProps) {
       if (sidebarOpen) drawerCloseRef.current?.focus();
    }, [sidebarOpen]);
 
-   const { saveMutation, updateMutation, deleteMutation, handleSave } =
-      useMissaoActions({ draft, mode });
+   const {
+      saveMutation,
+      updateMutation,
+      deleteMutation,
+      handleSave,
+      saveAttempted,
+   } = useMissaoActions({ draft, mode });
    const {
       dialog: confirmDialog,
       open: openConfirm,
@@ -305,7 +310,10 @@ export function MissaoEditor({ mode }: MissaoEditorProps) {
                draft.selectedLocalId == null ? (
                   <EmptyEtapaPlaceholder />
                ) : (
-                  <EtapaContent localId={draft.selectedLocalId} />
+                  <EtapaContent
+                     localId={draft.selectedLocalId}
+                     showErrors={saveAttempted}
+                  />
                )
             }
          />

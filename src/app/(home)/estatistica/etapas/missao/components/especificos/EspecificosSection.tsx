@@ -15,6 +15,8 @@ import { RevoBlock } from "./RevoBlock";
 
 interface EspecificosSectionProps {
    especificos: EtapaEspecificosGroup;
+   /** Houve tentativa de salvar: os blocos exibem erro mesmo sem toque. */
+   showErrors: boolean;
 }
 
 interface AddButtonConfig {
@@ -47,7 +49,10 @@ const ADD_BUTTONS: AddButtonConfig[] = [
    },
 ];
 
-export function EspecificosSection({ especificos }: EspecificosSectionProps) {
+export function EspecificosSection({
+   especificos,
+   showErrors,
+}: EspecificosSectionProps) {
    const {
       pqd,
       revo,
@@ -99,6 +104,7 @@ export function EspecificosSection({ especificos }: EspecificosSectionProps) {
                      index={i}
                      onChange={(patch) => updatePqd(item.uid, patch)}
                      onRemove={() => removeEspecifico("pqd", item.uid)}
+                     showErrors={showErrors}
                   />
                ))}
                {revo.map((item, i) => (
@@ -108,6 +114,7 @@ export function EspecificosSection({ especificos }: EspecificosSectionProps) {
                      index={i}
                      onChange={(patch) => updateRevo(item.uid, patch)}
                      onRemove={() => removeEspecifico("revo", item.uid)}
+                     showErrors={showErrors}
                   />
                ))}
                {heavyCds.map((item, i) => (
@@ -117,6 +124,7 @@ export function EspecificosSection({ especificos }: EspecificosSectionProps) {
                      index={i}
                      onChange={(patch) => updateHeavyCds(item.uid, patch)}
                      onRemove={() => removeEspecifico("heavyCds", item.uid)}
+                     showErrors={showErrors}
                   />
                ))}
             </div>
