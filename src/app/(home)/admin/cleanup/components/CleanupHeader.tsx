@@ -40,20 +40,19 @@ export function CleanupHeader({ isFetching, onRefresh }: CleanupHeaderProps) {
                </div>
             </div>
 
+            {/* Secundário claro, como nas demais telas de admin: nesta tela o
+                peso visual fica para as ações destrutivas */}
             <Button
-               color="gray"
+               color="light"
                onClick={onRefresh}
                disabled={isFetching}
                aria-label="Atualizar contagens"
-               className="shrink-0"
+               className="shrink-0 font-semibold whitespace-nowrap"
             >
                <HiRefresh
-                  className={clsx(
-                     "size-5 sm:mr-2",
-                     isFetching && "animate-spin"
-                  )}
+                  className={clsx("size-4", isFetching && "animate-spin")}
                />
-               <span className="hidden sm:inline">Atualizar</span>
+               <span className="ml-2 hidden sm:inline">Atualizar</span>
             </Button>
          </div>
       </header>

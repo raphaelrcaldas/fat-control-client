@@ -39,13 +39,20 @@ export default function CleanupPage() {
       0
    );
 
+   const descricoes = Object.fromEntries(
+      (preview?.tasks ?? []).map((t) => [t.task_name, t.description])
+   );
+
    const openConfirm = (taskName?: string) => {
       setSelectedTaskName(taskName);
       setShowConfirm(true);
+      // O preview pode ter até 60 s: o número que o modal promete apagar
+      // precisa ser o de agora. Confirmar fica travado até a recontagem.
+      refetch();
    };
 
    const handleRun = () => {
-      if (running || selectedTotal === 0) return;
+      if (running || isFetching || selectedTotal === 0) return;
       setShowConfirm(false);
       runMutation.mutate(selectedTaskName, {
          onSuccess: (data) => {
@@ -55,8 +62,8 @@ export default function CleanupPage() {
             push({
                type: hasErrors ? "error" : "success",
                message: hasErrors
-                  ? `Limpeza concluída com erros. ${data.total_deleted} registros removidos. Consulte os detalhes abaixo.`
-                  : `Limpeza concluída. ${data.total_deleted} registros removidos.`,
+                  ? `Limpeza concluída com erros. ${data.total_deleted.toLocaleString("pt-BR")} registros removidos. Consulte os detalhes abaixo.`
+                  : `Limpeza concluída. ${data.total_deleted.toLocaleString("pt-BR")} registros removidos.`,
             });
          },
          onError: (err: unknown) => {
@@ -105,12 +112,15 @@ export default function CleanupPage() {
             onRun={() => openConfirm()}
          />
 
-         {results && <CleanupResultsTable results={results} />}
+         {results && (
+            <CleanupResultsTable results={results} descricoes={descricoes} />
+         )}
 
          <ConfirmCleanupModal
             show={showConfirm}
             total={selectedTotal}
             tasks={selectedTasks}
+            isCounting={isFetching}
             isPending={running}
             onConfirm={handleRun}
             onClose={() => setShowConfirm(false)}

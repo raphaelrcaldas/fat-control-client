@@ -25,14 +25,14 @@ export function CleanupSummary({
             </p>
             <p
                className={clsx(
-                  "text-4xl font-bold",
-                  totalRecords > 0 ? "text-red-600" : "text-green-600"
+                  "text-4xl font-bold tabular-nums",
+                  loading ? "text-slate-400" : "text-slate-900"
                )}
             >
-               {loading ? "..." : totalRecords.toLocaleString("pt-BR")}
+               {loading ? "—" : totalRecords.toLocaleString("pt-BR")}
             </p>
             {!loading && totalRecords === 0 && (
-               <p className="text-sm text-green-600">
+               <p className="text-sm text-green-700">
                   Banco de dados sem registros pendentes
                </p>
             )}
@@ -44,7 +44,7 @@ export function CleanupSummary({
          >
             {running ? (
                <>
-                  <Spinner size="sm" color="primary" />
+                  <Spinner size="sm" className="fill-white" />
                   <span className="ml-2">Executando...</span>
                </>
             ) : (

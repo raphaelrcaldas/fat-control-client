@@ -16,6 +16,8 @@ interface ConfirmCleanupModalProps {
    show: boolean;
    total: number;
    tasks: CleanupTaskPreview[];
+   /** Recontando antes de confirmar: o número na tela ainda pode mudar. */
+   isCounting: boolean;
    isPending: boolean;
    onConfirm: () => void;
    onClose: () => void;
@@ -25,6 +27,7 @@ export function ConfirmCleanupModal({
    show,
    total,
    tasks,
+   isCounting,
    isPending,
    onConfirm,
    onClose,
@@ -46,10 +49,10 @@ export function ConfirmCleanupModal({
                <div className="space-y-1 rounded border-l-4 border-red-500 bg-red-50 p-4">
                   <p className="font-medium text-gray-800">
                      Esta ação removerá permanentemente{" "}
-                     <span className="font-bold text-red-700">
-                        {total.toLocaleString("pt-BR")}
+                     <span className="font-bold text-red-700 tabular-nums">
+                        {isCounting ? "…" : total.toLocaleString("pt-BR")}
                      </span>{" "}
-                     registros do banco de dados.
+                     {total === 1 ? "registro" : "registros"} do banco de dados.
                   </p>
                   <p className="text-sm text-gray-600">
                      Não é possível desfazer esta operação.
@@ -61,26 +64,30 @@ export function ConfirmCleanupModal({
                      Tarefas a executar
                   </h4>
                   <div className="space-y-2">
-                     {tasks.map((task) => (
-                        <div
-                           key={task.task_name}
-                           className="flex items-center justify-between gap-3"
-                        >
-                           <span className="text-sm text-gray-600">
-                              {task.description}
-                           </span>
-                           <Badge color={task.count > 0 ? "red" : "green"}>
-                              {task.count}{" "}
-                              {task.count === 1 ? "registro" : "registros"}
-                           </Badge>
-                        </div>
-                     ))}
+                     {/* Só o que será de fato apagado: tarefa zerada na lista
+                         era ruído num aviso de exclusão */}
+                     {tasks
+                        .filter((task) => task.count > 0)
+                        .map((task) => (
+                           <div
+                              key={task.task_name}
+                              className="flex items-center justify-between gap-3"
+                           >
+                              <span className="text-sm text-gray-600">
+                                 {task.description}
+                              </span>
+                              <Badge color="red" className="shrink-0">
+                                 {task.count.toLocaleString("pt-BR")}{" "}
+                                 {task.count === 1 ? "registro" : "registros"}
+                              </Badge>
+                           </div>
+                        ))}
                   </div>
                </div>
 
                <div className="flex justify-center gap-3">
                   <Button
-                     color="gray"
+                     color="light"
                      className="w-32"
                      onClick={onClose}
                      disabled={isPending}
@@ -92,15 +99,11 @@ export function ConfirmCleanupModal({
                      color="red"
                      className="w-36"
                      onClick={onConfirm}
-                     disabled={isPending || total === 0}
+                     disabled={isPending || isCounting || total === 0}
                   >
                      {isPending ? (
                         <>
-                           <Spinner
-                              size="sm"
-                              color="primary"
-                              className="mr-2"
-                           />
+                           <Spinner size="sm" className="mr-2 fill-white" />
                            Executando...
                         </>
                      ) : (
