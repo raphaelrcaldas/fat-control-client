@@ -202,6 +202,27 @@ export function toIsoDatetime(date: string, time: string): string {
 }
 
 /**
+ * Soma (ou subtrai, com `minutes` negativo) minutos a um ISO datetime
+ * (formato de `toIsoDatetime`: "YYYY-MM-DDTHH:MM:00Z"), virando dia/mês/ano
+ * corretamente. O cálculo usa `Date` em UTC — seguro porque a entrada sempre
+ * carrega o sufixo `Z` — e devolve no MESMO formato de `toIsoDatetime`.
+ * "" para entrada vazia ou inválida.
+ */
+export function addMinutesToIsoDatetime(iso: string, minutes: number): string {
+   if (!iso) return "";
+   const date = new Date(iso);
+   if (isNaN(date.getTime())) return "";
+   date.setUTCMinutes(date.getUTCMinutes() + minutes);
+
+   const year = date.getUTCFullYear();
+   const month = String(date.getUTCMonth() + 1).padStart(2, "0");
+   const day = String(date.getUTCDate()).padStart(2, "0");
+   const hours = String(date.getUTCHours()).padStart(2, "0");
+   const mins = String(date.getUTCMinutes()).padStart(2, "0");
+   return `${year}-${month}-${day}T${hours}:${mins}:00Z`;
+}
+
+/**
  * Extrai data (YYYY-MM-DD) de ISO datetime
  */
 export function extractDate(isoDatetime: string): string {

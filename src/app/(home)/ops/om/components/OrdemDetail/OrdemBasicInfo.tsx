@@ -138,9 +138,12 @@ export const OrdemBasicInfo = memo(function OrdemBasicInfo({
     */
    const isNumeroEditable = isEditable && formData.status === "aprovada";
 
+   // Celular: grade de 4 colunas — Nº OM (curto) divide a linha com o
+   // documento de referência; descrição na largura toda; aeronave e esforço
+   // aéreo meio a meio. Desktop segue em linha única (md:flex)
    return (
-      <div className="grid grid-cols-2 gap-4 md:flex">
-         <div className="md:w-24">
+      <div className="grid grid-cols-4 gap-4 md:flex">
+         <div className="col-span-1 md:w-24">
             <label
                htmlFor="numero-om"
                className="mb-2 flex items-center gap-1.5 text-xs font-semibold tracking-wide text-gray-600 uppercase"
@@ -166,7 +169,7 @@ export const OrdemBasicInfo = memo(function OrdemBasicInfo({
                className="focus:border-primary-400 focus:ring-primary-400 w-full rounded border-2 border-gray-200 bg-white px-3 py-2.5 text-center font-mono text-gray-900 uppercase transition-all placeholder:text-gray-400 focus:ring-2 disabled:cursor-not-allowed disabled:opacity-50"
             />
          </div>
-         <div className="col-span-2 md:flex-1">
+         <div className="col-span-3 md:flex-1">
             <label className="mb-2 flex items-center gap-1.5 text-xs font-semibold tracking-wide text-gray-600 uppercase">
                Documento Referência
             </label>
@@ -196,7 +199,7 @@ export const OrdemBasicInfo = memo(function OrdemBasicInfo({
                </p>
             )}
          </div>
-         <div className="col-span-2 md:flex-1">
+         <div className="col-span-4 md:flex-1">
             <label className="mb-2 flex items-center gap-1.5 text-xs font-semibold tracking-wide text-gray-600 uppercase">
                Descrição da Missão
                <span className="text-red-500">*</span>
@@ -230,7 +233,7 @@ export const OrdemBasicInfo = memo(function OrdemBasicInfo({
                </p>
             )}
          </div>
-         <div className="md:w-42">
+         <div className="col-span-2 md:w-42">
             <label
                htmlFor="om-aeronave"
                className="mb-2 flex items-center gap-1.5 text-xs font-semibold tracking-wide text-gray-600 uppercase"
@@ -264,7 +267,7 @@ export const OrdemBasicInfo = memo(function OrdemBasicInfo({
                ))}
             </select>
          </div>
-         <div className="md:w-fit">
+         <div className="col-span-2 md:w-fit">
             <label className="mb-2 flex items-center gap-1.5 text-xs font-semibold tracking-wide text-gray-600 uppercase">
                Esf. Aéreo
             </label>

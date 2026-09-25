@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
    Modal,
    ModalHeader,
@@ -32,6 +32,10 @@ export function OrdemEspecialModal({
    const modalTitle = isEditing
       ? `Editar Ordem Especial`
       : "Nova Ordem Especial";
+
+   // Foco inicial via prop oficial do Modal — autoFocus nativo quebra a
+   // devolução de foco ao fechar (ver notas de armadilhas do Flowbite)
+   const labelInputRef = useRef<HTMLInputElement>(null);
 
    // Estado local do formulário
    const [formData, setFormData] = useState<CampoEspecial>({
@@ -74,7 +78,13 @@ export function OrdemEspecialModal({
       "w-full rounded border bg-white px-3 py-2.5 text-sm text-gray-900 focus:border-transparent focus:ring-2 disabled:cursor-not-allowed disabled:opacity-50";
 
    return (
-      <Modal show={isOpen} onClose={onClose} dismissible size="lg">
+      <Modal
+         show={isOpen}
+         onClose={onClose}
+         dismissible
+         size="lg"
+         initialFocus={labelInputRef}
+      >
          <ModalHeader>
             <div className="flex items-center gap-2">
                <HiDocumentText className="h-5 w-5 text-purple-500" />
@@ -93,6 +103,7 @@ export function OrdemEspecialModal({
                      Nome do Campo
                   </Label>
                   <input
+                     ref={labelInputRef}
                      type="text"
                      id="campo_label"
                      value={formData.label}
@@ -103,7 +114,6 @@ export function OrdemEspecialModal({
                         }))
                      }
                      placeholder="Ex: Observação, Autorização, etc."
-                     autoFocus
                      className={clsx(
                         inputBaseClass,
                         "border-gray-300 focus:ring-purple-500"
@@ -140,7 +150,7 @@ export function OrdemEspecialModal({
                      )}
                   />
                   {showValorError && (
-                     <span className="mt-1 text-xs text-red-500">
+                     <span className="mt-1 block text-xs text-red-500">
                         Obrigatório
                      </span>
                   )}

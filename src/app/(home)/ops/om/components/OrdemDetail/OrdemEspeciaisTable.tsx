@@ -1,7 +1,13 @@
 "use client";
 
-import { memo, useState, useRef, useCallback } from "react";
-import { HiPencil, HiTrash, HiPlus } from "react-icons/hi";
+import { memo, useState, useRef, useCallback, useLayoutEffect } from "react";
+import {
+   HiPencil,
+   HiTrash,
+   HiPlus,
+   HiChevronUp,
+   HiChevronDown,
+} from "react-icons/hi";
 import clsx from "clsx";
 import type { CampoEspecial } from "services/routes/om/ordens";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
@@ -118,6 +124,67 @@ export const OrdemEspeciaisDisplay = memo(function OrdemEspeciaisDisplay({
       setDeleteConfirmIndex(null);
    };
 
+   // Key estável por item: `CampoEspecial` não tem id e, com `key={index}`,
+   // o React reaproveitava o nó do índice — o foco ficava no botão da
+   // posição antiga, que já era de outro item. O reorder (splice) preserva
+   // as referências, então o próprio objeto identifica o item; objeto novo
+   // (criado ao editar) ganha id novo, o que é o comportamento certo
+   const campoIdsRef = useRef(new WeakMap<CampoEspecial, string>());
+   const nextCampoIdRef = useRef(0);
+   const getCampoKey = (campo: CampoEspecial) => {
+      let id = campoIdsRef.current.get(campo);
+      if (id === undefined) {
+         id = `campo-${nextCampoIdRef.current++}`;
+         campoIdsRef.current.set(campo, id);
+      }
+      return id;
+   };
+
+   // Foco pendente após mover pelo teclado. Mesmo com key estável, o React
+   // move o nó no DOM e o navegador tira o foco dele; e, ao chegar na borda,
+   // o botão focado fica `disabled` e o foco cairia no `body`
+   const listRef = useRef<HTMLDivElement>(null);
+   const pendingFocusRef = useRef<{
+      index: number;
+      direction: -1 | 1;
+   } | null>(null);
+
+   // Layout effect: o foco é devolvido antes da pintura, sem piscar
+   useLayoutEffect(() => {
+      const pending = pendingFocusRef.current;
+      if (!pending) return;
+      pendingFocusRef.current = null;
+
+      const findButton = (direction: -1 | 1) =>
+         listRef.current?.querySelector<HTMLButtonElement>(
+            `button[data-move-index="${pending.index}"][data-move-direction="${direction}"]`
+         );
+      const button = findButton(pending.direction);
+      // Na borda, o botão da mesma direção está desabilitado: o foco vai
+      // para o da direção oposta do mesmo item, que continua útil
+      const target =
+         button && !button.disabled
+            ? button
+            : findButton(pending.direction === 1 ? -1 : 1);
+      target?.focus();
+   }, [campos]);
+
+   // Reordenação por teclado/toque: alternativa ao drag HTML5, que não
+   // funciona no toque nem no teclado
+   const handleMove = useCallback(
+      (index: number, direction: -1 | 1) => {
+         const targetIndex = index + direction;
+         if (targetIndex < 0 || targetIndex >= campos.length) return;
+
+         const reordered = [...campos];
+         const [moved] = reordered.splice(index, 1);
+         reordered.splice(targetIndex, 0, moved);
+         pendingFocusRef.current = { index: targetIndex, direction };
+         onReorder(reordered);
+      },
+      [campos, onReorder]
+   );
+
    return (
       <>
          <div className="space-y-3">
@@ -134,7 +201,7 @@ export const OrdemEspeciaisDisplay = memo(function OrdemEspeciaisDisplay({
                   <button
                      type="button"
                      onClick={onAddCampo}
-                     className="group flex items-center gap-1.5 text-sm font-semibold text-purple-600 transition-all hover:text-purple-700"
+                     className="group flex min-h-[24px] items-center gap-1.5 text-sm font-semibold text-purple-600 transition-colors hover:text-purple-700"
                   >
                      <HiPlus className="h-4 w-4 transition-transform group-hover:scale-110" />
                      Adicionar
@@ -150,7 +217,7 @@ export const OrdemEspeciaisDisplay = memo(function OrdemEspeciaisDisplay({
                   </p>
                </div>
             ) : (
-               <div className="space-y-3">
+               <div ref={listRef} className="space-y-3">
                   {campos.map((campo, index) => {
                      const isDragging = dragIndex === index;
                      const isDragOver =
@@ -158,7 +225,7 @@ export const OrdemEspeciaisDisplay = memo(function OrdemEspeciaisDisplay({
 
                      return (
                         <div
-                           key={index}
+                           key={getCampoKey(campo)}
                            className={clsx(
                               "group relative border bg-white px-4 py-2.5 shadow-xs transition-all",
                               isDragging
@@ -201,9 +268,71 @@ export const OrdemEspeciaisDisplay = memo(function OrdemEspeciaisDisplay({
                               )}
 
                               <div className="min-w-0 flex-1">
-                                 <label className="mb-1 block text-xs font-semibold tracking-wide text-purple-600 uppercase">
-                                    {campo.label || ""}
-                                 </label>
+                                 {/* Ações na linha do rótulo, e não numa coluna
+                                     ao lado: com quatro botões a coluna
+                                     espremia o valor em ~120px no celular */}
+                                 <div className="mb-1 flex items-start justify-between gap-2">
+                                    <span
+                                       className="min-w-0 truncate pt-1 text-xs font-semibold tracking-wide text-purple-600 uppercase"
+                                       title={campo.label || undefined}
+                                    >
+                                       {campo.label || ""}
+                                    </span>
+                                    {isEditable && (
+                                       <div className="flex shrink-0 items-center gap-1 pointer-fine:opacity-0 pointer-fine:group-focus-within:opacity-100 pointer-fine:group-hover:opacity-100">
+                                          <button
+                                             type="button"
+                                             onClick={() =>
+                                                handleMove(index, -1)
+                                             }
+                                             disabled={index === 0}
+                                             data-move-index={index}
+                                             data-move-direction={-1}
+                                             className="rounded p-1.5 text-gray-400 transition-colors hover:bg-slate-100 hover:text-slate-600 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-gray-400"
+                                             title="Mover para cima"
+                                             aria-label="Mover ordem especial para cima"
+                                          >
+                                             <HiChevronUp className="h-4 w-4" />
+                                          </button>
+                                          <button
+                                             type="button"
+                                             onClick={() =>
+                                                handleMove(index, 1)
+                                             }
+                                             disabled={
+                                                index === campos.length - 1
+                                             }
+                                             data-move-index={index}
+                                             data-move-direction={1}
+                                             className="rounded p-1.5 text-gray-400 transition-colors hover:bg-slate-100 hover:text-slate-600 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-gray-400"
+                                             title="Mover para baixo"
+                                             aria-label="Mover ordem especial para baixo"
+                                          >
+                                             <HiChevronDown className="h-4 w-4" />
+                                          </button>
+                                          <button
+                                             type="button"
+                                             onClick={() => onEditCampo(index)}
+                                             className="rounded p-1.5 text-gray-400 transition-colors hover:bg-purple-50 hover:text-purple-600"
+                                             title="Editar"
+                                             aria-label={`Editar ordem especial ${index + 1}`}
+                                          >
+                                             <HiPencil className="h-4 w-4" />
+                                          </button>
+                                          <button
+                                             type="button"
+                                             onClick={() =>
+                                                handleDeleteClick(index)
+                                             }
+                                             className="rounded p-1.5 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-500"
+                                             title="Excluir"
+                                             aria-label={`Excluir ordem especial ${index + 1}`}
+                                          >
+                                             <HiTrash className="h-4 w-4" />
+                                          </button>
+                                       </div>
+                                    )}
+                                 </div>
                                  <p className="text-sm whitespace-pre-wrap text-gray-700">
                                     {campo.valor || (
                                        <span className="text-gray-400 italic">
@@ -212,26 +341,6 @@ export const OrdemEspeciaisDisplay = memo(function OrdemEspeciaisDisplay({
                                     )}
                                  </p>
                               </div>
-                              {isEditable && (
-                                 <div className="flex shrink-0 items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
-                                    <button
-                                       type="button"
-                                       onClick={() => onEditCampo(index)}
-                                       className="rounded p-1.5 text-gray-400 transition-colors hover:bg-purple-50 hover:text-purple-600"
-                                       title="Editar"
-                                    >
-                                       <HiPencil className="h-4 w-4" />
-                                    </button>
-                                    <button
-                                       type="button"
-                                       onClick={() => handleDeleteClick(index)}
-                                       className="rounded p-1.5 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-500"
-                                       title="Excluir"
-                                    >
-                                       <HiTrash className="h-4 w-4" />
-                                    </button>
-                                 </div>
-                              )}
                            </div>
                         </div>
                      );

@@ -20,6 +20,7 @@ import {
    minutesToTime,
    roundTimeToFiveMinutes,
    calcularTempoVooMinutos,
+   addMinutesToIsoDatetime,
 } from "utils/dateHandler";
 import { createNextEtapa } from "./utils/ordemUtils";
 import {
@@ -151,22 +152,20 @@ export function EtapaModal({
 
    // Auto-ajuste: se mesma data mas hora decolagem >= hora pouso.
    // Reage apenas a mudanças em decolagem (não em pouso) para não brigar com digitação.
+   //
+   // Era `% 24` sem virar a data: 23:57 + 5min virava "00:02" NO MESMO DIA
+   // (pouso antes da decolagem). `addMinutesToIsoDatetime` soma minutos ao
+   // ISO completo, então vira dia corretamente.
    useEffect(() => {
       if (!dataDecolagem || !horaDecolagem) return;
       const { dataPouso: pouso, horaPouso: hora } = currentPousoRef.current;
       if (!pouso || !hora) return;
 
       if (dataDecolagem === pouso && horaDecolagem >= hora) {
-         const [hours, minutes] = horaDecolagem.split(":").map(Number);
-         const totalMinutes = hours * 60 + minutes + 5;
-         const newHours = Math.floor(totalMinutes / 60) % 24;
-         const newMinutes = totalMinutes % 60;
-         const newHoraPouso = `${String(newHours).padStart(2, "0")}:${String(newMinutes).padStart(2, "0")}`;
-
-         const newIsoDatetime = toIsoDatetime(pouso, newHoraPouso);
+         const newIsoDatetime = addMinutesToIsoDatetime(formData.dt_dep, 5);
          setFormData((prev) => ({ ...prev, dt_arr: newIsoDatetime }));
       }
-   }, [dataDecolagem, horaDecolagem]);
+   }, [dataDecolagem, horaDecolagem, formData.dt_dep]);
 
    // Validações (regras compartilhadas em utils/ordemValidation —
    // mesma fonte usada pelo useOrdemForm na validação agregada)
@@ -405,14 +404,19 @@ export function EtapaModal({
 
                {/* Cartão de planejamento: alternativa, combustível e esforço aéreo */}
                <div className="rounded border border-slate-200 bg-white shadow-sm">
-                  <div className="grid divide-y divide-slate-100 md:grid-cols-5 md:divide-x md:divide-y-0">
+                  {/* Celular: alternativa (ICAO + T. voo) e combustível numa
+                      linha só — a coluna do combustível é estreita e fixa, o
+                      esforço aéreo desce. Divisórias por borda explícita
+                      porque o divide-* não entende grade de 2 colunas */}
+                  <div className="grid grid-cols-[minmax(0,1fr)_88px] md:grid-cols-5">
                      {/* Alternativa */}
-                     <div className="p-4 md:col-span-2">
+                     <div className="p-3 sm:p-4 md:col-span-2">
                         <div className="mb-3 flex items-center gap-2">
                            <span className="h-2 w-2 rounded-full bg-slate-300" />
                            <h4 className={sectionTitleClass}>Alternativa</h4>
                         </div>
-                        <div className="grid grid-cols-2 gap-3">
+                        {/* O relógio do T. voo pede mais largura que o ICAO */}
+                        <div className="grid grid-cols-[5fr_6fr] gap-2 md:grid-cols-2 md:gap-3">
                            <div>
                               <Label
                                  htmlFor="alternativa"
@@ -492,10 +496,17 @@ export function EtapaModal({
                      </div>
 
                      {/* Combustível */}
-                     <div className="p-4 md:col-span-1">
+                     <div className="border-l border-slate-100 p-3 sm:p-4 md:col-span-1">
                         <div className="mb-3 flex items-center gap-2">
                            <span className="h-2 w-2 rounded-full bg-slate-300" />
-                           <h4 className={sectionTitleClass}>Combustível</h4>
+                           {/* "COMBUSTÍVEL" não cabe na coluna estreita do
+                               celular; o nome completo volta no md, junto com a grade de 5 */}
+                           <h4 className={sectionTitleClass}>
+                              <span className="md:hidden">Comb.</span>
+                              <span className="hidden md:inline">
+                                 Combustível
+                              </span>
+                           </h4>
                         </div>
                         <div>
                            <Label
@@ -539,7 +550,7 @@ export function EtapaModal({
                      </div>
 
                      {/* Esforço Aéreo */}
-                     <div className="p-4 md:col-span-2">
+                     <div className="col-span-2 border-t border-slate-100 p-3 sm:p-4 md:col-span-2 md:border-t-0 md:border-l">
                         <div className="mb-3 flex items-center gap-2">
                            <span className="h-2 w-2 rounded-full bg-slate-300" />
                            <h4 className={sectionTitleClass}>Esforço Aéreo</h4>
@@ -597,12 +608,15 @@ export function EtapaModal({
                      Corrija os erros de data/hora para salvar
                   </p>
                ) : (
-                  <p className="flex min-w-0 flex-1 items-center gap-1.5 text-xs font-medium text-emerald-600">
+                  // Só confirmação: no celular sai para não apertar os botões
+                  <p className="hidden min-w-0 flex-1 items-center gap-1.5 text-xs font-medium text-emerald-600 sm:flex">
                      <HiCheckCircle className="h-4 w-4 shrink-0" />
                      Etapa pronta para salvar
                   </p>
                )}
-               <div className="flex shrink-0 gap-3">
+               {/* ml-auto: com a confirmação oculta no celular, os botões
+                   continuam à direita */}
+               <div className="ml-auto flex shrink-0 gap-3">
                   <Button color="gray" onClick={onClose}>
                      Cancelar
                   </Button>

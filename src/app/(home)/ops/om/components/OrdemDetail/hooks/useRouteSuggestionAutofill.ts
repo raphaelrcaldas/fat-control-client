@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import type { Dispatch, SetStateAction } from "react";
 import type { EtapaOut } from "services/routes/om/ordens";
 import { useRouteSuggestion } from "@/hooks/queries";
+import { addMinutesToIsoDatetime } from "utils/dateHandler";
 
 export type SuggestionType = "none" | "full" | "partial";
 
@@ -92,11 +93,13 @@ export function useRouteSuggestionAutofill({
             routeSuggestion.tvoo_etp &&
             routeSuggestion.tvoo_etp > 0
          ) {
-            const depDate = new Date(prev.dt_dep);
-            const arrDate = new Date(
-               depDate.getTime() + routeSuggestion.tvoo_etp * 60 * 1000
+            // `addMinutesToIsoDatetime` devolve no mesmo formato de
+            // `toIsoDatetime` ("...:00Z") — `toISOString()` gerava ".000Z",
+            // formato diferente do resto do formulário.
+            newDtArr = addMinutesToIsoDatetime(
+               prev.dt_dep,
+               routeSuggestion.tvoo_etp
             );
-            newDtArr = arrDate.toISOString();
          }
 
          return {

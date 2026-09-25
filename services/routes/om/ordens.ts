@@ -1,4 +1,4 @@
-import request from "../../Api";
+import request, { ApiError } from "../../Api";
 import type { ApiPaginatedResponse, ApiResponse } from "@/types/api";
 import type { StatusType } from "@/constants/ops/ordens-missao/status";
 import type { CrewMember } from "../trips";
@@ -163,38 +163,6 @@ export interface OrdemFilters {
    ordem?: "recente" | "cronologica" | "numerica";
 }
 
-// --- Helpers de erro ---
-
-interface PydanticError {
-   loc: (string | number)[];
-   msg: string;
-   type: string;
-}
-
-interface ApiError {
-   detail: string | PydanticError[];
-}
-
-/**
- * Formata erros de validação do Pydantic para exibição
- */
-function formatApiError(error: ApiError): string {
-   if (typeof error.detail === "string") {
-      return error.detail;
-   }
-
-   if (Array.isArray(error.detail)) {
-      return error.detail
-         .map((e) => {
-            const field = e.loc.slice(1).join(" → ");
-            return `${field}: ${e.msg}`;
-         })
-         .join("; ");
-   }
-
-   return "Erro desconhecido";
-}
-
 // --- Funcoes de API ---
 
 export async function listOrdens(
@@ -257,7 +225,11 @@ export async function getOrdem(id: number): Promise<OrdemMissaoOut> {
    const json = (await response.json()) as ApiResponse<OrdemMissaoOut>;
 
    if (!response.ok) {
-      throw new Error(json.message || "Ordem de missão não encontrada");
+      throw new ApiError(
+         json.message || "Ordem de missão não encontrada",
+         json.errors ?? null,
+         response.status
+      );
    }
    return json.data!;
 }
@@ -268,7 +240,11 @@ export async function createOrdem(
    const response = await request("POST", omRoute, ordem);
    const json: ApiResponse<OrdemMissaoOut> = await response.json();
    if (!response.ok) {
-      throw new Error(json.message || "Erro ao criar ordem de missão");
+      throw new ApiError(
+         json.message || "Erro ao criar ordem de missão",
+         json.errors ?? null,
+         response.status
+      );
    }
    return json.data as OrdemMissaoOut;
 }
@@ -280,7 +256,11 @@ export async function updateOrdem(
    const response = await request("PUT", `${omRoute}${id}`, ordem);
    const json: ApiResponse<OrdemMissaoOut> = await response.json();
    if (!response.ok) {
-      throw new Error(json.message || "Erro ao atualizar ordem de missão");
+      throw new ApiError(
+         json.message || "Erro ao atualizar ordem de missão",
+         json.errors ?? null,
+         response.status
+      );
    }
    return json.data as OrdemMissaoOut;
 }
@@ -289,7 +269,11 @@ export async function deleteOrdem(id: number): Promise<string> {
    const response = await request("DELETE", `${omRoute}${id}`);
    const json: ApiResponse<null> = await response.json();
    if (!response.ok) {
-      throw new Error(json.message || "Erro ao excluir ordem de missão");
+      throw new ApiError(
+         json.message || "Erro ao excluir ordem de missão",
+         json.errors ?? null,
+         response.status
+      );
    }
    return json.message;
 }

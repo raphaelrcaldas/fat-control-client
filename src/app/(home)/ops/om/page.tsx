@@ -4,13 +4,7 @@ import { useState, useEffect, useMemo, useRef } from "react";
 import useDebouncedValue from "@/hooks/useDebouncedValue";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import {
-   Tabs,
-   TabItem,
-   Pagination,
-   Button,
-   type TabsRef,
-} from "flowbite-react";
+import { Tabs, TabItem, Button, type TabsRef } from "flowbite-react";
 import { HiPlus, HiOutlineClipboardList } from "react-icons/hi";
 import clsx from "clsx";
 import {
@@ -34,6 +28,7 @@ import { useToast } from "@/app/context/toast";
 import { dateToIso } from "utils/dateHandler";
 import { markOmInAppOrigin, saveOmListUrl } from "./utils/omListUrl";
 import { PermBased } from "../../hooks/usePermBased";
+import { Pagination } from "@/components/Pagination";
 
 const tabsTheme = {
    tablist: {
@@ -74,10 +69,6 @@ export default function OrdensMissao() {
    const { activeOrg } = useAuth();
    const { push: pushToast } = useToast();
    const { searchParams, setParams } = useSearchParamsUpdater();
-
-   // O scroll fica no <main> do layout, não na window: ref no topo da página
-   // para a paginação voltar ao início da lista
-   const pageTopRef = useRef<HTMLDivElement>(null);
 
    // Ref imperativa do Tabs (não-controlado no Flowbite): permite ressincronizar
    // com a URL sem remontar o componente inteiro via key={tabParam}
@@ -208,6 +199,28 @@ export default function OrdensMissao() {
       pages: ordensRascunhoQuery.data?.pages ?? 1,
    };
 
+   // Query da tab ativa — usada para corrigir página além do fim abaixo
+   const activeQuery =
+      tabParam === "rascunho" ? ordensRascunhoQuery : ordensAprovadasQuery;
+
+   // Página além do fim (item excluído esvaziou a última página, ou ?page=99
+   // digitado à mão) prende a lista em "Nenhum item encontrado" sem
+   // paginação para voltar. Só corrige com dado real (não placeholder) para
+   // não recuar durante um refetch em andamento.
+   useEffect(() => {
+      if (activeQuery.isPlaceholderData || !activeQuery.data) return;
+      // Lista vazia devolve pages = 0: a página 1 já é o piso
+      if (currentPage > Math.max(1, activeQuery.data.pages)) {
+         setParams({
+            page:
+               activeQuery.data.pages > 1
+                  ? String(activeQuery.data.pages)
+                  : undefined,
+         });
+      }
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+   }, [activeQuery.isPlaceholderData, activeQuery.data, currentPage]);
+
    // ========================================
    // Handlers
    // ========================================
@@ -230,6 +243,11 @@ export default function OrdensMissao() {
          onSuccess: () => {
             setDeleteModalOpen(false);
             setOrdemToDelete(null);
+            pushToast({
+               type: "success",
+               title: "Sucesso",
+               message: "Rascunho excluído",
+            });
          },
          onError: (err) => {
             console.error("Erro ao excluir ordem:", err);
@@ -293,20 +311,20 @@ export default function OrdensMissao() {
       });
    };
 
+   // Paginador compartilhado (`@/components/Pagination`, o das demais
+   // listagens): compacto no celular — o do Flowbite estourava 13px a 360px e
+   // punha rolagem lateral no <main> — e ancora a própria posição na troca de
+   // página, então não rolamos para o topo aqui (brigaria com a âncora).
    const handlePageChange = (page: number) => {
       setParams({ page: page === 1 ? undefined : String(page) });
-      pageTopRef.current?.scrollIntoView({
-         behavior: "smooth",
-         block: "start",
-      });
    };
 
    return (
-      <div ref={pageTopRef} className="text-gray-900">
+      <div className="text-gray-900">
          <div className="mx-auto space-y-2">
             {/* Masthead — referência canônica (ver ops/operacoes) */}
             <header className="relative overflow-hidden rounded border border-slate-200 bg-white px-5 py-4 shadow-sm sm:px-6 sm:py-5">
-               {/* Espinha vermelha — ecoa a espinha dos cards */}
+               {/* Espinha na cor da marca — ecoa a espinha dos cards */}
                <span
                   aria-hidden
                   className="bg-primary-600 absolute top-0 left-0 h-full w-1"
@@ -337,12 +355,15 @@ export default function OrdensMissao() {
                         href="/ops/om/nova"
                         color="primary"
                         className="font-semibold whitespace-nowrap"
+                        title="Nova Ordem de Missão"
                      >
-                        <HiPlus className="mr-2 h-4 w-4" />
-                        <span className="hidden sm:inline">
+                        {/* No celular só o ícone: com rótulo o botão caía
+                            para a linha de baixo do masthead. O texto segue
+                            como nome acessível (sr-only) */}
+                        <HiPlus className="h-4 w-4 sm:mr-2" />
+                        <span className="sr-only sm:not-sr-only">
                            Nova Ordem de Missão
                         </span>
-                        <span className="sm:hidden">Nova OM</span>
                      </Button>
                   </PermBased>
                </div>
@@ -417,7 +438,7 @@ export default function OrdensMissao() {
                      ) : (
                         <div
                            className={clsx(
-                              "transition-opacity",
+                              "space-y-2 transition-opacity",
                               ordensAprovadasQuery.isPlaceholderData &&
                                  "pointer-events-none opacity-50"
                            )}
@@ -431,14 +452,11 @@ export default function OrdensMissao() {
                               onCreateOrdem={() => router.push("/ops/om/nova")}
                            />
                            {paginationAprovadas.pages > 1 && (
-                              <div className="mt-4 flex justify-center">
+                              <div>
                                  <Pagination
                                     currentPage={pageAprovadas}
                                     totalPages={paginationAprovadas.pages}
                                     onPageChange={handlePageChange}
-                                    showIcons
-                                    previousLabel="Anterior"
-                                    nextLabel="Próxima"
                                  />
                               </div>
                            )}
@@ -476,7 +494,7 @@ export default function OrdensMissao() {
                      ) : (
                         <div
                            className={clsx(
-                              "transition-opacity",
+                              "space-y-2 transition-opacity",
                               ordensRascunhoQuery.isPlaceholderData &&
                                  "pointer-events-none opacity-50"
                            )}
@@ -489,14 +507,11 @@ export default function OrdensMissao() {
                               onCreateOrdem={() => router.push("/ops/om/nova")}
                            />
                            {paginationRascunho.pages > 1 && (
-                              <div className="mt-4 flex justify-center">
+                              <div>
                                  <Pagination
                                     currentPage={pageRascunho}
                                     totalPages={paginationRascunho.pages}
                                     onPageChange={handlePageChange}
-                                    showIcons
-                                    previousLabel="Anterior"
-                                    nextLabel="Próxima"
                                  />
                               </div>
                            )}

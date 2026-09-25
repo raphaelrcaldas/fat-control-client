@@ -1,7 +1,7 @@
 "use client";
 
-import { HiTag, HiX } from "react-icons/hi";
 import type { Etiqueta } from "services/routes/om/ordens";
+import { EtiquetaChip } from "./EtiquetaChip";
 
 type LabelPickerProps = {
    allLabels: Etiqueta[];
@@ -11,6 +11,11 @@ type LabelPickerProps = {
    className?: string;
 };
 
+// Seção Classificação da OM. Em edição, uma fileira só na ordem do catálogo
+// (alfabética, vinda da API), e cada chip alterna NO LUGAR. Antes as
+// selecionadas iam para uma fileira própria: o chip clicado saltava de linha,
+// os vizinhos se reorganizavam e, no celular, a seção crescia 32px a cada
+// toque — o alvo sob o dedo mudava.
 export function LabelPicker({
    allLabels,
    selectedLabels,
@@ -18,81 +23,63 @@ export function LabelPicker({
    isEditable = true,
    className = "",
 }: LabelPickerProps) {
+   const selectedIds = new Set(selectedLabels.map((l) => l.id));
+
+   // Selecionada que não está no catálogo (excluída por outra pessoa entre o
+   // carregamento da OM e agora) continua visível para poder ser removida
+   const foraDoCatalogo = selectedLabels.filter(
+      (l) => !allLabels.some((a) => a.id === l.id)
+   );
+   const opcoes = [...allLabels, ...foraDoCatalogo];
+
    const toggleLabel = (label: Etiqueta) => {
-      const isSelected = selectedLabels.some((l) => l.id === label.id);
-      const newSelected = isSelected
+      const next = selectedIds.has(label.id)
          ? selectedLabels.filter((l) => l.id !== label.id)
          : [...selectedLabels, label];
-      onChange(newSelected);
+      // Mantém a ordem do catálogo, a mesma exibida
+      onChange(opcoes.filter((o) => next.some((n) => n.id === o.id)));
    };
 
-   const unselectedLabels = allLabels.filter(
-      (label) => !selectedLabels.some((l) => l.id === label.id)
-   );
-
-   return (
-      <div className={`space-y-1 ${className}`}>
-         {/* Etiquetas selecionadas */}
-         <div className="flex flex-wrap gap-2">
-            {selectedLabels.length === 0 && !isEditable && (
+   if (!isEditable) {
+      return (
+         <div className={className}>
+            {selectedLabels.length === 0 ? (
                <p className="text-sm text-gray-400 italic">
                   Nenhuma etiqueta atribuída a esta missão.
                </p>
+            ) : (
+               <div className="flex flex-wrap gap-2">
+                  {selectedLabels.map((label) => (
+                     <EtiquetaChip key={label.id} etiqueta={label} />
+                  ))}
+               </div>
             )}
-            {selectedLabels.map((label) => (
-               <span
-                  key={label.id}
-                  style={{
-                     backgroundColor: `${label.cor}20`,
-                     color: label.cor,
-                     borderColor: label.cor,
-                  }}
-                  className="inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-semibold shadow-sm transition-all"
-               >
-                  <HiTag className="h-3 w-3" />
-                  {label.nome}
-                  {isEditable && (
-                     <button
-                        type="button"
-                        onClick={() => toggleLabel(label)}
-                        className="ml-1 rounded-full p-0.5 transition-colors hover:bg-black/10"
-                        title="Remover"
-                     >
-                        <HiX className="h-3.5 w-3.5" />
-                     </button>
-                  )}
-               </span>
-            ))}
          </div>
+      );
+   }
 
-         {/* Seletor de etiquetas (modo edição) */}
-         {isEditable && unselectedLabels.length > 0 && (
-            <div className="flex flex-wrap gap-2 pt-2">
-               {unselectedLabels.map((label) => (
-                  <button
-                     key={label.id}
-                     type="button"
-                     onClick={() => toggleLabel(label)}
-                     className="inline-flex items-center gap-1.5 rounded-full border border-dashed px-3 py-1 text-xs font-medium transition-all hover:scale-105"
-                     style={{
-                        borderColor: label.cor,
-                        color: label.cor,
-                        backgroundColor: `${label.cor}10`,
-                     }}
-                     title={label.descricao || "Clique para adicionar"}
-                  >
-                     <HiTag className="h-3 w-3" />
-                     {label.nome}
-                  </button>
-               ))}
-            </div>
-         )}
+   if (opcoes.length === 0) {
+      return (
+         <p className={`text-sm text-gray-400 italic ${className}`}>
+            Nenhuma etiqueta cadastrada.
+         </p>
+      );
+   }
 
-         {isEditable && allLabels.length === 0 && (
-            <p className="text-sm text-gray-400 italic">
-               Nenhuma etiqueta cadastrada.
-            </p>
-         )}
+   return (
+      <div
+         role="group"
+         aria-label="Etiquetas da missão"
+         className={`flex flex-wrap gap-2 ${className}`}
+      >
+         {opcoes.map((label) => (
+            <EtiquetaChip
+               key={label.id}
+               etiqueta={label}
+               selected={selectedIds.has(label.id)}
+               onToggle={() => toggleLabel(label)}
+            />
+         ))}
       </div>
    );
 }

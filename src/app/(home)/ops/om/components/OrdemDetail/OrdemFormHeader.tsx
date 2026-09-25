@@ -48,6 +48,7 @@ function LifecycleButton({
    busyLabel,
    icon: Icon,
    label,
+   title,
 }: {
    onClick: () => void;
    disabled: boolean;
@@ -55,16 +56,19 @@ function LifecycleButton({
    busyLabel: string;
    icon: ComponentType<{ className?: string; size?: number }>;
    label: string;
+   title?: string;
 }) {
    return (
       <div className="flex items-center gap-3">
          <div className="hidden h-8 w-px bg-gray-300 md:block" />
          <Button
+            className="whitespace-nowrap"
             color="primary"
             type="button"
             onClick={onClick}
             disabled={disabled}
             aria-label={busy ? busyLabel : label}
+            title={title}
          >
             {busy ? (
                <>
@@ -107,6 +111,9 @@ export function OrdemFormHeader({
    // Ações de ciclo de vida disponíveis para o status atual (máquina de estados)
    const transicoesStatus = getStatusTransitions(status);
    const statusCfg = STATUS_CONFIG[status as StatusType];
+   // No celular só cabe o número: a identificação é "numero/ORG/DDMMYY" e o
+   // número é saneado para [A-Z0-9-], então o 1º segmento é sempre ele
+   const numeroCurto = ordemIdentificacao.split("/")[0];
 
    return (
       <header className="flex shrink-0 items-center justify-between border-b border-gray-200 bg-white px-4 py-3 shadow-sm md:px-6 md:py-4">
@@ -118,6 +125,36 @@ export function OrdemFormHeader({
             >
                <HiArrowLeft size={24} />
             </button>
+
+            {/* No celular, título e badge de status (abaixo) ficam ocultos
+                (sr-only) — sem isso a OM some da tela, sem identificação
+                nenhuma. Linha compacta, ao lado do botão voltar, truncando em
+                vez de quebrar linha. */}
+            {!isNew && !isCloning && (
+               <div
+                  className="flex min-w-0 items-center gap-2 md:hidden"
+                  title={ordemIdentificacao || undefined}
+               >
+                  {numeroCurto && (
+                     <span className="truncate font-mono text-sm text-gray-500 uppercase">
+                        OM {numeroCurto}
+                     </span>
+                  )}
+                  {statusCfg && (
+                     <span
+                        className={clsx(
+                           "shrink-0 rounded-full border px-2 py-0.5 text-[10px] font-bold tracking-wider uppercase",
+                           statusCfg.bg,
+                           statusCfg.text,
+                           statusCfg.border
+                        )}
+                     >
+                        {statusCfg.label}
+                     </span>
+                  )}
+               </div>
+            )}
+
             <div className="sr-only min-w-0 md:not-sr-only md:block">
                <h1 className="truncate text-xl font-semibold text-gray-900">
                   {title} Ordem de Missão
@@ -154,7 +191,7 @@ export function OrdemFormHeader({
             </div>
          )}
 
-         <div className="flex flex-1 items-center justify-end gap-2 md:gap-3">
+         <div className="flex shrink-0 items-center justify-end gap-2 md:flex-1 md:gap-3">
             {isReadOnlyMode && (
                <>
                   {status !== "cancelada" && (
@@ -163,6 +200,7 @@ export function OrdemFormHeader({
                         requiredPerm={"update"}
                      >
                         <Button
+                           className="whitespace-nowrap"
                            color="light"
                            onClick={onToggleReadOnly}
                            aria-label="Editar"
@@ -215,6 +253,7 @@ export function OrdemFormHeader({
                      cabeçalho. */}
                   {(hasChanges || (!isNew && !isCloning)) && (
                      <Button
+                        className="whitespace-nowrap"
                         color="gray"
                         onClick={onCancelEdit}
                         disabled={isSaving || isApproving}
@@ -229,16 +268,22 @@ export function OrdemFormHeader({
                      </Button>
                   )}
                   <Button
+                     className="whitespace-nowrap"
                      color="light"
                      type="submit"
                      form="ordem-form"
                      disabled={
-                        !hasChanges ||
+                        (!hasChanges && !isCloning) ||
                         hasCamposEspeciaisVazios ||
                         isSaving ||
                         isApproving
                      }
                      aria-label={isSaving ? "Salvando..." : "Salvar"}
+                     title={
+                        hasCamposEspeciaisVazios
+                           ? "Preencha as ordens especiais vazias"
+                           : undefined
+                     }
                   >
                      {isSaving ? (
                         <>
@@ -268,6 +313,11 @@ export function OrdemFormHeader({
                               hasCamposEspeciaisVazios ||
                               isSaving ||
                               isApproving
+                           }
+                           title={
+                              hasCamposEspeciaisVazios
+                                 ? "Preencha as ordens especiais vazias"
+                                 : undefined
                            }
                            busy={isApproving}
                            busyLabel="Aprovando..."

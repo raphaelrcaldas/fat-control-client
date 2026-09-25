@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
    Modal,
    ModalHeader,
@@ -11,7 +11,8 @@ import {
    Label,
    Spinner,
 } from "flowbite-react";
-import { HiPlus, HiTrash, HiPencil, HiCheck, HiX } from "react-icons/hi";
+import { HiPlus, HiTrash, HiPencil, HiCheck } from "react-icons/hi";
+import clsx from "clsx";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import type { Etiqueta } from "services/routes/om/ordens";
 import {
@@ -20,6 +21,8 @@ import {
    useDeleteEtiquetaOrdem,
 } from "@/hooks/queries";
 import { useToast } from "@/app/context/toast";
+import { usePermBased } from "@/app/(home)/hooks/usePermBased";
+import { EtiquetaChip } from "./EtiquetaChip";
 
 type LabelManagerProps = {
    isOpen: boolean;
@@ -28,6 +31,13 @@ type LabelManagerProps = {
    onLabelDeleted?: (id: number) => void;
 };
 
+const COR_PADRAO = "#ef4444";
+const FORM_VAZIO = { nome: "", cor: COR_PADRAO, descricao: "" };
+
+// Mesmo recurso do backend (`routers/ops/om_etiquetas.py`): quem edita a OM
+// administra as etiquetas dela, cada ação com a sua permissão
+const RECURSO = "ops.ordem_missao";
+
 export function LabelManager({
    isOpen,
    onClose,
@@ -35,56 +45,77 @@ export function LabelManager({
    onLabelDeleted,
 }: LabelManagerProps) {
    const { push: pushToast } = useToast();
+   const { hasPerm } = usePermBased();
+   const podeCriar = hasPerm(RECURSO, "create");
+   const podeEditar = hasPerm(RECURSO, "update");
+   const podeExcluir = hasPerm(RECURSO, "delete");
+
    const [editingId, setEditingId] = useState<number | null>(null);
-   const [deletingId, setDeletingId] = useState<number | null>(null);
-   const [formData, setFormData] = useState({
-      nome: "",
-      cor: "#ef4444",
-      descricao: "",
-   });
+   const [deleting, setDeleting] = useState<Etiqueta | null>(null);
+   const [formData, setFormData] = useState(FORM_VAZIO);
+   const formRef = useRef<HTMLFormElement>(null);
+   const nomeRef = useRef<HTMLInputElement>(null);
 
    // Mutations TanStack: invalidam a lista de etiquetas automaticamente
-   // (o antigo callback onRefresh ficou desnecessário)
    const createMutation = useCreateEtiqueta();
    const updateMutation = useUpdateEtiqueta();
    const deleteMutation = useDeleteEtiquetaOrdem();
 
-   const isLoading =
-      createMutation.isPending ||
-      updateMutation.isPending ||
-      deleteMutation.isPending;
+   const isSaving = createMutation.isPending || updateMutation.isPending;
+   const isLoading = isSaving || deleteMutation.isPending;
+
+   const editing = labels.find((l) => l.id === editingId) ?? null;
+   const nome = formData.nome.trim();
+   // O backend não recusa nome repetido; duas etiquetas iguais seriam
+   // indistinguíveis no filtro e no documento
+   const nomeDuplicado = labels.some(
+      (l) =>
+         l.id !== editingId &&
+         l.nome.trim().toLowerCase() === nome.toLowerCase()
+   );
+   const podeSalvar = !!nome && !nomeDuplicado && !isLoading;
+   const mostraForm = editing ? podeEditar : podeCriar;
 
    const resetForm = () => {
-      setFormData({ nome: "", cor: "#ef4444", descricao: "" });
+      setFormData(FORM_VAZIO);
       setEditingId(null);
    };
 
+   const handleClose = () => {
+      resetForm();
+      onClose();
+   };
+
    const handleSave = async () => {
-      if (!formData.nome || !formData.cor) return;
+      if (!podeSalvar) return;
+      const data = {
+         nome,
+         cor: formData.cor,
+         // Opcional em branco viaja como null, nunca ""
+         descricao: formData.descricao.trim() || null,
+      };
 
       try {
          if (editingId) {
-            await updateMutation.mutateAsync({
-               id: editingId,
-               data: formData,
-            });
+            await updateMutation.mutateAsync({ id: editingId, data });
          } else {
-            await createMutation.mutateAsync(formData);
+            await createMutation.mutateAsync(data);
          }
-         resetForm();
          pushToast({
             type: "success",
             title: "Sucesso",
-            message: editingId
-               ? "Etiqueta atualizada com sucesso"
-               : "Etiqueta criada com sucesso",
+            message: editingId ? "Etiqueta atualizada" : "Etiqueta criada",
          });
+         resetForm();
       } catch (error) {
          console.error("Erro ao salvar etiqueta:", error);
          pushToast({
             type: "error",
             title: "Erro",
-            message: "Erro ao salvar etiqueta. Tente novamente.",
+            message:
+               error instanceof Error
+                  ? error.message
+                  : "Erro ao salvar etiqueta. Tente novamente.",
          });
       }
    };
@@ -98,20 +129,30 @@ export function LabelManager({
       });
    };
 
-   const handleDeleteClick = (id: number) => {
-      setDeletingId(id);
-   };
+   // O formulário fica no topo e a etiqueta pode estar no fim da lista:
+   // sem trazê-lo para a tela, a pessoa não percebe que entrou em edição.
+   // Em efeito, e não no `handleEdit`: sem permissão de criar, o <form> só
+   // monta depois do `setEditingId`, e ali os refs ainda seriam null
+   useEffect(() => {
+      if (editingId === null) return;
+      formRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      nomeRef.current?.focus({ preventScroll: true });
+   }, [editingId]);
 
    const handleConfirmDelete = async () => {
-      if (!deletingId) return;
+      if (!deleting) return;
+      const id = deleting.id;
 
       try {
-         await deleteMutation.mutateAsync(deletingId);
-         onLabelDeleted?.(deletingId);
+         await deleteMutation.mutateAsync(id);
+         onLabelDeleted?.(id);
+         // Etiqueta excluída era a que estava em edição: o form ficaria
+         // editando um id que não existe mais e salvar daria erro
+         if (id === editingId) resetForm();
          pushToast({
             type: "success",
             title: "Sucesso",
-            message: "Etiqueta excluída com sucesso",
+            message: "Etiqueta excluída",
          });
       } catch (error) {
          console.error("Erro ao excluir etiqueta:", error);
@@ -121,61 +162,84 @@ export function LabelManager({
             message: "Erro ao excluir etiqueta. Tente novamente.",
          });
       } finally {
-         setDeletingId(null);
+         setDeleting(null);
       }
-   };
-
-   const handleCancelDelete = () => {
-      setDeletingId(null);
    };
 
    return (
       <>
-         <Modal show={isOpen} onClose={onClose} size="md">
-            <ModalHeader>Gerenciar Etiquetas</ModalHeader>
+         <Modal
+            show={isOpen}
+            onClose={handleClose}
+            size="lg"
+            dismissible={!isLoading}
+         >
+            <ModalHeader>Gerenciar etiquetas</ModalHeader>
+            {/* Uma rolagem só — a do próprio ModalBody. A lista tinha altura
+                travada e rolagem própria, mostrando 4 etiquetas por vez */}
             <ModalBody>
-               <div className="flex flex-col gap-6">
-                  {/* Form */}
-                  <div className="rounded border border-gray-100 bg-gray-50 p-4 shadow-inner">
-                     <div className="mb-4 flex items-center justify-between">
-                        <h3 className="text-sm font-bold text-gray-700">
-                           {editingId ? "Editar Etiqueta" : "Nova Etiqueta"}
-                        </h3>
-                        {/* Preview */}
-                        <span
-                           className="inline-flex items-center justify-center rounded-full border px-3 py-1 text-xs font-bold tracking-tight uppercase shadow-sm transition-all"
-                           style={{
-                              backgroundColor: `${formData.cor}20`,
-                              color: formData.cor,
-                              borderColor: formData.cor,
-                           }}
-                        >
-                           {formData.nome || "Preview"}
-                        </span>
-                     </div>
-                     <div className="space-y-4">
-                        <div>
-                           <Label htmlFor="nome">Nome</Label>
-                           <TextInput
-                              id="nome"
-                              placeholder="Ex: Local, Nacional, REVO..."
-                              value={formData.nome}
-                              onChange={(e) =>
-                                 setFormData({
-                                    ...formData,
-                                    nome: e.target.value,
-                                 })
-                              }
-                              required
+               <div className="space-y-4">
+                  {mostraForm && (
+                     <form
+                        ref={formRef}
+                        className="space-y-3 rounded border border-slate-200 bg-slate-50 p-4"
+                        onSubmit={(e) => {
+                           e.preventDefault();
+                           handleSave();
+                        }}
+                     >
+                        <div className="flex items-center justify-between gap-3">
+                           <h3 className="min-w-0 truncate text-sm font-semibold text-slate-700">
+                              {editing
+                                 ? `Editando: ${editing.nome}`
+                                 : "Nova etiqueta"}
+                           </h3>
+                           {/* Prévia fiel: o mesmo chip das telas */}
+                           <EtiquetaChip
+                              etiqueta={{
+                                 nome: nome || "Prévia",
+                                 cor: formData.cor,
+                              }}
+                              className="shrink-0"
                            />
                         </div>
-                        <div className="grid grid-cols-2 gap-4">
+
+                        <div className="grid gap-3 sm:grid-cols-[1fr_auto]">
                            <div>
-                              <Label htmlFor="cor">Cor</Label>
-                              <div className="flex items-center gap-2">
+                              <Label htmlFor="etiqueta-nome">Nome</Label>
+                              <TextInput
+                                 id="etiqueta-nome"
+                                 ref={nomeRef}
+                                 placeholder="LOCAL, NACIONAL, REVO…"
+                                 value={formData.nome}
+                                 maxLength={100}
+                                 color={nomeDuplicado ? "failure" : "gray"}
+                                 onChange={(e) =>
+                                    setFormData({
+                                       ...formData,
+                                       nome: e.target.value.toUpperCase(),
+                                    })
+                                 }
+                              />
+                              {nomeDuplicado && (
+                                 <p className="mt-1 text-sm text-red-600">
+                                    Já existe uma etiqueta com esse nome.
+                                 </p>
+                              )}
+                           </div>
+                           <div>
+                              <Label htmlFor="etiqueta-cor">Cor</Label>
+                              {/* Cor livre, como antes (decisão do usuário):
+                                  o nome sai sempre escuro no chip, então a
+                                  cor não compromete a leitura. Caixa com o
+                                  mesmo p-2.5 + borda do TextInput ao lado,
+                                  para as duas alturas baterem; o seletor
+                                  tem 24px (régua de alvo) e o -my devolve a
+                                  sobra ao padding, sem engordar a caixa */}
+                              <label className="focus-within:ring-primary-500 flex cursor-pointer items-center gap-2 rounded border border-gray-300 bg-white p-2.5 focus-within:ring-1">
                                  <input
                                     type="color"
-                                    id="cor"
+                                    id="etiqueta-cor"
                                     value={formData.cor}
                                     onChange={(e) =>
                                        setFormData({
@@ -183,113 +247,166 @@ export function LabelManager({
                                           cor: e.target.value,
                                        })
                                     }
-                                    className="h-10 w-full cursor-pointer rounded border border-gray-300 p-0.5"
+                                    className="-my-[3.25px] size-[24px] cursor-pointer rounded border-0 bg-transparent p-0"
                                  />
-                              </div>
-                           </div>
-                           <div className="flex min-w-0 items-end gap-2">
-                              <Button
-                                 onClick={handleSave}
-                                 color={"light"}
-                                 size="sm"
-                                 className="grow"
-                                 disabled={isLoading || !formData.nome}
-                              >
-                                 {isLoading ? (
-                                    <Spinner size="sm" color="primary" />
-                                 ) : editingId ? (
-                                    <HiCheck className="h-4 w-4" />
-                                 ) : (
-                                    <HiPlus className="mr-1 h-4 w-4" />
-                                 )}
-                                 {editingId ? "Salvar" : "Adicionar"}
-                              </Button>
-                              {editingId && (
-                                 <Button
-                                    onClick={resetForm}
-                                    color="gray"
-                                    size="sm"
-                                    disabled={isLoading}
-                                 >
-                                    <HiX className="h-4 w-4" />
-                                 </Button>
-                              )}
+                                 <span className="font-mono text-xs text-slate-600 uppercase">
+                                    {formData.cor}
+                                 </span>
+                              </label>
                            </div>
                         </div>
-                     </div>
-                  </div>
 
-                  {/* List */}
-                  <div className="flex flex-col gap-2">
-                     <h3 className="text-xs font-bold tracking-wider text-gray-500 uppercase">
-                        Etiquetas Existentes ({labels.length})
+                        <div>
+                           <Label htmlFor="etiqueta-descricao">
+                              Descrição{" "}
+                              <span className="font-normal text-slate-500">
+                                 (opcional)
+                              </span>
+                           </Label>
+                           <TextInput
+                              id="etiqueta-descricao"
+                              placeholder="Aparece ao passar o mouse na etiqueta"
+                              value={formData.descricao}
+                              maxLength={255}
+                              onChange={(e) =>
+                                 setFormData({
+                                    ...formData,
+                                    descricao: e.target.value,
+                                 })
+                              }
+                           />
+                        </div>
+
+                        <div className="flex justify-end gap-2">
+                           {editing && (
+                              <Button
+                                 color="light"
+                                 size="sm"
+                                 onClick={resetForm}
+                                 disabled={isSaving}
+                              >
+                                 Cancelar edição
+                              </Button>
+                           )}
+                           <Button
+                              type="submit"
+                              color="primary"
+                              size="sm"
+                              disabled={!podeSalvar}
+                           >
+                              {isSaving ? (
+                                 <Spinner
+                                    size="sm"
+                                    color="primary"
+                                    className="mr-2"
+                                 />
+                              ) : editing ? (
+                                 <HiCheck className="mr-1.5 h-4 w-4" />
+                              ) : (
+                                 <HiPlus className="mr-1.5 h-4 w-4" />
+                              )}
+                              {editing ? "Salvar" : "Adicionar"}
+                           </Button>
+                        </div>
+                     </form>
+                  )}
+
+                  <div className="space-y-2">
+                     <h3 className="text-xs font-bold tracking-wider text-slate-500 uppercase">
+                        {labels.length}{" "}
+                        {labels.length === 1 ? "etiqueta" : "etiquetas"}
                      </h3>
-                     <div className="max-h-60 overflow-y-auto pr-1">
-                        {labels.length === 0 ? (
-                           <p className="py-4 text-center text-sm text-gray-400 italic">
-                              Nenhuma etiqueta cadastrada
-                           </p>
-                        ) : (
-                           <div className="flex flex-col gap-2">
-                              {labels.map((label) => (
-                                 <div
+                     {labels.length === 0 ? (
+                        <p className="py-4 text-center text-sm text-slate-500">
+                           Nenhuma etiqueta cadastrada.
+                        </p>
+                     ) : (
+                        // Lista densa: linhas com divisória, não cartões
+                        <ul className="divide-y divide-slate-200 rounded border border-slate-200 bg-white">
+                           {labels.map((label) => {
+                              const isEditing = label.id === editingId;
+                              return (
+                                 <li
                                     key={label.id}
-                                    className="transition-hover flex items-center justify-between rounded border border-gray-100 bg-white p-2.5 shadow-sm hover:border-red-100 hover:shadow-md"
+                                    className={clsx(
+                                       "flex items-center gap-3 px-3 py-2",
+                                       isEditing && "bg-primary-50"
+                                    )}
                                  >
-                                    <div className="flex items-center gap-3">
-                                       <div
-                                          className="h-4 w-4 rounded-full border border-gray-200"
-                                          style={{ backgroundColor: label.cor }}
-                                       />
-                                       <span className="text-sm font-medium text-gray-700">
+                                    <span
+                                       aria-hidden
+                                       className="size-3 shrink-0 rounded-full"
+                                       style={{ backgroundColor: label.cor }}
+                                    />
+                                    <div className="min-w-0 flex-1">
+                                       <p className="truncate text-sm font-medium text-slate-800">
                                           {label.nome}
-                                       </span>
+                                       </p>
+                                       {label.descricao && (
+                                          <p
+                                             className="truncate text-xs text-slate-500"
+                                             title={label.descricao}
+                                          >
+                                             {label.descricao}
+                                          </p>
+                                       )}
                                     </div>
-                                    <div className="flex gap-1">
+                                    {podeEditar && (
                                        <button
+                                          type="button"
                                           onClick={() => handleEdit(label)}
-                                          className="rounded p-1.5 text-gray-400 transition-colors hover:bg-gray-100 hover:text-blue-600"
+                                          disabled={isEditing}
+                                          className="hover:text-primary-600 grid size-[28px] place-items-center rounded text-slate-500 transition-colors hover:bg-slate-100 disabled:cursor-default disabled:opacity-40 disabled:hover:bg-transparent"
                                           title="Editar"
                                           aria-label={`Editar etiqueta ${label.nome}`}
                                        >
                                           <HiPencil className="h-4 w-4" />
                                        </button>
+                                    )}
+                                    {podeExcluir && (
                                        <button
-                                          onClick={() =>
-                                             handleDeleteClick(label.id)
-                                          }
-                                          className="rounded p-1.5 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-600"
+                                          type="button"
+                                          onClick={() => setDeleting(label)}
+                                          className="grid size-[28px] place-items-center rounded text-slate-500 transition-colors hover:bg-red-50 hover:text-red-600"
                                           title="Excluir"
                                           aria-label={`Excluir etiqueta ${label.nome}`}
                                        >
                                           <HiTrash className="h-4 w-4" />
                                        </button>
-                                    </div>
-                                 </div>
-                              ))}
-                           </div>
-                        )}
-                     </div>
+                                    )}
+                                 </li>
+                              );
+                           })}
+                        </ul>
+                     )}
                   </div>
                </div>
             </ModalBody>
-            <ModalFooter>
-               <Button color="gray" onClick={onClose} className="w-full">
+            <ModalFooter className="justify-end">
+               <Button color="light" onClick={handleClose}>
                   Fechar
                </Button>
             </ModalFooter>
          </Modal>
 
-         {/* Modal de Confirmação de Exclusão */}
          <ConfirmModal
-            show={deletingId !== null}
-            onClose={handleCancelDelete}
+            show={deleting !== null}
+            onClose={() => setDeleting(null)}
             onConfirm={handleConfirmDelete}
-            title="Excluir Etiqueta"
+            title="Excluir etiqueta"
             confirmButtonText="Sim, excluir"
             iconColor="text-red-400"
-            isLoading={isLoading}
-            description="Tem certeza que deseja excluir esta etiqueta? Ela será removida de todas as Ordens de Missão que a utilizam."
+            isLoading={deleteMutation.isPending}
+            description={
+               <>
+                  {deleting && (
+                     <span className="mb-3 flex justify-center">
+                        <EtiquetaChip etiqueta={deleting} />
+                     </span>
+                  )}
+                  Ela será removida de todas as Ordens de Missão que a usam.
+               </>
+            }
          />
       </>
    );

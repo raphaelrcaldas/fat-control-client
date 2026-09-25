@@ -12,6 +12,7 @@ import { type FuncType } from "@/constants/tripulantes";
 import { calcularEsfAer } from "../utils/ordemUtils";
 import {
    buildInitialState,
+   sortEtapas,
    toOrdemPayload,
    type OrdemFormInitialState,
    type TripulacaoOrdem,
@@ -29,12 +30,20 @@ import {
 import { useCreateOrdem, useFuncoes, useUpdateOrdem } from "@/hooks/queries";
 import { minutesToTime } from "utils/dateHandler";
 import { compareByAntiguidade } from "utils/sortByAntiguidade";
+import { formatOrdemError } from "../../../ordemErrors";
 
 interface UseOrdemFormProps {
    ordem: OrdemMissaoOut | null;
    isNew: boolean;
    isCloning?: boolean;
    onSave: () => void;
+   /**
+    * Chamado quando, ao aprovar uma OM nova/clonada, o rascunho já foi criado
+    * no backend mas a transição para "aprovada" falhou. Sem isso a tela
+    * permanece em /nova e um novo clique em Aprovar cria outro rascunho
+    * duplicado — quem chama deve navegar para o rascunho recém-criado.
+    */
+   onDraftCreated?: (id: number, message: string) => void;
 }
 
 export const useOrdemForm = ({
@@ -42,6 +51,7 @@ export const useOrdemForm = ({
    isNew,
    isCloning = false,
    onSave,
+   onDraftCreated,
 }: UseOrdemFormProps) => {
    // TanStack Query mutations - invalidacao automatica
    const createOrdemMutation = useCreateOrdem();
@@ -87,8 +97,71 @@ export const useOrdemForm = ({
    // Estado de modo somente leitura (separado da editabilidade)
    const [isReadOnlyMode, setIsReadOnlyMode] = useState(false);
 
-   // Sincronizar o formData quando a ordem ou isCloning mudar
+   // true quando o servidor devolveu uma `ordem` diferente da que originou o
+   // formData atual enquanto havia alteração local não salva (outro usuário
+   // editou a mesma OM). Exibido como aviso em vez de resetar o formulário
+   // por baixo do usuário (ver `applyServerChange` abaixo).
+   const [serverChanged, setServerChanged] = useState(false);
+
+   // Só é atualizado no fim do effect de sincronização — não é o próprio
+   // `ordem` porque assim conseguimos comparar o novo valor com o anterior.
+   const lastSyncedOrdemRef = useRef(ordem);
+
+   // Lido dentro do effect sem virar dependência: precisamos do valor mais
+   // recente de hasChanges no momento em que `ordem` muda de referência, sem
+   // reexecutar o effect a cada tecla digitada.
+   const hasChangesRef = useRef(false);
+
+   // Memoiza a comparação para evitar JSON.stringify em cada render.
+   // Etiquetas entram como ids ordenados: o LabelPicker devolve na ordem do
+   // catálogo, mas a relação `OrdemMissao.etiquetas` do backend não tem
+   // `order_by` (ordem arbitrária) — marcar e desmarcar a mesma etiqueta
+   // acusaria mudança. Idem renomear no gerenciador (o objeto do catálogo
+   // substitui o embutido). Ordenar por nome não serve: a collation do
+   // Postgres e o `localeCompare` divergem em acento/emoji.
+   const hasChanges = useMemo(() => {
+      const semEtiquetas = (data: OrdemMissaoOut) => ({
+         ...data,
+         etiquetas: (data.etiquetas ?? [])
+            .map((e) => e.id)
+            .sort((a, b) => a - b),
+      });
+      return (
+         JSON.stringify(semEtiquetas(formData)) !==
+            JSON.stringify(semEtiquetas(originalData.formData)) ||
+         JSON.stringify(tripulacao) !==
+            JSON.stringify(originalData.tripulacao) ||
+         JSON.stringify(camposEspeciais) !==
+            JSON.stringify(originalData.camposEspeciais)
+      );
+   }, [formData, tripulacao, camposEspeciais, originalData]);
+
+   // Declarado ANTES do efeito de sincronização de propósito: efeitos rodam
+   // na ordem de declaração, e se a primeira edição e a nova `ordem` caírem
+   // no mesmo commit, a sincronização precisa já ler o hasChanges atualizado
+   // — senão lê `false` e sobrescreve a edição.
    useEffect(() => {
+      hasChangesRef.current = hasChanges;
+   }, [hasChanges]);
+
+   // Sincronizar o formData quando a ordem ou isCloning mudar — exceto quando
+   // há alteração local não salva: nesse caso, sinaliza `serverChanged` e
+   // preserva o que o usuário está editando. O gatilho real de `ordem` nova
+   // é o refetch ao reconectar a rede, ao remontar ou por invalidação da
+   // query (`refetchOnWindowFocus` está desligado em lib/queryClient.ts).
+   useEffect(() => {
+      const ordemMudouNoServidor =
+         lastSyncedOrdemRef.current !== null &&
+         ordem !== null &&
+         ordem !== lastSyncedOrdemRef.current;
+
+      if (ordemMudouNoServidor && hasChangesRef.current) {
+         setServerChanged(true);
+         return;
+      }
+
+      lastSyncedOrdemRef.current = ordem;
+
       const next = buildInitialState(ordem, isCloning, codigosFunc);
       initialRef.current = next;
 
@@ -105,20 +178,21 @@ export const useOrdemForm = ({
       } else {
          setIsReadOnlyMode(ordem.status !== "rascunho");
       }
+      // eslint-disable-next-line react-hooks/exhaustive-deps
    }, [ordem, isCloning, codigosFunc]);
 
    const isEditable = !isReadOnlyMode;
 
-   // Memoiza a comparação para evitar JSON.stringify em cada render
-   const hasChanges = useMemo(() => {
-      return (
-         JSON.stringify(formData) !== JSON.stringify(originalData.formData) ||
-         JSON.stringify(tripulacao) !==
-            JSON.stringify(originalData.tripulacao) ||
-         JSON.stringify(camposEspeciais) !==
-            JSON.stringify(originalData.camposEspeciais)
-      );
-   }, [formData, tripulacao, camposEspeciais, originalData]);
+   // Aplica a versão do servidor por cima do formulário, descartando as
+   // alterações locais — acionado pelo botão "Recarregar" do Alert de aviso.
+   const applyServerChange = () => {
+      resetForm();
+      if (!ordem || isCloning) {
+         setIsReadOnlyMode(false);
+      } else {
+         setIsReadOnlyMode(ordem.status !== "rascunho");
+      }
+   };
 
    const toggleReadOnlyMode = () => {
       setIsReadOnlyMode((prev) => !prev);
@@ -147,13 +221,26 @@ export const useOrdemForm = ({
    // Atualizar uma etapa inteira (usado pelo modal de edição)
    const updateEtapa = (index: number, etapa: EtapaOut) => {
       if (!isEditable) return;
-      const newEtapas = [...formData.etapas];
-      newEtapas[index] = etapa;
+      const updated = [...formData.etapas];
+      updated[index] = etapa;
 
-      // Validacao: atualizar a origem da proxima etapa se necessário
-      if (index < newEtapas.length - 1 && etapa.dest) {
-         newEtapas[index + 1] = {
-            ...newEtapas[index + 1],
+      // O estado mantém as etapas sempre ordenadas por decolagem (tabela,
+      // "Etapa N", continuidade e referenceEtapa do modal dependem da ordem
+      // do array) — a propagação "origem da próxima = destino desta" precisa
+      // rodar DEPOIS de ordenar, localizando o novo índice da etapa editada
+      // pela referência do objeto recebido (indexOf).
+      const newEtapas = sortEtapas(updated);
+      const newIndex = newEtapas.indexOf(etapa);
+
+      // Só propaga se a etapa ficou na mesma posição. Se mudar o dt_dep a
+      // fez trocar de lugar, a "próxima" passou a ser outra etapa que a
+      // pessoa não tocou — reescrever a origem dela em silêncio corrompe a
+      // rota (ex.: A SBGL→SBBR 10:00, B SBBR→SBSP 14:00; B para 08:00
+      // transformaria A em SBSP→SBBR). A validação de continuidade acusa a
+      // quebra para correção manual.
+      if (newIndex === index && newIndex < newEtapas.length - 1 && etapa.dest) {
+         newEtapas[newIndex + 1] = {
+            ...newEtapas[newIndex + 1],
             origem: etapa.dest,
          };
       }
@@ -168,7 +255,7 @@ export const useOrdemForm = ({
    // Adicionar nova etapa (usado pelo modal de adição)
    const addEtapa = (etapa: EtapaOut) => {
       if (!isEditable) return;
-      const newEtapas = [...formData.etapas, etapa];
+      const newEtapas = sortEtapas([...formData.etapas, etapa]);
       setFormData({
          ...formData,
          etapas: newEtapas,
@@ -208,12 +295,19 @@ export const useOrdemForm = ({
       });
    };
 
+   // Descartar volta à `ordem` atual, que pode já ser a versão nova do
+   // servidor (aviso `serverChanged`): o baseline e a marca de sincronização
+   // acompanham, senão o aviso sobra e o form acusa alteração que não existe.
    const resetForm = () => {
+      lastSyncedOrdemRef.current = ordem;
       const next = buildInitialState(ordem, isCloning, codigosFunc);
+      initialRef.current = next;
       setFormData(next.formData);
       setTripulacao(next.tripulacao);
       setCamposEspeciais(next.camposEspeciais);
       setEsfAerManual(next.esfAerManual);
+      setOriginalData(next);
+      setServerChanged(false);
       setError(null);
       setFormValidationErrors([]);
    };
@@ -236,15 +330,20 @@ export const useOrdemForm = ({
       setFormValidationErrors([]);
    };
 
-   // Validacao de campos individuais para feedback visual em tempo real
+   // Validacao de campos individuais para feedback visual em tempo real.
+   // A regra da OM (ver OrdemTripulacao.tsx) é: a ordem só sai sem
+   // piloto/mecânico/loadmaster se a unidade não operar a função — o que já a
+   // mantém fora das chaves de `tripulacao`. Por isso a função só é exigida
+   // quando a chave existe; nunca acessar `.length` de chave ausente (o
+   // catálogo de `useFuncoes()` pode chegar vazio no primeiro render).
    const getValidationErrors = (): OrdemValidationFlags => {
       return {
          tipo: !formData.tipo?.trim(),
          matriculaAeronave: !formData.matricula_anv,
          etapas: formData.etapas.length === 0,
-         piloto: tripulacao.pil.length === 0,
-         mecanico: tripulacao.mc.length === 0,
-         loadmaster: tripulacao.lm.length === 0,
+         piloto: "pil" in tripulacao && tripulacao.pil.length === 0,
+         mecanico: "mc" in tripulacao && tripulacao.mc.length === 0,
+         loadmaster: "lm" in tripulacao && tripulacao.lm.length === 0,
       };
    };
 
@@ -380,11 +479,7 @@ export const useOrdemForm = ({
          return { success: true };
       } catch (err) {
          console.error("Erro ao salvar ordem:", err);
-         setError(
-            err instanceof Error
-               ? err.message
-               : "Erro ao salvar ordem de missão"
-         );
+         setError(formatOrdemError(err, "Erro ao salvar ordem de missão"));
          return { success: false };
       } finally {
          setIsSaving(false);
@@ -418,14 +513,34 @@ export const useOrdemForm = ({
 
          if (shouldGenerateNew) {
             // O backend sempre cria como rascunho (regra de negócio),
-            // então aprovar exige a transição em um segundo passo
+            // então aprovar exige a transição em um segundo passo. Os dois
+            // passos são tentados separadamente: se o create passar mas o
+            // update falhar, o rascunho já existe no backend — reportamos
+            // isso via onDraftCreated em vez de cair no catch genérico, que
+            // deixaria a tela em /nova e um novo clique criaria outro
+            // rascunho duplicado.
             const created = await createOrdemMutation.mutateAsync(
                apiData as OrdemMissaoCreate
             );
-            await updateOrdemMutation.mutateAsync({
-               id: created.id,
-               data: { status: "aprovada" } as OrdemMissaoUpdate,
-            });
+            try {
+               await updateOrdemMutation.mutateAsync({
+                  id: created.id,
+                  data: { status: "aprovada" } as OrdemMissaoUpdate,
+               });
+            } catch (approveErr) {
+               console.error(
+                  "Rascunho criado, mas aprovação falhou:",
+                  approveErr
+               );
+               onDraftCreated?.(
+                  created.id,
+                  formatOrdemError(
+                     approveErr,
+                     "Erro ao aprovar ordem de missão"
+                  )
+               );
+               return { success: false };
+            }
          } else {
             await updateOrdemMutation.mutateAsync({
                id: formData.id,
@@ -437,11 +552,7 @@ export const useOrdemForm = ({
          return { success: true };
       } catch (err) {
          console.error("Erro ao elaborar ordem:", err);
-         setError(
-            err instanceof Error
-               ? err.message
-               : "Erro ao elaborar ordem de missão"
-         );
+         setError(formatOrdemError(err, "Erro ao elaborar ordem de missão"));
          return { success: false };
       } finally {
          setIsApproving(false);
@@ -465,11 +576,7 @@ export const useOrdemForm = ({
          return { success: true };
       } catch (err) {
          console.error("Erro ao cancelar ordem:", err);
-         setError(
-            err instanceof Error
-               ? err.message
-               : "Erro ao cancelar ordem de missão"
-         );
+         setError(formatOrdemError(err, "Erro ao cancelar ordem de missão"));
          return { success: false };
       } finally {
          setIsCancelling(false);
@@ -485,6 +592,8 @@ export const useOrdemForm = ({
       toggleReadOnlyMode,
       isSaving,
       isApproving,
+      serverChanged,
+      applyServerChange,
       error,
       validationErrors,
       formValidationErrors,

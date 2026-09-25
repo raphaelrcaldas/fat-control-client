@@ -52,6 +52,8 @@ export interface FuncoesCatalogo {
    ordem: (cod: string) => number;
    isLoading: boolean;
    isError: boolean;
+   /** Refaz a busca — botão "Tentar novamente" das telas que dependem dele. */
+   refetch: () => Promise<unknown>;
 }
 
 /**
@@ -64,7 +66,7 @@ export interface FuncoesCatalogo {
 export function useFuncoes(): FuncoesCatalogo {
    const { activeOrg } = useAuth();
 
-   const { data, isLoading, isError } = useQuery({
+   const { data, isLoading, isError, refetch } = useQuery({
       queryKey: funcoesKeys.org(activeOrg),
       queryFn: ({ signal }) => getFuncoesOrg(signal),
       enabled: !!activeOrg,
@@ -94,8 +96,9 @@ export function useFuncoes(): FuncoesCatalogo {
          ordem: (cod) => byCod[cod]?.ordem ?? 99,
          isLoading,
          isError,
+         refetch,
       };
-   }, [data, isLoading, isError]);
+   }, [data, isLoading, isError, refetch]);
 }
 
 /** Catálogo global — telas de admin de sistema. */

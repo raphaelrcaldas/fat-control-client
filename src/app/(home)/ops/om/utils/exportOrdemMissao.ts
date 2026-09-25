@@ -17,6 +17,12 @@ import {
 import { brasaoDocxUrl } from "@/lib/orgBrasao";
 import { linhaAssinatura, type CargoTitular } from "services/routes/config";
 
+/** Função do catálogo da unidade — só o que a exportação precisa. */
+export interface FuncaoCatalogoExport {
+   cod: string;
+   nome: string;
+}
+
 /**
  * Gera um arquivo DOCX de Ordem de Missão a partir dos dados fornecidos.
  * Cabeçalho e rodapé herdam da organização ativa: o brasão (asset estático de
@@ -26,13 +32,17 @@ import { linhaAssinatura, type CargoTitular } from "services/routes/config";
  * @param uae Sigla da unidade aérea ativa (compõe o número da OM)
  * @param nomeOrg Nome da organização ativa (linha do cabeçalho)
  * @param cargos Titulares dos cargos da org (rodapé de assinaturas)
+ * @param funcoes Catálogo de funções da org ativa (`useFuncoes().funcoes`),
+ * já na ordem efetiva — agrupa e rotula os tripulantes de funções fora do
+ * mapa cravado dos seis códigos clássicos
  * @returns Blob do arquivo DOCX gerado
  */
 export async function gerarOrdemMissaoDocx(
    ordem: OrdemMissaoOut,
    uae: string,
    nomeOrg: string,
-   cargos: CargoTitular[]
+   cargos: CargoTitular[],
+   funcoes: FuncaoCatalogoExport[]
 ): Promise<Blob> {
    // Sem brasão registrado não há como montar o cabeçalho — bloquear
    const brasaoPath = brasaoDocxUrl(uae);
@@ -86,7 +96,7 @@ export async function gerarOrdemMissaoDocx(
          comandante: formatComandante(ordem.tripulacao),
          esforco_aereo: minutesToTime(ordem.esf_aer),
          aeronave: ordem.matricula_anv,
-         grupos: getCrewGroups(ordem.tripulacao),
+         grupos: getCrewGroups(ordem.tripulacao, funcoes),
          etapas: ordem.etapas.map((etapa: EtapaOut) => ({
             data_etapa: formatDateFull(etapa.dt_dep),
             hora_dep: formatTimeUTC(etapa.dt_dep),
@@ -146,10 +156,26 @@ function formatComandante(tripulacao: TripulacaoOrdemOut[]): string {
    return `${piloto.p_g} ${piloto.tripulante.user?.nome_guerra || ""}`.toUpperCase();
 }
 
-function getCrewGroups(tripulacao: TripulacaoOrdemOut[]) {
+/**
+ * Agrupa a tripulação por função para o documento.
+ *
+ * Os seis códigos clássicos mantêm o rótulo e a ordem já impressos no
+ * documento oficial (override, não vem do catálogo). Qualquer outra função
+ * presente na tripulação — desde que o catálogo da unidade passou a definir
+ * as funções operadas (bda11ba) — entra depois, na ordem do catálogo
+ * (`funcoes`), rotulada por `funcoes`; uma função da tripulação que nem
+ * conste do catálogo (histórico/outra org) fecha a lista, na ordem em que
+ * aparece na tripulação. Nenhum tripulante fica de fora do documento.
+ */
+function getCrewGroups(
+   tripulacao: TripulacaoOrdemOut[],
+   funcoes: FuncaoCatalogoExport[]
+) {
    if (!tripulacao || tripulacao.length === 0) return "Nenhum tripulante";
 
-   const funcaoLabels: Record<string, string> = {
+   // Override: rótulo e ordem já impressos no documento oficial para os
+   // seis códigos clássicos — não mexer no texto atual
+   const funcaoLabelsOverride: Record<string, string> = {
       pil: "Pilotos",
       mc: "Mecânicos",
       lm: "Loadmaster",
@@ -157,8 +183,31 @@ function getCrewGroups(tripulacao: TripulacaoOrdemOut[]) {
       os: "Observador Sar",
       tf: "Comissários",
    };
+   const ordemFuncoesOverride = ["pil", "mc", "lm", "tf", "oe", "os"];
 
-   const ordemFuncoes = ["pil", "mc", "lm", "tf", "oe", "os"];
+   const labelDoCatalogo = (cod: string) =>
+      funcoes.find((f) => f.cod === cod)?.nome ?? cod.toUpperCase();
+
+   // Ordem final dos códigos: override primeiro, depois o restante do
+   // catálogo (na ordem dele), depois o que sobrar da tripulação e não
+   // consta do catálogo (na ordem em que aparece)
+   const codigosCatalogo = funcoes
+      .map((f) => f.cod)
+      .filter((cod) => !ordemFuncoesOverride.includes(cod));
+   const codigosTripulacao = tripulacao
+      .map((t) => t.funcao)
+      .filter(
+         (funcao, index, arr) =>
+            !ordemFuncoesOverride.includes(funcao) &&
+            !codigosCatalogo.includes(funcao) &&
+            arr.indexOf(funcao) === index
+      );
+   const ordemFuncoes = [
+      ...ordemFuncoesOverride,
+      ...codigosCatalogo,
+      ...codigosTripulacao,
+   ];
+
    const grupos: { grupo: string; crew_member: string }[] = [];
 
    // Agrupar tripulantes por função
@@ -173,7 +222,7 @@ function getCrewGroups(tripulacao: TripulacaoOrdemOut[]) {
    // Formatar cada grupo
    ordemFuncoes.forEach((funcao) => {
       if (agrupados[funcao] && agrupados[funcao].length > 0) {
-         const label = funcaoLabels[funcao] || funcao;
+         const label = funcaoLabelsOverride[funcao] || labelDoCatalogo(funcao);
 
          const gg_crew = agrupados[funcao]
             .filter((trip) => trip.tripulante)

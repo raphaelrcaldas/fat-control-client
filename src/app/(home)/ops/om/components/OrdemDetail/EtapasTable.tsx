@@ -18,6 +18,7 @@ import {
    minutesToTime,
    calcularTempoVooMinutos,
    isoDateToString,
+   isoDateToShort,
 } from "utils/dateHandler";
 
 interface EtapasTableProps {
@@ -29,13 +30,33 @@ interface EtapasTableProps {
    onRemoveEtapa: (index: number) => void;
 }
 
+// Só o que muda no tema: 13 colunas em nowrap com o px-6 padrão não cabiam a
+// 1280px com a sidebar aberta, e a rolagem lateral escondia o esforço aéreo e
+// as ações da linha. O `theme` do Flowbite soma e resolve por twMerge
+const ETAPAS_TABLE_THEME = {
+   head: { cell: { base: "px-3" } },
+   body: { cell: { base: "px-3" } },
+};
+
 const formatDateTime = (dt: string | undefined) => {
-   if (!dt) return { date: "—", time: "—" };
+   if (!dt) return { date: "—", dateShort: "—", time: "—" };
    return {
-      date: isoDateToString(dt), // DD/MM/YY formato local
+      date: isoDateToString(dt), // DD/MM/YY (dia UTC — horário Zulu)
+      dateShort: isoDateToShort(dt), // DD/MM, mesmo dia UTC
       time: extractTime(dt),
    };
 };
+
+// No celular a data perde o ano (DD/MM) para economizar largura: a OM cobre
+// dias próximos e o ano completo segue no title e a partir de `sm`
+function DataCelula({ date, dateShort }: { date: string; dateShort: string }) {
+   return (
+      <span title={date}>
+         <span className="sm:hidden">{dateShort}</span>
+         <span className="hidden sm:inline">{date}</span>
+      </span>
+   );
+}
 
 const calcTempoVoo = (dtDep: string | undefined, dtArr: string | undefined) => {
    if (!dtDep || !dtArr) return "—";
@@ -87,7 +108,7 @@ export const EtapasTable = memo(function EtapasTable({
                   <button
                      type="button"
                      onClick={onAddEtapa}
-                     className="group flex items-center gap-1.5 text-sm font-semibold text-amber-600 transition-all hover:text-amber-700"
+                     className="group flex min-h-[24px] items-center gap-1.5 text-sm font-semibold text-amber-600 transition-colors hover:text-amber-700"
                   >
                      <HiPlus className="h-4 w-4 transition-transform group-hover:scale-110" />
                      Adicionar
@@ -101,7 +122,14 @@ export const EtapasTable = memo(function EtapasTable({
                tabIndex={0}
                className="overflow-x-auto border border-gray-200 shadow-xs"
             >
-               <Table hoverable className="text-center">
+               {/* nowrap na tabela inteira (white-space herda para th/td): o
+                   cabeçalho "Hora (Z)" e as datas quebravam em duas linhas no
+                   celular. A largura sobra para a rolagem lateral da região */}
+               <Table
+                  hoverable
+                  className="text-center whitespace-nowrap"
+                  theme={ETAPAS_TABLE_THEME}
+               >
                   <TableHead>
                      <TableRow>
                         <TableHeadCell className="w-10">#</TableHeadCell>
@@ -156,7 +184,7 @@ export const EtapasTable = memo(function EtapasTable({
                                     {index + 1}
                                  </TableCell>
                                  <TableCell className="text-blue-600">
-                                    {dep.date}
+                                    <DataCelula {...dep} />
                                  </TableCell>
                                  <TableCell className="text-blue-600">
                                     {dep.time}
@@ -170,7 +198,7 @@ export const EtapasTable = memo(function EtapasTable({
                                     </span>
                                  </TableCell>
                                  <TableCell className="text-green-700">
-                                    {arr.date}
+                                    <DataCelula {...arr} />
                                  </TableCell>
                                  <TableCell className="text-green-700">
                                     {arr.time}
@@ -185,8 +213,15 @@ export const EtapasTable = memo(function EtapasTable({
                                  <TableCell className="text-center font-mono">
                                     {etapa.qtd_comb || "—"}
                                  </TableCell>
+                                 {/* Texto livre e longo: trunca com o valor
+                                     completo no title, em vez de quebrar */}
                                  <TableCell className="font-medium uppercase">
-                                    {etapa.esf_aer || "—"}
+                                    <span
+                                       className="block max-w-[180px] truncate"
+                                       title={etapa.esf_aer || undefined}
+                                    >
+                                       {etapa.esf_aer || "—"}
+                                    </span>
                                  </TableCell>
                                  {isEditable && (
                                     <TableCell>

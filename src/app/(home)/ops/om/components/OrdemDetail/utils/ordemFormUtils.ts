@@ -68,6 +68,12 @@ export const buildInitialState = (
          : baseOrdem;
    }
 
+   // O estado mantém as etapas sempre ordenadas por decolagem — a tabela,
+   // "Etapa N", a continuidade e a etapa de referência do modal usam a ordem
+   // do array diretamente (só o payload reordenava antes, o que causava erro
+   // de continuidade falso quando a OM chegava com etapas fora de ordem).
+   formData = { ...formData, etapas: sortEtapas(formData.etapas ?? []) };
+
    // Considera "override manual" quando o esf_aer salvo é maior que a soma do
    // tempo de voo das etapas (o usuário alocou esforço extra deliberadamente).
    // Caso contrário, o esf_aer é tratado como derivado e recalculado a cada

@@ -327,7 +327,7 @@ export function TripulanteSelect({
                         type="button"
                         onClick={() => onRemove(trip.id!)}
                         aria-label={`Remover ${trip.user.nome_guerra}`}
-                        className="shrink-0 text-gray-400 transition-colors hover:text-red-500"
+                        className="-my-[5px] -mr-1 grid size-[24px] shrink-0 place-items-center rounded text-gray-400 transition-colors hover:text-red-500"
                      >
                         <IoClose className="h-4 w-4" />
                      </button>

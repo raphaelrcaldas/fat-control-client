@@ -4,6 +4,7 @@ import { gerarOrdemMissaoDocx } from "../../../utils/exportOrdemMissao";
 import { gerarPedidoLanche } from "../../../utils/exportLanche";
 import { useAuth } from "@/app/context/auth";
 import { useToast } from "@/app/context/toast";
+import { useFuncoes } from "@/hooks/queries/useFuncoes";
 import { brasaoDocxUrl } from "@/lib/orgBrasao";
 import { CARGOS, getCargos, linhaAssinatura } from "services/routes/config";
 import { downloadBlob } from "utils/downloadBlob";
@@ -13,6 +14,7 @@ import { downloadBlob } from "utils/downloadBlob";
 export function useOrdemExports(ordem: OrdemMissaoOut | null) {
    const { push: pushToast } = useToast();
    const { activeOrg, orgs } = useAuth();
+   const { funcoes } = useFuncoes();
 
    const [isExporting, setIsExporting] = useState(false);
    const [isGeneratingLanche, setIsGeneratingLanche] = useState(false);
@@ -74,7 +76,8 @@ export function useOrdemExports(ordem: OrdemMissaoOut | null) {
             ordem,
             activeOrg ?? "",
             org?.nome ?? activeOrg ?? "",
-            cargos
+            cargos,
+            funcoes
          );
          downloadBlob(blob, `OM_${ordem.numero}_${activeOrg ?? ""}.docx`);
       } catch (error) {
@@ -88,7 +91,7 @@ export function useOrdemExports(ordem: OrdemMissaoOut | null) {
       } finally {
          setIsExporting(false);
       }
-   }, [ordem, activeOrg, orgs, pushToast]);
+   }, [ordem, activeOrg, orgs, pushToast, funcoes]);
 
    const handlePedidoLanche = useCallback(async () => {
       if (!ordem) return;

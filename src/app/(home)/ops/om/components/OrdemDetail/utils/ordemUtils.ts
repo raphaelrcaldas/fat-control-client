@@ -1,5 +1,8 @@
 import type { OrdemMissaoOut, EtapaOut } from "services/routes/om/ordens";
-import { calcularTempoVooMinutos } from "utils/dateHandler";
+import {
+   calcularTempoVooMinutos,
+   addMinutesToIsoDatetime,
+} from "utils/dateHandler";
 
 // Calcula o esforço aéreo total (soma dos tempos de voo das etapas)
 export const calcularEsfAer = (etapas: EtapaOut[]): number => {
@@ -19,42 +22,9 @@ export const createNextEtapa = (
    // Base datetime for the calculation
    const baseDateTime = dt_arr || dt_dep;
 
-   let nextDateTime = "";
-
-   if (baseDateTime) {
-      // Parse the datetime string directly to avoid timezone issues
-      // Format expected: "YYYY-MM-DDTHH:MM:SS" or "YYYY-MM-DDTHH:MM"
-      const [datePart, timePart] = baseDateTime.split("T");
-      if (datePart && timePart) {
-         const [year, month, day] = datePart.split("-").map(Number);
-         const [hours, minutes] = timePart.split(":").map(Number);
-
-         // Add 2 hours
-         let newHours = hours + 2;
-         let newDay = day;
-         let newMonth = month;
-         let newYear = year;
-
-         // Handle day overflow
-         if (newHours >= 24) {
-            newHours -= 24;
-            newDay += 1;
-
-            // Handle month overflow (simplified - assumes 31 days)
-            const daysInMonth = new Date(year, month, 0).getDate();
-            if (newDay > daysInMonth) {
-               newDay = 1;
-               newMonth += 1;
-               if (newMonth > 12) {
-                  newMonth = 1;
-                  newYear += 1;
-               }
-            }
-         }
-
-         nextDateTime = `${newYear}-${String(newMonth).padStart(2, "0")}-${String(newDay).padStart(2, "0")}T${String(newHours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:00Z`;
-      }
-   }
+   const nextDateTime = baseDateTime
+      ? addMinutesToIsoDatetime(baseDateTime, 120)
+      : "";
 
    return {
       dt_dep: nextDateTime,

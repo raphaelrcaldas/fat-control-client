@@ -4,6 +4,7 @@ import {
    useQueryClient,
    keepPreviousData,
 } from "@tanstack/react-query";
+import { ApiError } from "services/Api";
 import {
    listOrdens,
    getOrdem,
@@ -64,6 +65,17 @@ export function useOrdem(id: number | null | undefined) {
       queryFn: () => getOrdem(id!),
       enabled: !!id,
       gcTime: 0,
+      // 4xx é definitivo (404: OM não existe/foi excluída; 401/403: sem
+      // acesso) — insistir só atrasa a tela de erro. Rede/5xx ganham 1
+      // retentativa, igual ao default global (`retry: 1` em
+      // lib/queryClient.ts); o default 3 do TanStack NÃO vale aqui, e com o
+      // backoff exponencial dele a falha levaria ~7 s para aparecer.
+      retry: (count, err) =>
+         !(
+            err instanceof ApiError &&
+            err.status !== undefined &&
+            err.status < 500
+         ) && count < 1,
    });
 }
 
@@ -187,6 +199,11 @@ export function useUpdateEtiqueta() {
          updateEtiqueta(id, data),
       onSuccess: () => {
          queryClient.invalidateQueries({ queryKey: etiquetaKeys.list() });
+         // Nome e cor viajam embutidos em cada OM da listagem. O detalhe
+         // fica de fora de propósito: é gerenciado de dentro do formulário
+         // aberto, e refazê-lo faria o form tratar a própria ação como
+         // "alterada por outro usuário" (a seção em edição já lê o catálogo)
+         queryClient.invalidateQueries({ queryKey: ordemKeys.lists() });
       },
    });
 }
@@ -201,6 +218,9 @@ export function useDeleteEtiquetaOrdem() {
       mutationFn: (id: number) => deleteEtiqueta(id),
       onSuccess: () => {
          queryClient.invalidateQueries({ queryKey: etiquetaKeys.list() });
+         // A exclusão remove a etiqueta das OMs (cascade no backend); só as
+         // listagens — ver o comentário em useUpdateEtiqueta
+         queryClient.invalidateQueries({ queryKey: ordemKeys.lists() });
       },
    });
 }

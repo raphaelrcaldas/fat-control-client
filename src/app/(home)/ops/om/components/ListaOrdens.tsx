@@ -3,13 +3,13 @@ import Link from "next/link";
 import { HiDocumentDuplicate, HiTrash } from "react-icons/hi";
 import clsx from "clsx";
 import type { OrdemMissaoList, EtapaListItem } from "services/routes/om/ordens";
-import { Label } from "flowbite-react";
 import { extractDate } from "utils/dateHandler";
 import {
    STATUS_CONFIG as statusConfig,
    type StatusType,
 } from "@/constants/ops/ordens-missao/status";
 import { PermBased } from "@/app/(home)/hooks/usePermBased";
+import { EtiquetaChip } from "./EtiquetaChip";
 
 interface ListaOrdensProps {
    ordens: OrdemMissaoList[];
@@ -39,7 +39,7 @@ function gerarResumoRota(
       (acc, etapa) => {
          if (!etapa.dt_dep) return acc;
          const dateStr = extractDate(etapa.dt_dep);
-         const [year, month, day] = dateStr.split("-");
+         const [, month, day] = dateStr.split("-");
          const data = `${day}/${month}`;
          if (!acc[data]) acc[data] = [];
          acc[data].push(etapa);
@@ -91,18 +91,18 @@ const OrdemItem = memo(function OrdemItem({
          <div className="flex items-center justify-between gap-2">
             <div className="flex min-w-0 flex-1 items-center gap-3">
                <div className="flex flex-col gap-1.5 text-center">
-                  <Label className="pointer-events-none hidden text-start text-xs text-gray-500 md:block">
+                  <span className="pointer-events-none hidden text-start text-xs text-gray-500 md:block">
                      Número
-                  </Label>
+                  </span>
                   <div className="pointer-events-none font-mono text-lg font-semibold text-gray-900">
                      {ordem.numero}
                   </div>
                </div>
                <div className="hidden h-10 w-px bg-gray-200 md:block" />
                <div className="hidden w-24 flex-col gap-1.5 text-center md:flex">
-                  <Label className="pointer-events-none text-xs text-gray-500">
+                  <span className="pointer-events-none block text-xs text-gray-500">
                      Status
-                  </Label>
+                  </span>
                   <span
                      className={clsx(
                         "pointer-events-none text-xs font-bold uppercase",
@@ -114,25 +114,17 @@ const OrdemItem = memo(function OrdemItem({
                </div>
                <div className="hidden h-10 w-px bg-gray-200 md:block" />
                <div className="hidden w-32 flex-col gap-1.5 text-center md:flex">
-                  <Label className="pointer-events-none text-xs text-gray-500">
+                  <span className="pointer-events-none block text-xs text-gray-500">
                      Etiquetas
-                  </Label>
+                  </span>
                   {ordem.etiquetas && ordem.etiquetas.length > 0 ? (
                      ordem.etiquetas.map((et) => (
-                        <span
+                        <EtiquetaChip
                            key={et.id}
-                           className="pointer-events-none inline-flex items-center justify-center border px-1.5 py-0.5 text-[10px] font-bold tracking-tight uppercase shadow-xs"
-                           style={
-                              {
-                                 "--tag-color": et.cor,
-                                 backgroundColor: `color-mix(in srgb, var(--tag-color) 12%, transparent)`,
-                                 color: "var(--tag-color)",
-                                 borderColor: "var(--tag-color)",
-                              } as React.CSSProperties
-                           }
-                        >
-                           {et.nome}
-                        </span>
+                           etiqueta={et}
+                           size="sm"
+                           className="pointer-events-none justify-center"
+                        />
                      ))
                   ) : (
                      <span className="pointer-events-none text-xs text-gray-400">
@@ -142,9 +134,9 @@ const OrdemItem = memo(function OrdemItem({
                </div>
                <div className="hidden h-10 w-px bg-gray-200 xl:block" />
                <div className="hidden flex-col gap-1.5 xl:flex">
-                  <Label className="pointer-events-none text-xs text-gray-500">
+                  <span className="pointer-events-none block text-xs text-gray-500">
                      Documento Referência
-                  </Label>
+                  </span>
                   <p className="pointer-events-none w-48 truncate text-sm">
                      <span
                         className={
@@ -157,9 +149,9 @@ const OrdemItem = memo(function OrdemItem({
                </div>
                <div className="hidden h-10 w-px bg-gray-200 lg:block" />
                <div className="hidden flex-col gap-1.5 lg:flex">
-                  <Label className="pointer-events-none text-xs text-gray-500">
+                  <span className="pointer-events-none block text-xs text-gray-500">
                      Descrição
-                  </Label>
+                  </span>
                   <p className="pointer-events-none w-48 truncate text-sm">
                      <span
                         className={
@@ -201,6 +193,7 @@ const OrdemItem = memo(function OrdemItem({
             <div className="relative z-10 flex shrink-0 items-center gap-1">
                <PermBased resource={"ops.ordem_missao"} requiredPerm={"create"}>
                   <button
+                     type="button"
                      onClick={handleClone}
                      className="rounded p-2 text-gray-400 transition-colors hover:bg-blue-50 hover:text-blue-500"
                      title="Clonar missão"
@@ -215,6 +208,7 @@ const OrdemItem = memo(function OrdemItem({
                      requiredPerm={"delete"}
                   >
                      <button
+                        type="button"
                         onClick={handleDelete}
                         className="rounded p-2 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-500"
                         title="Excluir rascunho"

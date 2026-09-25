@@ -7,6 +7,7 @@ import {
    HiDocumentText,
    HiShoppingBag,
    HiTag,
+   HiCheckCircle,
 } from "react-icons/hi";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import clsx from "clsx";
@@ -37,6 +38,13 @@ interface OrdemFormContentProps {
    onClose: () => void;
    isNew: boolean;
    isCloning?: boolean;
+   /**
+    * Ver UseOrdemFormProps.onDraftCreated: aprovar uma OM nova/clonada cria o
+    * rascunho e, se a transição para aprovada falhar depois, este callback
+    * avisa o usuário e navega para o rascunho já existente — sem isso um novo
+    * clique em Aprovar criaria outro rascunho duplicado.
+    */
+   onDraftCreated?: (id: number, message: string) => void;
 }
 
 // Ação pendente de confirmação no modal único de confirmação
@@ -49,6 +57,7 @@ export function OrdemFormContent({
    onClose,
    isNew,
    isCloning = false,
+   onDraftCreated,
 }: OrdemFormContentProps) {
    const { push: pushToast } = useToast();
    const { activeOrg } = useAuth();
@@ -61,6 +70,8 @@ export function OrdemFormContent({
       toggleReadOnlyMode,
       isSaving,
       isApproving,
+      serverChanged,
+      applyServerChange,
       error,
       validationErrors,
       formValidationErrors,
@@ -81,7 +92,7 @@ export function OrdemFormContent({
       clearError,
       clearValidationErrors,
       hasChanges,
-   } = useOrdemForm({ ordem, isNew, isCloning, onSave });
+   } = useOrdemForm({ ordem, isNew, isCloning, onSave, onDraftCreated });
 
    const {
       isExporting,
@@ -192,7 +203,9 @@ export function OrdemFormContent({
       }
    }, [handleCancelar, pushToast]);
 
-   // Conteúdo e ação do modal único de confirmação
+   // Conteúdo e ação do modal único de confirmação. Só "aprovar" foge do
+   // vermelho padrão do ConfirmModal: é uma transição positiva, não
+   // destrutiva — cancelar OM e descartar alterações continuam vermelhos.
    const confirmDialog = useMemo(() => {
       if (!confirmAction) return null;
       if (confirmAction === "cancel-om") {
@@ -202,6 +215,9 @@ export function OrdemFormContent({
                "Tem certeza que deseja cancelar esta Ordem de Missão? Esta ação muda o status para cancelada.",
             confirmLabel: "Sim, cancelar OM",
             onConfirm: confirmCancelOm,
+            confirmButtonColor: "red" as const,
+            icon: undefined,
+            iconColor: "text-red-400",
          };
       }
       if (confirmAction === "approve-om") {
@@ -214,6 +230,9 @@ export function OrdemFormContent({
                ? "Sim, salvar e aprovar"
                : "Sim, aprovar OM",
             onConfirm: confirmApproveOm,
+            confirmButtonColor: "primary" as const,
+            icon: HiCheckCircle,
+            iconColor: "text-primary-600",
          };
       }
       return {
@@ -229,6 +248,9 @@ export function OrdemFormContent({
                doCancelEdit();
             }
          },
+         confirmButtonColor: "red" as const,
+         icon: undefined,
+         iconColor: "text-red-400",
       };
    }, [
       confirmAction,
@@ -281,7 +303,9 @@ export function OrdemFormContent({
          numero: string | null | undefined,
          data_saida: string | null | undefined
       ): string => {
-         return numero
+         // Rascunho ainda não tem número ("auto"): "AUTO/11GT/…" não
+         // identifica nada — melhor omitir e deixar só o badge de status
+         return numero && numero !== "auto"
             ? `${numero}/${activeOrg ?? ""}/${formatDateForDisplay(data_saida ?? "")}`
             : "";
       },
@@ -329,6 +353,33 @@ export function OrdemFormContent({
                   id="ordem-form"
                   className="space-y-4"
                >
+                  {/* Aviso: outro usuário alterou esta OM enquanto havia
+                      edição local não salva. Fora do bloco de erros porque
+                      pode aparecer sozinho, sem erro de API nem de validação. */}
+                  {serverChanged && (
+                     <Alert
+                        color="warning"
+                        icon={HiExclamationCircle}
+                        withBorderAccent
+                     >
+                        <div className="flex flex-wrap items-center justify-between gap-3">
+                           <span className="text-sm">
+                              {/* No clone, a `ordem` monitorada é a de origem */}
+                              {isCloning
+                                 ? "A OM de origem foi alterada por outro usuário."
+                                 : "Esta OM foi alterada por outro usuário."}
+                           </span>
+                           <Button
+                              color="light"
+                              size="xs"
+                              onClick={applyServerChange}
+                           >
+                              Recarregar
+                           </Button>
+                        </div>
+                     </Alert>
+                  )}
+
                   {/* Container de Erros com scroll automatico */}
                   {(error || formValidationErrors.length > 0) && (
                      <div
@@ -354,7 +405,9 @@ export function OrdemFormContent({
                                  <span className="text-sm font-semibold md:text-base">
                                     Erro ao processar a operacao
                                  </span>
-                                 <span className="text-sm">{error}</span>
+                                 <span className="text-sm whitespace-pre-line">
+                                    {error}
+                                 </span>
                               </div>
                            </Alert>
                         )}
@@ -478,6 +531,13 @@ export function OrdemFormContent({
                      />
                   </FormSection>
 
+                  {hasCamposEspeciaisVazios && (
+                     <p className="text-xs text-amber-700">
+                        Há ordem especial sem valor preenchido — isso impede
+                        salvar e aprovar a OM.
+                     </p>
+                  )}
+
                   <FormSection contentClassName="px-4 py-5">
                      <OrdemEspeciaisDisplay
                         campos={camposEspeciais}
@@ -501,14 +561,14 @@ export function OrdemFormContent({
 
                   <FormSection
                      title="Classificação"
-                     accentClass="bg-red-500"
+                     accentClass="bg-primary-600"
                      contentClassName="px-4 py-4 md:px-10"
                      action={
                         isEditable ? (
                            <button
                               type="button"
                               onClick={() => setIsLabelManagerOpen(true)}
-                              className="group flex items-center gap-1.5 text-xs font-bold tracking-wider text-red-600 uppercase transition-all hover:text-red-700"
+                              className="group text-primary-600 hover:text-primary-700 flex min-h-[24px] items-center gap-1.5 text-xs font-bold tracking-wider uppercase transition-colors"
                            >
                               <HiTag className="h-4 w-4 transition-transform group-hover:scale-110" />
                               Gerenciar
@@ -521,7 +581,7 @@ export function OrdemFormContent({
                         selectedLabels={formData.etiquetas || []}
                         onChange={updateEtiquetas}
                         isEditable={isEditable}
-                        className="w-full max-w-2xl"
+                        className="w-full"
                      />
                   </FormSection>
 
@@ -603,7 +663,9 @@ export function OrdemFormContent({
          />
 
          {/* Modal único de confirmação (descartar alterações / cancelar OM /
-             aprovar OM) — conteúdo derivado do ConfirmAction pendente */}
+             aprovar OM) — conteúdo derivado do ConfirmAction pendente. Cores e
+             ícone também vêm do confirmDialog: só "aprovar" foge do
+             vermelho/triângulo padrão do ConfirmModal. */}
          <ConfirmModal
             show={confirmDialog !== null}
             onClose={() => setConfirmAction(null)}
@@ -612,7 +674,9 @@ export function OrdemFormContent({
             description={confirmDialog?.message}
             confirmButtonText={confirmDialog?.confirmLabel ?? "Confirmar"}
             cancelButtonText="Voltar"
-            iconColor="text-red-400"
+            confirmButtonColor={confirmDialog?.confirmButtonColor}
+            icon={confirmDialog?.icon}
+            iconColor={confirmDialog?.iconColor ?? "text-red-400"}
          />
       </div>
    );

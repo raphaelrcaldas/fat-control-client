@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { TextInput } from "flowbite-react";
-import { HiChevronDown, HiChevronUp, HiTag, HiX } from "react-icons/hi";
+import { HiChevronDown, HiChevronUp } from "react-icons/hi";
 import clsx from "clsx";
 import { FiltrosOrdem } from "../types";
 import {
@@ -13,6 +13,7 @@ import {
 import { useEtiquetas } from "@/hooks/queries";
 import { MultiSelect } from "@/components/MultiSelect";
 import { formatDateFull } from "utils/dateHandler";
+import { EtiquetaChip } from "./EtiquetaChip";
 
 // Status disponíveis para filtro (sem rascunho, pois tem tab própria)
 const statusOptionsAprovadas = statusOptions.filter((s) => s !== "rascunho");
@@ -122,13 +123,11 @@ export function FiltrosOrdemComponent({
                         const etiqueta = allLabels.find((e) => e.id === id);
                         if (!etiqueta) return null;
                         return (
-                           <span
+                           <EtiquetaChip
                               key={id}
-                              className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium text-white"
-                              style={{ backgroundColor: etiqueta.cor }}
-                           >
-                              {etiqueta.nome}
-                           </span>
+                              etiqueta={etiqueta}
+                              size="sm"
+                           />
                         );
                      })}
                   </>
@@ -163,7 +162,7 @@ export function FiltrosOrdemComponent({
 
          <div
             className={clsx(
-               "grid transition-all duration-300 ease-in-out",
+               "grid transition-[grid-template-rows,opacity] duration-300 ease-in-out",
                expanded
                   ? "grid-rows-[1fr] opacity-100"
                   : "grid-rows-[0fr] opacity-0"
@@ -177,10 +176,14 @@ export function FiltrosOrdemComponent({
                <div className="grid grid-cols-1 gap-4 px-5 pb-5 md:grid-cols-2 lg:grid-cols-5">
                   {/* Campo de Busca - ocupa 2 colunas em lg */}
                   <div className="min-w-0 md:col-span-2 lg:col-span-2">
-                     <label className="mb-1 block text-xs font-medium text-gray-500">
+                     <label
+                        htmlFor="om-busca"
+                        className="mb-1 block text-xs font-medium text-gray-500"
+                     >
                         Busca
                      </label>
                      <TextInput
+                        id="om-busca"
                         type="text"
                         placeholder="Número, ICAO, descrição ou nome de guerra..."
                         value={filtros.busca}
@@ -195,9 +198,9 @@ export function FiltrosOrdemComponent({
 
                   {/* Status */}
                   <div className="min-w-0">
-                     <label className="mb-1 block text-xs font-medium text-gray-500">
+                     <span className="mb-1 block text-xs font-medium text-gray-500">
                         Status
-                     </label>
+                     </span>
                      <MultiSelect
                         options={statusOptionsAprovadas.map((s) => ({
                            value: s,
@@ -211,6 +214,7 @@ export function FiltrosOrdemComponent({
                            })
                         }
                         placeholder="Todos"
+                        ariaLabel="Status"
                      />
                   </div>
 
@@ -268,58 +272,33 @@ export function FiltrosOrdemComponent({
                   {/* Etiquetas - Button-based selector */}
                   {allLabels.length > 0 && (
                      <div className="min-w-0 lg:col-span-5">
-                        <label className="mb-1 block text-xs font-medium text-gray-500">
+                        <span className="mb-1 block text-xs font-medium text-gray-500">
                            Etiquetas
-                        </label>
+                        </span>
                         <div className="flex flex-wrap gap-2">
                            {allLabels.map((etiqueta) => {
                               const isSelected = filtros.etiquetas_ids.includes(
                                  etiqueta.id
                               );
                               return (
-                                 <button
+                                 <EtiquetaChip
                                     key={etiqueta.id}
-                                    type="button"
-                                    onClick={() => {
-                                       if (isSelected) {
-                                          onFiltrosChange({
-                                             ...filtros,
-                                             etiquetas_ids:
-                                                filtros.etiquetas_ids.filter(
-                                                   (id) => id !== etiqueta.id
-                                                ),
-                                          });
-                                       } else {
-                                          onFiltrosChange({
-                                             ...filtros,
-                                             etiquetas_ids: [
-                                                ...filtros.etiquetas_ids,
-                                                etiqueta.id,
-                                             ],
-                                          });
-                                       }
-                                    }}
-                                    className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium transition-all ${
-                                       isSelected
-                                          ? "text-white shadow-sm"
-                                          : "border border-dashed"
-                                    }`}
-                                    style={
-                                       isSelected
-                                          ? {
-                                               backgroundColor: etiqueta.cor,
-                                            }
-                                          : {
-                                               borderColor: etiqueta.cor,
-                                               color: etiqueta.cor,
-                                               backgroundColor: `${etiqueta.cor}10`,
-                                            }
+                                    etiqueta={etiqueta}
+                                    selected={isSelected}
+                                    onToggle={() =>
+                                       onFiltrosChange({
+                                          ...filtros,
+                                          etiquetas_ids: isSelected
+                                             ? filtros.etiquetas_ids.filter(
+                                                  (id) => id !== etiqueta.id
+                                               )
+                                             : [
+                                                  ...filtros.etiquetas_ids,
+                                                  etiqueta.id,
+                                               ],
+                                       })
                                     }
-                                 >
-                                    <HiTag className="h-3 w-3" />
-                                    {etiqueta.nome}
-                                    {isSelected && <HiX className="h-3 w-3" />}
-                                 </button>
+                                 />
                               );
                            })}
                         </div>

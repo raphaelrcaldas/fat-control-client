@@ -1,4 +1,4 @@
-// Tipos específicos de UI para filtros e paginação
+// Tipos específicos de UI para filtros
 // Demais tipos devem ser importados diretamente de services/routes/om/ordens
 
 export interface FiltrosOrdem {
@@ -7,11 +7,4 @@ export interface FiltrosOrdem {
    dataInicio: string;
    dataFim: string;
    etiquetas_ids: number[];
-}
-
-export interface PaginationState {
-   page: number;
-   perPage: number;
-   total: number;
-   pages: number;
 }
