@@ -86,7 +86,7 @@ export function EspecificosSection({
          </div>
 
          {total === 0 ? (
-            <div className="flex flex-col items-center rounded-lg border border-dashed border-gray-300 bg-gray-50 p-6 text-center">
+            <div className="flex flex-col items-center rounded border border-dashed border-gray-300 bg-gray-50 p-6 text-center">
                <p className="text-sm font-medium text-gray-500">
                   Nenhum específico adicionado
                </p>

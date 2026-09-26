@@ -33,7 +33,7 @@ export function PreFilledBanner({
       <div
          role="status"
          className={clsx(
-            "flex items-start gap-3 rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-800",
+            "flex items-start gap-3 rounded border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-800",
             "transition-all duration-200 ease-out motion-reduce:transition-none",
             mounted ? "translate-y-0 opacity-100" : "-translate-y-1 opacity-0"
          )}
