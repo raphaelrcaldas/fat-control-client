@@ -1,1 +1,3 @@
-export type CartaoStatus = "ok" | "warn" | "danger" | "empty";
+import type { CardValidity } from "utils/cardValidity";
+
+export type CartaoStatus = CardValidity;

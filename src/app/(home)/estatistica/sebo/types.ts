@@ -12,10 +12,8 @@ export interface InfoColumnConfig {
 }
 
 export interface SeboStats {
-   total: string;
    media: string;
    mediaRaw: number;
    max: string;
    min: string;
-   count: number;
 }

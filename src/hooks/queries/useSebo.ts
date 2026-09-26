@@ -7,10 +7,11 @@ export const seboKeys = {
    list: (params?: GetSeboParams) => [...seboKeys.lists(), params] as const,
 };
 
-export function useSebo(params: GetSeboParams) {
+export function useSebo(params: GetSeboParams, enabled = true) {
    return useQuery({
       queryKey: seboKeys.list(params),
       queryFn: ({ signal }) => getSebo(params, signal),
       placeholderData: keepPreviousData,
+      enabled,
    });
 }

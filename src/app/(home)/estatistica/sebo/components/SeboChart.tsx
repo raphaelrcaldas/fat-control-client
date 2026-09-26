@@ -1,29 +1,34 @@
 "use client";
-import { useCallback, useMemo, useState } from "react";
-import { Label } from "flowbite-react";
+import { useCallback, useMemo, useState, type CSSProperties } from "react";
+import { Label, RangeSlider } from "flowbite-react";
 import Chart from "react-apexcharts";
 import { minutesToTime } from "@/../utils/dateHandler";
 import type { SeboTripItem } from "services/routes/estatistica/sebo";
-import { computeSeboStats, renderSeboTooltip } from "../utils";
+import { renderSeboTooltip } from "../utils";
 import { SeboStatCards } from "./SeboStatCards";
+import type { SeboStats } from "../types";
+import { useChartColor } from "../hooks/useChartColor";
+import styles from "./SeboChart.module.css";
 
 interface SeboChartProps {
    trips: SeboTripItem[];
    activeRow: number;
    isPilot: boolean;
+   stats: SeboStats;
 }
 
 const COLOR_DEFAULT = "#cbd5e1"; // slate-300
-const COLOR_ACTIVE = "#dc2626"; // red-600
 const COLOR_AXIS = "#64748b"; // slate-500
 
 export default function SeboChart({
    trips,
    activeRow,
    isPilot,
+   stats,
 }: SeboChartProps) {
    // Margem (%) da zona de tolerância em torno da média — ajustável pelo usuário.
    const [margin, setMargin] = useState(25);
+   const activeColor = useChartColor();
 
    const data = useMemo(() => trips.map((t) => t.voo.h_ano), [trips]);
    const categories = useMemo(
@@ -32,13 +37,23 @@ export default function SeboChart({
    );
 
    const barColors = useMemo(
-      () =>
-         data.map((_, i) => (i === activeRow ? COLOR_ACTIVE : COLOR_DEFAULT)),
-      [data, activeRow]
+      () => data.map((_, i) => (i === activeRow ? activeColor : COLOR_DEFAULT)),
+      [data, activeRow, activeColor]
    );
 
-   const stats = useMemo(() => computeSeboStats(data), [data]);
-   const media = stats?.mediaRaw ?? 0;
+   const media = stats.mediaRaw;
+
+   // Eixo em horas cheias: o Apex divide o intervalo em minutos e rotulava
+   // 16:40, 33:20... Passo "redondo" que rende até 6 marcas, cobrindo também
+   // o topo da zona de tolerância.
+   const yAxis = useMemo(() => {
+      const topo = Math.max(...data, media * (1 + margin / 100), 60);
+      const horas = topo / 60;
+      const passoHoras =
+         [1, 2, 5, 10, 20, 25, 50, 100].find((p) => horas / p <= 6) ?? 200;
+      const passo = passoHoras * 60;
+      return { max: Math.ceil(topo / passo) * passo, stepSize: passo };
+   }, [data, media, margin]);
 
    const customTooltip = useCallback(
       ({
@@ -87,8 +102,11 @@ export default function SeboChart({
          legend: { show: false },
          dataLabels: { enabled: false },
          yaxis: {
+            min: 0,
+            max: yAxis.max,
+            stepSize: yAxis.stepSize,
             labels: {
-               formatter: minutesToTime,
+               formatter: (value: number) => minutesToTime(Math.round(value)),
                style: { colors: COLOR_AXIS, fontSize: "11px", fontWeight: 500 },
             },
          },
@@ -96,6 +114,9 @@ export default function SeboChart({
             categories,
             labels: {
                rotate: -45,
+               // Trigrama girado ocupa ~30px; o default (120px) deixava um vão
+               // branco entre o eixo e a legenda.
+               maxHeight: 40,
                style: { colors: COLOR_AXIS, fontSize: "10px", fontWeight: 500 },
             },
          },
@@ -104,13 +125,13 @@ export default function SeboChart({
             yaxis: [
                {
                   y: media,
-                  borderColor: COLOR_ACTIVE,
+                  borderColor: activeColor,
                   strokeDashArray: 4,
                   label: {
-                     borderColor: COLOR_ACTIVE,
+                     borderColor: activeColor,
                      style: {
                         color: "#fff",
-                        background: COLOR_ACTIVE,
+                        background: activeColor,
                         fontSize: "11px",
                         fontWeight: 600,
                      },
@@ -135,12 +156,12 @@ export default function SeboChart({
          },
          grid: { borderColor: "#e2e8f0", strokeDashArray: 3 },
       }),
-      [barColors, categories, customTooltip, media, margin]
+      [barColors, categories, customTooltip, media, margin, activeColor, yAxis]
    );
 
    return (
       <div className="space-y-4">
-         {stats && <SeboStatCards stats={stats} />}
+         <SeboStatCards stats={stats} />
 
          {/* Controle da zona de tolerância */}
          <div className="flex items-center gap-3 text-sm">
@@ -150,17 +171,23 @@ export default function SeboChart({
             >
                Zona de tolerância
             </Label>
-            <input
+            <RangeSlider
                id="sebo-margin"
-               type="range"
                min={0}
                max={100}
                step={5}
                value={margin}
                onChange={(e) => setMargin(Number(e.target.value))}
-               className="sebo-range flex-1"
-               style={{
-                  background: `linear-gradient(to right, #dc2626 ${margin}%, #e2e8f0 ${margin}%)`,
+               className="flex-1"
+               aria-valuetext={`Mais ou menos ${margin}%`}
+               style={{ "--sebo-progress": `${margin}%` } as CSSProperties}
+               clearTheme={{ field: { input: { base: true } } }}
+               theme={{
+                  field: {
+                     input: {
+                        base: styles.slider,
+                     },
+                  },
                }}
             />
             <span className="w-12 text-right font-semibold text-slate-900 tabular-nums">
@@ -183,7 +210,7 @@ export default function SeboChart({
                <span>Horas de Voo</span>
             </div>
             <div className="flex items-center gap-2">
-               <div className="h-3 w-3 rounded bg-red-600" />
+               <div className="bg-primary-600 h-3 w-3 rounded" />
                <span>Selecionado</span>
             </div>
             <div className="flex items-center gap-2">

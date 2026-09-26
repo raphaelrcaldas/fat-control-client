@@ -24,13 +24,13 @@ export function SeboStatCards({ stats }: SeboStatCardsProps) {
                key={c.key}
                className="rounded border border-slate-200 bg-white p-3 shadow-sm"
             >
-               <div className="font-mono text-[10px] font-bold tracking-[0.15em] text-slate-400 uppercase">
+               <div className="font-mono text-[10px] font-bold tracking-[0.15em] text-slate-600 uppercase">
                   {c.label}
                </div>
                <div
                   className={clsx(
                      "text-lg font-bold tabular-nums",
-                     c.accent ? "text-red-600" : "text-slate-900"
+                     c.accent ? "text-primary-600" : "text-slate-900"
                   )}
                >
                   {stats[c.key]}

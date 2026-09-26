@@ -1,17 +1,19 @@
 "use client";
 import { useCallback, useMemo, useState } from "react";
-import { useFuncoes, useSebo } from "@/hooks/queries";
+import { useFuncoes } from "@/hooks/queries/useFuncoes";
+import { useSebo } from "@/hooks/queries/useSebo";
 import { usePersistedState } from "@/hooks/usePersistedState";
 import { defaultInfoCols } from "../constants";
 import type { InfoColumn } from "../types";
 
 /**
  * Centraliza o estado de filtros do Pau de Sebo (persistido + efêmero),
- * deriva os parâmetros da API (oper/func_bordo) e expõe a query já ordenada.
+ * deriva os parâmetros da API (oper/func_bordo) e expõe a query (a API já
+ * ordena por horas no ano).
  * Mantém a `page.tsx` enxuta (só layout + seleção de UI).
  */
 export function useSeboFilters() {
-   const { posicoes: posicoesDe } = useFuncoes();
+   const { posicoes: posicoesDe, isLoading: funcoesLoading } = useFuncoes();
    const [opIn, setOpIn] = usePersistedState("estatistica.seboOpIn", true);
    const [opOp, setOpOp] = usePersistedState("estatistica.seboOpOp", true);
    const [opBa, setOpBa] = usePersistedState("estatistica.seboOpBa", true);
@@ -48,6 +50,7 @@ export function useSeboFilters() {
 
    // Todos ativos => não enviar oper (a API retorna todos).
    const allActive = opIn && opOp && opBa && opAl;
+   const hasOper = operParams.length > 0;
 
    // func_bordo: derivado das posições da função selecionada.
    const funcBordo = useMemo(() => {
@@ -67,18 +70,25 @@ export function useSeboFilters() {
       data: rawTrips,
       isLoading,
       isFetching,
-   } = useSebo({
-      func: seboFunc,
-      oper: allActive || operParams.length === 0 ? undefined : operParams,
-      func_bordo: funcBordo,
-      ano,
-   });
+      isPlaceholderData,
+      isError,
+      refetch,
+   } = useSebo(
+      {
+         func: seboFunc,
+         oper: allActive ? undefined : operParams,
+         func_bordo: funcBordo,
+         ano,
+      },
+      // Sem o catálogo, `func_bordo` sai vazio e a API soma todas as posições
+      // (O3 incluída para pilotos): a primeira resposta viria errada.
+      hasOper && !funcoesLoading
+   );
 
-   // Ordena por horas no ano (desc).
+   // A API já ordena por horas. Sem operacionalidades, nem o cache é exibido.
    const trips = useMemo(() => {
-      if (!rawTrips) return [];
-      return [...rawTrips].sort((a, b) => b.voo.h_ano - a.voo.h_ano);
-   }, [rawTrips]);
+      return hasOper ? (rawTrips ?? []) : [];
+   }, [rawTrips, hasOper]);
 
    return {
       seboFunc,
@@ -98,7 +108,11 @@ export function useSeboFilters() {
       infoCols,
       setInfoCols,
       trips,
-      isLoading,
-      isFetching,
+      hasOper,
+      isLoading: hasOper && (funcoesLoading || isLoading),
+      isFetching: hasOper && isFetching,
+      isPlaceholderData: hasOper && isPlaceholderData,
+      isError: hasOper && isError,
+      refetch,
    };
 }

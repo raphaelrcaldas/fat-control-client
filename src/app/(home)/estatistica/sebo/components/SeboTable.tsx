@@ -1,16 +1,8 @@
 "use client";
 import clsx from "clsx";
-import {
-   Table,
-   TableHead,
-   TableHeadCell,
-   TableBody,
-   TableRow,
-   TableCell,
-   Tooltip,
-} from "flowbite-react";
+import { Table, TableBody, TableRow, TableCell, Tooltip } from "flowbite-react";
 import { minutesToTime } from "@/../utils/dateHandler";
-import { getOperSigla } from "@/constants/tripulantes";
+import { getOperSigla } from "@/constants/tripulantes/operacionalidade";
 import type { SeboTripItem } from "services/routes/estatistica/sebo";
 import { INFO_COLUMNS_CONFIG } from "../constants";
 import type { InfoColumn } from "../types";
@@ -19,20 +11,21 @@ import {
    getDsvTooltip,
    getOperBadgeClasses,
 } from "../utils";
+import { SeboTableHeader } from "./SeboTableHeader";
 import { CardDateCell } from "./CardDateCell";
 
 interface SeboTableProps {
    trips: SeboTripItem[];
-   activeRow: number;
-   setRow: (index: number) => void;
+   activeTripId: number | null;
+   onSelect: (tripId: number) => void;
    infoCols: Record<InfoColumn, boolean>;
    isPilot: boolean;
 }
 
 export function SeboTable({
    trips,
-   activeRow,
-   setRow,
+   activeTripId,
+   onSelect,
    infoCols,
    isPilot,
 }: SeboTableProps) {
@@ -43,56 +36,61 @@ export function SeboTable({
    );
 
    return (
-      <div className="overflow-x-auto rounded border border-slate-200 bg-white uppercase shadow-sm">
+      <div className="overflow-x-auto rounded border border-slate-200 bg-white shadow-sm">
          <Table hoverable theme={{ head: { cell: { base: "bg-white" } } }}>
-            <TableHead>
-               <TableRow>
-                  <TableHeadCell className="hidden text-center lg:table-cell">
-                     PG
-                  </TableHeadCell>
-                  <TableHeadCell className="hidden min-w-40 text-center lg:table-cell">
-                     NOME DE GUERRA
-                  </TableHeadCell>
-                  <TableHeadCell className="sticky left-0 z-20 bg-white px-4 text-center lg:hidden">
-                     TRIG
-                  </TableHeadCell>
-                  <TableHeadCell className="px-4 text-center">OP</TableHeadCell>
-                  <TableHeadCell className="px-4 text-center">
-                     DSV
-                  </TableHeadCell>
-                  {visibleCols.map((col) => (
-                     <TableHeadCell key={col.key} className="text-center">
-                        {col.label}
-                     </TableHeadCell>
-                  ))}
-                  <TableHeadCell className="px-6 text-center">
-                     ANO
-                  </TableHeadCell>
-               </TableRow>
-            </TableHead>
+            <SeboTableHeader visibleCols={visibleCols} />
             <TableBody className="divide-y">
                {trips.map((trip, index) => (
                   <TableRow
                      key={trip.trip_id}
-                     onClick={() => setRow(index)}
+                     onClick={() => onSelect(trip.trip_id)}
+                     // Roving tabindex: só a linha ativa entra no Tab (senão o
+                     // teclado atravessa dezenas de linhas até o gráfico); as
+                     // setas movem a seleção. `aria-current` porque
+                     // `aria-selected` não é anunciado fora de `role="grid"`.
+                     tabIndex={trip.trip_id === activeTripId ? 0 : -1}
+                     aria-current={trip.trip_id === activeTripId || undefined}
+                     onKeyDown={(event) => {
+                        if (event.target !== event.currentTarget) return;
+                        if (event.key === "Enter" || event.key === " ") {
+                           event.preventDefault();
+                           onSelect(trip.trip_id);
+                           return;
+                        }
+                        const step =
+                           event.key === "ArrowDown"
+                              ? 1
+                              : event.key === "ArrowUp"
+                                ? -1
+                                : 0;
+                        const next = trips[index + step];
+                        if (!step || !next) return;
+                        event.preventDefault();
+                        onSelect(next.trip_id);
+                        const sibling =
+                           step > 0
+                              ? event.currentTarget.nextElementSibling
+                              : event.currentTarget.previousElementSibling;
+                        (sibling as HTMLElement | null)?.focus();
+                     }}
                      className={clsx(
-                        "group cursor-pointer border-l-4 transition-colors",
-                        index === activeRow
-                           ? "border-l-red-500 bg-red-50! hover:bg-red-100!"
+                        "group focus-visible:outline-primary-600 cursor-pointer border-l-4 transition-colors focus-visible:outline-2 focus-visible:-outline-offset-2",
+                        trip.trip_id === activeTripId
+                           ? "border-l-primary-500 bg-primary-50! hover:bg-primary-100!"
                            : "border-l-transparent"
                      )}
                   >
-                     <TableCell className="hidden px-0.5 text-center font-semibold text-slate-700 lg:table-cell">
+                     <TableCell className="hidden px-0.5 text-center font-semibold text-slate-700 uppercase lg:table-cell">
                         {trip.p_g}
                      </TableCell>
-                     <TableCell className="hidden px-0.5 text-center font-semibold text-nowrap text-slate-800 lg:table-cell">
+                     <TableCell className="hidden px-0.5 text-center font-semibold text-nowrap text-slate-800 uppercase lg:table-cell">
                         {trip.nome_guerra}
                      </TableCell>
                      <TableCell
                         className={clsx(
-                           "sticky left-0 z-10 px-0.5 text-center font-bold text-slate-900 transition-colors lg:hidden",
-                           index === activeRow
-                              ? "bg-red-50 group-hover:bg-red-100"
+                           "sticky left-0 z-10 px-0.5 text-center font-bold text-slate-900 uppercase transition-colors lg:hidden",
+                           trip.trip_id === activeTripId
+                              ? "bg-primary-50 group-hover:bg-primary-100"
                               : "bg-white group-hover:bg-gray-50"
                         )}
                      >
@@ -120,7 +118,7 @@ export function SeboTable({
                            label={col.tooltipLabel}
                         />
                      ))}
-                     <TableCell className="px-0.5 text-center font-bold text-red-600">
+                     <TableCell className="text-primary-700 px-0.5 text-center font-bold">
                         {minutesToTime(trip.voo.h_ano)}
                      </TableCell>
                   </TableRow>
