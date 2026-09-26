@@ -36,7 +36,7 @@ export function EtapasPendentesAlert({
       return (
          <section
             role="alert"
-            className="mb-4 flex shrink-0 flex-wrap items-center gap-2 rounded border border-slate-200 bg-white px-4 py-2 text-xs text-slate-600 shadow-sm"
+            className="flex shrink-0 flex-wrap items-center gap-2 rounded border border-slate-200 bg-white px-4 py-2 text-xs text-slate-600 shadow-sm"
          >
             <HiExclamation aria-hidden className="h-4 w-4 text-slate-400" />
             Não foi possível verificar as etapas pendentes.
@@ -65,13 +65,15 @@ export function EtapasPendentesAlert({
    // melhor do que sumir com o resto em silêncio.
    const naoListadas = total_missoes - missoes.length;
 
-   // `mb-4` mora na própria section (e não num wrapper na página) porque o
-   // alerta some por completo quando não há pendência — no pai deixaria um
-   // vão morto. `shrink-0`: o pai é um flex-col com overflow.
+   // Sem `mb-*` própria: o gap entre irmãos empilhados é do `space-y-2` no
+   // root da página, e um filho que renderiza `null` (nenhuma pendência, ou
+   // sem permissão) não deixa vão nesse esquema — diferente de margem fixa
+   // por filho, que sobrava mesmo com o alerta ausente. `shrink-0`: o pai é
+   // um flex-col com overflow.
    return (
       <section
          aria-label="Pendências de verificação"
-         className="relative mb-4 shrink-0 overflow-hidden rounded border border-amber-300 bg-amber-50 px-4 py-3 shadow-sm"
+         className="relative shrink-0 overflow-hidden rounded border border-amber-300 bg-amber-50 px-4 py-3 shadow-sm"
       >
          <span
             aria-hidden

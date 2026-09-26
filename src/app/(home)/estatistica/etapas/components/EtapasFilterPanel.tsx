@@ -6,6 +6,7 @@ import { MdSearch } from "react-icons/md";
 import { MultiSelect } from "@/components/MultiSelect";
 import { SearchableSelect } from "@/components/SearchableSelect";
 import { useFuncoes } from "@/hooks/queries";
+import { DateFilterInput } from "./DateFilterInput";
 
 interface SelectOption {
    value: string;
@@ -17,6 +18,7 @@ interface EtapasFilterPanelProps {
    urlDataFim: string;
    urlAnv: string[];
    urlTipoMissao: string[];
+   urlEsfAerId: string;
    filterOrigem: string;
    setFilterOrigem: (v: string) => void;
    filterDestino: string;
@@ -25,13 +27,12 @@ interface EtapasFilterPanelProps {
    setFilterTrip: (v: string) => void;
    filterFuncao: string;
    onFuncaoChange: (v: string) => void;
-   filterEsfAer: string;
-   setFilterEsfAer: (v: string) => void;
+   onEsfAerChange: (v: string) => void;
    esfAerOptions: SelectOption[];
    aeronaveOptions: SelectOption[];
    tipoMissaoOptions: SelectOption[];
-   onDataIniChange: (v: string) => void;
-   onDataFimChange: (v: string) => void;
+   onDataIniChange: (v: string) => boolean;
+   onDataFimChange: (v: string) => boolean;
    onMultiSelectChange: (key: string, values: string[]) => void;
 }
 
@@ -40,6 +41,7 @@ export const EtapasFilterPanel = memo(function EtapasFilterPanel({
    urlDataFim,
    urlAnv,
    urlTipoMissao,
+   urlEsfAerId,
    filterOrigem,
    setFilterOrigem,
    filterDestino,
@@ -48,8 +50,7 @@ export const EtapasFilterPanel = memo(function EtapasFilterPanel({
    setFilterTrip,
    filterFuncao,
    onFuncaoChange,
-   filterEsfAer,
-   setFilterEsfAer,
+   onEsfAerChange,
    esfAerOptions,
    aeronaveOptions,
    tipoMissaoOptions,
@@ -76,34 +77,44 @@ export const EtapasFilterPanel = memo(function EtapasFilterPanel({
              desliga. */}
          <div className="grid grid-cols-6 gap-2 sm:flex sm:flex-wrap">
             <div className="col-span-3 sm:col-auto sm:w-32">
-               <Label className="mb-1 block text-xs font-medium text-gray-700">
+               <Label
+                  htmlFor="filtro-data-ini"
+                  className="mb-1 block text-xs font-medium text-gray-700"
+               >
                   Data inicial
                </Label>
-               <TextInput
-                  type="date"
+               <DateFilterInput
+                  id="filtro-data-ini"
                   value={urlDataIni}
-                  onChange={(e) => onDataIniChange(e.target.value)}
-                  sizing="sm"
+                  max={urlDataFim}
+                  onCommit={onDataIniChange}
                />
             </div>
 
             <div className="col-span-3 sm:col-auto sm:w-32">
-               <Label className="mb-1 block text-xs font-medium text-gray-700">
+               <Label
+                  htmlFor="filtro-data-fim"
+                  className="mb-1 block text-xs font-medium text-gray-700"
+               >
                   Data final
                </Label>
-               <TextInput
-                  type="date"
+               <DateFilterInput
+                  id="filtro-data-fim"
                   value={urlDataFim}
-                  onChange={(e) => onDataFimChange(e.target.value)}
-                  sizing="sm"
+                  min={urlDataIni}
+                  onCommit={onDataFimChange}
                />
             </div>
 
             <div className="col-span-2 sm:col-auto sm:w-20">
-               <Label className="mb-1 block text-xs font-medium text-gray-700">
+               <Label
+                  htmlFor="filtro-origem"
+                  className="mb-1 block text-xs font-medium text-gray-700"
+               >
                   Origem
                </Label>
                <TextInput
+                  id="filtro-origem"
                   placeholder="SBPA"
                   value={filterOrigem}
                   onChange={(e) =>
@@ -115,10 +126,14 @@ export const EtapasFilterPanel = memo(function EtapasFilterPanel({
             </div>
 
             <div className="col-span-2 sm:col-auto sm:w-20">
-               <Label className="mb-1 block text-xs font-medium text-gray-700">
+               <Label
+                  htmlFor="filtro-destino"
+                  className="mb-1 block text-xs font-medium text-gray-700"
+               >
                   Destino
                </Label>
                <TextInput
+                  id="filtro-destino"
                   placeholder="SBBE"
                   value={filterDestino}
                   onChange={(e) =>
@@ -139,17 +154,22 @@ export const EtapasFilterPanel = memo(function EtapasFilterPanel({
                   onChange={(values) => onMultiSelectChange("anv", values)}
                   placeholder="Todas"
                   sizing="sm"
+                  ariaLabel="Aeronave"
                />
             </div>
 
             <div className="col-span-6 sm:col-auto sm:w-72">
-               <Label className="mb-1 block text-xs font-medium text-gray-700">
+               <Label
+                  htmlFor="filtro-esf-aer"
+                  className="mb-1 block text-xs font-medium text-gray-700"
+               >
                   Esforço Aéreo
                </Label>
                <SearchableSelect
+                  id="filtro-esf-aer"
                   options={esfAerOptions}
-                  value={filterEsfAer}
-                  onChange={setFilterEsfAer}
+                  value={urlEsfAerId}
+                  onChange={onEsfAerChange}
                   placeholder="Todos"
                   sizing="sm"
                   clearable
@@ -158,7 +178,7 @@ export const EtapasFilterPanel = memo(function EtapasFilterPanel({
 
             <div className="col-span-6 sm:col-auto sm:w-52">
                <Label className="mb-1 block text-xs font-medium text-gray-700">
-                  Tipo de Missao
+                  Tipo de Missão
                </Label>
                <MultiSelect
                   options={tipoMissaoOptions}
@@ -168,18 +188,23 @@ export const EtapasFilterPanel = memo(function EtapasFilterPanel({
                   }
                   placeholder="Todos"
                   sizing="sm"
+                  ariaLabel="Tipo de missão"
                />
             </div>
 
             <div className="col-span-6 sm:col-auto sm:flex-1">
-               <Label className="mb-1 block text-xs font-medium text-gray-700">
+               <Label
+                  htmlFor="filtro-trip-search"
+                  className="mb-1 block text-xs font-medium text-gray-700"
+               >
                   Tripulante
                </Label>
-               <div className="focus-within:border-primary-500 focus-within:ring-primary-500 flex overflow-hidden rounded-lg border border-gray-300 bg-white focus-within:ring-2">
+               <div className="focus-within:border-primary-500 focus-within:ring-primary-500 flex overflow-hidden rounded border border-gray-300 bg-white focus-within:ring-2">
                   <Select
                      value={filterFuncao}
                      onChange={(e) => onFuncaoChange(e.target.value)}
                      disabled={!filterTrip}
+                     aria-label="Função do tripulante"
                      title={
                         filterTrip
                            ? "Restringe a busca à função selecionada"
@@ -196,6 +221,7 @@ export const EtapasFilterPanel = memo(function EtapasFilterPanel({
                      ))}
                   </Select>
                   <TextInput
+                     id="filtro-trip-search"
                      icon={MdSearch}
                      placeholder="Buscar trigrama ou nome de guerra ..."
                      value={filterTrip}

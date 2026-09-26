@@ -19,8 +19,10 @@ function Bar({ className }: { className?: string }) {
 function EtapaRowSkeleton() {
    return (
       <TableRow>
-         <TableCell className="w-7">
-            <Bar className="mx-auto size-4" />
+         <TableCell className="w-7 px-0">
+            <div className="flex w-7 items-center justify-center">
+               <Bar className="size-5" />
+            </div>
          </TableCell>
          <TableCell className="w-12 sm:w-20">
             <Bar className="mx-auto h-5 w-18" />
@@ -44,8 +46,8 @@ function EtapaRowSkeleton() {
             <Bar className="mx-auto h-5 w-12" />
          </TableCell>
          <TableCell className="hidden w-5 sm:table-cell" />
-         <TableCell className="hidden w-92 md:table-cell">
-            <Bar className="mx-auto h-5 w-80" />
+         <TableCell className="hidden w-80 md:table-cell">
+            <Bar className="mx-auto h-5 w-64" />
          </TableCell>
          <TableCell className="hidden min-w-36 lg:table-cell">
             <div className="flex flex-wrap items-center gap-0.5">
@@ -58,10 +60,10 @@ function EtapaRowSkeleton() {
                <Bar className="h-5 w-10 bg-slate-100" />
             </div>
          </TableCell>
-         <TableCell className="px-2 sm:w-14">
-            <div className="flex items-center gap-1">
-               <Bar className="size-6 bg-slate-100" />
-               <Bar className="size-6 bg-slate-100" />
+         <TableCell className="w-10 px-2 sm:w-12">
+            <div className="flex items-center gap-0.5">
+               <Bar className="h-8 w-7.5 bg-slate-100" />
+               <Bar className="h-8 w-7.5 bg-slate-100" />
             </div>
          </TableCell>
       </TableRow>
@@ -90,9 +92,11 @@ function InnerTableSkeleton({ rows }: { rows: number }) {
 function MissaoCardSkeleton({ rows }: { rows: number }) {
    return (
       <div className="mx-0.5 overflow-hidden rounded border border-gray-300 bg-white shadow">
-         <div className="flex flex-wrap items-center gap-3 border-b border-slate-200 bg-white p-1.5">
-            <Bar className="size-4" />
-            <Bar className="h-5 w-10" />
+         <div className="flex flex-wrap items-center gap-2 border-b border-slate-200 bg-white py-1.5 pr-1.5">
+            <div className="flex w-7 shrink-0 items-center justify-center">
+               <Bar className="size-5" />
+            </div>
+            <Bar className="h-5 w-32" />
          </div>
          <InnerTableSkeleton rows={rows} />
       </div>
@@ -102,8 +106,10 @@ function MissaoCardSkeleton({ rows }: { rows: number }) {
 export function EtapasTableSkeleton() {
    return (
       <div role="status" aria-label="Carregando etapas" className="space-y-2">
-         <div className="ml-1 flex h-10 items-center gap-2 px-1">
-            <Bar className="size-4" />
+         <div className="mx-0.5 flex h-9 flex-wrap items-center gap-2 pr-1 pl-px">
+            <div className="flex w-7 shrink-0 items-center justify-center">
+               <Bar className="size-5" />
+            </div>
             <Bar className="h-5 w-64" />
          </div>
          {MISSOES_SKELETON.map((rows, i) => (

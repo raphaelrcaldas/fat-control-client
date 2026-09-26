@@ -5,30 +5,23 @@ import { MdBarChart } from "react-icons/md";
 import { HiFilter, HiPlus } from "react-icons/hi";
 import { CiPaperplane } from "react-icons/ci";
 import Link from "next/link";
-import { useState, useCallback, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { EtapasTable } from "./components/EtapasTable/EtapasTable";
 import { EtapasTableSkeleton } from "./components/EtapasTable/EtapasTableSkeleton";
 import { EtapasFilterPanel } from "./components/EtapasFilterPanel";
 import { ActiveFilterTags } from "./components/ActiveFilterTags";
 import { EtapasPendentesAlert } from "./components/EtapasPendentesAlert";
-import { MissaoDeleteModal } from "./components/MissaoDeleteModal";
 import { ExportColumnsModal } from "@/components/export/ExportColumnsModal";
 import { EtapasSelectionBar } from "./components/EtapasSelectionBar";
 import { ResultadosInfo } from "./components/ResultadosInfo";
 import { useEtapasFilters } from "./hooks/useEtapasFilters";
 import { useEtapaSelection } from "./hooks/useEtapaSelection";
 import { etapasExportColumns, sortEtapasForExport } from "./exportColumns";
-import type { MissaoComEtapas } from "services/routes/estatistica/etapas";
 import clsx from "clsx";
 import { PermBased } from "../../hooks/usePermBased";
 
 export default function EtapasPage() {
    const [showFilters, setShowFilters] = useState(false);
-
-   const [showDeleteModal, setShowDeleteModal] = useState(false);
-   const [deletingMissao, setDeletingMissao] = useState<MissaoComEtapas | null>(
-      null
-   );
    const [showExportModal, setShowExportModal] = useState(false);
 
    const filters = useEtapasFilters();
@@ -42,31 +35,46 @@ export default function EtapasPage() {
       toggleAll,
    } = useEtapaSelection(filters.missoes);
 
-   const handleDeleteMissao = useCallback((missao: MissaoComEtapas) => {
-      setDeletingMissao(missao);
-      setShowDeleteModal(true);
-   }, []);
-
    const etapasParaExportar = useMemo(
       () => sortEtapasForExport(cart.items),
       [cart.items]
    );
 
+   // Erro só entra sem dado em tela: com dado anterior (keepPreviousData) a
+   // lista continua e o aviso vira uma faixa acima dela — ver mais abaixo.
+   const errorSemDados = filters.isError && filters.missoes.length === 0;
+   const errorMessage =
+      filters.error instanceof Error
+         ? filters.error.message
+         : "Erro desconhecido";
+
    return (
       // Reserva estavel para a barra: selecionar a primeira etapa nao deve
       // reduzir de repente a area util da listagem.
-      <div className="flex flex-1 flex-col overflow-hidden pb-24">
-         <div className="mb-4 shrink-0 rounded border border-gray-200 bg-white shadow-sm">
-            <div className="flex flex-wrap items-center justify-between gap-3 p-4">
-               <div className="flex flex-row gap-3">
-                  <div className="bg-primary-600 flex h-11 w-11 items-center justify-center rounded-xl shadow-md">
-                     <CiPaperplane className="h-6 w-6 text-white" />
+      <div className="flex flex-1 flex-col space-y-2 overflow-hidden pb-24">
+         <div className="relative shrink-0 overflow-hidden rounded border border-slate-200 bg-white shadow-sm">
+            {/* Espinha vermelha — ecoa a espinha das linhas */}
+            <span
+               aria-hidden
+               className="bg-primary-600 absolute top-0 left-0 h-full w-1"
+            />
+
+            {/* Só a linha de identidade/ações é o <header> canônico: o painel
+                de filtros abre dentro do MESMO card, abaixo dela — por isso a
+                moldura (borda/sombra/espinha) sobe para o card externo e só o
+                padding fica na linha. */}
+            <header className="relative flex flex-wrap items-center justify-between gap-4 px-5 py-4 sm:px-6 sm:py-5">
+               <div className="flex min-w-0 items-center gap-4">
+                  <div className="bg-primary-50 text-primary-600 ring-primary-100 grid h-12 w-12 shrink-0 place-items-center rounded-md ring-1 ring-inset">
+                     <CiPaperplane className="h-6 w-6" />
                   </div>
-                  <div>
-                     <h1 className="text-xl font-semibold text-gray-900">
+                  <div className="min-w-0">
+                     <span className="text-primary-600 block font-mono text-[10px] font-bold tracking-[0.3em] uppercase">
+                        Estatística
+                     </span>
+                     <h1 className="text-2xl leading-none font-extrabold tracking-tight text-slate-900 sm:text-[28px]">
                         Etapas
                      </h1>
-                     <p className="text-sm text-gray-500">Relatórios de voo</p>
                   </div>
                </div>
                <div className="flex items-center gap-2">
@@ -87,7 +95,7 @@ export default function EtapasPage() {
                         size="sm"
                      >
                         <HiPlus className="h-4 w-4 sm:mr-2" />
-                        <span className="sr-only sm:not-sr-only">Missao</span>
+                        <span className="sr-only sm:not-sr-only">Missão</span>
                      </Button>
                   </PermBased>
                   <Button
@@ -109,7 +117,7 @@ export default function EtapasPage() {
                      )}
                   </Button>
                </div>
-            </div>
+            </header>
 
             <div className={clsx(showFilters ? "block" : "hidden")}>
                <EtapasFilterPanel
@@ -117,6 +125,7 @@ export default function EtapasPage() {
                   urlDataFim={filters.urlDataFim}
                   urlAnv={filters.urlAnv}
                   urlTipoMissao={filters.urlTipoMissao}
+                  urlEsfAerId={filters.urlEsfAerId}
                   filterOrigem={filters.filterOrigem}
                   setFilterOrigem={filters.setFilterOrigem}
                   filterDestino={filters.filterDestino}
@@ -125,8 +134,7 @@ export default function EtapasPage() {
                   setFilterTrip={filters.setFilterTrip}
                   filterFuncao={filters.filterFuncao}
                   onFuncaoChange={filters.handleFuncaoChange}
-                  filterEsfAer={filters.filterEsfAer}
-                  setFilterEsfAer={filters.setFilterEsfAer}
+                  onEsfAerChange={filters.handleEsfAerChange}
                   esfAerOptions={filters.esfAerOptions}
                   aeronaveOptions={filters.aeronaveOptions}
                   tipoMissaoOptions={filters.tipoMissaoOptions}
@@ -148,6 +156,9 @@ export default function EtapasPage() {
          </PermBased>
 
          <ActiveFilterTags
+            hasActiveFilters={filters.hasActiveFilters}
+            dataIniActive={filters.dataIniActive}
+            dataFimActive={filters.dataFimActive}
             urlDataIni={filters.urlDataIni}
             urlDataFim={filters.urlDataFim}
             urlAnv={filters.urlAnv}
@@ -155,14 +166,11 @@ export default function EtapasPage() {
             urlDestino={filters.urlDestino}
             urlTrip={filters.urlTrip}
             urlFuncao={filters.urlFuncao}
-            urlEsfAer={filters.urlEsfAer}
+            urlEsfAerId={filters.urlEsfAerId}
             urlTipoMissao={filters.urlTipoMissao}
-            onRemoveDataIni={() =>
-               filters.updateParams({ data_ini: undefined })
-            }
-            onRemoveDataFim={() =>
-               filters.updateParams({ data_fim: undefined })
-            }
+            esfAerOptions={filters.esfAerOptions}
+            onRemoveDataIni={filters.resetDataIni}
+            onRemoveDataFim={filters.resetDataFim}
             onRemoveAnv={() => filters.handleMultiSelectChange("anv", [])}
             onRemoveOrigem={() => {
                filters.setFilterOrigem("");
@@ -177,32 +185,80 @@ export default function EtapasPage() {
                filters.updateParams({ trip_search: undefined });
             }}
             onRemoveFuncao={() => filters.handleFuncaoChange("")}
-            onRemoveEsfAer={() => {
-               filters.setFilterEsfAer("");
-               filters.updateParams({ esf_aer: undefined });
-            }}
+            onRemoveEsfAer={() => filters.handleEsfAerChange("")}
             onRemoveTipoMissao={() =>
                filters.handleMultiSelectChange("tipo_missao_cod", [])
             }
             onClearAll={filters.clearFilters}
          />
 
-         <div className="relative flex-1 overflow-auto">
-            {filters.loading && <EtapasTableSkeleton />}
+         {/* Região viva PERSISTENTE (sempre montada, nunca condicional): NVDA/
+             JAWS só garantem o anúncio se a região já existir no DOM antes do
+             texto mudar — inserir a região já com conteúdo (ex.: dentro do
+             ramo `periodoInvalido`) não é lido de forma confiável. */}
+         <p role="status" className="sr-only">
+            {filters.periodoInvalido
+               ? "A data inicial é posterior à data final."
+               : ""}
+         </p>
 
-            {!filters.loading && filters.missoes.length === 0 && (
-               <div className="flex h-64 flex-col items-center justify-center rounded-lg border border-gray-200 bg-white">
+         <div className="relative flex-1 overflow-auto">
+            {filters.periodoInvalido ? (
+               // Não é "nenhuma etapa encontrada": é entrada inválida (mesmo
+               // 422 que o backend devolveria) — a query nem chega a disparar.
+               // Sem role="status" aqui: o anúncio já é feito pela região viva
+               // persistente acima — duplicar o role anunciaria duas vezes.
+               <div className="flex h-64 flex-col items-center justify-center rounded border border-gray-200 bg-white">
+                  <p className="mb-2 text-sm font-semibold text-gray-900">
+                     A data inicial é posterior à data final.
+                  </p>
+                  <button
+                     type="button"
+                     onClick={filters.clearFilters}
+                     className="text-primary-600 hover:text-primary-700 text-sm"
+                  >
+                     Limpar filtros
+                  </button>
+               </div>
+            ) : filters.loading ||
+              (filters.isRefetching && filters.missoes.length === 0) ? (
+               <EtapasTableSkeleton />
+            ) : errorSemDados ? (
+               // Erro e vazio são estados diferentes: mostrar "nenhuma etapa"
+               // quando a consulta falhou faz concluir, por engano, que não
+               // há etapa — quando na verdade não se sabe.
+               <div
+                  role="alert"
+                  className="flex h-64 flex-col items-center justify-center gap-1 rounded border border-gray-200 bg-white px-6 text-center"
+               >
+                  <p className="text-sm font-semibold text-red-800">
+                     Não foi possível carregar as etapas
+                  </p>
+                  <p className="max-w-md text-xs text-slate-500">
+                     {errorMessage}
+                  </p>
+                  <Button
+                     color="light"
+                     size="sm"
+                     className="mt-3"
+                     onClick={() => filters.refetch()}
+                  >
+                     Tentar novamente
+                  </Button>
+               </div>
+            ) : filters.missoes.length === 0 ? (
+               <div className="flex h-64 flex-col items-center justify-center rounded border border-gray-200 bg-white">
                   <div className="mb-4 rounded-full bg-gray-100 p-4">
                      <MdBarChart className="h-12 w-12 text-gray-400" />
                   </div>
                   <p className="mb-2 text-lg font-semibold text-gray-900">
                      {filters.hasActiveFilters
                         ? "Nenhuma etapa encontrada"
-                        : "Nenhuma etapa disponivel"}
+                        : "Nenhuma etapa disponível"}
                   </p>
                   <p className="max-w-md text-center text-sm text-gray-500">
                      {filters.hasActiveFilters
-                        ? "Nao foram encontrados resultados com os filtros aplicados."
+                        ? "Não foram encontrados resultados com os filtros aplicados."
                         : "Utilize os filtros para visualizar as etapas."}
                   </p>
                   {filters.hasActiveFilters && (
@@ -215,49 +271,59 @@ export default function EtapasPage() {
                      </button>
                   )}
                </div>
-            )}
-
-            {filters.missoes.length > 0 && (
-               <div
-                  className={clsx(
-                     "transition-opacity duration-200",
-                     filters.isRefetching && "pointer-events-none opacity-40"
+            ) : (
+               <div className="space-y-2">
+                  {filters.isError && (
+                     // Refetch falhou mas há dado anterior em tela
+                     // (keepPreviousData): mantém a lista e só avisa.
+                     <div
+                        role="alert"
+                        className="flex flex-wrap items-center justify-between gap-2 rounded border border-red-200 bg-red-50 px-4 py-2 text-sm text-red-800"
+                     >
+                        <span>Não foi possível atualizar as etapas.</span>
+                        <Button
+                           color="light"
+                           size="sm"
+                           disabled={filters.isRefetching}
+                           onClick={() => filters.refetch()}
+                        >
+                           Tentar novamente
+                        </Button>
+                     </div>
                   )}
-               >
-                  <EtapasTable
-                     missoes={filters.missoes}
-                     loading={filters.isRefetching}
-                     selectedIds={selectedIds}
-                     onToggleEtapa={toggleEtapa}
-                     onToggleMissao={toggleMissao}
-                     onToggleAll={toggleAll}
-                     allSelected={allSelected}
-                     onDeleteMissao={handleDeleteMissao}
-                  />
-               </div>
-            )}
 
-            {filters.missoes.length > 0 && (
-               <div
-                  className={clsx(
-                     "mt-4 rounded-lg border border-gray-200 bg-white px-4 py-3",
-                     "transition-opacity duration-200",
-                     filters.isRefetching && "pointer-events-none opacity-50"
-                  )}
-               >
-                  <ResultadosInfo
-                     totalMissoes={filters.totalMissoes}
-                     totalEtapas={filters.totalEtapas}
-                  />
+                  <div
+                     className={clsx(
+                        "transition-opacity duration-200",
+                        filters.isRefetching && "pointer-events-none opacity-40"
+                     )}
+                  >
+                     <EtapasTable
+                        missoes={filters.missoes}
+                        loading={filters.isRefetching}
+                        selectedIds={selectedIds}
+                        onToggleEtapa={toggleEtapa}
+                        onToggleMissao={toggleMissao}
+                        onToggleAll={toggleAll}
+                        allSelected={allSelected}
+                     />
+                  </div>
+
+                  <div
+                     className={clsx(
+                        "rounded border border-gray-200 bg-white px-4 py-3",
+                        "transition-opacity duration-200",
+                        filters.isRefetching && "pointer-events-none opacity-50"
+                     )}
+                  >
+                     <ResultadosInfo
+                        totalMissoes={filters.totalMissoes}
+                        totalEtapas={filters.totalEtapas}
+                     />
+                  </div>
                </div>
             )}
          </div>
-
-         <MissaoDeleteModal
-            show={showDeleteModal}
-            onClose={() => setShowDeleteModal(false)}
-            missao={deletingMissao}
-         />
 
          <EtapasSelectionBar
             cart={cart}

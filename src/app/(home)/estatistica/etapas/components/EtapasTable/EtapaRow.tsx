@@ -218,6 +218,7 @@ export const EtapaRow = memo(function EtapaRow({
                   color="light"
                   onClick={() => onDetailEtapa(id)}
                   title="Detalhes da etapa"
+                  aria-label="Detalhes da etapa"
                   className="min-h-0 min-w-0 p-1.5"
                >
                   <HiEye className="size-4" />
@@ -232,6 +233,7 @@ export const EtapaRow = memo(function EtapaRow({
                      color="light"
                      onClick={() => onEditEtapa(id)}
                      title="Editar etapa"
+                     aria-label="Editar etapa"
                      className="min-h-0 min-w-0 p-1.5"
                   >
                      <HiPencilAlt className="size-4" />

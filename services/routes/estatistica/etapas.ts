@@ -1,4 +1,4 @@
-import request, { parseApiResponse } from "../../Api";
+import request, { ApiError, parseApiResponse } from "../../Api";
 import type { ApiResponse, ApiResult } from "@/types/api";
 
 const etapasRoute = "estatistica/etapas/";
@@ -61,7 +61,7 @@ export interface GetEtapasParams {
    origem?: string;
    destino?: string;
    anv?: string[];
-   esf_aer?: string;
+   esf_aer_id?: number;
    tipo_missao_cod?: string[];
    trip_search?: string;
    funcao?: string;
@@ -133,7 +133,9 @@ export async function getEtapas(
            ...(params.origem && { origem: params.origem }),
            ...(params.destino && { destino: params.destino }),
            ...(params.anv && params.anv.length > 0 && { anv: params.anv }),
-           ...(params.esf_aer && { esf_aer: params.esf_aer }),
+           ...(params.esf_aer_id != null && {
+              esf_aer_id: String(params.esf_aer_id),
+           }),
            ...(params.tipo_missao_cod &&
               params.tipo_missao_cod.length > 0 && {
                  tipo_missao_cod: params.tipo_missao_cod,
@@ -152,8 +154,19 @@ export async function getEtapas(
       queryParams,
       signal
    );
-   const json = (await response.json()) as ApiResponse<MissaoComEtapas[]>;
-   return json.data ?? [];
+   // Parse tolerante: 502 de proxy pode vir em HTML, e response.json() lançaria
+   // antes de chegarmos ao `!response.ok` abaixo.
+   const json = (await response.json().catch(() => null)) as ApiResponse<
+      MissaoComEtapas[]
+   > | null;
+   if (!response.ok) {
+      throw new ApiError(
+         json?.message || "Erro ao buscar etapas",
+         json?.errors ?? null,
+         response.status
+      );
+   }
+   return json?.data ?? [];
 }
 
 // ─── Pendentes de verificação ──────────────────────────────────────────────

@@ -5,7 +5,15 @@ import { MdBarChart, MdFlightTakeoff, MdFlightLand } from "react-icons/md";
 import { HiCalendar, HiX, HiUser } from "react-icons/hi";
 import { formatDateFull } from "@/../utils/dateHandler";
 
+interface SelectOption {
+   value: string;
+   label: string;
+}
+
 interface ActiveFilterTagsProps {
+   hasActiveFilters: boolean;
+   dataIniActive: boolean;
+   dataFimActive: boolean;
    urlDataIni: string;
    urlDataFim: string;
    urlAnv: string[];
@@ -13,8 +21,9 @@ interface ActiveFilterTagsProps {
    urlDestino: string;
    urlTrip: string;
    urlFuncao: string;
-   urlEsfAer: string;
+   urlEsfAerId: string;
    urlTipoMissao: string[];
+   esfAerOptions: SelectOption[];
    onRemoveDataIni: () => void;
    onRemoveDataFim: () => void;
    onRemoveAnv: () => void;
@@ -28,6 +37,9 @@ interface ActiveFilterTagsProps {
 }
 
 export function ActiveFilterTags({
+   hasActiveFilters,
+   dataIniActive,
+   dataFimActive,
    urlDataIni,
    urlDataFim,
    urlAnv,
@@ -35,8 +47,9 @@ export function ActiveFilterTags({
    urlDestino,
    urlTrip,
    urlFuncao,
-   urlEsfAer,
+   urlEsfAerId,
    urlTipoMissao,
+   esfAerOptions,
    onRemoveDataIni,
    onRemoveDataFim,
    onRemoveAnv,
@@ -48,30 +61,26 @@ export function ActiveFilterTags({
    onRemoveTipoMissao,
    onClearAll,
 }: ActiveFilterTagsProps) {
-   // Deriva dos próprios props se há algum filtro visível — sem filtro, o bloco
-   // não monta (antes ficava só "Filtros ativos:/Limpar todos" pendurado).
-   const hasActiveFilters = Boolean(
-      urlDataIni ||
-      urlDataFim ||
-      urlAnv.length ||
-      urlOrigem ||
-      urlDestino ||
-      urlTrip ||
-      urlEsfAer ||
-      urlTipoMissao.length
-   );
-
+   // Fonte única de "há filtro ativo": o hook já computa isto para o badge do
+   // botão Filtros (que ignora datas default). Repetir a lista de condições
+   // aqui divergia — as datas sempre existem na URL (seed default), então uma
+   // checagem local por `urlDataIni`/`urlDataFim` truthy dava sempre true.
    if (!hasActiveFilters) return null;
+
+   const esfAerLabel = urlEsfAerId
+      ? (esfAerOptions.find((o) => o.value === urlEsfAerId)?.label ??
+        `#${urlEsfAerId}`)
+      : "";
 
    return (
       // Ocultos no mobile (chips quebravam em várias linhas): o badge de
       // contagem no botão "Filtros" já sinaliza filtros ativos. Reaparecem no sm+.
-      <div className="mb-1 ml-1 hidden shrink-0 flex-wrap items-center gap-2 sm:flex">
+      <div className="ml-1 hidden shrink-0 flex-wrap items-center gap-2 sm:flex">
          <span className="text-xs font-medium text-gray-600">
             Filtros ativos:
          </span>
 
-         {urlDataIni && (
+         {dataIniActive && (
             <Badge color="primary">
                <div className="flex items-center gap-1.5">
                   <HiCalendar className="h-3 w-3" />
@@ -88,11 +97,11 @@ export function ActiveFilterTags({
             </Badge>
          )}
 
-         {urlDataFim && (
+         {dataFimActive && (
             <Badge color="primary">
                <div className="flex items-center gap-1.5">
                   <HiCalendar className="h-3 w-3" />
-                  <span>Ate: {formatDateFull(urlDataFim)}</span>
+                  <span>Até: {formatDateFull(urlDataFim)}</span>
                   <button
                      type="button"
                      aria-label="Remover filtro data final"
@@ -176,10 +185,10 @@ export function ActiveFilterTags({
          {urlTrip && urlFuncao && (
             <Badge color="primary">
                <div className="flex items-center gap-1.5">
-                  <span>Funcao: {urlFuncao.toUpperCase()}</span>
+                  <span>Função: {urlFuncao.toUpperCase()}</span>
                   <button
                      type="button"
-                     aria-label="Remover filtro funcao"
+                     aria-label="Remover filtro função"
                      onClick={onRemoveFuncao}
                      className="hover:text-primary-900 -my-2 ml-0.5 grid size-[26px] shrink-0 place-items-center rounded"
                   >
@@ -189,14 +198,14 @@ export function ActiveFilterTags({
             </Badge>
          )}
 
-         {urlEsfAer && (
+         {urlEsfAerId && (
             <Badge color="primary">
                <div className="flex items-center gap-1.5">
                   <MdBarChart className="h-3 w-3" />
-                  <span>ESF: {urlEsfAer}</span>
+                  <span>ESF: {esfAerLabel}</span>
                   <button
                      type="button"
-                     aria-label="Remover filtro esforco aereo"
+                     aria-label="Remover filtro esforço aéreo"
                      onClick={onRemoveEsfAer}
                      className="hover:text-primary-900 -my-2 ml-0.5 grid size-[26px] shrink-0 place-items-center rounded"
                   >
@@ -209,10 +218,10 @@ export function ActiveFilterTags({
          {urlTipoMissao.length > 0 && (
             <Badge color="primary">
                <div className="flex items-center gap-1.5">
-                  <span>Tipo Missao: {urlTipoMissao.join(", ")}</span>
+                  <span>Tipo de missão: {urlTipoMissao.join(", ")}</span>
                   <button
                      type="button"
-                     aria-label="Remover filtro tipo missao"
+                     aria-label="Remover filtro tipo missão"
                      onClick={onRemoveTipoMissao}
                      className="hover:text-primary-900 -my-2 ml-0.5 grid size-[26px] shrink-0 place-items-center rounded"
                   >

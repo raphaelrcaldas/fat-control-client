@@ -13,7 +13,7 @@ export function ResultadosInfo({
       // que nada receba foco — sem isso o leitor de tela nao anuncia.
       <span aria-live="polite" className="text-sm font-normal text-gray-500">
          <span className="font-semibold text-gray-900">{totalMissoes}</span>{" "}
-         {totalMissoes === 1 ? "missao" : "missoes"}
+         {totalMissoes === 1 ? "missão" : "missões"}
          <span className="ml-1 font-normal">
             ({totalEtapas} {totalEtapas === 1 ? "etapa" : "etapas"})
          </span>

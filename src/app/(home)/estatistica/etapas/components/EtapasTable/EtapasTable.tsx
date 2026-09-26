@@ -18,7 +18,6 @@ export interface EtapasTableProps {
    onToggleMissao: (etapaIds: number[]) => void;
    onToggleAll: () => void;
    allSelected: boolean;
-   onDeleteMissao: (missao: MissaoComEtapas) => void;
 }
 
 export function EtapasTable({
@@ -29,7 +28,6 @@ export function EtapasTable({
    onToggleMissao,
    onToggleAll,
    allSelected,
-   onDeleteMissao,
 }: EtapasTableProps) {
    const [detailState, setDetailState] = useState<{
       etapaId: number;
@@ -98,7 +96,7 @@ export function EtapasTable({
                htmlFor="select-all-etapas"
                className="cursor-pointer text-sm font-medium text-gray-600"
             >
-               Selecionar todas as etapas da pagina
+               Selecionar todas as etapas exibidas
             </Label>
          </div>
 
@@ -112,7 +110,6 @@ export function EtapasTable({
                onToggleMissao={onToggleMissao}
                onDetailEtapa={handleDetailEtapa}
                onEditEtapa={handleEditEtapa}
-               onDeleteMissao={onDeleteMissao}
             />
          ))}
 

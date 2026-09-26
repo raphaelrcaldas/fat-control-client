@@ -67,6 +67,7 @@ export function EtapasNavigatorModal({
          {/* Editar etapa existente = `update` no backend, nao `create`. */}
          <PermBased resource="estatistica.etapas" requiredPerm="update">
             <button
+               type="button"
                onClick={() => onEditEtapa(selectedId)}
                title="Editar etapa"
                aria-label="Editar etapa"
@@ -76,6 +77,7 @@ export function EtapasNavigatorModal({
             </button>
          </PermBased>
          <button
+            type="button"
             onClick={onClose}
             title="Fechar"
             aria-label="Fechar detalhes da etapa"
@@ -137,6 +139,7 @@ export function EtapasNavigatorModal({
                      return (
                         <button
                            key={etapa.id}
+                           type="button"
                            ref={isSelected ? selectedRef : null}
                            onClick={() => setSelectedId(etapa.id)}
                            className={clsx(
