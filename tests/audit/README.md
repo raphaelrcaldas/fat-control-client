@@ -59,9 +59,9 @@ ou "Sistema") e o `data-org-theme` do `<html>`. No `peek`, que reusa o login da
 aba, a troca de perfil pelo switcher **persiste entre execuções** — se a medição
 anterior trocou de escopo, a seguinte herda.
 
-Audite a tela no escopo de quem a usa. E prefira uma organização de tema
-**azul** para o trabalho de cor: assim qualquer `red-*` cravado salta como
-desvio de marca, em vez de se camuflar no vermelho do tema.
+Audite a tela no escopo de quem a usa, **sempre na 11GT**: as demais
+organizações não têm dados para amostra. Sob o tema vermelho, `red-*` cravado
+se confere no código, não no screenshot — ver `docs/ai/notes/ui-ux.md`.
 
 Saída em `client/.audit/<rota>/` (fora do Git): `report.md`, `report.json` e um
 PNG full-page por breakpoint.
