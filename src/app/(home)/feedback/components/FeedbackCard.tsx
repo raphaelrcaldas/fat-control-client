@@ -74,13 +74,19 @@ export function FeedbackCard({
                   >
                      {feedback.titulo}
                   </h2>
+                  {/* Selo da altura da linha do título (ver o card do
+                      FatBird): com a entrelinha herdada ele encostava na
+                      meta abaixo. */}
                   <span
-                     className={`shrink-0 rounded-full border px-2 py-0.5 text-[11px] font-semibold ${status.badge}`}
+                     className={`shrink-0 rounded-full border px-2 py-px text-[11px] leading-4 font-semibold ${status.badge}`}
                   >
                      {status.label}
                   </span>
                </div>
-               <p className="truncate text-xs text-slate-500" title={meta}>
+               <p
+                  className="mt-0.5 truncate text-xs text-slate-500"
+                  title={meta}
+               >
                   {meta}
                </p>
             </div>

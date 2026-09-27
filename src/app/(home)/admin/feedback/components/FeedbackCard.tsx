@@ -95,17 +95,6 @@ export function FeedbackCard({
                         {feedback.titulo}
                      </button>
                   </h3>
-                  {naoLido && (
-                     <span className="text-primary-700 inline-flex shrink-0 items-center gap-1 text-[11px] font-semibold">
-                        <span
-                           aria-hidden
-                           className="bg-primary-600 size-1.5 rounded-full"
-                        />
-                        {feedback.total_mensagens > 0
-                           ? "Nova mensagem"
-                           : "Novo"}
-                     </span>
-                  )}
                   <span
                      className={`shrink-0 rounded-full border px-2.5 py-0.5 text-xs font-semibold ${status.badge}`}
                   >
@@ -130,9 +119,9 @@ export function FeedbackCard({
                      {feedback.uae}
                   </span>
                   <span className="min-w-0 truncate">
-                     {` · ${autorNome} · ${tipo.label} · via ${ORIGEM_LABEL[feedback.origem]}`}
+                     {`· ${autorNome} · ${tipo.label} · via ${ORIGEM_LABEL[feedback.origem]}`}
                   </span>
-                  {quando && <span className="shrink-0">{` · ${quando}`}</span>}
+                  {quando && <span className="shrink-0">{`· ${quando}`}</span>}
                </p>
             </div>
          </div>
@@ -162,6 +151,18 @@ export function FeedbackCard({
                   </span>
                )}
             </span>
+            {/* No rodapé, não na linha do título: no celular o título
+                dividia a linha com este selo e o de status e truncava em
+                poucas letras. */}
+            {naoLido && (
+               <span className="text-primary-700 inline-flex shrink-0 items-center gap-1 text-[11px] font-semibold">
+                  <span
+                     aria-hidden
+                     className="bg-primary-600 size-1.5 rounded-full"
+                  />
+                  {feedback.total_mensagens > 0 ? "Nova mensagem" : "Novo"}
+               </span>
+            )}
             {feedback.total_mensagens > 0 && (
                <span
                   className="inline-flex shrink-0 items-center gap-1 text-xs text-slate-500 tabular-nums"
