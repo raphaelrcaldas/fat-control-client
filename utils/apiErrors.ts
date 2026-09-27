@@ -98,6 +98,17 @@ export function fieldErrorsFrom(err: unknown): Record<string, unknown> | null {
    return null;
 }
 
+/** 404: o registro não existe (ou não é deste usuário) — resposta definitiva,
+ *  não repita a consulta por cima dela. */
+export function isNotFoundError(err: unknown): boolean {
+   return err instanceof ApiError && err.status === 404;
+}
+
+/** 409: o servidor recusou por conflito de estado (ex.: conversa encerrada). */
+export function isConflictError(err: unknown): boolean {
+   return err instanceof ApiError && err.status === 409;
+}
+
 /**
  * Texto de toast para uma falha de escrita: a mensagem de topo seguida de uma
  * linha por campo recusado. Sem erros de campo (400/409/500), devolve a

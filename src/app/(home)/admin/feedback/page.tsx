@@ -1,21 +1,40 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Button } from "flowbite-react";
-import { MdErrorOutline, MdOutlineRateReview } from "react-icons/md";
+import { MdErrorOutline, MdOutlineRateReview, MdReply } from "react-icons/md";
 import clsx from "clsx";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { useToast } from "@/app/context/toast";
-import { useDeleteFeedback, useFeedbacks } from "@/hooks/queries";
+import {
+   TIPOS_AVISO_ADMIN,
+   useAvisosNaoLidosDeFeedback,
+   useDeleteFeedback,
+   useFeedbacks,
+} from "@/hooks/queries";
+import { useSearchParamsUpdater } from "@/hooks/useSearchParamsState";
 import { useTenants } from "@/hooks/queries/useTenants";
 import { isOrgTheme, type OrgTheme } from "@/lib/orgTheme";
 import type { Feedback, FeedbackStatus } from "services/routes/feedbacks";
 import { FeedbackCard } from "./components/FeedbackCard";
 import { FeedbacksSkeleton } from "./components/FeedbacksSkeleton";
 import { TratarFeedbackModal } from "./components/TratarFeedbackModal";
-import { STATUS_META, STATUS_ORDEM } from "@/components/feedback/feedbackMeta";
+import {
+   STATUS_META,
+   STATUS_ORDEM,
+   aguardandoResposta,
+} from "@/components/feedback/feedbackMeta";
 
+/** Filtro da caixa: um status, ou o recorte de triagem "aguardando". */
+type Filtro = FeedbackStatus | "aguardando" | null;
+
+/**
+ * Caixa de feedbacks da administração de sistema. A conversa abre em modal
+ * com o `id` na query (`?id=<id>`) — é o deep-link do sino (aviso de
+ * feedback novo ou de mensagem do autor, `notificacaoHref.ts`) e sobrevive
+ * ao recarregar.
+ */
 export default function FeedbackPage() {
    // A caixa inteira vem numa consulta e o filtro é local: são os
    // contadores por status que orientam o trabalho ("3 abertos"), e eles
@@ -26,11 +45,30 @@ export default function FeedbackPage() {
    const { push } = useToast();
    const deleteMutation = useDeleteFeedback();
 
-   const [statusFiltro, setStatusFiltro] = useState<FeedbackStatus | null>(
-      null
-   );
-   const [selecionado, setSelecionado] = useState<Feedback | null>(null);
+   const naoLidos = useAvisosNaoLidosDeFeedback(TIPOS_AVISO_ADMIN);
+   const { searchParams, setParams } = useSearchParamsUpdater();
+
+   const [filtro, setFiltro] = useState<Filtro>(null);
    const [paraExcluir, setParaExcluir] = useState<Feedback | null>(null);
+
+   // A conversa aberta é a da URL, resolvida na lista (o modal precisa do
+   // resumo para o cabeçalho). Id que a caixa não tem — excluído, ou link
+   // velho — avisa e limpa a URL, em vez de deixar a tela num estado
+   // "aberto" sem modal.
+   const idParam = searchParams.get("id");
+   const selecionado = idParam
+      ? (feedbacks.find((f) => String(f.id) === idParam) ?? null)
+      : null;
+   const idInexistente =
+      idParam !== null && !isLoading && !isError && selecionado === null;
+   useEffect(() => {
+      if (!idInexistente) return;
+      push({
+         type: "error",
+         message: "Feedback não encontrado — ele pode ter sido excluído.",
+      });
+      setParams({ id: undefined });
+   }, [idInexistente, push, setParams]);
 
    const handleExcluir = async () => {
       if (!paraExcluir) return;
@@ -38,6 +76,8 @@ export default function FeedbackPage() {
          await deleteMutation.mutateAsync(paraExcluir.id);
          push({ message: "Feedback excluído", type: "success" });
          setParaExcluir(null);
+         // Excluído com a conversa aberta atrás: não sobra `?id=` órfão.
+         if (idParam === String(paraExcluir.id)) setParams({ id: undefined });
       } catch (err: unknown) {
          const message =
             err instanceof Error ? err.message : "Erro ao excluir feedback";
@@ -61,10 +101,25 @@ export default function FeedbackPage() {
       }
       return mapa;
    }, [feedbacks]);
+   const totalAguardando = useMemo(
+      () => feedbacks.filter(aguardandoResposta).length,
+      [feedbacks]
+   );
 
-   const visiveis = statusFiltro
-      ? feedbacks.filter((f) => f.status === statusFiltro)
-      : feedbacks;
+   const visiveis =
+      filtro === "aguardando"
+         ? feedbacks.filter(aguardandoResposta)
+         : filtro
+           ? feedbacks.filter((f) => f.status === filtro)
+           : feedbacks;
+
+   const chip = (ativo: boolean, cor: string) =>
+      clsx(
+         "min-h-[24px] rounded-full border px-3 py-1 text-xs font-semibold transition-colors",
+         ativo
+            ? cor
+            : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
+      );
 
    return (
       <div className="flex flex-col space-y-2">
@@ -92,36 +147,47 @@ export default function FeedbackPage() {
             </div>
          </header>
 
-         {/* Filtro por status — os contadores SÃO o filtro */}
+         {/* Filtro — os contadores SÃO o filtro. "Aguardando resposta"
+             vem primeiro: é a fila de trabalho; os status vêm depois. */}
          {!isLoading && !isError && feedbacks.length > 0 && (
             <div className="flex flex-wrap gap-2 rounded border border-slate-200 bg-white p-2 shadow-sm">
                <button
                   type="button"
-                  onClick={() => setStatusFiltro(null)}
-                  aria-pressed={statusFiltro === null}
-                  className={clsx(
-                     "rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors",
-                     statusFiltro === null
-                        ? "border-slate-400 bg-slate-100 text-slate-800"
-                        : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
+                  onClick={() => setFiltro(null)}
+                  aria-pressed={filtro === null}
+                  className={chip(
+                     filtro === null,
+                     "border-slate-400 bg-slate-100 text-slate-800"
                   )}
                >
                   Todos ({feedbacks.length})
                </button>
+               {(totalAguardando > 0 || filtro === "aguardando") && (
+                  <button
+                     type="button"
+                     onClick={() =>
+                        setFiltro(filtro === "aguardando" ? null : "aguardando")
+                     }
+                     aria-pressed={filtro === "aguardando"}
+                     className={clsx(
+                        chip(
+                           filtro === "aguardando",
+                           "border-slate-800 bg-slate-800 text-white"
+                        ),
+                        "inline-flex items-center gap-1"
+                     )}
+                  >
+                     <MdReply className="size-3.5" aria-hidden />
+                     Aguardando resposta ({totalAguardando})
+                  </button>
+               )}
                {STATUS_ORDEM.filter((s) => contagem[s]).map((s) => (
                   <button
                      key={s}
                      type="button"
-                     onClick={() =>
-                        setStatusFiltro(statusFiltro === s ? null : s)
-                     }
-                     aria-pressed={statusFiltro === s}
-                     className={clsx(
-                        "rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors",
-                        statusFiltro === s
-                           ? STATUS_META[s].badge
-                           : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
-                     )}
+                     onClick={() => setFiltro(filtro === s ? null : s)}
+                     aria-pressed={filtro === s}
+                     className={chip(filtro === s, STATUS_META[s].badge)}
                   >
                      {STATUS_META[s].label} ({contagem[s]})
                   </button>
@@ -154,7 +220,7 @@ export default function FeedbackPage() {
             <EmptyState
                icon={MdOutlineRateReview}
                title="Nenhum feedback recebido"
-               description="O que os tripulantes enviarem pelo FatBird aparece aqui."
+               description="O que for enviado pelo FatBird e pelo client aparece aqui."
             />
          )}
 
@@ -165,7 +231,8 @@ export default function FeedbackPage() {
                      key={feedback.id}
                      feedback={feedback}
                      tema={orgTemas[feedback.uae]}
-                     onResponder={(f) => setSelecionado(f)}
+                     naoLido={naoLidos.has(feedback.id)}
+                     onAbrir={(f) => setParams({ id: String(f.id) })}
                      onExcluir={(f) => setParaExcluir(f)}
                   />
                ))}
@@ -175,15 +242,19 @@ export default function FeedbackPage() {
          {!isError && feedbacks.length > 0 && visiveis.length === 0 && (
             <EmptyState
                icon={MdOutlineRateReview}
-               title="Nenhum feedback neste status"
+               title={
+                  filtro === "aguardando"
+                     ? "Nada aguardando resposta"
+                     : "Nenhum feedback neste status"
+               }
                description="Troque o filtro para ver os demais."
             />
          )}
 
          {selecionado && (
             <TratarFeedbackModal
-               show={!!selecionado}
-               onClose={() => setSelecionado(null)}
+               show
+               onClose={() => setParams({ id: undefined })}
                feedback={selecionado}
             />
          )}
@@ -195,7 +266,7 @@ export default function FeedbackPage() {
             <ConfirmModal
                show
                title="Excluir feedback?"
-               description={`"${paraExcluir.titulo}" será apagado definitivamente, junto com a resposta dada ao autor.`}
+               description={`"${paraExcluir.titulo}" será apagado definitivamente, junto com a conversa com o autor.`}
                isLoading={deleteMutation.isPending}
                onClose={() => setParaExcluir(null)}
                onConfirm={handleExcluir}

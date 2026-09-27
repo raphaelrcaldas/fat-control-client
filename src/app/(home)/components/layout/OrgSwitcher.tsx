@@ -2,18 +2,10 @@
 
 import { useState } from "react";
 import clsx from "clsx";
-import { setCookie } from "cookies-next";
 import { FaBuilding, FaCheck, FaChevronDown } from "react-icons/fa6";
 import { Dropdown, DropdownHeader, DropdownItem } from "flowbite-react";
 import { useAuth } from "@/app/context/auth";
-import { switchOrg } from "services/routes/auth";
-import { getQueryClient } from "@/lib/queryClient";
-import {
-   ORG_BRAND_COOKIE,
-   orgBrandFrom,
-   serializeOrgBrand,
-} from "@/lib/orgBrand";
-import { normalizeOrgTheme, ORG_THEME_COOKIE } from "@/lib/orgTheme";
+import { trocarOrg } from "@/lib/trocarOrg";
 import { useToast } from "@/app/context/toast";
 import type { OrgScope } from "services/routes/users";
 
@@ -34,38 +26,9 @@ export function OrgSwitcher() {
       if (org.organizacao_id === activeOrg) return;
 
       setIsSwitching(true);
-      try {
-         const result = await switchOrg(org.organizacao_id);
-         if (result.ok && result.data?.access_token) {
-            setCookie("token", result.data.access_token, {
-               maxAge: 24 * 60 * 60,
-               path: "/",
-            });
-            // Grava tema e identidade da nova org antes do reload: o SSR já
-            // estampa a cor e o texto certos, sem flash.
-            const cookieOptions = { maxAge: 24 * 60 * 60, path: "/" };
-            setCookie(
-               ORG_THEME_COOKIE,
-               normalizeOrgTheme(org.tema),
-               cookieOptions
-            );
-            setCookie(
-               ORG_BRAND_COOKIE,
-               serializeOrgBrand(orgBrandFrom(org)),
-               cookieOptions
-            );
-            getQueryClient().clear();
-            window.location.assign("/");
-         } else {
-            push({
-               type: "error",
-               message: result.message || "Erro ao trocar de organização",
-            });
-            setIsSwitching(false);
-         }
-      } catch (error) {
-         console.error("switchOrg failed", error);
-         push({ type: "error", message: "Erro ao trocar de organização" });
+      const erro = await trocarOrg(org);
+      if (erro) {
+         push({ type: "error", message: erro });
          setIsSwitching(false);
       }
    }

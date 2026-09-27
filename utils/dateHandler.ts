@@ -518,6 +518,29 @@ export function formatDateTime(
 }
 
 /**
+ * Tempo relativo curto ("agora", "há 5 min", "há 2 h", "há 3 d") até 7 dias;
+ * depois disso cai na data curta (`isoDateToString`). Mesma normalização de
+ * fuso de `formatDateTime` (naive do backend representa UTC).
+ */
+export function formatRelativeTime(
+   isoDatetime: string | null | undefined
+): string | null {
+   if (!isoDatetime) return null;
+   const hasTz = /([zZ]|[+-]\d{2}:?\d{2})$/.test(isoDatetime);
+   const date = new Date(hasTz ? isoDatetime : isoDatetime + "Z");
+   if (isNaN(date.getTime())) return null;
+
+   const diffMin = Math.floor((Date.now() - date.getTime()) / 60_000);
+   if (diffMin < 1) return "agora";
+   if (diffMin < 60) return `há ${diffMin} min`;
+   const diffH = Math.floor(diffMin / 60);
+   if (diffH < 24) return `há ${diffH} h`;
+   const diffD = Math.floor(diffH / 24);
+   if (diffD <= 7) return `há ${diffD} d`;
+   return isoDateToString(dateToIso(date));
+}
+
+/**
  * Formata ISO datetime para "DD/MM/YY HH:MM:SS" (horário local), com segundos.
  * Mesma normalização de fuso de formatDateTime (trata naive como UTC). Use para
  * logs/auditoria onde o segundo importa para desambiguar registros próximos.

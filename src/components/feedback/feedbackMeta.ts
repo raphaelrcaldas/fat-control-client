@@ -6,7 +6,12 @@ import {
    MdLightbulbOutline,
    MdOutlineRecordVoiceOver,
 } from "react-icons/md";
-import type { FeedbackStatus, FeedbackTipo } from "services/routes/feedbacks";
+import type {
+   Feedback,
+   FeedbackOrigem,
+   FeedbackStatus,
+   FeedbackTipo,
+} from "services/routes/feedbacks";
 
 /* Espelha `fatbird/src/app/(home)/feedback/feedbackMeta.ts` — os repos são
    independentes, então o rótulo que o tripulante lê no portal e o que a
@@ -68,6 +73,8 @@ interface StatusMeta {
    label: string;
    /** Selo do estado. Semântica de status — não acompanha o tema da org. */
    badge: string;
+   /** Encerrado: a conversa do autor para de aceitar mensagem nova. */
+   terminal: boolean;
 }
 
 /** Ordem do fluxo: é ela que ordena os filtros e o seletor do modal. */
@@ -83,21 +90,44 @@ export const STATUS_META: Record<FeedbackStatus, StatusMeta> = {
    aberto: {
       label: "Aberto",
       badge: "border-slate-200 bg-slate-50 text-slate-700",
+      terminal: false,
    },
    em_analise: {
       label: "Em análise",
       badge: "border-amber-200 bg-amber-50 text-amber-800",
+      terminal: false,
    },
    aceito: {
       label: "Aceito",
       badge: "border-sky-200 bg-sky-50 text-sky-800",
+      terminal: false,
    },
    concluido: {
       label: "Concluído",
       badge: "border-emerald-200 bg-emerald-50 text-emerald-800",
+      terminal: true,
    },
    recusado: {
       label: "Não será feito",
       badge: "border-rose-200 bg-rose-50 text-rose-800",
+      terminal: true,
    },
 };
+
+/** Rótulo do app de origem, na linha de meta do card e do modal. */
+export const ORIGEM_LABEL: Record<FeedbackOrigem, string> = {
+   client: "client",
+   fatbird: "FatBird",
+};
+
+/**
+ * A bola está com a administração: feedback ainda aberto cuja última fala
+ * é do autor — ou que ninguém respondeu ainda (a abertura é a fala dele).
+ * Mudar só o status não conta como resposta: o autor não recebe aviso
+ * disso (`feedback-conversa.md`). Derivado do resumo da lista, sem coluna
+ * de leitura no backend.
+ */
+export function aguardandoResposta(feedback: Feedback): boolean {
+   if (STATUS_META[feedback.status].terminal) return false;
+   return !feedback.ultima_mensagem || feedback.ultima_mensagem.do_autor;
+}

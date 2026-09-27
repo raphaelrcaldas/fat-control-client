@@ -41,3 +41,4 @@ export * from "./useLogs";
 export * from "./useSubprogramas";
 export * from "./usePaops";
 export * from "./useFeedbacks";
+export * from "./useNotificacoes";

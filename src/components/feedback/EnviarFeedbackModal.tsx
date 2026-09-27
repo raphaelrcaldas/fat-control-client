@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import {
    Button,
    Label,
@@ -82,7 +83,13 @@ export function EnviarFeedbackModal({
             descricao: descricaoLimpa,
             rota: rota ?? null,
          });
-         push({ message: "Feedback enviado. Obrigado!", type: "success" });
+         // O toast do client não suporta ação (só título/mensagem/tipo): o
+         // caminho para acompanhar a conversa é o link "Meus feedbacks"
+         // logo abaixo, sempre visível no modal.
+         push({
+            message: "Feedback enviado. Acompanhe em “Meus feedbacks”.",
+            type: "success",
+         });
          onClose();
       } catch (err: unknown) {
          const message =
@@ -94,15 +101,47 @@ export function EnviarFeedbackModal({
    };
 
    return (
-      <Modal show={show} onClose={handleClose} size="2xl">
+      <Modal
+         show={show}
+         onClose={handleClose}
+         size="2xl"
+         dismissible={!isSending}
+      >
          <ModalHeader>Enviar feedback</ModalHeader>
          <ModalBody>
             <div className="space-y-4">
-               <p className="text-sm text-slate-500">
-                  {rota
-                     ? `Sobre a tela ${rota} — a administração recebe junto com o endereço.`
-                     : "Sobre o sistema em geral."}
-               </p>
+               <div className="flex items-start justify-between gap-3">
+                  <p className="text-sm text-slate-500">
+                     {rota
+                        ? `Sobre a tela ${rota} — a administração recebe junto com o endereço.`
+                        : "Sobre o sistema em geral."}
+                  </p>
+                  {/* Discreto de propósito: a caixa lateral não ganha item
+                      de menu (RBAC filtra a sidebar), então este é o único
+                      caminho até a conversa. Bloqueado durante o envio —
+                      sair no meio do POST não cancela a mutation, e navegar
+                      com o modal fechando por baixo seria confuso; ao
+                      navegar de verdade, fecha o modal junto. */}
+                  <Link
+                     href="/feedback"
+                     aria-disabled={isSending}
+                     onClick={(e) => {
+                        if (isSending) {
+                           e.preventDefault();
+                           return;
+                        }
+                        handleClose();
+                     }}
+                     className={clsx(
+                        "inline-flex min-h-[24px] shrink-0 items-center text-xs font-semibold",
+                        isSending
+                           ? "pointer-events-none text-slate-400"
+                           : "text-primary-600 hover:underline"
+                     )}
+                  >
+                     Meus feedbacks
+                  </Link>
+               </div>
 
                <fieldset>
                   <legend className="mb-1 text-sm font-medium text-slate-900">

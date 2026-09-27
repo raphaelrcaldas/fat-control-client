@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { FaShieldHalved } from "react-icons/fa6";
 import { HiMenuAlt1 } from "react-icons/hi";
 import { MdClose, MdOutlineRateReview } from "react-icons/md";
+import { NotificacoesBell } from "./NotificacoesBell";
 import { OrgSwitcher } from "./OrgSwitcher";
 import { useAuth } from "@/app/context/auth";
 import { brasaoUrl } from "@/lib/orgBrasao";
@@ -95,6 +96,10 @@ export default function Navbar({
                   <MdOutlineRateReview className="text-primary-600 h-6 w-6" />
                </button>
             )}
+            {/* Diretas ignoram a org ativa (dado da pessoa): o sino aparece
+                mesmo no contexto Sistema, ao contrário do botão de feedback
+                acima (que precisa de uma `uae` para gravar). */}
+            <NotificacoesBell />
             <OrgSwitcher />
          </div>
 
