@@ -18,7 +18,8 @@ export function OrgSwitcher() {
    const { push } = useToast();
    const [isSwitching, setIsSwitching] = useState(false);
 
-   if (!orgs || orgs.length === 0) return null;
+   // Sem escolha a fazer (0 ou 1 vínculo), não há o que trocar: nem selo.
+   if (!orgs || orgs.length <= 1) return null;
 
    const current = orgs.find((o) => o.organizacao_id === activeOrg) ?? orgs[0];
 
@@ -33,16 +34,6 @@ export function OrgSwitcher() {
       }
    }
 
-   // Vínculo único: apenas exibe o escopo atual (sem dropdown)
-   if (orgs.length === 1) {
-      return (
-         <div className="ml-2 flex shrink-0 items-center gap-2 rounded bg-white/60 px-3 py-1.5 text-sm font-semibold text-gray-700 shadow-sm">
-            <FaBuilding className="text-primary-600" />
-            {orgLabel(current)}
-         </div>
-      );
-   }
-
    return (
       // shrink-0 + ml-2: o switcher nunca é comprimido pela marca — quem cede
       // espaço na navbar estreita é o wordmark (min-w-0/truncate no navbar).
@@ -52,8 +43,8 @@ export function OrgSwitcher() {
             renderTrigger={() => (
                // Alvo de toque de 44px no dedo, mas TRANSPARENTE: quem cresce
                // no mobile é o botão (área clicável), não o pill visual — que
-               // mantém a mesma altura compacta do desktop. Visual idêntico ao
-               // badge de vínculo único, + chevron como affordance de menu.
+               // mantém a mesma altura compacta do desktop. O chevron é a
+               // affordance de menu.
                <button
                   type="button"
                   disabled={isSwitching}
