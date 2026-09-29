@@ -22,10 +22,35 @@ interface OrdensInstrucaoSectionProps {
 const fieldLabelClass =
    "mb-1 block text-xs font-semibold tracking-wide text-gray-500 uppercase";
 
+// Cor por regime: D amarelo, N azul-escuro, V (NVG) verde. Selecionado =
+// preenchido; os demais mantêm só o texto e o hover na cor do regime, para a
+// identidade aparecer também antes de escolher. Classes completas: o Tailwind
+// não enxerga nome montado por concatenação.
 const REGIMES = [
-   { v: "d", l: "D", nome: "Diurno" },
-   { v: "n", l: "N", nome: "Noturno" },
-   { v: "v", l: "V", nome: "NVG" },
+   {
+      v: "d",
+      l: "D",
+      nome: "Diurno",
+      // O amarelo sobre o branco dos vizinhos dá ~1,5:1: o anel escuro
+      // (inset, sem mudar a largura) garante que o selecionado se destaque
+      // mesmo em monitor de baixo contraste.
+      ativo: "bg-yellow-400 text-gray-900 ring-2 ring-yellow-600 ring-inset",
+      inativo: "text-yellow-700 hover:bg-yellow-50",
+   },
+   {
+      v: "n",
+      l: "N",
+      nome: "Noturno",
+      ativo: "bg-blue-900 text-white",
+      inativo: "text-blue-900 hover:bg-blue-50",
+   },
+   {
+      v: "v",
+      l: "V",
+      nome: "NVG",
+      ativo: "bg-green-700 text-white",
+      inativo: "text-green-700 hover:bg-green-50",
+   },
 ] as const;
 
 /** O que falta preencher numa OI, na ordem dos campos. */
@@ -249,7 +274,7 @@ function OiRow({
                aria-labelledby={`${id}-reg`}
                className="flex h-8.5 overflow-hidden rounded border border-gray-300"
             >
-               {REGIMES.map(({ v, l, nome }) => (
+               {REGIMES.map(({ v, l, nome, ativo, inativo }) => (
                   <button
                      key={v}
                      type="button"
@@ -259,9 +284,7 @@ function OiRow({
                      onClick={() => onChange({ reg: v })}
                      className={clsx(
                         "flex flex-1 items-center justify-center px-3 text-xs font-bold focus:outline-none",
-                        item.reg === v
-                           ? "bg-primary-800 text-white"
-                           : "text-primary-600 hover:bg-primary-100 bg-white",
+                        item.reg === v ? ativo : clsx("bg-white", inativo),
                         v !== "d" && "border-l border-gray-300"
                      )}
                   >
