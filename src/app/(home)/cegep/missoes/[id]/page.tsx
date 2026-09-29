@@ -4,7 +4,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useMissao } from "@/hooks/queries/useMissoes";
 import { MissionPage } from "../components/MissionPage";
 import { MissionPageSkeleton } from "../components/MissionPageSkeleton";
-import { formatNaiveDate } from "@/../utils/dateHandler";
+import { formatNaiveDate, formatNaiveDateTime } from "@/../utils/dateHandler";
 import { Timeline } from "flowbite-react";
 import { AuditTimelineItem } from "@/components/audit/AuditTimelineItem";
 import { AuditValueDelta } from "@/components/audit/AuditValueDelta";
@@ -66,8 +66,10 @@ function formatFieldValue(
    if (value === null || value === undefined) return "—";
    if (BOOL_FIELDS.has(field)) return value ? "Sim" : "Não";
    if (DATE_FIELDS.has(field)) {
-      // afast/regres são datetime naive — formatação string-pura (fuso-safe)
-      return formatNaiveDate(String(value)) || String(value);
+      // afast/regres são datetime naive — formatação string-pura (fuso-safe).
+      // Com a hora: sem ela, editar só o horário mostrava "10/09/26 →
+      // 10/09/26", como se nada tivesse mudado.
+      return formatNaiveDateTime(String(value)) || String(value);
    }
    if (field === "tipo_doc") return String(value).toUpperCase();
    if (field === "tipo") return String(value).toUpperCase();
