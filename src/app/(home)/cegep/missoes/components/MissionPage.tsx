@@ -1,6 +1,9 @@
 "use client";
 
+import { Button } from "flowbite-react";
+import { MdDeleteOutline } from "react-icons/md";
 import { Missao } from "services/routes/cegep/missoes";
+import { PermBased } from "@/app/(home)/hooks/usePermBased";
 import { useMissionForm } from "../hooks/useMissionForm";
 import { MissionHeader } from "./MissionHeader";
 import { MissionActionBar } from "./MissionActionBar";
@@ -80,7 +83,6 @@ export function MissionPage({
                         onCancelEdit={form.handleCancelEdit}
                         onSave={form.handleSave}
                         onClone={onClone ? form.handleClone : undefined}
-                        onDelete={() => form.setShowDeleteModal(true)}
                      />
                   }
                />
@@ -155,6 +157,37 @@ export function MissionPage({
                      editMode={form.editMode}
                   />
                </div>
+
+               {/* Exclusão fora da barra de comandos, no fim da página e só
+                  na visualização de uma missão existente — mesmo padrão do
+                  detalhe do comissionamento. */}
+               {!form.editMode && !form.isNew && (
+                  <PermBased resource="cegep.missoes" requiredPerm="delete">
+                     <section className="flex flex-col gap-3 rounded border border-red-200 bg-white px-3 py-2.5 shadow-sm sm:flex-row sm:items-center sm:justify-between sm:px-4">
+                        <div className="min-w-0">
+                           <h2 className="text-sm font-semibold text-slate-900">
+                              Excluir missão
+                           </h2>
+                           <p className="text-sm text-slate-600">
+                              Não pode ser desfeito. Antes de confirmar, você vê
+                              os dados da missão.
+                           </p>
+                        </div>
+                        <Button
+                           color="light"
+                           size="sm"
+                           aria-label="Excluir missão"
+                           onClick={() => form.setShowDeleteModal(true)}
+                           className="shrink-0"
+                        >
+                           <span className="flex items-center gap-2 text-red-600">
+                              <MdDeleteOutline className="size-4" />
+                              Excluir
+                           </span>
+                        </Button>
+                     </section>
+                  </PermBased>
+               )}
             </div>
          </div>
       </>

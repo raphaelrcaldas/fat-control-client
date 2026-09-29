@@ -126,20 +126,6 @@ export function ComissPage({ detail, onEdit, onClose }: ComissPageProps) {
                               <MdOutlineEdit className="size-4 sm:mr-2" />
                               <span className="hidden sm:inline">Editar</span>
                            </Button>
-                           <Button
-                              color="light"
-                              size="sm"
-                              aria-label="Excluir comissionamento"
-                              onClick={del.open}
-                              disabled={del.isDeleting}
-                           >
-                              <span className="flex items-center gap-2 text-red-600">
-                                 <MdDeleteOutline className="size-4" />
-                                 <span className="hidden sm:inline">
-                                    Excluir
-                                 </span>
-                              </span>
-                           </Button>
                         </RoleBasedRoute>
                      </>
                   }
@@ -183,6 +169,36 @@ export function ComissPage({ detail, onEdit, onClose }: ComissPageProps) {
                      router.push(`/cegep/missoes/${missaoId}`)
                   }
                />
+
+               {/* Exclusão fora da barra de comandos: ao lado de Editar, e só
+                  com ícone no mobile, foi quase acionada sem querer. Aqui
+                  fica no fim da página, isolada das ações do dia a dia. */}
+               <RoleBasedRoute requiredRoles={["apoio_avancado"]}>
+                  <section className="flex flex-col gap-3 rounded border border-red-200 bg-white px-3 py-2.5 shadow-sm sm:flex-row sm:items-center sm:justify-between sm:px-4">
+                     <div className="min-w-0">
+                        <h2 className="text-sm font-semibold text-slate-900">
+                           Excluir comissionamento
+                        </h2>
+                        <p className="text-sm text-slate-600">
+                           Não pode ser desfeito. Antes de confirmar, você vê as
+                           missões vinculadas.
+                        </p>
+                     </div>
+                     <Button
+                        color="light"
+                        size="sm"
+                        aria-label="Excluir comissionamento"
+                        onClick={del.open}
+                        disabled={del.isDeleting}
+                        className="shrink-0"
+                     >
+                        <span className="flex items-center gap-2 text-red-600">
+                           <MdDeleteOutline className="size-4" />
+                           Excluir
+                        </span>
+                     </Button>
+                  </section>
+               </RoleBasedRoute>
             </div>
          </div>
 

@@ -1,6 +1,6 @@
 import { Button, Spinner } from "flowbite-react";
 import { FaRegClone } from "react-icons/fa";
-import { HiCheck, HiPencilAlt, HiTrash, HiX } from "react-icons/hi";
+import { HiCheck, HiPencilAlt, HiX } from "react-icons/hi";
 import { PermBased } from "@/app/(home)/hooks/usePermBased";
 
 interface MissionActionBarProps {
@@ -12,11 +12,13 @@ interface MissionActionBarProps {
    onCancelEdit: () => void;
    onSave: () => void;
    onClone?: () => void;
-   onDelete: () => void;
 }
 
 /**
  * Ações da missão, dentro do MissionHeader.
+ *
+ * A exclusão não fica aqui: mora numa seção própria no fim da página
+ * (`MissionPage`), longe das ações do dia a dia.
  *
  * Sem moldura própria: o cabeçalho já é o cartão. No celular o rótulo some e
  * fica só o ícone (`hidden sm:inline`, com `aria-label` no botão para não
@@ -33,7 +35,6 @@ export function MissionActionBar({
    onCancelEdit,
    onSave,
    onClone,
-   onDelete,
 }: MissionActionBarProps) {
    return (
       <>
@@ -63,21 +64,6 @@ export function MissionActionBar({
                      </Button>
                   </PermBased>
                )}
-               <PermBased resource="cegep.missoes" requiredPerm="delete">
-                  {/* `outline`: sólido, o Deletar ficava do mesmo vermelho do
-                      Editar em organização de tema vermelho — a ação
-                      destrutiva e a primária viravam o mesmo botão. */}
-                  <Button
-                     color="red"
-                     outline
-                     size="sm"
-                     aria-label="Deletar missão"
-                     onClick={onDelete}
-                  >
-                     <HiTrash className="size-4 sm:mr-2" />
-                     <span className="hidden sm:inline">Deletar</span>
-                  </Button>
-               </PermBased>
             </>
          ) : (
             <>
