@@ -100,7 +100,7 @@ function diffLista<T>(
 
 function formatMilitar(m: MissaoMilitar): string {
    const situ = SITUACAO_CONFIG[m.sit as SituacaoType]?.label ?? m.sit;
-   return `${m.p_g.toUpperCase()} ${m.nome} (${situ})`;
+   return `${m.p_g.toUpperCase()} ${m.nome.toUpperCase()} (${situ})`;
 }
 
 function formatPernoite(p: MissaoPernoite): string {
