@@ -11,6 +11,9 @@ export const SIM_ANV = "2850";
 export const DESTINO_ROTA = "ROTA";
 
 export interface DuplaPilot {
+   ant?: number;
+   ult_promo?: string | null;
+   ant_rel?: number | null;
    trip_id: number;
    trig: string;
    nome_guerra: string;
@@ -21,6 +24,9 @@ export interface DuplaPilot {
 
 /** Resultado de busca de tripulante (vindo da API de trips) já normalizado. */
 export interface CrewSearchResult {
+   ant?: number;
+   ult_promo?: string | null;
+   ant_rel?: number | null;
    id: number;
    trig: string;
    nome_guerra: string;

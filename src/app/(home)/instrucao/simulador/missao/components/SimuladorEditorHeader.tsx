@@ -1,7 +1,10 @@
 "use client";
 
-import { Button } from "flowbite-react";
+import type { RefObject } from "react";
+import { Button, Spinner } from "flowbite-react";
 import { HiArrowLeft, HiMenuAlt2, HiOutlineTrash } from "react-icons/hi";
+import clsx from "clsx";
+import { EDITOR_TOP_H } from "@/app/(home)/estatistica/etapas/missao/components/MissaoEditorLayout";
 
 interface SimuladorEditorHeaderProps {
    title: string;
@@ -10,13 +13,19 @@ interface SimuladorEditorHeaderProps {
    canDelete: boolean;
    canSave: boolean;
    isSaving: boolean;
-   /** Sobe so a observacao quando nenhum campo da sessao mudou. */
-   onSaveObsOnly?: () => void;
+   /** Por que "Salvar" esta bloqueado (ex.: sessao incompleta); uma linha. */
+   blockedReason?: string | null;
+   onSave?: () => void;
    /** Rotulo do botao primario; o padrao serve a edicao de sessao. */
    saveLabel?: string;
    onBack: () => void;
-   /** Ausente na criacao: nao ha lista de sessoes para abrir no drawer. */
+   /** Abre o drawer da lista de sessoes (criacao e edicao o passam). */
    onOpenSidebar?: () => void;
+   /** Gatilho do drawer: recebe o foco de volta ao fechar. */
+   sidebarTriggerRef?: RefObject<HTMLButtonElement | null>;
+   sidebarOpen?: boolean;
+   /** `id` do painel aberto pelo gatilho (`aria-controls`). */
+   sidebarId?: string;
    onDelete?: () => void;
 }
 
@@ -27,14 +36,24 @@ export function SimuladorEditorHeader({
    canDelete,
    canSave,
    isSaving,
-   onSaveObsOnly,
+   blockedReason,
+   onSave,
    saveLabel = "Salvar sessão",
    onBack,
    onOpenSidebar,
+   sidebarTriggerRef,
+   sidebarOpen = false,
+   sidebarId,
    onDelete,
 }: SimuladorEditorHeaderProps) {
+   const showBlockedReason = Boolean(blockedReason) && !canSave && !isSaving;
    return (
-      <div className="grid grid-cols-[auto_1fr_auto] items-center gap-2 border-b border-slate-200 bg-white px-3 py-2 sm:px-5 sm:py-3">
+      <div
+         className={clsx(
+            "grid shrink-0 grid-cols-[auto_1fr_auto] items-center gap-2 border-b border-slate-200 bg-white px-3 py-2 sm:px-5 sm:py-3",
+            EDITOR_TOP_H
+         )}
+      >
          <div className="flex items-center gap-1">
             <button
                type="button"
@@ -46,9 +65,13 @@ export function SimuladorEditorHeader({
             </button>
             {onOpenSidebar && (
                <button
+                  ref={sidebarTriggerRef}
                   type="button"
                   onClick={onOpenSidebar}
                   aria-label="Abrir painel de sessões"
+                  aria-haspopup="dialog"
+                  aria-expanded={sidebarOpen}
+                  aria-controls={sidebarId}
                   className="focus-visible:outline-primary-500 grid size-9 place-items-center rounded text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-700 focus-visible:outline-2 lg:hidden"
                >
                   <HiMenuAlt2 className="h-5 w-5" />
@@ -57,10 +80,16 @@ export function SimuladorEditorHeader({
          </div>
 
          <div className="min-w-0">
-            <h1 className="truncate text-lg font-semibold text-slate-900 sm:text-xl">
+            <h1
+               title={title}
+               className="truncate text-lg font-semibold text-slate-900 sm:text-xl"
+            >
                {title}
             </h1>
-            <p className="truncate text-xs text-slate-500 sm:text-sm">
+            <p
+               title={subtitle}
+               className="truncate text-xs text-slate-500 sm:text-sm"
+            >
                {subtitle}
             </p>
          </div>
@@ -79,31 +108,39 @@ export function SimuladorEditorHeader({
                   <span className="sr-only sm:not-sr-only">Excluir</span>
                </Button>
             )}
-            {formId &&
-               (onSaveObsOnly ? (
-                  // So a observacao mudou: o submit do form esta bloqueado
-                  // (`canSubmit` falso), entao ela sobe por um caminho proprio.
-                  <Button
-                     type="button"
-                     color="primary"
-                     size="sm"
-                     onClick={onSaveObsOnly}
-                     disabled={isSaving}
-                  >
-                     {isSaving ? "Salvando..." : "Salvar observação"}
-                  </Button>
-               ) : (
-                  <Button
-                     type="submit"
-                     form={formId}
-                     color="primary"
-                     size="sm"
-                     disabled={!canSave || isSaving}
-                  >
-                     {isSaving ? "Salvando..." : saveLabel}
-                  </Button>
-               ))}
+            {formId && (
+               <Button
+                  type={onSave ? "button" : "submit"}
+                  onClick={onSave}
+                  form={formId}
+                  color="primary"
+                  size="sm"
+                  disabled={!canSave || isSaving}
+                  aria-busy={isSaving}
+               >
+                  {isSaving ? (
+                     <>
+                        <Spinner size="sm" color="white" className="mr-2" />
+                        Salvando...
+                     </>
+                  ) : (
+                     saveLabel
+                  )}
+               </Button>
+            )}
          </div>
+
+         {showBlockedReason && (
+            // Segunda linha, à direita e sob o botão: no celular não disputa
+            // espaço com o título. Uma linha só, truncada, com o texto inteiro
+            // no `title`.
+            <p
+               title={blockedReason!}
+               className="col-span-3 truncate text-right text-xs font-medium text-amber-700 dark:text-amber-400"
+            >
+               {blockedReason}
+            </p>
+         )}
       </div>
    );
 }

@@ -2,10 +2,24 @@ import { Alert, Button, Select } from "flowbite-react";
 import Field from "./Field";
 import type { SessaoForm } from "../hooks/useSessaoForm";
 
+export type SessaoOrdemForm = Pick<
+   SessaoForm,
+   | "tipoMissaoId"
+   | "setTipoMissaoId"
+   | "tiposMissaoData"
+   | "reg"
+   | "setReg"
+   | "smlEsfAer"
+   | "isDataError"
+   | "dataErrorMessage"
+   | "retryLoadingData"
+   | "isRefetchingData"
+>;
+
 export default function SessaoOrdemInstrucaoFields({
    form,
 }: {
-   form: SessaoForm;
+   form: SessaoOrdemForm;
 }) {
    const {
       tipoMissaoId,
@@ -67,9 +81,9 @@ export default function SessaoOrdemInstrucaoFields({
             </Field>
          </div>
          {smlEsfAer && (
-            <p className="text-xs text-gray-400">
+            <p className="text-xs text-slate-600">
                Esforço Aéreo:{" "}
-               <span className="font-mono font-medium text-gray-600">
+               <span className="font-mono font-medium text-slate-700">
                   {smlEsfAer.descricao}
                </span>
             </p>

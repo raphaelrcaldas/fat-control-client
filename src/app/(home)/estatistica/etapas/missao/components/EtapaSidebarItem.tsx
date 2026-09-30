@@ -9,6 +9,7 @@ import {
    minutesToTime,
 } from "utils/dateHandler";
 
+import { ETAPA_LABEL, type ItemLabel } from "../../components/itemLabel";
 import { EtapaStatusBadge } from "./EtapaStatusBadge";
 import { EtapaVerifBadge } from "./EtapaVerifBadge";
 
@@ -27,6 +28,13 @@ type Props = {
    status: EtapaStatus;
    sagem: boolean;
    parte1: boolean;
+   /** Nome curto do relatório nos selos ("Parte 1"; "Ficha" no simulador). */
+   parte1Label?: string;
+   /** Tooltip do selo pendente — texto próprio, não derivado de `parte1Label`. */
+   parte1Title?: string;
+   /** Termo da unidade nos selos "Nova"/"Modificado" ("etapa" por padrão). */
+   itemLabel?: ItemLabel;
+   disabled?: boolean;
    selected: boolean;
    isModified?: boolean;
    isNew?: boolean;
@@ -45,6 +53,10 @@ function EtapaSidebarItemBase({
    status,
    sagem,
    parte1,
+   parte1Label = "Parte 1",
+   parte1Title = "Relatório Parte 1 pendente",
+   itemLabel = ETAPA_LABEL,
+   disabled = false,
    selected,
    isModified,
    isNew,
@@ -66,13 +78,17 @@ function EtapaSidebarItemBase({
          ref={ref}
          type="button"
          onClick={onClick}
+         disabled={disabled}
          aria-current={selected ? "true" : undefined}
          className={clsx(
             // scroll-m: o scrollIntoView deixa folga além do fade da lista
             "relative flex w-full scroll-my-4 flex-col gap-2 overflow-hidden border border-gray-200 bg-white p-3 pl-4 text-left shadow transition",
-            "focus-visible:outline-primary-500 hover:border-gray-300 hover:bg-gray-50 focus-visible:outline-2 focus-visible:outline-offset-2",
+            "focus-visible:outline-primary-500 focus-visible:outline-2 focus-visible:outline-offset-2 enabled:hover:border-gray-300 enabled:hover:bg-gray-50",
+            // Desabilitado (simulador, durante gravação): sem hover nem cursor
+            // de clique, e esmaecido — sem isso o card parece interativo.
+            "disabled:cursor-not-allowed disabled:opacity-60",
             selected &&
-               "border-primary-200 bg-primary-50/40 hover:bg-primary-50/60",
+               "border-primary-200 bg-primary-50/40 enabled:hover:bg-primary-50/60",
             // accent bar — uses pseudo-element via ::before to avoid layout shift
             "before:absolute before:top-0 before:left-0 before:h-full before:w-1 before:transition",
             selected ? "before:bg-primary-500" : "before:bg-transparent",
@@ -116,8 +132,8 @@ function EtapaSidebarItemBase({
                   {!alertas && (
                      <HiCheck
                         role="img"
-                        aria-label="OK, SAGEM e Parte 1 verificados"
-                        title="OK · SAGEM e Parte 1 verificados"
+                        aria-label={`OK, SAGEM e ${parte1Label} verificados`}
+                        title={`OK · SAGEM e ${parte1Label} verificados`}
                         className="h-3.5 w-3.5 text-green-600"
                      />
                   )}
@@ -141,9 +157,9 @@ function EtapaSidebarItemBase({
                   )}
                   {!parte1 && (
                      <EtapaVerifBadge
-                        label="PARTE 1"
+                        label={parte1Label.toUpperCase()}
                         ok={false}
-                        title="Relatório Parte 1 pendente"
+                        title={parte1Title}
                      />
                   )}
                </div>
@@ -152,7 +168,7 @@ function EtapaSidebarItemBase({
                   {isNew && (
                      <span
                         className="flex items-center gap-1 rounded-full bg-emerald-50 px-1.5 py-0.5 text-[10px] font-semibold text-emerald-700 ring-1 ring-emerald-200"
-                        title="Esta etapa é nova e ainda não foi salva"
+                        title={`Esta ${itemLabel.singular} é nova e ainda não foi salva`}
                      >
                         <HiSparkles className="h-3 w-3" />
                         Nova
@@ -161,7 +177,7 @@ function EtapaSidebarItemBase({
                   {isModified && (
                      <span
                         className="flex items-center gap-1 rounded-full bg-amber-50 px-1.5 py-0.5 text-[10px] font-semibold text-amber-700 ring-1 ring-amber-200"
-                        title="Esta etapa foi modificada e ainda não foi salva"
+                        title={`Esta ${itemLabel.singular} foi modificada e ainda não foi salva`}
                      >
                         <HiPencil className="h-3 w-3" />
                         Modificado

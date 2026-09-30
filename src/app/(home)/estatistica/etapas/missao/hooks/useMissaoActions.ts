@@ -35,7 +35,20 @@ export function useMissaoActions({ draft, mode }: UseMissaoActionsArgs) {
    const { push } = useToast();
    const dispatch = useMissaoDraftDispatch();
    const { hasPerm } = usePermBased();
-   const canSave = hasPerm("estatistica.etapas", "create");
+   const canCreate = hasPerm("estatistica.etapas", "create");
+   const canDelete = hasPerm("estatistica.etapas", "delete");
+   const canUpdate = hasPerm("estatistica.etapas", "update");
+   // O PUT da edição exige `update` na rota, mais `create` se o lote cria
+   // etapa e `delete` se exclui uma persistida (403 do servidor, senão).
+   // Derivado do rascunho, como o buildUpdatePayload monta create/delete_ids.
+   const criaEtapa = draft.etapas.some((e) => e.serverId === null);
+   const excluiEtapa = draft.initialEtapaServerIds.some(
+      (id) => !draft.etapas.some((e) => e.serverId === id)
+   );
+   const canSave =
+      mode === "edit"
+         ? canUpdate && (!criaEtapa || canCreate) && (!excluiEtapa || canDelete)
+         : canCreate;
    // Liga a exibicao de erro nos campos ainda nao tocados (especificos):
    // depois de um salvar recusado, a pessoa precisa ver o que falta.
    const [saveAttempted, setSaveAttempted] = useState(false);
@@ -68,7 +81,10 @@ export function useMissaoActions({ draft, mode }: UseMissaoActionsArgs) {
       if (!canSave) {
          push({
             title: "Sem permissão",
-            message: "Você não tem permissão para salvar missões.",
+            message:
+               mode === "edit" && canUpdate
+                  ? "Você não tem permissão para criar ou excluir etapas nesta missão."
+                  : "Você não tem permissão para salvar missões.",
             type: "warning",
          });
          return;
@@ -146,6 +162,7 @@ export function useMissaoActions({ draft, mode }: UseMissaoActionsArgs) {
       });
    }, [
       canSave,
+      canUpdate,
       draft,
       mode,
       push,
@@ -156,6 +173,8 @@ export function useMissaoActions({ draft, mode }: UseMissaoActionsArgs) {
    ]);
 
    return {
+      canCreate,
+      canDelete,
       saveMutation,
       updateMutation,
       deleteMutation,

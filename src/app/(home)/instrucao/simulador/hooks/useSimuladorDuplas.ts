@@ -1,7 +1,9 @@
 import { useMemo } from "react";
 import { useEtapas } from "@/hooks/queries";
 import type { MissaoComEtapas } from "services/routes/estatistica/etapas";
-import type { Dupla, DuplaPilot } from "../types";
+import type { Dupla } from "../types";
+
+import { collectPilotos } from "../helpers/sessoes";
 
 /** Data da sessao mais recente da dupla; `null` quando ainda nao ha sessao. */
 function getLastDate(d: Dupla): string | null {
@@ -32,24 +34,7 @@ function sortByLastDateDesc(a: Dupla, b: Dupla): number {
 function buildDuplasFromApi(missoes: MissaoComEtapas[]): Dupla[] {
    return missoes
       .map((missao) => {
-         const pilotsMap = new Map<number, DuplaPilot>();
-         for (const etapa of missao.etapas) {
-            for (const trip of etapa.tripulantes) {
-               if (!pilotsMap.has(trip.trip_id)) {
-                  pilotsMap.set(trip.trip_id, {
-                     trip_id: trip.trip_id,
-                     trig: trip.trig,
-                     nome_guerra: trip.nome_guerra,
-                     p_g: trip.p_g,
-                     func: trip.func,
-                     func_bordo: trip.func_bordo,
-                  });
-               }
-            }
-         }
-         const pilots = Array.from(pilotsMap.values()).sort(
-            (a, b) => a.trip_id - b.trip_id
-         );
+         const pilots = collectPilotos(missao.etapas);
 
          return {
             key: String(missao.id),
@@ -63,7 +48,7 @@ function buildDuplasFromApi(missoes: MissaoComEtapas[]): Dupla[] {
 }
 
 export function useSimuladorDuplas(anoRef: number) {
-   const { data, isLoading, isFetching, isError } = useEtapas({
+   const { data, isLoading, isFetching, isError, refetch } = useEtapas({
       is_simulador: true,
       data_ini: `${anoRef}-01-01`,
       data_fim: `${anoRef}-12-31`,
@@ -76,5 +61,6 @@ export function useSimuladorDuplas(anoRef: number) {
       isLoading,
       isFetching,
       isError,
+      refetch,
    };
 }

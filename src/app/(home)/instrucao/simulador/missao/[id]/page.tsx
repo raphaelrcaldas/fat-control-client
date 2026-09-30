@@ -1,6 +1,5 @@
 "use client";
 
-import { useCallback } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { Alert, Button } from "flowbite-react";
@@ -36,11 +35,6 @@ export default function EditarMissaoSimuladorPage() {
       staleTime: 0,
       gcTime: 0,
    });
-
-   const handleRefetch = useCallback(async () => {
-      const result = await refetch();
-      return result.data;
-   }, [refetch]);
 
    if (!canEdit) {
       return (
@@ -97,7 +91,9 @@ export default function EditarMissaoSimuladorPage() {
    }
 
    if (isLoading || !data) {
-      return <SimuladorEditorSkeleton />;
+      return (
+         <SimuladorEditorSkeleton canCreate={canCreate} canDelete={canDelete} />
+      );
    }
 
    if (!data.is_simulador) {
@@ -145,7 +141,6 @@ export default function EditarMissaoSimuladorPage() {
             canCreate={canCreate}
             canDelete={canDelete}
             isFetching={isFetching}
-            onRefetch={handleRefetch}
          />
       </div>
    );

@@ -20,7 +20,13 @@ import type { UserPublic } from "services/routes/users";
  * // Uso com objetos que contêm user
  * items.sort((a, b) => compareByAntiguidade(a.user, b.user))
  */
-export function compareByAntiguidade(a: UserPublic, b: UserPublic): number {
+type Antiguidade = {
+   posto: Pick<UserPublic["posto"], "ant">;
+   ult_promo?: string | null;
+   ant_rel?: number | null;
+};
+
+export function compareByAntiguidade(a: Antiguidade, b: Antiguidade): number {
    // 1. Comparar posto (menor ant = mais antigo)
    const antA = a.posto.ant;
    const antB = b.posto.ant;

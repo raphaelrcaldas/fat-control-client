@@ -5,6 +5,7 @@ import { Select } from "flowbite-react";
 import { HiX } from "react-icons/hi";
 import { MAX_PILOTOS, type DuplaPilot, type CrewSearchResult } from "../types";
 import PilotSearchInput from "./PilotSearchInput";
+import { sortPilotos } from "../helpers/sessoes";
 
 interface PilotSearchDropdownProps {
    pilots: DuplaPilot[];
@@ -34,11 +35,11 @@ export default function PilotSearchDropdown({
 
          <div className="space-y-2">
             {pilots.length === 0 && (
-               <div className="flex items-center justify-center rounded border-2 border-dashed border-slate-200 px-4 py-4 text-xs text-gray-400">
+               <div className="flex items-center justify-center rounded border-2 border-dashed border-slate-200 px-4 py-4 text-xs text-slate-500">
                   Busque e adicione pelo menos um piloto
                </div>
             )}
-            {pilots.map((p) => (
+            {sortPilotos(pilots).map((p) => (
                <div
                   key={p.trip_id}
                   className="border-primary-200 bg-primary-50/60 flex items-center gap-3 rounded border px-4 py-2.5"

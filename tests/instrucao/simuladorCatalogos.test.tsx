@@ -17,11 +17,7 @@ vi.mock("@/app/context/toast", () => ({
 }));
 vi.mock("@/hooks/queries/useEtapas", () => {
    const mutation = () => ({ mutateAsync: vi.fn(), isPending: false });
-   return {
-      useCreateEtapa: mutation,
-      useUpdateEtapa: mutation,
-      useCreateMissaoWithEtapas: mutation,
-   };
+   return { useCreateMissaoWithEtapas: mutation };
 });
 vi.mock("@/hooks/queries/useEsfAer", () => ({
    useEsfAerList: () => ({
@@ -45,14 +41,7 @@ vi.mock("@/hooks/queries/useTiposMissao", () => ({
 }));
 
 function FormCatalogos() {
-   const form = useSessaoForm({
-      show: true,
-      missaoId: -1,
-      anoRef: 2026,
-      pilots: [],
-      editEtapa: null,
-      onClose: () => undefined,
-   });
+   const form = useSessaoForm({ anoRef: 2026 });
    return <SessaoOrdemInstrucaoFields form={form} />;
 }
 

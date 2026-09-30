@@ -60,6 +60,9 @@ export function usePilotSearch(assignedIds: Set<number>) {
                trig: t.trig,
                nome_guerra: t.user.nome_guerra,
                p_g: t.user.p_g,
+               ant: t.user.posto?.ant,
+               ult_promo: t.user.ult_promo,
+               ant_rel: t.user.ant_rel,
             })),
       [tripsData, assignedIds]
    );

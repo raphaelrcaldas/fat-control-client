@@ -6,6 +6,7 @@ import { Button, Textarea, TextInput } from "flowbite-react";
 import { CiPaperplane } from "react-icons/ci";
 import { HiPlus, HiTrash } from "react-icons/hi";
 
+import { ETAPA_LABEL, type ItemLabel } from "../../components/itemLabel";
 import { EtapaSidebarItem, type EtapaStatus } from "./EtapaSidebarItem";
 import { EDITOR_TOP_H } from "./MissaoEditorLayout";
 
@@ -30,13 +31,19 @@ export type SidebarEtapa = {
 type Props = {
    tituloMissao: string;
    etapas: SidebarEtapa[];
-   onAddEtapa: () => void;
+   onAddEtapa?: () => void;
    onSelectEtapa: (localId: string) => void;
    onTituloChange?: (value: string) => void;
    tituloValue?: string | null;
    onObsChange?: (value: string) => void;
    obsValue?: string | null;
    onDeleteMissao?: () => void;
+   ariaLabel?: string;
+   addEtapaLabel?: string;
+   parte1Label?: string;
+   parte1Title?: string;
+   itemLabel?: ItemLabel;
+   disabled?: boolean;
 };
 
 // Campo "no lugar": sem moldura em repouso, borda só no hover/foco, para o
@@ -64,13 +71,19 @@ export function MissaoSidebar({
    onObsChange,
    obsValue,
    onDeleteMissao,
+   ariaLabel = "Painel da missão",
+   addEtapaLabel = "Nova etapa",
+   parte1Label = "Parte 1",
+   parte1Title,
+   itemLabel = ETAPA_LABEL,
+   disabled = false,
 }: Props) {
    // useId: a sidebar existe duas vezes no DOM com o drawer aberto
    const tituloId = useId();
 
    return (
       <aside
-         aria-label="Painel da missão"
+         aria-label={ariaLabel}
          className="flex h-full w-full flex-col border-r border-gray-200 bg-gray-50"
       >
          {/* Masthead da página, no canto superior esquerdo como nas demais
@@ -104,6 +117,7 @@ export function MissaoSidebar({
                      onChange={(e) => onTituloChange(e.target.value)}
                      placeholder="Sem título"
                      autoComplete="off"
+                     disabled={disabled}
                      className={inlineField(
                         "[&_input]:min-h-[24px] [&_input]:py-0 [&_input]:text-xl [&_input]:leading-tight [&_input]:font-extrabold [&_input]:tracking-tight [&_input]:text-slate-900"
                      )}
@@ -111,6 +125,7 @@ export function MissaoSidebar({
                ) : (
                   <h2
                      id={tituloId}
+                     title={tituloMissao}
                      className="truncate text-xl leading-tight font-extrabold tracking-tight text-slate-900"
                   >
                      {tituloMissao}
@@ -123,6 +138,7 @@ export function MissaoSidebar({
                      onChange={(e) => onObsChange(e.target.value)}
                      placeholder="Adicionar observação…"
                      rows={1}
+                     disabled={disabled}
                      className={clsx(
                         inlineFieldBase,
                         "min-h-[24px] resize-none py-1 text-xs text-gray-600"
@@ -148,6 +164,10 @@ export function MissaoSidebar({
                         status={etapa.status}
                         sagem={etapa.sagem}
                         parte1={etapa.parte1}
+                        parte1Label={parte1Label}
+                        parte1Title={parte1Title}
+                        itemLabel={itemLabel}
+                        disabled={disabled}
                         selected={etapa.selected}
                         isModified={etapa.isModified}
                         isNew={etapa.isNew}
@@ -162,28 +182,34 @@ export function MissaoSidebar({
              botões com a mesma largura (flex-1 basis-0), não pelo texto. Cabe no
              drawer do mobile porque ele mede em dvh e a lista acima tem
              min-h-0 (rola sozinha em vez de empurrar o rodapé) */}
-         <div className="flex shrink-0 items-center gap-2 border-t border-gray-200 bg-white p-3">
-            <Button
-               color="light"
-               size="sm"
-               onClick={onAddEtapa}
-               className="flex-1 basis-0 font-semibold"
-            >
-               <HiPlus aria-hidden className="mr-1.5 h-4 w-4" />
-               Nova etapa
-            </Button>
-            {onDeleteMissao && (
-               <Button
-                  color="light"
-                  size="sm"
-                  onClick={onDeleteMissao}
-                  className="flex-1 basis-0 font-semibold text-red-700 hover:text-red-800"
-               >
-                  <HiTrash aria-hidden className="mr-1.5 h-4 w-4" />
-                  Excluir missão
-               </Button>
-            )}
-         </div>
+         {(onAddEtapa || onDeleteMissao) && (
+            <div className="flex shrink-0 items-center gap-2 border-t border-gray-200 bg-white p-3">
+               {onAddEtapa && (
+                  <Button
+                     color="light"
+                     size="sm"
+                     onClick={onAddEtapa}
+                     disabled={disabled}
+                     className="flex-1 basis-0 font-semibold"
+                  >
+                     <HiPlus aria-hidden className="mr-1.5 h-4 w-4" />
+                     {addEtapaLabel}
+                  </Button>
+               )}
+               {onDeleteMissao && (
+                  <Button
+                     color="light"
+                     size="sm"
+                     onClick={onDeleteMissao}
+                     disabled={disabled}
+                     className="flex-1 basis-0 font-semibold text-red-700 hover:text-red-800"
+                  >
+                     <HiTrash aria-hidden className="mr-1.5 h-4 w-4" />
+                     Excluir missão
+                  </Button>
+               )}
+            </div>
+         )}
       </aside>
    );
 }

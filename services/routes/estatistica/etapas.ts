@@ -1,4 +1,4 @@
-import request, { ApiError, parseApiResponse } from "../../Api";
+import request, { parseApiResponse, readApiData } from "../../Api";
 import type { ApiResponse, ApiResult } from "@/types/api";
 
 const etapasRoute = "estatistica/etapas/";
@@ -154,18 +154,15 @@ export async function getEtapas(
       queryParams,
       signal
    );
-   // Parse tolerante: 502 de proxy pode vir em HTML, e response.json() lançaria
-   // antes de chegarmos ao `!response.ok` abaixo.
-   const json = (await response.json().catch(() => null)) as ApiResponse<
-      MissaoComEtapas[]
-   > | null;
-   if (!response.ok) {
-      throw new ApiError(
-         json?.message || "Erro ao buscar etapas",
-         json?.errors ?? null,
-         response.status
-      );
-   }
+   // `readApiData` só aplica este `fallbackMessage` quando o erro traz corpo
+   // JSON (sem `message`: "Erro ao buscar etapas"). Erro com corpo não JSON,
+   // como um 502 em HTML do proxy, mostra "Erro 502 no servidor". E um 200
+   // com corpo inválido agora lança em vez de devolver `[]` em silêncio —
+   // mudança aceita em relação ao comportamento anterior.
+   const json = await readApiData<ApiResponse<MissaoComEtapas[]>>(
+      response,
+      (message) => message || "Erro ao buscar etapas"
+   );
    return json?.data ?? [];
 }
 
@@ -180,6 +177,11 @@ export interface MissaoPendente {
    primeira_data: string;
    ultima_data: string;
    total: number;
+   /**
+    * Trigramas da dupla, por antiguidade (pode passar de 2 se houve
+    * substituição). Só o simulador preenche; vazio nas demais missões.
+    */
+   trigramas: string[];
 }
 
 export interface EtapasPendentes {
@@ -196,20 +198,32 @@ export interface EtapasPendentes {
  */
 export async function getEtapasPendentes(
    limit?: number,
-   signal?: AbortSignal
+   signal?: AbortSignal,
+   isSimulador = false
 ): Promise<EtapasPendentes> {
    const response = await request(
       "GET",
       `${etapasRoute}pendentes`,
       null,
-      limit != null ? { limit: String(limit) } : undefined,
+      {
+         ...(limit != null ? { limit: String(limit) } : {}),
+         is_simulador: String(isSimulador),
+      },
       signal
    );
-   const json = (await response.json()) as ApiResponse<EtapasPendentes>;
-   if (!response.ok) {
-      throw new Error(json.message || "Erro ao buscar etapas pendentes");
-   }
-   return json.data!;
+   const json = await readApiData<ApiResponse<EtapasPendentes>>(
+      response,
+      (message) => message || "Erro ao buscar etapas pendentes"
+   );
+   const data = json.data!;
+   return {
+      ...data,
+      // `?? []` tolera API antiga que ainda não devolve `trigramas`.
+      missoes: data.missoes.map((missao) => ({
+         ...missao,
+         trigramas: missao.trigramas ?? [],
+      })),
+   };
 }
 
 // ─── Etapa CRUD ────────────────────────────────────────────────────────────
@@ -294,10 +308,23 @@ export async function updateEtapa(
    );
 }
 
-export async function deleteEtapa(id: number): Promise<ApiResult<null>> {
-   return parseApiResponse<null>(
-      await request("DELETE", `${etapasRoute}${id}`)
-   );
+/**
+ * `notFound` distingue 404 de outras falhas: a etapa já havia sido excluída
+ * por outra pessoa, e quem mantém rascunho local precisa tratá-la como removida
+ * (o `ApiResult` não carrega o status HTTP).
+ *
+ * `data.missao_removida` (só no sucesso) diz se era a última etapa e a API
+ * removeu a missão junto — quem decide o cache e a navegação lê isto, não a
+ * contagem local de etapas, que pode estar defasada.
+ */
+export async function deleteEtapa(
+   id: number
+): Promise<ApiResult<{ missao_removida: boolean }> & { notFound: boolean }> {
+   const response = await request("DELETE", `${etapasRoute}${id}`);
+   return {
+      ...(await parseApiResponse<{ missao_removida: boolean }>(response)),
+      notFound: response.status === 404,
+   };
 }
 
 // ─── Bulk Update ──────────────────────────────────────────────────────────
@@ -330,10 +357,10 @@ export async function getMissao(
       undefined,
       signal
    );
-   const json = (await response.json()) as ApiResponse<MissaoComEtapasDetail>;
-   if (!response.ok) {
-      throw new Error(json.message || "Missão não encontrada");
-   }
+   const json = await readApiData<ApiResponse<MissaoComEtapasDetail>>(
+      response,
+      (message) => message || "Missão não encontrada"
+   );
    return json.data!;
 }
 

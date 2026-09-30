@@ -1,16 +1,11 @@
-import { useState, useEffect, useMemo, useCallback, useRef } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { useToast } from "@/app/context/toast";
-import {
-   useCreateEtapa,
-   useUpdateEtapa,
-   useCreateMissaoWithEtapas,
-} from "@/hooks/queries/useEtapas";
+import { useCreateMissaoWithEtapas } from "@/hooks/queries/useEtapas";
 import { useEsfAerList } from "@/hooks/queries/useEsfAer";
 import { useTiposMissao } from "@/hooks/queries/useTiposMissao";
-import type { EtapaItem } from "services/routes/estatistica/etapas";
 import { computeTvoo } from "../helpers/tvoo";
 import {
-   createSessaoDraft,
+   EMPTY_SESSAO_DRAFT,
    serializeSessaoDraft,
    type SessaoDraft,
 } from "../helpers/sessaoDraft";
@@ -22,53 +17,25 @@ import {
 } from "../types";
 
 interface UseSessaoFormArgs {
-   show: boolean;
-   /** Negativo = dupla ainda em draft (missao criada junto da 1ª sessao). */
-   missaoId: number;
    /** Ano de referencia da tela — a sessao deve cair dentro dele. */
    anoRef: number;
-   pilots: DuplaPilot[];
-   editEtapa: EtapaItem | null;
-   /** Ultima sessao da missao: semente dos campos repetidos numa sessao nova. */
-   ultimaEtapa?: EtapaItem | null;
-   /** Observacao da missao, usada so na criacao de um draft. */
+   /** Observacao da missao, enviada junto da criacao. */
    obs?: string | null;
-   onClose: () => void;
-   /** Chamado com o id real quando a 1ª sessao de um draft cria a missao. */
+   /** Chamado com o id real quando a 1ª sessao cria a missao. */
    onPersistDraft?: (newMissaoId: number) => void;
-   /** Chamado depois de persistir uma sessao existente ou nova. */
-   onSaved?: (etapaId: number) => Promise<void> | void;
 }
 
 /**
- * Concentra todo o estado, validação e submit do formulário de sessão de
- * simulador (criar/editar). O componente fica apenas com a apresentação.
+ * Estado, validação e submit do formulário de nova dupla: a missão e a 1ª
+ * sessão nascem juntas, numa única chamada transacional. A edição de missões
+ * existentes é do `useSimuladorMissaoDraft`.
  */
 export function useSessaoForm({
-   show,
-   missaoId,
    anoRef,
-   pilots,
-   editEtapa,
-   ultimaEtapa = null,
    obs = null,
-   onClose,
    onPersistDraft,
-   onSaved,
 }: UseSessaoFormArgs) {
-   const [persistedEtapaId, setPersistedEtapaId] = useState<number | null>(
-      null
-   );
-   // Depois de criar a sessão, o componente pode continuar montado enquanto
-   // uma recarga termina. Guardar o id localmente faz a próxima gravação virar
-   // PUT mesmo se a seleção visual ainda for o rascunho.
-   const editingEtapaId = editEtapa?.id ?? persistedEtapaId;
-   const isEditMode = editingEtapaId !== null;
-   // Draft: dupla local sem missao no banco; a 1ª sessao cria missao + etapa.
-   const isDraft = !isEditMode && missaoId < 0;
    const { push } = useToast();
-   const createEtapa = useCreateEtapa();
-   const updateEtapa = useUpdateEtapa();
    const createMissaoWithEtapas = useCreateMissaoWithEtapas();
    const {
       data: esfAerData,
@@ -94,10 +61,11 @@ export function useSessaoForm({
    const [dep, setDep] = useState("");
    const [arr, setArr] = useState("");
    const [pousos, setPousos] = useState(0);
+   const [sagem, setSagem] = useState(false);
+   const [parte1, setParte1] = useState(false);
    const [reg, setReg] = useState<"d" | "n" | "v">("d");
    const [tipoMissaoId, setTipoMissaoId] = useState<number | null>(null);
    const [sessionPilots, setSessionPilots] = useState<DuplaPilot[]>([]);
-   const [savedDraft, setSavedDraft] = useState<SessaoDraft | null>(null);
 
    const addPilot = useCallback((crew: CrewSearchResult) => {
       setSessionPilots((prev) => {
@@ -111,6 +79,9 @@ export function useSessaoForm({
                p_g: crew.p_g,
                func: "pil",
                func_bordo: prev.length === 0 ? "1P" : "2P",
+               ant: crew.ant,
+               ult_promo: crew.ult_promo,
+               ant_rel: crew.ant_rel,
             },
          ];
       });
@@ -141,56 +112,13 @@ export function useSessaoForm({
    // some da listagem (filtro data_ini/data_fim) e parece que não foi salva.
    const dateOutOfYear = !!data && data.slice(0, 4) !== String(anoRef);
 
-   // Default de tipo de missão quando nenhum está selecionado (criação ou
-   // edição de etapa legada sem OI) — garante um valor válido para submeter.
+   // Default de tipo de missão quando nenhum está selecionado — garante um
+   // valor válido para submeter.
    useEffect(() => {
       if (tiposMissaoData && tiposMissaoData.length > 0 && !tipoMissaoId) {
          setTipoMissaoId(tiposMissaoData[0].id);
       }
    }, [tiposMissaoData, tipoMissaoId]);
-
-   // Popula / reseta o formulário. Roda apenas na ABERTURA e ao trocar a etapa
-   // alvo — não a cada refetch (que muda `pilots`/`tiposMissaoData`), o que
-   // apagaria o que o usuário está digitando com o modal aberto.
-   const initKeyRef = useRef<string | null>(null);
-   // Lida so na inicializacao. Como semente, `ultimaEtapa` nao pode entrar nas
-   // deps do efeito: ela e um objeto novo a cada refetch e reinicializaria o
-   // formulario por cima do que o usuario esta digitando.
-   const ultimaEtapaRef = useRef(ultimaEtapa);
-   ultimaEtapaRef.current = ultimaEtapa;
-   useEffect(() => {
-      if (!show) {
-         initKeyRef.current = null;
-         return;
-      }
-      // A promoção local de um rascunho recém-criado não deve reinicializar os
-      // campos que o usuário continuou editando durante o refetch.
-      const key = editEtapa ? `edit-${editEtapa.id}` : "new";
-      if (initKeyRef.current === key) return;
-      if (editEtapa && editEtapa.id === persistedEtapaId) {
-         // O pai reconheceu a sessão que este formulário acabou de criar.
-         // Os campos e o baseline já são locais; refetch não deve apagá-los.
-         initKeyRef.current = key;
-         return;
-      }
-      initKeyRef.current = key;
-
-      const initial = createSessaoDraft(
-         editEtapa,
-         pilots,
-         ultimaEtapaRef.current
-      );
-      setSavedDraft(initial);
-      setData(initial.data);
-      setOrigem(initial.origem);
-      setDestino(initial.destino);
-      setDep(initial.dep);
-      setArr(initial.arr);
-      setPousos(initial.pousos);
-      setReg(initial.reg);
-      setTipoMissaoId(initial.tipoMissaoId ?? tiposMissaoData?.[0]?.id ?? null);
-      setSessionPilots(initial.sessionPilots);
-   }, [show, editEtapa, persistedEtapaId, tiposMissaoData, pilots]);
 
    const draft = useMemo<SessaoDraft>(
       () => ({
@@ -200,6 +128,8 @@ export function useSessaoForm({
          dep,
          arr,
          pousos,
+         sagem,
+         parte1,
          reg,
          tipoMissaoId,
          sessionPilots,
@@ -211,6 +141,8 @@ export function useSessaoForm({
          dep,
          arr,
          pousos,
+         sagem,
+         parte1,
          reg,
          tipoMissaoId,
          sessionPilots,
@@ -218,18 +150,14 @@ export function useSessaoForm({
    );
    const defaultTipoMissaoId = tiposMissaoData?.[0]?.id ?? null;
    const isDirty =
-      savedDraft !== null &&
       serializeSessaoDraft(draft, defaultTipoMissaoId) !==
-         serializeSessaoDraft(savedDraft, defaultTipoMissaoId);
+      serializeSessaoDraft(EMPTY_SESSAO_DRAFT, defaultTipoMissaoId);
    const preview = useMemo(
-      () => ({ data, origem, destino, dep, arr, tvoo }),
-      [data, origem, destino, dep, arr, tvoo]
+      () => ({ data, origem, destino, dep, arr, tvoo, sagem, parte1 }),
+      [data, origem, destino, dep, arr, tvoo, sagem, parte1]
    );
 
-   const isPending =
-      createEtapa.isPending ||
-      updateEtapa.isPending ||
-      createMissaoWithEtapas.isPending;
+   const isPending = createMissaoWithEtapas.isPending;
    const isLoadingData = loadingEsfAer || loadingTipos;
    const isCatalogConfigurationError =
       !isLoadingData &&
@@ -272,141 +200,71 @@ export function useSessaoForm({
       !isPending
    );
 
-   // A sessão já persistiu quando isto roda. O refetch que `onSaved` dispara
-   // tem estado e retentativa próprios, então sua falha não pode virar erro de
-   // mutation (o toast diria "erro ao criar" sobre algo que foi criado) nem
-   // liberar um POST duplicado. Só o console registra — a tela já trata o
-   // refetch quebrado com o seu próprio alerta de nova tentativa.
-   const notifySaved = useCallback(
-      async (etapaId: number) => {
-         try {
-            await onSaved?.(etapaId);
-         } catch (err) {
-            console.error("Falha ao recarregar a missão após salvar:", err);
-         }
-      },
-      [onSaved]
-   );
-
    const handleSubmit = useCallback(
       async (e: React.FormEvent) => {
          e.preventDefault();
          if (!canSubmit) return;
 
-         const tripulantes = sessionPilots.map((p) => ({
-            trip_id: p.trip_id,
-            func: p.func,
-            func_bordo: p.func_bordo,
-         }));
-         const oiEtapas = [
-            {
-               esf_aer_id: smlEsfAer!.id,
-               tipo_missao_id: tipoMissaoId!,
-               reg,
-               tvoo,
-            },
-         ];
-         // Campos comuns a criar/editar. sagem/parte1/obs ficam de fora: na
-         // edição, enviá-los sobrescreveria (o backend usa exclude_unset); na
-         // criação, são adicionados explicitamente abaixo.
-         const commonPayload = {
-            data,
-            origem: origem.toUpperCase(),
-            destino: destino.toUpperCase(),
-            dep: dep.length === 5 ? `${dep}:00` : dep,
-            arr: arr.length === 5 ? `${arr}:00` : arr,
-            tvoo,
-            anv: SIM_ANV,
-            pousos,
-            tripulantes,
-            oi_etapas: oiEtapas,
-         };
-
          try {
-            if (isEditMode) {
-               const res = await updateEtapa.mutateAsync({
-                  id: editingEtapaId,
-                  data: commonPayload,
-               });
-               push({
-                  title: res.ok ? "Sucesso!" : "Erro",
-                  message: res.message ?? "Sessão atualizada",
-                  type: res.ok ? "success" : "error",
-               });
-               if (res.ok) {
-                  setSavedDraft(draft);
-                  await notifySaved(res.data?.id ?? editingEtapaId);
-                  onClose();
-               }
-            } else if (isDraft) {
-               const res = await createMissaoWithEtapas.mutateAsync({
-                  titulo: "Simulador",
-                  obs,
-                  is_simulador: true,
-                  etapas: [
-                     {
-                        ...commonPayload,
-                        tow: null,
-                        pax: null,
-                        carga: null,
-                        comb: null,
-                        lub: null,
-                        nivel: null,
-                        sagem: false,
-                        parte1: false,
-                        obs: null,
-                        pqd: [],
-                        revo: [],
-                        heavy_cds: [],
-                     },
-                  ],
-               });
-               push({
-                  title: res.ok ? "Sucesso!" : "Erro",
-                  message: res.message ?? "Dupla e sessão criadas",
-                  type: res.ok ? "success" : "error",
-               });
-               if (res.ok && res.data) {
-                  setSavedDraft(draft);
-                  onPersistDraft?.(res.data.id);
-                  onClose();
-               }
-            } else {
-               const res = await createEtapa.mutateAsync({
-                  missao_id: missaoId,
-                  ...commonPayload,
-                  sagem: false,
-                  parte1: false,
-                  obs: null,
-               });
-               push({
-                  title: res.ok ? "Sucesso!" : "Erro",
-                  message: res.message ?? "Sessão criada",
-                  type: res.ok ? "success" : "error",
-               });
-               if (res.ok) {
-                  setSavedDraft(draft);
-                  if (res.data) {
-                     setPersistedEtapaId(res.data.id);
-                     await notifySaved(res.data.id);
-                  }
-                  onClose();
-               }
-            }
+            const res = await createMissaoWithEtapas.mutateAsync({
+               titulo: "Simulador",
+               obs,
+               is_simulador: true,
+               etapas: [
+                  {
+                     data,
+                     origem: origem.toUpperCase(),
+                     destino: destino.toUpperCase(),
+                     dep: dep.length === 5 ? `${dep}:00` : dep,
+                     arr: arr.length === 5 ? `${arr}:00` : arr,
+                     tvoo,
+                     anv: SIM_ANV,
+                     pousos,
+                     sagem,
+                     parte1,
+                     tripulantes: sessionPilots.map((p) => ({
+                        trip_id: p.trip_id,
+                        func: p.func,
+                        func_bordo: p.func_bordo,
+                     })),
+                     oi_etapas: [
+                        {
+                           esf_aer_id: smlEsfAer!.id,
+                           tipo_missao_id: tipoMissaoId!,
+                           reg,
+                           tvoo,
+                        },
+                     ],
+                     tow: null,
+                     pax: null,
+                     carga: null,
+                     comb: null,
+                     lub: null,
+                     nivel: null,
+                     obs: null,
+                     pqd: [],
+                     revo: [],
+                     heavy_cds: [],
+                  },
+               ],
+            });
+            push({
+               title: res.ok ? "Sucesso!" : "Erro",
+               message: res.message ?? "Dupla e sessão criadas",
+               type: res.ok ? "success" : "error",
+            });
+            if (res.ok && res.data) onPersistDraft?.(res.data.id);
          } catch (err) {
             push({
                title: "Erro",
                message:
-                  err instanceof Error
-                     ? err.message
-                     : `Erro ao ${isEditMode ? "atualizar" : "criar"} sessão`,
+                  err instanceof Error ? err.message : "Erro ao criar sessão",
                type: "error",
             });
          }
       },
       [
          canSubmit,
-         draft,
          sessionPilots,
          smlEsfAer,
          tipoMissaoId,
@@ -418,23 +276,16 @@ export function useSessaoForm({
          dep,
          arr,
          pousos,
-         isEditMode,
-         isDraft,
+         sagem,
+         parte1,
          obs,
-         editingEtapaId,
-         missaoId,
-         updateEtapa,
-         createEtapa,
          createMissaoWithEtapas,
          onPersistDraft,
-         notifySaved,
          push,
-         onClose,
       ]
    );
 
    return {
-      isEditMode,
       data,
       setData,
       origem,
@@ -447,6 +298,10 @@ export function useSessaoForm({
       setArr,
       pousos,
       setPousos,
+      sagem,
+      setSagem,
+      parte1,
+      setParte1,
       reg,
       setReg,
       tipoMissaoId,

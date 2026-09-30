@@ -1,9 +1,43 @@
-import { TextInput, Label } from "flowbite-react";
+import { TextInput, Label, ToggleSwitch } from "flowbite-react";
 import { minutesToTime } from "@/../utils/dateHandler";
 import Field from "./Field";
 import type { SessaoForm } from "../hooks/useSessaoForm";
+import { EtapaVerifBadge } from "../../../estatistica/etapas/missao/components/EtapaVerifBadge";
+import {
+   DATA_MAX,
+   DATA_MIN,
+} from "../../../estatistica/etapas/missao/context/validators";
 
-export default function SessaoDadosFields({ form }: { form: SessaoForm }) {
+/**
+ * `anoRef` nulo = qualquer ano da janela `DATA_MIN`/`DATA_MAX` (sessão nova num
+ * editor de missão). Com ano, `min`/`max` prendem o seletor a ele.
+ */
+export type SessaoDadosForm = Pick<
+   SessaoForm,
+   | "data"
+   | "setData"
+   | "origem"
+   | "setOrigem"
+   | "destino"
+   | "setDestino"
+   | "pousos"
+   | "setPousos"
+   | "dep"
+   | "setDep"
+   | "arr"
+   | "setArr"
+   | "tvoo"
+   | "tvooValid"
+   | "crossesDay"
+   | "depArrEqual"
+   | "dateOutOfYear"
+   | "sagem"
+   | "setSagem"
+   | "parte1"
+   | "setParte1"
+> & { anoRef: number | null };
+
+export default function SessaoDadosFields({ form }: { form: SessaoDadosForm }) {
    const {
       data,
       setData,
@@ -41,19 +75,22 @@ export default function SessaoDadosFields({ form }: { form: SessaoForm }) {
             <Field id="ses-data" label="Data">
                {/* min/max prendem o seletor ao ano de referencia: sem eles o
                    campo aceita qualquer ano de 4 digitos, e um deslize de
-                   digitacao ja gravou sessao no ano 0006. */}
+                   digitacao ja gravou sessao no ano 0006. Sessao nova numa
+                   missao existente (`anoRef` nulo) aceita qualquer ano, mas
+                   dentro da janela de sanidade (`DATA_MIN`/`DATA_MAX`): a
+                   dupla que cruza a virada do ano continua na mesma missao. */}
                <TextInput
                   id="ses-data"
                   type="date"
                   value={data}
                   onChange={(e) => setData(e.target.value)}
-                  min={`${anoRef}-01-01`}
-                  max={`${anoRef}-12-31`}
+                  min={anoRef === null ? DATA_MIN : `${anoRef}-01-01`}
+                  max={anoRef === null ? DATA_MAX : `${anoRef}-12-31`}
                   sizing="sm"
                   color={dateOutOfYear ? "failure" : undefined}
                   required
                />
-               {dateOutOfYear && (
+               {anoRef !== null && dateOutOfYear && (
                   <span className="mt-1 text-xs text-red-600">
                      Fora do ano de referência
                   </span>
@@ -106,7 +143,7 @@ export default function SessaoDadosFields({ form }: { form: SessaoForm }) {
             </Field>
          </div>
 
-         <div className="grid grid-cols-3 gap-3">
+         <div className="grid grid-cols-3 gap-3 sm:grid-cols-[1fr_1fr_1fr_auto_auto]">
             <Field id="ses-dep" label="DEP">
                <TextInput
                   id="ses-dep"
@@ -160,6 +197,26 @@ export default function SessaoDadosFields({ form }: { form: SessaoForm }) {
                         Múltiplo de 5 min
                      </span>
                   )}
+            </div>
+            <div className="flex flex-col items-center gap-1">
+               <EtapaVerifBadge label="SAGEM" ok={form.sagem} />
+               <ToggleSwitch
+                  className="min-h-[24px] items-center"
+                  aria-label="Registrado no SAGEM"
+                  checked={form.sagem}
+                  color="green"
+                  onChange={form.setSagem}
+               />
+            </div>
+            <div className="flex flex-col items-center gap-1">
+               <EtapaVerifBadge label="FICHA" ok={form.parte1} />
+               <ToggleSwitch
+                  className="min-h-[24px] items-center"
+                  aria-label="Ficha recolhida"
+                  checked={form.parte1}
+                  color="green"
+                  onChange={form.setParte1}
+               />
             </div>
          </div>
       </div>

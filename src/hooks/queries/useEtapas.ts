@@ -12,15 +12,18 @@ import {
    createMissaoWithEtapas,
    deleteEtapa,
    deleteMissao,
+   deleteMissaoComEtapas,
    getEtapas,
    getEtapasPendentes,
    updateEtapa,
    updateMissao,
+   updateMissaoWithEtapas,
    type BulkUpdatePayload,
    type EtapaCreatePayload,
    type EtapaUpdatePayload,
    type GetEtapasParams,
    type MissaoComEtapasCreatePayload,
+   type MissaoComEtapasUpdatePayload,
    type MissaoCreate,
    type MissaoUpdate,
 } from "services/routes/estatistica/etapas";
@@ -41,8 +44,8 @@ export const etapaKeys = {
       [...etapaKeys.lists(), filters] as const,
    // Sob `all` de propósito: toda mutação de etapa já invalida `all`, então
    // marcar SAGEM/Parte 1 rebaixa a contagem de pendências sem código extra.
-   pendentes: (limit?: number) =>
-      [...etapaKeys.all, "pendentes", limit] as const,
+   pendentes: (limit?: number, isSimulador = false) =>
+      [...etapaKeys.all, "pendentes", limit, isSimulador] as const,
 };
 
 /**
@@ -86,10 +89,14 @@ export function useEtapas(params?: GetEtapasParams, enabled = true) {
  * Nao recebe os filtros da tela: a rota varre todo o historico justamente
  * para pescar a missao antiga que ficou fora da janela de datas.
  */
-export function useEtapasPendentes(limit?: number, enabled = true) {
+export function useEtapasPendentes(
+   limit?: number,
+   enabled = true,
+   isSimulador = false
+) {
    return useQuery({
-      queryKey: etapaKeys.pendentes(limit),
-      queryFn: ({ signal }) => getEtapasPendentes(limit, signal),
+      queryKey: etapaKeys.pendentes(limit, isSimulador),
+      queryFn: ({ signal }) => getEtapasPendentes(limit, signal, isSimulador),
       enabled,
    });
 }
@@ -143,6 +150,40 @@ export function useUpdateMissao() {
    });
 }
 
+export function useUpdateMissaoWithEtapas() {
+   const queryClient = useQueryClient();
+   return useMutation({
+      mutationFn: ({
+         id,
+         data,
+      }: {
+         id: number;
+         data: MissaoComEtapasUpdatePayload;
+      }) => updateMissaoWithEtapas(id, data),
+      onSuccess: (result, { id }) => {
+         if (!result.ok) {
+            // PUT recusado (ex.: 422 "Etapa(s) não pertencem à missão" porque
+            // outra pessoa excluiu uma sessão): nada mudou no servidor, mas o
+            // cache pode estar defasado e `refetchOnWindowFocus` está
+            // desligado. Sem reler o detalhe, o editor nunca reconcilia e
+            // todo novo save repete o mesmo erro.
+            queryClient.invalidateQueries({
+               queryKey: missaoEtpKeys.detail(id),
+            });
+            return;
+         }
+         if (result.data)
+            queryClient.setQueryData(missaoEtpKeys.detail(id), result.data);
+         queryClient.invalidateQueries({ queryKey: etapaKeys.all });
+         queryClient.invalidateQueries({ queryKey: missaoEtpKeys.all });
+         queryClient.invalidateQueries({ queryKey: esfAerKeys.all });
+         queryClient.invalidateQueries({ queryKey: seboKeys.all });
+         queryClient.invalidateQueries({ queryKey: indicadoresKeys.all });
+         invalidateRestricoesOperacionais(queryClient);
+      },
+   });
+}
+
 export function useDeleteEstatMissao() {
    const queryClient = useQueryClient();
    return useMutation({
@@ -150,6 +191,30 @@ export function useDeleteEstatMissao() {
       onSuccess: () => {
          queryClient.invalidateQueries({ queryKey: etapaKeys.all });
          queryClient.invalidateQueries({ queryKey: missaoEtpKeys.all });
+         invalidateRestricoesOperacionais(queryClient);
+      },
+   });
+}
+
+/** Exclui a missão e suas etapas em uma única transação. */
+export function useDeleteMissaoComEtapas() {
+   const queryClient = useQueryClient();
+   return useMutation({
+      mutationFn: (id: number) => deleteMissaoComEtapas(id),
+      onSuccess: (result, id) => {
+         if (!result.ok) return;
+         // O detalhe da missão excluída fica de fora: o editor segue montado
+         // até o `router.push`, e refazer o GET devolveria 404, piscando
+         // "Missão não encontrada" antes da navegação.
+         queryClient.cancelQueries({ queryKey: missaoEtpKeys.detail(id) });
+         queryClient.invalidateQueries({ queryKey: etapaKeys.all });
+         queryClient.invalidateQueries({
+            queryKey: missaoEtpKeys.all,
+            predicate: (query) => query.queryKey[1] !== id,
+         });
+         queryClient.invalidateQueries({ queryKey: esfAerKeys.all });
+         queryClient.invalidateQueries({ queryKey: seboKeys.all });
+         queryClient.invalidateQueries({ queryKey: indicadoresKeys.all });
          invalidateRestricoesOperacionais(queryClient);
       },
    });
@@ -205,13 +270,34 @@ export function useBulkUpdateEtapas() {
    });
 }
 
+/**
+ * Exclui uma etapa. `notFound` (ver `deleteEtapa`) sinaliza 404: a etapa já
+ * havia sido excluída por outra pessoa.
+ *
+ * Quando era a última etapa, o backend remove a missão junto e avisa em
+ * `data.missao_removida`: o detalhe dela fica de fora da invalidação (o editor
+ * segue montado até o `router.push`, e refazer o GET devolveria 404, piscando
+ * "Missão não encontrada"). A decisão vem da resposta, não do que o cliente
+ * acha que resta — a contagem local pode estar defasada.
+ */
 export function useDeleteEtapa() {
    const queryClient = useQueryClient();
    return useMutation({
-      mutationFn: (id: number) => deleteEtapa(id),
-      onSuccess: () => {
+      mutationFn: ({ id }: { id: number; missaoId: number }) => deleteEtapa(id),
+      onSuccess: (result, { missaoId }) => {
+         const missaoRemovida = result.data?.missao_removida === true;
+         if (missaoRemovida) {
+            queryClient.cancelQueries({
+               queryKey: missaoEtpKeys.detail(missaoId),
+            });
+         }
          queryClient.invalidateQueries({ queryKey: etapaKeys.all });
-         queryClient.invalidateQueries({ queryKey: missaoEtpKeys.all });
+         queryClient.invalidateQueries({
+            queryKey: missaoEtpKeys.all,
+            predicate: missaoRemovida
+               ? (query) => query.queryKey[1] !== missaoId
+               : undefined,
+         });
          queryClient.invalidateQueries({ queryKey: esfAerKeys.all });
          queryClient.invalidateQueries({ queryKey: seboKeys.all });
          queryClient.invalidateQueries({ queryKey: indicadoresKeys.all });

@@ -59,7 +59,14 @@ export function SessaoRow({ etapa, onClick }: SessaoRowProps) {
    }, [etapa.tripulantes, codigos, funcColors]);
 
    return (
-      <TableRow>
+      <TableRow
+         className={clsx(
+            "hover:bg-white/40",
+            !etapa.sagem
+               ? "bg-amber-50 hover:bg-amber-100"
+               : !etapa.parte1 && "bg-emerald-50 hover:bg-emerald-100"
+         )}
+      >
          <TableCell className="w-12 font-mono text-slate-500 sm:w-20">
             <span className="sm:hidden">{isoDateToShort(etapa.data)}</span>
             <span className="hidden sm:inline">
@@ -95,6 +102,13 @@ export function SessaoRow({ etapa, onClick }: SessaoRowProps) {
             )}
          </TableCell>
          <TableCell className="w-[32px] px-1">
+            <span className="sr-only">
+               {!etapa.sagem
+                  ? "SAGEM pendente"
+                  : !etapa.parte1
+                    ? "Ficha pendente"
+                    : "SAGEM e ficha verificados"}
+            </span>
             <button
                type="button"
                onClick={() => onClick(etapa)}

@@ -10,6 +10,8 @@ import {
 } from "react-icons/hi";
 import clsx from "clsx";
 import { useEtapasPendentes } from "@/hooks/queries";
+import { formatDateFull } from "utils/dateHandler";
+import { ETAPA_LABEL, type ItemLabel } from "./itemLabel";
 
 /** Teto do backend — vem tudo de uma vez e a lista é fatiada no cliente. */
 const LIMIT = 100;
@@ -21,14 +23,26 @@ interface EtapasPendentesAlertProps {
        que está fora dela. */
    dataIni: string;
    dataFim: string;
+   isSimulador?: boolean;
+   /** Termo da unidade nos textos ("etapa" por padrão). */
+   itemLabel?: ItemLabel;
 }
 
 export function EtapasPendentesAlert({
    dataIni,
    dataFim,
+   isSimulador = false,
+   itemLabel = ETAPA_LABEL,
 }: EtapasPendentesAlertProps) {
    const [expandido, setExpandido] = useState(false);
-   const { data, isError, refetch, isFetching } = useEtapasPendentes(LIMIT);
+   const { data, isError, refetch, isFetching } = useEtapasPendentes(
+      LIMIT,
+      true,
+      isSimulador
+   );
+   const editorPath = isSimulador
+      ? "/instrucao/simulador"
+      : "/estatistica/etapas";
 
    // Falha de carga NÃO pode se parecer com "nada pendente": o componente
    // existe justamente para impedir que pendência passe batido.
@@ -39,7 +53,7 @@ export function EtapasPendentesAlert({
             className="flex shrink-0 flex-wrap items-center gap-2 rounded border border-slate-200 bg-white px-4 py-2 text-xs text-slate-600 shadow-sm"
          >
             <HiExclamation aria-hidden className="h-4 w-4 text-slate-400" />
-            Não foi possível verificar as etapas pendentes.
+            Não foi possível verificar as {itemLabel.plural} pendentes.
             <button
                type="button"
                onClick={() => refetch()}
@@ -103,8 +117,8 @@ export function EtapasPendentesAlert({
                   className="text-sm font-semibold text-amber-900"
                >
                   {total === 1
-                     ? "1 etapa pendente de verificação"
-                     : `${total} etapas pendentes de verificação`}
+                     ? `1 ${itemLabel.singular} pendente de verificação`
+                     : `${total} ${itemLabel.plural} pendentes de verificação`}
                </p>
 
                <ul
@@ -120,14 +134,22 @@ export function EtapasPendentesAlert({
                      const fora =
                         missao.primeira_data < dataIni ||
                         missao.ultima_data > dataFim;
-                     const nome =
-                        missao.titulo ?? `Missão #${missao.missao_id}`;
+                     // Toda missão de simulador se chama "Simulador": o título
+                     // não distingue os chips, a dupla e a data sim. O chip
+                     // mostra só DD/MM; o ano fica no title.
+                     const dupla = isSimulador && missao.trigramas.length > 0;
+                     const nome = dupla
+                        ? `${formatDateFull(missao.primeira_data).slice(0, 5)} ${missao.trigramas.join("•")}`
+                        : (missao.titulo ?? `Missão #${missao.missao_id}`);
+                     const nomeCompleto = dupla
+                        ? `${missao.trigramas.join("•")} ${formatDateFull(missao.primeira_data)}`
+                        : nome;
                      return (
                         <li key={missao.missao_id}>
                            <Link
-                              href={`/estatistica/etapas/missao/${missao.missao_id}?etapa=${missao.etapa_id}`}
+                              href={`${editorPath}/missao/${missao.missao_id}?etapa=${missao.etapa_id}`}
                               prefetch={false}
-                              title={`Abrir ${nome} — ${missao.total} etapa(s) pendente(s)${fora ? ", fora do período filtrado" : ""}`}
+                              title={`Abrir ${nomeCompleto} — ${missao.total} ${itemLabel.singular}(s) pendente(s)${fora ? ", fora do período filtrado" : ""}`}
                               className={clsx(
                                  "group focus-visible:ring-primary-500 inline-flex items-center gap-1.5 rounded border px-2 py-1 text-xs font-medium shadow-sm transition-colors focus:outline-none focus-visible:ring-2",
                                  fora
@@ -141,6 +163,10 @@ export function EtapasPendentesAlert({
                                     className="h-3.5 w-3.5 shrink-0 text-amber-700"
                                  />
                               )}
+                              {/* Sem title próprio: o do span mais interno vence o
+                                  do Link e esconderia a contagem e o aviso de
+                                  "fora do período". O nome completo já está no
+                                  title do Link. */}
                               <span className="max-w-[12rem] truncate">
                                  {nome}
                               </span>
@@ -169,7 +195,7 @@ export function EtapasPendentesAlert({
                            type="button"
                            onClick={() => setExpandido((v) => !v)}
                            aria-expanded={expandido}
-                           className="focus-visible:ring-primary-500 inline-flex items-center rounded border border-dashed border-amber-300 px-2 py-1 text-xs font-medium text-amber-800 transition-colors hover:bg-amber-100 focus:outline-none focus-visible:ring-2"
+                           className="focus-visible:ring-primary-500 inline-flex min-h-[24px] items-center rounded border border-dashed border-amber-300 px-2 py-1 text-xs font-medium text-amber-800 transition-colors hover:bg-amber-100 focus:outline-none focus-visible:ring-2"
                         >
                            {expandido
                               ? "Mostrar menos"

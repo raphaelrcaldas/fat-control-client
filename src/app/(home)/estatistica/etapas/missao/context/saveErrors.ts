@@ -97,7 +97,11 @@ function humanizeField(segs: string[]): string {
 }
 
 /** Traduz uma chave de erro estruturado (ex.: `body.etapas.0.dep`). */
-function humanizeKey(key: string, resolvers: EtapaResolvers): string {
+function humanizeKey(
+   key: string,
+   resolvers: EtapaResolvers,
+   itemLabel: string
+): string {
    const segs = key.split(".").filter((s) => s !== "body");
    const [head, ...rest] = segs;
 
@@ -109,7 +113,8 @@ function humanizeKey(key: string, resolvers: EtapaResolvers): string {
       else if (head === "update") etapaNum = resolvers.fromUpdate(idx);
       else etapaNum = resolvers.fromCreate(idx);
 
-      const etapaLabel = etapaNum != null ? `Etapa ${etapaNum}` : "Etapa";
+      const etapaLabel =
+         etapaNum != null ? `${itemLabel} ${etapaNum}` : itemLabel;
       const fieldLabel = humanizeField(fieldSegs);
       return fieldLabel ? `${etapaLabel} · ${fieldLabel}` : etapaLabel;
    }
@@ -129,22 +134,23 @@ function humanizeKey(key: string, resolvers: EtapaResolvers): string {
  */
 function humanizeBusinessMessage(
    msg: string,
-   resolvers: EtapaResolvers
+   resolvers: EtapaResolvers,
+   itemLabel: string
 ): string {
    return msg
       .replace(/update\[\d+\]\(id=(\d+)\)/g, (_, id) => {
          const n = resolvers.fromServerId(Number(id));
-         return n != null ? `Etapa ${n}` : `Etapa (#${id})`;
+         return n != null ? `${itemLabel} ${n}` : `${itemLabel} (#${id})`;
       })
       .replace(/update\[(\d+)\]/g, (_, i) => {
          const n = resolvers.fromUpdate(Number(i));
-         return n != null ? `Etapa ${n}` : "Etapa";
+         return n != null ? `${itemLabel} ${n}` : itemLabel;
       })
       .replace(/create\[(\d+)\]/g, (_, i) => {
          const n = resolvers.fromCreate(Number(i));
-         return n != null ? `Etapa ${n}` : "Etapa nova";
+         return n != null ? `${itemLabel} ${n}` : `${itemLabel} nova`;
       })
-      .replace(/etapa\[(\d+)\]/g, (_, i) => `Etapa ${Number(i) + 1}`);
+      .replace(/etapa\[(\d+)\]/g, (_, i) => `${itemLabel} ${Number(i) + 1}`);
 }
 
 export interface FormattedSaveError {
@@ -155,10 +161,13 @@ export interface FormattedSaveError {
 /**
  * Converte o erro lancado pela mutation de salvar/atualizar missao em um
  * titulo + corpo (multi-linha) prontos para o toast persistente.
+ * `itemLabel` nomeia a unidade da missao na tela ("Etapa" em estatistica,
+ * "Sessao" no simulador); o numero segue a ordem da sidebar.
  */
 export function formatSaveError(
    err: unknown,
-   draft: MissaoDraft
+   draft: MissaoDraft,
+   itemLabel = "Etapa"
 ): FormattedSaveError {
    const resolvers = buildResolvers(draft);
 
@@ -169,14 +178,15 @@ export function formatSaveError(
       Object.keys(err.errors).length > 0
    ) {
       const lines = Object.entries(err.errors).map(([key, raw]) => {
-         const label = humanizeKey(key, resolvers);
+         const label = humanizeKey(key, resolvers, itemLabel);
          // A mensagem pode embutir tokens de etapa (`etapa[0]`, `update[0]`)
          // quando vem de um model_validator de raiz — humaniza tambem.
          const detail = humanizeBusinessMessage(
             translatePydanticMessage(
                typeof raw === "string" ? raw : String(raw)
             ),
-            resolvers
+            resolvers,
+            itemLabel
          );
          return label ? `• ${label}: ${detail}` : `• ${detail}`;
       });
@@ -190,6 +200,6 @@ export function formatSaveError(
    const raw = err instanceof Error ? err.message : "Falha ao salvar a missão.";
    return {
       title: "Não foi possível salvar",
-      message: humanizeBusinessMessage(raw, resolvers),
+      message: humanizeBusinessMessage(raw, resolvers, itemLabel),
    };
 }

@@ -164,7 +164,11 @@ export function useSimuladorFilters() {
       isLoading: duplaState.isLoading,
       isFetching: duplaState.isFetching,
       isError: duplaState.isError,
+      refetch: duplaState.refetch,
       duplas,
+      // Antes do filtro de piloto: o aviso de erro precisa saber se há dados
+      // em cache, não se o filtro deixou algum à mostra.
+      hasDuplas: duplaState.duplas.length > 0,
       anoRef,
       currentYear,
       yearOptions,

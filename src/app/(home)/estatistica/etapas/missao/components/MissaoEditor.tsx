@@ -59,6 +59,8 @@ export function MissaoEditor({ mode }: MissaoEditorProps) {
    }, [sidebarOpen]);
 
    const {
+      canCreate,
+      canDelete,
       saveMutation,
       updateMutation,
       deleteMutation,
@@ -298,7 +300,9 @@ export function MissaoEditor({ mode }: MissaoEditorProps) {
          onSave={handleSave}
          onRevert={handleRevert}
          onDeleteEtapa={
-            selectedEtapa
+            // etapa nova some só do rascunho; a persistida vira delete_ids
+            // no PUT, que exige `delete`
+            selectedEtapa && (selectedEtapa.serverId === null || canDelete)
                ? () => handleRemoveEtapa(selectedEtapa.localId)
                : undefined
          }
@@ -315,12 +319,15 @@ export function MissaoEditor({ mode }: MissaoEditorProps) {
          tituloValue={draft.titulo}
          obsValue={draft.obs}
          etapas={sidebarEtapas}
-         onAddEtapa={handleAddEtapa}
+         onAddEtapa={canCreate ? handleAddEtapa : undefined}
          onSelectEtapa={handleSelectEtapa}
          onTituloChange={handleTituloChange}
          onObsChange={handleObsChange}
+         // o DELETE da missão exige `delete` na rota
          onDeleteMissao={
-            mode === "edit" && draft.serverId ? handleDeleteMissao : undefined
+            mode === "edit" && draft.serverId && canDelete
+               ? handleDeleteMissao
+               : undefined
          }
       />
    );

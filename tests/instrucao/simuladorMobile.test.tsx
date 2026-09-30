@@ -67,6 +67,7 @@ vi.mock("@/hooks/queries/useTrips", () => ({
 beforeEach(() => {
    vi.clearAllMocks();
    HTMLElement.prototype.scrollTo = vi.fn();
+   HTMLElement.prototype.scrollIntoView = vi.fn();
 });
 afterEach(() => {
    cleanup();
