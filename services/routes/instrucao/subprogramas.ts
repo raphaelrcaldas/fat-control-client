@@ -1,5 +1,5 @@
-import request, { parseApiResponse } from "../../Api";
-import type { ApiResult } from "@/types/api";
+import request, { parseApiResponse, readApiData } from "../../Api";
+import type { ApiResponse, ApiResult } from "@/types/api";
 import { instrucaoRoute } from ".";
 
 const subprogramasRoute = instrucaoRoute + "subprogramas/";
@@ -36,10 +36,11 @@ export async function getSubprogramas(
    signal?: AbortSignal
 ): Promise<Subprograma[]> {
    const response = await request("GET", subprogramasRoute, null, null, signal);
-   const result = await parseApiResponse<Subprograma[]>(response);
-   if (!result.ok) {
-      throw new Error(result.message || "Erro ao carregar subprogramas");
-   }
+   const result = await readApiData<ApiResponse<Subprograma[]>>(
+      response,
+      (message) => message || "Erro ao carregar subprogramas"
+   );
+
    return result.data ?? [];
 }
 

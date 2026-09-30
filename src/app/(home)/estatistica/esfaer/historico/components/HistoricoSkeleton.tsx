@@ -21,9 +21,16 @@ const RAIL_SECOES = [8, 6, 4].map((n, s) =>
 
 export function HistoricoSkeleton() {
    return (
-      <div className="grid grid-cols-1 gap-2 lg:min-h-0 lg:flex-1 lg:grid-cols-[minmax(0,1fr)_330px] lg:grid-rows-[minmax(0,1fr)]">
+      <div
+         role="status"
+         className="grid grid-cols-1 gap-2 lg:min-h-0 lg:flex-1 lg:grid-cols-[minmax(0,1fr)_330px] lg:grid-rows-[minmax(0,1fr)]"
+      >
+         <span className="sr-only">Carregando histórico de esforço aéreo…</span>
          {/* Card do chart */}
-         <div className="flex flex-col gap-3 rounded border border-slate-200 bg-white p-4 shadow-sm lg:min-h-0">
+         <div
+            aria-hidden
+            className="flex flex-col gap-3 rounded border border-slate-200 bg-white p-4 shadow-sm lg:min-h-0"
+         >
             {/* Faixa de controles (mesmo `border-b pb-3` da real) */}
             <div className="flex flex-wrap items-center gap-2 border-b border-slate-100 pb-3">
                {TOOLBAR_CHIPS.map((w, i) => (
@@ -49,7 +56,10 @@ export function HistoricoSkeleton() {
          </div>
 
          {/* Rail de programas */}
-         <div className="flex flex-col rounded border border-slate-200 bg-white p-4 shadow-sm lg:min-h-0">
+         <div
+            aria-hidden
+            className="flex flex-col rounded border border-slate-200 bg-white p-4 shadow-sm lg:min-h-0"
+         >
             {/* Cabeçalho "PROGRAMAS (n)" + dica */}
             <div className="flex items-baseline justify-between gap-2">
                <div className="h-[14px] w-32 animate-pulse rounded bg-slate-200" />

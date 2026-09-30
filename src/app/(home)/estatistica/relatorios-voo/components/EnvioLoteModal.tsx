@@ -9,6 +9,7 @@ import {
    ModalFooter,
    ModalHeader,
    Select,
+   Spinner,
    TextInput,
 } from "flowbite-react";
 import { HiUpload, HiX, HiInformationCircle } from "react-icons/hi";
@@ -363,13 +364,19 @@ export function EnvioLoteModal({ aberto, onFechar, frota }: Props) {
                   color="primary"
                   onClick={enviarTodas}
                   disabled={enviando || prontas.length === 0}
+                  aria-busy={enviando}
                >
-                  {enviando
-                     ? "Enviando…"
-                     : prontas.length > 0 &&
-                         prontas.every((l) => l.estado === "falhou")
-                       ? `Reenviar ${prontas.length}`
-                       : `Enviar ${prontas.length}`}
+                  {enviando ? (
+                     <>
+                        <Spinner size="sm" color="white" className="mr-2" />
+                        Enviando…
+                     </>
+                  ) : prontas.length > 0 &&
+                    prontas.every((l) => l.estado === "falhou") ? (
+                     `Reenviar ${prontas.length}`
+                  ) : (
+                     `Enviar ${prontas.length}`
+                  )}
                </Button>
             </div>
          </ModalFooter>

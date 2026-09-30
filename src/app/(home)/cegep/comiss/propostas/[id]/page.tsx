@@ -68,8 +68,17 @@ export default function PropostaSandboxPage() {
    const idValido = Number.isInteger(idBruto) && idBruto > 0;
    const propostaId = idValido ? idBruto : null;
 
-   const { status, draft, isDirty, dirtyCenarioIds, actions, save, isSaving } =
-      usePropostaDraft(propostaId);
+   const {
+      status,
+      draft,
+      isDirty,
+      dirtyCenarioIds,
+      actions,
+      save,
+      isSaving,
+      reload,
+      isReloading,
+   } = usePropostaDraft(propostaId);
 
    // Espelho do rascunho para leitura DEPOIS de um await: o handler de adicionar
    // militar fecha sobre o `draft` do render em que foi criado, e a busca da
@@ -99,8 +108,11 @@ export default function PropostaSandboxPage() {
       data: summary,
       isFetching: summaryFetching,
       isLoading: summaryLoading,
+      isError: summaryError,
+      refetch: refetchSummary,
    } = useComissSummary(ano);
-   const { data: comissAbertos = [] } = useComissList({ status: "aberto" });
+   const { data: comissAbertos = [], isError: comissAbertosError } =
+      useComissList({ status: "aberto" });
 
    const conflitosIds = useMemo(
       () => new Set(comissAbertos.map((c) => c.user_id)),
@@ -341,9 +353,11 @@ export default function PropostaSandboxPage() {
    if (!idValido || status === "error") {
       return (
          <AvisoTelaCheia
-            titulo="Proposta não encontrada"
-            texto="A proposta que você tentou abrir não existe ou foi excluída."
+            titulo="Não foi possível abrir a proposta"
+            texto="Ela não existe, foi excluída ou houve uma falha ao carregá-la."
             onVoltar={() => router.push("/cegep/comiss?tab=propostas")}
+            onTentarNovamente={idValido ? reload : undefined}
+            tentandoNovamente={isReloading}
          />
       );
    }
@@ -393,6 +407,9 @@ export default function PropostaSandboxPage() {
                   }
                   isStale={summaryFetching}
                   isLoading={summaryLoading}
+                  isError={summaryError && !summary}
+                  onRetry={() => refetchSummary()}
+                  isRetrying={summaryFetching}
                />
 
                <LinhasTable
@@ -412,6 +429,7 @@ export default function PropostaSandboxPage() {
                   onToggle={handleToggleMilitar}
                   buscandoRemunId={buscandoRemunId}
                   conflitosIds={conflitosIds}
+                  conflitosIndisponiveis={comissAbertosError}
                   cenarioNome={cenarioAtivo.nome}
                />
 
@@ -452,18 +470,34 @@ function AvisoTelaCheia({
    titulo,
    texto,
    onVoltar,
+   onTentarNovamente,
+   tentandoNovamente = false,
 }: {
    titulo: string;
    texto: string;
    onVoltar: () => void;
+   onTentarNovamente?: () => void;
+   tentandoNovamente?: boolean;
 }) {
    return (
       <div className="flex h-96 flex-col items-center justify-center gap-3 text-center">
          <p className="text-lg font-semibold text-slate-700">{titulo}</p>
          <p className="max-w-md text-sm text-slate-500">{texto}</p>
-         <Button size="sm" color="light" onClick={onVoltar}>
-            Voltar para as propostas
-         </Button>
+         <div className="flex items-center gap-2">
+            {onTentarNovamente && (
+               <Button
+                  size="sm"
+                  color="light"
+                  onClick={onTentarNovamente}
+                  disabled={tentandoNovamente}
+               >
+                  Tentar novamente
+               </Button>
+            )}
+            <Button size="sm" color="light" onClick={onVoltar}>
+               Voltar para as propostas
+            </Button>
+         </div>
       </div>
    );
 }

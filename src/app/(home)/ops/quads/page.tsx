@@ -22,7 +22,12 @@ export default function QuadPage() {
    const { quadFunc, setQuadFunc, quadType, setQuadType, visual, setVisual } =
       useQuadsContext();
 
-   const { data: quadsType = [], isLoading: loadingTypes } = useQuadsTypes();
+   const {
+      data: quadsType = [],
+      isLoading: loadingTypes,
+      isError: typesError,
+      refetch: refetchTypes,
+   } = useQuadsTypes();
 
    // Sem `proj`: o quadro cobre todos os projetos operados pela org ativa.
    const params = useMemo(
@@ -121,7 +126,11 @@ export default function QuadPage() {
             isLoading={loadingQuads}
             isFetching={isFetching}
             isError={isError}
-            onRetry={refetch}
+            typesError={typesError}
+            onRetry={() => {
+               if (typesError) refetchTypes();
+               if (isError) refetch();
+            }}
             loadingTypes={loadingTypes}
             dragProps={dragProps}
          />

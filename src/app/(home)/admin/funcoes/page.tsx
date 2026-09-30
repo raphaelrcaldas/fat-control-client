@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Button } from "flowbite-react";
 import { useToast } from "@/app/context/toast";
 import {
    useFuncoesCatalogo,
@@ -10,7 +11,7 @@ import {
    useSetFuncaoPosicoes,
 } from "@/hooks/queries";
 import { EmptyState } from "@/components/ui/EmptyState";
-import { FaUserGroup, FaTriangleExclamation } from "react-icons/fa6";
+import { FaUserGroup } from "react-icons/fa6";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import type {
    Funcao,
@@ -31,7 +32,14 @@ import { PosicoesModal } from "./components/PosicoesModal";
 export default function AdminFuncoesPage() {
    const { push } = useToast();
 
-   const { data: funcoes = [], isLoading, error } = useFuncoesCatalogo(true);
+   const {
+      data: funcoesData,
+      isLoading,
+      isFetching,
+      error,
+      refetch,
+   } = useFuncoesCatalogo(true);
+   const funcoes = funcoesData ?? [];
    const createMutation = useCreateFuncao();
    const updateMutation = useUpdateFuncao();
    const deleteMutation = useDeleteFuncao();
@@ -107,16 +115,48 @@ export default function AdminFuncoesPage() {
             }}
          />
 
+         {/* Refetch que falhou com o catálogo em tela: mantém e avisa */}
+         {error && funcoesData && (
+            <p
+               role="status"
+               className="flex items-center gap-2 rounded border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs text-slate-500"
+            >
+               <span className="min-w-0 flex-1 truncate">
+                  Não foi possível atualizar o catálogo
+               </span>
+               <button
+                  type="button"
+                  onClick={() => refetch()}
+                  disabled={isFetching}
+                  className="min-h-[24px] shrink-0 font-semibold text-slate-900 underline underline-offset-2 disabled:opacity-50"
+               >
+                  Tentar novamente
+               </button>
+            </p>
+         )}
+
          {isLoading ? (
             <FuncoesTableSkeleton />
-         ) : error ? (
-            <EmptyState
-               icon={FaTriangleExclamation}
-               title="Erro ao carregar o catálogo"
-               description={
-                  error instanceof Error ? error.message : "Tente novamente"
-               }
-            />
+         ) : error && !funcoesData ? (
+            <div
+               role="alert"
+               className="space-y-3 rounded border border-red-300 bg-red-50 p-4"
+            >
+               <p className="text-sm text-red-800">
+                  Erro ao carregar o catálogo de funções.
+                  {error instanceof Error && error.message
+                     ? ` ${error.message}`
+                     : " Por favor, tente novamente."}
+               </p>
+               <Button
+                  color="light"
+                  size="xs"
+                  onClick={() => refetch()}
+                  disabled={isFetching}
+               >
+                  Tentar novamente
+               </Button>
+            </div>
          ) : funcoes.length === 0 ? (
             <EmptyState
                icon={FaUserGroup}

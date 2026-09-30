@@ -44,16 +44,12 @@ export function MissaoGleActionBar({
                className="disabled:cursor-not-allowed disabled:opacity-50"
             >
                {isLoading ? (
-                  <Spinner size="sm" color="primary" className="sm:mr-2" />
+                  <Spinner size="sm" color="white" className="sm:mr-2" />
                ) : (
                   <HiCheck className="size-4 sm:mr-2" />
                )}
                <span className="sr-only sm:not-sr-only">
-                  {isLoading
-                     ? "Salvando..."
-                     : isNew
-                       ? "Criar missão"
-                       : "Salvar"}
+                  {isLoading ? "Salvando…" : isNew ? "Criar missão" : "Salvar"}
                </span>
             </Button>
          </PermBased>

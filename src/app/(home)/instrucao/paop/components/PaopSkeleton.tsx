@@ -5,8 +5,12 @@ import { Skeleton } from "@/components/ui/Skeleton";
 /** Espelha a barra de anos + os cards de subprograma do plano. */
 export function PaopSkeleton() {
    return (
-      <div className="space-y-2">
-         <div className="flex items-center gap-4 rounded border border-slate-200 bg-white p-3 shadow-sm">
+      <div role="status" className="space-y-2">
+         <span className="sr-only">Carregando plano de instrução…</span>
+         <div
+            aria-hidden
+            className="flex items-center gap-4 rounded border border-slate-200 bg-white p-3 shadow-sm"
+         >
             <Skeleton className="h-8 w-44" />
             <Skeleton className="h-5 w-20" />
             <Skeleton className="h-4 w-48" />
@@ -16,6 +20,7 @@ export function PaopSkeleton() {
          {Array.from({ length: 3 }).map((_, i) => (
             <div
                key={i}
+               aria-hidden
                className="space-y-2 rounded border border-slate-200 bg-white p-3 shadow-sm"
             >
                <div className="flex items-center gap-3">

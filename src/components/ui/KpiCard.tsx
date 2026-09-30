@@ -21,6 +21,14 @@ interface KpiCardProps {
     * cartões têm apoio, sem isso a segunda fileira desalinha da primeira.
     */
    reservaSub?: boolean;
+   /**
+    * Carregando: troca o número por um bloco pulsante do mesmo tamanho. Sem
+    * isso, quem passa `value={null}` enquanto a query roda mostra
+    * "Indisponível", e `"0"` derivado de `data ?? []` piscaria como dado real.
+    * Não anuncia nada ao leitor de tela por card (seriam vários seguidos): o
+    * `role="status"` do carregamento fica com quem monta a grade.
+    */
+   isLoading?: boolean;
 }
 
 export function KpiCard({
@@ -31,6 +39,7 @@ export function KpiCard({
    sub,
    size = "lg",
    reservaSub = false,
+   isLoading = false,
 }: KpiCardProps) {
    const isLg = size === "lg";
 
@@ -55,14 +64,22 @@ export function KpiCard({
                      isLg ? "text-2xl" : "text-xl"
                   )}
                >
-                  {value == null ? (
+                  {isLoading ? (
+                     <span
+                        aria-hidden
+                        className={clsx(
+                           "block w-20 animate-pulse rounded bg-slate-200",
+                           isLg ? "h-[26px]" : "h-[22px]"
+                        )}
+                     />
+                  ) : value == null ? (
                      <span className="text-sm font-medium text-slate-500 italic">
                         Indisponível
                      </span>
                   ) : (
                      value
                   )}
-                  {unit && value != null && (
+                  {unit && value != null && !isLoading && (
                      <span className="ml-1 text-sm font-bold text-slate-500">
                         {unit}
                      </span>

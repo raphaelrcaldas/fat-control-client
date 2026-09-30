@@ -1,5 +1,5 @@
 import { z } from "zod";
-import request, { parseApiResponse } from "../Api";
+import request, { parseApiResponse, readApiData } from "../Api";
 import type { ApiResponse, ApiResult } from "@/types/api";
 
 const orgRoute = "organizacoes/";
@@ -44,13 +44,7 @@ export interface OrganizacaoUpdate {
  */
 export async function getOrganizacoes(): Promise<Organizacao[]> {
    const response = await request("GET", orgRoute);
-   const json = (await response.json()) as ApiResponse<Organizacao[]>;
-
-   if (!response.ok) {
-      throw new Error(
-         json.message || `Failed to fetch organizacoes: ${response.statusText}`
-      );
-   }
+   const json = await readApiData<ApiResponse<Organizacao[]>>(response);
 
    return z.array(OrganizacaoSchema).parse(json.data);
 }

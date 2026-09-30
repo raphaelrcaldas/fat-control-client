@@ -267,6 +267,9 @@ export function useMissionForm({
             onClose();
          },
          onError: (err) => {
+            // O modal de exclusão ficou aberto durante o envio: sai dele para
+            // o de erro, senão os dois se empilhariam.
+            setShowDeleteModal(false);
             setErrorMessage(
                formatMissaoSaveError(err, "Erro ao deletar missão")
             );
@@ -318,6 +321,7 @@ export function useMissionForm({
       sortedPnts,
       isChanged,
       isLoading,
+      isDeleting: deleteMutation.isPending,
 
       // Modais
       showErrorModal,

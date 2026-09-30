@@ -1,6 +1,6 @@
 import { z } from "zod";
-import request, { ApiError, parseApiResponse } from "../Api";
-import type { ApiResult } from "@/types/api";
+import request, { ApiError, parseApiResponse, readApiData } from "../Api";
+import type { ApiResponse, ApiResult } from "@/types/api";
 
 // Duas rotas, dois escopos. O TRATAMENTO é control-plane de sistema e vive
 // sob `/admin` (gate `require_system_admin` no grupo); o ENVIO é aberto a
@@ -97,10 +97,11 @@ export async function getFeedbacks(
       Object.keys(queryParams).length > 0 ? queryParams : null,
       signal
    );
-   const result = await parseApiResponse<Feedback[]>(response);
-   if (!result.ok) {
-      throw new Error(result.message || "Erro ao carregar feedbacks");
-   }
+   const result = await readApiData<ApiResponse<Feedback[]>>(
+      response,
+      (message) => message || "Erro ao carregar feedbacks"
+   );
+
    return result.data ?? [];
 }
 
@@ -115,10 +116,11 @@ export async function getFeedback(
       null,
       signal
    );
-   const result = await parseApiResponse<FeedbackDetalhe>(response);
-   if (!result.ok || !result.data) {
-      // Status preservado: quem chama (useFeedback) usa 404 para não
-      // repetir a consulta de um feedback que não existe mais.
+   const result = await readApiData<ApiResponse<FeedbackDetalhe>>(
+      response,
+      (message) => message || "Erro ao carregar o feedback"
+   );
+   if (!result.data) {
       throw new ApiError(
          result.message || "Erro ao carregar o feedback",
          result.errors,
@@ -166,10 +168,11 @@ export async function getMeusFeedbacks(
    signal?: AbortSignal
 ): Promise<Feedback[]> {
    const response = await request("GET", `${envioRoute}me`, null, null, signal);
-   const result = await parseApiResponse<Feedback[]>(response);
-   if (!result.ok) {
-      throw new Error(result.message || "Erro ao carregar seus feedbacks");
-   }
+   const result = await readApiData<ApiResponse<Feedback[]>>(
+      response,
+      (message) => message || "Erro ao carregar seus feedbacks"
+   );
+
    return result.data ?? [];
 }
 
@@ -184,11 +187,11 @@ export async function getMeuFeedback(
       null,
       signal
    );
-   const result = await parseApiResponse<FeedbackDetalhe>(response);
-   if (!result.ok || !result.data) {
-      // Status preservado: quem chama (useMeuFeedback) usa 404 para não
-      // repetir a consulta de um feedback que não existe (mais) para este
-      // usuário/app.
+   const result = await readApiData<ApiResponse<FeedbackDetalhe>>(
+      response,
+      (message) => message || "Erro ao carregar o feedback"
+   );
+   if (!result.data) {
       throw new ApiError(
          result.message || "Erro ao carregar o feedback",
          result.errors,

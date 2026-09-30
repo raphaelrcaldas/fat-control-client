@@ -14,6 +14,7 @@ import type {
 
 interface UseDiariasReturn {
    // Data
+   /** undefined enquanto não há dado (carregando ou falha sem cache) */
    valores: ReturnType<typeof useDiariaValores>["data"];
    gruposCidade: GrupoCidadePublic[];
    gruposPg: GrupoPgPublic[];
@@ -21,11 +22,14 @@ interface UseDiariasReturn {
    // State
    isLoading: boolean;
    isFetching: boolean;
+   /** Primeira falha entre valores e grupos (cidade/posto): nenhuma some em silêncio */
    error: Error | null;
    onlyActive: boolean;
 
    // Actions
    setOnlyActive: (value: boolean) => void;
+   /** Refaz só as queries que falharam */
+   refetch: () => void;
 
    // Computed values
    cidadesByGrupo: Map<number, GrupoCidadePublic[]>;
@@ -46,17 +50,46 @@ export function useDiarias(): UseDiariasReturn {
    );
 
    const {
-      data: valores = [],
+      data: valoresData,
       isLoading: valoresLoading,
-      isFetching,
-      error,
+      isFetching: valoresFetching,
+      error: valoresError,
+      refetch: refetchValores,
    } = useDiariaValores(params);
 
-   const { data: gruposCidade = [], isLoading: cidadeLoading } =
-      useGruposCidade();
-   const { data: gruposPg = [], isLoading: pgLoading } = useGruposPg();
+   const {
+      data: gruposCidadeData,
+      isLoading: cidadeLoading,
+      isFetching: cidadeFetching,
+      error: cidadeError,
+      refetch: refetchCidade,
+   } = useGruposCidade();
+   const {
+      data: gruposPgData,
+      isLoading: pgLoading,
+      isFetching: pgFetching,
+      error: pgError,
+      refetch: refetchPg,
+   } = useGruposPg();
+
+   // Estáveis: um `= []` inline seria um array novo a cada render e
+   // invalidaria todos os useMemo abaixo
+   const valores = useMemo(() => valoresData ?? [], [valoresData]);
+   const gruposCidade = useMemo(
+      () => gruposCidadeData ?? [],
+      [gruposCidadeData]
+   );
+   const gruposPg = useMemo(() => gruposPgData ?? [], [gruposPgData]);
 
    const isLoading = valoresLoading || cidadeLoading || pgLoading;
+   const isFetching = valoresFetching || cidadeFetching || pgFetching;
+   const error = valoresError ?? cidadeError ?? pgError;
+
+   const refetch = () => {
+      if (valoresError) refetchValores();
+      if (cidadeError) refetchCidade();
+      if (pgError) refetchPg();
+   };
 
    // Mapa de cidades por grupo (derivado dos registros do banco)
    const cidadesByGrupo = useMemo(() => {
@@ -117,7 +150,7 @@ export function useDiarias(): UseDiariasReturn {
    }, [gruposPg]);
 
    return {
-      valores,
+      valores: valoresData,
       gruposCidade,
       gruposPg,
       isLoading,
@@ -125,6 +158,7 @@ export function useDiarias(): UseDiariasReturn {
       error: error instanceof Error ? error : null,
       onlyActive,
       setOnlyActive,
+      refetch,
       cidadesByGrupo,
       uniqueGruposCidade,
       uniqueGruposPg,

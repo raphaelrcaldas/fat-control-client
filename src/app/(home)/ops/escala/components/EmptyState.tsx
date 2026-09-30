@@ -38,9 +38,14 @@ export function NoResultsState() {
 interface ErrorStateProps {
    message: string;
    onRetry: () => void;
+   isRetrying?: boolean;
 }
 
-export function ErrorState({ message, onRetry }: ErrorStateProps) {
+export function ErrorState({
+   message,
+   onRetry,
+   isRetrying = false,
+}: ErrorStateProps) {
    return (
       <div
          role="alert"
@@ -53,7 +58,12 @@ export function ErrorState({ message, onRetry }: ErrorStateProps) {
             Não foi possível gerar a escala
          </h2>
          <p className="max-w-md text-sm text-slate-600">{message}</p>
-         <Button color="light" size="sm" onClick={onRetry}>
+         <Button
+            color="light"
+            size="sm"
+            onClick={onRetry}
+            disabled={isRetrying}
+         >
             Tentar novamente
          </Button>
       </div>

@@ -1,8 +1,10 @@
-import { Spinner } from "flowbite-react";
 import { HiTag, HiX } from "react-icons/hi";
 import { Etiqueta } from "services/routes/cegep/missoes";
 import { useEtiquetasMissoes } from "@/hooks/queries/useEtiquetasMissoes";
 import { SectionWrapper } from "../../../components/SectionWrapper";
+
+// Padrão fixo (nada de aleatório: causaria flicker e divergência de hidratação).
+const CHIPS_LARGURA = ["w-20", "w-24", "w-16", "w-28", "w-20"];
 
 interface EtiquetasSectionProps {
    etiquetasMissao: Etiqueta[];
@@ -15,8 +17,13 @@ export function EtiquetasSection({
    editMode,
    toggleEtiqueta,
 }: EtiquetasSectionProps) {
-   const { data: etiquetasDisponiveis = [], isLoading: loadingEtiquetas } =
-      useEtiquetasMissoes();
+   const {
+      data: etiquetasDisponiveis = [],
+      isLoading: loadingEtiquetas,
+      isError: erroEtiquetas,
+      isFetching: buscandoEtiquetas,
+      refetch: recarregarEtiquetas,
+   } = useEtiquetasMissoes();
 
    return (
       <SectionWrapper title="Etiquetas">
@@ -49,9 +56,29 @@ export function EtiquetasSection({
          {editMode && (
             <div>
                {loadingEtiquetas ? (
-                  <div className="flex items-center gap-2 text-sm text-slate-500">
-                     <Spinner className="h-4 w-4" color="primary" />
-                     Carregando etiquetas...
+                  // Espelha os chips tracejados das etiquetas disponíveis.
+                  <div role="status">
+                     <span className="sr-only">Carregando etiquetas…</span>
+                     <div aria-hidden className="flex flex-wrap gap-2">
+                        {CHIPS_LARGURA.map((w, i) => (
+                           <div
+                              key={i}
+                              className={`h-[26px] animate-pulse rounded-full bg-slate-100 ${w}`}
+                           />
+                        ))}
+                     </div>
+                  </div>
+               ) : erroEtiquetas && etiquetasDisponiveis.length === 0 ? (
+                  <div className="flex items-center gap-3 text-sm text-slate-500">
+                     <span>Não foi possível carregar as etiquetas.</span>
+                     <button
+                        type="button"
+                        onClick={() => recarregarEtiquetas()}
+                        disabled={buscandoEtiquetas}
+                        className="font-medium text-red-600 hover:underline disabled:opacity-50"
+                     >
+                        Tentar novamente
+                     </button>
                   </div>
                ) : etiquetasDisponiveis.length === 0 ? (
                   <p className="text-sm text-slate-500 italic">

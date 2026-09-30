@@ -52,23 +52,32 @@ interface Props {
 /** Espelha as sete colunas da tabela real — mesma contagem de linhas do vazio. */
 function EfetivoSkeleton() {
    return (
-      <div className="divide-y divide-slate-100 motion-safe:animate-pulse">
-         {Array.from({ length: 8 }).map((_, i) => (
-            <div key={i} className="flex items-center gap-3 px-4 py-3">
-               <div className="h-3.5 w-40 rounded bg-slate-200" />
-               <div className="h-5 w-20 rounded bg-slate-100" />
-               <div className="h-5 w-14 rounded bg-slate-100" />
-               <div className="h-3.5 flex-1 rounded bg-slate-100" />
-               <div className="h-3.5 w-8 rounded bg-slate-200" />
-               <div className="ml-auto h-4 w-12 rounded bg-slate-100" />
-            </div>
-         ))}
+      <div role="status">
+         <span className="sr-only">Carregando efetivo…</span>
+         <div aria-hidden className="animate-pulse divide-y divide-slate-100">
+            {Array.from({ length: 8 }).map((_, i) => (
+               <div key={i} className="flex items-center gap-3 px-4 py-3">
+                  <div className="h-3.5 w-40 rounded bg-slate-200" />
+                  <div className="h-5 w-20 rounded bg-slate-100" />
+                  <div className="h-5 w-14 rounded bg-slate-100" />
+                  <div className="h-3.5 flex-1 rounded bg-slate-100" />
+                  <div className="h-3.5 w-8 rounded bg-slate-200" />
+                  <div className="ml-auto h-4 w-12 rounded bg-slate-100" />
+               </div>
+            ))}
+         </div>
       </div>
    );
 }
 
 export function EfetivoModal({ show, onClose, op }: Props) {
-   const { data: pessoal, isLoading, isError, refetch } = usePessoal(op.id);
+   const {
+      data: pessoal,
+      isLoading,
+      isError,
+      isFetching,
+      refetch,
+   } = usePessoal(op.id);
    const removeMutation = useRemovePessoal(op.id);
    const { push } = useToast();
 
@@ -310,6 +319,7 @@ export function EfetivoModal({ show, onClose, op }: Props) {
                      size="sm"
                      className="mx-auto"
                      onClick={() => refetch()}
+                     disabled={isFetching}
                   >
                      Tentar novamente
                   </Button>
@@ -579,8 +589,10 @@ function EfetivoRow({
                      type="button"
                      onClick={() => onRemove(p)}
                      disabled={removendo}
+                     aria-busy={removendo}
                      className="p-1 text-red-700"
                      title={`Remover período ${isoDateToShort(p.data_ingresso)}–${isoDateToShort(p.data_regresso)}`}
+                     aria-label={`Remover período ${isoDateToShort(p.data_ingresso)}–${isoDateToShort(p.data_regresso)}`}
                   >
                      {removendo ? (
                         <Spinner size="sm" color="primary" />
@@ -691,8 +703,10 @@ function EfetivoItemMobile({
                      type="button"
                      onClick={() => onRemove(p)}
                      disabled={removendo}
+                     aria-busy={removendo}
                      className="p-1 text-red-700"
                      title="Remover período"
+                     aria-label="Remover período"
                   >
                      {removendo ? (
                         <Spinner size="sm" color="primary" />

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { Button } from "flowbite-react";
+import { MdErrorOutline } from "react-icons/md";
 import { useToast } from "@/app/context/toast";
 import {
    useDeleteOperacao,
@@ -46,12 +47,25 @@ export default function OperacaoDetailPage() {
    const router = useRouter();
    const opId = Number(params.id);
 
-   const { data: op, isLoading, error, refetch } = useOperacao(opId);
-   const { data: etapas, isError: etapasErro } = useOperacaoEtapas(opId);
+   const {
+      data: op,
+      isLoading,
+      isFetching,
+      error,
+      refetch,
+   } = useOperacao(opId);
+   const {
+      data: etapas,
+      isLoading: etapasCarregando,
+      isError: etapasErro,
+      isFetching: etapasBuscando,
+      refetch: refetchEtapas,
+   } = useOperacaoEtapas(opId);
    const {
       data: pessoal,
       isLoading: pessoalCarregando,
       isError: pessoalErro,
+      isFetching: pessoalBuscando,
       refetch: refetchPessoal,
    } = usePessoal(opId);
    const deleteMutation = useDeleteOperacao();
@@ -93,7 +107,9 @@ export default function OperacaoDetailPage() {
 
    // 404 e falha de rede pedem saídas diferentes: recarregar não faz uma
    // operação excluída voltar a existir, então lá o retry não aparece.
-   if (error || !op) {
+   // Com a operação em cache, um refetch falho não troca a tela pelo erro: o
+   // dossiê fica e um aviso (abaixo) diz que pode estar defasado.
+   if (!op) {
       const naoExiste =
          error instanceof OperacaoFetchError && error.status === 404;
       return (
@@ -113,7 +129,12 @@ export default function OperacaoDetailPage() {
             </p>
             <div className="flex flex-wrap justify-center gap-2 pt-1">
                {!naoExiste && (
-                  <Button color="primary" size="sm" onClick={() => refetch()}>
+                  <Button
+                     color="primary"
+                     size="sm"
+                     onClick={() => refetch()}
+                     disabled={isFetching}
+                  >
                      Tentar novamente
                   </Button>
                )}
@@ -136,6 +157,25 @@ export default function OperacaoDetailPage() {
 
    return (
       <div className="space-y-2">
+         {!!error && (
+            <p
+               role="status"
+               className="flex items-center gap-2 rounded border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs text-slate-500"
+            >
+               <MdErrorOutline aria-hidden className="size-3.5 shrink-0" />
+               <span className="min-w-0 flex-1 truncate">
+                  A atualização falhou — mostrando os últimos dados.
+               </span>
+               <button
+                  type="button"
+                  onClick={() => refetch()}
+                  disabled={isFetching}
+                  className="min-h-[24px] shrink-0 font-semibold text-slate-900 underline underline-offset-2 disabled:opacity-50"
+               >
+                  Tentar novamente
+               </button>
+            </p>
+         )}
          {/* Teto de largura: sem ele as tabelas esticam com a janela e a linha
              do voo se parte em blocos distantes num monitor largo. As seções
              mantêm o `id` — o link direto para uma delas continua valendo. */}
@@ -153,6 +193,7 @@ export default function OperacaoDetailPage() {
                   <SecaoTitulo>Indicadores</SecaoTitulo>
                   <IndicadoresGrid
                      kpis={op.kpis}
+                     efetivoLoading={pessoalCarregando}
                      efetivo={
                         pessoalCarregando || pessoalErro
                            ? undefined
@@ -206,11 +247,13 @@ export default function OperacaoDetailPage() {
                      {etapasErro ? (
                         <ErroBloco
                            mensagem="Não foi possível carregar as etapas."
-                           onTentar={() => refetch()}
+                           onTentar={() => refetchEtapas()}
+                           buscando={etapasBuscando}
                         />
                      ) : (
                         <EtapasResumo
                            etapas={listaEtapas}
+                           carregando={etapasCarregando}
                            onVerTudo={() => setModal("etapas")}
                            onAssociar={() => setShowAssociar(true)}
                         />
@@ -232,6 +275,7 @@ export default function OperacaoDetailPage() {
                         pessoal={listaPessoal}
                         carregando={pessoalCarregando}
                         erro={pessoalErro}
+                        recarregando={pessoalBuscando}
                         onRecarregar={() => refetchPessoal()}
                         onVerTudo={() => setModal("efetivo")}
                         onAssociar={() => setModal("efetivo")}
@@ -314,9 +358,11 @@ function SecaoTitulo({
 function ErroBloco({
    mensagem,
    onTentar,
+   buscando,
 }: {
    mensagem: string;
    onTentar: () => void;
+   buscando: boolean;
 }) {
    return (
       <div
@@ -324,7 +370,13 @@ function ErroBloco({
          className="space-y-3 rounded border border-slate-200 bg-white p-6 text-center shadow-sm"
       >
          <p className="text-sm text-red-700">{mensagem}</p>
-         <Button color="light" size="sm" className="mx-auto" onClick={onTentar}>
+         <Button
+            color="light"
+            size="sm"
+            className="mx-auto"
+            onClick={onTentar}
+            disabled={buscando}
+         >
             Tentar novamente
          </Button>
       </div>

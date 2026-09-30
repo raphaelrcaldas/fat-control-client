@@ -1,4 +1,4 @@
-import request, { parseApiResponse } from "../../Api";
+import request, { parseApiResponse, readApiData } from "../../Api";
 import type { ApiResponse, ApiResult } from "@/types/api";
 import type { UserPublic } from "services/routes/users";
 
@@ -197,10 +197,7 @@ export async function getOperacoes(
       queryParams,
       signal
    );
-   if (!response.ok) {
-      throw new Error(`Erro ao buscar operações: ${response.status}`);
-   }
-   const json = (await response.json()) as ApiResponse<OperacaoListResponse>;
+   const json = await readApiData<ApiResponse<OperacaoListResponse>>(response);
    return json.data ?? { items: [], counts: emptyCounts() };
 }
 
@@ -227,7 +224,7 @@ export async function getOperacao(
    if (!response.ok) {
       throw new OperacaoFetchError(response.status);
    }
-   const json = (await response.json()) as ApiResponse<OperacaoDetail>;
+   const json = await readApiData<ApiResponse<OperacaoDetail>>(response);
    return json.data as OperacaoDetail;
 }
 
@@ -242,10 +239,7 @@ export async function getOperacaoEtapas(
       null,
       signal
    );
-   if (!response.ok) {
-      throw new Error(`Erro ao buscar etapas: ${response.status}`);
-   }
-   const json = (await response.json()) as ApiResponse<OperacaoEtapaRow[]>;
+   const json = await readApiData<ApiResponse<OperacaoEtapaRow[]>>(response);
    return json.data ?? [];
 }
 
@@ -260,10 +254,7 @@ export async function getCandidatas(
       null,
       signal
    );
-   if (!response.ok) {
-      throw new Error(`Erro ao buscar candidatas: ${response.status}`);
-   }
-   const json = (await response.json()) as ApiResponse<EtapaCandidata[]>;
+   const json = await readApiData<ApiResponse<EtapaCandidata[]>>(response);
    return json.data ?? [];
 }
 
@@ -278,10 +269,7 @@ export async function getPessoal(
       null,
       signal
    );
-   if (!response.ok) {
-      throw new Error(`Erro ao buscar pessoal: ${response.status}`);
-   }
-   const json = (await response.json()) as ApiResponse<OperacaoPessoalOut[]>;
+   const json = await readApiData<ApiResponse<OperacaoPessoalOut[]>>(response);
    return json.data ?? [];
 }
 

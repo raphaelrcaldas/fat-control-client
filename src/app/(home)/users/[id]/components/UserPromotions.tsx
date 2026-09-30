@@ -17,6 +17,7 @@ import { PermBased, usePermBased } from "@/app/(home)/hooks/usePermBased";
 import { useToast } from "@/app/context/toast";
 import { formatDateFull } from "utils/dateHandler";
 import { FieldIconChip } from "./FieldIconChip";
+import { UserPromotionsSkeleton } from "./UserPromotionsSkeleton";
 
 // postos ordenados por antiguidade (menor ant = graduação superior)
 const pgOptions = [...postoGradRecords]
@@ -104,10 +105,14 @@ function AddPromoForm({ userId }: { userId: number }) {
             color="primary"
             size="sm"
             disabled={createPromo.isPending}
+            aria-busy={createPromo.isPending}
             className="shrink-0"
          >
             {createPromo.isPending ? (
-               <Spinner size="sm" color="primary" />
+               <>
+                  <Spinner size="sm" color="white" className="mr-1.5" />
+                  Adicionando…
+               </>
             ) : (
                <>
                   <HiPlus className="mr-1.5 h-4 w-4" />
@@ -179,27 +184,42 @@ function PromoRow({
 }
 
 export function UserPromotions({ userId }: { userId: number }) {
-   const { data: promos = [], isLoading, error } = useUserPromos(userId);
+   const {
+      data: promosData,
+      isLoading,
+      error,
+      isFetching,
+      refetch,
+   } = useUserPromos(userId);
+   const promos = promosData ?? [];
    const { hasPerm } = usePermBased();
    const canManage = hasPerm("users", "update");
 
    if (isLoading) {
-      return (
-         <div className="flex flex-col items-center justify-center py-16">
-            <Spinner size="xl" color="primary" />
-            <p className="mt-4 text-gray-500">Carregando promoções...</p>
-         </div>
-      );
+      return <UserPromotionsSkeleton comFormulario={canManage} />;
    }
 
-   if (error) {
+   // Erro sem dado: "Nenhuma promoção registrada" seria mentira. Com o
+   // histórico já em cache o erro não derruba a aba (cai na lista abaixo).
+   if (error && !promosData) {
       return (
-         <div className="flex flex-col items-center justify-center py-16">
+         <div
+            role="alert"
+            className="flex flex-col items-center justify-center gap-3 py-16"
+         >
             <p className="font-medium text-red-600">
                {error instanceof Error
                   ? error.message
                   : "Erro ao carregar promoções"}
             </p>
+            <Button
+               color="light"
+               size="sm"
+               onClick={() => refetch()}
+               disabled={isFetching}
+            >
+               Tentar novamente
+            </Button>
          </div>
       );
    }

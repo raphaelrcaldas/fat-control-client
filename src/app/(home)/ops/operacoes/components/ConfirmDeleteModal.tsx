@@ -33,15 +33,16 @@ export function ConfirmDeleteModal({
                <HiExclamation className="mx-auto h-14 w-14 text-gray-400" />
                <h3 className="text-lg font-normal text-gray-500">{message}</h3>
                <div className="flex justify-center gap-4">
-                  <Button color="red" onClick={onConfirm} disabled={isDeleting}>
+                  <Button
+                     color="red"
+                     onClick={onConfirm}
+                     disabled={isDeleting}
+                     aria-busy={isDeleting}
+                  >
                      {isDeleting ? (
                         <>
-                           <Spinner
-                              size="sm"
-                              className="mr-2"
-                              color="primary"
-                           />
-                           Excluindo...
+                           <Spinner size="sm" className="mr-2" color="white" />
+                           Excluindo…
                         </>
                      ) : (
                         confirmLabel

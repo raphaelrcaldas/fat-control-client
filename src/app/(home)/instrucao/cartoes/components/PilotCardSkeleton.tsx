@@ -2,7 +2,10 @@
 // chevron) para zero layout-shift na troca skeleton → conteúdo.
 export default function PilotCardSkeleton() {
    return (
-      <div className="animate-pulse rounded border border-slate-200 bg-white px-3 py-2 shadow-sm">
+      <div
+         aria-hidden
+         className="animate-pulse rounded border border-slate-200 bg-white px-3 py-2 shadow-sm"
+      >
          <div className="flex items-center gap-3">
             {/* Avatar */}
             <div className="h-9 w-9 shrink-0 rounded-full bg-slate-200" />

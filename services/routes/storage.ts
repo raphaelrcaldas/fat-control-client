@@ -1,4 +1,5 @@
-import request, { ApiError, parseApiResponse } from "../Api";
+import type { ApiResponse } from "@/types/api";
+import request, { ApiError, readApiData } from "../Api";
 
 const storageRoute = "storage/";
 
@@ -31,11 +32,15 @@ export async function getAllBucketsStats(
    );
    // O backend responde 502 quando não consegue falar com o storage — a
    // mensagem dele tem que chegar à tela, senão a falha vira "0 B / OK".
-   const result = await parseApiResponse<AllBucketsStats>(response);
-   if (!result.ok || !result.data) {
+   const result = await readApiData<ApiResponse<AllBucketsStats>>(
+      response,
+      (message) => message ?? "Não foi possível ler o storage."
+   );
+   if (!result.data) {
       throw new ApiError(
          result.message ?? "Não foi possível ler o storage.",
-         result.errors
+         result.errors,
+         response.status
       );
    }
    return result.data;

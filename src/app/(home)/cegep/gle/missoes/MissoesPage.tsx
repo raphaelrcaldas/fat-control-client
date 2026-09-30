@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { Button } from "flowbite-react";
-import { HiPlus } from "react-icons/hi";
+import { HiExclamation, HiPlus } from "react-icons/hi";
 import { TbClipboardList } from "react-icons/tb";
 
 import { PermBased } from "@/app/(home)/hooks/usePermBased";
@@ -20,7 +20,14 @@ import { MissoesSkeleton } from "./components/MissoesSkeleton";
  */
 export function MissoesPage() {
    const router = useRouter();
-   const { data: missoes, isLoading, isError, error } = useMissoesGle();
+   const {
+      data: missoes,
+      isLoading,
+      isFetching,
+      isError,
+      error,
+      refetch,
+   } = useMissoesGle();
 
    return (
       <div className="space-y-2">
@@ -42,16 +49,26 @@ export function MissoesPage() {
             </PermBased>
          </div>
 
-         {isError ? (
+         {isLoading ? (
+            <MissoesSkeleton />
+         ) : isError && !missoes ? (
             <div
-               className="rounded border border-slate-200 bg-white p-4 text-sm text-red-800 shadow-sm"
+               className="flex flex-col items-center gap-3 rounded border border-slate-200 bg-white p-8 text-center text-sm text-red-800 shadow-sm"
                role="alert"
             >
-               Não foi possível carregar as missões
-               {error instanceof Error ? `: ${error.message}` : "."}
+               <p>
+                  Não foi possível carregar as missões
+                  {error instanceof Error ? `: ${error.message}` : "."}
+               </p>
+               <Button
+                  color="light"
+                  size="sm"
+                  onClick={() => refetch()}
+                  disabled={isFetching}
+               >
+                  Tentar novamente
+               </Button>
             </div>
-         ) : isLoading ? (
-            <MissoesSkeleton />
          ) : (missoes ?? []).length === 0 ? (
             <div className="rounded border border-slate-200 bg-white p-6 shadow-sm">
                <EmptyState
@@ -61,13 +78,36 @@ export function MissoesPage() {
                />
             </div>
          ) : (
-            <ul className="space-y-2">
-               {(missoes ?? []).map((missao) => (
-                  <li key={missao.id}>
-                     <MissaoGleCard missao={missao} />
-                  </li>
-               ))}
-            </ul>
+            <>
+               {/* Refetch que falha com a lista em tela: mantém o dado e
+                   avisa, sem trocar a tela pelo erro. */}
+               {isError && (
+                  <p
+                     role="status"
+                     className="mb-2 flex items-center gap-2 rounded border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs text-slate-500"
+                  >
+                     <HiExclamation aria-hidden className="size-3.5 shrink-0" />
+                     <span className="min-w-0 flex-1 truncate">
+                        Não foi possível atualizar a lista
+                     </span>
+                     <button
+                        type="button"
+                        onClick={() => refetch()}
+                        disabled={isFetching}
+                        className="min-h-[24px] shrink-0 font-semibold text-slate-900 underline underline-offset-2 disabled:opacity-50"
+                     >
+                        Tentar novamente
+                     </button>
+                  </p>
+               )}
+               <ul className="space-y-2">
+                  {(missoes ?? []).map((missao) => (
+                     <li key={missao.id}>
+                        <MissaoGleCard missao={missao} />
+                     </li>
+                  ))}
+               </ul>
+            </>
          )}
       </div>
    );

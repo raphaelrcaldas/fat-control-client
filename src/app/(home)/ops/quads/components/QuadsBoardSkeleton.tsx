@@ -17,12 +17,14 @@ export function QuadsBoardSkeleton({ rows = 8 }: QuadsBoardSkeletonProps) {
    return (
       // Mesma moldura da grade real (ver QuadsBoard): largura da maior linha,
       // nunca menor que o quadro.
-      <div className="flex w-max min-w-full flex-col gap-1">
+      <div role="status" className="flex w-max min-w-full flex-col gap-1">
+         <span className="sr-only">Carregando quadrinhos…</span>
          {Array.from({ length: rows }).map((_, rowIdx) => {
             const cards = CARDS_PER_ROW[rowIdx % CARDS_PER_ROW.length];
             return (
                <div
                   key={rowIdx}
+                  aria-hidden
                   className="flex min-w-max items-center justify-start gap-1 px-1 py-0.5"
                >
                   {/* Trigrama (sticky à esquerda, igual ao CrewRow) */}

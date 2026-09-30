@@ -146,11 +146,16 @@ export function ShortLongFormModal({
                </div>
             </ModalBody>
             <ModalFooter>
-               <Button type="submit" color="primary" disabled={isSaving}>
+               <Button
+                  type="submit"
+                  color="primary"
+                  disabled={isSaving}
+                  aria-busy={isSaving}
+               >
                   {isSaving ? (
                      <>
-                        <Spinner size="sm" className="mr-2" />
-                        Salvando...
+                        <Spinner size="sm" color="white" className="mr-2" />
+                        Salvando…
                      </>
                   ) : initial ? (
                      "Atualizar"

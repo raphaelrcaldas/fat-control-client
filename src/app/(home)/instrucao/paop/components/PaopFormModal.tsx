@@ -9,6 +9,7 @@ import {
    ModalFooter,
    ModalHeader,
    Select,
+   Spinner,
    TextInput,
 } from "flowbite-react";
 import {
@@ -161,9 +162,17 @@ export function PaopFormModal({
             <Button
                color="primary"
                disabled={!podeSalvar || isSaving}
+               aria-busy={isSaving}
                onClick={() => onSubmit(form)}
             >
-               {isSaving ? "Salvando..." : "Salvar"}
+               {isSaving ? (
+                  <>
+                     <Spinner size="sm" color="white" className="mr-2" />
+                     Salvando...
+                  </>
+               ) : (
+                  "Salvar"
+               )}
             </Button>
             <Button color="light" onClick={onClose} disabled={isSaving}>
                Cancelar

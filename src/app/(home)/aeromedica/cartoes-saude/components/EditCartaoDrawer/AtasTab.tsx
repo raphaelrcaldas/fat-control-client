@@ -2,6 +2,7 @@
 
 import { useState, useRef } from "react";
 import { Badge, Button, Label, TextInput, Spinner } from "flowbite-react";
+import AtasTabSkeleton from "./AtasTabSkeleton";
 import {
    HiTrash,
    HiUpload,
@@ -40,7 +41,13 @@ export default function AtasTab({
    const canUpload = hasPerm("aeromedica.cartoes", "create");
    const canDelete = hasPerm("aeromedica.cartoes", "delete");
 
-   const { data: atas, isLoading, isError } = useAtasByUser(userId);
+   const {
+      data: atas,
+      isLoading,
+      isError,
+      isFetching,
+      refetch,
+   } = useAtasByUser(userId);
    const extrairMutation = useExtrairAta();
    const uploadMutation = useUploadAta();
    const deleteMutation = useDeleteAta();
@@ -211,10 +218,11 @@ export default function AtasTab({
                      size="sm"
                      onClick={() => fileInputRef.current?.click()}
                      disabled={isExtracting}
+                     aria-busy={isExtracting}
                   >
                      {isExtracting ? (
                         <>
-                           <Spinner color="gray" size="sm" className="mr-2" />
+                           <Spinner color="white" size="sm" className="mr-2" />
                            Processando...
                         </>
                      ) : (
@@ -229,13 +237,21 @@ export default function AtasTab({
 
          {/* Lista de atas */}
          {isLoading ? (
-            <div className="flex justify-center py-8">
-               <Spinner color="primary" size="lg" />
-            </div>
+            <AtasTabSkeleton />
          ) : isError ? (
-            <p className="py-4 text-center text-sm text-red-600 dark:text-red-400">
-               Não foi possível carregar as atas. Tente novamente.
-            </p>
+            <div role="alert" className="space-y-2 py-4 text-center">
+               <p className="text-sm text-red-600 dark:text-red-400">
+                  Não foi possível carregar as atas.
+               </p>
+               <Button
+                  color="light"
+                  size="xs"
+                  onClick={() => refetch()}
+                  disabled={isFetching}
+               >
+                  Tentar novamente
+               </Button>
+            </div>
          ) : !atas || atas.length === 0 ? (
             <div className="flex flex-col items-center rounded border border-dashed border-slate-300 px-4 py-8 text-center dark:border-gray-600">
                <HiDocumentText className="mb-3 h-10 w-10 text-gray-400" />
@@ -448,14 +464,25 @@ function ManualForm({
                   size="xs"
                   onClick={onSave}
                   disabled={isSaving || !form.validade_inspsau}
+                  aria-busy={isSaving}
                >
-                  {isSaving
-                     ? "Enviando..."
-                     : isSuccess
-                       ? "Confirmar e Enviar"
-                       : "Salvar e Enviar"}
+                  {isSaving ? (
+                     <>
+                        <Spinner size="sm" color="white" className="mr-2" />
+                        Enviando...
+                     </>
+                  ) : isSuccess ? (
+                     "Confirmar e Enviar"
+                  ) : (
+                     "Salvar e Enviar"
+                  )}
                </Button>
-               <Button color="light" size="xs" onClick={onCancel}>
+               <Button
+                  color="light"
+                  size="xs"
+                  onClick={onCancel}
+                  disabled={isSaving}
+               >
                   Cancelar
                </Button>
             </div>
@@ -526,13 +553,26 @@ function AtaCard({
                            color="red"
                            onClick={onDelete}
                            disabled={isDeleting}
+                           aria-busy={isDeleting}
                         >
-                           {isDeleting ? "..." : "Sim"}
+                           {isDeleting ? (
+                              <>
+                                 <Spinner
+                                    size="sm"
+                                    color="white"
+                                    className="mr-1.5"
+                                 />
+                                 Excluindo...
+                              </>
+                           ) : (
+                              "Sim"
+                           )}
                         </Button>
                         <Button
                            size="xs"
                            color="light"
                            onClick={() => onConfirmToggle(false)}
+                           disabled={isDeleting}
                         >
                            Não
                         </Button>

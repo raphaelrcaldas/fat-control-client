@@ -1,4 +1,4 @@
-import request from "../../Api";
+import request, { readApiData } from "../../Api";
 import type { ApiResponse, ApiResult } from "@/types/api";
 import { cegepRoute } from ".";
 import type { TrechoCalculado } from "./gleCalculo";
@@ -58,7 +58,7 @@ export async function getMissoes(
    signal?: AbortSignal
 ): Promise<MissaoGleResumo[]> {
    const response = await request("GET", missoesRoute, null, null, signal);
-   const json = (await response.json()) as ApiResponse<MissaoGleResumo[]>;
+   const json = await readApiData<ApiResponse<MissaoGleResumo[]>>(response);
    return json.data ?? [];
 }
 
@@ -73,7 +73,7 @@ export async function getMissao(
       null,
       signal
    );
-   const json = (await response.json()) as ApiResponse<MissaoGle>;
+   const json = await readApiData<ApiResponse<MissaoGle>>(response);
    if (!json.data) {
       throw new Error(json.message || "Missão não encontrada.");
    }

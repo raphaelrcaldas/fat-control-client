@@ -26,8 +26,23 @@ export default function ResourcesTab() {
    const { push } = useToast();
 
    // Query hooks
-   const { data: resources = [], isLoading, error, refetch } = useResources();
-   const { data: permissions } = usePermissions();
+   const {
+      data: resourcesData,
+      isLoading,
+      isFetching,
+      error,
+      refetch,
+   } = useResources();
+   // Query secundária (só alimenta a coluna "Permissões"): a falha dela não
+   // derruba a tabela, mas precisa ser dita — senão o skeleton da coluna fica
+   // preso para sempre
+   const {
+      data: permissions,
+      isError: permissionsError,
+      isFetching: isFetchingPermissions,
+      refetch: refetchPermissions,
+   } = usePermissions();
+   const resources = useMemo(() => resourcesData ?? [], [resourcesData]);
    const createMutation = useCreateResource();
    const updateMutation = useUpdateResource();
    const deleteMutation = useDeleteResource();
@@ -165,34 +180,9 @@ export default function ResourcesTab() {
       }
    };
 
-   // Loading state
-   if (isLoading) {
-      return (
-         <div className="space-y-4">
-            <SectionHeader title="Recursos" />
-            <ResourcesTableSkeleton rows={8} />
-         </div>
-      );
-   }
-
-   // Error state — mantém o SectionHeader (a aba sem título fica amputada) e
-   // mostra a mensagem que o backend mandou, não um genérico
-   if (error) {
-      return (
-         <div className="space-y-4">
-            <SectionHeader title="Recursos" />
-            <div className="space-y-3 rounded border border-red-300 bg-red-50 p-4">
-               <p className="text-sm font-medium text-red-800">
-                  Não foi possível carregar os recursos.
-               </p>
-               <p className="text-sm text-red-700">{error.message}</p>
-               <Button color="light" size="sm" onClick={() => refetch()}>
-                  Tentar novamente
-               </Button>
-            </div>
-         </div>
-      );
-   }
+   // Erro sem dado em tela: a mensagem que o backend mandou, não um genérico
+   const blockingError = resourcesData ? null : error;
+   const ready = !isLoading && !blockingError;
 
    const hasSearch = searchTerm.trim() !== "";
 
@@ -204,6 +194,7 @@ export default function ResourcesTab() {
          placeholder="Buscar recursos..."
          value={searchTerm}
          onChange={(e) => setSearchTerm(e.target.value)}
+         disabled={!ready}
          className="w-full sm:w-64"
          aria-label="Buscar recursos"
       />
@@ -211,49 +202,101 @@ export default function ResourcesTab() {
 
    return (
       <div className="space-y-4">
+         {/* Casca imediata: título e busca montam já; contagem e "Novo
+             Recurso" esperam o dado */}
          <SectionHeader
             title="Recursos"
-            count={filteredResources.length}
+            count={ready ? filteredResources.length : undefined}
             countLabel={filteredResources.length === 1 ? "recurso" : "recursos"}
-            onCreateClick={handleOpenCreateModal}
+            onCreateClick={ready ? handleOpenCreateModal : undefined}
             createLabel="Novo Recurso"
             createButtonColor="dark"
          >
             {searchControl}
          </SectionHeader>
 
-         {filteredResources.length === 0 ? (
-            <EmptyState
-               icon={FaCubes}
-               title={
-                  hasSearch
-                     ? "Nenhum recurso encontrado"
-                     : "Nenhum recurso cadastrado"
-               }
-               description={
-                  hasSearch
-                     ? `Não encontramos resultados para "${searchTerm}"`
-                     : "Crie um recurso para começar a gerenciar permissões"
-               }
-               action={
-                  hasSearch ? (
+         {isLoading ? (
+            <ResourcesTableSkeleton rows={8} />
+         ) : blockingError ? (
+            <div
+               role="alert"
+               className="space-y-3 rounded border border-red-300 bg-red-50 p-4"
+            >
+               <p className="text-sm font-medium text-red-800">
+                  Não foi possível carregar os recursos.
+               </p>
+               <p className="text-sm text-red-700">{blockingError.message}</p>
+               <Button
+                  color="light"
+                  size="sm"
+                  onClick={() => refetch()}
+                  disabled={isFetching}
+               >
+                  Tentar novamente
+               </Button>
+            </div>
+         ) : (
+            <>
+               {/* Falha de refetch (recursos) ou da contagem de permissões:
+                   a tabela fica e o aviso é discreto */}
+               {(error || permissionsError) && (
+                  <p
+                     role="status"
+                     className="flex items-center gap-2 rounded border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs text-slate-500"
+                  >
+                     <span className="min-w-0 flex-1 truncate">
+                        {error
+                           ? "Não foi possível atualizar os recursos"
+                           : "Não foi possível carregar a contagem de permissões"}
+                     </span>
                      <button
                         type="button"
-                        onClick={() => setSearchTerm("")}
-                        className="text-sm text-blue-600 hover:underline"
+                        onClick={() => {
+                           if (error) refetch();
+                           if (permissionsError) refetchPermissions();
+                        }}
+                        disabled={isFetching || isFetchingPermissions}
+                        className="min-h-[24px] shrink-0 font-semibold text-slate-900 underline underline-offset-2 disabled:opacity-50"
                      >
-                        Limpar busca
+                        Tentar novamente
                      </button>
-                  ) : undefined
-               }
-            />
-         ) : (
-            <ResourcesTable
-               resources={filteredResources}
-               permissionCounts={permissionCounts}
-               onEdit={handleOpenEditModal}
-               onDelete={handleOpenDeleteModal}
-            />
+                  </p>
+               )}
+               {filteredResources.length === 0 ? (
+                  <EmptyState
+                     icon={FaCubes}
+                     title={
+                        hasSearch
+                           ? "Nenhum recurso encontrado"
+                           : "Nenhum recurso cadastrado"
+                     }
+                     description={
+                        hasSearch
+                           ? `Não encontramos resultados para "${searchTerm}"`
+                           : "Crie um recurso para começar a gerenciar permissões"
+                     }
+                     action={
+                        hasSearch ? (
+                           <button
+                              type="button"
+                              onClick={() => setSearchTerm("")}
+                              className="text-sm text-blue-600 hover:underline"
+                           >
+                              Limpar busca
+                           </button>
+                        ) : undefined
+                     }
+                  />
+               ) : (
+                  <ResourcesTable
+                     resources={filteredResources}
+                     permissionCounts={permissionCounts}
+                     permissionCountsError={permissionsError}
+                     onEdit={handleOpenEditModal}
+                     onDelete={handleOpenDeleteModal}
+                  />
+               )}
+            </>
          )}
 
          <ResourceFormModal

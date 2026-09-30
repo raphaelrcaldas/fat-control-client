@@ -226,6 +226,7 @@ export default function MissaoDetailPage() {
       data: missao,
       isLoading,
       isError,
+      isFetching,
       error,
       refetch,
    } = useMissao(missaoId);
@@ -242,7 +243,9 @@ export default function MissaoDetailPage() {
       return <MissionPageSkeleton />;
    }
 
-   if (isError) {
+   // Erro só toma a tela quando não há missão em cache: um refetch que falha
+   // (ex.: foco de janela) não pode derrubar o que já está em tela.
+   if (isError && !missao) {
       return (
          <div className="flex h-96 flex-col items-center justify-center gap-4">
             <p className="text-lg text-gray-500">
@@ -253,7 +256,8 @@ export default function MissaoDetailPage() {
             <div className="flex items-center gap-4">
                <button
                   onClick={() => refetch()}
-                  className="text-sm font-medium text-red-600 hover:underline"
+                  disabled={isFetching}
+                  className="text-sm font-medium text-red-600 hover:underline disabled:opacity-50"
                >
                   Tentar novamente
                </button>

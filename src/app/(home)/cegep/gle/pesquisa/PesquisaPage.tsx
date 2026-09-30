@@ -3,7 +3,12 @@
 import { useMemo, useState } from "react";
 import { Button, Label, Select, TextInput } from "flowbite-react";
 import clsx from "clsx";
-import { HiInformationCircle, HiSearch, HiX } from "react-icons/hi";
+import {
+   HiExclamation,
+   HiInformationCircle,
+   HiSearch,
+   HiX,
+} from "react-icons/hi";
 import { TbMapPin } from "react-icons/tb";
 
 import { dateToIso, todayIso } from "@/../utils/dateHandler";
@@ -57,12 +62,16 @@ export function PesquisaPage() {
    const { hasPerm } = usePermBased();
    const podeConsultar = hasPerm("estatistica.etapas", "view");
 
-   const { data, isLoading, isFetching, isError, error } = usePesquisaLocEsp(
-      podeConsultar ? filtros : undefined,
-      { enabled: podeConsultar }
-   );
+   const { data, isLoading, isFetching, isError, error, refetch } =
+      usePesquisaLocEsp(podeConsultar ? filtros : undefined, {
+         enabled: podeConsultar,
+      });
    // Para o seletor de localidade: a lista de referência, não o resultado.
-   const { data: localidades } = useLocalidades(undefined);
+   const {
+      data: localidades,
+      isLoading: carregandoLocalidades,
+      isError: erroLocalidades,
+   } = useLocalidades(undefined);
 
    // "Tem filtro" = difere do padrão. O período padrão não conta como filtro
    // do usuário, senão o botão de limpar nasceria sempre visível.
@@ -174,6 +183,7 @@ export function PesquisaPage() {
                      value={locEspId}
                      onChange={(e) => setLocEspId(e.target.value)}
                      sizing="sm"
+                     disabled={carregandoLocalidades}
                   >
                      <option value="">Todas</option>
                      {(localidades ?? []).map((loc) => (
@@ -182,6 +192,13 @@ export function PesquisaPage() {
                         </option>
                      ))}
                   </Select>
+                  {/* Sem a lista, o seletor só tem "Todas": diz por quê em
+                      vez de parecer que não há localidade cadastrada. */}
+                  {erroLocalidades && !localidades && (
+                     <p role="status" className="mt-1 text-xs text-red-700">
+                        Não foi possível carregar as localidades.
+                     </p>
+                  )}
                </div>
             </div>
 
@@ -204,16 +221,26 @@ export function PesquisaPage() {
                   description="A pesquisa cruza as etapas de voo registradas, e você não tem permissão para consultá-las. Peça acesso a “Etapas” em Estatística."
                />
             </div>
-         ) : isError ? (
-            <div
-               className="rounded border border-slate-200 bg-white p-4 text-sm text-red-800 shadow-sm"
-               role="alert"
-            >
-               Não foi possível pesquisar
-               {error instanceof Error ? `: ${error.message}` : "."}
-            </div>
          ) : isLoading ? (
             <PesquisaSkeleton />
+         ) : isError && !data ? (
+            <div
+               className="flex flex-col items-center gap-3 rounded border border-slate-200 bg-white p-8 text-center shadow-sm"
+               role="alert"
+            >
+               <p className="text-sm font-medium text-red-800">
+                  Não foi possível pesquisar
+                  {error instanceof Error ? `: ${error.message}` : "."}
+               </p>
+               <Button
+                  color="light"
+                  size="sm"
+                  onClick={() => refetch()}
+                  disabled={isFetching}
+               >
+                  Tentar novamente
+               </Button>
+            </div>
          ) : missoes.length === 0 ? (
             <div className="rounded border border-slate-200 bg-white p-6 shadow-sm">
                <EmptyState
@@ -237,9 +264,30 @@ export function PesquisaPage() {
             <div
                className={clsx(
                   "space-y-2 transition-opacity",
-                  isFetching && !isLoading && "opacity-50"
+                  isFetching && "opacity-50"
                )}
             >
+               {/* Refetch que falha com o resultado em tela: mantém o dado e
+                   avisa, sem trocar a tela pelo erro. */}
+               {isError && (
+                  <p
+                     role="status"
+                     className="flex items-center gap-2 rounded border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs text-slate-500"
+                  >
+                     <HiExclamation aria-hidden className="size-3.5 shrink-0" />
+                     <span className="min-w-0 flex-1 truncate">
+                        Não foi possível atualizar o resultado
+                     </span>
+                     <button
+                        type="button"
+                        onClick={() => refetch()}
+                        disabled={isFetching}
+                        className="min-h-[24px] shrink-0 font-semibold text-slate-900 underline underline-offset-2 disabled:opacity-50"
+                     >
+                        Tentar novamente
+                     </button>
+                  </p>
+               )}
                <p className="flex items-center gap-1.5 px-1 text-sm text-slate-600">
                   <HiSearch className="h-4 w-4 shrink-0 text-slate-400" />
                   <strong className="font-semibold text-slate-900">

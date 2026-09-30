@@ -1,4 +1,4 @@
-import request from "../Api";
+import request, { readApiData } from "../Api";
 import type { ApiResponse } from "@/types/api";
 
 const citiesRoute = "cities/";
@@ -11,6 +11,6 @@ export interface Cidade {
 
 export async function getCities(search: string): Promise<Cidade[]> {
    const response = await request("GET", citiesRoute, null, { search: search });
-   const json = (await response.json()) as ApiResponse<Cidade[]>;
+   const json = await readApiData<ApiResponse<Cidade[]>>(response);
    return json.data || [];
 }

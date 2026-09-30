@@ -48,7 +48,10 @@ function CardSkeleton() {
 
 function CardsSkeleton() {
    return (
-      <div className="grid grid-cols-1 gap-3 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+      <div
+         aria-hidden
+         className="grid grid-cols-1 gap-3 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4"
+      >
          {Array.from({ length: CARD_COUNT }).map((_, i) => (
             <CardSkeleton key={i} />
          ))}
@@ -69,7 +72,10 @@ const TABLE_HEADERS = [
 
 function TableSkeleton() {
    return (
-      <div className="overflow-x-auto rounded border border-slate-200 bg-white shadow-sm">
+      <div
+         aria-hidden
+         className="overflow-x-auto rounded border border-slate-200 bg-white shadow-sm"
+      >
          <table className="w-full text-left text-sm">
             <thead className="border-b border-slate-200">
                <tr>
@@ -127,9 +133,10 @@ export function RegistrosSkeleton({
    viewMode: "cards" | "table";
 }) {
    return (
-      <div className="space-y-4">
+      <div role="status" className="space-y-4">
+         <span className="sr-only">Carregando missões…</span>
          {/* Cabeçalho dos resultados (título + alternador de visão) */}
-         <div className="flex items-center justify-between">
+         <div aria-hidden className="flex items-center justify-between">
             <div className="h-6 w-56 animate-pulse rounded bg-slate-200" />
             <div className="flex overflow-hidden rounded border border-slate-200">
                <div className="h-9 w-20 bg-slate-100" />

@@ -12,7 +12,6 @@ import { EtapasNavigatorModal } from "../EtapasNavigatorModal/EtapasNavigatorMod
 
 export interface EtapasTableProps {
    missoes: MissaoComEtapas[];
-   loading: boolean;
    selectedIds: Set<number>;
    onToggleEtapa: (id: number) => void;
    onToggleMissao: (etapaIds: number[]) => void;
@@ -22,7 +21,6 @@ export interface EtapasTableProps {
 
 export function EtapasTable({
    missoes,
-   loading,
    selectedIds,
    onToggleEtapa,
    onToggleMissao,
@@ -68,7 +66,7 @@ export function EtapasTable({
       [missoes, router]
    );
 
-   if (!loading && missoes.length === 0) {
+   if (missoes.length === 0) {
       return null;
    }
 
@@ -104,7 +102,6 @@ export function EtapasTable({
             <MissaoCard
                key={missao.id}
                missao={missao}
-               loading={loading}
                selectedIds={selectedIds}
                onToggleEtapa={onToggleEtapa}
                onToggleMissao={onToggleMissao}

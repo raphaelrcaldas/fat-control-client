@@ -221,11 +221,16 @@ export function OrganizacaoFormModal({
                </div>
             </ModalBody>
             <ModalFooter className="border-t border-slate-200">
-               <Button type="submit" color="dark" disabled={isSaving}>
+               <Button
+                  type="submit"
+                  color="dark"
+                  disabled={isSaving}
+                  aria-busy={isSaving}
+               >
                   {isSaving ? (
                      <>
-                        <Spinner color="gray" size="sm" className="mr-2" />
-                        Salvando...
+                        <Spinner color="white" size="sm" className="mr-2" />
+                        Salvando…
                      </>
                   ) : (
                      <>

@@ -235,8 +235,10 @@ export function EtapasModal({
                               type="button"
                               onClick={() => setConfirmId(e.id)}
                               disabled={removingId === e.id}
+                              aria-busy={removingId === e.id}
                               className="flex shrink-0 items-center justify-center p-1 text-red-700"
                               title="Desassociar etapa"
+                              aria-label="Desassociar etapa"
                            >
                               {removingId === e.id ? (
                                  <Spinner size="sm" color="primary" />
@@ -356,8 +358,10 @@ export function EtapasModal({
                                        type="button"
                                        onClick={() => setConfirmId(e.id)}
                                        disabled={removingId === e.id}
+                                       aria-busy={removingId === e.id}
                                        className="p-1 text-red-700"
                                        title="Desassociar etapa"
+                                       aria-label="Desassociar etapa"
                                     >
                                        {removingId === e.id ? (
                                           <Spinner size="sm" color="primary" />

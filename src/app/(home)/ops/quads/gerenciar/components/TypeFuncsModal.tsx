@@ -32,7 +32,7 @@ export function TypeFuncsModal({
 }: TypeFuncsModalProps) {
    // Só concorre ao quadrinho função que a unidade opera — é o que o
    // backend valida no PUT.
-   const { funcoes, isLoading, isError } = useFuncoes();
+   const { funcoes, isLoading, isError, refetch } = useFuncoes();
    // Sem catálogo não há o que enviar: o PUT substitui a lista inteira, e um
    // `[]` vindo de catálogo vazio apagaria as funções do quadrinho.
    const semCatalogo = isLoading || isError || funcoes.length === 0;
@@ -98,16 +98,26 @@ export function TypeFuncsModal({
             )}
             {isError ? (
                <p className="text-sm text-red-700" role="alert">
-                  Não foi possível carregar as funções da unidade.
+                  Não foi possível carregar as funções da unidade.{" "}
+                  <button
+                     type="button"
+                     onClick={() => refetch()}
+                     className="font-semibold underline underline-offset-2"
+                  >
+                     Tentar novamente
+                  </button>
                </p>
             ) : isLoading ? (
-               <div className="grid grid-cols-2 gap-3">
-                  {Array.from({ length: 6 }).map((_, i) => (
-                     <div
-                        key={i}
-                        className="h-[38px] animate-pulse rounded bg-slate-100"
-                     />
-                  ))}
+               <div role="status">
+                  <span className="sr-only">Carregando funções…</span>
+                  <div aria-hidden className="grid grid-cols-2 gap-3">
+                     {Array.from({ length: 6 }).map((_, i) => (
+                        <div
+                           key={i}
+                           className="h-[38px] animate-pulse rounded bg-slate-100"
+                        />
+                     ))}
+                  </div>
                </div>
             ) : funcoes.length === 0 ? (
                <p className="text-sm text-slate-500">
@@ -141,11 +151,12 @@ export function TypeFuncsModal({
                color="primary"
                onClick={handleSubmit}
                disabled={isSaving || semCatalogo}
+               aria-busy={isSaving}
             >
                {isSaving ? (
                   <>
-                     <Spinner size="sm" className="mr-2" />
-                     Salvando...
+                     <Spinner size="sm" color="white" className="mr-2" />
+                     Salvando…
                   </>
                ) : (
                   "Salvar"

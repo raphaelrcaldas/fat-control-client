@@ -67,12 +67,13 @@ function LifecycleButton({
             type="button"
             onClick={onClick}
             disabled={disabled}
+            aria-busy={busy}
             aria-label={busy ? busyLabel : label}
             title={title}
          >
             {busy ? (
                <>
-                  <Spinner color="primary" size="sm" className="sm:mr-2" />
+                  <Spinner color="white" size="sm" className="sm:mr-2" />
                   <span className="hidden sm:inline">{busyLabel}</span>
                </>
             ) : (
@@ -220,7 +221,7 @@ export function OrdemFormHeader({
                            onClick={onApprove}
                            disabled={isApproving}
                            busy={isApproving}
-                           busyLabel="Aprovando..."
+                           busyLabel="Aprovando…"
                            icon={HiCheckCircle}
                            label="Aprovar OM"
                         />
@@ -235,7 +236,7 @@ export function OrdemFormHeader({
                            onClick={onCancelOm}
                            disabled={isCancelling}
                            busy={isCancelling}
-                           busyLabel="Cancelando..."
+                           busyLabel="Cancelando…"
                            icon={HiBan}
                            label="Cancelar OM"
                         />
@@ -278,7 +279,8 @@ export function OrdemFormHeader({
                         isSaving ||
                         isApproving
                      }
-                     aria-label={isSaving ? "Salvando..." : "Salvar"}
+                     aria-busy={isSaving}
+                     aria-label={isSaving ? "Salvando…" : "Salvar"}
                      title={
                         hasCamposEspeciaisVazios
                            ? "Preencha as ordens especiais vazias"
@@ -292,7 +294,7 @@ export function OrdemFormHeader({
                               size="sm"
                               className="sm:mr-2"
                            />
-                           <span className="hidden sm:inline">Salvando...</span>
+                           <span className="hidden sm:inline">Salvando…</span>
                         </>
                      ) : (
                         <>
@@ -320,7 +322,7 @@ export function OrdemFormHeader({
                                  : undefined
                            }
                            busy={isApproving}
-                           busyLabel="Aprovando..."
+                           busyLabel="Aprovando…"
                            icon={HiCheckCircle}
                            label="Aprovar OM"
                         />

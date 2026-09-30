@@ -8,6 +8,7 @@ import {
    ModalFooter,
    Button,
    Label,
+   Spinner,
    TextInput,
 } from "flowbite-react";
 import { useToast } from "@/app/context/toast";
@@ -128,9 +129,21 @@ export function TenantConfigModal({
                      <Button
                         color="dark"
                         disabled={busy || !saudacaoAlterada}
+                        aria-busy={busy && saudacaoAlterada}
                         onClick={handleSaveSaudacao}
                      >
-                        {busy && saudacaoAlterada ? "Salvando..." : "Salvar"}
+                        {busy && saudacaoAlterada ? (
+                           <>
+                              <Spinner
+                                 color="white"
+                                 size="sm"
+                                 className="mr-2"
+                              />
+                              Salvando…
+                           </>
+                        ) : (
+                           "Salvar"
+                        )}
                      </Button>
                   </div>
                </section>

@@ -358,11 +358,12 @@ export function ExportColumnsModal<T>({
                         color="primary"
                         onClick={handleExport}
                         disabled={isExporting || rows.length === 0}
+                        aria-busy={isExporting}
                      >
                         {isExporting ? (
                            <span className="flex items-center gap-2">
-                              <Spinner size="sm" color="primary" />
-                              Gerando...
+                              <Spinner size="sm" color="white" />
+                              Gerando…
                            </span>
                         ) : (
                            <span className="flex items-center gap-2">

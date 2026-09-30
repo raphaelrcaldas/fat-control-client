@@ -3,6 +3,7 @@
 import { useCallback, useState } from "react";
 import { MdGroups } from "react-icons/md";
 import clsx from "clsx";
+import { Button } from "flowbite-react";
 import { useCrm } from "@/hooks/queries";
 import type { TripCrmOut } from "services/routes/seg-voo/crm";
 import { useCrmFilters } from "./hooks/useCrmFilters";
@@ -25,6 +26,9 @@ export default function CrmPage() {
       data: crmData = [],
       isLoading,
       isFetching,
+      isError,
+      error,
+      refetch,
    } = useCrm(filters.queryParams);
 
    const { sortedData, stats } = useCrmView(crmData, filters);
@@ -109,7 +113,6 @@ export default function CrmPage() {
                totalCount={crmData.length}
                filteredCount={sortedData.length}
                isLoading={isLoading}
-               isFetching={isFetching}
                hasActiveFilters={filters.hasActiveFilters}
                onClearFilters={filters.clearFilters}
             />
@@ -123,37 +126,81 @@ export default function CrmPage() {
                      <CrmTableSkeleton />
                   </div>
                </>
-            ) : (
+            ) : isError && crmData.length === 0 ? (
                <div
-                  className={clsx(
-                     "transition-opacity",
-                     isFetching && "pointer-events-none opacity-50"
-                  )}
+                  role="alert"
+                  className="flex flex-col items-center justify-center gap-1 px-6 py-12 text-center"
                >
-                  {/* Cards no dedo, tabela no mouse. As duas árvores ficam
-                      montadas e só uma é exibida (o `client` não tem hook de
-                      media query): evita o flash de remontagem ao girar o
-                      aparelho, ao custo de DOM extra. */}
-                  <div className="md:hidden">
-                     <CrmCardList
-                        data={sortedData}
-                        onCardClick={handleRowClick}
-                        hasActiveFilters={filters.hasActiveFilters}
-                        searchTerm={filters.debouncedSearch}
-                     />
-                  </div>
-                  <div className="hidden md:block">
-                     <CrmTable
-                        data={sortedData}
-                        sortField={filters.sortField}
-                        sortDirection={filters.sortDirection}
-                        onSort={filters.handleSort}
-                        onRowClick={handleRowClick}
-                        hasActiveFilters={filters.hasActiveFilters}
-                        searchTerm={filters.debouncedSearch}
-                     />
-                  </div>
+                  <p className="text-sm font-semibold text-red-800">
+                     Não foi possível carregar o CRM
+                  </p>
+                  <p className="max-w-md text-xs text-slate-500">
+                     {error instanceof Error
+                        ? error.message
+                        : "Erro desconhecido"}
+                  </p>
+                  <Button
+                     color="light"
+                     size="sm"
+                     className="mt-3"
+                     onClick={() => refetch()}
+                     disabled={isFetching}
+                  >
+                     Tentar novamente
+                  </Button>
                </div>
+            ) : (
+               <>
+                  {isError && (
+                     <div
+                        role="status"
+                        className="flex flex-wrap items-center justify-between gap-2 border-t border-red-200 bg-red-50 px-4 py-2 text-sm text-red-800"
+                     >
+                        <span>
+                           Não foi possível atualizar o CRM. Exibindo a última
+                           consulta.
+                        </span>
+                        <Button
+                           color="light"
+                           size="xs"
+                           onClick={() => refetch()}
+                           disabled={isFetching}
+                        >
+                           Tentar novamente
+                        </Button>
+                     </div>
+                  )}
+                  <div
+                     className={clsx(
+                        "transition-opacity",
+                        isFetching && "pointer-events-none opacity-50"
+                     )}
+                  >
+                     {/* Cards no dedo, tabela no mouse. As duas árvores ficam
+                         montadas e só uma é exibida (o `client` não tem hook de
+                         media query): evita o flash de remontagem ao girar o
+                         aparelho, ao custo de DOM extra. */}
+                     <div className="md:hidden">
+                        <CrmCardList
+                           data={sortedData}
+                           onCardClick={handleRowClick}
+                           hasActiveFilters={filters.hasActiveFilters}
+                           searchTerm={filters.debouncedSearch}
+                        />
+                     </div>
+                     <div className="hidden md:block">
+                        <CrmTable
+                           data={sortedData}
+                           sortField={filters.sortField}
+                           sortDirection={filters.sortDirection}
+                           onSort={filters.handleSort}
+                           onRowClick={handleRowClick}
+                           hasActiveFilters={filters.hasActiveFilters}
+                           searchTerm={filters.debouncedSearch}
+                        />
+                     </div>
+                  </div>
+               </>
             )}
          </div>
 

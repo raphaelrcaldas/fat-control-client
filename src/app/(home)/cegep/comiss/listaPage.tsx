@@ -9,6 +9,7 @@ import { RoleBasedRoute } from "../../hooks/useRoleBased";
 
 import {
    HiFilter,
+   HiExclamation,
    HiX,
    HiPlus,
    HiOutlineUser,
@@ -100,6 +101,8 @@ export function ListaPage() {
       data: cmtosRaw,
       isLoading,
       isFetching,
+      isError,
+      refetch,
    } = useComissList({
       status: statusComis,
       search: deferredSearch,
@@ -429,6 +432,25 @@ export function ListaPage() {
          <div className="mt-3 min-h-50 flex-1">
             {loading ? (
                <TableComissSkeleton />
+            ) : isError && !cmtosRaw ? (
+               // Erro nunca vira "nenhum comissionamento": sem dado, mostra a
+               // falha e oferece nova tentativa.
+               <div
+                  role="alert"
+                  className="flex flex-col items-center justify-center gap-3 px-4 py-16 text-center"
+               >
+                  <p className="text-sm font-medium text-red-800">
+                     Não foi possível carregar os comissionamentos
+                  </p>
+                  <Button
+                     color="light"
+                     size="sm"
+                     onClick={() => refetch()}
+                     disabled={isFetching}
+                  >
+                     Tentar novamente
+                  </Button>
+               </div>
             ) : cmtos.length === 0 ? (
                <div className="flex flex-col items-center justify-center px-4 py-16">
                   <div className="mb-4 rounded-full bg-slate-50 p-6">
@@ -450,6 +472,30 @@ export function ListaPage() {
                      isFetching && "opacity-50"
                   )}
                >
+                  {/* Refetch que falha com a lista em tela: mantém o dado e
+                      avisa, sem trocar a tela pelo erro. */}
+                  {isError && (
+                     <p
+                        role="status"
+                        className="mb-2 flex items-center gap-2 rounded border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs text-slate-500"
+                     >
+                        <HiExclamation
+                           aria-hidden
+                           className="size-3.5 shrink-0"
+                        />
+                        <span className="min-w-0 flex-1 truncate">
+                           Não foi possível atualizar a lista
+                        </span>
+                        <button
+                           type="button"
+                           onClick={() => refetch()}
+                           disabled={isFetching}
+                           className="min-h-[24px] shrink-0 font-semibold text-slate-900 underline underline-offset-2 disabled:opacity-50"
+                        >
+                           Tentar novamente
+                        </button>
+                     </p>
+                  )}
                   <TableComiss cmtos={cmtos} />
                </div>
             )}

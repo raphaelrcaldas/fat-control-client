@@ -26,7 +26,14 @@ export function CargosSection() {
    const { push } = useToast();
    const { activeOrg } = useAuth();
 
-   const { data: cargos = [], isLoading } = useCargos(activeOrg);
+   const {
+      data: cargosData,
+      isLoading,
+      isError,
+      isFetching,
+      refetch,
+   } = useCargos(activeOrg);
+   const cargos = cargosData ?? [];
    const setMutation = useSetCargo(activeOrg);
    const deleteMutation = useDeleteCargo(activeOrg);
 
@@ -92,70 +99,112 @@ export function CargosSection() {
 
          {isLoading ? (
             <CargosSkeleton />
+         ) : isError && !cargosData ? (
+            // Falha sem dado: listar "Não definido" faria o admin achar que
+            // os cargos estão vagos (e redefini-los por cima)
+            <div
+               role="alert"
+               className="space-y-3 rounded border border-red-300 bg-red-50 p-4"
+            >
+               <p className="text-sm text-red-800">
+                  Erro ao carregar os cargos. Por favor, tente novamente.
+               </p>
+               <Button
+                  color="light"
+                  size="xs"
+                  onClick={() => refetch()}
+                  disabled={isFetching}
+               >
+                  Tentar novamente
+               </Button>
+            </div>
          ) : (
-            <ul className="divide-y divide-slate-100 rounded border border-slate-200">
-               {CARGOS.map((cargo) => {
-                  const titular: CargoTitular | undefined = cargos.find(
-                     (c) => c.cargo === cargo
-                  );
-                  // O nome completo é exigido ao definir o titular, mas o
-                  // cadastro pode ser esvaziado depois — nesse caso não há
-                  // assinatura possível e a OM fica bloqueada. Sinalizar aqui,
-                  // que é onde o admin resolve.
-                  const assinatura = titular ? linhaAssinatura(titular) : null;
-                  return (
-                     <li
-                        key={cargo}
-                        className="flex items-center gap-3 px-4 py-3"
+            <>
+               {/* Refetch que falhou com os titulares em tela: mantém e avisa */}
+               {isError && (
+                  <p
+                     role="status"
+                     className="flex items-center gap-2 rounded border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs text-slate-500"
+                  >
+                     <span className="min-w-0 flex-1 truncate">
+                        Não foi possível atualizar os cargos
+                     </span>
+                     <button
+                        type="button"
+                        onClick={() => refetch()}
+                        disabled={isFetching}
+                        className="min-h-[24px] shrink-0 font-semibold text-slate-900 underline underline-offset-2 disabled:opacity-50"
                      >
-                        <div className="bg-primary-50 text-primary-600 ring-primary-100 grid size-9 shrink-0 place-items-center rounded-md ring-1 ring-inset">
-                           <HiOutlineUser className="size-5" />
-                        </div>
-
-                        <div className="min-w-0 flex-1">
-                           <p className="text-xs font-medium text-slate-500">
-                              {CARGO_TITULOS[cargo]}
-                           </p>
-                           {assinatura ? (
-                              <p className="truncate text-sm font-semibold text-slate-800">
-                                 {assinatura}
-                              </p>
-                           ) : titular ? (
-                              <p className="truncate text-sm font-semibold text-red-600">
-                                 {titular.user.nome_guerra.toUpperCase()} — sem
-                                 nome completo cadastrado
-                              </p>
-                           ) : (
-                              <p className="text-sm text-slate-400 italic">
-                                 Não definido
-                              </p>
-                           )}
-                        </div>
-
-                        <Button
-                           size="xs"
-                           color="light"
-                           disabled={busy}
-                           onClick={() => setEditando(cargo)}
+                        Tentar novamente
+                     </button>
+                  </p>
+               )}
+               <ul className="divide-y divide-slate-100 rounded border border-slate-200">
+                  {CARGOS.map((cargo) => {
+                     const titular: CargoTitular | undefined = cargos.find(
+                        (c) => c.cargo === cargo
+                     );
+                     // O nome completo é exigido ao definir o titular, mas o
+                     // cadastro pode ser esvaziado depois — nesse caso não há
+                     // assinatura possível e a OM fica bloqueada. Sinalizar aqui,
+                     // que é onde o admin resolve.
+                     const assinatura = titular
+                        ? linhaAssinatura(titular)
+                        : null;
+                     return (
+                        <li
+                           key={cargo}
+                           className="flex items-center gap-3 px-4 py-3"
                         >
-                           <HiOutlinePencil className="mr-1 size-4" />
-                           {titular ? "Trocar" : "Definir"}
-                        </Button>
+                           <div className="bg-primary-50 text-primary-600 ring-primary-100 grid size-9 shrink-0 place-items-center rounded-md ring-1 ring-inset">
+                              <HiOutlineUser className="size-5" />
+                           </div>
 
-                        {titular && (
+                           <div className="min-w-0 flex-1">
+                              <p className="text-xs font-medium text-slate-500">
+                                 {CARGO_TITULOS[cargo]}
+                              </p>
+                              {assinatura ? (
+                                 <p className="truncate text-sm font-semibold text-slate-800">
+                                    {assinatura}
+                                 </p>
+                              ) : titular ? (
+                                 <p className="truncate text-sm font-semibold text-red-600">
+                                    {titular.user.nome_guerra.toUpperCase()} —
+                                    sem nome completo cadastrado
+                                 </p>
+                              ) : (
+                                 <p className="text-sm text-slate-400 italic">
+                                    Não definido
+                                 </p>
+                              )}
+                           </div>
+
                            <Button
                               size="xs"
-                              color="red"
+                              color="light"
                               disabled={busy}
-                              onClick={() => handleRemove(cargo)}
+                              onClick={() => setEditando(cargo)}
                            >
-                              <HiOutlineTrash className="size-4" />
+                              <HiOutlinePencil className="mr-1 size-4" />
+                              {titular ? "Trocar" : "Definir"}
                            </Button>
-                        )}
-                     </li>
-                  );
-               })}
-            </ul>
+
+                           {titular && (
+                              <Button
+                                 size="xs"
+                                 color="red"
+                                 disabled={busy}
+                                 onClick={() => handleRemove(cargo)}
+                              >
+                                 <HiOutlineTrash className="size-4" />
+                              </Button>
+                           )}
+                        </li>
+                     );
+                  })}
+               </ul>
+            </>
          )}
 
          <SearchUser
@@ -171,17 +220,23 @@ export function CargosSection() {
 
 function CargosSkeleton() {
    return (
-      <ul className="divide-y divide-slate-100 rounded border border-slate-200">
-         {CARGOS.map((cargo) => (
-            <li key={cargo} className="flex items-center gap-3 px-4 py-3">
-               <div className="size-9 shrink-0 animate-pulse rounded-md bg-slate-200" />
-               <div className="flex-1 space-y-1.5">
-                  <div className="h-3 w-24 animate-pulse rounded bg-slate-100" />
-                  <div className="h-4 w-56 animate-pulse rounded bg-slate-200" />
-               </div>
-               <div className="h-6 w-16 animate-pulse rounded bg-slate-200" />
-            </li>
-         ))}
-      </ul>
+      <div role="status">
+         <span className="sr-only">Carregando cargos…</span>
+         <ul
+            aria-hidden
+            className="divide-y divide-slate-100 rounded border border-slate-200"
+         >
+            {CARGOS.map((cargo) => (
+               <li key={cargo} className="flex items-center gap-3 px-4 py-3">
+                  <div className="size-9 shrink-0 animate-pulse rounded-md bg-slate-200" />
+                  <div className="flex-1 space-y-1.5">
+                     <div className="h-3 w-24 animate-pulse rounded bg-slate-100" />
+                     <div className="h-4 w-56 animate-pulse rounded bg-slate-200" />
+                  </div>
+                  <div className="h-6 w-16 animate-pulse rounded bg-slate-200" />
+               </li>
+            ))}
+         </ul>
+      </div>
    );
 }

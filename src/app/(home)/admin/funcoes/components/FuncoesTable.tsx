@@ -25,6 +25,26 @@ interface FuncoesTableProps {
    onDelete: (funcao: Funcao) => void;
 }
 
+/** Cabeçalho compartilhado pela tabela e pelo skeleton — as larguras precisam
+ *  ser as mesmas nos dois para não haver salto quando os dados chegam. */
+function FuncoesTableHead() {
+   return (
+      <TableHead>
+         <TableRow>
+            <TableHeadCell className="w-20">Código</TableHeadCell>
+            <TableHeadCell className="w-48">Nome</TableHeadCell>
+            <TableHeadCell className="w-28">Curto</TableHeadCell>
+            <TableHeadCell className="w-20">Ordem</TableHeadCell>
+            <TableHeadCell>Posições a bordo</TableHeadCell>
+            <TableHeadCell className="w-32">Situação</TableHeadCell>
+            <TableHeadCell className="w-40">
+               <span className="sr-only">Ações</span>
+            </TableHeadCell>
+         </TableRow>
+      </TableHead>
+   );
+}
+
 export function FuncoesTable({
    funcoes,
    isBusy,
@@ -35,19 +55,7 @@ export function FuncoesTable({
    return (
       <div className="overflow-x-auto rounded border border-slate-200 bg-white shadow-sm">
          <Table hoverable>
-            <TableHead>
-               <TableRow>
-                  <TableHeadCell className="w-20">Código</TableHeadCell>
-                  <TableHeadCell className="w-48">Nome</TableHeadCell>
-                  <TableHeadCell className="w-28">Curto</TableHeadCell>
-                  <TableHeadCell className="w-20">Ordem</TableHeadCell>
-                  <TableHeadCell>Posições a bordo</TableHeadCell>
-                  <TableHeadCell className="w-32">Situação</TableHeadCell>
-                  <TableHeadCell className="w-40">
-                     <span className="sr-only">Ações</span>
-                  </TableHeadCell>
-               </TableRow>
-            </TableHead>
+            <FuncoesTableHead />
             <TableBody className="divide-y">
                {funcoes.map((funcao) => {
                   const colors = getFuncColors(funcao.cor);
@@ -136,17 +144,51 @@ export function FuncoesTable({
    );
 }
 
-export function FuncoesTableSkeleton() {
+export function FuncoesTableSkeleton({ rows = 8 }: { rows?: number }) {
    return (
-      <div className="space-y-2 rounded border border-slate-200 bg-white p-4 shadow-sm">
-         {Array.from({ length: 8 }).map((_, i) => (
-            <div key={i} className="flex items-center gap-3">
-               <Skeleton className="size-9 rounded-md" />
-               <Skeleton className="h-4 w-48" />
-               <Skeleton className="h-4 w-24" />
-               <Skeleton className="ml-auto h-7 w-28" />
-            </div>
-         ))}
+      <div
+         role="status"
+         className="overflow-x-auto rounded border border-slate-200 bg-white shadow-sm"
+      >
+         <span className="sr-only">Carregando funções…</span>
+         <Table hoverable aria-hidden>
+            <FuncoesTableHead />
+            <TableBody className="divide-y">
+               {Array.from({ length: rows }).map((_, i) => (
+                  <TableRow key={i} className="bg-white">
+                     <TableCell>
+                        <Skeleton className="size-9" />
+                     </TableCell>
+                     <TableCell>
+                        <Skeleton className="h-4 w-32" />
+                     </TableCell>
+                     <TableCell>
+                        <Skeleton className="h-4 w-16" />
+                     </TableCell>
+                     <TableCell>
+                        <Skeleton className="h-4 w-6" />
+                     </TableCell>
+                     <TableCell>
+                        <div className="flex flex-wrap gap-1">
+                           <Skeleton className="h-5 w-9" />
+                           <Skeleton className="h-5 w-9" />
+                           <Skeleton className="h-5 w-9" />
+                        </div>
+                     </TableCell>
+                     <TableCell>
+                        <Skeleton className="h-5 w-14" />
+                     </TableCell>
+                     <TableCell>
+                        <div className="flex items-center justify-end gap-1.5">
+                           <Skeleton className="h-7 w-9" />
+                           <Skeleton className="h-7 w-9" />
+                           <Skeleton className="h-7 w-9" />
+                        </div>
+                     </TableCell>
+                  </TableRow>
+               ))}
+            </TableBody>
+         </Table>
       </div>
    );
 }

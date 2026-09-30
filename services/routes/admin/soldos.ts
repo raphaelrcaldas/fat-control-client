@@ -1,4 +1,4 @@
-import request, { ApiError } from "../../Api";
+import request, { ApiError, readApiData } from "../../Api";
 import type { ApiResponse } from "@/types/api";
 
 const soldosRoute = "admin/soldos/";
@@ -55,13 +55,7 @@ export async function getSoldoStats(circulo?: string): Promise<SoldoStats> {
       Object.keys(params).length > 0 ? params : null
    );
 
-   const json = (await response
-      .json()
-      .catch(() => ({}))) as ApiResponse<SoldoStats>;
-
-   if (!response.ok) {
-      throw new Error(json.message || "Erro ao buscar estatisticas");
-   }
+   const json = await readApiData<ApiResponse<SoldoStats>>(response);
 
    return json.data as SoldoStats;
 }
@@ -88,13 +82,7 @@ export async function getSoldos(
       Object.keys(params).length > 0 ? params : null
    );
 
-   const json = (await response.json().catch(() => ({}))) as ApiResponse<
-      SoldoPublic[]
-   >;
-
-   if (!response.ok) {
-      throw new Error(json.message || "Erro ao buscar soldos");
-   }
+   const json = await readApiData<ApiResponse<SoldoPublic[]>>(response);
 
    return json.data || [];
 }
@@ -103,13 +91,7 @@ export async function getSoldos(
 export async function getSoldoById(soldo_id: number): Promise<SoldoPublic> {
    const response = await request("GET", `${soldosRoute}${soldo_id}`);
 
-   const json = (await response
-      .json()
-      .catch(() => ({}))) as ApiResponse<SoldoPublic>;
-
-   if (!response.ok) {
-      throw new Error(json.message || "Soldo nao encontrado");
-   }
+   const json = await readApiData<ApiResponse<SoldoPublic>>(response);
 
    return json.data as SoldoPublic;
 }

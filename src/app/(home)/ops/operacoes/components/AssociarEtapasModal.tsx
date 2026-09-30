@@ -34,7 +34,13 @@ interface Props {
 
 export function AssociarEtapasModal({ show, onClose, op }: Props) {
    const { push } = useToast();
-   const { data: candidatas, isLoading } = useCandidatas(op.id, show);
+   const {
+      data: candidatas,
+      isLoading,
+      isError,
+      isFetching,
+      refetch,
+   } = useCandidatas(op.id, show);
    const associarMutation = useAssociarEtapas(op.id);
    const [selected, setSelected] = useState<Set<number>>(new Set());
    const [anvFilter, setAnvFilter] = useState<string | null>(null);
@@ -168,8 +174,15 @@ export function AssociarEtapasModal({ show, onClose, op }: Props) {
 
             <div className="h-[38vh]">
                {isLoading ? (
-                  <div className="h-full overflow-hidden rounded border border-slate-300 shadow">
-                     <div className="animate-pulse divide-y divide-slate-100">
+                  <div
+                     role="status"
+                     className="h-full overflow-hidden rounded border border-slate-300 shadow"
+                  >
+                     <span className="sr-only">Carregando etapas…</span>
+                     <div
+                        aria-hidden
+                        className="animate-pulse divide-y divide-slate-100"
+                     >
                         {Array.from({ length: 7 }).map((_, i) => (
                            <div
                               key={i}
@@ -184,6 +197,23 @@ export function AssociarEtapasModal({ show, onClose, op }: Props) {
                            </div>
                         ))}
                      </div>
+                  </div>
+               ) : isError && !candidatas ? (
+                  <div
+                     role="alert"
+                     className="flex h-full flex-col items-center justify-center gap-3 rounded border border-dashed border-slate-300 bg-slate-50 px-4 text-center"
+                  >
+                     <p className="text-sm font-semibold text-red-700">
+                        Não foi possível carregar as etapas candidatas
+                     </p>
+                     <Button
+                        color="light"
+                        size="xs"
+                        onClick={() => refetch()}
+                        disabled={isFetching}
+                     >
+                        Tentar novamente
+                     </Button>
                   </div>
                ) : lista.length === 0 ? (
                   <div className="flex h-full flex-col items-center justify-center rounded border border-dashed border-slate-300 bg-slate-50 px-4 text-center">
@@ -303,17 +333,26 @@ export function AssociarEtapasModal({ show, onClose, op }: Props) {
                </span>
             </div>
             <div className="flex gap-2">
-               <Button color="gray" size="sm" onClick={onClose}>
+               <Button
+                  color="gray"
+                  size="sm"
+                  onClick={onClose}
+                  disabled={associarMutation.isPending}
+               >
                   Cancelar
                </Button>
                <Button
                   color="primary"
                   size="sm"
                   disabled={preview.etapas === 0 || associarMutation.isPending}
+                  aria-busy={associarMutation.isPending}
                   onClick={handleAssociar}
                >
                   {associarMutation.isPending ? (
-                     <Spinner size="sm" color="primary" />
+                     <>
+                        <Spinner size="sm" color="white" className="mr-2" />
+                        Associando…
+                     </>
                   ) : (
                      <>
                         <MdLink className="mr-1 h-4 w-4" /> Associar{" "}

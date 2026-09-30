@@ -129,8 +129,11 @@ export function PropostasTab() {
 
          {isLoading ? (
             <PropostasListSkeleton />
-         ) : isError ? (
-            <div className="flex flex-col items-center gap-3 rounded border border-red-200 bg-red-50 py-10 text-center">
+         ) : isError && !propostas ? (
+            <div
+               role="alert"
+               className="flex flex-col items-center gap-3 rounded border border-red-200 bg-red-50 py-10 text-center"
+            >
                <HiOutlineExclamationCircle
                   aria-hidden
                   className="h-8 w-8 text-red-400"
@@ -138,7 +141,12 @@ export function PropostasTab() {
                <p className="text-sm font-medium text-red-800">
                   Não foi possível carregar as propostas de {ano}.
                </p>
-               <Button size="sm" color="light" onClick={() => refetch()}>
+               <Button
+                  size="sm"
+                  color="light"
+                  onClick={() => refetch()}
+                  disabled={isFetching}
+               >
                   Tentar novamente
                </Button>
             </div>
@@ -173,6 +181,30 @@ export function PropostasTab() {
                   isFetching && "opacity-50"
                )}
             >
+               {/* Refetch que falha com a lista em tela: mantém o dado e
+                   avisa, sem trocar a tela pelo erro. */}
+               {isError && (
+                  <p
+                     role="status"
+                     className="mb-2 flex items-center gap-2 rounded border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs text-slate-500"
+                  >
+                     <HiOutlineExclamationCircle
+                        aria-hidden
+                        className="size-3.5 shrink-0"
+                     />
+                     <span className="min-w-0 flex-1 truncate">
+                        Não foi possível atualizar a lista
+                     </span>
+                     <button
+                        type="button"
+                        onClick={() => refetch()}
+                        disabled={isFetching}
+                        className="min-h-[24px] shrink-0 font-semibold text-slate-900 underline underline-offset-2 disabled:opacity-50"
+                     >
+                        Tentar novamente
+                     </button>
+                  </p>
+               )}
                <PropostasList
                   propostas={lista}
                   onOpen={abrirProposta}

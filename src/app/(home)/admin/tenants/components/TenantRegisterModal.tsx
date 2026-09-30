@@ -17,6 +17,12 @@ interface TenantRegisterModalProps {
    show: boolean;
    /** Organizações do diretório que ainda não são tenants. */
    availableOrgs: Organizacao[];
+   /** Diretório de organizações ainda carregando */
+   orgsLoading?: boolean;
+   /** Diretório falhou: sem ele "Todas já são tenants" seria mentira */
+   orgsError?: boolean;
+   orgsFetching?: boolean;
+   onRetryOrgs?: () => void;
    isSaving: boolean;
    onClose: () => void;
    onSubmit: (organizacaoId: string) => void;
@@ -25,6 +31,10 @@ interface TenantRegisterModalProps {
 export function TenantRegisterModal({
    show,
    availableOrgs,
+   orgsLoading = false,
+   orgsError = false,
+   orgsFetching = false,
+   onRetryOrgs,
    isSaving,
    onClose,
    onSubmit,
@@ -67,8 +77,13 @@ export function TenantRegisterModal({
                         setError(undefined);
                      }}
                      color={error ? "failure" : undefined}
+                     disabled={orgsLoading}
                   >
-                     <option value="">Selecione uma organização...</option>
+                     <option value="">
+                        {orgsLoading
+                           ? "Carregando organizações…"
+                           : "Selecione uma organização..."}
+                     </option>
                      {availableOrgs.map((org) => (
                         <option key={org.sigla} value={org.sigla}>
                            {org.sigla.toUpperCase()} — {org.sigla_3}
@@ -80,7 +95,22 @@ export function TenantRegisterModal({
                         {error}
                      </p>
                   )}
-                  {availableOrgs.length === 0 && (
+                  {orgsError && (
+                     <p role="alert" className="text-sm text-red-600">
+                        Não foi possível carregar as organizações do diretório.{" "}
+                        {onRetryOrgs && (
+                           <button
+                              type="button"
+                              onClick={onRetryOrgs}
+                              disabled={orgsFetching}
+                              className="min-h-[24px] font-semibold underline underline-offset-2 disabled:opacity-50"
+                           >
+                              Tentar novamente
+                           </button>
+                        )}
+                     </p>
+                  )}
+                  {!orgsLoading && !orgsError && availableOrgs.length === 0 && (
                      <p className="text-sm text-gray-500">
                         Todas as organizações já são tenants. Cadastre uma nova
                         organização no diretório para registrá-la.
@@ -92,12 +122,18 @@ export function TenantRegisterModal({
                <Button
                   type="submit"
                   color="dark"
-                  disabled={isSaving || availableOrgs.length === 0}
+                  disabled={
+                     isSaving ||
+                     orgsLoading ||
+                     orgsError ||
+                     availableOrgs.length === 0
+                  }
+                  aria-busy={isSaving}
                >
                   {isSaving ? (
                      <>
-                        <Spinner color="gray" size="sm" className="mr-2" />
-                        Registrando...
+                        <Spinner color="white" size="sm" className="mr-2" />
+                        Registrando…
                      </>
                   ) : (
                      "Registrar"

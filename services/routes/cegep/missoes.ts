@@ -1,5 +1,5 @@
 import { z } from "zod";
-import request, { parseApiResponse } from "../../Api";
+import request, { parseApiResponse, readApiData } from "../../Api";
 import type { ApiResponse, ApiPaginatedResponse, ApiResult } from "@/types/api";
 
 import { cegepRoute } from ".";
@@ -392,14 +392,7 @@ export async function getFragMissoes(
          signal
       );
 
-      const json = (await response.json()) as ApiPaginatedResponse<Missao>;
-
-      if (!response.ok) {
-         throw new Error(
-            json.message ||
-               `API error: ${response.status} ${response.statusText}`
-         );
-      }
+      const json = await readApiData<ApiPaginatedResponse<Missao>>(response);
 
       return {
          items: json.data || [],
@@ -433,12 +426,7 @@ export async function getFragMissao(
       undefined,
       signal
    );
-   const json = (await response.json()) as ApiResponse<Missao>;
-   if (!response.ok) {
-      throw new Error(
-         json.message || `API error: ${response.status} ${response.statusText}`
-      );
-   }
+   const json = await readApiData<ApiResponse<Missao>>(response);
    return json.data as Missao;
 }
 
@@ -464,12 +452,7 @@ export async function getEtiquetas(signal?: AbortSignal): Promise<Etiqueta[]> {
       undefined,
       signal
    );
-   const json = (await response.json()) as ApiResponse<Etiqueta[]>;
-   if (!response.ok) {
-      throw new Error(
-         json.message || `Erro ao buscar etiquetas (${response.status})`
-      );
-   }
+   const json = await readApiData<ApiResponse<Etiqueta[]>>(response);
    return json.data || [];
 }
 
@@ -496,12 +479,7 @@ export async function getCidadesPernoite(
       { search },
       signal
    );
-   const json = (await response.json()) as ApiResponse<CidadePernoite[]>;
-   if (!response.ok) {
-      throw new Error(
-         json.message || `Erro ao buscar cidades (${response.status})`
-      );
-   }
+   const json = await readApiData<ApiResponse<CidadePernoite[]>>(response);
    return json.data || [];
 }
 

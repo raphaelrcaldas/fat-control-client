@@ -28,6 +28,13 @@ interface PlanoMetricCardsProps {
    isStale?: boolean;
    /** Primeira carga do consolidado: ainda não há resposta para afirmar nada. */
    isLoading?: boolean;
+   /**
+    * O consolidado falhou e não há resposta anterior em tela. Sem isto o teto
+    * viria `undefined` e a tela afirmaria "sem teto cadastrado" — falso.
+    */
+   isError?: boolean;
+   onRetry?: () => void;
+   isRetrying?: boolean;
 }
 
 export function PlanoMetricCards({
@@ -40,7 +47,37 @@ export function PlanoMetricCards({
    onCadastrarTeto,
    isStale = false,
    isLoading = false,
+   isError = false,
+   onRetry,
+   isRetrying = false,
 }: PlanoMetricCardsProps) {
+   if (isError && !isLoading) {
+      return (
+         <div
+            role="alert"
+            className="flex flex-wrap items-center justify-between gap-2 rounded border border-red-200 bg-red-50 px-4 py-2.5"
+         >
+            <p className="flex items-center gap-2 text-sm text-red-800">
+               <HiOutlineExclamationTriangle
+                  aria-hidden
+                  className="h-4 w-4 shrink-0"
+               />
+               Não foi possível carregar o consolidado de {ano}.
+            </p>
+            {onRetry && (
+               <Button
+                  size="xs"
+                  color="light"
+                  onClick={onRetry}
+                  disabled={isRetrying}
+               >
+                  Tentar novamente
+               </Button>
+            )}
+         </div>
+      );
+   }
+
    return (
       <>
          {/* Aviso ÚNICO de teto ausente: antes cada cartão repetia a frase. */}

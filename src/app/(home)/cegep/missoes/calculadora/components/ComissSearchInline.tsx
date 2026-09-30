@@ -18,6 +18,8 @@ interface ComissSearchInlineProps {
    /** Comissionamentos abertos ainda não acoplados. */
    disponiveis: ComissList[];
    carregando: boolean;
+   /** Falha ao carregar a lista: a busca vazia não pode dizer "nenhum aberto". */
+   erro?: boolean;
    onAcoplar: (comiss: ComissList) => void;
 }
 
@@ -36,6 +38,7 @@ interface ComissSearchInlineProps {
 export function ComissSearchInline({
    disponiveis,
    carregando,
+   erro = false,
    onAcoplar,
 }: ComissSearchInlineProps) {
    const [term, setTerm] = useState("");
@@ -172,8 +175,10 @@ export function ComissSearchInline({
                      {carregando ? (
                         <>
                            <Spinner size="sm" color="primary" />
-                           Carregando comissionamentos...
+                           Carregando comissionamentos…
                         </>
+                     ) : erro ? (
+                        "Não foi possível carregar os comissionamentos"
                      ) : term.trim() ? (
                         "Nenhum comissionamento aberto com esse nome"
                      ) : (

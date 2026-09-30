@@ -8,6 +8,7 @@ import {
    ModalFooter,
    Button,
    Label,
+   Spinner,
    TextInput,
    Tabs,
    TabItem,
@@ -288,12 +289,22 @@ export default function EditCartaoDrawer({
                               color="primary"
                               onClick={handleSave}
                               disabled={isLoading}
+                              aria-busy={isLoading}
                            >
-                              {isLoading
-                                 ? "Salvando..."
-                                 : isEdit
-                                   ? "Atualizar"
-                                   : "Cadastrar"}
+                              {isLoading ? (
+                                 <>
+                                    <Spinner
+                                       size="sm"
+                                       color="white"
+                                       className="mr-2"
+                                    />
+                                    Salvando...
+                                 </>
+                              ) : isEdit ? (
+                                 "Atualizar"
+                              ) : (
+                                 "Cadastrar"
+                              )}
                            </Button>
                         )}
                      </div>
@@ -341,8 +352,16 @@ export default function EditCartaoDrawer({
                      color="red"
                      onClick={handleDelete}
                      disabled={isDeleting}
+                     aria-busy={isDeleting}
                   >
-                     {isDeleting ? "Deletando..." : "Deletar"}
+                     {isDeleting ? (
+                        <>
+                           <Spinner size="sm" color="white" className="mr-2" />
+                           Deletando...
+                        </>
+                     ) : (
+                        "Deletar"
+                     )}
                   </Button>
                </ModalFooter>
             </Modal>

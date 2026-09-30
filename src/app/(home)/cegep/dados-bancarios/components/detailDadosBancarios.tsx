@@ -8,6 +8,7 @@ import {
    Label,
    TextInput,
    Select,
+   Spinner,
 } from "flowbite-react";
 import { HiCloudDownload, HiTrash } from "react-icons/hi";
 import { DadosBancariosWithUser } from "services/routes/cegep/dadosBancarios";
@@ -160,10 +161,19 @@ export default function DetailDadosBancarios({
                            size="sm"
                            onClick={handleSyncPortal}
                            disabled={isSyncing || isLoading}
+                           aria-busy={isSyncing}
                            title="Buscar remuneração no Portal da Transparência"
                         >
-                           <HiCloudDownload className="mr-2 h-4 w-4" />
-                           {isSyncing ? "Buscando..." : "Buscar no Portal"}
+                           {isSyncing ? (
+                              <Spinner
+                                 size="sm"
+                                 color="primary"
+                                 className="mr-2"
+                              />
+                           ) : (
+                              <HiCloudDownload className="mr-2 h-4 w-4" />
+                           )}
+                           {isSyncing ? "Buscando…" : "Buscar no Portal"}
                         </Button>
                      </div>
                      {errors.mes_ano && (
@@ -255,12 +265,22 @@ export default function DetailDadosBancarios({
                            color="primary"
                            onClick={save}
                            disabled={isLoading}
+                           aria-busy={isLoading}
                         >
-                           {isLoading
-                              ? "Salvando..."
-                              : isEdit
-                                ? "Atualizar"
-                                : "Cadastrar"}
+                           {isLoading ? (
+                              <>
+                                 <Spinner
+                                    size="sm"
+                                    color="white"
+                                    className="mr-2"
+                                 />
+                                 Salvando…
+                              </>
+                           ) : isEdit ? (
+                              "Atualizar"
+                           ) : (
+                              "Cadastrar"
+                           )}
                         </Button>
                      </PermBased>
                   </div>

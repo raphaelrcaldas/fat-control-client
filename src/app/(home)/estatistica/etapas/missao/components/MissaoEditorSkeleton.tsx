@@ -11,9 +11,9 @@ export function MissaoEditorSkeleton() {
    return (
       <div
          role="status"
-         aria-label="Carregando missão"
          className="flex h-[calc(100vh-5rem)] min-h-0 animate-pulse flex-col overflow-hidden border border-slate-200 bg-gray-50 shadow"
       >
+         <span className="sr-only">Carregando missão…</span>
          <div className="flex min-h-0 flex-1">
             {/* Sidebar */}
             <div className="hidden h-full w-88 shrink-0 flex-col border-r border-gray-200 bg-gray-50 lg:flex">

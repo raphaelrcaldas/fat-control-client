@@ -17,9 +17,42 @@ export function PromoHistoryNotice({
    user: UserFull;
    userId: number;
 }) {
-   const { data: promos = [], isLoading } = useUserPromos(userId);
+   const {
+      data: promosData,
+      isLoading,
+      isError,
+      isFetching,
+      refetch,
+   } = useUserPromos(userId);
 
+   // Sem skeleton de propósito: o aviso é condicional (na maioria dos
+   // cadastros nem aparece), e reservar espaço deixaria um vão em branco.
    if (isLoading) return null;
+
+   // Falha sem histórico: dizer "Nenhuma promoção registrada" seria mentira.
+   if (!promosData) {
+      if (!isError) return null;
+      return (
+         <p
+            role="status"
+            className="flex items-center gap-2 rounded border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs text-slate-500"
+         >
+            <span className="min-w-0 flex-1 truncate">
+               Não foi possível verificar o histórico de promoções
+            </span>
+            <button
+               type="button"
+               onClick={() => refetch()}
+               disabled={isFetching}
+               className="min-h-[24px] shrink-0 font-semibold text-slate-900 underline underline-offset-2 disabled:opacity-50"
+            >
+               Tentar novamente
+            </button>
+         </p>
+      );
+   }
+
+   const promos = promosData;
 
    if (promos.length === 0) {
       return (

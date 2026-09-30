@@ -110,6 +110,10 @@ interface OrdemBasicInfoProps {
    onUpdate: (updates: Partial<OrdemMissaoOut>) => void;
    validationErrors?: OrdemValidationFlags;
    aeronaves: AeronavePublic[];
+   /** Estado da consulta de aeronaves: a lista vazia de antes da resposta
+    *  não pode se passar por "sem aeronave". */
+   aeronavesCarregando?: boolean;
+   aeronavesErro?: boolean;
 }
 
 export const OrdemBasicInfo = memo(function OrdemBasicInfo({
@@ -118,6 +122,8 @@ export const OrdemBasicInfo = memo(function OrdemBasicInfo({
    onUpdate,
    validationErrors,
    aeronaves,
+   aeronavesCarregando = false,
+   aeronavesErro = false,
 }: OrdemBasicInfoProps) {
    // esf_aer >= soma do tempo de voo das etapas (regra compartilhada
    // em utils/ordemValidation, mesma do useOrdemForm)
@@ -249,7 +255,11 @@ export const OrdemBasicInfo = memo(function OrdemBasicInfo({
                      matricula_anv: e.target.value || "",
                   })
                }
-               disabled={!isEditable}
+               disabled={
+                  !isEditable ||
+                  (aeronaves.length === 0 &&
+                     (aeronavesCarregando || aeronavesErro))
+               }
                className={clsx(
                   "w-full rounded border-2 bg-white px-3 py-2.5 text-center text-gray-900 transition-all focus:ring-2 disabled:cursor-not-allowed disabled:opacity-50",
                   validationErrors?.matriculaAeronave
@@ -258,7 +268,11 @@ export const OrdemBasicInfo = memo(function OrdemBasicInfo({
                )}
             >
                <option value="" disabled>
-                  Selecione...
+                  {aeronaves.length === 0 && aeronavesCarregando
+                     ? "Carregando…"
+                     : aeronaves.length === 0 && aeronavesErro
+                       ? "Falha ao carregar"
+                       : "Selecione..."}
                </option>
                {aeronaves.map((anv) => (
                   <option key={anv.matricula} value={anv.matricula}>

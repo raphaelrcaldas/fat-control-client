@@ -105,7 +105,7 @@ export const TripIndisp = ({ tripData, onClose }: TripIndispProps) => {
             >
                {isLoading ? (
                   <TripIndispTableSkeleton />
-               ) : isError ? (
+               ) : isError && indisps.length === 0 ? (
                   <div
                      role="alert"
                      className="space-y-3 rounded border border-red-200 bg-red-50 p-8 text-center"
@@ -128,7 +128,26 @@ export const TripIndisp = ({ tripData, onClose }: TripIndispProps) => {
                      </Button>
                   </div>
                ) : activeIndisps.length > 0 ? (
-                  <TripIndispTable indisps={activeIndisps} trip={trip} />
+                  <>
+                     {/* Refetch falho com a lista em tela: mantém e avisa. */}
+                     {isError && (
+                        <div
+                           role="status"
+                           className="mb-2 flex flex-wrap items-center gap-2 rounded border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900"
+                        >
+                           A atualização falhou — mostrando os últimos dados.
+                           <button
+                              type="button"
+                              onClick={() => void refetch()}
+                              disabled={isFetching}
+                              className="font-semibold underline underline-offset-2 disabled:opacity-50"
+                           >
+                              Tentar novamente
+                           </button>
+                        </div>
+                     )}
+                     <TripIndispTable indisps={activeIndisps} trip={trip} />
+                  </>
                ) : (
                   <div
                      role="status"

@@ -6,10 +6,12 @@ import { Skeleton } from "@/components/ui/Skeleton";
 // medido tem 71,25px, e um skeleton de 6 linhas mais baixas gerava salto
 export function RolesListSkeleton({ rows = 9 }: { rows?: number }) {
    return (
-      <div className="space-y-3">
+      <div role="status" className="space-y-3">
+         <span className="sr-only">Carregando perfis…</span>
          {Array.from({ length: rows }).map((_, i) => (
             <div
                key={i}
+               aria-hidden
                className="overflow-hidden rounded border border-slate-200 bg-white shadow-sm"
             >
                <div className="flex w-full items-center gap-4 p-4">

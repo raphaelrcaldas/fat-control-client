@@ -45,6 +45,8 @@ export interface HistoricoProps {
    actionLabels?: Record<string, string>;
    /** Título da seção (padrão: "Histórico") */
    title?: string;
+   /** Nível do título na hierarquia da página (padrão: h2). */
+   headingLevel?: "h2" | "h3";
    /** Altura máxima do container (padrão: "max-h-48") */
    maxHeight?: string;
    /** Indica se os logs estão carregando */
@@ -53,6 +55,8 @@ export interface HistoricoProps {
    isError?: boolean;
    /** Nova tentativa de carga, quando o consumidor souber refazê-la */
    onRetry?: () => void;
+   /** Nova tentativa em curso (`isFetching` da query): desabilita o botão */
+   isRetrying?: boolean;
 }
 
 export function Historico({
@@ -63,10 +67,12 @@ export function Historico({
    formatFieldValue,
    actionLabels = {},
    title = "Histórico",
+   headingLevel: Heading = "h2",
    maxHeight = "max-h-48",
    isLoading = false,
    isError = false,
    onRetry,
+   isRetrying = false,
 }: HistoricoProps) {
    const hasCreatedAt = Boolean(formatDateTime(createdAt));
    const hasContent = hasCreatedAt || logs.length > 0;
@@ -93,7 +99,9 @@ export function Historico({
 
    return (
       <section className="space-y-2">
-         <h3 className="text-sm font-semibold text-slate-700">{title}</h3>
+         <Heading className="text-sm font-semibold text-slate-700">
+            {title}
+         </Heading>
          <div className={`${maxHeight} min-h-20 overflow-y-auto`}>
             {isLoading ? (
                // Espelha a trilha real (linha, bolinha, carimbo e mudanças)
@@ -111,7 +119,12 @@ export function Historico({
                      Não foi possível carregar o histórico.
                   </span>
                   {onRetry && (
-                     <Button size="xs" color="light" onClick={onRetry}>
+                     <Button
+                        size="xs"
+                        color="light"
+                        onClick={onRetry}
+                        disabled={isRetrying}
+                     >
                         Tentar novamente
                      </Button>
                   )}

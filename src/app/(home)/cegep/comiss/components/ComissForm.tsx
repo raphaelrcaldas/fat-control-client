@@ -209,15 +209,16 @@ export function ComissForm({ comiss, onCancel, onSuccess }: ComissFormProps) {
                      aria-label={comiss ? "Salvar" : "Adicionar"}
                      onClick={handleSaveComiss}
                      disabled={isLoading}
+                     aria-busy={isLoading}
                   >
                      {isLoading ? (
                         <>
                            <Spinner
                               size="sm"
-                              color="primary"
+                              color="white"
                               className="sm:mr-2"
                            />
-                           <span className="hidden sm:inline">Salvando...</span>
+                           <span className="hidden sm:inline">Salvando…</span>
                         </>
                      ) : (
                         <>

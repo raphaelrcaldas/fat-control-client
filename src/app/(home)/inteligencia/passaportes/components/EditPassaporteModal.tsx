@@ -521,6 +521,7 @@ const EditPassaporteModal = memo(function EditPassaporteModal({
                            color="primary"
                            onClick={handleSave}
                            disabled={isLoading || !isDirty}
+                           aria-busy={isLoading}
                            title={
                               !isDirty && !isLoading
                                  ? "Nenhuma alteração para salvar"
@@ -529,7 +530,7 @@ const EditPassaporteModal = memo(function EditPassaporteModal({
                         >
                            {isLoading ? (
                               <div className="flex items-center gap-2">
-                                 <Spinner size="sm" color="info" />
+                                 <Spinner size="sm" color="white" />
                                  <span>Salvando...</span>
                               </div>
                            ) : isEdit ? (

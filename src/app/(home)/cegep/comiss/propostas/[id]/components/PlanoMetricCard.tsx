@@ -88,7 +88,7 @@ export function PlanoMetricCard({
          </div>
 
          {isLoading ? (
-            <CarregandoStats />
+            <CarregandoStats label={label} />
          ) : (
             <>
                <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
@@ -176,12 +176,15 @@ export function PlanoMetricCard({
  * Consolidado ainda em voo. Barra neutra no lugar dos números — sem texto de
  * vazio, que aqui viraria a afirmação falsa "sem teto cadastrado".
  */
-function CarregandoStats() {
+function CarregandoStats({ label }: { label: string }) {
    return (
-      <div className="space-y-3">
-         <div className="h-8 w-40 animate-pulse rounded bg-slate-200" />
-         <div className="h-4 w-32 animate-pulse rounded bg-slate-100" />
-         <div className="h-2.5 w-full animate-pulse rounded-full bg-slate-100" />
+      <div role="status">
+         <span className="sr-only">Carregando {label}…</span>
+         <div aria-hidden className="space-y-3">
+            <div className="h-8 w-40 animate-pulse rounded bg-slate-200" />
+            <div className="h-4 w-32 animate-pulse rounded bg-slate-100" />
+            <div className="h-2.5 w-full animate-pulse rounded-full bg-slate-100" />
+         </div>
       </div>
    );
 }

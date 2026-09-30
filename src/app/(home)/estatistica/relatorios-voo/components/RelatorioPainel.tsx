@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import clsx from "clsx";
-import { Badge, Button, Spinner, TextInput } from "flowbite-react";
+import { Badge, Button, TextInput } from "flowbite-react";
 import {
    HiExternalLink,
    HiDownload,
@@ -224,13 +224,18 @@ export function RelatorioPainel({
             )}
          >
             {arquivo.isLoading ? (
-               compacto ? (
-                  <Spinner color="primary" size="lg" />
-               ) : (
-                  <div className="grid h-full place-items-center">
-                     <Spinner color="primary" size="lg" />
-                  </div>
-               )
+               // Corpo do painel: bloco no lugar do iframe (ou do cartão
+               // compacto), não Spinner centralizado. Mesma altura do estado
+               // carregado para o PDF não empurrar o rodapé.
+               <div
+                  role="status"
+                  className={clsx(
+                     "w-full animate-pulse bg-slate-200",
+                     compacto ? "h-[200px]" : "h-full min-h-[240px]"
+                  )}
+               >
+                  <span className="sr-only">Carregando PDF…</span>
+               </div>
             ) : arquivo.isError || !arquivo.data ? (
                <p className="p-6 text-center text-sm text-red-700">
                   Não foi possível abrir o PDF.

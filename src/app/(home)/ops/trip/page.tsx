@@ -98,6 +98,7 @@ export default function TripPage() {
                updateFilter={updateFilter}
                onClear={clearFilters}
                hasActiveFilters={hasActiveFilters}
+               disabled={loading}
             />
 
             {loading ? (
@@ -112,7 +113,12 @@ export default function TripPage() {
                      A lista não chegou do servidor. Nada foi perdido — tente
                      novamente.
                   </p>
-                  <Button color="light" size="sm" onClick={() => refetch()}>
+                  <Button
+                     color="light"
+                     size="sm"
+                     onClick={() => refetch()}
+                     disabled={isFetching}
+                  >
                      <HiRefresh className="mr-1.5 h-4 w-4" />
                      Tentar novamente
                   </Button>
@@ -159,7 +165,8 @@ export default function TripPage() {
                         <button
                            type="button"
                            onClick={() => refetch()}
-                           className="font-semibold underline underline-offset-2"
+                           disabled={isFetching}
+                           className="font-semibold underline underline-offset-2 disabled:opacity-50"
                         >
                            Tentar novamente
                         </button>

@@ -1,4 +1,4 @@
-import request, { ApiError } from "../Api";
+import request, { ApiError, readApiData } from "../Api";
 import type { IndispMtv } from "@/constants/ops/indisponibilidades";
 import type { ApiResponse } from "@/types/api";
 import { UserPublic } from "./users";
@@ -67,10 +67,7 @@ export async function getCrewIndisps(
       { funcao: func, date_from: dateFrom, date_to: dateTo },
       signal
    );
-   const json = (await response.json()) as ApiResponse<CrewIndispList[]>;
-   if (!response.ok) {
-      throw new Error(json.message || "Erro ao buscar indisponibilidades");
-   }
+   const json = await readApiData<ApiResponse<CrewIndispList[]>>(response);
    if (!json.data) {
       throw new Error("Resposta vazia do servidor");
    }
@@ -92,12 +89,7 @@ export async function getIndispByUser(
       filters,
       signal
    );
-   const json = (await response.json()) as ApiResponse<IndispType[]>;
-   if (!response.ok) {
-      throw new Error(
-         json.message || "Erro ao buscar indisponibilidades do usuário"
-      );
-   }
+   const json = await readApiData<ApiResponse<IndispType[]>>(response);
    return json.data || [];
 }
 

@@ -22,7 +22,12 @@ type Props = {
 };
 
 export function FiltersPanel({ filters, show }: Props) {
-   const { data: etiquetasDisponiveis = [] } = useEtiquetasMissoes();
+   const {
+      data: etiquetasDisponiveis = [],
+      isError: erroEtiquetas,
+      isFetching: buscandoEtiquetas,
+      refetch: recarregarEtiquetas,
+   } = useEtiquetasMissoes();
    const {
       tipoDoc,
       selectedTipo,
@@ -198,7 +203,24 @@ export function FiltersPanel({ filters, show }: Props) {
                   </div>
                </div>
 
-               {/* Multi-select Etiquetas */}
+               {/* Multi-select Etiquetas. Sem a lista por falha de carga, diz
+                   por quê em vez de sumir como se não houvesse etiquetas. */}
+               {erroEtiquetas && etiquetasDisponiveis.length === 0 && (
+                  <p
+                     role="status"
+                     className="mt-4 flex items-center gap-2 border-t border-slate-200 pt-4 text-xs text-slate-500"
+                  >
+                     Não foi possível carregar as etiquetas.
+                     <button
+                        type="button"
+                        onClick={() => recarregarEtiquetas()}
+                        disabled={buscandoEtiquetas}
+                        className="min-h-[24px] font-semibold text-slate-900 underline underline-offset-2 disabled:opacity-50"
+                     >
+                        Tentar novamente
+                     </button>
+                  </p>
+               )}
                {etiquetasDisponiveis.length > 0 && (
                   <div className="mt-4 border-t border-slate-200 pt-4">
                      <Label className="mb-2 flex items-center gap-1.5 text-xs text-gray-600">

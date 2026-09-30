@@ -7,6 +7,7 @@ import {
    ModalBody,
    ModalFooter,
    Button,
+   Spinner,
    TextInput,
 } from "flowbite-react";
 import { HiTrash } from "react-icons/hi";
@@ -154,12 +155,22 @@ export default function EditCartoesModal({
                            color="red"
                            onClick={handleSave}
                            disabled={isSaving}
+                           aria-busy={isSaving}
                         >
-                           {isSaving
-                              ? "Salvando..."
-                              : isEdit
-                                ? "Atualizar"
-                                : "Cadastrar"}
+                           {isSaving ? (
+                              <>
+                                 <Spinner
+                                    size="sm"
+                                    color="white"
+                                    className="mr-2"
+                                 />
+                                 Salvando...
+                              </>
+                           ) : isEdit ? (
+                              "Atualizar"
+                           ) : (
+                              "Cadastrar"
+                           )}
                         </Button>
                      </PermBased>
                   </div>

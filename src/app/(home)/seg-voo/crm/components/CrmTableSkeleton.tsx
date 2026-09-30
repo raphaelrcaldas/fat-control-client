@@ -18,8 +18,9 @@ const BAR_WIDTHS = ["w-40", "w-10", "w-10", "w-24", "w-32"] as const;
 
 export default function CrmTableSkeleton({ rows = 15 }: { rows?: number }) {
    return (
-      <div className="overflow-x-auto">
-         <Table>
+      <div role="status" className="overflow-x-auto">
+         <span className="sr-only">Carregando CRM…</span>
+         <Table aria-hidden>
             <TableHead className="border-b border-slate-200 bg-gray-50 text-xs text-gray-700 uppercase">
                <TableRow>
                   <TableHeadCell className="w-1 p-0" />

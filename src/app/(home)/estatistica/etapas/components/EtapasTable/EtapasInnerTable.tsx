@@ -6,7 +6,6 @@ import { EtapaRow } from "./EtapaRow";
 
 export interface EtapasInnerTableProps {
    etapas: EtapaItem[];
-   loading: boolean;
    selectedIds: Set<number>;
    onToggleEtapa: (id: number) => void;
    onDetailEtapa: (id: number) => void;
@@ -15,7 +14,6 @@ export interface EtapasInnerTableProps {
 
 export function EtapasInnerTable({
    etapas,
-   loading,
    selectedIds,
    onToggleEtapa,
    onDetailEtapa,
@@ -45,7 +43,6 @@ export function EtapasInnerTable({
                      pousos={etapa.pousos}
                      oi_etapas={etapa.oi_etapas}
                      tripulantes={etapa.tripulantes}
-                     loading={loading}
                      sagem={etapa.sagem}
                      parte1={etapa.parte1}
                      checked={selectedIds.has(etapa.id)}

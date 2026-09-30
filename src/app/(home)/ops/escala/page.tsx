@@ -69,13 +69,14 @@ function EscalaView() {
          <EscalaFilters
             value={filters}
             onChange={setFilters}
-            isFetching={isFetching}
+            disabled={showSkeleton}
          />
 
          {showError ? (
             <ErrorState
                message={(error as Error).message}
                onRetry={() => refetch()}
+               isRetrying={isFetching}
             />
          ) : (
             <>

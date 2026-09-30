@@ -18,6 +18,7 @@ export default function OrdemDetailPage() {
       data: ordem,
       isLoading,
       isError,
+      isFetching,
       error,
       refetch,
    } = useOrdem(ordemId);
@@ -74,6 +75,7 @@ export default function OrdemDetailPage() {
                    um catálogo que falhou, e vice-versa */}
                <Button
                   color="light"
+                  disabled={isFetching}
                   onClick={() => {
                      if (ordemFalhou) refetch();
                      if (catalogoFalhou) funcoes.refetch();

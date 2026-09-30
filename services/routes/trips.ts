@@ -1,4 +1,4 @@
-import request, { parseApiResponse } from "../Api";
+import request, { parseApiResponse, readApiData } from "../Api";
 import type { ApiPaginatedResponse, ApiResponse, ApiResult } from "@/types/api";
 
 const tripRoute = "ops/trips/";
@@ -81,7 +81,7 @@ export async function getTrips(
       queryParams.oper = params.oper.join(",");
 
    const response = await request("GET", tripRoute, null, queryParams, signal);
-   const json = (await response.json()) as ApiPaginatedResponse<CrewMember>;
+   const json = await readApiData<ApiPaginatedResponse<CrewMember>>(response);
 
    return {
       items: json.data || [],
@@ -94,7 +94,7 @@ export async function getTrips(
 
 export async function getTripUserIds(): Promise<number[]> {
    const response = await request("GET", tripRoute + "user-ids");
-   const json = (await response.json()) as { data: number[] };
+   const json = await readApiData<{ data: number[] }>(response);
    return json.data;
 }
 
@@ -119,7 +119,7 @@ export async function getTrip(
    signal?: AbortSignal
 ): Promise<TripDetail> {
    const response = await request("GET", tripRoute + id, null, null, signal);
-   const json = (await response.json()) as ApiResponse<TripDetail>;
+   const json = await readApiData<ApiResponse<TripDetail>>(response);
    return json.data as TripDetail;
 }
 

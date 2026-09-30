@@ -1,4 +1,4 @@
-import request from "../../Api";
+import request, { readApiData } from "../../Api";
 import type { ApiResponse } from "@/types/api";
 
 const tiposMissaoRoute = "estatistica/tipo-missao/";
@@ -13,6 +13,6 @@ export async function getTiposMissao(
    signal?: AbortSignal
 ): Promise<TipoMissaoPublic[]> {
    const response = await request("GET", tiposMissaoRoute, null, null, signal);
-   const json = (await response.json()) as ApiResponse<TipoMissaoPublic[]>;
+   const json = await readApiData<ApiResponse<TipoMissaoPublic[]>>(response);
    return json.data || [];
 }

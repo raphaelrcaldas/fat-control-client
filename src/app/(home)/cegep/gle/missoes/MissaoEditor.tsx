@@ -61,8 +61,20 @@ export function MissaoEditor({ missaoId }: MissaoEditorProps) {
    const ehNova = missaoId === null;
    const podeSalvar = hasPerm("cegep.gle", ehNova ? "create" : "update");
 
-   const { data: missao, isLoading, isError, error } = useMissaoGle(missaoId);
-   const { data: localidades } = useLocalidades(undefined);
+   const {
+      data: missao,
+      isLoading,
+      isError,
+      isFetching,
+      error,
+      refetch,
+   } = useMissaoGle(missaoId);
+   const {
+      data: localidades,
+      isError: erroLocalidades,
+      isFetching: buscandoLocalidades,
+      refetch: recarregarLocalidades,
+   } = useLocalidades(undefined);
    const criar = useCreateMissaoGle();
    const atualizar = useUpdateMissaoGle();
    const remover = useDeleteMissaoGle();
@@ -198,17 +210,27 @@ export function MissaoEditor({ missaoId }: MissaoEditorProps) {
 
    if (!ehNova && isLoading) return <MissaoEditorSkeleton />;
 
-   if (!ehNova && isError) {
+   if (!ehNova && isError && !missao) {
       return (
          <div className="space-y-2">
             <MissaoGleHeader title="Missão" backHref="/cegep/gle?tab=missoes" />
             <div
-               className="rounded border border-slate-200 bg-white p-4 text-sm text-red-800 shadow-sm"
+               className="flex flex-col items-center gap-3 rounded border border-slate-200 bg-white p-8 text-center text-sm text-red-800 shadow-sm"
                role="alert"
             >
-               {error instanceof Error
-                  ? error.message
-                  : "Missão não encontrada."}
+               <p>
+                  {error instanceof Error
+                     ? error.message
+                     : "Missão não encontrada."}
+               </p>
+               <Button
+                  color="light"
+                  size="sm"
+                  onClick={() => refetch()}
+                  disabled={isFetching}
+               >
+                  Tentar novamente
+               </Button>
             </div>
          </div>
       );
@@ -298,6 +320,24 @@ export function MissaoEditor({ missaoId }: MissaoEditorProps) {
             {erros.trechos && (
                <p className="mt-2 text-sm text-red-600" role="alert">
                   {erros.trechos}
+               </p>
+            )}
+            {/* Sem a lista de localidades o seletor do trecho fica vazio:
+                diz por quê, em vez de parecer que nada está cadastrado. */}
+            {erroLocalidades && !localidades && (
+               <p
+                  role="status"
+                  className="mt-2 flex items-center gap-2 text-sm text-red-700"
+               >
+                  Não foi possível carregar as localidades.
+                  <button
+                     type="button"
+                     onClick={() => recarregarLocalidades()}
+                     disabled={buscandoLocalidades}
+                     className="min-h-[24px] font-semibold underline underline-offset-2 disabled:opacity-50"
+                  >
+                     Tentar novamente
+                  </button>
                </p>
             )}
          </SectionWrapper>

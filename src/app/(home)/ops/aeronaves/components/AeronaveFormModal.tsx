@@ -68,7 +68,11 @@ export function AeronaveFormModal({
    const { push } = useToast();
    const createMutation = useCreateAeronave();
    const updateMutation = useUpdateAeronave();
-   const { data: projetos = [] } = useOrgProjetos();
+   const {
+      data: projetos = [],
+      isLoading: projetosCarregando,
+      isError: projetosErro,
+   } = useOrgProjetos();
 
    const [formData, setFormData] = useState<AeronaveFormData>(
       defaultAeronaveValues
@@ -334,8 +338,15 @@ export function AeronaveFormModal({
                      value={formData.projeto}
                      onChange={(e) => updateField("projeto", e.target.value)}
                      color={errors.projeto ? "failure" : "gray"}
+                     disabled={projetosCarregando || projetosErro}
                   >
-                     <option value="">Selecione um projeto</option>
+                     <option value="">
+                        {projetosCarregando
+                           ? "Carregando projetos…"
+                           : projetosErro
+                             ? "Não foi possível carregar os projetos"
+                             : "Selecione um projeto"}
+                     </option>
                      {projetos.map((p) => (
                         <option key={p.id_projeto} value={p.id_projeto}>
                            {p.id_projeto} — {p.modelo}
@@ -478,15 +489,12 @@ export function AeronaveFormModal({
                      type="submit"
                      color="primary"
                      disabled={!hasChanges || isSubmitting}
+                     aria-busy={isSubmitting}
                   >
                      {isSubmitting ? (
                         <div className="flex items-center gap-2">
-                           <Spinner
-                              size="sm"
-                              color="primary"
-                              className="fill-white"
-                           />
-                           <span>Salvando...</span>
+                           <Spinner size="sm" color="white" />
+                           <span>Salvando…</span>
                         </div>
                      ) : isEditMode ? (
                         "Salvar Alterações"

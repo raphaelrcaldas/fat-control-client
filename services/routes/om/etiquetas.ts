@@ -1,4 +1,4 @@
-import request from "../../Api";
+import request, { readApiData } from "../../Api";
 import type { ApiResponse } from "@/types/api";
 
 const etiquetasRoute = "ops/om/etiquetas/";
@@ -24,7 +24,7 @@ export interface EtiquetaUpdate {
 
 export async function listEtiquetas(): Promise<Etiqueta[]> {
    const response = await request("GET", etiquetasRoute);
-   const json = (await response.json()) as ApiResponse<Etiqueta[]>;
+   const json = await readApiData<ApiResponse<Etiqueta[]>>(response);
    return json.data!;
 }
 

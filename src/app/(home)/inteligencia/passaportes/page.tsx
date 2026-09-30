@@ -3,6 +3,7 @@
 import { useCallback, useState } from "react";
 import { FaPassport } from "react-icons/fa";
 import clsx from "clsx";
+import { Button } from "flowbite-react";
 import { usePassaportes, usePassaportesOrfaos } from "@/hooks/queries";
 import type { TripPassaporteOut } from "services/routes/inteligencia/passaportes";
 import { usePassaportesFilters } from "./hooks/usePassaportesFilters";
@@ -25,6 +26,9 @@ export default function PassaportesPage() {
       data: passaportesData = [],
       isLoading,
       isFetching,
+      isError,
+      error,
+      refetch,
    } = usePassaportes(filters.queryParams);
 
    const { sortedData, passaporteStats, visaStats } = usePassaportesView(
@@ -52,30 +56,13 @@ export default function PassaportesPage() {
    // O alerta de órfãos entra em cima da página; se ele resolver depois dos
    // passaportes, a inserção empurra o resumo + lista já pintados (CLS > 0.1 no
    // mobile). Por isso o boot espera as duas queries e troca skeleton →
-   // conteúdo num único commit, remontando a região inteira de uma vez.
+   // conteúdo num único commit. Só o alerta, o resumo e a lista esperam: os
+   // Filters ficam sempre montados no mesmo ponto da árvore (como em
+   // cartoes-saude e crm), com a barra de contagem em skeleton durante o boot.
    const { hasPerm } = usePermBased();
    const canCleanOrfaos = hasPerm("inteligencia.passaportes", "delete");
    const orfaosQuery = usePassaportesOrfaos(canCleanOrfaos);
    const booting = isLoading || (canCleanOrfaos && orfaosQuery.isLoading);
-
-   const filtersEl = (
-      <Filters
-         search={filters.search}
-         onSearchChange={filters.setSearch}
-         filterPG={filters.filterPG}
-         onFilterPGChange={filters.setFilterPG}
-         filterFunc={filters.filterFunc}
-         onFilterFuncChange={filters.setFilterFunc}
-         statusFilter={filters.statusFilter}
-         onStatusFilterChange={filters.setStatusFilter}
-         totalCount={passaportesData.length}
-         filteredCount={sortedData.length}
-         isLoading={isLoading}
-         isFetching={isFetching}
-         hasActiveFilters={filters.hasActiveFilters}
-         onClearFilters={filters.clearFilters}
-      />
-   );
 
    return (
       <div className="flex flex-col space-y-2">
@@ -103,18 +90,7 @@ export default function PassaportesPage() {
          </header>
 
          {booting ? (
-            <>
-               <SummaryBarSkeleton />
-               <div className="relative overflow-hidden rounded border border-slate-200 bg-white shadow-sm">
-                  {filtersEl}
-                  <div className="md:hidden">
-                     <PassaportesCardListSkeleton />
-                  </div>
-                  <div className="hidden md:block">
-                     <PassaportesTableSkeleton />
-                  </div>
-               </div>
-            </>
+            <SummaryBarSkeleton />
          ) : (
             <>
                {/* Limpeza de registros de militares inativos (só quem pode remover) */}
@@ -141,10 +117,80 @@ export default function PassaportesPage() {
                      />
                   </div>
                )}
+            </>
+         )}
 
-               {/* Filtros + lista (cards no mobile, tabela no desktop) */}
-               <div className="relative overflow-hidden rounded border border-slate-200 bg-white shadow-sm">
-                  {filtersEl}
+         {/* Filtros + lista (cards no mobile, tabela no desktop) */}
+         <div className="relative overflow-hidden rounded border border-slate-200 bg-white shadow-sm">
+            <Filters
+               search={filters.search}
+               onSearchChange={filters.setSearch}
+               filterPG={filters.filterPG}
+               onFilterPGChange={filters.setFilterPG}
+               filterFunc={filters.filterFunc}
+               onFilterFuncChange={filters.setFilterFunc}
+               statusFilter={filters.statusFilter}
+               onStatusFilterChange={filters.setStatusFilter}
+               totalCount={passaportesData.length}
+               filteredCount={sortedData.length}
+               isLoading={booting}
+               hasActiveFilters={filters.hasActiveFilters}
+               onClearFilters={filters.clearFilters}
+            />
+
+            {booting ? (
+               <>
+                  <div className="md:hidden">
+                     <PassaportesCardListSkeleton />
+                  </div>
+                  <div className="hidden md:block">
+                     <PassaportesTableSkeleton />
+                  </div>
+               </>
+            ) : isError && passaportesData.length === 0 ? (
+               <div
+                  role="alert"
+                  className="flex flex-col items-center justify-center gap-1 px-6 py-12 text-center"
+               >
+                  <p className="text-sm font-semibold text-red-800">
+                     Não foi possível carregar os passaportes
+                  </p>
+                  <p className="max-w-md text-xs text-slate-500">
+                     {error instanceof Error
+                        ? error.message
+                        : "Erro desconhecido"}
+                  </p>
+                  <Button
+                     color="light"
+                     size="sm"
+                     className="mt-3"
+                     onClick={() => refetch()}
+                     disabled={isFetching}
+                  >
+                     Tentar novamente
+                  </Button>
+               </div>
+            ) : (
+               <>
+                  {isError && (
+                     <div
+                        role="status"
+                        className="flex flex-wrap items-center justify-between gap-2 border-t border-red-200 bg-red-50 px-4 py-2 text-sm text-red-800"
+                     >
+                        <span>
+                           Não foi possível atualizar os passaportes. Exibindo a
+                           última consulta.
+                        </span>
+                        <Button
+                           color="light"
+                           size="xs"
+                           onClick={() => refetch()}
+                           disabled={isFetching}
+                        >
+                           Tentar novamente
+                        </Button>
+                     </div>
+                  )}
                   <div
                      className={clsx(
                         "transition-opacity",
@@ -171,9 +217,9 @@ export default function PassaportesPage() {
                         />
                      </div>
                   </div>
-               </div>
-            </>
-         )}
+               </>
+            )}
+         </div>
 
          {/* Edit Modal */}
          {showModal && selectedItem && (

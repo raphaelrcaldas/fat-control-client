@@ -9,6 +9,7 @@ import {
    Modal,
    ModalBody,
    ModalHeader,
+   Spinner,
    TextInput,
    Select,
 } from "flowbite-react";
@@ -178,12 +179,18 @@ export default function SoldoFormModal({
                      disabled={
                         submitting || (Boolean(editingSoldo) && !isDirty)
                      }
+                     aria-busy={submitting}
                   >
-                     {submitting
-                        ? "Salvando..."
-                        : editingSoldo
-                          ? "Salvar Alterações"
-                          : "Cadastrar"}
+                     {submitting ? (
+                        <>
+                           <Spinner size="sm" color="white" className="mr-2" />
+                           Salvando…
+                        </>
+                     ) : editingSoldo ? (
+                        "Salvar Alterações"
+                     ) : (
+                        "Cadastrar"
+                     )}
                   </Button>
                </div>
             </form>

@@ -22,30 +22,33 @@ function FieldSkeleton() {
  */
 export function OrcamentoFormSkeleton() {
    return (
-      <div className="space-y-6">
-         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-            <FieldSkeleton />
-            <FieldSkeleton />
-         </div>
+      <div role="status">
+         <span className="sr-only">Carregando orçamento…</span>
+         <div aria-hidden className="space-y-6">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+               <FieldSkeleton />
+               <FieldSkeleton />
+            </div>
 
-         <hr className="border-slate-100" />
+            <hr className="border-slate-100" />
 
-         <div>
-            <FaintBar className="mb-3 h-4 w-40" />
-            <div className="rounded bg-slate-50 p-4">
-               <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                  <FieldSkeleton />
-                  <FieldSkeleton />
+            <div>
+               <FaintBar className="mb-3 h-4 w-40" />
+               <div className="rounded bg-slate-50 p-4">
+                  <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                     <FieldSkeleton />
+                     <FieldSkeleton />
+                  </div>
                </div>
             </div>
-         </div>
 
-         <div className="space-y-2">
-            <div className="flex justify-between">
-               <FaintBar className="h-4 w-40" />
-               <FaintBar className="h-4 w-20" />
+            <div className="space-y-2">
+               <div className="flex justify-between">
+                  <FaintBar className="h-4 w-40" />
+                  <FaintBar className="h-4 w-20" />
+               </div>
+               <Bar className="h-4 w-full" />
             </div>
-            <Bar className="h-4 w-full" />
          </div>
       </div>
    );

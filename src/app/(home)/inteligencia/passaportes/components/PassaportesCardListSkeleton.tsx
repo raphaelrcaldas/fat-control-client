@@ -7,10 +7,12 @@ export default function PassaportesCardListSkeleton({
    cards?: number;
 }) {
    return (
-      <div className="space-y-2 p-2">
+      <div role="status" className="space-y-2 p-2">
+         <span className="sr-only">Carregando passaportes…</span>
          {Array.from({ length: cards }).map((_, i) => (
             <div
                key={i}
+               aria-hidden
                className="flex overflow-hidden rounded border border-slate-200 bg-white shadow-sm"
             >
                <div className="w-1 shrink-0 animate-pulse bg-slate-200" />

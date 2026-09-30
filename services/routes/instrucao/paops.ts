@@ -1,5 +1,5 @@
-import request, { parseApiResponse } from "../../Api";
-import type { ApiResult } from "@/types/api";
+import request, { ApiError, parseApiResponse, readApiData } from "../../Api";
+import type { ApiResponse, ApiResult } from "@/types/api";
 import { instrucaoRoute } from ".";
 import type { Subprograma } from "./subprogramas";
 
@@ -64,10 +64,11 @@ export interface PaopUpdate {
 
 export async function getPaops(signal?: AbortSignal): Promise<PaopResumo[]> {
    const response = await request("GET", paopsRoute, null, null, signal);
-   const result = await parseApiResponse<PaopResumo[]>(response);
-   if (!result.ok) {
-      throw new Error(result.message || "Erro ao carregar os PAOPs");
-   }
+   const result = await readApiData<ApiResponse<PaopResumo[]>>(
+      response,
+      (message) => message || "Erro ao carregar os PAOPs"
+   );
+
    return result.data ?? [];
 }
 
@@ -79,9 +80,16 @@ export async function getPaop(id: number, signal?: AbortSignal): Promise<Paop> {
       null,
       signal
    );
-   const result = await parseApiResponse<Paop>(response);
-   if (!result.ok || !result.data) {
-      throw new Error(result.message || "Erro ao carregar o PAOP");
+   const result = await readApiData<ApiResponse<Paop>>(
+      response,
+      (message) => message || "Erro ao carregar o PAOP"
+   );
+   if (!result.data) {
+      throw new ApiError(
+         result.message || "Erro ao carregar o PAOP",
+         result.errors,
+         response.status
+      );
    }
    return result.data;
 }

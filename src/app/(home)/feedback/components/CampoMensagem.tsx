@@ -59,11 +59,12 @@ export function CampoMensagem({
                color="primary"
                onClick={enviar}
                disabled={!podeEnviar}
+               aria-busy={enviando}
                aria-label="Enviar mensagem"
                className="h-10 shrink-0 px-3"
             >
                {enviando ? (
-                  <Spinner size="sm" color="primary" />
+                  <Spinner size="sm" color="white" />
                ) : (
                   <MdSend className="h-4 w-4" aria-hidden />
                )}

@@ -288,6 +288,7 @@ export function PermissionFormModal({
                   type="submit"
                   color="dark"
                   disabled={isSaving}
+                  aria-busy={isSaving}
                   aria-label={
                      editingPermission
                         ? "Atualizar permissão"
@@ -296,8 +297,8 @@ export function PermissionFormModal({
                >
                   {isSaving ? (
                      <>
-                        <Spinner color="primary" size="sm" className="mr-2" />
-                        Salvando...
+                        <Spinner color="white" size="sm" className="mr-2" />
+                        Salvando…
                      </>
                   ) : editingPermission ? (
                      "Atualizar"

@@ -41,14 +41,11 @@ export function ConfirmImportModal({
                      color="green"
                      onClick={onConfirm}
                      disabled={isPending}
+                     aria-busy={isPending}
                   >
                      {isPending ? (
                         <>
-                           <Spinner
-                              size="sm"
-                              color="primary"
-                              className="mr-2"
-                           />
+                           <Spinner size="sm" color="white" className="mr-2" />
                            Enviando...
                         </>
                      ) : (

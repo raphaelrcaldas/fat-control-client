@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { Button } from "flowbite-react";
 import { FaSitemap } from "react-icons/fa6";
 import { useToast } from "@/app/context/toast";
 import {
@@ -22,8 +23,23 @@ import { formatTenantSaveError } from "./tenantErrors";
 export default function TenantsPage() {
    const { push } = useToast();
 
-   const { data: tenants = [], isLoading, error } = useTenants();
-   const { data: organizacoes = [] } = useOrganizacoes();
+   const {
+      data: tenantsData,
+      isLoading,
+      isFetching,
+      error,
+      refetch,
+   } = useTenants();
+   // Query secundária (só alimenta o select de "Registrar"): a falha dela é
+   // dita dentro do modal, não vira "todas as organizações já são tenants"
+   const {
+      data: organizacoes = [],
+      isLoading: orgsLoading,
+      isFetching: orgsFetching,
+      isError: orgsError,
+      refetch: refetchOrgs,
+   } = useOrganizacoes();
+   const tenants = useMemo(() => tenantsData ?? [], [tenantsData]);
    const createMutation = useCreateTenant();
    const updateMutation = useUpdateTenant();
    const deleteMutation = useDeleteTenant();
@@ -108,14 +124,26 @@ export default function TenantsPage() {
       );
    }
 
-   if (error) {
+   // Erro sem dado em tela; com a lista em cache o erro vira aviso, abaixo
+   if (error && !tenantsData) {
       return (
          <div className="space-y-2">
             <TenantsHeader onRegister={() => setShowRegisterModal(true)} />
-            <div className="rounded border border-red-300 bg-red-50 p-4">
+            <div
+               role="alert"
+               className="space-y-3 rounded border border-red-300 bg-red-50 p-4"
+            >
                <p className="text-sm text-red-800">
                   Erro ao carregar tenants. Por favor, tente novamente.
                </p>
+               <Button
+                  color="light"
+                  size="xs"
+                  onClick={() => refetch()}
+                  disabled={isFetching}
+               >
+                  Tentar novamente
+               </Button>
             </div>
          </div>
       );
@@ -127,6 +155,26 @@ export default function TenantsPage() {
             count={tenants.length}
             onRegister={() => setShowRegisterModal(true)}
          />
+
+         {/* Refetch que falhou com a lista em tela: mantém e avisa */}
+         {error && (
+            <p
+               role="status"
+               className="flex items-center gap-2 rounded border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs text-slate-500"
+            >
+               <span className="min-w-0 flex-1 truncate">
+                  Não foi possível atualizar a lista de tenants
+               </span>
+               <button
+                  type="button"
+                  onClick={() => refetch()}
+                  disabled={isFetching}
+                  className="min-h-[24px] shrink-0 font-semibold text-slate-900 underline underline-offset-2 disabled:opacity-50"
+               >
+                  Tentar novamente
+               </button>
+            </p>
+         )}
 
          {tenants.length === 0 ? (
             <EmptyState
@@ -150,6 +198,10 @@ export default function TenantsPage() {
          <TenantRegisterModal
             show={showRegisterModal}
             availableOrgs={availableOrgs}
+            orgsLoading={orgsLoading}
+            orgsError={orgsError}
+            orgsFetching={orgsFetching}
+            onRetryOrgs={() => refetchOrgs()}
             isSaving={createMutation.isPending}
             onClose={() => setShowRegisterModal(false)}
             onSubmit={handleRegister}

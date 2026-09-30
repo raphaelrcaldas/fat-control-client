@@ -97,12 +97,13 @@ export function DeleteComissModal({
                      color="red"
                      onClick={onConfirm}
                      disabled={isDeleting}
+                     aria-busy={isDeleting}
                      className="px-6"
                   >
                      {isDeleting ? (
                         <div className="flex items-center gap-2">
-                           <Spinner color="primary" size="sm" />
-                           <span>Excluindo...</span>
+                           <Spinner color="white" size="sm" />
+                           <span>Excluindo…</span>
                         </div>
                      ) : deletePreview ? (
                         `Excluir comissionamento e ${deletePreview.missoes_count} missão(ões)`

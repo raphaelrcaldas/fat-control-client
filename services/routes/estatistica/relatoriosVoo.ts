@@ -1,9 +1,11 @@
+import type { ApiResponse } from "@/types/api";
 import { z } from "zod";
 import request, {
    baseUrl,
    parseApiResponse,
    ApiError,
    getTokenFromCookies,
+   readApiData,
 } from "../../Api";
 
 const rota = "estatistica/relatorios-voo/";
@@ -42,15 +44,12 @@ export async function listarRelatoriosDoPeriodo(
    params: ListarParams,
    signal?: AbortSignal
 ): Promise<RelatoriosVooPeriodo> {
-   const parsed = await parseApiResponse<unknown>(
-      await request("GET", rota, null, { ...params }, signal)
+   const response = await request("GET", rota, null, { ...params }, signal);
+   const parsed = await readApiData<ApiResponse<unknown>>(
+      response,
+      (message) => message || "Erro ao carregar relatórios"
    );
-   if (!parsed.ok) {
-      throw new ApiError(
-         parsed.message || "Erro ao carregar relatórios",
-         parsed.errors
-      );
-   }
+
    // Contrato malformado é falha de carga, não lista vazia.
    return relatoriosVooPeriodoSchema.parse(parsed.data);
 }
@@ -59,13 +58,18 @@ export async function urlDoArquivo(
    id: number,
    disposicao: "inline" | "attachment" = "inline"
 ): Promise<string> {
-   const parsed = await parseApiResponse<{ url: string }>(
-      await request("GET", `${rota}${id}/arquivo`, null, { disposicao })
+   const response = await request("GET", `${rota}${id}/arquivo`, null, {
+      disposicao,
+   });
+   const parsed = await readApiData<ApiResponse<{ url: string }>>(
+      response,
+      (message) => message || "Erro ao abrir o relatório"
    );
-   if (!parsed.ok || !parsed.data) {
+   if (!parsed.data) {
       throw new ApiError(
          parsed.message || "Erro ao abrir o relatório",
-         parsed.errors
+         parsed.errors,
+         response.status
       );
    }
    return parsed.data.url;

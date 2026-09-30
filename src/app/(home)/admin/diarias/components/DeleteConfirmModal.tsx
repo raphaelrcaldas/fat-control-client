@@ -31,15 +31,16 @@ export function DeleteConfirmModal({
                   Deseja realmente excluir esta diária?
                </h3>
                <div className="flex justify-center gap-4">
-                  <Button color="red" onClick={onConfirm} disabled={isDeleting}>
+                  <Button
+                     color="red"
+                     onClick={onConfirm}
+                     disabled={isDeleting}
+                     aria-busy={isDeleting}
+                  >
                      {isDeleting ? (
                         <>
-                           <Spinner
-                              size="sm"
-                              className="mr-2"
-                              color="primary"
-                           />
-                           Excluindo...
+                           <Spinner size="sm" className="mr-2" color="white" />
+                           Excluindo…
                         </>
                      ) : (
                         "Sim, excluir"

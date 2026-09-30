@@ -31,16 +31,88 @@ const TOPO = 5;
  */
 export function EtapasResumo({
    etapas,
+   carregando,
    onVerTudo,
    onAssociar,
+   anunciarCarregamento = true,
 }: {
    etapas: OperacaoEtapaRow[];
+   carregando: boolean;
+   /** O skeleton da página já anuncia o carregamento. */
+   anunciarCarregamento?: boolean;
    onVerTudo: () => void;
    onAssociar: () => void;
 }) {
    // O backend devolve em ordem crescente de data: sem inverter, "últimas
    // 5" mostraria as cinco mais ANTIGAS.
    const linhas = etapas.slice(-TOPO).reverse();
+
+   // Sem isto a lista vazia de antes da resposta lia "Nenhuma etapa associada".
+   if (carregando) {
+      return (
+         <PainelResumo titulo="Voos associados">
+            <div
+               role={anunciarCarregamento ? "status" : undefined}
+               aria-hidden={!anunciarCarregamento || undefined}
+            >
+               {anunciarCarregamento && (
+                  <span className="sr-only">Carregando etapas…</span>
+               )}
+               <div aria-hidden className="animate-pulse">
+                  <div className="divide-y divide-slate-100 md:hidden">
+                     {Array.from({ length: TOPO }).map((_, i) => (
+                        <div
+                           key={i}
+                           className="flex h-[72px] flex-col justify-center gap-2 px-3"
+                        >
+                           <div className="flex justify-between gap-3">
+                              <div className="h-3.5 w-24 rounded bg-slate-200" />
+                              <div className="h-3.5 w-12 rounded bg-slate-200" />
+                           </div>
+                           <div className="flex justify-between gap-3">
+                              <div className="h-3 w-40 rounded bg-slate-100" />
+                              <div className="h-3 w-12 rounded bg-slate-100" />
+                           </div>
+                           <div className="h-3 w-full rounded bg-slate-100" />
+                        </div>
+                     ))}
+                  </div>
+                  <div className="hidden h-[193px] overflow-hidden md:block">
+                     <div className="h-[33px] border-b border-slate-200 bg-slate-50" />
+                     <div className="divide-y divide-slate-100">
+                        {Array.from({ length: TOPO }).map((_, i) => (
+                           <div
+                              key={i}
+                              className="flex h-[32px] items-center gap-3 px-3"
+                           >
+                              {[
+                                 "w-20",
+                                 "w-24",
+                                 "w-24",
+                                 "w-12",
+                                 "w-12",
+                                 "w-8",
+                                 "w-12",
+                                 "w-12",
+                                 "w-8",
+                              ].map((w, c) => (
+                                 <div
+                                    key={c}
+                                    className={`h-3.5 ${w} shrink-0 rounded bg-slate-200`}
+                                 />
+                              ))}
+                           </div>
+                        ))}
+                     </div>
+                  </div>
+                  <div className="flex h-[29px] items-center justify-center border-t border-slate-200 bg-slate-50">
+                     <div className="h-3 w-28 rounded bg-slate-200" />
+                  </div>
+               </div>
+            </div>
+         </PainelResumo>
+      );
+   }
 
    if (etapas.length === 0) {
       return (

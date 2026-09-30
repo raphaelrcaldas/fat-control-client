@@ -36,6 +36,9 @@ export interface UsePropostaDraftResult {
    actions: PropostaDraftActions;
    save(): Promise<void>;
    isSaving: boolean;
+   /** Nova tentativa da carga inicial (só faz sentido em `status: "error"`). */
+   reload(): void;
+   isReloading: boolean;
 }
 
 /**
@@ -50,7 +53,7 @@ export interface UsePropostaDraftResult {
 export function usePropostaDraft(
    propostaId: number | null
 ): UsePropostaDraftResult {
-   const { data, isError } = useProposta(propostaId);
+   const { data, isError, isFetching, refetch } = useProposta(propostaId);
    const updateMutation = useUpdateProposta();
 
    const [state, dispatch] = useReducer(draftReducer, initialDraftState);
@@ -136,5 +139,9 @@ export function usePropostaDraft(
       actions,
       save,
       isSaving: updateMutation.isPending,
+      reload: () => {
+         void refetch();
+      },
+      isReloading: isFetching,
    };
 }

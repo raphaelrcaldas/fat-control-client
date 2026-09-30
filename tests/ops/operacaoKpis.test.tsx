@@ -54,6 +54,7 @@ describe("indicadores da operação", () => {
    it("mantém 'Indisponível' no cartão quando o dado não veio", () => {
       render(
          <IndicadoresGrid
+            efetivo={41}
             kpis={
                {
                   ...baseKpis,
@@ -76,6 +77,7 @@ describe("indicadores da operação", () => {
    it("desce para a faixa o que veio zerado, sem sumir da tela", () => {
       render(
          <IndicadoresGrid
+            efetivo={41}
             kpis={{
                ...baseKpis,
                pqd: 0,
@@ -103,6 +105,48 @@ describe("indicadores da operação", () => {
          // saiu da grade: não há mais cartão com esse rótulo
          expect(screen.getAllByText(label)).toHaveLength(1);
       }
+   });
+
+   it("mostra o efetivo indisponível quando o dado não veio e não está carregando", () => {
+      render(<IndicadoresGrid kpis={baseKpis} />);
+
+      expect(metric("Efetivo").getByText("Indisponível")).not.toBeNull();
+   });
+
+   it("mostra os zeros conhecidos enquanto a grade aguarda o efetivo", () => {
+      const { container } = render(
+         <IndicadoresGrid
+            kpis={{ ...baseKpis, pqd: 0, comb_transf: 0 }}
+            efetivoLoading
+         />
+      );
+
+      expect(screen.getByRole("status").textContent).toContain(
+         "Carregando indicadores da operação…"
+      );
+      const faixa = screen
+         .getByText(/Sem registro nesta operação/)
+         .closest("p");
+      if (!faixa) throw new Error("faixa de zerados não encontrada");
+      expect(within(faixa).getByText("PQDs lançados")).not.toBeNull();
+      expect(within(faixa).getByText("Combustível transferido")).not.toBeNull();
+      expect(within(faixa).queryByText("Efetivo")).toBeNull();
+      expect(faixa.closest('[aria-hidden="true"]')).toBeNull();
+
+      const grade = container.querySelector(".grid");
+      expect(grade?.getAttribute("aria-hidden")).toBe("true");
+      expect(grade?.children).toHaveLength(9);
+      expect(grade?.querySelectorAll(".animate-pulse")).toHaveLength(9);
+      expect(
+         within(grade as HTMLElement).queryByText("Indisponível")
+      ).toBeNull();
+      expect(within(grade as HTMLElement).queryByText("2.500")).toBeNull();
+   });
+
+   it("não reserva faixa sem zeros conhecidos enquanto o efetivo carrega", () => {
+      render(<IndicadoresGrid kpis={baseKpis} efetivoLoading />);
+
+      expect(screen.queryByText(/Sem registro nesta operação/)).toBeNull();
    });
 
    it("mostra o efetivo junto das demais dimensões quando informado", () => {

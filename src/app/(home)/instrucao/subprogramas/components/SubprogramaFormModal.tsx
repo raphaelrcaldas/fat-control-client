@@ -9,6 +9,7 @@ import {
    ModalFooter,
    ModalHeader,
    Select,
+   Spinner,
    Textarea,
    TextInput,
 } from "flowbite-react";
@@ -173,11 +174,19 @@ export function SubprogramaFormModal({
             <Button
                color="primary"
                disabled={!podeSalvar || isSaving}
+               aria-busy={isSaving}
                onClick={() =>
                   onSubmit({ ...form, descricao: form.descricao.trim() })
                }
             >
-               {isSaving ? "Salvando..." : "Salvar"}
+               {isSaving ? (
+                  <>
+                     <Spinner size="sm" color="white" className="mr-2" />
+                     Salvando...
+                  </>
+               ) : (
+                  "Salvar"
+               )}
             </Button>
             <Button color="light" onClick={onClose} disabled={isSaving}>
                Cancelar

@@ -61,8 +61,11 @@ const TABS: Tab[] = [
 interface Props {
    value: OperacoesFiltersState;
    onChange: (next: OperacoesFiltersState) => void;
-   counts: OperacaoTabCounts;
+   /** Indefinido enquanto não há resposta: a aba mostra "–", nunca "0". */
+   counts?: OperacaoTabCounts;
    defaultDates: { start: string; end: string };
+   /** Só na 1ª carga (sem dado); no refetch fica habilitado, senão a busca perde o foco a cada tecla. */
+   disabled?: boolean;
 }
 
 export function OperacoesFilters({
@@ -70,6 +73,7 @@ export function OperacoesFilters({
    onChange,
    counts,
    defaultDates,
+   disabled = false,
 }: Props) {
    const compacto = useAbaixoDe("sm");
 
@@ -108,7 +112,7 @@ export function OperacoesFilters({
              No mobile rola na horizontal em uma linha (sem quebrar). */}
          <div className="flex items-center gap-0.5 overflow-x-auto border-b border-slate-200 px-2 whitespace-nowrap">
             {TABS.map((tab) => {
-               const n = tab.count(counts);
+               const n = counts ? tab.count(counts) : null;
                if (tab.key === "cancelada" && n === 0) return null;
                const active = value.status === tab.key;
                const accent = STATUS_TAB[tab.accent];
@@ -117,6 +121,7 @@ export function OperacoesFilters({
                      key={tab.label}
                      type="button"
                      onClick={() => patch({ status: tab.key })}
+                     disabled={disabled}
                      className={clsx(
                         "-mb-px flex shrink-0 items-center gap-1.5 border-b-2 px-3 py-2 text-sm font-semibold transition-colors",
                         active
@@ -131,7 +136,7 @@ export function OperacoesFilters({
                            active ? accent.pill : "bg-slate-100 text-slate-500"
                         )}
                      >
-                        {n}
+                        {n ?? "–"}
                      </span>
                   </button>
                );
@@ -152,6 +157,7 @@ export function OperacoesFilters({
                      value={value.q}
                      onChange={(e) => patch({ q: e.target.value })}
                      sizing="sm"
+                     disabled={disabled}
                   />
                </div>
                <Button
@@ -159,6 +165,7 @@ export function OperacoesFilters({
                   size="sm"
                   className="shrink-0 sm:hidden"
                   onClick={() => setFiltrosAbertos((aberto) => !aberto)}
+                  disabled={disabled}
                   aria-expanded={filtrosAbertos}
                   aria-controls="operacoes-filtros"
                >
@@ -203,6 +210,7 @@ export function OperacoesFilters({
                            <TipoBtn
                               active={value.tipo === null}
                               onClick={() => patch({ tipo: null })}
+                              disabled={disabled}
                            >
                               Todos
                            </TipoBtn>
@@ -211,6 +219,7 @@ export function OperacoesFilters({
                                  key={t.value}
                                  active={value.tipo === t.value}
                                  onClick={() => patch({ tipo: t.value })}
+                                 disabled={disabled}
                               >
                                  {t.label}
                               </TipoBtn>
@@ -237,6 +246,7 @@ export function OperacoesFilters({
                               sizing="sm"
                               className="min-w-0 flex-1 sm:w-40 sm:flex-initial"
                               value={value.date_start}
+                              disabled={disabled}
                               onChange={(e) =>
                                  patch({ date_start: e.target.value })
                               }
@@ -252,6 +262,7 @@ export function OperacoesFilters({
                               sizing="sm"
                               className="min-w-0 flex-1 sm:w-40 sm:flex-initial"
                               value={value.date_end}
+                              disabled={disabled}
                               onChange={(e) =>
                                  patch({ date_end: e.target.value })
                               }
@@ -267,6 +278,7 @@ export function OperacoesFilters({
             <button
                type="button"
                onClick={clearFilters}
+               disabled={disabled}
                aria-hidden={!hasAny}
                tabIndex={hasAny ? 0 : -1}
                className={clsx(
@@ -291,6 +303,7 @@ export function OperacoesFilters({
                         date_end: defaultDates.end,
                      })
                   }
+                  disabled={disabled}
                />
             </div>
          )}
@@ -301,18 +314,21 @@ export function OperacoesFilters({
 function TipoBtn({
    active,
    onClick,
+   disabled,
    children,
 }: {
    active: boolean;
    onClick: () => void;
+   disabled: boolean;
    children: React.ReactNode;
 }) {
    return (
       <button
          type="button"
          onClick={onClick}
+         disabled={disabled}
          className={clsx(
-            "flex-1 rounded px-2.5 py-1.5 text-xs font-semibold transition-all sm:flex-initial",
+            "flex-1 rounded px-2.5 py-1.5 text-xs font-semibold transition-all disabled:cursor-not-allowed disabled:opacity-50 sm:flex-initial",
             active
                ? "bg-white text-slate-900 shadow-sm"
                : "text-slate-600 hover:text-slate-900"
@@ -323,13 +339,22 @@ function TipoBtn({
    );
 }
 
-function Chip({ label, onRemove }: { label: string; onRemove: () => void }) {
+function Chip({
+   label,
+   onRemove,
+   disabled,
+}: {
+   label: string;
+   onRemove: () => void;
+   disabled: boolean;
+}) {
    return (
       <span className="bg-primary-50 text-primary-700 ring-primary-200 flex items-center gap-1 rounded-md px-2 py-0.5 text-xs font-semibold ring-1 ring-inset">
          {label}
          <button
             type="button"
             onClick={onRemove}
+            disabled={disabled}
             aria-label={`Remover ${label}`}
          >
             <MdClose className="h-3.5 w-3.5" />

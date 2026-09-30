@@ -342,10 +342,11 @@ export function OperacaoFormModal({ show, onClose, editing }: Props) {
                         type="submit"
                         color="primary"
                         disabled={isSubmitting}
+                        aria-busy={isSubmitting}
                      >
                         {isSubmitting ? (
                            <div className="flex items-center gap-2">
-                              <Spinner size="sm" color="primary" />
+                              <Spinner size="sm" color="white" />
                               <span>Salvando…</span>
                            </div>
                         ) : isEdit ? (

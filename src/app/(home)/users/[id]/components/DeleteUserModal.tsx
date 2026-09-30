@@ -1,4 +1,4 @@
-import { Modal, ModalBody, ModalHeader, Button } from "flowbite-react";
+import { Modal, ModalBody, ModalHeader, Button, Spinner } from "flowbite-react";
 import { MdWarning, MdDelete, MdClose } from "react-icons/md";
 
 interface DeleteUserModalProps {
@@ -82,10 +82,15 @@ export function DeleteUserModal({
                      onClick={onConfirm}
                      type="button"
                      disabled={isPending}
+                     aria-busy={isPending}
                   >
                      <div className="flex items-center gap-2">
-                        <MdDelete className="size-5" />
-                        <span>{isPending ? "Excluindo..." : "Excluir"}</span>
+                        {isPending ? (
+                           <Spinner size="sm" color="white" />
+                        ) : (
+                           <MdDelete className="size-5" />
+                        )}
+                        <span>{isPending ? "Excluindo…" : "Excluir"}</span>
                      </div>
                   </Button>
                </div>

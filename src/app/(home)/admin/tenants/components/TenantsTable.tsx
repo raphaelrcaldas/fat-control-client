@@ -154,8 +154,12 @@ export function TenantsTable({
 
 export function TenantsTableSkeleton({ rows = 6 }: { rows?: number }) {
    return (
-      <div className="overflow-x-auto rounded border border-slate-200 bg-white shadow-sm">
-         <Table hoverable>
+      <div
+         role="status"
+         className="overflow-x-auto rounded border border-slate-200 bg-white shadow-sm"
+      >
+         <span className="sr-only">Carregando tenants…</span>
+         <Table hoverable aria-hidden>
             <TableHead>
                <TableRow>
                   <TableHeadCell className="w-16">

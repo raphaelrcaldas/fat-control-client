@@ -85,20 +85,17 @@ export function MissionActionBar({
                      size="sm"
                      aria-label={isNew ? "Criar missão" : "Salvar alterações"}
                      disabled={!isChanged || isLoading}
+                     aria-busy={isLoading}
                      className="disabled:cursor-not-allowed disabled:opacity-50"
                   >
                      {isLoading ? (
-                        <Spinner
-                           size="sm"
-                           color="primary"
-                           className="sm:mr-2"
-                        />
+                        <Spinner size="sm" color="white" className="sm:mr-2" />
                      ) : (
                         <HiCheck className="size-4 sm:mr-2" />
                      )}
                      <span className="hidden sm:inline">
                         {isLoading
-                           ? "Salvando..."
+                           ? "Salvando…"
                            : isNew
                              ? "Criar Missão"
                              : "Salvar Alterações"}

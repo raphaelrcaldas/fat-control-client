@@ -208,11 +208,12 @@ export function DiariaFormModal({
                      type="submit"
                      color="dark"
                      disabled={!hasChanges || isDisabled}
+                     aria-busy={isSubmitting}
                   >
                      {isSubmitting ? (
                         <>
-                           <Spinner size="sm" className="mr-2" color="gray" />
-                           Salvando...
+                           <Spinner size="sm" className="mr-2" color="white" />
+                           Salvando…
                         </>
                      ) : isCreating ? (
                         "Criar"

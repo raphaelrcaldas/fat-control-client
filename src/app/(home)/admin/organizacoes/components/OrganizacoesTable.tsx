@@ -144,8 +144,12 @@ export function OrganizacoesTableSkeleton({
    canManage: boolean;
 }) {
    return (
-      <div className="overflow-x-auto rounded border border-slate-200 bg-white shadow-sm">
-         <Table hoverable>
+      <div
+         role="status"
+         className="overflow-x-auto rounded border border-slate-200 bg-white shadow-sm"
+      >
+         <span className="sr-only">Carregando organizações…</span>
+         <Table hoverable aria-hidden>
             <OrganizacoesTableHead canManage={canManage} />
             <TableBody className="divide-y">
                {Array.from({ length: rows }).map((_, i) => (

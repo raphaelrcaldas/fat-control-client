@@ -1,4 +1,4 @@
-import request, { parseApiResponse } from "../Api";
+import request, { parseApiResponse, readApiData } from "../Api";
 import type { ApiResponse, ApiResult } from "@/types/api";
 import { CrewMember } from "./trips";
 import { UserPublic } from "./users";
@@ -46,7 +46,7 @@ export async function addQuad(quads: Quad[]): Promise<ApiResult<null>> {
 
 export async function getQuads(params: QuadParams): Promise<CrewQuadRes[]> {
    const res = await request("GET", quadsRoute, null, params);
-   const json = (await res.json()) as ApiResponse<CrewQuadRes[]>;
+   const json = await readApiData<ApiResponse<CrewQuadRes[]>>(res);
    return json.data || [];
 }
 
@@ -57,7 +57,7 @@ export async function getQuadById(
    const res = await request("GET", `${quadsRoute}trip/${tripId}`, null, {
       type_id: quadId,
    });
-   const json = (await res.json()) as ApiResponse<Quad[]>;
+   const json = await readApiData<ApiResponse<Quad[]>>(res);
    return json.data || [];
 }
 
@@ -98,7 +98,7 @@ export async function getQuadsOrfaos(
    signal?: AbortSignal
 ): Promise<QuadsOrfaoEntry[]> {
    const res = await request("GET", `${quadsRoute}orfaos`, null, null, signal);
-   const json = (await res.json()) as ApiResponse<QuadsOrfaoEntry[]>;
+   const json = await readApiData<ApiResponse<QuadsOrfaoEntry[]>>(res);
    return json.data || [];
 }
 
@@ -113,12 +113,12 @@ export async function deleteQuadsOrfaos(
 export async function getQuadsType(): Promise<QuadTypeGroup[]> {
    // Erro precisa lançar: devolvido como `[]`, um 403/500 virava o estado
    // vazio ("Nenhum grupo cadastrado") em vez do bloco de erro.
-   const result = await parseApiResponse<QuadTypeGroup[]>(
-      await request("GET", quadsRoute + "types")
+   const response = await request("GET", quadsRoute + "types");
+   const result = await readApiData<ApiResponse<QuadTypeGroup[]>>(
+      response,
+      (message) => message || "Erro ao carregar quadrinhos"
    );
-   if (!result.ok) {
-      throw new Error(result.message || "Erro ao carregar quadrinhos");
-   }
+
    return result.data ?? [];
 }
 

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import {
    Button,
+   Spinner,
    Label,
    Modal,
    ModalBody,
@@ -205,6 +206,7 @@ export function PosicoesModal({
             <Button
                color="primary"
                disabled={isSaving || temVazio || temRepetido}
+               aria-busy={isSaving}
                onClick={() =>
                   onSubmit(
                      linhas.map((linha, index) => ({
@@ -216,7 +218,14 @@ export function PosicoesModal({
                   )
                }
             >
-               {isSaving ? "Salvando..." : "Salvar posições"}
+               {isSaving ? (
+                  <>
+                     <Spinner size="sm" color="white" className="mr-2" />
+                     Salvando…
+                  </>
+               ) : (
+                  "Salvar posições"
+               )}
             </Button>
             <Button color="light" onClick={onClose} disabled={isSaving}>
                Cancelar

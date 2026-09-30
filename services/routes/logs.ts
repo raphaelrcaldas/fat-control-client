@@ -1,4 +1,4 @@
-import request from "../Api";
+import request, { readApiData } from "../Api";
 import type { ApiPaginatedResponse, ApiResponse } from "@/types/api";
 import type { PaginatedResponse } from "./users";
 
@@ -46,11 +46,7 @@ export async function getUserActionLogs(
    });
 
    const res = await request("GET", `${logsRoute}user-actions`, null, params);
-   const json = (await res.json()) as ApiResponse<UserActionLog[]>;
-
-   if (!res.ok) {
-      throw new Error(json.message || "Erro ao buscar logs de usuário");
-   }
+   const json = await readApiData<ApiResponse<UserActionLog[]>>(res);
 
    return json.data || [];
 }
@@ -78,11 +74,7 @@ export async function getUserActionLogsPage(
       params,
       signal
    );
-   const json = (await res.json()) as ApiPaginatedResponse<UserActionLog>;
-
-   if (!res.ok) {
-      throw new Error(json.message || "Erro ao buscar logs de usuário");
-   }
+   const json = await readApiData<ApiPaginatedResponse<UserActionLog>>(res);
 
    return {
       items: json.data || [],

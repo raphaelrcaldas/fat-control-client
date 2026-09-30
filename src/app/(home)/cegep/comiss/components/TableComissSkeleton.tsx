@@ -36,9 +36,13 @@ interface TableComissSkeletonProps {
  */
 export function TableComissSkeleton({ rows = 18 }: TableComissSkeletonProps) {
    return (
-      <div className="overflow-hidden rounded bg-white shadow ring-1 ring-slate-200">
+      <div
+         role="status"
+         className="overflow-hidden rounded bg-white shadow ring-1 ring-slate-200"
+      >
+         <span className="sr-only">Carregando comissionamentos…</span>
          {/* Mobile: espelha o `ComissCard` */}
-         <ul className="divide-y divide-slate-100 md:hidden">
+         <ul aria-hidden className="divide-y divide-slate-100 md:hidden">
             {Array.from({ length: rows }).map((_, i) => (
                <li key={i} className="border-l-4 border-l-slate-200 px-4 py-3">
                   <div className="flex items-center gap-2">
@@ -61,7 +65,7 @@ export function TableComissSkeleton({ rows = 18 }: TableComissSkeletonProps) {
             ))}
          </ul>
 
-         <div className="hidden overflow-x-auto md:block">
+         <div aria-hidden className="hidden overflow-x-auto md:block">
             <Table striped theme={COMISS_TABLE_THEME}>
                <TableHead>
                   <TableRow>

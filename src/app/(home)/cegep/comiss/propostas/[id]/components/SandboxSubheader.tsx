@@ -80,6 +80,7 @@ export function SandboxSubheader({
                      color="primary"
                      onClick={onSave}
                      disabled={!isDirty || isSaving}
+                     aria-busy={isSaving}
                      title={
                         isDirty
                            ? "Salvar as alterações da proposta"
@@ -88,7 +89,7 @@ export function SandboxSubheader({
                   >
                      {isSaving ? (
                         <span className="flex items-center gap-2">
-                           <Spinner size="sm" color="primary" />
+                           <Spinner size="sm" color="white" />
                            Salvando…
                         </span>
                      ) : (

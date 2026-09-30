@@ -44,6 +44,12 @@ export async function trocarOrg(
       return null;
    } catch (error) {
       console.error("switchOrg failed", error);
+      if (
+         error instanceof Error &&
+         (error.name === "TimeoutError" || error.name === "AbortError")
+      ) {
+         return "A troca demorou demais. Verifique a conexão e tente novamente.";
+      }
       return "Erro ao trocar de organização";
    }
 }

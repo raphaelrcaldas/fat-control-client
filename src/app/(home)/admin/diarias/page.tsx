@@ -1,6 +1,7 @@
 "use client";
 
 import clsx from "clsx";
+import { Button } from "flowbite-react";
 import { GRUPO_PG_LABELS } from "./labels";
 import { useDiarias } from "./hooks/useDiarias";
 import { useDiariaForm } from "./hooks/useDiariaForm";
@@ -19,6 +20,7 @@ export default function DiariasPage() {
       error,
       onlyActive,
       setOnlyActive,
+      refetch,
       cidadesByGrupo,
       uniqueGruposCidade,
       uniqueGruposPg,
@@ -45,7 +47,11 @@ export default function DiariasPage() {
       updateField,
    } = useDiariaForm();
 
-   const errorMessage = error?.message || null;
+   // Sem a lista de valores, cada grupo diria "Nenhum valor cadastrado" e o
+   // contador "0 valor(es)": mentira depois de uma falha. Já a falha só dos
+   // grupos (cidade/posto) deixa os valores legíveis, sem as descrições.
+   const semValores = valores === undefined && !isLoading;
+   const blockingError = semValores ? error : null;
 
    return (
       <div className="space-y-2">
@@ -55,13 +61,42 @@ export default function DiariasPage() {
             onCreateClick={handleOpenCreateModal}
          />
 
-         {errorMessage && (
-            <div className="rounded border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-800">
-               {errorMessage}
+         {blockingError && (
+            <div
+               role="alert"
+               className="space-y-3 rounded border border-rose-200 bg-rose-50 px-3 py-2"
+            >
+               <p className="text-sm text-rose-800">{blockingError.message}</p>
+               <Button
+                  color="light"
+                  size="xs"
+                  onClick={refetch}
+                  disabled={isFetching}
+               >
+                  Tentar novamente
+               </Button>
             </div>
          )}
 
-         {!isLoading && (
+         {/* Falha que não zera a tela (refetch ou grupos): aviso discreto */}
+         {error && !blockingError && (
+            <p
+               role="status"
+               className="flex items-center gap-2 rounded border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs text-slate-500"
+            >
+               <span className="min-w-0 flex-1 truncate">{error.message}</span>
+               <button
+                  type="button"
+                  onClick={refetch}
+                  disabled={isFetching}
+                  className="min-h-[24px] shrink-0 font-semibold text-slate-900 underline underline-offset-2 disabled:opacity-50"
+               >
+                  Tentar novamente
+               </button>
+            </p>
+         )}
+
+         {!isLoading && valores && (
             <p className="text-xs font-medium text-slate-400">
                {valores?.length || 0} valor(es) · {uniqueGruposCidade.length}{" "}
                grupo(s) de cidade
@@ -70,7 +105,7 @@ export default function DiariasPage() {
 
          {isLoading ? (
             <DiariaSkeleton />
-         ) : (
+         ) : semValores ? null : (
             <div
                className={clsx(
                   "space-y-3 transition-opacity",

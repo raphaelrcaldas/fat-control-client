@@ -40,12 +40,13 @@ export function CleanupSummary({
          <Button
             color="red"
             disabled={running || loading || totalRecords === 0}
+            aria-busy={running}
             onClick={onRun}
          >
             {running ? (
                <>
-                  <Spinner size="sm" className="fill-white" />
-                  <span className="ml-2">Executando...</span>
+                  <Spinner size="sm" color="white" />
+                  <span className="ml-2">Executando…</span>
                </>
             ) : (
                <>

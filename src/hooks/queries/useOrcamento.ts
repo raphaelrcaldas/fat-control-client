@@ -1,4 +1,9 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+   keepPreviousData,
+   useQuery,
+   useMutation,
+   useQueryClient,
+} from "@tanstack/react-query";
 import {
    getOrcamento,
    getOrcamentoLogs,
@@ -19,6 +24,10 @@ export function useOrcamento(ano: number) {
       queryKey: orcamentoKeys.byAno(ano),
       queryFn: ({ signal }) => getOrcamento(ano, signal),
       enabled: !!ano,
+      // Trocar o exercício mantém o formulário em tela (esmaecido) em vez de
+      // voltar ao skeleton; a página trava a edição enquanto o dado é do ano
+      // anterior (`isPlaceholderData`).
+      placeholderData: keepPreviousData,
    });
 }
 

@@ -1,4 +1,9 @@
-import request, { baseUrl, parseApiResponse, ApiError } from "../../Api";
+import request, {
+   baseUrl,
+   parseApiResponse,
+   ApiError,
+   readApiData,
+} from "../../Api";
 import type { ApiResponse } from "@/types/api";
 import { aeromedicaRoute } from ".";
 
@@ -154,15 +159,18 @@ export async function getAtasByUser(
    userId: number,
    signal?: AbortSignal
 ): Promise<AtaInspecaoWithUrl[]> {
-   const parsed = await parseApiResponse<AtaInspecaoWithUrl[]>(
-      await request("GET", `${atasPath}user/${userId}`, null, null, signal)
+   const response = await request(
+      "GET",
+      `${atasPath}user/${userId}`,
+      null,
+      null,
+      signal
    );
-   if (!parsed.ok) {
-      throw new ApiError(
-         parsed.message || "Erro ao carregar atas",
-         parsed.errors
-      );
-   }
+   const parsed = await readApiData<ApiResponse<AtaInspecaoWithUrl[]>>(
+      response,
+      (message) => message || "Erro ao carregar atas"
+   );
+
    return parsed.data ?? [];
 }
 

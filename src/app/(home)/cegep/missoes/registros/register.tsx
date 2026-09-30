@@ -10,7 +10,7 @@ import { useMissoes } from "@/hooks/queries/useMissoes";
 import { usePersistedState } from "@/hooks/usePersistedState";
 import { Pagination } from "@/components/Pagination";
 import { useRegistrosFilters } from "./hooks/useRegistrosFilters";
-import { HiViewGrid, HiViewList } from "react-icons/hi";
+import { HiExclamation, HiViewGrid, HiViewList } from "react-icons/hi";
 import clsx from "clsx";
 
 const perPage = 20;
@@ -96,6 +96,30 @@ export function RegisPage() {
                      isFetching && "opacity-50"
                   )}
                >
+                  {/* Refetch que falha com a lista em tela: mantém o dado e avisa,
+                      sem trocar a tela pelo erro. */}
+                  {isError && (
+                     <p
+                        role="status"
+                        className="mb-2 flex items-center gap-2 rounded border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs text-slate-500"
+                     >
+                        <HiExclamation
+                           aria-hidden
+                           className="size-3.5 shrink-0"
+                        />
+                        <span className="min-w-0 flex-1 truncate">
+                           Não foi possível atualizar a lista
+                        </span>
+                        <button
+                           type="button"
+                           onClick={() => refetch()}
+                           disabled={isFetching}
+                           className="min-h-[24px] shrink-0 font-semibold text-slate-900 underline underline-offset-2 disabled:opacity-50"
+                        >
+                           Tentar novamente
+                        </button>
+                     </p>
+                  )}
                   {/* Results Grid */}
                   {missoes?.length === 0 ? (
                      <div className="flex flex-col items-center justify-center rounded border border-slate-200 bg-gray-50 p-8">

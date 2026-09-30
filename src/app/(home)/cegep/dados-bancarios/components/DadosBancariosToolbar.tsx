@@ -1,4 +1,4 @@
-import { Spinner, TextInput } from "flowbite-react";
+import { TextInput } from "flowbite-react";
 import { HiSearch, HiX } from "react-icons/hi";
 
 interface DadosBancariosToolbarProps {
@@ -6,7 +6,7 @@ interface DadosBancariosToolbarProps {
    onSearchChange: (value: string) => void;
    total: number;
    isLoading: boolean;
-   isFetching: boolean;
+   isError: boolean;
    hasActiveFilters: boolean;
    onClearFilters: () => void;
 }
@@ -16,7 +16,7 @@ export function DadosBancariosToolbar({
    onSearchChange,
    total,
    isLoading,
-   isFetching,
+   isError,
    hasActiveFilters,
    onClearFilters,
 }: DadosBancariosToolbarProps) {
@@ -41,15 +41,17 @@ export function DadosBancariosToolbar({
                   Total:{" "}
                   {isLoading ? (
                      <span className="inline-block h-4 w-6 animate-pulse rounded bg-slate-200 align-middle" />
+                  ) : isError ? (
+                     // Falha de carga não é "0 registros".
+                     <strong className="text-gray-900 dark:text-white">
+                        —
+                     </strong>
                   ) : (
                      <strong className="text-gray-900 dark:text-white">
                         {total}
                      </strong>
                   )}
                </span>
-               {isFetching && !isLoading && (
-                  <Spinner color="primary" size="sm" />
-               )}
             </div>
             {hasActiveFilters && (
                <button

@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { Button, Select, TextInput } from "flowbite-react";
 import clsx from "clsx";
 import { HiPlus, HiSearch, HiX } from "react-icons/hi";
+import { MdErrorOutline } from "react-icons/md";
 import { TbMapPin, TbPlaneInflight } from "react-icons/tb";
 
 import { EmptyState } from "@/components/ui/EmptyState";
@@ -44,7 +45,7 @@ export function LocalidadesPage() {
       [buscaDebounced, grupo, uf]
    );
 
-   const { data, isLoading, isFetching, isError, error } =
+   const { data, isLoading, isFetching, isError, error, refetch } =
       useLocalidades(filtros);
    const localidades = data ?? [];
 
@@ -54,7 +55,11 @@ export function LocalidadesPage() {
 
    // As UFs da lista completa, não da filtrada: um seletor que perde opções
    // conforme filtra impede voltar atrás.
-   const { data: todas } = useLocalidades(undefined);
+   const {
+      data: todas,
+      isLoading: carregandoTodas,
+      isError: erroTodas,
+   } = useLocalidades(undefined);
    const ufsDisponiveis = useMemo(() => {
       const ufs = new Set((todas ?? []).map((l) => l.cidade.uf));
       return [...ufs].sort();
@@ -69,6 +74,10 @@ export function LocalidadesPage() {
          icaos: base.reduce((soma, l) => soma + l.icaos.length, 0),
       };
    }, [todas]);
+
+   // Falha ao carregar a lista completa não é "0 localidades": o KpiCard rende
+   // "Indisponível" para `null`.
+   const valorResumo = (n: number) => (todas || !erroTodas ? String(n) : null);
 
    const temFiltro = Boolean(busca || grupo || uf);
 
@@ -124,31 +133,45 @@ export function LocalidadesPage() {
    return (
       <div className="space-y-2">
          {/* Resumo — lido da lista completa, estável sob filtro */}
-         <div className="grid grid-cols-2 gap-2 lg:grid-cols-4">
-            <KpiCard
-               icon={<TbMapPin className="h-5 w-5" />}
-               label="Localidades"
-               value={String(resumo.total)}
-               size="md"
-            />
-            <KpiCard
-               icon={<span className="text-sm font-bold">A</span>}
-               label="Grupo A"
-               value={String(resumo.grupoA)}
-               size="md"
-            />
-            <KpiCard
-               icon={<span className="text-sm font-bold">B</span>}
-               label="Grupo B"
-               value={String(resumo.grupoB)}
-               size="md"
-            />
-            <KpiCard
-               icon={<TbPlaneInflight className="h-5 w-5" />}
-               label="Aeródromos"
-               value={String(resumo.icaos)}
-               size="md"
-            />
+         <div role={carregandoTodas ? "status" : undefined}>
+            {carregandoTodas && (
+               <span className="sr-only">
+                  Carregando resumo das localidades…
+               </span>
+            )}
+            <div
+               aria-hidden={carregandoTodas || undefined}
+               className="grid grid-cols-2 gap-2 lg:grid-cols-4"
+            >
+               <KpiCard
+                  icon={<TbMapPin className="h-5 w-5" />}
+                  label="Localidades"
+                  value={valorResumo(resumo.total)}
+                  size="md"
+                  isLoading={carregandoTodas}
+               />
+               <KpiCard
+                  icon={<span className="text-sm font-bold">A</span>}
+                  label="Grupo A"
+                  value={valorResumo(resumo.grupoA)}
+                  size="md"
+                  isLoading={carregandoTodas}
+               />
+               <KpiCard
+                  icon={<span className="text-sm font-bold">B</span>}
+                  label="Grupo B"
+                  value={valorResumo(resumo.grupoB)}
+                  size="md"
+                  isLoading={carregandoTodas}
+               />
+               <KpiCard
+                  icon={<TbPlaneInflight className="h-5 w-5" />}
+                  label="Aeródromos"
+                  value={valorResumo(resumo.icaos)}
+                  size="md"
+                  isLoading={carregandoTodas}
+               />
+            </div>
          </div>
 
          {/* Toolbar + tabela na mesma superfície */}
@@ -181,6 +204,7 @@ export function LocalidadesPage() {
                   onChange={(e) => setUf(e.target.value)}
                   aria-label="Filtrar por UF"
                   className="min-w-[130px]"
+                  disabled={carregandoTodas}
                >
                   <option value="">Todas as UFs</option>
                   {ufsDisponiveis.map((sigla) => (
@@ -216,13 +240,26 @@ export function LocalidadesPage() {
                </PermBased>
             </div>
 
-            {isError ? (
-               <div className="p-4 text-sm text-red-800" role="alert">
-                  Não foi possível carregar as localidades
-                  {error instanceof Error ? `: ${error.message}` : "."}
-               </div>
-            ) : isLoading ? (
+            {isLoading ? (
                <LocEspTableSkeleton />
+            ) : isError && !data ? (
+               <div
+                  role="alert"
+                  className="flex flex-col items-center gap-3 p-8 text-center"
+               >
+                  <p className="text-sm font-medium text-red-800">
+                     Não foi possível carregar as localidades
+                     {error instanceof Error ? `: ${error.message}` : "."}
+                  </p>
+                  <Button
+                     color="light"
+                     size="sm"
+                     onClick={() => refetch()}
+                     disabled={isFetching}
+                  >
+                     Tentar novamente
+                  </Button>
+               </div>
             ) : localidades.length === 0 ? (
                <div className="p-6">
                   <EmptyState
@@ -247,14 +284,43 @@ export function LocalidadesPage() {
                   />
                </div>
             ) : (
-               <div
-                  className={clsx(
-                     "transition-opacity",
-                     isFetching && !isLoading && "opacity-50"
+               <>
+                  {/* Refetch que falha com a lista em tela: mantém o dado e
+                      avisa, sem trocar a tela pelo erro. */}
+                  {isError && (
+                     <p
+                        role="status"
+                        className="flex items-center gap-2 rounded border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs text-slate-500"
+                     >
+                        <MdErrorOutline
+                           aria-hidden
+                           className="size-3.5 shrink-0"
+                        />
+                        <span className="min-w-0 flex-1 truncate">
+                           Não foi possível atualizar a lista
+                        </span>
+                        <button
+                           type="button"
+                           onClick={() => refetch()}
+                           disabled={isFetching}
+                           className="min-h-[24px] shrink-0 font-semibold text-slate-900 underline underline-offset-2 disabled:opacity-50"
+                        >
+                           Tentar novamente
+                        </button>
+                     </p>
                   )}
-               >
-                  <LocEspTable localidades={localidades} onEdit={abrirEdicao} />
-               </div>
+                  <div
+                     className={clsx(
+                        "transition-opacity",
+                        isFetching && "opacity-50"
+                     )}
+                  >
+                     <LocEspTable
+                        localidades={localidades}
+                        onEdit={abrirEdicao}
+                     />
+                  </div>
+               </>
             )}
          </div>
 

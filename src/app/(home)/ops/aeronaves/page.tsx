@@ -108,7 +108,12 @@ export default function AeronavesPage() {
                <p className="mb-4 text-sm text-gray-500">
                   Verifique sua conexão e tente novamente
                </p>
-               <Button color="light" size="sm" onClick={() => refetch()}>
+               <Button
+                  color="light"
+                  size="sm"
+                  onClick={() => refetch()}
+                  disabled={isFetching}
+               >
                   Tentar novamente
                </Button>
             </div>

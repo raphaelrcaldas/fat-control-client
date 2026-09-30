@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Button, Checkbox, Label, TextInput } from "flowbite-react";
+import { Button, Checkbox, Label, Spinner, TextInput } from "flowbite-react";
 import { HiOutlineCheck, HiOutlineUserGroup } from "react-icons/hi";
 import { useToast } from "@/app/context/toast";
 import {
@@ -22,12 +22,22 @@ import type { FuncaoOrgItem } from "services/routes/funcs";
  */
 export function FuncoesSection() {
    const { push } = useToast();
-   const { data: catalogoData, isLoading: loadingCatalogo } =
-      useFuncoesCatalogo(false);
+   const {
+      data: catalogoData,
+      isLoading: loadingCatalogo,
+      isError: catalogoErro,
+      isFetching: fetchingCatalogo,
+      refetch: refetchCatalogo,
+   } = useFuncoesCatalogo(false);
    // Referência estável: um `= []` no destructuring criaria array novo a cada
    // render enquanto a query carrega, e o efeito abaixo entraria em loop.
    const catalogo = useMemo(() => catalogoData ?? [], [catalogoData]);
-   const { funcoes: operadas, isLoading: loadingOperadas } = useFuncoes();
+   const {
+      funcoes: operadas,
+      isLoading: loadingOperadas,
+      isError: operadasErro,
+      refetch: refetchOperadas,
+   } = useFuncoes();
    const salvar = useSetFuncoesOrg();
 
    const [selecionadas, setSelecionadas] = useState<Set<string>>(new Set());
@@ -47,6 +57,17 @@ export function FuncoesSection() {
    }, [operadas, catalogo]);
 
    const isLoading = loadingCatalogo || loadingOperadas;
+
+   // Falha sem dado: sem o catálogo a lista some, e sem as operadas o form
+   // parte de "nenhuma marcada" — salvar assim apagaria as funções da unidade.
+   const semCatalogo = catalogoErro && !catalogoData;
+   const semOperadas = operadasErro && operadas.length === 0;
+   const bloqueado = semCatalogo || semOperadas;
+   const falhaComDado = (catalogoErro || operadasErro) && !bloqueado;
+   const tentarDeNovo = () => {
+      if (catalogoErro) refetchCatalogo();
+      if (operadasErro) refetchOperadas();
+   };
 
    const alterado = useMemo(() => {
       const atuais = new Set(operadas.map((f) => f.cod));
@@ -109,71 +130,121 @@ export function FuncoesSection() {
             <Button
                size="xs"
                color="primary"
-               disabled={!alterado || salvar.isPending}
+               disabled={!alterado || salvar.isPending || bloqueado}
+               aria-busy={salvar.isPending}
                onClick={handleSalvar}
             >
-               <HiOutlineCheck className="mr-1 size-4" />
-               {salvar.isPending ? "Salvando..." : "Salvar"}
+               {salvar.isPending ? (
+                  <>
+                     <Spinner size="sm" color="white" className="mr-2" />
+                     Salvando…
+                  </>
+               ) : (
+                  <>
+                     <HiOutlineCheck className="mr-1 size-4" />
+                     Salvar
+                  </>
+               )}
             </Button>
          </div>
 
          {isLoading ? (
             <FuncoesSkeleton />
+         ) : bloqueado ? (
+            <div
+               role="alert"
+               className="space-y-3 rounded border border-red-300 bg-red-50 p-4"
+            >
+               <p className="text-sm text-red-800">
+                  Erro ao carregar as funções da unidade. Por favor, tente
+                  novamente.
+               </p>
+               <Button
+                  color="light"
+                  size="xs"
+                  onClick={tentarDeNovo}
+                  disabled={fetchingCatalogo}
+               >
+                  Tentar novamente
+               </Button>
+            </div>
          ) : (
-            <ul className="divide-y divide-slate-100 rounded border border-slate-200">
-               {catalogo.map((func) => {
-                  const marcada = selecionadas.has(func.cod);
-                  const colors = getFuncColors(func.cor);
-
-                  return (
-                     <li
-                        key={func.cod}
-                        className="flex flex-wrap items-center gap-3 px-4 py-3"
+            <>
+               {falhaComDado && (
+                  <p
+                     role="status"
+                     className="flex items-center gap-2 rounded border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs text-slate-500"
+                  >
+                     <span className="min-w-0 flex-1 truncate">
+                        Não foi possível atualizar as funções
+                     </span>
+                     <button
+                        type="button"
+                        onClick={tentarDeNovo}
+                        disabled={fetchingCatalogo}
+                        className="min-h-[24px] shrink-0 font-semibold text-slate-900 underline underline-offset-2 disabled:opacity-50"
                      >
-                        <Checkbox
-                           id={`func-${func.cod}`}
-                           color="primary"
-                           checked={marcada}
-                           onChange={() => toggle(func.cod)}
-                        />
+                        Tentar novamente
+                     </button>
+                  </p>
+               )}
+               <ul className="divide-y divide-slate-100 rounded border border-slate-200">
+                  {catalogo.map((func) => {
+                     const marcada = selecionadas.has(func.cod);
+                     const colors = getFuncColors(func.cor);
 
-                        <span
-                           className={`grid size-9 shrink-0 place-items-center rounded-md font-mono text-xs font-bold uppercase ${colors.badge}`}
+                     return (
+                        <li
+                           key={func.cod}
+                           className="flex flex-wrap items-center gap-3 px-4 py-3"
                         >
-                           {func.cod}
-                        </span>
+                           <Checkbox
+                              id={`func-${func.cod}`}
+                              color="primary"
+                              checked={marcada}
+                              onChange={() => toggle(func.cod)}
+                           />
 
-                        <Label
-                           htmlFor={`func-${func.cod}`}
-                           className="min-w-0 flex-1 cursor-pointer"
-                        >
-                           <span className="block text-sm font-semibold text-slate-800">
-                              {func.nome}
+                           <span
+                              className={`grid size-9 shrink-0 place-items-center rounded-md font-mono text-xs font-bold uppercase ${colors.badge}`}
+                           >
+                              {func.cod}
                            </span>
-                           <span className="block text-xs text-slate-500">
-                              {func.posicoes.length > 0
-                                 ? func.posicoes.map((p) => p.cod).join(" · ")
-                                 : "sem posição a bordo"}
-                           </span>
-                        </Label>
 
-                        <TextInput
-                           sizing="sm"
-                           className="w-full sm:w-56"
-                           placeholder="Nome nesta unidade (opcional)"
-                           disabled={!marcada}
-                           value={nomes[func.cod] ?? ""}
-                           onChange={(e) =>
-                              setNomes((prev) => ({
-                                 ...prev,
-                                 [func.cod]: e.target.value,
-                              }))
-                           }
-                        />
-                     </li>
-                  );
-               })}
-            </ul>
+                           <Label
+                              htmlFor={`func-${func.cod}`}
+                              className="min-w-0 flex-1 cursor-pointer"
+                           >
+                              <span className="block text-sm font-semibold text-slate-800">
+                                 {func.nome}
+                              </span>
+                              <span className="block text-xs text-slate-500">
+                                 {func.posicoes.length > 0
+                                    ? func.posicoes
+                                         .map((p) => p.cod)
+                                         .join(" · ")
+                                    : "sem posição a bordo"}
+                              </span>
+                           </Label>
+
+                           <TextInput
+                              sizing="sm"
+                              className="w-full sm:w-56"
+                              placeholder="Nome nesta unidade (opcional)"
+                              disabled={!marcada}
+                              value={nomes[func.cod] ?? ""}
+                              onChange={(e) =>
+                                 setNomes((prev) => ({
+                                    ...prev,
+                                    [func.cod]: e.target.value,
+                                 }))
+                              }
+                           />
+                        </li>
+                     );
+                  })}
+               </ul>
+            </>
          )}
       </section>
    );
@@ -189,18 +260,24 @@ function catalogoNome(
 
 function FuncoesSkeleton() {
    return (
-      <ul className="divide-y divide-slate-100 rounded border border-slate-200">
-         {Array.from({ length: 6 }).map((_, i) => (
-            <li key={i} className="flex items-center gap-3 px-4 py-3">
-               <div className="size-4 shrink-0 animate-pulse rounded bg-slate-200" />
-               <div className="size-9 shrink-0 animate-pulse rounded-md bg-slate-200" />
-               <div className="flex-1 space-y-1.5">
-                  <div className="h-4 w-40 animate-pulse rounded bg-slate-200" />
-                  <div className="h-3 w-24 animate-pulse rounded bg-slate-100" />
-               </div>
-               <div className="h-8 w-56 animate-pulse rounded bg-slate-100" />
-            </li>
-         ))}
-      </ul>
+      <div role="status">
+         <span className="sr-only">Carregando funções…</span>
+         <ul
+            aria-hidden
+            className="divide-y divide-slate-100 rounded border border-slate-200"
+         >
+            {Array.from({ length: 6 }).map((_, i) => (
+               <li key={i} className="flex items-center gap-3 px-4 py-3">
+                  <div className="size-4 shrink-0 animate-pulse rounded bg-slate-200" />
+                  <div className="size-9 shrink-0 animate-pulse rounded-md bg-slate-200" />
+                  <div className="flex-1 space-y-1.5">
+                     <div className="h-4 w-40 animate-pulse rounded bg-slate-200" />
+                     <div className="h-3 w-24 animate-pulse rounded bg-slate-100" />
+                  </div>
+                  <div className="h-8 w-56 animate-pulse rounded bg-slate-100" />
+               </li>
+            ))}
+         </ul>
+      </div>
    );
 }

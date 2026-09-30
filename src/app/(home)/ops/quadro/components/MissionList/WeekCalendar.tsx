@@ -8,6 +8,7 @@ import {
    type StatusType,
 } from "@/constants/ops/ordens-missao/status";
 import { Button } from "flowbite-react";
+import { WeekCalendarSkeleton } from "./WeekCalendarSkeleton";
 import {
    dateToIso,
    extractDate,
@@ -37,6 +38,8 @@ const SIT_COLORS: Record<string, string> = {
 interface WeekCalendarProps {
    ordens: OrdemMissaoList[];
    aeronaves: AeronavePublic[];
+   /** Primeira carga (sem dado): as linhas da grade viram skeleton. */
+   isLoading: boolean;
    isFetching: boolean;
    isError: boolean;
    onRetry: () => void;
@@ -197,6 +200,7 @@ function AeronaveCell({
 export default function WeekCalendar({
    ordens,
    aeronaves,
+   isLoading,
    isFetching,
    isError,
    onRetry,
@@ -318,13 +322,18 @@ export default function WeekCalendar({
                className="mx-4 mb-2 space-y-2 rounded border border-slate-200 bg-white px-4 py-3 text-center shadow-sm"
             >
                <h2 className="text-sm font-semibold text-red-700">
-                  Erro ao carregar as ordens de missão
+                  Erro ao carregar o quadro de operações
                </h2>
                <p className="text-xs text-slate-600">
                   O quadro abaixo pode estar incompleto. Verifique a conexão e
                   tente novamente.
                </p>
-               <Button color="light" size="xs" onClick={onRetry}>
+               <Button
+                  color="light"
+                  size="xs"
+                  onClick={onRetry}
+                  disabled={isFetching}
+               >
                   Tentar novamente
                </Button>
             </div>
@@ -356,9 +365,14 @@ export default function WeekCalendar({
                // `touch-pan-y`: o gesto vertical continua rolando a página;
                // o horizontal pertence à navegação no tempo.
                "focus-visible:ring-primary-500 relative cursor-grab touch-pan-y rounded border border-slate-200 shadow transition-opacity duration-200 select-none focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-inset active:cursor-grabbing",
-               isFetching && "opacity-50"
+               isFetching && !isLoading && "opacity-50"
             )}
          >
+            {isLoading && (
+               <div role="status" className="sr-only">
+                  Carregando o quadro de operações…
+               </div>
+            )}
             {/* Sem rolagem horizontal: o arrasto já navega no tempo, e as
                 duas coisas disputariam o mesmo gesto. A escada de
                 `useVisibleDays` escolhe um número de dias que cabe na
@@ -414,77 +428,85 @@ export default function WeekCalendar({
                      })}
                   </tr>
                </thead>
-               <tbody>
-                  {aeronaves.map((anv) => (
-                     <tr key={anv.matricula} className="transition-colors">
-                        <td className="sticky left-0 z-10 border-r border-b border-slate-200/60 bg-white p-1 text-center">
-                           <div
-                              className={clsx(
-                                 "flex flex-col items-center justify-center gap-1.5 p-1",
-                                 canEditAeronave &&
-                                    "cursor-pointer rounded transition-colors hover:bg-white/60 hover:shadow-sm"
-                              )}
-                              onClick={
-                                 canEditAeronave
-                                    ? () => setEditingAeronave(anv)
-                                    : undefined
-                              }
-                              title={
-                                 canEditAeronave ? "Editar aeronave" : undefined
-                              }
-                           >
-                              <span className="text-sm font-bold tracking-tight text-slate-700">
-                                 {anv.matricula}
-                              </span>
-                              <span
+               {isLoading ? (
+                  <WeekCalendarSkeleton dates={dates} />
+               ) : (
+                  <tbody>
+                     {aeronaves.map((anv) => (
+                        <tr key={anv.matricula} className="transition-colors">
+                           <td className="sticky left-0 z-10 border-r border-b border-slate-200/60 bg-white p-1 text-center">
+                              <div
                                  className={clsx(
-                                    "rounded-md px-2 py-0.5 text-center text-[11px] font-bold tracking-wider text-white shadow-sm",
-                                    SIT_COLORS[anv.sit] ?? "bg-slate-300"
+                                    "flex flex-col items-center justify-center gap-1.5 p-1",
+                                    canEditAeronave &&
+                                       "cursor-pointer rounded transition-colors hover:bg-white/60 hover:shadow-sm"
                                  )}
+                                 onClick={
+                                    canEditAeronave
+                                       ? () => setEditingAeronave(anv)
+                                       : undefined
+                                 }
+                                 title={
+                                    canEditAeronave
+                                       ? "Editar aeronave"
+                                       : undefined
+                                 }
                               >
-                                 {anv.sit}
-                              </span>
-                              <div className="hidden text-xs font-medium text-slate-500 md:block">
-                                 {anv.obs}
+                                 <span className="text-sm font-bold tracking-tight text-slate-700">
+                                    {anv.matricula}
+                                 </span>
+                                 <span
+                                    className={clsx(
+                                       "rounded-md px-2 py-0.5 text-center text-[11px] font-bold tracking-wider text-white shadow-sm",
+                                       SIT_COLORS[anv.sit] ?? "bg-slate-300"
+                                    )}
+                                 >
+                                    {anv.sit}
+                                 </span>
+                                 <div className="hidden text-xs font-medium text-slate-500 md:block">
+                                    {anv.obs}
+                                 </div>
                               </div>
-                           </div>
-                        </td>
-                        {dates.map((day, idx) => {
-                           const isWeekend =
-                              day.getDay() === 0 || day.getDay() === 6;
-                           const isToday = dateToIso(day) === today;
-                           return (
-                              <td
-                                 key={idx}
-                                 className={clsx(
-                                    "border-r border-b border-slate-200/60 align-top",
-                                    isToday
-                                       ? "bg-sky-50"
-                                       : isWeekend
-                                         ? "bg-red-50"
-                                         : "bg-white"
-                                 )}
-                              >
-                                 <AeronaveCell
-                                    shouldIgnoreClick={wasDragged}
-                                    etapas={
-                                       etapasPorCelula.get(
-                                          cellKey(anv.matricula, dateToIso(day))
-                                       ) ?? []
-                                    }
-                                    onSelectOrdem={(omId) => {
-                                       markOmInAppOrigin();
-                                       router.push(`/ops/om/${omId}`);
-                                    }}
-                                 />
-                              </td>
-                           );
-                        })}
-                     </tr>
-                  ))}
+                           </td>
+                           {dates.map((day, idx) => {
+                              const isWeekend =
+                                 day.getDay() === 0 || day.getDay() === 6;
+                              const isToday = dateToIso(day) === today;
+                              return (
+                                 <td
+                                    key={idx}
+                                    className={clsx(
+                                       "border-r border-b border-slate-200/60 align-top",
+                                       isToday
+                                          ? "bg-sky-50"
+                                          : isWeekend
+                                            ? "bg-red-50"
+                                            : "bg-white"
+                                    )}
+                                 >
+                                    <AeronaveCell
+                                       shouldIgnoreClick={wasDragged}
+                                       etapas={
+                                          etapasPorCelula.get(
+                                             cellKey(
+                                                anv.matricula,
+                                                dateToIso(day)
+                                             )
+                                          ) ?? []
+                                       }
+                                       onSelectOrdem={(omId) => {
+                                          markOmInAppOrigin();
+                                          router.push(`/ops/om/${omId}`);
+                                       }}
+                                    />
+                                 </td>
+                              );
+                           })}
+                        </tr>
+                     ))}
 
-                  {/* Linha de Sobreaviso */}
-                  {/* <tr className="bg-amber-50/30">
+                     {/* Linha de Sobreaviso */}
+                     {/* <tr className="bg-amber-50/30">
                      <td className="border-r border-b border-gray-200 bg-amber-100/50 p-1">
                         <div className="text-center text-sm font-bold text-amber-800">
                            SOBREAVISO
@@ -508,7 +530,8 @@ export default function WeekCalendar({
                         );
                      })}
                   </tr> */}
-               </tbody>
+                  </tbody>
+               )}
             </table>
          </div>
 

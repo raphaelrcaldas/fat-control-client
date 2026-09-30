@@ -1,4 +1,4 @@
-import request, { parseApiResponse } from "../../Api";
+import request, { parseApiResponse, readApiData } from "../../Api";
 import type { ApiResponse, ApiResult } from "@/types/api";
 import { cegepRoute } from ".";
 
@@ -52,7 +52,7 @@ export async function getOrcamento(
       { ano: ano.toString() },
       signal
    );
-   const json = (await response.json()) as ApiResponse<OrcamentoAnual | null>;
+   const json = await readApiData<ApiResponse<OrcamentoAnual | null>>(response);
    return json.data ?? null;
 }
 
@@ -84,6 +84,6 @@ export async function getOrcamentoLogs(
       null,
       signal
    );
-   const json = (await response.json()) as ApiResponse<OrcamentoLog[]>;
+   const json = await readApiData<ApiResponse<OrcamentoLog[]>>(response);
    return json.data ?? [];
 }

@@ -1,5 +1,5 @@
 import { z } from "zod";
-import request, { parseApiResponse } from "../Api";
+import request, { parseApiResponse, readApiData } from "../Api";
 import { OrganizacaoSchema } from "./organizacoes";
 import type { ApiResponse, ApiResult } from "@/types/api";
 
@@ -37,13 +37,7 @@ export interface TenantUpdate {
  */
 export async function getTenants(): Promise<Tenant[]> {
    const response = await request("GET", tenantRoute);
-   const json = (await response.json()) as ApiResponse<Tenant[]>;
-
-   if (!response.ok) {
-      throw new Error(
-         json.message || `Failed to fetch tenants: ${response.statusText}`
-      );
-   }
+   const json = await readApiData<ApiResponse<Tenant[]>>(response);
 
    return z.array(TenantSchema).parse(json.data);
 }

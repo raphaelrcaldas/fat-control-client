@@ -187,6 +187,13 @@ export default function OrdensMissao() {
    // Mutation: Excluir ordem
    const deleteOrdemMutation = useDeleteOrdem();
 
+   // Erro só esconde a lista quando não há nada em tela: um refetch falho com a
+   // página já carregada a mantém, e o aviso de erro abaixo diz que falhou.
+   const aprovadasSemDado =
+      ordensAprovadasQuery.isError && !ordensAprovadasQuery.data;
+   const rascunhoSemDado =
+      ordensRascunhoQuery.isError && !ordensRascunhoQuery.data;
+
    // Dados derivados das queries
    const ordensAprovadas = ordensAprovadasQuery.data?.items ?? [];
    const ordensRascunho = ordensRascunhoQuery.data?.items ?? [];
@@ -371,7 +378,10 @@ export default function OrdensMissao() {
 
             {/* Erro global (qualquer uma das queries) com retry */}
             {(ordensAprovadasQuery.isError || ordensRascunhoQuery.isError) && (
-               <div className="flex items-center justify-between gap-4 rounded border border-red-200 bg-red-50 p-4 text-red-700">
+               <div
+                  role="alert"
+                  className="flex items-center justify-between gap-4 rounded border border-red-200 bg-red-50 p-4 text-red-700"
+               >
                   <span className="min-w-0 text-sm">
                      {ordensAprovadasQuery.error?.message ||
                         ordensRascunhoQuery.error?.message ||
@@ -381,6 +391,10 @@ export default function OrdensMissao() {
                      color="light"
                      size="sm"
                      className="shrink-0"
+                     disabled={
+                        ordensAprovadasQuery.isFetching ||
+                        ordensRascunhoQuery.isFetching
+                     }
                      onClick={() => {
                         if (ordensAprovadasQuery.isError)
                            ordensAprovadasQuery.refetch();
@@ -422,7 +436,7 @@ export default function OrdensMissao() {
                         onClearFiltros={clearFiltros}
                         defaultDates={defaultDates}
                      />
-                     {!ordensAprovadasQuery.isError && (
+                     {!aprovadasSemDado && (
                         <p className="text-sm text-gray-500">
                            {ordensAprovadasQuery.isLoading
                               ? "Carregando missões..."
@@ -433,7 +447,7 @@ export default function OrdensMissao() {
                                 }`}
                         </p>
                      )}
-                     {ordensAprovadasQuery.isError ? null : ordensAprovadasQuery.isLoading ? (
+                     {aprovadasSemDado ? null : ordensAprovadasQuery.isLoading ? (
                         <ListaOrdensSkeleton />
                      ) : (
                         <div
@@ -478,7 +492,7 @@ export default function OrdensMissao() {
                   }
                >
                   <div className="space-y-2">
-                     {!ordensRascunhoQuery.isError && (
+                     {!rascunhoSemDado && (
                         <p className="text-sm text-gray-500">
                            {ordensRascunhoQuery.isLoading
                               ? "Carregando rascunhos..."
@@ -489,7 +503,7 @@ export default function OrdensMissao() {
                                 }`}
                         </p>
                      )}
-                     {ordensRascunhoQuery.isError ? null : ordensRascunhoQuery.isLoading ? (
+                     {rascunhoSemDado ? null : ordensRascunhoQuery.isLoading ? (
                         <ListaOrdensSkeleton />
                      ) : (
                         <div

@@ -52,15 +52,16 @@ export function CleanupTaskCard({
                   size="sm"
                   className="min-h-[32px] shrink-0"
                   disabled={disabled}
+                  aria-busy={running}
                   onClick={onRun}
                   aria-label={`Excluir: ${task.description}`}
                >
                   {running ? (
                      <>
-                        {/* fill-white: a cor default do Spinner é a da marca
-                            e some sobre o botão vermelho */}
-                        <Spinner size="sm" className="mr-2 fill-white" />
-                        Executando...
+                        {/* color="white": a cor default do Spinner é a da
+                            marca e some sobre o botão vermelho */}
+                        <Spinner size="sm" color="white" className="mr-2" />
+                        Executando…
                      </>
                   ) : (
                      <>
@@ -77,7 +78,10 @@ export function CleanupTaskCard({
 
 export function CleanupTaskCardSkeleton() {
    return (
-      <div className="flex h-full flex-col gap-4 rounded border border-slate-200 bg-white p-5 shadow-sm">
+      <div
+         aria-hidden
+         className="flex h-full flex-col gap-4 rounded border border-slate-200 bg-white p-5 shadow-sm"
+      >
          <Skeleton className="h-5 w-3/4" />
          <div className="mt-auto flex items-end justify-between gap-3">
             <div className="space-y-1">

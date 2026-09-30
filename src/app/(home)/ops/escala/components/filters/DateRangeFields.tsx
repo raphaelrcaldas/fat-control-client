@@ -6,9 +6,14 @@ import type { EscalaFiltersState } from "../../types";
 interface DateRangeFieldsProps {
    value: EscalaFiltersState;
    onChange: (next: EscalaFiltersState) => void;
+   disabled?: boolean;
 }
 
-export function DateRangeFields({ value, onChange }: DateRangeFieldsProps) {
+export function DateRangeFields({
+   value,
+   onChange,
+   disabled = false,
+}: DateRangeFieldsProps) {
    const today = useMemo(() => todayIso(), []);
 
    return (
@@ -38,6 +43,7 @@ export function DateRangeFields({ value, onChange }: DateRangeFieldsProps) {
                   });
                }}
                className="font-mono tabular-nums"
+               disabled={disabled}
             />
          </div>
 
@@ -57,6 +63,7 @@ export function DateRangeFields({ value, onChange }: DateRangeFieldsProps) {
                   onChange({ ...value, date_end: e.target.value })
                }
                className="font-mono tabular-nums"
+               disabled={disabled}
             />
          </div>
       </>

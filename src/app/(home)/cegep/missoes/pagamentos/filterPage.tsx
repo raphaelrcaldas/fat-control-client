@@ -21,7 +21,11 @@ import { usePagamentos } from "@/hooks/queries/usePagamentos";
 import { PagamentoRecord } from "services/routes/cegep/financeiro";
 import { usePagamentosFilters } from "./hooks/usePagamentosFilters";
 import { usePagamentosSelection } from "./hooks/usePagamentosSelection";
-import { HiDocumentText, HiCurrencyDollar } from "react-icons/hi";
+import {
+   HiCurrencyDollar,
+   HiDocumentText,
+   HiExclamation,
+} from "react-icons/hi";
 import { clsx } from "clsx";
 
 export function FilterPage({ active }: { active: boolean }) {
@@ -190,7 +194,31 @@ export function FilterPage({ active }: { active: boolean }) {
                            </Select>
                         </div>
                      </div>
-                     {/* Área dos registros com spinner */}
+                     {/* Refetch que falha com a lista em tela: mantém o dado e avisa,
+                         sem trocar a tela pelo erro. */}
+                     {isError && (
+                        <p
+                           role="status"
+                           className="m-2 flex items-center gap-2 rounded border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs text-slate-500"
+                        >
+                           <HiExclamation
+                              aria-hidden
+                              className="size-3.5 shrink-0"
+                           />
+                           <span className="min-w-0 flex-1 truncate">
+                              Não foi possível atualizar a lista
+                           </span>
+                           <button
+                              type="button"
+                              onClick={() => refetch()}
+                              disabled={isFetching}
+                              className="min-h-[24px] shrink-0 font-semibold text-slate-900 underline underline-offset-2 disabled:opacity-50"
+                           >
+                              Tentar novamente
+                           </button>
+                        </p>
+                     )}
+                     {/* Refetch: esmaece o que está em tela, sem spinner */}
                      <div
                         className={clsx(
                            "transition-opacity",

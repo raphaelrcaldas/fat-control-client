@@ -16,6 +16,7 @@ import {
    CreateUserFormData,
 } from "../../schemas/userFormSchema";
 import { PersonalDataSection, MilitaryDataSection } from "./FormSections";
+import { UserFormSkeleton } from "./UserFormSkeleton";
 import { getChangedFields } from "./utils";
 import { applyUserFieldErrors, formatUserSaveError } from "../../userErrors";
 import { formatPhone, formatCpf, formatSaram } from "@/constants/formats";
@@ -103,7 +104,13 @@ export function UserForm({ userId, onSuccess }: UserFormProps) {
    const isEditMode = !!numericUserId;
 
    // React Query hooks
-   const { data: userData, isLoading: loadingUser } = useUser(numericUserId);
+   const {
+      data: userData,
+      isLoading: loadingUser,
+      isError: userError,
+      isFetching: fetchingUser,
+      refetch: refetchUser,
+   } = useUser(numericUserId);
    const updateMutation = useUpdateUser();
    const createMutation = useCreateUser();
 
@@ -214,9 +221,29 @@ export function UserForm({ userId, onSuccess }: UserFormProps) {
    // ========================================
 
    if (loadingUser) {
+      return <UserFormSkeleton />;
+   }
+
+   // Edição sem o cadastro carregado: o form abriria com os valores padrão e
+   // salvar por cima apagaria dados do militar
+   if (isEditMode && userError && !userData) {
       return (
-         <div className="flex h-40 items-center justify-center">
-            <Spinner size="xl" color="primary" />
+         <div
+            role="alert"
+            className="space-y-3 rounded border border-red-300 bg-red-50 p-4"
+         >
+            <p className="text-sm text-red-800">
+               Erro ao carregar o cadastro do usuário. Por favor, tente
+               novamente.
+            </p>
+            <Button
+               color="light"
+               size="xs"
+               onClick={() => refetchUser()}
+               disabled={fetchingUser}
+            >
+               Tentar novamente
+            </Button>
          </div>
       );
    }
@@ -236,13 +263,19 @@ export function UserForm({ userId, onSuccess }: UserFormProps) {
                color="primary"
                type="submit"
                disabled={!hasChanges || isSubmitting}
+               aria-busy={isSubmitting}
                size="lg"
             >
-               {isSubmitting
-                  ? "Salvando..."
-                  : isEditMode
-                    ? "Salvar Alterações"
-                    : "Cadastrar"}
+               {isSubmitting ? (
+                  <>
+                     <Spinner size="sm" color="white" className="mr-2" />
+                     Salvando…
+                  </>
+               ) : isEditMode ? (
+                  "Salvar Alterações"
+               ) : (
+                  "Cadastrar"
+               )}
             </Button>
          </div>
       </form>

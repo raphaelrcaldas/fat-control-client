@@ -32,8 +32,9 @@ function Bar({ className }: { className: string }) {
 
 export function LocEspTableSkeleton({ rows = 8 }: { rows?: number }) {
    return (
-      <div className="overflow-x-auto">
-         <Table>
+      <div role="status" className="overflow-x-auto">
+         <span className="sr-only">Carregando localidades…</span>
+         <Table aria-hidden>
             <TableHead>
                <TableRow>
                   <TableHeadCell className="bg-slate-50 text-left!">

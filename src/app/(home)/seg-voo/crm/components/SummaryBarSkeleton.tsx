@@ -5,11 +5,18 @@ const COUNTERS = [0, 1, 2, 3, 4] as const;
 
 export default function SummaryBarSkeleton() {
    return (
-      <div className="flex items-center gap-3 overflow-hidden rounded border border-slate-200 bg-white p-2.5 shadow-sm">
+      <div
+         role="status"
+         className="flex items-center gap-3 overflow-hidden rounded border border-slate-200 bg-white p-2.5 shadow-sm"
+      >
+         <span className="sr-only">Carregando resumo do CRM…</span>
          {/* Alturas presas ao texto real (1rem = 14px): "Situação" é
              `text-sm` (line-box 17,5px) e a contagem é `text-[11px]`. É a
              identidade que dita a altura da faixa no desktop. */}
-         <div className="flex w-28 shrink-0 items-center gap-2 sm:w-36">
+         <div
+            aria-hidden
+            className="flex w-28 shrink-0 items-center gap-2 sm:w-36"
+         >
             <div className="h-8 w-8 animate-pulse rounded-md bg-slate-200" />
             <div className="space-y-1.5">
                <div className="flex h-5 items-center">
@@ -20,7 +27,10 @@ export default function SummaryBarSkeleton() {
                </div>
             </div>
          </div>
-         <div className="grid min-w-0 flex-1 grid-cols-3 gap-1.5 sm:grid-cols-5">
+         <div
+            aria-hidden
+            className="grid min-w-0 flex-1 grid-cols-3 gap-1.5 sm:grid-cols-5"
+         >
             {COUNTERS.map((i) => (
                <div
                   key={i}

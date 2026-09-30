@@ -6,6 +6,8 @@ import {
    FaMagnifyingGlass,
    FaTriangleExclamation,
 } from "react-icons/fa6";
+import { Button } from "flowbite-react";
+import { MdErrorOutline } from "react-icons/md";
 import { useToast } from "@/app/context/toast";
 import {
    useSubprogramas,
@@ -40,7 +42,17 @@ import {
 export default function SubprogramasPage() {
    const { push } = useToast();
 
-   const { data: subprogramas = [], isLoading, error } = useSubprogramas();
+   const {
+      data: subprogramasData,
+      isLoading,
+      error,
+      isFetching,
+      refetch,
+   } = useSubprogramas();
+   const subprogramas = useMemo(
+      () => subprogramasData ?? [],
+      [subprogramasData]
+   );
    const createMutation = useCreateSubprograma();
    const updateMutation = useUpdateSubprograma();
    const deleteMutation = useDeleteSubprograma();
@@ -114,14 +126,44 @@ export default function SubprogramasPage() {
             }}
          />
 
+         {error && subprogramasData && (
+            <p
+               role="status"
+               className="flex items-center gap-2 rounded border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs text-slate-500"
+            >
+               <MdErrorOutline aria-hidden className="size-3.5 shrink-0" />
+               <span className="min-w-0 flex-1 truncate">
+                  Não foi possível atualizar a lista
+               </span>
+               <button
+                  type="button"
+                  onClick={() => refetch()}
+                  disabled={isFetching}
+                  className="min-h-[24px] shrink-0 font-semibold text-slate-900 underline underline-offset-2 disabled:opacity-50"
+               >
+                  Tentar novamente
+               </button>
+            </p>
+         )}
+
          {isLoading ? (
             <SubprogramasTableSkeleton />
-         ) : error ? (
+         ) : error && !subprogramasData ? (
             <EmptyState
                icon={FaTriangleExclamation}
                title="Erro ao carregar os subprogramas"
                description={
                   error instanceof Error ? error.message : "Tente novamente"
+               }
+               action={
+                  <Button
+                     color="light"
+                     size="xs"
+                     onClick={() => refetch()}
+                     disabled={isFetching}
+                  >
+                     Tentar novamente
+                  </Button>
                }
             />
          ) : subprogramas.length === 0 ? (

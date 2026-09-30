@@ -1,4 +1,4 @@
-import request, { parseApiResponse, ApiError } from "../../Api";
+import request, { parseApiResponse, ApiError, readApiData } from "../../Api";
 import type { ApiResponse, ApiResult } from "@/types/api";
 import { UserPublic } from "../users";
 import type { UserActionLog } from "../logs";
@@ -76,7 +76,7 @@ export async function getCartoesSaude(
       signal
    );
 
-   const json = (await response.json()) as ApiResponse<UserCartaoSaude[]>;
+   const json = await readApiData<ApiResponse<UserCartaoSaude[]>>(response);
    return json.data || [];
 }
 
@@ -120,21 +120,18 @@ export async function getCartaoSaudeHistorico(
    user_id: number,
    signal?: AbortSignal
 ): Promise<UserActionLog[]> {
-   const parsed = await parseApiResponse<UserActionLog[]>(
-      await request(
-         "GET",
-         `${cartoesSaudeRoute}user/${user_id}/historico`,
-         null,
-         { limit: HISTORICO_LIMIT },
-         signal
-      )
+   const response = await request(
+      "GET",
+      `${cartoesSaudeRoute}user/${user_id}/historico`,
+      null,
+      { limit: HISTORICO_LIMIT },
+      signal
    );
-   if (!parsed.ok) {
-      throw new ApiError(
-         parsed.message || "Erro ao carregar histórico",
-         parsed.errors
-      );
-   }
+   const parsed = await readApiData<ApiResponse<UserActionLog[]>>(
+      response,
+      (message) => message || "Erro ao carregar histórico"
+   );
+
    return parsed.data || [];
 }
 
@@ -165,13 +162,22 @@ export interface OrfaosAeromedicaDeleteResponse {
 export async function getOrfaosAeromedica(
    signal?: AbortSignal
 ): Promise<OrfaosAeromedicaResumo> {
-   const parsed = await parseApiResponse<OrfaosAeromedicaResumo>(
-      await request("GET", `${cartoesSaudeRoute}orfaos`, null, null, signal)
+   const response = await request(
+      "GET",
+      `${cartoesSaudeRoute}orfaos`,
+      null,
+      null,
+      signal
    );
-   if (!parsed.ok || !parsed.data) {
+   const parsed = await readApiData<ApiResponse<OrfaosAeromedicaResumo>>(
+      response,
+      (message) => message || "Erro ao carregar documentos órfãos"
+   );
+   if (!parsed.data) {
       throw new ApiError(
          parsed.message || "Erro ao carregar documentos órfãos",
-         parsed.errors
+         parsed.errors,
+         response.status
       );
    }
    return parsed.data;

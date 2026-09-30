@@ -33,6 +33,11 @@ interface AddMilitaresModalProps {
    buscandoRemunId: number | null;
    /** Militares com comissionamento aberto — avisa, não bloqueia. */
    conflitosIds: Set<number>;
+   /**
+    * A lista de comissionamentos abertos falhou: sem ela o aviso "Comiss.
+    * aberto" some em silêncio, e a ausência não pode passar por "sem conflito".
+    */
+   conflitosIndisponiveis?: boolean;
    cenarioNome: string;
 }
 
@@ -47,6 +52,7 @@ export function AddMilitaresModal({
    onToggle,
    buscandoRemunId,
    conflitosIds,
+   conflitosIndisponiveis = false,
    cenarioNome,
 }: AddMilitaresModalProps) {
    const [query, setQuery] = useState("");
@@ -117,7 +123,7 @@ export function AddMilitaresModal({
                      <div
                         className={clsx(
                            "transition-opacity duration-200",
-                           isFetching ? "opacity-50" : "opacity-100"
+                           isFetching && "opacity-50"
                         )}
                      >
                         <div className="sticky top-0 z-10 flex items-center gap-2 border-b border-slate-200 bg-slate-50 px-4 py-2 text-xs font-medium text-slate-500">
@@ -194,6 +200,13 @@ export function AddMilitaresModal({
                   )}
                </div>
 
+               {conflitosIndisponiveis && (
+                  <p role="status" className="text-xs text-red-700">
+                     Não foi possível verificar os comissionamentos abertos: o
+                     aviso &ldquo;Comiss. aberto&rdquo; pode estar incompleto.
+                  </p>
+               )}
+
                <p className="text-xs text-slate-500">
                   {selecionadosIds.size} militar
                   {selecionadosIds.size !== 1 ? "es" : ""} em {cenarioNome}. As
@@ -211,24 +224,27 @@ const SKELETON_WIDTHS = ["w-48", "w-40", "w-56", "w-44", "w-52", "w-36"];
 
 function ResultadosSkeleton() {
    return (
-      <div>
-         <div className="sticky top-0 z-10 flex items-center gap-2 border-b border-slate-200 bg-slate-50 px-4 py-2">
-            <div className="size-4 animate-pulse rounded-full bg-slate-200" />
-            <div className="h-3 w-32 animate-pulse rounded bg-slate-200" />
+      <div role="status">
+         <span className="sr-only">Buscando militares…</span>
+         <div aria-hidden>
+            <div className="sticky top-0 z-10 flex items-center gap-2 border-b border-slate-200 bg-slate-50 px-4 py-2">
+               <div className="size-4 animate-pulse rounded-full bg-slate-200" />
+               <div className="h-3 w-32 animate-pulse rounded bg-slate-200" />
+            </div>
+            <ul className="divide-y divide-slate-100">
+               {SKELETON_WIDTHS.map((w, i) => (
+                  <li key={i} className="flex items-center gap-3 px-4 py-3">
+                     <div className="size-4 shrink-0 animate-pulse rounded-full bg-slate-200" />
+                     <div
+                        className={clsx(
+                           "h-3.5 animate-pulse rounded bg-slate-200",
+                           w
+                        )}
+                     />
+                  </li>
+               ))}
+            </ul>
          </div>
-         <ul className="divide-y divide-slate-100">
-            {SKELETON_WIDTHS.map((w, i) => (
-               <li key={i} className="flex items-center gap-3 px-4 py-3">
-                  <div className="size-4 shrink-0 animate-pulse rounded-full bg-slate-200" />
-                  <div
-                     className={clsx(
-                        "h-3.5 animate-pulse rounded bg-slate-200",
-                        w
-                     )}
-                  />
-               </li>
-            ))}
-         </ul>
       </div>
    );
 }

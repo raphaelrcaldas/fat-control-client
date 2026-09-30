@@ -96,15 +96,12 @@ export function RemovePermissionModal({
                      onClick={onConfirm}
                      type="button"
                      disabled={isPending}
+                     aria-busy={isPending}
                   >
                      {isPending ? (
                         <>
-                           <Spinner
-                              size="sm"
-                              color="primary"
-                              className="mr-2"
-                           />
-                           Removendo...
+                           <Spinner size="sm" color="white" className="mr-2" />
+                           Removendo…
                         </>
                      ) : (
                         <>

@@ -20,8 +20,9 @@ export default function PassaportesTableSkeleton({
    rows?: number;
 }) {
    return (
-      <div className="overflow-x-auto">
-         <Table>
+      <div role="status" className="overflow-x-auto">
+         <span className="sr-only">Carregando passaportes…</span>
+         <Table aria-hidden>
             <TableHead className="border-b border-slate-200 bg-gray-50 text-xs text-gray-700 uppercase">
                <TableRow>
                   <TableHeadCell className="w-1 p-0" />

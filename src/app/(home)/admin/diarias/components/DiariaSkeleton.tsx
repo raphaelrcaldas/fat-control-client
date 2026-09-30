@@ -39,10 +39,12 @@ function TableRowsSkeleton({ rows }: { rows: number }) {
 
 export function DiariaSkeleton() {
    return (
-      <div className="space-y-3">
+      <div role="status" className="space-y-3">
+         <span className="sr-only">Carregando valores de diárias…</span>
          {GRUPOS_ROWS.map((rows, i) => (
             <div
                key={i}
+               aria-hidden
                className="rounded border border-slate-200 bg-slate-50 p-4"
             >
                <Skeleton className="mb-3 h-4 w-56" />

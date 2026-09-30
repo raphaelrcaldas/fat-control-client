@@ -1,8 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Alert } from "flowbite-react";
-import { HiExclamation } from "react-icons/hi";
+import { Button } from "flowbite-react";
 import { useSoldos } from "@/hooks/queries";
 import { SoldoPublic } from "services/routes/admin/soldos";
 import { SoldoFormData } from "./schemas/soldoSchema";
@@ -26,11 +25,13 @@ export default function SoldosPage() {
    );
 
    const {
-      data: soldos = [],
+      data: soldosData,
       isLoading,
       isFetching,
       error,
+      refetch,
    } = useSoldos(queryParams);
+   const soldos = useMemo(() => soldosData ?? [], [soldosData]);
    const { save, remove, isSaving, isDeleting } = useSoldoMutations();
 
    const sortedSoldos = useMemo(() => sortSoldosByAnt(soldos), [soldos]);
@@ -59,16 +60,32 @@ export default function SoldosPage() {
    };
 
    const errorMessage = error instanceof Error ? error.message : null;
+   // Falha sem dado em tela: "Nenhum soldo encontrado" seria mentira
+   const semDado = Boolean(error) && !soldosData;
    const hasFilters = Boolean(circulo) || onlyActive;
 
    return (
       <div className="space-y-2">
          <SoldosMasthead onCreate={() => handleOpenModal()} />
 
-         {errorMessage && (
-            <Alert color="failure" icon={HiExclamation}>
-               <span className="font-medium">Erro!</span> {errorMessage}
-            </Alert>
+         {/* Refetch que falhou com a tabela em tela: mantém e avisa */}
+         {error && soldosData && (
+            <p
+               role="status"
+               className="flex items-center gap-2 rounded border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs text-slate-500"
+            >
+               <span className="min-w-0 flex-1 truncate">
+                  {errorMessage ?? "Não foi possível atualizar os soldos"}
+               </span>
+               <button
+                  type="button"
+                  onClick={() => refetch()}
+                  disabled={isFetching}
+                  className="min-h-[24px] shrink-0 font-semibold text-slate-900 underline underline-offset-2 disabled:opacity-50"
+               >
+                  Tentar novamente
+               </button>
+            </p>
          )}
 
          <SoldosFilters
@@ -79,7 +96,7 @@ export default function SoldosPage() {
             disabled={isLoading}
          />
 
-         {!isLoading && (
+         {!isLoading && !semDado && (
             <p className="text-xs font-medium text-slate-400">
                {sortedSoldos.length}{" "}
                {sortedSoldos.length === 1
@@ -88,34 +105,54 @@ export default function SoldosPage() {
             </p>
          )}
 
-         <div className="overflow-hidden rounded border border-slate-200 bg-white shadow-sm">
-            {isLoading ? (
-               <SoldoTableSkeleton />
-            ) : sortedSoldos.length === 0 ? (
-               <div className="px-4 py-16 text-center">
-                  <p className="text-sm font-semibold text-slate-600">
-                     Nenhum soldo encontrado
-                  </p>
-                  <p className="mt-1 text-xs text-slate-400">
-                     {hasFilters
-                        ? "Não há registros para os filtros selecionados."
-                        : "Comece adicionando o primeiro registro de soldo."}
-                  </p>
-               </div>
-            ) : (
-               <div
-                  className={`transition-opacity ${
-                     isFetching ? "pointer-events-none opacity-50" : ""
-                  }`}
+         {semDado ? (
+            <div
+               role="alert"
+               className="space-y-3 rounded border border-red-300 bg-red-50 p-4"
+            >
+               <p className="text-sm text-red-800">
+                  {errorMessage ??
+                     "Erro ao carregar os soldos. Por favor, tente novamente."}
+               </p>
+               <Button
+                  color="light"
+                  size="xs"
+                  onClick={() => refetch()}
+                  disabled={isFetching}
                >
-                  <SoldoTable
-                     soldos={sortedSoldos}
-                     onEdit={handleOpenModal}
-                     onDelete={setSoldoParaExcluir}
-                  />
-               </div>
-            )}
-         </div>
+                  Tentar novamente
+               </Button>
+            </div>
+         ) : (
+            <div className="overflow-hidden rounded border border-slate-200 bg-white shadow-sm">
+               {isLoading ? (
+                  <SoldoTableSkeleton />
+               ) : sortedSoldos.length === 0 ? (
+                  <div className="px-4 py-16 text-center">
+                     <p className="text-sm font-semibold text-slate-600">
+                        Nenhum soldo encontrado
+                     </p>
+                     <p className="mt-1 text-xs text-slate-400">
+                        {hasFilters
+                           ? "Não há registros para os filtros selecionados."
+                           : "Comece adicionando o primeiro registro de soldo."}
+                     </p>
+                  </div>
+               ) : (
+                  <div
+                     className={`transition-opacity ${
+                        isFetching ? "pointer-events-none opacity-50" : ""
+                     }`}
+                  >
+                     <SoldoTable
+                        soldos={sortedSoldos}
+                        onEdit={handleOpenModal}
+                        onDelete={setSoldoParaExcluir}
+                     />
+                  </div>
+               )}
+            </div>
+         )}
 
          <ConfirmModal
             show={soldoParaExcluir !== null}

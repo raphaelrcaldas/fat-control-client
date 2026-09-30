@@ -15,9 +15,20 @@ interface SolTilesProps {
 export function SolTiles({ sol, solLoading, solError }: SolTilesProps) {
    if (solLoading) {
       return (
+         // Os dois blocos são itens da grade do `MetarCard`, sem wrapper: o
+         // `role="status"` fica no primeiro e o segundo é decorativo. `h-18`
+         // = altura do `MetarInfoTile` real.
          <>
-            <div className="h-16 animate-pulse rounded-xl bg-gray-100" />
-            <div className="h-16 animate-pulse rounded-xl bg-gray-100" />
+            <div
+               role="status"
+               className="h-18 animate-pulse rounded-xl bg-slate-100"
+            >
+               <span className="sr-only">Carregando nascer e pôr do sol…</span>
+            </div>
+            <div
+               aria-hidden
+               className="h-18 animate-pulse rounded-xl bg-slate-100"
+            />
          </>
       );
    }

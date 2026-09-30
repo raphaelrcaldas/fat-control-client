@@ -17,7 +17,7 @@ import {
    FaPlaneDeparture,
    FaRegMoneyBillAlt,
 } from "react-icons/fa";
-import { HiOutlineAdjustments } from "react-icons/hi";
+import { HiExclamation, HiOutlineAdjustments } from "react-icons/hi";
 import { useState, useMemo } from "react";
 import { formatDateFull, isoStrToDate } from "@/../utils/dateHandler";
 import { realCurrency } from "utils/financeiro";
@@ -64,7 +64,8 @@ export function GestaoFiscalPage() {
    const [ano, setAno] = useState<number>(getDefaultFiscalYear());
    const router = useRouter();
 
-   const { data, isLoading, isFetching } = useComissSummary(ano);
+   const { data, isLoading, isFetching, isError, refetch } =
+      useComissSummary(ano);
 
    const { sortConfig, requestSort } = useSortConfig<SortKey>({
       key: "data_ab",
@@ -174,8 +175,19 @@ export function GestaoFiscalPage() {
          {isLoading ? (
             <GestaoFiscalSkeleton />
          ) : !data ? (
-            <div className="flex justify-center py-20 text-slate-500">
-               Erro ao carregar dados orçamentários.
+            <div
+               role="alert"
+               className="flex flex-col items-center gap-3 py-20 text-slate-500"
+            >
+               <p>Erro ao carregar dados orçamentários.</p>
+               <Button
+                  size="sm"
+                  color="light"
+                  onClick={() => refetch()}
+                  disabled={isFetching}
+               >
+                  Tentar novamente
+               </Button>
             </div>
          ) : (
             <div
@@ -184,6 +196,28 @@ export function GestaoFiscalPage() {
                   isFetching && "opacity-50"
                )}
             >
+               {/* Refetch que falha com o painel em tela: mantém o dado e
+                   avisa, sem trocar a tela pelo erro. */}
+               {isError && (
+                  <p
+                     role="status"
+                     className="flex items-center gap-2 rounded border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs text-slate-500"
+                  >
+                     <HiExclamation aria-hidden className="size-3.5 shrink-0" />
+                     <span className="min-w-0 flex-1 truncate">
+                        Não foi possível atualizar os dados
+                     </span>
+                     <button
+                        type="button"
+                        onClick={() => refetch()}
+                        disabled={isFetching}
+                        className="min-h-[24px] shrink-0 font-semibold text-slate-900 underline underline-offset-2 disabled:opacity-50"
+                     >
+                        Tentar novamente
+                     </button>
+                  </p>
+               )}
+
                {/* EMPTY STATE — sem orçamento cadastrado para o ano */}
                {!data.orcamento_id && (
                   <div className="flex flex-col items-center gap-3 rounded border border-dashed border-slate-300 bg-slate-50 py-10 text-center">

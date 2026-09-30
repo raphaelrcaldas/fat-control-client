@@ -260,15 +260,16 @@ export function LocEspFormModal({
                         color="primary"
                         onClick={handleSubmit}
                         disabled={isSaving}
+                        aria-busy={isSaving}
                      >
                         {isSaving && (
-                           <Spinner
-                              size="sm"
-                              color="primary"
-                              className="mr-2"
-                           />
+                           <Spinner size="sm" color="white" className="mr-2" />
                         )}
-                        {isEdicao ? "Salvar" : "Cadastrar"}
+                        {isSaving
+                           ? "Salvando…"
+                           : isEdicao
+                             ? "Salvar"
+                             : "Cadastrar"}
                      </Button>
                   </PermBased>
                </div>

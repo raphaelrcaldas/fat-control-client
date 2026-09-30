@@ -295,12 +295,11 @@ export default function EtapasPage() {
                   <div
                      className={clsx(
                         "transition-opacity duration-200",
-                        filters.isRefetching && "pointer-events-none opacity-40"
+                        filters.isRefetching && "pointer-events-none opacity-50"
                      )}
                   >
                      <EtapasTable
                         missoes={filters.missoes}
-                        loading={filters.isRefetching}
                         selectedIds={selectedIds}
                         onToggleEtapa={toggleEtapa}
                         onToggleMissao={toggleMissao}

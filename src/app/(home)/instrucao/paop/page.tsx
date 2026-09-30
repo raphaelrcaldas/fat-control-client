@@ -7,6 +7,8 @@ import {
    FaMagnifyingGlass,
    FaTriangleExclamation,
 } from "react-icons/fa6";
+import { Button } from "flowbite-react";
+import { MdErrorOutline } from "react-icons/md";
 import { useToast } from "@/app/context/toast";
 import {
    usePaops,
@@ -40,9 +42,23 @@ import {
 export default function PaopPage() {
    const { push } = useToast();
 
-   const { data: paops = [], isLoading, error } = usePaops();
+   const {
+      data: paopsData,
+      isLoading,
+      error,
+      isFetching,
+      refetch,
+   } = usePaops();
+   const paops = useMemo(() => paopsData ?? [], [paopsData]);
    const [selecionadoId, setSelecionadoId] = useState<number | null>(null);
-   const { data: paop, isLoading: carregandoPlano } = usePaop(selecionadoId);
+   const {
+      data: paop,
+      isLoading: carregandoPlano,
+      isError: erroPlano,
+      error: erroDoPlano,
+      isFetching: buscandoPlano,
+      refetch: refetchPlano,
+   } = usePaop(selecionadoId);
 
    const createMutation = useCreatePaop();
    const updateMutation = useUpdatePaop();
@@ -155,6 +171,9 @@ export default function PaopPage() {
       }
    }
 
+   const erroListaComDados = Boolean(error && paopsData);
+   const erroPlanoComDados = Boolean(erroPlano && paop);
+
    return (
       <div className="space-y-2">
          <PaopHeader
@@ -164,14 +183,55 @@ export default function PaopPage() {
             }}
          />
 
+         {(erroListaComDados || erroPlanoComDados) && (
+            <p
+               role="status"
+               className="flex items-center gap-2 rounded border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs text-slate-500"
+            >
+               <MdErrorOutline aria-hidden className="size-3.5 shrink-0" />
+               <span className="min-w-0 flex-1 truncate">
+                  {erroListaComDados && erroPlanoComDados
+                     ? "Não foi possível atualizar a lista de anos e o plano"
+                     : erroListaComDados
+                       ? "Não foi possível atualizar a lista de anos"
+                       : "Não foi possível atualizar o plano"}{" "}
+                  — mostrando os últimos dados.
+               </span>
+               <button
+                  type="button"
+                  onClick={() => {
+                     if (erroListaComDados) refetch();
+                     if (erroPlanoComDados) refetchPlano();
+                  }}
+                  disabled={
+                     (erroListaComDados && isFetching) ||
+                     (erroPlanoComDados && buscandoPlano)
+                  }
+                  className="min-h-[24px] shrink-0 font-semibold text-slate-900 underline underline-offset-2 disabled:opacity-50"
+               >
+                  Tentar novamente
+               </button>
+            </p>
+         )}
+
          {isLoading ? (
             <PaopSkeleton />
-         ) : error ? (
+         ) : error && !paopsData ? (
             <EmptyState
                icon={FaTriangleExclamation}
                title="Erro ao carregar os PAOPs"
                description={
                   error instanceof Error ? error.message : "Tente novamente"
+               }
+               action={
+                  <Button
+                     color="light"
+                     size="xs"
+                     onClick={() => refetch()}
+                     disabled={isFetching}
+                  >
+                     Tentar novamente
+                  </Button>
                }
             />
          ) : !selecionado ? (
@@ -197,6 +257,26 @@ export default function PaopPage() {
 
                {carregandoPlano ? (
                   <PaopSkeleton />
+               ) : erroPlano && !paop ? (
+                  <EmptyState
+                     icon={FaTriangleExclamation}
+                     title="Erro ao carregar o plano"
+                     description={
+                        erroDoPlano instanceof Error
+                           ? erroDoPlano.message
+                           : "Tente novamente"
+                     }
+                     action={
+                        <Button
+                           color="light"
+                           size="xs"
+                           onClick={() => refetchPlano()}
+                           disabled={buscandoPlano}
+                        >
+                           Tentar novamente
+                        </Button>
+                     }
+                  />
                ) : itens.length === 0 ? (
                   <EmptyState
                      icon={FaListCheck}

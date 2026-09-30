@@ -96,6 +96,7 @@ export function QuadsTrip({
    const {
       data: quads = [],
       isLoading: loading,
+      isFetching,
       isError,
       refetch,
    } = useQuadsByTrip(trip.id, quadType, openModal);
@@ -294,65 +295,87 @@ export function QuadsTrip({
                <div className="max-h-[55vh] overflow-y-auto rounded border border-slate-200 bg-white shadow-sm">
                   {loading ? (
                      <LoadingState comSelecao={comSelecao} />
-                  ) : isError ? (
-                     <ErrorState onRetry={() => refetch()} />
+                  ) : isError && quads.length === 0 ? (
+                     <ErrorState
+                        onRetry={() => refetch()}
+                        isFetching={isFetching}
+                     />
                   ) : quads.length > 0 ? (
-                     <Table>
-                        <TableHead>
-                           <TableRow>
-                              {comSelecao && (
-                                 <TableHeadCell className={CELULA_CABECALHO}>
-                                    <label className={ALVO_CHECKBOX}>
-                                       <Checkbox
-                                          ref={selectAllRef}
-                                          color="primary"
-                                          checked={todosSelecionados}
-                                          onChange={
-                                             todosSelecionados
-                                                ? handleClearSelection
-                                                : handleSelectAll
-                                          }
-                                          aria-label={
-                                             todosSelecionados
-                                                ? "Desmarcar todos os quadrinhos"
-                                                : "Selecionar todos os quadrinhos"
-                                          }
-                                          className={QUAD_CHECKBOX_CLASS}
-                                       />
-                                    </label>
+                     <>
+                        {/* Refetch falho com a lista em tela: mantém e avisa. */}
+                        {isError && (
+                           <div
+                              role="status"
+                              className="flex flex-wrap items-center gap-2 border-b border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900"
+                           >
+                              A atualização falhou — mostrando os últimos dados.
+                              <button
+                                 type="button"
+                                 onClick={() => refetch()}
+                                 disabled={isFetching}
+                                 className="font-semibold underline underline-offset-2 disabled:opacity-50"
+                              >
+                                 Tentar novamente
+                              </button>
+                           </div>
+                        )}
+                        <Table>
+                           <TableHead>
+                              <TableRow>
+                                 {comSelecao && (
+                                    <TableHeadCell className={CELULA_CABECALHO}>
+                                       <label className={ALVO_CHECKBOX}>
+                                          <Checkbox
+                                             ref={selectAllRef}
+                                             color="primary"
+                                             checked={todosSelecionados}
+                                             onChange={
+                                                todosSelecionados
+                                                   ? handleClearSelection
+                                                   : handleSelectAll
+                                             }
+                                             aria-label={
+                                                todosSelecionados
+                                                   ? "Desmarcar todos os quadrinhos"
+                                                   : "Selecionar todos os quadrinhos"
+                                             }
+                                             className={QUAD_CHECKBOX_CLASS}
+                                          />
+                                       </label>
+                                    </TableHeadCell>
+                                 )}
+                                 <TableHeadCell
+                                    className={clsx(CELULA_CABECALHO, "w-24")}
+                                 >
+                                    Data
                                  </TableHeadCell>
-                              )}
-                              <TableHeadCell
-                                 className={clsx(CELULA_CABECALHO, "w-24")}
-                              >
-                                 Data
-                              </TableHeadCell>
-                              <TableHeadCell className={CELULA_CABECALHO}>
-                                 Observações
-                              </TableHeadCell>
-                              <TableHeadCell
-                                 className={clsx(CELULA_CABECALHO, "w-12")}
-                              >
-                                 <span className="sr-only">Ações</span>
-                              </TableHeadCell>
-                           </TableRow>
-                        </TableHead>
-                        <TableBody>
-                           {quads.map((quad) => (
-                              <QuadRow
-                                 key={quad.id ?? quad.value}
-                                 quad={quad}
-                                 trip={trip}
-                                 comSelecao={comSelecao}
-                                 selected={
-                                    quad.id !== undefined &&
-                                    selectedIds.has(quad.id)
-                                 }
-                                 onToggleSelect={handleToggleSelect}
-                              />
-                           ))}
-                        </TableBody>
-                     </Table>
+                                 <TableHeadCell className={CELULA_CABECALHO}>
+                                    Observações
+                                 </TableHeadCell>
+                                 <TableHeadCell
+                                    className={clsx(CELULA_CABECALHO, "w-12")}
+                                 >
+                                    <span className="sr-only">Ações</span>
+                                 </TableHeadCell>
+                              </TableRow>
+                           </TableHead>
+                           <TableBody>
+                              {quads.map((quad) => (
+                                 <QuadRow
+                                    key={quad.id ?? quad.value}
+                                    quad={quad}
+                                    trip={trip}
+                                    comSelecao={comSelecao}
+                                    selected={
+                                       quad.id !== undefined &&
+                                       selectedIds.has(quad.id)
+                                    }
+                                    onToggleSelect={handleToggleSelect}
+                                 />
+                              ))}
+                           </TableBody>
+                        </Table>
+                     </>
                   ) : (
                      <EmptyState />
                   )}
@@ -388,6 +411,7 @@ export function QuadsTrip({
                         color="gray"
                         size="sm"
                         disabled={batchDeleting}
+                        aria-busy={batchDeleting}
                         onClick={() => setShowBatchDeleteConfirm(true)}
                         className="shrink-0 whitespace-nowrap"
                      >
@@ -400,7 +424,9 @@ export function QuadsTrip({
                         ) : (
                            <FaRegTrashCan className="mr-2 h-4 w-4" />
                         )}
-                        Deletar ({nSelecionados})
+                        {batchDeleting
+                           ? "Deletando…"
+                           : `Deletar (${nSelecionados})`}
                      </Button>
                   )}
                </PermBased>
@@ -523,30 +549,39 @@ function QuadRow({
 /** Espelha a tabela real — mesmas colunas, mesma altura de linha. */
 function LoadingState({ comSelecao }: { comSelecao: boolean }) {
    return (
-      <div className="divide-y divide-slate-200">
-         <div className="flex items-center gap-3 bg-gray-50 px-3 py-2">
-            {comSelecao && (
-               <div className="size-[24px] shrink-0 animate-pulse rounded bg-slate-200" />
-            )}
-            <div className="h-3 w-16 animate-pulse rounded bg-slate-200" />
-            <div className="h-3 w-24 animate-pulse rounded bg-slate-200" />
-         </div>
-
-         {Array.from({ length: 6 }).map((_, i) => (
-            <div key={i} className="flex items-center gap-3 px-3 py-2">
+      <div role="status">
+         <span className="sr-only">Carregando quadrinhos…</span>
+         <div aria-hidden className="divide-y divide-slate-200">
+            <div className="flex items-center gap-3 bg-gray-50 px-3 py-2">
                {comSelecao && (
                   <div className="size-[24px] shrink-0 animate-pulse rounded bg-slate-200" />
                )}
-               <div className="h-4 w-16 shrink-0 animate-pulse rounded bg-slate-200" />
-               <div className="h-4 flex-1 animate-pulse rounded bg-slate-100" />
-               <div className="size-8 shrink-0 animate-pulse rounded bg-slate-100" />
+               <div className="h-3 w-16 animate-pulse rounded bg-slate-200" />
+               <div className="h-3 w-24 animate-pulse rounded bg-slate-200" />
             </div>
-         ))}
+
+            {Array.from({ length: 6 }).map((_, i) => (
+               <div key={i} className="flex items-center gap-3 px-3 py-2">
+                  {comSelecao && (
+                     <div className="size-[24px] shrink-0 animate-pulse rounded bg-slate-200" />
+                  )}
+                  <div className="h-4 w-16 shrink-0 animate-pulse rounded bg-slate-200" />
+                  <div className="h-4 flex-1 animate-pulse rounded bg-slate-100" />
+                  <div className="size-8 shrink-0 animate-pulse rounded bg-slate-100" />
+               </div>
+            ))}
+         </div>
       </div>
    );
 }
 
-function ErrorState({ onRetry }: { onRetry: () => void }) {
+function ErrorState({
+   onRetry,
+   isFetching,
+}: {
+   onRetry: () => void;
+   isFetching: boolean;
+}) {
    return (
       <div className="flex flex-col items-center justify-center gap-2 px-4 py-10">
          <p className="text-sm font-semibold text-gray-700">
@@ -555,7 +590,13 @@ function ErrorState({ onRetry }: { onRetry: () => void }) {
          <p className="text-center text-sm text-gray-500">
             Não foi possível buscar os dados deste tripulante.
          </p>
-         <Button color="light" size="sm" className="mt-1" onClick={onRetry}>
+         <Button
+            color="light"
+            size="sm"
+            className="mt-1"
+            onClick={onRetry}
+            disabled={isFetching}
+         >
             Tentar novamente
          </Button>
       </div>

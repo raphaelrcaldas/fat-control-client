@@ -50,6 +50,7 @@ export function MissionPage({
                show={form.showDeleteModal}
                onClose={() => form.setShowDeleteModal(false)}
                onConfirm={form.handleDelete}
+               isDeleting={form.isDeleting}
                missionInfo={{
                   tipoDoc: form.tipoDoc,
                   nDoc: form.nDoc,

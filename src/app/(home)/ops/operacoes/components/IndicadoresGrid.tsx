@@ -28,6 +28,7 @@ interface Metrica {
    texto?: string;
    unidade?: string;
    apoio?: string;
+   carregando?: boolean;
 }
 
 /**
@@ -54,8 +55,10 @@ export function IndicadoresGrid({
    kpis,
    efetivo,
    circulos,
+   efetivoLoading = false,
 }: {
    kpis: OperacaoKpis;
+   efetivoLoading?: boolean;
    efetivo?: number;
    /** Composição do efetivo por círculo, para o apoio do cartão. */
    circulos?: ContagemCirculo[];
@@ -91,20 +94,17 @@ export function IndicadoresGrid({
       // Efetivo entra junto de etapas e aeronaves: é dimensão da operação,
       // como elas, e não produção de voo. No fim da lista ele sobrava sozinho
       // numa terceira fileira de quatro colunas.
-      ...(efetivo !== undefined
-         ? [
-              {
-                 label: "Efetivo",
-                 icon: <TbUsersGroup className="h-5 w-5" />,
-                 value: efetivo,
-                 // A composição por círculo cabe no apoio do cartão e responde
-                 // "30 militares, mas quantos oficiais?" sem abrir a lista.
-                 apoio: circulos?.length
-                    ? circulos.map((c) => `${c.total} ${c.label}`).join(" · ")
-                    : undefined,
-              } as Metrica,
-           ]
-         : []),
+      {
+         label: "Efetivo",
+         icon: <TbUsersGroup className="h-5 w-5" />,
+         value: efetivo ?? null,
+         carregando: efetivoLoading,
+         // A composição por círculo cabe no apoio do cartão e responde
+         // "30 militares, mas quantos oficiais?" sem abrir a lista.
+         apoio: circulos?.length
+            ? circulos.map((c) => `${c.total} ${c.label}`).join(" · ")
+            : undefined,
+      },
       {
          label: "Pax transportados",
          icon: <TbUsers className="h-5 w-5" />,
@@ -150,12 +150,24 @@ export function IndicadoresGrid({
       },
    ];
 
-   const visiveis = metricas.filter((m) => m.value == null || m.value > 0);
-   const zerados = metricas.filter((m) => m.value === 0);
+   const visiveis = metricas.filter(
+      (m) => m.carregando || m.value == null || m.value > 0
+   );
+   const zerados = metricas.filter((m) => !m.carregando && m.value === 0);
 
    return (
-      <section aria-label="Indicadores da operação" className="space-y-2">
-         <div className="grid grid-cols-2 gap-2 md:grid-cols-3 xl:grid-cols-4">
+      <section
+         aria-label="Indicadores da operação"
+         className="space-y-2"
+         role={efetivoLoading ? "status" : undefined}
+      >
+         {efetivoLoading && (
+            <span className="sr-only">Carregando indicadores da operação…</span>
+         )}
+         <div
+            className="grid grid-cols-2 gap-2 md:grid-cols-3 xl:grid-cols-4"
+            aria-hidden={efetivoLoading || undefined}
+         >
             {visiveis.map((m) => (
                <KpiCard
                   key={m.label}
@@ -165,7 +177,8 @@ export function IndicadoresGrid({
                      m.value == null ? null : (m.texto ?? nf.format(m.value))
                   }
                   unit={m.unidade}
-                  sub={m.apoio}
+                  sub={efetivoLoading ? undefined : m.apoio}
+                  isLoading={efetivoLoading}
                   reservaSub
                />
             ))}

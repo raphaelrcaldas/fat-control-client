@@ -57,10 +57,23 @@ export default function OrcamentoAnualPage() {
    const [fechamentoCents, setFechamentoCents] = useState(0);
    const [isDirty, setIsDirty] = useState(false);
 
-   const { data: orcamento, isLoading } = useOrcamento(ano);
-   const { data: logs = [], isLoading: logsLoading } = useOrcamentoLogs(
-      orcamento?.id
-   );
+   const {
+      data: orcamento,
+      isLoading,
+      isFetching,
+      isError,
+      isPlaceholderData,
+      refetch,
+   } = useOrcamento(ano);
+   // Com o dado do ano anterior em tela (placeholder), o formulário fica
+   // travado e o histórico espera: `orcamento.id` ainda é o do outro exercício.
+   const {
+      data: logs = [],
+      isLoading: logsLoading,
+      isError: logsError,
+      isFetching: logsFetching,
+      refetch: refetchLogs,
+   } = useOrcamentoLogs(isPlaceholderData ? undefined : orcamento?.id);
 
    const createMutation = useCreateOrcamento();
    const updateMutation = useUpdateOrcamento();
@@ -221,8 +234,32 @@ export default function OrcamentoAnualPage() {
             <div className="rounded border border-slate-200 bg-white p-6 shadow-sm">
                {isLoading ? (
                   <OrcamentoFormSkeleton />
+               ) : isError && !orcamento ? (
+                  // Sem isto o formulário abriria zerado e "Salvar" criaria um
+                  // orçamento por cima de um que só não foi lido.
+                  <div
+                     role="alert"
+                     className="flex flex-col items-center gap-3 py-8 text-center"
+                  >
+                     <p className="text-sm font-medium text-red-800">
+                        Não foi possível carregar o orçamento de {ano}
+                     </p>
+                     <Button
+                        color="light"
+                        size="sm"
+                        onClick={() => refetch()}
+                        disabled={isFetching}
+                     >
+                        Tentar novamente
+                     </Button>
+                  </div>
                ) : (
-                  <div className="space-y-6">
+                  <div
+                     className={clsx(
+                        "space-y-6 transition-opacity",
+                        isPlaceholderData && "opacity-50"
+                     )}
+                  >
                      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                         {/* ANO */}
                         <div>
@@ -275,6 +312,7 @@ export default function OrcamentoAnualPage() {
                                  }
                                  className="[&_input]:pl-10 [&_input]:text-right"
                                  placeholder="0,00"
+                                 disabled={isPlaceholderData}
                               />
                            </div>
                            <p className="mt-1 text-xs text-slate-500">
@@ -315,6 +353,7 @@ export default function OrcamentoAnualPage() {
                                        }
                                        className="[&_input]:pl-10 [&_input]:text-right"
                                        placeholder="0,00"
+                                       disabled={isPlaceholderData}
                                     />
                                  </div>
                                  <p className="mt-1 text-xs text-gray-500">
@@ -345,6 +384,7 @@ export default function OrcamentoAnualPage() {
                                        }
                                        className="[&_input]:pl-10 [&_input]:text-right"
                                        placeholder="0,00"
+                                       disabled={isPlaceholderData}
                                     />
                                  </div>
                                  <p className="mt-1 text-xs text-gray-500">
@@ -408,10 +448,20 @@ export default function OrcamentoAnualPage() {
                         <Button
                            color="primary"
                            onClick={handleSave}
-                           disabled={isSaving || !isBalanced}
+                           disabled={
+                              isSaving || !isBalanced || isPlaceholderData
+                           }
+                           aria-busy={isSaving}
                         >
                            {isSaving ? (
-                              <Spinner size="sm" color="primary" />
+                              <>
+                                 <Spinner
+                                    size="sm"
+                                    color="white"
+                                    className="mr-2"
+                                 />
+                                 Salvando…
+                              </>
                            ) : (
                               <>
                                  <FaSave className="mr-2 h-4 w-4" />
@@ -435,13 +485,34 @@ export default function OrcamentoAnualPage() {
                   </p>
                </div>
                <div className="p-5">
-                  {!orcamento ? (
+                  {isLoading ? (
+                     <HistoricoSkeleton />
+                  ) : isError && !orcamento ? (
+                     <p className="py-6 text-center text-sm text-gray-500">
+                        Histórico indisponível: o orçamento não foi carregado.
+                     </p>
+                  ) : !orcamento ? (
                      <p className="py-6 text-center text-sm text-gray-500">
                         Nenhum orçamento cadastrado para este ano.
                      </p>
-                  ) : logsLoading ? (
-                     <div className="flex justify-center py-8">
-                        <Spinner color="primary" />
+                  ) : isPlaceholderData || logsLoading ? (
+                     <HistoricoSkeleton />
+                  ) : logsError && logs.length === 0 ? (
+                     <div
+                        role="alert"
+                        className="flex flex-col items-center gap-3 py-6 text-center"
+                     >
+                        <p className="text-sm font-medium text-red-800">
+                           Não foi possível carregar o histórico
+                        </p>
+                        <Button
+                           color="light"
+                           size="sm"
+                           onClick={() => refetchLogs()}
+                           disabled={logsFetching}
+                        >
+                           Tentar novamente
+                        </Button>
                      </div>
                   ) : logs.length === 0 ? (
                      <p className="py-6 text-center text-sm text-gray-500">
@@ -456,6 +527,26 @@ export default function OrcamentoAnualPage() {
                   )}
                </div>
             </div>
+         </div>
+      </div>
+   );
+}
+
+/** Espelha 3 entradas do histórico (título + data, linha de diff). */
+function HistoricoSkeleton() {
+   return (
+      <div role="status">
+         <span className="sr-only">Carregando histórico…</span>
+         <div aria-hidden className="space-y-4 border-s border-gray-200 ps-5">
+            {[0, 1, 2].map((i) => (
+               <div key={i} className="space-y-2">
+                  <div className="flex items-baseline justify-between gap-2">
+                     <div className="h-4 w-40 animate-pulse rounded bg-slate-200" />
+                     <div className="h-3 w-28 animate-pulse rounded bg-slate-100" />
+                  </div>
+                  <div className="h-3 w-56 animate-pulse rounded bg-slate-100" />
+               </div>
+            ))}
          </div>
       </div>
    );

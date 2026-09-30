@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Spinner } from "flowbite-react";
+import { Button } from "flowbite-react";
 import {
    MdFlightTakeoff,
    MdRefresh,
@@ -14,12 +14,20 @@ import { useSolHoje } from "@/hooks/queries/useSol";
 import { parseMetar } from "./parser";
 import { FlightCategoryBadge } from "./FlightCategoryBadge";
 import { ParsedView } from "./ParsedView";
+import { MetarCardSkeleton } from "./MetarCardSkeleton";
 import { SolTiles } from "./SolTiles";
 import { RawSection } from "./RawSection";
 
 export function MetarCard() {
-   const { data, isLoading, isError, error, dataUpdatedAt, refetch } =
-      useMetar();
+   const {
+      data,
+      isLoading,
+      isError,
+      isFetching,
+      error,
+      dataUpdatedAt,
+      refetch,
+   } = useMetar();
    const { data: sol, isLoading: solLoading, isError: solError } = useSolHoje();
    const { data: rotaer } = useRotaer(data?.icao ?? "");
    const [showRaw, setShowRaw] = useState(false);
@@ -82,6 +90,7 @@ export function MetarCard() {
                   disabled={isLoading || isRefreshing}
                   className="rounded-lg bg-white/10 p-2 text-white/70 transition hover:bg-white/20 hover:text-white disabled:opacity-40"
                   title="Atualizar METAR"
+                  aria-label="Atualizar METAR"
                >
                   <MdRefresh
                      size={18}
@@ -93,22 +102,36 @@ export function MetarCard() {
 
          {/* Body */}
          <div className="p-6">
-            {isLoading && (
-               <div className="flex items-center justify-center gap-3 py-10">
-                  <Spinner color="primary" />
-                  <span className="text-sm text-gray-500">
-                     Buscando METAR...
+            {isLoading && <MetarCardSkeleton />}
+
+            {/* Erro sem dado: mensagem + nova tentativa. Com dado em cache o
+                METAR fica na tela e o aviso é discreto (ver abaixo). */}
+            {isError && !data && (
+               <div
+                  role="alert"
+                  className="flex flex-wrap items-center justify-between gap-3 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700"
+               >
+                  <span>
+                     Erro ao buscar METAR:{" "}
+                     {error instanceof Error
+                        ? error.message
+                        : "Falha desconhecida"}
                   </span>
+                  <Button
+                     size="xs"
+                     color="light"
+                     onClick={() => refetch()}
+                     disabled={isFetching}
+                  >
+                     Tentar novamente
+                  </Button>
                </div>
             )}
 
-            {isError && (
-               <div className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">
-                  Erro ao buscar METAR:{" "}
-                  {error instanceof Error
-                     ? error.message
-                     : "Falha desconhecida"}
-               </div>
+            {isError && data && (
+               <p role="status" className="mb-3 text-xs text-red-600">
+                  Não foi possível atualizar o METAR; exibindo a última leitura.
+               </p>
             )}
 
             {data && parsed && (

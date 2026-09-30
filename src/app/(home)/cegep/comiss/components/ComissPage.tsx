@@ -74,6 +74,7 @@ export function ComissPage({ detail, onEdit, onClose }: ComissPageProps) {
                               size="sm"
                               aria-label="Exportar planilha"
                               onClick={exportSheet}
+                              aria-busy={exporting === "sheet"}
                               disabled={
                                  semMissoes ||
                                  del.isDeleting ||
@@ -83,19 +84,24 @@ export function ComissPage({ detail, onEdit, onClose }: ComissPageProps) {
                               {exporting === "sheet" ? (
                                  <Spinner
                                     size="sm"
-                                    color="success"
+                                    color="primary"
                                     className="sm:mr-2"
                                  />
                               ) : (
                                  <RiFileExcel2Fill className="size-4 text-green-600 sm:mr-2" />
                               )}
-                              <span className="hidden sm:inline">Planilha</span>
+                              <span className="hidden sm:inline">
+                                 {exporting === "sheet"
+                                    ? "Exportando…"
+                                    : "Planilha"}
+                              </span>
                            </Button>
                            <Button
                               color="light"
                               size="sm"
                               aria-label="Exportar apostila"
                               onClick={exportDocx}
+                              aria-busy={exporting === "docx"}
                               disabled={
                                  semMissoes ||
                                  del.isDeleting ||
@@ -105,13 +111,17 @@ export function ComissPage({ detail, onEdit, onClose }: ComissPageProps) {
                               {exporting === "docx" ? (
                                  <Spinner
                                     size="sm"
-                                    color="info"
+                                    color="primary"
                                     className="sm:mr-2"
                                  />
                               ) : (
                                  <HiDocumentText className="size-4 text-blue-600 sm:mr-2" />
                               )}
-                              <span className="hidden sm:inline">Apostila</span>
+                              <span className="hidden sm:inline">
+                                 {exporting === "docx"
+                                    ? "Exportando…"
+                                    : "Apostila"}
+                              </span>
                            </Button>
                         </PermBased>
                         <RoleBasedRoute requiredRoles={["apoio_avancado"]}>

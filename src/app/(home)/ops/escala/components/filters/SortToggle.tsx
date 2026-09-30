@@ -5,9 +5,14 @@ import type { EscalaSort } from "../../types";
 interface SortToggleProps {
    value: EscalaSort;
    onChange: (s: EscalaSort) => void;
+   disabled?: boolean;
 }
 
-export function SortToggle({ value, onChange }: SortToggleProps) {
+export function SortToggle({
+   value,
+   onChange,
+   disabled = false,
+}: SortToggleProps) {
    return (
       <div className="md:col-span-3">
          <Label className="block text-[10px] font-bold tracking-widest text-slate-600 uppercase">
@@ -21,11 +26,13 @@ export function SortToggle({ value, onChange }: SortToggleProps) {
             <SortButton
                active={value === "horas_voo"}
                onClick={() => onChange("horas_voo")}
+               disabled={disabled}
                label="Horas de voo"
             />
             <SortButton
                active={value === "quads_asc"}
                onClick={() => onChange("quads_asc")}
+               disabled={disabled}
                label="Quadrinhos"
             />
          </div>
@@ -37,20 +44,22 @@ interface SortButtonProps {
    active: boolean;
    onClick: () => void;
    label: string;
+   disabled: boolean;
 }
 
-function SortButton({ active, onClick, label }: SortButtonProps) {
+function SortButton({ active, onClick, label, disabled }: SortButtonProps) {
    return (
       <button
          type="button"
          onClick={onClick}
+         disabled={disabled}
          aria-pressed={active}
          className={clsx(
             // Media 23,5px de altura (11px × 1.5 + py-1) com gap ZERO entre os
             // dois botões — abaixo do piso de 24px do WCAG 2.5.8 e sem direito
             // à exceção de espaçamento, porque estão colados. `min-h-[24px]`
             // fecha o piso.
-            "inline-flex min-h-[24px] items-center justify-center rounded-sm px-2.5 py-1 text-[11px] font-bold tracking-wider whitespace-nowrap uppercase transition-colors",
+            "inline-flex min-h-[24px] items-center justify-center rounded-sm px-2.5 py-1 text-[11px] font-bold tracking-wider whitespace-nowrap uppercase transition-colors disabled:cursor-not-allowed disabled:opacity-50",
             active
                ? "bg-white text-slate-900 shadow-sm"
                : // `slate-500` sobre o `slate-100` do trilho dava 4,34:1.

@@ -268,7 +268,13 @@ export function StorageCardSkeleton() {
       // Alturas espelham a ENTRELINHA do texto real (text-sm = 18.4px,
       // text-2xl = 28px), não o corpo do glifo — com h-4/h-6 o skeleton
       // ficava ~14px mais baixo e a seção "Buckets" saltava ao carregar.
-      <div className="max-w-5xl space-y-4 rounded border border-slate-200 bg-white p-6 shadow-sm">
+      <div
+         role="status"
+         className="max-w-5xl space-y-4 rounded border border-slate-200 bg-white p-6 shadow-sm"
+      >
+         {/* Cobre também a grade de buckets abaixo: um anúncio só para a
+             tela inteira, não um por card */}
+         <span className="sr-only">Carregando armazenamento…</span>
          <div className="flex items-end justify-between">
             <div className="space-y-1">
                <Skeleton className="h-5 w-40" />

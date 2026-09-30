@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import {
    Button,
+   Spinner,
    Checkbox,
    Label,
    Modal,
@@ -202,11 +203,19 @@ export function FuncaoFormModal({
             <Button
                color="primary"
                disabled={!podeSalvar || isSaving}
+               aria-busy={isSaving}
                onClick={() =>
                   onSubmit({ ...form, cod: form.cod.trim().toLowerCase() })
                }
             >
-               {isSaving ? "Salvando..." : "Salvar"}
+               {isSaving ? (
+                  <>
+                     <Spinner size="sm" color="white" className="mr-2" />
+                     Salvando…
+                  </>
+               ) : (
+                  "Salvar"
+               )}
             </Button>
             <Button color="light" onClick={onClose} disabled={isSaving}>
                Cancelar

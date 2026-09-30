@@ -5,6 +5,10 @@ import { EtiquetaChip } from "./EtiquetaChip";
 
 type LabelPickerProps = {
    allLabels: Etiqueta[];
+   /** Estado da consulta do catálogo: sem ele, "nenhuma cadastrada" é mentira. */
+   isLoading?: boolean;
+   isError?: boolean;
+   onRetry?: () => void;
    selectedLabels: Etiqueta[];
    onChange: (labels: Etiqueta[]) => void;
    isEditable?: boolean;
@@ -18,6 +22,9 @@ type LabelPickerProps = {
 // toque — o alvo sob o dedo mudava.
 export function LabelPicker({
    allLabels,
+   isLoading = false,
+   isError = false,
+   onRetry,
    selectedLabels,
    onChange,
    isEditable = true,
@@ -55,6 +62,39 @@ export function LabelPicker({
                </div>
             )}
          </div>
+      );
+   }
+
+   if (isLoading && opcoes.length === 0) {
+      return (
+         <div role="status" className={className}>
+            <span className="sr-only">Carregando etiquetas…</span>
+            <div aria-hidden className="flex flex-wrap gap-2">
+               {[0, 1, 2].map((i) => (
+                  <div
+                     key={i}
+                     className="h-[26px] w-20 animate-pulse rounded-full bg-slate-100"
+                  />
+               ))}
+            </div>
+         </div>
+      );
+   }
+
+   if (isError && opcoes.length === 0) {
+      return (
+         <p role="alert" className={`text-sm text-red-700 ${className}`}>
+            Não foi possível carregar as etiquetas.{" "}
+            {onRetry && (
+               <button
+                  type="button"
+                  onClick={onRetry}
+                  className="font-semibold underline underline-offset-2"
+               >
+                  Tentar novamente
+               </button>
+            )}
+         </p>
       );
    }
 

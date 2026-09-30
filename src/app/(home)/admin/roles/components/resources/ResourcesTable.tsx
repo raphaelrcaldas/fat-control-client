@@ -16,6 +16,8 @@ interface ResourcesTableProps {
    resources: Resource[];
    /** Quantidade de permissões por nome de recurso; undefined enquanto carrega */
    permissionCounts?: Map<string, number>;
+   /** `usePermissions` falhou: a coluna diz que a contagem está indisponível */
+   permissionCountsError?: boolean;
    onEdit: (resource: Resource) => void;
    onDelete: (resource: Resource) => void;
 }
@@ -23,6 +25,7 @@ interface ResourcesTableProps {
 export function ResourcesTable({
    resources,
    permissionCounts,
+   permissionCountsError = false,
    onEdit,
    onDelete,
 }: ResourcesTableProps) {
@@ -72,7 +75,18 @@ export function ResourcesTable({
                         </TableCell>
                         <TableCell className="hidden whitespace-nowrap md:table-cell">
                            {permissionCounts === undefined ? (
-                              <Skeleton className="h-4 w-16" />
+                              // Sem contagem por falha da query: o skeleton
+                              // ficaria preso para sempre
+                              permissionCountsError ? (
+                                 <span
+                                    className="text-xs text-gray-500"
+                                    title="Não foi possível carregar a contagem de permissões"
+                                 >
+                                    indisponível
+                                 </span>
+                              ) : (
+                                 <Skeleton className="h-4 w-16" />
+                              )
                            ) : (
                               <span
                                  className={
@@ -116,8 +130,12 @@ export function ResourcesTable({
 
 export function ResourcesTableSkeleton({ rows = 8 }: { rows?: number }) {
    return (
-      <div className="overflow-x-auto rounded border border-slate-200 bg-white shadow-sm">
-         <Table hoverable>
+      <div
+         role="status"
+         className="overflow-x-auto rounded border border-slate-200 bg-white shadow-sm"
+      >
+         <span className="sr-only">Carregando recursos…</span>
+         <Table hoverable aria-hidden>
             <TableHead>
                <TableRow>
                   <TableHeadCell className="w-16">ID</TableHeadCell>

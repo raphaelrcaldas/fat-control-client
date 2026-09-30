@@ -6,6 +6,9 @@ interface SkeletonProps {
    className?: string;
 }
 
+// Primitive de BLOCO: não leva `role="status"` (o anúncio se repetiria a cada
+// bloco). Quem monta a área carregando põe `role="status"` + texto `sr-only`
+// no container e `aria-hidden` nos blocos.
 export function Skeleton({ className }: SkeletonProps) {
    return (
       <div
@@ -14,30 +17,5 @@ export function Skeleton({ className }: SkeletonProps) {
             className
          )}
       />
-   );
-}
-
-export function TableSkeleton({
-   rows = 5,
-   cols = 4,
-}: {
-   rows?: number;
-   cols?: number;
-}) {
-   return (
-      <div className="w-full space-y-4">
-         <div className="flex space-x-4">
-            {Array.from({ length: cols }).map((_, i) => (
-               <Skeleton key={i} className="h-4 flex-1" />
-            ))}
-         </div>
-         {Array.from({ length: rows }).map((_, i) => (
-            <div key={i} className="flex space-x-4">
-               {Array.from({ length: cols }).map((_, j) => (
-                  <Skeleton key={j} className="h-10 flex-1" />
-               ))}
-            </div>
-         ))}
-      </div>
    );
 }

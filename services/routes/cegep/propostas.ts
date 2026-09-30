@@ -1,4 +1,4 @@
-import request, { parseApiResponse } from "../../Api";
+import request, { parseApiResponse, readApiData } from "../../Api";
 import type { ApiResponse, ApiResult } from "@/types/api";
 import type { UserPublic } from "../users";
 import { cegepRoute } from ".";
@@ -107,7 +107,7 @@ export async function getPropostas(
       params?.ano_ref ? { ano_ref: params.ano_ref } : null,
       signal
    );
-   const json = (await response.json()) as ApiResponse<PropostaListItem[]>;
+   const json = await readApiData<ApiResponse<PropostaListItem[]>>(response);
    return json.data || [];
 }
 
@@ -122,7 +122,7 @@ export async function getProposta(
       null,
       signal
    );
-   const json = (await response.json()) as ApiResponse<Proposta>;
+   const json = await readApiData<ApiResponse<Proposta>>(response);
    return json.data as Proposta;
 }
 

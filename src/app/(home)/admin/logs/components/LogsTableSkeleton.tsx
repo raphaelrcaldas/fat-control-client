@@ -7,7 +7,7 @@ import { Skeleton } from "@/components/ui/Skeleton";
 /** Espelha o LogRow: mesmas colunas, mesmas larguras por breakpoint. */
 function LogRowSkeleton({ showAction }: { showAction: boolean }) {
    return (
-      <TableRow className="bg-white">
+      <TableRow aria-hidden className="bg-white">
          <TableCell className="w-px align-middle md:w-auto">
             {/* Sem ano nem segundos, a coluna é mais estreita no mobile */}
             <Skeleton className="h-4 w-16 md:w-28" />

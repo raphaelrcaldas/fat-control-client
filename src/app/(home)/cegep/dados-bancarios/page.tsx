@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import clsx from "clsx";
+import { Button } from "flowbite-react";
+import { HiExclamation } from "react-icons/hi";
 import useDebouncedValue from "@/hooks/useDebouncedValue";
 import { useDadosBancarios, useDadosBancariosOrfaos } from "@/hooks/queries";
 import { DadosBancariosMasthead } from "./components/DadosBancariosMasthead";
@@ -28,6 +30,8 @@ export default function DadosBancariosPage() {
       data: dadosBancarios = [],
       isLoading,
       isFetching,
+      isError,
+      refetch,
    } = useDadosBancarios({
       search: debouncedSearch || undefined,
    });
@@ -44,7 +48,7 @@ export default function DadosBancariosPage() {
             onSearchChange={setSearchUser}
             total={dadosBancarios.length}
             isLoading={isLoading}
-            isFetching={isFetching}
+            isError={isError && dadosBancarios.length === 0}
             hasActiveFilters={hasActiveFilters}
             onClearFilters={clearFilters}
          />
@@ -71,10 +75,54 @@ export default function DadosBancariosPage() {
          >
             {isLoading ? (
                <ListDadosBancariosSkeleton />
+            ) : isError && dadosBancarios.length === 0 ? (
+               // Erro nunca vira "nenhum registro": sem dado, mostra a falha.
+               <div
+                  role="alert"
+                  className="flex flex-col items-center gap-3 rounded border border-red-200 bg-white p-8 text-center shadow-sm"
+               >
+                  <p className="text-sm font-medium text-red-800">
+                     Não foi possível carregar os dados bancários
+                  </p>
+                  <Button
+                     color="light"
+                     size="sm"
+                     onClick={() => refetch()}
+                     disabled={isFetching}
+                  >
+                     Tentar novamente
+                  </Button>
+               </div>
             ) : dadosBancarios.length === 0 ? (
                <EmptyState search={searchUser} onClear={clearFilters} />
             ) : (
-               <ListDadosBancarios dados={dadosBancarios} />
+               <>
+                  {/* Refetch que falha com a lista em tela: mantém o dado e
+                      avisa, sem trocar a tela pelo erro. */}
+                  {isError && (
+                     <p
+                        role="status"
+                        className="mb-2 flex items-center gap-2 rounded border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs text-slate-500"
+                     >
+                        <HiExclamation
+                           aria-hidden
+                           className="size-3.5 shrink-0"
+                        />
+                        <span className="min-w-0 flex-1 truncate">
+                           Não foi possível atualizar a lista
+                        </span>
+                        <button
+                           type="button"
+                           onClick={() => refetch()}
+                           disabled={isFetching}
+                           className="min-h-[24px] shrink-0 font-semibold text-slate-900 underline underline-offset-2 disabled:opacity-50"
+                        >
+                           Tentar novamente
+                        </button>
+                     </p>
+                  )}
+                  <ListDadosBancarios dados={dadosBancarios} />
+               </>
             )}
          </section>
 

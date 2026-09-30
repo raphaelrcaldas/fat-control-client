@@ -50,9 +50,10 @@ function SkelNumCell({
 
 export function HorasAnvSkeleton() {
    return (
-      <div className="flex flex-col gap-5">
+      <div role="status" className="flex flex-col gap-5">
+         <span className="sr-only">Carregando horas de voo por aeronave…</span>
          {/* KPIs — espelha StatCard de HorasAnvStats */}
-         <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+         <div aria-hidden className="grid grid-cols-2 gap-3 lg:grid-cols-4">
             {STAT_CARDS.map((i) => (
                <div
                   key={i}
@@ -71,7 +72,7 @@ export function HorasAnvSkeleton() {
          </div>
 
          {/* Tabela — espelha a matriz 12 meses × HV/PSO de HorasAnvTable */}
-         <div>
+         <div aria-hidden>
             <div className="max-h-[70vh] overflow-auto rounded border border-slate-200 bg-white shadow-sm">
                <table className="w-full border-collapse text-center text-sm whitespace-nowrap">
                   <thead>

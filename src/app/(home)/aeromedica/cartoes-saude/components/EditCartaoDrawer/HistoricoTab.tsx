@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { Timeline } from "flowbite-react";
+import { Button, Timeline } from "flowbite-react";
 import { AuditTimelineItem } from "@/components/audit/AuditTimelineItem";
 import { AuditValueDelta } from "@/components/audit/AuditValueDelta";
 import { TIMELINE_DENSO } from "@/components/audit/timelineTheme";
@@ -176,6 +176,8 @@ export default function HistoricoTab({ userId }: { userId: number }) {
       isLoading,
       isError,
       error,
+      isFetching,
+      refetch,
    } = useCartaoSaudeHistorico(userId);
 
    if (isLoading) return <HistoricoTabSkeleton />;
@@ -184,11 +186,21 @@ export default function HistoricoTab({ userId }: { userId: number }) {
    // "nada aconteceu" e "não consegui ler" é o ponto de uma auditoria.
    if (isError) {
       return (
-         <p className="py-4 text-center text-sm text-red-600">
-            {error instanceof Error
-               ? error.message
-               : "Não foi possível carregar o histórico."}
-         </p>
+         <div role="alert" className="space-y-2 py-4 text-center">
+            <p className="text-sm text-red-600">
+               {error instanceof Error
+                  ? error.message
+                  : "Não foi possível carregar o histórico."}
+            </p>
+            <Button
+               color="light"
+               size="xs"
+               onClick={() => refetch()}
+               disabled={isFetching}
+            >
+               Tentar novamente
+            </Button>
+         </div>
       );
    }
 

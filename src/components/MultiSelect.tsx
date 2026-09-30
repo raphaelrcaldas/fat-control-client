@@ -19,6 +19,7 @@ type MultiSelectProps = {
    placeholder?: string;
    className?: string;
    sizing?: FlowbiteSizing;
+   disabled?: boolean;
    /**
     * Nome acessível do controle. É um `<button>` com dropdown, não um campo
     * nativo, então um `<label htmlFor>` não o alcança — o rótulo visível ao
@@ -35,6 +36,7 @@ export function MultiSelect({
    className = "",
    sizing = "md",
    ariaLabel,
+   disabled = false,
 }: MultiSelectProps) {
    const [isOpen, setIsOpen] = useState(false);
    const [dropdownPosition, setDropdownPosition] = useState({
@@ -99,7 +101,7 @@ export function MultiSelect({
              selected[0])
            : `${selected.length} selecionados`;
 
-   const dropdownContent = isOpen && (
+   const dropdownContent = isOpen && !disabled && (
       <div
          ref={dropdownRef}
          className="fixed z-9999 max-h-60 overflow-auto rounded border border-gray-300 bg-white shadow-xl"
@@ -176,8 +178,9 @@ export function MultiSelect({
             ref={buttonRef}
             type="button"
             onClick={toggleDropdown}
+            disabled={disabled}
             aria-label={ariaLabel}
-            aria-expanded={isOpen}
+            aria-expanded={isOpen && !disabled}
             title={displayText}
             style={{ transform: "translateZ(0)" }}
             /* Foco visivel so no TECLADO (`focus-visible`), nunca no clique
@@ -186,7 +189,7 @@ export function MultiSelect({
                regra vence o `outline-style` e o contorno nao chega a pintar.
                2px e o piso de area do WCAG 2.4.11; borda de 1px trocando de
                cor nao alcanca 3:1 entre os dois estados. */
-            className={`flex w-full items-center justify-between gap-2 rounded border bg-white ${SIZING_CLASSES[sizing]} focus-visible:outline-primary-600 outline-none focus-visible:outline-[2px] focus-visible:outline-offset-[2px] focus-visible:[outline-style:solid] ${
+            className={`flex w-full items-center justify-between gap-2 rounded border bg-white disabled:cursor-not-allowed disabled:opacity-50 ${SIZING_CLASSES[sizing]} focus-visible:outline-primary-600 outline-none focus-visible:outline-[2px] focus-visible:outline-offset-[2px] focus-visible:[outline-style:solid] ${
                selected.length > 0
                   ? "border-primary-300 bg-primary-50 hover:bg-primary-100 text-gray-900"
                   : "border-gray-300 text-gray-900 hover:bg-gray-50"

@@ -1,5 +1,5 @@
-import request, { ApiError, parseApiResponse } from "../Api";
-import type { ApiPaginatedResponse, ApiResult } from "@/types/api";
+import request, { ApiError, parseApiResponse, readApiData } from "../Api";
+import type { ApiPaginatedResponse, ApiResponse, ApiResult } from "@/types/api";
 
 const aeronaveRoute = "ops/aeronaves/";
 
@@ -78,7 +78,8 @@ export async function getAeronaves(
       queryParams,
       signal
    );
-   const json = (await response.json()) as ApiPaginatedResponse<AeronavePublic>;
+   const json =
+      await readApiData<ApiPaginatedResponse<AeronavePublic>>(response);
    return {
       items: json.data || [],
       total: json.total,
@@ -120,15 +121,18 @@ export async function getAllAeronaves(
 }
 
 export async function getAeronave(matricula: string): Promise<AeronavePublic> {
-   const result = await parseApiResponse<AeronavePublic>(
-      await request("GET", aeronaveRoute + matricula)
+   const response = await request("GET", aeronaveRoute + matricula);
+   const result = await readApiData<ApiResponse<AeronavePublic>>(
+      response,
+      (message) => message ?? "Aeronave não encontrada."
    );
    // Ver `getUserById`: devolver `undefined` numa função de query vira um erro
    // do TanStack que não aponta para a causa.
-   if (!result.ok || !result.data) {
+   if (!result.data) {
       throw new ApiError(
          result.message ?? "Aeronave não encontrada.",
-         result.errors
+         result.errors,
+         response.status
       );
    }
    return result.data;
@@ -161,6 +165,6 @@ export async function getOrgProjetos(
       undefined,
       signal
    );
-   const json = await response.json();
+   const json = await readApiData<ApiResponse<ProjetoAnvOut[]>>(response);
    return (json.data as ProjetoAnvOut[]) || [];
 }

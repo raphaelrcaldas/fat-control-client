@@ -1,4 +1,4 @@
-import request, { parseApiResponse } from "../../Api";
+import request, { parseApiResponse, readApiData } from "../../Api";
 import type { ApiResponse, ApiResult } from "@/types/api";
 import { cegepRoute } from ".";
 import { Missao } from "./missoes";
@@ -111,7 +111,7 @@ export async function getCmtos(
       },
       signal
    );
-   const json = (await response.json()) as ApiResponse<ComissList[]>;
+   const json = await readApiData<ApiResponse<ComissList[]>>(response);
    return json.data || [];
 }
 
@@ -126,7 +126,7 @@ export async function getCmtoById(
       null,
       signal
    );
-   const json = (await response.json()) as ApiResponse<ComissWithMiss>;
+   const json = await readApiData<ApiResponse<ComissWithMiss>>(response);
    return json.data as ComissWithMiss;
 }
 
@@ -191,6 +191,6 @@ export async function getComissSummary(
       { ano: ano.toString() },
       signal
    );
-   const json = (await response.json()) as ApiResponse<ComissSummaryResponse>;
+   const json = await readApiData<ApiResponse<ComissSummaryResponse>>(response);
    return json.data as ComissSummaryResponse;
 }

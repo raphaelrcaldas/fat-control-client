@@ -99,7 +99,11 @@ export function useImpactoComissoes({
 }: UseImpactoComissoesOptions) {
    const [selecionados, setSelecionados] = useState<ComissList[]>([]);
 
-   const { data: abertos = [], isLoading: carregandoAbertos } = useComissList({
+   const {
+      data: abertos = [],
+      isLoading: carregandoAbertos,
+      isError: erroAbertos,
+   } = useComissList({
       status: "aberto",
    });
 
@@ -255,6 +259,8 @@ export function useImpactoComissoes({
       /** Comissionamentos abertos ainda não acoplados — a fonte da busca. */
       disponiveis,
       carregandoAbertos,
+      /** A lista de abertos falhou: vazio da busca não é "sem comissionamento". */
+      erroAbertos,
       /** Acoplados na ordem de antiguidade, com ou sem projeção pronta. */
       acoplados,
       acoplar,

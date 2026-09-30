@@ -1,4 +1,4 @@
-import request from "../Api";
+import request, { readApiData } from "../Api";
 import type { ApiResponse } from "@/types/api";
 
 const cleanupRoute = "admin/cleanup/";
@@ -39,9 +39,7 @@ export async function getCleanupPreview(
       null,
       signal
    );
-   const json = (await res.json()) as ApiResponse<CleanupPreviewResponse>;
-   if (!res.ok)
-      throw new Error(json.message || "Erro ao buscar preview de limpeza");
+   const json = await readApiData<ApiResponse<CleanupPreviewResponse>>(res);
    return json.data!;
 }
 

@@ -36,7 +36,8 @@ export default function CartoesPage() {
          </PermBased>
 
          {isLoading ? (
-            <div className="flex flex-col gap-1.5">
+            <div role="status" className="flex flex-col gap-1.5">
+               <span className="sr-only">Carregando cartões dos pilotos…</span>
                {Array.from({ length: SKELETON_ROWS }).map((_, i) => (
                   <PilotCardSkeleton key={i} />
                ))}
@@ -50,7 +51,12 @@ export default function CartoesPage() {
                   {(error as Error)?.message ?? "Tente novamente."}
                </p>
                <div className="mt-4 flex justify-center">
-                  <Button color="red" size="sm" onClick={() => refetch()}>
+                  <Button
+                     color="red"
+                     size="sm"
+                     onClick={() => refetch()}
+                     disabled={isFetching}
+                  >
                      Tentar novamente
                   </Button>
                </div>

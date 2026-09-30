@@ -8,6 +8,7 @@ import { useToast } from "@/app/context/toast";
 import { useAuth } from "@/app/context/auth";
 import { useSearchParamsUpdater } from "@/hooks/useSearchParamsState";
 import { PermBased } from "@/app/(home)/hooks/usePermBased";
+import { isNotFoundError } from "utils/apiErrors";
 import { formatUserSaveError } from "../userErrors";
 import { UserReadView } from "./components/UserReadView";
 import { UserAudit } from "./components/UserAudit";
@@ -46,9 +47,14 @@ export default function UserDetailsPage() {
    // Depois de excluir, o registro nao existe mais: `null` desliga a query
    // (`enabled: !!id`) e poupa um GET condenado ao 404 na fracao de segundo
    // ate o redirecionamento.
-   const { data: user, isLoading } = useUser(
-      deleteUser.isSuccess ? null : userId
-   );
+   const {
+      data: user,
+      isLoading,
+      isError,
+      error,
+      isFetching,
+      refetch,
+   } = useUser(deleteUser.isSuccess ? null : userId);
    const updateUser = useUpdateUser();
    const { push } = useToast();
    const { role } = useAuth();
@@ -108,15 +114,37 @@ export default function UserDetailsPage() {
       }
    }
 
-   if (isLoading) {
-      return <UserDetailSkeleton />;
-   }
-
    // `&& !deleteUser.isSuccess`: entre o toast de sucesso e o
    // `router.push("/users")` completar ha um render em que a query ja esta
    // desligada e `user` e undefined. Sem a guarda a tela anuncia "Usuario nao
    // encontrado" ao lado do toast que acabou de dizer que deu certo.
-   if (!user && !deleteUser.isSuccess) {
+   if (!user && !isLoading && !deleteUser.isSuccess) {
+      // Falha que não é 404 é dita como falha: "não encontrado" depois de um
+      // erro de rede mandaria a pessoa procurar um militar que existe.
+      if (isError && !isNotFoundError(error)) {
+         return (
+            <div
+               role="alert"
+               className="flex h-96 flex-col items-center justify-center gap-4"
+            >
+               <p className="text-lg text-gray-500">
+                  Não foi possível carregar o usuário.
+               </p>
+               <div className="flex gap-2">
+                  <Button
+                     color="light"
+                     onClick={() => refetch()}
+                     disabled={isFetching}
+                  >
+                     Tentar novamente
+                  </Button>
+                  <Button color="light" onClick={() => router.push("/users")}>
+                     Voltar para lista de usuários
+                  </Button>
+               </div>
+            </div>
+         );
+      }
       return (
          <div className="flex h-96 flex-col items-center justify-center gap-4">
             <p className="text-lg text-gray-500">Usuário não encontrado.</p>
@@ -142,36 +170,61 @@ export default function UserDetailsPage() {
                      <HiArrowLeft size={24} />
                   </button>
 
-                  {/* Avatar */}
-                  <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full border-2 border-white/30 bg-white/20 backdrop-blur-sm">
-                     <span className="text-xl font-bold text-white">
-                        {user.p_g?.toUpperCase() || "??"}
-                     </span>
-                  </div>
+                  {user ? (
+                     <>
+                        {/* Avatar */}
+                        <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full border-2 border-white/30 bg-white/20 backdrop-blur-sm">
+                           <span className="text-xl font-bold text-white">
+                              {user.p_g?.toUpperCase() || "??"}
+                           </span>
+                        </div>
 
-                  {/* Nome e identificação */}
-                  <div className="min-w-0 flex-1">
-                     <div className="flex items-center gap-2">
-                        <h1 className="truncate text-xl font-bold text-white uppercase">
-                           {user.nome_guerra}
-                        </h1>
-                        <span className="shrink-0 rounded bg-white/20 px-2 py-0.5 text-xs font-medium text-white">
-                           #{userId}
-                        </span>
-                     </div>
-                     <p className="text-primary-100 truncate text-sm capitalize">
-                        {user.nome_completo}
-                     </p>
-                  </div>
+                        {/* Nome e identificação */}
+                        <div className="min-w-0 flex-1">
+                           <div className="flex items-center gap-2">
+                              <h1 className="truncate text-xl font-bold text-white uppercase">
+                                 {user.nome_guerra}
+                              </h1>
+                              <span className="shrink-0 rounded bg-white/20 px-2 py-0.5 text-xs font-medium text-white">
+                                 #{userId}
+                              </span>
+                           </div>
+                           <p className="text-primary-100 truncate text-sm capitalize">
+                              {user.nome_completo}
+                           </p>
+                        </div>
+                     </>
+                  ) : (
+                     // Casca imediata: o voltar e as abas não dependem do
+                     // dado; só a identidade espera. O anúncio para leitor de
+                     // tela fica no skeleton do painel de dados.
+                     <>
+                        <div
+                           aria-hidden
+                           className="h-14 w-14 shrink-0 animate-pulse rounded-full bg-white/25"
+                        />
+                        <div aria-hidden className="min-w-0 flex-1 space-y-2">
+                           <div className="h-5 w-48 animate-pulse rounded bg-white/30" />
+                           <div className="h-3 w-64 animate-pulse rounded bg-white/20" />
+                        </div>
+                     </>
+                  )}
 
                   {/* Info rápida (lado direito) */}
+                  {!user && (
+                     <div aria-hidden className="hidden gap-2 sm:flex">
+                        <div className="h-8 w-20 animate-pulse rounded bg-white/25" />
+                        <div className="h-8 w-20 animate-pulse rounded bg-white/25" />
+                     </div>
+                  )}
                   <div className="hidden items-center gap-2 sm:flex">
-                     {user.active !== undefined && (
+                     {user && user.active !== undefined && (
                         <Button
                            color="light"
                            size="sm"
                            onClick={toggleActive}
                            disabled={updateUser.isPending}
+                           aria-busy={updateUser.isPending}
                            title={
                               user.active
                                  ? "Clique para desativar"
@@ -179,7 +232,14 @@ export default function UserDetailsPage() {
                            }
                         >
                            {updateUser.isPending ? (
-                              <Spinner size="sm" color="primary" />
+                              <>
+                                 <Spinner
+                                    size="sm"
+                                    color="primary"
+                                    className="mr-1.5"
+                                 />
+                                 {user.active ? "Desativando…" : "Ativando…"}
+                              </>
                            ) : (
                               <>
                                  {user.active ? (
@@ -192,17 +252,19 @@ export default function UserDetailsPage() {
                            )}
                         </Button>
                      )}
-                     <PermBased resource="users" requiredPerm="delete">
-                        <Button
-                           color="light"
-                           size="sm"
-                           onClick={() => setShowDeleteModal(true)}
-                           title="Excluir usuário"
-                        >
-                           <MdDelete className="mr-1.5 h-4 w-4 text-red-600" />
-                           Excluir
-                        </Button>
-                     </PermBased>
+                     {user && (
+                        <PermBased resource="users" requiredPerm="delete">
+                           <Button
+                              color="light"
+                              size="sm"
+                              onClick={() => setShowDeleteModal(true)}
+                              title="Excluir usuário"
+                           >
+                              <MdDelete className="mr-1.5 h-4 w-4 text-red-600" />
+                              Excluir
+                           </Button>
+                        </PermBased>
+                     )}
                   </div>
                </div>
             </div>
@@ -233,9 +295,12 @@ export default function UserDetailsPage() {
 
             {/* Conteúdo da Tab */}
             <div className="p-3">
-               {activeTab === "dados" && (
-                  <UserReadView user={user} userId={userId} />
-               )}
+               {activeTab === "dados" &&
+                  (user ? (
+                     <UserReadView user={user} userId={userId} />
+                  ) : (
+                     <UserDetailSkeleton />
+                  ))}
                {activeTab === "promocoes" && <UserPromotions userId={userId} />}
                {activeTab === "historico" && <UserAudit userId={userId} />}
                {activeTab === "senha" && isAdmin && (
@@ -244,14 +309,16 @@ export default function UserDetailsPage() {
             </div>
          </div>
 
-         <DeleteUserModal
-            show={showDeleteModal}
-            onClose={() => setShowDeleteModal(false)}
-            onConfirm={handleDelete}
-            isPending={deleteUser.isPending}
-            userName={user.nome_guerra}
-            userId={userId}
-         />
+         {user && (
+            <DeleteUserModal
+               show={showDeleteModal}
+               onClose={() => setShowDeleteModal(false)}
+               onConfirm={handleDelete}
+               isPending={deleteUser.isPending}
+               userName={user.nome_guerra}
+               userId={userId}
+            />
+         )}
       </div>
    );
 }

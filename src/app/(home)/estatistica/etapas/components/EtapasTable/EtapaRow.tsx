@@ -40,7 +40,6 @@ export interface EtapaRowProps {
    parte1: boolean;
    oi_etapas: OIEtapaItem[];
    tripulantes: TripEtapaItem[];
-   loading: boolean;
    checked: boolean;
    onToggleEtapa: (id: number) => void;
    onDetailEtapa: (id: number) => void;
@@ -61,7 +60,6 @@ export const EtapaRow = memo(function EtapaRow({
    tripulantes,
    sagem,
    parte1,
-   loading,
    checked,
    onToggleEtapa,
    onDetailEtapa,
@@ -148,7 +146,6 @@ export const EtapaRow = memo(function EtapaRow({
       <TableRow
          className={clsx(
             "hover:bg-white/40",
-            loading && "opacity-50",
             !sagem
                ? "bg-amber-50 hover:bg-amber-100"
                : !parte1 && "bg-emerald-50 hover:bg-emerald-100"

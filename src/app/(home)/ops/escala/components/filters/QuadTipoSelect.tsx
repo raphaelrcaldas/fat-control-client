@@ -8,10 +8,15 @@ const ELIGIBLE_GROUPS = new Set(["sobr", "nasc", "local", "inter"]);
 interface QuadTipoSelectProps {
    value: EscalaFiltersState;
    onChange: (next: EscalaFiltersState) => void;
+   disabled?: boolean;
 }
 
-export function QuadTipoSelect({ value, onChange }: QuadTipoSelectProps) {
-   const { data: quadsType = [], isLoading } = useQuadsTypes();
+export function QuadTipoSelect({
+   value,
+   onChange,
+   disabled = false,
+}: QuadTipoSelectProps) {
+   const { data: quadsType = [], isLoading, isError } = useQuadsTypes();
 
    const eligibleGroups = useMemo(
       () => quadsType.filter((g) => ELIGIBLE_GROUPS.has(g.short)),
@@ -37,9 +42,11 @@ export function QuadTipoSelect({ value, onChange }: QuadTipoSelectProps) {
                      : null,
                })
             }
-            disabled={isLoading}
+            disabled={disabled || isLoading || isError}
          >
-            <option value="">— Selecionar —</option>
+            <option value="">
+               {isError ? "Falha ao carregar os tipos" : "— Selecionar —"}
+            </option>
             {eligibleGroups.map((group) => (
                <optgroup key={group.id} label={group.long.toUpperCase()}>
                   {group.types.map((t) => (

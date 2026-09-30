@@ -1,4 +1,4 @@
-import request, { parseApiResponse } from "../../Api";
+import request, { ApiError, parseApiResponse, readApiData } from "../../Api";
 import type { ApiResponse, ApiResult } from "@/types/api";
 import { segVooRoute } from ".";
 
@@ -49,10 +49,11 @@ export async function getCrm(
       Object.keys(queryParams).length > 0 ? queryParams : null,
       signal
    );
-   const result = await parseApiResponse<TripCrmOut[]>(response);
-   if (!result.ok) {
-      throw new Error(result.message || "Erro ao carregar CRM");
-   }
+   const result = await readApiData<ApiResponse<TripCrmOut[]>>(
+      response,
+      (message) => message || "Erro ao carregar CRM"
+   );
+
    return result.data ?? [];
 }
 
@@ -86,11 +87,23 @@ export interface CrmOrfaosResumo {
 export async function getCrmOrfaos(
    signal?: AbortSignal
 ): Promise<CrmOrfaosResumo> {
-   const result = await parseApiResponse<CrmOrfaosResumo>(
-      await request("GET", `${crmRoute}orfaos`, null, null, signal)
+   const response = await request(
+      "GET",
+      `${crmRoute}orfaos`,
+      null,
+      null,
+      signal
    );
-   if (!result.ok || !result.data) {
-      throw new Error(result.message || "Erro ao carregar CRM órfãos");
+   const result = await readApiData<ApiResponse<CrmOrfaosResumo>>(
+      response,
+      (message) => message || "Erro ao carregar CRM órfãos"
+   );
+   if (!result.data) {
+      throw new ApiError(
+         result.message || "Erro ao carregar CRM órfãos",
+         result.errors,
+         response.status
+      );
    }
    return result.data;
 }

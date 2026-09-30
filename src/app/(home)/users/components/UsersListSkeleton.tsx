@@ -89,9 +89,10 @@ function MobileCard() {
 
 export function UsersListSkeleton({ rows = 8 }: { rows?: number }) {
    return (
-      <div className="animate-pulse">
+      <div role="status" className="animate-pulse">
+         <span className="sr-only">Carregando usuários…</span>
          {/* Desktop — mesma moldura e colunas do UserTable */}
-         <div className="hidden min-h-100 overflow-x-auto lg:block">
+         <div aria-hidden className="hidden min-h-100 overflow-x-auto lg:block">
             <Table
                theme={{
                   body: { cell: { base: "px-2.5 py-1 xl:px-4" } },
@@ -148,7 +149,7 @@ export function UsersListSkeleton({ rows = 8 }: { rows?: number }) {
          </div>
 
          {/* Mobile — mesma moldura dos UserCard */}
-         <div className="space-y-2 p-2 lg:hidden">
+         <div aria-hidden className="space-y-2 p-2 lg:hidden">
             {Array.from({ length: 4 }).map((_, i) => (
                <MobileCard key={i} />
             ))}

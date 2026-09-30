@@ -1,4 +1,4 @@
-import request from "../../Api";
+import request, { readApiData } from "../../Api";
 import type { ApiResponse } from "@/types/api";
 
 const esfAerRoute = "estatistica/esfaer/";
@@ -18,7 +18,7 @@ export async function getEsfAerList(
       null,
       signal
    );
-   const json = (await response.json()) as ApiResponse<EsfAerItem[]>;
+   const json = await readApiData<ApiResponse<EsfAerItem[]>>(response);
    return json.data || [];
 }
 
@@ -152,11 +152,9 @@ export async function getEsfAerHistorico(
       signal
    );
 
-   const json = (await response
-      .json()
-      .catch(() => null)) as ApiResponse<EsfAerHistorico> | null;
+   const json = await readApiData<ApiResponse<EsfAerHistorico>>(response);
 
-   if (!response.ok || !json?.data) {
+   if (!json?.data) {
       throw new Error(
          json?.message ??
             `Falha ao carregar o histórico (HTTP ${response.status})`
@@ -181,7 +179,7 @@ export async function getEsfAerResumo(
       },
       signal
    );
-   const json = (await response.json()) as ApiResponse<EsfAerResumoResponse>;
+   const json = await readApiData<ApiResponse<EsfAerResumoResponse>>(response);
    return (
       json.data ?? {
          items: [],

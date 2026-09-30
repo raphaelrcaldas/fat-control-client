@@ -1,5 +1,5 @@
-import request, { parseApiResponse } from "../Api";
-import type { ApiPaginatedResponse, ApiResult } from "@/types/api";
+import request, { parseApiResponse, readApiData } from "../Api";
+import type { ApiResponse, ApiPaginatedResponse, ApiResult } from "@/types/api";
 
 const notificacoesRoute = "notificacoes/";
 
@@ -74,25 +74,26 @@ export async function getNotificacoes(
       query,
       signal
    );
-   const json = (await response.json()) as ApiPaginatedResponse<Notificacao>;
-   if (!response.ok) {
-      throw new Error(json.message || "Erro ao carregar notificações");
-   }
+   const json = await readApiData<ApiPaginatedResponse<Notificacao>>(response);
    return json;
 }
 
 export async function getContadorNotificacoes(
    signal?: AbortSignal
 ): Promise<NotificacaoContador | null> {
-   const result = await parseApiResponse<NotificacaoContador>(
-      await request("GET", `${notificacoesRoute}contador`, null, null, signal)
+   const response = await request(
+      "GET",
+      `${notificacoesRoute}contador`,
+      null,
+      null,
+      signal
    );
-   if (!result.ok) {
-      throw new Error(
-         result.message || "Erro ao carregar contador de notificações"
-      );
-   }
-   return result.data;
+   const result = await readApiData<ApiResponse<NotificacaoContador>>(
+      response,
+      (message) => message || "Erro ao carregar contador de notificações"
+   );
+
+   return result.data ?? null;
 }
 
 /** Idempotente no backend: marcar uma já lida não é erro. */

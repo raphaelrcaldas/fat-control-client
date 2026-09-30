@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Select, Label } from "flowbite-react";
+import { Button, Select, Label } from "flowbite-react";
 import { TbPlaneInflight } from "react-icons/tb";
 import clsx from "clsx";
 import { useHorasAnv } from "@/hooks/queries";
@@ -14,7 +14,8 @@ export default function HorasAnvPage() {
    const currentYear = new Date().getFullYear();
    const [anoRef, setAnoRef] = useState(currentYear);
 
-   const { data, isLoading, isFetching } = useHorasAnv(anoRef);
+   const { data, isLoading, isFetching, isError, error, refetch } =
+      useHorasAnv(anoRef);
 
    const isRefetching = !isLoading && isFetching;
    const hasData = !!data && data.items.length > 0;
@@ -68,6 +69,27 @@ export default function HorasAnvPage() {
 
          {isLoading ? (
             <HorasAnvSkeleton />
+         ) : isError && !hasData ? (
+            <div
+               role="alert"
+               className="flex flex-col items-center justify-center gap-1 rounded border border-slate-200 bg-white px-6 py-16 text-center shadow-sm"
+            >
+               <p className="text-sm font-semibold text-red-800">
+                  Não foi possível carregar as horas por aeronave
+               </p>
+               <p className="max-w-md text-xs text-slate-500">
+                  {error instanceof Error ? error.message : "Erro desconhecido"}
+               </p>
+               <Button
+                  color="light"
+                  size="sm"
+                  className="mt-3"
+                  onClick={() => refetch()}
+                  disabled={isFetching}
+               >
+                  Tentar novamente
+               </Button>
+            </div>
          ) : !hasData ? (
             <div className="rounded border border-dashed border-slate-300 bg-slate-50 px-4 py-16 text-center">
                <p className="text-sm font-semibold text-slate-600">
@@ -78,15 +100,36 @@ export default function HorasAnvPage() {
                </p>
             </div>
          ) : (
-            <div
-               className={clsx(
-                  "flex flex-col gap-5 transition-opacity duration-200",
-                  isRefetching && "pointer-events-none opacity-50"
+            <>
+               {isError && (
+                  <div
+                     role="status"
+                     className="mb-5 flex flex-wrap items-center justify-between gap-2 rounded border border-red-200 bg-red-50 px-4 py-2 text-sm text-red-800"
+                  >
+                     <span>
+                        Não foi possível atualizar as horas por aeronave.
+                        Exibindo a última consulta.
+                     </span>
+                     <Button
+                        color="light"
+                        size="sm"
+                        onClick={() => refetch()}
+                        disabled={isFetching}
+                     >
+                        Tentar novamente
+                     </Button>
+                  </div>
                )}
-            >
-               <HorasAnvStats data={data} ano={anoRef} />
-               <HorasAnvTable data={data} anoRef={anoRef} />
-            </div>
+               <div
+                  className={clsx(
+                     "flex flex-col gap-5 transition-opacity duration-200",
+                     isRefetching && "pointer-events-none opacity-50"
+                  )}
+               >
+                  <HorasAnvStats data={data} ano={anoRef} />
+                  <HorasAnvTable data={data} anoRef={anoRef} />
+               </div>
+            </>
          )}
       </div>
    );

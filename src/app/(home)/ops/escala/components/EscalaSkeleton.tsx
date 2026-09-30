@@ -8,10 +8,13 @@ export function EscalaSkeleton({
    cardsPerSubList = 3,
 }: EscalaSkeletonProps) {
    return (
-      <div className="flex flex-wrap items-start gap-4">
-         {Array.from({ length: columns }).map((_, i) => (
-            <ColumnSkeleton key={i} cardsPerSubList={cardsPerSubList} />
-         ))}
+      <div role="status">
+         <span className="sr-only">Carregando escala…</span>
+         <div aria-hidden className="flex flex-wrap items-start gap-4">
+            {Array.from({ length: columns }).map((_, i) => (
+               <ColumnSkeleton key={i} cardsPerSubList={cardsPerSubList} />
+            ))}
+         </div>
       </div>
    );
 }
@@ -31,14 +34,14 @@ function ColumnSkeleton({ cardsPerSubList }: { cardsPerSubList: number }) {
                 pulse deixava o skeleton em 57px, 9px mais raso, e a régua
                 "DISPONÍVEIS" saltava na troca. */}
             <div className="flex h-[17px] items-center gap-2">
-               <div className="h-3 w-5 animate-pulse rounded bg-slate-200 motion-reduce:animate-none" />
-               <div className="h-4 w-20 animate-pulse rounded bg-slate-200 motion-reduce:animate-none" />
+               <div className="h-3 w-5 animate-pulse rounded bg-slate-200" />
+               <div className="h-4 w-20 animate-pulse rounded bg-slate-200" />
             </div>
             <div className="flex h-[16.5px] w-full items-center gap-2">
-               <div className="h-2 w-2 animate-pulse rounded-full bg-emerald-200 motion-reduce:animate-none" />
-               <div className="h-3 w-4 animate-pulse rounded bg-slate-200 motion-reduce:animate-none" />
-               <div className="h-2 w-2 animate-pulse rounded-full bg-rose-200 motion-reduce:animate-none" />
-               <div className="h-3 w-4 animate-pulse rounded bg-slate-200 motion-reduce:animate-none" />
+               <div className="h-2 w-2 animate-pulse rounded-full bg-emerald-200" />
+               <div className="h-3 w-4 animate-pulse rounded bg-slate-200" />
+               <div className="h-2 w-2 animate-pulse rounded-full bg-rose-200" />
+               <div className="h-3 w-4 animate-pulse rounded bg-slate-200" />
             </div>
          </header>
 
@@ -67,16 +70,16 @@ function SubListSkeleton({
       <div>
          <div className="mb-2 flex items-center gap-2">
             <span
-               className={`inline-block h-2 w-2 animate-pulse rounded-full motion-reduce:animate-none ${accent}`}
+               className={`inline-block h-2 w-2 animate-pulse rounded-full ${accent}`}
             />
-            <div className="h-2.5 w-20 animate-pulse rounded bg-slate-200 motion-reduce:animate-none" />
-            <div className="h-2.5 w-5 animate-pulse rounded bg-slate-200 motion-reduce:animate-none" />
+            <div className="h-2.5 w-20 animate-pulse rounded bg-slate-200" />
+            <div className="h-2.5 w-5 animate-pulse rounded bg-slate-200" />
             <div className="ml-1 h-px flex-1 bg-slate-200" />
             {/* Chevron do cabeçalho colapsável, presente só na sublista que
                 de fato colapsa — senão o cabeçalho encolhe quando os dados
                 chegam. */}
             {collapsed && (
-               <div className="h-3 w-3 shrink-0 animate-pulse rounded bg-slate-200 motion-reduce:animate-none" />
+               <div className="h-3 w-3 shrink-0 animate-pulse rounded bg-slate-200" />
             )}
          </div>
          {cards > 0 && (
@@ -99,12 +102,12 @@ function CardSkeleton() {
    return (
       <div className="flex items-start justify-between gap-2 rounded border border-slate-400 bg-white p-3">
          <div className="flex min-w-0 items-baseline gap-2">
-            <div className="h-2.5 w-4 animate-pulse rounded bg-slate-200 motion-reduce:animate-none" />
-            <div className="h-3.5 w-16 animate-pulse rounded bg-slate-200 motion-reduce:animate-none" />
+            <div className="h-2.5 w-4 animate-pulse rounded bg-slate-200" />
+            <div className="h-3.5 w-16 animate-pulse rounded bg-slate-200" />
          </div>
          <div className="flex shrink-0 items-center gap-1">
-            <div className="h-4 w-10 animate-pulse rounded-md bg-slate-200 motion-reduce:animate-none" />
-            <div className="h-4 w-14 animate-pulse rounded-md bg-slate-100 motion-reduce:animate-none" />
+            <div className="h-4 w-10 animate-pulse rounded-md bg-slate-200" />
+            <div className="h-4 w-14 animate-pulse rounded-md bg-slate-100" />
          </div>
       </div>
    );

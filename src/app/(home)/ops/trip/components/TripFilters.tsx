@@ -28,6 +28,8 @@ type TripFiltersProps = {
    updateFilter: (key: string, value: string[] | boolean | string) => void;
    onClear: () => void;
    hasActiveFilters: boolean;
+   /** Só na 1ª carga (sem dado); no refetch fica habilitado, senão a busca perde o foco a cada tecla. */
+   disabled?: boolean;
 };
 
 /** Um chip por valor selecionado, removível no próprio chip. */
@@ -40,6 +42,7 @@ export function TripFilters({
    updateFilter,
    onClear,
    hasActiveFilters,
+   disabled = false,
 }: TripFiltersProps) {
    const { funcoes, labelShort } = useFuncoes();
    const compacto = useAbaixoDe("md");
@@ -111,12 +114,14 @@ export function TripFilters({
                      placeholder="Buscar por trigrama ou nome..."
                      value={search}
                      onChange={(e) => setSearch(e.target.value)}
+                     disabled={disabled}
                   />
                </div>
                <Button
                   color="light"
                   className="shrink-0 md:hidden"
                   onClick={() => setFiltersOpen((open) => !open)}
+                  disabled={disabled}
                   aria-expanded={filtersOpen}
                   aria-controls="trip-filters"
                >
@@ -148,7 +153,13 @@ export function TripFilters({
                      inert={compacto && !filtersOpen}
                      className="flex flex-col gap-3 pt-3 md:contents"
                   >
-                     <div className="w-full md:w-44">
+                     {/* `MultiSelect` e `SegmentedControl` não têm prop
+                         `disabled`: o `fieldset disabled` desabilita os botões
+                         e radios de dentro. */}
+                     <fieldset
+                        disabled={disabled}
+                        className="w-full min-w-0 disabled:opacity-50 md:w-44"
+                     >
                         <MultiSelect
                            options={postoGradRecords.map((posto) => ({
                               value: posto.short,
@@ -158,13 +169,16 @@ export function TripFilters({
                            onChange={(values) => updateFilter("p_g", values)}
                            placeholder="Posto/Graduação"
                         />
-                     </div>
+                     </fieldset>
 
                      {/* No celular os dois cabem lado a lado porque o rótulo vira
                    o próprio código (PIL, IN) — é assim que eles aparecem na
                    lista, então não há o que decifrar. */}
                      <div className="flex gap-3 md:contents">
-                        <div className="flex-1 md:w-40 md:flex-none">
+                        <fieldset
+                           disabled={disabled}
+                           className="min-w-0 flex-1 disabled:opacity-50 md:w-40 md:flex-none"
+                        >
                            <MultiSelect
                               options={funcoes.map((f) => ({
                                  value: f.cod,
@@ -178,9 +192,12 @@ export function TripFilters({
                               }
                               placeholder="Função"
                            />
-                        </div>
+                        </fieldset>
 
-                        <div className="flex-1 md:w-48 md:flex-none">
+                        <fieldset
+                           disabled={disabled}
+                           className="min-w-0 flex-1 disabled:opacity-50 md:w-48 md:flex-none"
+                        >
                            <MultiSelect
                               options={Object.entries(OPER_LABELS).map(
                                  ([key, value]) => ({
@@ -196,24 +213,29 @@ export function TripFilters({
                                  compacto ? "Oper." : "Operacionalidade"
                               }
                            />
-                        </div>
+                        </fieldset>
                      </div>
 
                      {/* Ativos/Inativos e recorte do conjunto, nao acao — ver o
                 SegmentedControl. Vive dentro do disclosure: no mobile uma
                 linha so para ele custava a altura de dois cartoes da lista. */}
-                     <SegmentedControl
-                        options={[
-                           { label: "Ativos", value: "true" },
-                           { label: "Inativos", value: "false" },
-                        ]}
-                        value={String(filters.active) as "true" | "false"}
-                        onChange={(value) =>
-                           updateFilter("active", value === "true")
-                        }
-                        ariaLabel="Situação do tripulante"
-                        className="w-full self-start md:w-auto"
-                     />
+                     <fieldset
+                        disabled={disabled}
+                        className="w-full min-w-0 self-start disabled:opacity-50 md:w-auto"
+                     >
+                        <SegmentedControl
+                           options={[
+                              { label: "Ativos", value: "true" },
+                              { label: "Inativos", value: "false" },
+                           ]}
+                           value={String(filters.active) as "true" | "false"}
+                           onChange={(value) =>
+                              updateFilter("active", value === "true")
+                           }
+                           ariaLabel="Situação do tripulante"
+                           className="w-full md:w-auto"
+                        />
+                     </fieldset>
                   </div>
                </div>
             </div>
@@ -226,6 +248,7 @@ export function TripFilters({
                      key={`${chip.key}-${chip.value}`}
                      type="button"
                      onClick={() => removeChip(chip)}
+                     disabled={disabled}
                      aria-label={`Remover filtro ${chip.label}`}
                      title={`Remover filtro ${chip.label}`}
                      className="focus-visible:outline-primary-600 group inline-flex items-center gap-1 rounded border border-slate-200 bg-slate-50 py-1 pr-1.5 pl-2 text-xs leading-5 font-medium text-slate-700 transition-colors outline-none hover:border-slate-300 hover:bg-slate-100 focus-visible:outline-[2px] focus-visible:outline-offset-[2px] focus-visible:[outline-style:solid]"
@@ -238,6 +261,7 @@ export function TripFilters({
                   <button
                      type="button"
                      onClick={onClear}
+                     disabled={disabled}
                      className="focus-visible:outline-primary-600 rounded px-2 py-1 text-xs leading-5 font-medium text-slate-500 underline-offset-2 outline-none hover:text-slate-800 hover:underline focus-visible:outline-[2px] focus-visible:outline-offset-[2px] focus-visible:[outline-style:solid]"
                   >
                      Limpar filtros

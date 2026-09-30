@@ -10,6 +10,7 @@ import {
    ModalBody,
    ModalFooter,
    Button,
+   Spinner,
 } from "flowbite-react";
 import {
    useEtiquetasMissoes,
@@ -31,7 +32,13 @@ import { ConfiguracoesSkeleton } from "./ConfiguracoesSkeleton";
 
 export function ConfigPage() {
    // React Query hooks
-   const { data: etiquetas = [], isLoading: loading } = useEtiquetasMissoes();
+   const {
+      data: etiquetas = [],
+      isLoading: loading,
+      isError,
+      isFetching,
+      refetch,
+   } = useEtiquetasMissoes();
    const createUpdateMutation = useCreateUpdateEtiqueta();
    const deleteMutation = useDeleteEtiqueta();
    const { push } = useToast();
@@ -138,8 +145,49 @@ export function ConfigPage() {
          <section className="flex-1">
             {loading ? (
                <ConfiguracoesSkeleton />
+            ) : isError && etiquetas.length === 0 ? (
+               <div
+                  role="alert"
+                  className="flex flex-col items-center gap-3 rounded border border-red-200 bg-white p-8 text-center shadow-sm"
+               >
+                  <p className="text-sm font-medium text-red-800">
+                     Não foi possível carregar as etiquetas
+                  </p>
+                  <Button
+                     color="light"
+                     size="sm"
+                     onClick={() => refetch()}
+                     disabled={isFetching}
+                  >
+                     Tentar novamente
+                  </Button>
+               </div>
             ) : (
                <div className="rounded border border-slate-200 bg-white p-4">
+                  {/* Refetch que falha com a lista já em tela: mantém o dado
+                      e avisa, em vez de trocar a tela pelo erro. */}
+                  {isError && (
+                     <p
+                        role="status"
+                        className="mb-4 flex items-center gap-2 rounded border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs text-slate-500"
+                     >
+                        <HiExclamation
+                           aria-hidden
+                           className="size-3.5 shrink-0"
+                        />
+                        <span className="min-w-0 flex-1 truncate">
+                           Não foi possível atualizar a lista
+                        </span>
+                        <button
+                           type="button"
+                           onClick={() => refetch()}
+                           disabled={isFetching}
+                           className="min-h-[24px] shrink-0 font-semibold text-slate-900 underline underline-offset-2 disabled:opacity-50"
+                        >
+                           Tentar novamente
+                        </button>
+                     </p>
+                  )}
                   <div className="mb-4 flex items-center justify-between">
                      <div className="flex items-center gap-2">
                         <HiTag className="text-primary-600 h-5 w-5" />
@@ -281,8 +329,16 @@ export function ConfigPage() {
                      color="red"
                      onClick={handleConfirmDelete}
                      disabled={saving}
+                     aria-busy={deleteMutation.isPending}
                   >
-                     {saving ? "Excluindo..." : "Excluir Etiqueta"}
+                     {deleteMutation.isPending ? (
+                        <>
+                           <Spinner size="sm" color="white" className="mr-2" />
+                           Excluindo…
+                        </>
+                     ) : (
+                        "Excluir Etiqueta"
+                     )}
                   </Button>
                </div>
             </ModalFooter>
@@ -394,12 +450,18 @@ export function ConfigPage() {
                   color="primary"
                   onClick={handleSaveEtiqueta}
                   disabled={saving || !formData.nome}
+                  aria-busy={createUpdateMutation.isPending}
                >
-                  {saving
-                     ? "Salvando..."
-                     : isEditing
-                       ? "Salvar"
-                       : "Criar Etiqueta"}
+                  {createUpdateMutation.isPending ? (
+                     <>
+                        <Spinner size="sm" color="white" className="mr-2" />
+                        Salvando…
+                     </>
+                  ) : isEditing ? (
+                     "Salvar"
+                  ) : (
+                     "Criar Etiqueta"
+                  )}
                </Button>
             </ModalFooter>
          </Modal>

@@ -16,6 +16,7 @@ import { IoMdSearch } from "react-icons/io";
 import { useTrips } from "@/hooks/queries/useTrips";
 import { useFuncoes } from "@/hooks/queries/useFuncoes";
 import type { PaopSubprogramaItem } from "services/routes/instrucao/paops";
+import { MatriculaListSkeleton } from "./MatriculaListSkeleton";
 
 interface MatriculaModalProps {
    show: boolean;
@@ -41,7 +42,7 @@ export function MatriculaModal({
 
    // Mesmo recorte que o backend exige na matrícula: ativos da org, da
    // função do subprograma.
-   const { data, isLoading } = useTrips(
+   const { data, isLoading, isError, isFetching, refetch } = useTrips(
       { func: func ? [func] : [], active: true, per_page: TODOS },
       show && !!func
    );
@@ -78,10 +79,12 @@ export function MatriculaModal({
    // trocou de função) não aparece entre os candidatos. Sem listá-lo aqui o
    // operador não teria como desmarcá-lo — e o vínculo ficaria preso.
    const foraDoCriterio = useMemo(() => {
-      if (!item || isLoading) return [];
+      // Em erro a lista de elegíveis é vazia por falha, não por critério:
+      // sem esta guarda todo matriculado apareceria como "fora do critério".
+      if (!item || isLoading || isError) return [];
       const ids = new Set(elegiveis.map((t) => t.id));
       return item.tripulantes.filter((t) => !ids.has(t.trip_id));
-   }, [item, elegiveis, isLoading]);
+   }, [item, elegiveis, isLoading, isError]);
 
    // O backend pagina; se a unidade tiver mais tripulantes numa função do que
    // cabe na página, a lista silenciaria o excedente.
@@ -157,8 +160,24 @@ export function MatriculaModal({
                )}
 
                {isLoading ? (
-                  <div className="flex justify-center py-8">
-                     <Spinner color="primary" />
+                  <MatriculaListSkeleton />
+               ) : isError ? (
+                  <div
+                     role="alert"
+                     className="space-y-3 rounded border border-red-300 bg-red-50 p-4"
+                  >
+                     <p className="text-sm text-red-800">
+                        Erro ao carregar os tripulantes. Por favor, tente
+                        novamente.
+                     </p>
+                     <Button
+                        color="light"
+                        size="xs"
+                        onClick={() => refetch()}
+                        disabled={isFetching}
+                     >
+                        Tentar novamente
+                     </Button>
                   </div>
                ) : candidatos.length === 0 ? (
                   <p className="py-8 text-center text-sm text-slate-500">
@@ -201,10 +220,18 @@ export function MatriculaModal({
          <ModalFooter>
             <Button
                color="primary"
-               disabled={isSaving || isLoading}
+               disabled={isSaving || isLoading || isError}
                onClick={() => onSubmit(marcados)}
+               aria-busy={isSaving}
             >
-               {isSaving ? "Salvando..." : "Salvar"}
+               {isSaving ? (
+                  <>
+                     <Spinner size="sm" color="white" className="mr-2" />
+                     Salvando...
+                  </>
+               ) : (
+                  "Salvar"
+               )}
             </Button>
             <Button color="light" onClick={onClose} disabled={isSaving}>
                Cancelar

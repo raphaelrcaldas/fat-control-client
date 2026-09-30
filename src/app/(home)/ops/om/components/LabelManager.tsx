@@ -28,6 +28,10 @@ type LabelManagerProps = {
    isOpen: boolean;
    onClose: () => void;
    labels: Etiqueta[];
+   /** Estado da consulta do catálogo: sem ele, "0 etiquetas" é mentira. */
+   labelsLoading?: boolean;
+   labelsError?: boolean;
+   onRetry?: () => void;
    onLabelDeleted?: (id: number) => void;
 };
 
@@ -42,6 +46,9 @@ export function LabelManager({
    isOpen,
    onClose,
    labels,
+   labelsLoading = false,
+   labelsError = false,
+   onRetry,
    onLabelDeleted,
 }: LabelManagerProps) {
    const { push: pushToast } = useToast();
@@ -293,11 +300,12 @@ export function LabelManager({
                               color="primary"
                               size="sm"
                               disabled={!podeSalvar}
+                              aria-busy={isSaving}
                            >
                               {isSaving ? (
                                  <Spinner
                                     size="sm"
-                                    color="primary"
+                                    color="white"
                                     className="mr-2"
                                  />
                               ) : editing ? (
@@ -305,7 +313,11 @@ export function LabelManager({
                               ) : (
                                  <HiPlus className="mr-1.5 h-4 w-4" />
                               )}
-                              {editing ? "Salvar" : "Adicionar"}
+                              {isSaving
+                                 ? "Salvando…"
+                                 : editing
+                                   ? "Salvar"
+                                   : "Adicionar"}
                            </Button>
                         </div>
                      </form>
@@ -313,10 +325,48 @@ export function LabelManager({
 
                   <div className="space-y-2">
                      <h3 className="text-xs font-bold tracking-wider text-slate-500 uppercase">
-                        {labels.length}{" "}
-                        {labels.length === 1 ? "etiqueta" : "etiquetas"}
+                        {labelsLoading || (labelsError && labels.length === 0)
+                           ? "Etiquetas"
+                           : `${labels.length} ${
+                                labels.length === 1 ? "etiqueta" : "etiquetas"
+                             }`}
                      </h3>
-                     {labels.length === 0 ? (
+                     {labelsLoading ? (
+                        <div role="status">
+                           <span className="sr-only">
+                              Carregando etiquetas…
+                           </span>
+                           <ul
+                              aria-hidden
+                              className="animate-pulse divide-y divide-slate-200 rounded border border-slate-200 bg-white"
+                           >
+                              {[0, 1, 2].map((i) => (
+                                 <li
+                                    key={i}
+                                    className="flex items-center gap-3 px-3 py-2"
+                                 >
+                                    <div className="size-3 shrink-0 rounded-full bg-slate-200" />
+                                    <div className="h-[36px] flex-1 space-y-1.5 py-0.5">
+                                       <div className="h-3.5 w-32 rounded bg-slate-200" />
+                                       <div className="h-3 w-48 rounded bg-slate-100" />
+                                    </div>
+                                 </li>
+                              ))}
+                           </ul>
+                        </div>
+                     ) : labelsError && labels.length === 0 ? (
+                        <div
+                           role="alert"
+                           className="flex flex-wrap items-center gap-3 py-4 text-sm text-red-700"
+                        >
+                           Não foi possível carregar as etiquetas.
+                           {onRetry && (
+                              <Button size="xs" color="light" onClick={onRetry}>
+                                 Tentar novamente
+                              </Button>
+                           )}
+                        </div>
+                     ) : labels.length === 0 ? (
                         <p className="py-4 text-center text-sm text-slate-500">
                            Nenhuma etiqueta cadastrada.
                         </p>

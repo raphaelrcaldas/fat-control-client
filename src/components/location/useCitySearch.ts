@@ -50,7 +50,10 @@ export function useCitySearch(
       enabled: canSearch,
    });
 
-   const cities = canSearch ? (query.data ?? []) : [];
+   // Mantém a lista entre termos, mas evita dados de outro termo após erro.
+   const placeholderAposErro =
+      query.isPlaceholderData && query.errorUpdateCount > 0;
+   const cities = canSearch && !placeholderAposErro ? (query.data ?? []) : [];
    const maisUsadas = cities.filter((c) => c.mais_usada);
    const demais = cities.filter((c) => !c.mais_usada);
 
@@ -60,6 +63,9 @@ export function useCitySearch(
       total: cities.length,
       hasRanking: maisUsadas.length > 0,
       isFetching: query.isFetching && canSearch,
+      /** A busca falhou: quem renderiza não deve dizer "nenhuma cidade". */
+      isError: query.isError && canSearch,
+      refetch: query.refetch,
       canSearch,
    };
 }

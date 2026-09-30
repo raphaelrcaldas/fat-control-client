@@ -40,7 +40,17 @@ export default function FeedbackPage() {
    // contadores por status que orientam o trabalho ("3 abertos"), e eles
    // exigem o conjunto completo. O endpoint aceita `status`/`tipo`/`uae`
    // para quem consultar de fora — a tela não precisa deles.
-   const { data: feedbacks = [], isLoading, isError, refetch } = useFeedbacks();
+   const {
+      data: feedbacksData,
+      isLoading,
+      isError,
+      isFetching,
+      refetch,
+   } = useFeedbacks();
+   const feedbacks = feedbacksData ?? [];
+   // Falha SEM caixa em tela é dita como falha; com a caixa já carregada, um
+   // refetch que falha vira aviso e a lista continua
+   const semDado = isError && !feedbacksData;
    const tenantsQuery = useTenants();
    const { push } = useToast();
    const deleteMutation = useDeleteFeedback();
@@ -149,7 +159,7 @@ export default function FeedbackPage() {
 
          {/* Filtro — os contadores SÃO o filtro. "Aguardando resposta"
              vem primeiro: é a fila de trabalho; os status vêm depois. */}
-         {!isLoading && !isError && feedbacks.length > 0 && (
+         {!isLoading && feedbacks.length > 0 && (
             <div className="flex flex-wrap gap-2 rounded border border-slate-200 bg-white p-2 shadow-sm">
                <button
                   type="button"
@@ -199,8 +209,11 @@ export default function FeedbackPage() {
 
          {/* Falha de carga não é caixa vazia: dizer "nenhum feedback" quando
              a consulta quebrou esconde trabalho pendente. */}
-         {isError && (
-            <div className="flex flex-col items-center gap-3 rounded border border-red-200 bg-white p-8 text-center shadow-sm">
+         {semDado && (
+            <div
+               role="alert"
+               className="flex flex-col items-center gap-3 rounded border border-red-200 bg-white p-8 text-center shadow-sm"
+            >
                <MdErrorOutline className="h-8 w-8 text-red-600" aria-hidden />
                <div>
                   <p className="font-semibold text-slate-900">
@@ -210,10 +223,34 @@ export default function FeedbackPage() {
                      Verifique a conexão e tente novamente.
                   </p>
                </div>
-               <Button color="light" onClick={() => refetch()}>
+               <Button
+                  color="light"
+                  onClick={() => refetch()}
+                  disabled={isFetching}
+               >
                   Tentar novamente
                </Button>
             </div>
+         )}
+
+         {isError && feedbacksData && (
+            <p
+               role="status"
+               className="flex items-center gap-2 rounded border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs text-slate-500"
+            >
+               <MdErrorOutline aria-hidden className="size-3.5 shrink-0" />
+               <span className="min-w-0 flex-1 truncate">
+                  Não foi possível atualizar a caixa
+               </span>
+               <button
+                  type="button"
+                  onClick={() => refetch()}
+                  disabled={isFetching}
+                  className="min-h-[24px] shrink-0 font-semibold text-slate-900 underline underline-offset-2 disabled:opacity-50"
+               >
+                  Tentar novamente
+               </button>
+            </p>
          )}
 
          {!isLoading && !isError && feedbacks.length === 0 && (
@@ -224,7 +261,7 @@ export default function FeedbackPage() {
             />
          )}
 
-         {!isError && visiveis.length > 0 && (
+         {visiveis.length > 0 && (
             <div className="space-y-3">
                {visiveis.map((feedback) => (
                   <FeedbackCard
@@ -239,7 +276,7 @@ export default function FeedbackPage() {
             </div>
          )}
 
-         {!isError && feedbacks.length > 0 && visiveis.length === 0 && (
+         {feedbacks.length > 0 && visiveis.length === 0 && (
             <EmptyState
                icon={MdOutlineRateReview}
                title={

@@ -1,10 +1,11 @@
 "use client";
 
 import clsx from "clsx";
-import { Spinner, TextInput } from "flowbite-react";
+import { Button, Spinner, TextInput } from "flowbite-react";
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { FaMapMarkerAlt } from "react-icons/fa";
+import { MdErrorOutline } from "react-icons/md";
 import { IoMdSearch } from "react-icons/io";
 import type { Cidade } from "services/routes/cities";
 import {
@@ -49,13 +50,21 @@ export function CidadeInlineSearch({
    const dropdownRef = useRef<HTMLDivElement>(null);
    const listboxId = useId();
 
-   const { maisUsadas, demais, total, hasRanking, isFetching, canSearch } =
-      useCitySearch(term, {
-         fetcher: getCidadesPernoite,
-         queryKey: cidadePernoiteKeys.search,
-         allowEmpty: true,
-         enabled: open,
-      });
+   const {
+      maisUsadas,
+      demais,
+      total,
+      hasRanking,
+      isFetching,
+      isError,
+      refetch,
+      canSearch,
+   } = useCitySearch(term, {
+      fetcher: getCidadesPernoite,
+      queryKey: cidadePernoiteKeys.search,
+      allowEmpty: true,
+      enabled: open,
+   });
 
    // Lista achatada, na ordem visual (mais usadas primeiro, depois as
    // demais), usada para navegação por teclado e para o id ativo do ARIA.
@@ -154,7 +163,7 @@ export function CidadeInlineSearch({
 
       if (!open) return;
 
-      // Lista vazia: setas/Enter não fazem nada.
+      // Enter também permite tentar novamente sem tirar o foco da busca.
       switch (e.key) {
          case "ArrowDown":
             if (flat.length > 0) {
@@ -181,7 +190,10 @@ export function CidadeInlineSearch({
             }
             break;
          case "Enter":
-            if (activeIndexSafe >= 0) {
+            if (isError && total === 0) {
+               e.preventDefault();
+               if (!isFetching) refetch();
+            } else if (activeIndexSafe >= 0) {
                e.preventDefault();
                handleSelect(flat[activeIndexSafe]);
             }
@@ -194,20 +206,52 @@ export function CidadeInlineSearch({
    const dropdown = open && (
       <div
          ref={dropdownRef}
-         id={listboxId}
-         role="listbox"
          style={{ top: pos.top, left: pos.left, width: pos.width }}
-         className={clsx(
-            "fixed z-9999 max-h-64 min-w-56 overflow-y-auto rounded border border-slate-200 bg-white shadow-lg transition-opacity",
-            isFetching && "opacity-50"
-         )}
+         className="fixed z-9999 max-h-64 min-w-56 overflow-y-auto rounded border border-slate-200 bg-white shadow-lg"
       >
-         {total === 0 ? (
+         {isError && total > 0 && (
+            <p
+               role="status"
+               className="flex items-center gap-2 rounded border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs text-slate-500"
+            >
+               <MdErrorOutline aria-hidden className="size-3.5 shrink-0" />
+               <span className="min-w-0 flex-1 truncate">
+                  Não foi possível atualizar as cidades. Mostrando os últimos
+                  resultados.
+               </span>
+               <button
+                  type="button"
+                  onMouseDown={(e) => e.preventDefault()}
+                  onClick={() => refetch()}
+                  disabled={isFetching}
+                  className="min-h-[24px] shrink-0 font-semibold text-slate-900 underline underline-offset-2 disabled:opacity-50"
+               >
+                  Tentar novamente
+               </button>
+            </p>
+         )}
+         {isError && total === 0 ? (
+            <div
+               role="alert"
+               className="space-y-2 px-3 py-4 text-sm text-red-600"
+            >
+               <p>Não foi possível buscar cidades.</p>
+               <Button
+                  color="light"
+                  size="xs"
+                  onMouseDown={(e) => e.preventDefault()}
+                  onClick={() => refetch()}
+                  disabled={isFetching}
+               >
+                  Tentar novamente
+               </Button>
+            </div>
+         ) : total === 0 ? (
             <div className="flex items-center justify-center gap-2 px-3 py-4 text-sm text-slate-500">
                {isFetching ? (
                   <>
                      <Spinner size="sm" color="primary" />
-                     Procurando...
+                     Procurando…
                   </>
                ) : canSearch ? (
                   "Nenhuma cidade encontrada"
@@ -216,45 +260,72 @@ export function CidadeInlineSearch({
                )}
             </div>
          ) : (
-            <div className="divide-y divide-slate-100">
-               {hasRanking && (
-                  <p className="bg-amber-100/60 px-3 py-1 text-[10px] font-bold tracking-wide text-amber-700 uppercase">
-                     Mais usadas
-                  </p>
+            <div
+               id={listboxId}
+               role="listbox"
+               className={clsx(
+                  "divide-y divide-slate-100 transition-opacity",
+                  isFetching && "opacity-50"
                )}
-               {maisUsadas.map((c) => (
-                  <CidadeOption
-                     key={c.codigo}
-                     id={`${listboxId}-${c.codigo}`}
-                     cidade={c}
-                     isActive={c.codigo === flat[activeIndexSafe]?.codigo}
-                     onSelect={() => handleSelect(c)}
-                     onMouseEnter={() =>
-                        setActiveIndex(
-                           flat.findIndex((f) => f.codigo === c.codigo)
-                        )
-                     }
-                  />
-               ))}
-               {hasRanking && demais.length > 0 && (
-                  <p className="bg-slate-100 px-3 py-1 text-[10px] font-bold tracking-wide text-slate-500 uppercase">
-                     Demais cidades
-                  </p>
+            >
+               {maisUsadas.length > 0 && (
+                  <div
+                     role="group"
+                     aria-label="Mais usadas"
+                     className="divide-y divide-slate-100"
+                  >
+                     <p
+                        aria-hidden
+                        className="bg-amber-100/60 px-3 py-1 text-[10px] font-bold tracking-wide text-amber-700 uppercase"
+                     >
+                        Mais usadas
+                     </p>
+                     {maisUsadas.map((c) => (
+                        <CidadeOption
+                           key={c.codigo}
+                           id={`${listboxId}-${c.codigo}`}
+                           cidade={c}
+                           isActive={c.codigo === flat[activeIndexSafe]?.codigo}
+                           onSelect={() => handleSelect(c)}
+                           onMouseEnter={() =>
+                              setActiveIndex(
+                                 flat.findIndex((f) => f.codigo === c.codigo)
+                              )
+                           }
+                        />
+                     ))}
+                  </div>
                )}
-               {demais.map((c) => (
-                  <CidadeOption
-                     key={c.codigo}
-                     id={`${listboxId}-${c.codigo}`}
-                     cidade={c}
-                     isActive={c.codigo === flat[activeIndexSafe]?.codigo}
-                     onSelect={() => handleSelect(c)}
-                     onMouseEnter={() =>
-                        setActiveIndex(
-                           flat.findIndex((f) => f.codigo === c.codigo)
-                        )
-                     }
-                  />
-               ))}
+               {demais.length > 0 && (
+                  <div
+                     role="group"
+                     aria-label="Demais cidades"
+                     className="divide-y divide-slate-100"
+                  >
+                     {hasRanking && (
+                        <p
+                           aria-hidden
+                           className="bg-slate-100 px-3 py-1 text-[10px] font-bold tracking-wide text-slate-500 uppercase"
+                        >
+                           Demais cidades
+                        </p>
+                     )}
+                     {demais.map((c) => (
+                        <CidadeOption
+                           key={c.codigo}
+                           id={`${listboxId}-${c.codigo}`}
+                           cidade={c}
+                           isActive={c.codigo === flat[activeIndexSafe]?.codigo}
+                           onSelect={() => handleSelect(c)}
+                           onMouseEnter={() =>
+                              setActiveIndex(
+                                 flat.findIndex((f) => f.codigo === c.codigo)
+                              )
+                           }
+                        />
+                     ))}
+                  </div>
+               )}
             </div>
          )}
       </div>
@@ -273,7 +344,7 @@ export function CidadeInlineSearch({
             role="combobox"
             aria-expanded={open}
             aria-haspopup="listbox"
-            aria-controls={open ? listboxId : undefined}
+            aria-controls={open && total > 0 ? listboxId : undefined}
             aria-activedescendant={open ? activeId : undefined}
          />
 

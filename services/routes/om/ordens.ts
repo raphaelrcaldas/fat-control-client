@@ -1,4 +1,4 @@
-import request, { ApiError } from "../../Api";
+import request, { ApiError, readApiData } from "../../Api";
 import type { ApiPaginatedResponse, ApiResponse } from "@/types/api";
 import type { StatusType } from "@/constants/ops/ordens-missao/status";
 import type { CrewMember } from "../trips";
@@ -209,7 +209,7 @@ export async function listOrdens(
 
    const response = await request("GET", fullUrl, null, null, signal);
    const json =
-      (await response.json()) as ApiPaginatedResponse<OrdemMissaoList>;
+      await readApiData<ApiPaginatedResponse<OrdemMissaoList>>(response);
 
    return {
       items: json.data!,
@@ -222,15 +222,8 @@ export async function listOrdens(
 
 export async function getOrdem(id: number): Promise<OrdemMissaoOut> {
    const response = await request("GET", `${omRoute}${id}`);
-   const json = (await response.json()) as ApiResponse<OrdemMissaoOut>;
+   const json = await readApiData<ApiResponse<OrdemMissaoOut>>(response);
 
-   if (!response.ok) {
-      throw new ApiError(
-         json.message || "Ordem de missão não encontrada",
-         json.errors ?? null,
-         response.status
-      );
-   }
    return json.data!;
 }
 
@@ -290,10 +283,8 @@ export async function getRouteSuggestion(
       { origem, dest },
       signal
    );
-   if (!response.ok) {
-      return null;
-   }
-   const json = (await response.json()) as ApiResponse<RouteSuggestion | null>;
+   const json =
+      await readApiData<ApiResponse<RouteSuggestion | null>>(response);
    // Backend retorna null quando não encontra
    return json.data;
 }

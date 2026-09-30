@@ -1,4 +1,4 @@
-import request from "../../Api";
+import request, { readApiData } from "../../Api";
 import type { ApiResponse } from "@/types/api";
 
 const indicadoresRoute = "estatistica/indicadores/";
@@ -89,13 +89,11 @@ export async function getIndicadores(
       signal
    );
 
-   const json = (await response
-      .json()
-      .catch(() => null)) as ApiResponse<IndicadoresResponse> | null;
+   const json = await readApiData<ApiResponse<IndicadoresResponse>>(response);
 
    // Falha de carga tem que virar erro, nunca painel zerado: um ano
    // inteiro de zeros é indistinguível de "a API caiu".
-   if (!response.ok || !json?.data) {
+   if (!json?.data) {
       throw new Error(
          json?.message ??
             `Falha ao carregar os indicadores (HTTP ${response.status})`

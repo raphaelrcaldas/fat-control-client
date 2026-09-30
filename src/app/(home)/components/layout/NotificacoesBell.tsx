@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
@@ -20,6 +20,7 @@ import {
    useNotificacoes,
 } from "@/hooks/queries";
 import type { Notificacao } from "services/routes/notificacoes";
+import LoadingOverlay from "./loadingOverlay";
 import { exigeContextoSistema, notificacaoHref } from "./notificacaoHref";
 
 /**
@@ -44,6 +45,8 @@ import { exigeContextoSistema, notificacaoHref } from "./notificacaoHref";
 export function NotificacoesBell() {
    const [open, setOpen] = useState(false);
    const [trocando, setTrocando] = useState(false);
+   const sinoRef = useRef<HTMLSpanElement>(null);
+   const devolverFoco = useRef(false);
    const { push } = useToast();
    const { activeOrg, orgs } = useAuth();
    const orgSistema = orgs.find((o) => o.organizacao_id === null) ?? null;
@@ -80,6 +83,20 @@ export function NotificacoesBell() {
          stale: true,
       });
    }, [pathname, queryClient]);
+
+   // Depois de uma troca de contexto que falhou, o foco volta ao sino — sem
+   // isto ele caía no `body` quando o overlay fechava (o item clicado estava
+   // `disabled`). Em efeito, depois do cleanup do overlay. O `ref` fica num
+   // wrapper `contents`, não no botão: o `Popover` clona o gatilho espalhando
+   // `...children.props` depois do ref de posicionamento, e no React 19 um
+   // `ref` nosso no botão o sobrescreveria.
+   useEffect(() => {
+      if (trocando || !devolverFoco.current) return;
+      devolverFoco.current = false;
+      sinoRef.current
+         ?.querySelector<HTMLButtonElement>(":scope > button")
+         ?.focus();
+   }, [trocando]);
 
    // Falha de mutação precisa ser dita: sem isso o item some/permanece sem
    // explicação e a pessoa clica de novo achando que não registrou.
@@ -128,6 +145,7 @@ export function NotificacoesBell() {
       const erro = await trocarOrg(orgSistema, href);
       if (erro) {
          push({ type: "error", message: erro });
+         devolverFoco.current = true;
          setTrocando(false);
       }
    }
@@ -142,101 +160,113 @@ export function NotificacoesBell() {
          : null;
 
    return (
-      <Popover
-         open={open}
-         onOpenChange={setOpen}
-         trigger="click"
-         placement="bottom-end"
-         arrow={false}
-         aria-label="Notificações"
-         // Sobrescreve o `rounded-lg`/`border-gray-200` default do tema
-         // Flowbite: o padrão visual do projeto exige `rounded` (nunca
-         // `rounded-lg`) e a borda `slate-200`.
-         theme={{ base: "rounded border-slate-200 shadow-sm" }}
-         content={
-            <div className="w-80">
-               <div className="flex items-center justify-between gap-2 border-b border-slate-200 px-3 py-2">
-                  <span className="text-sm font-semibold text-slate-900">
-                     Notificações
-                  </span>
-                  {mostrarMarcarTodas && (
-                     <button
-                        type="button"
-                        disabled={marcarTodas.isPending}
-                        onClick={() => marcarTodas.mutate()}
-                        className="text-primary-600 hover:text-primary-700 min-h-[24px] shrink-0 text-xs font-semibold disabled:opacity-50"
-                     >
-                        Marcar todas como lidas
-                     </button>
-                  )}
-               </div>
+      // `contents`: o wrapper não entra no layout da navbar; só dá ao efeito
+      // acima um ponto de onde achar o botão do sino.
+      <span ref={sinoRef} className="contents">
+         {/* Fica até a página ir embora: no sucesso `trocarOrg` recarrega. */}
+         {trocando && (
+            <LoadingOverlay message="Abrindo no contexto Sistema..." />
+         )}
+         <Popover
+            open={open}
+            onOpenChange={setOpen}
+            trigger="click"
+            placement="bottom-end"
+            arrow={false}
+            aria-label="Notificações"
+            // Sobrescreve o `rounded-lg`/`border-gray-200` default do tema
+            // Flowbite: o padrão visual do projeto exige `rounded` (nunca
+            // `rounded-lg`) e a borda `slate-200`.
+            theme={{ base: "rounded border-slate-200 shadow-sm" }}
+            content={
+               <div className="w-80">
+                  <div className="flex items-center justify-between gap-2 border-b border-slate-200 px-3 py-2">
+                     <span className="text-sm font-semibold text-slate-900">
+                        Notificações
+                     </span>
+                     {mostrarMarcarTodas && (
+                        <button
+                           type="button"
+                           disabled={marcarTodas.isPending}
+                           onClick={() => marcarTodas.mutate()}
+                           className="text-primary-600 hover:text-primary-700 min-h-[24px] shrink-0 text-xs font-semibold disabled:opacity-50"
+                        >
+                           Marcar todas como lidas
+                        </button>
+                     )}
+                  </div>
 
-               <div className="max-h-80 overflow-y-auto">
-                  {isLoading ? (
-                     <NotificacoesSkeleton />
-                  ) : isError ? (
-                     // Erro NUNCA vira lista vazia (regra do projeto):
-                     // anunciar a falha em vez de fingir que não há
-                     // notificação.
-                     <div role="alert" className="px-4 py-6 text-center">
-                        <p className="text-sm font-medium text-red-600">
-                           Não foi possível carregar as notificações
+                  <div className="max-h-80 overflow-y-auto">
+                     {isLoading ? (
+                        <NotificacoesSkeleton />
+                     ) : isError ? (
+                        // Erro NUNCA vira lista vazia (regra do projeto):
+                        // anunciar a falha em vez de fingir que não há
+                        // notificação.
+                        <div role="alert" className="px-4 py-6 text-center">
+                           <p className="text-sm font-medium text-red-600">
+                              Não foi possível carregar as notificações
+                           </p>
+                           <p className="mt-1 text-xs text-slate-500">
+                              A consulta falhou — tente novamente mais tarde.
+                           </p>
+                        </div>
+                     ) : notificacoes.length === 0 ? (
+                        <p className="px-4 py-6 text-center text-sm text-slate-500">
+                           Nenhuma notificação
                         </p>
-                        <p className="mt-1 text-xs text-slate-500">
-                           A consulta falhou — tente novamente mais tarde.
-                        </p>
-                     </div>
-                  ) : notificacoes.length === 0 ? (
-                     <p className="px-4 py-6 text-center text-sm text-slate-500">
-                        Nenhuma notificação
-                     </p>
-                  ) : (
-                     <ul className="divide-y divide-slate-200">
-                        {notificacoes.map((n) => (
-                           <NotificacaoItem
-                              key={n.id}
-                              notificacao={n}
-                              trocaDeContexto={trocaDeContexto}
-                              onAbrirNoSistema={abrirNoSistema}
-                              trocando={trocando}
-                              onItemClick={handleItemClick}
-                              onApagar={(id) => apagar.mutate(id)}
-                              apagando={
-                                 apagar.isPending && apagar.variables === n.id
-                              }
-                           />
-                        ))}
-                     </ul>
-                  )}
+                     ) : (
+                        <ul className="divide-y divide-slate-200">
+                           {notificacoes.map((n) => (
+                              <NotificacaoItem
+                                 key={n.id}
+                                 notificacao={n}
+                                 trocaDeContexto={trocaDeContexto}
+                                 onAbrirNoSistema={abrirNoSistema}
+                                 trocando={trocando}
+                                 onItemClick={handleItemClick}
+                                 onApagar={(id) => apagar.mutate(id)}
+                                 apagando={
+                                    apagar.isPending &&
+                                    apagar.variables === n.id
+                                 }
+                              />
+                           ))}
+                        </ul>
+                     )}
+                  </div>
                </div>
-            </div>
-         }
-      >
-         <button
-            type="button"
-            aria-label={ariaLabel}
-            title="Notificações"
-            className="hover:bg-primary-100 focus-visible:ring-primary-600 relative flex items-center justify-center rounded p-1.5 transition-colors focus-visible:ring-2 focus-visible:outline-none"
+            }
          >
-            <HiOutlineBell className="text-primary-600 h-6 w-6" aria-hidden />
-            {(naoLidas > 0 || contadorError) && (
-               <span
+            <button
+               type="button"
+               aria-label={ariaLabel}
+               title="Notificações"
+               className="hover:bg-primary-100 focus-visible:ring-primary-600 relative flex items-center justify-center rounded p-1.5 transition-colors focus-visible:ring-2 focus-visible:outline-none"
+            >
+               <HiOutlineBell
+                  className="text-primary-600 h-6 w-6"
                   aria-hidden
-                  className={clsx(
-                     // `ring-2 ring-white` separa o selo do ícone atrás
-                     // dele — sem o anel, o "9" do contador se funde com o
-                     // traço do sino em telas de alta densidade.
-                     "absolute -top-0.5 -right-0.5 flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-[10px] font-semibold text-white tabular-nums ring-2 ring-white",
-                     // Contador falhou: cinza neutro — "?" é incerteza, não
-                     // é o mesmo sinal de "há N novidades".
-                     contadorError ? "bg-slate-400" : "bg-primary-600"
-                  )}
-               >
-                  {contadorError ? "?" : naoLidas > 9 ? "9+" : naoLidas}
-               </span>
-            )}
-         </button>
-      </Popover>
+               />
+               {(naoLidas > 0 || contadorError) && (
+                  <span
+                     aria-hidden
+                     className={clsx(
+                        // `ring-2 ring-white` separa o selo do ícone atrás
+                        // dele — sem o anel, o "9" do contador se funde com o
+                        // traço do sino em telas de alta densidade.
+                        "absolute -top-0.5 -right-0.5 flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-[10px] font-semibold text-white tabular-nums ring-2 ring-white",
+                        // Contador falhou: cinza neutro — "?" é incerteza, não
+                        // é o mesmo sinal de "há N novidades".
+                        contadorError ? "bg-slate-400" : "bg-primary-600"
+                     )}
+                  >
+                     {contadorError ? "?" : naoLidas > 9 ? "9+" : naoLidas}
+                  </span>
+               )}
+            </button>
+         </Popover>
+      </span>
    );
 }
 

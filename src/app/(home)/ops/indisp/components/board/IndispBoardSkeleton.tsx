@@ -60,10 +60,7 @@ export function IndispBoardSkeleton({
             />
             <div role="status" className="min-h-0 flex-1 overflow-hidden">
                <span className="sr-only">Carregando indisponibilidades…</span>
-               <div
-                  aria-hidden
-                  className="animate-pulse motion-reduce:animate-none"
-               >
+               <div aria-hidden className="animate-pulse">
                   {Array.from({ length: rows }).map((_, r) => (
                      <div
                         key={r}

@@ -40,7 +40,7 @@ export function RoleModalShell({
    isSaving,
    confirmLabel,
    confirmIcon: ConfirmIcon,
-   savingLabel = "Salvando...",
+   savingLabel = "Salvando…",
    confirmDisabled,
    onConfirm,
    children,
@@ -88,11 +88,12 @@ export function RoleModalShell({
                   color="primary"
                   onClick={onConfirm}
                   disabled={isSaving || confirmDisabled}
+                  aria-busy={isSaving}
                   className="flex-1 sm:flex-none"
                >
                   {isSaving ? (
                      <div className="flex items-center gap-2">
-                        <Spinner color="primary" size="sm" />
+                        <Spinner color="white" size="sm" />
                         <span>{savingLabel}</span>
                      </div>
                   ) : (

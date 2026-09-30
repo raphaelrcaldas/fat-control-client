@@ -27,14 +27,24 @@ export default function PermissionsTab() {
    const { push } = useToast();
 
    // Queries
-   const { data: permissions = [], isLoading: isLoadingPermissions } =
-      usePermissions();
+   // `data` cru (sem `= []`): a falha sem dado precisa ser distinguível do
+   // vazio, senão "Nenhuma permissão cadastrada" mente depois de um erro
    const {
-      data: resources = [],
+      data: permissionsData,
+      isLoading: isLoadingPermissions,
+      isFetching: isFetchingPermissions,
+      error: permissionsError,
+      refetch: refetchPermissions,
+   } = usePermissions();
+   const {
+      data: resourcesData,
       isLoading: isLoadingResources,
-      error,
-      refetch,
+      isFetching: isFetchingResources,
+      error: resourcesError,
+      refetch: refetchResources,
    } = useResources();
+   const permissions = useMemo(() => permissionsData ?? [], [permissionsData]);
+   const resources = useMemo(() => resourcesData ?? [], [resourcesData]);
 
    // Mutations
    const createMutation = useCreatePermission();
@@ -189,34 +199,23 @@ export default function PermissionsTab() {
       }
    };
 
-   // Loading state
-   if (isLoadingPermissions || isLoadingResources) {
-      return (
-         <div className="space-y-4">
-            <SectionHeader title="Permissões" />
-            <PermissionsTableSkeleton rows={8} />
-         </div>
-      );
-   }
+   const isLoading = isLoadingPermissions || isLoadingResources;
+   const hasError = Boolean(permissionsError || resourcesError);
+   const isFetching = isFetchingPermissions || isFetchingResources;
 
-   // Error state — mantém o SectionHeader (a aba sem título fica amputada) e
-   // mostra a mensagem que o backend mandou, não um genérico
-   if (error) {
-      return (
-         <div className="space-y-4">
-            <SectionHeader title="Permissões" />
-            <div className="space-y-3 rounded border border-red-300 bg-red-50 p-4">
-               <p className="text-sm font-medium text-red-800">
-                  Não foi possível carregar as permissões.
-               </p>
-               <p className="text-sm text-red-700">{error.message}</p>
-               <Button color="light" size="sm" onClick={() => refetch()}>
-                  Tentar novamente
-               </Button>
-            </div>
-         </div>
-      );
-   }
+   // Erro sem dado em tela: a mensagem que o backend mandou, não um genérico.
+   // A tabela depende das duas listas (o filtro usa os recursos)
+   const blockingError =
+      (!permissionsData && permissionsError) ||
+      (!resourcesData && resourcesError) ||
+      null;
+   const ready = !isLoading && !blockingError;
+
+   const handleRetry = () => {
+      // Só refaz o que falhou: a query que já deu certo não precisa voltar
+      if (permissionsError) refetchPermissions();
+      if (resourcesError) refetchResources();
+   };
 
    const filterControls = (
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
@@ -227,6 +226,7 @@ export default function PermissionsTab() {
             placeholder="Buscar permissões..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
+            disabled={!ready}
             className="w-full sm:w-48"
             aria-label="Buscar permissões"
          />
@@ -239,6 +239,7 @@ export default function PermissionsTab() {
                id="resource-filter"
                value={resourceFilter}
                onChange={(e) => setResourceFilter(e.target.value)}
+               disabled={!ready}
                className="w-full sm:w-56"
                aria-label="Filtrar por recurso"
             >
@@ -255,53 +256,98 @@ export default function PermissionsTab() {
 
    return (
       <div className="space-y-4">
+         {/* Casca imediata: título e filtros montam já; contagem e "Nova
+             Permissão" esperam o dado (o formulário precisa dos recursos) */}
          <SectionHeader
             title="Permissões"
-            count={filteredPermissions.length}
+            count={ready ? filteredPermissions.length : undefined}
             countLabel={
                filteredPermissions.length === 1 ? "permissão" : "permissões"
             }
-            onCreateClick={handleOpenCreateModal}
+            onCreateClick={ready ? handleOpenCreateModal : undefined}
             createLabel="Nova Permissão"
             createButtonColor="dark"
          >
             {filterControls}
          </SectionHeader>
 
-         {filteredPermissions.length === 0 ? (
-            <EmptyState
-               icon={FaKey}
-               title={
-                  hasActiveFilter
-                     ? "Nenhuma permissão encontrada"
-                     : "Nenhuma permissão cadastrada"
-               }
-               description={
-                  hasActiveFilter
-                     ? "Nenhum resultado corresponde ao filtro ou busca atuais"
-                     : "Crie uma permissão para começar a definir o controle de acesso"
-               }
-               action={
-                  hasActiveFilter ? (
+         {isLoading ? (
+            <PermissionsTableSkeleton rows={8} />
+         ) : blockingError ? (
+            <div
+               role="alert"
+               className="space-y-3 rounded border border-red-300 bg-red-50 p-4"
+            >
+               <p className="text-sm font-medium text-red-800">
+                  Não foi possível carregar as permissões.
+               </p>
+               <p className="text-sm text-red-700">{blockingError.message}</p>
+               <Button
+                  color="light"
+                  size="sm"
+                  onClick={handleRetry}
+                  disabled={isFetching}
+               >
+                  Tentar novamente
+               </Button>
+            </div>
+         ) : (
+            <>
+               {/* Refetch que falhou com dado em tela: mantém a tabela e avisa */}
+               {hasError && (
+                  <p
+                     role="status"
+                     className="flex items-center gap-2 rounded border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs text-slate-500"
+                  >
+                     <span className="min-w-0 flex-1 truncate">
+                        Não foi possível atualizar as permissões
+                     </span>
                      <button
                         type="button"
-                        onClick={() => {
-                           setSearchTerm("");
-                           setResourceFilter("all");
-                        }}
-                        className="text-sm text-blue-600 hover:underline"
+                        onClick={handleRetry}
+                        disabled={isFetching}
+                        className="min-h-[24px] shrink-0 font-semibold text-slate-900 underline underline-offset-2 disabled:opacity-50"
                      >
-                        Limpar filtros
+                        Tentar novamente
                      </button>
-                  ) : undefined
-               }
-            />
-         ) : (
-            <PermissionsTable
-               permissions={filteredPermissions}
-               onEdit={handleOpenEditModal}
-               onDelete={handleOpenDeleteModal}
-            />
+                  </p>
+               )}
+               {filteredPermissions.length === 0 ? (
+                  <EmptyState
+                     icon={FaKey}
+                     title={
+                        hasActiveFilter
+                           ? "Nenhuma permissão encontrada"
+                           : "Nenhuma permissão cadastrada"
+                     }
+                     description={
+                        hasActiveFilter
+                           ? "Nenhum resultado corresponde ao filtro ou busca atuais"
+                           : "Crie uma permissão para começar a definir o controle de acesso"
+                     }
+                     action={
+                        hasActiveFilter ? (
+                           <button
+                              type="button"
+                              onClick={() => {
+                                 setSearchTerm("");
+                                 setResourceFilter("all");
+                              }}
+                              className="text-sm text-blue-600 hover:underline"
+                           >
+                              Limpar filtros
+                           </button>
+                        ) : undefined
+                     }
+                  />
+               ) : (
+                  <PermissionsTable
+                     permissions={filteredPermissions}
+                     onEdit={handleOpenEditModal}
+                     onDelete={handleOpenDeleteModal}
+                  />
+               )}
+            </>
          )}
 
          <PermissionFormModal

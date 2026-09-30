@@ -7,6 +7,7 @@ import {
    ModalBody,
    ModalFooter,
    ModalHeader,
+   Spinner,
 } from "flowbite-react";
 import type { RelatorioVoo } from "services/routes/estatistica/relatoriosVoo";
 import { formatDiaSemana } from "utils/dateHandler";
@@ -44,10 +45,23 @@ export function ExcluirRelatorioModal(props: Props) {
                color="red"
                onClick={props.onConfirmar}
                disabled={props.excluindo}
+               aria-busy={props.excluindo}
             >
-               {props.excluindo ? "Excluindo…" : "Excluir"}
+               {props.excluindo ? (
+                  <>
+                     <Spinner size="sm" color="white" className="mr-2" />
+                     Excluindo…
+                  </>
+               ) : (
+                  "Excluir"
+               )}
             </Button>
-            <Button ref={cancelarRef} color="light" onClick={props.onFechar}>
+            <Button
+               ref={cancelarRef}
+               color="light"
+               onClick={props.onFechar}
+               disabled={props.excluindo}
+            >
                Cancelar
             </Button>
          </ModalFooter>

@@ -1,51 +1,50 @@
 "use client";
 
-import clsx from "clsx";
+import { IndicadoresKpis } from "./IndicadoresKpis";
 
-/** Espelha o KpiCard: caixa de ícone + label + valor + subtexto. */
-function KpiCardSkeleton({ size = "lg" }: { size?: "lg" | "md" }) {
-   const isLg = size === "lg";
+/** Espelha o SecaoCard sem eyebrow e as alturas das linhas reais. */
+function SecaoSkeleton({
+   rows,
+   cols,
+   matriz = false,
+}: {
+   rows: number;
+   cols: number;
+   matriz?: boolean;
+}) {
    return (
-      <div className="rounded border border-slate-200 bg-white p-4 shadow-sm">
-         <div className="flex items-center gap-3">
-            <div
-               className={clsx(
-                  "shrink-0 animate-pulse rounded-md bg-slate-200",
-                  isLg ? "h-10 w-10" : "h-9 w-9"
-               )}
-            />
-            <div className="min-w-0 flex-1 space-y-1.5">
-               <div className="h-2.5 w-20 animate-pulse rounded bg-slate-100" />
-               <div
-                  className={clsx(
-                     "w-24 animate-pulse rounded bg-slate-200",
-                     isLg ? "h-7" : "h-6"
-                  )}
-               />
-            </div>
+      <div
+         className={
+            matriz
+               ? "flex min-h-[425px] flex-col rounded border border-slate-200 bg-white shadow-sm lg:min-h-[421px]"
+               : "flex flex-col rounded border border-slate-200 bg-white shadow-sm"
+         }
+      >
+         <div className="flex h-[39.5px] items-center border-b border-slate-200 px-4">
+            <div className="h-3.5 w-40 animate-pulse rounded bg-slate-200" />
          </div>
-         <div className="mt-2 h-3 w-32 animate-pulse rounded bg-slate-100" />
-      </div>
-   );
-}
-
-/** Espelha o SecaoCard: header com eyebrow + título, depois a tabela. */
-function SecaoSkeleton({ rows, cols }: { rows: number; cols: number }) {
-   return (
-      <div className="flex flex-col rounded border border-slate-200 bg-white shadow-sm">
-         <div className="space-y-1.5 border-b border-slate-200 px-4 py-3">
-            <div className="h-2.5 w-16 animate-pulse rounded bg-slate-100" />
-            <div className="h-4 w-40 animate-pulse rounded bg-slate-200" />
-         </div>
-         <div className="h-[37px] border-b border-slate-200 bg-slate-50" />
+         <div
+            className={
+               matriz
+                  ? "h-[31.5px] border-b border-slate-200 bg-slate-50"
+                  : "h-[28px] border-b border-slate-200 bg-slate-50"
+            }
+         />
          <div className="divide-y divide-slate-100">
             {Array.from({ length: rows }).map((_, r) => (
-               <div key={r} className="flex items-center gap-4 px-4 py-1.5">
-                  <div className="h-4 flex-1 animate-pulse rounded bg-slate-200" />
+               <div
+                  key={r}
+                  className={
+                     matriz
+                        ? "flex h-[29px] items-center gap-4 px-4"
+                        : "flex h-[32.5px] items-center gap-4 px-4"
+                  }
+               >
+                  <div className="h-3.5 min-w-0 flex-1 animate-pulse rounded bg-slate-200" />
                   {Array.from({ length: cols }).map((_, c) => (
                      <div
                         key={c}
-                        className="h-4 w-12 animate-pulse rounded bg-slate-100"
+                        className="h-3.5 w-12 min-w-0 animate-pulse rounded bg-slate-100"
                      />
                   ))}
                </div>
@@ -57,33 +56,47 @@ function SecaoSkeleton({ rows, cols }: { rows: number; cols: number }) {
 
 /**
  * Espelha o layout real do painel para não haver layout-shift quando os
- * dados chegam: 4 KPIs grandes, 5 operacionais, matriz de 12 linhas,
+ * dados chegam: 4 KPIs grandes, 5 operacionais, matriz de 12 indicadores + cabeçalho,
  * duas quebras lado a lado e a frota.
  */
 export function IndicadoresSkeleton() {
    return (
-      <div className="space-y-2">
-         <div className="space-y-2">
-            <div className="grid grid-cols-2 gap-2 lg:grid-cols-4">
-               {Array.from({ length: 4 }).map((_, i) => (
-                  <KpiCardSkeleton key={i} />
-               ))}
-            </div>
-            <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5">
-               {Array.from({ length: 5 }).map((_, i) => (
-                  <KpiCardSkeleton key={i} size="md" />
-               ))}
-            </div>
+      <div role="status" className="space-y-2">
+         <span className="sr-only">Carregando indicadores…</span>
+         <div aria-hidden>
+            <IndicadoresKpis
+               isLoading
+               totais={{
+                  etapas: 0,
+                  tvoo: 0,
+                  pousos: 0,
+                  pax: 0,
+                  carga: 0,
+                  comb: 0,
+                  lub: 0,
+                  pqd: 0,
+                  comb_transf: 0,
+                  heavy_qtd: 0,
+                  cds_qtd: 0,
+                  peso_lancado: 0,
+               }}
+               pqdPorTipo={[]}
+               lancamentos={[]}
+            />
          </div>
 
-         <SecaoSkeleton rows={12} cols={6} />
+         <div aria-hidden>
+            <SecaoSkeleton rows={12} cols={13} matriz />
+         </div>
 
-         <div className="grid gap-2 lg:grid-cols-2">
+         <div aria-hidden className="grid gap-2 lg:grid-cols-2">
             <SecaoSkeleton rows={3} cols={2} />
-            <SecaoSkeleton rows={6} cols={3} />
+            <SecaoSkeleton rows={9} cols={3} />
          </div>
 
-         <SecaoSkeleton rows={4} cols={5} />
+         <div aria-hidden>
+            <SecaoSkeleton rows={3} cols={7} />
+         </div>
       </div>
    );
 }

@@ -114,9 +114,31 @@ export function LogsTable({
 
    return (
       <div className="rounded border border-slate-200 bg-white shadow-sm">
+         {/* Refetch que falhou com a lista em tela: mantém as linhas e avisa */}
+         {isError && (
+            <p
+               role="status"
+               className="flex items-center gap-2 border-b border-slate-200 bg-slate-50 px-3 py-1.5 text-xs text-slate-500"
+            >
+               <span className="min-w-0 flex-1 truncate">
+                  Não foi possível atualizar os logs
+               </span>
+               <button
+                  type="button"
+                  onClick={onRetry}
+                  disabled={isFetching}
+                  className="min-h-[24px] shrink-0 font-semibold text-slate-900 underline underline-offset-2 disabled:opacity-50"
+               >
+                  Tentar novamente
+               </button>
+            </p>
+         )}
          {/* Rede de segurança: as colunas são dimensionadas para caber, mas se
-             um dado extremo estourar a linha rola em vez de ser cortada */}
-         <div className="overflow-x-auto">
+             um dado extremo estourar a linha rola em vez de ser cortada.
+             Carregando, o wrapper da tabela é o container válido do
+             `role="status"` (um `<div>` não cabe dentro do `<tbody>`). */}
+         <div role={loading ? "status" : undefined} className="overflow-x-auto">
+            {loading && <span className="sr-only">Carregando logs…</span>}
             <Table
                hoverable
                theme={LOGS_TABLE_THEME}

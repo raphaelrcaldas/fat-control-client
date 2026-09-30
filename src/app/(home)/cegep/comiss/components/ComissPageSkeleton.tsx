@@ -46,8 +46,9 @@ function Section({ children }: { children: React.ReactNode }) {
  */
 export function ComissPageSkeleton() {
    return (
-      <div className="flex w-full justify-center">
-         <div className="flex w-full max-w-7xl flex-col gap-2">
+      <div role="status" className="flex w-full justify-center">
+         <span className="sr-only">Carregando comissionamento…</span>
+         <div aria-hidden className="flex w-full max-w-7xl flex-col gap-2">
             {/* Barra de comando: voltar + titulo + acoes */}
             <div className="flex items-center justify-between gap-3 rounded border border-slate-200 bg-white px-3 py-2.5 shadow-sm sm:px-4">
                <div className="flex items-center gap-3">

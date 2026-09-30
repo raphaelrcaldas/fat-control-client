@@ -15,14 +15,6 @@ import { useOperacoesFilters } from "./hooks/useOperacoesFilters";
 import type { OperacoesFiltersState } from "./components/OperacoesFilters";
 import type { GetOperacoesParams } from "services/routes/ops/operacoes";
 
-const EMPTY_COUNTS = {
-   todas: 0,
-   andamento: 0,
-   encerrada: 0,
-   planejada: 0,
-   cancelada: 0,
-};
-
 export default function OperacoesPage() {
    // Padrão: ano corrente (1º jan → 31 dez), persistido + na URL.
    const defaults = useMemo<OperacoesFiltersState>(() => {
@@ -60,7 +52,9 @@ export default function OperacoesPage() {
    const { data, isLoading, isFetching, error, refetch } = useOperacoes(params);
 
    const items = data?.items ?? [];
-   const counts = data?.counts ?? EMPTY_COUNTS;
+   // Sem dado os contadores ficam indefinidos (a barra mostra "–"): "0" antes
+   // da resposta diria que não há operação em nenhum status.
+   const counts = data?.counts;
    const showSkeleton = isLoading || (isFetching && !data);
 
    // Busca/tipo/período em uso: muda a saída do vazio — quem filtrou quer
@@ -118,6 +112,7 @@ export default function OperacoesPage() {
                value={filters}
                onChange={setFilters}
                counts={counts}
+               disabled={showSkeleton}
                defaultDates={{
                   start: defaults.date_start,
                   end: defaults.date_end,
@@ -126,7 +121,7 @@ export default function OperacoesPage() {
 
             {showSkeleton ? (
                <OperacoesSkeleton />
-            ) : error ? (
+            ) : error && !data ? (
                /* Erro e vazio são estados diferentes: mostrar "nenhuma
                   operação" quando a consulta falhou faz concluir que não há
                   operação quando na verdade não se sabe. */
@@ -145,6 +140,7 @@ export default function OperacoesPage() {
                      size="sm"
                      className="mt-3"
                      onClick={() => refetch()}
+                     disabled={isFetching}
                   >
                      <HiOutlineRefresh className="mr-2 h-4 w-4" />
                      Tentar novamente
@@ -185,13 +181,32 @@ export default function OperacoesPage() {
                   )}
                </div>
             ) : (
-               <div
-                  className={
-                     isFetching ? "opacity-60 transition-opacity" : undefined
-                  }
-               >
-                  <OperacoesTable items={items} />
-               </div>
+               <>
+                  {/* Refetch falho com dado em tela: mantém a lista e avisa. */}
+                  {error && (
+                     <div
+                        role="status"
+                        className="flex flex-wrap items-center gap-2 border-b border-amber-200 bg-amber-50 px-4 py-2 text-sm text-amber-900"
+                     >
+                        A atualização falhou — mostrando os últimos dados.
+                        <button
+                           type="button"
+                           onClick={() => refetch()}
+                           disabled={isFetching}
+                           className="font-semibold underline underline-offset-2 disabled:opacity-50"
+                        >
+                           Tentar novamente
+                        </button>
+                     </div>
+                  )}
+                  <div
+                     className={
+                        isFetching ? "opacity-50 transition-opacity" : undefined
+                     }
+                  >
+                     <OperacoesTable items={items} />
+                  </div>
+               </>
             )}
          </div>
 

@@ -30,9 +30,10 @@ const Bar = ({
  */
 export function TripListSkeleton({ rows = 10 }: TripListSkeletonProps) {
    return (
-      <>
+      <div role="status">
+         <span className="sr-only">Carregando tripulantes…</span>
          {/* Mobile */}
-         <ul className="divide-y divide-slate-100 md:hidden">
+         <ul aria-hidden className="divide-y divide-slate-100 md:hidden">
             {Array.from({ length: rows }).map((_, i) => (
                <li key={i} className="flex items-center gap-3 px-4 py-2.5">
                   <Bar className="w-9 shrink-0" />
@@ -47,7 +48,7 @@ export function TripListSkeleton({ rows = 10 }: TripListSkeletonProps) {
          </ul>
 
          {/* Desktop */}
-         <div className="hidden min-h-96 overflow-x-auto md:block">
+         <div aria-hidden className="hidden min-h-96 overflow-x-auto md:block">
             <Table theme={TRIP_TABLE_THEME}>
                <TripTableHead />
                <TableBody className="divide-y divide-slate-100">
@@ -85,6 +86,6 @@ export function TripListSkeleton({ rows = 10 }: TripListSkeletonProps) {
                </TableBody>
             </Table>
          </div>
-      </>
+      </div>
    );
 }

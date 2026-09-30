@@ -1,4 +1,4 @@
-import request, { ApiError } from "../../Api";
+import request, { ApiError, readApiData } from "../../Api";
 import type { ApiResponse } from "@/types/api";
 import {
    RestricoesDerivadasEntrySchema,
@@ -69,16 +69,7 @@ export async function getEscalaDisponiveis(
       params,
       signal
    );
-   const json = (await response.json()) as ApiResponse<EscalaResponse>;
-   if (!response.ok) {
-      // ApiError preserva o `errors` do 422 (campo -> mensagem). Com `Error`
-      // cru, um "Erro de validação" genérico chegava à tela e o motivo real
-      // (qual parâmetro reprovou) era descartado aqui.
-      throw new ApiError(
-         json.message || "Erro ao gerar escala",
-         json.errors ?? null
-      );
-   }
+   const json = await readApiData<ApiResponse<EscalaResponse>>(response);
    if (!json.data) {
       throw new ApiError("Resposta vazia do servidor");
    }

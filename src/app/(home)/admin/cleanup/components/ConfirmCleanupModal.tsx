@@ -100,11 +100,12 @@ export function ConfirmCleanupModal({
                      className="w-36"
                      onClick={onConfirm}
                      disabled={isPending || isCounting || total === 0}
+                     aria-busy={isPending}
                   >
                      {isPending ? (
                         <>
-                           <Spinner size="sm" className="mr-2 fill-white" />
-                           Executando...
+                           <Spinner size="sm" color="white" className="mr-2" />
+                           Executando…
                         </>
                      ) : (
                         <>

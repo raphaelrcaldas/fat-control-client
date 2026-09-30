@@ -105,7 +105,8 @@ function MissaoCardSkeleton({ rows }: { rows: number }) {
 
 export function EtapasTableSkeleton() {
    return (
-      <div role="status" aria-label="Carregando etapas" className="space-y-2">
+      <div role="status" className="space-y-2">
+         <span className="sr-only">Carregando etapas…</span>
          <div className="mx-0.5 flex h-9 flex-wrap items-center gap-2 pr-1 pl-px">
             <div className="flex w-7 shrink-0 items-center justify-center">
                <Bar className="size-5" />

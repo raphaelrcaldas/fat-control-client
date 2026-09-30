@@ -6,9 +6,15 @@ import { FaPlus, FaUserShield } from "react-icons/fa6";
 interface AcessosHeaderProps {
    count?: number;
    onAdd: () => void;
+   /** Perfis/organizações ainda não carregaram (ou falharam): o modal abriria com selects vazios */
+   addDisabled?: boolean;
 }
 
-export function AcessosHeader({ count, onAdd }: AcessosHeaderProps) {
+export function AcessosHeader({
+   count,
+   onAdd,
+   addDisabled = false,
+}: AcessosHeaderProps) {
    return (
       <header className="relative overflow-hidden rounded border border-slate-200 bg-white px-5 py-4 shadow-sm sm:px-6 sm:py-5">
          {/* Espinha na cor da marca — ecoa a espinha dos cards */}
@@ -41,6 +47,7 @@ export function AcessosHeader({ count, onAdd }: AcessosHeaderProps) {
                <Button
                   color="primary"
                   onClick={onAdd}
+                  disabled={addDisabled}
                   className="font-semibold whitespace-nowrap"
                >
                   <FaPlus className="mr-2 h-4 w-4" />

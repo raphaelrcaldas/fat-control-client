@@ -1,6 +1,7 @@
 "use client";
 
 import { QueryClient } from "@tanstack/react-query";
+import { ApiError } from "services/Api";
 
 function makeQueryClient() {
    return new QueryClient({
@@ -10,8 +11,15 @@ function makeQueryClient() {
             staleTime: 60 * 1000,
             // Cache mantido por 5 minutos após componente desmontar
             gcTime: 5 * 60 * 1000,
-            // Retry apenas 1 vez em caso de erro
-            retry: 1,
+            // 4xx é negação/ausência; repetir só atrasa o estado de erro.
+            retry: (tentativa, erro) =>
+               !(
+                  erro instanceof ApiError &&
+                  erro.status !== undefined &&
+                  erro.status >= 400 &&
+                  erro.status < 500
+               ) && tentativa < 1,
+
             // Não refetch ao focar a janela (pode ativar se quiser)
             refetchOnWindowFocus: false,
          },

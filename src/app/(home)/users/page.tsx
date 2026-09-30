@@ -2,7 +2,13 @@
 
 import { useCallback, useMemo, useState } from "react";
 import { Badge, Button, Label, Select, TextInput } from "flowbite-react";
-import { HiFilter, HiSearch, HiUserAdd, HiUsers } from "react-icons/hi";
+import {
+   HiExclamationCircle,
+   HiFilter,
+   HiSearch,
+   HiUserAdd,
+   HiUsers,
+} from "react-icons/hi";
 import clsx from "clsx";
 import { Pagination } from "@/components/Pagination";
 import { MultiSelect } from "@/components/MultiSelect";
@@ -95,7 +101,8 @@ export default function UsersPage() {
       return linhas.map((u) => ({ ...u, ...porId.get(u.id) }));
    }, []);
 
-   const { data, isLoading, isFetching } = useUsers(queryParams);
+   const { data, isLoading, isFetching, isError, refetch } =
+      useUsers(queryParams);
 
    const usuarios = data?.items ?? [];
    const totalPages = data?.pages ?? 1;
@@ -238,6 +245,33 @@ export default function UsersPage() {
             {/* Conteúdo */}
             {isLoading ? (
                <UsersListSkeleton rows={perPage <= 25 ? 25 : 50} />
+            ) : isError && !data ? (
+               // Falha sem lista em tela: "Nenhum usuário cadastrado" seria
+               // mentira depois de um erro de rede
+               <div
+                  role="alert"
+                  className="flex h-64 flex-col items-center justify-center gap-3 px-4 text-center"
+               >
+                  <HiExclamationCircle
+                     className="h-10 w-10 text-red-600"
+                     aria-hidden
+                  />
+                  <div>
+                     <h2 className="text-lg font-semibold text-gray-900">
+                        Não foi possível carregar os usuários
+                     </h2>
+                     <p className="text-sm text-gray-500">
+                        Verifique a conexão e tente novamente.
+                     </p>
+                  </div>
+                  <Button
+                     color="light"
+                     onClick={() => refetch()}
+                     disabled={isFetching}
+                  >
+                     Tentar novamente
+                  </Button>
+               </div>
             ) : usuarios.length === 0 ? (
                <div className="flex h-64 flex-col items-center justify-center">
                   <div className="mb-4 rounded-full bg-gray-100 p-4">
@@ -274,6 +308,27 @@ export default function UsersPage() {
                      softLoading ? "opacity-50" : "opacity-100"
                   )}
                >
+                  {/* Refetch (ex.: troca de página) que falhou com dado em
+                      tela: mantém a lista e avisa */}
+                  {isError && (
+                     <p
+                        role="status"
+                        className="mx-2 mt-2 flex items-center gap-2 rounded border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs text-slate-500"
+                     >
+                        <span className="min-w-0 flex-1 truncate">
+                           Não foi possível atualizar a lista
+                        </span>
+                        <button
+                           type="button"
+                           onClick={() => refetch()}
+                           disabled={isFetching}
+                           className="min-h-[24px] shrink-0 font-semibold text-slate-900 underline underline-offset-2 disabled:opacity-50"
+                        >
+                           Tentar novamente
+                        </button>
+                     </p>
+                  )}
+
                   {/* Parte da seleção pode estar fora da página visível — e o
                       que o usuário não vê precisa ser dito, senão o contador
                       da barra parece errado. */}

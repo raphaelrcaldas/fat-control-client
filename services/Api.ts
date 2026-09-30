@@ -163,6 +163,35 @@ export async function parseApiResponse<T = unknown>(
 }
 
 /**
+ * Leitura (GET): devolve o envelope completo e lança `ApiError` em não-2xx,
+ * preservando `errors` (422) e `status` (separa negação 4xx de falha 5xx).
+ * Corpo não-JSON (HTML de 502, 500 não tratado) também lança; cancelamento
+ * passa adiante como está. O fallback opcional preserva mensagens da rota.
+ */
+export async function readApiData<T>(
+   response: Response,
+   fallbackMessage?: (message: string | null | undefined) => string
+): Promise<T> {
+   const json = await response.json().catch((e) => {
+      if (e?.name === "AbortError") throw e;
+      return null;
+   });
+   if (!response.ok || json === null) {
+      throw new ApiError(
+         (json !== null && fallbackMessage
+            ? fallbackMessage(json.message)
+            : json?.message) ??
+            (response.ok
+               ? "Resposta inválida do servidor"
+               : `Erro ${response.status} no servidor`),
+         json?.errors ?? null,
+         response.status
+      );
+   }
+   return json as T;
+}
+
+/**
  * Erro de API que preserva o dict `errors` (campo -> mensagem) enviado pelo
  * backend em ApiErrorResponse. As mutations lancam esta classe para que o
  * `onError` acesse os erros de campo estruturados (ex.: validacao 422) alem da

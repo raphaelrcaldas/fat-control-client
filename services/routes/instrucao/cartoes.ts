@@ -1,5 +1,5 @@
-import request, { parseApiResponse } from "../../Api";
-import type { ApiResult } from "@/types/api";
+import request, { ApiError, parseApiResponse, readApiData } from "../../Api";
+import type { ApiResponse, ApiResult } from "@/types/api";
 import { instrucaoRoute } from ".";
 
 const cartoesRoute = instrucaoRoute + "cartoes/";
@@ -42,10 +42,11 @@ export async function getCartoes(
    signal?: AbortSignal
 ): Promise<TripCartoesOut[]> {
    const response = await request("GET", cartoesRoute, null, null, signal);
-   const result = await parseApiResponse<TripCartoesOut[]>(response);
-   if (!result.ok) {
-      throw new Error(result.message || "Erro ao carregar cartões");
-   }
+   const result = await readApiData<ApiResponse<TripCartoesOut[]>>(
+      response,
+      (message) => message || "Erro ao carregar cartões"
+   );
+
    return result.data ?? [];
 }
 
@@ -79,11 +80,23 @@ export interface CartoesOrfaosResumo {
 export async function getCartoesOrfaos(
    signal?: AbortSignal
 ): Promise<CartoesOrfaosResumo> {
-   const result = await parseApiResponse<CartoesOrfaosResumo>(
-      await request("GET", `${cartoesRoute}orfaos`, null, null, signal)
+   const response = await request(
+      "GET",
+      `${cartoesRoute}orfaos`,
+      null,
+      null,
+      signal
    );
-   if (!result.ok || !result.data) {
-      throw new Error(result.message || "Erro ao carregar cartões órfãos");
+   const result = await readApiData<ApiResponse<CartoesOrfaosResumo>>(
+      response,
+      (message) => message || "Erro ao carregar cartões órfãos"
+   );
+   if (!result.data) {
+      throw new ApiError(
+         result.message || "Erro ao carregar cartões órfãos",
+         result.errors,
+         response.status
+      );
    }
    return result.data;
 }

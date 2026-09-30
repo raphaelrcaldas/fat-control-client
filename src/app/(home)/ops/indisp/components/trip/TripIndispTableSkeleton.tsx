@@ -39,7 +39,7 @@ export function TripIndispTableSkeleton() {
                   </TableHeadCell>
                </TableRow>
             </TableHead>
-            <TableBody className="animate-pulse divide-y divide-slate-200 motion-reduce:animate-none">
+            <TableBody className="animate-pulse divide-y divide-slate-200">
                {Array.from({ length: ROWS }).map((_, i) => (
                   <TableRow key={i}>
                      <TableCell className="w-px">

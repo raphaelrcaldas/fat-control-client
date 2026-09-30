@@ -1,4 +1,4 @@
-import request, { ApiError, parseApiResponse } from "../Api";
+import request, { ApiError, parseApiResponse, readApiData } from "../Api";
 import type { ApiResponse, ApiPaginatedResponse, ApiResult } from "@/types/api";
 import { PostoGrad } from "./postos";
 
@@ -100,7 +100,7 @@ export interface UserMe {
 
 export async function getMe() {
    const response = await request("GET", usersRoute + "me");
-   const json = (await response.json()) as ApiResponse<UserMe>;
+   const json = await readApiData<ApiResponse<UserMe>>(response);
    return json.data;
 }
 
@@ -122,7 +122,7 @@ export async function getUsers(
         }
       : undefined;
    const response = await request("GET", usersRoute, null, queryParams, signal);
-   const json = (await response.json()) as ApiPaginatedResponse<UserPublic>;
+   const json = await readApiData<ApiPaginatedResponse<UserPublic>>(response);
    return {
       items: json.data || [],
       total: json.total,
@@ -133,17 +133,20 @@ export async function getUsers(
 }
 
 export async function getUserById(userId: number): Promise<UserFull> {
-   const result = await parseApiResponse<UserFull>(
-      await request("GET", usersRoute + userId)
+   const response = await request("GET", usersRoute + userId);
+   const result = await readApiData<ApiResponse<UserFull>>(
+      response,
+      (message) => message ?? "Usuário não encontrado."
    );
    // O `as UserFull` que estava aqui MENTIA: num 404 o `data` vem vazio e a
    // função devolvia `undefined`, que o TanStack Query rejeita com "Query data
    // cannot be undefined" — um erro que não diz nada sobre o que aconteceu.
    // Função de query devolve dado ou LANÇA; não há terceira opção.
-   if (!result.ok || !result.data) {
+   if (!result.data) {
       throw new ApiError(
          result.message ?? "Usuário não encontrado.",
-         result.errors
+         result.errors,
+         response.status
       );
    }
    return result.data;
@@ -201,7 +204,7 @@ export interface UserExport {
  */
 export async function exportUsers(ids: number[]): Promise<UserExport[]> {
    const response = await request("POST", usersRoute + "export", { ids });
-   const json = (await response.json()) as ApiResponse<UserExport[]>;
+   const json = await readApiData<ApiResponse<UserExport[]>>(response);
    return json.data ?? [];
 }
 
@@ -244,7 +247,7 @@ export interface UserPromoCreate {
 
 export async function getUserPromos(userId: number): Promise<UserPromo[]> {
    const response = await request("GET", usersRoute + userId + "/promocoes");
-   const json = (await response.json()) as ApiResponse<UserPromo[]>;
+   const json = await readApiData<ApiResponse<UserPromo[]>>(response);
    return json.data || [];
 }
 

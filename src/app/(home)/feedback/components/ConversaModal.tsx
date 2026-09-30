@@ -158,8 +158,11 @@ export function ConversaModal({
                color="light"
                onClick={() => refetch()}
                disabled={isFetching}
+               aria-busy={isFetching}
             >
-               {isFetching && <Spinner size="sm" className="mr-2" />}
+               {isFetching && (
+                  <Spinner size="sm" color="primary" className="mr-2" />
+               )}
                Tentar novamente
             </Button>
          </div>

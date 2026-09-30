@@ -76,7 +76,7 @@ export function GerarGleDocxButton({ missao }: GerarGleDocxButtonProps) {
             <HiDocumentDownload className="size-4 sm:mr-2" />
          )}
          <span className="sr-only sm:not-sr-only">
-            {gerando ? "Gerando..." : "Documento"}
+            {gerando ? "Gerando…" : "Documento"}
          </span>
       </Button>
    );

@@ -1,4 +1,4 @@
-import request, { baseUrl, parseApiResponse } from "../../Api";
+import request, { baseUrl, parseApiResponse, readApiData } from "../../Api";
 import type { ApiResponse, ApiResult } from "@/types/api";
 import { inteligenciaRoute } from ".";
 
@@ -80,8 +80,8 @@ export async function getPassaportes(
       Object.keys(queryParams).length > 0 ? queryParams : null,
       signal
    );
-   const result = await parseApiResponse<TripPassaporteOut[]>(response);
-   return result.data ?? [];
+   const json = await readApiData<ApiResponse<TripPassaporteOut[]>>(response);
+   return json.data ?? [];
 }
 
 export async function upsertPassaporte(
@@ -161,9 +161,10 @@ export async function getPassaportesOrfaos(
       null,
       signal
    );
-   const result = await parseApiResponse<PassaportesOrfaosResumo>(response);
-   if (!result.data) throw new Error("Resposta inválida do servidor");
-   return result.data;
+   const json =
+      await readApiData<ApiResponse<PassaportesOrfaosResumo>>(response);
+   if (!json.data) throw new Error("Resposta inválida do servidor");
+   return json.data;
 }
 
 export async function deletePassaportesOrfaos(

@@ -194,11 +194,12 @@ export function TripRegister({
                         color="red"
                         type="submit"
                         disabled={createTripMutation.isPending}
+                        aria-busy={createTripMutation.isPending}
                      >
                         {createTripMutation.isPending ? (
                            <div className="flex items-center gap-2">
-                              <Spinner size="sm" color="primary" />
-                              <span>Salvando...</span>
+                              <Spinner size="sm" color="white" />
+                              <span>Salvando…</span>
                            </div>
                         ) : (
                            <div className="flex items-center gap-2">

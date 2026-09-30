@@ -20,6 +20,7 @@ import {
    useMarcarConversaLida,
    useUpdateFeedback,
 } from "@/hooks/queries";
+import { Skeleton } from "@/components/ui/Skeleton";
 import type {
    Feedback,
    FeedbackDetalhe,
@@ -256,15 +257,16 @@ export function TratarFeedbackModal({
                         color="primary"
                         onClick={handleSalvar}
                         disabled={!habilitado}
+                        aria-busy={salvando}
                      >
                         {salvando && (
-                           <Spinner
-                              size="sm"
-                              color="primary"
-                              className="mr-2"
-                           />
+                           <Spinner size="sm" color="white" className="mr-2" />
                         )}
-                        {rotulo}
+                        {salvando
+                           ? enviar.isPending
+                              ? "Enviando…"
+                              : "Atualizando…"
+                           : rotulo}
                      </Button>
                   </div>
                </div>
@@ -321,11 +323,7 @@ function ConversaTimeline({
             texto={feedback.descricao}
             quando={formatDateTimeShort(feedback.created_at)}
          />
-         {isLoading && (
-            <li className="flex justify-center py-2">
-               <Spinner size="sm" />
-            </li>
-         )}
+         {isLoading && <ConversaSkeleton />}
          {isError && (
             <li className="text-center text-xs text-red-700">
                Não foi possível carregar a conversa.{" "}
@@ -361,6 +359,26 @@ function ConversaTimeline({
             )
          )}
       </ol>
+   );
+}
+
+/**
+ * Balões alternados no lugar dos eventos, enquanto a conversa carrega. A
+ * abertura (descrição) já é real, vinda da lista: só o resto espera. Dentro
+ * de `<ol>`, então o item é `<li>` e o `role="status"` fica no `<div>`.
+ */
+function ConversaSkeleton() {
+   return (
+      <li>
+         <div role="status">
+            <span className="sr-only">Carregando conversa…</span>
+            <div aria-hidden className="space-y-2">
+               <Skeleton className="h-12 w-2/3" />
+               <Skeleton className="ml-auto h-16 w-3/4" />
+               <Skeleton className="h-10 w-1/2" />
+            </div>
+         </div>
+      </li>
    );
 }
 

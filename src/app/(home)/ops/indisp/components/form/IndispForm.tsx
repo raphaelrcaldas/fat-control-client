@@ -96,6 +96,7 @@ export function IndispForm({
       logs,
       isLoading: isLoadingLogs,
       isError: isErrorLogs,
+      isFetching: isFetchingLogs,
       refetch: refetchLogs,
    } = useIndispLogs(indisp?.id, open);
 
@@ -212,6 +213,7 @@ export function IndispForm({
             </form>
             {indisp && (
                <Historico
+                  headingLevel="h3"
                   logs={logs}
                   createdAt={indisp.created_at}
                   createdBy={indisp.user_created}
@@ -219,6 +221,7 @@ export function IndispForm({
                   formatFieldValue={formatFieldValue}
                   isLoading={isLoadingLogs}
                   isError={isErrorLogs}
+                  isRetrying={isFetchingLogs}
                   onRetry={refetchLogs}
                />
             )}
@@ -230,12 +233,13 @@ export function IndispForm({
                   type="submit"
                   form="indisp-form"
                   disabled={isMutating || (indisp ? !isChanged : false)}
+                  aria-busy={isMutating && !deleteMutation.isPending}
                   size="md"
                >
                   {isMutating && !deleteMutation.isPending ? (
                      <>
                         <Spinner
-                           color="primary"
+                           color="white"
                            size="sm"
                            aria-hidden
                            className="mr-2"

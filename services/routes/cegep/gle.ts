@@ -1,4 +1,4 @@
-import request, { parseApiResponse } from "../../Api";
+import request, { parseApiResponse, readApiData } from "../../Api";
 import type { ApiResponse, ApiResult } from "@/types/api";
 import { cegepRoute } from ".";
 
@@ -68,7 +68,7 @@ export async function getLocalidades(
       Object.keys(query).length > 0 ? query : null,
       signal
    );
-   const json = (await response.json()) as ApiResponse<LocEsp[]>;
+   const json = await readApiData<ApiResponse<LocEsp[]>>(response);
    return json.data || [];
 }
 

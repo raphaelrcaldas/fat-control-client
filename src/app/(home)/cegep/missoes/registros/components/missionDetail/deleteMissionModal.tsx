@@ -1,10 +1,16 @@
-import { Modal, ModalBody, ModalHeader, Button } from "flowbite-react";
+import { Modal, ModalBody, ModalHeader, Button, Spinner } from "flowbite-react";
 import { MdWarning, MdDelete, MdClose } from "react-icons/md";
 
 interface DeleteMissionModalProps {
    show: boolean;
    onClose: () => void;
    onConfirm: () => void;
+   /**
+    * Exclusão em voo: o modal fica aberto, com o botão ocupado e o "Cancelar"
+    * travado — é irreversível, e fechar aqui não cancelaria a requisição.
+    * Quem fecha é o pai, no sucesso (navegação) ou no erro.
+    */
+   isDeleting?: boolean;
    missionInfo: {
       tipoDoc: string;
       nDoc: string;
@@ -16,10 +22,16 @@ export function DeleteMissionModal({
    show,
    onClose,
    onConfirm,
+   isDeleting = false,
    missionInfo,
 }: DeleteMissionModalProps) {
    return (
-      <Modal size="lg" show={show} onClose={onClose} dismissible>
+      <Modal
+         size="lg"
+         show={show}
+         onClose={isDeleting ? () => {} : onClose}
+         dismissible={!isDeleting}
+      >
          <ModalHeader className="border-b border-slate-200">
             <div className="flex items-center gap-3">
                <div className="rounded-md bg-red-100 p-2 shadow-sm">
@@ -80,6 +92,7 @@ export function DeleteMissionModal({
                      color="gray"
                      className="w-32"
                      onClick={onClose}
+                     disabled={isDeleting}
                      type="button"
                   >
                      <div className="flex items-center gap-2">
@@ -91,15 +104,18 @@ export function DeleteMissionModal({
                   <Button
                      color="red"
                      className="w-32"
-                     onClick={() => {
-                        onConfirm();
-                        onClose();
-                     }}
+                     onClick={onConfirm}
+                     disabled={isDeleting}
+                     aria-busy={isDeleting}
                      type="button"
                   >
                      <div className="flex items-center gap-2">
-                        <MdDelete className="size-5" />
-                        <span>Excluir</span>
+                        {isDeleting ? (
+                           <Spinner size="sm" color="white" />
+                        ) : (
+                           <MdDelete className="size-5" />
+                        )}
+                        <span>{isDeleting ? "Excluindo…" : "Excluir"}</span>
                      </div>
                   </Button>
                </div>

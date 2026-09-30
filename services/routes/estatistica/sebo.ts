@@ -1,4 +1,4 @@
-import request from "../../Api";
+import request, { readApiData } from "../../Api";
 import type { ApiResponse } from "@/types/api";
 
 const seboRoute = "estatistica/sebo/";
@@ -55,9 +55,6 @@ export async function getSebo(
       queryParams.ano = String(params.ano);
    }
    const response = await request("GET", seboRoute, null, queryParams, signal);
-   if (!response.ok) {
-      throw new Error(`Erro ao buscar sebo: ${response.status}`);
-   }
-   const json = (await response.json()) as ApiResponse<SeboTripItem[]>;
+   const json = await readApiData<ApiResponse<SeboTripItem[]>>(response);
    return json.data ?? [];
 }

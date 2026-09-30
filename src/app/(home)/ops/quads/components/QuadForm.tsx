@@ -394,12 +394,13 @@ export function QuadForm({ trip, quad, show, setShow }: QuadFormProps) {
                   color="primary"
                   onClick={handleSubmit}
                   disabled={loading || !isFormValid()}
+                  aria-busy={loading}
                   className="flex-1"
                >
                   {loading ? (
                      <div className="flex items-center gap-2">
-                        <Spinner size="sm" color="primary" />
-                        <span>Salvando...</span>
+                        <Spinner size="sm" color="white" />
+                        <span>Salvando…</span>
                      </div>
                   ) : quad ? (
                      "Atualizar"

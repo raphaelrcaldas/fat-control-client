@@ -163,12 +163,13 @@ export function ImportResultModal({ result, onClose }: ImportResultModalProps) {
                         color="red"
                         onClick={handleDownload}
                         disabled={isCapturing}
+                        aria-busy={isCapturing}
                      >
                         {isCapturing ? (
                            <>
                               <Spinner
                                  size="sm"
-                                 color="primary"
+                                 color="white"
                                  className="mr-2"
                               />
                               Gerando imagem...

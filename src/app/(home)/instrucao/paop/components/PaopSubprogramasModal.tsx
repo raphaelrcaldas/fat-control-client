@@ -18,6 +18,7 @@ import {
    FuncBadge,
    TipoBadge,
 } from "../../subprogramas/components/SubprogramaBadges";
+import { PaopSubprogramasListSkeleton } from "./PaopSubprogramasListSkeleton";
 
 interface PaopSubprogramasModalProps {
    show: boolean;
@@ -40,7 +41,13 @@ export function PaopSubprogramasModal({
    onClose,
    onSubmit,
 }: PaopSubprogramasModalProps) {
-   const { data: subprogramas = [], isLoading } = useSubprogramas();
+   const {
+      data: subprogramas = [],
+      isLoading,
+      isError,
+      isFetching,
+      refetch,
+   } = useSubprogramas();
    const [marcados, setMarcados] = useState<number[]>([]);
    const [busca, setBusca] = useState("");
 
@@ -86,8 +93,24 @@ export function PaopSubprogramasModal({
                />
 
                {isLoading ? (
-                  <div className="flex justify-center py-8">
-                     <Spinner color="primary" />
+                  <PaopSubprogramasListSkeleton />
+               ) : isError ? (
+                  <div
+                     role="alert"
+                     className="space-y-3 rounded border border-red-300 bg-red-50 p-4"
+                  >
+                     <p className="text-sm text-red-800">
+                        Erro ao carregar os subprogramas. Por favor, tente
+                        novamente.
+                     </p>
+                     <Button
+                        color="light"
+                        size="xs"
+                        onClick={() => refetch()}
+                        disabled={isFetching}
+                     >
+                        Tentar novamente
+                     </Button>
                   </div>
                ) : subprogramas.length === 0 ? (
                   <p className="py-8 text-center text-sm text-slate-500">
@@ -139,10 +162,18 @@ export function PaopSubprogramasModal({
          <ModalFooter>
             <Button
                color="primary"
-               disabled={isSaving || isLoading}
+               disabled={isSaving || isLoading || isError}
                onClick={() => onSubmit(marcados)}
+               aria-busy={isSaving}
             >
-               {isSaving ? "Salvando..." : "Salvar"}
+               {isSaving ? (
+                  <>
+                     <Spinner size="sm" color="white" className="mr-2" />
+                     Salvando...
+                  </>
+               ) : (
+                  "Salvar"
+               )}
             </Button>
             <Button color="light" onClick={onClose} disabled={isSaving}>
                Cancelar

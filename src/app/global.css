@@ -298,8 +298,9 @@
    a regra do jogo em dois pontos:
 
    1. `prefers-reduced-motion` aqui zera a DURAÇÃO (0.01ms), nunca
-      `animation: none`. O componente desmonta no `animationend`; sem animação
-      o evento não dispara e a gaveta ficaria pendurada na tela para sempre.
+      `animation: none` — é o que faz o bloco global no fim do arquivo. O
+      componente desmonta no `animationend`; sem animação o evento não
+      dispara e a gaveta ficaria pendurada na tela para sempre.
 
    2. A entrada não leva `forwards`/`both`: terminada a animação o `transform`
       volta a `none` sozinho. Um transform retido num `position: fixed` vira
@@ -362,16 +363,6 @@
    animation: rowOut 160ms ease-in forwards;
 }
 
-@media (prefers-reduced-motion: reduce) {
-   .animate-drawer-in,
-   .animate-drawer-out,
-   .animate-veil-in,
-   .animate-veil-out,
-   .animate-row-out {
-      animation-duration: 0.01ms;
-   }
-}
-
 /* Barra de rolagem sóbria para container que rola na horizontal.
 
    A barra padrão do sistema é escura e destoa do resto da UI, e nas telas em
@@ -414,4 +405,26 @@ body {
    height: 100vh;
    overflow-y: auto;
    overflow-x: auto;
+}
+
+/* Movimento reduzido — um ponto só, para o app inteiro (mesma receita do
+   FatBird). Cobre `animate-pulse` dos skeletons, `animate-spin` do Spinner, os
+   keyframes próprios do `AppLoadingScreen` e o que vier depois, sem depender
+   de anotar `motion-reduce:` componente a componente — antes, só ~9 de ~170
+   skeletons se lembravam disso.
+
+   `0.01ms` e UMA iteração, nunca `animation: none`: quem desmonta no
+   `animationend` (gaveta de revisão, `ExportCartDrawer`) precisa que o evento
+   dispare; com `none` ele nunca vem e o painel fica preso na tela. Os blocos
+   acima que usam `animation: none` continuam valendo — são entradas puras,
+   sem saída a esperar. */
+@media (prefers-reduced-motion: reduce) {
+   *,
+   *::before,
+   *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+   }
 }

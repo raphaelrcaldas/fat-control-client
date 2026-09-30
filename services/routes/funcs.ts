@@ -1,5 +1,5 @@
-import request, { parseApiResponse } from "../Api";
-import type { ApiResult } from "@/types/api";
+import request, { parseApiResponse, readApiData } from "../Api";
+import type { ApiResponse, ApiResult } from "@/types/api";
 
 // Re-export dos tipos/labels de operacionalidade, que continuam estáticos:
 // 'ba/op/in/al' é doutrina, igual em qualquer unidade. A FUNÇÃO, não — virou
@@ -91,12 +91,18 @@ export async function getFuncoesCatalogo(
    incluirInativas = false
 ): Promise<Funcao[]> {
    const query = incluirInativas ? "?incluir_inativas=true" : "";
-   const result = await parseApiResponse<Funcao[]>(
-      await request("GET", `funcoes/${query}`, null, null, signal)
+   const response = await request(
+      "GET",
+      `funcoes/${query}`,
+      null,
+      null,
+      signal
    );
-   if (!result.ok) {
-      throw new Error(result.message || "Erro ao carregar funções");
-   }
+   const result = await readApiData<ApiResponse<Funcao[]>>(
+      response,
+      (message) => message || "Erro ao carregar funções"
+   );
+
    return result.data ?? [];
 }
 
@@ -107,12 +113,12 @@ export async function getFuncoesCatalogo(
 export async function getFuncoesOrg(
    signal?: AbortSignal
 ): Promise<FuncaoOrg[]> {
-   const result = await parseApiResponse<FuncaoOrg[]>(
-      await request("GET", "config/funcoes", null, null, signal)
+   const response = await request("GET", "config/funcoes", null, null, signal);
+   const result = await readApiData<ApiResponse<FuncaoOrg[]>>(
+      response,
+      (message) => message || "Erro ao carregar funções da unidade"
    );
-   if (!result.ok) {
-      throw new Error(result.message || "Erro ao carregar funções da unidade");
-   }
+
    return result.data ?? [];
 }
 

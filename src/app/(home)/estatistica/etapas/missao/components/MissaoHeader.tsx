@@ -214,11 +214,12 @@ export function MissaoHeader({
                      className="w-24 sm:w-32"
                      onClick={onSave}
                      disabled={isSaving}
+                     aria-busy={isSaving}
                      title="Salvar (Ctrl+S)"
                   >
                      {isSaving ? (
                         <span className="flex items-center gap-2">
-                           <Spinner size="sm" color="primary" />
+                           <Spinner size="sm" color="white" />
                            Salvando...
                         </span>
                      ) : (

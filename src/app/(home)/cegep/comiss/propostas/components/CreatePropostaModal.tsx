@@ -144,15 +144,16 @@ export function CreatePropostaModal({
                   <Button color="light" onClick={onClose} disabled={isSaving}>
                      Cancelar
                   </Button>
-                  <Button type="submit" color="primary" disabled={isSaving}>
+                  <Button
+                     type="submit"
+                     color="primary"
+                     disabled={isSaving}
+                     aria-busy={isSaving}
+                  >
                      {isSaving ? (
                         <>
-                           <Spinner
-                              size="sm"
-                              color="primary"
-                              className="mr-2"
-                           />
-                           Criando...
+                           <Spinner size="sm" color="white" className="mr-2" />
+                           Criando…
                         </>
                      ) : (
                         "Criar proposta"

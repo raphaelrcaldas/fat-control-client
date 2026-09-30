@@ -18,6 +18,8 @@ interface UsersTabProps {
    roles: RoleDetail[];
    tenants: Tenant[];
    isFetching: boolean;
+   /** Perfis indisponíveis (carregando ou falhou): trava a edição */
+   editDisabled?: boolean;
    onRefresh: () => void;
 }
 
@@ -26,6 +28,7 @@ export const UsersTab = memo(function UsersTab({
    roles,
    tenants,
    isFetching,
+   editDisabled = false,
    onRefresh,
 }: UsersTabProps) {
    const { push } = useToast();
@@ -135,6 +138,7 @@ export const UsersTab = memo(function UsersTab({
                filterName={filterName}
                currentUserId={currentUserId}
                isUpdating={isFetching}
+               editDisabled={editDisabled}
                tenants={tenants}
                showDevLogin={isDev}
                onFilterChange={setFilterName}

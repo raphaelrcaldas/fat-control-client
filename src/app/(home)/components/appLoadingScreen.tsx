@@ -11,9 +11,18 @@ export function AppLoadingScreen() {
              dentro de `justify-items-center`, a margem do proprio filho e
              ignorada pelo grid (confirmado medindo boxLeft/width no browser:
              com `mx-8` so no card, ele tocava as duas bordas da viewport). */}
-         <div className="animate-fade-in relative grid w-full max-w-md justify-items-center rounded border border-slate-200 bg-white px-6 py-8 shadow">
+         <div
+            role="status"
+            className="animate-fade-in relative grid w-full max-w-md justify-items-center rounded border border-slate-200 bg-white px-6 py-8 shadow"
+         >
+            {/* Leitor de tela: é a tela em que quem o usa fica mais tempo sem
+                feedback; o nome/lema e a barra são só visuais, então ficam
+                fora da árvore de acessibilidade. */}
+            <span className="sr-only">
+               {nome ? `Carregando ${nome}…` : "Carregando…"}
+            </span>
             {/* Identidade da org ativa (nome + lema), com animação de pulse suave */}
-            <div className="animate-pulse-subtle mb-6 text-center">
+            <div aria-hidden className="animate-pulse-subtle mb-6 text-center">
                <h3 className="mb-2 text-xl font-bold tracking-tight text-gray-800 md:text-2xl">
                   {nome}
                </h3>
@@ -25,7 +34,10 @@ export function AppLoadingScreen() {
             </div>
 
             {/* Barra de progresso decorativa */}
-            <div className="mt-6 h-1 w-full overflow-hidden rounded-full bg-gray-200">
+            <div
+               aria-hidden
+               className="mt-6 h-1 w-full overflow-hidden rounded-full bg-gray-200"
+            >
                <div className="animate-loading-bar bg-primary-600 h-full rounded-full"></div>
             </div>
          </div>

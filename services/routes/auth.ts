@@ -48,8 +48,15 @@ export async function switchOrg(
    organizacaoId: string | null
 ): Promise<ApiResult<{ access_token: string }>> {
    return parseApiResponse<{ access_token: string }>(
-      await request("POST", "auth/switch-org", {
-         organizacao_id: organizacaoId,
-      })
+      // Com teto: enquanto a troca corre, o overlay modal deixa o app inerte
+      // e sem Esc — uma requisição pendurada prenderia a tela até o reload.
+      // O abort cai no `catch` de `trocarOrg`, que mostra o erro.
+      await request(
+         "POST",
+         "auth/switch-org",
+         { organizacao_id: organizacaoId },
+         null,
+         AbortSignal.timeout(15_000)
+      )
    );
 }

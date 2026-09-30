@@ -1,4 +1,4 @@
-import request, { parseApiResponse } from "../../Api";
+import request, { parseApiResponse, readApiData } from "../../Api";
 import type { ApiResponse, ApiResult } from "@/types/api";
 import { secRoute } from ".";
 import { UserPublic } from "../users";
@@ -30,7 +30,7 @@ export interface UserWithRole {
 
 export async function getUsersRoles(): Promise<UserWithRole[]> {
    const response = await request("GET", rolesPath + "users/");
-   const json = (await response.json()) as ApiResponse<UserWithRole[]>;
+   const json = await readApiData<ApiResponse<UserWithRole[]>>(response);
 
    return json.data!;
 }
@@ -85,14 +85,14 @@ export async function deleteUserRole(
 
 export async function getRoles(): Promise<RoleDetail[]> {
    const response = await request("GET", rolesPath);
-   const json = (await response.json()) as ApiResponse<RoleDetail[]>;
+   const json = await readApiData<ApiResponse<RoleDetail[]>>(response);
 
    return json.data!;
 }
 
 export async function getRoleDetail(roleId: number): Promise<RoleDetail> {
    const response = await request("GET", `${rolesPath}/${roleId}`);
-   const json = (await response.json()) as ApiResponse<RoleDetail>;
+   const json = await readApiData<ApiResponse<RoleDetail>>(response);
 
    return json.data!;
 }

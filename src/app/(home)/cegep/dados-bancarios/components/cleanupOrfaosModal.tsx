@@ -8,6 +8,7 @@ import {
    ModalFooter,
    Button,
    Checkbox,
+   Spinner,
    Table,
    TableHead,
    TableHeadCell,
@@ -175,9 +176,14 @@ export default function CleanupOrfaosModal({
                      color="red"
                      onClick={handleCleanup}
                      disabled={selectedIds.size === 0 || isDeleting}
+                     aria-busy={isDeleting}
                   >
-                     <HiTrash className="mr-2 h-4 w-4" />
-                     {isDeleting ? "Limpando..." : "Limpar selecionados"}
+                     {isDeleting ? (
+                        <Spinner size="sm" color="white" className="mr-2" />
+                     ) : (
+                        <HiTrash className="mr-2 h-4 w-4" />
+                     )}
+                     {isDeleting ? "Limpando…" : "Limpar selecionados"}
                   </Button>
                </div>
             </div>

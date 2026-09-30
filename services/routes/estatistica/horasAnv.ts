@@ -1,4 +1,4 @@
-import request from "../../Api";
+import request, { readApiData } from "../../Api";
 import type { ApiResponse } from "@/types/api";
 
 const horasAnvRoute = "estatistica/horas-anv/";
@@ -33,7 +33,7 @@ export async function getHorasAnv(
       { ano_ref: anoRef },
       signal
    );
-   const json = (await response.json()) as ApiResponse<AnvHorasResponse>;
+   const json = await readApiData<ApiResponse<AnvHorasResponse>>(response);
    return (
       json.data ?? {
          items: [],

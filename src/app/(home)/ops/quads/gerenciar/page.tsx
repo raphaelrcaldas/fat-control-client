@@ -33,7 +33,13 @@ export default function GerenciarQuadsPage() {
    const { hasPerm } = usePermBased();
    const canManage = hasPerm("ops.quadrinhos", "create");
 
-   const { data: groups = [], isLoading, error, refetch } = useQuadsTypes();
+   const {
+      data: groups = [],
+      isLoading,
+      isFetching,
+      error,
+      refetch,
+   } = useQuadsTypes();
 
    const createGroup = useCreateQuadsGroup();
    const updateGroup = useUpdateQuadsGroup();
@@ -228,12 +234,17 @@ export default function GerenciarQuadsPage() {
 
          {isLoading ? (
             <QuadsGerenciarSkeleton />
-         ) : error ? (
+         ) : error && groups.length === 0 ? (
             <div className="flex flex-wrap items-center justify-between gap-3 rounded border border-red-300 bg-red-50 p-4">
                <p className="text-sm text-red-800">
                   Erro ao carregar quadrinhos. Por favor, tente novamente.
                </p>
-               <Button color="light" size="sm" onClick={() => refetch()}>
+               <Button
+                  color="light"
+                  size="sm"
+                  onClick={() => refetch()}
+                  disabled={isFetching}
+               >
                   Tentar novamente
                </Button>
             </div>

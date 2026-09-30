@@ -261,15 +261,12 @@ export function EnviarFeedbackModal({
                      color="primary"
                      onClick={handleSend}
                      disabled={isSending}
+                     aria-busy={isSending}
                   >
                      {isSending ? (
                         <>
-                           <Spinner
-                              size="sm"
-                              color="primary"
-                              className="mr-2"
-                           />
-                           Enviando...
+                           <Spinner size="sm" color="white" className="mr-2" />
+                           Enviando…
                         </>
                      ) : (
                         <>

@@ -23,7 +23,7 @@ export function SkeletonBaloes() {
  */
 export function ConversaSkeleton() {
    return (
-      <div aria-busy="true">
+      <div role="status">
          <span className="sr-only">Carregando conversa…</span>
          <SkeletonBaloes />
       </div>

@@ -4,6 +4,7 @@ import { useState, useMemo, useCallback, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { MdHealthAndSafety } from "react-icons/md";
 import clsx from "clsx";
+import { Button } from "flowbite-react";
 import useDebouncedValue from "@/hooks/useDebouncedValue";
 import { useCartoesSaude } from "@/hooks/queries";
 import type { UserCartaoSaude } from "services/routes/aeromedica/cartoesSaude";
@@ -130,6 +131,9 @@ export default function CartoesSaudePage() {
       data: cartoesSaude = [],
       isLoading,
       isFetching,
+      isError,
+      error,
+      refetch,
    } = useCartoesSaude({
       search: debouncedSearch || undefined,
       p_g: filterPG.length > 0 ? filterPG.join(",") : undefined,
@@ -392,7 +396,6 @@ export default function CartoesSaudePage() {
                totalCount={cartoesSaude.length}
                filteredCount={sortedData.length}
                isLoading={isLoading}
-               isFetching={isFetching}
                hasActiveFilters={hasActiveFilters}
                onClearFilters={clearFilters}
             />
@@ -406,40 +409,84 @@ export default function CartoesSaudePage() {
                      <CartoesSaudeTableSkeleton />
                   </div>
                </>
-            ) : (
+            ) : isError && cartoesSaude.length === 0 ? (
                <div
-                  className={clsx(
-                     "transition-opacity",
-                     isFetching && "pointer-events-none opacity-50"
-                  )}
+                  role="alert"
+                  className="flex flex-col items-center justify-center gap-1 px-6 py-12 text-center"
                >
-                  {/* Cards no dedo, tabela no mouse: em 390px as 7 colunas
-                      só existiam atrás de rolagem lateral.
-                      As duas árvores ficam montadas e só uma é exibida (o
-                      `client` não tem hook de media query): com ~130 linhas o
-                      custo extra de DOM é aceitável e evita o flash de
-                      remontagem ao girar o aparelho. Se a lista crescer muito,
-                      é aqui que entra virtualização. */}
-                  <div className="md:hidden">
-                     <CartoesSaudeCardList
-                        data={sortedData}
-                        onCardClick={handleRowClick}
-                        hasActiveFilters={hasActiveFilters}
-                        searchTerm={urlSearch}
-                     />
-                  </div>
-                  <div className="hidden md:block">
-                     <CartoesSaudeTable
-                        data={sortedData}
-                        sortField={sortField}
-                        sortDirection={sortDirection}
-                        onSort={handleSort}
-                        onRowClick={handleRowClick}
-                        hasActiveFilters={hasActiveFilters}
-                        searchTerm={urlSearch}
-                     />
-                  </div>
+                  <p className="text-sm font-semibold text-red-800">
+                     Não foi possível carregar os cartões de saúde
+                  </p>
+                  <p className="max-w-md text-xs text-slate-500">
+                     {error instanceof Error
+                        ? error.message
+                        : "Erro desconhecido"}
+                  </p>
+                  <Button
+                     color="light"
+                     size="sm"
+                     className="mt-3"
+                     onClick={() => refetch()}
+                     disabled={isFetching}
+                  >
+                     Tentar novamente
+                  </Button>
                </div>
+            ) : (
+               <>
+                  {isError && (
+                     <div
+                        role="status"
+                        className="flex flex-wrap items-center justify-between gap-2 border-t border-red-200 bg-red-50 px-4 py-2 text-sm text-red-800"
+                     >
+                        <span>
+                           Não foi possível atualizar os cartões de saúde.
+                           Exibindo a última consulta.
+                        </span>
+                        <Button
+                           color="light"
+                           size="xs"
+                           onClick={() => refetch()}
+                           disabled={isFetching}
+                        >
+                           Tentar novamente
+                        </Button>
+                     </div>
+                  )}
+                  <div
+                     className={clsx(
+                        "transition-opacity",
+                        isFetching && "pointer-events-none opacity-50"
+                     )}
+                  >
+                     {/* Cards no dedo, tabela no mouse: em 390px as 7 colunas
+                         só existiam atrás de rolagem lateral.
+                         As duas árvores ficam montadas e só uma é exibida (o
+                         `client` não tem hook de media query): com ~130 linhas o
+                         custo extra de DOM é aceitável e evita o flash de
+                         remontagem ao girar o aparelho. Se a lista crescer muito,
+                         é aqui que entra virtualização. */}
+                     <div className="md:hidden">
+                        <CartoesSaudeCardList
+                           data={sortedData}
+                           onCardClick={handleRowClick}
+                           hasActiveFilters={hasActiveFilters}
+                           searchTerm={urlSearch}
+                        />
+                     </div>
+                     <div className="hidden md:block">
+                        <CartoesSaudeTable
+                           data={sortedData}
+                           sortField={sortField}
+                           sortDirection={sortDirection}
+                           onSort={handleSort}
+                           onRowClick={handleRowClick}
+                           hasActiveFilters={hasActiveFilters}
+                           searchTerm={urlSearch}
+                        />
+                     </div>
+                  </div>
+               </>
             )}
          </div>
 

@@ -317,9 +317,17 @@ export function PessoalFormModal({ show, onClose, op, editing }: Props) {
                         type="submit"
                         color="primary"
                         disabled={isSubmitting}
+                        aria-busy={isSubmitting}
                      >
                         {isSubmitting ? (
-                           <Spinner size="sm" color="primary" />
+                           <>
+                              <Spinner
+                                 size="sm"
+                                 color="white"
+                                 className="mr-2"
+                              />
+                              Salvando…
+                           </>
                         ) : isEdit ? (
                            "Salvar"
                         ) : (

@@ -1,4 +1,5 @@
-import { HiClock, HiDocumentText } from "react-icons/hi";
+import { MdErrorOutline } from "react-icons/md";
+import { HiClock } from "react-icons/hi";
 import { useTripLogs } from "@/hooks/queries/useTrips";
 import { useFuncoes } from "@/hooks/queries";
 import { OPER_LABELS } from "@/constants/tripulantes/operacionalidade";
@@ -43,26 +44,17 @@ function formatTripFieldValue(
 }
 
 export function TripAudit({ tripId }: { tripId: number }) {
-   const { data: logs = [], isLoading, error } = useTripLogs(tripId);
+   const { data, isLoading, isError, isFetching, refetch } =
+      useTripLogs(tripId);
    const { label: funcLabel } = useFuncoes();
-
-   if (error)
-      return (
-         <div className="flex flex-col items-center justify-center py-16">
-            <div className="mb-4 rounded-full bg-red-50 p-4">
-               <HiDocumentText className="h-12 w-12 text-red-400" />
-            </div>
-            <p className="font-medium text-red-600">
-               {error instanceof Error
-                  ? error.message
-                  : "Erro ao carregar auditoria"}
-            </p>
-         </div>
-      );
+   const logs = data ?? [];
+   // Falha sem dado: `Historico` mostra o erro com "Tentar novamente". Com
+   // trilha em cache, um refetch falho mantém a trilha.
+   const falhou = isError && !data;
 
    // Enquanto carrega, `Historico` mostra o esqueleto da trilha na mesma
    // moldura do resultado; o estado vazio só vale depois da resposta.
-   if (!isLoading && !logs.length) {
+   if (!isLoading && !isError && !logs.length) {
       return (
          <div className="flex flex-col items-center justify-center py-16">
             <div className="mb-4 rounded-full bg-gray-100 p-4">
@@ -81,15 +73,39 @@ export function TripAudit({ tripId }: { tripId: number }) {
    }
 
    return (
-      <Historico
-         logs={logs}
-         isLoading={isLoading}
-         fieldLabels={TRIP_FIELD_LABELS}
-         formatFieldValue={(field, value) =>
-            formatTripFieldValue(field, value, funcLabel)
-         }
-         title="Histórico de Alterações"
-         maxHeight="max-h-[600px]"
-      />
+      <div className="space-y-2">
+         {isError && !!data && (
+            <p
+               role="status"
+               className="flex items-center gap-2 rounded border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs text-slate-500"
+            >
+               <MdErrorOutline aria-hidden className="size-3.5 shrink-0" />
+               <span className="min-w-0 flex-1 truncate">
+                  Não foi possível atualizar o histórico
+               </span>
+               <button
+                  type="button"
+                  onClick={() => refetch()}
+                  disabled={isFetching}
+                  className="min-h-[24px] shrink-0 font-semibold text-slate-900 underline underline-offset-2 disabled:opacity-50"
+               >
+                  Tentar novamente
+               </button>
+            </p>
+         )}
+         <Historico
+            logs={logs}
+            isLoading={isLoading}
+            isError={falhou}
+            isRetrying={isFetching}
+            onRetry={() => refetch()}
+            fieldLabels={TRIP_FIELD_LABELS}
+            formatFieldValue={(field, value) =>
+               formatTripFieldValue(field, value, funcLabel)
+            }
+            title="Histórico de Alterações"
+            maxHeight="max-h-[600px]"
+         />
+      </div>
    );
 }

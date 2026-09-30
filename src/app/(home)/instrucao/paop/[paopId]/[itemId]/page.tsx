@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useParams } from "next/navigation";
 import { FaUserGroup, FaTriangleExclamation } from "react-icons/fa6";
+import { Button } from "flowbite-react";
 import { useToast } from "@/app/context/toast";
 import { usePaop, useSetItemTripulantes } from "@/hooks/queries";
 import { EmptyState } from "@/components/ui/EmptyState";
@@ -28,7 +29,13 @@ export default function PaopItemPage() {
    const itemId = Number(params.itemId);
 
    const { push } = useToast();
-   const { data: paop, isLoading, error } = usePaop(paopId);
+   const {
+      data: paop,
+      isLoading,
+      error,
+      isFetching,
+      refetch,
+   } = usePaop(paopId);
    const matriculaMutation = useSetItemTripulantes();
 
    const [showMatricula, setShowMatricula] = useState(false);
@@ -71,15 +78,43 @@ export default function PaopItemPage() {
       }
    }
 
+   // Masthead fora do gate (como nas telas irmãs): só o que vem do plano
+   // pulsa, e a tabela vira skeleton.
    if (isLoading) {
       return (
          <div className="space-y-2">
+            <ItemHeader isBusy={false} onMatricular={() => {}} />
             <MatriculadosTableSkeleton />
          </div>
       );
    }
 
-   if (error || !paop || !item) {
+   // Falha de rede não é "não encontrado": sem dado e com erro, o usuário
+   // precisa da nova tentativa, não de uma mensagem que sugere plano removido.
+   if (error && !paop) {
+      return (
+         <EmptyState
+            icon={FaTriangleExclamation}
+            titleAs="h1"
+            title="Erro ao carregar o subprograma"
+            description={
+               error instanceof Error ? error.message : "Tente novamente"
+            }
+            action={
+               <Button
+                  color="light"
+                  size="xs"
+                  onClick={() => refetch()}
+                  disabled={isFetching}
+               >
+                  Tentar novamente
+               </Button>
+            }
+         />
+      );
+   }
+
+   if (!paop || !item) {
       return (
          <EmptyState
             icon={FaTriangleExclamation}

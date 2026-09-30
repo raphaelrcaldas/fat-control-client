@@ -27,6 +27,7 @@ export function ImpactoComissPanel({
    const {
       disponiveis,
       carregandoAbertos,
+      erroAbertos,
       acoplados,
       acoplar,
       desacoplar,
@@ -72,6 +73,7 @@ export function ImpactoComissPanel({
          <ComissSearchInline
             disponiveis={disponiveis}
             carregando={carregandoAbertos}
+            erro={erroAbertos}
             onAcoplar={acoplar}
          />
 

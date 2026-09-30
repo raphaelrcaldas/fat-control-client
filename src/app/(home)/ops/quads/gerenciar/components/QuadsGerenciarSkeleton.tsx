@@ -4,10 +4,12 @@ const TIPOS_POR_GRUPO = [3, 4];
 /** Espelha `QuadsGroupCard`: cabeçalho, linhas de tipo e rodapé "Novo tipo". */
 export function QuadsGerenciarSkeleton() {
    return (
-      <div className="space-y-2">
+      <div role="status" className="space-y-2">
+         <span className="sr-only">Carregando grupos de quadrinhos…</span>
          {TIPOS_POR_GRUPO.map((tipos, i) => (
             <div
                key={i}
+               aria-hidden
                className="rounded border border-slate-200 bg-white shadow-sm"
             >
                <div className="flex items-center justify-between gap-3 border-b border-slate-200 px-4 py-3">

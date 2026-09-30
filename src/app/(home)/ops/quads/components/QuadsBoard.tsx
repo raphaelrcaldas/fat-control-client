@@ -17,6 +17,8 @@ interface QuadsBoardProps {
    isLoading: boolean;
    isFetching: boolean;
    isError: boolean;
+   /** O catálogo de tipos falhou: sem ele o quadro não sabe o que mostrar. */
+   typesError: boolean;
    onRetry: () => void;
    loadingTypes: boolean;
    dragProps: DragScrollProps;
@@ -29,12 +31,16 @@ export function QuadsBoard({
    isLoading,
    isFetching,
    isError,
+   typesError,
    onRetry,
    loadingTypes,
    dragProps,
 }: QuadsBoardProps) {
+   // Erro só troca o quadro quando não há nada em tela; um refetch falho com
+   // linhas já carregadas as mantém e avisa (banner abaixo).
+   const erroSemDado = (isError && quads.length === 0) || typesError;
    const mostrandoLinhas =
-      !isLoading && !loadingTypes && !isError && quads.length > 0;
+      !isLoading && !loadingTypes && !erroSemDado && quads.length > 0;
 
    return (
       <div
@@ -86,6 +92,25 @@ export function QuadsBoard({
             )}
          </div>
 
+         {/* Refetch falho com linhas em tela: fora da área rolável, para o
+             aviso não sair de cena com a rolagem horizontal. */}
+         {isError && !erroSemDado && !isLoading && (
+            <div
+               role="status"
+               className="flex flex-wrap items-center gap-2 border-b border-amber-200 bg-amber-50 px-4 py-2 text-sm text-amber-900"
+            >
+               A atualização falhou — mostrando os últimos dados.
+               <button
+                  type="button"
+                  onClick={onRetry}
+                  disabled={isFetching}
+                  className="font-semibold underline underline-offset-2 disabled:opacity-50"
+               >
+                  Tentar novamente
+               </button>
+            </div>
+         )}
+
          {/* Área rolável / arrastável dos quadrinhos (setas rolam com o foco no container) */}
          <div
             id="quad_table"
@@ -97,8 +122,8 @@ export function QuadsBoard({
          >
             {isLoading || loadingTypes ? (
                <QuadsBoardSkeleton />
-            ) : isError ? (
-               <ErrorBoard onRetry={onRetry} />
+            ) : erroSemDado ? (
+               <ErrorBoard onRetry={onRetry} isFetching={isFetching} />
             ) : quads.length === 0 ? (
                <EmptyBoard hasTypes={Boolean(groupName)} />
             ) : (
@@ -126,7 +151,13 @@ export function QuadsBoard({
    );
 }
 
-function ErrorBoard({ onRetry }: { onRetry: () => void }) {
+function ErrorBoard({
+   onRetry,
+   isFetching,
+}: {
+   onRetry: () => void;
+   isFetching: boolean;
+}) {
    return (
       <div className="flex flex-col items-center justify-center gap-2 px-4 py-10 whitespace-normal">
          <p className="text-sm font-semibold text-slate-700">
@@ -135,7 +166,13 @@ function ErrorBoard({ onRetry }: { onRetry: () => void }) {
          <p className="text-center text-sm text-slate-500">
             Não foi possível buscar os dados. Verifique a conexão.
          </p>
-         <Button color="light" size="sm" className="mt-1" onClick={onRetry}>
+         <Button
+            color="light"
+            size="sm"
+            className="mt-1"
+            onClick={onRetry}
+            disabled={isFetching}
+         >
             Tentar novamente
          </Button>
       </div>

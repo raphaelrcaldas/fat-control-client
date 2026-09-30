@@ -1,7 +1,7 @@
 "use client";
 
 import { memo, useMemo, useState } from "react";
-import { TextInput, Spinner, Button } from "flowbite-react";
+import { TextInput, Button } from "flowbite-react";
 import { HiSearch, HiX } from "react-icons/hi";
 import { MdFilterList } from "react-icons/md";
 import clsx from "clsx";
@@ -24,7 +24,6 @@ interface FiltersProps {
    totalCount: number;
    filteredCount: number;
    isLoading: boolean;
-   isFetching: boolean;
    hasActiveFilters: boolean;
    onClearFilters: () => void;
 }
@@ -49,7 +48,6 @@ const Filters = memo(function Filters({
    totalCount,
    filteredCount,
    isLoading,
-   isFetching,
    hasActiveFilters,
    onClearFilters,
 }: FiltersProps) {
@@ -68,6 +66,7 @@ const Filters = memo(function Filters({
             <div className="flex gap-2 md:min-w-0 md:flex-1">
                <div className="min-w-0 flex-1">
                   <TextInput
+                     disabled={isLoading}
                      icon={HiSearch}
                      placeholder="Buscar por nome..."
                      value={search}
@@ -76,6 +75,7 @@ const Filters = memo(function Filters({
                   />
                </div>
                <Button
+                  disabled={isLoading}
                   type="button"
                   color={activeCount > 0 ? "primary" : "light"}
                   onClick={() => setShowFilters((v) => !v)}
@@ -99,6 +99,7 @@ const Filters = memo(function Filters({
                )}
             >
                <MultiSelect
+                  disabled={isLoading}
                   options={PG_OPTIONS}
                   selected={filterPG}
                   onChange={onFilterPGChange}
@@ -107,6 +108,7 @@ const Filters = memo(function Filters({
                />
 
                <MultiSelect
+                  disabled={isLoading}
                   options={funcOptions}
                   selected={filterFunc}
                   onChange={onFilterFuncChange}
@@ -118,7 +120,12 @@ const Filters = memo(function Filters({
 
          <div className="flex min-h-[41px] items-center justify-between border-t border-slate-200 bg-gray-50 px-4 py-2 text-sm">
             {isLoading ? (
-               <div className="h-4 w-40 animate-pulse rounded bg-slate-200" />
+               <div aria-hidden>
+                  <div
+                     aria-hidden
+                     className="h-4 w-40 animate-pulse rounded bg-slate-200"
+                  />
+               </div>
             ) : (
                <>
                   <div className="flex items-center gap-4">
@@ -131,7 +138,6 @@ const Filters = memo(function Filters({
                         <strong className="text-gray-900">{totalCount}</strong>{" "}
                         militares
                      </span>
-                     {isFetching && <Spinner color="primary" size="sm" />}
                   </div>
                   {/* Sempre aqui enquanto houver filtro, inclusive sem
                       resultado: o botão não muda de lugar quando a lista

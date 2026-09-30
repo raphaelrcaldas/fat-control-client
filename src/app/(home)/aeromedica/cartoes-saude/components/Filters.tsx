@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 
-import { TextInput, Spinner, Button } from "flowbite-react";
+import { TextInput, Button } from "flowbite-react";
 import { HiSearch, HiX } from "react-icons/hi";
 import {
    MdFlightTakeoff,
@@ -27,17 +27,20 @@ const PG_OPTIONS = postoGradRecords.map((pg) => ({
 
 function FilterButton({
    active,
+   disabled,
    onClick,
    children,
    icon: Icon,
 }: {
    active: boolean;
+   disabled: boolean;
    onClick: () => void;
    children: React.ReactNode;
    icon?: React.ComponentType<{ className?: string }>;
 }) {
    return (
       <Button
+         disabled={disabled}
          type="button"
          size="xs"
          color={active ? "primary" : "light"}
@@ -69,7 +72,6 @@ interface FiltersProps {
    totalCount: number;
    filteredCount: number;
    isLoading: boolean;
-   isFetching: boolean;
    hasActiveFilters: boolean;
    onClearFilters: () => void;
 }
@@ -100,7 +102,6 @@ export default function Filters({
    totalCount,
    filteredCount,
    isLoading,
-   isFetching,
    hasActiveFilters,
    onClearFilters,
 }: FiltersProps) {
@@ -123,6 +124,7 @@ export default function Filters({
             <div className="flex gap-2 md:min-w-[16rem] md:flex-1 md:basis-64">
                <div className="min-w-0 flex-1">
                   <TextInput
+                     disabled={isLoading}
                      icon={HiSearch}
                      placeholder="Buscar por nome de guerra ou completo..."
                      value={searchUser}
@@ -131,6 +133,7 @@ export default function Filters({
                   />
                </div>
                <Button
+                  disabled={isLoading}
                   type="button"
                   color={activeCount > 0 ? "primary" : "light"}
                   onClick={() => setShowFilters((v) => !v)}
@@ -154,6 +157,7 @@ export default function Filters({
                )}
             >
                <MultiSelect
+                  disabled={isLoading}
                   options={PG_OPTIONS}
                   selected={filterPG}
                   onChange={onFilterPGChange}
@@ -162,6 +166,7 @@ export default function Filters({
                />
 
                <MultiSelect
+                  disabled={isLoading}
                   options={funcOptions}
                   selected={filterFunc}
                   onChange={onFilterFuncChange}
@@ -174,6 +179,7 @@ export default function Filters({
                       já dizem tudo). */}
                   <div className="flex items-center gap-1 rounded border border-slate-200 bg-white p-0.5 max-[430px]:[&_svg]:hidden">
                      <FilterButton
+                        disabled={isLoading}
                         active={tripFilter === "all"}
                         onClick={() => onTripFilterChange("all")}
                         icon={MdPeopleAlt}
@@ -181,6 +187,7 @@ export default function Filters({
                         Todos
                      </FilterButton>
                      <FilterButton
+                        disabled={isLoading}
                         active={tripFilter === "trip"}
                         onClick={() => onTripFilterChange("trip")}
                         icon={MdFlightTakeoff}
@@ -188,6 +195,7 @@ export default function Filters({
                         Tripulantes
                      </FilterButton>
                      <FilterButton
+                        disabled={isLoading}
                         active={tripFilter === "naoTrip"}
                         onClick={() => onTripFilterChange("naoTrip")}
                         icon={MdPeopleAlt}
@@ -199,6 +207,7 @@ export default function Filters({
                   {/* Ata é eixo próprio (documento anexado, não validade):
                       por isso um toggle solto, e não uma opção do resumo. */}
                   <Button
+                     disabled={isLoading}
                      type="button"
                      size="xs"
                      color={semAta ? "primary" : "light"}
@@ -224,7 +233,12 @@ export default function Filters({
          <div className="flex min-h-11 items-center justify-between border-t border-slate-200 bg-gray-50 px-4 py-2 text-sm">
             <div className="flex items-center gap-4">
                {isLoading ? (
-                  <div className="h-4 w-44 animate-pulse rounded bg-slate-200" />
+                  <div aria-hidden>
+                     <div
+                        aria-hidden
+                        className="h-4 w-44 animate-pulse rounded bg-slate-200"
+                     />
+                  </div>
                ) : (
                   <span className="text-gray-600">
                      Exibindo{" "}
@@ -237,9 +251,6 @@ export default function Filters({
                      </strong>{" "}
                      militares
                   </span>
-               )}
-               {isFetching && !isLoading && (
-                  <Spinner color="primary" size="sm" />
                )}
             </div>
             {!isLoading && hasActiveFilters && (

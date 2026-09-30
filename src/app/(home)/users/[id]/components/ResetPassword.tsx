@@ -80,11 +80,12 @@ export function ResetPassword({ userId }: { userId: number }) {
                   color="red"
                   onClick={handlePasswordReset}
                   disabled={resetMutation.isPending}
+                  aria-busy={resetMutation.isPending}
                >
                   {resetMutation.isPending ? (
                      <>
-                        <Spinner size="sm" color="gray" />
-                        Redefinindo...
+                        <Spinner size="sm" color="white" className="mr-2" />
+                        Redefinindo…
                      </>
                   ) : (
                      "Sim, Redefinir"

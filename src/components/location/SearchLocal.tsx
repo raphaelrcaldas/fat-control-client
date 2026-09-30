@@ -1,9 +1,9 @@
 import clsx from "clsx";
 import {
+   Button,
    Modal,
    ModalBody,
    ModalHeader,
-   Spinner,
    TextInput,
 } from "flowbite-react";
 import { useEffect, useState } from "react";
@@ -11,6 +11,7 @@ import { FaMapMarkerAlt } from "react-icons/fa";
 import { IoMdSearch } from "react-icons/io";
 import { MdLocationCity } from "react-icons/md";
 import { CityResultRow } from "./CityResultRow";
+import { CityResultSkeleton } from "./CityResultSkeleton";
 import { type CityFetcher, useCitySearch } from "./useCitySearch";
 
 interface Local {
@@ -40,13 +41,21 @@ export function SearchLocal({
 }: SearchLocalProps) {
    const [searchCity, setSearchCity] = useState("");
 
-   const { maisUsadas, demais, total, hasRanking, isFetching, canSearch } =
-      useCitySearch(searchCity, {
-         fetcher,
-         queryKey,
-         allowEmpty,
-         enabled: show,
-      });
+   const {
+      maisUsadas,
+      demais,
+      total,
+      hasRanking,
+      isFetching,
+      isError,
+      refetch,
+      canSearch,
+   } = useCitySearch(searchCity, {
+      fetcher,
+      queryKey,
+      allowEmpty,
+      enabled: show,
+   });
 
    useEffect(() => {
       if (!show) {
@@ -87,10 +96,13 @@ export function SearchLocal({
 
                <div className="overflow-hidden rounded border border-slate-200 shadow-sm">
                   {total === 0 ? (
-                     <EmptyState
-                        canSearch={canSearch}
-                        isFetching={isFetching}
-                     />
+                     isFetching ? (
+                        <CityResultSkeleton />
+                     ) : isError ? (
+                        <ErrorState onRetry={() => refetch()} />
+                     ) : (
+                        <EmptyState canSearch={canSearch} />
+                     )
                   ) : (
                      <div
                         className={clsx(
@@ -161,25 +173,32 @@ function GroupHeader({
    );
 }
 
-function EmptyState({
-   canSearch,
-   isFetching,
-}: {
-   canSearch: boolean;
-   isFetching: boolean;
-}) {
+function ErrorState({ onRetry }: { onRetry: () => void }) {
+   return (
+      <div
+         role="alert"
+         className="flex flex-col items-center justify-center px-4 py-16 text-center"
+      >
+         <p className="text-lg font-semibold text-slate-700">
+            Não foi possível buscar as cidades
+         </p>
+         <p className="mt-2 max-w-xs text-sm text-slate-500">
+            Verifique a conexão e tente novamente
+         </p>
+         <Button size="xs" color="light" className="mt-4" onClick={onRetry}>
+            Tentar novamente
+         </Button>
+      </div>
+   );
+}
+
+function EmptyState({ canSearch }: { canSearch: boolean }) {
    return (
       <div className="flex flex-col items-center justify-center px-4 py-16 text-center">
          <div className="mb-4 rounded-full bg-slate-100 p-4">
-            {isFetching ? (
-               <Spinner size="xl" color="primary" />
-            ) : (
-               <FaMapMarkerAlt className="size-12 text-slate-400" />
-            )}
+            <FaMapMarkerAlt className="size-12 text-slate-400" />
          </div>
-         {isFetching ? (
-            <p className="font-medium text-slate-600">Procurando cidades...</p>
-         ) : canSearch ? (
+         {canSearch ? (
             <>
                <p className="text-lg font-semibold text-slate-700">
                   Nenhuma cidade encontrada

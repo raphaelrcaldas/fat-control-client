@@ -19,6 +19,7 @@ export default function ClonarOrdemPage() {
       data: ordem,
       isLoading,
       isError,
+      isFetching,
       error,
       refetch,
    } = useOrdem(ordemId);
@@ -75,6 +76,7 @@ export default function ClonarOrdemPage() {
                    um catálogo que falhou, e vice-versa */}
                <Button
                   color="light"
+                  disabled={isFetching}
                   onClick={() => {
                      if (ordemFalhou) refetch();
                      if (catalogoFalhou) funcoes.refetch();

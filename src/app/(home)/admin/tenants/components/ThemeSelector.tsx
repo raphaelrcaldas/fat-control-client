@@ -36,7 +36,7 @@ export function ThemeSelector({
    const triggerLabel = (
       <span className="flex items-center gap-2">
          {isSaving ? (
-            <Spinner size="sm" color="gray" />
+            <Spinner size="sm" color="primary" />
          ) : (
             <Swatch tema={value} />
          )}

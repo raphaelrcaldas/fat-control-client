@@ -21,8 +21,9 @@ export default function CartoesSaudeTableSkeleton({
    rows?: number;
 }) {
    return (
-      <div className="overflow-x-auto">
-         <Table>
+      <div role="status" className="overflow-x-auto">
+         <span className="sr-only">Carregando cartões de saúde…</span>
+         <Table aria-hidden>
             <TableHead className="border-b border-slate-200 bg-gray-50 text-xs text-gray-700 uppercase">
                <TableRow>
                   <TableHeadCell className="w-1 p-0" />
@@ -42,7 +43,7 @@ export default function CartoesSaudeTableSkeleton({
                      {BAR_WIDTHS.map((w, c) => (
                         <TableCell key={c} className="px-4 py-2">
                            <div
-                              className={`h-4 ${w} animate-pulse rounded bg-slate-200 ${c > 0 ? "mx-auto" : ""}`}
+                              className={`h-[17.5px] ${w} animate-pulse rounded bg-slate-200 ${c > 0 ? "mx-auto" : ""}`}
                            />
                         </TableCell>
                      ))}

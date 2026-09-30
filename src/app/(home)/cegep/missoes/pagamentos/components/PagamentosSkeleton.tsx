@@ -17,9 +17,13 @@ const COLS = [
 
 export function PagamentosSkeleton({ rows = 15 }: { rows?: number }) {
    return (
-      <div>
+      <div role="status">
+         <span className="sr-only">Carregando pagamentos…</span>
          {/* Toolbar */}
-         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 bg-gray-50 px-3 py-0.5">
+         <div
+            aria-hidden
+            className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 bg-gray-50 px-3 py-0.5"
+         >
             <div className="flex items-center gap-4">
                <div className="h-5 w-5 rounded bg-slate-200" />
                <div className="h-5 w-48 animate-pulse rounded bg-slate-200" />
@@ -31,7 +35,7 @@ export function PagamentosSkeleton({ rows = 15 }: { rows?: number }) {
          </div>
 
          {/* Tabela */}
-         <div className="overflow-x-auto">
+         <div aria-hidden className="overflow-x-auto">
             <table className="w-full text-left text-sm">
                <thead className="border-b border-slate-200">
                   <tr>

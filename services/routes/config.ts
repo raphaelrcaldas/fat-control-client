@@ -1,5 +1,5 @@
 import { z } from "zod";
-import request, { parseApiResponse } from "../Api";
+import request, { parseApiResponse, readApiData } from "../Api";
 import type { ApiResponse, ApiResult } from "@/types/api";
 
 // Configurações da própria organização (org ativa do token — sem sigla na
@@ -45,13 +45,7 @@ export function linhaAssinatura(titular: CargoTitular): string | null {
 
 export async function getCargos(): Promise<CargoTitular[]> {
    const response = await request("GET", `${configRoute}cargos`);
-   const json = (await response.json()) as ApiResponse<CargoTitular[]>;
-
-   if (!response.ok) {
-      throw new Error(
-         json.message || `Failed to fetch cargos: ${response.statusText}`
-      );
-   }
+   const json = await readApiData<ApiResponse<CargoTitular[]>>(response);
 
    return z.array(CargoSchema).parse(json.data);
 }

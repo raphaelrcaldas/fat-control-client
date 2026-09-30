@@ -12,7 +12,14 @@ export default function NovaMissaoPage() {
    const router = useRouter();
    const cloneFromId = Number(searchParams.get("clone_from")) || 0;
 
-   const { data: cloneSource, isLoading } = useMissao(cloneFromId);
+   const {
+      data: cloneSource,
+      isLoading,
+      isError,
+      isFetching,
+      error,
+      refetch,
+   } = useMissao(cloneFromId);
 
    const clonedMissao = useMemo<Missao | null>(() => {
       if (!cloneSource) return null;
@@ -39,6 +46,38 @@ export default function NovaMissaoPage() {
 
    if (cloneFromId > 0 && isLoading) {
       return <MissionPageSkeleton />;
+   }
+
+   // Clonagem que falha ao ler a origem: abrir o formulário em branco faria o
+   // usuário achar que a missão de origem estava vazia.
+   if (cloneFromId > 0 && isError && !cloneSource) {
+      return (
+         <div
+            role="alert"
+            className="flex h-96 flex-col items-center justify-center gap-4"
+         >
+            <p className="text-lg text-gray-500">
+               {error instanceof Error
+                  ? error.message
+                  : "Erro ao carregar a missão de origem."}
+            </p>
+            <div className="flex items-center gap-4">
+               <button
+                  onClick={() => refetch()}
+                  disabled={isFetching}
+                  className="text-sm font-medium text-red-600 hover:underline disabled:opacity-50"
+               >
+                  Tentar novamente
+               </button>
+               <button
+                  onClick={handleNavigateBack}
+                  className="text-sm font-medium text-gray-600 hover:underline"
+               >
+                  Voltar
+               </button>
+            </div>
+         </div>
+      );
    }
 
    return (

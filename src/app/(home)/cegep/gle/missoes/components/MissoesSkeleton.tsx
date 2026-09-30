@@ -1,10 +1,12 @@
 /** Espelha `MissaoGleCard`: mesma altura, mesmo gap, mesmas faixas. */
 export function MissoesSkeleton({ cards = 3 }: { cards?: number }) {
    return (
-      <div className="space-y-2">
+      <div role="status" className="space-y-2">
+         <span className="sr-only">Carregando missões…</span>
          {Array.from({ length: cards }).map((_, i) => (
             <div
                key={i}
+               aria-hidden
                className="rounded border border-slate-200 bg-white p-3 shadow-sm"
             >
                <div className="flex items-start justify-between gap-3">

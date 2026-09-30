@@ -32,7 +32,9 @@ const customTheme = createTheme({
       // desktop e no celular (ver `docs/ai/rules/frontend.md`). O
       // `pointer-coarse:min-h-[44px]` que morava aqui era a causa raiz dos
       // controles maiores no mobile em todas as telas.
-      base: "rounded-md",
+      // O botão nativo continua disabled, mas recebe o ponteiro para mostrar
+      // cursor-wait. Links desabilitados mantêm pointer-events-none.
+      base: "rounded-md aria-busy:cursor-wait aria-busy:opacity-100 disabled:aria-busy:pointer-events-auto",
       // Pontas do ButtonGroup no mesmo raio do botão solto (default do
       // Flowbite é rounded-*-lg, destoando do rounded-md do projeto).
       grouped: "first:rounded-s-md last:rounded-e-md",
@@ -60,6 +62,10 @@ const customTheme = createTheme({
    spinner: {
       color: {
          primary: "fill-primary-600",
+         // Botão preenchido (primary, red, dark) em envio: o arco segue o
+         // texto branco do botão. Sem isto se usava `className="fill-white"`
+         // sem `color`, contra a regra de sempre passar `color`.
+         white: "fill-white text-white/30",
       },
    },
    modal: {

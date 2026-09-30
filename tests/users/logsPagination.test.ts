@@ -2,7 +2,10 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const { requestMock } = vi.hoisted(() => ({ requestMock: vi.fn() }));
 
-vi.mock("services/Api", () => ({ default: requestMock }));
+vi.mock("services/Api", async (orig) => ({
+   ...(await orig<typeof import("services/Api")>()),
+   default: requestMock,
+}));
 
 const { getAllUserActionLogs } = await import("services/routes/logs");
 

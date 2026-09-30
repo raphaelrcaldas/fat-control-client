@@ -110,18 +110,54 @@ export function SubprogramasTable({
    );
 }
 
+/** Espelha a tabela: cabeçalho estático e 6 linhas (código, descrição, badges, ações). */
 export function SubprogramasTableSkeleton() {
    return (
-      <div className="space-y-2 rounded border border-slate-200 bg-white p-4 shadow-sm">
-         {Array.from({ length: 6 }).map((_, i) => (
-            <div key={i} className="flex items-center gap-3">
-               <Skeleton className="h-4 w-20" />
-               <Skeleton className="h-4 w-64" />
-               <Skeleton className="ml-auto h-5 w-28" />
-               <Skeleton className="h-5 w-12" />
-               <Skeleton className="h-7 w-20" />
-            </div>
-         ))}
+      <div role="status">
+         <span className="sr-only">Carregando subprogramas…</span>
+         <div
+            aria-hidden
+            className="overflow-x-auto rounded border border-slate-200 bg-white shadow-sm"
+         >
+            <Table>
+               <TableHead>
+                  <TableRow>
+                     <TableHeadCell className="w-28 text-center">
+                        Código
+                     </TableHeadCell>
+                     <TableHeadCell>Descrição</TableHeadCell>
+                     <TableHeadCell className="w-36 text-center">
+                        Tipo
+                     </TableHeadCell>
+                     <TableHeadCell className="w-24 text-center">
+                        Função
+                     </TableHeadCell>
+                     <TableHeadCell className="w-28 text-center" />
+                  </TableRow>
+               </TableHead>
+               <TableBody className="divide-y">
+                  {Array.from({ length: 6 }).map((_, i) => (
+                     <TableRow key={i} className="bg-white">
+                        <TableCell>
+                           <Skeleton className="mx-auto h-4 w-16" />
+                        </TableCell>
+                        <TableCell>
+                           <Skeleton className="h-4 w-64 max-w-full" />
+                        </TableCell>
+                        <TableCell>
+                           <Skeleton className="mx-auto h-5 w-28" />
+                        </TableCell>
+                        <TableCell>
+                           <Skeleton className="mx-auto h-5 w-12" />
+                        </TableCell>
+                        <TableCell>
+                           <Skeleton className="mx-auto h-7 w-20" />
+                        </TableCell>
+                     </TableRow>
+                  ))}
+               </TableBody>
+            </Table>
+         </div>
       </div>
    );
 }

@@ -24,8 +24,12 @@ export default function ListDadosBancariosSkeleton({
    rows = 8,
 }: ListDadosBancariosSkeletonProps) {
    return (
-      <div className="overflow-x-auto rounded border border-slate-200 shadow-sm">
-         <Table hoverable>
+      <div
+         role="status"
+         className="overflow-x-auto rounded border border-slate-200 shadow-sm"
+      >
+         <span className="sr-only">Carregando dados bancários…</span>
+         <Table hoverable aria-hidden>
             <TableHead>
                <TableRow>
                   <TableHeadCell>Militar</TableHeadCell>

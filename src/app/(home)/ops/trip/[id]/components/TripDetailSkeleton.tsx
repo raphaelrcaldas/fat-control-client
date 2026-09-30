@@ -33,8 +33,12 @@ function SectionSkeleton() {
 
 export function TripDetailSkeleton() {
    return (
-      <div className="flex flex-col space-y-2">
-         <div className="animate-pulse overflow-hidden rounded border border-slate-200 bg-white shadow-sm">
+      <div role="status" className="flex flex-col space-y-2">
+         <span className="sr-only">Carregando tripulante…</span>
+         <div
+            aria-hidden
+            className="animate-pulse overflow-hidden rounded border border-slate-200 bg-white shadow-sm"
+         >
             {/* Hero */}
             <div className="from-primary-500 to-primary-700 bg-linear-to-r px-6 py-4">
                <div className="flex items-center gap-4">

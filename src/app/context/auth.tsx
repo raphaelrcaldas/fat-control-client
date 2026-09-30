@@ -119,7 +119,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
    if (fetchFailed) {
       return (
          <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-gray-50 p-4">
-            <div className="rounded-xl border border-red-200 bg-white p-8 text-center shadow-lg">
+            <div
+               role="alert"
+               className="rounded-xl border border-red-200 bg-white p-8 text-center shadow-lg"
+            >
                <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-red-100">
                   <svg
                      className="h-8 w-8 text-red-600"

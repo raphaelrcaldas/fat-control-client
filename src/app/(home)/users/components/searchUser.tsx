@@ -170,8 +170,12 @@ const SKELETON_WIDTHS = ["w-48", "w-40", "w-56", "w-44", "w-52", "w-36"];
 /** Skeleton que espelha a lista de resultados (header de contagem + linhas). */
 function SearchUserSkeleton() {
    return (
-      <div>
-         <div className="sticky top-0 z-10 flex items-center gap-2 border-b border-slate-200 bg-slate-50 px-4 py-2">
+      <div role="status">
+         <span className="sr-only">Buscando militares…</span>
+         <div
+            aria-hidden
+            className="sticky top-0 z-10 flex items-center gap-2 border-b border-slate-200 bg-slate-50 px-4 py-2"
+         >
             <div className="size-4 animate-pulse rounded-full bg-slate-200" />
             <div className="h-3 w-32 animate-pulse rounded bg-slate-200" />
          </div>

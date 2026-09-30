@@ -1,4 +1,4 @@
-import request from "../../Api";
+import request, { readApiData } from "../../Api";
 import type { ApiResponse } from "@/types/api";
 import { cegepRoute } from ".";
 
@@ -62,6 +62,6 @@ export async function pesquisarMissoes(
       Object.keys(query).length > 0 ? query : null,
       signal
    );
-   const json = (await response.json()) as ApiResponse<PesquisaLocEsp>;
+   const json = await readApiData<ApiResponse<PesquisaLocEsp>>(response);
    return json.data ?? { total_missoes: 0, missoes: [] };
 }

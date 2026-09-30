@@ -51,11 +51,14 @@ export function OrdemDetailSkeleton() {
    return (
       <div
          role="status"
-         aria-label="Carregando Ordem de Missão"
          className="flex flex-1 animate-pulse flex-col overflow-hidden rounded border border-slate-200 bg-slate-50 shadow"
       >
+         <span className="sr-only">Carregando Ordem de Missão…</span>
          {/* Header */}
-         <header className="flex shrink-0 items-center justify-between border-b border-slate-200 bg-white px-4 py-3 shadow-sm md:px-6 md:py-4">
+         <header
+            aria-hidden
+            className="flex shrink-0 items-center justify-between border-b border-slate-200 bg-white px-4 py-3 shadow-sm md:px-6 md:py-4"
+         >
             <div className="flex flex-1 items-center gap-4">
                <div className="h-10 w-10 rounded bg-slate-200" />
                <div className="hidden space-y-2 md:block">
@@ -73,7 +76,7 @@ export function OrdemDetailSkeleton() {
             </div>
          </header>
 
-         <div className="flex-1 overflow-y-auto">
+         <div aria-hidden className="flex-1 overflow-y-auto">
             <div className="mx-auto space-y-4 p-4">
                {/* Informações: linha de inputs */}
                <SectionSkeleton>

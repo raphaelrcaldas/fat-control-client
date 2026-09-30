@@ -7,7 +7,6 @@ import { useAeronaves } from "@/hooks/queries/useAeronaves";
 import { useVisibleDays } from "./components/MissionList/hooks/useVisibleDays";
 import { useQuadroNavigation } from "./components/MissionList/hooks/useQuadroNavigation";
 import WeekCalendar from "./components/MissionList/WeekCalendar";
-import { WeekCalendarSkeleton } from "./components/MissionList/WeekCalendarSkeleton";
 
 // Teto de `list_ordens` no backend. A janela é ampla (120 dias), então o
 // truncamento é plausível aqui e a tela avisa em vez de omitir em silêncio.
@@ -49,7 +48,14 @@ export default function QuadroOperacoes() {
       placeholderData: keepPreviousData,
    });
 
-   const { data: aeronaveData } = useAeronaves({
+   // Sem as aeronaves a grade não tem linhas: é dado da grade, então o
+   // carregamento e a falha dele valem tanto quanto os das ordens.
+   const {
+      data: aeronaveData,
+      isLoading: aeronavesCarregando,
+      isError: aeronavesErro,
+      refetch: refetchAeronaves,
+   } = useAeronaves({
       per_page: 100,
       is_sim: false,
    });
@@ -69,17 +75,17 @@ export default function QuadroOperacoes() {
       );
    }, [todasAeronaves, ordens]);
 
-   if (isLoading) {
-      return <WeekCalendarSkeleton dates={dates} />;
-   }
-
    return (
       <WeekCalendar
          ordens={ordens}
          aeronaves={aeronavesFiltradas}
+         isLoading={isLoading || aeronavesCarregando}
          isFetching={isFetching}
-         isError={isError}
-         onRetry={refetch}
+         isError={isError || aeronavesErro}
+         onRetry={() => {
+            if (isError) refetch();
+            if (aeronavesErro) refetchAeronaves();
+         }}
          truncado={truncado}
          totalOrdens={data?.total ?? 0}
          dates={dates}

@@ -40,6 +40,7 @@ export function EfetivoResumo({
    pessoal,
    carregando,
    erro,
+   recarregando,
    onRecarregar,
    onVerTudo,
    onAssociar,
@@ -48,6 +49,7 @@ export function EfetivoResumo({
    pessoal: OperacaoPessoalOut[];
    carregando: boolean;
    erro: boolean;
+   recarregando: boolean;
    onRecarregar: () => void;
    onVerTudo: () => void;
    onAssociar: () => void;
@@ -75,6 +77,7 @@ export function EfetivoResumo({
                   size="sm"
                   className="mx-auto"
                   onClick={onRecarregar}
+                  disabled={recarregando}
                >
                   Tentar novamente
                </Button>
@@ -86,14 +89,23 @@ export function EfetivoResumo({
    if (carregando) {
       return (
          <PainelResumo titulo="Militares envolvidos">
-            <div className="divide-y divide-slate-100 motion-safe:animate-pulse">
-               {Array.from({ length: TOPO }).map((_, i) => (
-                  <div key={i} className="flex items-center gap-3 px-3 py-2.5">
-                     <div className="h-3.5 w-36 rounded bg-slate-200" />
-                     <div className="h-4 w-20 rounded bg-slate-100" />
-                     <div className="ml-auto h-3.5 w-24 rounded bg-slate-100" />
-                  </div>
-               ))}
+            <div role="status">
+               <span className="sr-only">Carregando efetivo…</span>
+               <div
+                  aria-hidden
+                  className="animate-pulse divide-y divide-slate-100"
+               >
+                  {Array.from({ length: TOPO }).map((_, i) => (
+                     <div
+                        key={i}
+                        className="flex items-center gap-3 px-3 py-2.5"
+                     >
+                        <div className="h-3.5 w-36 rounded bg-slate-200" />
+                        <div className="h-4 w-20 rounded bg-slate-100" />
+                        <div className="ml-auto h-3.5 w-24 rounded bg-slate-100" />
+                     </div>
+                  ))}
+               </div>
             </div>
          </PainelResumo>
       );

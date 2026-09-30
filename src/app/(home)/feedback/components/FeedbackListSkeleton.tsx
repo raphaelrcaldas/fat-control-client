@@ -3,11 +3,12 @@ import { Skeleton } from "@/components/ui/Skeleton";
 /** Espelha o `FeedbackCard`: ícone + título/selo, meta, prévia. */
 export function FeedbackListSkeleton() {
    return (
-      <div className="space-y-3" aria-busy="true">
+      <div role="status" className="space-y-3">
          <span className="sr-only">Carregando feedbacks…</span>
          {[0, 1, 2].map((i) => (
             <div
                key={i}
+               aria-hidden
                className="relative rounded border border-slate-200 bg-white py-3 pr-9 pl-3 shadow-sm"
             >
                <div className="flex items-center gap-2.5">

@@ -33,7 +33,13 @@ export default function TripDetailsPage() {
    const tripId = Number(params.id);
    const [activeTab, setActiveTab] = useState<TabKey>("dados");
 
-   const { data: trip, isLoading } = useTrip(tripId);
+   const {
+      data: trip,
+      isLoading,
+      isError,
+      isFetching,
+      refetch,
+   } = useTrip(tripId);
    const patchTrip = usePatchTrip();
    const { push } = useToast();
 
@@ -65,7 +71,20 @@ export default function TripDetailsPage() {
    if (!trip) {
       return (
          <div className="flex h-96 flex-col items-center justify-center gap-4">
-            <p className="text-lg text-gray-500">Tripulante não encontrado.</p>
+            <p className="text-lg text-gray-500">
+               {isError
+                  ? "Não foi possível carregar o tripulante."
+                  : "Tripulante não encontrado."}
+            </p>
+            {isError && (
+               <Button
+                  color="primary"
+                  onClick={() => refetch()}
+                  disabled={isFetching}
+               >
+                  Tentar novamente
+               </Button>
+            )}
             <Button color="light" onClick={() => router.push("/ops/trip")}>
                Voltar para lista de tripulantes
             </Button>
@@ -123,6 +142,7 @@ export default function TripDetailsPage() {
                            size="sm"
                            onClick={toggleActive}
                            disabled={patchTrip.isPending}
+                           aria-busy={patchTrip.isPending}
                            title={
                               trip.active
                                  ? "Clique para desativar"
@@ -130,7 +150,14 @@ export default function TripDetailsPage() {
                            }
                         >
                            {patchTrip.isPending ? (
-                              <Spinner size="sm" color="primary" />
+                              <>
+                                 <Spinner
+                                    size="sm"
+                                    color="primary"
+                                    className="mr-1.5"
+                                 />
+                                 Salvando…
+                              </>
                            ) : (
                               <>
                                  {trip.active ? (

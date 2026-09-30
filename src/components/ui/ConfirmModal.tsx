@@ -48,6 +48,11 @@ export function ConfirmModal({
       if (!isLoading) onClose();
    };
 
+   // O spinner casa com o botão: claro nos preenchidos, primário nos claros.
+   const botaoClaro = ["light", "alternative", "gray"].includes(
+      String(confirmButtonColor)
+   );
+
    return (
       <Modal show={show} onClose={handleClose} size="md" popup>
          {/*
@@ -77,16 +82,19 @@ export function ConfirmModal({
                      color={confirmButtonColor}
                      onClick={onConfirm}
                      disabled={isLoading}
-                     aria-label={confirmButtonText}
+                     aria-busy={isLoading}
+                     // Em voo o rótulo visível muda para "Processando…"; manter
+                     // o aria-label antigo divergiria do texto na tela.
+                     aria-label={isLoading ? undefined : confirmButtonText}
                   >
                      {isLoading ? (
                         <>
                            <Spinner
                               size="sm"
-                              color="primary"
+                              color={botaoClaro ? "primary" : "white"}
                               className="mr-2"
                            />
-                           Processando...
+                           Processando…
                         </>
                      ) : (
                         confirmButtonText

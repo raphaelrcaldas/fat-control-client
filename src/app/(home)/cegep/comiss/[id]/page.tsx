@@ -75,7 +75,13 @@ export default function ComissDetailPage() {
    const openEdit = () => setParams({ edit: "1" });
    const closeEdit = () => setParams({ edit: undefined });
 
-   const { data: comiss, isLoading } = useComissDetail(comissId);
+   const {
+      data: comiss,
+      isLoading,
+      isError,
+      isFetching,
+      refetch,
+   } = useComissDetail(comissId);
 
    const handleNavigateBack = () => {
       router.push("/cegep/comiss");
@@ -83,6 +89,36 @@ export default function ComissDetailPage() {
 
    if (isLoading) {
       return <ComissPageSkeleton />;
+   }
+
+   // Falha de carga não é "não encontrado": diz a verdade e oferece nova
+   // tentativa.
+   if (!comiss && isError) {
+      return (
+         <div
+            role="alert"
+            className="flex h-96 flex-col items-center justify-center gap-4"
+         >
+            <p className="text-lg text-gray-500">
+               Não foi possível carregar o comissionamento.
+            </p>
+            <div className="flex items-center gap-4">
+               <button
+                  onClick={() => refetch()}
+                  disabled={isFetching}
+                  className="text-primary-700 text-sm font-medium hover:underline disabled:opacity-50"
+               >
+                  Tentar novamente
+               </button>
+               <button
+                  onClick={handleNavigateBack}
+                  className="text-sm font-medium text-gray-600 hover:underline"
+               >
+                  Voltar
+               </button>
+            </div>
+         </div>
+      );
    }
 
    if (!comiss) {

@@ -65,8 +65,9 @@ export function IndispContent({
       );
    }
 
-   // 2. Erro — com retry.
-   if (isError) {
+   // 2. Erro — com retry. Só quando não há dado: um refetch falho com a grade
+   // em tela a mantém (aviso no item 4).
+   if (isError && !indisps) {
       return (
          <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded border border-slate-200 bg-white shadow-sm">
             {toolbar}
@@ -80,7 +81,12 @@ export function IndispContent({
                <p className="text-xs text-slate-600">
                   Verifique a conexão e tente buscar os dados novamente.
                </p>
-               <Button color="light" size="xs" onClick={onRetry}>
+               <Button
+                  color="light"
+                  size="xs"
+                  onClick={onRetry}
+                  disabled={isFetching}
+               >
                   Tentar novamente
                </Button>
             </div>
@@ -114,27 +120,45 @@ export function IndispContent({
 
    // 4. Conteúdo — refetch esmaece sem bloquear.
    return (
-      <div
-         aria-busy={isFetching}
-         className="flex min-h-0 flex-1 gap-2 overflow-hidden"
-      >
-         <IndispBoard
-            indisps={indisps}
-            dates={dates}
-            focusedIso={focusedIso}
-            onFocusDay={onFocusDay}
-            onShiftDays={onShiftDays}
-            toolbar={toolbar}
-            isFetching={isFetching}
-         />
+      <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-hidden">
+         {isError && (
+            <div
+               role="status"
+               className="flex shrink-0 flex-wrap items-center gap-2 rounded border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900"
+            >
+               A atualização falhou — mostrando os últimos dados.
+               <button
+                  type="button"
+                  onClick={onRetry}
+                  disabled={isFetching}
+                  className="font-semibold underline underline-offset-2 disabled:opacity-50"
+               >
+                  Tentar novamente
+               </button>
+            </div>
+         )}
          <div
-            className={clsx(
-               PAINEL,
-               "transition-opacity",
-               isFetching && "opacity-50"
-            )}
+            aria-busy={isFetching}
+            className="flex min-h-0 flex-1 gap-2 overflow-hidden"
          >
-            <LastIndisps indisps={indisps} />
+            <IndispBoard
+               indisps={indisps}
+               dates={dates}
+               focusedIso={focusedIso}
+               onFocusDay={onFocusDay}
+               onShiftDays={onShiftDays}
+               toolbar={toolbar}
+               isFetching={isFetching}
+            />
+            <div
+               className={clsx(
+                  PAINEL,
+                  "transition-opacity",
+                  isFetching && "opacity-50"
+               )}
+            >
+               <LastIndisps indisps={indisps} />
+            </div>
          </div>
       </div>
    );

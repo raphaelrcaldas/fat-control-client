@@ -137,8 +137,12 @@ export function PermissionsTable({
 
 export function PermissionsTableSkeleton({ rows = 8 }: { rows?: number }) {
    return (
-      <div className="overflow-x-auto rounded border border-slate-200 bg-white shadow-sm">
-         <Table>
+      <div
+         role="status"
+         className="overflow-x-auto rounded border border-slate-200 bg-white shadow-sm"
+      >
+         <span className="sr-only">Carregando permissões…</span>
+         <Table aria-hidden>
             <TableHead>
                <TableRow>
                   <TableHeadCell className="w-44">Ação</TableHeadCell>

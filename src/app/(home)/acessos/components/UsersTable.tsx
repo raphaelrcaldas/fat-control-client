@@ -29,6 +29,8 @@ interface UsersTableProps {
    filterName: string;
    currentUserId: number | null;
    isUpdating: boolean;
+   /** Catálogo de perfis indisponível: o modal de edição abriria sem opções */
+   editDisabled?: boolean;
    tenants: Tenant[];
    /** "Logar como" é utilitário de dev — só aparece fora de produção. */
    showDevLogin: boolean;
@@ -49,6 +51,7 @@ export const UsersTable = memo(function UsersTable({
    filterName,
    currentUserId,
    isUpdating,
+   editDisabled = false,
    tenants,
    showDevLogin,
    onFilterChange,
@@ -164,7 +167,7 @@ export const UsersTable = memo(function UsersTable({
                                           size="xs"
                                           color="light"
                                           onClick={() => onEditRole(ur)}
-                                          disabled={isUpdating}
+                                          disabled={isUpdating || editDisabled}
                                           aria-label={`Editar perfil de ${userName}`}
                                        >
                                           <FaUserPen className="size-4 text-gray-600" />

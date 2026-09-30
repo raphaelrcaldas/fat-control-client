@@ -125,9 +125,14 @@ export function ExtratoModal({
                   size="xs"
                   onClick={handleDownload}
                   disabled={isCapturing || linhas.length === 0}
+                  aria-busy={isCapturing}
                >
                   {isCapturing ? (
-                     <Spinner size="sm" className="mr-1.5 h-3.5 w-3.5" />
+                     <Spinner
+                        size="sm"
+                        color="primary"
+                        className="mr-1.5 h-3.5 w-3.5"
+                     />
                   ) : (
                      <TbDownload className="mr-1.5 h-3.5 w-3.5" />
                   )}

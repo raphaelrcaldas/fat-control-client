@@ -1,5 +1,4 @@
 "use client";
-import { Spinner } from "flowbite-react";
 import { useAuth } from "@/app/context/auth";
 import { DateRangeFields } from "./filters/DateRangeFields";
 import { QuadTipoSelect } from "./filters/QuadTipoSelect";
@@ -10,13 +9,14 @@ import type { EscalaFiltersState } from "../types";
 interface EscalaFiltersProps {
    value: EscalaFiltersState;
    onChange: (next: EscalaFiltersState) => void;
-   isFetching?: boolean;
+   /** Só na 1ª carga (sem dado); no refetch fica habilitado. */
+   disabled?: boolean;
 }
 
 export function EscalaFilters({
    value,
    onChange,
-   isFetching = false,
+   disabled = false,
 }: EscalaFiltersProps) {
    // A sigla vem da org ativa — estava cravada como "1º/1º GT", que qualquer
    // outra unidade via no próprio painel de filtro.
@@ -32,7 +32,6 @@ export function EscalaFilters({
             </span>
             <div className="h-px flex-1 bg-slate-200" />
             <div className="flex items-center gap-2 font-mono text-[10px] tracking-widest text-slate-500 uppercase">
-               {isFetching && <Spinner size="xs" color="primary" />}
                <span>
                   Setor de Escala
                   {activeOrg && (
@@ -46,13 +45,22 @@ export function EscalaFilters({
          </div>
 
          <div className="grid grid-cols-1 gap-3 px-4 py-3 md:grid-cols-12">
-            <DateRangeFields value={value} onChange={onChange} />
-            <QuadTipoSelect value={value} onChange={onChange} />
+            <DateRangeFields
+               value={value}
+               onChange={onChange}
+               disabled={disabled}
+            />
+            <QuadTipoSelect
+               value={value}
+               onChange={onChange}
+               disabled={disabled}
+            />
             <SortToggle
                value={value.sort}
                onChange={(s) => onChange({ ...value, sort: s })}
+               disabled={disabled}
             />
-            <FuncChips value={value} onChange={onChange} />
+            <FuncChips value={value} onChange={onChange} disabled={disabled} />
          </div>
       </div>
    );

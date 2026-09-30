@@ -1,4 +1,4 @@
-import request, { ApiError } from "../../Api";
+import request, { ApiError, readApiData } from "../../Api";
 import type { ApiResponse } from "@/types/api";
 
 // ============================================
@@ -87,13 +87,7 @@ export async function getDiariaValores(
       Object.keys(params).length > 0 ? params : null
    );
 
-   const json = (await response.json().catch(() => ({}))) as ApiResponse<
-      DiariaValorPublic[]
-   >;
-
-   if (!response.ok) {
-      throw new Error(json.message || "Erro ao buscar valores de diárias");
-   }
+   const json = await readApiData<ApiResponse<DiariaValorPublic[]>>(response);
 
    return json.data || [];
 }
@@ -103,13 +97,7 @@ export async function getDiariaValorById(
 ): Promise<DiariaValorPublic> {
    const response = await request("GET", `${diariasRoute}valores/${valorId}`);
 
-   const json = (await response
-      .json()
-      .catch(() => ({}))) as ApiResponse<DiariaValorPublic>;
-
-   if (!response.ok) {
-      throw new Error(json.message || "Valor de diária não encontrado");
-   }
+   const json = await readApiData<ApiResponse<DiariaValorPublic>>(response);
 
    return json.data as DiariaValorPublic;
 }
@@ -173,13 +161,7 @@ export async function deleteDiariaValor(valorId: number): Promise<void> {
 export async function getGruposCidade(): Promise<GrupoCidadePublic[]> {
    const response = await request("GET", `${diariasRoute}grupos-cidade/`);
 
-   const json = (await response.json().catch(() => ({}))) as ApiResponse<
-      GrupoCidadePublic[]
-   >;
-
-   if (!response.ok) {
-      throw new Error(json.message || "Erro ao buscar grupos de cidade");
-   }
+   const json = await readApiData<ApiResponse<GrupoCidadePublic[]>>(response);
 
    return json.data || [];
 }
@@ -187,13 +169,7 @@ export async function getGruposCidade(): Promise<GrupoCidadePublic[]> {
 export async function getGruposPg(): Promise<GrupoPgPublic[]> {
    const response = await request("GET", `${diariasRoute}grupos-pg/`);
 
-   const json = (await response.json().catch(() => ({}))) as ApiResponse<
-      GrupoPgPublic[]
-   >;
-
-   if (!response.ok) {
-      throw new Error(json.message || "Erro ao buscar grupos de P/G");
-   }
+   const json = await readApiData<ApiResponse<GrupoPgPublic[]>>(response);
 
    return json.data || [];
 }

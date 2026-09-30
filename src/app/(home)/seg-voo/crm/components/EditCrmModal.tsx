@@ -173,10 +173,11 @@ const EditCrmModal = memo(function EditCrmModal({
                            color="primary"
                            onClick={handleSave}
                            disabled={isLoading}
+                           aria-busy={isLoading}
                         >
                            {isLoading ? (
                               <div className="flex items-center gap-2">
-                                 <Spinner size="sm" color="primary" />
+                                 <Spinner size="sm" color="white" />
                                  <span>Salvando...</span>
                               </div>
                            ) : isEdit ? (

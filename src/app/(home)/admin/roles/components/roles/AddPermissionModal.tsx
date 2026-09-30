@@ -131,11 +131,12 @@ export function AddPermissionModal({
                   selectedPermissionId && onConfirm(selectedPermissionId)
                }
                disabled={!selectedPermissionId || isPending}
+               aria-busy={isPending}
             >
                {isPending ? (
                   <>
-                     <Spinner color="primary" size="sm" className="mr-2" />
-                     Adicionando...
+                     <Spinner color="white" size="sm" className="mr-2" />
+                     Adicionando…
                   </>
                ) : (
                   "Adicionar"

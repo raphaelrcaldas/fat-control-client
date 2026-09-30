@@ -7,7 +7,6 @@ import { EtapasInnerTable } from "./EtapasInnerTable";
 
 export interface MissaoCardProps {
    missao: MissaoComEtapas;
-   loading: boolean;
    selectedIds: Set<number>;
    onToggleEtapa: (id: number) => void;
    onToggleMissao: (etapaIds: number[]) => void;
@@ -17,7 +16,6 @@ export interface MissaoCardProps {
 
 export const MissaoCard = memo(function MissaoCard({
    missao,
-   loading,
    selectedIds,
    onToggleEtapa,
    onToggleMissao,
@@ -69,7 +67,6 @@ export const MissaoCard = memo(function MissaoCard({
 
          <EtapasInnerTable
             etapas={missao.etapas}
-            loading={loading}
             selectedIds={selectedIds}
             onToggleEtapa={onToggleEtapa}
             onDetailEtapa={onDetailEtapa}

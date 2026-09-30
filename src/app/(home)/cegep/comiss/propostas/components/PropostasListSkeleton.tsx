@@ -26,10 +26,15 @@ export function PropostasListSkeleton({
 }: PropostasListSkeletonProps) {
    return (
       <>
-         <div className="flex flex-col gap-2 md:hidden">
+         {/* `role="status"` nas duas formas: só uma fica visível por
+             breakpoint (a outra é `display: none`, fora da árvore de
+             acessibilidade), então o anúncio não duplica. */}
+         <div role="status" className="flex flex-col gap-2 md:hidden">
+            <span className="sr-only">Carregando propostas…</span>
             {Array.from({ length: rows }).map((_, i) => (
                <div
                   key={i}
+                  aria-hidden
                   className="flex items-start justify-between gap-2 rounded border border-slate-200 bg-white px-3 py-2 shadow-sm"
                >
                   <div className="min-w-0 flex-1">
@@ -45,8 +50,12 @@ export function PropostasListSkeleton({
             ))}
          </div>
 
-         <div className="hidden overflow-hidden rounded bg-white shadow-sm ring-1 ring-slate-200 md:block">
-            <div className="overflow-x-auto">
+         <div
+            role="status"
+            className="hidden overflow-hidden rounded bg-white shadow-sm ring-1 ring-slate-200 md:block"
+         >
+            <span className="sr-only">Carregando propostas…</span>
+            <div aria-hidden className="overflow-x-auto">
                <Table striped>
                   <TableHead>
                      <TableRow>

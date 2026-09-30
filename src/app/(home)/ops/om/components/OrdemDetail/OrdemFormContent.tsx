@@ -104,7 +104,11 @@ export function OrdemFormContent({
    // TanStack Query - etiquetas e aeronaves com cache automatico
    const etiquetasQuery = useEtiquetas();
    const allLabels = etiquetasQuery.data ?? [];
-   const { data: aeronaveData } = useAeronaves({
+   const {
+      data: aeronaveData,
+      isLoading: aeronavesCarregando,
+      isError: aeronavesErro,
+   } = useAeronaves({
       per_page: 100,
       is_sim: false,
    });
@@ -454,16 +458,21 @@ export function OrdemFormContent({
                            color="light"
                            onClick={handleExportDocx}
                            disabled={isExporting || isSaving || isApproving}
+                           aria-busy={isExporting}
                         >
                            {isExporting ? (
-                              <Spinner color="primary" size="sm" />
+                              <Spinner
+                                 color="primary"
+                                 size="sm"
+                                 className="mr-2"
+                              />
                            ) : (
                               <HiDocumentText
                                  className="mr-2 text-blue-600"
                                  size={16}
                               />
                            )}
-                           Documento
+                           {isExporting ? "Gerando…" : "Documento"}
                         </Button>
                         <PermBased
                            resource={"ops.ordem_missao"}
@@ -475,16 +484,23 @@ export function OrdemFormContent({
                               disabled={
                                  isGeneratingLanche || isSaving || isApproving
                               }
+                              aria-busy={isGeneratingLanche}
                            >
                               {isGeneratingLanche ? (
-                                 <Spinner color="primary" size="sm" />
+                                 <Spinner
+                                    color="primary"
+                                    size="sm"
+                                    className="mr-2"
+                                 />
                               ) : (
                                  <HiShoppingBag
                                     className="mr-2 text-yellow-500"
                                     size={16}
                                  />
                               )}
-                              Pedido de Lanche
+                              {isGeneratingLanche
+                                 ? "Gerando…"
+                                 : "Pedido de Lanche"}
                            </Button>
                         </PermBased>
                      </div>
@@ -501,6 +517,8 @@ export function OrdemFormContent({
                         onUpdate={updateFormData}
                         validationErrors={validationErrors}
                         aeronaves={aeronaves}
+                        aeronavesCarregando={aeronavesCarregando}
+                        aeronavesErro={aeronavesErro}
                      />
                   </FormSection>
 
@@ -578,6 +596,9 @@ export function OrdemFormContent({
                   >
                      <LabelPicker
                         allLabels={allLabels}
+                        isLoading={etiquetasQuery.isLoading}
+                        isError={etiquetasQuery.isError}
+                        onRetry={() => etiquetasQuery.refetch()}
                         selectedLabels={formData.etiquetas || []}
                         onChange={updateEtiquetas}
                         isEditable={isEditable}
@@ -603,6 +624,9 @@ export function OrdemFormContent({
             isOpen={isLabelManagerOpen}
             onClose={() => setIsLabelManagerOpen(false)}
             labels={allLabels}
+            labelsLoading={etiquetasQuery.isLoading}
+            labelsError={etiquetasQuery.isError}
+            onRetry={() => etiquetasQuery.refetch()}
             onLabelDeleted={(id) => {
                const updatedLabels = (formData.etiquetas || []).filter(
                   (et) => et.id !== id

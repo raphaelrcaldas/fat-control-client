@@ -38,9 +38,10 @@ interface GestaoFiscalSkeletonProps {
  */
 export function GestaoFiscalSkeleton({ rows = 8 }: GestaoFiscalSkeletonProps) {
    return (
-      <div className="flex flex-col gap-2">
+      <div role="status" className="flex flex-col gap-2">
+         <span className="sr-only">Carregando gestão fiscal…</span>
          {/* Cards de KPI */}
-         <div className="grid grid-cols-1 gap-2 md:grid-cols-3">
+         <div aria-hidden className="grid grid-cols-1 gap-2 md:grid-cols-3">
             {Array.from({ length: 3 }).map((_, i) => (
                <div
                   key={i}
@@ -73,7 +74,10 @@ export function GestaoFiscalSkeleton({ rows = 8 }: GestaoFiscalSkeletonProps) {
          </div>
 
          {/* Tabela do ano */}
-         <div className="overflow-hidden rounded bg-white shadow-sm ring-1 ring-slate-200">
+         <div
+            aria-hidden
+            className="overflow-hidden rounded bg-white shadow-sm ring-1 ring-slate-200"
+         >
             <div className="border-b border-slate-100 bg-slate-50/50 px-5 py-3">
                <FaintBar className="h-4 w-72" />
             </div>

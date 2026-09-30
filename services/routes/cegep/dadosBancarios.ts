@@ -1,4 +1,4 @@
-import request, { ApiError, parseApiResponse } from "../../Api";
+import request, { parseApiResponse, readApiData } from "../../Api";
 import type { ApiResponse, ApiResult } from "@/types/api";
 import { UserPublic } from "../users";
 import { cegepRoute } from ".";
@@ -69,9 +69,8 @@ export async function getDadosBancarios(
       signal
    );
 
-   const json = (await response.json()) as ApiResponse<
-      DadosBancariosWithUser[]
-   >;
+   const json =
+      await readApiData<ApiResponse<DadosBancariosWithUser[]>>(response);
    return json.data || [];
 }
 
@@ -86,31 +85,9 @@ export async function getDadosBancariosOrfaos(
       null,
       signal
    );
-   const json = (await response.json()) as ApiResponse<
-      DadosBancariosWithUser[]
-   >;
+   const json =
+      await readApiData<ApiResponse<DadosBancariosWithUser[]>>(response);
    return json.data || [];
-}
-
-// GET - Busca dados bancários por ID
-export async function getDadosBancariosById(
-   dados_id: number
-): Promise<DadosBancariosWithUser> {
-   const response = await request("GET", `${dadosBancariosRoute}${dados_id}`);
-   const json = (await response.json()) as ApiResponse<DadosBancariosWithUser>;
-   return json.data as DadosBancariosWithUser;
-}
-
-// GET - Busca dados bancários por ID do usuário
-export async function getDadosBancariosByUser(
-   user_id: number
-): Promise<DadosBancariosPublic> {
-   const response = await request(
-      "GET",
-      `${dadosBancariosRoute}user/${user_id}`
-   );
-   const json = (await response.json()) as ApiResponse<DadosBancariosPublic>;
-   return json.data as DadosBancariosPublic;
 }
 
 /**
@@ -138,17 +115,7 @@ export async function getRemuneracaoMilitar(
       signal
    );
 
-   const json = (await response.json()) as ApiResponse<RemuneracaoMilitar>;
-
-   if (!response.ok) {
-      // Com o status preservado, quem chama distingue "sem permissão para ver
-      // remuneração" (403) de uma falha de verdade.
-      throw new ApiError(
-         json.message || "Erro ao buscar a remuneração",
-         json.errors ?? null,
-         response.status
-      );
-   }
+   const json = await readApiData<ApiResponse<RemuneracaoMilitar>>(response);
 
    return json.data as RemuneracaoMilitar;
 }

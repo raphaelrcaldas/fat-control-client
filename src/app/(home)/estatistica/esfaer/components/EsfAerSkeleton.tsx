@@ -202,9 +202,9 @@ export function EsfAerSkeleton() {
    return (
       <div
          role="status"
-         aria-label="Carregando esforço aéreo"
          className="grid animate-pulse justify-items-center gap-4"
       >
+         <span className="sr-only">Carregando esforço aéreo…</span>
          <MainTableSkeleton />
          <GroupCardsSkeleton />
          <ChartAreaSkeleton />

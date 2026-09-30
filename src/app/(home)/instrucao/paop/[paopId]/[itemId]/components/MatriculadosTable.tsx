@@ -98,19 +98,61 @@ export function MatriculadosTable({
    );
 }
 
+/** Espelha a tabela: mesmo cabeçalho (estático) e 5 linhas de duas linhas de texto. */
 export function MatriculadosTableSkeleton() {
    return (
-      <div className="space-y-2 rounded border border-slate-200 bg-white p-4 shadow-sm">
-         {Array.from({ length: 5 }).map((_, i) => (
-            <div key={i} className="flex items-center gap-3">
-               <Skeleton className="h-4 w-6" />
-               <Skeleton className="h-4 w-16" />
-               <Skeleton className="h-4 w-16" />
-               <Skeleton className="h-4 w-56" />
-               <Skeleton className="ml-auto h-4 w-24" />
-               <Skeleton className="h-7 w-10" />
-            </div>
-         ))}
+      <div role="status">
+         <span className="sr-only">Carregando matriculados…</span>
+         <div
+            aria-hidden
+            className="overflow-x-auto rounded border border-slate-200 bg-white shadow-sm"
+         >
+            <Table>
+               <TableHead>
+                  <TableRow>
+                     <TableHeadCell className="w-16 text-center">
+                        #
+                     </TableHeadCell>
+                     <TableHeadCell className="w-24 text-center">
+                        Trigrama
+                     </TableHeadCell>
+                     <TableHeadCell className="w-28 text-center">
+                        Posto
+                     </TableHeadCell>
+                     <TableHeadCell>Nome</TableHeadCell>
+                     <TableHeadCell className="w-32 text-center">
+                        Inclusão
+                     </TableHeadCell>
+                     <TableHeadCell className="w-20 text-center" />
+                  </TableRow>
+               </TableHead>
+               <TableBody className="divide-y">
+                  {Array.from({ length: 5 }).map((_, i) => (
+                     <TableRow key={i} className="bg-white">
+                        <TableCell>
+                           <Skeleton className="mx-auto h-4 w-4" />
+                        </TableCell>
+                        <TableCell>
+                           <Skeleton className="mx-auto h-4 w-12" />
+                        </TableCell>
+                        <TableCell>
+                           <Skeleton className="mx-auto h-4 w-12" />
+                        </TableCell>
+                        <TableCell>
+                           <Skeleton className="h-4 w-32" />
+                           <Skeleton className="mt-0.5 h-3 w-48" />
+                        </TableCell>
+                        <TableCell>
+                           <Skeleton className="mx-auto h-4 w-20" />
+                        </TableCell>
+                        <TableCell>
+                           <Skeleton className="mx-auto h-7 w-9" />
+                        </TableCell>
+                     </TableRow>
+                  ))}
+               </TableBody>
+            </Table>
+         </div>
       </div>
    );
 }

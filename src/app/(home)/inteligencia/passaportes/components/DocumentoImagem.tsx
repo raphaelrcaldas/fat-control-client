@@ -147,9 +147,13 @@ export function DocumentoImagem({ tripId, tipo, url }: DocumentoImagemProps) {
                   color="gray"
                   onClick={handlePick}
                   disabled={isBusy}
+                  aria-busy={uploadMutation.isPending}
                >
                   {uploadMutation.isPending ? (
-                     <Spinner size="sm" color="info" />
+                     <>
+                        <Spinner size="sm" color="primary" className="mr-1.5" />
+                        Enviando...
+                     </>
                   ) : (
                      <>
                         <HiOutlineUpload className="mr-1.5 h-4 w-4" />

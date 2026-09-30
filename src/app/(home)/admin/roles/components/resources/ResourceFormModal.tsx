@@ -172,14 +172,15 @@ export function ResourceFormModal({
                   type="submit"
                   color="dark"
                   disabled={isSaving}
+                  aria-busy={isSaving}
                   aria-label={
                      editingResource ? "Atualizar recurso" : "Criar recurso"
                   }
                >
                   {isSaving ? (
                      <>
-                        <Spinner color="primary" size="sm" className="mr-2" />
-                        Salvando...
+                        <Spinner color="white" size="sm" className="mr-2" />
+                        Salvando…
                      </>
                   ) : editingResource ? (
                      "Atualizar"

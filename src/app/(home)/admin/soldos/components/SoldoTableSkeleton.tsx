@@ -4,9 +4,10 @@ const COL_WIDTHS = ["w-32", "w-36", "w-20", "w-16", "w-16", "w-20", "w-10"];
 
 export default function SoldoTableSkeleton({ rows = 8 }: { rows?: number }) {
    return (
-      <div className="animate-pulse">
+      <div role="status" className="animate-pulse">
+         <span className="sr-only">Carregando soldos…</span>
          {/* Desktop */}
-         <div className="hidden overflow-x-auto md:block">
+         <div aria-hidden className="hidden overflow-x-auto md:block">
             <table className="w-full">
                <thead>
                   <tr className="border-b border-slate-200 bg-slate-50">
@@ -57,7 +58,7 @@ export default function SoldoTableSkeleton({ rows = 8 }: { rows?: number }) {
          </div>
 
          {/* Mobile */}
-         <div className="space-y-3 p-4 md:hidden">
+         <div aria-hidden className="space-y-3 p-4 md:hidden">
             {Array.from({ length: Math.min(rows, 4) }).map((_, r) => (
                <div
                   key={r}
