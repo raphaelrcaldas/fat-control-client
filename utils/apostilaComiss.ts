@@ -27,6 +27,7 @@ export async function gerarRelatorioDocx(
       const modulos = (comiss.missoes || []).map((mis, index) => {
          const romano = romanize(index + 1);
          const om_os = `${mis.tipo_doc} ${mis.n_doc}`.toUpperCase();
+         const obs = mis.obs?.trim().replace(/\s+/g, " ") || "";
          const tipo =
             mis.tipo == "tal"
                ? "Transporte Aerologístico"
@@ -44,7 +45,7 @@ export async function gerarRelatorioDocx(
          const regres = new Date(mis.regres).toLocaleDateString();
 
          const d = mis.dias > 1 ? "dias" : "dia";
-         return `\t${romano} - ${om_os}, ${tipo}, ${localidades}, de ${afast} a ${regres} (${mis.dias} ${d});`;
+         return `\t${romano} - ${om_os}${obs ? ` - ${obs}` : ""}, ${tipo}, ${localidades}, de ${afast} a ${regres} (${mis.dias} ${d});`;
       });
 
       // Renderizar o documento com os dados
