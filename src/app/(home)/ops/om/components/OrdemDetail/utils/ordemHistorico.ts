@@ -59,7 +59,8 @@ export interface OrdemSnapshot {
    matricula_anv?: string | null;
    projeto?: string | null;
    status?: string | null;
-   esf_aer?: string | null;
+   /** Total em minutos. */
+   esf_aer?: number | null;
    data_saida?: string | null;
    /** Ausente quando vazio — o backend omite a chave, não manda null. */
    doc_ref?: string | null;

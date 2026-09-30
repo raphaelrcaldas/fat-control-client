@@ -127,6 +127,12 @@ export function formatSnapshotValue(
       case "tvoo_etp":
       case "tvoo_alt":
          return minutesToTime(Number(value));
+      // O nome é o mesmo nos dois níveis, mas o tipo não: na ordem é o total
+      // em minutos (exibido em HH:MM, como no formulário); na etapa é texto.
+      case "esf_aer":
+         return typeof value === "number"
+            ? minutesToTime(value)
+            : String(value);
       case "status":
       case "tipo":
          return humanizeToken(String(value));
