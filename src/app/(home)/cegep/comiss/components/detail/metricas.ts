@@ -1,6 +1,11 @@
 import { ComissWithMiss } from "services/routes/cegep/comiss";
 
-/** Menor diária usada como base para converter valores em "dias equivalentes". */
+/**
+ * Menor diária usada como base para converter valores em "dias equivalentes".
+ * Espelho na API: `DIARIA_MINIMA` em
+ * `api/fcontrol_api/services/comiss_listagem.py`, usado na ordenação. Mudar um
+ * exige mudar o outro.
+ */
 export const DIARIA_MINIMA = 335;
 
 export interface MetricaConfig {

@@ -1,5 +1,5 @@
 import request, { parseApiResponse, readApiData } from "../../Api";
-import type { ApiResponse, ApiResult } from "@/types/api";
+import type { ApiResponse, ApiPaginatedResponse, ApiResult } from "@/types/api";
 import { cegepRoute } from ".";
 import { Missao } from "./missoes";
 import { UserPublic } from "../users";
@@ -82,37 +82,64 @@ export interface ComissWithMiss extends Comiss {
    logs: ComissLog[];
 }
 
+export const COMISS_SORT_KEYS = [
+   "militar",
+   "data_ab",
+   "data_fc",
+   "tipo",
+   "completude",
+   "modulo",
+   "previsto",
+   "computado",
+   "restante",
+] as const;
+
+export type ComissOrderBy = (typeof COMISS_SORT_KEYS)[number];
+export type ComissRecordsResponse =
+   ApiResponse<ComissList[]> | ApiPaginatedResponse<ComissList>;
+
 export interface ComissFilters {
    status?: string;
    search?: string;
    pg?: string[];
    tipo?: string;
    modulo?: string;
+   order_by?: ComissOrderBy;
+   direction?: "asc" | "desc";
+   page?: number;
+   per_page?: number;
 }
 
 export async function getCmtos(
    filters?: ComissFilters,
    signal?: AbortSignal
 ): Promise<ComissList[]> {
-   // "todos" = sem filtro de status: o backend retorna abertos + fechados
-   // quando a query `status` vem vazia.
-   const status =
-      filters?.status === "todos" ? "" : (filters?.status ?? "aberto");
+   const json = await getComissRecords(filters, signal);
+   return json.data || [];
+}
+
+export async function getComissRecords(
+   filters?: ComissFilters,
+   signal?: AbortSignal
+): Promise<ComissRecordsResponse> {
    const response = await request(
       "GET",
       comissRoute,
       null,
       {
-         status,
+         status: filters?.status ?? "aberto",
          search: filters?.search ?? "",
          pg: filters?.pg?.length ? filters.pg.join(",") : "",
          tipo: filters?.tipo ?? "",
          modulo: filters?.modulo ?? "",
+         order_by: filters?.order_by,
+         direction: filters?.direction,
+         page: filters?.status === "fechado" ? filters.page : undefined,
+         per_page: filters?.status === "fechado" ? filters.per_page : undefined,
       },
       signal
    );
-   const json = await readApiData<ApiResponse<ComissList[]>>(response);
-   return json.data || [];
+   return readApiData<ComissRecordsResponse>(response);
 }
 
 export async function getCmtoById(

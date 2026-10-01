@@ -6,6 +6,7 @@ import {
 } from "@tanstack/react-query";
 import {
    getCmtos,
+   getComissRecords,
    getCmtoById,
    createCmto,
    updateCmto,
@@ -40,6 +41,15 @@ export function useComissList(filters?: ComissFilters) {
    return useQuery({
       queryKey: comissKeys.list(filters),
       queryFn: ({ signal }) => getCmtos(filters, signal),
+      placeholderData: keepPreviousData,
+   });
+}
+
+/** Lista com metadados do histórico; os consumidores de arrays usam useComissList. */
+export function useComissRecords(filters: ComissFilters) {
+   return useQuery({
+      queryKey: [...comissKeys.lists(), "records", filters],
+      queryFn: ({ signal }) => getComissRecords(filters, signal),
       placeholderData: keepPreviousData,
    });
 }

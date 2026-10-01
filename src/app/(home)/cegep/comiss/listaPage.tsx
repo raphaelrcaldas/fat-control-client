@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { Button, Label, Select, TextInput, Badge } from "flowbite-react";
 import { TableComiss } from "./components/tableComiss";
 import { TableComissSkeleton } from "./components/TableComissSkeleton";
@@ -19,7 +19,10 @@ import {
    HiOutlineCube,
    HiOutlineClipboardList,
 } from "react-icons/hi";
-import { useComissList } from "@/hooks/queries";
+import { useComissRecords } from "@/hooks/queries/useComiss";
+import { Pagination } from "@/components/Pagination";
+import { SegmentedControl } from "@/components/SegmentedControl";
+import { COMISS_SORT_KEYS, ComissOrderBy } from "services/routes/cegep/comiss";
 import useDebouncedValue from "@/hooks/useDebouncedValue";
 import clsx from "clsx";
 import { useRouter } from "next/navigation";
@@ -28,6 +31,7 @@ import { postoGradRecords } from "@/constants/militar";
 import {
    useSearchParamsUpdater,
    getStringParam,
+   getNumberParam,
    getArrayParam,
    serializeArray,
    serializeString,
@@ -42,7 +46,23 @@ const PG_OPTIONS = postoGradRecords.map((pg) => ({
 const STATUS_LABELS: Record<string, string> = {
    aberto: "Abertos",
    fechado: "Fechados",
-   todos: "Abertos e fechados",
+};
+
+const PER_PAGE = 20;
+// Paridade com `le=10_000` de `page` em GET /cegep/comiss/: acima disso a API
+// responde 422. Limitada, a página vem vazia com metadados e o efeito de
+// ajuste leva a URL à última página existente.
+const MAX_PAGE = 10_000;
+
+// Ordenação aplicada enquanto a URL não traz `order_by`: abertos por
+// antiguidade, fechados pelo fechamento mais recente. Uma coluna escolhida
+// pelo usuário vai explícita na URL e se mantém ao alternar a situação.
+const DEFAULT_SORT: Record<
+   "aberto" | "fechado",
+   { key: ComissOrderBy; direction: "asc" | "desc" }
+> = {
+   aberto: { key: "militar", direction: "asc" },
+   fechado: { key: "data_fc", direction: "desc" },
 };
 
 export function ListaPage() {
@@ -50,11 +70,39 @@ export function ListaPage() {
    const { searchParams, setParams } = useSearchParamsUpdater();
 
    // Ler filtros da URL
-   const statusComis = getStringParam(searchParams, "status", "aberto");
+   const rawStatus = getStringParam(searchParams, "status", "aberto");
+   const statusComis = rawStatus === "fechado" ? "fechado" : "aberto";
    const urlSearch = getStringParam(searchParams, "search");
    const filterPG = getArrayParam(searchParams, "pg");
    const filterTipo = getStringParam(searchParams, "tipo");
    const filterModulo = getStringParam(searchParams, "modulo");
+   const requestedPage = getNumberParam(searchParams, "page");
+   const page =
+      statusComis === "fechado" &&
+      typeof requestedPage === "number" &&
+      Number.isSafeInteger(requestedPage) &&
+      requestedPage > 0
+         ? Math.min(requestedPage, MAX_PAGE)
+         : 1;
+   // `direction` solta, sem `order_by` válido, é ignorada: vale o par padrão.
+   const explicitOrderBy = COMISS_SORT_KEYS.find(
+      (key) => key === getStringParam(searchParams, "order_by")
+   );
+   const orderBy = explicitOrderBy ?? DEFAULT_SORT[statusComis].key;
+   const direction: "asc" | "desc" = explicitOrderBy
+      ? getStringParam(searchParams, "direction") === "desc"
+         ? "desc"
+         : "asc"
+      : DEFAULT_SORT[statusComis].direction;
+
+   useEffect(() => {
+      // Links antigos com "todos" voltam à visão de acompanhamento.
+      if (rawStatus !== "aberto" && rawStatus !== "fechado") {
+         setParams({ status: undefined, page: undefined });
+      } else if (statusComis === "aberto" && searchParams.has("page")) {
+         setParams({ page: undefined });
+      }
+   }, [rawStatus, statusComis, searchParams, setParams]);
 
    // Estado local para input de texto (debounce)
    const [searchUser, setSearchUser] = useState(urlSearch);
@@ -63,7 +111,7 @@ export function ListaPage() {
    // Sync debounced search -> URL
    useEffect(() => {
       if (deferredSearch !== urlSearch) {
-         setParams({ search: deferredSearch || undefined });
+         setParams({ search: deferredSearch || undefined, page: undefined });
       }
       // eslint-disable-next-line react-hooks/exhaustive-deps
    }, [deferredSearch]);
@@ -80,38 +128,88 @@ export function ListaPage() {
 
    // Handlers de filtros -> URL
    const setStatusComis = useCallback(
-      (v: string) => setParams({ status: serializeString(v, "aberto") }),
+      (v: string) =>
+         setParams({ status: serializeString(v, "aberto"), page: undefined }),
       [setParams]
    );
    const setFilterPG = useCallback(
-      (v: string[]) => setParams({ pg: serializeArray(v) }),
+      (v: string[]) => setParams({ pg: serializeArray(v), page: undefined }),
       [setParams]
    );
    const setFilterTipo = useCallback(
-      (v: string) => setParams({ tipo: v || undefined }),
+      (v: string) => setParams({ tipo: v || undefined, page: undefined }),
       [setParams]
    );
    const setFilterModulo = useCallback(
-      (v: string) => setParams({ modulo: v || undefined }),
+      (v: string) => setParams({ modulo: v || undefined, page: undefined }),
       [setParams]
    );
 
    // React Query
    const {
-      data: cmtosRaw,
+      data: response,
       isLoading,
       isFetching,
       isError,
+      isPlaceholderData,
       refetch,
-   } = useComissList({
+   } = useComissRecords({
       status: statusComis,
-      search: deferredSearch,
+      // A URL muda busca e página numa só escrita; nunca pedir o termo
+      // novo com a página antiga enquanto o debounce é sincronizado.
+      search: urlSearch,
       pg: filterPG,
       tipo: filterTipo,
       modulo: filterModulo,
+      order_by: orderBy,
+      direction,
+      page: statusComis === "fechado" ? page : undefined,
+      per_page: statusComis === "fechado" ? PER_PAGE : undefined,
    });
 
+   const cmtosRaw = response?.data;
    const cmtos = cmtosRaw || [];
+   const pagination = response && "total" in response ? response : undefined;
+   const total = pagination?.total ?? cmtos.length;
+   const displayedPage = pagination?.page ?? page;
+
+   // Exclusão concorrente pode esvaziar a última página. Corrige o endereço
+   // somente com uma resposta atual, nunca usando metadados de placeholder.
+   useEffect(() => {
+      if (
+         statusComis === "fechado" &&
+         pagination &&
+         !isPlaceholderData &&
+         !isError &&
+         page > pagination.pages
+      ) {
+         setParams({
+            page: pagination.pages > 1 ? String(pagination.pages) : undefined,
+         });
+      }
+   }, [statusComis, pagination, isPlaceholderData, isError, page, setParams]);
+
+   const handleSort = useCallback(
+      (key: ComissOrderBy) => {
+         const nextDirection =
+            key === orderBy && direction === "asc" ? "desc" : "asc";
+         const padrao = DEFAULT_SORT[statusComis];
+         // Só o par idêntico ao padrão da situação sai da URL; qualquer outro
+         // vai explícito, senão voltaria ao padrão (ex.: Militar asc em Fechados).
+         const ehPadrao =
+            key === padrao.key && nextDirection === padrao.direction;
+         setParams({
+            order_by: ehPadrao ? undefined : key,
+            direction: ehPadrao ? undefined : nextDirection,
+            page: undefined,
+         });
+      },
+      [orderBy, direction, statusComis, setParams]
+   );
+   const sortConfig = useMemo(
+      () => ({ key: orderBy, direction }),
+      [orderBy, direction]
+   );
 
    const loading = isLoading;
    const hasActiveFilters = !!(
@@ -149,6 +247,7 @@ export function ListaPage() {
          pg: undefined,
          tipo: undefined,
          modulo: undefined,
+         page: undefined,
       });
    }, [setParams]);
 
@@ -219,11 +318,9 @@ export function ListaPage() {
                Registros
             </h2>
             <p className="truncate text-sm text-slate-500">
-               {!loading && cmtos.length > 0
-                  ? `${cmtos.length} ${
-                       cmtos.length === 1
-                          ? "comissionamento"
-                          : "comissionamentos"
+               {!loading && !isPlaceholderData && total > 0
+                  ? `${total} ${
+                       total === 1 ? "comissionamento" : "comissionamentos"
                     }`
                   : (STATUS_LABELS[statusComis] ?? STATUS_LABELS.aberto)}
             </p>
@@ -322,10 +419,8 @@ export function ListaPage() {
                         )}
                      </div>
 
-                     {/* Duas colunas ja no celular: os quatro seletores tem
-                         opcoes curtas (Aberto/Fechado, Sim/Nao) e cabem em
-                         ~150px a 360px, poupando quatro linhas de rolagem. O
-                         campo de nome e a excecao e fica com a linha inteira. */}
+                     {/* Situação e nome ocupam a largura inteira no celular;
+                         os demais filtros têm opções curtas e dividem a linha. */}
                      <div className="grid grid-cols-2 gap-3 lg:grid-cols-5">
                         {/* Militar */}
                         <div className="col-span-2 lg:col-span-1">
@@ -346,23 +441,25 @@ export function ListaPage() {
                         </div>
 
                         {/* Situação */}
-                        <div>
-                           <FilterLabel
-                              htmlFor="filtro-situacao"
-                              icon={<HiOutlineCheckCircle />}
-                           >
+                        <div className="col-span-2 lg:col-span-1">
+                           <FilterLabel icon={<HiOutlineCheckCircle />}>
                               Situação
                            </FilterLabel>
-                           <Select
-                              id="filtro-situacao"
-                              value={statusComis}
-                              onChange={(e) => setStatusComis(e.target.value)}
-                              sizing="md"
+                           <fieldset
+                              disabled={loading}
+                              className="disabled:opacity-50"
                            >
-                              <option value="aberto">Aberto</option>
-                              <option value="fechado">Fechado</option>
-                              <option value="todos">Todos</option>
-                           </Select>
+                              <SegmentedControl
+                                 ariaLabel="Situação do comissionamento"
+                                 options={[
+                                    { label: "Abertos", value: "aberto" },
+                                    { label: "Fechados", value: "fechado" },
+                                 ]}
+                                 value={statusComis}
+                                 onChange={setStatusComis}
+                                 className="w-full"
+                              />
+                           </fieldset>
                         </div>
 
                         {/* P/G */}
@@ -496,10 +593,42 @@ export function ListaPage() {
                         </button>
                      </p>
                   )}
-                  <TableComiss cmtos={cmtos} />
+                  <TableComiss
+                     cmtos={cmtos}
+                     sortConfig={sortConfig}
+                     onSort={handleSort}
+                  />
                </div>
             )}
          </div>
+         {statusComis === "fechado" && pagination && total > 0 && (
+            <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
+               <p className="text-sm text-slate-500" role="status">
+                  Mostrando {(displayedPage - 1) * pagination.per_page + 1}–
+                  {Math.min(displayedPage * pagination.per_page, total)} de{" "}
+                  {total}
+               </p>
+               {pagination.pages > 1 && (
+                  <fieldset
+                     disabled={isPlaceholderData}
+                     className="w-full disabled:opacity-50 sm:w-auto"
+                  >
+                     <legend className="sr-only">
+                        Paginação dos comissionamentos fechados
+                     </legend>
+                     <Pagination
+                        currentPage={displayedPage}
+                        totalPages={pagination.pages}
+                        onPageChange={(value) =>
+                           setParams({
+                              page: value > 1 ? String(value) : undefined,
+                           })
+                        }
+                     />
+                  </fieldset>
+               )}
+            </div>
+         )}
       </div>
    );
 }

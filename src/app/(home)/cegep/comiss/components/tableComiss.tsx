@@ -11,11 +11,9 @@ import {
 } from "flowbite-react";
 import { isoDateToString } from "utils/dateHandler";
 import clsx from "clsx";
-import { ComissList } from "services/routes/cegep/comiss";
+import { ComissList, ComissOrderBy } from "services/routes/cegep/comiss";
 import { useRouter } from "next/navigation";
-import { compareByAntiguidade } from "utils/sortByAntiguidade";
 import {
-   comissDiasNumericos,
    deriveComissDias,
    progressColor,
    spineColor,
@@ -23,79 +21,22 @@ import {
 import { COMISS_TABLE_THEME } from "../comissTableTheme";
 import { ComissCard } from "./ComissCard";
 import { TipoComissChip, ModuloComissChip } from "./comissChips";
-import {
-   SortableHeadCell,
-   compareValues,
-   useSortConfig,
-} from "@/components/ui/SortableTable";
+import { SortableHeadCell, SortConfig } from "@/components/ui/SortableTable";
 
 interface TableComissProps {
    cmtos: ComissList[];
+   sortConfig: SortConfig<ComissOrderBy>;
+   onSort: (key: ComissOrderBy) => void;
 }
-
-type SortKey =
-   | "militar"
-   | "data_ab"
-   | "data_fc"
-   | "tipo"
-   | "completude"
-   | "modulo"
-   | "previsto"
-   | "computado"
-   | "restante";
 
 export const TableComiss = memo(function TableComiss({
    cmtos,
+   sortConfig,
+   onSort,
 }: TableComissProps) {
-   const { sortConfig, requestSort } = useSortConfig<SortKey>({
-      key: "militar",
-      direction: "asc",
-   });
-
-   const sortedCmtos = useMemo(() => {
-      const sortableItems = [...cmtos];
-      sortableItems.sort((a, b) => {
-         if (sortConfig.key === "militar") {
-            const cmp =
-               !a.user && !b.user
-                  ? 0
-                  : !a.user
-                    ? 1
-                    : !b.user
-                      ? -1
-                      : compareByAntiguidade(a.user, b.user);
-            return sortConfig.direction === "asc" ? cmp : -cmp;
-         }
-
-         let aValue: unknown;
-         let bValue: unknown;
-
-         if (
-            sortConfig.key === "previsto" ||
-            sortConfig.key === "computado" ||
-            sortConfig.key === "restante"
-         ) {
-            // A conta sai de `comissDiasNumericos`, a mesma que alimenta o que
-            // a linha exibe: copiada aqui, o primeiro ajuste de arredondamento
-            // faria a lista ordenar por um numero diferente do que ela mostra.
-            aValue = comissDiasNumericos(a)[sortConfig.key];
-            bValue = comissDiasNumericos(b)[sortConfig.key];
-         } else if (sortConfig.key === "tipo") {
-            aValue = a.dias_cumprir ? 1 : 0;
-            bValue = b.dias_cumprir ? 1 : 0;
-         } else {
-            aValue = a[sortConfig.key as keyof ComissList];
-            bValue = b[sortConfig.key as keyof ComissList];
-         }
-
-         return compareValues(aValue, bValue, sortConfig.direction);
-      });
-      return sortableItems;
-   }, [cmtos, sortConfig]);
-
    const renderHeader = (
       label: string,
-      sortKey: SortKey,
+      sortKey: ComissOrderBy,
       align: "left" | "center" | "right" = "center",
       widthClass?: string
    ) => (
@@ -103,7 +44,7 @@ export const TableComiss = memo(function TableComiss({
          label={label}
          sortKey={sortKey}
          sortConfig={sortConfig}
-         onSort={requestSort}
+         onSort={onSort}
          align={align}
          headerClass={clsx(
             "bg-slate-50 whitespace-nowrap hover:bg-slate-100",
@@ -117,7 +58,7 @@ export const TableComiss = memo(function TableComiss({
          {/* Mobile: as nove colunas estouravam 674px alem da viewport, e o
              progresso — o motivo de abrir a tela — ficava atras do arrasto. */}
          <ul className="divide-y divide-slate-100 md:hidden">
-            {sortedCmtos.map((comiss) => (
+            {cmtos.map((comiss) => (
                <li key={comiss.id}>
                   <ComissCard comiss={comiss} />
                </li>
@@ -149,7 +90,7 @@ export const TableComiss = memo(function TableComiss({
                   </TableRow>
                </TableHead>
                <TableBody className="divide-y divide-gray-200">
-                  {sortedCmtos.map((comiss) => (
+                  {cmtos.map((comiss) => (
                      <TableComissRow key={comiss.id} comiss={comiss} />
                   ))}
                </TableBody>

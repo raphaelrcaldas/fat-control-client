@@ -21,10 +21,9 @@ export interface ComissDias {
  * comparativo só tem valores de ajuda de custo, e os dias saem de uma divisão
  * pela diária mínima.
  *
- * É a fonte única da regra: a tabela, a lista do mobile e o **comparador de
- * ordenação** derivam daqui. Com a conta copiada no comparador, o primeiro
- * ajuste de arredondamento faria a lista ordenar por um número diferente do
- * que ela mostra na tela — sem erro visível em lugar nenhum.
+ * A tabela e a lista do mobile derivam a apresentação daqui. A ordenação
+ * global fica em `api/fcontrol_api/services/comiss_listagem.py`: suas
+ * expressões SQL precisam preservar estes valores antes do arredondamento.
  */
 export function comissDiasNumericos(comiss: ComissList): ComissDiasNumericos {
    if (comiss.dias_cumprir) {
