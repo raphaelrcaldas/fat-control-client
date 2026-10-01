@@ -84,7 +84,7 @@ export default function ComissDetailPage() {
    } = useComissDetail(comissId);
 
    const handleNavigateBack = () => {
-      router.push("/cegep/comiss");
+      router.back();
    };
 
    if (isLoading) {
